@@ -5,8 +5,8 @@
   "overall": {
     "mint_prod_ready_score": 5.2,
     "felt_product_quality_score": 4.2,
-    "journey_truth_proof_score_percent": 59.5,
-    "codex_quality_os_work_score": 7.0,
+    "journey_truth_proof_score_percent": 60.0,
+    "codex_quality_os_work_score": 7.2,
     "target": 10,
     "release_score_cap": 7.0,
     "felt_product_quality_score_cap": 5.5,
@@ -117,6 +117,12 @@
         "reason": "Independent/no-LPP report assumption proof must stay fresh while persona-flow benchmark coverage remains incomplete."
       },
       {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md",
+        "kind": "runtime_persona_flow",
+        "max_age_days": 30,
+        "reason": "Independent/no-LPP runtime fixture proof must stay fresh while expert scoring and broader persona-flow coverage remain incomplete."
+      },
+      {
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/user-feedback-flow-feeling-20260606.md",
         "kind": "user_feedback",
         "max_age_days": 30,
@@ -177,18 +183,19 @@
     {
       "id": "persona_flow_benchmark",
       "label": "Persona-flow benchmark quality",
-      "score": 3.0,
+      "score": 3.5,
       "target": 10,
       "tier": "T1-T2",
       "evidence": [
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.json",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md"
       ],
       "missing_to_10": [
-        "First two persona-flow benchmark records must be executed with runtime evidence.",
+        "First two persona-flow benchmark records must be expert-scored with runtime evidence.",
         "Each benchmark scenario must cite official/regulatory and public Swiss expert-market sources where relevant.",
-        "Independent-no-LPP persona still needs a canonical runtime fixture before MINT can claim coverage of non-salaried income realities; CJT-061 only removes one local Rapport calculation blocker.",
+        "Independent-no-LPP now has a first runtime fixture pass, but still needs full expert guidance scoring, VoiceOver traversal, PDF per-archetype proof, and Coach natural-language quality review.",
         "P0/P1 gaps found by benchmark records must be opened in BUG-TRACKER."
       ]
     },

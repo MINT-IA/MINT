@@ -1,0 +1,96 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml
+#
+# PURPOSE
+# Runtime proof that the CJT-061 independent/no-LPP persona seed reaches user
+# surfaces without falling back to salary-only or LPP-affiliated assumptions.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone 16e simulator.
+# - Build:
+#     flutter build ios --simulator --debug \
+#       --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality \
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true
+#
+# SCOPE LIMIT
+# This is a persona fixture/content regression proof only. It does not close
+# Row 23 by itself; the full persona benchmark still needs expert guidance
+# scoring, VoiceOver traversal, PDF per-archetype proof, and broader flows.
+
+appId: ch.mint.app
+env:
+  MINT_E2E_ARCHETYPE: independent_no_lpp_income_reality
+tags:
+  - row-23
+  - rapport
+  - budget
+  - independent-no-lpp
+  - persona-flow
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+# Surface 1: /rapport must render as synthesis, not as salary/LPP default.
+- openLink: "mintapp:///rapport"
+- extendedWaitUntil:
+    visible: "Ton Bilan Flash"
+    timeout: 12000
+- assertVisible: "Transparence et conformité"
+- assertVisible: "Plafond 3a selon affiliation LPP et statut de revenu"
+- assertNotVisible: "Plafond 3a salarié"
+- assertNotVisible: "Ajouter mon salaire"
+- assertNotVisible: "salarié uniquement"
+- assertNotVisible: "7’258"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+- takeScreenshot: "row23-independent-no-lpp-rapport"
+
+# Surface 2: /budget must be populated from the independent income fixture and
+# must not show the old salary-only empty-state CTA.
+- openLink: "mintapp:///budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- assertVisible:
+    id: "budget_hero_formula"
+- copyTextFrom:
+    id: "budget_hero_formula"
+- evalScript: ${output.row23_budget_formula = maestro.copiedText}
+- runScript: "row23_assert_independent_budget_formula.js"
+- assertNotVisible: "Ajouter mon salaire"
+- assertNotVisible: "Plafond 3a salarié"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+- takeScreenshot: "row23-independent-no-lpp-budget"

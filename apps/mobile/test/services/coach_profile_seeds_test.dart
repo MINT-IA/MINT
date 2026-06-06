@@ -58,6 +58,21 @@ void main() {
               'FinancialArchetype.expatUs.');
     });
 
+    test('seed_julien_expat_us_does_not_plan_3a_contributions', () {
+      final seed = CoachProfileSeeds.registry['julien_expat_us']!;
+      final answers = seed.toWizardAnswers(now: DateTime(2026));
+      final profile = CoachProfile.fromWizardAnswers(answers);
+
+      expect(answers['q_has_pension_fund'], isFalse);
+      expect(answers['q_has_3a'], isFalse);
+      expect(answers['q_3a_annual_contribution'], 0.0);
+      expect(answers['q_3a_accounts_count'], 0);
+      expect(answers['q_savings_allocation'], isNot(contains('3a')),
+          reason: 'FATCA/US-person seed must not create a synthetic 3a '
+              'planned contribution through the savings allocation fallback.');
+      expect(profile.total3aMensuel, 0);
+    });
+
     test('existing_seeds_unchanged', () {
       // Karpathy #3 (surgical changes) — the 4 v2.10 swiss_native seeds MUST
       // NOT be modified by this plan. Regression guard.
@@ -127,6 +142,20 @@ void main() {
               'archetype slug swiss_native MUST map to seed julien_swiss.');
     });
 
+    test('by_archetype_independent_no_lpp_returns_runtime_fixture', () {
+      final byArchetype =
+          CoachProfileSeeds.byArchetype('independent_no_lpp');
+      final directLookup =
+          CoachProfileSeeds.registry['independent_no_lpp_income_reality'];
+
+      expect(byArchetype, isNotNull,
+          reason: 'The independent/no-LPP persona-flow benchmark needs a '
+              'canonical runtime seed, not a salaried swiss_native fallback.');
+      expect(byArchetype, same(directLookup),
+          reason: 'archetype slug independent_no_lpp MUST map to the '
+              'independent_no_lpp_income_reality seed.');
+    });
+
     test('by_archetype_unknown_slug_returns_null', () {
       // Codex C3: unknown slug returns null — NOT a default seed, NOT a
       // crash. The caller (walker / Maestro flow / test) decides what to do
@@ -154,6 +183,31 @@ void main() {
       expect(factIds, contains('budget.monthly_capacity'));
       expect(factIds, contains('pillar.lpp.total_balance'));
       expect(packet['next_questions'], isNotEmpty);
+    });
+
+    test('independent no-LPP seed hydrates income and 3a reality', () {
+      final seed =
+          CoachProfileSeeds.registry['independent_no_lpp_income_reality'];
+
+      expect(seed, isNotNull,
+          reason: 'CJT-061 has local report calculation proof; the next '
+              'runtime persona-flow needs an explicit independent/no-LPP seed.');
+
+      final answers = seed!.toWizardAnswers(now: DateTime(2026));
+      expect(answers['q_employment_status'], 'independant');
+      expect(answers['q_has_pension_fund'], isFalse);
+      expect(answers['q_has_3a'], isTrue);
+      expect(answers['q_3a_accounts_count'], 1);
+      expect(answers['q_3a_annual_contribution'], greaterThan(0));
+      expect(answers['q_savings_allocation'], contains('3a'));
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.firstName, 'Nadia');
+      expect(profile.archetype, FinancialArchetype.independentNoLpp);
+      expect(profile.employmentStatus, 'independant');
+      expect(profile.prevoyance.avoirLppTotal, 0);
+      expect(profile.total3aMensuel, greaterThan(0));
+      expect(profile.explicitMonthlyNetIncome, greaterThan(0));
     });
   });
 

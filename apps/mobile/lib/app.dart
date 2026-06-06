@@ -85,6 +85,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 // score_reveal_screen.dart DELETED (deep-audit 2026-04-17) — route /score-reveal redirects to /home
 // coach_profile.dart — unused after score-reveal zombie (Plan 11-02)
 // financial_fitness_service.dart — unused after score-reveal zombie (Plan 11-02)
@@ -1255,8 +1256,12 @@ final _router = GoRouter(
                 body: Center(child: CircularProgressIndicator()),
               );
             }
+            final persistedAnswers = snapshot.data ?? {};
+            final fallbackAnswers = persistedAnswers.isNotEmpty
+                ? persistedAnswers
+                : (CoachProfileSeeds.activeSeed?.toWizardAnswers() ?? {});
             return FinancialReportScreenV2(
-              wizardAnswers: snapshot.data ?? {},
+              wizardAnswers: fallbackAnswers,
             );
           },
         );

@@ -43,8 +43,24 @@ class CoachProfileSeed {
   /// 1:1).
   final String archetype;
 
-  /// Gross monthly salary in CHF (typical for the archetype).
+  /// Gross monthly income in CHF (legacy seed name kept for compatibility).
   final double grossMonthlySalary;
+
+  /// Employment status written to wizard answers.
+  final String employmentStatus;
+
+  /// Explicit monthly net income in CHF. When absent, the seed keeps the
+  /// historical gross-to-net estimate used by older walker fixtures.
+  final double? netMonthlyIncome;
+
+  /// Explicit LPP affiliation for persona-flow fixtures.
+  final bool? hasPensionFund;
+
+  /// Explicit annual 3a contribution in CHF.
+  final double? annual3aContribution;
+
+  /// Explicit number of 3a accounts.
+  final int? threeAAccountsCount;
 
   /// FATCA short-circuit signal (sub-phase 01.5 Wave 02 plan 06).
   ///
@@ -71,6 +87,11 @@ class CoachProfileSeed {
     required this.canton,
     required this.archetype,
     required this.grossMonthlySalary,
+    this.employmentStatus = 'employed',
+    this.netMonthlyIncome,
+    this.hasPensionFund,
+    this.annual3aContribution,
+    this.threeAAccountsCount,
     this.usTaxPerson,
     this.nationality,
   });
@@ -102,9 +123,17 @@ class CoachProfileSeed {
   Map<String, dynamic> toWizardAnswers({DateTime? now}) {
     final year = (now ?? DateTime.now()).year;
     final birthYear = year - age;
-    final netMonthlySalary = (grossMonthlySalary * 0.78).roundToDouble();
-    final hasLpp = usTaxPerson != true;
-    final annual3a = hasLpp ? 7056.0 : 0.0;
+    final monthlyNetIncome =
+        netMonthlyIncome ?? (grossMonthlySalary * 0.78).roundToDouble();
+    final hasLpp = hasPensionFund ?? usTaxPerson != true;
+    final annual3a = annual3aContribution ?? (hasLpp ? 7056.0 : 0.0);
+    final threeAAccounts = threeAAccountsCount ?? (hasLpp ? 1 : 0);
+    final has3a = annual3a > 0 || threeAAccounts > 0;
+    final savingsAllocation = <String>[
+      if (annual3a > 0) '3a',
+      'investissement',
+      'epargne_libre',
+    ];
 
     return <String, dynamic>{
       'q_firstname': firstName,
@@ -112,27 +141,23 @@ class CoachProfileSeed {
       'q_canton': canton,
       'q_pay_frequency': 'monthly',
       'q_gross_salary_annual': grossMonthlySalary * 12,
-      'q_net_income_period_chf': netMonthlySalary,
-      'q_employment_status': 'employed',
+      'q_net_income_period_chf': monthlyNetIncome,
+      'q_employment_status': employmentStatus,
       'q_household_type': 'single',
-      'q_housing_cost_period_chf': (netMonthlySalary * 0.26).roundToDouble(),
+      'q_housing_cost_period_chf': (monthlyNetIncome * 0.26).roundToDouble(),
       'q_tax_provision_monthly_chf':
           (grossMonthlySalary * 0.15).roundToDouble(),
       'q_lamal_premium_monthly_chf': 420.0,
       'q_other_fixed_costs_monthly_chf': 850.0,
-      'q_savings_monthly': (netMonthlySalary * 0.16).roundToDouble(),
-      'q_savings_allocation': const <String>[
-        '3a',
-        'investissement',
-        'epargne_libre',
-      ],
+      'q_savings_monthly': (monthlyNetIncome * 0.16).roundToDouble(),
+      'q_savings_allocation': savingsAllocation,
       'q_has_pension_fund': hasLpp,
-      'q_has_3a': hasLpp,
+      'q_has_3a': has3a,
       'q_3a_annual_contribution': annual3a,
-      'q_3a_accounts_count': hasLpp ? 1 : 0,
+      'q_3a_accounts_count': threeAAccounts,
       'q_has_investments': true,
-      'q_cash_total': netMonthlySalary * 3,
-      'q_investments_total': netMonthlySalary * 6,
+      'q_cash_total': monthlyNetIncome * 3,
+      'q_investments_total': monthlyNetIncome * 6,
       'q_avs_lacunes_status': 'unknown',
       'q_has_consumer_debt': false,
       'q_nationality':
@@ -220,6 +245,23 @@ class CoachProfileSeeds {
       archetype: 'swiss_native',
       grossMonthlySalary: 9000,
     ),
+    // CJT-061 follow-up runtime fixture: independent without LPP and with a
+    // real monthly income + non-zero 3a behavior. This prevents Row 23 runtime
+    // proofs from falling back to salaried/LPP-affiliated swiss_native seeds.
+    'independent_no_lpp_income_reality': CoachProfileSeed(
+      slug: 'independent_no_lpp_income_reality',
+      firstName: 'Nadia',
+      age: 39,
+      canton: 'VD',
+      archetype: 'independent_no_lpp',
+      grossMonthlySalary: 9000,
+      employmentStatus: 'independant',
+      netMonthlyIncome: 7200,
+      hasPensionFund: false,
+      annual3aContribution: 6000,
+      threeAAccountsCount: 1,
+      nationality: 'CH',
+    ),
   };
 
   /// Return the seed slug forced via `MINT_E2E_ARCHETYPE`, or null when:
@@ -275,6 +317,8 @@ class CoachProfileSeeds {
         return registry['julien_expat_us'];
       case 'swiss_native':
         return registry['julien_swiss'];
+      case 'independent_no_lpp':
+        return registry['independent_no_lpp_income_reality'];
       // Add other slug → seed mappings here as new seeds are added in
       // future sub-phases. Do NOT add a default arm — unknown slug = null.
       default:

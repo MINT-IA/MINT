@@ -196,11 +196,13 @@
     },
     {
       "id": "independent_no_lpp_income_reality",
-      "status": "local_report_calculation_contract_runtime_fixture_missing",
-      "existing_seed": null,
+      "status": "runtime_fixture_flow_passed_quality_scoring_pending",
+      "existing_seed": "apps/mobile/lib/services/coach/coach_profile_seeds.dart#independent_no_lpp_income_reality",
       "local_contract": "apps/mobile/test/services/financial_report_service_test.dart",
+      "seed_contract": "apps/mobile/test/services/coach_profile_seeds_test.dart",
+      "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml",
       "archetype": "independent_no_lpp",
-      "canton": "TBD",
+      "canton": "VD",
       "scenario": "income_reality_budget_3a_ceiling_without_lpp",
       "candidate_route_chain": [
         "coach_or_budget_setup",
@@ -208,7 +210,7 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof only; a canonical runtime persona-flow fixture is still missing."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, and CJT-062 adds a passing iPhone 16e runtime seed/flow; expert guidance scoring, VoiceOver traversal, and PDF per-archetype proof remain pending."
     }
   ],
   "record_template": {
