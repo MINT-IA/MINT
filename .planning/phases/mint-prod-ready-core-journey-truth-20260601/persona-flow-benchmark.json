@@ -196,11 +196,12 @@
     },
     {
       "id": "independent_no_lpp_income_reality",
-      "status": "runtime_fixture_flow_passed_quality_scoring_pending",
+      "status": "first_persona_flow_score_recorded_with_gaps",
       "existing_seed": "apps/mobile/lib/services/coach/coach_profile_seeds.dart#independent_no_lpp_income_reality",
       "local_contract": "apps/mobile/test/services/financial_report_service_test.dart",
       "seed_contract": "apps/mobile/test/services/coach_profile_seeds_test.dart",
       "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml",
+      "first_score_record": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
       "archetype": "independent_no_lpp",
       "canton": "VD",
       "scenario": "income_reality_budget_3a_ceiling_without_lpp",
@@ -210,7 +211,88 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, and CJT-062 adds a passing iPhone 16e runtime seed/flow; expert guidance scoring, VoiceOver traversal, and PDF per-archetype proof remain pending."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, and QOS-001a.1 records the first expert-scored benchmark result at 6.3/10. VoiceOver traversal, PDF per-archetype proof, Coach natural-language quality, restart/provenance, and deeper independent-specific guidance remain pending."
+    }
+  ],
+  "records": [
+    {
+      "benchmark_id": "qos-001a-independent-no-lpp-20260606",
+      "persona_id": "independent_no_lpp_income_reality",
+      "scenario": "income_reality_budget_3a_ceiling_without_lpp",
+      "matrix_rows": [
+        22,
+        23,
+        29
+      ],
+      "bug_ids": [
+        "CJT-062",
+        "CJT-063"
+      ],
+      "route_sequence": [
+        "/budget",
+        "/rapport"
+      ],
+      "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml",
+      "runtime_evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/result.xml",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/01-row23-independent-no-lpp-budget.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/02-row23-independent-no-lpp-rapport.png"
+      ],
+      "test_evidence": [
+        "cd apps/mobile && flutter test test/services/coach_profile_seeds_test.dart test/app_rapport_route_budget_test.dart",
+        "cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart"
+      ],
+      "source_evidence": [
+        "OFAS/BSV Votre cotisation au 3e pilier: https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier",
+        "MINT MCP get_swiss_constants(category: pillar3a)",
+        "Raiffeisen Pilier 3a montant maximal 2026: https://www.raiffeisen.ch/geneve-lac/fr/clients-prives/prevoyance-et-assurance/montant-maximal.html",
+        "Raiffeisen Prévoyance des indépendants: https://www.raiffeisen.ch/rch/fr/connaissances/prevoyance/le-premier-gros-salaire/statut-independant.html",
+        "Swiss Life Pilier 3a: https://www.swisslife.ch/fr/particuliers/prevoyance-patrimoine/guide/pilier-3a-que-dois-je-savoir.html",
+        "VZ Prévoyance: https://www.vermoegenszentrum.ch/fr/prevoyance"
+      ],
+      "expected_guidance": [
+        "Confirm LPP affiliation and AVS-independent status.",
+        "Explain 3a ceiling as status-dependent and income-dependent.",
+        "Separate budget capacity from legal/tax eligibility.",
+        "Surface optional LPP, 3a, liquidity, risk cover, and income-volatility tradeoffs.",
+        "Avoid provider ranking, product prescription, investment allocation, and return promises."
+      ],
+      "mint_observed_guidance": [
+        "/budget uses CHF 7'200 monthly resources and CHF 3'333 monthly free in the hero formula.",
+        "/budget does not show Ajouter mon salaire.",
+        "/rapport renders the seeded report and the neutral 3a assumption phrase.",
+        "The runtime flow asserts no salary-only 3a ceiling, no salary-only CTA, no NaN/Infinity, and no Flutter exception strings."
+      ],
+      "scores_by_dimension": {
+        "runtime_completion": 8.0,
+        "persona_fit_inclusion": 7.0,
+        "data_truth_continuity": 6.0,
+        "calculation_quality": 7.0,
+        "swiss_expert_coverage_logic": 5.0,
+        "ux_clarity_next_action": 6.0,
+        "finma_lsfin_safe_boundary": 7.0,
+        "accessibility_localization": 4.0
+      },
+      "score_caps_applied": [
+        "Cap 7: no restart/provenance proof for the persona money truth.",
+        "Cap 7: Coach-linked guidance not evaluated from natural language."
+      ],
+      "final_score": 6.3,
+      "missing_to_10": [
+        "VoiceOver/focus traversal for /budget and /rapport.",
+        "PDF export content proof for the same persona.",
+        "Live Coach natural-language guidance score.",
+        "Source/freshness/confidence beside the major persona facts.",
+        "Independent-specific guidance around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility."
+      ],
+      "reviewers": {
+        "product": "Codex Quality OS",
+        "ux": "Codex + accessibility-expert follow-up recommendation",
+        "qa_eval": "qa-expert subagent recommended QOS-001a.1",
+        "compliance": "MCP Swiss constants + banned-term/accent checks on representative phrasing",
+        "claude_cli": "Claude CLI final review approved after correcting the weighted score arithmetic to 6.30."
+      },
+      "decision": "scored_with_gaps"
     }
   ],
   "record_template": {

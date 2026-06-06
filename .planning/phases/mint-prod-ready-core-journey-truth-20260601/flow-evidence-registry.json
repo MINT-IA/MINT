@@ -396,6 +396,104 @@
         "Row 23 remains PARTIAL."
       ],
       "last_reviewed": "2026-06-06"
+    },
+    {
+      "flow_id": "flow_row23_independent_no_lpp_persona_score",
+      "matrix_rows": [
+        22,
+        23,
+        29
+      ],
+      "bug_ids": [
+        "CJT-062",
+        "CJT-063"
+      ],
+      "persona": "independent_no_lpp_income_reality",
+      "surface_family": "rapport_bilan",
+      "tier": "T1",
+      "status_claim": "PARTIAL",
+      "score": 6.3,
+      "score_cap": 7.0,
+      "cap_reasons": [
+        "This is the first expert-scored persona-flow record after CJT-062 runtime proof, not full Row 23 closure.",
+        "The flow uses independent/no-LPP fixture data on /budget and /rapport, but does not yet prove restart/source/freshness/confidence for the same persona.",
+        "Swiss expert-market references show broader expected guidance around optional LPP affiliation, AVS-independent status, risk cover, liquidity, and income volatility.",
+        "No VoiceOver/focus traversal, PDF per-archetype proof, or live Coach natural-language guidance score exists for this persona.",
+        "CJT-063 remains open for independent/no-LPP expert-guidance depth."
+      ],
+      "automation": {
+        "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml",
+        "junit": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/result.xml",
+        "watchdog_exit": 0
+      },
+      "evidence_artifacts": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/01-row23-independent-no-lpp-budget.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/02-row23-independent-no-lpp-rapport.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/maestro.log"
+      ],
+      "contract_tests": [
+        {
+          "command": "cd apps/mobile && flutter test test/services/coach_profile_seeds_test.dart test/app_rapport_route_budget_test.dart && flutter test --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality test/services/coach/eclairage_force_kind_test.dart --plain-name \"CoachProfileSeeds.activeSeed agrees\"",
+          "result": "pass",
+          "scope": "Seed, Rapport route fallback, and active E2E seed contracts recorded in CJT-062 evidence."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart",
+          "result": "pass",
+          "scope": "Report calculation/content contracts recorded after CJT-061 and CJT-062."
+        },
+        {
+          "command": "python3 tools/checks/mint_quality_os_check.py && python3 tools/checks/cjt_context_guard.py && python3 tools/checks/maestro_locator_audit.py",
+          "result": "pass",
+          "scope": "Quality OS, CJT context, and Maestro locator gates for the runtime fixture lot."
+        }
+      ],
+      "semantic_evals": [
+        {
+          "type": "persona_flow_benchmark_score",
+          "result": "scored_with_gaps",
+          "scope": "Weighted benchmark score 6.30/10, final 6.3/10 after caps, based on runtime evidence, MINT constants, and public Swiss expert-market references."
+        },
+        {
+          "type": "swiss_constants_check",
+          "result": "pass_with_gaps",
+          "scope": "MINT pillar3a constants and OFAS/BSV source agree on with-LPP CHF 7'258 and without-LPP 20% of gainful income capped at CHF 36'288 for the 2026 context."
+        },
+        {
+          "type": "specialist_review",
+          "result": "no_blockers_for_scoring_lot",
+          "scope": "QA subagent recommended this exact next lot; accessibility subagent identified the next follow-up as section-level traversal for /rapport and populated independent/no-LPP /budget."
+        }
+      ],
+      "user_visible_outcome": "For the independent/no-LPP persona, /budget and /rapport no longer fall back to salary-only or LPP-affiliated assumptions; the flow is now scored as useful but incomplete guidance rather than merely a passed locator run.",
+      "guidance_boundary_evidence": [
+        "The benchmark uses Raiffeisen, Swiss Life, and VZ pages only as public coverage examples, not as provider rankings or user recommendations.",
+        "The observed MINT copy is status-neutral and educational; it does not tell the user to open a product, choose an allocation, or maximize a tax action.",
+        "CJT-063 tracks that expert-grade guidance should still cover optional LPP, AVS-independent status, risk cover, liquidity, income volatility, and missing-data checks."
+      ],
+      "rubric": {
+        "runtime_mechanics": 8.0,
+        "human_goal": 6.0,
+        "guidance_boundary": 7.0,
+        "user_data_grounding": 6.0,
+        "provenance_freshness": 5.0,
+        "restart_or_continuity": 4.0,
+        "next_step_quality": 6.0,
+        "ux_a11y_i18n": 4.0,
+        "automation_reliability": 8.0,
+        "debt_hygiene": 8.0
+      },
+      "remaining_gaps": [
+        "No VoiceOver/focus traversal for the independent/no-LPP Budget/Rapport path.",
+        "No PDF export content proof for the same persona.",
+        "No live Coach natural-language answer scored for independent/no-LPP guidance quality.",
+        "No restart/source/freshness/confidence proof for the persona values.",
+        "No explicit runtime guidance around optional LPP affiliation, AVS-independent status, risk cover, liquidity, and income volatility.",
+        "Row 23 remains PARTIAL."
+      ],
+      "last_reviewed": "2026-06-06"
     }
   ]
 }

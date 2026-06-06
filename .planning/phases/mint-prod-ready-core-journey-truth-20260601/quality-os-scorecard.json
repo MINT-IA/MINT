@@ -6,7 +6,7 @@
     "mint_prod_ready_score": 5.2,
     "felt_product_quality_score": 4.2,
     "journey_truth_proof_score_percent": 60.0,
-    "codex_quality_os_work_score": 7.2,
+    "codex_quality_os_work_score": 7.3,
     "target": 10,
     "release_score_cap": 7.0,
     "felt_product_quality_score_cap": 5.5,
@@ -111,6 +111,12 @@
         "reason": "Persona-flow benchmark method evidence must stay fresh while Quality OS uses it to cap felt guidance claims."
       },
       {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
+        "kind": "persona_flow_score",
+        "max_age_days": 30,
+        "reason": "The first independent/no-LPP persona-flow score must stay fresh while the benchmark seed wave remains incomplete."
+      },
+      {
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-3a-assumption-contract-20260606.md",
         "kind": "calculation_contract",
         "max_age_days": 30,
@@ -183,19 +189,20 @@
     {
       "id": "persona_flow_benchmark",
       "label": "Persona-flow benchmark quality",
-      "score": 3.5,
+      "score": 4.0,
       "target": 10,
       "tier": "T1-T2",
       "evidence": [
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.json",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md"
       ],
       "missing_to_10": [
-        "First two persona-flow benchmark records must be expert-scored with runtime evidence.",
+        "Second seed persona-flow benchmark record must be expert-scored with runtime evidence.",
         "Each benchmark scenario must cite official/regulatory and public Swiss expert-market sources where relevant.",
-        "Independent-no-LPP now has a first runtime fixture pass, but still needs full expert guidance scoring, VoiceOver traversal, PDF per-archetype proof, and Coach natural-language quality review.",
+        "Independent-no-LPP now has a first scored record at 6.3/10, but still needs VoiceOver traversal, PDF per-archetype proof, restart/provenance, and Coach natural-language quality review.",
         "P0/P1 gaps found by benchmark records must be opened in BUG-TRACKER."
       ]
     },
