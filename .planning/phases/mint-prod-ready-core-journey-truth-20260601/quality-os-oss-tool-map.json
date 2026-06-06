@@ -1,0 +1,220 @@
+{
+  "version": "2026-06-05",
+  "policy": {
+    "budget_mode": "oss_first",
+    "principle": "Prefer reliable open-source CLI and CI tools first. Add self-hosted services only when dashboard, collaboration, traceability, or retention needs are proven.",
+    "security_baseline": [
+      "Prefer active maintainers, clear licenses, reproducible installs, and CI-friendly output.",
+      "Avoid sending personal financial data to third-party SaaS unless a release decision explicitly accepts the risk.",
+      "Use synthetic or scrubbed data for analytics, traces, screenshots, and reports.",
+      "Treat every self-hosted service as new attack surface with patching, backups, secrets, access control, and retention."
+    ]
+  },
+  "adoption_stages": [
+    {
+      "stage": "now_cli_ci",
+      "goal": "Maximum quality gain without new servers.",
+      "tools": [
+        "Maestro CLI",
+        "Flutter test",
+        "pytest",
+        "promptfoo",
+        "Allure Report",
+        "Semgrep",
+        "Gitleaks",
+        "Trivy",
+        "OSV-Scanner",
+        "MobSF local scan"
+      ]
+    },
+    {
+      "stage": "next_light_services",
+      "goal": "Add dashboards only after CLI evidence is stable.",
+      "tools": [
+        "Kiwi TCMS",
+        "ReportPortal",
+        "Langfuse or Phoenix",
+        "Unleash",
+        "GlitchTip or Sentry self-host",
+        "PostHog or Matomo"
+      ]
+    },
+    {
+      "stage": "later_paid_escape_hatch",
+      "goal": "Use paid tools only for real-device scale or gaps OSS cannot cover cheaply.",
+      "tools": [
+        "BrowserStack",
+        "Hosted Sentry",
+        "Hosted PostHog"
+      ]
+    }
+  ],
+  "tool_map": [
+    {
+      "category": "mobile_e2e",
+      "preferred": "Maestro CLI",
+      "role": "Run simulator and local mobile journey flows.",
+      "deployment": "local_ci",
+      "maturity": "already_in_repo",
+      "quality_os_inputs": [
+        "tools/simulator/flows/maestro-perfect-set/",
+        "tools/checks/maestro_locator_audit.py",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/"
+      ],
+      "first_mint_step": "Keep existing Maestro flows and add flow quality metadata.",
+      "security_notes": [
+        "No secrets or raw financial PII in screenshots.",
+        "Store durable evidence under .planning, not /tmp."
+      ]
+    },
+    {
+      "category": "test_management",
+      "preferred": "Kiwi TCMS",
+      "role": "Manage test cases, plans, runs, and release traceability.",
+      "deployment": "defer_self_host",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "JOURNEY-TRUTH-MATRIX rows",
+        "BUG-TRACKER entries",
+        "screen and flow reviews"
+      ],
+      "first_mint_step": "Export row/screen/flow contract before self-hosting Kiwi.",
+      "security_notes": [
+        "Self-host only after access control, backup, updates, and no-PII policy are owned."
+      ]
+    },
+    {
+      "category": "automation_reporting",
+      "preferred": "Allure Report",
+      "role": "Aggregate test outputs into readable reports.",
+      "deployment": "start_local_artifact",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "Maestro JUnit",
+        "Flutter test output",
+        "pytest output",
+        "promptfoo output"
+      ],
+      "first_mint_step": "Generate local Allure-compatible artifacts before deploying ReportPortal.",
+      "security_notes": [
+        "Scrub logs before publishing.",
+        "Keep reports private when screenshots reveal app state."
+      ]
+    },
+    {
+      "category": "llm_eval",
+      "preferred": "promptfoo",
+      "role": "Evaluate Coach responses, refusals, source use, route choice, and FINMA-safe wording.",
+      "deployment": "local_ci_first",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "Coach golden prompts",
+        "route card expectations",
+        "source/refusal rubrics"
+      ],
+      "first_mint_step": "Create 30-50 promptfoo golden evals for top Coach intents.",
+      "security_notes": [
+        "Use synthetic or scrubbed user profiles.",
+        "Do not persist raw personal financial profiles in traces."
+      ]
+    },
+    {
+      "category": "feature_flags",
+      "preferred": "OpenFeature + Unleash OSS",
+      "role": "Manage kill switches and staged rollout controls.",
+      "deployment": "defer_self_host_or_static_first",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "FeatureFlags paths",
+        "release blocker rows",
+        "rollback requirements"
+      ],
+      "first_mint_step": "Inventory current flags and define kill-switch contract.",
+      "security_notes": [
+        "Do not expose sensitive business rules through client flags.",
+        "Document default-off behavior for risky paths."
+      ]
+    },
+    {
+      "category": "crash_observability",
+      "preferred": "Sentry SDK or GlitchTip",
+      "role": "Capture crashes, release health, and error regressions.",
+      "deployment": "minimal_events_first",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "release build id",
+        "crash/error events",
+        "privacy scrub rules"
+      ],
+      "first_mint_step": "Prove privacy-scrubbed telemetry on TestFlight before broader analytics.",
+      "security_notes": [
+        "Enable PII scrubbing.",
+        "Avoid breadcrumbs with raw financial answers or documents."
+      ]
+    },
+    {
+      "category": "product_analytics",
+      "preferred": "PostHog OSS or Matomo",
+      "role": "Track release funnels, privacy actions, Coach route outcomes, and feedback.",
+      "deployment": "defer_until_event_contract",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "T0/T1 funnel events",
+        "privacy lifecycle events",
+        "feedback signals"
+      ],
+      "first_mint_step": "Define a minimal no-PII event contract first.",
+      "security_notes": [
+        "Collect event names and coarse states, not financial values.",
+        "Respect opt-out and deletion lifecycle."
+      ]
+    },
+    {
+      "category": "mobile_security",
+      "preferred": "MobSF",
+      "role": "Static and dynamic mobile security analysis for build artifacts.",
+      "deployment": "local_ci_or_ephemeral_container",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "iOS build artifact",
+        "release security report"
+      ],
+      "first_mint_step": "Add MobSF scan to release checklist after build artifacts are available.",
+      "security_notes": [
+        "Run locally or in a trusted ephemeral environment.",
+        "Treat scan reports as sensitive."
+      ]
+    },
+    {
+      "category": "code_supply_chain_security",
+      "preferred": "Semgrep + Gitleaks + Trivy + OSV-Scanner",
+      "role": "Catch code vulnerabilities, secrets, container/dependency risks, and known vulnerable packages.",
+      "deployment": "local_ci",
+      "maturity": "candidate",
+      "quality_os_inputs": [
+        "source tree",
+        "dependency manifests",
+        "container images"
+      ],
+      "first_mint_step": "Add cheap release gates before heavier platform work.",
+      "security_notes": [
+        "Run before commits/releases.",
+        "Do not upload secrets or private source to untrusted scanners."
+      ]
+    }
+  ],
+  "quality_os_decision": {
+    "do_not_build": [
+      "custom test management platform",
+      "custom LLM observability platform",
+      "custom analytics warehouse",
+      "custom mobile security scanner"
+    ],
+    "build_only": [
+      "MINT-specific scorecard schema",
+      "CJT row to test/flow/evidence/bug mapping",
+      "release blocker logic and score caps",
+      "thin validation scripts that connect OSS outputs"
+    ]
+  }
+}

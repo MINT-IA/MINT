@@ -1,0 +1,284 @@
+{
+  "version": "2026-06-05",
+  "status": "active_ratchet",
+  "phase": "mint-prod-ready-core-journey-truth-20260601",
+  "overall": {
+    "mint_prod_ready_score": 6.5,
+    "codex_quality_os_work_score": 7.0,
+    "target": 10,
+    "release_score_cap": 7.0,
+    "release_score_cap_reason": "Open release gates remain: production/staging fact substrate, TestFlight and Universal Link proof, account/privacy lifecycle, live observability, and Coach semantic quality.",
+    "last_reviewed": "2026-06-05"
+  },
+  "rules": {
+    "target_score": 10,
+    "no_row_closure_from_docs_only": true,
+    "no_product_claim_financial_advice": true,
+    "quality_score_requires_evidence": true,
+    "p0_open_caps_global_score_at": 7.0,
+    "score_increase_requires_new_evidence": true,
+    "score_increase_max_without_new_evidence": 0.5,
+    "claude_cli_review_required": true,
+    "no_workspace_clone_move_delete_without_explicit_user_approval": true,
+    "environment_symptoms_must_be_scoped_to_process_and_file": true
+  },
+  "debugging_protocol": {
+    "canonical_repo_location_hint": "Desktop MINT.nosync working copy",
+    "canonical_remote": "git@github.com:MINT-IA/MINT.git",
+    "first_commands": [
+      "pwd",
+      "git status --short && git status -sb",
+      "git remote -v",
+      "cat .git/HEAD"
+    ],
+    "forbidden_without_explicit_user_approval": [
+      "clone alternate workspace",
+      "move repository",
+      "delete repository",
+      "relink repository",
+      "chmod repository",
+      "xattr repository",
+      "create worktree as environment-debugging bypass"
+    ],
+    "required_distinctions": [
+      "current process symptom vs repository fact",
+      "file read failure vs git failure",
+      "Desktop permission issue vs remote repository issue",
+      "personal account search vs org repo (MINT-IA/MINT) fact",
+      "facts vs hypotheses"
+    ],
+    "incident_memory_required": true
+  },
+  "review_protocol": {
+    "claude_cli_required_for_material_changes": true,
+    "review_scope": [
+      "focused diff",
+      "tests and gates",
+      "matrix and bug impact",
+      "release or readiness claims"
+    ],
+    "review_timing": [
+      "after meaningful patch",
+      "before commit or final closure"
+    ],
+    "fallback_when_unavailable": "State missing Claude CLI review explicitly and do not close matrix rows from that lot."
+  },
+  "required_artifacts": [
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/MINT-QUALITY-OS.md",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/quality-os-oss-tool-map.json",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-screen-advice-quality-review-20260605.html",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-flow-guidance-quality-review-20260605.html",
+    "tools/checks/mint_quality_os_check.py"
+  ],
+  "evidence_freshness": {
+    "max_age_days_default": 30,
+    "checked_at": "2026-06-06",
+    "known_limits": [
+      "mtime freshness only; does not validate semantic proof strength",
+      "URLs need a separate reachability checker",
+      "fresh evidence can still prove the wrong user outcome"
+    ],
+    "artifacts": [
+      {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-screen-advice-quality-review-20260605.html",
+        "kind": "quality_review",
+        "max_age_days": 30,
+        "reason": "Primary screen quality review evidence must not become stale while Quality OS scores cite it."
+      },
+      {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-flow-guidance-quality-review-20260605.html",
+        "kind": "quality_review",
+        "max_age_days": 30,
+        "reason": "Flow guidance quality review evidence must not become stale while Quality OS scores cite it."
+      }
+    ]
+  },
+  "dimensions": [
+    {
+      "id": "capability_truth",
+      "label": "Journey Truth Matrix fidelity",
+      "score": 7.8,
+      "target": 10,
+      "tier": "global",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md"
+      ],
+      "missing_to_10": [
+        "Machine-readable row registry with status, owner, proof level, freshness, checks, and linked bugs.",
+        "Automatic stale evidence downgrade or warning.",
+        "Release-scoped blocker enforcement."
+      ]
+    },
+    {
+      "id": "screen_and_flow_quality",
+      "label": "Screen and flow guidance quality",
+      "score": 7.0,
+      "target": 10,
+      "tier": "T0-T2",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-screen-advice-quality-review-20260605.html",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-flow-guidance-quality-review-20260605.html",
+        "tools/simulator/flows/maestro-perfect-set/"
+      ],
+      "missing_to_10": [
+        "Runtime quality score for all T0/T1 flows, not only locator pass/fail.",
+        "Dynamic type, accessibility, six-locale, and restart proof.",
+        "P0/P1 qualitative gaps converted into BUG-TRACKER entries."
+      ]
+    },
+    {
+      "id": "finma_safe_guidance",
+      "label": "FINMA-safe guidance boundary",
+      "score": 6.6,
+      "target": 10,
+      "tier": "global",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/MINT-QUALITY-OS.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-flow-guidance-quality-review-20260605.html"
+      ],
+      "missing_to_10": [
+        "Golden semantic evals for regulated-boundary scenarios.",
+        "Uniform source, assumption, and limitation phrasing.",
+        "Automated checks for product-facing claim risk."
+      ]
+    },
+    {
+      "id": "data_truth_runtime",
+      "label": "Data truth, provenance, and restart",
+      "score": 6.6,
+      "target": 10,
+      "tier": "T0-T1",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
+        "docs/data-flow.md"
+      ],
+      "missing_to_10": [
+        "Major amounts show source, freshness, confidence, and conflicts.",
+        "Restart/hydration proof for account, budget, scan, Coach, and report loops.",
+        "Production/staging fact substrate proven or release-deferred."
+      ]
+    },
+    {
+      "id": "coach_semantic_quality",
+      "label": "Coach semantic quality",
+      "score": 5.8,
+      "target": 10,
+      "tier": "T0-T2",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
+        "docs/coach-tool-routing.md"
+      ],
+      "missing_to_10": [
+        "30-50 golden evals for Swiss financial-lucidity intents.",
+        "Live route selection and fact capture evaluated from natural language.",
+        "Refusal, source, limitation, and route quality measured."
+      ]
+    },
+    {
+      "id": "privacy_release_trust",
+      "label": "Privacy, release, and observability trust",
+      "score": 5.9,
+      "target": 10,
+      "tier": "T0",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
+        "LEGAL_RELEASE_CHECK.md"
+      ],
+      "missing_to_10": [
+        "Privacy export/delete lifecycle runtime proof.",
+        "TestFlight real-device and Universal Link proof for current build.",
+        "Sentry, analytics, funnel, and feedback loop feeding tracker and matrix."
+      ]
+    },
+    {
+      "id": "quality_os_enforcement",
+      "label": "Quality OS enforcement",
+      "score": 7.2,
+      "target": 10,
+      "tier": "global",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/MINT-QUALITY-OS.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/quality-os-scorecard.json",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/quality-os-oss-tool-map.json",
+        "tools/checks/mint_quality_os_check.py"
+      ],
+      "missing_to_10": [
+        "One scorecard entry per matrix row.",
+        "HTML reviews generated from structured state.",
+        "OSS-first tools installed or explicitly deferred.",
+        "Claude CLI review evidence retained for material lots."
+      ]
+    }
+  ],
+  "next_actions": [
+    {
+      "id": "qos-001",
+      "priority": "P0",
+      "title": "Keep Quality OS check in local gates and decide scoped hook integration",
+      "rows": [
+        28,
+        29,
+        30
+      ],
+      "proof": "python3 tools/checks/mint_quality_os_check.py plus a scoped hook or CI decision"
+    },
+    {
+      "id": "qos-002",
+      "priority": "P0",
+      "title": "Convert screen and flow P0/P1 findings into BUG-TRACKER entries",
+      "rows": [
+        17,
+        21,
+        22,
+        23,
+        29
+      ],
+      "proof": "BUG-TRACKER entries with owner, severity, proof, and status"
+    },
+    {
+      "id": "qos-003",
+      "priority": "P0",
+      "title": "Re-run T0 release gates with TestFlight and production/staging evidence",
+      "rows": [
+        13,
+        15,
+        27
+      ],
+      "proof": "Durable TestFlight, Universal Link, backend, and observability evidence"
+    },
+    {
+      "id": "qos-004",
+      "priority": "P1",
+      "title": "Add Coach semantic golden eval gate",
+      "rows": [
+        16,
+        23
+      ],
+      "proof": "30-50 golden scenarios with refusal/source/route scoring"
+    },
+    {
+      "id": "qos-005",
+      "priority": "P1",
+      "title": "Extend minimal mtime stale-evidence check to affected-path invalidation",
+      "rows": [
+        29,
+        30
+      ],
+      "proof": "Current check reports missing, empty, /tmp, future, or mtime-stale listed evidence; affected-path invalidation remains deferred"
+    },
+    {
+      "id": "qos-006",
+      "priority": "P1",
+      "title": "Install OSS-first quality gates before paid or custom platforms",
+      "rows": [
+        28,
+        29,
+        30
+      ],
+      "proof": "First promptfoo, Allure, and security scanner integrations or explicit deferrals"
+    }
+  ]
+}
