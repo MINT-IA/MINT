@@ -9993,6 +9993,7 @@
   "reportTitleBilanFlash": "Ton Bilan Flash",
   "reportPdfExportTitle": "Ton Bilan Flash - Export financier",
   "reportSharePdfSemantics": "Exporter le bilan en PDF",
+  "reportPdfExportError": "Export PDF indisponible pour le moment. Réessaie depuis le bilan.",
   "retirementIncomeLabelPatrimoine": "Patrimoine libre",
   "retirementIncomeLabelPillar3a": "3e pilier",
   "retirementPhaseLabelBothRetired": "Les deux à la retraite",

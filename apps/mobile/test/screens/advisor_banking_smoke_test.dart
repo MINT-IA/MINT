@@ -143,8 +143,10 @@ void main() {
         final exportAction = find.bySemanticsLabel('Exporter le bilan en PDF');
         expect(backAction, findsOneWidget);
         expect(exportAction, findsOneWidget);
-        expect(tester.getSemantics(backAction).flagsCollection.isButton, isTrue);
-        expect(tester.getSemantics(exportAction).flagsCollection.isButton, isTrue);
+        expect(
+            tester.getSemantics(backAction).flagsCollection.isButton, isTrue);
+        expect(
+            tester.getSemantics(exportAction).flagsCollection.isButton, isTrue);
         expect(
           tester
               .getSemantics(backAction)
@@ -164,6 +166,40 @@ void main() {
       }
     });
 
+    testWidgets('export action reports thrown PDF export failures',
+        (tester) async {
+      final previousPrintingPlatform = PrintingPlatform.instance;
+      final printingPlatform =
+          _CaptureSharePdfPrintingPlatform(failSharePdf: true);
+      PrintingPlatform.instance = printingPlatform;
+      addTearDown(() => PrintingPlatform.instance = previousPrintingPlatform);
+
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: testAnswersV2),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.share));
+      for (var i = 0; i < 200 && printingPlatform.sharePdfCalls == 0; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(printingPlatform.sharePdfCalls, 1);
+      expect(
+        find.text(
+          'Export PDF indisponible pour le moment. Réessaie depuis le bilan.',
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('export action shares a concrete PDF document', (tester) async {
       final previousPrintingPlatform = PrintingPlatform.instance;
       final printingPlatform = _CaptureSharePdfPrintingPlatform();
@@ -181,10 +217,11 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      await tester.tap(find.bySemanticsLabel('Exporter le bilan en PDF'));
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.share));
       for (var i = 0; i < 30 && printingPlatform.sharePdfCalls == 0; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(printingPlatform.sharePdfCalls, 1);
       expect(printingPlatform.filename, 'mint_report_v2.pdf');
@@ -1180,6 +1217,9 @@ void main() {
 }
 
 class _CaptureSharePdfPrintingPlatform extends PrintingPlatform {
+  _CaptureSharePdfPrintingPlatform({this.failSharePdf = false});
+
+  final bool failSharePdf;
   int sharePdfCalls = 0;
   Uint8List? bytes;
   String? filename;
@@ -1216,6 +1256,9 @@ class _CaptureSharePdfPrintingPlatform extends PrintingPlatform {
     List<String>? emails,
   ) async {
     sharePdfCalls += 1;
+    if (failSharePdf) {
+      throw Exception('PDF share unavailable in test');
+    }
     this.bytes = bytes;
     this.filename = filename;
     return true;

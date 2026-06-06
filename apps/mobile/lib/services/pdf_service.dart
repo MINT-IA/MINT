@@ -8,8 +8,6 @@ import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PdfService {
-  static Future<pw.ThemeData>? _pdfThemeFuture;
-
   static Future<void> generateSessionReportPdf(SessionReport report) async {
     final pdf = pw.Document(theme: await _mintPdfTheme());
 
@@ -1230,7 +1228,7 @@ class PdfService {
   }
 
   static Future<pw.ThemeData> _mintPdfTheme() {
-    return _pdfThemeFuture ??= _loadMintPdfTheme();
+    return _loadMintPdfTheme();
   }
 
   static Future<pw.ThemeData> _loadMintPdfTheme() async {

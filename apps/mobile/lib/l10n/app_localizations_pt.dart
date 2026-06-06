@@ -19553,6 +19553,10 @@ class SPt extends S {
   String get reportSharePdfSemantics => 'Exportar balanço financeiro em PDF';
 
   @override
+  String get reportPdfExportError =>
+      'A exportação PDF está indisponível por enquanto. Tente novamente a partir do balanço.';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Património livre';
 
   @override

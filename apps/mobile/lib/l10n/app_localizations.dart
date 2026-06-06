@@ -34315,6 +34315,12 @@ abstract class S {
   /// **'Exporter le bilan en PDF'**
   String get reportSharePdfSemantics;
 
+  /// No description provided for @reportPdfExportError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Export PDF indisponible pour le moment. Réessaie depuis le bilan.'**
+  String get reportPdfExportError;
+
   /// No description provided for @retirementIncomeLabelPatrimoine.
   ///
   /// In fr, this message translates to:

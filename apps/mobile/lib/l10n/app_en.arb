@@ -9308,6 +9308,7 @@
   "reportTitleBilanFlash": "Your Financial Snapshot",
   "reportPdfExportTitle": "Your Financial Snapshot - Financial export",
   "reportSharePdfSemantics": "Export financial snapshot as PDF",
+  "reportPdfExportError": "PDF export is unavailable for now. Try again from the snapshot.",
   "retirementIncomeLabelPatrimoine": "Free assets",
   "retirementIncomeLabelPillar3a": "3rd pillar",
   "retirementPhaseLabelBothRetired": "Both retired",

@@ -19544,6 +19544,10 @@ class SFr extends S {
   String get reportSharePdfSemantics => 'Exporter le bilan en PDF';
 
   @override
+  String get reportPdfExportError =>
+      'Export PDF indisponible pour le moment. Réessaie depuis le bilan.';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Patrimoine libre';
 
   @override

@@ -86,11 +86,18 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
-    void exportReportPdf() {
-      PdfService.generateFinancialReportPdf(
-        report,
-        title: S.of(context)!.reportPdfExportTitle,
-      );
+    Future<void> exportReportPdf() async {
+      try {
+        await PdfService.generateFinancialReportPdf(
+          report,
+          title: S.of(context)!.reportPdfExportTitle,
+        );
+      } catch (_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context)!.reportPdfExportError)),
+        );
+      }
     }
 
     return Scaffold(

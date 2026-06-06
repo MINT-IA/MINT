@@ -9308,6 +9308,7 @@
   "reportTitleBilanFlash": "Il tuo Bilancio Flash",
   "reportPdfExportTitle": "Il tuo Bilancio Flash - Esportazione finanziaria",
   "reportSharePdfSemantics": "Esporta il bilancio finanziario in PDF",
+  "reportPdfExportError": "L'esportazione PDF non è disponibile per il momento. Riprova dal bilancio.",
   "retirementIncomeLabelPatrimoine": "Patrimonio libero",
   "retirementIncomeLabelPillar3a": "3° pilastro",
   "retirementPhaseLabelBothRetired": "Entrambi in pensione",

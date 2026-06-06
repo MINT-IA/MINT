@@ -19604,6 +19604,10 @@ class SIt extends S {
       'Esporta il bilancio finanziario in PDF';
 
   @override
+  String get reportPdfExportError =>
+      'L\'esportazione PDF non è disponibile per il momento. Riprova dal bilancio.';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Patrimonio libero';
 
   @override

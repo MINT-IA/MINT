@@ -19458,6 +19458,10 @@ class SEn extends S {
   String get reportSharePdfSemantics => 'Export financial snapshot as PDF';
 
   @override
+  String get reportPdfExportError =>
+      'PDF export is unavailable for now. Try again from the snapshot.';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Free assets';
 
   @override

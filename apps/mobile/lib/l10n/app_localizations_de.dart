@@ -19595,6 +19595,10 @@ class SDe extends S {
   String get reportSharePdfSemantics => 'Finanzübersicht als PDF exportieren';
 
   @override
+  String get reportPdfExportError =>
+      'Der PDF-Export ist momentan nicht verfügbar. Versuch es erneut über die Übersicht.';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Freies Vermögen';
 
   @override

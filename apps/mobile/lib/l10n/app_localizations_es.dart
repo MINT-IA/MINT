@@ -19553,6 +19553,10 @@ class SEs extends S {
   String get reportSharePdfSemantics => 'Exportar resumen financiero en PDF';
 
   @override
+  String get reportPdfExportError =>
+      'La exportación PDF no está disponible por ahora. Inténtalo de nuevo desde el resumen.';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Patrimonio libre';
 
   @override
