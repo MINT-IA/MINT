@@ -3024,14 +3024,20 @@ abstract class S {
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Charges fixes'**
+  /// **'Revenus et charges fixes'**
   String get budgetSetupTitle;
 
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Ce qui part chaque mois, quoi qu\'il arrive.'**
+  /// **'Ce qui entre et ce qui part chaque mois, adapté aux revenus indépendants, rentes et revenus mixtes.'**
   String get budgetSetupSubtitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ressources mensuelles nettes'**
+  String get budgetSetupIncome;
 
   /// Budget setup label.
   ///
@@ -3102,7 +3108,7 @@ abstract class S {
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Requis'**
+  /// **'Revenu, logement et assurance maladie requis.'**
   String get budgetSetupRequired;
 
   /// Budget setup validation shown when a monthly amount is outside the accepted capture range.
@@ -3126,19 +3132,19 @@ abstract class S {
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Tes charges fixes, au clair.'**
+  /// **'Ton budget'**
   String get budgetCardEmptyTitle;
 
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.'**
+  /// **'Renseigne tes revenus et tes charges fixes pour calculer ce qu\'il te reste vraiment.'**
   String get budgetCardEmptyBody;
 
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Poser mes charges'**
+  /// **'Ajouter mes revenus'**
   String get budgetCardEmptyAction;
 
   /// No description provided for @budgetEmptyAction.

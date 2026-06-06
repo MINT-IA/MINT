@@ -1611,11 +1611,14 @@ class SEn extends S {
       'Complete your diagnosis to unlock your monthly plan with your real income and expenses.';
 
   @override
-  String get budgetSetupTitle => 'Fixed charges';
+  String get budgetSetupTitle => 'Income and fixed charges';
 
   @override
   String get budgetSetupSubtitle =>
-      'What goes out every month, no matter what.';
+      'What comes in and what goes out each month, covering independent income, pensions and mixed income.';
+
+  @override
+  String get budgetSetupIncome => 'Monthly net resources';
 
   @override
   String get budgetSetupHousing => 'Rent or mortgage';
@@ -1651,7 +1654,8 @@ class SEn extends S {
   String get budgetSetupFieldPlaceholder => 'CHF / month';
 
   @override
-  String get budgetSetupRequired => 'Required';
+  String get budgetSetupRequired =>
+      'Income, housing and health insurance are required.';
 
   @override
   String get budgetSetupAmountTooHigh =>
@@ -1668,14 +1672,14 @@ class SEn extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Your fixed charges, clearly.';
+  String get budgetCardEmptyTitle => 'Your budget';
 
   @override
   String get budgetCardEmptyBody =>
-      'Seven items, two minutes. Then we calculate what truly remains.';
+      'Enter your income and fixed charges to calculate what truly remains.';
 
   @override
-  String get budgetCardEmptyAction => 'Set my charges';
+  String get budgetCardEmptyAction => 'Add my income';
 
   @override
   String get budgetEmptyAction => 'Start my diagnosis';

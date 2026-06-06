@@ -144,6 +144,7 @@ const _phase1to5KeyPrefixes = [
 const _budgetSetupCriticalKeys = [
   'budgetSetupTitle',
   'budgetSetupSubtitle',
+  'budgetSetupIncome',
   'budgetSetupHousing',
   'budgetSetupLamal',
   'budgetSetupTransport',
@@ -188,8 +189,9 @@ const _primaryScreenKeyPrefixes = [
 
 final _budgetSetupFrenchResidue = RegExp(
   [
-    'Charges fixes',
-    'Ce qui part',
+    'Revenus et charges',
+    'Ce qui entre',
+    'Ressources mensuelles',
     'Loyer ou hypothèque',
     'Assurance maladie',
     'Télécom',
@@ -200,12 +202,12 @@ final _budgetSetupFrenchResidue = RegExp(
     'Enregistrer',
     'J.en parle',
     'CHF / mois',
-    'Requis',
+    'Revenu, logement',
     'Montant mensuel',
     'Total fixe',
-    'Tes charges',
-    'Sept postes',
-    'Poser mes charges',
+    'Ton budget',
+    'Renseigne tes revenus',
+    'Ajouter mes revenus',
   ].join('|'),
   caseSensitive: false,
 );

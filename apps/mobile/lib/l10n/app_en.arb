@@ -681,12 +681,16 @@
   },
   "budgetEmptyTitle": "Your budget",
   "budgetEmptyBody": "Complete your diagnosis to unlock your monthly plan with your real income and expenses.",
-  "budgetSetupTitle": "Fixed charges",
+  "budgetSetupTitle": "Income and fixed charges",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "What goes out every month, no matter what.",
+  "budgetSetupSubtitle": "What comes in and what goes out each month, covering independent income, pensions and mixed income.",
   "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupIncome": "Monthly net resources",
+  "@budgetSetupIncome": {
     "description": "Budget setup label."
   },
   "budgetSetupHousing": "Rent or mortgage",
@@ -733,7 +737,7 @@
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Required",
+  "budgetSetupRequired": "Income, housing and health insurance are required.",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
@@ -759,15 +763,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Your fixed charges, clearly.",
+  "budgetCardEmptyTitle": "Your budget",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Seven items, two minutes. Then we calculate what truly remains.",
+  "budgetCardEmptyBody": "Enter your income and fixed charges to calculate what truly remains.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Set my charges",
+  "budgetCardEmptyAction": "Add my income",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },

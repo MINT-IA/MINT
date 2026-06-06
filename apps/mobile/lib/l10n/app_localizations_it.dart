@@ -1619,11 +1619,14 @@ class SIt extends S {
       'Completa la tua diagnosi per sbloccare il tuo piano mensile con i tuoi veri redditi e spese.';
 
   @override
-  String get budgetSetupTitle => 'Spese fisse';
+  String get budgetSetupTitle => 'Entrate e spese fisse';
 
   @override
   String get budgetSetupSubtitle =>
-      'Quello che esce ogni mese, qualunque cosa succeda.';
+      'Quello che entra e quello che esce ogni mese, includendo entrate indipendenti, rendite ed entrate miste.';
+
+  @override
+  String get budgetSetupIncome => 'Risorse nette mensili';
 
   @override
   String get budgetSetupHousing => 'Affitto o ipoteca';
@@ -1659,7 +1662,8 @@ class SIt extends S {
   String get budgetSetupFieldPlaceholder => 'CHF / mese';
 
   @override
-  String get budgetSetupRequired => 'Obbligatorio';
+  String get budgetSetupRequired =>
+      'Entrate, abitazione e assicurazione malattia sono obbligatorie.';
 
   @override
   String get budgetSetupAmountTooHigh =>
@@ -1676,14 +1680,14 @@ class SIt extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Le tue spese fisse, in chiaro.';
+  String get budgetCardEmptyTitle => 'Il tuo budget';
 
   @override
   String get budgetCardEmptyBody =>
-      'Sette voci, due minuti. Poi calcoliamo quanto ti resta davvero.';
+      'Inserisci entrate e spese fisse per calcolare quanto ti resta davvero.';
 
   @override
-  String get budgetCardEmptyAction => 'Impostare le mie spese';
+  String get budgetCardEmptyAction => 'Aggiungere le mie entrate';
 
   @override
   String get budgetEmptyAction => 'Fare la mia diagnosi';

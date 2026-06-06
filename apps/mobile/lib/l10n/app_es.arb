@@ -681,12 +681,16 @@
   },
   "budgetEmptyTitle": "Tu presupuesto",
   "budgetEmptyBody": "Completa tu diagnóstico para desbloquear tu plan mensual con tus ingresos y gastos reales.",
-  "budgetSetupTitle": "Gastos fijos",
+  "budgetSetupTitle": "Ingresos y gastos fijos",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "Lo que sale cada mes, pase lo que pase.",
+  "budgetSetupSubtitle": "Lo que entra y lo que sale cada mes, cubriendo ingresos independientes, pensiones e ingresos mixtos.",
   "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupIncome": "Recursos netos mensuales",
+  "@budgetSetupIncome": {
     "description": "Budget setup label."
   },
   "budgetSetupHousing": "Alquiler o hipoteca",
@@ -733,7 +737,7 @@
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Obligatorio",
+  "budgetSetupRequired": "Ingresos, vivienda y seguro médico son obligatorios.",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
@@ -759,15 +763,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Tus gastos fijos, claros.",
+  "budgetCardEmptyTitle": "Tu presupuesto",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Siete conceptos, dos minutos. Después calculamos lo que realmente te queda.",
+  "budgetCardEmptyBody": "Introduce tus ingresos y gastos fijos para calcular lo que realmente te queda.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Definir mis gastos",
+  "budgetCardEmptyAction": "Añadir mis ingresos",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },

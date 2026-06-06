@@ -1614,11 +1614,14 @@ class SPt extends S {
       'Completa o teu diagnóstico para desbloquear o teu plano mensal com os teus rendimentos e despesas reais.';
 
   @override
-  String get budgetSetupTitle => 'Encargos fixos';
+  String get budgetSetupTitle => 'Rendimentos e encargos fixos';
 
   @override
   String get budgetSetupSubtitle =>
-      'O que sai todos os meses, aconteça o que acontecer.';
+      'O que entra e o que sai todos os meses, incluindo rendimentos independentes, pensoes e rendimentos mistos.';
+
+  @override
+  String get budgetSetupIncome => 'Recursos líquidos mensais';
 
   @override
   String get budgetSetupHousing => 'Renda ou hipoteca';
@@ -1654,7 +1657,8 @@ class SPt extends S {
   String get budgetSetupFieldPlaceholder => 'CHF / mês';
 
   @override
-  String get budgetSetupRequired => 'Obrigatório';
+  String get budgetSetupRequired =>
+      'Rendimentos, habitação e seguro de saúde são obrigatórios.';
 
   @override
   String get budgetSetupAmountTooHigh =>
@@ -1671,14 +1675,14 @@ class SPt extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Os teus encargos fixos, claros.';
+  String get budgetCardEmptyTitle => 'O teu orçamento';
 
   @override
   String get budgetCardEmptyBody =>
-      'Sete rubricas, dois minutos. Depois calculamos o que realmente sobra.';
+      'Indica os teus rendimentos e encargos fixos para calcular o que realmente sobra.';
 
   @override
-  String get budgetCardEmptyAction => 'Definir os meus encargos';
+  String get budgetCardEmptyAction => 'Adicionar os meus rendimentos';
 
   @override
   String get budgetEmptyAction => 'Fazer o meu diagnóstico';

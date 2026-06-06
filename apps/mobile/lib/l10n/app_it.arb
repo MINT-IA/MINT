@@ -681,12 +681,16 @@
   },
   "budgetEmptyTitle": "Il tuo budget",
   "budgetEmptyBody": "Completa la tua diagnosi per sbloccare il tuo piano mensile con i tuoi veri redditi e spese.",
-  "budgetSetupTitle": "Spese fisse",
+  "budgetSetupTitle": "Entrate e spese fisse",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "Quello che esce ogni mese, qualunque cosa succeda.",
+  "budgetSetupSubtitle": "Quello che entra e quello che esce ogni mese, includendo entrate indipendenti, rendite ed entrate miste.",
   "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupIncome": "Risorse nette mensili",
+  "@budgetSetupIncome": {
     "description": "Budget setup label."
   },
   "budgetSetupHousing": "Affitto o ipoteca",
@@ -733,7 +737,7 @@
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Obbligatorio",
+  "budgetSetupRequired": "Entrate, abitazione e assicurazione malattia sono obbligatorie.",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
@@ -759,15 +763,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Le tue spese fisse, in chiaro.",
+  "budgetCardEmptyTitle": "Il tuo budget",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Sette voci, due minuti. Poi calcoliamo quanto ti resta davvero.",
+  "budgetCardEmptyBody": "Inserisci entrate e spese fisse per calcolare quanto ti resta davvero.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Impostare le mie spese",
+  "budgetCardEmptyAction": "Aggiungere le mie entrate",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },

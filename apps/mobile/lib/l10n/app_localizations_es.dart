@@ -1616,10 +1616,14 @@ class SEs extends S {
       'Completa tu diagnóstico para desbloquear tu plan mensual con tus ingresos y gastos reales.';
 
   @override
-  String get budgetSetupTitle => 'Gastos fijos';
+  String get budgetSetupTitle => 'Ingresos y gastos fijos';
 
   @override
-  String get budgetSetupSubtitle => 'Lo que sale cada mes, pase lo que pase.';
+  String get budgetSetupSubtitle =>
+      'Lo que entra y lo que sale cada mes, cubriendo ingresos independientes, pensiones e ingresos mixtos.';
+
+  @override
+  String get budgetSetupIncome => 'Recursos netos mensuales';
 
   @override
   String get budgetSetupHousing => 'Alquiler o hipoteca';
@@ -1655,7 +1659,8 @@ class SEs extends S {
   String get budgetSetupFieldPlaceholder => 'CHF / mes';
 
   @override
-  String get budgetSetupRequired => 'Obligatorio';
+  String get budgetSetupRequired =>
+      'Ingresos, vivienda y seguro médico son obligatorios.';
 
   @override
   String get budgetSetupAmountTooHigh =>
@@ -1672,14 +1677,14 @@ class SEs extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Tus gastos fijos, claros.';
+  String get budgetCardEmptyTitle => 'Tu presupuesto';
 
   @override
   String get budgetCardEmptyBody =>
-      'Siete conceptos, dos minutos. Después calculamos lo que realmente te queda.';
+      'Introduce tus ingresos y gastos fijos para calcular lo que realmente te queda.';
 
   @override
-  String get budgetCardEmptyAction => 'Definir mis gastos';
+  String get budgetCardEmptyAction => 'Añadir mis ingresos';
 
   @override
   String get budgetEmptyAction => 'Hacer mi diagnóstico';

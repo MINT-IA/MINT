@@ -410,9 +410,9 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Empty-state CTA now routes to structured setup form (P0-MVP-3),
-      // not the coach "diagnostic" path — see budgetCardEmptyAction.
-      expect(find.text('Poser mes charges'), findsOneWidget);
+      // Empty-state CTA routes to structured cashflow setup, not a
+      // salary-only or coach-only diagnostic path.
+      expect(find.text('Ajouter mes revenus'), findsOneWidget);
       // FilledButton.icon creates a widget that may not match find.byType(FilledButton)
       // in all Flutter versions, so we check for the button text + icon instead
       expect(find.byIcon(Icons.edit_note), findsOneWidget);

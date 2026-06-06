@@ -88,6 +88,10 @@ tags:
       id: "budget_setup_screen"
     timeout: 12000
 - tapOn:
+    id: "budget_income_field"
+- eraseText: 20
+- inputText: "7400"
+- tapOn:
     id: "budget_housing_field"
 - eraseText: 20
 - inputText: "2200"

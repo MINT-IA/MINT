@@ -1625,11 +1625,14 @@ class SDe extends S {
       'Schliesse deine Diagnose ab, um deinen Monatsplan mit echten Einnahmen und Ausgaben freizuschalten.';
 
   @override
-  String get budgetSetupTitle => 'Fixkosten';
+  String get budgetSetupTitle => 'Einnahmen und Fixkosten';
 
   @override
   String get budgetSetupSubtitle =>
-      'Was jeden Monat abgeht, egal was passiert.';
+      'Was jeden Monat reinkommt und abgeht, passend fuer selbststaendige, Renten- und gemischte Einkommen.';
+
+  @override
+  String get budgetSetupIncome => 'Monatliche Netto-Ressourcen';
 
   @override
   String get budgetSetupHousing => 'Miete oder Hypothek';
@@ -1665,7 +1668,8 @@ class SDe extends S {
   String get budgetSetupFieldPlaceholder => 'CHF / Monat';
 
   @override
-  String get budgetSetupRequired => 'Erforderlich';
+  String get budgetSetupRequired =>
+      'Einkommen, Wohnen und Krankenversicherung sind erforderlich.';
 
   @override
   String get budgetSetupAmountTooHigh =>
@@ -1682,14 +1686,14 @@ class SDe extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Deine Fixkosten, klar erfasst.';
+  String get budgetCardEmptyTitle => 'Dein Budget';
 
   @override
   String get budgetCardEmptyBody =>
-      'Sieben Posten, zwei Minuten. Danach berechnen wir, was wirklich übrig bleibt.';
+      'Erfasse deine Einnahmen und Fixkosten, um zu berechnen, was wirklich übrig bleibt.';
 
   @override
-  String get budgetCardEmptyAction => 'Meine Kosten erfassen';
+  String get budgetCardEmptyAction => 'Meine Einnahmen hinzufügen';
 
   @override
   String get budgetEmptyAction => 'Meine Diagnose starten';

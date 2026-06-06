@@ -36,6 +36,20 @@ Tracked debt from that audit:
   `Mise à jour du bilan Mint (nouveau canton)`, and
   `test/screens/s44_phase2_smoke_test.dart` guards life-event timeline labels
   against reintroducing `Plan Mint`.
+- `D-20260606-01` P1: Budget setup promised income-inclusive Budget entry but
+  collected only fixed charges/LAMal, so a fresh `/budget/setup` save could
+  leave `/budget` without monthly resources and render the income empty-state
+  instead of the cashflow surface. Fixed locally 2026-06-06 by adding monthly
+  net resources capture, persisting `q_net_income_period_chf`, and creating
+  direct `BudgetInputs` when no completed profile exists. Proof: `flutter test
+  test/screens/budget_setup_screen_test.dart test/screens/budget_screen_smoke_test.dart
+  test/services/navigation/screen_registry_test.dart
+  test/services/navigation/route_planner_test.dart
+  test/i18n/hardcoded_string_audit_test.dart` passed (`167` tests), ARB parity
+  OK (`6872` keys per locale), `flutter analyze` passed, route/locator/Quality
+  OS guards passed. Runtime proof remains blocked locally by simulator CodeSign
+  metadata; failed pre-fix evidence:
+  `evidence/maestro-ci/row-22-budget-income-copy-20260606T084754/`.
 - `D-20260604-06` P2: direct staging push is operational debt for later release
   promotion.
 - `D-20260604-07` P2: failed/stale local Row 22 Maestro artifact folders were

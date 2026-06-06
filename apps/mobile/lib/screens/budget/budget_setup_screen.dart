@@ -11,7 +11,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 
-/// Structured fixed-charges entry form — MVP P0-MVP-3.
+/// Structured cashflow entry form — MVP P0-MVP-3.
 ///
 /// The previous Mon argent "Commencer" CTA routed straight to the coach
 /// with `topic=budget`, which produced a dead-end loop: the coach chat
@@ -20,8 +20,8 @@ import 'package:provider/provider.dart';
 /// users could spend ten turns in a chat about their rent without any
 /// field ever landing on `CoachProfile.depenses`.
 ///
-/// This screen is the explicit, deterministic alternative. Seven fixed-
-/// charge fields, two required, five optional behind a progressive
+/// This screen is the explicit, deterministic alternative. One resources
+/// field plus seven fixed-charge fields, three required, five behind a
 /// disclosure. No sliders, no pickers, no categorisation tree — just
 /// `TextField` + numeric keyboard, per `feedback_no_sliders_ux` and
 /// `feedback_modern_inputs_no_sliders`.
@@ -42,6 +42,7 @@ class BudgetSetupScreen extends StatefulWidget {
 }
 
 class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
+  final _income = TextEditingController();
   final _housing = TextEditingController();
   final _lamal = TextEditingController();
   final _transport = TextEditingController();
@@ -58,6 +59,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   // decimals, within the statistically-observed range for a single
   // Swiss adult (OFS household-budget survey 2023). Not LSFin advice,
   // purely illustrative guidance per feedback_no_vague_language.
+  static const _placeholderIncome = '6000';
   static const _placeholderHousing = '2400';
   static const _placeholderLamal = '380';
   static const _placeholderTransport = '200';
@@ -65,6 +67,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   static const _placeholderElectricity = '90';
   static const _placeholderMedical = '120';
   static const _placeholderOther = '250';
+  static const _maxMonthlyIncome = 100000.0;
   static const _maxMonthlyHousing = 20000.0;
   static const _maxMonthlyLamal = 3000.0;
   static const _maxMonthlyOtherCharge = 10000.0;
@@ -80,6 +83,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       final profile = context.read<CoachProfileProvider>().profile;
       if (profile == null) return;
       final d = profile.depenses;
+      _income.text = _formatAmount(BudgetInputs.monthlyNetFromCoachProfile(
+        profile,
+      ));
       _housing.text = _prefillAmount(profile, 'housingCost', d.loyer);
       _lamal.text = _prefillAmount(profile, 'lamalPremium', d.assuranceMaladie);
       _transport.text = _prefillAmount(profile, 'transport', d.transport);
@@ -94,6 +100,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     // the running sum without tapping Save. Addresses deep-walk P2
     // crack #14 (Budget setup: pas de total live pendant saisie).
     for (final c in [
+      _income,
       _housing,
       _lamal,
       _transport,
@@ -129,6 +136,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   @override
   void dispose() {
     for (final c in [
+      _income,
       _housing,
       _lamal,
       _transport,
@@ -173,6 +181,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     return value >= 0 && value <= max;
   }
 
+  bool _isPlausibleMonthlyIncome(double value) {
+    return value > 0 && value <= _maxMonthlyIncome;
+  }
+
   bool _hasImplausibleMonthlyCharge({
     required double housing,
     required double lamal,
@@ -195,6 +207,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
 
   BudgetInputs _directInputsFromProfile(
     CoachProfile profile, {
+    required double income,
     required double housing,
     required double lamal,
     double? transport,
@@ -218,7 +231,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
 
     return BudgetInputs(
       payFrequency: PayFrequency.monthly,
-      netIncome: base.netIncome,
+      netIncome: income,
       housingCost: housing,
       debtPayments: base.debtPayments,
       taxProvision: base.taxProvision,
@@ -234,10 +247,44 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     );
   }
 
+  BudgetInputs _directInputs({
+    required double income,
+    required double housing,
+    required double lamal,
+    double? transport,
+    double? telecom,
+    double? electricity,
+    double? medical,
+    double? other,
+  }) {
+    final otherFixedCosts = [
+      transport,
+      telecom,
+      electricity,
+      medical,
+      other,
+    ].fold<double>(0, (sum, value) => sum + (value ?? 0));
+    return BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: income,
+      housingCost: housing,
+      debtPayments: 0,
+      healthInsurance: lamal,
+      otherFixedCosts: otherFixedCosts,
+      isTaxEstimated: false,
+      isHealthEstimated: false,
+      isHousingMissing: false,
+      isHealthMissing: false,
+      isOtherFixedMissing: otherFixedCosts <= 0,
+      emergencyFundMonths: 0,
+    );
+  }
+
   Future<void> _save() async {
+    final income = _parseAmount(_income.text);
     final housing = _parseAmount(_housing.text);
     final lamal = _parseAmount(_lamal.text);
-    if (housing == null || lamal == null) {
+    if (income == null || housing == null || lamal == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(S.of(context)!.budgetSetupRequired)),
       );
@@ -248,15 +295,16 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     final electricity = _parseAmount(_electricity.text);
     final medical = _parseAmount(_medical.text);
     final other = _parseAmount(_other.text);
-    if (_hasImplausibleMonthlyCharge(
-      housing: housing,
-      lamal: lamal,
-      transport: transport,
-      telecom: telecom,
-      electricity: electricity,
-      medical: medical,
-      other: other,
-    )) {
+    if (!_isPlausibleMonthlyIncome(income) ||
+        _hasImplausibleMonthlyCharge(
+          housing: housing,
+          lamal: lamal,
+          transport: transport,
+          telecom: telecom,
+          electricity: electricity,
+          medical: medical,
+          other: other,
+        )) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(S.of(context)!.budgetSetupAmountTooHigh)),
       );
@@ -266,6 +314,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     final provider = context.read<CoachProfileProvider>();
     final profileBeforeSave = provider.profile;
     final answers = <String, dynamic>{
+      'q_net_income_period_chf': income,
       'q_housing_cost_period_chf': housing,
       'q_pay_frequency': 'monthly',
       'q_lamal_premium_monthly_chf': lamal,
@@ -284,22 +333,35 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     // plan (revenu / charges fixes / reste). Without this the user
     // enters their charges and the card still shows « Commencer » —
     // silent failure, identical to the save_fact bug.
-    final updated = provider.profile;
-    if (updated != null) {
-      await context.read<BudgetProvider>().refreshFromProfile(updated);
-    } else if (profileBeforeSave != null) {
-      await context.read<BudgetProvider>().setInputs(
-            _directInputsFromProfile(
-              profileBeforeSave,
-              housing: housing,
-              lamal: lamal,
-              transport: transport,
-              telecom: telecom,
-              electricity: electricity,
-              medical: medical,
-              other: other,
-            ),
-          );
+    final profileForBudget = provider.profile ?? profileBeforeSave;
+    final budgetProvider = context.read<BudgetProvider>();
+    if (profileForBudget != null) {
+      await budgetProvider.setInputs(
+        _directInputsFromProfile(
+          profileForBudget,
+          income: income,
+          housing: housing,
+          lamal: lamal,
+          transport: transport,
+          telecom: telecom,
+          electricity: electricity,
+          medical: medical,
+          other: other,
+        ),
+      );
+    } else {
+      await budgetProvider.setInputs(
+        _directInputs(
+          income: income,
+          housing: housing,
+          lamal: lamal,
+          transport: transport,
+          telecom: telecom,
+          electricity: electricity,
+          medical: medical,
+          other: other,
+        ),
+      );
     }
     if (!mounted) return;
     setState(() => _saving = false);
@@ -328,6 +390,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                       color: MintColors.textSecondary),
                 ),
                 const SizedBox(height: MintSpacing.lg),
+                _field(s.budgetSetupIncome, _income,
+                    key: const ValueKey('budgetIncomeField'),
+                    required: true,
+                    placeholder: _placeholderIncome),
                 _field(s.budgetSetupHousing, _housing,
                     key: const ValueKey('budgetHousingField'),
                     required: true,
@@ -487,6 +553,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   String _fieldSemanticsIdentifier(Key? key, String label) {
     if (key == const ValueKey('budgetHousingField')) {
       return 'budget_housing_field';
+    }
+    if (key == const ValueKey('budgetIncomeField')) {
+      return 'budget_income_field';
     }
     if (key == const ValueKey('budgetLamalField')) {
       return 'budget_lamal_field';

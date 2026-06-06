@@ -681,12 +681,16 @@
   },
   "budgetEmptyTitle": "Dein Budget",
   "budgetEmptyBody": "Schliesse deine Diagnose ab, um deinen Monatsplan mit echten Einnahmen und Ausgaben freizuschalten.",
-  "budgetSetupTitle": "Fixkosten",
+  "budgetSetupTitle": "Einnahmen und Fixkosten",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "Was jeden Monat abgeht, egal was passiert.",
+  "budgetSetupSubtitle": "Was jeden Monat reinkommt und abgeht, passend fuer selbststaendige, Renten- und gemischte Einkommen.",
   "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupIncome": "Monatliche Netto-Ressourcen",
+  "@budgetSetupIncome": {
     "description": "Budget setup label."
   },
   "budgetSetupHousing": "Miete oder Hypothek",
@@ -733,7 +737,7 @@
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Erforderlich",
+  "budgetSetupRequired": "Einkommen, Wohnen und Krankenversicherung sind erforderlich.",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
@@ -759,15 +763,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Deine Fixkosten, klar erfasst.",
+  "budgetCardEmptyTitle": "Dein Budget",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Sieben Posten, zwei Minuten. Danach berechnen wir, was wirklich übrig bleibt.",
+  "budgetCardEmptyBody": "Erfasse deine Einnahmen und Fixkosten, um zu berechnen, was wirklich übrig bleibt.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Meine Kosten erfassen",
+  "budgetCardEmptyAction": "Meine Einnahmen hinzufügen",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },

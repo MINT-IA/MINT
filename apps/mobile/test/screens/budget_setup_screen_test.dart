@@ -110,6 +110,11 @@ void main() {
     await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
     await tester.pumpAndSettle();
 
+    expect(find.textContaining('salaire'), findsNothing);
+    expect(find.text('Ressources mensuelles nettes'), findsOneWidget);
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetIncomeField')), '6000');
     await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '2200');
     await tester.enterText(
@@ -131,6 +136,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_net_income_period_chf'], 6000.0);
     expect(answers['q_housing_cost_period_chf'], 2200.0);
     expect(answers['q_lamal_premium_monthly_chf'], 420.0);
     expect(answers['q_pay_frequency'], 'monthly');
@@ -139,6 +145,40 @@ void main() {
     expect(answers['_coach_depenses_electricite'], 90.0);
     expect(answers['_coach_depenses_frais_medicaux'], 110.0);
     expect(answers['_coach_depenses_autres'], 250.0);
+  });
+
+  testWidgets('creates direct budget inputs without a completed profile',
+      (tester) async {
+    final coachProvider = CoachProfileProvider();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetIncomeField')), '7400');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final inputs = budgetProvider.inputs;
+    expect(inputs, isNotNull);
+    expect(inputs!.netIncome, 7400);
+    expect(inputs.housingCost, 2200);
+    expect(inputs.healthInsurance, 420);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_net_income_period_chf'], 7400.0);
+    expect(answers['q_housing_cost_period_chf'], 2200.0);
+    expect(answers['q_lamal_premium_monthly_chf'], 420.0);
   });
 
   test('budget-first answers hydrate a partial profile on restart', () async {
@@ -199,6 +239,8 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
+    expect(find.text('Ressources mensuelles nettes'), findsOneWidget);
+    expect(find.textContaining('salaire'), findsNothing);
     await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '2200');
     await tester.enterText(
@@ -233,6 +275,8 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
+    expect(find.text('Ressources mensuelles nettes'), findsOneWidget);
+    expect(find.textContaining('salaire'), findsNothing);
     await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '2200');
     await tester.enterText(
@@ -311,6 +355,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
+        find.byKey(const ValueKey('budgetIncomeField')), '6000');
+    await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '2200');
     await tester.enterText(
         find.byKey(const ValueKey('budgetLamalField')), '420');
@@ -351,6 +397,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
+        find.byKey(const ValueKey('budgetIncomeField')), '7400');
+    await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '2200');
     await tester.enterText(
         find.byKey(const ValueKey('budgetLamalField')), '420');
@@ -359,7 +407,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final answers = await ReportPersistenceService.loadAnswers();
-    expect(answers['q_net_income_period_chf'], 5379.0);
+    expect(answers['q_net_income_period_chf'], 7400.0);
     expect(answers['q_housing_cost_period_chf'], 2200.0);
     expect(answers['q_lamal_premium_monthly_chf'], 420.0);
     expect(answers.values, isNot(contains(19272200.0)));
@@ -367,7 +415,9 @@ void main() {
 
     expect(coachProvider.profile!.depenses.loyer, 2200);
     expect(coachProvider.profile!.depenses.assuranceMaladie, 420);
+    expect(coachProvider.profile!.explicitMonthlyNetIncome, 7400);
     expect(budgetProvider.inputs, isNotNull);
+    expect(budgetProvider.inputs!.netIncome, 7400);
     expect(budgetProvider.inputs!.housingCost, 2200);
     expect(budgetProvider.inputs!.healthInsurance, 420);
     expect(budgetProvider.inputs!.isTaxEstimated, isTrue);
@@ -408,6 +458,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(
+        find.byKey(const ValueKey('budgetIncomeField')), '7400');
+    await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '2200');
     await tester.enterText(
         find.byKey(const ValueKey('budgetLamalField')), '420');
@@ -419,7 +471,7 @@ void main() {
     expect(answers, isEmpty);
     expect(budgetProvider.source, BudgetDataSource.directInput);
     expect(budgetProvider.inputs, isNotNull);
-    expect(budgetProvider.inputs!.netIncome, greaterThan(0));
+    expect(budgetProvider.inputs!.netIncome, 7400);
     expect(budgetProvider.inputs!.housingCost, 2200);
     expect(budgetProvider.inputs!.healthInsurance, 420);
 
@@ -434,6 +486,8 @@ void main() {
     await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
     await tester.pumpAndSettle();
 
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetIncomeField')), '6000');
     await tester.enterText(
         find.byKey(const ValueKey('budgetHousingField')), '19272200');
     await tester.enterText(
@@ -458,6 +512,12 @@ void main() {
           .getSemantics(find.byKey(const Key('budget_setup_screen')))
           .identifier,
       'budget_setup_screen',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_income_field_semantics')))
+          .identifier,
+      'budget_income_field',
     );
     expect(
       tester

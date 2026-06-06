@@ -1620,11 +1620,14 @@ class SFr extends S {
       'Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.';
 
   @override
-  String get budgetSetupTitle => 'Charges fixes';
+  String get budgetSetupTitle => 'Revenus et charges fixes';
 
   @override
   String get budgetSetupSubtitle =>
-      'Ce qui part chaque mois, quoi qu\'il arrive.';
+      'Ce qui entre et ce qui part chaque mois, adapté aux revenus indépendants, rentes et revenus mixtes.';
+
+  @override
+  String get budgetSetupIncome => 'Ressources mensuelles nettes';
 
   @override
   String get budgetSetupHousing => 'Loyer ou hypothèque';
@@ -1660,7 +1663,8 @@ class SFr extends S {
   String get budgetSetupFieldPlaceholder => 'CHF / mois';
 
   @override
-  String get budgetSetupRequired => 'Requis';
+  String get budgetSetupRequired =>
+      'Revenu, logement et assurance maladie requis.';
 
   @override
   String get budgetSetupAmountTooHigh =>
@@ -1677,14 +1681,14 @@ class SFr extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Tes charges fixes, au clair.';
+  String get budgetCardEmptyTitle => 'Ton budget';
 
   @override
   String get budgetCardEmptyBody =>
-      'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.';
+      'Renseigne tes revenus et tes charges fixes pour calculer ce qu\'il te reste vraiment.';
 
   @override
-  String get budgetCardEmptyAction => 'Poser mes charges';
+  String get budgetCardEmptyAction => 'Ajouter mes revenus';
 
   @override
   String get budgetEmptyAction => 'Faire mon diagnostic';

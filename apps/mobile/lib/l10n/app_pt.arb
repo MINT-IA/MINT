@@ -681,12 +681,16 @@
   },
   "budgetEmptyTitle": "O teu orçamento",
   "budgetEmptyBody": "Completa o teu diagnóstico para desbloquear o teu plano mensal com os teus rendimentos e despesas reais.",
-  "budgetSetupTitle": "Encargos fixos",
+  "budgetSetupTitle": "Rendimentos e encargos fixos",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "O que sai todos os meses, aconteça o que acontecer.",
+  "budgetSetupSubtitle": "O que entra e o que sai todos os meses, incluindo rendimentos independentes, pensoes e rendimentos mistos.",
   "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupIncome": "Recursos líquidos mensais",
+  "@budgetSetupIncome": {
     "description": "Budget setup label."
   },
   "budgetSetupHousing": "Renda ou hipoteca",
@@ -733,7 +737,7 @@
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Obrigatório",
+  "budgetSetupRequired": "Rendimentos, habitação e seguro de saúde são obrigatórios.",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
@@ -759,15 +763,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Os teus encargos fixos, claros.",
+  "budgetCardEmptyTitle": "O teu orçamento",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Sete rubricas, dois minutos. Depois calculamos o que realmente sobra.",
+  "budgetCardEmptyBody": "Indica os teus rendimentos e encargos fixos para calcular o que realmente sobra.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Definir os meus encargos",
+  "budgetCardEmptyAction": "Adicionar os meus rendimentos",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },

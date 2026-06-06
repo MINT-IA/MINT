@@ -681,12 +681,16 @@
   },
   "budgetEmptyTitle": "Ton budget",
   "budgetEmptyBody": "Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.",
-  "budgetSetupTitle": "Charges fixes",
+  "budgetSetupTitle": "Revenus et charges fixes",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "Ce qui part chaque mois, quoi qu'il arrive.",
+  "budgetSetupSubtitle": "Ce qui entre et ce qui part chaque mois, adapté aux revenus indépendants, rentes et revenus mixtes.",
   "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupIncome": "Ressources mensuelles nettes",
+  "@budgetSetupIncome": {
     "description": "Budget setup label."
   },
   "budgetSetupHousing": "Loyer ou hypothèque",
@@ -733,7 +737,7 @@
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Requis",
+  "budgetSetupRequired": "Revenu, logement et assurance maladie requis.",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
@@ -759,15 +763,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Tes charges fixes, au clair.",
+  "budgetCardEmptyTitle": "Ton budget",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Sept postes, deux minutes. Ensuite on calcule ce qu'il te reste vraiment.",
+  "budgetCardEmptyBody": "Renseigne tes revenus et tes charges fixes pour calculer ce qu'il te reste vraiment.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Poser mes charges",
+  "budgetCardEmptyAction": "Ajouter mes revenus",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },
