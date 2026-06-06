@@ -123,6 +123,41 @@ class DesignLintsSmokeTest(LintTestCase):
                     f"{lint_name} must respect // lint-ignore: {lint_name}",
                 )
 
+    def test_each_lint_accepts_lefthook_file_argument_shape(self):
+        # lefthook currently expands `--file {staged_files}` to
+        # `--file first.dart second.dart`. The scripts must treat the trailing
+        # positional paths as files, not argparse errors hidden by `|| true`.
+        for lint_name, content in SMOKE_FIXTURES.items():
+            with self.subTest(lint=lint_name):
+                clean = self.write(
+                    f"apps/mobile/lib/_lefthook_clean_{lint_name}.dart",
+                    "const ok = 1;\n",
+                )
+                violation = self.write(
+                    f"apps/mobile/lib/_lefthook_{lint_name}.dart", content
+                )
+                baseline = self.baseline(lint_name)
+                mod = load_lint(lint_name)
+                old_argv = sys.argv
+                sys.argv = [
+                    f"{lint_name}.py",
+                    "--scope-root", str(self.lib),
+                    "--baseline", str(baseline),
+                    "--file", str(clean), str(violation),
+                ]
+                try:
+                    with captured_io() as (out, err):
+                        rc = mod.main()
+                finally:
+                    sys.argv = old_argv
+                diag = out.getvalue() + err.getvalue()
+                self.assertEqual(
+                    rc, 1,
+                    f"{lint_name} must lint both lefthook-shaped paths; "
+                    f"got {rc}, diag={diag!r}",
+                )
+                self.assertIn(f"_lefthook_{lint_name}.dart", diag)
+
 
 if __name__ == "__main__":
     unittest.main()

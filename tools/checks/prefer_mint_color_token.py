@@ -174,6 +174,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Re-snapshot the baseline file from current scan (after a sweep PR)",
     )
+    ap.add_argument(
+        "files",
+        nargs="*",
+        type=Path,
+        help="Additional file paths accepted for lefthook `--file {staged_files}` expansion",
+    )
     args = ap.parse_args(argv)
 
     scope_root: Path = args.scope_root
@@ -183,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"INFO {LINT_NAME}: scope-root {scope_root} missing — nothing to scan")
         return 0
 
-    files = args.file
+    files = [*(args.file or []), *args.files]
     current = scan(scope_root, files=files)
 
     if args.update_baseline:

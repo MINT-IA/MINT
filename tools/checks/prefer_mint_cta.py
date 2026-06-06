@@ -122,13 +122,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--scope-root", type=Path, default=DEFAULT_SCOPE)
     ap.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     ap.add_argument("--update-baseline", action="store_true")
+    ap.add_argument("files", nargs="*", type=Path)
     args = ap.parse_args(argv)
 
     if not args.scope_root.exists():
         print(f"INFO {LINT_NAME}: scope-root {args.scope_root} missing")
         return 0
 
-    current = scan(args.scope_root, files=args.file)
+    files = [*(args.file or []), *args.files]
+    current = scan(args.scope_root, files=files)
 
     if args.update_baseline:
         _write_baseline(args.baseline, current)
@@ -157,7 +159,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
 
-    if args.file:
+    if files:
         print(f"OK {LINT_NAME}: clean (staged scope, baseline unchanged)")
         return 0
 
