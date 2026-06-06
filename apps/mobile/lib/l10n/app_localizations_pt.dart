@@ -19549,6 +19549,9 @@ class SPt extends S {
       'O seu Balanço Flash - Exportação financeira';
 
   @override
+  String get reportSharePdfSemantics => 'Exportar balanço financeiro em PDF';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Património livre';
 
   @override

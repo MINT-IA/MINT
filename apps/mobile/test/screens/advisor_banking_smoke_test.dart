@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,6 +118,45 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Ton Bilan Flash'), findsWidgets);
+    });
+
+    testWidgets('labels icon-only app bar actions for accessibility',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(
+          buildWithProfileProvider(
+            FinancialReportScreenV2(wizardAnswers: testAnswersV2),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        final backAction = find.bySemanticsLabel('Retour');
+        final exportAction = find.bySemanticsLabel('Exporter le bilan en PDF');
+        expect(backAction, findsOneWidget);
+        expect(exportAction, findsOneWidget);
+        expect(tester.getSemantics(backAction).flagsCollection.isButton, isTrue);
+        expect(tester.getSemantics(exportAction).flagsCollection.isButton, isTrue);
+        expect(
+          tester
+              .getSemantics(backAction)
+              .getSemanticsData()
+              .hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+        expect(
+          tester
+              .getSemantics(exportAction)
+              .getSemanticsData()
+              .hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+      } finally {
+        semantics.dispose();
+      }
     });
 
     testWidgets('displays synthesis header', (tester) async {

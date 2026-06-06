@@ -19454,6 +19454,9 @@ class SEn extends S {
       'Your Financial Snapshot - Financial export';
 
   @override
+  String get reportSharePdfSemantics => 'Export financial snapshot as PDF';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Free assets';
 
   @override

@@ -19591,6 +19591,9 @@ class SDe extends S {
   String get reportPdfExportTitle => 'Deine Finanzübersicht - Finanzexport';
 
   @override
+  String get reportSharePdfSemantics => 'Finanzübersicht als PDF exportieren';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Freies Vermögen';
 
   @override

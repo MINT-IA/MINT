@@ -19540,6 +19540,9 @@ class SFr extends S {
   String get reportPdfExportTitle => 'Ton Bilan Flash - Export financier';
 
   @override
+  String get reportSharePdfSemantics => 'Exporter le bilan en PDF';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Patrimoine libre';
 
   @override

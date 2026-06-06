@@ -61,9 +61,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
           backgroundColor: MintColors.white,
           foregroundColor: MintColors.textPrimary,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new),
-            onPressed: () => _leaveReport(context),
+          leading: Semantics(
+            label: S.of(context)!.semanticsBackButton,
+            button: true,
+            onTap: () => _leaveReport(context),
+            excludeSemantics: true,
+            child: IconButton(
+              tooltip: S.of(context)!.semanticsBackButton,
+              icon: const Icon(Icons.arrow_back_ios_new),
+              onPressed: () => _leaveReport(context),
+            ),
           ),
         ),
         body: MintEmptyState(
@@ -79,6 +86,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
+    void exportReportPdf() {
+      PdfService.generateFinancialReportPdf(
+        report,
+        title: S.of(context)!.reportPdfExportTitle,
+      );
+    }
 
     return Scaffold(
       backgroundColor: MintColors.surface,
@@ -88,19 +101,28 @@ class FinancialReportScreenV2 extends StatelessWidget {
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => _leaveReport(context),
+        leading: Semantics(
+          label: S.of(context)!.semanticsBackButton,
+          button: true,
+          onTap: () => _leaveReport(context),
+          excludeSemantics: true,
+          child: IconButton(
+            tooltip: S.of(context)!.semanticsBackButton,
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () => _leaveReport(context),
+          ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              PdfService.generateFinancialReportPdf(
-                report,
-                title: S.of(context)!.reportPdfExportTitle,
-              );
-            },
+          Semantics(
+            label: S.of(context)!.reportSharePdfSemantics,
+            button: true,
+            onTap: exportReportPdf,
+            excludeSemantics: true,
+            child: IconButton(
+              tooltip: S.of(context)!.reportSharePdfSemantics,
+              icon: const Icon(Icons.share),
+              onPressed: exportReportPdf,
+            ),
           ),
         ],
       ),

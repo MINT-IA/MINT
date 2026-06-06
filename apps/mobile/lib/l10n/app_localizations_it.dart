@@ -19599,6 +19599,10 @@ class SIt extends S {
       'Il tuo Bilancio Flash - Esportazione finanziaria';
 
   @override
+  String get reportSharePdfSemantics =>
+      'Esporta il bilancio finanziario in PDF';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Patrimonio libero';
 
   @override

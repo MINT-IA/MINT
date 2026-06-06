@@ -34309,6 +34309,12 @@ abstract class S {
   /// **'Ton Bilan Flash - Export financier'**
   String get reportPdfExportTitle;
 
+  /// No description provided for @reportSharePdfSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter le bilan en PDF'**
+  String get reportSharePdfSemantics;
+
   /// No description provided for @retirementIncomeLabelPatrimoine.
   ///
   /// In fr, this message translates to:

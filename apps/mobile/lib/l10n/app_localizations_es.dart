@@ -19549,6 +19549,9 @@ class SEs extends S {
       'Tu Resumen Financiero - Exportación financiera';
 
   @override
+  String get reportSharePdfSemantics => 'Exportar resumen financiero en PDF';
+
+  @override
   String get retirementIncomeLabelPatrimoine => 'Patrimonio libre';
 
   @override
