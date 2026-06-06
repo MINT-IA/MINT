@@ -292,6 +292,110 @@
         "Row 23 remains PARTIAL."
       ],
       "last_reviewed": "2026-06-06"
+    },
+    {
+      "flow_id": "flow_row23_rapport_3a_assumption_neutrality_snapshot",
+      "matrix_rows": [
+        23
+      ],
+      "bug_ids": [
+        "CJT-049"
+      ],
+      "persona": "independent_income_profile_probe",
+      "surface_family": "rapport_bilan",
+      "tier": "T1",
+      "status_claim": "PARTIAL",
+      "score": 5.0,
+      "score_cap": 5.0,
+      "cap_reasons": [
+        "No Maestro JUnit/watchdog artifact exists for this exact Row 23 Rapport 3a neutrality proof; the runtime evidence is a simulator screenshot plus accessibility-tree snapshot, not a passed Maestro flow.",
+        "The proof covers one /rapport compliance-assumption sentence for an independent-profile regression, not full per-archetype report content quality.",
+        "The record proves removal of the static salary-only 3a assumption; it does not prove downstream 3a action-card wording, exported PDF content, or provider/product neutrality.",
+        "Full Coach/Rapport focus order, VoiceOver traversal, PDF export runtime sharing, and all-primary-screen content scoring remain unproven.",
+        "Row 23 remains PARTIAL until full design/content/accessibility evidence exists."
+      ],
+      "automation": {},
+      "evidence_artifacts": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-rapport-3a-assumption-neutrality-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-rapport-3a-assumption-neutrality-20260606T112145/01-rapport-3a-assumption-neutral.jpg",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-rapport-3a-assumption-neutrality-20260606T112145/02-rapport-3a-assumption-neutral-describe-all.json"
+      ],
+      "contract_tests": [
+        {
+          "command": "cd apps/mobile && flutter gen-l10n",
+          "result": "pass",
+          "scope": "Generated six-locale app localizations after replacing the salary-only Rapport 3a assumption copy."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/screens/advisor_banking_smoke_test.dart --plain-name \"keeps report assumptions income-status neutral\"",
+          "result": "pass",
+          "scope": "Independent-profile widget regression proving the neutral assumption is visible and the old salary-only phrase is absent."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/screens/advisor_banking_smoke_test.dart test/app_rapport_route_budget_test.dart",
+          "result": "pass",
+          "scope": "Rapport route/screen suite; evidence report says 48 tests passed."
+        },
+        {
+          "command": "cd apps/mobile && flutter analyze lib/screens/advisor/financial_report_screen_v2.dart test/screens/advisor_banking_smoke_test.dart",
+          "result": "pass",
+          "scope": "Targeted analyzer proof for the changed Rapport screen and widget regression."
+        },
+        {
+          "command": "python3 tools/checks/arb_parity.py --arb-dir apps/mobile/lib/l10n && python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_fr.arb && python3 tools/checks/banned_terms_python.py apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart apps/mobile/test/screens/advisor_banking_smoke_test.dart",
+          "result": "pass",
+          "scope": "ARB parity, French accent lint, and LSFin banned-term checks recorded clean in the evidence report."
+        },
+        {
+          "command": "cd apps/mobile && flutter build ios --simulator --debug --dart-define=MINT_DISABLE_BETA_MODAL=true",
+          "result": "pass",
+          "scope": "Simulator build passed after cleaning only build/ios/iphonesimulator CodeSign extended attributes."
+        }
+      ],
+      "semantic_evals": [
+        {
+          "type": "runtime_copy_review",
+          "result": "pass_with_gaps",
+          "scope": "iPhone 17 Pro simulator snapshot for mintapp:///rapport exposes Plafond 3a selon affiliation LPP et statut de revenu."
+        },
+        {
+          "type": "swiss_constants_check",
+          "result": "pass_with_gaps",
+          "scope": "MINT regulatory constants expose distinct pillar 3a with-LPP and without-LPP contexts; the neutral copy avoids presenting the with-LPP salary ceiling as universal."
+        },
+        {
+          "type": "review_layer",
+          "result": "pass_with_gaps",
+          "scope": "Evidence report records a dedicated code-review subagent verdict of NO BLOCK; Claude CLI was attempted but unavailable due provider-side 529, so no Claude approval is claimed for CJT-049."
+        }
+      ],
+      "user_visible_outcome": "/rapport no longer tells all users that the working 3a assumption is the salaried-with-LPP ceiling; the captured runtime copy says the 3a cap depends on LPP affiliation and income status.",
+      "guidance_boundary_evidence": [
+        "The changed compliance-assumption sentence is factual and status-neutral; it does not recommend a provider, rank products, or present a personalized financial instruction.",
+        "This record does not prove that every downstream 3a action label or exported report section stays inside the educational guidance boundary."
+      ],
+      "rubric": {
+        "runtime_mechanics": 5.0,
+        "human_goal": 6.0,
+        "guidance_boundary": 6.0,
+        "user_data_grounding": 5.0,
+        "provenance_freshness": 5.0,
+        "restart_or_continuity": 2.0,
+        "next_step_quality": 4.0,
+        "ux_a11y_i18n": 6.0,
+        "automation_reliability": 4.0,
+        "debt_hygiene": 7.0
+      },
+      "remaining_gaps": [
+        "No Maestro JUnit/watchdog flow exists for this exact Rapport 3a neutrality proof.",
+        "No per-archetype runtime content scoring for salaried, independent, mixed-income, retired, transition, and no-LPP cases.",
+        "No PDF export content QA proving the neutral assumption carries into exported artifacts.",
+        "No full guidance-boundary review of downstream Rapport 3a action cards and provider/product wording.",
+        "Adjacent 3a action copy such as opening a first or second 3a account still needs a separate guidance-not-advice review before claiming provider/product neutrality.",
+        "No full VoiceOver/focus-order traversal for the Rapport content block.",
+        "Row 23 remains PARTIAL."
+      ],
+      "last_reviewed": "2026-06-06"
     }
   ]
 }
