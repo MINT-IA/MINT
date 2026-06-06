@@ -143,18 +143,31 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     // Synthesis first: /rapport is a recap/export surface, not
                     // another dashboard competing with Mon Argent or Budget.
                     MintEntrance(
-                        child: _buildSynthesisHero(
-                            context, report, report.healthScore)),
+                        child: _reportSectionSemantics(
+                      id: 'report_synthesis_summary',
+                      label: _synthesisSemanticsLabel(
+                          context, report, report.healthScore),
+                      child: _buildSynthesisHero(
+                          context, report, report.healthScore),
+                    )),
 
                     const SizedBox(height: MintSpacing.lg),
 
                     // ── SoA Compliance Section ──
-                    _buildSoaComplianceSection(context, report),
+                    _reportSectionSemantics(
+                      id: 'report_compliance_summary',
+                      label: _complianceSemanticsLabel(context, report),
+                      child: _buildSoaComplianceSection(context, report),
+                    ),
 
                     const SizedBox(height: MintSpacing.lg),
 
                     // ── Disclaimer Footer ──
-                    _buildDisclaimerFooter(context),
+                    _reportSectionSemantics(
+                      id: 'report_disclaimer_summary',
+                      label: _disclaimerSemanticsLabel(context),
+                      child: _buildDisclaimerFooter(context),
+                    ),
 
                     const SizedBox(height: MintSpacing.xxl),
                   ],
@@ -169,6 +182,79 @@ class FinancialReportScreenV2 extends StatelessWidget {
         _readBudgetProviderIfAvailable(context)?.inputs != null;
   }
 
+  Widget _reportSectionSemantics({
+    required String id,
+    required String label,
+    required Widget child,
+  }) {
+    return Semantics(
+      key: Key(id),
+      identifier: id,
+      container: true,
+      explicitChildNodes: true,
+      label: label,
+      child: child,
+    );
+  }
+
+  String _synthesisSemanticsLabel(BuildContext context, FinancialReport report,
+      FinancialHealthScore healthScore) {
+    final action =
+        report.priorityActions.isNotEmpty ? report.priorityActions.first : null;
+    final profile = report.profile;
+    final profileSummary = profile.ageOrNull == null
+        ? null
+        : S.of(context)!.reportProfileSummary(
+              profile.ageOrNull!,
+              profile.canton,
+              profile.civilStatus,
+            );
+    return [
+      S.of(context)!.reportTitleBilanFlash,
+      _statusMessage(context, healthScore),
+      if (profileSummary != null) profileSummary,
+      if (action != null) action.title,
+      if (action != null) action.description,
+    ].join('. ');
+  }
+
+  String _complianceSemanticsLabel(
+      BuildContext context, FinancialReport report) {
+    final nature = report.personalizedRoadmap.phases.isNotEmpty
+        ? S
+            .of(context)!
+            .reportSoaEduPhases(report.personalizedRoadmap.phases.length)
+        : S.of(context)!.reportSoaEduSimple;
+    return [
+      S.of(context)!.reportSoaTitle,
+      '${S.of(context)!.reportSoaNature}: $nature',
+      '${S.of(context)!.reportSoaHypotheses}: '
+          '${[
+        S.of(context)!.reportSoaHyp1,
+        S.of(context)!.reportSoaHyp2,
+        S.of(context)!.reportSoaHyp3,
+        S.of(context)!.reportSoaHyp4,
+      ].join('. ')}',
+      '${S.of(context)!.reportSoaConflicts}: '
+          '${[
+        S.of(context)!.reportSoaNoConflict,
+        S.of(context)!.reportSoaNoCommission,
+      ].join('. ')}',
+      '${S.of(context)!.reportSoaLimitations}: '
+          '${[
+        S.of(context)!.reportSoaLim1,
+        S.of(context)!.reportSoaLim2,
+        S.of(context)!.reportSoaLim3,
+        S.of(context)!.reportSoaLim4,
+      ].join('. ')}',
+    ].join('. ');
+  }
+
+  String _disclaimerSemanticsLabel(BuildContext context) {
+    return '${S.of(context)!.reportMentionLegale}. '
+        '${S.of(context)!.reportDisclaimerText}';
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  HEADER — Greeting + contextual status (replaces numeric score)
   // ════════════════════════════════════════════════════════════════
@@ -178,6 +264,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final action =
         report.priorityActions.isNotEmpty ? report.priorityActions.first : null;
     final profile = report.profile;
+    final status = _statusMessage(context, healthScore);
+    final profileSummary = profile.ageOrNull == null
+        ? null
+        : S.of(context)!.reportProfileSummary(
+              profile.ageOrNull!,
+              profile.canton,
+              profile.civilStatus,
+            );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
@@ -191,15 +285,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _statusMessage(context, healthScore),
+                status,
                 style: MintTextStyles.headlineMedium(
                     color: MintColors.textPrimary),
               ),
-              if (profile.ageOrNull != null) ...[
+              if (profileSummary != null) ...[
                 const SizedBox(height: MintSpacing.sm),
                 Text(
-                  S.of(context)!.reportProfileSummary(
-                      profile.ageOrNull!, profile.canton, profile.civilStatus),
+                  profileSummary,
                   style:
                       MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
@@ -413,9 +506,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '\u2022 ',
-                    style: MintTextStyles.labelSmall(),
+                  ExcludeSemantics(
+                    child: Text(
+                      '\u2022 ',
+                      style: MintTextStyles.labelSmall(),
+                    ),
                   ),
                   Expanded(
                     child: Text(

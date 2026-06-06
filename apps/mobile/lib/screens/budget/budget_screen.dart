@@ -629,6 +629,11 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Semantics(
       key: const Key('budget_hero_summary'),
       identifier: 'budget_hero_summary',
+      container: true,
+      explicitChildNodes: true,
+      label: '${l.budgetAvailableThisMonth}: '
+          '${formatChfWithPrefix(heroFree)}. '
+          '${l.budgetPremierEclairageCaption}',
       child: Column(
         children: [
           // Hero: budget libre — MintHeroNumber (consequence, not output)
@@ -711,8 +716,11 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Semantics(
       key: const Key('budget_data_quality_banner'),
       identifier: 'budget_data_quality_banner',
-      label: l.budgetCompleteMyData,
+      container: true,
+      label: '$message. ${l.budgetCompleteMyData}',
       button: true,
+      excludeSemantics: true,
+      onTap: () => context.push('/profile/bilan'),
       child: GestureDetector(
         onTap: () => context.push('/profile/bilan'),
         child: Container(
@@ -960,7 +968,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton( // lint-ignore: prefer_mint_cta
+        child: OutlinedButton(
+          // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),

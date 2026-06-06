@@ -524,6 +524,40 @@ void main() {
           .identifier,
       'budget_hero_summary',
     );
+    final heroSummary = tester.widget<Semantics>(
+      find.byKey(const Key('budget_hero_summary')),
+    );
+    expect(heroSummary.properties.label, contains('Disponible ce mois'));
+    expect(heroSummary.properties.label, contains("CHF\u00a03'500"));
+    expect(
+      heroSummary.properties.label,
+      contains('charges fixes, impôts estimés, dettes connues'),
+    );
+    final qualityBanner = tester.widget<Semantics>(
+      find.byKey(const Key('budget_data_quality_banner')),
+    );
+    expect(
+      qualityBanner.properties.label,
+      contains('Certaines charges sont encore manquantes'),
+    );
+    expect(
+      qualityBanner.properties.label,
+      contains('Compléter mes données'),
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_data_quality_banner')))
+          .flagsCollection
+          .isButton,
+      isTrue,
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_data_quality_banner')))
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isTrue,
+    );
     expect(
       tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
       'budget_flow_map',

@@ -166,6 +166,45 @@ void main() {
       }
     });
 
+    testWidgets('groups report sections for accessible traversal',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(
+          buildWithProfileProvider(
+            FinancialReportScreenV2(wizardAnswers: testAnswersV2),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        final synthesis = tester
+            .getSemantics(find.byKey(const Key('report_synthesis_summary')));
+        expect(synthesis.identifier, 'report_synthesis_summary');
+        expect(synthesis.label, contains('Bilan Flash'));
+        expect(synthesis.label, contains('VD'));
+
+        final compliance = tester
+            .getSemantics(find.byKey(const Key('report_compliance_summary')));
+        expect(compliance.identifier, 'report_compliance_summary');
+        expect(compliance.label, contains('Transparence'));
+        expect(compliance.label, contains('Hypothèses'));
+        expect(compliance.label, contains('Conflits'));
+        expect(compliance.label, contains('Limitations'));
+
+        final disclaimer = tester
+            .getSemantics(find.byKey(const Key('report_disclaimer_summary')));
+        expect(disclaimer.identifier, 'report_disclaimer_summary');
+        expect(disclaimer.label, contains('Mention légale'));
+        expect(disclaimer.label, contains('ne constitue pas'));
+        expect(find.bySemanticsLabel('\u2022'), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('export action reports thrown PDF export failures',
         (tester) async {
       final previousPrintingPlatform = PrintingPlatform.instance;
