@@ -1,0 +1,6 @@
+[Passed] bug__S005__landing_anonymous_cta_to_home (27s)
+
+1/1 Flow Passed in 27s
+
+[watchdog] EXIT — maestro returned 0
+EVIDENCE=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734
