@@ -79,7 +79,7 @@ canonical profile path is available again.
 | 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_date_of_birth`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum`, `q_total_debt_balance_chf` (restricted to 1st-person matches) | Every coach chat send |
-| 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
+| 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.setInputs` | `q_net_income_period_chf`, `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
 
 **Legend.** Keys prefixed `q_*` come from wizard-style answers
@@ -290,16 +290,17 @@ Failure modes:
 Mon argent → Ton budget ce mois card → tap Commencer
   ↓
 /budget (BudgetContainerScreen)
-  ↓ if inputs == null → empty state CTA « Poser mes charges »
+  ↓ if inputs == null → empty state CTA « Ajouter mes revenus »
   ↓ tap routes to /budget/setup
   ↓
 BudgetSetupScreen (new, P0-MVP-3)
-  ↓ pre-fill fields from coachProfile.depenses
-  ↓ user types 2 required + 0..5 optional
+  ↓ pre-fill resources from coachProfile income and charges from coachProfile.depenses
+  ↓ user types monthly net resources + 2 required charges + 0..5 optional charges
   ↓ validation blocks implausible monthly captures before persistence
   ↓ tap Enregistrer
   ↓
 coachProvider.mergeAnswers({
+  q_net_income_period_chf: …,
   q_housing_cost_period_chf: …,
   q_pay_frequency: 'monthly',
   q_lamal_premium_monthly_chf: …,
@@ -311,8 +312,8 @@ coachProvider.mergeAnswers({
 })
   ↓ answers written via ReportPersistenceService
   ↓
-budgetProvider.refreshFromProfile(updatedProfile)
-  ↓ BudgetInputs.fromCoachProfile(profile) re-derives
+budgetProvider.setInputs(direct BudgetInputs built from the entered fields)
+  ↓ profile context is retained when available (debts, tax provision, style)
   ↓ BudgetService.computePlan(inputs, overrides)
   ↓ profile-derived budget_inputs_v1 duplicates are cleared; direct-input fallback stays available
   ↓
