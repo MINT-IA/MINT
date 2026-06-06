@@ -54,6 +54,9 @@ counterexample to salary-only and employee-only assumptions.
 
 ## Remaining Work
 
+- CJT-061 now proves the local Rapport calculation contract for
+  independent/no-LPP 3a assumptions, so the scenario is no longer blocked by a
+  known hidden `pillar3a_max` model error.
 - Add the independent-no-LPP canonical runtime fixture.
 - Create the first Maestro persona-flow benchmark run.
 - Compare observed MINT guidance against sourced Swiss guidance expectations.

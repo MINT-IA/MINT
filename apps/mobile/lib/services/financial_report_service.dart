@@ -80,6 +80,12 @@ class FinancialReportService {
       // Fallback: confidence remains 0 if profile cannot be built
     }
 
+    final pillar3aHasLpp = _hasPillar3aLppAffiliation(profile);
+    final pillar3aMaxApplicable = _applicablePillar3aMax(
+      profile,
+      hasLpp: pillar3aHasLpp,
+    );
+
     // FIX-W11-4: Snapshot current constants for report traceability
     final simulationAssumptions = <String, dynamic>{
       'constants_version':
@@ -87,7 +93,13 @@ class FinancialReportService {
               'offline_fallback',
       'lpp_conversion_rate': lppTauxConversionMinDecimal,
       'avs_max_monthly': avsRenteMaxMensuelle,
-      'pillar3a_max': pilier3aPlafondAvecLpp,
+      'pillar3a_lpp_status': pillar3aHasLpp ? 'with_lpp' : 'without_lpp',
+      'pillar3a_max_applicable': pillar3aMaxApplicable,
+      'pillar3a_max_with_lpp':
+          reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+      'pillar3a_max_without_lpp':
+          reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),
+      'pillar3a_without_lpp_income_rate': pilier3aTauxRevenuSansLpp,
     };
 
     // FIX-W11-5: Data collection timestamp from wizard answers
@@ -395,9 +407,7 @@ class FinancialReportService {
     final contribution = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
     final yearsToRetirement = profile.yearsToRetirementOrNull;
     if (yearsToRetirement == null) return null;
-    final maxContribution = profile.isSalaried
-        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
-        : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
+    final maxContribution = _applicablePillar3aMax(profile);
 
     // Projections par provider (simplifié)
     final projections = <String, double>{
@@ -730,16 +740,9 @@ class FinancialReportService {
     final age = profile.ageOrNull;
     if (age == null) return null;
 
-    final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
-      profile.monthlyNetIncome * 12,
-      age: age,
-    );
-    final hasLpp = profile.isSalaried &&
-        grossAnnualSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
-    final maxContribution = hasLpp
-        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
-        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
-            .clamp(0.0, pilier3aPlafondSansLpp);
+    final grossAnnualSalary = _estimatedGrossAnnualIncome(profile);
+    final hasLpp = _hasPillar3aLppAffiliation(profile);
+    final maxContribution = _applicablePillar3aMax(profile, hasLpp: hasLpp);
     final current3a = taxSim.deductions['3a'] ?? 0;
     final remainingDeduction = maxContribution - current3a;
     if (remainingDeduction <= 0) return null;
@@ -753,6 +756,38 @@ class FinancialReportService {
       contribution: remainingDeduction,
     );
     return impact.estimatedTaxSaving > 0 ? impact.estimatedTaxSaving : null;
+  }
+
+  double _estimatedGrossAnnualIncome(UserProfile profile) {
+    final age = profile.ageOrNull;
+    if (age == null) return profile.annualIncome;
+    return NetIncomeBreakdown.estimateBrutFromNet(
+      profile.monthlyNetIncome * 12,
+      age: age,
+    );
+  }
+
+  bool _hasPillar3aLppAffiliation(UserProfile profile) {
+    final grossAnnualIncome = _estimatedGrossAnnualIncome(profile);
+    return profile.isSalaried &&
+        grossAnnualIncome >= reg('lpp.entry_threshold', lppSeuilEntree);
+  }
+
+  double _applicablePillar3aMax(
+    UserProfile profile, {
+    bool? hasLpp,
+  }) {
+    final resolvedHasLpp = hasLpp ?? _hasPillar3aLppAffiliation(profile);
+    if (resolvedHasLpp) {
+      return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    }
+
+    return (profile.annualIncome * pilier3aTauxRevenuSansLpp)
+        .clamp(
+          0.0,
+          reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),
+        )
+        .toDouble();
   }
 
   double _estimateEffectiveRate(

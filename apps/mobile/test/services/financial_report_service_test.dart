@@ -798,14 +798,101 @@ void main() {
           equals(pilier3aPlafondAvecLpp));
     });
 
-    test('returns higher max contribution for self-employed without LPP', () {
+    test('returns income-based max contribution for self-employed without LPP',
+        () {
       final answers = minimalAnswers();
       answers['q_3a_accounts_count'] = 1;
       answers['q_3a_annual_contribution'] = 5000.0;
       answers['q_employment_status'] = 'self_employed';
       final report = service.generateReport(answers);
+      final expectedMax = (6000.0 * 12 * pilier3aTauxRevenuSansLpp)
+          .clamp(0.0, pilier3aPlafondSansLpp);
+
+      expect(report.pillar3aAnalysis!.maxContribution,
+          closeTo(expectedMax, 1.0));
+    });
+
+    test('caps high-income self-employed 3a room at without-LPP maximum', () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 25000.0
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 5000.0
+        ..['q_employment_status'] = 'self_employed';
+
+      final report = service.generateReport(answers);
+
       expect(report.pillar3aAnalysis!.maxContribution,
           equals(pilier3aPlafondSansLpp));
+      expect(report.simulationAssumptions!['pillar3a_max_applicable'],
+          equals(pilier3aPlafondSansLpp));
+      expect(report.simulationAssumptions!['pillar3a_lpp_status'],
+          equals('without_lpp'));
+    });
+
+    test('uses without-LPP income-based room for salaried below LPP threshold',
+        () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 1000.0
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 1000.0
+        ..['q_employment_status'] = 'employee';
+      const expectedMax = 1000.0 * 12 * pilier3aTauxRevenuSansLpp;
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.isSalaried, isTrue);
+      expect(report.pillar3aAnalysis!.maxContribution,
+          closeTo(expectedMax, 1.0));
+      expect(report.simulationAssumptions!['pillar3a_lpp_status'],
+          equals('without_lpp'));
+      expect(report.simulationAssumptions!['pillar3a_max_applicable'],
+          closeTo(expectedMax, 1.0));
+    });
+
+    test('normalizes Swiss employment-status dialects for 3a assumptions', () {
+      final salariedReports = ['salarie', 'salarié', 'salaried'].map((status) {
+        final answers = minimalAnswers()
+          ..['q_3a_accounts_count'] = 1
+          ..['q_3a_annual_contribution'] = 5000.0
+          ..['q_employment_status'] = status;
+        return service.generateReport(answers);
+      }).toList();
+      final e2eSeedAnswers = minimalAnswers()
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 5000.0
+        ..['q_employment_status'] = 'employed';
+      final independentAnswers = minimalAnswers()
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 5000.0
+        ..['q_employment_status'] = 'independant';
+
+      final e2eSeedReport = service.generateReport(e2eSeedAnswers);
+      final independentReport = service.generateReport(independentAnswers);
+
+      for (final report in salariedReports) {
+        expect(report.profile.isSalaried, isTrue);
+        expect(report.pillar3aAnalysis!.maxContribution,
+            equals(pilier3aPlafondAvecLpp));
+        expect(report.simulationAssumptions!['pillar3a_lpp_status'],
+            equals('with_lpp'));
+        expect(report.simulationAssumptions!['pillar3a_max_applicable'],
+            equals(pilier3aPlafondAvecLpp));
+      }
+      expect(e2eSeedReport.profile.isSalaried, isTrue);
+      expect(e2eSeedReport.pillar3aAnalysis!.maxContribution,
+          equals(pilier3aPlafondAvecLpp));
+
+      expect(independentReport.profile.isSalaried, isFalse);
+      expect(independentReport.pillar3aAnalysis!.maxContribution,
+          lessThan(pilier3aPlafondSansLpp));
+      expect(independentReport.simulationAssumptions!['pillar3a_lpp_status'],
+          equals('without_lpp'));
+      expect(
+        independentReport.simulationAssumptions!['pillar3a_max_applicable'],
+        closeTo(independentReport.pillar3aAnalysis!.maxContribution, 1.0),
+      );
+      expect(independentReport.simulationAssumptions,
+          isNot(containsPair('pillar3a_max', pilier3aPlafondAvecLpp)));
     });
 
     test('projections include bank, viac, finpension, insurance', () {

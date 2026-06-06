@@ -138,7 +138,14 @@ class UserProfile {
   int get yearsToRetirement => yearsToRetirementOrNull ?? 0;
   bool get isMarried => civilStatus == 'married';
   bool get hasChildren => childrenCount > 0;
-  bool get isSalaried => employmentStatus == 'employee';
+  bool get isSalaried {
+    final status = employmentStatus.trim().toLowerCase().replaceAll('-', '_');
+    return status == 'employee' ||
+        status == 'employed' ||
+        status == 'salaried' ||
+        status == 'salarie' ||
+        status == 'salarié';
+  }
   double get annualIncome => monthlyNetIncome * 12;
 
   /// Années théoriques de cotisation AVS (depuis 21 ans, max 44)

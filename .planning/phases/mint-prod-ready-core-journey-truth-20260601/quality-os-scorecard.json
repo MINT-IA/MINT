@@ -111,6 +111,12 @@
         "reason": "Persona-flow benchmark method evidence must stay fresh while Quality OS uses it to cap felt guidance claims."
       },
       {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-3a-assumption-contract-20260606.md",
+        "kind": "calculation_contract",
+        "max_age_days": 30,
+        "reason": "Independent/no-LPP report assumption proof must stay fresh while persona-flow benchmark coverage remains incomplete."
+      },
+      {
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/user-feedback-flow-feeling-20260606.md",
         "kind": "user_feedback",
         "max_age_days": 30,
@@ -182,7 +188,7 @@
       "missing_to_10": [
         "First two persona-flow benchmark records must be executed with runtime evidence.",
         "Each benchmark scenario must cite official/regulatory and public Swiss expert-market sources where relevant.",
-        "Independent-no-LPP persona needs a canonical runtime fixture before MINT can claim coverage of non-salaried income realities.",
+        "Independent-no-LPP persona still needs a canonical runtime fixture before MINT can claim coverage of non-salaried income realities; CJT-061 only removes one local Rapport calculation blocker.",
         "P0/P1 gaps found by benchmark records must be opened in BUG-TRACKER."
       ]
     },
@@ -205,12 +211,13 @@
     {
       "id": "data_truth_runtime",
       "label": "Data truth, provenance, and restart",
-      "score": 6.6,
+      "score": 6.7,
       "target": 10,
       "tier": "T0-T1",
       "evidence": [
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
-        "docs/data-flow.md"
+        "docs/data-flow.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-3a-assumption-contract-20260606.md"
       ],
       "missing_to_10": [
         "Major amounts show source, freshness, confidence, and conflicts.",

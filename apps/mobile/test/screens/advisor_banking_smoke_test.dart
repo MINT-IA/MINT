@@ -275,7 +275,8 @@ void main() {
       addTearDown(() => tester.view.resetPhysicalSize());
 
       final answers = Map<String, dynamic>.from(testAnswersV2)
-        ..['q_employment_status'] = 'independant';
+        ..['q_employment_status'] = 'independant'
+        ..['q_3a_annual_contribution'] = 5000.0;
 
       await tester.pumpWidget(
         buildWithProfileProvider(
@@ -289,6 +290,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.textContaining('Plafond 3a salarié'), findsNothing);
+      expect(find.textContaining('7’258'), findsNothing);
     });
 
     testWidgets('keeps duplicated money sections out of rapport',

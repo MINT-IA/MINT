@@ -196,8 +196,9 @@
     },
     {
       "id": "independent_no_lpp_income_reality",
-      "status": "missing_canonical_runtime_fixture",
+      "status": "local_report_calculation_contract_runtime_fixture_missing",
       "existing_seed": null,
+      "local_contract": "apps/mobile/test/services/financial_report_service_test.dart",
       "archetype": "independent_no_lpp",
       "canton": "TBD",
       "scenario": "income_reality_budget_3a_ceiling_without_lpp",
@@ -207,7 +208,7 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof only; a canonical runtime persona-flow fixture is still missing."
     }
   ],
   "record_template": {
