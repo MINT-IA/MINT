@@ -19,7 +19,13 @@ SPEC.loader.exec_module(mint_quality_os_check)
 PHASE = Path(".planning/phases/mint-prod-ready-core-journey-truth-20260601")
 
 
-def _write_fixture(root: Path, *, mint_score: float = 6.5, bad_dimension_score: float = 7.0) -> None:
+def _write_fixture(
+    root: Path,
+    *,
+    mint_score: float = 5.2,
+    felt_score: float = 4.2,
+    bad_dimension_score: float = 7.0,
+) -> None:
     phase = root / PHASE
     quality_review = phase / "evidence/quality-review"
     quality_review.mkdir(parents=True)
@@ -37,6 +43,10 @@ def _write_fixture(root: Path, *, mint_score: float = 6.5, bad_dimension_score: 
     )
     (quality_review / "mint-flow-guidance-quality-review-20260605.html").write_text(
         "<html>flow</html>\n",
+        encoding="utf-8",
+    )
+    (quality_review / "user-feedback-flow-feeling-20260606.md").write_text(
+        "User feedback: MINT still does not work well enough; flow feeling and guidance are weak.\n",
         encoding="utf-8",
     )
     (root / "tools/checks").mkdir(parents=True)
@@ -81,14 +91,19 @@ def _write_fixture(root: Path, *, mint_score: float = 6.5, bad_dimension_score: 
         "version": "2026-06-05",
         "overall": {
             "mint_prod_ready_score": mint_score,
+            "felt_product_quality_score": felt_score,
+            "journey_truth_proof_score_percent": 59.5,
             "codex_quality_os_work_score": 7.0,
             "target": 10,
             "release_score_cap": 7.0,
+            "felt_product_quality_score_cap": 5.5,
         },
         "rules": {
             "no_row_closure_from_docs_only": True,
             "no_product_claim_financial_advice": True,
             "quality_score_requires_evidence": True,
+            "felt_quality_caps_global_score": True,
+            "no_single_percentage_without_component_scores": True,
             "p0_open_caps_global_score_at": 7.0,
             "score_increase_requires_new_evidence": True,
             "score_increase_max_without_new_evidence": 0.5,
@@ -144,6 +159,7 @@ def _write_fixture(root: Path, *, mint_score: float = 6.5, bad_dimension_score: 
             str(PHASE / "BUG-TRACKER.md"),
             str(PHASE / "evidence/quality-review/mint-screen-advice-quality-review-20260605.html"),
             str(PHASE / "evidence/quality-review/mint-flow-guidance-quality-review-20260605.html"),
+            str(PHASE / "evidence/quality-review/user-feedback-flow-feeling-20260606.md"),
             "tools/checks/mint_quality_os_check.py",
         ],
         "evidence_freshness": {
@@ -165,9 +181,24 @@ def _write_fixture(root: Path, *, mint_score: float = 6.5, bad_dimension_score: 
                     "max_age_days": 30,
                     "reason": "Flow guidance quality review evidence should be recent while Quality OS is active.",
                 },
+                {
+                    "path": str(PHASE / "evidence/quality-review/user-feedback-flow-feeling-20260606.md"),
+                    "kind": "user_feedback",
+                    "max_age_days": 30,
+                    "reason": "User feedback on flow feeling should cap product-readiness claims until addressed.",
+                },
             ],
         },
         "dimensions": [
+            {
+                "id": "felt_product_quality",
+                "score": felt_score,
+                "target": 10,
+                "evidence": [
+                    str(PHASE / "evidence/quality-review/user-feedback-flow-feeling-20260606.md")
+                ],
+                "missing_to_10": ["runtime flows feel useful and guidance-quality gaps are resolved"],
+            },
             {
                 "id": "screen_quality",
                 "score": bad_dimension_score,
@@ -182,9 +213,9 @@ def _write_fixture(root: Path, *, mint_score: float = 6.5, bad_dimension_score: 
             {
                 "id": "qos-001",
                 "priority": "P0",
-                "title": "Run check",
+                "title": "Improve felt flow quality and guidance usefulness",
                 "rows": [29],
-                "proof": "python3 tools/checks/mint_quality_os_check.py",
+                "proof": "Runtime flow review plus updated user-visible guidance evidence",
             }
         ],
     }
@@ -374,6 +405,67 @@ def test_release_score_cap_fails(tmp_path: Path) -> None:
     assert any("cannot exceed overall.release_score_cap" in error for error in errors)
 
 
+def test_missing_felt_product_quality_score_fails(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    scorecard = _read_scorecard(tmp_path)
+    del scorecard["overall"]["felt_product_quality_score"]
+    _write_scorecard(tmp_path, scorecard)
+
+    errors = _errors(tmp_path)
+
+    assert any("felt_product_quality_score" in error for error in errors)
+
+
+def test_mint_score_cannot_exceed_felt_quality_cap(tmp_path: Path) -> None:
+    _write_fixture(tmp_path, mint_score=6.5, felt_score=4.0)
+
+    errors = _errors(tmp_path)
+
+    assert any("cannot exceed felt product quality cap" in error for error in errors)
+
+
+def test_missing_component_percentage_fails(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    scorecard = _read_scorecard(tmp_path)
+    del scorecard["overall"]["journey_truth_proof_score_percent"]
+    _write_scorecard(tmp_path, scorecard)
+
+    errors = _errors(tmp_path)
+
+    assert any("journey_truth_proof_score_percent" in error for error in errors)
+
+
+def test_missing_felt_quality_dimension_fails(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    scorecard = _read_scorecard(tmp_path)
+    scorecard["dimensions"] = [
+        dimension
+        for dimension in scorecard["dimensions"]
+        if dimension["id"] != "felt_product_quality"
+    ]
+    _write_scorecard(tmp_path, scorecard)
+
+    errors = _errors(tmp_path)
+
+    assert any("felt_product_quality dimension" in error for error in errors)
+
+
+def test_felt_quality_dimension_must_match_overall_score(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    scorecard = _read_scorecard(tmp_path)
+    felt_dimension = next(
+        dimension
+        for dimension in scorecard["dimensions"]
+        if dimension["id"] == "felt_product_quality"
+    )
+    felt_dimension["score"] = 5.0
+    _write_scorecard(tmp_path, scorecard)
+
+    errors = _errors(tmp_path)
+
+    assert any("felt_product_quality dimension score must match" in error for error in errors)
+
+
 def test_ten_score_with_missing_work_fails(tmp_path: Path) -> None:
     _write_fixture(tmp_path, bad_dimension_score=10)
 
@@ -520,7 +612,10 @@ def test_false_rule_fails_with_rule_name(tmp_path: Path) -> None:
 def test_duplicate_dimension_id_fails(tmp_path: Path) -> None:
     _write_fixture(tmp_path)
     scorecard = _read_scorecard(tmp_path)
-    scorecard["dimensions"].append(dict(scorecard["dimensions"][0]))
+    screen_quality = next(
+        dimension for dimension in scorecard["dimensions"] if dimension["id"] == "screen_quality"
+    )
+    scorecard["dimensions"].append(dict(screen_quality))
     _write_scorecard(tmp_path, scorecard)
 
     errors = _errors(tmp_path)

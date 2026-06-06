@@ -114,6 +114,8 @@ Release caps:
 - Any open P0 release blocker caps MINT readiness at 7/10.
 - Open T0 account, privacy, production fact substrate, TestFlight, Universal
   Link, or live observability gate caps release readiness at 8/10.
+- User feedback that flows do not feel useful or guidance is weak caps the
+  product-readiness score until runtime flow reviews prove better outcomes.
 - A row cannot move to `LIVE-PROVEN` from documentation, unit tests, or static
   screenshots alone when runtime behavior is part of the claim.
 - A score cannot increase by more than 0.5 without new evidence or a committed
@@ -170,10 +172,18 @@ affected code, or backs a stronger status than it can prove.
 
 ## Current Self-Score
 
+MINT product-readiness score: 5.2/10.
+
+Felt product quality score: 4.2/10.
+
+Journey Truth proof score: 59.5%.
+
 Codex Quality OS work score: 7.0/10.
 
 Why not 10:
 
+- User feedback on 2026-06-06 says MINT still does not work well enough and the
+  flows do not yet give a good feeling or useful guidance.
 - The guard is new and still covers scorecard shape more than full evidence
   freshness.
 - Coach semantic evals, stale evidence detection, release observability, and
@@ -182,10 +192,11 @@ Why not 10:
 
 Next ratchets:
 
-1. Keep the Quality OS check in standard gates.
-2. Convert screen/flow P0/P1 gaps into bug tracker entries.
-3. Extend stale evidence detection from mtime checks to affected-path and
+1. Raise felt flow quality before raising readiness score.
+2. Keep the Quality OS check in standard gates.
+3. Convert screen/flow P0/P1 gaps into bug tracker entries.
+4. Extend stale evidence detection from mtime checks to affected-path and
    command/result metadata.
-4. Add Coach semantic evals.
-5. Re-run T0/T1 runtime flows with restart, accessibility, localization, and
+5. Add Coach semantic evals.
+6. Re-run T0/T1 runtime flows with restart, accessibility, localization, and
    qualitative guidance proof.

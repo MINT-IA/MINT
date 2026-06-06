@@ -252,6 +252,23 @@ def check(root: Path) -> list[str]:
     mint_score = _score(
         overall.get("mint_prod_ready_score"), "overall.mint_prod_ready_score", errors
     )
+    felt_score = _score(
+        overall.get("felt_product_quality_score"),
+        "overall.felt_product_quality_score",
+        errors,
+    )
+    proof_score_percent_value = overall.get("journey_truth_proof_score_percent")
+    if not isinstance(proof_score_percent_value, (int, float)):
+        errors.append("overall.journey_truth_proof_score_percent must be numeric")
+        proof_score_percent = None
+    else:
+        proof_score_percent = float(proof_score_percent_value)
+    if proof_score_percent is not None and (
+        proof_score_percent < 0 or proof_score_percent > 100
+    ):
+        errors.append(
+            "overall.journey_truth_proof_score_percent must be between 0 and 100"
+        )
     _score(
         overall.get("codex_quality_os_work_score"),
         "overall.codex_quality_os_work_score",
@@ -263,6 +280,11 @@ def check(root: Path) -> list[str]:
     release_score_cap = _score(
         overall.get("release_score_cap"), "overall.release_score_cap", errors
     )
+    felt_quality_cap = _score(
+        overall.get("felt_product_quality_score_cap"),
+        "overall.felt_product_quality_score_cap",
+        errors,
+    )
     if (
         mint_score is not None
         and release_score_cap is not None
@@ -271,6 +293,24 @@ def check(root: Path) -> list[str]:
         errors.append(
             "overall.mint_prod_ready_score cannot exceed overall.release_score_cap "
             "while release blockers remain open"
+        )
+    if (
+        mint_score is not None
+        and felt_quality_cap is not None
+        and mint_score > felt_quality_cap
+    ):
+        errors.append(
+            "overall.mint_prod_ready_score cannot exceed felt product quality cap "
+            "while flow feeling and guidance quality remain weak"
+        )
+    if (
+        felt_score is not None
+        and felt_quality_cap is not None
+        and felt_quality_cap > felt_score + 1.5
+    ):
+        errors.append(
+            "overall.felt_product_quality_score_cap must stay within +1.5 of "
+            "overall.felt_product_quality_score"
         )
 
     rules = data.get("rules")
@@ -281,6 +321,8 @@ def check(root: Path) -> list[str]:
         "no_row_closure_from_docs_only",
         "no_product_claim_financial_advice",
         "quality_score_requires_evidence",
+        "felt_quality_caps_global_score",
+        "no_single_percentage_without_component_scores",
         "score_increase_requires_new_evidence",
         "claude_cli_review_required",
         "no_workspace_clone_move_delete_without_explicit_user_approval",
@@ -423,6 +465,8 @@ def check(root: Path) -> list[str]:
 
     dimensions = _as_non_empty_list(data.get("dimensions"), "dimensions", errors)
     seen_ids: set[str] = set()
+    felt_dimension_seen = False
+    felt_dimension_score: float | None = None
     for index, dimension in enumerate(dimensions):
         label = f"dimensions[{index}]"
         if not isinstance(dimension, dict):
@@ -435,7 +479,11 @@ def check(root: Path) -> list[str]:
             errors.append(f"duplicate dimension id: {dim_id}")
         else:
             seen_ids.add(dim_id)
+        if dim_id == "felt_product_quality":
+            felt_dimension_seen = True
         score = _score(dimension.get("score"), f"{label}.score", errors)
+        if dim_id == "felt_product_quality":
+            felt_dimension_score = score
         dim_target = _score(dimension.get("target"), f"{label}.target", errors)
         if dim_target is not None and dim_target != 10:
             errors.append(f"{label}.target must be 10")
@@ -454,6 +502,17 @@ def check(root: Path) -> list[str]:
                 errors.append(f"{label}.evidence cannot live in /tmp: {artifact}")
             if not _path_exists(root, artifact):
                 errors.append(f"{label}.evidence missing: {artifact}")
+    if not felt_dimension_seen:
+        errors.append("dimensions must include felt_product_quality dimension")
+    if (
+        felt_score is not None
+        and felt_dimension_score is not None
+        and abs(felt_score - felt_dimension_score) > 0.001
+    ):
+        errors.append(
+            "felt_product_quality dimension score must match "
+            "overall.felt_product_quality_score"
+        )
 
     next_actions = _as_non_empty_list(data.get("next_actions"), "next_actions", errors)
     for index, action in enumerate(next_actions):
