@@ -855,7 +855,7 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           // 7. CADRE EDUCATIF ET LIMITES
           // ═══════════════════════════════════════════════════════
-          children.add(pw.SizedBox(height: 25));
+          children.add(pw.NewPage());
           children.add(_pdfSectionTitle('Cadre éducatif et limites'));
           children.add(pw.SizedBox(height: 10));
 

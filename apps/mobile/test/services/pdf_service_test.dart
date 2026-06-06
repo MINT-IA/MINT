@@ -90,6 +90,21 @@ void main() {
       expect(source, isNot(contains('Stratégie Rachat LPP')));
       expect(source, isNot(contains('Économie fiscale')));
     });
+
+    test('financial report educational frame starts on a fresh page', () {
+      final source = File('lib/services/pdf_service.dart').readAsStringSync();
+      final frameStart = source.indexOf(
+        "_pdfSectionTitle('Cadre éducatif et limites')",
+      );
+      final pageBreakBeforeFrame = source.lastIndexOf(
+        'pw.NewPage()',
+        frameStart,
+      );
+
+      expect(frameStart, greaterThanOrEqualTo(0));
+      expect(pageBreakBeforeFrame, greaterThanOrEqualTo(0));
+      expect(frameStart - pageBreakBeforeFrame, lessThan(250));
+    });
   });
 
   // ──────────────────────────────────────────────────────────
