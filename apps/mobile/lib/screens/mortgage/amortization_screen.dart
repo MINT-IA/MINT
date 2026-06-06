@@ -566,7 +566,7 @@ class _AmortizationChartPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
+          style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -581,7 +581,7 @@ class _AmortizationChartPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '${i + 1}',
-            style: const TextStyle(fontSize: 10, color: MintColors.textMuted),
+            style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
