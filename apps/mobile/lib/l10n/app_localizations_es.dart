@@ -3727,7 +3727,7 @@ class SEs extends S {
 
   @override
   String get amortizationSource =>
-      'Fuente: OPP3 (pilar 3a), práctica hipotecaria suiza. Tope 3a asalariado 2026: CHF 7\'258.';
+      'Fuente: OPP3 (pilar 3a), práctica hipotecaria suiza. Tope 3a según afiliación LPP en 2026: con LPP CHF 7\'258; sin LPP 20 % del ingreso neto, máx. CHF 36\'288.';
 
   @override
   String get amortizationIntroTitle => 'Amortización: ¿directa o indirecta?';

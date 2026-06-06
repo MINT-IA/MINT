@@ -3738,7 +3738,7 @@ class SDe extends S {
 
   @override
   String get amortizationSource =>
-      'Quelle: BVV3 (Säule 3a), Schweizer Hypothekarpraxis. 3a-Obergrenze Angestellte 2026: CHF 7\'258.';
+      'Quelle: BVV3 (Säule 3a), Schweizer Hypothekarpraxis. 3a-Obergrenze nach LPP-Anschluss 2026: mit LPP CHF 7\'258; ohne LPP 20 % des Nettoeinkommens, max. CHF 36\'288.';
 
   @override
   String get amortizationIntroTitle => 'Amortisation: direkt oder indirekt?';

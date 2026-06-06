@@ -3734,7 +3734,7 @@ class SIt extends S {
 
   @override
   String get amortizationSource =>
-      'Fonte: OPP3 (pilastro 3a), pratica ipotecaria svizzera. Tetto 3a dipendenti 2026: CHF 7\'258.';
+      'Fonte: OPP3 (pilastro 3a), pratica ipotecaria svizzera. Limite 3a secondo affiliazione LPP 2026: con LPP CHF 7\'258; senza LPP 20 % del reddito netto, max CHF 36\'288.';
 
   @override
   String get amortizationIntroTitle => 'Ammortamento: diretto o indiretto?';

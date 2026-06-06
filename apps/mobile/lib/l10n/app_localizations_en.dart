@@ -3705,7 +3705,7 @@ class SEn extends S {
 
   @override
   String get amortizationSource =>
-      'Source: OPP3 (pillar 3a), Swiss mortgage practice. Pillar 3a cap for employees 2026: CHF 7,258.';
+      'Source: OPP3 (pillar 3a), Swiss mortgage practice. Pillar 3a cap by LPP affiliation in 2026: with LPP CHF 7,258; without LPP 20% of net income, max CHF 36,288.';
 
   @override
   String get amortizationIntroTitle => 'Amortization: direct or indirect?';

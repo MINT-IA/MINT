@@ -514,6 +514,44 @@ void main() {
       expect(find.textContaining('OPP3'), findsWidgets);
     });
 
+    testWidgets('keeps amortization source neutral on 3a ceiling',
+        (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      await tester.scrollUntilVisible(
+        find.textContaining('Plafond 3a selon affiliation LPP'),
+        500,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pump();
+
+      expect(find.textContaining('Plafond 3a selon affiliation LPP'),
+          findsWidgets);
+      expect(find.textContaining('Plafond 3a salarié'), findsNothing);
+    });
+
+    testWidgets('wraps chart legend on narrow screens', (tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      await tester.scrollUntilVisible(
+        find.textContaining('Dette (direct)'),
+        300,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pump();
+
+      expect(find.textContaining('Dette (direct)'), findsWidgets);
+      expect(find.textContaining('Dette (indirect)'), findsWidgets);
+      expect(find.textContaining('Capital 3a'), findsWidgets);
+      expect(find.byType(Wrap), findsWidgets);
+    });
+
     testWidgets('contains CustomPaint widget for chart', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();

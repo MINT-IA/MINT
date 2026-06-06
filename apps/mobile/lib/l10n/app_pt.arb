@@ -1663,7 +1663,7 @@
   },
   "affordabilityMonthlyCharges": "Encargos mensais teóricos",
   "affordabilityCalculationNote": "Cálculo teórico: hipoteca x (5% juro imputado + 1% amortização) + preço x 1% custos acessórios. Máx 33% do rendimento bruto.",
-  "amortizationSource": "Fonte: OPP3 (pilar 3a), prática hipotecária suíça. Teto 3a assalariado 2026: CHF 7'258.",
+  "amortizationSource": "Fonte: OPP3 (pilar 3a), prática hipotecária suíça. Limite 3a conforme afiliação LPP em 2026: com LPP CHF 7'258; sem LPP 20 % do rendimento líquido, máx. CHF 36'288.",
   "amortizationIntroTitle": "Amortização: direta ou indireta?",
   "amortizationIntroBody": "Na Suíça, a amortização indireta é uma particularidade única: em vez de reembolsar diretamente a dívida, depositas num pilar 3a dado em penhor. Beneficias de uma dupla dedução fiscal (juros + depósito 3a) e o teu capital permanece investido.",
   "amortizationDirect": "Direta",

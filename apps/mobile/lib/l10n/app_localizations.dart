@@ -6835,7 +6835,7 @@ abstract class S {
   /// No description provided for @amortizationSource.
   ///
   /// In fr, this message translates to:
-  /// **'Source : OPP3 (pilier 3a), pratique hypothécaire suisse. Plafond 3a salarié 2026 : CHF 7\'258.'**
+  /// **'Source : OPP3 (pilier 3a), pratique hypothécaire suisse. Plafond 3a selon affiliation LPP 2026 : avec LPP CHF 7\'258 ; sans LPP 20 % du revenu net, max CHF 36\'288.'**
   String get amortizationSource;
 
   /// No description provided for @amortizationIntroTitle.

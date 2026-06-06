@@ -1663,7 +1663,7 @@
   },
   "affordabilityMonthlyCharges": "Theoretische Monatsbelastung",
   "affordabilityCalculationNote": "Theoretische Berechnung: Hypothek x (5% kalkulatorischer Zins + 1% Amortisation) + Preis x 1% Nebenkosten. Max 33% des Bruttoeinkommens.",
-  "amortizationSource": "Quelle: BVV3 (Säule 3a), Schweizer Hypothekarpraxis. 3a-Obergrenze Angestellte 2026: CHF 7'258.",
+  "amortizationSource": "Quelle: BVV3 (Säule 3a), Schweizer Hypothekarpraxis. 3a-Obergrenze nach LPP-Anschluss 2026: mit LPP CHF 7'258; ohne LPP 20 % des Nettoeinkommens, max. CHF 36'288.",
   "amortizationIntroTitle": "Amortisation: direkt oder indirekt?",
   "amortizationIntroBody": "In der Schweiz ist die indirekte Amortisation eine Besonderheit: Statt die Schuld direkt zurückzuzahlen, zahlst du in eine verpfändete Säule 3a ein. Du profitierst von einem doppelten Steuerabzug (Zinsen + 3a-Einzahlung) und dein Kapital bleibt investiert.",
   "amortizationDirect": "Direkt",

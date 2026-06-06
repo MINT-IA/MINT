@@ -254,15 +254,17 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
             ),
           ),
           const SizedBox(height: MintSpacing.md),
-          // Legende
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: MintSpacing.sm + 4,
+            runSpacing: MintSpacing.xs,
             children: [
-              _buildLegendItem(MintColors.info, s.amortizationLegendDebtDirect),
-              const SizedBox(width: MintSpacing.sm + 4),
-              _buildLegendItem(MintColors.textPrimary, s.amortizationLegendDebtIndirect),
-              const SizedBox(width: MintSpacing.sm + 4),
-              _buildLegendItem(MintColors.success, s.amortizationLegendCapital3a),
+              _buildLegendItem(
+                  MintColors.info, s.amortizationLegendDebtDirect),
+              _buildLegendItem(
+                  MintColors.textPrimary, s.amortizationLegendDebtIndirect),
+              _buildLegendItem(
+                  MintColors.success, s.amortizationLegendCapital3a),
             ],
           ),
         ],
@@ -272,6 +274,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
 
   Widget _buildLegendItem(Color color, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 16,

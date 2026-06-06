@@ -1663,7 +1663,7 @@
   },
   "affordabilityMonthlyCharges": "Oneri mensili teorici",
   "affordabilityCalculationNote": "Calcolo teorico: ipoteca x (5% tasso imputato + 1% ammortamento) + prezzo x 1% spese accessorie. Max 33% del reddito lordo.",
-  "amortizationSource": "Fonte: OPP3 (pilastro 3a), pratica ipotecaria svizzera. Tetto 3a dipendenti 2026: CHF 7'258.",
+  "amortizationSource": "Fonte: OPP3 (pilastro 3a), pratica ipotecaria svizzera. Limite 3a secondo affiliazione LPP 2026: con LPP CHF 7'258; senza LPP 20 % del reddito netto, max CHF 36'288.",
   "amortizationIntroTitle": "Ammortamento: diretto o indiretto?",
   "amortizationIntroBody": "In Svizzera, l'ammortamento indiretto è una particolarità unica: invece di rimborsare direttamente il debito, versi in un pilastro 3a costituito in pegno. Benefici di una doppia deduzione fiscale (interessi + versamento 3a) e il tuo capitale resta investito.",
   "amortizationDirect": "Diretto",

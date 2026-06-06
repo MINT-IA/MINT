@@ -3725,7 +3725,7 @@ class SFr extends S {
 
   @override
   String get amortizationSource =>
-      'Source : OPP3 (pilier 3a), pratique hypothécaire suisse. Plafond 3a salarié 2026 : CHF 7\'258.';
+      'Source : OPP3 (pilier 3a), pratique hypothécaire suisse. Plafond 3a selon affiliation LPP 2026 : avec LPP CHF 7\'258 ; sans LPP 20 % du revenu net, max CHF 36\'288.';
 
   @override
   String get amortizationIntroTitle => 'Amortissement : direct ou indirect ?';

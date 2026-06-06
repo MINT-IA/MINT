@@ -1663,7 +1663,7 @@
   },
   "affordabilityMonthlyCharges": "Theoretical monthly charges",
   "affordabilityCalculationNote": "Theoretical calculation: mortgage x (5% imputed interest + 1% amortization) + price x 1% ancillary costs. Max 33% of gross income.",
-  "amortizationSource": "Source: OPP3 (pillar 3a), Swiss mortgage practice. Pillar 3a cap for employees 2026: CHF 7,258.",
+  "amortizationSource": "Source: OPP3 (pillar 3a), Swiss mortgage practice. Pillar 3a cap by LPP affiliation in 2026: with LPP CHF 7,258; without LPP 20% of net income, max CHF 36,288.",
   "amortizationIntroTitle": "Amortization: direct or indirect?",
   "amortizationIntroBody": "In Switzerland, indirect amortization is a unique feature: instead of directly repaying the debt, you pay into a pledged pillar 3a. You benefit from a double tax deduction (interest + 3a contribution) and your capital stays invested.",
   "amortizationDirect": "Direct",

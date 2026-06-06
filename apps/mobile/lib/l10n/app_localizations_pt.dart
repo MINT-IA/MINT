@@ -3726,7 +3726,7 @@ class SPt extends S {
 
   @override
   String get amortizationSource =>
-      'Fonte: OPP3 (pilar 3a), prática hipotecária suíça. Teto 3a assalariado 2026: CHF 7\'258.';
+      'Fonte: OPP3 (pilar 3a), prática hipotecária suíça. Limite 3a conforme afiliação LPP em 2026: com LPP CHF 7\'258; sem LPP 20 % do rendimento líquido, máx. CHF 36\'288.';
 
   @override
   String get amortizationIntroTitle => 'Amortização: direta ou indireta?';
