@@ -93,6 +93,17 @@ Impact suite:
 - `flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart` passed: `131/131`.
 - After the reviewer-driven gate fix, the same impact suite passed: `134/134`.
 - ARB parity: `OK — 6 locale(s) parity (reference=fr, 6881 keys each)`.
+- Runtime proof:
+  - First iPhone 16e reruns failed because the persona has one existing 3a
+    account, so `/rapport` still led with the generic emergency-fund action and
+    the new title was not visible.
+  - The fix now promotes the independent/no-LPP 3a guidance for any 3a action,
+    including an existing 3a account, while keeping critical debt before it.
+  - Final iPhone 16e rerun passed:
+    `.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-guidance-runtime-20260606T190053-rerun2/`
+  - JUnit: `tests=1`, `failures=0`, `time=22.0`; watchdog returned `0`.
+  - Screenshots: `row23-independent-no-lpp-rapport.png` and
+    `row23-independent-no-lpp-budget.png`.
 
 Review:
 

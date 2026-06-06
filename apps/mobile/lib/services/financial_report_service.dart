@@ -555,6 +555,7 @@ class FinancialReportService {
     S? l,
   }) {
     final actions = <ActionItem>[];
+    ActionItem? independentNoLpp3aAction;
 
     // Extraire les top recommandations de chaque cercle
     for (final reco in healthScore.topPriorities) {
@@ -566,7 +567,24 @@ class FinancialReportService {
         pillar3aAnalysis: pillar3aAnalysis,
         l: l,
       );
-      if (action != null) actions.add(action);
+      if (action == null) continue;
+      if (_isIndependentWithoutLppProfile(profile) &&
+          action.category == ActionCategory.pillar3a) {
+        independentNoLpp3aAction = action;
+        continue;
+      }
+      actions.add(action);
+    }
+
+    if (independentNoLpp3aAction != null) {
+      final debtActions = actions.where(_isDebtAction).toList();
+      final otherActions =
+          actions.where((action) => !_isDebtAction(action)).toList();
+      actions
+        ..clear()
+        ..addAll(debtActions)
+        ..add(independentNoLpp3aAction)
+        ..addAll(otherActions);
     }
 
     return actions.take(3).toList();
@@ -581,36 +599,21 @@ class FinancialReportService {
     S? l,
   }) {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
+    if (_isIndependentWithoutLppProfile(profile) &&
+        recommendation.contains('3a')) {
+      final fiscalGain = _estimateFirst3aFiscalGain(
+        profile: profile,
+        taxSim: taxSim,
+      );
+      return _buildIndependentNoLpp3aAction(l: l, fiscalGain: fiscalGain);
+    }
+
     if (recommendation.contains('premier compte 3a') ||
         recommendation.contains('premier 3a')) {
       final fiscalGain = _estimateFirst3aFiscalGain(
         profile: profile,
         taxSim: taxSim,
       );
-      final isIndependentWithoutLpp = profile != null &&
-          profile.isIndependent &&
-          !_hasPillar3aLppAffiliation(profile);
-      if (isIndependentWithoutLpp) {
-        return ActionItem(
-          title: l?.reportActionTitle3aIndependentNoLpp ??
-              'Clarifier mon statut indépendant avant d’augmenter le 3a',
-          description: l?.reportActionDesc3aIndependentNoLpp ??
-              'MINT estime ta marge 3a avec les revenus déclarés et l’hypothèse sans LPP. Avant de verser davantage, vérifie ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.',
-          priority: ActionPriority.high,
-          potentialGainChf: fiscalGain,
-          category: ActionCategory.pillar3a,
-          steps: [
-            l?.reportActionStep3aIndependentNoLpp1 ??
-                '1. Confirme ton statut AVS indépendant et ton absence d’affiliation LPP',
-            l?.reportActionStep3aIndependentNoLpp2 ??
-                '2. Vérifie le revenu imposable utilisé pour la marge 3a',
-            l?.reportActionStep3aIndependentNoLpp3 ??
-                '3. Teste la liquidité restante avec la volatilité de tes revenus',
-            l?.reportActionStep3aIndependentNoLpp4 ??
-                '4. Passe en revue les couvertures risque avant de décider',
-          ],
-        );
-      }
       return ActionItem(
         title: l?.reportActionTitle3aFirst ?? 'Évaluer l’intérêt d’un 3a',
         description: l?.reportActionDesc3aFirst ??
@@ -718,6 +721,43 @@ class FinancialReportService {
     }
 
     return null;
+  }
+
+  ActionItem _buildIndependentNoLpp3aAction({
+    required S? l,
+    required double? fiscalGain,
+  }) {
+    return ActionItem(
+      title: l?.reportActionTitle3aIndependentNoLpp ??
+          'Clarifier mon statut indépendant avant d’augmenter le 3a',
+      description: l?.reportActionDesc3aIndependentNoLpp ??
+          'MINT estime ta marge 3a avec les revenus déclarés et l’hypothèse sans LPP. Avant de verser davantage, vérifie ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.',
+      priority: ActionPriority.high,
+      potentialGainChf: fiscalGain,
+      category: ActionCategory.pillar3a,
+      steps: [
+        l?.reportActionStep3aIndependentNoLpp1 ??
+            '1. Confirme ton statut AVS indépendant et ton absence d’affiliation LPP',
+        l?.reportActionStep3aIndependentNoLpp2 ??
+            '2. Vérifie le revenu imposable utilisé pour la marge 3a',
+        l?.reportActionStep3aIndependentNoLpp3 ??
+            '3. Teste la liquidité restante avec la volatilité de tes revenus',
+        l?.reportActionStep3aIndependentNoLpp4 ??
+            '4. Passe en revue les couvertures risque avant de décider',
+      ],
+    );
+  }
+
+  bool _isIndependentWithoutLppProfile(UserProfile? profile) {
+    return profile != null &&
+        profile.isIndependent &&
+        !_hasPillar3aLppAffiliation(profile);
+  }
+
+  bool _isDebtAction(ActionItem action) {
+    // Debt steps are still French fallbacks; keep this in sync if localized.
+    return action.category == ActionCategory.protection &&
+        action.steps.join(' ').toLowerCase().contains('dette');
   }
 
   Roadmap _buildRoadmap(FinancialHealthScore healthScore,

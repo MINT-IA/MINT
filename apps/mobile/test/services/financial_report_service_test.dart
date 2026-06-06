@@ -529,6 +529,68 @@ void main() {
       }
     });
 
+    test('independent no-LPP guidance leads before generic emergency fund', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'no'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = 'no';
+
+      final report = service.generateReport(answers);
+
+      expect(report.priorityActions.first.category, ActionCategory.pillar3a);
+      expect(report.priorityActions.first.title.toLowerCase(),
+          contains('indépendant'));
+      expect(
+        report.priorityActions.map((action) => action.title.toLowerCase()),
+        contains(contains('urgence')),
+      );
+    });
+
+    test('independent no-LPP guidance also covers existing 3a account', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'no'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 6000.0
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = 'no';
+
+      final report = service.generateReport(answers);
+      final joined = [
+        report.priorityActions.first.title,
+        report.priorityActions.first.description,
+        ...report.priorityActions.first.steps,
+      ].join(' ').toLowerCase();
+
+      expect(report.priorityActions.first.category, ActionCategory.pillar3a);
+      expect(joined, contains('indépendant'));
+      expect(joined, contains('sans lpp'));
+      expect(joined, isNot(contains('2e 3a')));
+      expect(joined, isNot(contains('échelonnement au retrait')));
+    });
+
+    test('critical debt still leads before independent no-LPP guidance', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'no'
+        ..['q_has_consumer_debt'] = 'yes'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = 'no';
+
+      final report = service.generateReport(answers);
+
+      expect(report.priorityActions.first.category, ActionCategory.protection);
+      expect(
+        report.priorityActions.first.steps.join(' ').toLowerCase(),
+        contains('dette'),
+      );
+      expect(report.priorityActions[1].category, ActionCategory.pillar3a);
+    });
+
     test('3a priority action is not independent-specific for other statuses',
         () {
       for (final status in ['student', 'unemployed', 'retired']) {

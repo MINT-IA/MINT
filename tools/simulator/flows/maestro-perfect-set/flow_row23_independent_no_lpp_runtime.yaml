@@ -60,6 +60,7 @@ tags:
 - extendedWaitUntil:
     visible: "Ton Bilan Flash"
     timeout: 12000
+- assertVisible: "Clarifier mon statut indépendant avant d’augmenter le 3a"
 - assertVisible: "Transparence et conformité"
 - assertVisible: "Plafond 3a selon affiliation LPP et statut de revenu"
 - assertNotVisible: "Plafond 3a salarié"
