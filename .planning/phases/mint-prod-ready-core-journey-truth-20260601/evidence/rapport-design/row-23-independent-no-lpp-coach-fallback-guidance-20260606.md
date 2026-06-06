@@ -92,8 +92,7 @@ Still open:
 
 - live Coach backend/LLM natural-language scoring;
 - runtime chat flow evidence for the same question;
-- independent/no-LPP archetype gate expansion or explicit calibrated-path
-  proof, because the current chat hard gate still protects non-`swiss_native`
-  archetypes unless the kill switch is disabled;
+- broader independent/no-LPP archetype calibration beyond the safe local topic
+  documented in `row-23-independent-no-lpp-safe-local-hard-gate-20260606.md`;
 - source/provenance/restart proof for the persona facts;
 - runtime VoiceOver/AX traversal.

@@ -48,6 +48,24 @@ class LocalFallbackService {
     return '$_genericResponse\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
   }
 
+  /// Generate only specialized high-risk fallback responses.
+  ///
+  /// Returns null for generic topics so callers can safely allowlist
+  /// deterministic local exceptions without opening the full fallback surface.
+  static String? generateSpecializedFallback({
+    required String userMessage,
+  }) {
+    final topics = _prioritizeTopics(_detectTopics(userMessage));
+    for (final topic in topics) {
+      if (!_specializedTopics.contains(topic)) continue;
+      final template = _templates[topic];
+      if (template != null) {
+        return '$template\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
+      }
+    }
+    return null;
+  }
+
   // ══════════════════════════════════════════════════════════════
   //  TOPIC DETECTION
   // ══════════════════════════════════════════════════════════════
@@ -86,6 +104,10 @@ class LocalFallbackService {
       ...topics.where((topic) => topic != 'independent_no_lpp_3a'),
     ];
   }
+
+  static const Set<String> _specializedTopics = {
+    'independent_no_lpp_3a',
+  };
 
   static bool _mentionsIndependent(String lower) =>
       lower.contains('indépendant') ||

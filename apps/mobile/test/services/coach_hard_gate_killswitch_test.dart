@@ -109,6 +109,79 @@ void main() {
       );
       expect(response.refused, isFalse);
     });
+
+    test(
+        '4b. enableCoachHardGate=true + independent_no_lpp safe local topic → deterministic fallback',
+        () async {
+      FeatureFlags.enableCoachHardGate = true;
+      final ctx = _ctx(archetype: 'independent_no_lpp');
+      final response = await CoachOrchestrator.generateChat(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+        history: const [],
+        ctx: ctx,
+        isLoggedIn: true,
+      );
+
+      final message = response.message.toLowerCase();
+      expect(response.refused, isFalse,
+          reason:
+              'A calibrated local fallback topic should not hit LLM tiers or refusal');
+      expect(message, contains('revenu net d\'activité'));
+      expect(message, contains('budget mensuel'));
+      expect(message, isNot(contains('7\u00a0258')));
+      expect(message, isNot(contains('salarié')));
+    });
+
+    test(
+        '4c. enableCoachHardGate=true + independent_no_lpp generic question still refuses',
+        () async {
+      FeatureFlags.enableCoachHardGate = true;
+      final ctx = _ctx(archetype: 'independent_no_lpp');
+      final response = await CoachOrchestrator.generateChat(
+        userMessage: 'Comment va ma retraite ?',
+        history: const [],
+        ctx: ctx,
+        isLoggedIn: true,
+      );
+
+      expect(response.refused, isTrue);
+      expect(response.refusalReason, 'archetype_not_calibrated');
+    });
+
+    test(
+        '4d. enableCoachHardGate=true + expat_us using safe phrase still refuses',
+        () async {
+      FeatureFlags.enableCoachHardGate = true;
+      final ctx = _ctx(archetype: 'expat_us');
+      final response = await CoachOrchestrator.generateChat(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+        history: const [],
+        ctx: ctx,
+        isLoggedIn: true,
+      );
+
+      expect(response.refused, isTrue);
+      expect(response.refusalReason, 'archetype_not_calibrated');
+      expect(response.message.toLowerCase(), isNot(contains('revenu net d\'activité')));
+    });
+
+    test('4e. enableCoachHardGate=true + expat_us cannot stream via SLM',
+        () {
+      FeatureFlags.enableCoachHardGate = true;
+      FeatureFlags.enableSlmNarratives = true;
+      FeatureFlags.slmPluginReady = true;
+      final ctx = _ctx(archetype: 'expat_us');
+
+      final stream = CoachOrchestrator.streamChat(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+        history: const [],
+        ctx: ctx,
+      );
+
+      expect(stream, isNull,
+          reason:
+              'Non-calibrated archetypes must not enter SLM streaming before the hard gate');
+    });
   });
 
   group('R5 kill switch — orchestrator generateNarrativeComponent', () {

@@ -149,6 +149,27 @@ void main() {
     });
   });
 
+  group('generateSpecializedFallback', () {
+    test('returns independent no-LPP 3a guidance for specialized topic', () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+      )!
+          .toLowerCase();
+
+      expect(response, contains('revenu net d\'activité'));
+      expect(response, contains('budget mensuel'));
+      expect(response, isNot(contains('7\u00a0258')));
+    });
+
+    test('returns null for generic 3a topic', () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Comment fonctionne le pilier 3a ?',
+      );
+
+      expect(response, isNull);
+    });
+  });
+
   // ── Compliance ──────────────────────────────────────────────────
 
   group('generateFallback — compliance', () {

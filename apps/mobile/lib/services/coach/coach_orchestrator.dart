@@ -363,6 +363,15 @@ class CoachOrchestrator {
     // re-opens the FATCA / LSFin compliance window.
     if (FeatureFlags.enableCoachHardGate &&
         !_calibratedArchetypes.contains(ctx.archetype)) {
+      final localFallback = _safeLocalFallbackForHardGate(
+        archetype: ctx.archetype,
+        language: language,
+        userMessage: userMessage,
+      );
+      if (localFallback != null) {
+        return localFallback;
+      }
+
       return CoachResponse(
         message: CoachFallbackMessages.archetypeNotCalibrated(language),
         disclaimer: ComplianceGuard.standardDisclaimer,
@@ -1177,6 +1186,26 @@ class CoachOrchestrator {
     );
   }
 
+  static CoachResponse? _safeLocalFallbackForHardGate({
+    required String archetype,
+    required String language,
+    required String userMessage,
+  }) {
+    if (archetype != 'independent_no_lpp') return null;
+    if (language != 'fr') return null;
+
+    final message = LocalFallbackService.generateSpecializedFallback(
+      userMessage: userMessage,
+    );
+    if (message == null) return null;
+
+    return CoachResponse(
+      message: message,
+      disclaimer: ComplianceGuard.standardDisclaimer,
+      wasFiltered: false,
+    );
+  }
+
   // ══════════════════════════════════════════════════════════════
   //  PUBLIC API — streaming chat (SLM only)
   // ══════════════════════════════════════════════════════════════
@@ -1196,6 +1225,11 @@ class CoachOrchestrator {
     required CoachContext ctx,
     String? memoryBlock,
   }) {
+    if (FeatureFlags.enableCoachHardGate &&
+        !_calibratedArchetypes.contains(ctx.archetype)) {
+      return null;
+    }
+
     if (!_slmEligible()) return null;
 
     final engine = SlmEngine.instance;
