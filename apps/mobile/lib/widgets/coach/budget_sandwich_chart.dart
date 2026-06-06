@@ -23,7 +23,7 @@ class BudgetLineItem {
 }
 
 class BudgetSandwichChart extends StatelessWidget {
-  /// Income sources (AVS, LPP, 3a, etc.)
+  /// Income sources or monthly resources.
   final List<BudgetLineItem> incomes;
 
   /// Expense categories (impots, loyer, LAMal, quotidien, etc.)
@@ -49,7 +49,7 @@ class BudgetSandwichChart extends StatelessWidget {
         isPositive ? MintColors.scoreExcellent : MintColors.scoreCritique;
 
     return Semantics(
-      label: 'Budget retraite. Revenus\u00a0: ${formatChfWithPrefix(_totalIncome)}, '
+      label: 'Budget mensuel. Revenus\u00a0: ${formatChfWithPrefix(_totalIncome)}, '
           'D\u00e9penses\u00a0: ${formatChfWithPrefix(_totalExpenses)}, '
           'Marge\u00a0: ${formatChfWithPrefix(margin)}.',
       child: Container(
@@ -64,7 +64,7 @@ class BudgetSandwichChart extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ton budget retraite',
+              'Ton budget mensuel',
               style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),

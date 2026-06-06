@@ -409,7 +409,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     _staggeredEntry(
                                       index: 3,
                                       child: Budget503020Widget(
-                                        netSalary: displayNet,
+                                        netIncome: displayNet,
                                         premierEclairage: displayEnvelopeBase >
                                                 0
                                             ? l.budgetPremierEclairage503020(

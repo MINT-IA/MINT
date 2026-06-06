@@ -315,6 +315,12 @@ void main() {
       PresentBudgetBuilder.fixedChargesFromInputs(inputs),
       2213,
     );
+    expect(find.textContaining('Ton budget mensuel'), findsOneWidget);
+    expect(find.textContaining('Ton budget retraite'), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('Budget mensuel')), findsWidgets);
+    expect(find.bySemanticsLabel(RegExp('Budget retraite')), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('Revenu net')), findsWidgets);
+    expect(find.bySemanticsLabel(RegExp('Salaire net')), findsNothing);
   });
 
   testWidgets('BudgetScreen monthly flow preserves deficit instead of clamping',

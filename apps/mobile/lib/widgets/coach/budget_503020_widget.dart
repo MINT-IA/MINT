@@ -7,8 +7,8 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 //  BUDGET 50/30/20 WIDGET — P5-D / S42 UX Redesign
 // ────────────────────────────────────────────────────────────
 //
-//  Budget automatique basé sur le salaire net, le canton et
-//  l'âge. 50% fixe, 30% vie, 20% futur.
+//  Budget automatique basé sur le revenu net mensuel. 50% fixe,
+//  30% vie, 20% futur.
 //
 //  Widget pur — aucune dépendance Provider.
 //  Lois : L5 (une action) + L1 (CHF/mois)
@@ -32,7 +32,7 @@ class BudgetCategory {
 }
 
 class Budget503020Widget extends StatelessWidget {
-  final double netSalary;
+  final double netIncome;
   final List<BudgetCategory> categories;
 
   /// Optional highlight: chiffre-choc showing annual savings.
@@ -40,7 +40,7 @@ class Budget503020Widget extends StatelessWidget {
 
   const Budget503020Widget({
     super.key,
-    required this.netSalary,
+    required this.netIncome,
     required this.categories,
     this.premierEclairage,
   });
@@ -48,8 +48,8 @@ class Budget503020Widget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Budget 50/30/20. Salaire net\u00a0: '
-          '${formatChfWithPrefix(netSalary)}/mois.',
+      label: 'Budget 50/30/20. Revenu net\u00a0: '
+          '${formatChfWithPrefix(netIncome)}/mois.',
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -67,7 +67,7 @@ class Budget503020Widget extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Basé sur ${formatChfWithPrefix(netSalary)} net/mois',
+              'Basé sur ${formatChfWithPrefix(netIncome)} net/mois',
               style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),

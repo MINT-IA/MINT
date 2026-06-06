@@ -994,7 +994,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final years = (avsAgeReferenceHomme - _age).clamp(0, 45);
     final fv = _fvAnnuity(annualSavings, years);
     return Budget503020Widget(
-      netSalary: net,
+      netIncome: net,
       categories: [
         BudgetCategory(
           label: l10n.firstJobBudgetBesoins,

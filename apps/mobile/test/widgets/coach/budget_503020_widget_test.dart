@@ -40,7 +40,7 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: Budget503020Widget(
-            netSalary: 4210,
+            netIncome: 4210,
             categories: categories,
             premierEclairage: premierEclairage,
           ),
@@ -52,9 +52,12 @@ void main() {
     expect(find.textContaining('50 / 30 / 20'), findsOneWidget);
   });
 
-  testWidgets('shows net salary', (tester) async {
+  testWidgets('shows net income', (tester) async {
     await tester.pumpWidget(buildWidget());
     expect(find.textContaining("4'210"), findsWidgets);
+    expect(find.textContaining("Basé sur CHF\u00a04'210 net/mois"), findsOneWidget);
+    expect(find.textContaining(RegExp('salaire', caseSensitive: false)),
+        findsNothing);
   });
 
   testWidgets('shows all 3 category labels', (tester) async {
@@ -94,5 +97,7 @@ void main() {
   testWidgets('has Semantics label', (tester) async {
     await tester.pumpWidget(buildWidget());
     expect(find.bySemanticsLabel(RegExp('Budget 50/30/20')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Revenu net')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Salaire net')), findsNothing);
   });
 }
