@@ -21,6 +21,10 @@ advice.
 - `BUG-TRACKER.md`: open, accepted, deferred, and closed defects.
 - Screen quality review HTML: clarity, inclusion, data grounding, UX quality.
 - Flow guidance review HTML: journey logic, non-absurd guidance, outcome proof.
+- Persona-flow benchmark: scenario scores against Swiss expert-grade guidance
+  expectations, with runtime proof and score caps.
+- Flow evidence registry: machine-readable flow evidence, caps, and remaining
+  gaps.
 - `quality-os-scorecard.json`: scores, caps, evidence, next actions.
 - `quality-os-oss-tool-map.json`: OSS-first tool choices and deferrals.
 - `tools/checks/mint_quality_os_check.py`: cheap machine guard.
@@ -81,6 +85,11 @@ If Claude CLI is unavailable, the work is not silently treated as reviewed. The
 final note must state that review is missing and no matrix row should be closed
 from that lot.
 
+Specialist review is required for Quality OS lots that change how MINT judges
+product quality. The minimum panel is product strategy, UX/persona clarity,
+QA/eval repeatability, and compliance boundary. Claude CLI remains a separate
+focused diff reviewer.
+
 ## OSS-First Tool Strategy
 
 MINT has limited budget. The default is OSS-first:
@@ -123,6 +132,97 @@ Release caps:
 
 The current guard validates score shape and the 10/10 overclaim boundary. It
 does not yet compare historical score deltas or compute weighted scores.
+
+## Persona-Flow Benchmark
+
+The persona-flow benchmark is the missing layer between "this screen renders"
+and "this journey gives useful Swiss financial guidance".
+
+It scores a bounded persona/scenario flow against:
+
+- runtime completion;
+- persona fit and inclusion;
+- data truth and restart safety;
+- calculation quality;
+- Swiss expert-coverage expectations and logical guidance;
+- UX clarity, cognitive load, and next-action quality;
+- FINMA/LSFin-safe guidance boundary;
+- accessibility and localization.
+
+Seed wave:
+
+- 2 personas;
+- 1 scenario per persona;
+- 5 checkpoints per scenario;
+- 10 scored cells total.
+
+Expansion is allowed only after clean seed evidence, BUG-TRACKER entries for
+every P0/P1 gap, and two consecutive review cycles without a methodology
+blocker. This prevents a 104-screen manual audit trap.
+
+The benchmark lives in:
+
+- `persona-flow-benchmark.md`
+- `persona-flow-benchmark.json`
+- `evidence/quality-review/persona-flow-benchmark-seed-20260606.md`
+
+The flow proof registry lives in `flow-evidence-registry.json`. Its job is to
+turn runtime, tests, semantic evals, screenshots, caps, row links, and bug links
+into source data that future HTML reviews and checks can consume.
+
+Score caps:
+
+- missing runtime proof caps a flow at 5/10;
+- runtime proof without an expert-reference artifact caps it at 6/10;
+- missing calculation source or assumptions caps it at 7/10;
+- materially wrong calculation caps it at 4/10;
+- salary-only, Swiss-native-only, or retirement-first assumptions that do not
+  fit the persona cap it at 7/10;
+- regulated-advice wording, provider ranking, or product prescription caps it
+  at 6/10 and opens a compliance bug.
+- product/brand recommendation, ISIN/ticker advice, buy/sell/choose language,
+  return promise, read/write financial action, unsafe logging, or PII leak
+  fails the benchmark at 0/10.
+
+This benchmark cannot close a matrix row by itself. It can only raise
+confidence, prioritize bugs, and define the next runtime proof.
+
+## Flow Evidence Registry
+
+The registry starts with schema and cap rules before populated records. The
+minimum evidence for a scored flow is:
+
+- matrix rows and linked bug IDs;
+- executable proof: Maestro JUnit plus watchdog result, or backend/API contract
+  proof for backend-only rows;
+- screenshot or runtime snapshot for visual, UX, accessibility, or guidance
+  claims;
+- evidence artifact paths that the guard can check for existence;
+- deterministic contract tests for persistence, restart, i18n, semantics,
+  routing, data provenance, or calculations;
+- user-visible outcome statement;
+- guidance-boundary evidence for financial flows;
+- remaining gaps and score-cap reasons.
+
+Registry caps apply before global rollup:
+
+- no durable evidence artifact caps the flow at 2/10;
+- docs or static screenshots only cap it at 3/10;
+- Flutter/backend tests but no runtime for a user-visible journey cap it at
+  5/10;
+- Maestro pass without user outcome or guidance review caps it at 6/10;
+- Maestro pass without restart/data provenance where money/profile truth is
+  involved caps it at 7/10;
+- open P0 affecting the flow caps it at 6/10;
+- open P1 qualitative guidance bug caps it at 8/10.
+- missing a11y/i18n/dynamic-type proof for a T0/T1 screen caps it at 8/10;
+- missing signed-device, TestFlight, or Universal Link proof for release access
+  rows caps it at 8/10.
+
+The current guard validates registry shape, required fields, evidence artifact
+existence, derived caps, rubric coverage, review dates, and score <= effective
+cap. The next guard ratchet is stale evidence and row/bug reference validation
+against parsed trackers.
 
 ## Tier Contract
 

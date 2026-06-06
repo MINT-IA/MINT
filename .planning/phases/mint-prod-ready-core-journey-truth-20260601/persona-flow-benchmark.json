@@ -1,0 +1,239 @@
+{
+  "version": "2026-06-06",
+  "status": "seed_framework",
+  "closure_rule": "Benchmark records can raise confidence and prioritize bugs, but cannot close Journey Truth Matrix rows without row-specific proof.",
+  "scope_cap": {
+    "seed_personas": 2,
+    "scenarios_per_persona": 1,
+    "checkpoints_per_scenario": 5,
+    "seed_cells_total": 10,
+    "expansion_rule": "Expand only after clean seed evidence, BUG-TRACKER entries for every P0/P1 gap, and two consecutive review cycles with no unresolved methodology blocker.",
+    "anti_pattern": "Do not start with all 104 screens or a large persona matrix."
+  },
+  "source_policy": {
+    "official_or_regulatory_anchor_required": true,
+    "minimum_public_swiss_expert_market_references": 2,
+    "financial_core_contract_required_for_computed_numbers": true,
+    "forbidden": [
+      "proprietary client advice",
+      "unverified institution claims",
+      "third-party provider ranking as a user recommendation",
+      "provider pages treated as legal authority",
+      "regulated personalized investment advice language"
+    ],
+    "provider_reference_use": "Define coverage expectations only; never recommend provider products."
+  },
+  "privacy_policy": {
+    "synthetic_personas_only": true,
+    "do_not_store": [
+      "real user profiles",
+      "raw transcripts containing financial PII",
+      "document scans",
+      "IBANs",
+      "employer names",
+      "addresses",
+      "exact real balances",
+      "partner data"
+    ],
+    "allowed_tracking_fields": [
+      "prompt_id",
+      "persona_id",
+      "rubric_scores",
+      "violation_codes",
+      "model_id",
+      "timestamp",
+      "sanitized_short_excerpts"
+    ]
+  },
+  "scoring_dimensions": [
+    {
+      "id": "runtime_completion",
+      "weight_percent": 10,
+      "ten_signal": "Flow completes on device or simulator with clean wrapper status, no placeholder, no crash, no stale screenshot reuse."
+    },
+    {
+      "id": "persona_fit_inclusion",
+      "weight_percent": 15,
+      "ten_signal": "Reacts to the persona's real Swiss situation instead of assuming a Swiss salaried default, and asks the right missing question when needed."
+    },
+    {
+      "id": "data_truth_continuity",
+      "weight_percent": 15,
+      "ten_signal": "Uses persona facts, shows source/freshness/confidence for important numbers, and proves restart when persistence is claimed."
+    },
+    {
+      "id": "calculation_quality",
+      "weight_percent": 15,
+      "ten_signal": "Computed numbers match financial-core or backend contracts and expose assumptions, limits, and Swiss legal anchors."
+    },
+    {
+      "id": "swiss_expert_coverage_logic",
+      "weight_percent": 20,
+      "ten_signal": "Covers constraints, tradeoffs, alternatives, missing data, and next checks that an expert-grade Swiss guidance flow would raise for the persona."
+    },
+    {
+      "id": "ux_clarity_next_action",
+      "weight_percent": 10,
+      "ten_signal": "The user understands what changed, why it matters, what is uncertain, and the next useful action without excess text or role confusion."
+    },
+    {
+      "id": "finma_lsfin_safe_boundary",
+      "weight_percent": 10,
+      "ten_signal": "Guidance stays educational or simulational, avoids prescriptive product selection, and hands off heavy or irreversible decisions."
+    },
+    {
+      "id": "accessibility_localization",
+      "weight_percent": 5,
+      "ten_signal": "Primary content and actions are accessible, robust to text scale, localized, and not clipped or overlapped."
+    }
+  ],
+  "persona_comprehension_check": [
+    "What is the main thing MINT is telling me?",
+    "What data did MINT use?",
+    "What is missing or uncertain?",
+    "What is the next useful action?",
+    "What decision is still mine?"
+  ],
+  "score_caps": [
+    {
+      "condition": "product_brand_recommendation_isin_ticker_buy_sell_choose_language_return_promise_read_write_financial_action_unsafe_logging_or_pii_leak",
+      "cap": 0.0
+    },
+    {
+      "condition": "banned_lsfin_terms_social_comparison_ranked_provider_or_option_single_number_projection_without_uncertainty_or_provider_source_as_legal_authority",
+      "cap": 4.0
+    },
+    {
+      "condition": "missing_runtime_proof",
+      "cap": 5.0
+    },
+    {
+      "condition": "runtime_proof_without_expert_reference_artifact",
+      "cap": 6.0
+    },
+    {
+      "condition": "missing_calculation_source_or_assumptions",
+      "cap": 7.0
+    },
+    {
+      "condition": "materially_wrong_calculation",
+      "cap": 4.0
+    },
+    {
+      "condition": "salary_only_swiss_native_only_or_retirement_first_assumption_mismatches_persona",
+      "cap": 7.0
+    },
+    {
+      "condition": "regulated_advice_wording_provider_ranking_or_product_prescription",
+      "cap": 6.0
+    },
+    {
+      "condition": "missing_lsfin_educational_disclaimer_assumptions_official_legal_source_or_provider_conflict_disclosure",
+      "cap": 6.0
+    },
+    {
+      "condition": "available_persona_data_not_used",
+      "cap": 6.0
+    },
+    {
+      "condition": "user_must_reenter_already_captured_data",
+      "cap": 6.0
+    },
+    {
+      "condition": "tool_opened_without_persona_specific_why_now",
+      "cap": 5.0
+    },
+    {
+      "condition": "coach_linked_guidance_not_evaluated_from_natural_language",
+      "cap": 7.0
+    },
+    {
+      "condition": "unsupported_persona_receives_ungated_guidance",
+      "cap": 0.0
+    },
+    {
+      "condition": "p0_or_p1_gap_not_logged",
+      "cap": 6.0
+    }
+  ],
+  "cap_application_order": [
+    "privacy_and_compliance_caps",
+    "calculation_caps",
+    "runtime_and_evidence_caps",
+    "ux_and_guidance_caps",
+    "weighted_average"
+  ],
+  "required_evidence_per_flow": [
+    "persona_id_archetype_canton_or_status_and_scenario",
+    "route_sequence_or_maestro_flow_id",
+    "runtime_artifact_folder_with_screenshots_when_ui_behavior_is_claimed",
+    "flutter_backend_or_unit_tests_when_calculation_or_persistence_is_claimed",
+    "data_facts_used_with_source_freshness_confidence_when_available",
+    "expected_expert_guidance_coverage",
+    "mint_observed_guidance_coverage",
+    "compliance_boundary_check",
+    "ux_clarity_and_load_review",
+    "calculation_and_provenance_review",
+    "bug_tracker_links_for_every_p0_p1_gap",
+    "reviewer_panel_status_including_claude_cli"
+  ],
+  "seed_personas": [
+    {
+      "id": "sophie_housing_purchase",
+      "status": "existing_service_seed_runtime_benchmark_pending",
+      "existing_seed": "apps/mobile/test/journeys/sophie_golden_path_test.dart",
+      "archetype": "expat_eu",
+      "canton": "GE",
+      "scenario": "housing_purchase_cashflow_pension_tax_affordability",
+      "candidate_route_chain": [
+        "coach_or_onboarding_intent",
+        "/budget",
+        "/profile/bilan",
+        "/rapport",
+        "relevant_simulator"
+      ],
+      "why_first": "Housing purchase combines cashflow, pension withdrawal, taxes, affordability, and irreversible-decision handoff."
+    },
+    {
+      "id": "independent_no_lpp_income_reality",
+      "status": "missing_canonical_runtime_fixture",
+      "existing_seed": null,
+      "archetype": "independent_no_lpp",
+      "canton": "TBD",
+      "scenario": "income_reality_budget_3a_ceiling_without_lpp",
+      "candidate_route_chain": [
+        "coach_or_budget_setup",
+        "/budget",
+        "/rapport",
+        "/pilier-3a_or_/mortgage/amortization"
+      ],
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions."
+    }
+  ],
+  "record_template": {
+    "benchmark_id": "",
+    "persona_id": "",
+    "scenario": "",
+    "matrix_rows": [],
+    "bug_ids": [],
+    "route_sequence": [],
+    "maestro_flow": "",
+    "runtime_evidence": [],
+    "test_evidence": [],
+    "source_evidence": [],
+    "expected_guidance": [],
+    "mint_observed_guidance": [],
+    "scores_by_dimension": {},
+    "score_caps_applied": [],
+    "final_score": null,
+    "missing_to_10": [],
+    "reviewers": {
+      "product": "",
+      "ux": "",
+      "qa_eval": "",
+      "compliance": "",
+      "claude_cli": ""
+    },
+    "decision": "draft"
+  }
+}

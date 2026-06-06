@@ -30,6 +30,98 @@ def _write_fixture(
     quality_review = phase / "evidence/quality-review"
     quality_review.mkdir(parents=True)
     (phase / "MINT-QUALITY-OS.md").write_text("# MINT Quality OS\n", encoding="utf-8")
+    (phase / "persona-flow-benchmark.md").write_text(
+        "# Persona Flow Benchmark\n", encoding="utf-8"
+    )
+    (phase / "persona-flow-benchmark.json").write_text(
+        json.dumps(
+            {
+                "version": "2026-06-06",
+                "status": "seed_framework",
+                "source_policy": {
+                    "official_or_regulatory_anchor_required": True,
+                    "minimum_public_swiss_expert_market_references": 2,
+                    "forbidden": ["regulated personalized investment advice language"],
+                    "provider_reference_use": "Define coverage expectations only; never recommend provider products.",
+                },
+                "scoring_dimensions": [
+                    {
+                        "id": "runtime_completion",
+                        "weight_percent": 50,
+                        "ten_signal": "runtime proof",
+                    },
+                    {
+                        "id": "guidance_quality",
+                        "weight_percent": 50,
+                        "ten_signal": "guidance proof",
+                    },
+                ],
+                "cap_application_order": [
+                    "privacy_and_compliance_caps",
+                    "calculation_caps",
+                    "runtime_and_evidence_caps",
+                ],
+                "record_template": {"reviewers": {"claude_cli": ""}},
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (phase / "flow-evidence-registry.json").write_text(
+        json.dumps(
+            {
+                "version": "2026-06-06",
+                "status": "schema_seed",
+                "purpose": "Machine-readable registry for per-flow evidence quality.",
+                "rules": {
+                    "matrix_and_bug_tracker_remain_operational_truth": True,
+                    "registry_entries_cannot_close_rows_by_themselves": True,
+                    "score_must_not_exceed_score_cap": True,
+                    "p0_p1_gaps_must_be_linked_to_bug_tracker": True,
+                    "html_reviews_should_be_generated_from_structured_records": True,
+                },
+                "required_fields_per_entry": [
+                    "flow_id",
+                    "matrix_rows",
+                    "bug_ids",
+                    "persona",
+                    "surface_family",
+                    "tier",
+                    "status_claim",
+                    "score",
+                    "score_cap",
+                    "cap_reasons",
+                    "automation",
+                    "evidence_artifacts",
+                    "contract_tests",
+                    "semantic_evals",
+                    "user_visible_outcome",
+                    "guidance_boundary_evidence",
+                    "rubric",
+                    "remaining_gaps",
+                    "last_reviewed",
+                ],
+                "score_caps": [
+                    {"condition": "no_durable_evidence_artifact", "cap": 2.0}
+                ],
+                "rubric_dimensions": [
+                    "runtime_mechanics",
+                    "human_goal",
+                    "guidance_boundary",
+                    "user_data_grounding",
+                    "provenance_freshness",
+                    "restart_or_continuity",
+                    "next_step_quality",
+                    "ux_a11y_i18n",
+                    "automation_reliability",
+                    "debt_hygiene",
+                ],
+                "entries": [],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     (phase / "JOURNEY-TRUTH-MATRIX.md").write_text(
         "| Row | Capability | Status |\n"
         "|---|---|---|\n"
@@ -49,8 +141,22 @@ def _write_fixture(
         "User feedback: MINT still does not work well enough; flow feeling and guidance are weak.\n",
         encoding="utf-8",
     )
+    (quality_review / "persona-flow-benchmark-seed-20260606.md").write_text(
+        "Persona-flow benchmark seed evidence.\n",
+        encoding="utf-8",
+    )
+    (quality_review / "result.xml").write_text(
+        "<testsuite tests=\"1\" failures=\"0\" />\n",
+        encoding="utf-8",
+    )
     (root / "tools/checks").mkdir(parents=True)
     (root / "tools/checks/mint_quality_os_check.py").write_text("# check\n", encoding="utf-8")
+    flow_dir = root / "tools/simulator/flows/maestro-perfect-set"
+    flow_dir.mkdir(parents=True)
+    (flow_dir / "flow_row22_primary_screen_visual_crawl.yaml").write_text(
+        "appId: com.mint.test\n---\n- launchApp\n",
+        encoding="utf-8",
+    )
     tool_map = {
         "version": "2026-06-05",
         "policy": {"budget_mode": "oss_first"},
@@ -154,11 +260,15 @@ def _write_fixture(
         },
         "required_artifacts": [
             str(PHASE / "MINT-QUALITY-OS.md"),
+            str(PHASE / "persona-flow-benchmark.md"),
+            str(PHASE / "persona-flow-benchmark.json"),
+            str(PHASE / "flow-evidence-registry.json"),
             str(PHASE / "quality-os-oss-tool-map.json"),
             str(PHASE / "JOURNEY-TRUTH-MATRIX.md"),
             str(PHASE / "BUG-TRACKER.md"),
             str(PHASE / "evidence/quality-review/mint-screen-advice-quality-review-20260605.html"),
             str(PHASE / "evidence/quality-review/mint-flow-guidance-quality-review-20260605.html"),
+            str(PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"),
             str(PHASE / "evidence/quality-review/user-feedback-flow-feeling-20260606.md"),
             "tools/checks/mint_quality_os_check.py",
         ],
@@ -180,6 +290,12 @@ def _write_fixture(
                     "kind": "quality_review",
                     "max_age_days": 30,
                     "reason": "Flow guidance quality review evidence should be recent while Quality OS is active.",
+                },
+                {
+                    "path": str(PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"),
+                    "kind": "quality_review",
+                    "max_age_days": 30,
+                    "reason": "Persona-flow benchmark method evidence should be recent while Quality OS is active.",
                 },
                 {
                     "path": str(PHASE / "evidence/quality-review/user-feedback-flow-feeling-20260606.md"),
@@ -743,3 +859,420 @@ def test_actual_origin_remote_must_match_when_git_config_exists(tmp_path: Path) 
     errors = _errors(tmp_path)
 
     assert any("actual git origin remote" in error for error in errors)
+
+
+def test_flow_evidence_registry_rejects_score_above_cap(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry["entries"] = [
+        {
+            "flow_id": "flow_test",
+            "matrix_rows": [22],
+            "bug_ids": ["CJT-001"],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 8.0,
+            "score_cap": 6.0,
+            "cap_reasons": ["maestro pass but no guidance review"],
+            "automation": {},
+            "evidence_artifacts": [
+                str(PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md")
+            ],
+            "contract_tests": [],
+            "semantic_evals": [],
+            "user_visible_outcome": "Shows a seeded benchmark outcome.",
+            "guidance_boundary_evidence": ["No regulated-advice wording."],
+            "rubric": {
+                "runtime_mechanics": 1.0,
+                "human_goal": 1.0,
+                "guidance_boundary": 1.0,
+                "user_data_grounding": 1.0,
+                "provenance_freshness": 1.0,
+                "restart_or_continuity": 1.0,
+                "next_step_quality": 1.0,
+                "ux_a11y_i18n": 1.0,
+                "automation_reliability": 1.0,
+                "debt_hygiene": 1.0,
+            },
+            "remaining_gaps": ["no guidance review"],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("score cannot exceed score_cap" in error for error in errors)
+
+
+def test_flow_evidence_registry_requires_rubric_dimensions(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry["entries"] = [
+        {
+            "flow_id": "flow_test",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 5.0,
+            "score_cap": 6.0,
+            "cap_reasons": ["seed"],
+            "automation": {},
+            "evidence_artifacts": [
+                str(PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md")
+            ],
+            "contract_tests": [],
+            "semantic_evals": [],
+            "user_visible_outcome": "Shows a seeded benchmark outcome.",
+            "guidance_boundary_evidence": ["No regulated-advice wording."],
+            "rubric": {},
+            "remaining_gaps": [],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("rubric missing runtime_mechanics" in error for error in errors)
+
+
+def test_flow_evidence_registry_derives_cap_from_missing_evidence(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry["entries"] = [
+        {
+            "flow_id": "flow_overclaimed",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "LIVE-PROVEN",
+            "score": 10.0,
+            "score_cap": 10.0,
+            "cap_reasons": [],
+            "automation": {},
+            "evidence_artifacts": [],
+            "contract_tests": [],
+            "semantic_evals": [],
+            "user_visible_outcome": "Claims a complete user-visible outcome.",
+            "guidance_boundary_evidence": ["Claims safe guidance."],
+            "rubric": {
+                "runtime_mechanics": 10.0,
+                "human_goal": 10.0,
+                "guidance_boundary": 10.0,
+                "user_data_grounding": 10.0,
+                "provenance_freshness": 10.0,
+                "restart_or_continuity": 10.0,
+                "next_step_quality": 10.0,
+                "ux_a11y_i18n": 10.0,
+                "automation_reliability": 10.0,
+                "debt_hygiene": 10.0,
+            },
+            "remaining_gaps": [],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("derived evidence cap 2" in error for error in errors)
+
+
+def test_flow_evidence_registry_does_not_treat_watchdog_alone_as_runtime(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    junit_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_watchdog_only",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "LIVE-PROVEN",
+            "score": 10.0,
+            "score_cap": 10.0,
+            "cap_reasons": [],
+            "automation": {"watchdog_exit": 0},
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "Claims a complete user-visible outcome.",
+            "guidance_boundary_evidence": ["Claims safe guidance."],
+            "rubric": {
+                "runtime_mechanics": 10.0,
+                "human_goal": 10.0,
+                "guidance_boundary": 10.0,
+                "user_data_grounding": 10.0,
+                "provenance_freshness": 10.0,
+                "restart_or_continuity": 10.0,
+                "next_step_quality": 10.0,
+                "ux_a11y_i18n": 10.0,
+                "automation_reliability": 10.0,
+                "debt_hygiene": 10.0,
+            },
+            "remaining_gaps": [],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("derived evidence cap 5" in error for error in errors)
+
+
+def test_empty_flow_evidence_registry_object_fails(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry_path.write_text("{}", encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("flow-evidence-registry must contain a non-empty object" in error for error in errors)
+
+
+def test_persona_flow_benchmark_weights_must_sum_to_100(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    benchmark_path = tmp_path / PHASE / "persona-flow-benchmark.json"
+    benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
+    benchmark["scoring_dimensions"][0]["weight_percent"] = 60
+    benchmark_path.write_text(json.dumps(benchmark, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("weights must sum to 100" in error for error in errors)
+
+
+def test_flow_evidence_registry_accepts_fully_populated_valid_entry(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    junit_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_valid",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 8.0,
+            "score_cap": 8.0,
+            "cap_reasons": ["open qualitative guidance debt"],
+            "automation": {
+                "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+                "junit": junit_path,
+                "watchdog_exit": 0,
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "User can inspect Budget/Profile/Rapport flow quality.",
+            "guidance_boundary_evidence": ["No product recommendation."],
+            "rubric": {
+                "runtime_mechanics": 8.0,
+                "human_goal": 8.0,
+                "guidance_boundary": 8.0,
+                "user_data_grounding": 8.0,
+                "provenance_freshness": 8.0,
+                "restart_or_continuity": 8.0,
+                "next_step_quality": 8.0,
+                "ux_a11y_i18n": 8.0,
+                "automation_reliability": 8.0,
+                "debt_hygiene": 8.0,
+            },
+            "remaining_gaps": ["release proof still pending"],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    assert _errors(tmp_path) == []
+
+
+def test_flow_evidence_registry_rejects_missing_automation_paths(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    registry["entries"] = [
+        {
+            "flow_id": "flow_fake_runtime",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "LIVE-PROVEN",
+            "score": 10.0,
+            "score_cap": 10.0,
+            "cap_reasons": [],
+            "automation": {
+                "maestro_flow": "does/not/exist.yaml",
+                "junit": "does/not/exist-result.xml",
+                "watchdog_exit": 0,
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "Claims a complete user-visible outcome.",
+            "guidance_boundary_evidence": ["Claims safe guidance."],
+            "rubric": {
+                "runtime_mechanics": 10.0,
+                "human_goal": 10.0,
+                "guidance_boundary": 10.0,
+                "user_data_grounding": 10.0,
+                "provenance_freshness": 10.0,
+                "restart_or_continuity": 10.0,
+                "next_step_quality": 10.0,
+                "ux_a11y_i18n": 10.0,
+                "automation_reliability": 10.0,
+                "debt_hygiene": 10.0,
+            },
+            "remaining_gaps": [],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("automation.maestro_flow missing" in error for error in errors)
+    assert any("automation.junit missing" in error for error in errors)
+    assert any("derived evidence cap 5" in error for error in errors)
+
+
+def test_flow_evidence_registry_rejects_missing_api_contract_even_with_backend_contract(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    backend_contract_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_backend_contract",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "backend",
+            "status_claim": "PARTIAL",
+            "score": 8.0,
+            "score_cap": 8.0,
+            "cap_reasons": ["backend-only seed"],
+            "automation": {
+                "backend_contract": backend_contract_path,
+                "api_contract": "does/not/exist-openapi.json",
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "pytest", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "Backend contract supports a future flow.",
+            "guidance_boundary_evidence": ["No user-facing advice."],
+            "rubric": {
+                "runtime_mechanics": 8.0,
+                "human_goal": 8.0,
+                "guidance_boundary": 8.0,
+                "user_data_grounding": 8.0,
+                "provenance_freshness": 8.0,
+                "restart_or_continuity": 8.0,
+                "next_step_quality": 8.0,
+                "ux_a11y_i18n": 8.0,
+                "automation_reliability": 8.0,
+                "debt_hygiene": 8.0,
+            },
+            "remaining_gaps": ["runtime flow pending"],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("automation.api_contract missing" in error for error in errors)
+
+
+def test_flow_evidence_registry_rejects_boolean_watchdog_exit(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    junit_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_bool_watchdog",
+            "matrix_rows": [22],
+            "bug_ids": [],
+            "persona": "sophie_housing_purchase",
+            "surface_family": "money_spine",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 8.0,
+            "score_cap": 8.0,
+            "cap_reasons": ["seed"],
+            "automation": {
+                "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+                "junit": junit_path,
+                "watchdog_exit": True,
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "Flow claims runtime proof.",
+            "guidance_boundary_evidence": ["No product recommendation."],
+            "rubric": {
+                "runtime_mechanics": 8.0,
+                "human_goal": 8.0,
+                "guidance_boundary": 8.0,
+                "user_data_grounding": 8.0,
+                "provenance_freshness": 8.0,
+                "restart_or_continuity": 8.0,
+                "next_step_quality": 8.0,
+                "ux_a11y_i18n": 8.0,
+                "automation_reliability": 8.0,
+                "debt_hygiene": 8.0,
+            },
+            "remaining_gaps": ["seed"],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("automation.watchdog_exit must be an integer" in error for error in errors)

@@ -71,11 +71,15 @@
   },
   "required_artifacts": [
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/MINT-QUALITY-OS.md",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.md",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.json",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/flow-evidence-registry.json",
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/quality-os-oss-tool-map.json",
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md",
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md",
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-screen-advice-quality-review-20260605.html",
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/mint-flow-guidance-quality-review-20260605.html",
+    ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md",
     ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/user-feedback-flow-feeling-20260606.md",
     "tools/checks/mint_quality_os_check.py"
   ],
@@ -99,6 +103,12 @@
         "kind": "quality_review",
         "max_age_days": 30,
         "reason": "Flow guidance quality review evidence must not become stale while Quality OS scores cite it."
+      },
+      {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md",
+        "kind": "quality_review",
+        "max_age_days": 30,
+        "reason": "Persona-flow benchmark method evidence must stay fresh while Quality OS uses it to cap felt guidance claims."
       },
       {
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/user-feedback-flow-feeling-20260606.md",
@@ -156,6 +166,24 @@
         "Runtime quality score for all T0/T1 flows, not only locator pass/fail.",
         "Dynamic type, accessibility, six-locale, and restart proof.",
         "P0/P1 qualitative gaps converted into BUG-TRACKER entries."
+      ]
+    },
+    {
+      "id": "persona_flow_benchmark",
+      "label": "Persona-flow benchmark quality",
+      "score": 3.0,
+      "target": 10,
+      "tier": "T1-T2",
+      "evidence": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.json",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+      ],
+      "missing_to_10": [
+        "First two persona-flow benchmark records must be executed with runtime evidence.",
+        "Each benchmark scenario must cite official/regulatory and public Swiss expert-market sources where relevant.",
+        "Independent-no-LPP persona needs a canonical runtime fixture before MINT can claim coverage of non-salaried income realities.",
+        "P0/P1 gaps found by benchmark records must be opened in BUG-TRACKER."
       ]
     },
     {
@@ -232,10 +260,12 @@
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/MINT-QUALITY-OS.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/quality-os-scorecard.json",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/quality-os-oss-tool-map.json",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/flow-evidence-registry.json",
         "tools/checks/mint_quality_os_check.py"
       ],
       "missing_to_10": [
         "One scorecard entry per matrix row.",
+        "Flow evidence registry records populated for the canonical T0/T1/T2 flows.",
         "HTML reviews generated from structured state.",
         "OSS-first tools installed or explicitly deferred.",
         "Claude CLI review evidence retained for material lots."
@@ -265,6 +295,30 @@
         30
       ],
       "proof": "python3 tools/checks/mint_quality_os_check.py plus a scoped hook or CI decision"
+    },
+    {
+      "id": "qos-001a",
+      "priority": "P0",
+      "title": "Run the first capped persona-flow benchmark wave",
+      "rows": [
+        21,
+        22,
+        23,
+        29
+      ],
+      "proof": "Two persona-flow records with runtime evidence, sourced expected guidance, scores by dimension, score caps, reviewer panel status, and BUG-TRACKER links for P0/P1 gaps"
+    },
+    {
+      "id": "qos-001b",
+      "priority": "P0",
+      "title": "Populate and validate flow evidence registry for canonical flows",
+      "rows": [
+        21,
+        22,
+        23,
+        29
+      ],
+      "proof": "flow-evidence-registry.json records for the first canonical flows plus mint_quality_os_check.py validation of required fields, artifact existence, score caps, and row/bug references"
     },
     {
       "id": "qos-002",

@@ -21,6 +21,8 @@ from typing import Any
 PHASE = ".planning/phases/mint-prod-ready-core-journey-truth-20260601"
 SCORECARD = f"{PHASE}/quality-os-scorecard.json"
 OSS_TOOL_MAP = f"{PHASE}/quality-os-oss-tool-map.json"
+FLOW_EVIDENCE_REGISTRY = f"{PHASE}/flow-evidence-registry.json"
+PERSONA_FLOW_BENCHMARK = f"{PHASE}/persona-flow-benchmark.json"
 MATRIX = f"{PHASE}/JOURNEY-TRUTH-MATRIX.md"
 QUALITY_OS = f"{PHASE}/MINT-QUALITY-OS.md"
 
@@ -131,12 +133,338 @@ def _git_origin_remote(root: Path) -> str | None:
     return parser.get(section, "url", fallback=None)
 
 
+def _check_flow_evidence_registry(root: Path, errors: list[str]) -> None:
+    registry_path = root / FLOW_EVIDENCE_REGISTRY
+    registry = _load_json(registry_path, errors)
+    if not registry:
+        if registry_path.exists():
+            errors.append("flow-evidence-registry must contain a non-empty object")
+        return
+
+    if not isinstance(registry.get("purpose"), str) or not registry.get("purpose"):
+        errors.append("flow-evidence-registry.purpose must be a non-empty string")
+    if registry.get("status") not in {"schema_seed", "active", "archived"}:
+        errors.append("flow-evidence-registry.status must be schema_seed, active, or archived")
+
+    rules = registry.get("rules")
+    if not isinstance(rules, dict):
+        errors.append("flow-evidence-registry.rules must be an object")
+        rules = {}
+    for rule in (
+        "matrix_and_bug_tracker_remain_operational_truth",
+        "registry_entries_cannot_close_rows_by_themselves",
+        "score_must_not_exceed_score_cap",
+        "p0_p1_gaps_must_be_linked_to_bug_tracker",
+        "html_reviews_should_be_generated_from_structured_records",
+    ):
+        if rules.get(rule) is not True:
+            errors.append(f"flow-evidence-registry.rules.{rule} must be true")
+
+    required_fields = _as_non_empty_list(
+        registry.get("required_fields_per_entry"),
+        "flow-evidence-registry.required_fields_per_entry",
+        errors,
+    )
+    required_field_names = {
+        field for field in required_fields if isinstance(field, str) and field
+    }
+    for field in (
+        "flow_id",
+        "matrix_rows",
+        "bug_ids",
+        "persona",
+        "surface_family",
+        "tier",
+        "status_claim",
+        "score",
+        "score_cap",
+        "cap_reasons",
+        "automation",
+        "evidence_artifacts",
+        "contract_tests",
+        "semantic_evals",
+        "user_visible_outcome",
+        "guidance_boundary_evidence",
+        "rubric",
+        "remaining_gaps",
+        "last_reviewed",
+    ):
+        if field not in required_field_names:
+            errors.append(
+                "flow-evidence-registry.required_fields_per_entry missing "
+                f"{field}"
+            )
+
+    caps = _as_non_empty_list(
+        registry.get("score_caps"), "flow-evidence-registry.score_caps", errors
+    )
+    for index, cap_entry in enumerate(caps):
+        label = f"flow-evidence-registry.score_caps[{index}]"
+        if not isinstance(cap_entry, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        if not isinstance(cap_entry.get("condition"), str) or not cap_entry.get("condition"):
+            errors.append(f"{label}.condition must be a non-empty string")
+        _score(cap_entry.get("cap"), f"{label}.cap", errors)
+
+    rubric_dimensions = _as_non_empty_list(
+        registry.get("rubric_dimensions"),
+        "flow-evidence-registry.rubric_dimensions",
+        errors,
+    )
+    rubric_dimension_names = {
+        dimension
+        for dimension in rubric_dimensions
+        if isinstance(dimension, str) and dimension
+    }
+    entries = registry.get("entries")
+    if not isinstance(entries, list):
+        errors.append("flow-evidence-registry.entries must be a list")
+        return
+
+    seen_flow_ids: set[str] = set()
+    for index, entry in enumerate(entries):
+        label = f"flow-evidence-registry.entries[{index}]"
+        if not isinstance(entry, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        for field in required_field_names:
+            if field not in entry:
+                errors.append(f"{label}.{field} is required")
+        flow_id = entry.get("flow_id")
+        if not isinstance(flow_id, str) or not flow_id:
+            errors.append(f"{label}.flow_id must be a non-empty string")
+        elif flow_id in seen_flow_ids:
+            errors.append(f"duplicate flow-evidence-registry flow_id: {flow_id}")
+        else:
+            seen_flow_ids.add(flow_id)
+        rows = entry.get("matrix_rows")
+        if not isinstance(rows, list) or not rows or not all(
+            isinstance(row, int) for row in rows
+        ):
+            errors.append(f"{label}.matrix_rows must be a non-empty list of integers")
+        bug_ids = entry.get("bug_ids")
+        if not isinstance(bug_ids, list) or not all(
+            isinstance(bug_id, str) for bug_id in bug_ids
+        ):
+            errors.append(f"{label}.bug_ids must be a list of strings")
+        for field in ("persona", "surface_family", "tier", "status_claim"):
+            if not isinstance(entry.get(field), str) or not entry.get(field):
+                errors.append(f"{label}.{field} must be a non-empty string")
+        score = _score(entry.get("score"), f"{label}.score", errors)
+        score_cap = _score(entry.get("score_cap"), f"{label}.score_cap", errors)
+        if score is not None and score_cap is not None and score > score_cap:
+            errors.append(f"{label}.score cannot exceed score_cap")
+        cap_reasons = entry.get("cap_reasons")
+        if not isinstance(cap_reasons, list) or not all(
+            isinstance(reason, str) and reason for reason in cap_reasons
+        ):
+            errors.append(f"{label}.cap_reasons must be a list of non-empty strings")
+        if score_cap is not None and score_cap < 10 and not cap_reasons:
+            errors.append(f"{label}.cap_reasons must explain score_cap below 10")
+        automation = entry.get("automation")
+        if not isinstance(automation, dict):
+            errors.append(f"{label}.automation must be an object")
+            automation = {}
+        evidence_artifacts = entry.get("evidence_artifacts")
+        if not isinstance(evidence_artifacts, list) or not all(
+            isinstance(artifact, str) and artifact for artifact in evidence_artifacts
+        ):
+            errors.append(f"{label}.evidence_artifacts must be a list of non-empty strings")
+            evidence_artifacts = []
+        for artifact in evidence_artifacts:
+            if "/tmp/" in artifact or artifact.startswith("/tmp/"):
+                errors.append(f"{label}.evidence_artifacts cannot live in /tmp: {artifact}")
+            if not _path_exists(root, artifact):
+                errors.append(f"{label}.evidence_artifacts missing: {artifact}")
+        for list_field in ("contract_tests", "semantic_evals", "remaining_gaps"):
+            if not isinstance(entry.get(list_field), list):
+                errors.append(f"{label}.{list_field} must be a list")
+        contract_tests = entry.get("contract_tests")
+        semantic_evals = entry.get("semantic_evals")
+        remaining_gaps = entry.get("remaining_gaps")
+        user_visible_outcome = entry.get("user_visible_outcome")
+        if not isinstance(user_visible_outcome, str) or not user_visible_outcome:
+            errors.append(f"{label}.user_visible_outcome must be a non-empty string")
+        guidance_boundary_evidence = entry.get("guidance_boundary_evidence")
+        if not isinstance(guidance_boundary_evidence, list) or not all(
+            isinstance(item, str) and item for item in guidance_boundary_evidence
+        ):
+            errors.append(
+                f"{label}.guidance_boundary_evidence must be a list of non-empty strings"
+            )
+            guidance_boundary_evidence = []
+        rubric = entry.get("rubric")
+        if not isinstance(rubric, dict):
+            errors.append(f"{label}.rubric must be an object")
+        else:
+            for dimension in rubric_dimension_names:
+                if dimension not in rubric:
+                    errors.append(f"{label}.rubric missing {dimension}")
+                else:
+                    _score(rubric.get(dimension), f"{label}.rubric.{dimension}", errors)
+        reviewed = entry.get("last_reviewed")
+        if not isinstance(reviewed, str):
+            errors.append(f"{label}.last_reviewed must be an ISO date string")
+        else:
+            try:
+                dt.date.fromisoformat(reviewed)
+            except ValueError:
+                errors.append(f"{label}.last_reviewed must be an ISO date string")
+
+        def _automation_path_is_valid(key: str) -> bool:
+            value = automation.get(key)
+            if not isinstance(value, str) or not value:
+                return False
+            if "/tmp/" in value or value.startswith("/tmp/"):
+                errors.append(f"{label}.automation.{key} cannot live in /tmp: {value}")
+                return False
+            if not _path_exists(root, value):
+                errors.append(f"{label}.automation.{key} missing: {value}")
+                return False
+            return True
+
+        watchdog_exit = automation.get("watchdog_exit")
+        has_watchdog_result = isinstance(watchdog_exit, int) and not isinstance(
+            watchdog_exit, bool
+        )
+        if "watchdog_exit" in automation and not has_watchdog_result:
+            errors.append(f"{label}.automation.watchdog_exit must be an integer")
+        has_maestro_flow_path = _automation_path_is_valid("maestro_flow")
+        has_junit_path = _automation_path_is_valid("junit")
+        has_maestro_runtime_evidence = (
+            has_maestro_flow_path and has_junit_path and has_watchdog_result
+        )
+        has_backend_contract_path = _automation_path_is_valid("backend_contract")
+        has_api_contract_path = _automation_path_is_valid("api_contract")
+        has_backend_contract_evidence = (
+            has_backend_contract_path or has_api_contract_path
+        )
+        has_executable_evidence = (
+            has_maestro_runtime_evidence or has_backend_contract_evidence
+        )
+        has_runtime_evidence = has_maestro_runtime_evidence
+        has_any_evidence = bool(evidence_artifacts) or has_executable_evidence
+        has_contract_tests = isinstance(contract_tests, list) and bool(contract_tests)
+        has_semantic_evals = isinstance(semantic_evals, list) and bool(semantic_evals)
+        has_remaining_gaps = isinstance(remaining_gaps, list) and bool(remaining_gaps)
+
+        derived_cap = 10.0
+        if not has_any_evidence:
+            derived_cap = min(derived_cap, 2.0)
+        elif not has_executable_evidence and not has_contract_tests:
+            derived_cap = min(derived_cap, 3.0)
+        if not has_runtime_evidence and entry.get("tier") in {"T0", "T1", "T2"}:
+            derived_cap = min(derived_cap, 5.0)
+        if has_runtime_evidence and (
+            not user_visible_outcome or not guidance_boundary_evidence
+        ):
+            derived_cap = min(derived_cap, 6.0)
+        if has_runtime_evidence and not has_contract_tests:
+            derived_cap = min(derived_cap, 7.0)
+        if score is not None and score > 8.0 and not has_semantic_evals:
+            derived_cap = min(derived_cap, 8.0)
+        if score is not None and score >= 10.0 and has_remaining_gaps:
+            derived_cap = min(derived_cap, 9.0)
+        if score is not None and score > derived_cap:
+            errors.append(
+                f"{label}.score cannot exceed derived evidence cap {derived_cap:g}"
+            )
+
+
+def _check_persona_flow_benchmark(root: Path, errors: list[str]) -> None:
+    benchmark_path = root / PERSONA_FLOW_BENCHMARK
+    benchmark = _load_json(benchmark_path, errors)
+    if not benchmark:
+        if benchmark_path.exists():
+            errors.append("persona-flow-benchmark must contain a non-empty object")
+        return
+    dimensions = _as_non_empty_list(
+        benchmark.get("scoring_dimensions"),
+        "persona-flow-benchmark.scoring_dimensions",
+        errors,
+    )
+    weight_sum = 0.0
+    seen_ids: set[str] = set()
+    for index, dimension in enumerate(dimensions):
+        label = f"persona-flow-benchmark.scoring_dimensions[{index}]"
+        if not isinstance(dimension, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        dim_id = dimension.get("id")
+        if not isinstance(dim_id, str) or not dim_id:
+            errors.append(f"{label}.id must be a non-empty string")
+        elif dim_id in seen_ids:
+            errors.append(f"duplicate persona-flow-benchmark dimension id: {dim_id}")
+        else:
+            seen_ids.add(dim_id)
+        weight = dimension.get("weight_percent")
+        if not isinstance(weight, (int, float)) or weight <= 0:
+            errors.append(f"{label}.weight_percent must be positive")
+        else:
+            weight_sum += float(weight)
+        if not isinstance(dimension.get("ten_signal"), str) or not dimension.get("ten_signal"):
+            errors.append(f"{label}.ten_signal must be a non-empty string")
+    if dimensions and abs(weight_sum - 100.0) > 0.001:
+        errors.append(
+            "persona-flow-benchmark.scoring_dimensions weights must sum to 100"
+        )
+
+    source_policy = benchmark.get("source_policy")
+    if not isinstance(source_policy, dict):
+        errors.append("persona-flow-benchmark.source_policy must be an object")
+        source_policy = {}
+    if source_policy.get("official_or_regulatory_anchor_required") is not True:
+        errors.append(
+            "persona-flow-benchmark.source_policy.official_or_regulatory_anchor_required must be true"
+        )
+    minimum_references = source_policy.get(
+        "minimum_public_swiss_expert_market_references"
+    )
+    if not isinstance(minimum_references, int) or minimum_references < 2:
+        errors.append(
+            "persona-flow-benchmark.source_policy.minimum_public_swiss_expert_market_references must be >= 2"
+        )
+    forbidden = source_policy.get("forbidden")
+    if not isinstance(forbidden, list) or not any(
+        isinstance(item, str) and "regulated" in item for item in forbidden
+    ):
+        errors.append(
+            "persona-flow-benchmark.source_policy.forbidden must include regulated advice boundary"
+        )
+    if not isinstance(source_policy.get("provider_reference_use"), str) or "never recommend" not in source_policy.get("provider_reference_use", ""):
+        errors.append(
+            "persona-flow-benchmark.source_policy.provider_reference_use must prevent provider recommendations"
+        )
+
+    cap_order = benchmark.get("cap_application_order")
+    if not isinstance(cap_order, list) or not cap_order:
+        errors.append("persona-flow-benchmark.cap_application_order must be a non-empty list")
+    elif cap_order[0] != "privacy_and_compliance_caps":
+        errors.append(
+            "persona-flow-benchmark.cap_application_order must apply privacy/compliance caps first"
+        )
+
+    template = benchmark.get("record_template")
+    if not isinstance(template, dict):
+        errors.append("persona-flow-benchmark.record_template must be an object")
+        template = {}
+    reviewers = template.get("reviewers")
+    if not isinstance(reviewers, dict) or "claude_cli" not in reviewers:
+        errors.append(
+            "persona-flow-benchmark.record_template.reviewers must include claude_cli"
+        )
+
+
+
 def check(root: Path) -> list[str]:
     errors: list[str] = []
     scorecard_path = root / SCORECARD
     data = _load_json(scorecard_path, errors)
     if not data:
         return errors
+    _check_flow_evidence_registry(root, errors)
+    _check_persona_flow_benchmark(root, errors)
 
     for artifact in _as_non_empty_list(
         data.get("required_artifacts"), "required_artifacts", errors

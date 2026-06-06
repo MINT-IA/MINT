@@ -1,0 +1,101 @@
+{
+  "version": "2026-06-06",
+  "status": "schema_seed",
+  "purpose": "Machine-readable registry for per-flow evidence quality. It complements the Journey Truth Matrix and BUG-TRACKER; it does not replace them.",
+  "rules": {
+    "matrix_and_bug_tracker_remain_operational_truth": true,
+    "registry_entries_cannot_close_rows_by_themselves": true,
+    "score_must_not_exceed_score_cap": true,
+    "p0_p1_gaps_must_be_linked_to_bug_tracker": true,
+    "html_reviews_should_be_generated_from_structured_records": true
+  },
+  "required_fields_per_entry": [
+    "flow_id",
+    "matrix_rows",
+    "bug_ids",
+    "persona",
+    "surface_family",
+    "tier",
+    "status_claim",
+    "score",
+    "score_cap",
+    "cap_reasons",
+    "automation",
+    "evidence_artifacts",
+    "contract_tests",
+    "semantic_evals",
+    "user_visible_outcome",
+    "guidance_boundary_evidence",
+    "rubric",
+    "remaining_gaps",
+    "last_reviewed"
+  ],
+  "score_caps": [
+    {
+      "condition": "no_durable_evidence_artifact",
+      "cap": 2.0
+    },
+    {
+      "condition": "docs_or_static_screenshots_only",
+      "cap": 3.0
+    },
+    {
+      "condition": "flutter_or_backend_tests_but_no_runtime_for_user_visible_journey",
+      "cap": 5.0
+    },
+    {
+      "condition": "maestro_pass_but_no_user_outcome_or_guidance_review",
+      "cap": 6.0
+    },
+    {
+      "condition": "maestro_pass_but_no_restart_or_data_provenance_for_money_profile_truth",
+      "cap": 7.0
+    },
+    {
+      "condition": "open_p0_affecting_flow",
+      "cap": 6.0
+    },
+    {
+      "condition": "open_p1_qualitative_guidance_bug",
+      "cap": 8.0
+    },
+    {
+      "condition": "no_a11y_i18n_or_dynamic_type_proof_for_t0_t1_screen",
+      "cap": 8.0
+    },
+    {
+      "condition": "no_signed_device_testflight_or_universal_link_proof_for_release_access_rows",
+      "cap": 8.0
+    }
+  ],
+  "rubric_dimensions": [
+    "runtime_mechanics",
+    "human_goal",
+    "guidance_boundary",
+    "user_data_grounding",
+    "provenance_freshness",
+    "restart_or_continuity",
+    "next_step_quality",
+    "ux_a11y_i18n",
+    "automation_reliability",
+    "debt_hygiene"
+  ],
+  "rollout": {
+    "start_with_canonical_flows": 12,
+    "surface_families": [
+      "access_privacy_account",
+      "money_spine",
+      "coach_trust",
+      "scan_to_profile",
+      "daily_return",
+      "rapport_bilan",
+      "unsupported_archetype_gate",
+      "simulators",
+      "education"
+    ],
+    "maestro_scope": "Thin runtime spines only.",
+    "flutter_scope": "Permutations such as locales, dynamic type, semantics, persistence, and data transformations.",
+    "future_check": "tools/checks/mint_quality_os_check.py already validates registry shape, required fields, evidence artifact existence, derived caps, rubric coverage, review dates, and score <= effective cap. Next: validate stale evidence and row/bug references against parsed trackers."
+  },
+  "entries": []
+}
