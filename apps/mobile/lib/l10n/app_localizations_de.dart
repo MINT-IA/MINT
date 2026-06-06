@@ -19517,7 +19517,7 @@ class SDe extends S {
 
   @override
   String get reportActionDesc3aIndependentNoLpp =>
-      'MINT schätzt deinen 3a-Spielraum mit dem deklarierten Einkommen und der Annahme ohne LPP. Bevor du mehr einzahlst, prüfe deinen selbständigen AVS/AHV-Status, das steuerbare Nettoeinkommen, Unfall-/Erwerbsausfalldeckung und die nötige Liquidität bei schwankendem Einkommen. Nächster Check: freiwillige LPP-Option, 3a und Liquiditätsreserve mit einer qualifizierten Fachperson vergleichen.';
+      'MINT schätzt deine 3a-Obergrenze mit dem deklarierten Einkommen und der Annahme ohne LPP. Diese gesetzliche Obergrenze sagt nicht, ob dein Monatsbudget eine Einzahlung tragen kann: Prüfe auch deine Kapazität, deinen selbständigen AVS/AHV-Status, das steuerbare Nettoeinkommen, Unfall-/Erwerbsausfalldeckung und die nötige Liquidität bei schwankendem Einkommen. Nächster Check: freiwillige LPP-Option, 3a und Liquiditätsreserve mit einer qualifizierten Fachperson vergleichen.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19560,11 +19560,11 @@ class SDe extends S {
 
   @override
   String get reportActionStep3aIndependentNoLpp2 =>
-      '2. Steuerbares Einkommen für den 3a-Spielraum prüfen';
+      '2. Deklariertes Erwerbseinkommen für die 3a-Obergrenze und steuerbares Einkommen für die Steuerwirkung prüfen';
 
   @override
   String get reportActionStep3aIndependentNoLpp3 =>
-      '3. Restliquidität gegen Einkommensvolatilität testen';
+      '3. Kapazität deines Monatsbudgets gegen Einkommensvolatilität testen';
 
   @override
   String get reportActionStep3aIndependentNoLpp4 =>

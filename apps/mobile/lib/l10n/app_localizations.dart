@@ -34180,7 +34180,7 @@ abstract class S {
   /// No description provided for @reportActionDesc3aIndependentNoLpp.
   ///
   /// In fr, this message translates to:
-  /// **'MINT estime ta marge 3a avec les revenus déclarés et l’hypothèse sans LPP. Avant de verser davantage, vérifie ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.'**
+  /// **'MINT estime ton plafond 3a avec les revenus déclarés et l’hypothèse sans LPP. Ce plafond légal ne dit pas si ton budget mensuel peut absorber un versement : vérifie aussi ta capacité, ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.'**
   String get reportActionDesc3aIndependentNoLpp;
 
   /// No description provided for @reportActionDesc3aSecond.
@@ -34252,13 +34252,13 @@ abstract class S {
   /// No description provided for @reportActionStep3aIndependentNoLpp2.
   ///
   /// In fr, this message translates to:
-  /// **'2. Vérifie le revenu imposable utilisé pour la marge 3a'**
+  /// **'2. Vérifie le revenu d’activité déclaré pour le plafond 3a et le revenu imposable pour l’impact fiscal'**
   String get reportActionStep3aIndependentNoLpp2;
 
   /// No description provided for @reportActionStep3aIndependentNoLpp3.
   ///
   /// In fr, this message translates to:
-  /// **'3. Teste la liquidité restante avec la volatilité de tes revenus'**
+  /// **'3. Teste la capacité de ton budget mensuel avec la volatilité de tes revenus'**
   String get reportActionStep3aIndependentNoLpp3;
 
   /// No description provided for @reportActionStep3aIndependentNoLpp4.

@@ -19524,7 +19524,7 @@ class SIt extends S {
 
   @override
   String get reportActionDesc3aIndependentNoLpp =>
-      'MINT stima il tuo margine 3a con i redditi dichiarati e l’ipotesi senza LPP. Prima di versare di più, verifica lo stato AVS da indipendente, il reddito netto imponibile, la copertura infortunio/perdita di guadagno e la liquidità necessaria se i redditi variano. Prossima verifica: confrontare l’opzione LPP facoltativa, il 3a e la tesoreria con uno specialista qualificato.';
+      'MINT stima il tuo limite 3a con i redditi dichiarati e l’ipotesi senza LPP. Questo limite legale non dice se il tuo budget mensile può assorbire un versamento: verifica anche la tua capacità, lo stato AVS da indipendente, il reddito netto imponibile, la copertura infortunio/perdita di guadagno e la liquidità necessaria se i redditi variano. Prossima verifica: confrontare l’opzione LPP facoltativa, il 3a e la tesoreria con uno specialista qualificato.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19567,11 +19567,11 @@ class SIt extends S {
 
   @override
   String get reportActionStep3aIndependentNoLpp2 =>
-      '2. Verifica il reddito imponibile usato per il margine 3a';
+      '2. Verifica i redditi da attività dichiarati per il limite 3a e il reddito imponibile per l’impatto fiscale';
 
   @override
   String get reportActionStep3aIndependentNoLpp3 =>
-      '3. Testa la liquidità residua rispetto alla volatilità dei redditi';
+      '3. Testa la capacità del tuo budget mensile rispetto alla volatilità dei redditi';
 
   @override
   String get reportActionStep3aIndependentNoLpp4 =>

@@ -512,6 +512,12 @@ void main() {
 
       expect(joined, contains('avs'));
       expect(joined, contains('revenu imposable'));
+      expect(joined, contains('revenus déclarés'));
+      expect(joined, contains('revenu d’activité'));
+      expect(joined, contains('impact fiscal'));
+      expect(joined, contains('plafond'));
+      expect(joined, contains('budget mensuel'));
+      expect(joined, contains('capacité'));
       expect(joined, contains('liquidité'));
       expect(joined, contains('couverture'));
       expect(joined, contains('volatilité'));

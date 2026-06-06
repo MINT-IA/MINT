@@ -19474,7 +19474,7 @@ class SEs extends S {
 
   @override
   String get reportActionDesc3aIndependentNoLpp =>
-      'MINT estima tu margen 3a con los ingresos declarados y la hipótesis sin LPP. Antes de aportar más, verifica tu estatus AVS de independiente, el ingreso neto imponible, la cobertura de accidente/pérdida de ingresos y la liquidez necesaria si tus ingresos varían. Siguiente comprobación: comparar la opción LPP facultativa, el 3a y la tesorería con un especialista cualificado.';
+      'MINT estima tu límite 3a con los ingresos declarados y la hipótesis sin LPP. Este límite legal no indica si tu presupuesto mensual puede absorber una aportación: verifica también tu capacidad, tu estatus AVS de independiente, el ingreso neto imponible, la cobertura de accidente/pérdida de ingresos y la liquidez necesaria si tus ingresos varían. Siguiente comprobación: comparar la opción LPP facultativa, el 3a y la tesorería con un especialista cualificado.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19517,11 +19517,11 @@ class SEs extends S {
 
   @override
   String get reportActionStep3aIndependentNoLpp2 =>
-      '2. Verifica el ingreso imponible usado para el margen 3a';
+      '2. Verifica los ingresos de actividad declarados para el límite 3a y el ingreso imponible para el impacto fiscal';
 
   @override
   String get reportActionStep3aIndependentNoLpp3 =>
-      '3. Prueba la liquidez restante frente a la volatilidad de ingresos';
+      '3. Prueba la capacidad de tu presupuesto mensual frente a la volatilidad de ingresos';
 
   @override
   String get reportActionStep3aIndependentNoLpp4 =>

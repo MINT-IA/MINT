@@ -19379,7 +19379,7 @@ class SEn extends S {
 
   @override
   String get reportActionDesc3aIndependentNoLpp =>
-      'MINT estimates your 3a room with the declared income and the no-LPP assumption. Before contributing more, check your self-employed AVS/OASI status, net taxable income, accident/loss-of-income cover, and the liquidity you need if income varies. Next check: compare optional LPP affiliation, 3a, and cash reserves with a qualified specialist.';
+      'MINT estimates your 3a ceiling with the declared income and the no-LPP assumption. This legal ceiling does not say whether your monthly budget can absorb a contribution: also check your capacity, self-employed AVS/OASI status, net taxable income, accident/loss-of-income cover, and the liquidity you need if income varies. Next check: compare optional LPP affiliation, 3a, and cash reserves with a qualified specialist.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19422,11 +19422,11 @@ class SEn extends S {
 
   @override
   String get reportActionStep3aIndependentNoLpp2 =>
-      '2. Check the taxable income used for the 3a room';
+      '2. Check the declared earned income for the 3a ceiling and taxable income for the tax impact';
 
   @override
   String get reportActionStep3aIndependentNoLpp3 =>
-      '3. Test remaining liquidity against income volatility';
+      '3. Test your monthly budget capacity against income volatility';
 
   @override
   String get reportActionStep3aIndependentNoLpp4 =>

@@ -19474,7 +19474,7 @@ class SPt extends S {
 
   @override
   String get reportActionDesc3aIndependentNoLpp =>
-      'A MINT estima a tua margem 3a com os rendimentos declarados e a hipótese sem LPP. Antes de contribuir mais, verifica o teu estatuto AVS de independente, o rendimento líquido tributável, a cobertura de acidente/perda de rendimento e a liquidez necessária se os rendimentos variarem. Próxima verificação: comparar a opção LPP facultativa, o 3a e a tesouraria com um especialista qualificado.';
+      'A MINT estima o teu limite 3a com os rendimentos declarados e a hipótese sem LPP. Este limite legal não diz se o teu orçamento mensal consegue absorver uma contribuição: verifica também a tua capacidade, o teu estatuto AVS de independente, o rendimento líquido tributável, a cobertura de acidente/perda de rendimento e a liquidez necessária se os rendimentos variarem. Próxima verificação: comparar a opção LPP facultativa, o 3a e a tesouraria com um especialista qualificado.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19517,11 +19517,11 @@ class SPt extends S {
 
   @override
   String get reportActionStep3aIndependentNoLpp2 =>
-      '2. Verifica o rendimento tributável usado para a margem 3a';
+      '2. Verifica os rendimentos de atividade declarados para o limite 3a e o rendimento tributável para o impacto fiscal';
 
   @override
   String get reportActionStep3aIndependentNoLpp3 =>
-      '3. Testa a liquidez restante face à volatilidade dos rendimentos';
+      '3. Testa a capacidade do teu orçamento mensal face à volatilidade dos rendimentos';
 
   @override
   String get reportActionStep3aIndependentNoLpp4 =>

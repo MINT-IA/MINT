@@ -731,7 +731,7 @@ class FinancialReportService {
       title: l?.reportActionTitle3aIndependentNoLpp ??
           'Clarifier mon statut indépendant avant d’augmenter le 3a',
       description: l?.reportActionDesc3aIndependentNoLpp ??
-          'MINT estime ta marge 3a avec les revenus déclarés et l’hypothèse sans LPP. Avant de verser davantage, vérifie ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.',
+          'MINT estime ton plafond 3a avec les revenus déclarés et l’hypothèse sans LPP. Ce plafond légal ne dit pas si ton budget mensuel peut absorber un versement : vérifie aussi ta capacité, ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.',
       priority: ActionPriority.high,
       potentialGainChf: fiscalGain,
       category: ActionCategory.pillar3a,
@@ -739,9 +739,9 @@ class FinancialReportService {
         l?.reportActionStep3aIndependentNoLpp1 ??
             '1. Confirme ton statut AVS indépendant et ton absence d’affiliation LPP',
         l?.reportActionStep3aIndependentNoLpp2 ??
-            '2. Vérifie le revenu imposable utilisé pour la marge 3a',
+            '2. Vérifie le revenu d’activité déclaré pour le plafond 3a et le revenu imposable pour l’impact fiscal',
         l?.reportActionStep3aIndependentNoLpp3 ??
-            '3. Teste la liquidité restante avec la volatilité de tes revenus',
+            '3. Teste la capacité de ton budget mensuel avec la volatilité de tes revenus',
         l?.reportActionStep3aIndependentNoLpp4 ??
             '4. Passe en revue les couvertures risque avant de décider',
       ],
