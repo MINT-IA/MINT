@@ -5779,7 +5779,7 @@ class SIt extends S {
   String get spendingMeterBudgetUnavailable => 'Budget non disponibile';
 
   @override
-  String get spendingMeterDisponible => 'Disponible';
+  String get spendingMeterToAllocate => 'Da ripartire';
 
   @override
   String spendingMeterVariablesLegend(int percent) {

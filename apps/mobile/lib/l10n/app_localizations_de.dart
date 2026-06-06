@@ -5780,7 +5780,7 @@ class SDe extends S {
   String get spendingMeterBudgetUnavailable => 'Budget nicht verfügbar';
 
   @override
-  String get spendingMeterDisponible => 'Verfügbar';
+  String get spendingMeterToAllocate => 'Zu verteilen';
 
   @override
   String spendingMeterVariablesLegend(int percent) {

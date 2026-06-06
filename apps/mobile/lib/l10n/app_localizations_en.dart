@@ -5734,7 +5734,7 @@ class SEn extends S {
   String get spendingMeterBudgetUnavailable => 'Budget unavailable';
 
   @override
-  String get spendingMeterDisponible => 'Available';
+  String get spendingMeterToAllocate => 'To allocate';
 
   @override
   String spendingMeterVariablesLegend(int percent) {

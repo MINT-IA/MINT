@@ -2775,7 +2775,7 @@
   "forfaitFiscalForfaitLabel": "Lump-sum\ntax",
   "forfaitFiscalBaseLine": "Lump-sum base",
   "spendingMeterBudgetUnavailable": "Budget unavailable",
-  "spendingMeterDisponible": "Available",
+  "spendingMeterToAllocate": "To allocate",
   "spendingMeterVariablesLegend": "Variable {percent}%",
   "@spendingMeterVariablesLegend": {
     "placeholders": {

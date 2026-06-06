@@ -10410,11 +10410,11 @@ abstract class S {
   /// **'Budget non disponible'**
   String get spendingMeterBudgetUnavailable;
 
-  /// No description provided for @spendingMeterDisponible.
+  /// No description provided for @spendingMeterToAllocate.
   ///
   /// In fr, this message translates to:
-  /// **'Disponible'**
-  String get spendingMeterDisponible;
+  /// **'À répartir'**
+  String get spendingMeterToAllocate;
 
   /// No description provided for @spendingMeterVariablesLegend.
   ///

@@ -5773,7 +5773,7 @@ class SFr extends S {
   String get spendingMeterBudgetUnavailable => 'Budget non disponible';
 
   @override
-  String get spendingMeterDisponible => 'Disponible';
+  String get spendingMeterToAllocate => 'À répartir';
 
   @override
   String spendingMeterVariablesLegend(int percent) {

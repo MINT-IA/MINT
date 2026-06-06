@@ -5765,7 +5765,7 @@ class SPt extends S {
   String get spendingMeterBudgetUnavailable => 'Orçamento não disponível';
 
   @override
-  String get spendingMeterDisponible => 'Disponible';
+  String get spendingMeterToAllocate => 'A distribuir';
 
   @override
   String spendingMeterVariablesLegend(int percent) {

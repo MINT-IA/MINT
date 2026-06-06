@@ -86,6 +86,7 @@ tags:
     id: "budget_hero_formula"
 - evalScript: ${output.row23_budget_formula = maestro.copiedText}
 - runScript: "row23_assert_independent_budget_formula.js"
+- assertVisible: "À répartir"
 - assertNotVisible: "Ajouter mon salaire"
 - assertNotVisible: "Plafond 3a salarié"
 - assertNotVisible: "NaN"

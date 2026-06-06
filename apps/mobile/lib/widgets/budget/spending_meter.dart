@@ -14,7 +14,7 @@ import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 //    - Segment 2 "Future":    MintColors.info (blue)
 //    - Background track:      MintColors.surface
 //    - SweepGradient per segment + glow at endpoint + bright tip dot
-//    - Center: "Disponible" label + animated CHF counter
+//    - Center: allocation label + animated CHF counter
 //    - Legend row below donut with colored dots
 //    - 1400ms easeOutCubic animation
 //
@@ -149,7 +149,7 @@ class _SpendingMeterState extends State<SpendingMeter>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          l.spendingMeterDisponible,
+                          l.spendingMeterToAllocate,
                           textAlign: TextAlign.center,
                           style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                         ),

@@ -5771,7 +5771,7 @@ class SEs extends S {
   String get spendingMeterBudgetUnavailable => 'Presupuesto no disponible';
 
   @override
-  String get spendingMeterDisponible => 'Disponible';
+  String get spendingMeterToAllocate => 'Por repartir';
 
   @override
   String spendingMeterVariablesLegend(int percent) {

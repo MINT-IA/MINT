@@ -2775,7 +2775,7 @@
   "forfaitFiscalForfaitLabel": "Pauschal-\nbesteuerung",
   "forfaitFiscalBaseLine": "Pauschalbasis",
   "spendingMeterBudgetUnavailable": "Budget nicht verfügbar",
-  "spendingMeterDisponible": "Verfügbar",
+  "spendingMeterToAllocate": "Zu verteilen",
   "spendingMeterVariablesLegend": "Variable {percent}%",
   "@spendingMeterVariablesLegend": {
     "placeholders": {

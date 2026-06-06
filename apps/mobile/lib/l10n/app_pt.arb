@@ -2775,7 +2775,7 @@
   "forfaitFiscalForfaitLabel": "Forfait\nfiscal",
   "forfaitFiscalBaseLine": "Base forfaitaire",
   "spendingMeterBudgetUnavailable": "Orçamento não disponível",
-  "spendingMeterDisponible": "Disponible",
+  "spendingMeterToAllocate": "A distribuir",
   "spendingMeterVariablesLegend": "Variables {percent}%",
   "@spendingMeterVariablesLegend": {
     "placeholders": {
