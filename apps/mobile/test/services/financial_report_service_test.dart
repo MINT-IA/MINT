@@ -990,6 +990,37 @@ void main() {
       expect(action.potentialGainChf, isNull);
     });
 
+    test('emergency fund action avoids account-opening and salary-only steps',
+        () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'no'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 2
+        ..['q_avs_lacunes_status'] = 'no_gaps';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions.firstWhere(
+        (action) =>
+            action.category == ActionCategory.protection &&
+            action.title.toLowerCase().contains('urgence'),
+      );
+      final joined = [
+        action.title,
+        action.description,
+        ...action.steps,
+      ].join(' ').toLowerCase();
+
+      expect(joined, contains('fonds'));
+      for (final fragment in [
+        'ouvre',
+        'compte épargne sans frais dans ta banque',
+        '10 % du salaire',
+        'salaire',
+      ]) {
+        expect(joined, isNot(contains(fragment)), reason: fragment);
+      }
+    });
+
     test('roadmap has at least one phase', () {
       final report = service.generateReport(minimalAnswers());
       expect(report.personalizedRoadmap.phases.length, greaterThanOrEqualTo(1));

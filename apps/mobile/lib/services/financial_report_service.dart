@@ -673,9 +673,9 @@ class FinancialReportService {
         priority: ActionPriority.critical,
         category: ActionCategory.protection,
         steps: [
-          '1. Ouvre un compte épargne sans frais dans ta banque',
-          '2. Mets en place un virement automatique (≈ 10 % du salaire)',
-          '3. Ne touche pas à cet argent sauf urgence',
+          '1. Identifie un support liquide, séparé et sans frais inutiles',
+          '2. Planifie un montant réaliste selon tes ressources mensuelles',
+          '3. Garde cette réserve accessible uniquement pour une urgence',
         ],
       );
     }
