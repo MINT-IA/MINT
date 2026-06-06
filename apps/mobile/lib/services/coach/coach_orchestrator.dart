@@ -34,6 +34,7 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
+import 'package:mint_mobile/services/coach/local_fallback_service.dart';
 import 'package:mint_mobile/services/coach/prompt_registry.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -492,9 +493,10 @@ class CoachOrchestrator {
       );
     }
 
-    // 4. Fallback — honest "coach unavailable" message.
+    // 4. Fallback — local educational response for FR, honest unavailable
+    // message for other languages until localized topic templates exist.
     debugPrint('[CoachChain] ALL TIERS FAILED — returning fallback');
-    return _chatFallback(language);
+    return _chatFallback(language, userMessage: userMessage);
   }
 
   /// Call the public `/anonymous/chat` endpoint (3 free messages, UUID-
@@ -1150,7 +1152,20 @@ class CoachOrchestrator {
   /// dispatch on the ISO 639-1 [languageCode] via
   /// [CoachFallbackMessages]. Anti-shame doctrine: MINT is the subject
   /// of the unavailability, never the user. CLAUDE.md §7 compliant.
-  static CoachResponse _chatFallback(String languageCode) {
+  static CoachResponse _chatFallback(
+    String languageCode, {
+    String? userMessage,
+  }) {
+    if (languageCode == 'fr' && (userMessage ?? '').trim().isNotEmpty) {
+      return CoachResponse(
+        message: LocalFallbackService.generateFallback(
+          userMessage: userMessage!,
+        ),
+        disclaimer: ComplianceGuard.standardDisclaimer,
+        wasFiltered: false,
+      );
+    }
+
     final message = CoachFallbackMessages.chatUnavailable(
       languageCode,
       ComplianceGuard.standardDisclaimer,

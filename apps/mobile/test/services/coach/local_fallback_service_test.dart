@@ -16,6 +16,54 @@ void main() {
       expect(response, isNot(contains('En 2025')));
     });
 
+    test('scores independent no-LPP 3a question as expert guidance', () {
+      final response = LocalFallbackService.generateFallback(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+      ).toLowerCase();
+
+      expect(response, contains('indépendant'));
+      expect(response, contains('sans lpp'));
+      expect(response, contains('revenu net d\'activité'));
+      expect(response, contains('plafond'));
+      expect(response, contains('budget mensuel'));
+      expect(response, contains('lpp facultative'));
+      expect(response, contains('couverture accident'));
+      expect(response, contains('perte de gain'));
+      expect(response, contains('liquidité'));
+      expect(response, isNot(contains('7\u00a0258')));
+      expect(response, isNot(contains('salarié')));
+      expect(response, isNot(contains('ouvre')));
+      expect(response, isNot(contains('fintech')));
+    });
+
+    test('does not use no-LPP guidance when independent user declares LPP', () {
+      final response = LocalFallbackService.generateFallback(
+        userMessage: 'Je suis indépendant avec LPP, combien verser en 3a ?',
+      ).toLowerCase();
+
+      expect(response, isNot(contains('lpp facultative')));
+      expect(response, isNot(contains('budget mensuel')));
+    });
+
+    test('does not use no-LPP guidance for conflicting LPP affiliation wording', () {
+      final response = LocalFallbackService.generateFallback(
+        userMessage: 'Je suis indépendant avec LPP, pas de caisse de pension claire, combien verser en 3a ?',
+      ).toLowerCase();
+
+      expect(response, isNot(contains('lpp facultative')));
+      expect(response, isNot(contains('budget mensuel')));
+    });
+
+    test('recognizes no-LPP wording without the LPP acronym', () {
+      final response = LocalFallbackService.generateFallback(
+        userMessage: 'Je suis freelance pas de caisse de pension, que faire avec mon troisième pilier ?',
+      ).toLowerCase();
+
+      expect(response, contains('revenu net d\'activité'));
+      expect(response, contains('budget mensuel'));
+      expect(response, contains('lpp facultative'));
+    });
+
     test('matches lpp topic from "2e pilier" keyword', () {
       final response = LocalFallbackService.generateFallback(
         userMessage: 'Parle-moi du 2e pilier',
@@ -110,6 +158,7 @@ void main() {
         'impôts', 'budget', 'hypotheque',
         'pension', 'lamal', 'héritage',
         'crédit', 'random question',
+        'indépendant sans lpp combien verser en 3a',
       ];
       for (final topic in topics) {
         final response = LocalFallbackService.generateFallback(
@@ -136,6 +185,7 @@ void main() {
         'pilier 3a', '2e pilier', 'rente avs', 'impôts',
         'budget', 'hypotheque', 'pension', 'lamal',
         'héritage', 'crédit', 'random',
+        'indépendant sans lpp combien verser en 3a',
       ];
       for (final topic in topics) {
         final response = LocalFallbackService.generateFallback(
@@ -159,6 +209,29 @@ void main() {
         detectedTopics: ['3a'],
       );
       expect(response, contains('3e pilier'));
+    });
+
+    test('can target independent no-LPP 3a guidance from detectedTopics', () {
+      final response = LocalFallbackService.generateFallback(
+        userMessage: 'Question courte',
+        detectedTopics: ['independent_no_lpp_3a'],
+      ).toLowerCase();
+
+      expect(response, contains('revenu net d\'activité'));
+      expect(response, contains('budget mensuel'));
+      expect(response, contains('lpp facultative'));
+      expect(response, isNot(contains('7\u00a0258')));
+    });
+
+    test('prioritizes independent no-LPP 3a over generic detected 3a topic', () {
+      final response = LocalFallbackService.generateFallback(
+        userMessage: 'Question courte',
+        detectedTopics: ['3a', 'independent_no_lpp_3a'],
+      ).toLowerCase();
+
+      expect(response, contains('revenu net d\'activité'));
+      expect(response, contains('budget mensuel'));
+      expect(response, isNot(contains('7\u00a0258')));
     });
 
     test('falls back to generic if detectedTopics has unknown topic', () {

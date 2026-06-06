@@ -2,7 +2,7 @@
 ///
 /// Template-based fallback when all cloud LLMs are unavailable.
 /// Generates compliant French responses using keyword matching
-/// against the 10 most common Swiss financial topics.
+/// against common Swiss financial topics and specialized high-risk cases.
 ///
 /// Guarantees:
 ///   - Zero network dependency
@@ -20,7 +20,7 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 /// Template-based local fallback for when all LLMs are down.
 ///
 /// Uses keyword matching to select pre-written French responses.
-/// Covers the 10 most common financial topics.
+/// Covers common financial topics plus specialized high-risk cases.
 class LocalFallbackService {
   LocalFallbackService._();
 
@@ -34,7 +34,7 @@ class LocalFallbackService {
     String? lifecyclePhase,
     List<String>? detectedTopics,
   }) {
-    final topics = detectedTopics ?? _detectTopics(userMessage);
+    final topics = _prioritizeTopics(detectedTopics ?? _detectTopics(userMessage));
 
     // Try to find a matching template.
     for (final topic in topics) {
@@ -57,6 +57,13 @@ class LocalFallbackService {
     final lower = message.toLowerCase();
     final matched = <String>[];
 
+    if (_mentionsIndependent(lower) &&
+        _mentionsNoLpp(lower) &&
+        !_mentionsLppAffiliation(lower) &&
+        _mentions3a(lower)) {
+      matched.add('independent_no_lpp_3a');
+    }
+
     for (final entry in _topicKeywords.entries) {
       for (final keyword in entry.value) {
         if (lower.contains(keyword)) {
@@ -69,7 +76,51 @@ class LocalFallbackService {
     return matched;
   }
 
-  /// Keywords for each of the 10 supported topics.
+  static List<String> _prioritizeTopics(List<String> topics) {
+    if (!topics.contains('independent_no_lpp_3a')) {
+      return topics;
+    }
+
+    return [
+      'independent_no_lpp_3a',
+      ...topics.where((topic) => topic != 'independent_no_lpp_3a'),
+    ];
+  }
+
+  static bool _mentionsIndependent(String lower) =>
+      lower.contains('indépendant') ||
+      lower.contains('independant') ||
+      lower.contains('freelance');
+
+  static bool _mentionsNoLpp(String lower) =>
+      lower.contains('sans lpp') ||
+      lower.contains('pas de lpp') ||
+      lower.contains('sans 2e pilier') ||
+      lower.contains('pas de 2e pilier') ||
+      lower.contains('sans 2ème pilier') ||
+      lower.contains('pas de 2ème pilier') ||
+      lower.contains('sans deuxième pilier') ||
+      lower.contains('pas de deuxième pilier') ||
+      lower.contains('sans caisse de pension') ||
+      lower.contains('pas de caisse de pension');
+
+  static bool _mentionsLppAffiliation(String lower) =>
+      lower.contains('avec lpp') ||
+      lower.contains('avec une lpp') ||
+      lower.contains('j\'ai une lpp') ||
+      lower.contains('j’ai une lpp') ||
+      lower.contains('affilié à une caisse de pension') ||
+      lower.contains('affilie a une caisse de pension') ||
+      lower.contains('cotise à la lpp') ||
+      lower.contains('cotise a la lpp');
+
+  static bool _mentions3a(String lower) =>
+      lower.contains('3a') ||
+      lower.contains('pilier 3a') ||
+      lower.contains('troisième pilier') ||
+      lower.contains('3ème pilier');
+
+  /// Keywords for each supported generic topic.
   static const Map<String, List<String>> _topicKeywords = {
     '3a': ['3a', 'troisième pilier', '3ème pilier', 'pilier 3a'],
     'lpp': ['lpp', '2e pilier', 'deuxième pilier', 'caisse de pension', 'rachat'],
@@ -84,10 +135,21 @@ class LocalFallbackService {
   };
 
   // ══════════════════════════════════════════════════════════════
-  //  TEMPLATES (10 topics)
+  //  TEMPLATES
   // ══════════════════════════════════════════════════════════════
 
   static const Map<String, String> _templates = {
+    'independent_no_lpp_3a':
+        'Pour un·e indépendant·e sans LPP, le plafond 3a légal dépend du '
+        'revenu net d\'activité déclaré\u00a0: 20\u00a0% de ce revenu, au maximum '
+        '36\u00a0288\u00a0CHF/an selon l\'OPP3 art. 7. Ce plafond ne dit pas '
+        'si ton budget mensuel peut absorber un versement.\n\n'
+        'Avant de contribuer davantage, vérifie aussi ton statut AVS '
+        'd\'indépendant·e, ton revenu imposable pour l\'impact fiscal, '
+        'ta couverture accident/perte de gain, la liquidité nécessaire '
+        'si tes revenus varient, et le rôle éventuel d\'une LPP facultative '
+        'par rapport au 3a et à ta trésorerie.\n\n'
+        'Réf.\u00a0: OPP3 art. 7, LPP art. 4, LAVS art. 8.',
     '3a': 'Le 3e pilier (pilier 3a) est un outil d\'épargne-retraite '
         'qui peut ouvrir une marge déductible. Le plafond OPP3 courant '
         'est de 7\u00a0258\u00a0CHF/an pour les salarié\u00b7e\u00b7s affilié\u00b7e\u00b7s '
@@ -98,7 +160,6 @@ class LocalFallbackService {
         '(OPP3 art. 7). Tu pourrais explorer le simulateur 3a '
         'dans l\'app pour estimer l\'impact sur tes impôts.\n\n'
         'Réf.\u00a0: OPP3 art. 7, LIFD art. 33 al. 1 let. e.',
-
     'lpp': 'Le 2e pilier (LPP) est la prévoyance professionnelle '
         'obligatoire. Le taux de conversion minimal est de 6,8\u00a0% '
         '(LPP art. 14). Les bonifications d\'épargne augmentent '

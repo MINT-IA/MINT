@@ -383,6 +383,26 @@ void main() {
     );
   });
 
+  test('14b. generateChat fallback answers independent no-LPP 3a question',
+      () async {
+    _resetFlags(safeModeDegraded: true);
+    final ctx = _ctx();
+
+    final response = await CoachOrchestrator.generateChat(
+      userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+      history: const [],
+      ctx: ctx,
+      isLoggedIn: true,
+    );
+
+    final message = response.message.toLowerCase();
+    expect(message, contains('revenu net d\'activité'));
+    expect(message, contains('budget mensuel'));
+    expect(message, contains('lpp facultative'));
+    expect(message, isNot(contains('7\u00a0258')));
+    expect(message, isNot(contains('salarié')));
+  });
+
   // ═══════════════════════════════════════════════════════════════
   //  15. Smoke test: tous les ComponentType fonctionnent
   // ═══════════════════════════════════════════════════════════════
