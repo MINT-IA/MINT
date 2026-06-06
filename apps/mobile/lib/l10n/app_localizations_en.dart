@@ -19375,11 +19375,11 @@ class SEn extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Deductible contribution; tax impact estimated from your income and canton.';
+      'Deductible room and estimated tax impact based on your income, canton, and LPP status.';
 
   @override
   String get reportActionDesc3aSecond =>
-      'Optimise your withdrawal tax and diversify your investments.';
+      'Withdrawal staggering and diversification to review based on your existing accounts.';
 
   @override
   String get reportActionDescAvsCheck =>
@@ -19394,10 +19394,10 @@ class SEn extends S {
       'Aim for 3 months of expenses in a separate savings account.';
 
   @override
-  String get reportActionTitle3aFirst => 'Open your first 3a';
+  String get reportActionTitle3aFirst => 'Assess 3a relevance';
 
   @override
-  String get reportActionTitle3aSecond => 'Open a 2nd fintech 3a account';
+  String get reportActionTitle3aSecond => 'Assess a second 3a';
 
   @override
   String get reportActionTitleAvsCheck => 'Check your AVS account';

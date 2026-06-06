@@ -191,7 +191,7 @@ class CircleScoringService {
       lppStatus =
           ItemStatus.good; // Opportunité disponible mais pas encore exploitée
     } else if (lppBuyback == 0) {
-      lppStatus = ItemStatus.perfect; // Pas de lacune = parfait
+      lppStatus = ItemStatus.perfect; // Pas de lacune déclarée
     } else {
       lppStatus = ItemStatus.unknown;
     }
@@ -440,10 +440,10 @@ class CircleScoringService {
     final nb3a = _parseInt(answers['q_3a_accounts_count']) ?? 0;
     if (nb3a == 0) {
       reco.add(
-          'Ouvre ton premier compte 3a pour profiter de la déduction fiscale');
+          'Évalue l’intérêt d’un premier compte 3a selon ton statut LPP et ton revenu');
     } else if (nb3a == 1) {
       reco.add(
-          '🚀 Ouvre un 2e compte 3a auprès d\u2019un prestataire fintech pour optimiser le retrait futur');
+          'Évalue l’intérêt d’un 2e compte 3a pour l’échelonnement du retrait futur');
     }
 
     final lppBuyback = _parseDouble(answers['q_lpp_buyback_available']);

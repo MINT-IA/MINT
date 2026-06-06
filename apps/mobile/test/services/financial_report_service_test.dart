@@ -285,6 +285,49 @@ void main() {
         }
       }
     });
+
+    test('3a report action copy stays in guidance-not-advice mode', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'reportActionTitle3aFirst',
+        'reportActionTitle3aSecond',
+        'reportActionDesc3aFirst',
+        'reportActionDesc3aSecond',
+      ];
+      const requiredAnchors = {
+        'fr': 'évaluer',
+        'en': 'assess',
+        'de': 'prüfen',
+        'es': 'evaluar',
+        'it': 'valutare',
+        'pt': 'avaliar',
+      };
+      const bannedFragments = [
+        'ouvre',
+        'open your',
+        'öffne',
+        'abre ',
+        'apri ',
+        'fintech',
+        'optimise',
+        'optimize',
+        'optimiere',
+        'optimiza',
+        'ottimizza',
+        'otimiza',
+      ];
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        final values =
+            keys.map((key) => (json[key] as String).toLowerCase()).join(' ');
+
+        expect(values, contains(requiredAnchors[locale]), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(values, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────
@@ -365,6 +408,44 @@ void main() {
           isTrue);
       expect(report.generatedAt.isBefore(after.add(const Duration(seconds: 1))),
           isTrue);
+    });
+
+    test('3a priority actions avoid account-opening instructions', () {
+      final no3aAnswers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0;
+      final one3aAnswers = Map<String, dynamic>.from(no3aAnswers)
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 3000.0;
+
+      final actions = [
+        ...service.generateReport(no3aAnswers).priorityActions,
+        ...service.generateReport(one3aAnswers).priorityActions,
+      ].where((action) => action.category == ActionCategory.pillar3a);
+
+      expect(actions.length, 2);
+      final joined = actions
+          .expand((action) => [
+                action.title,
+                action.description,
+                ...action.steps,
+              ])
+          .join(' ')
+          .toLowerCase();
+
+      expect(joined, contains('évaluer'));
+      for (final fragment in [
+        'ouvre',
+        'crée',
+        'configure',
+        'choisis stratégie',
+        '60% actions',
+        'fintech',
+      ]) {
+        expect(joined, isNot(contains(fragment)), reason: fragment);
+      }
     });
   });
 

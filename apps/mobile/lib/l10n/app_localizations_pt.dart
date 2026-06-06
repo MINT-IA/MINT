@@ -19470,11 +19470,11 @@ class SPt extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Contribuição dedutível; impacto fiscal estimado segundo o teu rendimento e cantão.';
+      'Margem dedutível e impacto fiscal estimado segundo o teu rendimento, cantão e estatuto LPP.';
 
   @override
   String get reportActionDesc3aSecond =>
-      'Otimiza a fiscalidade no levantamento e diversifica os investimentos.';
+      'Escalonamento no levantamento e diversificação a avaliar segundo as tuas contas existentes.';
 
   @override
   String get reportActionDescAvsCheck =>
@@ -19489,10 +19489,10 @@ class SPt extends S {
       'Aponta a 3 meses de despesas numa conta poupança separada.';
 
   @override
-  String get reportActionTitle3aFirst => 'Abre a tua primeira conta 3a';
+  String get reportActionTitle3aFirst => 'Avaliar o interesse de um 3a';
 
   @override
-  String get reportActionTitle3aSecond => 'Abre uma 2ª conta 3a fintech';
+  String get reportActionTitle3aSecond => 'Avaliar um 2.º 3a';
 
   @override
   String get reportActionTitleAvsCheck => 'Verifica a tua conta AVS';

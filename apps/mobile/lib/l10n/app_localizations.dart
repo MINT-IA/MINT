@@ -34174,13 +34174,13 @@ abstract class S {
   /// No description provided for @reportActionDesc3aFirst.
   ///
   /// In fr, this message translates to:
-  /// **'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.'**
+  /// **'Marge déductible et impact fiscal estimés selon ton revenu, ton canton et ton statut LPP.'**
   String get reportActionDesc3aFirst;
 
   /// No description provided for @reportActionDesc3aSecond.
   ///
   /// In fr, this message translates to:
-  /// **'Optimise ta fiscalité au retrait et diversifie tes placements.'**
+  /// **'Échelonnement au retrait et diversification à examiner selon tes comptes existants.'**
   String get reportActionDesc3aSecond;
 
   /// No description provided for @reportActionDescAvsCheck.
@@ -34204,13 +34204,13 @@ abstract class S {
   /// No description provided for @reportActionTitle3aFirst.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvre ton premier 3a'**
+  /// **'Évaluer l’intérêt d’un 3a'**
   String get reportActionTitle3aFirst;
 
   /// No description provided for @reportActionTitle3aSecond.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvre un 2e compte 3a fintech'**
+  /// **'Évaluer l’intérêt d’un 2e 3a'**
   String get reportActionTitle3aSecond;
 
   /// No description provided for @reportActionTitleAvsCheck.

@@ -19520,11 +19520,11 @@ class SIt extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Versamento deducibile; impatto fiscale stimato in base al tuo reddito e cantone.';
+      'Margine deducibile e impatto fiscale stimato secondo reddito, cantone e stato LPP.';
 
   @override
   String get reportActionDesc3aSecond =>
-      'Ottimizza la fiscalità al prelievo e diversifica gli investimenti.';
+      'Scaglionamento al prelievo e diversificazione da valutare secondo i conti esistenti.';
 
   @override
   String get reportActionDescAvsCheck =>
@@ -19539,10 +19539,10 @@ class SIt extends S {
       'Punta a 3 mesi di spese su un conto risparmio separato.';
 
   @override
-  String get reportActionTitle3aFirst => 'Apri il tuo primo 3a';
+  String get reportActionTitle3aFirst => 'Valutare l’interesse di un 3a';
 
   @override
-  String get reportActionTitle3aSecond => 'Apri un 2° conto 3a fintech';
+  String get reportActionTitle3aSecond => 'Valutare un 2° 3a';
 
   @override
   String get reportActionTitleAvsCheck => 'Verifica il tuo conto AVS';

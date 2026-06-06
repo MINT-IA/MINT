@@ -19470,11 +19470,11 @@ class SEs extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Aportación deducible; impacto fiscal estimado según tus ingresos y cantón.';
+      'Margen deducible e impacto fiscal estimado según tus ingresos, cantón y situación LPP.';
 
   @override
   String get reportActionDesc3aSecond =>
-      'Optimiza tu fiscalidad al retirar y diversifica tus inversiones.';
+      'Escalonamiento al retirar y diversificación a revisar según tus cuentas existentes.';
 
   @override
   String get reportActionDescAvsCheck =>
@@ -19489,10 +19489,10 @@ class SEs extends S {
       'Apunta a 3 meses de gastos en una cuenta de ahorro separada.';
 
   @override
-  String get reportActionTitle3aFirst => 'Abre tu primer 3a';
+  String get reportActionTitle3aFirst => 'Evaluar el interés de un 3a';
 
   @override
-  String get reportActionTitle3aSecond => 'Abre una 2ª cuenta 3a fintech';
+  String get reportActionTitle3aSecond => 'Evaluar un 2.º 3a';
 
   @override
   String get reportActionTitleAvsCheck => 'Verifica tu cuenta AVS';

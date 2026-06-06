@@ -54,6 +54,39 @@ void main() {
       expect(score.topPriorities.length, lessThanOrEqualTo(3));
     });
 
+    test('3a priorities are guidance, not account-opening instructions', () {
+      final no3aScore = service.calculateScore(<String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_has_consumer_debt': 'no',
+        'q_net_income_period_chf': 5000,
+        'q_3a_accounts_count': 0,
+        'q_employment_status': 'employee',
+        'q_avs_lacunes_status': 'no',
+      });
+      final one3aScore = service.calculateScore(<String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_has_consumer_debt': 'no',
+        'q_net_income_period_chf': 5000,
+        'q_3a_accounts_count': 1,
+        'q_employment_status': 'employee',
+        'q_avs_lacunes_status': 'no',
+      });
+
+      final joined = [
+        ...no3aScore.topPriorities,
+        ...one3aScore.topPriorities,
+      ].join(' ').toLowerCase();
+
+      expect(joined, contains('évalue'));
+      for (final fragment in [
+        'ouvre',
+        'fintech',
+        'optimiser',
+      ]) {
+        expect(joined, isNot(contains(fragment)), reason: fragment);
+      }
+    });
+
     test('excellent profile scores high overall', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'yes_6months',

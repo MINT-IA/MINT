@@ -293,7 +293,7 @@ class FinancialReportService {
     double? savings;
 
     if (lppBuybackAvailable > 50000) {
-      const buybackAmount = 50000.0; // 1ère tranche recommandée
+      const buybackAmount = 50000.0; // 1ère tranche illustrative
       final taxableWithBuyback = taxableIncome - buybackAmount;
       final rateWithBuyback = _estimateEffectiveRate(
           taxableWithBuyback, profile.canton, profile.isMarried,
@@ -467,8 +467,8 @@ class FinancialReportService {
     final plan = <AnnualBuyback>[];
     final currentYear = DateTime.now().year;
 
-    // RÈGLE DES 3 ANS : Si retrait capital prévu, finir rachats AVANT (retraite - 3 ans)
-    // Stratégie optimale : Racheter dans les dernières années pré-retraite pour max l'effet fiscal
+    // RÈGLE DES 3 ANS : si retrait capital prévu, finir les rachats avant retraite - 3 ans.
+    // Le calendrier privilégie les dernières années pré-retraite pour l'effet fiscal estimé.
 
     int startYear;
     int nbYears;
@@ -485,23 +485,23 @@ class FinancialReportService {
       // Commencer maintenant, étaler sur années restantes
       startYear = currentYear;
       nbYears = 3;
-      strategy = 'optimal_now';
+      strategy = 'near_term';
     } else {
       // LOIN de la retraite (>5 ans)
-      // Recommandation : ATTENDRE et faire rachats 3 ans avant retraite
+      // Scénario : attendre et faire les rachats 3 ans avant retraite.
       // Mais si besoin fiscal immédiat, étaler sur 3 ans maintenant
       final retirementYear = currentYear + yearsToRetirement;
 
-      // Option 1 : Attendre (RECOMMANDÉ si pas besoin fiscal urgent)
+      // Option 1 : attendre si pas besoin fiscal urgent
       startYear = retirementYear - 5; // Commencer 5 ans avant retraite
       nbYears = 3; // Étaler sur 3 ans (de -5 à -2 ans avant retraite)
-      strategy = 'wait_recommended';
+      strategy = 'wait_scenario';
 
       // Note: Si besoin fiscal urgent, on pourrait proposer un plan maintenant
-      // mais ce n'est pas optimal fiscalement
+      // mais l'impact fiscal estimé peut être moins favorable.
     }
 
-    // Calculer montant annuel optimal
+    // Calculer le montant annuel indicatif.
     final yearlyAmount = (buybackAvailable / nbYears).roundToDouble();
 
     // Générer le plan année par année
@@ -512,7 +512,7 @@ class FinancialReportService {
           : yearlyAmount;
 
       // Le taux marginal peut baisser si revenu baisse avec l'âge
-      final yearMarginalRate = (strategy == 'wait_recommended')
+      final yearMarginalRate = (strategy == 'wait_scenario')
           ? marginalRate * 0.95 // Légèrement plus bas dans le futur
           : marginalRate;
 
@@ -575,17 +575,17 @@ class FinancialReportService {
         taxSim: taxSim,
       );
       return ActionItem(
-        title: l?.reportActionTitle3aFirst ?? 'Ouvre ton premier 3a',
+        title: l?.reportActionTitle3aFirst ?? 'Évaluer l’intérêt d’un 3a',
         description: l?.reportActionDesc3aFirst ??
-            'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.',
+            'Marge déductible et impact fiscal estimés selon ton revenu, ton canton et ton statut LPP.',
         priority: ActionPriority.high,
         potentialGainChf: fiscalGain,
         category: ActionCategory.pillar3a,
         steps: [
-          '1. Compare les offres (fintech, banque)',
-          '2. Ouvre ton compte en 10 minutes',
-          '3. Configure un versement automatique',
-          '4. Choisis une stratégie adaptée à ton horizon',
+          '1. Vérifie ton éligibilité et ton statut LPP',
+          '2. Compare les frais, supports et contraintes de retrait',
+          '3. Estime l’impact fiscal avec tes données',
+          '4. Revois les hypothèses avant de décider',
         ],
       );
     }
@@ -597,17 +597,17 @@ class FinancialReportService {
       final totalGain = (gainVsBank ?? 0) + (withdrawalSavings ?? 0);
 
       return ActionItem(
-        title: l?.reportActionTitle3aSecond ?? 'Ouvre un 2e compte 3a fintech',
+        title: l?.reportActionTitle3aSecond ?? 'Évaluer l’intérêt d’un 2e 3a',
         description: l?.reportActionDesc3aSecond ??
-            'Optimise ta fiscalité au retrait et diversifie tes placements.',
+            'Échelonnement au retrait et diversification à examiner selon tes comptes existants.',
         priority: ActionPriority.high,
         potentialGainChf: totalGain > 0 ? totalGain : null,
         category: ActionCategory.pillar3a,
         steps: const [
-          '1. Compare les prestataires 3a en ligne',
-          '2. Crée ton compte (10 min)',
-          '3. Choisis stratégie 60% actions',
-          '4. Configure versement automatique',
+          '1. Compare les frais et restrictions des comptes existants',
+          '2. Évalue l’intérêt d’un échelonnement au retrait',
+          '3. Vérifie l’impact selon canton, horizon et montants',
+          '4. Revois les hypothèses avant de décider',
         ],
       );
     }

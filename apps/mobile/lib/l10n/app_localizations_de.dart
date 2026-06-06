@@ -19513,11 +19513,11 @@ class SDe extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Abziehbare Einzahlung; steuerliche Wirkung anhand deines Einkommens und Kantons geschätzt.';
+      'Abzugsfähiger Spielraum und geschätzte Steuerwirkung anhand deines Einkommens, Kantons und LPP-Status.';
 
   @override
   String get reportActionDesc3aSecond =>
-      'Optimiere deine Steuer beim Bezug und diversifiziere deine Anlagen.';
+      'Staffelung beim Bezug und Diversifikation anhand deiner bestehenden Konten prüfen.';
 
   @override
   String get reportActionDescAvsCheck =>
@@ -19532,10 +19532,10 @@ class SDe extends S {
       'Ziele auf 3 Monatsausgaben auf einem separaten Sparkonto.';
 
   @override
-  String get reportActionTitle3aFirst => 'Öffne dein erstes 3a';
+  String get reportActionTitle3aFirst => '3a-Relevanz prüfen';
 
   @override
-  String get reportActionTitle3aSecond => 'Öffne ein 2. Fintech-3a-Konto';
+  String get reportActionTitle3aSecond => 'Ein 2. 3a prüfen';
 
   @override
   String get reportActionTitleAvsCheck => 'Prüfe dein AHV-Konto';

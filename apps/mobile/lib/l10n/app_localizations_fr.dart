@@ -19462,11 +19462,11 @@ class SFr extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.';
+      'Marge déductible et impact fiscal estimés selon ton revenu, ton canton et ton statut LPP.';
 
   @override
   String get reportActionDesc3aSecond =>
-      'Optimise ta fiscalité au retrait et diversifie tes placements.';
+      'Échelonnement au retrait et diversification à examiner selon tes comptes existants.';
 
   @override
   String get reportActionDescAvsCheck =>
@@ -19481,10 +19481,10 @@ class SFr extends S {
       'Vise 3 mois de charges sur un compte épargne séparé.';
 
   @override
-  String get reportActionTitle3aFirst => 'Ouvre ton premier 3a';
+  String get reportActionTitle3aFirst => 'Évaluer l’intérêt d’un 3a';
 
   @override
-  String get reportActionTitle3aSecond => 'Ouvre un 2e compte 3a fintech';
+  String get reportActionTitle3aSecond => 'Évaluer l’intérêt d’un 2e 3a';
 
   @override
   String get reportActionTitleAvsCheck => 'Vérifie ton compte AVS';
