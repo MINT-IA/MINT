@@ -87,6 +87,37 @@ void main() {
       }
     });
 
+    test('growth priority is guidance, not an optimization directive', () {
+      final score = service.calculateScore(<String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_has_consumer_debt': 'no',
+        'q_net_income_period_chf': 5000,
+        'q_3a_accounts_count': 3,
+        'q_3a_annual_contribution': 7258.0,
+        'q_employment_status': 'employee',
+        'q_lpp_buyback_available': 0.0,
+        'q_avs_lacunes_status': 'no',
+        'q_has_investments': 'no',
+        'q_housing_status': 'renter',
+      });
+
+      final joined = score.topPriorities.join(' ').toLowerCase();
+
+      expect(
+        joined,
+        contains(
+          'évalue un cadre d’investissement une fois protection et prévoyance clarifiées',
+        ),
+      );
+      for (final fragment in [
+        'développe',
+        'optimisé',
+        'optimiser',
+      ]) {
+        expect(joined, isNot(contains(fragment)), reason: fragment);
+      }
+    });
+
     test('excellent profile scores high overall', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'yes_6months',

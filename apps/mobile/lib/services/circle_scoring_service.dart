@@ -472,7 +472,7 @@ class CircleScoringService {
   List<String> _circle3Recommendations(
       Map<String, dynamic> answers, List<ScoreItem> items) {
     return [
-      'Développe ta stratégie d\'investissement une fois Cercles 1-2 optimisés'
+      'Évalue un cadre d’investissement une fois protection et prévoyance clarifiées'
     ];
   }
 
