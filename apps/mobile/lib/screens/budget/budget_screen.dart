@@ -1143,26 +1143,26 @@ class _BudgetCalculationDetailSectionState
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      key: const Key('budget_calculation_detail_toggle'),
-      identifier: 'budget_calculation_detail_toggle',
-      container: true,
-      explicitChildNodes: true,
-      button: true,
-      enabled: true,
-      expanded: _expanded,
-      onTap: _toggle,
-      label: widget.l.affordabilityCalculationDetail,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
-        child: Column(
-          children: [
-            Material(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Column(
+        children: [
+          Semantics(
+            key: const Key('budget_calculation_detail_toggle'),
+            identifier: 'budget_calculation_detail_toggle',
+            container: true,
+            excludeSemantics: true,
+            button: true,
+            enabled: true,
+            expanded: _expanded,
+            onTap: _toggle,
+            label: widget.l.affordabilityCalculationDetail,
+            child: Material(
               color: MintColors.transparent,
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
@@ -1196,16 +1196,16 @@ class _BudgetCalculationDetailSectionState
                 ),
               ),
             ),
-            if (_expanded)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: _BudgetFlowMap(
-                  present: widget.present,
-                  l: widget.l,
-                ),
+          ),
+          if (_expanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: _BudgetFlowMap(
+                present: widget.present,
+                l: widget.l,
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

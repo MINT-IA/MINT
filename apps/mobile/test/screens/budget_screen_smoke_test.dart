@@ -1,4 +1,4 @@
-import 'dart:ui' show SemanticsAction;
+import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -504,6 +504,16 @@ void main() {
           .hasAction(SemanticsAction.tap),
       isTrue,
     );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('budget_calculation_detail_toggle')),
+          )
+          .getSemanticsData()
+          .flagsCollection
+          .isExpanded,
+      Tristate.isFalse,
+    );
 
     await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
@@ -562,14 +572,18 @@ void main() {
       tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
       'budget_flow_map',
     );
-    expect(
-      tester
-          .getSemantics(
-            find.byKey(const Key('budget_calculation_detail_toggle')),
-          )
-          .identifier,
-      'budget_calculation_detail_toggle',
+    final detailToggleNode = tester.getSemantics(
+      find.byKey(const Key('budget_calculation_detail_toggle')),
     );
+    final detailToggleData = detailToggleNode.getSemanticsData();
+    expect(detailToggleNode.identifier, 'budget_calculation_detail_toggle');
+    expect(detailToggleNode.flagsCollection.isButton, isTrue);
+    expect(detailToggleData.hasAction(SemanticsAction.tap), isTrue);
+    expect(detailToggleData.flagsCollection.isExpanded, Tristate.isTrue);
+    expect(detailToggleData.label, 'Détail du calcul');
+    expect(detailToggleData.label, isNot(contains('Revenu net')));
+    expect(detailToggleData.label, isNot(contains('Charges')));
+    expect(detailToggleNode.childrenCountInTraversalOrder, 0);
     expect(
       tester
           .getSemantics(find.byKey(const Key('budget_formula_proof')))
