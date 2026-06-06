@@ -1,0 +1,53 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 16e - iOS 26.2 - 9C9E9AAE-C3CF-49B8-B06D-625004880A9B
+ > Flow bug__F001__chat_input_bar_exists
+Run ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml...
+  Launch app "ch.mint.app" with clear state... COMPLETED
+  Run flow when "Je comprends, on y va" is visible...
+  Run flow when "Je comprends, on y va" is visible... SKIPPED
+  Assert that "Parle à Mint" is visible... COMPLETED
+  Wait for animation to end... COMPLETED
+  Assert that ".*Continuer sans compte.*" is visible... COMPLETED
+  Tap on ".*Continuer sans compte.*"... COMPLETED
+  Wait for animation to end... COMPLETED
+  Run flow when ".*Ouvrir.*" is visible...
+    Tap on ".*Ouvrir.*"... COMPLETED
+    Wait for animation to end... COMPLETED
+  Run flow when ".*Ouvrir.*" is visible... COMPLETED
+  Run flow when ".*Je regarde d’abord.*" is visible...
+    Tap on ".*Je regarde d’abord.*"... COMPLETED
+    Wait for animation to end... COMPLETED
+  Run flow when ".*Je regarde d’abord.*" is visible... COMPLETED
+  Run flow when ".*États-Unis.*" is visible...
+    Tap on ".*Non.*"... COMPLETED
+    Wait for animation to end... COMPLETED
+  Run flow when ".*États-Unis.*" is visible... COMPLETED
+  Run flow when ".*Où tu vis.*" is visible...
+  Run flow when ".*Où tu vis.*" is visible... SKIPPED
+  Repeat 8 times...
+    Run flow when ".*Où tu vis.*" is visible...
+    Run flow when ".*Où tu vis.*" is visible... SKIPPED
+    Run flow when ".*(Suivant|Continuer|Terminer|Voir).*" is visible...
+    Run flow when ".*(Suivant|Continuer|Terminer|Voir).*" is visible... SKIPPED
+  Repeat 8 times... COMPLETED
+  Open mintapp:///home... COMPLETED
+  Wait for animation to end within 6000 ms... COMPLETED
+  Assert that ".*Aujourd'hui.*" is visible... COMPLETED
+Run ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml... COMPLETED
+Assert that id: card_cap_du_jour is visible... COMPLETED
+Assert that id: mint_card_action_bar is visible... COMPLETED
+Tap on ".*Explique-moi.*"... COMPLETED
+Wait for animation to end... COMPLETED
+Assert that id: mint_chat_overlay is visible... COMPLETED
+Assert that id: chat_input_field is visible... COMPLETED
+Assert that id: chat_send_button is visible... COMPLETED
+Assert that id: chat_turn_counter is visible... COMPLETED
+Assert that ".*0\s*/\s*3.*" is visible... COMPLETED
+Tap on id: chat_input_field... COMPLETED
+Input text Qu'est-ce que ça change pour moi ?... COMPLETED
+Tap on id: chat_send_button... COMPLETED
+Assert that ".*1\s*/\s*3.*" is visible... COMPLETED
