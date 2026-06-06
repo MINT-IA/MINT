@@ -191,6 +191,107 @@
         "Row 23 remains PARTIAL pending broader primary-screen content/accessibility scoring."
       ],
       "last_reviewed": "2026-06-06"
+    },
+    {
+      "flow_id": "flow_row23_rapport_runtime_accessibility_snapshot",
+      "matrix_rows": [
+        23
+      ],
+      "bug_ids": [
+        "CJT-048"
+      ],
+      "persona": "rapport_runtime_accessibility_probe",
+      "surface_family": "rapport_bilan",
+      "tier": "T1",
+      "status_claim": "PARTIAL",
+      "score": 5.0,
+      "score_cap": 5.0,
+      "cap_reasons": [
+        "No Maestro JUnit/watchdog artifact exists for this exact Row 23 Rapport accessibility proof; the runtime evidence is a simulator accessibility-tree snapshot plus screenshots, not a passed Maestro flow.",
+        "The proof covers only /rapport app-bar action labels and semantic tap actions, not full Row 23 primary-screen accessibility.",
+        "Full Coach/Rapport focus order, VoiceOver traversal, semantic grouping, dynamic-type runtime behavior, and keyboard/switch-access behavior remain unproven.",
+        "PDF/export sharing behavior is not executed end to end; only the export action accessible name and tap semantics are proven.",
+        "Per-archetype Rapport content quality is not proven by this artifact, and this CJT-048 proof must not be used to prove the later CJT-049 neutral 3a assumption copy.",
+        "Row 23 remains PARTIAL until full Coach/Rapport accessibility, content, and clean primary-screen visual crawl evidence exists."
+      ],
+      "automation": {},
+      "evidence_artifacts": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-rapport-runtime-accessibility-proof-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-coach-rapport-runtime-accessibility-20260606T085850/01-coach-runtime-accessibility.jpg",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-coach-rapport-runtime-accessibility-20260606T085850/02-rapport-runtime-accessibility.jpg",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-coach-rapport-runtime-accessibility-20260606T085850/03-rapport-runtime-accessibility-fixed.jpg",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-coach-rapport-runtime-accessibility-20260606T085850/04-rapport-runtime-accessibility-describe-all.json"
+      ],
+      "contract_tests": [
+        {
+          "command": "cd apps/mobile && flutter gen-l10n",
+          "result": "pass",
+          "scope": "Generated six-locale app localizations after adding the Rapport PDF/export semantics key."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/screens/advisor_banking_smoke_test.dart --plain-name \"labels icon-only app bar actions for accessibility\"",
+          "result": "pass",
+          "scope": "Focused widget semantics regression for /rapport back and PDF/export app-bar actions."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/screens/advisor_banking_smoke_test.dart test/app_rapport_route_budget_test.dart",
+          "result": "pass",
+          "scope": "Rapport route/screen suite; evidence report says 47 tests passed."
+        },
+        {
+          "command": "cd apps/mobile && flutter analyze lib/screens/advisor/financial_report_screen_v2.dart test/screens/advisor_banking_smoke_test.dart",
+          "result": "pass",
+          "scope": "Targeted analyzer proof for the changed Rapport screen and widget regression."
+        },
+        {
+          "command": "cd apps/mobile && python3 ../../tools/checks/arb_parity.py --arb-dir lib/l10n",
+          "result": "pass",
+          "scope": "ARB parity stayed green across 6 locales with 6874 keys each."
+        },
+        {
+          "command": "cd apps/mobile && flutter build ios --simulator --debug --dart-define=MINT_DISABLE_BETA_MODAL=true",
+          "result": "pass",
+          "scope": "Simulator build passed after cleaning only build/ios/iphonesimulator CodeSign extended attributes."
+        }
+      ],
+      "semantic_evals": [
+        {
+          "type": "runtime_accessibility_tree_review",
+          "result": "pass_with_gaps",
+          "scope": "iPhone 17 Pro simulator snapshot for mintapp:///rapport exposes button|Retour and button|Exporter le bilan en PDF, with no unnamed app-bar action target."
+        },
+        {
+          "type": "accessibility_specialist_review",
+          "result": "pass_with_gaps",
+          "scope": "Specialist review confirmed score=5, score_cap=5, status_claim=PARTIAL, and warned not to attach borrowed Maestro/JUnit automation."
+        }
+      ],
+      "user_visible_outcome": "/rapport no longer exposes unnamed icon-only app-bar actions in the captured runtime accessibility tree; users of assistive technology can identify the back action and PDF/export action by name and the widget regression proves tap semantics.",
+      "guidance_boundary_evidence": [
+        "The changed labels describe navigation and export actions only; they do not create product advice, provider ranking, or a personalized recommendation.",
+        "The record proves an accessibility improvement for the Bilan/export surface, not the quality of the exported PDF content or per-archetype financial guidance."
+      ],
+      "rubric": {
+        "runtime_mechanics": 5.0,
+        "human_goal": 5.0,
+        "guidance_boundary": 7.0,
+        "user_data_grounding": 3.0,
+        "provenance_freshness": 5.0,
+        "restart_or_continuity": 2.0,
+        "next_step_quality": 5.0,
+        "ux_a11y_i18n": 6.0,
+        "automation_reliability": 4.0,
+        "debt_hygiene": 7.0
+      },
+      "remaining_gaps": [
+        "No Maestro JUnit/watchdog flow exists for this exact Rapport accessibility proof.",
+        "No full Coach/Rapport focus-order, VoiceOver traversal, semantic grouping, dynamic-type runtime, or keyboard/switch-access proof.",
+        "No PDF export runtime sharing proof.",
+        "No per-archetype Rapport content scoring or expert reference comparison.",
+        "No all-primary-screen clean visual crawl closure after the latest Row 23 content fixes.",
+        "Row 23 remains PARTIAL."
+      ],
+      "last_reviewed": "2026-06-06"
     }
   ]
 }
