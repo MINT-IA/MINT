@@ -8,6 +8,8 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/goal_template.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
+import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -65,6 +67,43 @@ void main() {
       expect(printingPlatform.bytes, isNotNull);
       expect(printingPlatform.bytes!.length, greaterThan(1024));
       expect(printingPlatform.bytes!.take(5), [37, 80, 68, 70, 45]); // %PDF-
+    });
+
+    test('independent no-LPP report keeps verification guidance in PDF',
+        () async {
+      final report = FinancialReportService().generateReport(
+        _independentNoLppAnswers(),
+        l: SFr(),
+      );
+      final actionText = report.priorityActions
+          .expand(
+              (action) => [action.title, action.description, ...action.steps])
+          .join(' ');
+
+      expect(actionText, contains('Clarifier mon statut indépendant'));
+      expect(actionText, contains('statut AVS'));
+      expect(actionText, contains('absence d’affiliation LPP'));
+      expect(actionText.toLowerCase(), isNot(contains('ouvrir un compte')));
+      expect(actionText.toLowerCase(), isNot(contains('fintech')));
+
+      await PdfService.generateFinancialReportPdf(
+        report,
+        title: 'Ton Bilan Flash - Export financier',
+      );
+
+      expect(printingPlatform.sharePdfCalls, 1);
+      expect(printingPlatform.bytes, isNotNull);
+
+      final pdfText = _collapsePdfText(
+        await _extractPdfText(printingPlatform.bytes!),
+      );
+      expect(pdfText, contains('Clarifier mon statut indépendant'));
+      expect(pdfText, contains('statut AVS indépendant'));
+      expect(pdfText, contains('absence d’affiliation LPP'));
+      expect(pdfText, contains('revenu imposable'));
+      expect(pdfText, contains('couvertures risque'));
+      expect(pdfText.toLowerCase(), isNot(contains('ouvrir un compte')));
+      expect(pdfText.toLowerCase(), isNot(contains('fintech')));
     });
 
     test('financial report PDF labels stay in guidance mode', () {
@@ -561,6 +600,54 @@ FinancialReport _sampleFinancialReport() {
     generatedAt: DateTime(2025, 6, 15),
   );
 }
+
+Map<String, dynamic> _independentNoLppAnswers() {
+  return {
+    'q_firstname': 'Nadia',
+    'q_birth_year': 1989,
+    'q_canton': 'VD',
+    'q_civil_status': 'single',
+    'q_children': '0',
+    'q_employment_status': 'independant',
+    'q_has_pension_fund': 'no',
+    'q_net_income_period_chf': 7200.0,
+    'q_emergency_fund': 'yes_6months',
+    'q_has_consumer_debt': 'no',
+    'q_3a_accounts_count': 1,
+    'q_3a_annual_contribution': 6000.0,
+  };
+}
+
+Future<String> _extractPdfText(Uint8List bytes) async {
+  final pdftotext = await Process.run('which', ['pdftotext']);
+  if (pdftotext.exitCode != 0) {
+    fail(
+      'pdftotext is required for PDF text extraction proof. '
+      'Install poppler locally, for example: brew install poppler.',
+    );
+  }
+
+  final dir = await Directory.systemTemp.createTemp('mint_pdf_text_');
+  addTearDown(() async {
+    if (await dir.exists()) {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  final pdfFile = File('${dir.path}/report.pdf');
+  final textFile = File('${dir.path}/report.txt');
+  await pdfFile.writeAsBytes(bytes, flush: true);
+
+  final result = await Process.run(
+    'pdftotext',
+    ['-layout', pdfFile.path, textFile.path],
+  );
+  expect(result.exitCode, 0, reason: '${result.stderr}');
+
+  return textFile.readAsStringSync();
+}
+
+String _collapsePdfText(String text) => text.replaceAll(RegExp(r'\s+'), ' ');
 
 class _CaptureSharePdfPrintingPlatform extends PrintingPlatform {
   int sharePdfCalls = 0;

@@ -123,7 +123,7 @@ Still required before closing `CJT-063`:
 
 - iPhone 16e Maestro runtime proof for the updated independent/no-LPP path;
 - VoiceOver/focus traversal proof;
-- PDF per-archetype content proof;
+- broader PDF visual/page QA across report variants;
 - source/provenance/freshness surfaced beside key money facts;
 - Coach natural-language quality review for the same persona;
 - updated persona-flow score above the current capped `6.3/10`.
