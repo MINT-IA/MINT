@@ -74,16 +74,23 @@ void main() {
 
   CoachProfileProvider buildIndependentNoLppProfileProvider() {
     final provider = CoachProfileProvider();
-    provider.createFromRemoteProfile({
-      'firstName': 'Nadia',
-      'usTaxPerson': false,
-      'nationality': 'CH',
-      'employment_status': 'independant',
-      'birth_year': 1988,
-      'canton': 'VD',
-      'net_income_period_chf': 8200,
+    provider.updateFromAnswers({
+      'q_firstname': 'Nadia',
+      'q_us_tax_person': false,
+      'q_nationality': 'CH',
+      'q_employment_status': 'independant',
+      'q_has_pension_fund': false,
+      'q_birth_year': 1988,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 8200,
+      'q_pay_frequency': 'monthly',
+      'q_self_employed_net_income_annual_chf': 86400,
+      'q_3a_annual_contribution': 6000,
+      'q_savings_monthly': 6000 / 12,
+      'q_savings_allocation': ['3a'],
     });
     expect(provider.profile?.archetype, FinancialArchetype.independentNoLpp);
+    expect(provider.profile?.independentNetProfessionalIncomeAnnual, 86400);
     return provider;
   }
 
@@ -499,7 +506,7 @@ void main() {
 
       await tester.enterText(
         find.byKey(const Key('coach_input_field')),
-        'Je suis indépendant sans LPP, combien verser en 3a ?',
+        'Combien verser en 3a ?',
       );
       await tester.tap(find.byKey(const Key('coach_send_button')));
       await tester.pump(const Duration(milliseconds: 100));
@@ -507,6 +514,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.textContaining("revenu net d'activité"), findsOneWidget);
+      expect(find.textContaining('Marge 3a à vérifier'), findsOneWidget);
+      expect(find.textContaining('86\u00a0400\u00a0CHF/an'), findsOneWidget);
+      expect(find.textContaining('6\u00a0000\u00a0CHF/an'), findsOneWidget);
+      expect(find.textContaining('11\u00a0280\u00a0CHF/an'), findsOneWidget);
+      expect(
+        find.textContaining('revenu déterminant fiscal/AVS'),
+        findsWidgets,
+      );
       expect(find.textContaining('budget mensuel'), findsOneWidget);
       expect(find.textContaining('Versement 3a 2026'), findsNothing);
       expect(find.textContaining('Impact fiscal indicatif'), findsNothing);

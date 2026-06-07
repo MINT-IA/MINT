@@ -367,6 +367,7 @@ class CoachOrchestrator {
         archetype: ctx.archetype,
         language: language,
         userMessage: userMessage,
+        context: ctx,
       );
       if (localFallback != null) {
         return localFallback;
@@ -1190,12 +1191,14 @@ class CoachOrchestrator {
     required String archetype,
     required String language,
     required String userMessage,
+    required CoachContext context,
   }) {
     if (archetype != 'independent_no_lpp') return null;
     if (language != 'fr') return null;
 
     final message = LocalFallbackService.generateSpecializedFallback(
       userMessage: userMessage,
+      context: context,
     );
     if (message == null) return null;
 

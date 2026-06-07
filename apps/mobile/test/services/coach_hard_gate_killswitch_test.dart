@@ -25,13 +25,16 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
-CoachContext _ctx({String archetype = 'swiss_native'}) {
+CoachContext _ctx({
+  String archetype = 'swiss_native',
+  Map<String, double> knownValues = const {'fri_total': 60},
+}) {
   return CoachContext(
     firstName: 'Test',
     age: 40,
     canton: 'ZH',
     archetype: archetype,
-    knownValues: const {'fri_total': 60},
+    knownValues: knownValues,
   );
 }
 
@@ -114,7 +117,13 @@ void main() {
         '4b. enableCoachHardGate=true + independent_no_lpp safe local topic → deterministic fallback',
         () async {
       FeatureFlags.enableCoachHardGate = true;
-      final ctx = _ctx(archetype: 'independent_no_lpp');
+      final ctx = _ctx(
+        archetype: 'independent_no_lpp',
+        knownValues: const {
+          'self_employed_net_income_annual': 86400,
+          'annual_3a_contribution': 6000,
+        },
+      );
       final response = await CoachOrchestrator.generateChat(
         userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
         history: const [],
@@ -127,9 +136,59 @@ void main() {
           reason:
               'A calibrated local fallback topic should not hit LLM tiers or refusal');
       expect(message, contains('revenu net d\'activité'));
+      expect(message, contains('marge 3a à vérifier'));
+      expect(message, contains('86\u00a0400\u00a0chf/an'));
+      expect(message, contains('6\u00a0000\u00a0chf/an'));
+      expect(message, contains('11\u00a0280\u00a0chf/an'));
+      expect(message, contains('revenu déterminant fiscal/avs'));
       expect(message, contains('budget mensuel'));
       expect(message, isNot(contains('7\u00a0258')));
       expect(message, isNot(contains('salarié')));
+    });
+
+    test('4b2. independent_no_lpp context handles plain 3a capacity wording',
+        () async {
+      FeatureFlags.enableCoachHardGate = true;
+      final ctx = _ctx(
+        archetype: 'independent_no_lpp',
+        knownValues: const {
+          'self_employed_net_income_annual': 86400,
+          'annual_3a_contribution': 6000,
+        },
+      );
+      final response = await CoachOrchestrator.generateChat(
+        userMessage: 'Combien verser en 3a ?',
+        history: const [],
+        ctx: ctx,
+        isLoggedIn: true,
+      );
+
+      final message = response.message.toLowerCase();
+      expect(response.refused, isFalse);
+      expect(message, contains('marge 3a à vérifier'));
+      expect(message, contains('11\u00a0280\u00a0chf/an'));
+      expect(message, contains('revenu déterminant fiscal/avs'));
+    });
+
+    test(
+        '4b3. independent_no_lpp safe local topic refuses to invent margin when income is missing',
+        () async {
+      FeatureFlags.enableCoachHardGate = true;
+      final ctx = _ctx(archetype: 'independent_no_lpp');
+      final response = await CoachOrchestrator.generateChat(
+        userMessage: 'Combien verser en 3a ?',
+        history: const [],
+        ctx: ctx,
+        isLoggedIn: true,
+      );
+
+      final message = response.message.toLowerCase();
+      expect(response.refused, isFalse);
+      expect(message, contains('donnée manquante'));
+      expect(message, contains('ne peut pas calculer'));
+      expect(message, isNot(contains('marge légale restante serait')));
+      expect(message, isNot(contains('86\u00a0400')));
+      expect(message, isNot(contains('11\u00a0280')));
     });
 
     test(

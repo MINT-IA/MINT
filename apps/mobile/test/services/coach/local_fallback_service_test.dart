@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/local_fallback_service.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
@@ -25,6 +26,10 @@ void main() {
         userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
       ).toLowerCase();
 
+      expect(response, contains('marge 3a à vérifier'));
+      expect(response, contains('min(20'));
+      expect(response, contains('revenu déterminant'));
+      expect(response, contains('donnée manquante'));
       expect(response, contains('indépendant'));
       expect(response, contains('sans lpp'));
       expect(response, contains('revenu net d\'activité'));
@@ -38,6 +43,51 @@ void main() {
       expect(response, isNot(contains('salarié')));
       expect(response, isNot(contains('ouvre')));
       expect(response, isNot(contains('fintech')));
+      expect(response, isNot(contains('marge légale restante serait')));
+      expect(response, isNot(contains('86\u00a0400')));
+      expect(response, isNot(contains('11\u00a0280')));
+    });
+
+    test('independent no-LPP 3a guidance uses profile facts when available',
+        () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+        context: const CoachContext(
+          archetype: 'independent_no_lpp',
+          knownValues: {
+            'self_employed_net_income_annual': 86400,
+            'annual_3a_contribution': 6000,
+          },
+        ),
+      )!;
+
+      expect(response, contains('Marge 3a à vérifier'));
+      expect(response, contains('86\u00a0400\u00a0CHF/an'));
+      expect(response, contains('6\u00a0000\u00a0CHF/an'));
+      expect(response, contains('11\u00a0280\u00a0CHF/an'));
+      expect(response, contains('marge légale restante'));
+      expect(response, contains('base professionnelle déclarée dans MINT'));
+      expect(response, contains('revenu déterminant fiscal/AVS'));
+      expect(response, isNot(contains('2\u00a0218')));
+      expect(response, isNot(contains('Impact fiscal indicatif')));
+    });
+
+    test('independent no-LPP context does not require magic prompt wording',
+        () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Combien verser en 3a ?',
+        context: const CoachContext(
+          archetype: 'independent_no_lpp',
+          knownValues: {
+            'self_employed_net_income_annual': 86400,
+            'annual_3a_contribution': 6000,
+          },
+        ),
+      )!;
+
+      expect(response, contains('Marge 3a à vérifier'));
+      expect(response, contains('11\u00a0280\u00a0CHF/an'));
+      expect(response, contains('revenu déterminant fiscal/AVS'));
     });
 
     test('does not use no-LPP guidance when independent user declares LPP', () {

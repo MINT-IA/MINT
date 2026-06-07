@@ -44,7 +44,8 @@ Score caps:
 Scenario:
 
 - Persona: `independent_no_lpp_income_reality`
-- Prompt: `Je suis indépendant sans LPP, combien verser en 3a ?`
+- Original prompt: `Je suis indépendant sans LPP, combien verser en 3a ?`
+- Context-aware runtime prompt target: `Combien verser en 3a ?`
 - Route: `/coach/chat`
 - User objective: understand how much can be contributed to 3a as an
   independent person without LPP, and what must be checked before increasing
@@ -118,15 +119,74 @@ Runtime evidence:
 - Screenshot:
   `evidence/maestro-ci/row-23-independent-no-lpp-card-hierarchy-quality-20260607T095929/runtime-final-screen.jpg`.
 
+### Context-Aware Margin Follow-Up
+
+Score after context-aware local tests, Claude review fixes, and iPhone 16e
+runtime proof: `8.2 / 10`.
+
+What changed:
+
+- The local answer now starts with `Marge 3a à vérifier`.
+- It shows the scenario formula:
+  `min(20 % du revenu déterminant, 36'288 CHF/an) - versements 3a déjà planifiés`.
+- It uses persona facts from `CoachContext`:
+  professional net income `86'400 CHF/an`, planned 3a payments
+  `6'000 CHF/an`, remaining legal margin `11'280 CHF/an`.
+- It no longer requires the user prompt to repeat `indépendant sans LPP` when
+  the runtime `CoachContext.archetype` already carries that fact.
+- The no-income branch now has an explicit anti-hallucination assertion:
+  show missing data, do not compute a `marge légale restante`.
+- It names missing confirmations: fiscal/AVS determining income,
+  AVS-independent status, accident/perte de gain cover, liquidity, and
+  possible LPP facultative role.
+- The flow now asserts the calculation chain and still rejects the misleading
+  tax-impact card hierarchy.
+- Claude final review tightened the computed-facts wording: the displayed
+  professional base is explicitly a MINT-declared value to confirm as fiscal/AVS
+  determining income before treating the remaining margin as reliable.
+- The hard-gate no-income path is now covered at orchestrator level: it shows
+  missing data and does not invent a computed remaining margin.
+- Runtime proof also guards against a shallow pass: it starts from the natural
+  prompt `Combien verser en 3a ?`, validates the visible legal/LSFin tail,
+  scrolls back to the formula and MINT facts, then scrolls forward to the
+  professional checks and cashflow-capacity warning.
+
+Benchmark evidence:
+
+- VZ 2026 3a maximum page distinguishes pension-fund affiliation and states
+  the no-LPP rule as 20% of determining income capped at 36'288 CHF; it also
+  defines the independent income base as the business result after social
+  contributions and tax corrections:
+  https://www.vermoegenszentrum.ch/fr/competences/pilier-3a-montant-maximum
+- Detailed benchmark artifact:
+  `evidence/quality-review/row-23-independent-no-lpp-vz-margin-benchmark-20260607.md`.
+
+Runtime evidence:
+
+- JUnit:
+  `evidence/maestro-ci/row-23-independent-no-lpp-vz-margin-quality-20260607T111701-after-claude/result.xml`
+- Result: `tests=1`, `failures=0`, device `iPhone 16e - iOS 26.2`.
+- Watchdog: `maestro returned 0`.
+- Screenshot:
+  `evidence/maestro-ci/row-23-independent-no-lpp-vz-margin-quality-20260607T111701-after-claude/runtime-final-capacity-guidance.jpg`.
+
+Remaining gaps:
+
+- The answer is still text-only; it does not yet render a structured decision
+  map for 3a / LPP facultative / liquidity / risk cover.
+- Source freshness and field-level provenance are not visible beside each
+  money fact.
+- Runtime VoiceOver/focus traversal remains open.
+
 ## Target State For 10/10 On This Scenario
 
 To reach `10/10`, this scenario needs:
 
-- Primary panel: `Marge 3a à vérifier`, not tax impact.
-- Visible formula: `min(20% du revenu net d'activité, plafond OPP3 sans LPP) -
+- Runtime-proven primary panel: `Marge 3a à vérifier`, not tax impact.
+- Visible formula: `min(20% du revenu déterminant, plafond OPP3 sans LPP) -
   versements 3a déjà planifiés`.
-- Known facts: professional net income, planned 3a contributions, canton, LPP
-  status, monthly cashflow.
+- Known facts: professional net income, planned 3a contributions, LPP status,
+  and monthly cashflow.
 - Missing facts: taxable independent income, AVS-independent confirmation,
   accident/perte de gain cover, business reserve, optional LPP context.
 - Capacity warning: legal room is not the same as monthly affordability.

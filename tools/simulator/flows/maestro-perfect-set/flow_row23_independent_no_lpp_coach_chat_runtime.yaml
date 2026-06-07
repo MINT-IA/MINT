@@ -17,8 +17,10 @@
 # 23 by itself; broader natural-language Coach calibration, VoiceOver runtime
 # traversal, live backend/LLM scoring, and full persona-flow rescoring remain
 # separate work. The flow also guards against the generic 3a tax-impact card:
-# in this scenario the primary answer must be contribution-capacity guidance,
-# not a teaser about an indicative tax saving.
+# in this scenario the primary answer must be contribution-capacity guidance
+# from the persona context, not a teaser about an indicative tax saving. The
+# prompt intentionally does not repeat "indépendant sans LPP"; the runtime
+# context must carry that fact.
 
 appId: ch.mint.app
 env:
@@ -84,23 +86,78 @@ tags:
 
 - tapOn:
     id: "coach_input_field"
-- inputText: "Je suis indépendant sans LPP, combien verser en 3a ?"
+- inputText: "Combien verser en 3a ?"
 - tapOn:
     id: "coach_send_button"
 - waitForAnimationToEnd:
     timeout: 6000
+- takeScreenshot: "row23-independent-no-lpp-after-natural-3a-prompt"
 
+# The chat scrolls to the bottom of long assistant answers. Start by proving
+# the visible tail: legal boundary, sources, and no misleading product card.
 - extendedWaitUntil:
-    visible: ".*LPP facultative.*"
+    visible: ".*Outil éducatif simplifié.*"
     timeout: 15000
-- assertVisible: ".*couverture accident.*"
-- assertVisible: ".*perte de gain.*"
-- assertVisible: ".*liquidité.*"
+- assertVisible: ".*Ne constitue pas un conseil financier.*"
 - assertVisible: ".*OPP3 art. 7.*"
 - assertVisible: ".*LPP art. 4.*"
 - assertVisible: ".*LAVS art. 8.*"
-- assertVisible: ".*Outil éducatif simplifié.*"
-- assertVisible: ".*Ne constitue pas un conseil financier.*"
+- assertNotVisible: "Encore en chantier pour ton profil"
+- assertNotVisible: "API Claude"
+- assertNotVisible: "Versement 3a 2026"
+- assertNotVisible: "Impact fiscal indicatif"
+- assertNotVisible: "2'218 CHF"
+- assertNotVisible: "7'137 CHF"
+- assertNotVisible: "3'068 CHF"
+
+# Then scroll back to the top of the same answer and verify the actual
+# guidance contract: legal formula first, not tax-impact marketing.
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          direction: DOWN
+          duration: 250
+- extendedWaitUntil:
+    visible: ".*Marge 3a à vérifier.*"
+    timeout: 8000
+- assertVisible: ".*Formule.*"
+- assertVisible: ".*revenu déterminant.*"
+- assertVisible: ".*versements 3a déjà planifiés.*"
+
+# Verify the runtime used Nadia's MINT data, not a magic generic number.
+- assertVisible: ".*base professionnelle déclarée dans MINT.*"
+- assertVisible: ".*86.*400.*CHF/an.*"
+- assertVisible: ".*6.*000.*CHF/an.*"
+- assertVisible: ".*11.*280.*CHF/an.*"
+- assertVisible: ".*marge légale restante.*"
+- assertVisible: ".*revenu déterminant fiscal/AVS.*"
+
+# Verify the answer separates legal contribution room from monthly cashflow
+# capacity and lists the missing professional-advice checks.
+- scrollUntilVisible:
+    element:
+      text: ".*couverture accident.*"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- assertVisible: ".*couverture accident.*"
+- assertVisible: ".*perte de gain.*"
+- assertVisible: ".*liquidité.*"
+- assertVisible: ".*LPP facultative.*"
+- scrollUntilVisible:
+    element:
+      text: ".*capacité mensuelle.*"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- extendedWaitUntil:
+    visible: ".*capacité mensuelle.*"
+    timeout: 8000
+- assertVisible: ".*Marge légale.*"
+- assertVisible: ".*capacité mensuelle.*"
+- assertVisible: ".*budget mensuel.*"
+- assertVisible: ".*trésorerie.*"
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "API Claude"
 - assertNotVisible: "Versement 3a 2026"

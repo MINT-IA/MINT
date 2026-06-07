@@ -17,6 +17,7 @@ library;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
 
 /// Template-based local fallback for when all LLMs are down.
 ///
@@ -34,13 +35,17 @@ class LocalFallbackService {
     required String userMessage,
     String? lifecyclePhase,
     List<String>? detectedTopics,
+    CoachContext? context,
   }) {
-    final topics =
-        _prioritizeTopics(detectedTopics ?? _detectTopics(userMessage));
+    final topics = _prioritizeTopics(detectedTopics ??
+        _detectTopics(
+          userMessage,
+          context: context,
+        ));
 
     // Try to find a matching template.
     for (final topic in topics) {
-      final template = _templateFor(topic);
+      final template = _templateFor(topic, context);
       if (template != null) {
         return '$template\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
       }
@@ -56,11 +61,15 @@ class LocalFallbackService {
   /// deterministic local exceptions without opening the full fallback surface.
   static String? generateSpecializedFallback({
     required String userMessage,
+    CoachContext? context,
   }) {
-    final topics = _prioritizeTopics(_detectTopics(userMessage));
+    final topics = _prioritizeTopics(_detectTopics(
+      userMessage,
+      context: context,
+    ));
     for (final topic in topics) {
       if (!_specializedTopics.contains(topic)) continue;
-      final template = _templateFor(topic);
+      final template = _templateFor(topic, context);
       if (template != null) {
         return '$template\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
       }
@@ -73,12 +82,15 @@ class LocalFallbackService {
   // ══════════════════════════════════════════════════════════════
 
   /// Detect topics from user message via keyword matching.
-  static List<String> _detectTopics(String message) {
+  static List<String> _detectTopics(String message, {CoachContext? context}) {
     final lower = message.toLowerCase();
     final matched = <String>[];
 
-    if (_mentionsIndependent(lower) &&
-        _mentionsNoLpp(lower) &&
+    final contextIsIndependentNoLpp =
+        context?.archetype == 'independent_no_lpp';
+    final messageDeclaresIndependentNoLpp =
+        _mentionsIndependent(lower) && _mentionsNoLpp(lower);
+    if ((contextIsIndependentNoLpp || messageDeclaresIndependentNoLpp) &&
         !_mentionsLppAffiliation(lower) &&
         _mentions3a(lower)) {
       matched.add('independent_no_lpp_3a');
@@ -209,32 +221,79 @@ class LocalFallbackService {
   //  TEMPLATES
   // ══════════════════════════════════════════════════════════════
 
-  static String? _templateFor(String topic) {
+  static String? _templateFor(String topic, CoachContext? context) {
     return switch (topic) {
-      'independent_no_lpp_3a' => _independentNoLpp3aTemplate,
+      'independent_no_lpp_3a' => _independentNoLpp3aTemplate(context),
       '3a' => _pillar3aTemplate,
       _ => _templates[topic],
     };
   }
 
-  static String get _independentNoLpp3aTemplate {
-    final noLppIncomeRate = _formatPercent(
-      reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp),
-    );
-    final noLppMax = _formatChf(
-      reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),
+  static String _independentNoLpp3aTemplate(CoachContext? context) {
+    final noLppIncomeRate =
+        reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp);
+    final noLppIncomeRateText = _formatPercent(noLppIncomeRate);
+    final noLppMax = reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
+    final noLppMaxText = _formatChf(noLppMax);
+    final knownFacts = _independentNoLppKnownFacts(
+      context,
+      incomeRate: noLppIncomeRate,
+      annualCeiling: noLppMax,
     );
 
-    return 'Pour un·e indépendant·e sans LPP, le plafond 3a légal dépend du '
-        'revenu net d\'activité déclaré\u00a0: $noLppIncomeRate de ce revenu, au maximum '
-        '$noLppMax/an selon l\'OPP3 art. 7. Ce plafond ne dit pas '
-        'si ton budget mensuel peut absorber un versement.\n\n'
-        'Avant de contribuer davantage, vérifie aussi ton statut AVS '
-        'd\'indépendant·e, ton revenu imposable pour l\'impact fiscal, '
-        'ta couverture accident/perte de gain, la liquidité nécessaire '
-        'si tes revenus varient, et le rôle éventuel d\'une LPP facultative '
-        'par rapport au 3a et à ta trésorerie.\n\n'
+    return 'Marge 3a à vérifier\n\n'
+        'Pour un·e indépendant·e sans LPP, le plafond 3a légal dépend du '
+        'revenu net d\'activité, mais la base à confirmer est le revenu '
+        'déterminant fiscal/AVS. Formule\u00a0: min($noLppIncomeRateText du '
+        'revenu déterminant, $noLppMaxText/an) - versements 3a déjà '
+        'planifiés.\n\n'
+        '$knownFacts'
+        'Avant de verser davantage, confirme le revenu déterminant '
+        'fiscal/AVS, le statut AVS d\'indépendant·e, la couverture '
+        'accident/perte de gain, la liquidité nécessaire si tes revenus '
+        'varient, et le rôle éventuel d\'une LPP facultative par rapport '
+        'au 3a et à ta trésorerie.\n\n'
+        'Marge légale ≠ capacité mensuelle\u00a0: ce plafond ne dit pas si ton '
+        'budget mensuel peut absorber un versement sans fragiliser ta '
+        'trésorerie.\n\n'
         'Réf.\u00a0: OPP3 art. 7, LPP art. 4, LAVS art. 8.';
+  }
+
+  static String _independentNoLppKnownFacts(
+    CoachContext? context, {
+    required double incomeRate,
+    required double annualCeiling,
+  }) {
+    final income = _positiveKnownValue(
+      context,
+      'self_employed_net_income_annual',
+    );
+    if (income == null) {
+      return 'Donnée manquante côté MINT\u00a0: la base professionnelle '
+          'annuelle déclarée. Sans cette valeur, MINT ne peut pas calculer '
+          'une marge légale restante fiable.\n\n';
+    }
+
+    final planned3a =
+        _positiveKnownValue(context, 'annual_3a_contribution') ?? 0;
+    final rawCeiling = income * incomeRate;
+    final legalCeiling =
+        rawCeiling > annualCeiling ? annualCeiling : rawCeiling;
+    final rawRemaining = legalCeiling - planned3a;
+    final remaining = rawRemaining < 0 ? 0.0 : rawRemaining;
+
+    return 'Données MINT utilisées\u00a0: base professionnelle déclarée dans MINT '
+        'à confirmer comme revenu déterminant fiscal/AVS '
+        '${_formatChf(income)}/an, versements 3a déjà planifiés '
+        '${_formatChf(planned3a)}/an. Sur cette base, la marge légale '
+        'restante serait ${_formatChf(remaining)}/an avant validation du '
+        'revenu déterminant fiscal/AVS.\n\n';
+  }
+
+  static double? _positiveKnownValue(CoachContext? context, String key) {
+    final value = context?.knownValues[key];
+    if (value == null || !value.isFinite || value <= 0) return null;
+    return value;
   }
 
   static String get _pillar3aTemplate {

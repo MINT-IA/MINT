@@ -7,6 +7,12 @@ abstract final class CoachContextProfileMapper {
     if (annual3a.isFinite && annual3a > 0) {
       values['annual_3a_contribution'] = annual3a;
     }
+    final independentIncome = profile.independentNetProfessionalIncomeAnnual;
+    if (independentIncome != null &&
+        independentIncome.isFinite &&
+        independentIncome > 0) {
+      values['self_employed_net_income_annual'] = independentIncome;
+    }
     return values;
   }
 
