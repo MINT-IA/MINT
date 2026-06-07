@@ -35,6 +35,11 @@ void main() {
       expect(response, contains('revenu net d\'activité'));
       expect(response, contains('plafond'));
       expect(response, contains('budget mensuel'));
+      expect(response, contains('provenance et fraîcheur'));
+      expect(response, contains('revenu professionnel: donnée absente'));
+      expect(response,
+          contains('versements 3a planifiés: aucun versement planifié connu'));
+      expect(response, contains('date par champ non affichée'));
       expect(response, contains('confirmations manquantes'));
       expect(response, contains('comparer avant de verser'));
       expect(response, contains('carte de décision'));
@@ -72,6 +77,9 @@ void main() {
         userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
         context: const CoachContext(
           archetype: 'independent_no_lpp',
+          dataReliability: {
+            'independentNetProfessionalIncomeAnnual': 'userInput',
+          },
           knownValues: {
             'self_employed_net_income_annual': 86400,
             'annual_3a_contribution': 6000,
@@ -85,6 +93,10 @@ void main() {
       expect(response, contains('11\u00a0280\u00a0CHF/an'));
       expect(response, contains('marge légale restante'));
       expect(response, contains('Faits MINT'));
+      expect(response, contains('Provenance et fraîcheur'));
+      expect(response, contains('revenu professionnel: saisie dans MINT'));
+      expect(response, contains('versements 3a planifiés: plan MINT'));
+      expect(response, contains('date par champ non affichée'));
       expect(response, contains('Confirmations manquantes'));
       expect(response, contains('Comparer avant de verser'));
       expect(response, contains('base professionnelle déclarée dans MINT'));
@@ -124,6 +136,77 @@ void main() {
       expect(response, contains('Capacité mensuelle'));
       expect(response, contains('Prochaine action prudente'));
       expect(response, isNot(contains('Versement 3a 2026')));
+    });
+
+    test('independent no-LPP 3a guidance labels unknown provenance honestly',
+        () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Combien verser en 3a ?',
+        context: const CoachContext(
+          archetype: 'independent_no_lpp',
+          knownValues: {
+            'self_employed_net_income_annual': 86400,
+            'annual_3a_contribution': 6000,
+          },
+        ),
+      )!;
+
+      expect(response, contains('Provenance et fraîcheur'));
+      expect(response, contains('revenu professionnel: source non affichée'));
+      expect(response, contains('date par champ non affichée'));
+      expect(response, isNot(contains('source bancaire connectée')));
+    });
+
+    test('independent no-LPP 3a guidance maps income provenance labels', () {
+      const expectedLabels = {
+        'estimated': 'estimation MINT',
+        'userInput': 'saisie dans MINT',
+        'crossValidated': 'saisie vérifiée',
+        'certificate': 'document scanné',
+        'openBanking': 'source bancaire connectée',
+      };
+
+      for (final entry in expectedLabels.entries) {
+        final response = LocalFallbackService.generateSpecializedFallback(
+          userMessage: 'Combien verser en 3a ?',
+          context: CoachContext(
+            archetype: 'independent_no_lpp',
+            dataReliability: {
+              'independentNetProfessionalIncomeAnnual': entry.key,
+            },
+            knownValues: const {
+              'self_employed_net_income_annual': 86400,
+              'annual_3a_contribution': 6000,
+            },
+          ),
+        )!;
+
+        expect(
+          response,
+          contains('revenu professionnel: ${entry.value}'),
+          reason: 'source ${entry.key} should map to ${entry.value}',
+        );
+        expect(response, contains('date par champ non affichée'));
+      }
+    });
+
+    test('independent no-LPP 3a guidance labels missing income and plan', () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+        context: const CoachContext(archetype: 'independent_no_lpp'),
+      )!;
+
+      expect(response, contains('Donnée manquante côté MINT'));
+      expect(
+          response, contains('revenu professionnel: donnée absente côté MINT'));
+      expect(
+        response,
+        contains(
+          'versements 3a planifiés: aucun versement planifié connu dans MINT',
+        ),
+      );
+      expect(response, contains('date par champ non affichée'));
+      expect(response, isNot(contains('marge légale restante serait')));
     });
 
     test('does not use no-LPP guidance when independent user declares LPP', () {

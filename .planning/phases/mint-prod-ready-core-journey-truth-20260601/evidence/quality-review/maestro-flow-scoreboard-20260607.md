@@ -202,12 +202,40 @@ Runtime evidence:
 - Detail artifact:
   `evidence/rapport-design/row-23-independent-no-lpp-decision-map-guidance-20260607.md`.
 
+### Provenance/Freshness Follow-Up
+
+Score after local provenance/freshness proof and iPhone 16e runtime proof: `8.7 / 10`.
+
+What changed:
+
+- The answer now includes `Provenance et fraîcheur`.
+- When source metadata is available, it labels the professional income as
+  `saisie dans MINT`.
+- Planned 3a payments are labelled as `plan MINT`.
+- When source metadata is absent, the answer says `source non affichée`
+  instead of pretending certainty.
+- The answer explicitly says `date par champ non affichée` in this chat and
+  asks for revalidation if income, planned payments, or LPP status changed.
+
+Local proof:
+
+- `flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_hard_gate_killswitch_test.dart test/screens/coach/coach_chat_test.dart`
+- Result: `94` passed, `5` existing skips.
+- Runtime evidence:
+  `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/result.xml`
+- Result: `tests=1`, `failures=0`, device `iPhone 16e - iOS 26.2`.
+- Watchdog: `maestro returned 0`.
+- Screenshot:
+  `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/runtime-final-provenance-freshness.jpg`.
+- Detail artifact:
+  `evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md`.
+
 Remaining gaps:
 
 - The decision map is still text rendered inside chat, not a dedicated
   structured UI component with field-level provenance.
-- Source freshness and field-level provenance are not visible beside each
-  money fact.
+- Source freshness and field-level provenance are described in text, but not
+  rendered beside each money fact with a timestamp/confidence component.
 - Runtime VoiceOver/focus traversal remains open.
 
 ## Target State For 10/10 On This Scenario

@@ -133,6 +133,12 @@ tags:
 - assertVisible: ".*11.*280.*CHF/an.*"
 - assertVisible: ".*marge légale restante.*"
 - assertVisible: ".*revenu déterminant fiscal/AVS.*"
+- assertVisible: ".*Provenance et fraîcheur.*"
+- assertVisible: ".*revenu professionnel.*"
+- assertVisible: ".*saisie dans MINT.*"
+- assertVisible: ".*versements 3a planifiés.*"
+- assertVisible: ".*plan MINT.*"
+- assertVisible: ".*date par champ non affichée.*"
 
 # Verify the answer separates legal contribution room from monthly cashflow
 # capacity and lists the missing professional-advice checks.

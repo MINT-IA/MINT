@@ -288,7 +288,8 @@ class LocalFallbackService {
       return 'Faits MINT\n'
           'Donnée manquante côté MINT\u00a0: la base professionnelle '
           'annuelle déclarée. Sans cette valeur, MINT ne peut pas calculer '
-          'une marge légale restante fiable.\n\n';
+          'une marge légale restante fiable.\n\n'
+          '${_independentNoLppProvenance(context, hasIncome: false)}';
     }
 
     final planned3a =
@@ -305,7 +306,40 @@ class LocalFallbackService {
         '${_formatChf(income)}/an, versements 3a déjà planifiés '
         '${_formatChf(planned3a)}/an. Sur cette base, la marge légale '
         'restante serait ${_formatChf(remaining)}/an avant validation du '
-        'revenu déterminant fiscal/AVS.\n\n';
+        'revenu déterminant fiscal/AVS.\n\n'
+        '${_independentNoLppProvenance(context, hasIncome: true)}';
+  }
+
+  static String _independentNoLppProvenance(
+    CoachContext? context, {
+    required bool hasIncome,
+  }) {
+    final incomeSource = hasIncome
+        ? _dataSourceLabel(
+            context?.dataReliability['independentNetProfessionalIncomeAnnual'],
+          )
+        : 'donnée absente côté MINT';
+    final planned3aSource =
+        _positiveKnownValue(context, 'annual_3a_contribution') == null
+            ? 'aucun versement planifié connu dans MINT'
+            : 'plan MINT';
+
+    return 'Provenance et fraîcheur\n'
+        'revenu professionnel: $incomeSource.\n'
+        'versements 3a planifiés: $planned3aSource.\n'
+        'Fraîcheur: date par champ non affichée dans ce chat; à revalider '
+        'si ton revenu, tes versements ou ton statut LPP ont changé.\n\n';
+  }
+
+  static String _dataSourceLabel(String? source) {
+    return switch (source) {
+      'estimated' => 'estimation MINT',
+      'userInput' => 'saisie dans MINT',
+      'crossValidated' => 'saisie vérifiée',
+      'certificate' => 'document scanné',
+      'openBanking' => 'source bancaire connectée',
+      _ => 'source non affichée',
+    };
   }
 
   static double? _positiveKnownValue(CoachContext? context, String key) {

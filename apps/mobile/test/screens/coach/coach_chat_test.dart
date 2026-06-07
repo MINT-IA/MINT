@@ -523,6 +523,9 @@ void main() {
         findsWidgets,
       );
       expect(find.textContaining('Faits MINT'), findsOneWidget);
+      expect(find.textContaining('Provenance et fraîcheur'), findsOneWidget);
+      expect(
+          find.textContaining('date par champ non affichée'), findsOneWidget);
       expect(find.textContaining('Confirmations manquantes'), findsOneWidget);
       expect(find.textContaining('Comparer avant de verser'), findsOneWidget);
       expect(find.textContaining('Carte de décision'), findsOneWidget);

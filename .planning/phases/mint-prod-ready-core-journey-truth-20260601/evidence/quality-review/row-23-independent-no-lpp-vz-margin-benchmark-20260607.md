@@ -79,6 +79,8 @@ runtime proof: `8.2 / 10`.
 
 After decision-map guidance and iPhone 16e runtime proof: `8.6 / 10`.
 
+After provenance/freshness text proof: `8.7 / 10`.
+
 Why it rises:
 
 - The answer now uses persona facts, not only a generic legal paragraph.
@@ -98,13 +100,16 @@ Why it rises:
   `Confirmations manquantes`, `Comparer avant de verser`, and `Prochaine
   action prudente`, so the flow evaluates contribution capacity instead of a
   tax-impact teaser.
+- The answer now exposes `Provenance et fraîcheur`, labels known source
+  metadata when available, and admits when source or field-date metadata is
+  not shown in this chat.
 
 Why it is not yet `10 / 10`:
 
 - The decision map is still text-only inside chat; it is not a dedicated
   structured UI component with per-field provenance.
-- Source freshness and field-level provenance are not visible beside each
-  money fact.
+- Source freshness and field-level provenance are text-level only; they are
+  not rendered beside each money fact with timestamp/confidence metadata.
 - VoiceOver/focus order for this long answer is not yet proven at runtime.
 
 ## Verification Links
@@ -121,3 +126,9 @@ Why it is not yet `10 / 10`:
   `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/result.xml`
 - Decision-map runtime screenshot:
   `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/runtime-final-decision-map-guidance.jpg`
+- Provenance/freshness runtime evidence:
+  `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/result.xml`
+- Provenance/freshness runtime screenshot:
+  `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/runtime-final-provenance-freshness.jpg`
+- Provenance/freshness artifact:
+  `evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md`

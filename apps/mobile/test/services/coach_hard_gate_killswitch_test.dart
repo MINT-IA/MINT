@@ -28,6 +28,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 CoachContext _ctx({
   String archetype = 'swiss_native',
   Map<String, double> knownValues = const {'fri_total': 60},
+  Map<String, String> dataReliability = const {},
 }) {
   return CoachContext(
     firstName: 'Test',
@@ -35,6 +36,7 @@ CoachContext _ctx({
     canton: 'ZH',
     archetype: archetype,
     knownValues: knownValues,
+    dataReliability: dataReliability,
   );
 }
 
@@ -123,6 +125,9 @@ void main() {
           'self_employed_net_income_annual': 86400,
           'annual_3a_contribution': 6000,
         },
+        dataReliability: const {
+          'independentNetProfessionalIncomeAnnual': 'userInput',
+        },
       );
       final response = await CoachOrchestrator.generateChat(
         userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
@@ -142,6 +147,9 @@ void main() {
       expect(message, contains('11\u00a0280\u00a0chf/an'));
       expect(message, contains('revenu déterminant fiscal/avs'));
       expect(message, contains('faits mint'));
+      expect(message, contains('provenance et fraîcheur'));
+      expect(message, contains('revenu professionnel: saisie dans mint'));
+      expect(message, contains('date par champ non affichée'));
       expect(message, contains('confirmations manquantes'));
       expect(message, contains('comparer avant de verser'));
       expect(message, contains('carte de décision'));
