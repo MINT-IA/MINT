@@ -2,6 +2,17 @@ description: Row 23/CJT-063 proof that independent/no-LPP 3a room uses a dedicat
 
 # Row 23 - Independent No-LPP Professional Net Source
 
+## 2026-06-07 Quality Review Caveat
+
+This evidence remains valid for the professional net-income source plumbing, but
+its runtime card hierarchy is superseded by
+`evidence/quality-review/maestro-flow-scoreboard-20260607.md`.
+
+The captured `Versement 3a 2026` / `Impact fiscal indicatif 2'218 CHF` card is
+now treated as a Row 23 quality defect for the no-LPP capacity chat. A user
+asking how much to contribute should first receive contribution-margin guidance
+and missing-fact checks, not a generic tax-impact card.
+
 ## Scope
 
 This closes the local source gap found after the independent/no-LPP Coach

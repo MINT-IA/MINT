@@ -16,7 +16,9 @@
 # This proves one bounded local Coach topic in runtime. It does not close Row
 # 23 by itself; broader natural-language Coach calibration, VoiceOver runtime
 # traversal, live backend/LLM scoring, and full persona-flow rescoring remain
-# separate work.
+# separate work. The flow also guards against the generic 3a tax-impact card:
+# in this scenario the primary answer must be contribution-capacity guidance,
+# not a teaser about an indicative tax saving.
 
 appId: ch.mint.app
 env:
@@ -99,10 +101,11 @@ tags:
 - assertVisible: ".*LAVS art. 8.*"
 - assertVisible: ".*Outil éducatif simplifié.*"
 - assertVisible: ".*Ne constitue pas un conseil financier.*"
-- assertVisible:
-    id: "response_card_pillar3a"
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "API Claude"
+- assertNotVisible: "Versement 3a 2026"
+- assertNotVisible: "Impact fiscal indicatif"
+- assertNotVisible: "2'218 CHF"
 - assertNotVisible: "7'137 CHF"
 - assertNotVisible: "3'068 CHF"
 - assertNotVisible: "NaN"

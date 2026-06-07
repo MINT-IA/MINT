@@ -87,9 +87,12 @@ class ResponseCardService {
   }) {
     final lower = userMessage.toLowerCase();
     final cards = <ResponseCard>[];
+    final suppressGeneric3aCapacityCards =
+        _isIndependentNoLppCapacityQuestion(profile, lower);
 
     // ── Prevoyance & Retraite ────────────────────────────
-    if (lower.contains('3a') || lower.contains('pilier')) {
+    if (!suppressGeneric3aCapacityCards &&
+        (lower.contains('3a') || lower.contains('pilier'))) {
       final c = _tryPillar3a(profile, l);
       if (c != null) cards.add(c);
     }
@@ -129,9 +132,10 @@ class ResponseCardService {
     }
 
     // ── Fiscalite ────────────────────────────────────────
-    if (lower.contains('impot') ||
-        lower.contains('fiscal') ||
-        lower.contains('deduction')) {
+    if (!suppressGeneric3aCapacityCards &&
+        (lower.contains('impot') ||
+            lower.contains('fiscal') ||
+            lower.contains('deduction'))) {
       final c = _tryTaxOptimization(profile, l);
       if (c != null) cards.add(c);
     }
@@ -533,6 +537,37 @@ class ResponseCardService {
     final seen = <String>{};
     final unique = cards.where((c) => seen.add(c.id)).toList();
     return unique.take(2).toList();
+  }
+
+  static bool _isIndependentNoLppCapacityQuestion(
+    CoachProfile profile,
+    String lower,
+  ) {
+    if (profile.archetype != FinancialArchetype.independentNoLpp) {
+      return false;
+    }
+
+    final mentions3a = lower.contains('3a') ||
+        lower.contains('pilier 3') ||
+        lower.contains('troisième pilier') ||
+        lower.contains('troisieme pilier');
+    if (!mentions3a) return false;
+
+    final mentionsNoLppContext = lower.contains('sans lpp') ||
+        lower.contains('pas de lpp') ||
+        lower.contains('sans 2e pilier') ||
+        lower.contains('pas de 2e pilier') ||
+        lower.contains('sans caisse de pension') ||
+        lower.contains('pas de caisse de pension');
+
+    final asksCapacity = lower.contains('combien') ||
+        lower.contains('verser') ||
+        lower.contains('cotiser') ||
+        lower.contains('plafond') ||
+        lower.contains('maximum') ||
+        lower.contains('montant');
+
+    return mentionsNoLppContext || asksCapacity;
   }
 
   /// Suggested prompts personnalises selon le profil.

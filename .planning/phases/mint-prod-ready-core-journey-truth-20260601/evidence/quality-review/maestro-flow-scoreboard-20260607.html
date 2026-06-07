@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINT Maestro Flow Scoreboard - 2026-06-07</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #171717;
+      --muted: #66645f;
+      --line: #dfddd7;
+      --surface: #fbfaf7;
+      --panel: #ffffff;
+      --accent: #1c7c54;
+      --warn: #9a5b00;
+      --bad: #9f2f2f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--surface);
+    }
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    h1, h2, h3 { line-height: 1.18; margin: 0 0 12px; }
+    h1 { font-size: 32px; letter-spacing: 0; }
+    h2 { margin-top: 32px; font-size: 22px; }
+    h3 { margin-top: 22px; font-size: 18px; }
+    p { margin: 0 0 14px; }
+    .lede { max-width: 760px; color: var(--muted); font-size: 17px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+    .metric, section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .metric strong { display: block; font-size: 26px; }
+    .metric span { color: var(--muted); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f0eee8; font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #f0eee8;
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 5px 0; }
+    .score-bad { color: var(--bad); font-weight: 700; }
+    .score-mid { color: var(--warn); font-weight: 700; }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: var(--muted);
+      margin: 2px 4px 2px 0;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MINT Maestro Flow Scoreboard</h1>
+    <p class="lede">
+      Couche qualité pour les scénarios runtime. Un test Maestro vert ne suffit
+      pas si la guidance est superficielle, mal priorisée ou mal reliée aux
+      données utilisateur.
+    </p>
+
+    <div class="grid">
+      <div class="metric"><strong>47</strong><span>flows YAML inventoriés</span></div>
+      <div class="metric"><strong class="score-bad">5.0/10</strong><span>score avant correction du flow no-LPP Coach</span></div>
+      <div class="metric"><strong class="score-mid">6.7/10</strong><span>score après preuve runtime iPhone 16e</span></div>
+      <div class="metric"><strong>PARTIAL</strong><span>Row 23 reste ouvert</span></div>
+    </div>
+
+    <section>
+      <h2>Rubrique</h2>
+      <table>
+        <thead><tr><th>Dimension</th><th>Poids</th><th>Critère</th></tr></thead>
+        <tbody>
+          <tr><td>Logique du flow</td><td>15%</td><td>Objectif réaliste et résultat vérifié.</td></tr>
+          <tr><td>Qualité de guidance</td><td>20%</td><td>Répond à la question, sépare règle, hypothèse et fait manquant.</td></tr>
+          <tr><td>Simplicité</td><td>10%</td><td>Message clair, lisible, sans surcharge inutile.</td></tr>
+          <tr><td>Calcul</td><td>15%</td><td>Nombre sourcé, stable, relié au persona.</td></tr>
+          <tr><td>Données réelles</td><td>15%</td><td>Pas de fallback salarié/LPP/default non prouvé.</td></tr>
+          <tr><td>Frontière LSFin</td><td>15%</td><td>Éducatif, sans prescription produit ni adéquation personnelle.</td></tr>
+          <tr><td>UX/accessibilité</td><td>10%</td><td>Contenu visible, atteignable, robuste aux contraintes UI.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Flow revu en premier</h2>
+      <p><code>tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml</code></p>
+      <p>
+        Prompt : <code>Je suis indépendant sans LPP, combien verser en 3a ?</code>
+      </p>
+      <p>
+        Défaut trouvé : le flow acceptait une carte <code>Versement 3a 2026</code>
+        avec <code>Impact fiscal indicatif</code> et <code>2'218 CHF</code>, alors
+        que le besoin utilisateur est la marge de contribution et les contrôles
+        avant versement.
+      </p>
+      <p>
+        Correction : le chat no-LPP/capacité supprime les cartes génériques 3a
+        et optimisation fiscale, y compris avec une formulation fiscale, tandis
+        que le dashboard Pulse peut encore afficher une carte proactive 3a avec
+        son calcul dédié.
+      </p>
+      <div>
+        <span class="tag">independent_no_lpp</span>
+        <span class="tag">Coach</span>
+        <span class="tag">3a</span>
+        <span class="tag">Row 23</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Preuve runtime</h2>
+      <p>
+        JUnit : <code>evidence/maestro-ci/row-23-independent-no-lpp-card-hierarchy-quality-20260607T095929/result.xml</code>
+      </p>
+      <p>
+        Résultat : <code>tests=1</code>, <code>failures=0</code>, iPhone 16e iOS 26.2,
+        watchdog <code>maestro returned 0</code>.
+      </p>
+      <p>
+        Screenshot : <code>evidence/maestro-ci/row-23-independent-no-lpp-card-hierarchy-quality-20260607T095929/runtime-final-screen.jpg</code>
+      </p>
+    </section>
+
+    <section>
+      <h2>Ce qu’il manque pour 10/10</h2>
+      <ul>
+        <li>Panneau primaire : <code>Marge 3a à vérifier</code>, pas impact fiscal.</li>
+        <li>Formule visible : <code>min(20% revenu net d'activité, plafond OPP3 sans LPP) - versements déjà planifiés</code>.</li>
+        <li>Faits connus et faits manquants visibles : revenu professionnel, contributions planifiées, canton, statut LPP, cashflow, AVS, couverture accident/perte de gain.</li>
+        <li>Distinction explicite entre marge légale et capacité mensuelle.</li>
+        <li>Preuve VoiceOver/focus, restart, et mise à jour de profil.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

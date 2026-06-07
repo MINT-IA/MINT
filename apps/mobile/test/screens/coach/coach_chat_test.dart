@@ -508,6 +508,8 @@ void main() {
 
       expect(find.textContaining("revenu net d'activité"), findsOneWidget);
       expect(find.textContaining('budget mensuel'), findsOneWidget);
+      expect(find.textContaining('Versement 3a 2026'), findsNothing);
+      expect(find.textContaining('Impact fiscal indicatif'), findsNothing);
       expect(find.textContaining('Encore en chantier pour ton profil'),
           findsNothing);
       expect(find.textContaining('API Claude'), findsNothing,

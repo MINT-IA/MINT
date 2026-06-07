@@ -230,7 +230,7 @@ void main() {
     });
 
     test(
-        'independent no-LPP 3a card uses income-aware remaining room, not absolute ceiling',
+        'independent no-LPP pulse card uses income-aware remaining room, not absolute ceiling',
         () {
       final profile = _makeProfile(
         salaire: 9000,
@@ -250,10 +250,10 @@ void main() {
         ],
       );
 
-      final cards = ResponseCardService.generateForChat(
+      final cards = ResponseCardService.generateForPulse(
         profile,
-        'Je suis indépendant sans LPP, combien verser en 3a ?',
         l: _l,
+        limit: 10,
       );
 
       final card3a =
@@ -541,6 +541,100 @@ void main() {
           profile, 'Bonjour comment ca va',
           l: _l);
       expect(cards, isEmpty);
+    });
+
+    test('independent no-LPP capacity chat does not show generic 3a cards',
+        () {
+      final profile = _makeProfile(
+        salaire: 9000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(canContribute3a: true),
+      ).copyWith(
+        independentNetProfessionalIncomeAnnual: 86400,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_nadia',
+            label: '3a Nadia',
+            amount: 500,
+            category: '3a',
+            isAutomatic: true,
+          ),
+        ],
+      );
+
+      final cards = ResponseCardService.generateForChat(
+        profile,
+        'Je suis indépendant sans LPP, combien verser en 3a ?',
+        l: _l,
+      );
+
+      expect(cards.any((c) => c.type == ResponseCardType.pillar3a), isFalse);
+      expect(
+        cards.any((c) => c.type == ResponseCardType.taxOptimization),
+        isFalse,
+      );
+    });
+
+    test('independent no-LPP fiscal capacity chat keeps cards suppressed', () {
+      final profile = _makeProfile(
+        salaire: 9000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(canContribute3a: true),
+      ).copyWith(
+        independentNetProfessionalIncomeAnnual: 86400,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_nadia',
+            label: '3a Nadia',
+            amount: 500,
+            category: '3a',
+            isAutomatic: true,
+          ),
+        ],
+      );
+
+      final cards = ResponseCardService.generateForChat(
+        profile,
+        'Combien verser en 3a fiscalement si je suis sans LPP ?',
+        l: _l,
+      );
+
+      expect(cards.any((c) => c.type == ResponseCardType.pillar3a), isFalse);
+      expect(
+        cards.any((c) => c.type == ResponseCardType.taxOptimization),
+        isFalse,
+      );
+    });
+
+    test('independent no-LPP educational 3a chat can keep generic card', () {
+      final profile = _makeProfile(
+        salaire: 9000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(canContribute3a: true),
+      ).copyWith(independentNetProfessionalIncomeAnnual: 86400);
+
+      final cards = ResponseCardService.generateForChat(
+        profile,
+        "C'est quoi le 3a ?",
+        l: _l,
+      );
+
+      expect(cards.any((c) => c.type == ResponseCardType.pillar3a), isTrue);
+    });
+
+    test('non no-LPP capacity chat can keep generic 3a card', () {
+      final profile = _makeProfile(salaire: 9000, canton: 'VD');
+
+      final cards = ResponseCardService.generateForChat(
+        profile,
+        'Combien verser en 3a cette année ?',
+        l: _l,
+      );
+
+      expect(cards.any((c) => c.type == ResponseCardType.pillar3a), isTrue);
     });
   });
 
