@@ -20,6 +20,7 @@ import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
@@ -32,7 +33,10 @@ import '../semantics_test_helpers.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    E2eRuntimeFlags.resetForTest();
   });
+
+  tearDown(E2eRuntimeFlags.resetForTest);
 
   Future<void> openCalculationDetail(WidgetTester tester) async {
     final toggle = find.byKey(const Key('budget_calculation_detail_toggle'));
@@ -697,8 +701,10 @@ void main() {
       expect(formula.label, contains('Revenu net'));
       expect(formula.label, contains('Disponible'));
 
+      final traversal = semanticIdentifiersInTraversalOrder(tester);
+      expect(traversal, isNot(contains('budget_income_basis')));
       expectIdentifierSubsequence(
-        semanticIdentifiersInTraversalOrder(tester),
+        traversal,
         [
           'budget_screen',
           'budget_data_quality_banner',
@@ -707,6 +713,65 @@ void main() {
           'budget_flow_map',
           'budget_formula_proof',
         ],
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('BudgetScreen E2E proof anchor exposes income basis when enabled',
+      (tester) async {
+    E2eRuntimeFlags.proofAnchorsOverride = true;
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final profile = CoachProfile.fromWizardAnswers(
+      seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+    );
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(
+              inputs: BudgetInputs(
+                payFrequency: PayFrequency.monthly,
+                netIncome: 8000,
+                housingCost: 1872,
+                debtPayments: 0,
+                taxProvision: 1350,
+                healthInsurance: 420,
+                otherFixedCosts: 480,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.textContaining('source=derived_self_employed_annual_proxy'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('q_self_employed_net_income_annual_chf=86400'),
+        findsOneWidget,
       );
     } finally {
       semantics.dispose();

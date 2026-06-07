@@ -11,7 +11,8 @@
 # - App ch.mint.app installed on a booted iPhone 16e simulator.
 # - Build:
 #     flutter build ios --simulator --debug \
-#       --dart-define=MINT_DISABLE_BETA_MODAL=true
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true \
+#       --dart-define=MINT_E2E_PROOF_ANCHORS=true
 # - Do NOT pass MINT_E2E_ARCHETYPE. A seeded binary makes this proof circular.
 
 appId: ch.mint.app

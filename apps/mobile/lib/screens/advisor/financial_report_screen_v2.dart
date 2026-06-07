@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -9,6 +8,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -259,7 +259,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
   }
 
   Widget _buildPillar3aIncomeBasisAnchor(FinancialReport report) {
-    if (kReleaseMode) return const SizedBox.shrink();
+    if (!E2eRuntimeFlags.proofAnchors) return const SizedBox.shrink();
 
     final profile = report.profile;
     final analysis = report.pillar3aAnalysis;

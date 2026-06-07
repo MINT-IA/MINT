@@ -5,7 +5,6 @@
 // Hero number and flow map are sourced from the BudgetInputs passed to this
 // screen. This keeps the detailed budget coherent after direct setup/relaunch.
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
@@ -21,6 +20,7 @@ import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -667,7 +667,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     required PresentBudget present,
     CoachProfile? profile,
   }) {
-    if (kReleaseMode) return const SizedBox.shrink();
+    if (!E2eRuntimeFlags.proofAnchors) return const SizedBox.shrink();
 
     final annual = profile?.independentNetProfessionalIncomeAnnual;
     final label = annual != null &&

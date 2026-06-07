@@ -24,6 +24,7 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 
 import '../semantics_test_helpers.dart';
 
@@ -91,7 +92,10 @@ void main() {
   // Ensure large viewport to avoid overflow errors in tests.
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    E2eRuntimeFlags.resetForTest();
   });
+
+  tearDown(E2eRuntimeFlags.resetForTest);
 
   // ===========================================================================
   // 4. FINANCIAL REPORT SCREEN V2
@@ -262,14 +266,46 @@ void main() {
         expect(disclaimer.identifier, 'report_disclaimer_summary');
         expect(disclaimer.label, contains('Mention légale'));
 
+        final traversal = semanticIdentifiersInTraversalOrder(tester);
+        expect(traversal, isNot(contains('report_3a_income_basis')));
         expectIdentifierSubsequence(
-          semanticIdentifiersInTraversalOrder(tester),
+          traversal,
           [
             'report_synthesis_summary',
             'report_compliance_summary',
             'report_disclaimer_summary',
           ],
         );
+      } finally {
+        semantics.dispose();
+      }
+    });
+
+    testWidgets('independent no-LPP report proof anchor exposes 3a basis',
+        (tester) async {
+      E2eRuntimeFlags.proofAnchorsOverride = true;
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final semantics = tester.ensureSemantics();
+      try {
+        final seed =
+            CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+
+        await tester.pumpWidget(
+          buildWithProfileProvider(
+            FinancialReportScreenV2(
+              wizardAnswers: seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        expect(find.textContaining('annual=86400'), findsOneWidget);
+        expect(find.textContaining('hasLpp=false'), findsOneWidget);
+        expect(find.textContaining('max3a=17280'), findsOneWidget);
+        expect(find.textContaining('planned3a=6000'), findsOneWidget);
+        expect(find.textContaining('remaining=11280'), findsOneWidget);
       } finally {
         semantics.dispose();
       }
