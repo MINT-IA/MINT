@@ -248,14 +248,30 @@ class LocalFallbackService {
         'revenu déterminant, $noLppMaxText/an) - versements 3a déjà '
         'planifiés.\n\n'
         '$knownFacts'
+        'Confirmations manquantes\n'
         'Avant de verser davantage, confirme le revenu déterminant '
         'fiscal/AVS, le statut AVS d\'indépendant·e, la couverture '
         'accident/perte de gain, la liquidité nécessaire si tes revenus '
         'varient, et le rôle éventuel d\'une LPP facultative par rapport '
         'au 3a et à ta trésorerie.\n\n'
+        'Carte de décision\n'
+        'Marge légale 3a\u00a0: vérifie la formule et les versements déjà '
+        'planifiés avant de viser un montant.\n'
+        'Capacité mensuelle\u00a0: teste le budget mensuel, la trésorerie et '
+        'les réserves pour impôts/AVS avant tout versement.\n'
+        'Couverture risque\u00a0: contrôle accident, perte de gain et '
+        'protection incapacité/décès, surtout sans LPP obligatoire.\n'
+        'LPP facultative\u00a0: compare son rôle avec le 3a et la liquidité, '
+        'sans classer une solution avant validation complète.\n'
+        'Fiscalité\u00a0: estime l\'impact fiscal seulement après validation '
+        'du revenu déterminant fiscal/AVS.\n\n'
+        'Comparer avant de verser\n'
         'Marge légale ≠ capacité mensuelle\u00a0: ce plafond ne dit pas si ton '
         'budget mensuel peut absorber un versement sans fragiliser ta '
         'trésorerie.\n\n'
+        'Prochaine action prudente\u00a0: calcule la marge restante et la '
+        'capacité de versement ensemble; ne traite pas le plafond comme '
+        'un montant à verser.\n\n'
         'Réf.\u00a0: OPP3 art. 7, LPP art. 4, LAVS art. 8.';
   }
 
@@ -269,7 +285,8 @@ class LocalFallbackService {
       'self_employed_net_income_annual',
     );
     if (income == null) {
-      return 'Donnée manquante côté MINT\u00a0: la base professionnelle '
+      return 'Faits MINT\n'
+          'Donnée manquante côté MINT\u00a0: la base professionnelle '
           'annuelle déclarée. Sans cette valeur, MINT ne peut pas calculer '
           'une marge légale restante fiable.\n\n';
     }
@@ -282,7 +299,8 @@ class LocalFallbackService {
     final rawRemaining = legalCeiling - planned3a;
     final remaining = rawRemaining < 0 ? 0.0 : rawRemaining;
 
-    return 'Données MINT utilisées\u00a0: base professionnelle déclarée dans MINT '
+    return 'Faits MINT\n'
+        'Données MINT utilisées\u00a0: base professionnelle déclarée dans MINT '
         'à confirmer comme revenu déterminant fiscal/AVS '
         '${_formatChf(income)}/an, versements 3a déjà planifiés '
         '${_formatChf(planned3a)}/an. Sur cette base, la marge légale '

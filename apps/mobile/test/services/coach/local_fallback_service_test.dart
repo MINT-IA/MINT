@@ -35,6 +35,16 @@ void main() {
       expect(response, contains('revenu net d\'activité'));
       expect(response, contains('plafond'));
       expect(response, contains('budget mensuel'));
+      expect(response, contains('confirmations manquantes'));
+      expect(response, contains('comparer avant de verser'));
+      expect(response, contains('carte de décision'));
+      expect(response, contains('marge légale 3a'));
+      expect(response, contains('capacité mensuelle'));
+      expect(response, contains('couverture risque'));
+      expect(response, contains('fiscalité'));
+      expect(response, contains('prochaine action prudente'));
+      expect(response,
+          contains('ne traite pas le plafond comme un montant à verser'));
       expect(response, contains('lpp facultative'));
       expect(response, contains('couverture accident'));
       expect(response, contains('perte de gain'));
@@ -43,6 +53,14 @@ void main() {
       expect(response, isNot(contains('salarié')));
       expect(response, isNot(contains('ouvre')));
       expect(response, isNot(contains('fintech')));
+      expect(response, isNot(contains('versement 3a 2026')));
+      expect(response, isNot(contains('impact fiscal indicatif')));
+      expect(response, isNot(contains('2\u00a0218 chf')));
+      expect(response, isNot(contains('7\u00a0137 chf')));
+      expect(response, isNot(contains('3\u00a0068 chf')));
+      expect(response, isNot(contains('meilleur')));
+      expect(response, isNot(contains('optimal')));
+      expect(response, isNot(contains('sans risque')));
       expect(response, isNot(contains('marge légale restante serait')));
       expect(response, isNot(contains('86\u00a0400')));
       expect(response, isNot(contains('11\u00a0280')));
@@ -66,10 +84,24 @@ void main() {
       expect(response, contains('6\u00a0000\u00a0CHF/an'));
       expect(response, contains('11\u00a0280\u00a0CHF/an'));
       expect(response, contains('marge légale restante'));
+      expect(response, contains('Faits MINT'));
+      expect(response, contains('Confirmations manquantes'));
+      expect(response, contains('Comparer avant de verser'));
       expect(response, contains('base professionnelle déclarée dans MINT'));
       expect(response, contains('revenu déterminant fiscal/AVS'));
+      expect(response, contains('Carte de décision'));
+      expect(response, contains('Marge légale 3a'));
+      expect(response, contains('Capacité mensuelle'));
+      expect(response, contains('Couverture risque'));
+      expect(response, contains('Fiscalité'));
+      expect(response, contains('LPP facultative'));
+      expect(response, contains('Prochaine action prudente'));
+      expect(response, contains('Marge légale ≠ capacité mensuelle'));
       expect(response, isNot(contains('2\u00a0218')));
       expect(response, isNot(contains('Impact fiscal indicatif')));
+      expect(response, isNot(contains('meilleur')));
+      expect(response, isNot(contains('optimal')));
+      expect(response, isNot(contains('sans risque')));
     });
 
     test('independent no-LPP context does not require magic prompt wording',
@@ -88,6 +120,10 @@ void main() {
       expect(response, contains('Marge 3a à vérifier'));
       expect(response, contains('11\u00a0280\u00a0CHF/an'));
       expect(response, contains('revenu déterminant fiscal/AVS'));
+      expect(response, contains('Carte de décision'));
+      expect(response, contains('Capacité mensuelle'));
+      expect(response, contains('Prochaine action prudente'));
+      expect(response, isNot(contains('Versement 3a 2026')));
     });
 
     test('does not use no-LPP guidance when independent user declares LPP', () {

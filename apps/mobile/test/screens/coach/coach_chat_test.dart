@@ -522,9 +522,24 @@ void main() {
         find.textContaining('revenu déterminant fiscal/AVS'),
         findsWidgets,
       );
-      expect(find.textContaining('budget mensuel'), findsOneWidget);
+      expect(find.textContaining('Faits MINT'), findsOneWidget);
+      expect(find.textContaining('Confirmations manquantes'), findsOneWidget);
+      expect(find.textContaining('Comparer avant de verser'), findsOneWidget);
+      expect(find.textContaining('Carte de décision'), findsOneWidget);
+      expect(find.textContaining('Marge légale 3a'), findsOneWidget);
+      expect(find.textContaining('Capacité mensuelle'), findsOneWidget);
+      expect(find.textContaining('Couverture risque'), findsOneWidget);
+      expect(find.textContaining('Fiscalité'), findsOneWidget);
+      expect(find.textContaining('Prochaine action prudente'), findsOneWidget);
+      expect(find.textContaining('Marge légale ≠ capacité mensuelle'),
+          findsOneWidget);
+      expect(find.textContaining('budget mensuel'), findsWidgets);
       expect(find.textContaining('Versement 3a 2026'), findsNothing);
       expect(find.textContaining('Impact fiscal indicatif'), findsNothing);
+      expect(find.textContaining('2\u00a0218 CHF'), findsNothing);
+      expect(find.textContaining('meilleur'), findsNothing);
+      expect(find.textContaining('optimal'), findsNothing);
+      expect(find.textContaining('sans risque'), findsNothing);
       expect(find.textContaining('Encore en chantier pour ton profil'),
           findsNothing);
       expect(find.textContaining('API Claude'), findsNothing,

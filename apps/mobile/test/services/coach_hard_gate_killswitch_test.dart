@@ -141,9 +141,29 @@ void main() {
       expect(message, contains('6\u00a0000\u00a0chf/an'));
       expect(message, contains('11\u00a0280\u00a0chf/an'));
       expect(message, contains('revenu déterminant fiscal/avs'));
+      expect(message, contains('faits mint'));
+      expect(message, contains('confirmations manquantes'));
+      expect(message, contains('comparer avant de verser'));
+      expect(message, contains('carte de décision'));
+      expect(message, contains('marge légale 3a'));
+      expect(message, contains('capacité mensuelle'));
+      expect(message, contains('couverture risque'));
+      expect(message, contains('fiscalité'));
+      expect(message, contains('prochaine action prudente'));
       expect(message, contains('budget mensuel'));
+      expect(message, contains('marge légale ≠ capacité mensuelle'));
       expect(message, isNot(contains('7\u00a0258')));
+      expect(message, isNot(contains('versement 3a 2026')));
+      expect(message, isNot(contains('impact fiscal indicatif')));
+      expect(message, isNot(contains('2\u00a0218 chf')));
+      expect(message, isNot(contains('7\u00a0137 chf')));
+      expect(message, isNot(contains('3\u00a0068 chf')));
       expect(message, isNot(contains('salarié')));
+      expect(message, isNot(contains('ouvre')));
+      expect(message, isNot(contains('fintech')));
+      expect(message, isNot(contains('meilleur')));
+      expect(message, isNot(contains('optimal')));
+      expect(message, isNot(contains('sans risque')));
     });
 
     test('4b2. independent_no_lpp context handles plain 3a capacity wording',
@@ -168,6 +188,10 @@ void main() {
       expect(message, contains('marge 3a à vérifier'));
       expect(message, contains('11\u00a0280\u00a0chf/an'));
       expect(message, contains('revenu déterminant fiscal/avs'));
+      expect(message, contains('carte de décision'));
+      expect(message, contains('lpp facultative'));
+      expect(message, contains('prochaine action prudente'));
+      expect(message, isNot(contains('versement 3a 2026')));
     });
 
     test(
@@ -186,6 +210,10 @@ void main() {
       expect(response.refused, isFalse);
       expect(message, contains('donnée manquante'));
       expect(message, contains('ne peut pas calculer'));
+      expect(message, contains('carte de décision'));
+      expect(message, contains('capacité mensuelle'));
+      expect(message, contains('confirmations manquantes'));
+      expect(message, contains('prochaine action prudente'));
       expect(message, isNot(contains('marge légale restante serait')));
       expect(message, isNot(contains('86\u00a0400')));
       expect(message, isNot(contains('11\u00a0280')));

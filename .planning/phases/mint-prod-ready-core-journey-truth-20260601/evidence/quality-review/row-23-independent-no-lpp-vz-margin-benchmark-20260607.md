@@ -77,6 +77,8 @@ After card suppression: `6.7 / 10`.
 After context-aware margin guidance, Claude review fixes, and iPhone 16e
 runtime proof: `8.2 / 10`.
 
+After decision-map guidance and iPhone 16e runtime proof: `8.6 / 10`.
+
 Why it rises:
 
 - The answer now uses persona facts, not only a generic legal paragraph.
@@ -92,11 +94,15 @@ Why it rises:
 - The computed base is explicitly labelled as a MINT-declared professional
   base to confirm as fiscal/AVS determining income; the missing-income
   hard-gate path now refuses to compute a remaining margin.
+- The answer now exposes a `Carte de décision` with `Faits MINT`,
+  `Confirmations manquantes`, `Comparer avant de verser`, and `Prochaine
+  action prudente`, so the flow evaluates contribution capacity instead of a
+  tax-impact teaser.
 
 Why it is not yet `10 / 10`:
 
-- The answer is still text-only; it does not expose a structured decision map
-  for 3a vs LPP facultative vs liquidity vs risk cover.
+- The decision map is still text-only inside chat; it is not a dedicated
+  structured UI component with per-field provenance.
 - Source freshness and field-level provenance are not visible beside each
   money fact.
 - VoiceOver/focus order for this long answer is not yet proven at runtime.
@@ -111,3 +117,7 @@ Why it is not yet `10 / 10`:
   `evidence/maestro-ci/row-23-independent-no-lpp-vz-margin-quality-20260607T111701-after-claude/result.xml`
 - Runtime screenshot:
   `evidence/maestro-ci/row-23-independent-no-lpp-vz-margin-quality-20260607T111701-after-claude/runtime-final-capacity-guidance.jpg`
+- Decision-map runtime evidence:
+  `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/result.xml`
+- Decision-map runtime screenshot:
+  `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/runtime-final-decision-map-guidance.jpg`

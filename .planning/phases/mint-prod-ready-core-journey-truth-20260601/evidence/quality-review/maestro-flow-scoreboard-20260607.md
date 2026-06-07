@@ -170,10 +170,42 @@ Runtime evidence:
 - Screenshot:
   `evidence/maestro-ci/row-23-independent-no-lpp-vz-margin-quality-20260607T111701-after-claude/runtime-final-capacity-guidance.jpg`.
 
+### Decision-Map Follow-Up
+
+Score after structured decision-map tests and iPhone 16e runtime proof:
+`8.6 / 10`.
+
+What changed:
+
+- The answer now separates `Faits MINT`, `Confirmations manquantes`,
+  `Carte de décision`, `Comparer avant de verser`, and `Prochaine action
+  prudente`.
+- The decision map explicitly covers legal 3a margin, monthly capacity, risk
+  cover, optional LPP, liquidity, and fiscal checks without ranking a product
+  path.
+- The local and hard-gate tests reject the previous generic tax-impact card,
+  stale amounts, product/provider wording, and overclaiming terms such as
+  `meilleur`, `optimal`, or `sans risque`.
+- The no-income branch still shows missing data instead of inventing
+  `86'400 CHF/an`, `6'000 CHF/an`, or `11'280 CHF/an`.
+- The Maestro flow now validates meaning-bearing sections at runtime, not just
+  a topic phrase.
+
+Runtime evidence:
+
+- JUnit:
+  `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/result.xml`
+- Result: `tests=1`, `failures=0`, device `iPhone 16e - iOS 26.2`.
+- Watchdog: `maestro returned 0`.
+- Screenshot:
+  `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/runtime-final-decision-map-guidance.jpg`.
+- Detail artifact:
+  `evidence/rapport-design/row-23-independent-no-lpp-decision-map-guidance-20260607.md`.
+
 Remaining gaps:
 
-- The answer is still text-only; it does not yet render a structured decision
-  map for 3a / LPP facultative / liquidity / risk cover.
+- The decision map is still text rendered inside chat, not a dedicated
+  structured UI component with field-level provenance.
 - Source freshness and field-level provenance are not visible beside each
   money fact.
 - Runtime VoiceOver/focus traversal remains open.

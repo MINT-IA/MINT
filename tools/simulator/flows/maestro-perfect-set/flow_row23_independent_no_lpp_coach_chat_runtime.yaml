@@ -126,6 +126,7 @@ tags:
 - assertVisible: ".*versements 3a déjà planifiés.*"
 
 # Verify the runtime used Nadia's MINT data, not a magic generic number.
+- assertVisible: ".*Faits MINT.*"
 - assertVisible: ".*base professionnelle déclarée dans MINT.*"
 - assertVisible: ".*86.*400.*CHF/an.*"
 - assertVisible: ".*6.*000.*CHF/an.*"
@@ -137,27 +138,40 @@ tags:
 # capacity and lists the missing professional-advice checks.
 - scrollUntilVisible:
     element:
-      text: ".*couverture accident.*"
+      text: ".*Confirmations manquantes.*"
     direction: DOWN
     centerElement: true
     timeout: 8000
+- assertVisible: ".*Confirmations manquantes.*"
 - assertVisible: ".*couverture accident.*"
 - assertVisible: ".*perte de gain.*"
 - assertVisible: ".*liquidité.*"
 - assertVisible: ".*LPP facultative.*"
 - scrollUntilVisible:
     element:
-      text: ".*capacité mensuelle.*"
+      text: ".*Carte de décision.*"
     direction: DOWN
     centerElement: true
     timeout: 8000
 - extendedWaitUntil:
-    visible: ".*capacité mensuelle.*"
+    visible: ".*Carte de décision.*"
     timeout: 8000
-- assertVisible: ".*Marge légale.*"
-- assertVisible: ".*capacité mensuelle.*"
+- assertVisible: ".*Marge légale 3a.*"
+- assertVisible: ".*Capacité mensuelle.*"
+- assertVisible: ".*Couverture risque.*"
+- assertVisible: ".*Fiscalité.*"
 - assertVisible: ".*budget mensuel.*"
 - assertVisible: ".*trésorerie.*"
+- scrollUntilVisible:
+    element:
+      text: ".*Comparer avant de verser.*"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- assertVisible: ".*Marge légale.*capacité mensuelle.*"
+- assertVisible: ".*Prochaine action prudente.*"
+- assertVisible: ".*ne traite pas le plafond comme.*"
+- assertVisible: ".*un montant à verser.*"
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "API Claude"
 - assertNotVisible: "Versement 3a 2026"
