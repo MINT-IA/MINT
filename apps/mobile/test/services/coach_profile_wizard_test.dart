@@ -348,6 +348,14 @@ void main() {
       expect(profile.riskTolerance, 'balanced');
       expect(profile.realEstateProject, 'yes_main');
       expect(profile.providers3a, ['bank', 'insurance']);
+      expect(
+        profile.dataSources['plannedContributions.3a'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        profile.dataTimestamps['plannedContributions.3a'],
+        isNotNull,
+      );
     });
 
     test('profil minimal ne fabrique pas un canton par défaut', () {
@@ -361,6 +369,21 @@ void main() {
       expect(profile.userProvidedFields.contains('canton'), isFalse);
       expect(profile.salaireBrutMensuel, greaterThan(0));
       expect(profile.goalA.type, GoalAType.retraite);
+    });
+
+    test('allocation 3a automatique ne fabrique pas une provenance utilisateur',
+        () {
+      final answers = {
+        ...baseAnswers(),
+        'q_savings_monthly': 1000,
+        'q_savings_allocation': ['3a'],
+        'q_has_3a': 'yes',
+      }..remove('q_3a_annual_contribution');
+      final profile = CoachProfile.fromWizardAnswers(answers);
+
+      expect(profile.total3aMensuel, greaterThan(0));
+      expect(profile.dataSources['plannedContributions.3a'], isNull);
+      expect(profile.dataTimestamps['plannedContributions.3a'], isNull);
     });
 
     test('legacy inline civil-status alias hydrates canonical civil status',

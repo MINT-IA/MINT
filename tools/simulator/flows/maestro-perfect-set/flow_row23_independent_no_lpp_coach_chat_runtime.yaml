@@ -137,8 +137,9 @@ tags:
 - assertVisible: ".*revenu professionnel.*"
 - assertVisible: ".*saisie dans MINT.*"
 - assertVisible: ".*versements 3a planifiés.*"
-- assertVisible: ".*plan MINT.*"
 - assertVisible: ".*date par champ non affichée.*"
+- assertNotVisible: ".*plan MINT.*"
+- assertNotVisible: ".*source non affichée.*"
 
 # Verify the answer separates legal contribution room from monthly cashflow
 # capacity and lists the missing professional-advice checks.

@@ -190,6 +190,48 @@ void main() {
       }
     });
 
+    test('independent no-LPP 3a guidance uses explicit 3a plan provenance', () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Combien verser en 3a ?',
+        context: const CoachContext(
+          archetype: 'independent_no_lpp',
+          dataReliability: {
+            'independentNetProfessionalIncomeAnnual': 'userInput',
+            'annual_3a_contribution': 'certificate',
+          },
+          knownValues: {
+            'self_employed_net_income_annual': 86400,
+            'annual_3a_contribution': 6000,
+          },
+        ),
+      )!;
+
+      expect(response, contains('revenu professionnel: saisie dans MINT'));
+      expect(response, contains('versements 3a planifiés: document scanné'));
+      expect(response, isNot(contains('versements 3a planifiés: plan MINT')));
+    });
+
+    test('independent no-LPP 3a guidance uses production 3a source key', () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Combien verser en 3a ?',
+        context: const CoachContext(
+          archetype: 'independent_no_lpp',
+          dataReliability: {
+            'independentNetProfessionalIncomeAnnual': 'userInput',
+            'plannedContributions.3a': 'userInput',
+          },
+          knownValues: {
+            'self_employed_net_income_annual': 86400,
+            'annual_3a_contribution': 6000,
+          },
+        ),
+      )!;
+
+      expect(response, contains('revenu professionnel: saisie dans MINT'));
+      expect(response, contains('versements 3a planifiés: saisie dans MINT'));
+      expect(response, isNot(contains('versements 3a planifiés: plan MINT')));
+    });
+
     test('independent no-LPP 3a guidance labels missing income and plan', () {
       final response = LocalFallbackService.generateSpecializedFallback(
         userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',

@@ -3238,6 +3238,8 @@ class CoachProfile {
       if (independentNetProfessionalIncomeAnnual != null &&
           independentNetProfessionalIncomeAnnual > 0)
         'independentNetProfessionalIncomeAnnual': baseTimestamp,
+      if (answers.containsKey('q_3a_annual_contribution') && contribution3a > 0)
+        'plannedContributions.3a': baseTimestamp,
     };
 
     // Restore persisted timestamps from answers (written by updateInline /
@@ -3268,6 +3270,10 @@ class CoachProfile {
         independentNetProfessionalIncomeAnnual > 0) {
       provided.add('independentNetProfessionalIncomeAnnual');
       restoredDataSources['independentNetProfessionalIncomeAnnual'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('q_3a_annual_contribution') && contribution3a > 0) {
+      restoredDataSources['plannedContributions.3a'] =
           ProfileDataSource.userInput;
     }
     if (answers.containsKey('q_civil_status') ||

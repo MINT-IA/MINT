@@ -79,7 +79,7 @@ runtime proof: `8.2 / 10`.
 
 After decision-map guidance and iPhone 16e runtime proof: `8.6 / 10`.
 
-After provenance/freshness text proof: `8.7 / 10`.
+After source-backed 3a plan provenance proof: `8.8 / 10`.
 
 Why it rises:
 
@@ -103,13 +103,16 @@ Why it rises:
 - The answer now exposes `Provenance et fraîcheur`, labels known source
   metadata when available, and admits when source or field-date metadata is
   not shown in this chat.
+- Explicit `q_3a_annual_contribution` now tags `plannedContributions.3a`,
+  so the planned 3a amount can be labelled as a MINT-entered source instead
+  of a generic plan. Allocation-created 3a plans still remain `plan MINT`.
 
 Why it is not yet `10 / 10`:
 
 - The decision map is still text-only inside chat; it is not a dedicated
   structured UI component with per-field provenance.
-- Source freshness and field-level provenance are text-level only; they are
-  not rendered beside each money fact with timestamp/confidence metadata.
+- Source freshness is text-level only; timestamps/confidence are not rendered
+  beside each money fact as a dedicated component.
 - VoiceOver/focus order for this long answer is not yet proven at runtime.
 
 ## Verification Links
@@ -127,8 +130,8 @@ Why it is not yet `10 / 10`:
 - Decision-map runtime screenshot:
   `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/runtime-final-decision-map-guidance.jpg`
 - Provenance/freshness runtime evidence:
-  `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/result.xml`
+  `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/result.xml`
 - Provenance/freshness runtime screenshot:
-  `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/runtime-final-provenance-freshness.jpg`
+  `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/runtime-final-3a-plan-provenance-strict2.png`
 - Provenance/freshness artifact:
   `evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md`

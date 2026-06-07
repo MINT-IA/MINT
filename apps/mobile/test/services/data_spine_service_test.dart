@@ -24,6 +24,7 @@ void main() {
     Map<String, ProfileDataSource> dataSources = const {
       'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
       'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
+      'plannedContributions.3a': ProfileDataSource.userInput,
       'depenses.loyer': ProfileDataSource.userInput,
       'depenses.assuranceMaladie': ProfileDataSource.userInput,
       'patrimoine.epargneLiquide': ProfileDataSource.userInput,
@@ -232,6 +233,8 @@ void main() {
       expect(spine.pillars.pillar3a.totalBalance.value, 12000);
       expect(spine.pillars.pillar3a.accountsCount.value, 1);
       expect(spine.pillars.pillar3a.annualContribution.value, 6000);
+      expect(spine.pillars.pillar3a.annualContribution.meta.source,
+          ProfileDataSource.userInput);
     });
 
     test('marks missing pillar facts as missing instead of estimating them',

@@ -136,6 +136,12 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **3a (3rd pillar)**
 - `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
   `q_3a_providers`, `_coach_total_3a`
+- `q_3a_annual_contribution` is an explicit planned annual contribution.
+  When present and positive, `CoachProfile.fromWizardAnswers` tags
+  `plannedContributions.3a` as `ProfileDataSource.userInput` and stamps its
+  timestamp. 3a contributions derived only from `q_savings_allocation` remain
+  untagged, because they are MINT allocation plans, not user-entered
+  contribution facts.
 
 **Patrimoine & dette**
 - `q_cash_total`, `q_epargne_liquide`, `q_investissements`,

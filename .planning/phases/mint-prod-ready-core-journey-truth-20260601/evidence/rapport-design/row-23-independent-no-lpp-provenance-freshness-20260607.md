@@ -24,7 +24,10 @@ and explicitly says that the date by field is not shown in this chat.
 When the professional income source is known, the response labels it:
 
 - `revenu professionnel: saisie dans MINT`
-- `versements 3a planifiés: plan MINT`
+- `versements 3a planifiés: saisie dans MINT` when
+  `q_3a_annual_contribution` explicitly tagged `plannedContributions.3a`
+- `versements 3a planifiés: plan MINT` when the planned 3a amount exists
+  without source metadata
 - `date par champ non affichée`
 
 When source metadata is not available, the response says:
@@ -40,17 +43,28 @@ TDD red proof first failed on the missing provenance/freshness section.
 
 Green proof:
 
-- `flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_hard_gate_killswitch_test.dart test/screens/coach/coach_chat_test.dart`
-- Result: `94` passed, `5` existing skips.
+- `flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_profile_wizard_test.dart test/services/data_spine_service_test.dart test/services/coach_context_packet_payload_test.dart test/services/coach_hard_gate_killswitch_test.dart test/screens/coach/coach_chat_test.dart`
+- Result: `163` passed, `5` existing skips.
+
+Additional 3a provenance proof:
+
+- `CoachProfile.fromWizardAnswers(...)` now tags
+  `plannedContributions.3a` as `ProfileDataSource.userInput` only when
+  `q_3a_annual_contribution` is explicitly present and positive.
+- Automatic allocation-created 3a contributions remain untagged, avoiding a
+  false user-source claim.
+- `DataSpineService` reads the same `plannedContributions.3a` source for the
+  annual 3a contribution fact.
 
 Runtime proof:
 
 - Flow: `tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml`
-- Evidence: `evidence/maestro-ci/row-23-independent-no-lpp-provenance-freshness-20260607T125702/`
+- Evidence: `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/`
 - Result: `tests=1`, `failures=0`
 - Device: `iPhone 16e - iOS 26.2`
 - Watchdog: `maestro returned 0`
-- Screenshot: `runtime-final-provenance-freshness.jpg`
+- Strict assertion: `assertNotVisible: ".*plan MINT.*"`
+- Screenshot: `runtime-final-3a-plan-provenance-strict2.png`
 
 ## Remaining Gap
 

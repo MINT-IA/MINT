@@ -319,16 +319,24 @@ class LocalFallbackService {
             context?.dataReliability['independentNetProfessionalIncomeAnnual'],
           )
         : 'donnée absente côté MINT';
-    final planned3aSource =
-        _positiveKnownValue(context, 'annual_3a_contribution') == null
-            ? 'aucun versement planifié connu dans MINT'
-            : 'plan MINT';
+    final planned3aSource = _planned3aSourceLabel(context);
 
     return 'Provenance et fraîcheur\n'
         'revenu professionnel: $incomeSource.\n'
         'versements 3a planifiés: $planned3aSource.\n'
         'Fraîcheur: date par champ non affichée dans ce chat; à revalider '
         'si ton revenu, tes versements ou ton statut LPP ont changé.\n\n';
+  }
+
+  static String _planned3aSourceLabel(CoachContext? context) {
+    if (_positiveKnownValue(context, 'annual_3a_contribution') == null) {
+      return 'aucun versement planifié connu dans MINT';
+    }
+
+    final explicitSource = context?.dataReliability['annual_3a_contribution'] ??
+        context?.dataReliability['plannedContributions.3a'];
+    if (explicitSource != null) return _dataSourceLabel(explicitSource);
+    return 'plan MINT';
   }
 
   static String _dataSourceLabel(String? source) {
