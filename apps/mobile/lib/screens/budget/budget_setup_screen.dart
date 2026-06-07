@@ -317,6 +317,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       'q_net_income_period_chf': income,
       'q_housing_cost_period_chf': housing,
       'q_pay_frequency': 'monthly',
+      'q_net_income_period_source': null,
       'q_lamal_premium_monthly_chf': lamal,
       '_coach_depenses_transport': transport,
       '_coach_depenses_telecom': telecom,

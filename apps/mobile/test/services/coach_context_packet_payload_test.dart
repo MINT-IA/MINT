@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
@@ -378,6 +379,140 @@ void main() {
         expect(value, isNot(19272200));
         expect(value, isNot(420420));
       }
+    });
+
+    test(
+        'independent no-LPP 3a facts survive restart and profile correction recalculates coach response',
+        () async {
+      CoachContext? capturedCtx;
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedCtx = ctx;
+        return CoachOrchestrator.generateChat(
+          userMessage: userMessage,
+          history: history,
+          ctx: ctx,
+          byokConfig: byokConfig,
+          memoryBlock: memoryBlock,
+          language: language,
+          cashLevel: cashLevel,
+          isLoggedIn: isLoggedIn,
+        );
+      });
+
+      Future<CoachResponse> askAfterRestart({
+        required double professionalIncomeAnnual,
+        required double planned3aAnnual,
+      }) async {
+        final saved = await ReportPersistenceService.saveAnswers({
+          'q_firstname': 'Nadia',
+          'q_birth_year': 1988,
+          'q_canton': 'VD',
+          'q_nationality': 'CH',
+          'q_us_tax_person': false,
+          'q_employment_status': 'independant',
+          'q_has_pension_fund': false,
+          'q_pay_frequency': 'monthly',
+          'q_net_income_period_chf': professionalIncomeAnnual / 12,
+          'q_self_employed_net_income_annual_chf': professionalIncomeAnnual,
+          'q_3a_annual_contribution': planned3aAnnual,
+          'q_savings_monthly': planned3aAnnual / 12,
+          'q_savings_allocation': ['3a'],
+        });
+        expect(saved, isTrue);
+        await ReportPersistenceService.setCompleted(true);
+
+        final provider = CoachProfileProvider();
+        await provider.loadFromWizard();
+        final profile = provider.profile!;
+        expect(profile.archetype, FinancialArchetype.independentNoLpp);
+        expect(
+          profile.independentNetProfessionalIncomeAnnual,
+          professionalIncomeAnnual,
+        );
+        expect(profile.total3aMensuel * 12, closeTo(planned3aAnnual, 0.01));
+        expect(
+          BudgetInputs.fromCoachProfile(profile).netIncome,
+          closeTo(professionalIncomeAnnual / 12, 0.01),
+        );
+        expect(
+          profile.dataSources['independentNetProfessionalIncomeAnnual'],
+          ProfileDataSource.userInput,
+        );
+        expect(
+          profile.dataSources['plannedContributions.3a'],
+          ProfileDataSource.userInput,
+        );
+        expect(
+          profile.dataTimestamps['independentNetProfessionalIncomeAnnual'],
+          isNotNull,
+        );
+        expect(profile.dataTimestamps['plannedContributions.3a'], isNotNull);
+
+        capturedCtx = null;
+        final response = await CoachLlmService.chat(
+          userMessage: 'Combien verser en 3a ?',
+          profile: profile,
+          history: const [],
+          config: LlmConfig.defaultOpenAI,
+        );
+
+        expect(capturedCtx, isNotNull);
+        expect(capturedCtx!.archetype, 'independent_no_lpp');
+        expect(
+          capturedCtx!.knownValues['self_employed_net_income_annual'],
+          professionalIncomeAnnual,
+        );
+        expect(
+          capturedCtx!.knownValues['annual_3a_contribution'],
+          closeTo(planned3aAnnual, 0.01),
+        );
+        expect(
+          capturedCtx!
+              .dataReliability['independentNetProfessionalIncomeAnnual'],
+          'userInput',
+        );
+        expect(
+          capturedCtx!.dataReliability['plannedContributions.3a'],
+          'userInput',
+        );
+        return response;
+      }
+
+      final initial = await askAfterRestart(
+        professionalIncomeAnnual: 86400,
+        planned3aAnnual: 6000,
+      );
+      expect(initial.message, contains('86\u00a0400\u00a0CHF/an'));
+      expect(initial.message, contains('6\u00a0000\u00a0CHF/an'));
+      expect(initial.message, contains('11\u00a0280\u00a0CHF/an'));
+      expect(
+          initial.message, contains('revenu professionnel: saisie dans MINT'));
+      expect(initial.message,
+          contains('versements 3a planifiés: saisie dans MINT'));
+      expect(initial.message, isNot(contains('Impact fiscal indicatif')));
+      expect(initial.message, isNot(contains('2\u00a0218 CHF')));
+      expect(initial.message, isNot(contains('ouvrir un compte')));
+      expect(initial.message, isNot(contains('fintech')));
+
+      final corrected = await askAfterRestart(
+        professionalIncomeAnnual: 90000,
+        planned3aAnnual: 7200,
+      );
+      expect(corrected.message, contains('90\u00a0000\u00a0CHF/an'));
+      expect(corrected.message, contains('7\u00a0200\u00a0CHF/an'));
+      expect(corrected.message, contains('10\u00a0800\u00a0CHF/an'));
+      expect(corrected.message, isNot(contains('11\u00a0280\u00a0CHF/an')));
+      expect(corrected.message, contains('revenu déterminant fiscal/AVS'));
+      expect(corrected.message, contains('Marge légale ≠ capacité mensuelle'));
     });
 
     test('shared adapter builds the packet used by screen and service paths',

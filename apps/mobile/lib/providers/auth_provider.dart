@@ -119,6 +119,16 @@ class AuthProvider extends ChangeNotifier {
     if (data.isEmpty) return currentAnswers;
 
     final answers = Map<String, dynamic>.from(currentAnswers);
+    final claimAnswers = _localDataClaimWizardAnswers(data);
+    for (final entry in claimAnswers.entries) {
+      if (_isMissingAnswer(answers, entry.key)) {
+        answers[entry.key] = entry.value;
+      }
+    }
+    final claimHasSelfEmployedAnnual =
+        claimAnswers.containsKey('q_self_employed_net_income_annual_chf');
+    final claimHasPillar3aAnnual =
+        claimAnswers.containsKey('q_3a_annual_contribution');
     bool fillIfMissing(String key, dynamic value) {
       if (value == null) return false;
       if (!_isMissingAnswer(answers, key)) return false;
@@ -130,6 +140,29 @@ class AuthProvider extends ChangeNotifier {
       if (value is! num) return false;
       return fillIfMissing(key, value.toDouble());
     }
+
+    double? numberAnswer(String key) {
+      final value = answers[key];
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value);
+      return null;
+    }
+
+    if (claimHasPillar3aAnnual &&
+        !claimAnswers.containsKey('q_has_3a') &&
+        _isMissingAnswer(answers, 'q_has_3a')) {
+      final claim3aAnnual = numberAnswer('q_3a_annual_contribution');
+      final known3aBalance = numberAnswer('q_3a_total') ?? 0;
+      if (claim3aAnnual != null && claim3aAnnual > 0) {
+        answers['q_has_3a'] = true;
+      } else if (claim3aAnnual != null &&
+          claim3aAnnual == 0 &&
+          known3aBalance <= 0) {
+        answers['q_has_3a'] = false;
+      }
+    }
+
+    bool closeToAmount(double a, double b) => (a - b).abs() < 0.01;
 
     fillIfMissing('q_firstname', data['firstName']);
     if (data['dateOfBirth'] != null) {
@@ -171,12 +204,36 @@ class AuthProvider extends ChangeNotifier {
         ),
       );
     }
-    if (data['selfEmployedNetIncome'] is num) {
-      fillNumIfMissing(
-        'q_self_employed_net_income_annual_chf',
-        data['selfEmployedNetIncome'],
-      );
-      fillIfMissing('q_employment_status', 'independant');
+    if (data['selfEmployedNetIncome'] is num &&
+        !claimHasSelfEmployedAnnual) {
+      final annual = (data['selfEmployedNetIncome'] as num).toDouble();
+      final previousAnnual =
+          numberAnswer('q_self_employed_net_income_annual_chf');
+      final previousMonthly = numberAnswer('q_net_income_period_chf');
+      final previousMonthlySource = answers['q_net_income_period_source'];
+      final previousEmployment = answers['q_employment_status'];
+      final monthlyWasDerivedFromPreviousAnnual =
+          previousMonthlySource == 'derived_self_employed_annual_proxy' &&
+              previousAnnual != null &&
+              previousMonthly != null &&
+              closeToAmount(previousMonthly, previousAnnual / 12);
+      final shouldUseIndependentStatus =
+          _isMissingAnswer(answers, 'q_employment_status') ||
+              _isIndependentEmployment(previousEmployment);
+
+      answers['q_self_employed_net_income_annual_chf'] = annual;
+      if (shouldUseIndependentStatus) {
+        answers['q_employment_status'] = 'independant';
+      }
+      if (shouldUseIndependentStatus && annual.isFinite && annual > 0) {
+        if (_isMissingAnswer(answers, 'q_net_income_period_chf') ||
+            monthlyWasDerivedFromPreviousAnnual) {
+          answers['q_net_income_period_chf'] = annual / 12;
+          answers['q_pay_frequency'] = 'monthly';
+          answers['q_net_income_period_source'] =
+              'derived_self_employed_annual_proxy';
+        }
+      }
     }
     if (data['incomeGrossYearly'] != null) {
       fillNumIfMissing('q_gross_salary_annual', data['incomeGrossYearly']);
@@ -205,7 +262,18 @@ class AuthProvider extends ChangeNotifier {
       fillIfMissing('q_has_pension_fund', true);
     }
     fillNumIfMissing('q_3a_total', data['pillar3aBalance']);
-    fillNumIfMissing('q_3a_annual_contribution', data['pillar3aAnnual']);
+    if (data['pillar3aAnnual'] is num) {
+      final annual3a = (data['pillar3aAnnual'] as num).toDouble();
+      final known3aBalance = numberAnswer('q_3a_total') ?? 0;
+      if (!claimHasPillar3aAnnual) {
+        answers['q_3a_annual_contribution'] = annual3a;
+        if (annual3a > 0) {
+          answers['q_has_3a'] = true;
+        } else if (annual3a == 0 && known3aBalance <= 0) {
+          answers['q_has_3a'] = false;
+        }
+      }
+    }
     fillNumIfMissing('q_savings_monthly', data['savingsMonthly']);
     fillNumIfMissing('q_cash_total', data['totalSavings']);
     if (data['hasDebt'] == true) {
@@ -249,6 +317,24 @@ class AuthProvider extends ChangeNotifier {
     if (value == null) return true;
     if (value is String) return value.trim().isEmpty;
     return false;
+  }
+
+  static bool _isIndependentEmployment(dynamic value) {
+    final normalized = value?.toString().trim().toLowerCase();
+    return normalized == 'independant' ||
+        normalized == 'indépendant' ||
+        normalized == 'independent' ||
+        normalized == 'self_employed';
+  }
+
+  static Map<String, dynamic> _localDataClaimWizardAnswers(
+    Map<String, dynamic> data,
+  ) {
+    final claim = data['localDataClaim'];
+    if (claim is! Map) return const {};
+    final rawWizardAnswers = claim['wizardAnswers'];
+    if (rawWizardAnswers is! Map) return const {};
+    return Map<String, dynamic>.from(rawWizardAnswers);
   }
 
   static bool _isAnswered(dynamic value) {

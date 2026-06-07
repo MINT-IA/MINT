@@ -23,6 +23,7 @@ class CoachMessageBubble extends StatelessWidget {
   final ChatMessage message;
   final int messageIndex;
   final bool isStreaming;
+  final bool announceContentLiveRegion;
   final bool isInputAnswered;
   final void Function(int messageIndex, String field, String value)?
       onInputSubmitted;
@@ -33,15 +34,33 @@ class CoachMessageBubble extends StatelessWidget {
     required this.message,
     required this.messageIndex,
     this.isStreaming = false,
+    this.announceContentLiveRegion = false,
     this.isInputAnswered = false,
     this.onInputSubmitted,
     this.onActionTap,
   });
 
+  static String _plainTextForSemantics(String markdown) {
+    return markdown
+        .replaceAllMapped(
+          RegExp(r'\[([^\]]+)\]\([^)]+\)'),
+          (match) => match.group(1) ?? '',
+        )
+        .replaceAll(RegExp(r'[*_`#>]+'), '')
+        .replaceAll(RegExp(r'^[\s\-•]+', multiLine: true), '')
+        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     final msg = message;
     final isStreamingThis = isStreaming;
+    final contentMarkdown =
+        msg.content.isEmpty && isStreamingThis ? '...' : msg.content;
+    final hasReadableContent = contentMarkdown.trim().isNotEmpty;
+    final contentHasLinks =
+        RegExp(r'\[[^\]]+\]\([^)]+\)').hasMatch(contentMarkdown);
     final hasToolCalls = msg.hasRichToolCalls;
     final isAskUserInput = hasToolCalls &&
         msg.richToolCalls.any((tc) => tc.name == 'ask_user_input');
@@ -79,44 +98,26 @@ class CoachMessageBubble extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ACCESS-08 (P8b-03): liveRegion announces new coach
-                      // output to screen readers without shifting focus.
-                      // Only the Text is wrapped — focus stays where it is,
-                      // only content is announced.
-                      Semantics(
-                        liveRegion: true,
-                        container: true,
-                        child: MarkdownBody(
-                          data: msg.content.isEmpty && isStreamingThis
-                              ? '...'
-                              : msg.content,
-                          styleSheet: MarkdownStyleSheet(
-                            p: MintTextStyles.bodyMedium(
-                                    color: MintColors.textPrimary)
-                                .copyWith(height: 1.6),
-                            strong: MintTextStyles.bodyMedium(
-                                    color: MintColors.textPrimary)
-                                .copyWith(
-                                    fontWeight: FontWeight.w700, height: 1.6),
-                            em: MintTextStyles.bodyMedium(
-                                    color: MintColors.textPrimary)
-                                .copyWith(
-                                    fontStyle: FontStyle.italic, height: 1.6),
-                            listBullet: MintTextStyles.bodyMedium(
-                                    color: MintColors.textPrimary)
-                                .copyWith(height: 1.6),
-                            h3: MintTextStyles.bodyMedium(
-                                    color: MintColors.textPrimary)
-                                .copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    height: 1.6),
-                          ),
-                          shrinkWrap: true,
-                          softLineBreak: false,
-                          selectable: true,
+                      if (hasReadableContent)
+                        // ACCESS-08 (P8b-03): liveRegion announces new coach
+                        // output to screen readers without shifting focus.
+                        Semantics(
+                          key: Key(
+                              'coach_message_content_semantics_$messageIndex'),
+                          identifier: 'coach_message_content_$messageIndex',
+                          liveRegion: announceContentLiveRegion,
+                          container: true,
+                          label: contentHasLinks
+                              ? null
+                              : _plainTextForSemantics(contentMarkdown),
+                          child: contentHasLinks
+                              ? _CoachMarkdownBody(markdown: contentMarkdown)
+                              : ExcludeSemantics(
+                                  child: _CoachMarkdownBody(
+                                    markdown: contentMarkdown,
+                                  ),
+                                ),
                         ),
-                      ),
                       // Streaming cursor
                       if (isStreamingThis) ...[
                         const SizedBox(height: MintSpacing.xs),
@@ -375,7 +376,8 @@ class CoachTierBadge extends StatelessWidget {
       children: [
         Icon(icon,
             // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
-            size: 9, color: MintColors.textMutedAaa.withValues(alpha: 0.5)),
+            size: 9,
+            color: MintColors.textMutedAaa.withValues(alpha: 0.5)),
         const SizedBox(width: MintSpacing.xs),
         Text(
           label,
@@ -467,8 +469,8 @@ class CoachSourcesSection extends StatelessWidget {
                             color: MintColors.textSecondaryAaa,
                           ).copyWith(
                             decoration: TextDecoration.underline,
-                            decorationColor:
-                                MintColors.textSecondaryAaa.withValues(alpha: 0.3),
+                            decorationColor: MintColors.textSecondaryAaa
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                       ),
@@ -587,32 +589,71 @@ class CoachSuggestedActions extends StatelessWidget {
             action.toLowerCase().contains('arrive');
         return GestureDetector(
           onTap: () => onActionTap?.call(action),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.md,
-              vertical: MintSpacing.md - 4,
-            ),
-            decoration: BoxDecoration(
-              color: isLifeEvent
-                  ? MintColors.pecheDouce.withValues(alpha: 0.18)
-                  : MintColors.porcelaine,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isLifeEvent
-                    ? MintColors.pecheDouce.withValues(alpha: 0.3)
-                    : MintColors.border.withValues(alpha: 0.3),
-                width: 0.5,
+          child: Semantics(
+            button: true,
+            enabled: onActionTap != null,
+            label: action,
+            onTap: onActionTap == null ? null : () => onActionTap!(action),
+            child: ExcludeSemantics(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md,
+                  vertical: MintSpacing.md - 4,
+                ),
+                decoration: BoxDecoration(
+                  color: isLifeEvent
+                      ? MintColors.pecheDouce.withValues(alpha: 0.18)
+                      : MintColors.porcelaine,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isLifeEvent
+                        ? MintColors.pecheDouce.withValues(alpha: 0.3)
+                        : MintColors.border.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  action,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w500, height: 1.3),
+                ),
               ),
-            ),
-            child: Text(
-              action,
-              style: MintTextStyles.bodySmall(
-                color: MintColors.textPrimary,
-              ).copyWith(fontWeight: FontWeight.w500, height: 1.3),
             ),
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class _CoachMarkdownBody extends StatelessWidget {
+  final String markdown;
+
+  const _CoachMarkdownBody({required this.markdown});
+
+  @override
+  Widget build(BuildContext context) {
+    return MarkdownBody(
+      data: markdown,
+      styleSheet: MarkdownStyleSheet(
+        p: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+            .copyWith(height: 1.6),
+        strong: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+            .copyWith(fontWeight: FontWeight.w700, height: 1.6),
+        em: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+            .copyWith(fontStyle: FontStyle.italic, height: 1.6),
+        listBullet: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+            .copyWith(height: 1.6),
+        h3: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+          fontWeight: FontWeight.w600,
+          fontSize: 15,
+          height: 1.6,
+        ),
+      ),
+      shrinkWrap: true,
+      softLineBreak: false,
+      selectable: true,
     );
   }
 }

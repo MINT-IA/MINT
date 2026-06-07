@@ -2782,9 +2782,15 @@ class CoachProfile {
     final hasPensionFund = _parseBool(answers['q_has_pension_fund']);
     final lppBuybackAvailable =
         _parseDouble(answers['q_lpp_buyback_available']);
-    final has3a = _parseBool(answers['q_has_3a']);
     final contribution3a =
         _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
+    final reported3aTotal = _parseDouble(answers['q_3a_total']) ??
+        _parseDouble(answers['q_total_3a']);
+    final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
+    final has3a = _parseBool(answers['q_has_3a']) ||
+        contribution3a > 0 ||
+        (reported3aTotal != null && reported3aTotal > 0) ||
+        (coachTotal3a != null && coachTotal3a > 0);
     final nombre3a = _parseInt(answers['q_3a_accounts_count']) ??
         _parseInt(answers['q_nombre_3a']) ??
         (has3a ? 1 : 0);
@@ -2850,9 +2856,6 @@ class CoachProfile {
 
     // Estimate 3a total from contribution and age
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere
-    final reported3aTotal = _parseDouble(answers['q_3a_total']) ??
-        _parseDouble(answers['q_total_3a']);
-    final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
     final estimated3aTotal = reported3aTotal ??
         coachTotal3a ??
         (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);

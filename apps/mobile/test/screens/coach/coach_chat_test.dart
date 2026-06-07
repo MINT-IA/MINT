@@ -34,6 +34,7 @@ import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import '../../semantics_test_helpers.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN TESTS — Phase 4 / BYOK + RAG wiring
@@ -548,6 +549,84 @@ void main() {
       expect(find.textContaining('API Claude'), findsNothing,
           reason:
               'The audited no-LPP fallback is deterministic local guidance, not a BYOK/server LLM answer.');
+    });
+
+    testWidgets(
+        'independent_no_lpp 3a answer exposes VoiceOver traversal anchors',
+        (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        usePhoneViewport(tester);
+        await tester.pumpWidget(buildTestWidget(
+          profileProviderOverride: buildIndependentNoLppProfileProvider(),
+          contextBuilder: emptyContextBuilder,
+        ));
+        await pumpUntilGreeting(tester);
+
+        await tester.enterText(
+          find.byKey(const Key('coach_input_field')),
+          'Combien verser en 3a ?',
+        );
+        await tester.tap(find.byKey(const Key('coach_send_button')));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        final userMessage =
+            tester.getSemantics(find.byKey(const Key('coach_user_message_0')));
+        final assistantMessage = tester.getSemantics(
+          find.byKey(const Key('coach_assistant_message_0')),
+        );
+
+        expect(userMessage.identifier, 'coach_user_message_0');
+        expect(userMessage.label, contains('Ton message'));
+        expect(assistantMessage.identifier, 'coach_assistant_message_0');
+        expect(assistantMessage.label, contains('Réponse du coach'));
+
+        expect(find.textContaining('Marge 3a à vérifier'), findsOneWidget);
+        expect(find.textContaining('Faits MINT'), findsOneWidget);
+        expect(find.textContaining('Provenance et fraîcheur'), findsOneWidget);
+        expect(find.textContaining('Confirmations manquantes'), findsOneWidget);
+        expect(find.textContaining('Carte de décision'), findsOneWidget);
+        expect(
+          find.textContaining('Prochaine action prudente'),
+          findsOneWidget,
+        );
+        expect(find.textContaining('86\u00a0400\u00a0CHF/an'), findsOneWidget);
+        expect(find.textContaining('6\u00a0000\u00a0CHF/an'), findsOneWidget);
+        expect(find.textContaining('11\u00a0280\u00a0CHF/an'), findsOneWidget);
+        expect(find.textContaining('Impact fiscal indicatif'), findsNothing);
+        expect(find.textContaining('2\u00a0218 CHF'), findsNothing);
+        expect(find.textContaining('ouvrir un compte'), findsNothing);
+        expect(find.textContaining('fintech'), findsNothing);
+        expect(
+          assistantMessage.label,
+          isNot(contains('Marge 3a à vérifier')),
+          reason:
+              'The assistant wrapper must stay role-only so VoiceOver does not read markdown content twice.',
+        );
+        final contentSemantics = tester.getSemantics(
+          find.byKey(const Key('coach_message_content_semantics_1')),
+        );
+        expect(contentSemantics.label, contains('Marge 3a à vérifier'));
+        expect(contentSemantics.label, contains('86\u00a0400\u00a0CHF/an'));
+        expect(contentSemantics.label, contains('11\u00a0280\u00a0CHF/an'));
+
+        expectIdentifierSubsequence(
+          semanticIdentifiersInTraversalOrder(tester),
+          [
+            'coach_chat_screen',
+            'coach_user_message_0',
+            'coach_assistant_message_0',
+            'coach_message_content_1',
+            'coach_lightning_menu_button',
+            'coach_input_field',
+            'coach_send_button',
+          ],
+        );
+      } finally {
+        semantics.dispose();
+      }
     });
 
     testWidgets('independent_no_lpp generic prompt renders hard-gate refusal',

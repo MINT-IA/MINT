@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -695,6 +697,60 @@ void main() {
       answers.remove('q_net_income_period_chf');
       final report = service.generateReport(answers);
       expect(report.profile.monthlyNetIncome, isZero);
+    });
+
+    test('uses independent annual net income when monthly cashflow is absent',
+        () {
+      final answers = minimalAnswers()
+        ..remove('q_net_income_period_chf')
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = false
+        ..['q_self_employed_net_income_annual_chf'] = 86400.0
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 6000.0;
+
+      final report = service.generateReport(answers);
+      final budgetInputs = BudgetInputs.fromCoachProfile(
+          CoachProfile.fromWizardAnswers(answers));
+
+      expect(report.profile.monthlyNetIncome, closeTo(7200, 0.01));
+      expect(report.profile.monthlyNetIncome, budgetInputs.netIncome);
+      expect(report.profile.annualIncome, closeTo(86400, 0.01));
+      expect(
+        report.simulationAssumptions!['pillar3a_lpp_status'],
+        'without_lpp',
+      );
+      expect(
+        report.simulationAssumptions!['pillar3a_max_applicable'],
+        closeTo(17280, 0.01),
+      );
+      expect(report.pillar3aAnalysis!.maxContribution, closeTo(17280, 0.01));
+    });
+
+    test(
+        'uses independent annual income for 3a while preserving monthly cashflow',
+        () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 7200.0
+        ..['q_pay_frequency'] = 'monthly'
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = false
+        ..['q_self_employed_net_income_annual_chf'] = 90000.0
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 7200.0;
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.monthlyNetIncome, closeTo(7200, 0.01));
+      expect(report.profile.annualIncome, closeTo(86400, 0.01));
+      expect(
+        report.profile.independentProfessionalAnnualIncome,
+        closeTo(90000, 0.01),
+      );
+      expect(
+        report.simulationAssumptions!['pillar3a_max_applicable'],
+        closeTo(18000, 0.01),
+      );
     });
 
     test('missing birth data stays unknown and skips retirement projection',

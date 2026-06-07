@@ -95,7 +95,15 @@ class ReportBuilder {
 
     // 3. Filler Recommendations
     if (recommendations.length < 3) {
-      if (answers['q_has_3a'] != 'yes') {
+      final raw3aTotal = answers['q_3a_total'];
+      final raw3aAnnual = answers['q_3a_annual_contribution'];
+      final rawCoachTotal3a = answers['_coach_total_3a'];
+      final has3a = answers['q_has_3a'] == true ||
+          answers['q_has_3a'] == 'yes' ||
+          (_parseDouble(raw3aTotal) ?? 0) > 0 ||
+          (_parseDouble(raw3aAnnual) ?? 0) > 0 ||
+          (_parseDouble(rawCoachTotal3a) ?? 0) > 0;
+      if (!has3a) {
         recommendations.add(Recommendation(
           id: 'reco_3a_generic',
           kind: 'tax_optimization',

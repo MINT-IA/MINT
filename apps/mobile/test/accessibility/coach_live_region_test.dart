@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
 
@@ -31,7 +32,11 @@ void main() {
     );
 
     await tester.pumpWidget(_wrap(
-      CoachMessageBubble(message: msg, messageIndex: 1),
+      CoachMessageBubble(
+        message: msg,
+        messageIndex: 1,
+        announceContentLiveRegion: true,
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -41,9 +46,13 @@ void main() {
     final textFinder = find.text('Voici une explication calme et factuelle.');
     expect(textFinder, findsOneWidget);
 
-    // The Text is wrapped in Semantics(liveRegion: true). Look up the
-    // semantics node for the text and walk ancestors.
-    final SemanticsNode node = tester.getSemantics(textFinder);
+    // The Markdown internals are excluded from semantics so the same content
+    // is not read twice. The content Semantics node carries the clean label.
+    final SemanticsNode node = tester.getSemantics(
+      find.byKey(const Key('coach_message_content_semantics_1')),
+    );
+    expect(node.identifier, 'coach_message_content_1');
+    expect(node.label, contains('Voici une explication calme et factuelle.'));
     bool foundLive = false;
     SemanticsNode? cur = node;
     while (cur != null) {
@@ -55,6 +64,102 @@ void main() {
     }
     expect(foundLive, isTrue,
         reason: 'Incoming coach bubble must announce as a live region.');
+    handle.dispose();
+  });
+
+  testWidgets('restored coach bubble is readable without liveRegion noise',
+      (tester) async {
+    final msg = ChatMessage(
+      role: 'assistant',
+      content: 'Voici une réponse déjà restaurée.',
+      timestamp: DateTime(2026, 1, 1),
+      tier: ChatTier.none,
+    );
+
+    await tester.pumpWidget(_wrap(
+      CoachMessageBubble(message: msg, messageIndex: 4),
+    ));
+    await tester.pumpAndSettle();
+
+    final handle = tester.ensureSemantics();
+    final node = tester.getSemantics(
+      find.byKey(const Key('coach_message_content_semantics_4')),
+    );
+    expect(node.identifier, 'coach_message_content_4');
+    expect(node.label, contains('Voici une réponse déjà restaurée.'));
+    bool foundLive = false;
+    SemanticsNode? cur = node;
+    while (cur != null) {
+      if (cur.flagsCollection.isLiveRegion) {
+        foundLive = true;
+        break;
+      }
+      cur = cur.parent;
+    }
+    expect(
+      foundLive,
+      isFalse,
+      reason:
+          'Restored assistant history must be traversable without re-announcing every old answer.',
+    );
+    handle.dispose();
+  });
+
+  testWidgets('tool-only coach bubble does not expose empty liveRegion content',
+      (tester) async {
+    final msg = ChatMessage(
+      role: 'assistant',
+      content: '',
+      timestamp: DateTime(2026, 1, 1),
+      tier: ChatTier.none,
+      richToolCalls: [
+        const RagToolCall(
+          name: 'route_to_screen',
+          input: {
+            'intent': 'open_budget',
+            'label': 'Voir le budget',
+          },
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(_wrap(
+      CoachMessageBubble(message: msg, messageIndex: 2),
+    ));
+    await tester.pumpAndSettle();
+
+    final handle = tester.ensureSemantics();
+    expect(
+      find.byKey(const Key('coach_message_content_semantics_2')),
+      findsNothing,
+    );
+    handle.dispose();
+  });
+
+  testWidgets('suggested action chips are semantic buttons', (tester) async {
+    final msg = ChatMessage(
+      role: 'assistant',
+      content: 'Choisis une suite possible.',
+      timestamp: DateTime(2026, 1, 1),
+      tier: ChatTier.none,
+      suggestedActions: const ['Analyser mon budget'],
+    );
+
+    await tester.pumpWidget(_wrap(
+      CoachMessageBubble(
+        message: msg,
+        messageIndex: 3,
+        onActionTap: (_) {},
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    final handle = tester.ensureSemantics();
+    final semantics = tester.getSemantics(
+      find.bySemanticsLabel('Analyser mon budget'),
+    );
+    expect(semantics.flagsCollection.isButton, isTrue);
+    expect(semantics.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
     handle.dispose();
   });
 

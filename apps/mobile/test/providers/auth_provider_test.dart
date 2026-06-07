@@ -363,6 +363,7 @@ void main() {
       expect(merged['_coach_rachat_maximum'], 42000.0);
       expect(merged['q_3a_total'], 36000.0);
       expect(merged['q_3a_annual_contribution'], 7056.0);
+      expect(merged['q_has_3a'], isTrue);
       expect(merged['q_savings_monthly'], 1500.0);
       expect(merged['q_cash_total'], 18000.0);
       expect(merged['q_has_consumer_debt'], 'yes');
@@ -373,6 +374,11 @@ void main() {
       expect(profile.prevoyance.salaireAssure, 88000);
       expect(profile.prevoyance.rachatMaximum, 42000);
       expect(profile.prevoyance.totalEpargne3a, 36000);
+      expect(profile.total3aMensuel, closeTo(588, 0.01));
+      expect(
+        profile.dataSources['plannedContributions.3a'],
+        ProfileDataSource.userInput,
+      );
       expect(profile.patrimoine.epargneLiquide, 18000);
       expect(profile.prevoyance.anneesContribuees, 20);
       expect(profile.targetRetirementAge, 64);
@@ -395,8 +401,12 @@ void main() {
 
       expect(merged['q_household_type'], 'couple');
       expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
-      expect(merged.containsKey('q_net_income_period_chf'), isFalse);
-      expect(merged.containsKey('q_pay_frequency'), isFalse);
+      expect(merged['q_net_income_period_chf'], closeTo(8000, 0.01));
+      expect(merged['q_pay_frequency'], 'monthly');
+      expect(
+        merged['q_net_income_period_source'],
+        'derived_self_employed_annual_proxy',
+      );
       expect(merged['q_employment_status'], 'independant');
       expect(merged['q_has_pension_fund'], isTrue);
       expect(merged['q_partner_birth_year'], 1982);
@@ -404,11 +414,176 @@ void main() {
       expect(merged['q_spouse_avs_contribution_years'], 18);
       expect(profile.employmentStatus, 'independant');
       expect(profile.independentNetProfessionalIncomeAnnual, 96000.0);
-      expect(profile.explicitMonthlyNetIncome, isNull);
+      expect(profile.explicitMonthlyNetIncome, closeTo(8000, 0.01));
       expect(profile.salaireBrutMensuel, closeTo(8800, 0.01));
       expect(profile.revenuBrutAnnuel, closeTo(105600, 0.01));
       expect(profile.conjoint!.birthYear, 1982);
       expect(profile.conjoint!.prevoyance!.anneesContribuees, 18);
+    });
+
+    test('backend profile merge preserves existing independent budget cashflow',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_employment_status': 'independant',
+          'q_self_employed_net_income_annual_chf': 86400,
+          'q_net_income_period_chf': 6900,
+          'q_pay_frequency': 'monthly',
+        },
+        {
+          'selfEmployedNetIncome': 96000,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+      expect(merged['q_net_income_period_chf'], 6900);
+      expect(merged['q_pay_frequency'], 'monthly');
+      expect(profile.independentNetProfessionalIncomeAnnual, 96000);
+      expect(profile.explicitMonthlyNetIncome, 6900);
+    });
+
+    test('backend localDataClaim wizard answers beat stale flat income', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'data': {
+            'selfEmployedNetIncome': 86400,
+            'localDataClaim': {
+              'wizardAnswers': {
+                'q_employment_status': 'independant',
+                'q_self_employed_net_income_annual_chf': 90000,
+                'q_net_income_period_chf': 7500,
+                'q_pay_frequency': 'monthly',
+                'q_net_income_period_source':
+                    'derived_self_employed_annual_proxy',
+              },
+            },
+          },
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_self_employed_net_income_annual_chf'], 90000);
+      expect(merged['q_net_income_period_chf'], 7500);
+      expect(merged['q_pay_frequency'], 'monthly');
+      expect(profile.independentNetProfessionalIncomeAnnual, 90000);
+      expect(profile.explicitMonthlyNetIncome, 7500);
+    });
+
+    test('backend localDataClaim zero 3a beats stale flat contribution', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'data': {
+            'pillar3aAnnual': 6000,
+            'localDataClaim': {
+              'wizardAnswers': {
+                'q_3a_annual_contribution': 0,
+                'q_has_3a': false,
+              },
+            },
+          },
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_3a_annual_contribution'], 0);
+      expect(merged['q_has_3a'], isFalse);
+      expect(profile.total3aMensuel, 0);
+      expect(profile.prevoyance.nombre3a, 0);
+    });
+
+    test('backend localDataClaim 3a annual derives missing has3a flag', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'data': {
+            'localDataClaim': {
+              'wizardAnswers': {
+                'q_3a_annual_contribution': 7056,
+              },
+            },
+          },
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_3a_annual_contribution'], 7056);
+      expect(merged['q_has_3a'], isTrue);
+      expect(profile.total3aMensuel, closeTo(588, 0.01));
+      expect(profile.prevoyance.nombre3a, 1);
+    });
+
+    test(
+        'backend profile merge refreshes monthly cashflow derived from old annual',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_employment_status': 'independant',
+          'q_self_employed_net_income_annual_chf': 86400,
+          'q_net_income_period_chf': 7200,
+          'q_pay_frequency': 'monthly',
+          'q_net_income_period_source': 'derived_self_employed_annual_proxy',
+        },
+        {
+          'selfEmployedNetIncome': 96000,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+      expect(merged['q_net_income_period_chf'], closeTo(8000, 0.01));
+      expect(merged['q_pay_frequency'], 'monthly');
+      expect(
+        merged['q_net_income_period_source'],
+        'derived_self_employed_annual_proxy',
+      );
+      expect(profile.independentNetProfessionalIncomeAnnual, 96000);
+      expect(profile.explicitMonthlyNetIncome, closeTo(8000, 0.01));
+    });
+
+    test('backend self-employed income preserves stale local employee status',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_employment_status': 'salarie',
+          'q_self_employed_net_income_annual_chf': 86400,
+          'q_net_income_period_chf': 7200,
+          'q_pay_frequency': 'monthly',
+        },
+        {
+          'selfEmployedNetIncome': 96000,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_employment_status'], 'salarie');
+      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+      expect(merged['q_net_income_period_chf'], 7200);
+      expect(profile.employmentStatus, 'salarie');
+      expect(profile.independentNetProfessionalIncomeAnnual, 96000);
+    });
+
+    test('backend self-employed income preserves explicit local employee status',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_employment_status': 'salarie',
+          'q_net_income_period_chf': 7600,
+          'q_pay_frequency': 'monthly',
+        },
+        {
+          'selfEmployedNetIncome': 96000,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_employment_status'], 'salarie');
+      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+      expect(merged['q_net_income_period_chf'], 7600);
+      expect(profile.employmentStatus, 'salarie');
+      expect(profile.explicitMonthlyNetIncome, 7600);
     });
 
     test('backend profile merge fills null placeholders but preserves zero',
@@ -459,11 +634,49 @@ void main() {
       expect(merged['_coach_salaire_assure'], 70000);
       expect(merged['_coach_rachat_maximum'], 10000);
       expect(merged['q_3a_total'], 12000);
-      expect(merged['q_3a_annual_contribution'], 3000);
+      expect(merged['q_3a_annual_contribution'], 7056.0);
       expect(merged['q_savings_monthly'], 800);
       expect(merged['q_cash_total'], 9000);
       expect(merged['q_has_consumer_debt'], isFalse);
       expect(merged['q_target_retirement_age'], 63);
+    });
+
+    test('backend pillar3aAnnual correction to zero clears contribution signal',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_3a_annual_contribution': 6000,
+          'q_has_3a': true,
+        },
+        {
+          'pillar3aAnnual': 0,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_3a_annual_contribution'], 0.0);
+      expect(merged['q_has_3a'], isFalse);
+      expect(profile.total3aMensuel, 0);
+      expect(profile.prevoyance.nombre3a, 0);
+    });
+
+    test('backend pillar3aAnnual positive correction revives 3a contribution',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_3a_annual_contribution': 0,
+          'q_has_3a': false,
+        },
+        {
+          'pillar3aAnnual': 7056,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_3a_annual_contribution'], 7056.0);
+      expect(merged['q_has_3a'], isTrue);
+      expect(profile.total3aMensuel, closeTo(588, 0.01));
+      expect(profile.prevoyance.nombre3a, 1);
     });
 
     test('backend profile merge does not synthesize debt capital from boolean',
@@ -527,7 +740,8 @@ void main() {
       );
 
       expect(merged['q_3a_total'], 0);
-      expect(merged['q_3a_annual_contribution'], 0);
+      expect(merged['q_3a_annual_contribution'], 7056.0);
+      expect(merged['q_has_3a'], isTrue);
       expect(merged['q_savings_monthly'], 0);
       expect(merged['q_cash_total'], 0);
     });

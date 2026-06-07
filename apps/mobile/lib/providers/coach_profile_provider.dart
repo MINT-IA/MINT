@@ -281,8 +281,9 @@ class CoachProfileProvider extends ChangeNotifier {
         partial[mappedEntry.key] = mappedEntry.value;
       }
     }
+    final current = await ReportPersistenceService.loadAnswers();
+    final claimAnswers = _localDataClaimWizardAnswers(remote);
     if (remote['hasVoluntaryLpp'] == true) {
-      final current = await ReportPersistenceService.loadAnswers();
       final employment = partial['q_employment_status'] ??
           current['q_employment_status'] ??
           _lastAnswers['q_employment_status'];
@@ -292,8 +293,165 @@ class CoachProfileProvider extends ChangeNotifier {
     }
 
     if (partial.isNotEmpty) {
-      await mergeMissingAnswers(partial);
+      final authoritative = <String, dynamic>{};
+      if (remote.containsKey('selfEmployedNetIncome')) {
+        final previousAnnual =
+            _asNum(current['q_self_employed_net_income_annual_chf']);
+        final previousMonthly = _asNum(current['q_net_income_period_chf']);
+        final previousMonthlySource = current['q_net_income_period_source'];
+        final previousEmployment = current['q_employment_status'];
+        final monthlyWasDerivedFromPreviousAnnual =
+            previousMonthlySource == 'derived_self_employed_annual_proxy' &&
+                previousAnnual != null &&
+                previousMonthly != null &&
+                (previousMonthly.toDouble() - previousAnnual.toDouble() / 12)
+                        .abs() <
+                    0.01;
+        final shouldUseIndependentStatus =
+            _isMissingAnswer(current, 'q_employment_status') ||
+                _isIndependentEmployment(previousEmployment);
+        for (final key in [
+          'q_self_employed_net_income_annual_chf',
+          'q_has_pension_fund',
+        ]) {
+          if (partial.containsKey(key)) {
+            authoritative[key] = partial.remove(key);
+          }
+        }
+        if (shouldUseIndependentStatus &&
+            partial.containsKey('q_employment_status')) {
+          authoritative['q_employment_status'] =
+              partial.remove('q_employment_status');
+        } else {
+          partial.remove('q_employment_status');
+        }
+        if (shouldUseIndependentStatus &&
+            partial.containsKey('q_net_income_period_chf')) {
+          if (_isMissingAnswer(current, 'q_net_income_period_chf') ||
+              monthlyWasDerivedFromPreviousAnnual) {
+            authoritative['q_net_income_period_chf'] =
+                partial.remove('q_net_income_period_chf');
+            if (partial.containsKey('q_pay_frequency')) {
+              authoritative['q_pay_frequency'] =
+                  partial.remove('q_pay_frequency');
+            }
+            authoritative['q_net_income_period_source'] =
+                'derived_self_employed_annual_proxy';
+          } else {
+            partial
+              ..remove('q_net_income_period_chf')
+              ..remove('q_pay_frequency')
+              ..remove('q_net_income_period_source');
+          }
+        } else {
+          partial
+            ..remove('q_net_income_period_chf')
+            ..remove('q_pay_frequency')
+            ..remove('q_net_income_period_source');
+        }
+      }
+      if (remote.containsKey('pillar3aAnnual')) {
+        final claimHasPillar3aAnnual =
+            claimAnswers.containsKey('q_3a_annual_contribution');
+        if (claimHasPillar3aAnnual) {
+          partial
+            ..remove('q_3a_annual_contribution')
+            ..remove('q_has_3a');
+        } else {
+          for (final key in [
+            'q_3a_annual_contribution',
+            'q_has_3a',
+          ]) {
+            if (partial.containsKey(key)) {
+              authoritative[key] = partial.remove(key);
+            }
+          }
+        }
+      }
+      await _mergeRemoteFinancialAnswers(authoritative, partial);
     }
+  }
+
+  Future<void> _mergeRemoteFinancialAnswers(
+    Map<String, dynamic> authoritative,
+    Map<String, dynamic> missingOnly,
+  ) async {
+    return _enqueueProfilePersistence(() async {
+      final latest = await ReportPersistenceService.loadAnswers();
+      final merged = Map<String, dynamic>.from(latest);
+      var changed = false;
+      if (authoritative.containsKey('q_employment_status') &&
+          !_isMissingAnswer(latest, 'q_employment_status') &&
+          !_isIndependentEmployment(latest['q_employment_status'])) {
+        authoritative = Map<String, dynamic>.from(authoritative)
+          ..remove('q_employment_status');
+      }
+      if (authoritative.containsKey('q_net_income_period_chf')) {
+        final latestAnnual =
+            _asNum(latest['q_self_employed_net_income_annual_chf']);
+        final latestMonthly = _asNum(latest['q_net_income_period_chf']);
+        final latestMonthlySource = latest['q_net_income_period_source'];
+        final latestMonthlyWasDerived =
+            latestMonthlySource == 'derived_self_employed_annual_proxy' &&
+                latestAnnual != null &&
+                latestMonthly != null &&
+                (latestMonthly.toDouble() - latestAnnual.toDouble() / 12)
+                        .abs() <
+                    0.01;
+        if (!_isMissingAnswer(latest, 'q_net_income_period_chf') &&
+            !latestMonthlyWasDerived) {
+          authoritative = Map<String, dynamic>.from(authoritative)
+            ..remove('q_net_income_period_chf')
+            ..remove('q_pay_frequency')
+            ..remove('q_net_income_period_source');
+        }
+      }
+
+      for (final entry in authoritative.entries) {
+        if (entry.value == null) {
+          if (merged.containsKey(entry.key)) {
+            merged.remove(entry.key);
+            changed = true;
+          }
+        } else if (merged[entry.key] != entry.value) {
+          merged[entry.key] = entry.value;
+          changed = true;
+        }
+      }
+
+      if (missingOnly.containsKey('q_net_income_period_chf')) {
+        if (_isMissingAnswer(merged, 'q_net_income_period_chf')) {
+          merged['q_net_income_period_chf'] =
+              missingOnly['q_net_income_period_chf'];
+          if (missingOnly.containsKey('q_pay_frequency')) {
+            merged['q_pay_frequency'] = missingOnly['q_pay_frequency'];
+          }
+          changed = true;
+        }
+        missingOnly = Map<String, dynamic>.from(missingOnly)
+          ..remove('q_net_income_period_chf')
+          ..remove('q_pay_frequency');
+      }
+
+      for (final entry in missingOnly.entries) {
+        if (entry.value == null) continue;
+        if (_isMissingAnswer(merged, entry.key)) {
+          merged[entry.key] = entry.value;
+          changed = true;
+        }
+      }
+
+      if (!changed) return;
+      final persisted = await _saveAnswersReturningPersisted(merged);
+      _lastAnswers = persisted;
+      _profile =
+          persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+      _hasSessionOnlyProfile = false;
+      _isLoaded = true;
+      _profileUpdatedSinceBudget = true;
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      notifyListeners();
+    });
   }
 
   @visibleForTesting
@@ -832,9 +990,16 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'incomeGrossYearly':
         return {'q_gross_salary_annual': value};
       case 'selfEmployedNetIncome':
+        final annual = _asNum(value);
         return {
           'q_self_employed_net_income_annual_chf': value,
           'q_employment_status': 'independant',
+          if (annual != null && annual.isFinite && annual > 0) ...{
+            'q_net_income_period_chf': annual / 12,
+            'q_pay_frequency': 'monthly',
+            'q_net_income_period_source':
+                'derived_self_employed_annual_proxy',
+          },
         };
       case 'employmentRate':
         return {'q_employment_rate': value};
@@ -858,7 +1023,12 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_has_pension_fund': value};
       // 3a
       case 'pillar3aAnnual':
-        return {'q_3a_annual_contribution': value};
+        final annual3a = _asNum(value);
+        return {
+          'q_3a_annual_contribution': value,
+          if (annual3a != null && annual3a > 0) 'q_has_3a': true,
+          if (annual3a != null && annual3a <= 0) 'q_has_3a': false,
+        };
       case 'pillar3aBalance':
         return {'q_3a_total': value};
       // Savings / wealth / debt
@@ -907,8 +1077,23 @@ class CoachProfileProvider extends ChangeNotifier {
 
   static bool _isIndependentEmployment(dynamic value) {
     if (value is! String) return false;
-    final normalized = value.toLowerCase();
-    return normalized == 'independant' || normalized == 'independent';
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'independant' ||
+        normalized == 'indépendant' ||
+        normalized == 'independent' ||
+        normalized == 'self_employed';
+  }
+
+  static Map<String, dynamic> _localDataClaimWizardAnswers(
+    Map<String, dynamic> remote,
+  ) {
+    final data = remote['data'];
+    final source = data is Map ? data : remote;
+    final claim = source['localDataClaim'];
+    if (claim is! Map) return const {};
+    final rawWizardAnswers = claim['wizardAnswers'];
+    if (rawWizardAnswers is! Map) return const {};
+    return Map<String, dynamic>.from(rawWizardAnswers);
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).

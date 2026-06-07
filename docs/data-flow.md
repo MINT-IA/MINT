@@ -78,7 +78,7 @@ canonical profile path is available again.
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
 | 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
-| 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_date_of_birth`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum`, `q_total_debt_balance_chf` (restricted to 1st-person matches) | Every coach chat send |
+| 5 | **Flutter save_fact dispatcher + Dart regex fallback** | backend/remote `save_fact` payloads or `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact`/remote mapper → `mergeAnswers`/safe merge | `q_birth_year`, `q_date_of_birth`, `q_net_income_period_chf`, `q_gross_salary_annual`, `q_self_employed_net_income_annual_chf` + derived monthly `q_net_income_period_chf`/`q_pay_frequency='monthly'` when the canonical fact is `selfEmployedNetIncome`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum`, `q_total_debt_balance_chf` (regex fallback remains restricted to 1st-person matches and does not infer independent status by itself) | Every coach chat send or backend profile sync |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.setInputs` | `q_net_income_period_chf`, `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
 
@@ -104,8 +104,17 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
   `q_net_income_period_chf` (double, amount per period),
   `q_self_employed_net_income_annual_chf` (double, annual professional net
-  income for independent/no-LPP OPP3 art. 7 calculations; not household budget
-  net income),
+  income for independent/no-LPP OPP3 art. 7 calculations; Coach `save_fact`
+  also writes a derived monthly proxy `q_net_income_period_chf = annual/12`
+  with `q_pay_frequency='monthly'` when no better cashflow is known, so
+  Budget/Rapport start coherent. Auth/backend hydration refreshes the annual
+  fact and only refreshes the monthly cashflow when it was missing or still
+  equal to the old annual-derived monthly value, preserving explicit Budget
+  entries. Budget Setup clears `q_net_income_period_source` when the user types
+  a monthly income so later annual corrections cannot overwrite an explicit
+  cashflow that happens to equal the old derived proxy. Rapport uses the annual
+  fact directly for the OPP3 art. 7 3a ceiling and uses the monthly key for
+  cashflow),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
@@ -203,8 +212,23 @@ wizard keys.
 
 - `selfEmployedNetIncome` maps to
   `q_self_employed_net_income_annual_chf` plus
-  `q_employment_status=independant`. It must not populate
-  `q_net_income_period_chf`, which is the household/budget net-income field.
+  `q_employment_status=independant`, and when the annual amount is positive it
+  writes `q_net_income_period_chf=annual/12` with
+  `q_pay_frequency=monthly`. That derived monthly value is a starting proxy,
+  not proof of disposable household cashflow. During Auth/backend hydration,
+  the annual fact is refreshed but an explicit divergent monthly Budget value
+  is preserved. Rapport uses `q_self_employed_net_income_annual_chf` directly
+  for the no-LPP 3a ceiling, not the Budget cashflow field.
+- `pillar3aAnnual` maps to `q_3a_annual_contribution`; positive values also
+  imply `q_has_3a=true`, while a correction to zero clears a stale
+  contribution-only `q_has_3a` signal. Backend/Auth hydration treats this as
+  an explicit correction, not as a fill-if-missing hint.
+- On login/register hydration, `localDataClaim.wizardAnswers` is the canonical
+  copy of the just-claimed local wizard state. It seeds local answers and
+  prevents older flat profile fields such as `selfEmployedNetIncome` from
+  re-importing stale values immediately after a local claim. Presence of the
+  claim key matters even when the value is `0`; zero is a user answer, not an
+  absence of data.
 - `pillar3aBalance` maps to `q_3a_total`; legacy `q_total_3a` is not a
   writer target.
 - `totalDebt` maps to `q_total_debt_balance_chf`. It is a remaining debt

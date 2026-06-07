@@ -160,6 +160,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   CoachProfile? _profile;
   final List<ChatMessage> _messages = [];
+  final DateTime _screenOpenedAt = DateTime.now();
 
   /// Maximum messages kept in memory to prevent Watchdog RAM termination.
   static const int _maxMessages = 150;
@@ -2504,6 +2505,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               child: UserMessageBubble(message: msg),
             );
           } else {
+            final assistantOrdinal =
+                _messages.take(index + 1).where((m) => m.isAssistant).length -
+                    1;
+            final assistantIdentifier =
+                'coach_assistant_message_$assistantOrdinal';
             // v2.7 Task 8: compose bubble + subtle degraded chip (if applicable).
             final bubbleWidget = CoachMessageBubble(
               message: msg,
@@ -2511,11 +2517,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               isStreaming: _isStreaming &&
                   msg == _messages.last &&
                   msg.tier == ChatTier.slm,
+              announceContentLiveRegion:
+                  msg.timestamp.isAfter(_screenOpenedAt),
               isInputAnswered: _answeredInputIndices.contains(index),
               onInputSubmitted: _handleInputSubmitted,
               onActionTap: _handleActionTap,
             );
             child = Semantics(
+              key: Key(assistantIdentifier),
+              identifier: assistantIdentifier,
+              container: true,
               label: S.of(context)!.coachCoachMessage,
               child: msg.degraded
                   ? Column(

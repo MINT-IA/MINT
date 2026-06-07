@@ -232,5 +232,24 @@ void main() {
       expect(recommendation.impact.amountCHF, 0);
       expect(recommendation.impact.amountCHF, isNot(500));
     });
+
+    test('does not show generic 3a opening when contribution fact exists', () {
+      final report = ReportBuilder({
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': '6000',
+        'q_housing_cost_period_chf': '1800',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_tax_provision_monthly_chf': '650',
+        'q_debt_payments_period_chf': '0',
+        'q_3a_annual_contribution': '3000',
+      }).build();
+
+      expect(
+        report.recommendations.map((recommendation) => recommendation.id),
+        isNot(contains('reco_3a_generic')),
+      );
+    });
   });
 }

@@ -72,6 +72,7 @@ class UserProfile {
   final int childrenCount;
   final String employmentStatus;
   final double monthlyNetIncome;
+  final double? independentProfessionalAnnualIncome;
   final bool? hasPensionFund;
 
   /// Gender: 'M', 'F', or null (AVS21 reference age — LAVS art. 21 al. 1).
@@ -107,6 +108,7 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
+    this.independentProfessionalAnnualIncome,
     this.hasPensionFund,
     this.gender,
     this.spouseGender,

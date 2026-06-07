@@ -12,8 +12,8 @@ List<String> semanticIdentifiersInTraversalOrder(WidgetTester tester) {
     if (node.identifier.isNotEmpty) {
       identifiers.add(node.identifier);
     }
-    for (final child
-        in node.debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)) {
+    for (final child in node
+        .debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)) {
       visit(child);
     }
   }

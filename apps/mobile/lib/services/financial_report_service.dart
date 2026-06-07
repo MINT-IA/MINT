@@ -205,17 +205,37 @@ class FinancialReportService {
 
   UserProfile _buildUserProfile(Map<String, dynamic> answers) {
     final birthYear = _birthYearFromAnswers(answers);
+    final employmentStatus =
+        answers['q_employment_status'] as String? ?? 'employee';
     final parsedMonthlyNetIncome =
         _parseDouble(answers['q_net_income_period_chf']);
-    final monthlyNetIncome = parsedMonthlyNetIncome ?? 0.0;
+    final payFrequency = (answers['q_pay_frequency'] as String?)?.toLowerCase();
+    final explicitMonthlyNetIncome =
+        (payFrequency == 'yearly' || payFrequency == 'annuel')
+            ? parsedMonthlyNetIncome != null
+                ? parsedMonthlyNetIncome / 12
+                : null
+            : parsedMonthlyNetIncome;
+    final independentAnnualNetIncome =
+        _parseDouble(answers['q_self_employed_net_income_annual_chf']);
+    final independentMonthlyNetIncome =
+        _isIndependentEmploymentStatus(employmentStatus) &&
+                independentAnnualNetIncome != null &&
+                independentAnnualNetIncome.isFinite &&
+                independentAnnualNetIncome > 0
+            ? independentAnnualNetIncome / 12
+            : null;
+    final monthlyNetIncome =
+        explicitMonthlyNetIncome ?? independentMonthlyNetIncome ?? 0.0;
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
       birthYear: birthYear,
       canton: answers['q_canton'] as String? ?? 'ZH',
       civilStatus: answers['q_civil_status'] as String? ?? 'single',
       childrenCount: _parseInt(answers['q_children']) ?? 0,
-      employmentStatus: answers['q_employment_status'] as String? ?? 'employee',
+      employmentStatus: employmentStatus,
       monthlyNetIncome: monthlyNetIncome,
+      independentProfessionalAnnualIncome: independentAnnualNetIncome,
       hasPensionFund: _parsePensionFundAffiliation(
         answers['q_has_pension_fund'],
       ),
@@ -793,6 +813,14 @@ class FinancialReportService {
 
   // ===== HELPERS =====
 
+  bool _isIndependentEmploymentStatus(String? status) {
+    final normalized = status?.trim().toLowerCase().replaceAll('-', '_');
+    return normalized == 'self_employed' ||
+        normalized == 'independent' ||
+        normalized == 'independant' ||
+        normalized == 'indépendant';
+  }
+
   double? _estimateFirst3aFiscalGain({
     required UserProfile? profile,
     required TaxSimulation? taxSim,
@@ -873,7 +901,14 @@ class FinancialReportService {
       return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     }
 
-    return (profile.annualIncome * pilier3aTauxRevenuSansLpp)
+    final incomeBase = profile.isIndependent &&
+            profile.independentProfessionalAnnualIncome != null &&
+            profile.independentProfessionalAnnualIncome!.isFinite &&
+            profile.independentProfessionalAnnualIncome! > 0
+        ? profile.independentProfessionalAnnualIncome!
+        : profile.annualIncome;
+
+    return (incomeBase * pilier3aTauxRevenuSansLpp)
         .clamp(
           0.0,
           reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),

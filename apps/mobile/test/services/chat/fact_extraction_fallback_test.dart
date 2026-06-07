@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/data_spine/coach_context_packet_service.dart';
 import 'package:mint_mobile/services/data_spine/data_spine_service.dart';
+import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -143,8 +145,12 @@ void main() {
       expect(raw['q_has_pension_fund'], isTrue);
       expect(raw['q_main_goal'], 'retirement');
       expect(loaded['q_self_employed_net_income_annual_chf'], 96000);
-      expect(loaded.containsKey('q_net_income_period_chf'), isFalse);
-      expect(loaded.containsKey('q_pay_frequency'), isFalse);
+      expect(loaded['q_net_income_period_chf'], closeTo(8000, 0.01));
+      expect(loaded['q_pay_frequency'], 'monthly');
+      expect(
+        loaded['q_net_income_period_source'],
+        'derived_self_employed_annual_proxy',
+      );
       expect(loaded['q_employment_status'], 'independant');
       expect(loaded['q_savings_monthly'], 1200);
       expect(loaded['q_cash_total'], 18000);
@@ -156,7 +162,7 @@ void main() {
       expect(loaded['q_avs_lacunes_status'], 'no_gaps');
       expect(loaded['q_avs_contribution_years'], 20);
       expect(p.profile!.independentNetProfessionalIncomeAnnual, 96000);
-      expect(p.profile!.explicitMonthlyNetIncome, isNull);
+      expect(p.profile!.explicitMonthlyNetIncome, closeTo(8000, 0.01));
       expect(p.profile!.salaireBrutMensuel, closeTo(8800, 0.01));
       expect(
         BudgetInputs.monthlyNetFromCoachProfile(p.profile!),
@@ -166,6 +172,121 @@ void main() {
       expect(p.profile!.conjoint!.birthYear, 1982);
       expect(p.profile!.conjoint!.prevoyance!.anneesContribuees, 18);
       expect(p.profile!.dettes.totalDettes, 9000);
+    });
+
+    test('applySaveFact Row 23 no-LPP 3a facts survive restart', () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+
+      expect(await p.applySaveFact('birthYear', 1988), isTrue);
+      expect(await p.applySaveFact('canton', 'VD'), isTrue);
+      expect(await p.applySaveFact('selfEmployedNetIncome', 86400), isTrue);
+      expect(await p.applySaveFact('has2ndPillar', false), isTrue);
+      expect(await p.applySaveFact('pillar3aAnnual', 6000), isTrue);
+      expect(await p.applySaveFact('hasDebt', false), isTrue);
+      await ReportPersistenceService.setCompleted(true);
+
+      final persisted = await ReportPersistenceService.loadAnswers();
+      expect(persisted['q_birth_year'], 1988);
+      expect(persisted['q_canton'], 'VD');
+      expect(persisted['q_employment_status'], 'independant');
+      expect(persisted['q_self_employed_net_income_annual_chf'], 86400);
+      expect(persisted['q_has_pension_fund'], isFalse);
+      expect(persisted['q_3a_annual_contribution'], 6000);
+      expect(persisted['q_has_3a'], isTrue);
+      expect(persisted['q_net_income_period_chf'], closeTo(7200, 0.01));
+      expect(persisted['q_pay_frequency'], 'monthly');
+
+      final reloaded = CoachProfileProvider();
+      await reloaded.loadFromWizard();
+      final profile = reloaded.profile!;
+      expect(profile.employmentStatus, 'independant');
+      expect(profile.archetype, FinancialArchetype.independentNoLpp);
+      expect(profile.independentNetProfessionalIncomeAnnual, 86400);
+      expect(profile.explicitMonthlyNetIncome, closeTo(7200, 0.01));
+      expect(profile.prevoyance.avoirLppTotal, 0);
+      expect(profile.total3aMensuel, closeTo(500, 0.01));
+      expect(
+        profile.dataSources['independentNetProfessionalIncomeAnnual'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        profile.dataSources['plannedContributions.3a'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        profile.dataTimestamps['independentNetProfessionalIncomeAnnual'],
+        isNotNull,
+      );
+      expect(profile.dataTimestamps['plannedContributions.3a'], isNotNull);
+
+      final budgetInputs = BudgetInputs.fromCoachProfile(profile);
+      expect(budgetInputs.netIncome, closeTo(7200, 0.01));
+      expect(budgetInputs.payFrequency, PayFrequency.monthly);
+      expect(budgetInputs.netIncome, isNot(86400));
+
+      final report = FinancialReportService().generateReport(persisted);
+      final reportLead = [
+        report.priorityActions.first.title,
+        report.priorityActions.first.description,
+        ...report.priorityActions.first.steps,
+      ].join(' ').toLowerCase();
+      expect(reportLead, contains('indépendant'));
+      expect(reportLead, contains('sans lpp'));
+      expect(reportLead, contains('revenu imposable'));
+      expect(reportLead, contains('budget mensuel'));
+      expect(reportLead, contains('capacité'));
+      expect(reportLead, contains('couverture'));
+      expect(reportLead, isNot(contains('fintech')));
+      expect(reportLead, isNot(contains('ouvrir')));
+      expect(reportLead, isNot(contains('swiss life')));
+      expect(reportLead, isNot(contains('raiffeisen')));
+    });
+
+    test('self-employed income correction refreshes budget monthly truth',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_employment_status': 'independant',
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_self_employed_net_income_annual_chf': 86400,
+        'q_has_pension_fund': false,
+      });
+
+      final p = CoachProfileProvider();
+      expect(await p.applySaveFact('selfEmployedNetIncome', 90000), isTrue);
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_self_employed_net_income_annual_chf'], 90000);
+      expect(loaded['q_net_income_period_chf'], closeTo(7500, 0.01));
+      expect(loaded['q_pay_frequency'], 'monthly');
+
+      final reloaded = CoachProfileProvider();
+      await reloaded.loadFromWizard();
+      expect(
+        BudgetInputs.fromCoachProfile(reloaded.profile!).netIncome,
+        closeTo(7500, 0.01),
+      );
+    });
+
+    test('pillar3aAnnual correction to zero clears stale 3a account signal',
+        () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+
+      expect(await p.applySaveFact('pillar3aAnnual', 6000), isTrue);
+      expect(p.profile!.total3aMensuel, closeTo(500, 0.01));
+      expect(p.profile!.prevoyance.nombre3a, 1);
+
+      expect(await p.applySaveFact('pillar3aAnnual', 0), isTrue);
+      final persisted = await ReportPersistenceService.loadAnswers();
+      expect(persisted['q_3a_annual_contribution'], 0);
+      expect(persisted['q_has_3a'], isFalse);
+      expect(p.profile!.total3aMensuel, 0);
+      expect(p.profile!.prevoyance.nombre3a, 0);
     });
 
     test('applySaveFact maps backend goal enums without retirement fallback',
@@ -415,10 +536,207 @@ void main() {
 
       final loaded = await ReportPersistenceService.loadAnswers();
       expect(loaded['q_self_employed_net_income_annual_chf'], 96000);
-      expect(loaded.containsKey('q_net_income_period_chf'), isFalse);
-      expect(loaded.containsKey('q_pay_frequency'), isFalse);
+      expect(loaded['q_net_income_period_chf'], closeTo(8000, 0.01));
+      expect(loaded['q_pay_frequency'], 'monthly');
+      expect(
+        loaded['q_net_income_period_source'],
+        'derived_self_employed_annual_proxy',
+      );
       expect(loaded['q_employment_status'], 'independant');
       expect(loaded['q_has_pension_fund'], isTrue);
+    });
+
+    test('remote merge recognizes self_employed status spelling', () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_employment_status': 'self_employed',
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'selfEmployedNetIncome': 96000,
+        'hasVoluntaryLpp': true,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_employment_status'], 'independant');
+      expect(loaded['q_net_income_period_chf'], closeTo(8000, 0.01));
+      expect(
+        loaded['q_net_income_period_source'],
+        'derived_self_employed_annual_proxy',
+      );
+      expect(loaded['q_has_pension_fund'], isTrue);
+    });
+
+    test('remote self-employed correction refreshes stale monthly cashflow',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_employment_status': 'independant',
+        'q_self_employed_net_income_annual_chf': 86400,
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_source': 'derived_self_employed_annual_proxy',
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'selfEmployedNetIncome': 90000,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_self_employed_net_income_annual_chf'], 90000);
+      expect(loaded['q_net_income_period_chf'], closeTo(7500, 0.01));
+      expect(loaded['q_pay_frequency'], 'monthly');
+      expect(
+        loaded['q_net_income_period_source'],
+        'derived_self_employed_annual_proxy',
+      );
+      expect(
+        BudgetInputs.fromCoachProfile(p.profile!).netIncome,
+        closeTo(7500, 0.01),
+      );
+    });
+
+    test('remote self-employed correction preserves explicit budget cashflow',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_employment_status': 'independant',
+        'q_self_employed_net_income_annual_chf': 86400,
+        'q_net_income_period_chf': 6900,
+        'q_pay_frequency': 'monthly',
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'selfEmployedNetIncome': 90000,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_self_employed_net_income_annual_chf'], 90000);
+      expect(loaded['q_net_income_period_chf'], 6900);
+      expect(loaded['q_pay_frequency'], 'monthly');
+      expect(loaded.containsKey('q_net_income_period_source'), isFalse);
+      expect(p.profile!.independentNetProfessionalIncomeAnnual, 90000);
+      expect(
+        BudgetInputs.fromCoachProfile(p.profile!).netIncome,
+        closeTo(6900, 0.01),
+      );
+    });
+
+    test('remote self-employed correction preserves explicit employee status',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_employment_status': 'salarie',
+        'q_net_income_period_chf': 7600,
+        'q_pay_frequency': 'monthly',
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'selfEmployedNetIncome': 90000,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_employment_status'], 'salarie');
+      expect(loaded['q_self_employed_net_income_annual_chf'], 90000);
+      expect(loaded['q_net_income_period_chf'], 7600);
+      expect(p.profile!.employmentStatus, 'salarie');
+      expect(p.profile!.explicitMonthlyNetIncome, 7600);
+    });
+
+    test('remote pillar3aAnnual correction to zero clears stale 3a signal',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_3a_annual_contribution': 6000,
+        'q_has_3a': true,
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'pillar3aAnnual': 0,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_3a_annual_contribution'], 0);
+      expect(loaded['q_has_3a'], isFalse);
+      final profile = CoachProfile.fromWizardAnswers(loaded);
+      expect(profile.total3aMensuel, 0);
+      expect(profile.prevoyance.nombre3a, 0);
+    });
+
+    test('remote localDataClaim zero 3a beats stale flat contribution',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_3a_annual_contribution': 0,
+        'q_has_3a': false,
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'pillar3aAnnual': 6000,
+        'localDataClaim': {
+          'wizardAnswers': {
+            'q_3a_annual_contribution': 0,
+            'q_has_3a': false,
+          },
+        },
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_3a_annual_contribution'], 0);
+      expect(loaded['q_has_3a'], isFalse);
+      final profile = CoachProfile.fromWizardAnswers(loaded);
+      expect(profile.total3aMensuel, 0);
+      expect(profile.prevoyance.nombre3a, 0);
+    });
+
+    test('remote pillar3aAnnual positive correction revives 3a contribution',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_3a_annual_contribution': 0,
+        'q_has_3a': false,
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'pillar3aAnnual': 7056,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_3a_annual_contribution'], 7056);
+      expect(loaded['q_has_3a'], isTrue);
+      expect(p.profile!.total3aMensuel, closeTo(588, 0.01));
+      expect(p.profile!.prevoyance.nombre3a, 1);
+    });
+
+    test('budget explicit income clears derived self-employed proxy marker',
+        () async {
+      installSecureStore();
+      await ReportPersistenceService.saveAnswers({
+        'q_employment_status': 'independant',
+        'q_self_employed_net_income_annual_chf': 86400,
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_source': 'derived_self_employed_annual_proxy',
+      });
+      final p = CoachProfileProvider();
+
+      await p.mergeAnswers({
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_source': null,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_net_income_period_chf'], 7200);
+      expect(loaded['q_pay_frequency'], 'monthly');
+      expect(loaded.containsKey('q_net_income_period_source'), isFalse);
     });
 
     test('concurrent local and remote profile writes preserve both facts',
