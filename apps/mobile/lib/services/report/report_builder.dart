@@ -298,6 +298,8 @@ class ReportBuilder {
       'self_employed',
       'self-employed',
     }.contains(employmentStatus);
+    final independentProfessionalAnnual =
+        _parseDouble(answers['q_self_employed_net_income_annual_chf']);
 
     final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
       budgetInputs.netIncome * 12,
@@ -310,16 +312,22 @@ class ReportBuilder {
 
     final hasLpp = !isIndependent &&
         grossAnnualSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
+    final annualIncomeFor3a = isIndependent &&
+            independentProfessionalAnnual != null &&
+            independentProfessionalAnnual.isFinite &&
+            independentProfessionalAnnual > 0
+        ? independentProfessionalAnnual
+        : grossAnnualSalary;
     final annualCeiling = hasLpp
         ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
-        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+        : (annualIncomeFor3a * pilier3aTauxRevenuSansLpp)
             .clamp(0.0, pilier3aPlafondSansLpp);
     final alreadyContributed = _current3aContribution();
     final remainingContribution = annualCeiling - alreadyContributed;
     if (remainingContribution <= 0) return 0;
 
     final impact = RetirementTaxCalculator.estimate3aTaxImpact(
-      grossAnnualSalary: grossAnnualSalary,
+      grossAnnualSalary: annualIncomeFor3a,
       canton: cantonCode.isNotEmpty ? cantonCode : 'ZH',
       isMarried: isMarried,
       children: children,

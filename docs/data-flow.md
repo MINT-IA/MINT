@@ -101,7 +101,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_gender`, `q_commune`
 
 **Income**
-- `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
+- `q_pay_frequency` (`monthly`|`yearly`|`annuel`|`annual`),
   `q_net_income_period_chf` (double, amount per period),
   `q_self_employed_net_income_annual_chf` (double, annual professional net
   income for independent/no-LPP OPP3 art. 7 calculations; Coach `save_fact`
@@ -112,9 +112,11 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   equal to the old annual-derived monthly value, preserving explicit Budget
   entries. Budget Setup clears `q_net_income_period_source` when the user types
   a monthly income so later annual corrections cannot overwrite an explicit
-  cashflow that happens to equal the old derived proxy. Rapport uses the annual
-  fact directly for the OPP3 art. 7 3a ceiling and uses the monthly key for
-  cashflow),
+  cashflow that happens to equal the old derived proxy. Budget read models
+  normalize non-monthly income to monthly and persist normalized Budget inputs
+  back as `q_pay_frequency='monthly'` to avoid reload drift. Rapport uses the
+  annual fact directly for the OPP3 art. 7 3a ceiling and uses the monthly key
+  for cashflow),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,

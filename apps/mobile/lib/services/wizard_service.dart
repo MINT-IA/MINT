@@ -86,11 +86,17 @@ class WizardService {
   /// Calcule le revenu net mensuel normalisé
   static double getMonthlyIncome(Map<String, dynamic> answers) {
     final rawIncome = _parseDouble(answers['q_net_income_period_chf']);
-    final frequency = answers['q_pay_frequency'] as String? ?? 'monthly';
+    final frequency =
+        (answers['q_pay_frequency'] as String?)?.trim().toLowerCase() ??
+            'monthly';
 
     final canonicalMonthly = switch (frequency) {
       'weekly' => rawIncome != null ? rawIncome * 4.333 : null,
       'biweekly' => rawIncome != null ? rawIncome * 2.166 : null,
+      'yearly' ||
+      'annual' ||
+      'annuel' =>
+        rawIncome != null ? rawIncome / 12 : null,
       _ => rawIncome,
     };
     if (canonicalMonthly != null) return canonicalMonthly;

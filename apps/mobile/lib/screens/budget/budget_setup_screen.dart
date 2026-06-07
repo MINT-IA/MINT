@@ -450,8 +450,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                     identifier: 'budget_setup_live_total_hint',
                     child: Text(
                       s.budgetSetupTotalFixedHint,
-                      style: MintTextStyles.bodySmall(
-                          color: MintColors.textMuted),
+                      style:
+                          MintTextStyles.bodySmall(color: MintColors.textMuted),
                     ),
                   ),
                 ],
@@ -531,6 +531,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           Semantics(
             key: Key('${_fieldSemanticsIdentifier(key, label)}_semantics'),
             identifier: _fieldSemanticsIdentifier(key, label),
+            label: required ? '$label, requis' : label,
             textField: true,
             child: TextField(
               key: key,

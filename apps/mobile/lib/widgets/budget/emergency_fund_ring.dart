@@ -82,59 +82,66 @@ class _EmergencyFundRingState extends State<EmergencyFundRing>
 
   @override
   Widget build(BuildContext context) {
+    final hasTapAction = widget.onTap != null;
     return Semantics(
-      label: 'interactive element',
-      button: true,
-      child: GestureDetector(
+      label:
+          'Fonds d’urgence: ${widget.months.toStringAsFixed(1)} mois sur ${widget.target.toStringAsFixed(0)}',
+      button: hasTapAction,
       onTap: widget.onTap,
-      child: SizedBox(
-        width: 120,
-        height: 120,
-        child: AnimatedBuilder(
-          animation: _fillAnimation,
-          builder: (context, _) {
-            final displayMonths =
-                (widget.months * _fillAnimation.value);
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: SizedBox(
+          width: 120,
+          height: 120,
+          child: AnimatedBuilder(
+            animation: _fillAnimation,
+            builder: (context, _) {
+              final displayMonths = (widget.months * _fillAnimation.value);
 
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                // Painted ring (Sentry Replay masked — OBS-06 D-06 default-deny)
-                MintCustomPaintMask(
-                  child: CustomPaint(
-                    painter: _EmergencyRingPainter(
-                      fraction: widget.target > 0
-                          ? (widget.months / widget.target).clamp(0.0, 1.0)
-                          : 0.0,
-                      progress: _fillAnimation.value,
-                      ringColor: _ringColor,
-                      targetMonths: widget.target.round(),
-                      currentMonths: widget.months,
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Painted ring (Sentry Replay masked — OBS-06 D-06 default-deny)
+                  MintCustomPaintMask(
+                    child: CustomPaint(
+                      painter: _EmergencyRingPainter(
+                        fraction: widget.target > 0
+                            ? (widget.months / widget.target).clamp(0.0, 1.0)
+                            : 0.0,
+                        progress: _fillAnimation.value,
+                        ringColor: _ringColor,
+                        targetMonths: widget.target.round(),
+                        currentMonths: widget.months,
+                      ),
+                      size: const Size(120, 120),
                     ),
-                    size: const Size(120, 120),
                   ),
-                ),
-                // Center content
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      displayMonths.toStringAsFixed(1),
-                      style: MintTextStyles.displaySmall(color: _ringColor).copyWith(height: 1.0),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'mois',
-                      style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
+                  // Center content
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        displayMonths.toStringAsFixed(1),
+                        style: MintTextStyles.displaySmall(color: _ringColor)
+                            .copyWith(height: 1.0),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'mois',
+                        style: MintTextStyles.labelSmall(
+                          color: MintColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
-    ),);
+    );
   }
 }
 

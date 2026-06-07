@@ -521,15 +521,39 @@ void main() {
     );
     expect(
       tester
+          .getSemantics(find.byKey(const Key('budget_income_field_semantics')))
+          .label,
+      contains('Ressources mensuelles nettes'),
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_income_field_semantics')))
+          .label,
+      contains('requis'),
+    );
+    expect(
+      tester
           .getSemantics(find.byKey(const Key('budget_housing_field_semantics')))
           .identifier,
       'budget_housing_field',
     );
     expect(
       tester
+          .getSemantics(find.byKey(const Key('budget_housing_field_semantics')))
+          .label,
+      contains('Loyer'),
+    );
+    expect(
+      tester
           .getSemantics(find.byKey(const Key('budget_lamal_field_semantics')))
           .identifier,
       'budget_lamal_field',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_lamal_field_semantics')))
+          .label,
+      contains('Assurance maladie'),
     );
 
     await tester.enterText(

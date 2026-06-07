@@ -209,13 +209,15 @@ class FinancialReportService {
         answers['q_employment_status'] as String? ?? 'employee';
     final parsedMonthlyNetIncome =
         _parseDouble(answers['q_net_income_period_chf']);
-    final payFrequency = (answers['q_pay_frequency'] as String?)?.toLowerCase();
-    final explicitMonthlyNetIncome =
-        (payFrequency == 'yearly' || payFrequency == 'annuel')
-            ? parsedMonthlyNetIncome != null
-                ? parsedMonthlyNetIncome / 12
-                : null
-            : parsedMonthlyNetIncome;
+    final payFrequency =
+        (answers['q_pay_frequency'] as String?)?.trim().toLowerCase();
+    final explicitMonthlyNetIncome = (payFrequency == 'yearly' ||
+            payFrequency == 'annuel' ||
+            payFrequency == 'annual')
+        ? parsedMonthlyNetIncome != null
+            ? parsedMonthlyNetIncome / 12
+            : null
+        : parsedMonthlyNetIncome;
     final independentAnnualNetIncome =
         _parseDouble(answers['q_self_employed_net_income_annual_chf']);
     final independentMonthlyNetIncome =

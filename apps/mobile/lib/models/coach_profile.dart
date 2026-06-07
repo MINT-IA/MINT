@@ -2676,7 +2676,11 @@ class CoachProfile {
     // FIX-P0-2: Normalize to lowercase — "Yearly" (capitalized) was not
     // recognized, causing annual salary to be treated as monthly.
     final payFrequency =
-        (answers['q_pay_frequency'] as String?)?.toLowerCase() ?? 'monthly';
+        (answers['q_pay_frequency'] as String?)?.trim().toLowerCase() ??
+            'monthly';
+    final isAnnualPayFrequency = payFrequency == 'yearly' ||
+        payFrequency == 'annuel' ||
+        payFrequency == 'annual';
     final parsedNetIncome = _parseDouble(answers['q_net_income_period_chf']);
     final hasExplicitNetIncome = parsedNetIncome != null &&
         parsedNetIncome.isFinite &&
@@ -2688,7 +2692,7 @@ class CoachProfile {
 
     // Convert to monthly net income based on pay frequency
     double monthlyNetIncome;
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    if (isAnnualPayFrequency) {
       monthlyNetIncome = netIncome / 12;
     } else {
       monthlyNetIncome = netIncome;
@@ -2728,7 +2732,7 @@ class CoachProfile {
         ) ??
         1500;
     double monthlyHousing;
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    if (isAnnualPayFrequency) {
       monthlyHousing = housingCost / 12;
     } else {
       monthlyHousing = housingCost;

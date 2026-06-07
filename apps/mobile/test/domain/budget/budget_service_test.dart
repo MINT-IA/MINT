@@ -840,11 +840,12 @@ void main() {
       expect(inputs.debtPayments, 900);
     });
 
-    test('PayFrequency enum has three values', () {
-      expect(PayFrequency.values, hasLength(3));
+    test('PayFrequency enum has four values', () {
+      expect(PayFrequency.values, hasLength(4));
       expect(PayFrequency.values, contains(PayFrequency.monthly));
       expect(PayFrequency.values, contains(PayFrequency.biweekly));
       expect(PayFrequency.values, contains(PayFrequency.weekly));
+      expect(PayFrequency.values, contains(PayFrequency.yearly));
     });
 
     test('BudgetStyle enum has two values', () {
@@ -1095,6 +1096,70 @@ void main() {
       });
 
       expect(inputs.netIncome, closeTo(5415, 1));
+    });
+
+    test('fromMap normalizes yearly income to monthly', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'yearly',
+        'q_net_income_period_chf': 96000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.payFrequency, PayFrequency.yearly);
+      expect(inputs.netIncome, closeTo(8000, 0.01));
+    });
+
+    test('fromMap accepts French annuel income frequency alias', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'annuel',
+        'q_net_income_period_chf': 96000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.payFrequency, PayFrequency.yearly);
+      expect(inputs.netIncome, closeTo(8000, 0.01));
+    });
+
+    test('fromMap accepts English annual income frequency alias', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'annual',
+        'q_net_income_period_chf': 96000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.payFrequency, PayFrequency.yearly);
+      expect(inputs.netIncome, closeTo(8000, 0.01));
+    });
+
+    test('fromMap estimates tax from normalized yearly income', () {
+      final yearly = BudgetInputs.fromMap({
+        'q_pay_frequency': 'yearly',
+        'q_net_income_period_chf': 96000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+      final monthlyEquivalent = BudgetInputs.fromMap({
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 8000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(yearly.taxProvision, closeTo(monthlyEquivalent.taxProvision, 1));
+      expect(yearly.isTaxEstimated, isTrue);
     });
 
     test('fromMap drops implausible monthly capture amounts', () {
@@ -1392,6 +1457,23 @@ void main() {
       expect(map['meta_health_missing'], isFalse);
       expect(map['meta_other_fixed_missing'], isFalse);
       expect(map['q_budget_style'], 'envelopes3');
+    });
+
+    test('toMap persists normalized income as monthly after yearly import', () {
+      final imported = BudgetInputs.fromMap({
+        'q_pay_frequency': 'yearly',
+        'q_net_income_period_chf': 96000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      final map = imported.toMap();
+
+      expect(map['q_pay_frequency'], 'monthly');
+      expect(map['q_net_income_period_chf'], closeTo(8000, 0.01));
+      expect(BudgetInputs.fromMap(map).netIncome, closeTo(8000, 0.01));
     });
   });
 

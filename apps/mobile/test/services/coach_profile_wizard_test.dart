@@ -407,6 +407,33 @@ void main() {
       expect(profile.salaireBrutMensuel, 0);
     });
 
+    test('annual pay frequency alias is normalized to monthly income', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_employment_status': 'independant',
+        'q_pay_frequency': 'annual',
+        'q_net_income_period_chf': 90000.0,
+      });
+
+      expect(profile.explicitMonthlyNetIncome, closeTo(7500, 0.01));
+      expect(profile.salaireBrutMensuel, closeTo(8250, 0.01));
+    });
+
+    test('annual pay frequency ignores padding before monthly normalization',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_employment_status': 'independant',
+        'q_pay_frequency': ' annual ',
+        'q_net_income_period_chf': 90000.0,
+      });
+
+      expect(profile.explicitMonthlyNetIncome, closeTo(7500, 0.01));
+      expect(profile.salaireBrutMensuel, closeTo(8250, 0.01));
+    });
+
     test(
         'self-employed professional net income derives a gross work base without salary net contamination',
         () {

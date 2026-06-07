@@ -753,6 +753,34 @@ void main() {
       );
     });
 
+    test('normalizes annual pay frequency alias for monthly cashflow', () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 90000.0
+        ..['q_pay_frequency'] = 'annual'
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = false
+        ..['q_3a_annual_contribution'] = 6000.0;
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.monthlyNetIncome, closeTo(7500, 0.01));
+      expect(report.profile.annualIncome, closeTo(90000, 0.01));
+    });
+
+    test('normalizes padded annual pay frequency for monthly cashflow', () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 90000.0
+        ..['q_pay_frequency'] = ' annual '
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = false
+        ..['q_3a_annual_contribution'] = 6000.0;
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.monthlyNetIncome, closeTo(7500, 0.01));
+      expect(report.profile.annualIncome, closeTo(90000, 0.01));
+    });
+
     test('missing birth data stays unknown and skips retirement projection',
         () {
       final answers = minimalAnswers();

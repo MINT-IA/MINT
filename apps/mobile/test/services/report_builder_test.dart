@@ -171,6 +171,38 @@ void main() {
       expect(recommendation.impact.amountCHF, isNot(1500));
     });
 
+    test('uses independent annual income for no-LPP 3a impact', () {
+      final report = ReportBuilder({
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_children': '0',
+        'q_employment_status': 'independant',
+        'q_has_pension_fund': false,
+        'q_birth_year': DateTime.now().year - 45,
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': '7200',
+        'q_self_employed_net_income_annual_chf': 90000.0,
+        'q_housing_cost_period_chf': '1800',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_tax_provision_monthly_chf': '650',
+        'q_debt_payments_period_chf': '0',
+        'q_has_3a': 'no',
+      }).build();
+
+      final recommendation = report.recommendations.singleWhere(
+          (recommendation) => recommendation.id == 'reco_3a_generic');
+      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 90000,
+        canton: 'VD',
+        isMarried: false,
+        children: 0,
+        hasLpp: false,
+        contribution: 18000,
+      ).estimatedTaxSaving;
+
+      expect(recommendation.impact.amountCHF, closeTo(expected, 1.0));
+    });
+
     test('missing birth data does not invent age for 3a tax impact', () {
       final report = ReportBuilder({
         'q_canton': 'VD',

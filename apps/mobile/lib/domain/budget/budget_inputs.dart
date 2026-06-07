@@ -6,6 +6,7 @@ enum PayFrequency {
   monthly,
   biweekly,
   weekly,
+  yearly,
 }
 
 enum BudgetStyle {
@@ -19,9 +20,9 @@ class BudgetInputs {
   static const maxMonthlyFixedCharge = 10000.0;
 
   final PayFrequency payFrequency;
-  final double netIncome; // Périodique (selon frequency)
-  final double housingCost; // Périodique
-  final double debtPayments; // Périodique
+  final double netIncome; // Mensuel normalisé
+  final double housingCost; // Mensuel
+  final double debtPayments; // Mensuel
   final double taxProvision; // Mensuel (provision impots)
   final double healthInsurance; // Mensuel (LAMal)
   final double otherFixedCosts; // Mensuel (assurances/autres charges fixes)
@@ -296,10 +297,7 @@ class BudgetInputs {
       }
     }
 
-    final payFrequency = PayFrequency.values.firstWhere(
-      (e) => e.name == map['q_pay_frequency'],
-      orElse: () => PayFrequency.monthly,
-    );
+    final payFrequency = _parsePayFrequency(map['q_pay_frequency']);
     final legacyMonthlyIncome = _parseDouble(map['q_net_income_monthly']);
     final periodicNetIncome = _parseDouble(map['q_net_income_period_chf']);
     final netIncome = periodicNetIncome != null
@@ -385,7 +383,7 @@ class BudgetInputs {
 
   Map<String, dynamic> toMap() {
     return {
-      'q_pay_frequency': payFrequency.name,
+      'q_pay_frequency': PayFrequency.monthly.name,
       'q_net_income_period_chf': netIncome,
       'q_housing_cost_period_chf': housingCost,
       'q_debt_payments_period_chf': debtPayments,
@@ -408,9 +406,23 @@ class BudgetInputs {
         return amount * 4.333;
       case PayFrequency.biweekly:
         return amount * 2.166;
+      case PayFrequency.yearly:
+        return amount / 12;
       case PayFrequency.monthly:
         return amount;
     }
+  }
+
+  static PayFrequency _parsePayFrequency(Object? raw) {
+    if (raw is! String) return PayFrequency.monthly;
+    final normalized = raw.toLowerCase().trim();
+    if (normalized == 'annuel' || normalized == 'annual') {
+      return PayFrequency.yearly;
+    }
+    return PayFrequency.values.firstWhere(
+      (e) => e.name == normalized,
+      orElse: () => PayFrequency.monthly,
+    );
   }
 
   static double? plausibleMonthlyAmount(double? value, {required double max}) {

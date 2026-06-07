@@ -4,6 +4,19 @@ import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/data/wizard_questions_v2.dart';
 
 void main() {
+  group('Income normalization', () {
+    test('getMonthlyIncome normalizes annual frequency aliases', () {
+      for (final frequency in ['yearly', 'annual', 'annuel']) {
+        final income = WizardService.getMonthlyIncome({
+          'q_net_income_period_chf': 96000,
+          'q_pay_frequency': frequency,
+        });
+
+        expect(income, closeTo(8000, 0.01), reason: frequency);
+      }
+    });
+  });
+
   group('Safe Mode Tests', () {
     test('Safe Mode activated when debt ratio > 30%', () {
       final answers = {
@@ -44,6 +57,19 @@ void main() {
 
       final isSafeMode = WizardService.isSafeModeActive(answers);
       expect(isSafeMode, false);
+    });
+
+    test('Safe Mode debt ratio uses normalized annual income', () {
+      final answers = {
+        'q_net_income_period_chf': 96000,
+        'q_pay_frequency': 'annual',
+        'q_has_consumer_debt': 'no',
+        'q_debt_payments_period_chf': 2600,
+        'q_emergency_fund': 'yes_6months',
+      };
+
+      final isSafeMode = WizardService.isSafeModeActive(answers);
+      expect(isSafeMode, true);
     });
   });
 
@@ -94,6 +120,18 @@ void main() {
       final state = ClarityState.calculate(answers, {});
 
       expect(state.safeMode, isFalse);
+    });
+
+    test('safe mode uses normalized annual income for debt ratio', () {
+      final state = ClarityState.calculate({
+        'q_net_income_period_chf': 96000,
+        'q_pay_frequency': ' annual ',
+        'q_debt_payments_period_chf': 2600,
+        'q_has_consumer_debt': 'no',
+        'q_emergency_fund': 'yes_6months',
+      }, {});
+
+      expect(state.safeMode, isTrue);
     });
   });
 

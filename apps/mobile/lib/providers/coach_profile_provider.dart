@@ -295,59 +295,77 @@ class CoachProfileProvider extends ChangeNotifier {
     if (partial.isNotEmpty) {
       final authoritative = <String, dynamic>{};
       if (remote.containsKey('selfEmployedNetIncome')) {
-        final previousAnnual =
-            _asNum(current['q_self_employed_net_income_annual_chf']);
-        final previousMonthly = _asNum(current['q_net_income_period_chf']);
-        final previousMonthlySource = current['q_net_income_period_source'];
-        final previousEmployment = current['q_employment_status'];
-        final monthlyWasDerivedFromPreviousAnnual =
-            previousMonthlySource == 'derived_self_employed_annual_proxy' &&
-                previousAnnual != null &&
-                previousMonthly != null &&
-                (previousMonthly.toDouble() - previousAnnual.toDouble() / 12)
-                        .abs() <
-                    0.01;
-        final shouldUseIndependentStatus =
-            _isMissingAnswer(current, 'q_employment_status') ||
-                _isIndependentEmployment(previousEmployment);
-        for (final key in [
-          'q_self_employed_net_income_annual_chf',
-          'q_has_pension_fund',
-        ]) {
-          if (partial.containsKey(key)) {
-            authoritative[key] = partial.remove(key);
-          }
-        }
-        if (shouldUseIndependentStatus &&
-            partial.containsKey('q_employment_status')) {
-          authoritative['q_employment_status'] =
-              partial.remove('q_employment_status');
-        } else {
-          partial.remove('q_employment_status');
-        }
-        if (shouldUseIndependentStatus &&
-            partial.containsKey('q_net_income_period_chf')) {
-          if (_isMissingAnswer(current, 'q_net_income_period_chf') ||
-              monthlyWasDerivedFromPreviousAnnual) {
-            authoritative['q_net_income_period_chf'] =
-                partial.remove('q_net_income_period_chf');
-            if (partial.containsKey('q_pay_frequency')) {
-              authoritative['q_pay_frequency'] =
-                  partial.remove('q_pay_frequency');
+        final claimHasSelfEmployedAnnual =
+            claimAnswers.containsKey('q_self_employed_net_income_annual_chf');
+        if (claimHasSelfEmployedAnnual) {
+          for (final key in [
+            'q_employment_status',
+            'q_self_employed_net_income_annual_chf',
+            'q_net_income_period_chf',
+            'q_pay_frequency',
+            'q_net_income_period_source',
+            'q_has_pension_fund',
+          ]) {
+            if (claimAnswers.containsKey(key)) {
+              authoritative[key] = claimAnswers[key];
             }
-            authoritative['q_net_income_period_source'] =
-                'derived_self_employed_annual_proxy';
+            partial.remove(key);
+          }
+        } else {
+          final previousAnnual =
+              _asNum(current['q_self_employed_net_income_annual_chf']);
+          final previousMonthly = _asNum(current['q_net_income_period_chf']);
+          final previousMonthlySource = current['q_net_income_period_source'];
+          final previousEmployment = current['q_employment_status'];
+          final monthlyWasDerivedFromPreviousAnnual =
+              previousMonthlySource == 'derived_self_employed_annual_proxy' &&
+                  previousAnnual != null &&
+                  previousMonthly != null &&
+                  (previousMonthly.toDouble() - previousAnnual.toDouble() / 12)
+                          .abs() <
+                      0.01;
+          final shouldUseIndependentStatus =
+              _isMissingAnswer(current, 'q_employment_status') ||
+                  _isIndependentEmployment(previousEmployment);
+          for (final key in [
+            'q_self_employed_net_income_annual_chf',
+            'q_has_pension_fund',
+          ]) {
+            if (partial.containsKey(key)) {
+              authoritative[key] = partial.remove(key);
+            }
+          }
+          if (shouldUseIndependentStatus &&
+              partial.containsKey('q_employment_status')) {
+            authoritative['q_employment_status'] =
+                partial.remove('q_employment_status');
+          } else {
+            partial.remove('q_employment_status');
+          }
+          if (shouldUseIndependentStatus &&
+              partial.containsKey('q_net_income_period_chf')) {
+            if (_isMissingAnswer(current, 'q_net_income_period_chf') ||
+                monthlyWasDerivedFromPreviousAnnual) {
+              authoritative['q_net_income_period_chf'] =
+                  partial.remove('q_net_income_period_chf');
+              if (partial.containsKey('q_pay_frequency')) {
+                authoritative['q_pay_frequency'] =
+                    partial.remove('q_pay_frequency');
+              }
+              authoritative['q_net_income_period_source'] =
+                  'derived_self_employed_annual_proxy';
+            } else {
+              partial
+                ..remove('q_net_income_period_chf')
+                ..remove('q_pay_frequency')
+                ..remove('q_net_income_period_source');
+            }
           } else {
             partial
               ..remove('q_net_income_period_chf')
               ..remove('q_pay_frequency')
               ..remove('q_net_income_period_source');
           }
-        } else {
-          partial
-            ..remove('q_net_income_period_chf')
-            ..remove('q_pay_frequency')
-            ..remove('q_net_income_period_source');
         }
       }
       if (remote.containsKey('pillar3aAnnual')) {
@@ -391,13 +409,12 @@ class CoachProfileProvider extends ChangeNotifier {
             _asNum(latest['q_self_employed_net_income_annual_chf']);
         final latestMonthly = _asNum(latest['q_net_income_period_chf']);
         final latestMonthlySource = latest['q_net_income_period_source'];
-        final latestMonthlyWasDerived =
-            latestMonthlySource == 'derived_self_employed_annual_proxy' &&
-                latestAnnual != null &&
-                latestMonthly != null &&
-                (latestMonthly.toDouble() - latestAnnual.toDouble() / 12)
-                        .abs() <
-                    0.01;
+        final latestMonthlyWasDerived = latestMonthlySource ==
+                'derived_self_employed_annual_proxy' &&
+            latestAnnual != null &&
+            latestMonthly != null &&
+            (latestMonthly.toDouble() - latestAnnual.toDouble() / 12).abs() <
+                0.01;
         if (!_isMissingAnswer(latest, 'q_net_income_period_chf') &&
             !latestMonthlyWasDerived) {
           authoritative = Map<String, dynamic>.from(authoritative)
@@ -997,8 +1014,7 @@ class CoachProfileProvider extends ChangeNotifier {
           if (annual != null && annual.isFinite && annual > 0) ...{
             'q_net_income_period_chf': annual / 12,
             'q_pay_frequency': 'monthly',
-            'q_net_income_period_source':
-                'derived_self_employed_annual_proxy',
+            'q_net_income_period_source': 'derived_self_employed_annual_proxy',
           },
         };
       case 'employmentRate':

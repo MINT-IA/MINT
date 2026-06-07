@@ -224,16 +224,15 @@ class ClarityState {
       // Try V2 period income
       final periodIncome = _parseDouble(answers['q_net_income_period_chf']);
       if (periodIncome != null) {
-        final freq = answers['q_pay_frequency'];
-        if (freq == 'monthly') {
-          income = periodIncome;
-        } else if (freq == 'weekly') {
-          income = periodIncome * 4.333;
-        } else if (freq == 'biweekly') {
-          income = periodIncome * 2.166;
-        } else {
-          income = periodIncome;
-        }
+        final freq =
+            (answers['q_pay_frequency'] as String?)?.trim().toLowerCase() ??
+                'monthly';
+        income = switch (freq) {
+          'weekly' => periodIncome * 4.333,
+          'biweekly' => periodIncome * 2.166,
+          'yearly' || 'annual' || 'annuel' => periodIncome / 12,
+          _ => periodIncome,
+        };
       }
     }
 

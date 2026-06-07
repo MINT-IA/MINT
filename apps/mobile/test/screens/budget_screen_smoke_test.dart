@@ -25,6 +25,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
+import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
 
 import '../semantics_test_helpers.dart';
 
@@ -707,6 +708,59 @@ void main() {
           'budget_formula_proof',
         ],
       );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('EmergencyFundRing exposes value without false button role',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: EmergencyFundRing(months: 3.5),
+          ),
+        ),
+      );
+
+      final node = tester.getSemantics(find.byType(EmergencyFundRing));
+
+      expect(node.label, contains('Fonds d’urgence'));
+      expect(node.label, contains('3.5 mois sur 6'));
+      expect(node.label, isNot('interactive element'));
+      expect(node.flagsCollection.isButton, isFalse);
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('EmergencyFundRing exposes tap action only when tappable',
+      (tester) async {
+    var taps = 0;
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: EmergencyFundRing(
+              months: 2,
+              onTap: () => taps++,
+            ),
+          ),
+        ),
+      );
+
+      final node = tester.getSemantics(find.byType(EmergencyFundRing));
+
+      expect(node.label, contains('Fonds d’urgence'));
+      expect(node.flagsCollection.isButton, isTrue);
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+
+      await tester.tap(find.byType(EmergencyFundRing));
+      expect(taps, 1);
     } finally {
       semantics.dispose();
     }
