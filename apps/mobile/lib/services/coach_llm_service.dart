@@ -396,7 +396,10 @@ class CoachLlmService {
       disclaimers: orchestratorResponse.disclaimers,
       wasFiltered: orchestratorResponse.wasFiltered,
       toolCalls: orchestratorResponse.toolCalls,
+      degraded: orchestratorResponse.degraded,
       citationChips: orchestratorResponse.citationChips,
+      refused: orchestratorResponse.refused,
+      refusalReason: orchestratorResponse.refusalReason,
     );
   }
 

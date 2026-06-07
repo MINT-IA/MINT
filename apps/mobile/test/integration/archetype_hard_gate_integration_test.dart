@@ -29,7 +29,12 @@
 ///      otherwise-blocked profile → gate decision still says block but the
 ///      route-level wrap (gate.shouldBlock && FeatureFlags.enableCoachHardGate)
 ///      lets the coach proceed.
-///   4. integration_legacy_user_grandfather — flag-only migration sets
+///   4. integration_independent_no_lpp_safe_local_route — independent/no-LPP
+///      reaches the coach shell so the orchestrator can answer the audited
+///      local topic; it is not waitlisted at the route layer.
+///   5. integration_independent_with_lpp_still_waitlisted — independent with
+///      LPP remains gated; the no-LPP safe route must not widen silently.
+///   6. integration_legacy_user_grandfather — flag-only migration sets
 ///      `needsUsTaxPersonReOnboarding=true` on legacy null-nationality
 ///      null-usTaxPerson profiles, without writing the nationality field
 ///      (Codex C1 HIGH data-truth contract from plan 02-05).
@@ -89,8 +94,8 @@ class _FakeCoachLandingState extends State<_FakeCoachLanding> {
     super.didChangeDependencies();
     if (_gateEvaluated) return;
     _gateEvaluated = true;
-    final profile = context.read<CoachProfileProvider>().profile
-        ?? CoachProfile.defaults();
+    final profile =
+        context.read<CoachProfileProvider>().profile ?? CoachProfile.defaults();
     final gate = evaluateCoachArchetypeGate(profile);
     if (gate.shouldBlock && FeatureFlags.enableCoachHardGate) {
       _redirected = true;
@@ -133,8 +138,7 @@ GoRouter _buildRouter() {
                 responseBuilder: (_) async =>
                     http.Response('{"id":"abc","createdAt":"now"}', 201),
               ),
-              onGateSuccess: () =>
-                  ctx.read<CoachProfileProvider>().clearAll(),
+              onGateSuccess: () => ctx.read<CoachProfileProvider>().clearAll(),
             ),
             child: WaitlistScreen(args: args),
           );
@@ -186,8 +190,7 @@ void main() {
       });
       expect(coachProvider.profile?.usTaxPerson, isTrue,
           reason: 'fixture sanity: profile carries usTaxPerson=true');
-      expect(coachProvider.profile?.archetype,
-          FinancialArchetype.expatUs,
+      expect(coachProvider.profile?.archetype, FinancialArchetype.expatUs,
           reason: 'fixture sanity: archetype resolves to expatUs');
 
       final router = _buildRouter();
@@ -232,8 +235,7 @@ void main() {
         'birth_year': 1985,
         'canton': 'VD',
       });
-      expect(coachProvider.profile?.archetype,
-          FinancialArchetype.swissNative,
+      expect(coachProvider.profile?.archetype, FinancialArchetype.swissNative,
           reason: 'fixture sanity: swiss_native');
 
       final router = _buildRouter();
@@ -250,6 +252,67 @@ void main() {
           reason: '/waitlist must not be rendered for swissNative');
       // Profile preserved (clearAll never called).
       expect(coachProvider.hasProfile, isTrue);
+    });
+
+    testWidgets(
+        'integration_independent_no_lpp_safe_local_route: independent without '
+        'LPP reaches coach shell, not waitlist', (tester) async {
+      final coachProvider = CoachProfileProvider();
+      coachProvider.createFromRemoteProfile({
+        'usTaxPerson': false,
+        'nationality': 'CH',
+        'employment_status': 'independant',
+        'birth_year': 1988,
+        'canton': 'VD',
+      });
+      expect(
+          coachProvider.profile?.archetype, FinancialArchetype.independentNoLpp,
+          reason: 'fixture sanity: independent_no_lpp');
+
+      final router = _buildRouter();
+      await tester.pumpWidget(_wrapWithProviders(
+        coachProvider: coachProvider,
+        router: router,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('coach-landing-rendered')), findsOneWidget,
+          reason:
+              'independent_no_lpp must reach the chat shell so the local no-LPP fallback can run');
+      expect(find.text('Encore en chantier pour ton profil'), findsNothing,
+          reason:
+              '/waitlist must remain reserved for archetypes with no audited local guidance path');
+      expect(coachProvider.hasProfile, isTrue,
+          reason: 'route access must not clear the independent/no-LPP profile');
+    });
+
+    testWidgets(
+        'integration_independent_with_lpp_still_waitlisted: independent with '
+        'LPP remains gated at route layer', (tester) async {
+      final profile = CoachProfile.defaults().copyWith(
+        usTaxPerson: false,
+        nationality: 'CH',
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
+      );
+      expect(profile.archetype, FinancialArchetype.independentWithLpp,
+          reason: 'fixture sanity: independent_with_lpp');
+
+      final coachProvider = CoachProfileProvider()..updateProfile(profile);
+      final router = _buildRouter();
+      await tester.pumpWidget(_wrapWithProviders(
+        coachProvider: coachProvider,
+        router: router,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('coach-landing-rendered')), findsNothing,
+          reason:
+              'independent_with_lpp must not inherit the no-LPP route exception');
+      expect(find.text('Encore en chantier pour ton profil'), findsOneWidget,
+          reason: '/waitlist must render for independent_with_lpp');
+      expect(coachProvider.hasProfile, isTrue,
+          reason: 'waitlist redirect alone must not clear the profile');
     });
 
     testWidgets(
@@ -271,8 +334,7 @@ void main() {
       // Sanity: the pure decision helper still says block (the kill switch
       // does NOT change the gate evaluation — only the redirect/refusal
       // sites read the flag).
-      final verdict =
-          evaluateCoachArchetypeGate(coachProvider.profile!);
+      final verdict = evaluateCoachArchetypeGate(coachProvider.profile!);
       expect(verdict.shouldBlock, isTrue,
           reason:
               'pure helper must remain flag-agnostic (plan 02-04 decision #5)');
@@ -329,17 +391,14 @@ void main() {
       // CRITICAL : the migration must NOT have written a nationality value.
       // This is the Codex C1 HIGH data-truth boundary fix from plan 02-05.
       expect(coachProvider.profile?.nationality, isNull,
-          reason:
-              'data-truth boundary: migration MUST NOT inject nationality');
+          reason: 'data-truth boundary: migration MUST NOT inject nationality');
       expect(coachProvider.profile?.usTaxPerson, isNull,
-          reason:
-              'data-truth boundary: migration MUST NOT inject usTaxPerson');
+          reason: 'data-truth boundary: migration MUST NOT inject usTaxPerson');
 
       // But the SharedPreferences flag must be set so the next OnboardingShell
       // entry routes to the FATCA Q step.
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('coachProfile:needsUsTaxPersonReOnboarding'),
-          isTrue,
+      expect(prefs.getBool('coachProfile:needsUsTaxPersonReOnboarding'), isTrue,
           reason:
               'migration must mark the legacy profile for forced re-onboarding');
       expect(prefs.getBool('coachProfile:migration_01_5_done'), isTrue,

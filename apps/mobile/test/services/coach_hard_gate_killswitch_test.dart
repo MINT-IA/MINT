@@ -162,11 +162,11 @@ void main() {
 
       expect(response.refused, isTrue);
       expect(response.refusalReason, 'archetype_not_calibrated');
-      expect(response.message.toLowerCase(), isNot(contains('revenu net d\'activité')));
+      expect(response.message.toLowerCase(),
+          isNot(contains('revenu net d\'activité')));
     });
 
-    test('4e. enableCoachHardGate=true + expat_us cannot stream via SLM',
-        () {
+    test('4e. enableCoachHardGate=true + expat_us cannot stream via SLM', () {
       FeatureFlags.enableCoachHardGate = true;
       FeatureFlags.enableSlmNarratives = true;
       FeatureFlags.slmPluginReady = true;
@@ -181,6 +181,25 @@ void main() {
       expect(stream, isNull,
           reason:
               'Non-calibrated archetypes must not enter SLM streaming before the hard gate');
+    });
+
+    test(
+        '4f. enableCoachHardGate=true + independent_no_lpp safe route still cannot stream via SLM',
+        () {
+      FeatureFlags.enableCoachHardGate = true;
+      FeatureFlags.enableSlmNarratives = true;
+      FeatureFlags.slmPluginReady = true;
+      final ctx = _ctx(archetype: 'independent_no_lpp');
+
+      final stream = CoachOrchestrator.streamChat(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+        history: const [],
+        ctx: ctx,
+      );
+
+      expect(stream, isNull,
+          reason:
+              'Route access for independent_no_lpp must stay safe-local-only and never open SLM streaming');
     });
   });
 

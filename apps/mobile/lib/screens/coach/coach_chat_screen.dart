@@ -1325,7 +1325,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         isLoggedIn: isLoggedIn,
       );
 
-      final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
+      final hardGateLocalOrRefusal = FeatureFlags.enableCoachHardGate &&
+          _profile?.archetype != FinancialArchetype.swissNative;
+      final tier = hardGateLocalOrRefusal || response.refused
+          ? ChatTier.none
+          : config.hasApiKey
+              ? ChatTier.byok
+              : ChatTier.fallback;
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
@@ -1792,13 +1798,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   CoachContext _buildCoachContext(CoachProfile profile) {
     // Sub-phase 01.5 W02-T03 HARD GATE (Mapper §7.2 primary site).
     //
-    // The coach is calibrated for swissNative only. Any other archetype
-    // (expat_us via FATCA self-declaration, expat_eu, cross_border,
-    // independent_no_lpp, etc.) is routed to /waitlist BEFORE we even
-    // construct a CoachContext. The route navigation is deferred via
+    // The full coach remains calibrated for swissNative only. Most
+    // unsupported archetypes (expat_us via FATCA self-declaration, expat_eu,
+    // cross_border, etc.) are routed to /waitlist BEFORE we construct a
+    // CoachContext. Row 23 / CJT-063 lets independent_no_lpp reach the chat
+    // shell only so the orchestrator can serve its audited deterministic
+    // no-LPP/3a local fallback; generic questions and streaming remain
+    // blocked there. The route navigation is deferred via
     // addPostFrameCallback because this method runs during the build /
-    // chat-send synchronous path; navigating in-flight would re-enter
-    // the widget tree and trigger setState-during-build assertions.
+    // chat-send synchronous path; navigating in-flight would re-enter the
+    // widget tree and trigger setState-during-build assertions.
     //
     // The orchestrator carries the secondary refusal layer (Task 5)
     // in case a deep-link / notification handler bypasses this gate.
@@ -2540,7 +2549,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     child,
-                    if (isFirstAssistantInSession) ...[
+                    if (isFirstAssistantInSession &&
+                        msg.tier != ChatTier.none) ...[
                       const SizedBox(height: 4),
                       Padding(
                         padding: const EdgeInsets.only(left: 42),

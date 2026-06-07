@@ -6,7 +6,10 @@
 ///   3. swiss_native (nationality CH) → no redirect
 ///   4. swiss_native + isCouple → no redirect (CONTEXT §0 resolved-blocker:
 ///      read isCouple flag, do not extend enum)
-///   5. independent_no_lpp → redirect to /waitlist with slug
+///   5. independent_no_lpp → no route redirect; orchestrator remains
+///      safe-local-only for the audited no-LPP 3a topic
+///   6. independent_with_lpp → still gated; the no-LPP local fallback must
+///      never be widened to a different pension situation
 ///
 /// Strategy: the gate decision is extracted into a pure helper
 /// `evaluateCoachArchetypeGate(profile)` returning a CoachArchetypeGate
@@ -29,9 +32,7 @@ void main() {
       expect(verdict.archetypeSlug, 'expat_us');
     });
 
-    test(
-        'unknown archetype (all signals null) → block with null slug',
-        () {
+    test('unknown archetype (all signals null) → block with null slug', () {
       // CoachProfile.defaults() leaves usTaxPerson, nationality,
       // residencePermit, arrivalAge null → archetype.unknown per plan 01.
       final profile = CoachProfile.defaults();
@@ -43,8 +44,7 @@ void main() {
     });
 
     test('swiss_native (nationality=CH) → no redirect', () {
-      final profile =
-          CoachProfile.defaults().copyWith(nationality: 'CH');
+      final profile = CoachProfile.defaults().copyWith(nationality: 'CH');
       final verdict = evaluateCoachArchetypeGate(profile);
       expect(verdict.shouldBlock, isFalse);
       expect(verdict.archetypeSlug, isNull);
@@ -68,15 +68,36 @@ void main() {
     });
 
     test(
-        'independent_no_lpp (independant, avoirLpp=0) → block with slug independent_no_lpp',
+        'independent_no_lpp (independant, avoirLpp=0) → route reachable; orchestrator keeps safe-local-only scope',
         () {
       final profile = CoachProfile.defaults().copyWith(
         nationality: 'CH',
         employmentStatus: 'independant',
       );
       final verdict = evaluateCoachArchetypeGate(profile);
-      expect(verdict.shouldBlock, isTrue);
-      expect(verdict.archetypeSlug, 'independent_no_lpp');
+      expect(verdict.shouldBlock, isFalse);
+      expect(verdict.archetypeSlug, 'independent_no_lpp',
+          reason:
+              'The slug is preserved for telemetry/context, but the route layer must let the safe local fallback path build a real CoachContext.');
+    });
+
+    test(
+        'independent_with_lpp (independant, avoirLpp>0) → still gated at route layer',
+        () {
+      final profile = CoachProfile.defaults().copyWith(
+        nationality: 'CH',
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
+      );
+      expect(profile.archetype, FinancialArchetype.independentWithLpp,
+          reason:
+              'fixture sanity: LPP coverage must route to the distinct independent_with_lpp archetype');
+
+      final verdict = evaluateCoachArchetypeGate(profile);
+      expect(verdict.shouldBlock, isTrue,
+          reason:
+              'the audited local fallback is scoped to independent_no_lpp only');
+      expect(verdict.archetypeSlug, 'independent_with_lpp');
     });
   });
 

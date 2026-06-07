@@ -72,6 +72,29 @@ void main() {
     return provider;
   }
 
+  CoachProfileProvider buildIndependentNoLppProfileProvider() {
+    final provider = CoachProfileProvider();
+    provider.createFromRemoteProfile({
+      'firstName': 'Nadia',
+      'usTaxPerson': false,
+      'nationality': 'CH',
+      'employment_status': 'independant',
+      'birth_year': 1988,
+      'canton': 'VD',
+      'net_income_period_chf': 8200,
+    });
+    expect(provider.profile?.archetype, FinancialArchetype.independentNoLpp);
+    return provider;
+  }
+
+  Future<EnrichedContext> emptyContextBuilder({
+    CoachProfile? profile,
+    SharedPreferences? prefs,
+    DateTime? now,
+    MintUserState? mintState,
+  }) async =>
+      EnrichedContext.empty;
+
   String formatPlainChf(double amount) {
     final digits = amount.round().toString();
     return digits.replaceAllMapped(
@@ -462,6 +485,58 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
+    });
+
+    testWidgets(
+        'independent_no_lpp safe 3a prompt renders local guidance, not waitlist or LLM transparency',
+        (tester) async {
+      usePhoneViewport(tester);
+      await tester.pumpWidget(buildTestWidget(
+        profileProviderOverride: buildIndependentNoLppProfileProvider(),
+        contextBuilder: emptyContextBuilder,
+      ));
+      await pumpUntilGreeting(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('coach_input_field')),
+        'Je suis indépendant sans LPP, combien verser en 3a ?',
+      );
+      await tester.tap(find.byKey(const Key('coach_send_button')));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.textContaining("revenu net d'activité"), findsOneWidget);
+      expect(find.textContaining('budget mensuel'), findsOneWidget);
+      expect(find.textContaining('Encore en chantier pour ton profil'),
+          findsNothing);
+      expect(find.textContaining('API Claude'), findsNothing,
+          reason:
+              'The audited no-LPP fallback is deterministic local guidance, not a BYOK/server LLM answer.');
+    });
+
+    testWidgets('independent_no_lpp generic prompt renders hard-gate refusal',
+        (tester) async {
+      usePhoneViewport(tester);
+      await tester.pumpWidget(buildTestWidget(
+        profileProviderOverride: buildIndependentNoLppProfileProvider(),
+        contextBuilder: emptyContextBuilder,
+      ));
+      await pumpUntilGreeting(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('coach_input_field')),
+        'Comment va ma retraite ?',
+      );
+      await tester.tap(find.byKey(const Key('coach_send_button')));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+          find.textContaining("MINT n'est pas encore calibré"), findsOneWidget);
+      expect(find.textContaining("revenu net d'activité"), findsNothing);
+      expect(find.textContaining('API Claude'), findsNothing);
     });
 
     testWidgets('shows settings icon in app bar', (tester) async {
