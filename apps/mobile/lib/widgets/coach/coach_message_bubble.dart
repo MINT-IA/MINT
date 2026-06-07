@@ -336,7 +336,6 @@ class CoachAvatar extends StatelessWidget {
             color: MintColors.ardoise,
           ).copyWith(
             fontWeight: FontWeight.w700,
-            fontSize: 10,
           ),
         ),
       ),
@@ -645,9 +644,8 @@ class _CoachMarkdownBody extends StatelessWidget {
             .copyWith(fontStyle: FontStyle.italic, height: 1.6),
         listBullet: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
             .copyWith(height: 1.6),
-        h3: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+        h3: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(
           fontWeight: FontWeight.w600,
-          fontSize: 15,
           height: 1.6,
         ),
       ),
@@ -712,7 +710,7 @@ class _BlinkingCursorState extends State<BlinkingCursor>
       decoration: BoxDecoration(
         // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
         color: MintColors.textSecondaryAaa.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(1),
+        borderRadius: BorderRadius.circular(2),
       ),
     );
     if (_reducedMotion) {
