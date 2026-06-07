@@ -1,0 +1,20 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.j
+Waiting for flows to complete...
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.oracle.truffle.api.dsl.InlineSupport$UnsafeField (file:/Users/julienbattaglia/.maestro/lib/truffle-api-24.2.0.jar)
+WARNING: Please consider reporting this WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.oracle.truffle.api.[Passed] flow_row23_independent_no_lpp_coach_chat_runtime (1m 5s)
+
+1/1 Flow Passed in 1m 5s
+
+r)
+WARNING: Please consider reporting this to the maintainers of class com.oracle.truffle.api.dsl.InlineSupport$UnsafeField
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[Passed] flow_row23_independent_no_lpp_coach_chat_runtime (1m 5s)
+
+1/1 Flow Passed in 1m 5s
+
+[watchdog] EXIT — maestro returned 0

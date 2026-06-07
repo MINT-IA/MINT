@@ -59,12 +59,14 @@ Additional 3a provenance proof:
 Runtime proof:
 
 - Flow: `tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml`
-- Evidence: `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/`
+- Evidence: `evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/`
 - Result: `tests=1`, `failures=0`
 - Device: `iPhone 16e - iOS 26.2`
 - Watchdog: `maestro returned 0`
-- Strict assertion: `assertNotVisible: ".*plan MINT.*"`
-- Screenshot: `runtime-final-3a-plan-provenance-strict2.png`
+- Strict assertions: reject `plan MINT`, `source non affichée`, tax-impact
+  cards, stale precise amounts, product/open-account wording, overclaiming
+  terms, and runtime error markers.
+- Screenshot: `row23-independent-no-lpp-coach-local-guidance.png`
 
 ## Remaining Gap
 

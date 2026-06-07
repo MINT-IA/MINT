@@ -26,6 +26,9 @@
     "semantic_evals",
     "user_visible_outcome",
     "guidance_boundary_evidence",
+    "benchmark_references",
+    "critical_assertions",
+    "anti_surface_assertions",
     "rubric",
     "remaining_gaps",
     "last_reviewed"
@@ -62,6 +65,14 @@
     {
       "condition": "no_a11y_i18n_or_dynamic_type_proof_for_t0_t1_screen",
       "cap": 8.0
+    },
+    {
+      "condition": "no_restart_or_profile_update_continuity_proof_for_money_profile_truth",
+      "cap": 8.0
+    },
+    {
+      "condition": "no_runtime_voiceover_focus_or_semantic_traversal_proof_for_near_ten_claim",
+      "cap": 9.0
     },
     {
       "condition": "no_signed_device_testflight_or_universal_link_proof_for_release_access_rows",
@@ -190,7 +201,21 @@
         "Row 22 remains PARTIAL pending broader clean primary-screen release proof.",
         "Row 23 remains PARTIAL pending broader primary-screen content/accessibility scoring."
       ],
-      "last_reviewed": "2026-06-06"
+      "last_reviewed": "2026-06-06",
+      "benchmark_references": [
+        "evidence/quality-review/persona-flow-benchmark-seed-20260606.md defines inclusive persona-flow expectations for non-salary Swiss income situations.",
+        "evidence/rapport-design/row-23-budget-calculation-explanation-20260606.md records the Budget explanation follow-up and remaining proof gaps."
+      ],
+      "critical_assertions": [
+        "Runtime proof checks Budget setup uses income-inclusive wording for resources rather than salary-only wording.",
+        "Runtime proof checks /budget opens as the cashflow surface and the primary-screen crawl reaches the expected route.",
+        "Contract tests cover Budget setup, Budget smoke, Budget domain, presenter, route registry, and route planner."
+      ],
+      "anti_surface_assertions": [
+        "Score is capped at 6 because screenshots supplement the passed runtime and the later fixed-charge explanation lacks a fresh screenshot proof.",
+        "Remaining gaps explicitly block treating the visual crawl as full Row 22 or Row 23 closure.",
+        "The record rejects salary-only empty-state framing as the specific regression under CJT-047."
+      ]
     },
     {
       "flow_id": "flow_row23_rapport_runtime_accessibility_snapshot",
@@ -291,7 +316,21 @@
         "No all-primary-screen clean visual crawl closure after the latest Row 23 content fixes.",
         "Row 23 remains PARTIAL."
       ],
-      "last_reviewed": "2026-06-06"
+      "last_reviewed": "2026-06-06",
+      "benchmark_references": [
+        "WCAG/accessibility quality expectation: icon-only app-bar actions need accessible names and tap semantics.",
+        "evidence/rapport-design/row-23-rapport-runtime-accessibility-proof-20260606.md records the captured runtime accessibility tree."
+      ],
+      "critical_assertions": [
+        "Accessibility-tree proof exposes named Retour and Exporter le bilan en PDF actions.",
+        "Widget regression proves icon-only app-bar actions have tap semantics.",
+        "Score is capped at 5 because this is a snapshot proof without an exact Maestro JUnit/watchdog flow."
+      ],
+      "anti_surface_assertions": [
+        "The registry does not borrow unrelated Maestro evidence for this accessibility snapshot.",
+        "The record says it proves app-bar action names only, not exported PDF quality or per-archetype guidance.",
+        "Remaining gaps preserve VoiceOver/focus-order and PDF export runtime work as open."
+      ]
     },
     {
       "flow_id": "flow_row23_rapport_3a_assumption_neutrality_snapshot",
@@ -395,7 +434,21 @@
         "No full VoiceOver/focus-order traversal for the Rapport content block.",
         "Row 23 remains PARTIAL."
       ],
-      "last_reviewed": "2026-06-06"
+      "last_reviewed": "2026-06-06",
+      "benchmark_references": [
+        "MINT pillar3a constants distinguish with-LPP and without-LPP ceilings for 2026.",
+        "evidence/rapport-design/row-23-rapport-3a-assumption-neutrality-20260606.md records the neutral 3a assumption proof."
+      ],
+      "critical_assertions": [
+        "Runtime snapshot exposes Plafond 3a selon affiliation LPP et statut de revenu.",
+        "Widget regression proves the previous salary-only assumption phrase is absent for the independent profile.",
+        "ARB parity, accent lint, banned-term checks, analyzer, and Rapport tests are recorded as passing."
+      ],
+      "anti_surface_assertions": [
+        "Score is capped at 5 because there is no exact Maestro JUnit/watchdog proof for this snapshot.",
+        "The record blocks using one neutral sentence as proof of all downstream 3a action-card neutrality.",
+        "The record explicitly does not claim Claude approval because provider-side 529 prevented it in that lot."
+      ]
     },
     {
       "flow_id": "flow_row23_independent_no_lpp_persona_score",
@@ -409,91 +462,114 @@
         "CJT-063"
       ],
       "persona": "independent_no_lpp_income_reality",
-      "surface_family": "rapport_bilan",
+      "surface_family": "coach_trust",
       "tier": "T1",
       "status_claim": "PARTIAL",
-      "score": 6.3,
-      "score_cap": 7.0,
+      "score": 8.0,
+      "score_cap": 8.0,
       "cap_reasons": [
-        "This is the first expert-scored persona-flow record after CJT-062 runtime proof, not full Row 23 closure.",
-        "The flow uses independent/no-LPP fixture data on /budget and /rapport, but does not yet prove restart/source/freshness/confidence for the same persona.",
-        "Swiss expert-market references show broader expected guidance around optional LPP affiliation, AVS-independent status, risk cover, liquidity, and income volatility.",
-        "No VoiceOver/focus traversal, PDF per-archetype proof, or live Coach natural-language guidance score exists for this persona.",
-        "CJT-063 remains open for independent/no-LPP expert-guidance depth."
+        "This record now includes the Row 23 Coach natural-language 3a capacity guidance proof, not full Row 23 closure.",
+        "The flow proves persona-grounded no-LPP 3a margin, decision map, source/provenance labels, and rejection of the previous misleading tax-impact card.",
+        "The transcript/content benchmark is 8.8/10, but the executable registry score is capped at 8.0 until restart/profile-update continuity is proven.",
+        "Source freshness is text-level, not a structured per-field timestamp/confidence component.",
+        "No runtime VoiceOver/focus traversal exists yet for the long Coach answer.",
+        "No restart/profile-update proof exists yet for the same source/freshness values."
       ],
       "automation": {
-        "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml",
-        "junit": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/result.xml",
+        "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml",
+        "junit": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml",
         "watchdog_exit": 0
       },
       "evidence_artifacts": [
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/01-row23-independent-no-lpp-budget.png",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/02-row23-independent-no-lpp-rapport.png",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/maestro.log"
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/row-23-independent-no-lpp-vz-margin-benchmark-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/maestro-flow-scoreboard-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/maestro.log",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/row23-independent-no-lpp-after-natural-3a-prompt.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/row23-independent-no-lpp-coach-local-guidance.png"
       ],
       "contract_tests": [
         {
-          "command": "cd apps/mobile && flutter test test/services/coach_profile_seeds_test.dart test/app_rapport_route_budget_test.dart && flutter test --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality test/services/coach/eclairage_force_kind_test.dart --plain-name \"CoachProfileSeeds.activeSeed agrees\"",
+          "command": "cd apps/mobile && flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_profile_wizard_test.dart test/services/data_spine_service_test.dart test/services/coach_context_packet_payload_test.dart test/services/coach_hard_gate_killswitch_test.dart test/screens/coach/coach_chat_test.dart",
           "result": "pass",
-          "scope": "Seed, Rapport route fallback, and active E2E seed contracts recorded in CJT-062 evidence."
+          "scope": "No-LPP local guidance, explicit 3a plan provenance, data spine mapping, hard gate, and Coach chat widget contracts; evidence says 163 passed and 5 existing skips."
         },
         {
-          "command": "cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart",
+          "command": "flutter analyze && python3 tools/checks/mint_quality_os_check.py && python3 tools/checks/cjt_context_guard.py && python3 tools/checks/maestro_locator_audit.py && ./tools/mint-routes check && git diff --check",
           "result": "pass",
-          "scope": "Report calculation/content contracts recorded after CJT-061 and CJT-062."
-        },
-        {
-          "command": "python3 tools/checks/mint_quality_os_check.py && python3 tools/checks/cjt_context_guard.py && python3 tools/checks/maestro_locator_audit.py",
-          "result": "pass",
-          "scope": "Quality OS, CJT context, and Maestro locator gates for the runtime fixture lot."
+          "scope": "Analyzer and repository gates for the source-backed 3a provenance lot."
         }
       ],
       "semantic_evals": [
         {
           "type": "persona_flow_benchmark_score",
           "result": "scored_with_gaps",
-          "scope": "Weighted benchmark score 6.30/10, final 6.3/10 after caps, based on runtime evidence, MINT constants, and public Swiss expert-market references."
+          "scope": "Benchmark score is 8.8/10 after card suppression, context-aware margin guidance, decision map, and source-backed 3a plan provenance."
         },
         {
-          "type": "swiss_constants_check",
+          "type": "swiss_expert_market_benchmark",
           "result": "pass_with_gaps",
-          "scope": "MINT pillar3a constants and OFAS/BSV source agree on with-LPP CHF 7'258 and without-LPP 20% of gainful income capped at CHF 36'288 for the 2026 context."
+          "scope": "VZ benchmark and MINT constants require no-LPP rule 20% of determining income capped at CHF 36'288, with capacity separated from legal room."
         },
         {
-          "type": "specialist_review",
-          "result": "no_blockers_for_scoring_lot",
-          "scope": "QA subagent recommended this exact next lot; accessibility subagent identified the next follow-up as section-level traversal for /rapport and populated independent/no-LPP /budget."
+          "type": "claude_cli_review",
+          "result": "no_blockers",
+          "scope": "Claude CLI reviews found no blockers after tightening runtime assertions and production source-key tests."
+        },
+        {
+          "type": "qa_subagent_review",
+          "result": "pass_with_gaps",
+          "scope": "QA agent confirmed the flow is no longer superficial but still lacks structured UI hierarchy, field-level metadata, and runtime VoiceOver/focus proof."
         }
       ],
-      "user_visible_outcome": "For the independent/no-LPP persona, /budget and /rapport no longer fall back to salary-only or LPP-affiliated assumptions; the flow is now scored as useful but incomplete guidance rather than merely a passed locator run.",
+      "user_visible_outcome": "For the independent/no-LPP persona, a natural Coach prompt Combien verser en 3a ? now returns bounded educational guidance: legal 3a margin formula, MINT facts, missing confirmations, decision map, source/provenance labels, and warning that legal room is not monthly payment capacity.",
       "guidance_boundary_evidence": [
-        "The benchmark uses Raiffeisen, Swiss Life, and VZ pages only as public coverage examples, not as provider rankings or user recommendations.",
-        "The observed MINT copy is status-neutral and educational; it does not tell the user to open a product, choose an allocation, or maximize a tax action.",
-        "CJT-063 tracks that expert-grade guidance should still cover optional LPP, AVS-independent status, risk cover, liquidity, income volatility, and missing-data checks."
+        "The flow uses VZ and MINT constants as benchmark anchors, not as provider recommendations.",
+        "The answer states Ne constitue pas un conseil financier and frames the output as educational guidance.",
+        "The decision map compares legal margin, capacity, risk cover, liquidity, optional LPP, and fiscal checks without ranking a product or provider.",
+        "Runtime rejects the previous generic tax-impact card hierarchy and stale precise tax-savings amounts."
       ],
       "rubric": {
-        "runtime_mechanics": 8.0,
-        "human_goal": 6.0,
-        "guidance_boundary": 7.0,
-        "user_data_grounding": 6.0,
-        "provenance_freshness": 5.0,
-        "restart_or_continuity": 4.0,
-        "next_step_quality": 6.0,
-        "ux_a11y_i18n": 4.0,
-        "automation_reliability": 8.0,
-        "debt_hygiene": 8.0
+        "runtime_mechanics": 9.0,
+        "human_goal": 9.0,
+        "guidance_boundary": 9.0,
+        "user_data_grounding": 9.0,
+        "provenance_freshness": 8.0,
+        "restart_or_continuity": 6.0,
+        "next_step_quality": 9.0,
+        "ux_a11y_i18n": 7.0,
+        "automation_reliability": 9.0,
+        "debt_hygiene": 9.0
       },
       "remaining_gaps": [
-        "No VoiceOver/focus traversal for the independent/no-LPP Budget/Rapport path.",
-        "No PDF export content proof for the same persona.",
-        "No live Coach natural-language answer scored for independent/no-LPP guidance quality.",
-        "No restart/source/freshness/confidence proof for the persona values.",
-        "No explicit runtime guidance around optional LPP affiliation, AVS-independent status, risk cover, liquidity, and income volatility.",
+        "No structured UI component yet for per-field provenance, timestamp, and confidence beside each money fact.",
+        "No runtime VoiceOver/focus traversal proof for the long Coach answer.",
+        "No restart/profile-update proof showing the same source/freshness values survive lifecycle changes.",
+        "The Budget/Rapport no-LPP route-chain score remains lower than the Coach 3a answer score and needs the same depth.",
         "Row 23 remains PARTIAL."
       ],
-      "last_reviewed": "2026-06-06"
+      "last_reviewed": "2026-06-07",
+      "benchmark_references": [
+        "VZ Pilier 3a: montant maximal 2026 benchmark for no-LPP rule and independent income base.",
+        "MINT pillar3a constants: max_without_lpp CHF 36'288 and income_rate_without_lpp 0.2.",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/row-23-independent-no-lpp-vz-margin-benchmark-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.json"
+      ],
+      "critical_assertions": [
+        "Natural prompt does not repeat independent/no-LPP; CoachContext must carry the persona fact.",
+        "Runtime must show Marge 3a à vérifier, formula, revenu déterminant, and versements 3a déjà planifiés.",
+        "Runtime must show MINT facts 86'400 CHF/an, 6'000 CHF/an, and 11'280 CHF/an.",
+        "Runtime must show Provenance et fraîcheur with revenu professionnel and versements 3a planifiés labelled saisie dans MINT.",
+        "Runtime must show Confirmations manquantes, Carte de décision, Comparer avant de verser, and Prochaine action prudente."
+      ],
+      "anti_surface_assertions": [
+        "Runtime rejects Encore en chantier pour ton profil and API Claude transparency leakage.",
+        "Runtime rejects the misleading generic card: Versement 3a 2026 and Impact fiscal indicatif.",
+        "Runtime rejects stale precise amounts 2'218 CHF, 7'137 CHF, and 3'068 CHF.",
+        "Runtime rejects plan MINT and source non affichée for the explicit seeded 3a plan provenance path.",
+        "Runtime rejects NaN, Infinity, A RenderFlex overflowed, Exception caught, and NoSuchMethodError."
+      ]
     }
   ]
 }

@@ -204,8 +204,13 @@ Runtime evidence:
 
 ### Provenance/Freshness Follow-Up
 
-Score after source-backed 3a plan provenance and iPhone 16e runtime proof:
-`8.8 / 10`.
+Content/transcript score after source-backed 3a plan provenance and iPhone
+16e runtime proof: `8.8 / 10`.
+
+Executable registry score after the stricter Quality OS cap: `8.0 / 10`.
+Reason: a flow cannot exceed `8` while restart/profile-update continuity is
+unproven for money-profile truth, and it cannot approach `10` without runtime
+VoiceOver/focus traversal.
 
 What changed:
 
@@ -226,11 +231,13 @@ Local proof:
 - `flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_profile_wizard_test.dart test/services/data_spine_service_test.dart test/services/coach_context_packet_payload_test.dart test/services/coach_hard_gate_killswitch_test.dart test/screens/coach/coach_chat_test.dart`
 - Result: `163` passed, `5` existing skips.
 - Runtime evidence:
-  `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/result.xml`
+  `evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml`
 - Result: `tests=1`, `failures=0`, device `iPhone 16e - iOS 26.2`.
-- Watchdog: `maestro returned 0`; strict assertion rejects `plan MINT`.
+- Watchdog: `maestro returned 0`; strict assertions reject `plan MINT`,
+  `source non affichée`, tax-impact cards, stale amounts, product/open-account
+  wording, and overclaiming terms.
 - Screenshot:
-  `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/runtime-final-3a-plan-provenance-strict2.png`.
+  `evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/row23-independent-no-lpp-coach-local-guidance.png`.
 - Detail artifact:
   `evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md`.
 

@@ -79,7 +79,9 @@ runtime proof: `8.2 / 10`.
 
 After decision-map guidance and iPhone 16e runtime proof: `8.6 / 10`.
 
-After source-backed 3a plan provenance proof: `8.8 / 10`.
+After source-backed 3a plan provenance proof: transcript/content score
+`8.8 / 10`; executable Quality OS registry score `8.0 / 10` after the stricter
+restart/provenance-continuity cap.
 
 Why it rises:
 
@@ -107,12 +109,13 @@ Why it rises:
   so the planned 3a amount can be labelled as a MINT-entered source instead
   of a generic plan. Allocation-created 3a plans still remain `plan MINT`.
 
-Why it is not yet `10 / 10`:
+Why it is not yet above the executable `8 / 10` cap:
 
 - The decision map is still text-only inside chat; it is not a dedicated
   structured UI component with per-field provenance.
 - Source freshness is text-level only; timestamps/confidence are not rendered
   beside each money fact as a dedicated component.
+- Restart/profile-update continuity is not yet proven for the same money facts.
 - VoiceOver/focus order for this long answer is not yet proven at runtime.
 
 ## Verification Links
@@ -130,8 +133,8 @@ Why it is not yet `10 / 10`:
 - Decision-map runtime screenshot:
   `evidence/maestro-ci/row-23-independent-no-lpp-decision-map-quality-20260607T124439/runtime-final-decision-map-guidance.jpg`
 - Provenance/freshness runtime evidence:
-  `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/result.xml`
+  `evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml`
 - Provenance/freshness runtime screenshot:
-  `evidence/maestro-ci/row-23-independent-no-lpp-3a-plan-provenance-strict2-20260607T133433/runtime-final-3a-plan-provenance-strict2.png`
+  `evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/row23-independent-no-lpp-coach-local-guidance.png`
 - Provenance/freshness artifact:
   `evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md`

@@ -97,6 +97,9 @@ def _write_fixture(
                     "semantic_evals",
                     "user_visible_outcome",
                     "guidance_boundary_evidence",
+                    "benchmark_references",
+                    "critical_assertions",
+                    "anti_surface_assertions",
                     "rubric",
                     "remaining_gaps",
                     "last_reviewed",
@@ -369,6 +372,84 @@ def test_valid_scorecard_passes(tmp_path: Path) -> None:
     _write_fixture(tmp_path)
 
     assert _errors(tmp_path) == []
+
+
+def test_flow_registry_requires_deep_flow_contract_fields(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry["required_fields_per_entry"] = [
+        field
+        for field in registry["required_fields_per_entry"]
+        if field
+        not in {
+            "benchmark_references",
+            "critical_assertions",
+            "anti_surface_assertions",
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("benchmark_references" in error for error in errors)
+    assert any("critical_assertions" in error for error in errors)
+    assert any("anti_surface_assertions" in error for error in errors)
+
+
+def test_high_scoring_flow_requires_benchmark_and_assertion_depth(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry["entries"].append(
+        {
+            "flow_id": "flow_row23_shallow_green",
+            "matrix_rows": [23],
+            "bug_ids": ["CJT-TEST"],
+            "persona": "independent_no_lpp_income_reality",
+            "surface_family": "coach_trust",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 8.5,
+            "score_cap": 9.0,
+            "cap_reasons": ["Still missing VoiceOver proof."],
+            "automation": {
+                "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+                "junit": str(PHASE / "evidence/quality-review/result.xml"),
+                "watchdog_exit": 0,
+            },
+            "evidence_artifacts": [
+                str(PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md")
+            ],
+            "contract_tests": [{"command": "test", "result": "pass"}],
+            "semantic_evals": [{"type": "review", "result": "pass"}],
+            "user_visible_outcome": "A high-scoring but shallow flow.",
+            "guidance_boundary_evidence": ["No product prescription."],
+            "benchmark_references": [],
+            "critical_assertions": ["asserts title only"],
+            "anti_surface_assertions": [],
+            "rubric": {
+                "runtime_mechanics": 8.0,
+                "human_goal": 8.0,
+                "guidance_boundary": 8.0,
+                "user_data_grounding": 8.0,
+                "provenance_freshness": 8.0,
+                "restart_or_continuity": 8.0,
+                "next_step_quality": 8.0,
+                "ux_a11y_i18n": 8.0,
+                "automation_reliability": 8.0,
+                "debt_hygiene": 8.0,
+            },
+            "remaining_gaps": ["VoiceOver proof."],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    )
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("benchmark_references must be non-empty" in error for error in errors)
+    assert any("anti_surface_assertions must be non-empty" in error for error in errors)
 
 
 def test_missing_required_artifact_fails(tmp_path: Path) -> None:
@@ -1094,6 +1175,13 @@ def test_flow_evidence_registry_accepts_fully_populated_valid_entry(
             "semantic_evals": [{"id": "eval", "result": "pass"}],
             "user_visible_outcome": "User can inspect Budget/Profile/Rapport flow quality.",
             "guidance_boundary_evidence": ["No product recommendation."],
+            "benchmark_references": ["Public Swiss expert-market benchmark artifact."],
+            "critical_assertions": [
+                "Runtime proves the scenario-specific user outcome, not only navigation."
+            ],
+            "anti_surface_assertions": [
+                "Runtime rejects stale or misleading generic CTA/content."
+            ],
             "rubric": {
                 "runtime_mechanics": 8.0,
                 "human_goal": 8.0,
@@ -1113,6 +1201,178 @@ def test_flow_evidence_registry_accepts_fully_populated_valid_entry(
     registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
 
     assert _errors(tmp_path) == []
+
+
+def test_flow_evidence_registry_caps_high_score_without_restart_depth(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    junit_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_restart_gap",
+            "matrix_rows": [23],
+            "bug_ids": [],
+            "persona": "independent_no_lpp_income_reality",
+            "surface_family": "coach_trust",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 8.5,
+            "score_cap": 9.0,
+            "cap_reasons": ["Restart proof still pending."],
+            "automation": {
+                "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+                "junit": junit_path,
+                "watchdog_exit": 0,
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "User gets a high-quality guidance answer.",
+            "guidance_boundary_evidence": ["No product recommendation."],
+            "benchmark_references": ["Public Swiss expert-market benchmark artifact."],
+            "critical_assertions": ["Runtime proves scenario-specific facts."],
+            "anti_surface_assertions": ["Runtime rejects misleading generic cards."],
+            "rubric": {
+                "runtime_mechanics": 9.0,
+                "human_goal": 9.0,
+                "guidance_boundary": 9.0,
+                "user_data_grounding": 9.0,
+                "provenance_freshness": 8.0,
+                "restart_or_continuity": 6.0,
+                "next_step_quality": 9.0,
+                "ux_a11y_i18n": 8.0,
+                "automation_reliability": 9.0,
+                "debt_hygiene": 9.0,
+            },
+            "remaining_gaps": ["Restart proof still pending."],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("derived evidence cap 8" in error for error in errors)
+
+
+def test_flow_evidence_registry_accepts_score_at_restart_cap_boundary(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    junit_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_restart_cap_boundary",
+            "matrix_rows": [23],
+            "bug_ids": [],
+            "persona": "independent_no_lpp_income_reality",
+            "surface_family": "coach_trust",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 8.0,
+            "score_cap": 8.0,
+            "cap_reasons": ["Restart proof still pending."],
+            "automation": {
+                "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+                "junit": junit_path,
+                "watchdog_exit": 0,
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "User gets a strong but capped guidance answer.",
+            "guidance_boundary_evidence": ["No product recommendation."],
+            "benchmark_references": ["Public Swiss expert-market benchmark artifact."],
+            "critical_assertions": ["Runtime proves scenario-specific facts."],
+            "anti_surface_assertions": ["Runtime rejects misleading generic cards."],
+            "rubric": {
+                "runtime_mechanics": 9.0,
+                "human_goal": 9.0,
+                "guidance_boundary": 9.0,
+                "user_data_grounding": 9.0,
+                "provenance_freshness": 8.0,
+                "restart_or_continuity": 6.0,
+                "next_step_quality": 9.0,
+                "ux_a11y_i18n": 8.0,
+                "automation_reliability": 9.0,
+                "debt_hygiene": 9.0,
+            },
+            "remaining_gaps": ["Restart proof still pending."],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    assert _errors(tmp_path) == []
+
+
+def test_flow_evidence_registry_caps_near_ten_without_a11y_runtime_depth(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry_path = tmp_path / PHASE / "flow-evidence-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    evidence_path = str(
+        PHASE / "evidence/quality-review/persona-flow-benchmark-seed-20260606.md"
+    )
+    junit_path = str(PHASE / "evidence/quality-review/result.xml")
+    registry["entries"] = [
+        {
+            "flow_id": "flow_a11y_gap",
+            "matrix_rows": [23],
+            "bug_ids": [],
+            "persona": "independent_no_lpp_income_reality",
+            "surface_family": "coach_trust",
+            "tier": "T1",
+            "status_claim": "PARTIAL",
+            "score": 9.5,
+            "score_cap": 10.0,
+            "cap_reasons": ["VoiceOver runtime proof still pending."],
+            "automation": {
+                "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+                "junit": junit_path,
+                "watchdog_exit": 0,
+            },
+            "evidence_artifacts": [evidence_path],
+            "contract_tests": [{"command": "flutter test", "result": "pass"}],
+            "semantic_evals": [{"id": "eval", "result": "pass"}],
+            "user_visible_outcome": "User gets a near-complete guidance answer.",
+            "guidance_boundary_evidence": ["No product recommendation."],
+            "benchmark_references": ["Public Swiss expert-market benchmark artifact."],
+            "critical_assertions": ["Runtime proves scenario-specific facts."],
+            "anti_surface_assertions": ["Runtime rejects misleading generic cards."],
+            "rubric": {
+                "runtime_mechanics": 9.0,
+                "human_goal": 9.0,
+                "guidance_boundary": 9.0,
+                "user_data_grounding": 9.0,
+                "provenance_freshness": 9.0,
+                "restart_or_continuity": 9.0,
+                "next_step_quality": 9.0,
+                "ux_a11y_i18n": 7.0,
+                "automation_reliability": 9.0,
+                "debt_hygiene": 9.0,
+            },
+            "remaining_gaps": ["VoiceOver runtime proof still pending."],
+            "last_reviewed": dt.date.today().isoformat(),
+        }
+    ]
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+
+    errors = _errors(tmp_path)
+
+    assert any("derived evidence cap 9" in error for error in errors)
 
 
 def test_flow_evidence_registry_rejects_missing_automation_paths(

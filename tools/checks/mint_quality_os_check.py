@@ -185,6 +185,9 @@ def _check_flow_evidence_registry(root: Path, errors: list[str]) -> None:
         "semantic_evals",
         "user_visible_outcome",
         "guidance_boundary_evidence",
+        "benchmark_references",
+        "critical_assertions",
+        "anti_surface_assertions",
         "rubric",
         "remaining_gaps",
         "last_reviewed",
@@ -294,6 +297,25 @@ def _check_flow_evidence_registry(root: Path, errors: list[str]) -> None:
                 f"{label}.guidance_boundary_evidence must be a list of non-empty strings"
             )
             guidance_boundary_evidence = []
+        benchmark_references = entry.get("benchmark_references")
+        critical_assertions = entry.get("critical_assertions")
+        anti_surface_assertions = entry.get("anti_surface_assertions")
+        for list_field, value in (
+            ("benchmark_references", benchmark_references),
+            ("critical_assertions", critical_assertions),
+            ("anti_surface_assertions", anti_surface_assertions),
+        ):
+            if not isinstance(value, list) or not all(
+                isinstance(item, str) and item for item in value
+            ):
+                errors.append(f"{label}.{list_field} must be a list of non-empty strings")
+        if score is not None and score > 6.0:
+            if not benchmark_references:
+                errors.append(f"{label}.benchmark_references must be non-empty above 6/10")
+            if not critical_assertions:
+                errors.append(f"{label}.critical_assertions must be non-empty above 6/10")
+            if not anti_surface_assertions:
+                errors.append(f"{label}.anti_surface_assertions must be non-empty above 6/10")
         rubric = entry.get("rubric")
         if not isinstance(rubric, dict):
             errors.append(f"{label}.rubric must be an object")
@@ -364,6 +386,22 @@ def _check_flow_evidence_registry(root: Path, errors: list[str]) -> None:
             derived_cap = min(derived_cap, 7.0)
         if score is not None and score > 8.0 and not has_semantic_evals:
             derived_cap = min(derived_cap, 8.0)
+        if (
+            score is not None
+            and score > 8.0
+            and isinstance(rubric, dict)
+            and isinstance(rubric.get("restart_or_continuity"), (int, float))
+            and float(rubric["restart_or_continuity"]) < 8.0
+        ):
+            derived_cap = min(derived_cap, 8.0)
+        if (
+            score is not None
+            and score > 9.0
+            and isinstance(rubric, dict)
+            and isinstance(rubric.get("ux_a11y_i18n"), (int, float))
+            and float(rubric["ux_a11y_i18n"]) < 8.0
+        ):
+            derived_cap = min(derived_cap, 9.0)
         if score is not None and score >= 10.0 and has_remaining_gaps:
             derived_cap = min(derived_cap, 9.0)
         if score is not None and score > derived_cap:
