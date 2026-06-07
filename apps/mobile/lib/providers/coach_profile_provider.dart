@@ -734,6 +734,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_birth_year',
       'q_gross_salary_annual',
       'q_net_income_period_chf',
+      'q_self_employed_net_income_annual_chf',
       'q_employment_status',
       'q_nationality',
       'q_residence_permit',

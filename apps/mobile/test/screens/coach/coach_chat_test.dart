@@ -629,6 +629,62 @@ void main() {
       }
     });
 
+    testWidgets(
+        'independent_no_lpp 3a answer refreshes profile facts during same chat session',
+        (tester) async {
+      usePhoneViewport(tester);
+      final provider = buildIndependentNoLppProfileProvider();
+      await tester.pumpWidget(buildTestWidget(
+        profileProviderOverride: provider,
+        contextBuilder: emptyContextBuilder,
+      ));
+      await pumpUntilGreeting(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('coach_input_field')),
+        'Combien verser en 3a ?',
+      );
+      await tester.tap(find.byKey(const Key('coach_send_button')));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.textContaining('11\u00a0280\u00a0CHF/an'), findsOneWidget);
+
+      provider.updateFromAnswers({
+        'q_firstname': 'Nadia',
+        'q_us_tax_person': false,
+        'q_nationality': 'CH',
+        'q_employment_status': 'independant',
+        'q_has_pension_fund': false,
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 8000,
+        'q_pay_frequency': 'monthly',
+        'q_self_employed_net_income_annual_chf': 96000,
+        'q_3a_annual_contribution': 6000,
+        'q_savings_monthly': 6000 / 12,
+        'q_savings_allocation': ['3a'],
+      });
+      await tester.pump();
+
+      await tester.enterText(
+        find.byKey(const Key('coach_input_field')),
+        'Combien verser en 3a ?',
+      );
+      await tester.tap(find.byKey(const Key('coach_send_button')));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+        find.textContaining('13\u00a0200\u00a0CHF/an'),
+        findsOneWidget,
+        reason:
+            'The second answer must use the current provider profile, not the stale profile captured when the chat opened.',
+      );
+    });
+
     testWidgets('independent_no_lpp generic prompt renders hard-gate refusal',
         (tester) async {
       usePhoneViewport(tester);

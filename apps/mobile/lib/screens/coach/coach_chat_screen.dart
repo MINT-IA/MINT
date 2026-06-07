@@ -1000,6 +1000,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return readiness is Map<String, dynamic> ? readiness : null;
   }
 
+  void _syncProfileFromProvider() {
+    final provider = context.read<CoachProfileProvider>();
+    if (provider.hasProfile) {
+      final freshProfile = provider.profile;
+      if (freshProfile != null && !identical(freshProfile, _profile)) {
+        _profile = freshProfile;
+      }
+    }
+  }
+
   /// Regex patterns for voice intensity adjustment commands.
   static final RegExp _intensityUpPattern = RegExp(
     r'(plus cash|plus direct|mode brut|sois plus direct|parle.?moi plus cash|monte.*cran|plus franc)',
@@ -1089,6 +1099,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       return;
     }
 
+    _syncProfileFromProvider();
+
     setState(() {
       _messages.add(ChatMessage(
         role: 'user',
@@ -1137,15 +1149,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // CHAT-01: Load profile if available — never invent fake data.
     // If no profile exists, use default CoachProfile (all zeros/empty).
     // The system prompt detects confidence=0 and asks for real data.
-    if (_profile == null) {
-      final provider = context.read<CoachProfileProvider>();
-      if (provider.hasProfile) {
-        _profile = provider.profile;
-      } else {
-        // Minimal profile with no fake data — zeros mean "unknown".
-        _profile = CoachProfile.defaults();
-      }
-    }
+    // Minimal profile with no fake data — zeros mean "unknown".
+    _profile ??= CoachProfile.defaults();
 
     // Try SLM streaming first.
     final ctx = _buildCoachContext(_profile!);

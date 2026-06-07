@@ -196,6 +196,41 @@ void main() {
     expect(provider.profile!.salaireBrutMensuel, 10000);
   });
 
+  test('self-employed annual income alone hydrates a partial profile',
+      () async {
+    final secureStorage = <String, String>{};
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) secureStorage[key] = value;
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) secureStorage.remove(key);
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+    await ReportPersistenceService.saveAnswers({
+      'q_self_employed_net_income_annual_chf': 120000,
+    });
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    expect(provider.profile, isNotNull);
+    expect(provider.isPartialProfile, isTrue);
+    expect(provider.profile!.independentNetProfessionalIncomeAnnual, 120000);
+  });
+
   test('backend profile hydration survives cold start from secure prefs',
       () async {
     final secureStorage = <String, String>{};
