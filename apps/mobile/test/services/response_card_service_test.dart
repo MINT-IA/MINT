@@ -56,12 +56,14 @@ void main() {
 
   group('PremierEclairage', () {
     test('CHF formatting with Swiss apostrophe', () {
-      const c = PremierEclairage(value: 12450, unit: 'CHF', explanation: 'test');
+      const c =
+          PremierEclairage(value: 12450, unit: 'CHF', explanation: 'test');
       expect(c.formatted, "12'450 CHF");
     });
 
     test('CHF large number formatting', () {
-      const c = PremierEclairage(value: 539414, unit: 'CHF', explanation: 'test');
+      const c =
+          PremierEclairage(value: 539414, unit: 'CHF', explanation: 'test');
       expect(c.formatted, "539'414 CHF");
     });
 
@@ -87,7 +89,8 @@ void main() {
     });
 
     test('negative value formatting', () {
-      const c = PremierEclairage(value: -5000, unit: 'CHF', explanation: 'test');
+      const c =
+          PremierEclairage(value: -5000, unit: 'CHF', explanation: 'test');
       expect(c.formatted, "-5'000 CHF");
     });
   });
@@ -114,8 +117,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        premierEclairage:
-            const PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage: const PremierEclairage(
+            value: 100, unit: 'CHF', explanation: 'test'),
         cta: const CardCta(label: 'Go', route: '/test'),
         deadline: DateTime.now().add(const Duration(days: 15)),
         disclaimer: 'test',
@@ -132,8 +135,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        premierEclairage:
-            const PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage: const PremierEclairage(
+            value: 100, unit: 'CHF', explanation: 'test'),
         cta: const CardCta(label: 'Go', route: '/test'),
         deadline: DateTime.now().add(const Duration(days: 90)),
         disclaimer: 'test',
@@ -147,8 +150,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        premierEclairage:
-            const PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage: const PremierEclairage(
+            value: 100, unit: 'CHF', explanation: 'test'),
         cta: const CardCta(label: 'Go', route: '/test'),
         deadline: DateTime.now().subtract(const Duration(days: 5)),
         disclaimer: 'test',
@@ -196,7 +199,8 @@ void main() {
         canton: 'VD',
         birthYear: 1980,
       );
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
       expect(types, contains(ResponseCardType.pillar3a));
@@ -204,7 +208,8 @@ void main() {
 
     test('3a card has 31.12 deadline', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final card3a =
           cards.firstWhere((c) => c.type == ResponseCardType.pillar3a);
@@ -215,7 +220,8 @@ void main() {
 
     test('3a card sources reference OPP3 and LIFD', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final card3a =
           cards.firstWhere((c) => c.type == ResponseCardType.pillar3a);
@@ -232,6 +238,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(canContribute3a: true),
       ).copyWith(
+        independentNetProfessionalIncomeAnnual: 86400,
         plannedContributions: const [
           PlannedMonthlyContribution(
             id: '3a_nadia',
@@ -251,7 +258,8 @@ void main() {
 
       final card3a =
           cards.firstWhere((c) => c.type == ResponseCardType.pillar3a);
-      expect(card3a.premierEclairage.explanation, contains('15600'));
+      expect(card3a.premierEclairage.explanation, contains('11280'));
+      expect(card3a.premierEclairage.explanation, isNot(contains('15600')));
       expect(card3a.premierEclairage.explanation, isNot(contains('36288')));
       expect(card3a.premierEclairage.value, lessThan(4000));
     });
@@ -265,7 +273,8 @@ void main() {
           rachatMaximum: 200000,
         ),
       );
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
       expect(types, contains(ResponseCardType.lppBuyback));
@@ -277,13 +286,12 @@ void main() {
 
       final youngCards =
           ResponseCardService.generateForPulse(young, l: _l, limit: 10);
-      final oldCards = ResponseCardService.generateForPulse(old, l: _l, limit: 10);
+      final oldCards =
+          ResponseCardService.generateForPulse(old, l: _l, limit: 10);
 
-      expect(
-          youngCards.any((c) => c.type == ResponseCardType.replacementRate),
+      expect(youngCards.any((c) => c.type == ResponseCardType.replacementRate),
           isFalse);
-      expect(
-          oldCards.any((c) => c.type == ResponseCardType.replacementRate),
+      expect(oldCards.any((c) => c.type == ResponseCardType.replacementRate),
           isTrue);
     });
 
@@ -294,7 +302,8 @@ void main() {
         birthYear: 1980,
         arrivalAge: 30,
       );
-      final cards = ResponseCardService.generateForPulse(expat, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(expat, l: _l, limit: 10);
 
       final types = cards.map((c) => c.type).toSet();
       expect(types, contains(ResponseCardType.avsGap));
@@ -302,7 +311,8 @@ void main() {
 
     test('AVS gap card NOT for Swiss native (no arrivalAge)', () {
       final swiss = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards = ResponseCardService.generateForPulse(swiss, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(swiss, l: _l, limit: 10);
 
       expect(cards.any((c) => c.type == ResponseCardType.avsGap), isFalse);
     });
@@ -313,10 +323,10 @@ void main() {
         canton: 'VD',
         employmentStatus: 'independant',
       );
-      final cards = ResponseCardService.generateForPulse(indep, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(indep, l: _l, limit: 10);
 
-      expect(
-          cards.any((c) => c.type == ResponseCardType.independant), isTrue);
+      expect(cards.any((c) => c.type == ResponseCardType.independant), isTrue);
     });
 
     test('independant card NOT shown if has LPP', () {
@@ -326,10 +336,10 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
-      final cards = ResponseCardService.generateForPulse(indep, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(indep, l: _l, limit: 10);
 
-      expect(
-          cards.any((c) => c.type == ResponseCardType.independant), isFalse);
+      expect(cards.any((c) => c.type == ResponseCardType.independant), isFalse);
     });
 
     test('limit respected', () {
@@ -343,7 +353,8 @@ void main() {
           rachatMaximum: 200000,
         ),
       );
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 2);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 2);
       expect(cards.length, lessThanOrEqualTo(2));
     });
 
@@ -357,7 +368,8 @@ void main() {
           rachatMaximum: 200000,
         ),
       );
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       for (var i = 1; i < cards.length; i++) {
         final prev = cards[i - 1];
@@ -381,7 +393,8 @@ void main() {
         birthYear: 1974,
         prevoyance: const PrevoyanceProfile(rachatMaximum: 100000),
       );
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       for (final card in cards) {
         expect(card.disclaimer, contains('LSFin'),
@@ -397,7 +410,8 @@ void main() {
         canton: 'VD',
         birthYear: 1974,
       );
-      final cards = ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
 
       for (final card in cards) {
         expect(card.cta.route, startsWith('/'),
@@ -433,8 +447,7 @@ void main() {
         visibilityScore: coupleScore,
       );
 
-      expect(
-          cards.any((c) => c.type == ResponseCardType.coupleAlert), isTrue);
+      expect(cards.any((c) => c.type == ResponseCardType.coupleAlert), isTrue);
     });
 
     test('no couple alert when gap <= 15', () {
@@ -461,8 +474,7 @@ void main() {
         visibilityScore: coupleScore,
       );
 
-      expect(
-          cards.any((c) => c.type == ResponseCardType.coupleAlert), isFalse);
+      expect(cards.any((c) => c.type == ResponseCardType.coupleAlert), isFalse);
     });
 
     test('patrimoine card ignores implausible housing for safety cushion', () {
@@ -499,8 +511,9 @@ void main() {
     test('returns cards matching user message topic', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
 
-      final cards3a =
-          ResponseCardService.generateForChat(profile, 'Mon 3a cette annee', l: _l);
+      final cards3a = ResponseCardService.generateForChat(
+          profile, 'Mon 3a cette annee',
+          l: _l);
       expect(cards3a.any((c) => c.type == ResponseCardType.pillar3a), isTrue);
 
       final cardsLpp =
@@ -524,8 +537,9 @@ void main() {
 
     test('returns empty for unrelated message', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
-      final cards =
-          ResponseCardService.generateForChat(profile, 'Bonjour comment ca va', l: _l);
+      final cards = ResponseCardService.generateForChat(
+          profile, 'Bonjour comment ca va',
+          l: _l);
       expect(cards, isEmpty);
     });
   });
@@ -583,7 +597,8 @@ void main() {
       );
       final prompts = ResponseCardService.suggestedPrompts(profile, l: _l);
 
-      expect(prompts.any((p) => p.toLowerCase().contains('ind\u00e9pendant')), isTrue);
+      expect(prompts.any((p) => p.toLowerCase().contains('ind\u00e9pendant')),
+          isTrue);
     });
 
     test('couple sees coordination prompt', () {

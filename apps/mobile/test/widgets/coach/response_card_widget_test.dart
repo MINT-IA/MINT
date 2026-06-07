@@ -115,6 +115,15 @@ void main() {
       expect(find.text('Simuler mon 3a'), findsOneWidget);
     });
 
+    testWidgets('exposes stable semantics id for Maestro runtime proof',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(card: _makeCard()),
+      ));
+
+      expect(find.byKey(const Key('response_card_pillar3a')), findsOneWidget);
+    });
+
     testWidgets('shows chiffre-choc when meaningful', (tester) async {
       await tester.pumpWidget(_wrap(
         ResponseCardWidget.chat(card: _makeCard(chiffreValue: 5000)),

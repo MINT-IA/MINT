@@ -394,14 +394,19 @@ void main() {
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['q_household_type'], 'couple');
-      expect(merged['q_net_income_period_chf'], 96000.0);
-      expect(merged['q_pay_frequency'], 'yearly');
+      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+      expect(merged.containsKey('q_net_income_period_chf'), isFalse);
+      expect(merged.containsKey('q_pay_frequency'), isFalse);
       expect(merged['q_employment_status'], 'independant');
       expect(merged['q_has_pension_fund'], isTrue);
       expect(merged['q_partner_birth_year'], 1982);
       expect(merged['q_partner_net_income_chf'], 5000.0);
       expect(merged['q_spouse_avs_contribution_years'], 18);
       expect(profile.employmentStatus, 'independant');
+      expect(profile.independentNetProfessionalIncomeAnnual, 96000.0);
+      expect(profile.explicitMonthlyNetIncome, isNull);
+      expect(profile.salaireBrutMensuel, closeTo(8800, 0.01));
+      expect(profile.revenuBrutAnnuel, closeTo(105600, 0.01));
       expect(profile.conjoint!.birthYear, 1982);
       expect(profile.conjoint!.prevoyance!.anneesContribuees, 18);
     });

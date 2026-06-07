@@ -1234,6 +1234,27 @@ void main() {
       expect(inputs.netIncome, closeTo(9000, 0.01));
     });
 
+    test(
+        'fromCoachProfile uses professional net income when independent gross is absent',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 0,
+        employmentStatus: 'independant',
+        independentNetProfessionalIncomeAnnual: 96000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.netIncome, 8000);
+    });
+
     test('fromCoachProfile uses annual gross for salaried net income', () {
       final profile = CoachProfile(
         birthYear: 1985,

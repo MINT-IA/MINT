@@ -103,6 +103,9 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **Income**
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
   `q_net_income_period_chf` (double, amount per period),
+  `q_self_employed_net_income_annual_chf` (double, annual professional net
+  income for independent/no-LPP OPP3 art. 7 calculations; not household budget
+  net income),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
@@ -192,6 +195,10 @@ wizard keys.
 
 **Safe-mapping rules.**
 
+- `selfEmployedNetIncome` maps to
+  `q_self_employed_net_income_annual_chf` plus
+  `q_employment_status=independant`. It must not populate
+  `q_net_income_period_chf`, which is the household/budget net-income field.
 - `pillar3aBalance` maps to `q_3a_total`; legacy `q_total_3a` is not a
   writer target.
 - `totalDebt` maps to `q_total_debt_balance_chf`. It is a remaining debt

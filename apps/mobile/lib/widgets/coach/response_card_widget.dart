@@ -105,7 +105,10 @@ class ResponseCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final semanticsIdentifier = _semanticsIdentifier;
     return Semantics(
+      key: Key(semanticsIdentifier),
+      identifier: semanticsIdentifier,
       button: true,
       label: '${card.title} — ${card.subtitle}',
       child: GestureDetector(
@@ -140,6 +143,21 @@ class ResponseCardWidget extends StatelessWidget {
       case ResponseCardVariant.sheet:
         return _buildSheet(context);
     }
+  }
+
+  String get _semanticsIdentifier {
+    return switch (card.type) {
+      ResponseCardType.pillar3a => 'response_card_pillar3a',
+      ResponseCardType.lppBuyback => 'response_card_lpp_buyback',
+      ResponseCardType.replacementRate => 'response_card_replacement_rate',
+      ResponseCardType.renteVsCapital => 'response_card_rente_vs_capital',
+      ResponseCardType.avsGap => 'response_card_avs_gap',
+      ResponseCardType.taxOptimization => 'response_card_tax_optimization',
+      ResponseCardType.coupleAlert => 'response_card_couple_alert',
+      ResponseCardType.patrimoine => 'response_card_patrimoine',
+      ResponseCardType.mortgage => 'response_card_mortgage',
+      ResponseCardType.independant => 'response_card_independant',
+    };
   }
 
   // ── COMPACT: titre seul (audit S4 DELETE #3 + #4) ─────────

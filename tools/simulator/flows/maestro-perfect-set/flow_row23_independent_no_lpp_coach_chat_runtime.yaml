@@ -99,9 +99,12 @@ tags:
 - assertVisible: ".*LAVS art. 8.*"
 - assertVisible: ".*Outil éducatif simplifié.*"
 - assertVisible: ".*Ne constitue pas un conseil financier.*"
+- assertVisible:
+    id: "response_card_pillar3a"
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "API Claude"
 - assertNotVisible: "7'137 CHF"
+- assertNotVisible: "3'068 CHF"
 - assertNotVisible: "NaN"
 - assertNotVisible: "Infinity"
 - assertNotVisible: "A RenderFlex overflowed"

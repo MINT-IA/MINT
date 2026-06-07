@@ -66,8 +66,11 @@ The post-run runtime snapshot also showed:
 - `revenu imposable pour l'impact fiscal`;
 - `Réf. : OPP3 art. 7, LPP art. 4, LAVS art. 8`;
 - `Ne constitue pas un conseil financier (LSFin)`.
-- response card `Versement 3a 2026` with corrected `3'068 CHF` indicative
-  impact, after switching the card to the canonical remaining-room calculation.
+- response card `Versement 3a 2026` initially corrected the stale absolute
+  ceiling amount by switching the card to the canonical remaining-room
+  calculation. Follow-up proof now uses a dedicated professional net-income
+  source and shows `2'218 CHF` in
+  `evidence/maestro-ci/row-23-independent-no-lpp-professional-net-source-20260607T091054/runtime-snapshot-professional-net-source.jpg`.
 
 Screenshot artifact:
 
@@ -85,10 +88,15 @@ rendered the local guidance.
 
 The next green run was blocked during review because the response card under
 the local answer still showed `7'137 CHF`, computed from the absolute no-LPP
-ceiling instead of the user's income-aware remaining 3a room. The fix switches
-`ResponseCardService` to `Pillar3aRoomCalculator.remainingAnnualRoom(...)`.
-The red/green unit proof is in `test/services/response_card_service_test.dart`,
-and the final runtime flow now fails if `7'137 CHF` reappears.
+ceiling instead of the user's income-aware remaining 3a room. The first fix
+switched `ResponseCardService` to
+`Pillar3aRoomCalculator.remainingAnnualRoom(...)`.
+
+Follow-up source review then found the remaining `3'068 CHF` runtime card was
+still based on a gross-income fallback. The dedicated professional net-income
+source fix is documented in
+`row-23-independent-no-lpp-professional-net-source-20260607.md`, and the
+runtime flow now fails if either `7'137 CHF` or `3'068 CHF` reappears.
 
 ## Boundaries
 
@@ -96,10 +104,6 @@ This does not close Row 23 or CJT-063.
 
 Still open:
 
-- verify or introduce a reliable net professional income source for
-  independent/no-LPP OPP3 art. 7 room. Do not use `explicitMonthlyNetIncome`
-  for this: it is household budget net income, not the self-employed
-  professional net/determinant income;
 - broader independent/no-LPP natural-language Coach calibration beyond this
   audited local topic;
 - live backend/LLM scoring for calibrated personas;

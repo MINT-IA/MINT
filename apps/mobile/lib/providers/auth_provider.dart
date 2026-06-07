@@ -172,13 +172,10 @@ class AuthProvider extends ChangeNotifier {
       );
     }
     if (data['selfEmployedNetIncome'] is num) {
-      final filledIncome = fillNumIfMissing(
-        'q_net_income_period_chf',
+      fillNumIfMissing(
+        'q_self_employed_net_income_annual_chf',
         data['selfEmployedNetIncome'],
       );
-      if (filledIncome) {
-        answers['q_pay_frequency'] = 'yearly';
-      }
       fillIfMissing('q_employment_status', 'independant');
     }
     if (data['incomeGrossYearly'] != null) {

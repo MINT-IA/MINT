@@ -207,6 +207,15 @@ class BudgetInputs {
         explicitOwnNet > 0) {
       return explicitOwnNet;
     }
+    if (profile.employmentStatus == 'independant') {
+      final professionalNetAnnual =
+          profile.independentNetProfessionalIncomeAnnual;
+      if (professionalNetAnnual != null &&
+          professionalNetAnnual.isFinite &&
+          professionalNetAnnual > 0) {
+        return professionalNetAnnual / 12;
+      }
+    }
     final ownNet = _monthlyNetFromGrossAnnual(
       grossAnnual: profile.revenuBrutAnnuel,
       canton: profile.canton,

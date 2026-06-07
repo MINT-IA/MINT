@@ -384,6 +384,23 @@ void main() {
       expect(profile.salaireBrutMensuel, 0);
     });
 
+    test(
+        'self-employed professional net income derives a gross work base without salary net contamination',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'GE',
+        'q_employment_status': 'independant',
+        'q_self_employed_net_income_annual_chf': 96000.0,
+      });
+
+      expect(profile.independentNetProfessionalIncomeAnnual, 96000.0);
+      expect(profile.explicitMonthlyNetIncome, isNull);
+      expect(profile.userProvidedFields.contains('salary'), isFalse);
+      expect(profile.salaireBrutMensuel, closeTo(8800, 0.01));
+      expect(profile.revenuBrutAnnuel, closeTo(105600, 0.01));
+    });
+
     test('secure income tombstone is not treated as default salary', () {
       final profile = CoachProfile.fromWizardAnswers({
         'q_net_income_period_chf': null,
@@ -501,6 +518,8 @@ void main() {
         realEstateProject: 'no',
         providers3a: ['fintech', 'mixed'],
       );
+      answers['q_employment_status'] = 'independant';
+      answers['q_self_employed_net_income_annual_chf'] = 86400.0;
       final profile = CoachProfile.fromWizardAnswers(answers);
       final json = profile.toJson();
       final restored = CoachProfile.fromJson(json);
@@ -509,6 +528,7 @@ void main() {
       expect(restored.riskTolerance, 'aggressive');
       expect(restored.realEstateProject, 'no');
       expect(restored.providers3a, ['fintech', 'mixed']);
+      expect(restored.independentNetProfessionalIncomeAnnual, 86400.0);
     });
   });
 }

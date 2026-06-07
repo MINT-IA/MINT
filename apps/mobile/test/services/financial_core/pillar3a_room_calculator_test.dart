@@ -7,6 +7,7 @@ CoachProfile _profile({
   String employmentStatus = 'salarie',
   double salaireBrutMensuel = 8000,
   double? explicitMonthlyNetIncome,
+  double? independentNetProfessionalIncomeAnnual,
   List<PlannedMonthlyContribution> plannedContributions = const [],
 }) {
   return CoachProfile(
@@ -16,6 +17,8 @@ CoachProfile _profile({
     nombreEnfants: 0,
     salaireBrutMensuel: salaireBrutMensuel,
     explicitMonthlyNetIncome: explicitMonthlyNetIncome,
+    independentNetProfessionalIncomeAnnual:
+        independentNetProfessionalIncomeAnnual,
     nombreDeMois: 12,
     employmentStatus: employmentStatus,
     depenses: const DepensesProfile(),
@@ -91,7 +94,27 @@ void main() {
       );
     });
 
-    test('independent without LPP does not use household budget net as OPP3 base',
+    test(
+        'independent without LPP uses dedicated professional net income when known',
+        () {
+      final profile = _profile(
+        employmentStatus: 'independant',
+        salaireBrutMensuel: 9000,
+        explicitMonthlyNetIncome: 7200,
+        independentNetProfessionalIncomeAnnual: 86400,
+      );
+
+      expect(
+        Pillar3aRoomCalculator.annualCeiling(
+          profile,
+          archetype: FinancialArchetype.independentNoLpp,
+        ),
+        17280,
+      );
+    });
+
+    test(
+        'independent without LPP does not use household budget net as OPP3 base',
         () {
       final profile = _profile(
         employmentStatus: 'independant',

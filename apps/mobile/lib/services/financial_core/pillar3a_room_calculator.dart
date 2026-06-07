@@ -11,7 +11,10 @@ class Pillar3aRoomCalculator {
   }) {
     final resolvedArchetype = archetype ?? profile.archetype;
     if (resolvedArchetype == FinancialArchetype.independentNoLpp) {
-      return (profile.revenuBrutAnnuel * pilier3aTauxRevenuSansLpp)
+      final incomeBase = profile.independentNetProfessionalIncomeAnnual != null
+          ? profile.independentNetProfessionalIncomeAnnual!
+          : profile.revenuBrutAnnuel;
+      return (incomeBase * pilier3aTauxRevenuSansLpp)
           .clamp(0.0, pilier3aPlafondSansLpp)
           .toDouble();
     }

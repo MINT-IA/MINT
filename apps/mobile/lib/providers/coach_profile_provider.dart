@@ -833,8 +833,7 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_gross_salary_annual': value};
       case 'selfEmployedNetIncome':
         return {
-          'q_net_income_period_chf': value,
-          'q_pay_frequency': 'yearly',
+          'q_self_employed_net_income_annual_chf': value,
           'q_employment_status': 'independant',
         };
       case 'employmentRate':
@@ -1374,6 +1373,10 @@ class CoachProfileProvider extends ChangeNotifier {
     answers['q_civil_status'] = profile.etatCivil.name;
     answers['q_gross_salary_annual'] =
         profile.salaireBrutMensuel * profile.nombreDeMois;
+    if (profile.independentNetProfessionalIncomeAnnual != null) {
+      answers['q_self_employed_net_income_annual_chf'] =
+          profile.independentNetProfessionalIncomeAnnual;
+    }
     answers['q_salary_months'] = profile.nombreDeMois;
     if (profile.employmentStatus.isNotEmpty) {
       answers['q_employment_status'] = profile.employmentStatus;

@@ -380,7 +380,7 @@ class PrevoyanceProfile {
   final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
-  final double? rachatEffectue; // deja rachete (montant CHF cumulé)
+  final double? rachatEffectue; // déjà racheté (montant CHF cumulé)
   /// Historique daté des rachats LPP (ordre chronologique, plus récent en
   /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
   /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date
@@ -1467,6 +1467,13 @@ class CoachProfile {
   /// Quand present, les surfaces budget l'utilisent comme source de verite
   /// au lieu de reconstruire un net approximatif depuis le salaire brut.
   final double? explicitMonthlyNetIncome;
+
+  /// Revenu net professionnel annuel d'une activite independante.
+  ///
+  /// Source dediee pour les calculs OPP3 art. 7 sans LPP. Ne pas remplacer
+  /// par [explicitMonthlyNetIncome] : ce dernier est un cashflow mensuel de
+  /// budget/menage, pas le revenu professionnel determinant.
+  final double? independentNetProfessionalIncomeAnnual;
   final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final String
@@ -1596,6 +1603,7 @@ class CoachProfile {
     this.conjoint,
     required this.salaireBrutMensuel,
     this.explicitMonthlyNetIncome,
+    this.independentNetProfessionalIncomeAnnual,
     this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentStatus = 'salarie',
@@ -1729,6 +1737,8 @@ class CoachProfile {
           conjoint == other.conjoint &&
           salaireBrutMensuel == other.salaireBrutMensuel &&
           explicitMonthlyNetIncome == other.explicitMonthlyNetIncome &&
+          independentNetProfessionalIncomeAnnual ==
+              other.independentNetProfessionalIncomeAnnual &&
           nombreDeMois == other.nombreDeMois &&
           bonusPourcentage == other.bonusPourcentage &&
           employmentStatus == other.employmentStatus &&
@@ -1770,6 +1780,7 @@ class CoachProfile {
         conjoint,
         salaireBrutMensuel,
         explicitMonthlyNetIncome,
+        independentNetProfessionalIncomeAnnual,
         nombreDeMois,
         bonusPourcentage,
         employmentStatus,
@@ -1896,6 +1907,7 @@ class CoachProfile {
   bool get hasMaterialData {
     return revenuBrutAnnuel > 0 ||
         salaireBrutMensuel > 0 ||
+        (independentNetProfessionalIncomeAnnual ?? 0) > 0 ||
         (prevoyance.avoirLppTotal ?? 0) > 0 ||
         prevoyance.totalEpargne3a > 0 ||
         prevoyance.totalLibrePassage > 0 ||
@@ -2223,6 +2235,7 @@ class CoachProfile {
     ConjointProfile? conjoint,
     double? salaireBrutMensuel,
     double? explicitMonthlyNetIncome,
+    double? independentNetProfessionalIncomeAnnual,
     double? nombreDeMois,
     double? bonusPourcentage,
     String? employmentStatus,
@@ -2284,6 +2297,9 @@ class CoachProfile {
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       explicitMonthlyNetIncome:
           explicitMonthlyNetIncome ?? this.explicitMonthlyNetIncome,
+      independentNetProfessionalIncomeAnnual:
+          independentNetProfessionalIncomeAnnual ??
+              this.independentNetProfessionalIncomeAnnual,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
       employmentStatus: employmentStatus ?? this.employmentStatus,
@@ -2453,6 +2469,8 @@ class CoachProfile {
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
       explicitMonthlyNetIncome:
           (json['explicitMonthlyNetIncome'] as num?)?.toDouble(),
+      independentNetProfessionalIncomeAnnual:
+          (json['independentNetProfessionalIncomeAnnual'] as num?)?.toDouble(),
       nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
@@ -2567,6 +2585,8 @@ class CoachProfile {
         'conjoint': conjoint?.toJson(),
         'salaireBrutMensuel': salaireBrutMensuel,
         'explicitMonthlyNetIncome': explicitMonthlyNetIncome,
+        'independentNetProfessionalIncomeAnnual':
+            independentNetProfessionalIncomeAnnual,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
         'employmentStatus': employmentStatus,
@@ -2662,6 +2682,9 @@ class CoachProfile {
         parsedNetIncome.isFinite &&
         parsedNetIncome > 0;
     final netIncome = hasExplicitNetIncome ? parsedNetIncome : 0.0;
+    final independentNetProfessionalIncomeAnnual = _parseDouble(
+      answers['q_self_employed_net_income_annual_chf'],
+    );
 
     // Convert to monthly net income based on pay frequency
     double monthlyNetIncome;
@@ -2674,6 +2697,14 @@ class CoachProfile {
     // salaried vs independant IncomeConverter factor can be selected).
     final employmentRaw = answers['q_employment_status'] as String?;
     final employmentStatus = _parseEmploymentStatus(employmentRaw);
+    final professionalMonthlyNet = employmentStatus == 'independant' &&
+            independentNetProfessionalIncomeAnnual != null &&
+            independentNetProfessionalIncomeAnnual.isFinite &&
+            independentNetProfessionalIncomeAnnual > 0
+        ? independentNetProfessionalIncomeAnnual / 12
+        : 0.0;
+    final grossSourceMonthlyNet =
+        monthlyNetIncome > 0 ? monthlyNetIncome : professionalMonthlyNet;
 
     // Prefer direct gross salary when stored by updateFromSmartFlow
     // (avoids net→gross roundtrip rounding: 120'000 → net → 113'793 brut).
@@ -2685,7 +2716,7 @@ class CoachProfile {
     final grossSalaryDirect = _parseDouble(answers['q_gross_salary_annual']);
     final salaireBrutMensuel = grossSalaryDirect != null
         ? grossSalaryDirect / 12
-        : monthlyNetIncome *
+        : grossSourceMonthlyNet *
             IncomeConverter.factorFor(
               isSalaried: employmentStatus != 'independant',
             );
@@ -3204,6 +3235,9 @@ class CoachProfile {
       if (depenses.loyer > 0) 'depenses.loyer': baseTimestamp,
       if (depenses.assuranceMaladie > 0)
         'depenses.assuranceMaladie': baseTimestamp,
+      if (independentNetProfessionalIncomeAnnual != null &&
+          independentNetProfessionalIncomeAnnual > 0)
+        'independentNetProfessionalIncomeAnnual': baseTimestamp,
     };
 
     // Restore persisted timestamps from answers (written by updateInline /
@@ -3229,6 +3263,12 @@ class CoachProfile {
     if (hasExplicitNetIncome || answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
       restoredDataSources['revenuBrutAnnuel'] = ProfileDataSource.userInput;
+    }
+    if (independentNetProfessionalIncomeAnnual != null &&
+        independentNetProfessionalIncomeAnnual > 0) {
+      provided.add('independentNetProfessionalIncomeAnnual');
+      restoredDataSources['independentNetProfessionalIncomeAnnual'] =
+          ProfileDataSource.userInput;
     }
     if (answers.containsKey('q_civil_status') ||
         answers.containsKey('q_civil_status_choice')) {
@@ -3299,6 +3339,12 @@ class CoachProfile {
       explicitMonthlyNetIncome:
           monthlyNetIncome.isFinite && monthlyNetIncome > 0
               ? monthlyNetIncome
+              : null,
+      independentNetProfessionalIncomeAnnual:
+          independentNetProfessionalIncomeAnnual != null &&
+                  independentNetProfessionalIncomeAnnual.isFinite &&
+                  independentNetProfessionalIncomeAnnual > 0
+              ? independentNetProfessionalIncomeAnnual
               : null,
       employmentStatus: employmentStatus,
       depenses: depenses,

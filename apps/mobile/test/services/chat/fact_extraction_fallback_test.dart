@@ -142,8 +142,9 @@ void main() {
       final loaded = await ReportPersistenceService.loadAnswers();
       expect(raw['q_has_pension_fund'], isTrue);
       expect(raw['q_main_goal'], 'retirement');
-      expect(loaded['q_net_income_period_chf'], 96000);
-      expect(loaded['q_pay_frequency'], 'yearly');
+      expect(loaded['q_self_employed_net_income_annual_chf'], 96000);
+      expect(loaded.containsKey('q_net_income_period_chf'), isFalse);
+      expect(loaded.containsKey('q_pay_frequency'), isFalse);
       expect(loaded['q_employment_status'], 'independant');
       expect(loaded['q_savings_monthly'], 1200);
       expect(loaded['q_cash_total'], 18000);
@@ -154,6 +155,13 @@ void main() {
       expect(loaded['q_spouse_avs_contribution_years'], 18);
       expect(loaded['q_avs_lacunes_status'], 'no_gaps');
       expect(loaded['q_avs_contribution_years'], 20);
+      expect(p.profile!.independentNetProfessionalIncomeAnnual, 96000);
+      expect(p.profile!.explicitMonthlyNetIncome, isNull);
+      expect(p.profile!.salaireBrutMensuel, closeTo(8800, 0.01));
+      expect(
+        BudgetInputs.monthlyNetFromCoachProfile(p.profile!),
+        closeTo(8000, 0.01),
+      );
       expect(p.profile!.prevoyance.anneesContribuees, 20);
       expect(p.profile!.conjoint!.birthYear, 1982);
       expect(p.profile!.conjoint!.prevoyance!.anneesContribuees, 18);
@@ -406,8 +414,9 @@ void main() {
       });
 
       final loaded = await ReportPersistenceService.loadAnswers();
-      expect(loaded['q_net_income_period_chf'], 96000);
-      expect(loaded['q_pay_frequency'], 'yearly');
+      expect(loaded['q_self_employed_net_income_annual_chf'], 96000);
+      expect(loaded.containsKey('q_net_income_period_chf'), isFalse);
+      expect(loaded.containsKey('q_pay_frequency'), isFalse);
       expect(loaded['q_employment_status'], 'independant');
       expect(loaded['q_has_pension_fund'], isTrue);
     });

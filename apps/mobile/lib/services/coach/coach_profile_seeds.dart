@@ -53,6 +53,11 @@ class CoachProfileSeed {
   /// historical gross-to-net estimate used by older walker fixtures.
   final double? netMonthlyIncome;
 
+  /// Explicit annual professional net income for self-employed/no-LPP
+  /// calculation paths. This is distinct from [netMonthlyIncome], which feeds
+  /// household cashflow and budget surfaces.
+  final double? independentNetProfessionalIncomeAnnual;
+
   /// Explicit LPP affiliation for persona-flow fixtures.
   final bool? hasPensionFund;
 
@@ -89,6 +94,7 @@ class CoachProfileSeed {
     required this.grossMonthlySalary,
     this.employmentStatus = 'employed',
     this.netMonthlyIncome,
+    this.independentNetProfessionalIncomeAnnual,
     this.hasPensionFund,
     this.annual3aContribution,
     this.threeAAccountsCount,
@@ -142,6 +148,9 @@ class CoachProfileSeed {
       'q_pay_frequency': 'monthly',
       'q_gross_salary_annual': grossMonthlySalary * 12,
       'q_net_income_period_chf': monthlyNetIncome,
+      if (independentNetProfessionalIncomeAnnual != null)
+        'q_self_employed_net_income_annual_chf':
+            independentNetProfessionalIncomeAnnual,
       'q_employment_status': employmentStatus,
       'q_household_type': 'single',
       'q_housing_cost_period_chf': (monthlyNetIncome * 0.26).roundToDouble(),
@@ -257,6 +266,7 @@ class CoachProfileSeeds {
       grossMonthlySalary: 9000,
       employmentStatus: 'independant',
       netMonthlyIncome: 7200,
+      independentNetProfessionalIncomeAnnual: 86400,
       hasPensionFund: false,
       annual3aContribution: 6000,
       threeAAccountsCount: 1,

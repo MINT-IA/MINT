@@ -51,8 +51,7 @@ void main() {
     test('seed_julien_expat_us_has_nationality_us', () {
       final seed = CoachProfileSeeds.registry['julien_expat_us']!;
       expect(seed.nationality, 'US',
-          reason:
-              'nationality:"US" is the secondary archetype-discriminating '
+          reason: 'nationality:"US" is the secondary archetype-discriminating '
               'signal alongside usTaxPerson; both are required for the seed '
               'to deterministically hydrate a CoachProfile that resolves to '
               'FinancialArchetype.expatUs.');
@@ -138,13 +137,11 @@ void main() {
       final directLookup = CoachProfileSeeds.registry['julien_swiss'];
       expect(byArchetype, isNotNull);
       expect(byArchetype, same(directLookup),
-          reason:
-              'archetype slug swiss_native MUST map to seed julien_swiss.');
+          reason: 'archetype slug swiss_native MUST map to seed julien_swiss.');
     });
 
     test('by_archetype_independent_no_lpp_returns_runtime_fixture', () {
-      final byArchetype =
-          CoachProfileSeeds.byArchetype('independent_no_lpp');
+      final byArchetype = CoachProfileSeeds.byArchetype('independent_no_lpp');
       final directLookup =
           CoachProfileSeeds.registry['independent_no_lpp_income_reality'];
 
@@ -195,6 +192,12 @@ void main() {
 
       final answers = seed!.toWizardAnswers(now: DateTime(2026));
       expect(answers['q_employment_status'], 'independant');
+      expect(
+        answers['q_self_employed_net_income_annual_chf'],
+        86400,
+        reason: 'OPP3 art. 7 no-LPP calculations need annual professional '
+            'net income, not the household monthly budget net.',
+      );
       expect(answers['q_has_pension_fund'], isFalse);
       expect(answers['q_has_3a'], isTrue);
       expect(answers['q_3a_accounts_count'], 1);
@@ -208,6 +211,7 @@ void main() {
       expect(profile.prevoyance.avoirLppTotal, 0);
       expect(profile.total3aMensuel, greaterThan(0));
       expect(profile.explicitMonthlyNetIncome, greaterThan(0));
+      expect(profile.independentNetProfessionalIncomeAnnual, 86400);
     });
   });
 
@@ -224,7 +228,8 @@ void main() {
       expect(seed!.archetype, 'swiss_native');
     });
 
-    test('hydrated profile yields total3aMensuel > 0 (Futur>0 budget hero)', () {
+    test('hydrated profile yields total3aMensuel > 0 (Futur>0 budget hero)',
+        () {
       final seed = CoachProfileSeeds.registry['cadre_3a_contributing']!;
       final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
       expect(profile.total3aMensuel, greaterThan(0),
