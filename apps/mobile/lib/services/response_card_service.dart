@@ -633,11 +633,8 @@ class ResponseCardService {
   static ResponseCard? _tryPillar3a(CoachProfile profile, S l) {
     if (profile.salaireBrutMensuel <= 0) return null;
 
-    final isIndep = profile.employmentStatus == 'independant';
-    final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
-    final plafond = isIndep && !hasLpp
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(profile);
+    if (remainingRoom <= 0) return null;
 
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
@@ -646,7 +643,7 @@ class ResponseCardService {
       isMarried: isMarried,
       children: profile.nombreEnfants,
     );
-    final taxSaving = plafond * marginalRate;
+    final taxSaving = remainingRoom * marginalRate;
 
     // Deadline: 31 decembre de l'annee en cours
     final now = DateTime.now();
@@ -661,7 +658,7 @@ class ResponseCardService {
       premierEclairage: PremierEclairage(
         value: taxSaving,
         unit: 'CHF',
-        explanation: l.rcPillar3aExplanation(plafond.round().toString()),
+        explanation: l.rcPillar3aExplanation(remainingRoom.round().toString()),
       ),
       cta: CardCta(
         label: l.rcPillar3aCtaLabel,

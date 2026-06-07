@@ -130,10 +130,12 @@ This does not close Row 23 or CJT-063.
 
 Still open:
 
-- runtime iPhone 16e chat evidence for this specific `/coach/chat` path;
 - broader independent/no-LPP natural-language Coach calibration beyond the
   audited local topic;
 - live backend/LLM scoring for calibrated personas;
 - restart/provenance proof for persona facts;
 - runtime VoiceOver/AX traversal;
 - updated persona-flow scoring after this route/UI change.
+
+Follow-up runtime iPhone 16e proof is now recorded separately at
+`evidence/rapport-design/row-23-independent-no-lpp-coach-chat-runtime-20260607.md`.

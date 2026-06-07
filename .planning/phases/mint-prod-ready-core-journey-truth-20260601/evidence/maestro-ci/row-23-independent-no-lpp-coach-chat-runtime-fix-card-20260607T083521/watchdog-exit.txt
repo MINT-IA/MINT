@@ -1,0 +1,3 @@
+watchdog_exit=0
+maestro_returned=0
+source=terminal output: [watchdog] EXIT — maestro returned 0

@@ -223,6 +223,39 @@ void main() {
       expect(card3a.sources.any((s) => s.contains('LIFD')), isTrue);
     });
 
+    test(
+        'independent no-LPP 3a card uses income-aware remaining room, not absolute ceiling',
+        () {
+      final profile = _makeProfile(
+        salaire: 9000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(canContribute3a: true),
+      ).copyWith(
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_nadia',
+            label: '3a Nadia',
+            amount: 500,
+            category: '3a',
+            isAutomatic: true,
+          ),
+        ],
+      );
+
+      final cards = ResponseCardService.generateForChat(
+        profile,
+        'Je suis indépendant sans LPP, combien verser en 3a ?',
+        l: _l,
+      );
+
+      final card3a =
+          cards.firstWhere((c) => c.type == ResponseCardType.pillar3a);
+      expect(card3a.premierEclairage.explanation, contains('15600'));
+      expect(card3a.premierEclairage.explanation, isNot(contains('36288')));
+      expect(card3a.premierEclairage.value, lessThan(4000));
+    });
+
     test('LPP buyback card generated when rachatMaximum > 0', () {
       final profile = _makeProfile(
         salaire: 8000,

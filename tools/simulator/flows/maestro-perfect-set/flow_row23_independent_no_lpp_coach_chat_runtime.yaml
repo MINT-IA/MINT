@@ -1,0 +1,110 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml
+#
+# PURPOSE
+# Runtime proof for Row 23/CJT-063 that an independent/no-LPP persona can use
+# /coach/chat for the audited deterministic local no-LPP/3a guidance without
+# being sent to /waitlist or showing false LLM transparency.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone 16e simulator.
+# - Build:
+#     flutter build ios --simulator --debug \
+#       --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality \
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true
+#
+# SCOPE LIMIT
+# This proves one bounded local Coach topic in runtime. It does not close Row
+# 23 by itself; broader natural-language Coach calibration, VoiceOver runtime
+# traversal, live backend/LLM scoring, and full persona-flow rescoring remain
+# separate work.
+
+appId: ch.mint.app
+env:
+  MINT_E2E_ARCHETYPE: independent_no_lpp_income_reality
+tags:
+  - row-23
+  - coach
+  - independent-no-lpp
+  - local-fallback
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///coach/chat"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 15000
+- assertVisible:
+    id: "coach_input_field"
+- assertVisible:
+    id: "coach_send_button"
+- assertNotVisible: "Encore en chantier pour ton profil"
+
+- tapOn:
+    id: "coach_input_field"
+- inputText: "Je suis indépendant sans LPP, combien verser en 3a ?"
+- tapOn:
+    id: "coach_send_button"
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- extendedWaitUntil:
+    visible: ".*LPP facultative.*"
+    timeout: 15000
+- assertVisible: ".*couverture accident.*"
+- assertVisible: ".*perte de gain.*"
+- assertVisible: ".*liquidité.*"
+- assertVisible: ".*OPP3 art. 7.*"
+- assertVisible: ".*LPP art. 4.*"
+- assertVisible: ".*LAVS art. 8.*"
+- assertVisible: ".*Outil éducatif simplifié.*"
+- assertVisible: ".*Ne constitue pas un conseil financier.*"
+- assertNotVisible: "Encore en chantier pour ton profil"
+- assertNotVisible: "API Claude"
+- assertNotVisible: "7'137 CHF"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+- takeScreenshot: "row23-independent-no-lpp-coach-local-guidance"

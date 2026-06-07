@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 16e - iOS 26.2 - 9C9E9AAE-C3CF-49B8-B06D-625004880A9B" tests="1" failures="1" time="40.0">
+    <testcase id="flow_row23_independent_no_lpp_coach_chat_runtime" name="flow_row23_independent_no_lpp_coach_chat_runtime" classname="flow_row23_independent_no_lpp_coach_chat_runtime" time="40.0" status="ERROR">
+      <properties>
+        <property name="tags" value="row-23, coach, independent-no-lpp, local-fallback, maestro-proof"/>
+      </properties>
+      <failure>Assertion is false: ".*revenu net d'activité.*" is visible</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
