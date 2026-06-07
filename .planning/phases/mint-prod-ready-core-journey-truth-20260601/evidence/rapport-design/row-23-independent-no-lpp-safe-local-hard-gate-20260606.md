@@ -20,6 +20,9 @@ archetypes.
 
 - `LocalFallbackService.generateSpecializedFallback(...)` returns nullable
   specialized guidance only.
+- The local 3a templates read `pillar3a.income_rate_without_lpp`,
+  `pillar3a.max_without_lpp`, and `pillar3a.max_with_lpp` through `reg(...)`,
+  preserving local fallback constants only as the offline/cache-miss fallback.
 - Generic topics such as `Comment fonctionne le pilier 3a ?` return `null` from
   the specialized API.
 - `CoachOrchestrator.generateChat(...)` checks this safe local fallback before
@@ -78,6 +81,21 @@ flutter test \
 ```
 
 Result: `60/60` passed.
+
+Follow-up 2026-06-07:
+
+```bash
+cd apps/mobile
+flutter test \
+  test/services/coach/local_fallback_service_test.dart \
+  test/services/coach_hard_gate_killswitch_test.dart \
+  test/screens/coach/coach_chat_test.dart
+```
+
+Result: `89` passed, `5` existing skipped.
+
+This follow-up also adds a registry-cache regression test proving the local
+guidance follows mocked `pillar3a.*` values instead of fixed literals.
 
 ## Boundaries
 

@@ -1,7 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/coach/local_fallback_service.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   // ── Topic detection via keywords ────────────────────────────────
 
   group('generateFallback — topic matching', () {
@@ -45,9 +49,11 @@ void main() {
       expect(response, isNot(contains('budget mensuel')));
     });
 
-    test('does not use no-LPP guidance for conflicting LPP affiliation wording', () {
+    test('does not use no-LPP guidance for conflicting LPP affiliation wording',
+        () {
       final response = LocalFallbackService.generateFallback(
-        userMessage: 'Je suis indépendant avec LPP, pas de caisse de pension claire, combien verser en 3a ?',
+        userMessage:
+            'Je suis indépendant avec LPP, pas de caisse de pension claire, combien verser en 3a ?',
       ).toLowerCase();
 
       expect(response, isNot(contains('lpp facultative')));
@@ -56,12 +62,35 @@ void main() {
 
     test('recognizes no-LPP wording without the LPP acronym', () {
       final response = LocalFallbackService.generateFallback(
-        userMessage: 'Je suis freelance pas de caisse de pension, que faire avec mon troisième pilier ?',
+        userMessage:
+            'Je suis freelance pas de caisse de pension, que faire avec mon troisième pilier ?',
       ).toLowerCase();
 
       expect(response, contains('revenu net d\'activité'));
       expect(response, contains('budget mensuel'));
       expect(response, contains('lpp facultative'));
+    });
+
+    test('uses regulatory cache for 3a ceilings in local guidance', () {
+      RegulatorySyncService.setMockCache({
+        'pillar3a.income_rate_without_lpp': 0.25,
+        'pillar3a.max_without_lpp': 40000,
+        'pillar3a.max_with_lpp': 8000,
+      });
+
+      final specialized = LocalFallbackService.generateFallback(
+        userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',
+      );
+      expect(specialized, contains('25\u00a0%'));
+      expect(specialized, contains('40\u00a0000\u00a0CHF/an'));
+      expect(specialized, isNot(contains('36\u00a0288')));
+
+      final generic = LocalFallbackService.generateFallback(
+        userMessage: 'Comment fonctionne le pilier 3a ?',
+      );
+      expect(generic, contains('8\u00a0000\u00a0CHF/an'));
+      expect(generic, contains('25\u00a0% du revenu net'));
+      expect(generic, contains('max. 40\u00a0000\u00a0CHF/an'));
     });
 
     test('matches lpp topic from "2e pilier" keyword', () {
@@ -175,10 +204,17 @@ void main() {
   group('generateFallback — compliance', () {
     test('every response contains standard disclaimer', () {
       final topics = [
-        'pilier 3a', '2e pilier', 'rente avs',
-        'impôts', 'budget', 'hypotheque',
-        'pension', 'lamal', 'héritage',
-        'crédit', 'random question',
+        'pilier 3a',
+        '2e pilier',
+        'rente avs',
+        'impôts',
+        'budget',
+        'hypotheque',
+        'pension',
+        'lamal',
+        'héritage',
+        'crédit',
+        'random question',
         'indépendant sans lpp combien verser en 3a',
       ];
       for (final topic in topics) {
@@ -199,13 +235,27 @@ void main() {
 
     test('no response contains banned terms', () {
       const banned = [
-        'garanti', 'certain', 'assuré', 'sans risque',
-        'optimal', 'meilleur', 'parfait', 'conseiller',
+        'garanti',
+        'certain',
+        'assuré',
+        'sans risque',
+        'optimal',
+        'meilleur',
+        'parfait',
+        'conseiller',
       ];
       final topics = [
-        'pilier 3a', '2e pilier', 'rente avs', 'impôts',
-        'budget', 'hypotheque', 'pension', 'lamal',
-        'héritage', 'crédit', 'random',
+        'pilier 3a',
+        '2e pilier',
+        'rente avs',
+        'impôts',
+        'budget',
+        'hypotheque',
+        'pension',
+        'lamal',
+        'héritage',
+        'crédit',
+        'random',
         'indépendant sans lpp combien verser en 3a',
       ];
       for (final topic in topics) {
@@ -244,7 +294,8 @@ void main() {
       expect(response, isNot(contains('7\u00a0258')));
     });
 
-    test('prioritizes independent no-LPP 3a over generic detected 3a topic', () {
+    test('prioritizes independent no-LPP 3a over generic detected 3a topic',
+        () {
       final response = LocalFallbackService.generateFallback(
         userMessage: 'Question courte',
         detectedTopics: ['3a', 'independent_no_lpp_3a'],

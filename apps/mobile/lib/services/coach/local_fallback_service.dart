@@ -15,6 +15,7 @@
 ///   - LAVS, LPP, OPP3, LIFD (Swiss law references in templates)
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 
 /// Template-based local fallback for when all LLMs are down.
@@ -34,11 +35,12 @@ class LocalFallbackService {
     String? lifecyclePhase,
     List<String>? detectedTopics,
   }) {
-    final topics = _prioritizeTopics(detectedTopics ?? _detectTopics(userMessage));
+    final topics =
+        _prioritizeTopics(detectedTopics ?? _detectTopics(userMessage));
 
     // Try to find a matching template.
     for (final topic in topics) {
-      final template = _templates[topic];
+      final template = _templateFor(topic);
       if (template != null) {
         return '$template\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
       }
@@ -58,7 +60,7 @@ class LocalFallbackService {
     final topics = _prioritizeTopics(_detectTopics(userMessage));
     for (final topic in topics) {
       if (!_specializedTopics.contains(topic)) continue;
-      final template = _templates[topic];
+      final template = _templateFor(topic);
       if (template != null) {
         return '$template\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
       }
@@ -145,43 +147,120 @@ class LocalFallbackService {
   /// Keywords for each supported generic topic.
   static const Map<String, List<String>> _topicKeywords = {
     '3a': ['3a', 'troisième pilier', '3ème pilier', 'pilier 3a'],
-    'lpp': ['lpp', '2e pilier', 'deuxième pilier', 'caisse de pension', 'rachat'],
+    'lpp': [
+      'lpp',
+      '2e pilier',
+      'deuxième pilier',
+      'caisse de pension',
+      'rachat'
+    ],
     'avs': ['avs', '1er pilier', 'premier pilier', 'rente avs', 'ahv'],
-    'impots': ['impôt', 'impot', 'fiscal', 'déduction', 'deduction', 'déclaration'],
-    'budget': ['budget', 'dépense', 'depense', 'épargne', 'epargne', 'économie'],
-    'immobilier': ['immobilier', 'hypothèque', 'hypotheque', 'maison', 'appartement', 'loyer', 'epl'],
+    'impots': [
+      'impôt',
+      'impot',
+      'fiscal',
+      'déduction',
+      'deduction',
+      'déclaration'
+    ],
+    'budget': [
+      'budget',
+      'dépense',
+      'depense',
+      'épargne',
+      'epargne',
+      'économie'
+    ],
+    'immobilier': [
+      'immobilier',
+      'hypothèque',
+      'hypotheque',
+      'maison',
+      'appartement',
+      'loyer',
+      'epl'
+    ],
     'retraite': ['retraite', 'pension', 'rente', 'capital vs rente'],
-    'assurances': ['assurance', 'lamal', 'maladie', 'complémentaire', 'complementaire'],
-    'succession': ['succession', 'héritage', 'heritage', 'testament', 'bénéficiaire'],
-    'dette': ['dette', 'crédit', 'credit', 'leasing', 'endettement', 'remboursement'],
+    'assurances': [
+      'assurance',
+      'lamal',
+      'maladie',
+      'complémentaire',
+      'complementaire'
+    ],
+    'succession': [
+      'succession',
+      'héritage',
+      'heritage',
+      'testament',
+      'bénéficiaire'
+    ],
+    'dette': [
+      'dette',
+      'crédit',
+      'credit',
+      'leasing',
+      'endettement',
+      'remboursement'
+    ],
   };
 
   // ══════════════════════════════════════════════════════════════
   //  TEMPLATES
   // ══════════════════════════════════════════════════════════════
 
-  static const Map<String, String> _templates = {
-    'independent_no_lpp_3a':
-        'Pour un·e indépendant·e sans LPP, le plafond 3a légal dépend du '
-        'revenu net d\'activité déclaré\u00a0: 20\u00a0% de ce revenu, au maximum '
-        '36\u00a0288\u00a0CHF/an selon l\'OPP3 art. 7. Ce plafond ne dit pas '
+  static String? _templateFor(String topic) {
+    return switch (topic) {
+      'independent_no_lpp_3a' => _independentNoLpp3aTemplate,
+      '3a' => _pillar3aTemplate,
+      _ => _templates[topic],
+    };
+  }
+
+  static String get _independentNoLpp3aTemplate {
+    final noLppIncomeRate = _formatPercent(
+      reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp),
+    );
+    final noLppMax = _formatChf(
+      reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),
+    );
+
+    return 'Pour un·e indépendant·e sans LPP, le plafond 3a légal dépend du '
+        'revenu net d\'activité déclaré\u00a0: $noLppIncomeRate de ce revenu, au maximum '
+        '$noLppMax/an selon l\'OPP3 art. 7. Ce plafond ne dit pas '
         'si ton budget mensuel peut absorber un versement.\n\n'
         'Avant de contribuer davantage, vérifie aussi ton statut AVS '
         'd\'indépendant·e, ton revenu imposable pour l\'impact fiscal, '
         'ta couverture accident/perte de gain, la liquidité nécessaire '
         'si tes revenus varient, et le rôle éventuel d\'une LPP facultative '
         'par rapport au 3a et à ta trésorerie.\n\n'
-        'Réf.\u00a0: OPP3 art. 7, LPP art. 4, LAVS art. 8.',
-    '3a': 'Le 3e pilier (pilier 3a) est un outil d\'épargne-retraite '
+        'Réf.\u00a0: OPP3 art. 7, LPP art. 4, LAVS art. 8.';
+  }
+
+  static String get _pillar3aTemplate {
+    final noLppIncomeRate = _formatPercent(
+      reg('pillar3a.income_rate_without_lpp', pilier3aTauxRevenuSansLpp),
+    );
+    final noLppMax = _formatChf(
+      reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp),
+    );
+    final withLppMax = _formatChf(
+      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+    );
+
+    return 'Le 3e pilier (pilier 3a) est un outil d\'épargne-retraite '
         'qui peut ouvrir une marge déductible. Le plafond OPP3 courant '
-        'est de 7\u00a0258\u00a0CHF/an pour les salarié\u00b7e\u00b7s affilié\u00b7e\u00b7s '
+        'est de $withLppMax/an pour les salarié\u00b7e\u00b7s affilié\u00b7e\u00b7s '
         'à une caisse de pension (LPP). Pour les indépendant\u00b7e\u00b7s sans '
-        'LPP, le plafond applicable est de 20\u00a0% du revenu net, '
-        'max. 36\u00a0288\u00a0CHF/an.\n\n'
+        'LPP, le plafond applicable est de $noLppIncomeRate du revenu net, '
+        'max. $noLppMax/an.\n\n'
         'Un versement 3a est déductible du revenu imposable '
         '(OPP3 art. 7). Tu pourrais explorer le simulateur 3a '
         'dans l\'app pour estimer l\'impact sur tes impôts.\n\n'
-        'Réf.\u00a0: OPP3 art. 7, LIFD art. 33 al. 1 let. e.',
+        'Réf.\u00a0: OPP3 art. 7, LIFD art. 33 al. 1 let. e.';
+  }
+
+  static const Map<String, String> _templates = {
     'lpp': 'Le 2e pilier (LPP) est la prévoyance professionnelle '
         'obligatoire. Le taux de conversion minimal est de 6,8\u00a0% '
         '(LPP art. 14). Les bonifications d\'épargne augmentent '
@@ -275,6 +354,24 @@ class LocalFallbackService {
         'La Main Tendue (143, 24h/24).\n\n'
         'Réf.\u00a0: LP, SchKG.',
   };
+
+  static String _formatChf(double amount) {
+    final digits = amount.round().toString();
+    final grouped = digits.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (_) => '\u00a0',
+    );
+    return '$grouped\u00a0CHF';
+  }
+
+  static String _formatPercent(double rate) {
+    final percent = rate * 100;
+    final rounded = percent.roundToDouble();
+    final text = (percent - rounded).abs() < 0.001
+        ? rounded.toInt().toString()
+        : percent.toStringAsFixed(1).replaceAll('.', ',');
+    return '$text\u00a0%';
+  }
 
   // ══════════════════════════════════════════════════════════════
   //  FALLBACK & RETRY MESSAGES
