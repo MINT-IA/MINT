@@ -96,9 +96,10 @@ This does not close Row 23 or CJT-063.
 
 Still open:
 
-- verify whether `Pillar3aRoomCalculator` should use declared net professional
-  income rather than gross income for independent/no-LPP OPP3 art. 7 room when
-  reliable net data is available;
+- verify or introduce a reliable net professional income source for
+  independent/no-LPP OPP3 art. 7 room. Do not use `explicitMonthlyNetIncome`
+  for this: it is household budget net income, not the self-employed
+  professional net/determinant income;
 - broader independent/no-LPP natural-language Coach calibration beyond this
   audited local topic;
 - live backend/LLM scoring for calibrated personas;

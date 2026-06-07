@@ -6,6 +6,7 @@ import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dar
 CoachProfile _profile({
   String employmentStatus = 'salarie',
   double salaireBrutMensuel = 8000,
+  double? explicitMonthlyNetIncome,
   List<PlannedMonthlyContribution> plannedContributions = const [],
 }) {
   return CoachProfile(
@@ -14,6 +15,7 @@ CoachProfile _profile({
     etatCivil: CoachCivilStatus.celibataire,
     nombreEnfants: 0,
     salaireBrutMensuel: salaireBrutMensuel,
+    explicitMonthlyNetIncome: explicitMonthlyNetIncome,
     nombreDeMois: 12,
     employmentStatus: employmentStatus,
     depenses: const DepensesProfile(),
@@ -78,6 +80,40 @@ void main() {
       final profile = _profile(
         employmentStatus: 'independant',
         salaireBrutMensuel: 8000,
+      );
+
+      expect(
+        Pillar3aRoomCalculator.annualCeiling(
+          profile,
+          archetype: FinancialArchetype.independentNoLpp,
+        ),
+        19200,
+      );
+    });
+
+    test('independent without LPP does not use household budget net as OPP3 base',
+        () {
+      final profile = _profile(
+        employmentStatus: 'independant',
+        salaireBrutMensuel: 9000,
+        explicitMonthlyNetIncome: 7200,
+      );
+
+      expect(
+        Pillar3aRoomCalculator.annualCeiling(
+          profile,
+          archetype: FinancialArchetype.independentNoLpp,
+        ),
+        21600,
+      );
+    });
+
+    test('independent without LPP keeps gross fallback when budget net is zero',
+        () {
+      final profile = _profile(
+        employmentStatus: 'independant',
+        salaireBrutMensuel: 8000,
+        explicitMonthlyNetIncome: 0,
       );
 
       expect(
