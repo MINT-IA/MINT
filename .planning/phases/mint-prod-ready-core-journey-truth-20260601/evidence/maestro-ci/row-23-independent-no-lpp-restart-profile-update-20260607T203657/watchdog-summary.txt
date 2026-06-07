@@ -1,0 +1,14 @@
+Flow: tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_restart_profile_update.yaml
+Device: iPhone 16e, iOS 26.2
+Build: flutter build ios --simulator --debug --dart-define=MINT_DISABLE_BETA_MODAL=true
+Global seed: MINT_E2E_ARCHETYPE not set
+
+Result:
+- [Passed] flow_row23_independent_no_lpp_restart_profile_update (34s)
+- 1/1 Flow Passed in 34s
+- Watchdog exit: maestro returned 0
+
+Runtime storage note:
+- The bootstrap-update screenshot shows storage=debugPlainFallback.
+- This is expected on the iOS simulator keychain path used for this proof.
+- The secureSeal branch is covered by debug_profile_bootstrap_service_test.dart.

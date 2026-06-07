@@ -15,7 +15,9 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
+import 'package:mint_mobile/screens/debug/debug_profile_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
+import 'package:mint_mobile/services/debug_profile_bootstrap_service.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
@@ -416,6 +418,24 @@ final _router = GoRouter(
         path: '/debug/chat-as-verb',
         scope: RouteScope.public,
         builder: (context, state) => const ChatAsVerbDemoScreen(),
+      ),
+    if (!kReleaseMode)
+      ScopedGoRoute(
+        path: '/__e2e/row23-independent-no-lpp-profile',
+        scope: RouteScope.public,
+        builder: (context, state) {
+          final query = state.uri.queryParameters;
+          final mode = query['mode'] == 'update-income'
+              ? DebugProfileBootstrapMode.updateIncome
+              : DebugProfileBootstrapMode.establish;
+          return DebugProfileBootstrapScreen(
+            key: ValueKey(state.uri.toString()),
+            slug: query['slug'] ?? 'independent_no_lpp_income_reality',
+            mode: mode,
+            selfEmployedNetIncomeAnnual: double.tryParse(query['annual'] ?? ''),
+            annual3aContribution: double.tryParse(query['planned3a'] ?? ''),
+          );
+        },
       ),
 
     // ── SHELL: 3-tab persistent navigation ───���─────���────────

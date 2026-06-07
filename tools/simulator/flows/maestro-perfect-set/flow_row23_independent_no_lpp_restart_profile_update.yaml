@@ -1,0 +1,137 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_restart_profile_update.yaml
+#
+# PURPOSE
+# Row 23/CJT-063 non-circular runtime proof for independent/no-LPP continuity.
+# The app is built without MINT_E2E_ARCHETYPE. A debug-only E2E route writes
+# answers through ReportPersistenceService, then updates annual independent
+# income from 86'400 to 96'000. After stop/relaunch without clearState, Coach,
+# Budget, and Rapport must consume the updated persisted facts.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone 16e simulator.
+# - Build:
+#     flutter build ios --simulator --debug \
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - Do NOT pass MINT_E2E_ARCHETYPE. A seeded binary makes this proof circular.
+
+appId: ch.mint.app
+tags:
+  - row-23
+  - cjt-063
+  - independent-no-lpp
+  - persistence
+  - restart
+  - profile-update
+  - iphone-16e
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# Establish persisted Nadia through the real report store, not via
+# MINT_E2E_ARCHETYPE.
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?annual=86400&planned3a=6000"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 10000
+- copyTextFrom:
+    id: "e2e_profile_fixture_applied"
+- evalScript: ${output.row23_bootstrap_establish = maestro.copiedText}
+
+# Update only the persisted income basis. This is the discriminator:
+# post-restart Coach must show 13'200, Budget 8'000, Rapport remaining 13'200.
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?annual=96000&planned3a=6000&mode=update-income"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 10000
+- copyTextFrom:
+    id: "e2e_profile_fixture_applied"
+- evalScript: ${output.row23_bootstrap_update = maestro.copiedText}
+- runScript: "row23_assert_profile_bootstrap.js"
+- takeScreenshot: "row23-bootstrap-update"
+
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# Coach consumes the updated persisted annual income after restart.
+- openLink: "mintapp:///coach/chat"
+- extendedWaitUntil:
+    visible:
+      id: "coach_input_field"
+    timeout: 15000
+- assertNotVisible: "Encore en chantier pour ton profil"
+- tapOn:
+    id: "coach_input_field"
+- inputText: "Combien verser en 3a ?"
+- tapOn:
+    id: "coach_send_button"
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: "row23-restart-updated-coach"
+
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          direction: DOWN
+          duration: 250
+- extendedWaitUntil:
+    visible:
+      id: "coach_message_content_1"
+    timeout: 15000
+- copyTextFrom:
+    id: "coach_message_content_1"
+- evalScript: ${output.row23_coach_answer = maestro.copiedText}
+- runScript: "row23_assert_updated_income_coach.js"
+- assertNotVisible: ".*86.*400.*CHF/an.*"
+- assertNotVisible: ".*11.*280.*CHF/an.*"
+- assertNotVisible: ".*Donnée manquante côté MINT.*"
+- assertNotVisible: "Versement 3a 2026"
+- assertNotVisible: "Impact fiscal indicatif"
+
+# Budget consumes the same updated income after restart.
+- openLink: "mintapp:///budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- copyTextFrom:
+    id: "budget_income_basis"
+- evalScript: ${output.row23_budget_basis = maestro.copiedText}
+- copyTextFrom:
+    id: "budget_hero_formula"
+- evalScript: ${output.row23_budget_formula = maestro.copiedText}
+- runScript: "row23_assert_updated_income_budget.js"
+- takeScreenshot: "row23-restart-updated-budget"
+
+# Rapport exposes the same 3a basis. This is not a generic /rapport presence
+# check: it verifies annual, LPP status, ceiling, planned contribution, and
+# remaining legal margin.
+- openLink: "mintapp:///rapport"
+- extendedWaitUntil:
+    visible:
+      id: "report_3a_income_basis"
+    timeout: 12000
+- copyTextFrom:
+    id: "report_3a_income_basis"
+- evalScript: ${output.row23_report_basis = maestro.copiedText}
+- runScript: "row23_assert_updated_income_report.js"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+- takeScreenshot: "row23-restart-updated-rapport"

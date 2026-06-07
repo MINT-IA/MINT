@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 16e - iOS 26.2 - 9C9E9AAE-C3CF-49B8-B06D-625004880A9B" tests="1" failures="0" time="34.0">
+    <testcase id="flow_row23_independent_no_lpp_restart_profile_update" name="flow_row23_independent_no_lpp_restart_profile_update" classname="flow_row23_independent_no_lpp_restart_profile_update" time="34.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="row-23, cjt-063, independent-no-lpp, persistence, restart, profile-update, iphone-16e, maestro-proof"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

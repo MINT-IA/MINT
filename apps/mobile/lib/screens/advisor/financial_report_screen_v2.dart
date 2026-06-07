@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -151,6 +152,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                       child: _buildSynthesisHero(
                           context, report, report.healthScore),
                     )),
+                    _buildPillar3aIncomeBasisAnchor(report),
 
                     const SizedBox(height: MintSpacing.lg),
 
@@ -254,6 +256,42 @@ class FinancialReportScreenV2 extends StatelessWidget {
   String _disclaimerSemanticsLabel(BuildContext context) {
     return '${S.of(context)!.reportMentionLegale}. '
         '${S.of(context)!.reportDisclaimerText}';
+  }
+
+  Widget _buildPillar3aIncomeBasisAnchor(FinancialReport report) {
+    if (kReleaseMode) return const SizedBox.shrink();
+
+    final profile = report.profile;
+    final analysis = report.pillar3aAnalysis;
+    final max3a = analysis?.maxContribution ??
+        (report.simulationAssumptions?['pillar3a_max_applicable'] as num?)
+            ?.toDouble();
+    final planned3a = analysis?.annualContribution ??
+        (report.taxSimulation.deductions['3a'] ?? 0);
+    final remaining3a = max3a == null ? null : max3a - planned3a;
+    final label = [
+      if (profile.independentProfessionalAnnualIncome != null)
+        'annual=${profile.independentProfessionalAnnualIncome!.round()}',
+      'hasLpp=${profile.hasPensionFund == true}',
+      if (max3a != null) 'max3a=${max3a.round()}',
+      'planned3a=${planned3a.round()}',
+      if (remaining3a != null) 'remaining=${remaining3a.round()}',
+    ].join(' ');
+    return Semantics(
+      key: const Key('report_3a_income_basis'),
+      identifier: 'report_3a_income_basis',
+      container: true,
+      label: label,
+      child: Text(
+        label,
+        maxLines: 1,
+        style: const TextStyle(
+          color: Color(0x01000000), // lint-ignore: prefer_mint_color_token
+          fontSize: 8, // lint-ignore: prefer_mint_text_style
+          height: 1,
+        ),
+      ),
+    );
   }
 
   // ════════════════════════════════════════════════════════════════

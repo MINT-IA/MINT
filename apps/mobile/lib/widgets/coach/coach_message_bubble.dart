@@ -102,8 +102,11 @@ class CoachMessageBubble extends StatelessWidget {
                         // ACCESS-08 (P8b-03): liveRegion announces new coach
                         // output to screen readers without shifting focus.
                         Semantics(
-                          key: Key(
-                              'coach_message_content_semantics_$messageIndex'),
+                          key: messageIndex == 1
+                              ? const Key('coach_message_content_1')
+                              : Key(
+                                  'coach_message_content_semantics_$messageIndex',
+                                ),
                           identifier: 'coach_message_content_$messageIndex',
                           liveRegion: announceContentLiveRegion,
                           container: true,

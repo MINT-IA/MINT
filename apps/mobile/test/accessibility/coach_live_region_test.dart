@@ -49,7 +49,7 @@ void main() {
     // The Markdown internals are excluded from semantics so the same content
     // is not read twice. The content Semantics node carries the clean label.
     final SemanticsNode node = tester.getSemantics(
-      find.byKey(const Key('coach_message_content_semantics_1')),
+      find.byKey(const Key('coach_message_content_1')),
     );
     expect(node.identifier, 'coach_message_content_1');
     expect(node.label, contains('Voici une explication calme et factuelle.'));

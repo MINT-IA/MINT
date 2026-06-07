@@ -5,6 +5,7 @@
 // Hero number and flow map are sourced from the BudgetInputs passed to this
 // screen. This keeps the detailed budget coherent after direct setup/relaunch.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
@@ -346,6 +347,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                                         child: _buildHeader(
                                           l: l,
                                           present: flowPresent,
+                                          profile: flowProfile,
                                         )),
                                     const SizedBox(height: MintSpacing.md),
 
@@ -621,6 +623,7 @@ class _BudgetScreenState extends State<BudgetScreen>
   Widget _buildHeader({
     required S l,
     required PresentBudget present,
+    CoachProfile? profile,
   }) {
     final heroFree = present.monthlyFree;
     final isPositive = heroFree >= 0;
@@ -650,11 +653,45 @@ class _BudgetScreenState extends State<BudgetScreen>
           ),
           const SizedBox(height: MintSpacing.sm),
           _buildHeroFormula(l: l, present: present),
+          _buildIncomeBasisAnchor(present: present, profile: profile),
           if (widget.inputs.debtPayments > 0) ...[
             const SizedBox(height: MintSpacing.xs),
             _buildDebtDisclosure(l),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeBasisAnchor({
+    required PresentBudget present,
+    CoachProfile? profile,
+  }) {
+    if (kReleaseMode) return const SizedBox.shrink();
+
+    final annual = profile?.independentNetProfessionalIncomeAnnual;
+    final label = annual != null &&
+            annual.isFinite &&
+            annual > 0 &&
+            profile?.employmentStatus == 'independant'
+        ? 'source=derived_self_employed_annual_proxy '
+            'q_self_employed_net_income_annual_chf=${annual.round()} '
+            'monthly_net=${formatChfWithPrefix(present.monthlyNet)}'
+        : 'source=budget_inputs '
+            'monthly_net=${formatChfWithPrefix(present.monthlyNet)}';
+    return Semantics(
+      key: const Key('budget_income_basis'),
+      identifier: 'budget_income_basis',
+      container: true,
+      label: label,
+      child: Text(
+        label,
+        maxLines: 1,
+        style: const TextStyle(
+          color: Color(0x01000000), // lint-ignore: prefer_mint_color_token
+          fontSize: 8, // lint-ignore: prefer_mint_text_style
+          height: 1,
+        ),
       ),
     );
   }

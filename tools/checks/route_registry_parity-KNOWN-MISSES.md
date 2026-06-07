@@ -170,23 +170,27 @@ bullet to the occurrence list above. The lint will fail loudly
 allow-list catches up — which is the desired fail-loud behavior
 (no_shortcuts_ever).
 
-## Category 8 — Dev-only debug routes (`/debug/*`)
+## Category 8 — Dev-only debug / E2E routes (`/debug/*`, `/__e2e/*`)
 
 Public-scope demo surfaces registered for Maestro G1 flows + dev sim
-walkthrough. INTENTIONALLY absent from `kRouteRegistry` because the path
-is not part of the user-facing route taxonomy: the LLM never surfaces it
-from the coach, and prod analytics do not classify it. Registering it
-would force `RouteCategory` to grow a `debug` slot for a single dev
-endpoint.
+walkthroughs or proof-only E2E bridges. INTENTIONALLY absent from
+`kRouteRegistry` because these paths are not part of the user-facing route
+taxonomy: the LLM never surfaces them from the coach, and prod analytics do not
+classify them. Registering them would force `RouteCategory` to grow a `debug`
+slot for non-prod endpoints.
 
-Current occurrences (1 dev-debug route at HEAD):
+Current occurrences (2 dev-debug/E2E routes at HEAD):
 
 - L377 `ScopedGoRoute(path: '/debug/chat-as-verb', scope: RouteScope.public, ...)`
   (Phase 97 W7 S001 wiring fix — exposes `ChatAsVerbDemoScreen` so the
   Maestro G1 flow + sim walkthrough can reach the wired surface).
-  Exempt via `_DEV_DEBUG_ONLY = {'/debug/chat-as-verb'}` in the lint source.
+- `ScopedGoRoute(path: '/__e2e/row23-independent-no-lpp-profile', scope: RouteScope.public, ...)`
+  (Row 23/CJT-063 runtime proof bridge — persists independent/no-LPP answers
+  through `ReportPersistenceService` so restart continuity can be tested
+  without `MINT_E2E_ARCHETYPE`).
+  Exempt via `_DEV_DEBUG_ONLY` in the lint source.
 
-When a new `/debug/*` route lands, the maintainer MUST add the path to
+When a new `/debug/*` or `/__e2e/*` route lands, the maintainer MUST add the path to
 `_DEV_DEBUG_ONLY` in the lint AND append a bullet to the occurrence list
 above.
 

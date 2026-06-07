@@ -606,7 +606,7 @@ void main() {
               'The assistant wrapper must stay role-only so VoiceOver does not read markdown content twice.',
         );
         final contentSemantics = tester.getSemantics(
-          find.byKey(const Key('coach_message_content_semantics_1')),
+          find.byKey(const Key('coach_message_content_1')),
         );
         expect(contentSemantics.label, contains('Marge 3a à vérifier'));
         expect(contentSemantics.label, contains('86\u00a0400\u00a0CHF/an'));

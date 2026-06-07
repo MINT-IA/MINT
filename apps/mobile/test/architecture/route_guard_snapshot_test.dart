@@ -51,7 +51,9 @@ List<MapEntry<String, String>> extractRouteScopes(String source) {
     final scope = match.group(2)!;
     // Update if already exists with default scope
     final idx = entries.indexWhere((e) => e.key == path);
-    if (idx != -1 && entries[idx].value == 'authenticated' && scope != 'authenticated') {
+    if (idx != -1 &&
+        entries[idx].value == 'authenticated' &&
+        scope != 'authenticated') {
       entries[idx] = MapEntry(path, scope);
     }
   }
@@ -200,17 +202,31 @@ void main() {
       }
     });
 
-    test('debug chat-as-verb route is excluded from release builds', () {
-      final debugRouteIndex = appSource.indexOf("path: '/debug/chat-as-verb'");
-      expect(debugRouteIndex, isNonNegative);
+    test('debug and e2e routes are excluded from release builds', () {
+      const debugRoutes = <String>[
+        '/debug/chat-as-verb',
+        '/__e2e/row23-independent-no-lpp-profile',
+      ];
+      for (final route in debugRoutes) {
+        final debugRouteIndex = appSource.indexOf("path: '$route'");
+        expect(debugRouteIndex, isNonNegative);
 
-      final guardIndex =
-          appSource.lastIndexOf('if (!kReleaseMode)', debugRouteIndex);
-      expect(
-        guardIndex,
-        isNonNegative,
-        reason: 'Debug/demo routes must not be registered in release builds.',
-      );
+        final scopedRouteIndex =
+            appSource.lastIndexOf('ScopedGoRoute(', debugRouteIndex);
+        expect(scopedRouteIndex, isNonNegative);
+
+        final previousNonEmptyLine = appSource
+            .substring(0, scopedRouteIndex)
+            .split('\n')
+            .reversed
+            .firstWhere((line) => line.trim().isNotEmpty)
+            .trim();
+        expect(
+          previousNonEmptyLine,
+          'if (!kReleaseMode)',
+          reason: '$route must be immediately guarded out of release builds.',
+        );
+      }
     });
 
     test('onboarding routes are explicitly marked', () {
