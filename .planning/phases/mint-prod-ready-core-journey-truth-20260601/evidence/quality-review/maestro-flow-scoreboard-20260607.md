@@ -249,6 +249,49 @@ Remaining gaps:
   rendered beside each money fact as a dedicated component.
 - Runtime VoiceOver/focus traversal remains open.
 
+### Restart And Structured Provenance Follow-Up
+
+Content/transcript score after restart/profile-update continuity and structured
+source/date/confidence provenance: `9.0 / 10`.
+
+Executable registry score remains capped at `8.0 / 10`.
+Reason: Row 23 now proves restart/profile-update continuity and structured
+text/UI provenance, but it still does not prove runtime VoiceOver/focus
+traversal or live backend/LLM scoring.
+
+What changed after the provenance/freshness follow-up:
+
+- Row 23n proved the iPhone 16e restart/profile-update chain across Coach,
+  Budget, and Rapport: updated professional income `96'000 CHF/an` and planned
+  3a `6'000 CHF/an` drive Coach `13'200 CHF/an`, Budget monthly net
+  `CHF 8'000`, and Rapport remaining room `13200`.
+- Row 23q added structured field-level provenance to the audited no-LPP Coach
+  answer. The visible `Provenance et fraîcheur` section now renders source,
+  freshness, confidence, and update date for professional income and planned
+  3a facts when metadata exists.
+- User-entered facts render as `confiance: déclarative`, not as certified
+  certainty.
+- Missing metadata still triggers the honest `date par champ non affichée`
+  warning.
+
+Evidence:
+
+- Restart/profile-update runtime:
+  `evidence/rapport-design/row-23-independent-no-lpp-restart-profile-update-20260607.md`
+- Structured provenance:
+  `evidence/rapport-design/row-23-independent-no-lpp-structured-provenance-20260608.md`
+- Matrix rows: `23n`, `23q`.
+
+Remaining gaps:
+
+- VoiceOver/focus traversal still requires the Row 23p physical-device manual
+  protocol; simulator `idb ui describe-all --json` currently returns the empty
+  platform AX sentinel.
+- The score should not exceed the executable cap until a real-device
+  VoiceOver recording/transcript proves Coach, Budget, and Rapport traversal.
+- Live backend/LLM scoring remains separate from the deterministic local
+  no-LPP fallback proof.
+
 ## Target State For 10/10 On This Scenario
 
 To reach `10/10`, this scenario needs:
