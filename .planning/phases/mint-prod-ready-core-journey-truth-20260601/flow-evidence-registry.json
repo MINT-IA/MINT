@@ -484,6 +484,7 @@
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/maestro-flow-scoreboard-20260607.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-restart-profile-update-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-pdf-content-proof-20260606.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-structured-provenance-20260608.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml",
@@ -507,6 +508,11 @@
           "command": "cd apps/mobile && flutter test test/services/e2e_runtime_flags_test.dart test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart",
           "result": "pass",
           "scope": "Row 23r Budget/Rapport updated-state semantics and opt-in proof-anchor regression coverage; evidence says 70 tests passed for the combined Budget/Rapport smoke suite."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/services/pdf_service_test.dart --plain-name \"independent no-LPP report keeps verification guidance in PDF\"",
+          "result": "pass",
+          "scope": "Row 23c PDF content regression extracts generated PDF text with pdftotext and proves the independent/no-LPP guidance remains neutral in the exported artifact."
         }
       ],
       "semantic_evals": [
@@ -559,7 +565,6 @@
         "No runtime VoiceOver/focus traversal proof for Coach, Budget, or Rapport.",
         "No live backend/LLM scoring proof for the same independent/no-LPP persona.",
         "Budget/Rapport no-LPP route-chain guidance remains lower than the Coach 3a answer depth.",
-        "No PDF/export content proof shows the same persona keeps neutral, sourced guidance in exported artifacts.",
         "Row 23 remains PARTIAL."
       ],
       "last_reviewed": "2026-06-08",

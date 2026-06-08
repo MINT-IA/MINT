@@ -211,7 +211,7 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, and QOS-001a.1 now records the Row 23n/q/r refreshed score at 8.0/10. Physical-device VoiceOver traversal, PDF per-archetype proof, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, Row 23c adds local PDF content proof for the same persona, and QOS-001a.1 now records the Row 23n/q/r/s refreshed score at 8.0/10. Physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
     }
   ],
   "records": [
@@ -243,6 +243,7 @@
       "test_evidence": [
         "cd apps/mobile && flutter test test/services/coach_profile_seeds_test.dart test/app_rapport_route_budget_test.dart",
         "cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart",
+        "cd apps/mobile && flutter test test/services/pdf_service_test.dart --plain-name \"independent no-LPP report keeps verification guidance in PDF\"",
         "cd apps/mobile && flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_context_packet_payload_test.dart test/screens/coach/coach_chat_test.dart",
         "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart"
       ],
@@ -266,6 +267,7 @@
         "Row 23n proves updated restart/profile-update continuity where CHF 96'000 annual professional income drives Coach, Budget, and Rapport values.",
         "Row 23q renders source, freshness, confidence, and update date for key Coach facts when metadata exists.",
         "Row 23r proves Budget/Rapport updated-state semantics reject stale CHF 7'200, annual=86400, remaining=11280, and salaried/LPP caps.",
+        "Row 23c proves the generated PDF text keeps independent/no-LPP verification guidance and rejects account-opening/provider framing for the same persona.",
         "/budget does not show Ajouter mon salaire.",
         "/rapport renders the seeded report and the neutral 3a assumption phrase.",
         "The runtime flow asserts no salary-only 3a ceiling, no salary-only CTA, no NaN/Infinity, and no Flutter exception strings.",
@@ -289,7 +291,6 @@
       "final_score": 8.0,
       "missing_to_10": [
         "Physical-device VoiceOver/focus traversal for Coach, /budget, and /rapport.",
-        "PDF export content proof for the same persona.",
         "Live backend/LLM Coach guidance score.",
         "Budget/Rapport guidance depth around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility.",
         "Production/staging path proof for the same updated profile facts."

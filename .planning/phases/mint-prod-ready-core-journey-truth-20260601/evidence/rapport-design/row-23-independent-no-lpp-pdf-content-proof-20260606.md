@@ -23,7 +23,7 @@ It does not close `CJT-063` and does not raise Row 23 beyond `PARTIAL`.
 After the `/rapport` independent/no-LPP guidance fix, one remaining gap in the
 persona scorecard was:
 
-- no PDF export content proof for the same persona.
+- the PDF artifact had not yet been content-checked for the same persona.
 
 Without this proof, the app could show neutral guidance on screen while the PDF
 artifact drifted back to generic 3a account-opening or provider/product copy.
@@ -102,8 +102,13 @@ Review:
 
 Still required before closing `CJT-063`:
 
-- VoiceOver/focus traversal proof for `/rapport` and `/budget`;
-- broader PDF visual/page QA across report variants;
-- source/provenance/freshness surfaced beside key money facts;
-- Coach natural-language quality review for the same persona;
-- updated persona-flow score above the current capped `6.3/10`.
+- VoiceOver/focus traversal proof for Coach, `/rapport`, and `/budget` on a
+  physical device;
+- live backend/LLM scoring for the same persona;
+- deeper Budget/Rapport guidance around optional LPP, AVS-independent status,
+  risk cover, liquidity, and income volatility;
+- updated persona-flow score above the current capped `8.0/10`.
+
+Separate Row 11/23 PDF QA follow-up still exists for broader visual/page review
+across report variants, but this is no longer treated as the independent/no-LPP
+PDF content proof gap for `CJT-063`.

@@ -107,6 +107,9 @@ What the combined proof now shows:
   the key Coach facts when metadata exists.
 - Row 23r adds Budget/Rapport widget-level regression coverage for the updated
   independent/no-LPP values and rejects stale salaried/LPP figures.
+- Row 23c proves that the generated PDF text keeps the same independent/no-LPP
+  verification guidance and rejects account-opening or provider/product
+  framing for this persona.
 
 What remains weak:
 
@@ -115,8 +118,6 @@ What remains weak:
 - The flow does not ask or prove AVS-independent status, taxable net income, or
   whether the current `CHF 6'000` 3a contribution is sustainable in cashflow.
 - No VoiceOver/focus traversal proves that the important content is accessible.
-- No PDF export proves the same persona keeps neutral, sourced guidance in the
-  report artifact.
 - No live backend/LLM path has been scored for the persona; the current scored
   Coach proof is the deterministic local fallback path.
 
@@ -172,8 +173,7 @@ Mechanical checks already run during this lot:
 
 `CJT-063` is a P1 quality gap, not a local crash. It should remain open until
 the persona flow proves physical-device VoiceOver traversal, live backend/LLM
-scoring, Budget/Rapport guidance depth, and PDF/export content for the same
-persona.
+scoring, and Budget/Rapport guidance depth for the same persona.
 
 ## Decision
 
