@@ -19536,6 +19536,10 @@ class SIt extends S {
   }
 
   @override
+  String get budgetIndependentNoLppMonthlyCapacityShortfall =>
+      'Il budget libero non basta per coprire questo equivalente mensile: verifica la liquidità prima di ogni versamento.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Scaglionamento al prelievo e diversificazione da valutare secondo i conti esistenti.';
 

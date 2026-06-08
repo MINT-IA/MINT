@@ -34196,6 +34196,12 @@ abstract class S {
   String budgetIndependentNoLppDecisionSummary(
       String legal, String monthly, String free);
 
+  /// No description provided for @budgetIndependentNoLppMonthlyCapacityShortfall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget libre insuffisant pour couvrir cet équivalent mensuel : vérifie la trésorerie avant tout versement.'**
+  String get budgetIndependentNoLppMonthlyCapacityShortfall;
+
   /// No description provided for @reportActionDesc3aSecond.
   ///
   /// In fr, this message translates to:

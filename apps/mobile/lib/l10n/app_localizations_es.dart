@@ -19486,6 +19486,10 @@ class SEs extends S {
   }
 
   @override
+  String get budgetIndependentNoLppMonthlyCapacityShortfall =>
+      'El presupuesto libre no basta para cubrir este equivalente mensual: verifica la tesorería antes de cualquier aportación.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Escalonamiento al retirar y diversificación a revisar según tus cuentas existentes.';
 

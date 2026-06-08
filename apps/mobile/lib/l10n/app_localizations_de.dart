@@ -19529,6 +19529,10 @@ class SDe extends S {
   }
 
   @override
+  String get budgetIndependentNoLppMonthlyCapacityShortfall =>
+      'Das freie Budget reicht nicht für dieses monatliche Äquivalent: Prüfe die Liquidität vor jeder Einzahlung.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Staffelung beim Bezug und Diversifikation anhand deiner bestehenden Konten prüfen.';
 

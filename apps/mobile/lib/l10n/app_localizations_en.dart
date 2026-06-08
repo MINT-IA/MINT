@@ -19391,6 +19391,10 @@ class SEn extends S {
   }
 
   @override
+  String get budgetIndependentNoLppMonthlyCapacityShortfall =>
+      'Free budget is not enough to cover this monthly equivalent: check cash reserves before any contribution.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Withdrawal staggering and diversification to review based on your existing accounts.';
 

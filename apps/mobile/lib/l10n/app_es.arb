@@ -9288,6 +9288,7 @@
   "reportActionDesc3aIndependentNoLpp": "MINT estima tu límite 3a con los ingresos declarados y la hipótesis sin LPP. Este límite legal no indica si tu presupuesto mensual puede absorber una aportación: verifica también tu capacidad, tu estatus AVS de independiente, el ingreso neto imponible, la cobertura de accidente/pérdida de ingresos y la liquidez necesaria si tus ingresos varían. Siguiente comprobación: comparar la opción LPP facultativa, el 3a y la tesorería con un especialista cualificado.",
   "budgetIndependentNoLppDecisionTitle": "Margen 3a por verificar",
   "budgetIndependentNoLppDecisionSummary": "Margen legal restante: {legal}/año. Equivalente mensual: {monthly}/mes. Presupuesto libre actual: {free}/mes. Margen legal ≠ capacidad mensual: mantén una reserva antes de aumentar el 3a.",
+  "budgetIndependentNoLppMonthlyCapacityShortfall": "El presupuesto libre no basta para cubrir este equivalente mensual: verifica la tesorería antes de cualquier aportación.",
   "@budgetIndependentNoLppDecisionSummary": {
     "placeholders": {
       "legal": {

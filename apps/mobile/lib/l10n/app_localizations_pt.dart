@@ -19486,6 +19486,10 @@ class SPt extends S {
   }
 
   @override
+  String get budgetIndependentNoLppMonthlyCapacityShortfall =>
+      'O orçamento livre não chega para cobrir este equivalente mensal: verifica a tesouraria antes de qualquer contribuição.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Escalonamento no levantamento e diversificação a avaliar segundo as tuas contas existentes.';
 

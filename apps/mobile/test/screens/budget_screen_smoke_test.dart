@@ -819,6 +819,10 @@ void main() {
       expect(label, contains('CHF 940/mois'));
       expect(label, contains("CHF 2'578/mois"));
       expect(label, contains('Marge légale ≠ capacité mensuelle'));
+      expect(
+        label,
+        isNot(contains('Budget libre insuffisant')),
+      );
       for (final fragment in [
         'Plafond 3a salarié',
         '7’258',
@@ -832,6 +836,143 @@ void main() {
       ]) {
         expect(label, isNot(contains(fragment)), reason: fragment);
       }
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets(
+      'BudgetScreen independent no-LPP warns when monthly 3a room exceeds free budget',
+      (tester) async {
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final profile = CoachProfile.fromWizardAnswers(
+      seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+    );
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 4500,
+      housingCost: 1872,
+      debtPayments: 0,
+      taxProvision: 1350,
+      healthInsurance: 420,
+      otherFixedCosts: 480,
+      isTaxEstimated: true,
+      style: BudgetStyle.envelopes3,
+    );
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(inputs: inputs),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 2));
+
+      final capacityGuard = tester.getSemantics(
+        find.byKey(const Key('budget_independent_no_lpp_capacity_guard')),
+      );
+      final label = capacityGuard.label.replaceAll('\u00a0', ' ');
+
+      expect(label, contains('CHF 940/mois'));
+      expect(
+        label,
+        contains(
+          'Budget libre insuffisant pour couvrir cet équivalent mensuel',
+        ),
+      );
+      expect(label, contains('vérifie la trésorerie avant tout versement'));
+      expect(label, isNot(contains('ouvrir un compte')));
+      expect(label, isNot(contains('UBS')));
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets(
+      'BudgetScreen independent no-LPP shortfall warning follows displayed monthly values',
+      (tester) async {
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final answers = seed.toWizardAnswers(now: DateTime(2026, 6, 6))
+      ..['q_self_employed_net_income_annual_chf'] = 86418.0;
+    final profile = CoachProfile.fromWizardAnswers(answers);
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5562,
+      housingCost: 1872,
+      debtPayments: 0,
+      taxProvision: 1350,
+      healthInsurance: 420,
+      otherFixedCosts: 480,
+      isTaxEstimated: true,
+      style: BudgetStyle.envelopes3,
+    );
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(inputs: inputs),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 2));
+
+      final capacityGuard = tester.getSemantics(
+        find.byKey(const Key('budget_independent_no_lpp_capacity_guard')),
+      );
+      final label = capacityGuard.label.replaceAll('\u00a0', ' ');
+
+      expect(label, contains('CHF 940/mois'));
+      expect(
+        label,
+        isNot(contains('Budget libre insuffisant')),
+      );
     } finally {
       semantics.dispose();
     }

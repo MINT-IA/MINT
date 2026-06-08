@@ -19478,6 +19478,10 @@ class SFr extends S {
   }
 
   @override
+  String get budgetIndependentNoLppMonthlyCapacityShortfall =>
+      'Budget libre insuffisant pour couvrir cet équivalent mensuel : vérifie la trésorerie avant tout versement.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Échelonnement au retrait et diversification à examiner selon tes comptes existants.';
 

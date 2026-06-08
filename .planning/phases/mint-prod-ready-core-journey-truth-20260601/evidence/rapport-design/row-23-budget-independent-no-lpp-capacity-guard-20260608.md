@@ -158,3 +158,55 @@ passed across FR/EN/DE/ES/IT/PT.
 Scope limit: this is local widget and localization proof. It does not add
 physical-device VoiceOver/focus traversal, live backend/LLM scoring,
 production/staging proof, or new simulator runtime proof beyond Row 23v.
+
+## Row 23x Monthly Capacity Shortfall Addendum
+
+Follow-up Row 23x closes a narrower Budget guidance gap that Row 23w still
+left to mental arithmetic: when the legal 3a monthly equivalent is higher than
+the current free monthly budget, the guard now says so explicitly instead of
+only listing the two values side by side.
+
+`BudgetScreen` still computes the legal room through
+`Pillar3aRoomCalculator.remainingAnnualRoom(...)`. The new branch derives the
+monthly equivalent from the raw annual room, rounds the monthly equivalent and
+free budget through the same display path used in the visible summary, then
+adds the warning only when the displayed monthly equivalent is positive and
+exceeds the displayed free budget:
+
+`Budget libre insuffisant pour couvrir cet équivalent mensuel : vérifie la
+trésorerie avant tout versement.`
+
+Local proof covers both sides:
+
+- the existing Row 23w seed keeps `CHF 11'280/an`, `CHF 940/mois`, and
+  `CHF 2'578/mois` without the shortfall warning;
+- a compressed monthly budget (`CHF -122/mois` free) exposes the shortfall
+  warning in the `budget_independent_no_lpp_capacity_guard` semantics label;
+- an edge case where the raw monthly equivalent is slightly above `CHF 940`
+  but both displayed values are `CHF 940/mois` does not expose the shortfall
+  warning;
+- the warning rejects product/provider surfaces such as `ouvrir un compte` and
+  `UBS`.
+
+Verification:
+
+```bash
+cd apps/mobile
+flutter test test/screens/budget_screen_smoke_test.dart --plain-name "BudgetScreen independent no-LPP warns when monthly 3a room exceeds free budget"
+flutter test test/screens/budget_screen_smoke_test.dart --plain-name "BudgetScreen independent no-LPP shortfall warning follows displayed monthly values"
+flutter analyze lib/screens/budget/budget_screen.dart test/screens/budget_screen_smoke_test.dart
+flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart
+flutter test test/services/e2e_runtime_flags_test.dart test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart
+flutter gen-l10n
+```
+
+Results: focused shortfall test passed, displayed-value rounding guard passed,
+focused Row 23w positive guard test passed, targeted analyze passed,
+Budget/Rapport smoke passed (`73/73`), E2E flags + Budget/Rapport passed
+(`75/75`), ARB parity passed across FR/EN/DE/ES/IT/PT, and MCP LSFin/accent
+checks passed on the new French copy.
+
+Scope limit: this is local Budget guidance-depth proof only. It does not prove
+physical-device VoiceOver/focus traversal, live backend/LLM scoring,
+production/staging behavior, or new simulator runtime visibility beyond Row
+23v.

@@ -387,7 +387,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                                         flowProfile)) ...[
                                       _staggeredEntry(
                                         index: 2,
-                                        child: _buildIndependentNoLppCapacityGuard(
+                                        child:
+                                            _buildIndependentNoLppCapacityGuard(
                                           l: l,
                                           profile: flowProfile!,
                                           present: flowPresent,
@@ -693,13 +694,19 @@ class _BudgetScreenState extends State<BudgetScreen>
       profile,
       archetype: FinancialArchetype.independentNoLpp,
     );
+    final rawMonthlyEquivalent = rawRemainingAnnual3a / 12;
     final remainingAnnual3a = _displayChf(rawRemainingAnnual3a);
-    final monthlyEquivalent = _displayChf(rawRemainingAnnual3a / 12);
+    final monthlyEquivalent = _displayChf(rawMonthlyEquivalent);
+    final monthlyFree = _displayChf(present.monthlyFree);
     final decisionSummary = l.budgetIndependentNoLppDecisionSummary(
       formatChfWithPrefix(remainingAnnual3a),
       formatChfWithPrefix(monthlyEquivalent),
-      formatChfWithPrefix(present.monthlyFree),
+      formatChfWithPrefix(monthlyFree),
     );
+    final monthlyCapacityWarning =
+        monthlyEquivalent > 0 && monthlyFree < monthlyEquivalent
+            ? l.budgetIndependentNoLppMonthlyCapacityShortfall
+            : null;
     final steps = [
       l.reportActionStep3aIndependentNoLpp1,
       l.reportActionStep3aIndependentNoLpp2,
@@ -711,6 +718,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       l.reportActionDesc3aIndependentNoLpp,
       l.budgetIndependentNoLppDecisionTitle,
       decisionSummary,
+      if (monthlyCapacityWarning != null) monthlyCapacityWarning,
       ...steps,
     ].join('. ');
 
@@ -761,6 +769,14 @@ class _BudgetScreenState extends State<BudgetScreen>
               decisionSummary,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
+            if (monthlyCapacityWarning != null) ...[
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                monthlyCapacityWarning,
+                style: MintTextStyles.bodySmall(color: MintColors.warning)
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ],
             const SizedBox(height: MintSpacing.md),
             ...steps.map(
               (step) => Padding(
