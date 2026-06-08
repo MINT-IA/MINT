@@ -113,18 +113,23 @@ What the combined proof now shows:
 - Row 23t deduplicates the Budget next-action semantics so the no-LPP/AI
   context, CTA, and `~70 %` impact are exposed once instead of repeating the
   command, while preserving the tap action.
+- Row 23u adds a Budget capacity guard for the independent/no-LPP persona,
+  carrying the Rapport checks for AVS-independent status, taxable income,
+  monthly budget capacity under income volatility, risk cover, optional LPP,
+  3a, and liquidity into the Budget surface.
 
 What remains weak:
 
 - Budget/Rapport still do not have the same natural-language guidance depth as
-  the audited Coach answer.
+  the audited Coach answer, though Budget now has a local no-LPP capacity
+  guard.
 - The flow does not ask or prove AVS-independent status, taxable net income, or
   whether the current `CHF 6'000` 3a contribution is sustainable in cashflow.
 - No VoiceOver/focus traversal proves that the important content is accessible.
 - No live backend/LLM path has been scored for the persona; the current scored
   Coach proof is the deterministic local fallback path.
 - Budget/Rapport guidance depth still remains lower than the audited Coach
-  answer, even after the Budget action semantics cleanup.
+  answer, even after the Budget action semantics and capacity-guard cleanup.
 
 ## Scores
 

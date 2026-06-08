@@ -382,6 +382,17 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     ),
                                     const SizedBox(height: MintSpacing.xxl),
 
+                                    if (_isIndependentNoLppProfile(
+                                        flowProfile)) ...[
+                                      _staggeredEntry(
+                                        index: 2,
+                                        child:
+                                            _buildIndependentNoLppCapacityGuard(
+                                                l),
+                                      ),
+                                      const SizedBox(height: MintSpacing.xxl),
+                                    ],
+
                                     // ── BELOW FOLD: Envelopes sliders (secondary visually) ──
                                     if (widget.inputs.style ==
                                         BudgetStyle.envelopes3) ...[
@@ -659,6 +670,80 @@ class _BudgetScreenState extends State<BudgetScreen>
             _buildDebtDisclosure(l),
           ],
         ],
+      ),
+    );
+  }
+
+  bool _isIndependentNoLppProfile(CoachProfile? profile) {
+    if (profile == null) return false;
+    final lpp = profile.prevoyance.avoirLppTotal;
+    return profile.employmentStatus == 'independant' &&
+        (lpp == null || lpp == 0);
+  }
+
+  Widget _buildIndependentNoLppCapacityGuard(S l) {
+    final steps = [
+      l.reportActionStep3aIndependentNoLpp1,
+      l.reportActionStep3aIndependentNoLpp2,
+      l.reportActionStep3aIndependentNoLpp3,
+      l.reportActionStep3aIndependentNoLpp4,
+    ];
+    final label = [
+      l.reportActionTitle3aIndependentNoLpp,
+      l.reportActionDesc3aIndependentNoLpp,
+      ...steps,
+    ].join('. ');
+
+    return Semantics(
+      key: const Key('budget_independent_no_lpp_capacity_guard'),
+      identifier: 'budget_independent_no_lpp_capacity_guard',
+      container: true,
+      excludeSemantics: true,
+      label: label,
+      child: MintSurface(
+        tone: MintSurfaceTone.sauge,
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.account_balance_outlined,
+                  size: 18,
+                  color: MintColors.mintForest,
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l.reportActionTitle3aIndependentNoLpp,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.reportActionDesc3aIndependentNoLpp,
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ...steps.map(
+              (step) => Padding(
+                padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+                child: Text(
+                  step,
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

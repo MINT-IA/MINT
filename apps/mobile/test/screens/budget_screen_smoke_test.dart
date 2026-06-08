@@ -93,9 +93,7 @@ void main() {
         tester.getSemantics(find.byType(ActionInsightWidget));
     expect(fallbackActionInsight.flagsCollection.isButton, isTrue);
     expect(
-      fallbackActionInsight
-          .getSemanticsData()
-          .hasAction(SemanticsAction.tap),
+      fallbackActionInsight.getSemanticsData().hasAction(SemanticsAction.tap),
       isTrue,
     );
     expect(
@@ -744,6 +742,91 @@ void main() {
           'budget_formula_proof',
         ],
       );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('BudgetScreen independent no-LPP exposes 3a capacity guard',
+      (tester) async {
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final profile = CoachProfile.fromWizardAnswers(
+      seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+    );
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 7200,
+      housingCost: 1872,
+      debtPayments: 0,
+      taxProvision: 1350,
+      healthInsurance: 420,
+      otherFixedCosts: 480,
+      isTaxEstimated: true,
+      style: BudgetStyle.envelopes3,
+    );
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(inputs: inputs),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 2));
+
+      final capacityGuard = tester.getSemantics(
+        find.byKey(const Key('budget_independent_no_lpp_capacity_guard')),
+      );
+      final label = capacityGuard.label.replaceAll('\u00a0', ' ');
+
+      expect(
+          capacityGuard.identifier, 'budget_independent_no_lpp_capacity_guard');
+      expect(
+        label,
+        contains('Clarifier mon statut indépendant avant d’augmenter le 3a'),
+      );
+      expect(label, contains('statut AVS indépendant'));
+      expect(label, contains('revenu imposable'));
+      expect(label, contains('volatilité de tes revenus'));
+      expect(label, contains('couvertures risque'));
+      expect(label, contains('LPP facultative'));
+      expect(label, contains('liquidité'));
+      for (final fragment in [
+        'Plafond 3a salarié',
+        '7’258',
+        'ouvrir',
+        'Ouvre',
+        'fintech',
+        'UBS',
+        'Raiffeisen',
+        'Swiss Life',
+        '60% actions',
+      ]) {
+        expect(label, isNot(contains(fragment)), reason: fragment);
+      }
     } finally {
       semantics.dispose();
     }
