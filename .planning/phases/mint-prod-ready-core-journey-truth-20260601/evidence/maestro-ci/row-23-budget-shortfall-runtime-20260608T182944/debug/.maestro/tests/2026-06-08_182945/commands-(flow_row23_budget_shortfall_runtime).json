@@ -1,0 +1,439 @@
+[ {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "NoSuchMethodError",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936209067,
+    "duration" : 615,
+    "sequenceNumber" : 16
+  }
+}, {
+  "command" : {
+    "openLinkCommand" : {
+      "link" : "mintapp:///__e2e/budget-direct-inputs?net=4500&housing=3900&lamal=600&render=budget",
+      "autoVerify" : false,
+      "browser" : false,
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936205040,
+    "duration" : 367,
+    "sequenceNumber" : 8
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "Infinity",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936207291,
+    "duration" : 570,
+    "sequenceNumber" : 13
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "NaN",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936206720,
+    "duration" : 571,
+    "sequenceNumber" : 12
+  }
+}, {
+  "command" : {
+    "applyConfigurationCommand" : {
+      "config" : {
+        "appId" : "ch.mint.app",
+        "tags" : [ "row-23", "row-23x", "budget", "independent-no-lpp", "shortfall-warning", "iphone-16e", "maestro-proof" ]
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936193138,
+    "duration" : 0,
+    "sequenceNumber" : 2
+  }
+}, {
+  "command" : {
+    "launchAppCommand" : {
+      "appId" : "ch.mint.app",
+      "clearState" : true,
+      "launchArguments" : {
+        "MINT_E2E_ARCHETYPE" : "${MINT_E2E_ARCHETYPE}"
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936193138,
+    "duration" : 2227,
+    "sequenceNumber" : 3
+  }
+}, {
+  "command" : {
+    "waitForAnimationToEndCommand" : {
+      "timeout" : "6000",
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936195365,
+    "duration" : 2322,
+    "sequenceNumber" : 4
+  }
+}, {
+  "command" : {
+    "defineVariablesCommand" : {
+      "env" : {
+        "MINT_E2E_ARCHETYPE" : "independent_no_lpp_income_reality"
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936193137,
+    "duration" : 0,
+    "sequenceNumber" : 1
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "visible" : {
+          "idRegex" : "budget_independent_no_lpp_capacity_guard",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936213455,
+    "duration" : 68,
+    "sequenceNumber" : 18
+  }
+}, {
+  "command" : {
+    "runScriptCommand" : {
+      "script" : "// Row 23x independent/no-LPP runtime proof.\n//\n// Assert the /budget capacity guard exposes the monthly cashflow shortfall\n// warning when the user configures a compressed direct-input budget.\n\nfunction normalize(raw) {\n  if (raw == null) {\n    throw new Error('Row23x: budget shortfall guard capture was null/undefined');\n  }\n  return String(raw).replace(/ /g, ' ').replace(/’/g, \"'\");\n}\n\nvar guard = normalize(output.row23_budget_shortfall_guard);\n\n[\n  'Marge 3a à vérifier',\n  'Marge légale restante',\n  'Équivalent mensuel',\n  'Budget libre actuel',\n  'Marge légale ≠ capacité mensuelle',\n  'Budget libre insuffisant pour couvrir cet équivalent mensuel',\n  'vérifie la trésorerie avant tout versement',\n  'Clarifier mon statut indépendant avant d’augmenter le 3a',\n  'statut AVS',\n  'LPP facultative',\n  'liquidité',\n].forEach(function (needle) {\n  if (!guard.includes(normalize(needle))) {\n    throw new Error(\n      'Row23x: expected Budget shortfall guard fragment \"' +\n        needle +\n        '\", got: \"' +\n        guard +\n        '\"'\n    );\n  }\n});\n\n[\n  'Plafond 3a salarié',\n  '7’258',\n  'ouvrir un',\n  'ouvrir ton',\n  'Ouvre',\n  'fintech',\n  'UBS',\n  'Raiffeisen',\n  'Swiss Life',\n  '60% actions',\n].forEach(function (bad) {\n  if (guard.includes(normalize(bad))) {\n    throw new Error(\n      'Row23x: Budget shortfall guard exposed forbidden fragment \"' +\n        bad +\n        '\": \"' +\n        guard +\n        '\"'\n    );\n  }\n});\n\noutput.row23_budget_shortfall_guard_assertion = 'PASS';\nconsole.log(\n  'ROW23_BUDGET_SHORTFALL_GUARD ' +\n    JSON.stringify({\n      verdict: output.row23_budget_shortfall_guard_assertion,\n      guard: guard,\n    })\n);\n",
+      "sourceDescription" : "/Users/julienbattaglia/Desktop/MINT.nosync/tools/simulator/flows/maestro-perfect-set/row23_assert_budget_shortfall_guard.js",
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936213613,
+    "duration" : 75,
+    "sequenceNumber" : 21
+  }
+}, {
+  "command" : {
+    "defineVariablesCommand" : {
+      "env" : {
+        "MAESTRO_CLI_NO_ANALYTICS" : "1",
+        "MAESTRO_STALL_THRESHOLD" : "90",
+        "MAESTRO_HARD_LIMIT" : "420",
+        "MAESTRO_FILENAME" : "flow_row23_budget_shortfall_runtime",
+        "MAESTRO_DEVICE_UDID" : "9C9E9AAE-C3CF-49B8-B06D-625004880A9B",
+        "MAESTRO_SHARD_ID" : "1",
+        "MAESTRO_SHARD_INDEX" : "0"
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936193136,
+    "duration" : 1,
+    "sequenceNumber" : 0
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "Exception caught",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936208446,
+    "duration" : 621,
+    "sequenceNumber" : 15
+  }
+}, {
+  "command" : {
+    "runFlowCommand" : {
+      "commands" : [ {
+        "tapOnElement" : {
+          "selector" : {
+            "textRegex" : "Ouvrir",
+            "optional" : false
+          },
+          "retryIfNoChange" : false,
+          "waitUntilVisible" : false,
+          "longPress" : false,
+          "optional" : false
+        }
+      }, {
+        "waitForAnimationToEndCommand" : {
+          "optional" : false
+        }
+      } ],
+      "condition" : {
+        "visible" : {
+          "textRegex" : "Ouvrir",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "SKIPPED",
+    "timestamp" : 1780936204793,
+    "sequenceNumber" : 6
+  }
+}, {
+  "command" : {
+    "evalScriptCommand" : {
+      "scriptString" : "${output.row23_budget_shortfall_guard = maestro.copiedText}",
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936213595,
+    "duration" : 17,
+    "sequenceNumber" : 20
+  }
+}, {
+  "command" : {
+    "takeScreenshotCommand" : {
+      "path" : "row23-independent-no-lpp-budget-shortfall",
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936213688,
+    "duration" : 70,
+    "sequenceNumber" : 22
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "Plafond 3a salarié",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936206076,
+    "duration" : 644,
+    "sequenceNumber" : 11
+  }
+}, {
+  "command" : {
+    "runFlowCommand" : {
+      "commands" : [ {
+        "tapOnElement" : {
+          "selector" : {
+            "textRegex" : "Je comprends, on y va",
+            "optional" : false
+          },
+          "retryIfNoChange" : false,
+          "waitUntilVisible" : false,
+          "longPress" : false,
+          "optional" : false
+        }
+      }, {
+        "waitForAnimationToEndCommand" : {
+          "optional" : false
+        }
+      } ],
+      "condition" : {
+        "visible" : {
+          "textRegex" : "Je comprends, on y va",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "SKIPPED",
+    "timestamp" : 1780936197688,
+    "sequenceNumber" : 5
+  }
+}, {
+  "command" : {
+    "runFlowCommand" : {
+      "commands" : [ {
+        "tapOnElement" : {
+          "selector" : {
+            "textRegex" : "Open",
+            "optional" : false
+          },
+          "retryIfNoChange" : false,
+          "waitUntilVisible" : false,
+          "longPress" : false,
+          "optional" : false
+        }
+      }, {
+        "waitForAnimationToEndCommand" : {
+          "optional" : false
+        }
+      } ],
+      "condition" : {
+        "visible" : {
+          "textRegex" : "Open",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "SKIPPED",
+    "timestamp" : 1780936204915,
+    "sequenceNumber" : 7
+  }
+}, {
+  "command" : {
+    "scrollUntilVisible" : {
+      "selector" : {
+        "idRegex" : "budget_independent_no_lpp_capacity_guard",
+        "optional" : false
+      },
+      "direction" : "DOWN",
+      "scrollDuration" : "40",
+      "visibilityPercentage" : 100,
+      "timeout" : "8000",
+      "centerElement" : true,
+      "originalSpeedValue" : "40",
+      "optional" : false,
+      "visibilityPercentageNormalized" : 1.0
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936209682,
+    "duration" : 3773,
+    "sequenceNumber" : 17
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "visible" : {
+          "idRegex" : "budget_screen",
+          "optional" : false
+        }
+      },
+      "timeout" : "12000",
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936205407,
+    "duration" : 84,
+    "sequenceNumber" : 9
+  }
+}, {
+  "command" : {
+    "copyTextCommand" : {
+      "selector" : {
+        "idRegex" : "budget_independent_no_lpp_capacity_guard",
+        "optional" : false
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936213524,
+    "duration" : 71,
+    "sequenceNumber" : 19
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "Ajouter mon salaire",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936205491,
+    "duration" : 585,
+    "sequenceNumber" : 10
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "notVisible" : {
+          "textRegex" : "A RenderFlex overflowed",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1780936207861,
+    "duration" : 585,
+    "sequenceNumber" : 14
+  }
+} ]

@@ -206,7 +206,42 @@ Budget/Rapport smoke passed (`73/73`), E2E flags + Budget/Rapport passed
 (`75/75`), ARB parity passed across FR/EN/DE/ES/IT/PT, and MCP LSFin/accent
 checks passed on the new French copy.
 
-Scope limit: this is local Budget guidance-depth proof only. It does not prove
-physical-device VoiceOver/focus traversal, live backend/LLM scoring,
-production/staging behavior, or new simulator runtime visibility beyond Row
-23v.
+## Row 23x Simulator Runtime Addendum
+
+Follow-up runtime proof now covers the Row 23x shortfall branch on the local
+iPhone simulator. The flow builds with
+`MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality`, opens the debug-only
+direct-input Budget route with `net=4500`, `housing=3900`, and `lamal=600`,
+then renders the real `BudgetScreen` while preserving the independent/no-LPP
+profile context.
+
+Runtime proof:
+
+```bash
+cd apps/mobile
+flutter build ios --simulator --debug \
+  --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality \
+  --dart-define=MINT_DISABLE_BETA_MODAL=true
+xcrun simctl install booted build/ios/iphonesimulator/Runner.app
+
+cd ../..
+MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-shortfall-runtime-20260608T182944 \
+MAESTRO_HARD_LIMIT=420 \
+MAESTRO_STALL_THRESHOLD=90 \
+bash tools/simulator/maestro_with_watchdog.sh test \
+  --debug-output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-shortfall-runtime-20260608T182944/debug \
+  --format junit \
+  --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-shortfall-runtime-20260608T182944/result.xml \
+  tools/simulator/flows/maestro-perfect-set/flow_row23_budget_shortfall_runtime.yaml
+```
+
+Result: Maestro passed on `iPhone 16e - iOS 26.2` in `21s` with JUnit
+`tests=1`, `failures=0`, and watchdog exit `0`. The script copied
+`budget_independent_no_lpp_capacity_guard` and required the shortfall warning
+while rejecting salary-only/product/provider/allocation fragments. Evidence:
+`evidence/maestro-ci/row-23-budget-shortfall-runtime-20260608T182944/`.
+
+Scope limit: Row 23x now has local widget proof plus simulator runtime
+content proof for the shortfall branch. It still does not prove physical-device
+VoiceOver/focus traversal, live backend/LLM scoring, production/staging
+behavior, or full Budget/Rapport guidance parity with the audited Coach answer.

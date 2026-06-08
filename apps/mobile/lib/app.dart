@@ -15,6 +15,7 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
+import 'package:mint_mobile/screens/debug/debug_budget_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_profile_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/services/debug_profile_bootstrap_service.dart';
@@ -434,6 +435,23 @@ final _router = GoRouter(
             mode: mode,
             selfEmployedNetIncomeAnnual: double.tryParse(query['annual'] ?? ''),
             annual3aContribution: double.tryParse(query['planned3a'] ?? ''),
+          );
+        },
+      ),
+    if (!kReleaseMode)
+      ScopedGoRoute(
+        path: '/__e2e/budget-direct-inputs',
+        scope: RouteScope.public,
+        builder: (context, state) {
+          final query = state.uri.queryParameters;
+          return DebugBudgetBootstrapScreen(
+            key: ValueKey(state.uri.toString()),
+            netIncome: double.tryParse(query['net'] ?? '') ?? 0,
+            housingCost: double.tryParse(query['housing'] ?? '') ?? 0,
+            healthInsurance: double.tryParse(query['lamal'] ?? '') ?? 0,
+            taxProvision: double.tryParse(query['tax'] ?? '') ?? 0,
+            otherFixedCosts: double.tryParse(query['other'] ?? '') ?? 0,
+            renderBudget: query['render'] == 'budget',
           );
         },
       ),

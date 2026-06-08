@@ -64,6 +64,7 @@ _ADMIN_CONDITIONAL: Set[str] = {
 # Category 8.
 _DEV_DEBUG_ONLY: Set[str] = {
     "/debug/chat-as-verb",
+    "/__e2e/budget-direct-inputs",
     "/__e2e/row23-independent-no-lpp-profile",
 }
 

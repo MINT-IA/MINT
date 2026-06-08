@@ -205,6 +205,7 @@ void main() {
     test('debug and e2e routes are excluded from release builds', () {
       const debugRoutes = <String>[
         '/debug/chat-as-verb',
+        '/__e2e/budget-direct-inputs',
         '/__e2e/row23-independent-no-lpp-profile',
       ];
       for (final route in debugRoutes) {

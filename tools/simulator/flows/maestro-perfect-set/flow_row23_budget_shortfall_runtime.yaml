@@ -1,0 +1,86 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row23_budget_shortfall_runtime.yaml
+#
+# PURPOSE
+# Row 23x/CJT-063 simulator runtime proof that the independent/no-LPP Budget
+# capacity guard warns when the current monthly budget cannot cover the legal
+# monthly 3a-room equivalent.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone 16e simulator.
+# - Build:
+#     flutter build ios --simulator --debug \
+#       --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality \
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true
+#
+# SCOPE LIMIT
+# This is a local simulator + Maestro proof for runtime rendering and content.
+# It does not prove physical-device VoiceOver/focus traversal, live backend/LLM
+# scoring, or production/staging behavior.
+
+appId: ch.mint.app
+env:
+  MINT_E2E_ARCHETYPE: independent_no_lpp_income_reality
+tags:
+  - row-23
+  - row-23x
+  - budget
+  - independent-no-lpp
+  - shortfall-warning
+  - iphone-16e
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+# Render the real BudgetScreen with direct BudgetInputs while keeping the
+# seeded independent/no-LPP CoachProfile in context.
+- openLink: "mintapp:///__e2e/budget-direct-inputs?net=4500&housing=3900&lamal=600&render=budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- assertNotVisible: "Ajouter mon salaire"
+- assertNotVisible: "Plafond 3a salarié"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+- scrollUntilVisible:
+    element:
+      id: "budget_independent_no_lpp_capacity_guard"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- assertVisible:
+    id: "budget_independent_no_lpp_capacity_guard"
+- copyTextFrom:
+    id: "budget_independent_no_lpp_capacity_guard"
+- evalScript: ${output.row23_budget_shortfall_guard = maestro.copiedText}
+- runScript: "row23_assert_budget_shortfall_guard.js"
+- takeScreenshot: "row23-independent-no-lpp-budget-shortfall"

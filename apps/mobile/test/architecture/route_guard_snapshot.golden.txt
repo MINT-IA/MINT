@@ -9,6 +9,7 @@
 /3a-deep/real-return | authenticated
 /3a-deep/staggered-withdrawal | authenticated
 /3a-retroactif | authenticated
+/__e2e/budget-direct-inputs | public
 /__e2e/row23-independent-no-lpp-profile | public
 /about | public
 /achievements | authenticated

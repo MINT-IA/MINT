@@ -179,7 +179,7 @@ taxonomy: the LLM never surfaces them from the coach, and prod analytics do not
 classify them. Registering them would force `RouteCategory` to grow a `debug`
 slot for non-prod endpoints.
 
-Current occurrences (2 dev-debug/E2E routes at HEAD):
+Current occurrences (3 dev-debug/E2E routes at HEAD):
 
 - L377 `ScopedGoRoute(path: '/debug/chat-as-verb', scope: RouteScope.public, ...)`
   (Phase 97 W7 S001 wiring fix — exposes `ChatAsVerbDemoScreen` so the
@@ -188,6 +188,10 @@ Current occurrences (2 dev-debug/E2E routes at HEAD):
   (Row 23/CJT-063 runtime proof bridge — persists independent/no-LPP answers
   through `ReportPersistenceService` so restart continuity can be tested
   without `MINT_E2E_ARCHETYPE`).
+- `ScopedGoRoute(path: '/__e2e/budget-direct-inputs', scope: RouteScope.public, ...)`
+  (Row 23x/CJT-063 runtime proof bridge — persists direct BudgetInputs and can
+  render the real `BudgetScreen` with an independent/no-LPP profile context so
+  the monthly-capacity shortfall warning is assertable by Maestro).
   Exempt via `_DEV_DEBUG_ONLY` in the lint source.
 
 When a new `/debug/*` or `/__e2e/*` route lands, the maintainer MUST add the path to

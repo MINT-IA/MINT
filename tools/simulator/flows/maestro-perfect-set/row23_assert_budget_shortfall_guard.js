@@ -1,0 +1,69 @@
+// Row 23x independent/no-LPP runtime proof.
+//
+// Assert the /budget capacity guard exposes the monthly cashflow shortfall
+// warning when the user configures a compressed direct-input budget.
+
+function normalize(raw) {
+  if (raw == null) {
+    throw new Error('Row23x: budget shortfall guard capture was null/undefined');
+  }
+  return String(raw).replace(/ /g, ' ').replace(/’/g, "'");
+}
+
+var guard = normalize(output.row23_budget_shortfall_guard);
+
+[
+  'Marge 3a à vérifier',
+  'Marge légale restante',
+  'Équivalent mensuel',
+  'Budget libre actuel',
+  'Marge légale ≠ capacité mensuelle',
+  'Budget libre insuffisant pour couvrir cet équivalent mensuel',
+  'vérifie la trésorerie avant tout versement',
+  'Clarifier mon statut indépendant avant d’augmenter le 3a',
+  'statut AVS',
+  'LPP facultative',
+  'liquidité',
+].forEach(function (needle) {
+  if (!guard.includes(normalize(needle))) {
+    throw new Error(
+      'Row23x: expected Budget shortfall guard fragment "' +
+        needle +
+        '", got: "' +
+        guard +
+        '"'
+    );
+  }
+});
+
+[
+  'Plafond 3a salarié',
+  '7’258',
+  'ouvrir un',
+  'ouvrir ton',
+  'Ouvre',
+  'fintech',
+  'UBS',
+  'Raiffeisen',
+  'Swiss Life',
+  '60% actions',
+].forEach(function (bad) {
+  if (guard.includes(normalize(bad))) {
+    throw new Error(
+      'Row23x: Budget shortfall guard exposed forbidden fragment "' +
+        bad +
+        '": "' +
+        guard +
+        '"'
+    );
+  }
+});
+
+output.row23_budget_shortfall_guard_assertion = 'PASS';
+console.log(
+  'ROW23_BUDGET_SHORTFALL_GUARD ' +
+    JSON.stringify({
+      verdict: output.row23_budget_shortfall_guard_assertion,
+      guard: guard,
+    })
+);
