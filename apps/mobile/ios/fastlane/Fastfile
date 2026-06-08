@@ -1,4 +1,5 @@
 require "base64"
+require_relative "build_number"
 
 # MINT iOS — Fastlane configuration
 # Usage:
@@ -84,37 +85,33 @@ platform :ios do
     # system credential store, which works reliably.
     match(match_params)
 
-    # ── 4. Pin build number from pubspec.yaml (single source of truth) ──
-    # Why: `latest_testflight_build_number(api_key) + 1` returns the latest *processed*
-    # build, but Apple keeps in-flight uploads "reserved" for several minutes after
-    # the binary lands. Three TestFlight runs collided this morning (44/44/46 already
-    # used) because parallel CI re-used the same processed-latest reading.
-    # Pubspec is deterministic — Julien controls the +N suffix when a fresh upload
-    # is needed, and CI accepts whatever value it finds.
+    # ── 4. Resolve build number dynamically ──
+    # TestFlight reserves in-flight uploads before latest processed catches up.
+    # Use pubspec as a floor, TestFlight+margin as a guard, and a UTC timestamp
+    # as the normal CI candidate so repeated staging uploads do not need manual
+    # pubspec bumps.
     pubspec_path = File.expand_path("../../pubspec.yaml", __dir__)
     pubspec_content = File.read(pubspec_path)
-    version_match = pubspec_content.match(/^version:\s*([\d.]+)\+(\d+)/)
-    UI.user_error!("pubspec.yaml: cannot parse 'version: X.Y.Z+N' line") unless version_match
-
-    pubspec_build_number = version_match[2].to_i
+    begin
+      pubspec_build_number = MintBuildNumber.parse_pubspec_build_number(pubspec_content)
+    rescue ArgumentError => e
+      UI.user_error!(e.message)
+    end
     UI.message("Pubspec build number: #{pubspec_build_number}")
 
-    # Defensive: also fetch latest from TestFlight; if pubspec is ≤ TestFlight's
-    # latest, fail BEFORE the upload so the operator sees a clear "bump pubspec"
-    # message instead of the cryptic Apple `-19232 already been used` error.
     latest_tf = latest_testflight_build_number(api_key: api_key)
     UI.message("TestFlight latest processed build number: #{latest_tf}")
-    if pubspec_build_number <= latest_tf
-      UI.user_error!(
-        "pubspec.yaml build number (#{pubspec_build_number}) must be GREATER than the latest " \
-        "TestFlight build (#{latest_tf}). Bump apps/mobile/pubspec.yaml `version: X.Y.Z+N` so " \
-        "N > #{latest_tf} (suggested: #{latest_tf + 5} for safe margin against in-flight uploads) " \
-        "and re-run this lane."
-      )
-    end
+    ci_candidate = MintBuildNumber.ci_timestamp_candidate
+    effective_build_number = MintBuildNumber.next_build_number(
+      pubspec_build_number: pubspec_build_number,
+      latest_testflight_build_number: latest_tf,
+      ci_candidate: ci_candidate,
+    )
+    UI.message("CI timestamp build candidate: #{ci_candidate}")
+    UI.message("Effective build number: #{effective_build_number}")
 
     increment_build_number(
-      build_number: pubspec_build_number,
+      build_number: effective_build_number,
       xcodeproj: "Runner.xcodeproj",
     )
 

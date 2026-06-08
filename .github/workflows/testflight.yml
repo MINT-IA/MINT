@@ -255,6 +255,10 @@ jobs:
         working-directory: apps/mobile/ios
         run: bundle install
 
+      - name: Run Fastlane unit tests
+        working-directory: apps/mobile/ios
+        run: ruby fastlane/build_number_test.rb
+
       - name: Validate App Store secrets
         working-directory: apps/mobile/ios
         env:
