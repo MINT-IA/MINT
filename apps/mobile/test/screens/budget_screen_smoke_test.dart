@@ -719,6 +719,102 @@ void main() {
     }
   });
 
+  testWidgets(
+      'BudgetScreen independent no-LPP updated-income semantics reject stale cashflow',
+      (tester) async {
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final answers = seed.toWizardAnswers(now: DateTime(2026, 6, 6))
+      ..['q_self_employed_net_income_annual_chf'] = 96000.0
+      ..['q_net_income_period_chf'] = 8000.0
+      ..['q_3a_annual_contribution'] = 6000.0;
+    final profile = CoachProfile.fromWizardAnswers(answers);
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 8000,
+      housingCost: 1872,
+      debtPayments: 0,
+      taxProvision: 1350,
+      healthInsurance: 420,
+      otherFixedCosts: 480,
+      isTaxEstimated: true,
+      style: BudgetStyle.envelopes3,
+    );
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(inputs: inputs),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 2));
+      await openCalculationDetail(tester);
+      await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
+
+      final hero =
+          tester.getSemantics(find.byKey(const Key('budget_hero_summary')));
+      final formula =
+          tester.getSemantics(find.byKey(const Key('budget_formula_proof')));
+      final flowMap =
+          tester.getSemantics(find.byKey(const Key('budget_flow_map')));
+      final heroLabel = hero.label.replaceAll('\u00a0', ' ');
+      final formulaLabel = formula.label.replaceAll('\u00a0', ' ');
+      final flowMapLabel = flowMap.label.replaceAll('\u00a0', ' ');
+
+      expect(hero.identifier, 'budget_hero_summary');
+      expect(heroLabel, contains('Disponible ce mois'));
+      expect(heroLabel, isNot(contains("CHF 7'200")));
+
+      expect(formula.identifier, 'budget_formula_proof');
+      expect(formulaLabel, contains("CHF 8'000"));
+      expect(formulaLabel, isNot(contains("CHF 7'200")));
+
+      expect(flowMap.identifier, 'budget_flow_map');
+      expect(flowMapLabel, contains("CHF 8'000"));
+      expect(flowMapLabel, isNot(contains("CHF 7'200")));
+      expect(flowMapLabel, isNot(contains('Salaire net')));
+
+      final traversal = semanticIdentifiersInTraversalOrder(tester);
+      expect(traversal, isNot(contains('budget_income_basis')));
+      expectIdentifierSubsequence(
+        traversal,
+        [
+          'budget_screen',
+          'budget_data_quality_banner',
+          'budget_hero_summary',
+          'budget_calculation_detail_toggle',
+          'budget_flow_map',
+          'budget_formula_proof',
+        ],
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets('BudgetScreen E2E proof anchor exposes income basis when enabled',
       (tester) async {
     E2eRuntimeFlags.proofAnchorsOverride = true;
@@ -797,6 +893,78 @@ void main() {
       expect(node.label, isNot('interactive element'));
       expect(node.flagsCollection.isButton, isFalse);
       expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets(
+      'BudgetScreen E2E proof anchor tracks updated independent no-LPP income',
+      (tester) async {
+    E2eRuntimeFlags.proofAnchorsOverride = true;
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final answers = seed.toWizardAnswers(now: DateTime(2026, 6, 6))
+      ..['q_self_employed_net_income_annual_chf'] = 96000.0
+      ..['q_net_income_period_chf'] = 8000.0
+      ..['q_3a_annual_contribution'] = 6000.0;
+    final profile = CoachProfile.fromWizardAnswers(answers);
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(
+              inputs: BudgetInputs(
+                payFrequency: PayFrequency.monthly,
+                netIncome: 8000,
+                housingCost: 1872,
+                debtPayments: 0,
+                taxProvision: 1350,
+                healthInsurance: 420,
+                otherFixedCosts: 480,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final anchor = find.byKey(const Key('budget_income_basis'));
+      final basisText = tester
+          .widget<Text>(
+            find.textContaining('source=derived_self_employed_annual_proxy'),
+          )
+          .data!
+          .replaceAll('\u00a0', ' ');
+      expect(
+        find.textContaining('source=derived_self_employed_annual_proxy'),
+        findsOneWidget,
+      );
+      expect(
+          basisText, contains('q_self_employed_net_income_annual_chf=96000'));
+      expect(basisText, contains("monthly_net=CHF 8'000"));
+      expect(basisText,
+          isNot(contains('q_self_employed_net_income_annual_chf=86400')));
+      expect(basisText, isNot(contains("monthly_net=CHF 7'200")));
+      expect(anchor, findsOneWidget);
     } finally {
       semantics.dispose();
     }

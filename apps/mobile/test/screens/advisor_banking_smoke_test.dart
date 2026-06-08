@@ -311,6 +311,43 @@ void main() {
       }
     });
 
+    testWidgets(
+        'independent no-LPP report proof anchor tracks updated 3a basis',
+        (tester) async {
+      E2eRuntimeFlags.proofAnchorsOverride = true;
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final semantics = tester.ensureSemantics();
+      try {
+        final seed =
+            CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+        final answers = seed.toWizardAnswers(now: DateTime(2026, 6, 6))
+          ..['q_self_employed_net_income_annual_chf'] = 96000.0
+          ..['q_net_income_period_chf'] = 8000.0
+          ..['q_3a_annual_contribution'] = 6000.0;
+
+        await tester.pumpWidget(
+          buildWithProfileProvider(
+            FinancialReportScreenV2(wizardAnswers: answers),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        expect(find.textContaining('annual=96000'), findsOneWidget);
+        expect(find.textContaining('hasLpp=false'), findsOneWidget);
+        expect(find.textContaining('max3a=19200'), findsOneWidget);
+        expect(find.textContaining('planned3a=6000'), findsOneWidget);
+        expect(find.textContaining('remaining=13200'), findsOneWidget);
+        expect(find.textContaining('annual=86400'), findsNothing);
+        expect(find.textContaining('remaining=11280'), findsNothing);
+        expect(find.textContaining('max3a=7258'), findsNothing);
+        expect(find.textContaining('max3a=7056'), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('export action reports thrown PDF export failures',
         (tester) async {
       final previousPrintingPlatform = PrintingPlatform.instance;

@@ -292,6 +292,47 @@ Remaining gaps:
 - Live backend/LLM scoring remains separate from the deterministic local
   no-LPP fallback proof.
 
+### Budget/Rapport Updated-State Semantics Follow-Up
+
+Content/transcript score remains `9.0 / 10`.
+
+Executable registry score remains capped at `8.0 / 10`.
+Reason: Row 23r adds focused widget-level regression coverage for the updated
+Budget/Rapport facts, but it is not a new iPhone runtime proof and does not
+close runtime VoiceOver/focus traversal or live backend/LLM scoring.
+
+What changed after Row 23r:
+
+- Budget now has a targeted semantics regression test for the Row 23n updated
+  independent/no-LPP state. It hydrates professional income `96'000`, monthly
+  cashflow `CHF 8'000`, and planned 3a `6'000`; then it asserts normal
+  semantics expose `CHF 8'000`, reject stale `CHF 7'200`, reject salaried
+  wording, and keep the `budget_income_basis` proof anchor out of ordinary
+  traversal when proof anchors are disabled.
+- A companion Budget proof-anchor regression test enables opt-in anchors for
+  the same updated state and asserts
+  `q_self_employed_net_income_annual_chf=96000`,
+  `monthly_net=CHF 8'000`, and no stale `86400` / `CHF 7'200` basis.
+- Rapport now has a targeted proof-anchor regression test for the same updated
+  state. It asserts `annual=96000`, `max3a=19200`, `planned3a=6000`, and
+  `remaining=13200`, while rejecting stale `annual=86400`,
+  `remaining=11280`, and salaried/LPP caps.
+
+Evidence:
+
+- Budget/Rapport updated-state semantics:
+  `evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md`
+- Matrix row: `23r`.
+
+Remaining gaps:
+
+- VoiceOver/focus traversal still requires the Row 23p physical-device manual
+  protocol.
+- Live backend/LLM scoring remains separate from the deterministic local
+  no-LPP fallback proof.
+- Broader Budget/Rapport persona-flow scoring remains outside this focused
+  Row 23r regression lot.
+
 ## Target State For 10/10 On This Scenario
 
 To reach `10/10`, this scenario needs:
