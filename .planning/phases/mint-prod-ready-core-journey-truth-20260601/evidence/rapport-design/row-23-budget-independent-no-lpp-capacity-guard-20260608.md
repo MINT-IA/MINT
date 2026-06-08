@@ -122,3 +122,39 @@ Still required before closing `CJT-063`: physical-device VoiceOver/focus
 traversal for Coach/Budget/Rapport, live backend/LLM scoring,
 production/staging path proof for the same updated profile facts, and broader
 Budget/Rapport guidance depth beyond this simulator-proven guard.
+
+## Row 23w Quantified Capacity Addendum
+
+Follow-up Row 23w tightens the same Budget guard so the user sees the
+difference between legal room and current monthly capacity. `BudgetScreen`
+now computes the remaining legal 3a room through
+`Pillar3aRoomCalculator.remainingAnnualRoom(...)` for the
+`independent_no_lpp` archetype, then displays the annual value, monthly
+equivalent, and current Budget free cashflow in the guard.
+
+For the seeded `independent_no_lpp_income_reality` profile, the local proof
+asserts:
+
+- remaining legal 3a room: `CHF 11'280/an`;
+- monthly equivalent: `CHF 940/mois`;
+- current Budget free cashflow: `CHF 2'578/mois`;
+- explicit boundary: `Marge légale ≠ capacité mensuelle`.
+
+Verification:
+
+```bash
+cd apps/mobile
+flutter test test/screens/budget_screen_smoke_test.dart --plain-name "BudgetScreen independent no-LPP exposes 3a capacity guard"
+flutter analyze lib/screens/budget/budget_screen.dart test/screens/budget_screen_smoke_test.dart
+flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart
+flutter test test/services/e2e_runtime_flags_test.dart test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart
+flutter gen-l10n
+```
+
+Results: focused Budget test passed, targeted analyze passed, Budget/Rapport
+smoke passed, E2E flags + Budget/Rapport passed (`73/73`), and ARB parity
+passed across FR/EN/DE/ES/IT/PT.
+
+Scope limit: this is local widget and localization proof. It does not add
+physical-device VoiceOver/focus traversal, live backend/LLM scoring,
+production/staging proof, or new simulator runtime proof beyond Row 23v.

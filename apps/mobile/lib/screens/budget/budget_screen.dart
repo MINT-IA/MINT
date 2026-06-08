@@ -21,6 +21,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/e2e_runtime_flags.dart';
+import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -386,9 +387,11 @@ class _BudgetScreenState extends State<BudgetScreen>
                                         flowProfile)) ...[
                                       _staggeredEntry(
                                         index: 2,
-                                        child:
-                                            _buildIndependentNoLppCapacityGuard(
-                                                l),
+                                        child: _buildIndependentNoLppCapacityGuard(
+                                          l: l,
+                                          profile: flowProfile!,
+                                          present: flowPresent,
+                                        ),
                                       ),
                                       const SizedBox(height: MintSpacing.xxl),
                                     ],
@@ -681,7 +684,22 @@ class _BudgetScreenState extends State<BudgetScreen>
         (lpp == null || lpp == 0);
   }
 
-  Widget _buildIndependentNoLppCapacityGuard(S l) {
+  Widget _buildIndependentNoLppCapacityGuard({
+    required S l,
+    required CoachProfile profile,
+    required PresentBudget present,
+  }) {
+    final rawRemainingAnnual3a = Pillar3aRoomCalculator.remainingAnnualRoom(
+      profile,
+      archetype: FinancialArchetype.independentNoLpp,
+    );
+    final remainingAnnual3a = _displayChf(rawRemainingAnnual3a);
+    final monthlyEquivalent = _displayChf(rawRemainingAnnual3a / 12);
+    final decisionSummary = l.budgetIndependentNoLppDecisionSummary(
+      formatChfWithPrefix(remainingAnnual3a),
+      formatChfWithPrefix(monthlyEquivalent),
+      formatChfWithPrefix(present.monthlyFree),
+    );
     final steps = [
       l.reportActionStep3aIndependentNoLpp1,
       l.reportActionStep3aIndependentNoLpp2,
@@ -691,6 +709,8 @@ class _BudgetScreenState extends State<BudgetScreen>
     final label = [
       l.reportActionTitle3aIndependentNoLpp,
       l.reportActionDesc3aIndependentNoLpp,
+      l.budgetIndependentNoLppDecisionTitle,
+      decisionSummary,
       ...steps,
     ].join('. ');
 
@@ -730,6 +750,16 @@ class _BudgetScreenState extends State<BudgetScreen>
             Text(
               l.reportActionDesc3aIndependentNoLpp,
               style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Text(
+              l.budgetIndependentNoLppDecisionTitle,
+              style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              decisionSummary,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
             const SizedBox(height: MintSpacing.md),
             ...steps.map(

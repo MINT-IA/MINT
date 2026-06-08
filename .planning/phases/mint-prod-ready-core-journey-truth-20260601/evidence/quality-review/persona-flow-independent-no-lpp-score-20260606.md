@@ -120,12 +120,15 @@ What the combined proof now shows:
 - Row 23v proves that the Budget capacity guard is visible in the canonical
   iPhone 16e simulator route flow and that its copied runtime text rejects
   salary-only, product/provider, and fixed-allocation fragments.
+- Row 23w locally quantifies the Budget guard with `CHF 11'280/an` legal 3a
+  room, `CHF 940/mois` monthly equivalent, and `CHF 2'578/mois` current Budget
+  free cashflow, while warning that legal room is not monthly capacity.
 
 What remains weak:
 
 - Budget/Rapport still do not have the same natural-language guidance depth as
-  the audited Coach answer, though Budget now has a simulator-proven no-LPP
-  capacity guard.
+  the audited Coach answer, though Budget now has a simulator-proven and
+  locally quantified no-LPP capacity guard.
 - The flow does not ask or prove AVS-independent status, taxable net income, or
   whether the current `CHF 6'000` 3a contribution is sustainable in cashflow.
 - No VoiceOver/focus traversal proves that the important content is accessible.

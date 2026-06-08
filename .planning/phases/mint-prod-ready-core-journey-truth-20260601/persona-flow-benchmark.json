@@ -211,7 +211,7 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, Row 23c adds local PDF content proof for the same persona, and QOS-001a.1 now records the Row 23n/q/r/s/t/u/v refreshed score at 8.0/10. Physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, Row 23c adds local PDF content proof for the same persona, and QOS-001a.1 now records the Row 23n/q/r/s/t/u/v/w refreshed score at 8.0/10. Physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
     }
   ],
   "records": [
@@ -277,6 +277,7 @@
         "Row 23t deduplicates the Budget next-action semantics so the no-LPP/AI context, CTA, ~70% impact, and tap action are exposed once instead of repeating the CTA.",
         "Row 23u adds a Budget capacity guard carrying the AVS-independent status, taxable income, income-volatility capacity, risk-cover, optional LPP, 3a, and liquidity checks into /budget.",
         "Row 23v proves the Budget capacity guard is visible in the canonical iPhone 16e simulator route flow and rejects salary-only/product/provider/allocation fragments at runtime.",
+        "Row 23w locally quantifies the Budget guard with CHF 11'280/an legal 3a room, CHF 940/mois monthly equivalent, and CHF 2'578/mois current free cashflow.",
         "/budget does not show Ajouter mon salaire.",
         "/rapport renders the seeded report and the neutral 3a assumption phrase.",
         "The runtime flow asserts no salary-only 3a ceiling, no salary-only CTA, no NaN/Infinity, and no Flutter exception strings.",
@@ -295,13 +296,13 @@
       "score_caps_applied": [
         "Cap 8: physical-device VoiceOver/focus traversal remains unproven.",
         "Cap 8: live backend/LLM scoring remains unproven for this persona.",
-        "Cap 8: Budget/Rapport guidance depth remains thinner than the audited Coach answer despite the runtime-proven Budget capacity guard."
+        "Cap 8: Budget/Rapport guidance depth remains thinner than the audited Coach answer despite the runtime-proven and locally quantified Budget capacity guard."
       ],
       "final_score": 8.0,
       "missing_to_10": [
         "Physical-device VoiceOver/focus traversal for Coach, /budget, and /rapport.",
         "Live backend/LLM Coach guidance score.",
-        "Budget/Rapport guidance depth around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility beyond the runtime-proven Budget capacity guard.",
+        "Budget/Rapport guidance depth around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility beyond the runtime-proven and locally quantified Budget capacity guard.",
         "Production/staging path proof for the same updated profile facts."
       ],
       "reviewers": {

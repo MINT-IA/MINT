@@ -469,10 +469,10 @@
       "score_cap": 8.0,
       "cap_reasons": [
         "This record now includes the Row 23 Coach natural-language 3a capacity guidance proof, not full Row 23 closure.",
-        "The flow proves persona-grounded no-LPP 3a margin, decision map, structured source/date/confidence provenance, restart/profile-update continuity, Budget/Rapport updated-state regression coverage, runtime Budget capacity-guard visibility, and rejection of the previous misleading tax-impact card.",
+        "The flow proves persona-grounded no-LPP 3a margin, decision map, structured source/date/confidence provenance, restart/profile-update continuity, Budget/Rapport updated-state regression coverage, runtime Budget capacity-guard visibility, local Budget quantification of legal room versus cashflow capacity, and rejection of the previous misleading tax-impact card.",
         "The transcript/content benchmark is 9.0/10, but the executable registry score remains capped at 8.0 until physical-device VoiceOver/focus traversal and live backend/LLM scoring are proven.",
         "No runtime VoiceOver/focus traversal exists yet for Coach, Budget, or Rapport.",
-        "Budget/Rapport guidance depth remains thinner than the audited Coach answer despite the runtime-proven Budget capacity guard."
+        "Budget/Rapport guidance depth remains thinner than the audited Coach answer despite the runtime-proven and locally quantified Budget capacity guard."
       ],
       "automation": {
         "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml",
@@ -530,7 +530,7 @@
         {
           "command": "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart --plain-name \"BudgetScreen independent no-LPP exposes 3a capacity guard\" && flutter analyze lib/screens/budget/budget_screen.dart test/screens/budget_screen_smoke_test.dart && flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart && flutter test test/services/e2e_runtime_flags_test.dart test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart",
           "result": "pass",
-          "scope": "Row 23u Budget independent/no-LPP capacity guard surfaces AVS-independent status, taxable income, budget capacity under income volatility, risk cover, optional LPP, 3a, and liquidity checks while rejecting salaried-only/product-like surfaces."
+          "scope": "Row 23u/w Budget independent/no-LPP capacity guard surfaces AVS-independent status, taxable income, budget capacity under income volatility, risk cover, optional LPP, 3a, liquidity checks, and quantified legal-room-vs-monthly-capacity values while rejecting salaried-only/product-like surfaces."
         },
         {
           "command": "cd apps/mobile && flutter build ios --simulator --debug --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality --dart-define=MINT_DISABLE_BETA_MODAL=true && xcrun simctl install booted build/ios/iphonesimulator/Runner.app && cd ../.. && MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/debug --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/result.xml tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml",
@@ -542,7 +542,7 @@
         {
           "type": "persona_flow_benchmark_score",
           "result": "scored_with_gaps",
-          "scope": "Benchmark score is 8.0/10 after Row 23n/q/r evidence, capped by physical-device VoiceOver and live backend/LLM gaps."
+          "scope": "Benchmark score is 8.0/10 after Row 23n/q/r/s/t/u/v/w evidence, capped by physical-device VoiceOver and live backend/LLM gaps."
         },
         {
           "type": "swiss_expert_market_benchmark",
@@ -562,16 +562,17 @@
         {
           "type": "quality_os_rescore",
           "result": "scored_with_gaps",
-          "scope": "Row 23r refresh removes the stale no-restart/no-provenance gap from this registry entry while preserving the 8.0 executable cap."
+          "scope": "Row 23w refresh adds local Budget legal-room-vs-cashflow quantification while preserving the 8.0 executable cap."
         }
       ],
-      "user_visible_outcome": "For the independent/no-LPP persona, a natural Coach prompt Combien verser en 3a ? now returns bounded educational guidance: legal 3a margin formula, MINT facts, missing confirmations, decision map, source/provenance labels, and warning that legal room is not monthly payment capacity. Budget also exposes a runtime-proven capacity guard before increasing 3a.",
+      "user_visible_outcome": "For the independent/no-LPP persona, a natural Coach prompt Combien verser en 3a ? now returns bounded educational guidance: legal 3a margin formula, MINT facts, missing confirmations, decision map, source/provenance labels, and warning that legal room is not monthly payment capacity. Budget also exposes a runtime-proven capacity guard that locally quantifies legal room, monthly equivalent, and current free cashflow before increasing 3a.",
       "guidance_boundary_evidence": [
         "The flow uses VZ and MINT constants as benchmark anchors, not as provider recommendations.",
         "The answer states Ne constitue pas un conseil financier and frames the output as educational guidance.",
         "The decision map compares legal margin, capacity, risk cover, liquidity, optional LPP, and fiscal checks without ranking a product or provider.",
         "Runtime rejects the previous generic tax-impact card hierarchy and stale precise tax-savings amounts.",
-        "Runtime Budget guard assertions reject salary-only 3a ceiling, account-opening wording, provider names, and fixed allocation."
+        "Runtime Budget guard assertions reject salary-only 3a ceiling, account-opening wording, provider names, and fixed allocation.",
+        "Local Budget guard assertions separate CHF 11'280/an legal room, CHF 940/mois monthly equivalent, and CHF 2'578/mois free cashflow."
       ],
       "rubric": {
         "runtime_mechanics": 9.0,
@@ -588,7 +589,7 @@
       "remaining_gaps": [
         "No runtime VoiceOver/focus traversal proof for Coach, Budget, or Rapport.",
         "No live backend/LLM scoring proof for the same independent/no-LPP persona.",
-        "Budget/Rapport no-LPP route-chain guidance remains lower than the Coach 3a answer depth, even after runtime Budget capacity-guard proof.",
+        "Budget/Rapport no-LPP route-chain guidance remains lower than the Coach 3a answer depth, even after runtime Budget capacity-guard proof and local Budget quantification.",
         "Row 23 remains PARTIAL."
       ],
       "last_reviewed": "2026-06-08",
@@ -605,7 +606,8 @@
         "Runtime must show Provenance et fraîcheur with revenu professionnel and versements 3a planifiés labelled saisie dans MINT.",
         "Runtime must show Confirmations manquantes, Carte de décision, Comparer avant de verser, and Prochaine action prudente.",
         "Row 23n must prove updated values after restart: Coach 13'200 CHF/an, Budget CHF 8'000, and Rapport remaining=13200.",
-        "Row 23r must prove Budget/Rapport widget semantics reject stale 86'400 / 11'280 / CHF 7'200 and salaried/LPP caps."
+        "Row 23r must prove Budget/Rapport widget semantics reject stale 86'400 / 11'280 / CHF 7'200 and salaried/LPP caps.",
+        "Row 23w must prove Budget separates legal 3a room from monthly capacity with CHF 11'280/an, CHF 940/mois, and CHF 2'578/mois."
       ],
       "anti_surface_assertions": [
         "Runtime rejects Encore en chantier pour ton profil and API Claude transparency leakage.",

@@ -814,6 +814,11 @@ void main() {
       expect(label, contains('couvertures risque'));
       expect(label, contains('LPP facultative'));
       expect(label, contains('liquidité'));
+      expect(label, contains('Marge 3a à vérifier'));
+      expect(label, contains("CHF 11'280/an"));
+      expect(label, contains('CHF 940/mois'));
+      expect(label, contains("CHF 2'578/mois"));
+      expect(label, contains('Marge légale ≠ capacité mensuelle'));
       for (final fragment in [
         'Plafond 3a salarié',
         '7’258',

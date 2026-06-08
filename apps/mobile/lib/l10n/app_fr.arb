@@ -9971,6 +9971,21 @@
   "renteVsCapitalRetirementAgeChips": "Âge de départ à la retraite",
   "reportActionDesc3aFirst": "Marge déductible et impact fiscal estimés selon ton revenu, ton canton et ton statut LPP.",
   "reportActionDesc3aIndependentNoLpp": "MINT estime ton plafond 3a avec les revenus déclarés et l’hypothèse sans LPP. Ce plafond légal ne dit pas si ton budget mensuel peut absorber un versement : vérifie aussi ta capacité, ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.",
+  "budgetIndependentNoLppDecisionTitle": "Marge 3a à vérifier",
+  "budgetIndependentNoLppDecisionSummary": "Marge légale restante : {legal}/an. Équivalent mensuel : {monthly}/mois. Budget libre actuel : {free}/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.",
+  "@budgetIndependentNoLppDecisionSummary": {
+    "placeholders": {
+      "legal": {
+        "type": "String"
+      },
+      "monthly": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
   "reportActionDesc3aSecond": "Échelonnement au retrait et diversification à examiner selon tes comptes existants.",
   "reportActionDescAvsCheck": "Vérifie tes années de cotisation pour estimer une éventuelle lacune AVS.",
   "reportActionDescDette": "Réduire cette dette peut alléger les intérêts futurs de 6-10 % par an, selon le taux.",

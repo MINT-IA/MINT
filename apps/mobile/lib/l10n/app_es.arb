@@ -9286,6 +9286,21 @@
   "renteVsCapitalRetirementAgeChips": "Edad de jubilación",
   "reportActionDesc3aFirst": "Margen deducible e impacto fiscal estimado según tus ingresos, cantón y situación LPP.",
   "reportActionDesc3aIndependentNoLpp": "MINT estima tu límite 3a con los ingresos declarados y la hipótesis sin LPP. Este límite legal no indica si tu presupuesto mensual puede absorber una aportación: verifica también tu capacidad, tu estatus AVS de independiente, el ingreso neto imponible, la cobertura de accidente/pérdida de ingresos y la liquidez necesaria si tus ingresos varían. Siguiente comprobación: comparar la opción LPP facultativa, el 3a y la tesorería con un especialista cualificado.",
+  "budgetIndependentNoLppDecisionTitle": "Margen 3a por verificar",
+  "budgetIndependentNoLppDecisionSummary": "Margen legal restante: {legal}/año. Equivalente mensual: {monthly}/mes. Presupuesto libre actual: {free}/mes. Margen legal ≠ capacidad mensual: mantén una reserva antes de aumentar el 3a.",
+  "@budgetIndependentNoLppDecisionSummary": {
+    "placeholders": {
+      "legal": {
+        "type": "String"
+      },
+      "monthly": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
   "reportActionDesc3aSecond": "Escalonamiento al retirar y diversificación a revisar según tus cuentas existentes.",
   "reportActionDescAvsCheck": "Comprueba tus años de cotización para estimar una posible laguna AVS.",
   "reportActionDescDette": "Reducir esta deuda puede bajar los intereses futuros un 6-10 % al año, según la tasa.",

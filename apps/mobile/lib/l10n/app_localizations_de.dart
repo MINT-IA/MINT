@@ -19520,6 +19520,15 @@ class SDe extends S {
       'MINT schätzt deine 3a-Obergrenze mit dem deklarierten Einkommen und der Annahme ohne LPP. Diese gesetzliche Obergrenze sagt nicht, ob dein Monatsbudget eine Einzahlung tragen kann: Prüfe auch deine Kapazität, deinen selbständigen AVS/AHV-Status, das steuerbare Nettoeinkommen, Unfall-/Erwerbsausfalldeckung und die nötige Liquidität bei schwankendem Einkommen. Nächster Check: freiwillige LPP-Option, 3a und Liquiditätsreserve mit einer qualifizierten Fachperson vergleichen.';
 
   @override
+  String get budgetIndependentNoLppDecisionTitle => '3a-Spielraum prüfen';
+
+  @override
+  String budgetIndependentNoLppDecisionSummary(
+      String legal, String monthly, String free) {
+    return 'Verbleibender rechtlicher Spielraum: $legal/Jahr. Monatliches Äquivalent: $monthly/Monat. Aktuell freies Budget: $free/Monat. Rechtlicher Spielraum ≠ monatliche Kapazität: Behalte eine Reserve, bevor du 3a erhöhst.';
+  }
+
+  @override
   String get reportActionDesc3aSecond =>
       'Staffelung beim Bezug und Diversifikation anhand deiner bestehenden Konten prüfen.';
 

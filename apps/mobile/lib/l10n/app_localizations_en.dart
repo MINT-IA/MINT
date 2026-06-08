@@ -19382,6 +19382,15 @@ class SEn extends S {
       'MINT estimates your 3a ceiling with the declared income and the no-LPP assumption. This legal ceiling does not say whether your monthly budget can absorb a contribution: also check your capacity, self-employed AVS/OASI status, net taxable income, accident/loss-of-income cover, and the liquidity you need if income varies. Next check: compare optional LPP affiliation, 3a, and cash reserves with a qualified specialist.';
 
   @override
+  String get budgetIndependentNoLppDecisionTitle => '3a room to verify';
+
+  @override
+  String budgetIndependentNoLppDecisionSummary(
+      String legal, String monthly, String free) {
+    return 'Remaining legal room: $legal/year. Monthly equivalent: $monthly/month. Current free budget: $free/month. Legal room ≠ monthly capacity: keep a reserve before increasing 3a.';
+  }
+
+  @override
   String get reportActionDesc3aSecond =>
       'Withdrawal staggering and diversification to review based on your existing accounts.';
 

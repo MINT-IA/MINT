@@ -19469,6 +19469,15 @@ class SFr extends S {
       'MINT estime ton plafond 3a avec les revenus déclarés et l’hypothèse sans LPP. Ce plafond légal ne dit pas si ton budget mensuel peut absorber un versement : vérifie aussi ta capacité, ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.';
 
   @override
+  String get budgetIndependentNoLppDecisionTitle => 'Marge 3a à vérifier';
+
+  @override
+  String budgetIndependentNoLppDecisionSummary(
+      String legal, String monthly, String free) {
+    return 'Marge légale restante : $legal/an. Équivalent mensuel : $monthly/mois. Budget libre actuel : $free/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.';
+  }
+
+  @override
   String get reportActionDesc3aSecond =>
       'Échelonnement au retrait et diversification à examiner selon tes comptes existants.';
 
