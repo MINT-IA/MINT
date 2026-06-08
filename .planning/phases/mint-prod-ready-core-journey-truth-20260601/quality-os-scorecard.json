@@ -114,7 +114,13 @@
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
         "kind": "persona_flow_score",
         "max_age_days": 30,
-        "reason": "The first independent/no-LPP persona-flow score must stay fresh while the benchmark seed wave remains incomplete."
+        "reason": "The refreshed independent/no-LPP persona-flow score must stay fresh while the benchmark seed wave remains incomplete."
+      },
+      {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md",
+        "kind": "budget_rapport_regression",
+        "max_age_days": 30,
+        "reason": "Row 23r Budget/Rapport updated-state semantics are part of the refreshed independent/no-LPP persona-flow score."
       },
       {
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-3a-assumption-contract-20260606.md",
@@ -189,7 +195,7 @@
     {
       "id": "persona_flow_benchmark",
       "label": "Persona-flow benchmark quality",
-      "score": 4.0,
+      "score": 4.5,
       "target": 10,
       "tier": "T1-T2",
       "evidence": [
@@ -197,12 +203,13 @@
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/persona-flow-benchmark.json",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-benchmark-seed-20260606.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md"
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md"
       ],
       "missing_to_10": [
         "Second seed persona-flow benchmark record must be expert-scored with runtime evidence.",
         "Each benchmark scenario must cite official/regulatory and public Swiss expert-market sources where relevant.",
-        "Independent-no-LPP now has a first scored record at 6.3/10, but still needs VoiceOver traversal, PDF per-archetype proof, restart/provenance, and Coach natural-language quality review.",
+        "Independent-no-LPP now has a refreshed scored record at 8.0/10 after Row 23n/q/r, but still needs physical-device VoiceOver traversal, PDF per-archetype proof, live backend/LLM scoring, and broader Budget/Rapport guidance depth.",
         "P0/P1 gaps found by benchmark records must be opened in BUG-TRACKER."
       ]
     },

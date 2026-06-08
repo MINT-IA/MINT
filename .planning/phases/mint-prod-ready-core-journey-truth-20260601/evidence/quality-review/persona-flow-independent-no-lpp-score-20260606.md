@@ -1,19 +1,20 @@
 ---
-description: Expert-scored persona-flow benchmark record for independent_no_lpp_income_reality after CJT-062 runtime proof.
+description: Expert-scored persona-flow benchmark record for independent_no_lpp_income_reality after CJT-062 plus Row 23n/q/r follow-up proof.
 status: scored-with-gaps
-date: 2026-06-06
+date: 2026-06-08
 ---
 
 # Persona-Flow Score - independent_no_lpp_income_reality
 
 ## Scope
 
-This is the first scored persona-flow benchmark record for
-`independent_no_lpp_income_reality`.
+This is the refreshed scored persona-flow benchmark record for
+`independent_no_lpp_income_reality` after the Row 23n/q/r follow-up proof.
 
-It uses the CJT-062 iPhone 16e runtime proof as observed MINT behavior and
-compares it against public Swiss guidance expectations. It does not close Row
-23. It makes the gap measurable.
+It uses the original CJT-062 iPhone 16e runtime proof plus the later Row 23
+Coach, restart/profile-update, structured provenance, and Budget/Rapport
+updated-state regression evidence as observed MINT behavior. It compares that
+against public Swiss guidance expectations. It does not close Row 23.
 
 ## Persona And Scenario
 
@@ -24,8 +25,13 @@ compares it against public Swiss guidance expectations. It does not close Row
 - Scenario: income reality, Budget cashflow, 3a ceiling without LPP affiliation
 - Route sequence: `/budget` -> `/rapport`
 - Maestro flow: `tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml`
-- Runtime evidence:
+- Original runtime evidence:
   `.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/`
+- Later Row 23 evidence:
+  - `evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/`
+  - `evidence/maestro-ci/row-23-independent-no-lpp-restart-profile-update-20260607T203657/`
+  - `evidence/rapport-design/row-23-independent-no-lpp-structured-provenance-20260608.md`
+  - `evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md`
 
 ## Source Evidence
 
@@ -82,52 +88,60 @@ A strong Swiss guidance flow for Nadia should cover:
 
 ## Observed MINT Guidance
 
-What the runtime proof shows:
+What the combined proof now shows:
 
-- `/budget` uses the seeded monthly resources and shows `CHF 7'200`.
-- `/budget` computes the hero free amount and the JS assertion checks
-  `CHF 3'333`.
+- `/budget` originally used the seeded monthly resources and showed
+  `CHF 7'200`.
+- Row 23n then proved an updated restart/profile-update chain where
+  `96'000 CHF/an` professional income drives Budget `CHF 8'000`, Rapport
+  `remaining=13200`, and Coach `13'200 CHF/an`.
 - `/budget` no longer shows `Ajouter mon salaire`.
 - `/rapport` renders the seeded report, not the empty report.
 - `/rapport` shows `Plafond 3a selon affiliation LPP et statut de revenu`.
 - The flow asserts no visible `Plafond 3a salarié`, `salarié uniquement`,
   `7’258`, `NaN`, `Infinity`, or Flutter exception strings.
+- The Coach natural prompt `Combien verser en 3a ?` now produces the audited
+  `Marge 3a à vérifier` answer with formula, MINT facts, confirmations
+  manquantes, decision map, comparison checks, and cautious next action.
+- Row 23q renders structured source, freshness, confidence, and update date for
+  the key Coach facts when metadata exists.
+- Row 23r adds Budget/Rapport widget-level regression coverage for the updated
+  independent/no-LPP values and rejects stale salaried/LPP figures.
 
 What remains weak:
 
-- The runtime proof does not show source/freshness/confidence beside the income
-  and 3a facts.
-- The flow does not yet explain the independent-specific tradeoff between 3a,
-  optional LPP affiliation, liquidity, risk cover, and income volatility.
+- Budget/Rapport still do not have the same natural-language guidance depth as
+  the audited Coach answer.
 - The flow does not ask or prove AVS-independent status, taxable net income, or
   whether the current `CHF 6'000` 3a contribution is sustainable in cashflow.
 - No VoiceOver/focus traversal proves that the important content is accessible.
 - No PDF export proves the same persona keeps neutral, sourced guidance in the
   report artifact.
-- No live Coach natural-language answer has been scored for the persona.
+- No live backend/LLM path has been scored for the persona; the current scored
+  Coach proof is the deterministic local fallback path.
 
 ## Scores
 
 | Dimension | Weight | Score | Rationale |
 |---|---:|---:|---|
-| Runtime completion | 10% | 8.0 | iPhone 16e Maestro flow passed with JUnit `tests=1`, `failures=0`, watchdog `0`, and screenshots. |
-| Persona fit and inclusion | 15% | 7.0 | The seed prevents salaried/LPP fallback, but the flow still does not explore all independent-specific constraints. |
-| Data truth and continuity | 15% | 6.0 | Budget and Rapport use seeded values, but source/freshness/confidence and restart continuity are not proven for this persona. |
-| Calculation quality | 15% | 7.0 | 3a ceiling logic is status-aware and backed by local contracts, but the report still uses current income as proxy for the AVS/taxable independent-income question. |
-| Swiss expert coverage and logic | 20% | 5.0 | Public Swiss references show broader expected coverage: optional LPP, risk cover, AVS status, liquidity, and income volatility. MINT only partially surfaces that. |
-| UX clarity and next action | 10% | 6.0 | The user sees a neutral Budget/Rapport path, but the next independent-specific check is not yet strong enough. |
-| FINMA/LSFin-safe boundary | 10% | 7.0 | The observed copy is educational and avoids provider ranking/product prescription; broader generated Coach guidance is not scored yet. |
-| Accessibility/localization | 5% | 4.0 | Prior Row 23 a11y work exists, but this persona path has no VoiceOver/focus traversal or locale-specific runtime proof. |
+| Runtime completion | 10% | 9.0 | iPhone 16e Maestro proofs cover the original route, Coach guidance, and restart/profile-update continuity with JUnit `tests=1`, `failures=0`, watchdog `0`. |
+| Persona fit and inclusion | 15% | 8.5 | The flow no longer falls back to a salaried/LPP assumption and CoachContext can carry independent/no-LPP without the user restating it. |
+| Data truth and continuity | 15% | 8.5 | Row 23n proves updated value continuity across Coach, Budget, and Rapport; Row 23q adds structured source/freshness/confidence/date in Coach. |
+| Calculation quality | 15% | 8.5 | 3a ceiling logic is status-aware and backed by contracts; remaining caveat is that determining AVS/taxable independent income still needs confirmation. |
+| Swiss expert coverage and logic | 20% | 8.0 | The audited Coach answer now covers optional LPP, liquidity, risk cover, income volatility, and fiscal/AVS confirmations; Budget/Rapport remain thinner. |
+| UX clarity and next action | 10% | 8.0 | The user gets a margin, facts, missing confirmations, decision map, comparison checks, and a cautious next action. |
+| FINMA/LSFin-safe boundary | 10% | 8.5 | The observed copy is educational, avoids provider ranking/product prescription, and rejects the previous misleading tax-impact card hierarchy. |
+| Accessibility/localization | 5% | 6.0 | Widget-level semantics exist for Budget/Rapport and localized FR copy is covered, but real VoiceOver/focus traversal is still absent. |
 
-Weighted score: `6.30 / 10`.
+Weighted score before cap: `8.28 / 10`.
 
 Score caps applied:
 
-- Cap `7/10`: no restart/provenance proof for the money-profile truth of this
-  persona.
-- Cap `7/10`: Coach-linked guidance is not evaluated from natural language.
+- Cap `8/10`: Budget/Rapport route-chain quality is still lower than the
+  audited Coach answer and has no physical-device VoiceOver traversal.
+- Cap `8/10`: live backend/LLM scoring remains unproven for this persona.
 
-Final score: `6.3 / 10`.
+Final score: `8.0 / 10`.
 
 ## Compliance Boundary
 
@@ -157,9 +171,9 @@ Mechanical checks already run during this lot:
 - New open gap: `CJT-063` for independent/no-LPP expert-guidance depth.
 
 `CJT-063` is a P1 quality gap, not a local crash. It should remain open until
-the persona flow proves stronger independent-specific guidance, including
-source/provenance, optional LPP/risk cover/liquidity tradeoffs, and Coach/PDF
-coverage.
+the persona flow proves physical-device VoiceOver traversal, live backend/LLM
+scoring, Budget/Rapport guidance depth, and PDF/export content for the same
+persona.
 
 ## Decision
 

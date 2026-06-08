@@ -196,7 +196,7 @@
     },
     {
       "id": "independent_no_lpp_income_reality",
-      "status": "first_persona_flow_score_recorded_with_gaps",
+      "status": "first_persona_flow_rescored_with_row23_followups",
       "existing_seed": "apps/mobile/lib/services/coach/coach_profile_seeds.dart#independent_no_lpp_income_reality",
       "local_contract": "apps/mobile/test/services/financial_report_service_test.dart",
       "seed_contract": "apps/mobile/test/services/coach_profile_seeds_test.dart",
@@ -211,7 +211,7 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, and QOS-001a.1 records the first expert-scored benchmark result at 6.3/10. VoiceOver traversal, PDF per-archetype proof, Coach natural-language quality, restart/provenance, and deeper independent-specific guidance remain pending."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, and QOS-001a.1 now records the Row 23n/q/r refreshed score at 8.0/10. Physical-device VoiceOver traversal, PDF per-archetype proof, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
     }
   ],
   "records": [
@@ -236,11 +236,15 @@
       "runtime_evidence": [
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/result.xml",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/01-row23-independent-no-lpp-budget.png",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/02-row23-independent-no-lpp-rapport.png"
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/02-row23-independent-no-lpp-rapport.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-restart-profile-update-20260607T203657/result.xml"
       ],
       "test_evidence": [
         "cd apps/mobile && flutter test test/services/coach_profile_seeds_test.dart test/app_rapport_route_budget_test.dart",
-        "cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart"
+        "cd apps/mobile && flutter test test/services/financial_report_service_test.dart test/screens/advisor_banking_smoke_test.dart",
+        "cd apps/mobile && flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_context_packet_payload_test.dart test/screens/coach/coach_chat_test.dart",
+        "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart"
       ],
       "source_evidence": [
         "OFAS/BSV Votre cotisation au 3e pilier: https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier",
@@ -258,39 +262,44 @@
         "Avoid provider ranking, product prescription, investment allocation, and return promises."
       ],
       "mint_observed_guidance": [
-        "/budget uses CHF 7'200 monthly resources and CHF 3'333 monthly free in the hero formula.",
+        "/budget originally uses CHF 7'200 monthly resources and CHF 3'333 monthly free in the hero formula.",
+        "Row 23n proves updated restart/profile-update continuity where CHF 96'000 annual professional income drives Coach, Budget, and Rapport values.",
+        "Row 23q renders source, freshness, confidence, and update date for key Coach facts when metadata exists.",
+        "Row 23r proves Budget/Rapport updated-state semantics reject stale CHF 7'200, annual=86400, remaining=11280, and salaried/LPP caps.",
         "/budget does not show Ajouter mon salaire.",
         "/rapport renders the seeded report and the neutral 3a assumption phrase.",
-        "The runtime flow asserts no salary-only 3a ceiling, no salary-only CTA, no NaN/Infinity, and no Flutter exception strings."
+        "The runtime flow asserts no salary-only 3a ceiling, no salary-only CTA, no NaN/Infinity, and no Flutter exception strings.",
+        "The audited Coach natural prompt returns Marge 3a à vérifier, facts, missing confirmations, decision map, comparison checks, and cautious next action."
       ],
       "scores_by_dimension": {
-        "runtime_completion": 8.0,
-        "persona_fit_inclusion": 7.0,
-        "data_truth_continuity": 6.0,
-        "calculation_quality": 7.0,
-        "swiss_expert_coverage_logic": 5.0,
-        "ux_clarity_next_action": 6.0,
-        "finma_lsfin_safe_boundary": 7.0,
-        "accessibility_localization": 4.0
+        "runtime_completion": 9.0,
+        "persona_fit_inclusion": 8.5,
+        "data_truth_continuity": 8.5,
+        "calculation_quality": 8.5,
+        "swiss_expert_coverage_logic": 8.0,
+        "ux_clarity_next_action": 8.0,
+        "finma_lsfin_safe_boundary": 8.5,
+        "accessibility_localization": 6.0
       },
       "score_caps_applied": [
-        "Cap 7: no restart/provenance proof for the persona money truth.",
-        "Cap 7: Coach-linked guidance not evaluated from natural language."
+        "Cap 8: physical-device VoiceOver/focus traversal remains unproven.",
+        "Cap 8: live backend/LLM scoring remains unproven for this persona.",
+        "Cap 8: Budget/Rapport guidance depth remains thinner than the audited Coach answer."
       ],
-      "final_score": 6.3,
+      "final_score": 8.0,
       "missing_to_10": [
-        "VoiceOver/focus traversal for /budget and /rapport.",
+        "Physical-device VoiceOver/focus traversal for Coach, /budget, and /rapport.",
         "PDF export content proof for the same persona.",
-        "Live Coach natural-language guidance score.",
-        "Source/freshness/confidence beside the major persona facts.",
-        "Independent-specific guidance around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility."
+        "Live backend/LLM Coach guidance score.",
+        "Budget/Rapport guidance depth around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility.",
+        "Production/staging path proof for the same updated profile facts."
       ],
       "reviewers": {
         "product": "Codex Quality OS",
         "ux": "Codex + accessibility-expert follow-up recommendation",
         "qa_eval": "qa-expert subagent recommended QOS-001a.1",
         "compliance": "MCP Swiss constants + banned-term/accent checks on representative phrasing",
-        "claude_cli": "Claude CLI final review approved after correcting the weighted score arithmetic to 6.30."
+        "claude_cli": "Claude CLI review on 2026-06-08 returned NO BLOCKERS for the Row 23n/q/r rescore lot and confirmed the 8.0 cap is honest."
       },
       "decision": "scored_with_gaps"
     }

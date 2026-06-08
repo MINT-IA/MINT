@@ -469,11 +469,10 @@
       "score_cap": 8.0,
       "cap_reasons": [
         "This record now includes the Row 23 Coach natural-language 3a capacity guidance proof, not full Row 23 closure.",
-        "The flow proves persona-grounded no-LPP 3a margin, decision map, source/provenance labels, and rejection of the previous misleading tax-impact card.",
-        "The transcript/content benchmark is 8.8/10, but the executable registry score is capped at 8.0 until restart/profile-update continuity is proven.",
-        "Source freshness is text-level, not a structured per-field timestamp/confidence component.",
-        "No runtime VoiceOver/focus traversal exists yet for the long Coach answer.",
-        "No restart/profile-update proof exists yet for the same source/freshness values."
+        "The flow proves persona-grounded no-LPP 3a margin, decision map, structured source/date/confidence provenance, restart/profile-update continuity, Budget/Rapport updated-state regression coverage, and rejection of the previous misleading tax-impact card.",
+        "The transcript/content benchmark is 9.0/10, but the executable registry score remains capped at 8.0 until physical-device VoiceOver/focus traversal and live backend/LLM scoring are proven.",
+        "No runtime VoiceOver/focus traversal exists yet for Coach, Budget, or Rapport.",
+        "Budget/Rapport guidance depth remains thinner than the audited Coach answer."
       ],
       "automation": {
         "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml",
@@ -484,7 +483,11 @@
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/row-23-independent-no-lpp-vz-margin-benchmark-20260607.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/maestro-flow-scoreboard-20260607.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-provenance-freshness-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-restart-profile-update-20260607.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-structured-provenance-20260608.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-restart-profile-update-20260607T203657/result.xml",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/maestro.log",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/row23-independent-no-lpp-after-natural-3a-prompt.png",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/row23-independent-no-lpp-coach-local-guidance.png"
@@ -499,13 +502,18 @@
           "command": "flutter analyze && python3 tools/checks/mint_quality_os_check.py && python3 tools/checks/cjt_context_guard.py && python3 tools/checks/maestro_locator_audit.py && ./tools/mint-routes check && git diff --check",
           "result": "pass",
           "scope": "Analyzer and repository gates for the source-backed 3a provenance lot."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/services/e2e_runtime_flags_test.dart test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart",
+          "result": "pass",
+          "scope": "Row 23r Budget/Rapport updated-state semantics and opt-in proof-anchor regression coverage; evidence says 70 tests passed for the combined Budget/Rapport smoke suite."
         }
       ],
       "semantic_evals": [
         {
           "type": "persona_flow_benchmark_score",
           "result": "scored_with_gaps",
-          "scope": "Benchmark score is 8.8/10 after card suppression, context-aware margin guidance, decision map, and source-backed 3a plan provenance."
+          "scope": "Benchmark score is 8.0/10 after Row 23n/q/r evidence, capped by physical-device VoiceOver and live backend/LLM gaps."
         },
         {
           "type": "swiss_expert_market_benchmark",
@@ -521,6 +529,11 @@
           "type": "qa_subagent_review",
           "result": "pass_with_gaps",
           "scope": "QA agent confirmed the flow is no longer superficial but still lacks structured UI hierarchy, field-level metadata, and runtime VoiceOver/focus proof."
+        },
+        {
+          "type": "quality_os_rescore",
+          "result": "scored_with_gaps",
+          "scope": "Row 23r refresh removes the stale no-restart/no-provenance gap from this registry entry while preserving the 8.0 executable cap."
         }
       ],
       "user_visible_outcome": "For the independent/no-LPP persona, a natural Coach prompt Combien verser en 3a ? now returns bounded educational guidance: legal 3a margin formula, MINT facts, missing confirmations, decision map, source/provenance labels, and warning that legal room is not monthly payment capacity.",
@@ -535,21 +548,21 @@
         "human_goal": 9.0,
         "guidance_boundary": 9.0,
         "user_data_grounding": 9.0,
-        "provenance_freshness": 8.0,
-        "restart_or_continuity": 6.0,
+        "provenance_freshness": 9.0,
+        "restart_or_continuity": 8.0,
         "next_step_quality": 9.0,
         "ux_a11y_i18n": 7.0,
         "automation_reliability": 9.0,
         "debt_hygiene": 9.0
       },
       "remaining_gaps": [
-        "No structured UI component yet for per-field provenance, timestamp, and confidence beside each money fact.",
-        "No runtime VoiceOver/focus traversal proof for the long Coach answer.",
-        "No restart/profile-update proof showing the same source/freshness values survive lifecycle changes.",
-        "The Budget/Rapport no-LPP route-chain score remains lower than the Coach 3a answer score and needs the same depth.",
+        "No runtime VoiceOver/focus traversal proof for Coach, Budget, or Rapport.",
+        "No live backend/LLM scoring proof for the same independent/no-LPP persona.",
+        "Budget/Rapport no-LPP route-chain guidance remains lower than the Coach 3a answer depth.",
+        "No PDF/export content proof shows the same persona keeps neutral, sourced guidance in exported artifacts.",
         "Row 23 remains PARTIAL."
       ],
-      "last_reviewed": "2026-06-07",
+      "last_reviewed": "2026-06-08",
       "benchmark_references": [
         "VZ Pilier 3a: montant maximal 2026 benchmark for no-LPP rule and independent income base.",
         "MINT pillar3a constants: max_without_lpp CHF 36'288 and income_rate_without_lpp 0.2.",
@@ -561,7 +574,9 @@
         "Runtime must show Marge 3a à vérifier, formula, revenu déterminant, and versements 3a déjà planifiés.",
         "Runtime must show MINT facts 86'400 CHF/an, 6'000 CHF/an, and 11'280 CHF/an.",
         "Runtime must show Provenance et fraîcheur with revenu professionnel and versements 3a planifiés labelled saisie dans MINT.",
-        "Runtime must show Confirmations manquantes, Carte de décision, Comparer avant de verser, and Prochaine action prudente."
+        "Runtime must show Confirmations manquantes, Carte de décision, Comparer avant de verser, and Prochaine action prudente.",
+        "Row 23n must prove updated values after restart: Coach 13'200 CHF/an, Budget CHF 8'000, and Rapport remaining=13200.",
+        "Row 23r must prove Budget/Rapport widget semantics reject stale 86'400 / 11'280 / CHF 7'200 and salaried/LPP caps."
       ],
       "anti_surface_assertions": [
         "Runtime rejects Encore en chantier pour ton profil and API Claude transparency leakage.",
