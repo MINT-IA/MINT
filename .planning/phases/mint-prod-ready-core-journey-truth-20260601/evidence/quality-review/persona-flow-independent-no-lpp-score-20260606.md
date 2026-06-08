@@ -117,12 +117,15 @@ What the combined proof now shows:
   carrying the Rapport checks for AVS-independent status, taxable income,
   monthly budget capacity under income volatility, risk cover, optional LPP,
   3a, and liquidity into the Budget surface.
+- Row 23v proves that the Budget capacity guard is visible in the canonical
+  iPhone 16e simulator route flow and that its copied runtime text rejects
+  salary-only, product/provider, and fixed-allocation fragments.
 
 What remains weak:
 
 - Budget/Rapport still do not have the same natural-language guidance depth as
-  the audited Coach answer, though Budget now has a local no-LPP capacity
-  guard.
+  the audited Coach answer, though Budget now has a simulator-proven no-LPP
+  capacity guard.
 - The flow does not ask or prove AVS-independent status, taxable net income, or
   whether the current `CHF 6'000` 3a contribution is sustainable in cashflow.
 - No VoiceOver/focus traversal proves that the important content is accessible.
@@ -135,7 +138,7 @@ What remains weak:
 
 | Dimension | Weight | Score | Rationale |
 |---|---:|---:|---|
-| Runtime completion | 10% | 9.0 | iPhone 16e Maestro proofs cover the original route, Coach guidance, and restart/profile-update continuity with JUnit `tests=1`, `failures=0`, watchdog `0`. |
+| Runtime completion | 10% | 9.0 | iPhone 16e Maestro proofs cover the original route, Coach guidance, restart/profile-update continuity, and the Budget capacity guard with JUnit `tests=1`, `failures=0`, watchdog `0`. |
 | Persona fit and inclusion | 15% | 8.5 | The flow no longer falls back to a salaried/LPP assumption and CoachContext can carry independent/no-LPP without the user restating it. |
 | Data truth and continuity | 15% | 8.5 | Row 23n proves updated value continuity across Coach, Budget, and Rapport; Row 23q adds structured source/freshness/confidence/date in Coach. |
 | Calculation quality | 15% | 8.5 | 3a ceiling logic is status-aware and backed by contracts; remaining caveat is that determining AVS/taxable independent income still needs confirmation. |

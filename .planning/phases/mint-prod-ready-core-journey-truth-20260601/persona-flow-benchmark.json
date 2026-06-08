@@ -211,7 +211,7 @@
         "/rapport",
         "/pilier-3a_or_/mortgage/amortization"
       ],
-      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, Row 23c adds local PDF content proof for the same persona, and QOS-001a.1 now records the Row 23n/q/r/s/t/u refreshed score at 8.0/10. Physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
+      "why_first": "This is the highest-risk counterexample to salary-only, employee-only, and LPP-affiliated assumptions. CJT-061 adds local Rapport calculation proof, CJT-062 adds a passing iPhone 16e runtime seed/flow, Row 23c adds local PDF content proof for the same persona, and QOS-001a.1 now records the Row 23n/q/r/s/t/u/v refreshed score at 8.0/10. Physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth remain pending."
     }
   ],
   "records": [
@@ -238,7 +238,10 @@
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/01-row23-independent-no-lpp-budget.png",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-runtime-strong-20260606T162641/02-row23-independent-no-lpp-rapport.png",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-anti-surface-stable-final2-20260607T142509/result.xml",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-restart-profile-update-20260607T203657/result.xml"
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-independent-no-lpp-restart-profile-update-20260607T203657/result.xml",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/result.xml",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/row23-independent-no-lpp-budget.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/row23-independent-no-lpp-rapport.png"
       ],
       "test_evidence": [
         "cd apps/mobile && flutter test test/services/coach_profile_seeds_test.dart test/app_rapport_route_budget_test.dart",
@@ -247,7 +250,8 @@
         "cd apps/mobile && flutter test test/services/coach/local_fallback_service_test.dart test/services/coach_context_packet_payload_test.dart test/screens/coach/coach_chat_test.dart",
         "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart --plain-name \"BudgetScreen independent no-LPP semantics traverse cashflow\"",
         "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart --plain-name \"BudgetScreen independent no-LPP exposes 3a capacity guard\"",
-        "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart"
+        "cd apps/mobile && flutter test test/screens/budget_screen_smoke_test.dart test/screens/advisor_banking_smoke_test.dart",
+        "flutter build ios --simulator --debug --dart-define=MINT_E2E_ARCHETYPE=independent_no_lpp_income_reality --dart-define=MINT_DISABLE_BETA_MODAL=true && xcrun simctl install booted build/ios/iphonesimulator/Runner.app && MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/debug --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/result.xml tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml"
       ],
       "source_evidence": [
         "OFAS/BSV Votre cotisation au 3e pilier: https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier",
@@ -272,6 +276,7 @@
         "Row 23c proves the generated PDF text keeps independent/no-LPP verification guidance and rejects account-opening/provider framing for the same persona.",
         "Row 23t deduplicates the Budget next-action semantics so the no-LPP/AI context, CTA, ~70% impact, and tap action are exposed once instead of repeating the CTA.",
         "Row 23u adds a Budget capacity guard carrying the AVS-independent status, taxable income, income-volatility capacity, risk-cover, optional LPP, 3a, and liquidity checks into /budget.",
+        "Row 23v proves the Budget capacity guard is visible in the canonical iPhone 16e simulator route flow and rejects salary-only/product/provider/allocation fragments at runtime.",
         "/budget does not show Ajouter mon salaire.",
         "/rapport renders the seeded report and the neutral 3a assumption phrase.",
         "The runtime flow asserts no salary-only 3a ceiling, no salary-only CTA, no NaN/Infinity, and no Flutter exception strings.",
@@ -290,13 +295,13 @@
       "score_caps_applied": [
         "Cap 8: physical-device VoiceOver/focus traversal remains unproven.",
         "Cap 8: live backend/LLM scoring remains unproven for this persona.",
-        "Cap 8: Budget/Rapport guidance depth remains thinner than the audited Coach answer despite the local Budget capacity guard."
+        "Cap 8: Budget/Rapport guidance depth remains thinner than the audited Coach answer despite the runtime-proven Budget capacity guard."
       ],
       "final_score": 8.0,
       "missing_to_10": [
         "Physical-device VoiceOver/focus traversal for Coach, /budget, and /rapport.",
         "Live backend/LLM Coach guidance score.",
-        "Budget/Rapport guidance depth around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility beyond the local Budget action semantics and capacity-guard cleanup.",
+        "Budget/Rapport guidance depth around optional LPP, AVS-independent status, risk cover, liquidity, and income volatility beyond the runtime-proven Budget capacity guard.",
         "Production/staging path proof for the same updated profile facts."
       ],
       "reviewers": {

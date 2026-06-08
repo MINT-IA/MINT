@@ -95,4 +95,16 @@ tags:
 - assertNotVisible: "A RenderFlex overflowed"
 - assertNotVisible: "Exception caught"
 - assertNotVisible: "NoSuchMethodError"
+- scrollUntilVisible:
+    element:
+      id: "budget_independent_no_lpp_capacity_guard"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- assertVisible:
+    id: "budget_independent_no_lpp_capacity_guard"
+- copyTextFrom:
+    id: "budget_independent_no_lpp_capacity_guard"
+- evalScript: ${output.row23_budget_capacity_guard = maestro.copiedText}
+- runScript: "row23_assert_budget_capacity_guard.js"
 - takeScreenshot: "row23-independent-no-lpp-budget"

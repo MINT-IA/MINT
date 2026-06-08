@@ -1,0 +1,9 @@
+command:
+  MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/debug --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-23-budget-capacity-guard-runtime-20260608T144941/result.xml tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_runtime.yaml
+
+terminal_tail:
+  [Passed] flow_row23_independent_no_lpp_runtime (30s)
+
+  1/1 Flow Passed in 30s
+
+  [watchdog] EXIT — maestro returned 0
