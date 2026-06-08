@@ -79,6 +79,21 @@ void main() {
           archetype: 'independent_no_lpp',
           dataReliability: {
             'independentNetProfessionalIncomeAnnual': 'userInput',
+            'plannedContributions.3a': 'userInput',
+          },
+          dataReliabilityDetails: {
+            'independentNetProfessionalIncomeAnnual': {
+              'source': 'userInput',
+              'confidence': 'known',
+              'freshness': 'fresh',
+              'updatedAt': '2026-06-07T21:51:53.000Z',
+            },
+            'plannedContributions.3a': {
+              'source': 'userInput',
+              'confidence': 'known',
+              'freshness': 'fresh',
+              'updatedAt': '2026-06-07T21:51:53.000Z',
+            },
           },
           knownValues: {
             'self_employed_net_income_annual': 86400,
@@ -94,9 +109,21 @@ void main() {
       expect(response, contains('marge légale restante'));
       expect(response, contains('Faits MINT'));
       expect(response, contains('Provenance et fraîcheur'));
-      expect(response, contains('revenu professionnel: saisie dans MINT'));
-      expect(response, contains('versements 3a planifiés: plan MINT'));
-      expect(response, contains('date par champ non affichée'));
+      expect(
+        response,
+        contains(
+          'revenu professionnel: saisie dans MINT; fraîcheur: fraîche; '
+          'confiance: déclarative; mise à jour: 2026-06-07',
+        ),
+      );
+      expect(
+        response,
+        contains(
+          'versements 3a planifiés: saisie dans MINT; fraîcheur: fraîche; '
+          'confiance: déclarative; mise à jour: 2026-06-07',
+        ),
+      );
+      expect(response, isNot(contains('date par champ non affichée')));
       expect(response, contains('Confirmations manquantes'));
       expect(response, contains('Comparer avant de verser'));
       expect(response, contains('base professionnelle déclarée dans MINT'));

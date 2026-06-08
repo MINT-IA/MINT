@@ -484,6 +484,36 @@ void main() {
           capturedCtx!.dataReliability['plannedContributions.3a'],
           'userInput',
         );
+        expect(
+          capturedCtx!.dataReliabilityDetails[
+              'independentNetProfessionalIncomeAnnual']?['source'],
+          'userInput',
+        );
+        expect(
+          capturedCtx!.dataReliabilityDetails[
+              'independentNetProfessionalIncomeAnnual']?['confidence'],
+          'known',
+        );
+        expect(
+          capturedCtx!.dataReliabilityDetails[
+              'independentNetProfessionalIncomeAnnual']?['freshness'],
+          'fresh',
+        );
+        expect(
+          capturedCtx!.dataReliabilityDetails[
+              'independentNetProfessionalIncomeAnnual']?['updatedAt'],
+          isNotEmpty,
+        );
+        expect(
+          capturedCtx!.dataReliabilityDetails['plannedContributions.3a']
+              ?['source'],
+          'userInput',
+        );
+        expect(
+          capturedCtx!.dataReliabilityDetails['annual_3a_contribution']
+              ?['source'],
+          'userInput',
+        );
         return response;
       }
 

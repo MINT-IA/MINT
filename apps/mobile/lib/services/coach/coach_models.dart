@@ -101,6 +101,13 @@ class CoachContext {
   // e.g. {'prevoyance.avoirLppTotal': 'certificate', 'patrimoine.epargneLiquide': 'estimated'}
   final Map<String, String> dataReliability;
 
+  /// Per-field provenance metadata for user-facing source/freshness displays.
+  ///
+  /// Values use Data Spine names where possible:
+  /// `source` = ProfileDataSource.name, `confidence` = FieldConfidence.name,
+  /// `freshness` = FieldFreshness.name, `updatedAt` = ISO-8601 timestamp.
+  final Map<String, Map<String, String>> dataReliabilityDetails;
+
   /// SafeMode flag — true when CoachProfile.isInDebtCrisis is active.
   /// Forwarded to backend as profile_context.has_debt.
   /// When true, backend injects MODE PROTECTION system-prompt block.
@@ -140,6 +147,7 @@ class CoachContext {
     this.knownValues = const {},
     this.coachContextPacket = const {},
     this.dataReliability = const {},
+    this.dataReliabilityDetails = const {},
     this.hasDebt = false,
   });
 
@@ -172,6 +180,7 @@ class CoachContext {
       knownValues: knownValues,
       coachContextPacket: coachContextPacket,
       dataReliability: dataReliability,
+      dataReliabilityDetails: dataReliabilityDetails,
       hasDebt: hasDebt ?? this.hasDebt,
     );
   }

@@ -1947,6 +1947,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       plannedContributions:
           CoachContextProfileMapper.plannedContributions(profile),
       dataReliability: CoachContextProfileMapper.dataReliability(profile),
+      dataReliabilityDetails:
+          CoachContextProfileMapper.dataReliabilityDetails(profile),
       hasDebt: profile.isInDebtCrisis,
     );
   }
@@ -2522,8 +2524,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               isStreaming: _isStreaming &&
                   msg == _messages.last &&
                   msg.tier == ChatTier.slm,
-              announceContentLiveRegion:
-                  msg.timestamp.isAfter(_screenOpenedAt),
+              announceContentLiveRegion: msg.timestamp.isAfter(_screenOpenedAt),
               isInputAnswered: _answeredInputIndices.contains(index),
               onInputSubmitted: _handleInputSubmitted,
               onActionTap: _handleActionTap,

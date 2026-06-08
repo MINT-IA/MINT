@@ -41,4 +41,49 @@ abstract final class CoachContextProfileMapper {
   static Map<String, String> dataReliability(CoachProfile profile) {
     return profile.dataSources.map((key, source) => MapEntry(key, source.name));
   }
+
+  static Map<String, Map<String, String>> dataReliabilityDetails(
+    CoachProfile profile,
+  ) {
+    final details = <String, Map<String, String>>{};
+    for (final entry in profile.dataSources.entries) {
+      final detail = _detailFor(
+        source: entry.value,
+        updatedAt: profile.dataTimestamps[entry.key] ?? profile.updatedAt,
+      );
+      details[entry.key] = detail;
+      if (entry.key == 'plannedContributions.3a') {
+        details['annual_3a_contribution'] = detail;
+      }
+    }
+    return details;
+  }
+
+  static Map<String, String> _detailFor({
+    required ProfileDataSource source,
+    required DateTime? updatedAt,
+  }) {
+    return {
+      'source': source.name,
+      'confidence': _confidenceFor(source),
+      'freshness': _freshnessFor(updatedAt),
+      if (updatedAt != null) 'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  static String _confidenceFor(ProfileDataSource source) {
+    return switch (source) {
+      ProfileDataSource.estimated => 'estimated',
+      ProfileDataSource.userInput => 'known',
+      ProfileDataSource.crossValidated => 'known',
+      ProfileDataSource.certificate => 'known',
+      ProfileDataSource.openBanking => 'known',
+    };
+  }
+
+  static String _freshnessFor(DateTime? updatedAt) {
+    if (updatedAt == null) return 'unknown';
+    final age = DateTime.now().difference(updatedAt);
+    return age.inDays > 365 ? 'stale' : 'fresh';
+  }
 }

@@ -314,18 +314,74 @@ class LocalFallbackService {
     CoachContext? context, {
     required bool hasIncome,
   }) {
-    final incomeSource = hasIncome
-        ? _dataSourceLabel(
-            context?.dataReliability['independentNetProfessionalIncomeAnnual'],
+    const incomeKey = 'independentNetProfessionalIncomeAnnual';
+    final hasPlanned3a =
+        _positiveKnownValue(context, 'annual_3a_contribution') != null;
+    final incomeDetails = _fieldReliabilityDetails(context, const [incomeKey]);
+    final planned3aDetails = _fieldReliabilityDetails(
+      context,
+      const ['annual_3a_contribution', 'plannedContributions.3a'],
+    );
+    final incomeLine = hasIncome
+        ? _provenanceLine(
+            label: 'revenu professionnel',
+            fallbackSource:
+                _dataSourceLabel(context?.dataReliability[incomeKey]),
+            details: incomeDetails,
           )
-        : 'donnée absente côté MINT';
-    final planned3aSource = _planned3aSourceLabel(context);
+        : 'revenu professionnel: donnée absente côté MINT.';
+    final planned3aLine = hasPlanned3a
+        ? _provenanceLine(
+            label: 'versements 3a planifiés',
+            fallbackSource: _planned3aSourceLabel(context),
+            details: planned3aDetails,
+          )
+        : 'versements 3a planifiés: aucun versement planifié connu dans MINT.';
+    final hasAnyFieldDetails =
+        incomeDetails != null || planned3aDetails != null;
+    final needsDateWarning = !hasAnyFieldDetails ||
+        (hasIncome && incomeDetails == null) ||
+        (hasPlanned3a && planned3aDetails == null);
+    final freshnessNote = needsDateWarning
+        ? 'Fraîcheur: date par champ non affichée dans ce chat; à revalider '
+            'si ton revenu, tes versements ou ton statut LPP ont changé.'
+        : 'À revalider si ton revenu, tes versements ou ton statut LPP ont '
+            'changé.';
 
     return 'Provenance et fraîcheur\n'
-        'revenu professionnel: $incomeSource.\n'
-        'versements 3a planifiés: $planned3aSource.\n'
-        'Fraîcheur: date par champ non affichée dans ce chat; à revalider '
-        'si ton revenu, tes versements ou ton statut LPP ont changé.\n\n';
+        '$incomeLine\n'
+        '$planned3aLine\n'
+        '$freshnessNote\n\n';
+  }
+
+  static String _provenanceLine({
+    required String label,
+    required String fallbackSource,
+    required Map<String, String>? details,
+  }) {
+    if (details == null) return '$label: $fallbackSource.';
+    final source = _dataSourceLabel(details['source']) == 'source non affichée'
+        ? fallbackSource
+        : _dataSourceLabel(details['source']);
+    return '$label: $source; fraîcheur: '
+        '${_freshnessLabel(details['freshness'])}; confiance: '
+        '${_confidenceLabel(details['confidence'], details['source'])}; mise à jour: '
+        '${_dateLabel(details['updatedAt'])}.';
+  }
+
+  static Map<String, String>? _fieldReliabilityDetails(
+    CoachContext? context,
+    List<String> keys,
+  ) {
+    final details = context?.dataReliabilityDetails;
+    if (details == null) return null;
+    for (final key in keys) {
+      final fieldDetails = details[key];
+      if (fieldDetails != null && fieldDetails.isNotEmpty) {
+        return fieldDetails;
+      }
+    }
+    return null;
   }
 
   static String _planned3aSourceLabel(CoachContext? context) {
@@ -348,6 +404,34 @@ class LocalFallbackService {
       'openBanking' => 'source bancaire connectée',
       _ => 'source non affichée',
     };
+  }
+
+  static String _freshnessLabel(String? freshness) {
+    return switch (freshness) {
+      'fresh' => 'fraîche',
+      'stale' => 'ancienne',
+      _ => 'non affichée',
+    };
+  }
+
+  static String _confidenceLabel(String? confidence, String? source) {
+    if (source == 'userInput') return 'déclarative';
+    if (source == 'crossValidated') return 'vérifiée';
+    if (source == 'certificate') return 'documentée';
+    if (source == 'openBanking') return 'connectée';
+    return switch (confidence) {
+      'known' => 'connue',
+      'estimated' => 'estimée',
+      'inferred' => 'déduite',
+      'stale' => 'ancienne',
+      'missing' => 'manquante',
+      _ => 'non affichée',
+    };
+  }
+
+  static String _dateLabel(String? updatedAt) {
+    if (updatedAt == null || updatedAt.length < 10) return 'non affichée';
+    return updatedAt.substring(0, 10);
   }
 
   static double? _positiveKnownValue(CoachContext? context, String key) {

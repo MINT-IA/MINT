@@ -647,6 +647,8 @@ class CoachLlmService {
       plannedContributions:
           CoachContextProfileMapper.plannedContributions(profile),
       dataReliability: CoachContextProfileMapper.dataReliability(profile),
+      dataReliabilityDetails:
+          CoachContextProfileMapper.dataReliabilityDetails(profile),
       hasDebt: profile.isInDebtCrisis,
       // Sub-phase 01.5-W02 NN-PATCH (2026-05-22): propagate archetype slug
       // so CoachOrchestrator._calibratedArchetypes check has a real value
