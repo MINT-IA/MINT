@@ -50,10 +50,12 @@ class ConversationTile extends StatelessWidget {
             ),
             actions: [
               TextButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () => ctx.pop(false),
                 child: Text(l10n.conversationDeleteCancel),
               ),
               TextButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () => ctx.pop(true),
                 style: TextButton.styleFrom(
                   foregroundColor: MintColors.error,

@@ -859,8 +859,8 @@ class FinancialSummaryScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                 ],
                 const SizedBox(height: 8),
-                // lint-ignore: prefer_mint_cta
                 FilledButton(
+                  // lint-ignore: prefer_mint_cta
                   // Fix 2026-05-22 (data-race): the previous code fired
                   // _applyEdits() unawaited, then immediately popped the
                   // sheet. updateInline()'s ReportPersistenceService.saveAnswers

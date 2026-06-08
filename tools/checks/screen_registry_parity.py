@@ -76,6 +76,12 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     "/admin/analytics",
     # Debug demos — surfaced for Maestro G1 + dev sim walkthrough only.
     "/debug/chat-as-verb",
+    # Debug-only E2E routes — seeded runtime proof bridges, never chat targets.
+    "/__e2e/budget-direct-inputs",
+    "/__e2e/row23-independent-no-lpp-profile",
+    # Legacy redirect alias kept in GoRouter for backward compatibility.
+    # Coach should surface canonical /rente-vs-capital instead.
+    "/simulator/rente-capital",
     # Achievements / progress
     "/achievements",
     # Coach surface itself (the chat is the SOURCE of routing; you don't route INTO it)
