@@ -141,6 +141,12 @@
         "reason": "Independent/no-LPP PDF content proof must stay fresh while the persona-flow benchmark remains capped by VoiceOver and live backend/LLM gaps."
       },
       {
+        "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-budget-action-insight-semantics-20260608.md",
+        "kind": "budget_semantics_regression",
+        "max_age_days": 30,
+        "reason": "Row 23t Budget action semantics proof must stay fresh while Budget/Rapport guidance depth remains an open CJT-063 gap."
+      },
+      {
         "path": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/user-feedback-flow-feeling-20260606.md",
         "kind": "user_feedback",
         "max_age_days": 30,
@@ -211,12 +217,13 @@
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/quality-review/persona-flow-independent-no-lpp-score-20260606.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-runtime-fixture-20260606.md",
         ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-pdf-content-proof-20260606.md",
-        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md"
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-independent-no-lpp-budget-rapport-updated-state-semantics-20260608.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-budget-action-insight-semantics-20260608.md"
       ],
       "missing_to_10": [
         "Second seed persona-flow benchmark record must be expert-scored with runtime evidence.",
         "Each benchmark scenario must cite official/regulatory and public Swiss expert-market sources where relevant.",
-        "Independent-no-LPP now has a refreshed scored record at 8.0/10 after Row 23n/q/r/s and local PDF content proof, but still needs physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth.",
+        "Independent-no-LPP now has a refreshed scored record at 8.0/10 after Row 23n/q/r/s/t, local PDF content proof, and Budget action semantics cleanup, but still needs physical-device VoiceOver traversal, live backend/LLM scoring, and broader Budget/Rapport guidance depth.",
         "P0/P1 gaps found by benchmark records must be opened in BUG-TRACKER."
       ]
     },

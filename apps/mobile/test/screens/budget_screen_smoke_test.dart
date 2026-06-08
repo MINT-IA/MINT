@@ -27,6 +27,7 @@ import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
+import 'package:mint_mobile/widgets/action_insight_widget.dart';
 
 import '../semantics_test_helpers.dart';
 
@@ -87,6 +88,20 @@ void main() {
 
     // 5. Verify tap-to-type envelope fields (replaced MintPremiumSlider)
     expect(find.byType(TextField), findsWidgets);
+
+    final fallbackActionInsight =
+        tester.getSemantics(find.byType(ActionInsightWidget));
+    expect(fallbackActionInsight.flagsCollection.isButton, isTrue);
+    expect(
+      fallbackActionInsight
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isTrue,
+    );
+    expect(
+      fallbackActionInsight.label,
+      "Complète ton profil pour voir l'impact exact",
+    );
   });
 
   testWidgets('BudgetScreen empty state uses income-inclusive copy',
@@ -669,6 +684,8 @@ void main() {
           tester.getSemantics(find.byKey(const Key('budget_flow_map')));
       final formula =
           tester.getSemantics(find.byKey(const Key('budget_formula_proof')));
+      final actionInsight =
+          tester.getSemantics(find.byType(ActionInsightWidget));
 
       expect(quality.identifier, 'budget_data_quality_banner');
       expect(quality.flagsCollection.isButton, isTrue);
@@ -700,6 +717,19 @@ void main() {
       expect(formula.identifier, 'budget_formula_proof');
       expect(formula.label, contains('Revenu net'));
       expect(formula.label, contains('Disponible'));
+
+      expect(actionInsight.flagsCollection.isButton, isTrue);
+      expect(
+        actionInsight.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+      expect(actionInsight.label, contains('l’AI'));
+      expect(actionInsight.label, contains('Voir l’écart'));
+      expect(actionInsight.label, contains('~70'));
+      expect(
+        RegExp('Voir l’écart').allMatches(actionInsight.label).length,
+        1,
+      );
 
       final traversal = semanticIdentifiersInTraversalOrder(tester);
       expect(traversal, isNot(contains('budget_income_basis')));

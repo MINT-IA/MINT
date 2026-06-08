@@ -37,11 +37,22 @@ class ActionInsightWidget extends StatelessWidget {
     this.onTap,
   });
 
+  String get _semanticsLabel => [
+        if (contextLine.trim().isNotEmpty) contextLine.trim(),
+        actionLine.trim(),
+        if (impactLine?.trim().isNotEmpty == true) impactLine!.trim(),
+      ].join('. ');
+
   @override
   Widget build(BuildContext context) {
+    final handleTap =
+        onTap ?? (route != null ? () => context.push(route!) : null);
+
     return Semantics(
-      button: route != null || onTap != null,
-      label: actionLine,
+      excludeSemantics: true,
+      button: handleTap != null,
+      label: _semanticsLabel,
+      onTap: handleTap,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(16),
@@ -61,7 +72,7 @@ class ActionInsightWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             InkWell(
-              onTap: onTap ?? (route != null ? () => context.push(route!) : null),
+              onTap: handleTap,
               borderRadius: BorderRadius.circular(8),
               child: Row(
                 children: [

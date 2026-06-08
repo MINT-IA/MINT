@@ -110,6 +110,9 @@ What the combined proof now shows:
 - Row 23c proves that the generated PDF text keeps the same independent/no-LPP
   verification guidance and rejects account-opening or provider/product
   framing for this persona.
+- Row 23t deduplicates the Budget next-action semantics so the no-LPP/AI
+  context, CTA, and `~70 %` impact are exposed once instead of repeating the
+  command, while preserving the tap action.
 
 What remains weak:
 
@@ -120,6 +123,8 @@ What remains weak:
 - No VoiceOver/focus traversal proves that the important content is accessible.
 - No live backend/LLM path has been scored for the persona; the current scored
   Coach proof is the deterministic local fallback path.
+- Budget/Rapport guidance depth still remains lower than the audited Coach
+  answer, even after the Budget action semantics cleanup.
 
 ## Scores
 
