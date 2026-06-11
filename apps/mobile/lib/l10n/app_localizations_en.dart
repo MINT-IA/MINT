@@ -5998,6 +5998,10 @@ class SEn extends S {
   String get renteVsCapitalLppTotal => 'Your current LPP assets (CHF)';
 
   @override
+  String get renteVsCapitalEmptyState =>
+      'Complete your profile or enter your values to run the simulation.';
+
+  @override
   String get renteVsCapitalLppOblig => 'Mandatory LPP assets (LPP certificate)';
 
   @override

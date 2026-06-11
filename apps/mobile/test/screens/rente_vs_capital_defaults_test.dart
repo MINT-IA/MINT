@@ -74,16 +74,16 @@ CoachProfile _profileWithEstimatedLpp() => CoachProfile(
 Widget _wrap(CoachProfileProvider provider) {
   return ChangeNotifierProvider<CoachProfileProvider>.value(
     value: provider,
-    child: MaterialApp(
-      locale: const Locale('fr'),
-      localizationsDelegates: const [
+    child: const MaterialApp(
+      locale: Locale('fr'),
+      localizationsDelegates: [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: const RenteVsCapitalScreen(),
+      home: RenteVsCapitalScreen(),
     ),
   );
 }

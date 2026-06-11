@@ -6031,6 +6031,10 @@ class SPt extends S {
   String get renteVsCapitalLppTotal => 'O teu capital LPP atual (CHF)';
 
   @override
+  String get renteVsCapitalEmptyState =>
+      'Completa o teu perfil ou introduz os teus valores para iniciar a simulação.';
+
+  @override
   String get renteVsCapitalLppOblig =>
       'Capital LPP obrigatório (certificado LPP)';
 

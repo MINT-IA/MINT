@@ -6035,6 +6035,10 @@ class SEs extends S {
   String get renteVsCapitalLppTotal => 'Tu capital LPP actual (CHF)';
 
   @override
+  String get renteVsCapitalEmptyState =>
+      'Completa tu perfil o introduce tus valores para iniciar la simulación.';
+
+  @override
   String get renteVsCapitalLppOblig =>
       'Capital LPP obligatorio (certificado LPP)';
 

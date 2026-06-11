@@ -10878,6 +10878,12 @@ abstract class S {
   /// **'Ton avoir LPP actuel (CHF)'**
   String get renteVsCapitalLppTotal;
 
+  /// No description provided for @renteVsCapitalEmptyState.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil ou saisis tes valeurs pour lancer la simulation.'**
+  String get renteVsCapitalEmptyState;
+
   /// No description provided for @renteVsCapitalLppOblig.
   ///
   /// In fr, this message translates to:

@@ -6046,6 +6046,10 @@ class SDe extends S {
   String get renteVsCapitalLppTotal => 'Dein aktuelles BVG-Guthaben (CHF)';
 
   @override
+  String get renteVsCapitalEmptyState =>
+      'Vervollständige dein Profil oder gib deine Werte ein, um die Simulation zu starten.';
+
+  @override
   String get renteVsCapitalLppOblig =>
       'Obligatorisches BVG-Guthaben (Vorsorgeausweis)';
 
