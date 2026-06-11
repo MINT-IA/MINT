@@ -11,6 +11,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/financial_core/archetype_predicates.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -1218,12 +1219,30 @@ class CoachProfileProvider extends ChangeNotifier {
         nationalityGroup != 'CH' &&
         arrivalYear != null;
 
+    // Droit à la déduction 3a archétype-aware (plan 08, expat_us-2 +
+    // frontalier-1). Même prédicat partagé que coach_profile.canContribute3a
+    // (ArchetypePredicates — source of truth unique, CLAUDE.md NEVER #3) afin
+    // que l'aperçu onboarding n'affiche pas un plafond 3a déductible (7258)
+    // pour un US person (FATCA) ou un frontalier non quasi-résident.
+    final bool isCrossBorder = normalizeResidencePermit(permitType) == 'G';
+    final bool isUsPerson = usTaxPerson == true || nationality == 'US';
+    final bool canContribute3a = ArchetypePredicates.canContribute3a(
+      isUsPerson: isUsPerson,
+      isCrossBorder: isCrossBorder,
+      workCanton: canton,
+      grossAnnualIncome: clampedGrossSalary,
+      // Onboarding n'a pas de signal prévoyance.canContribute3a → fallback
+      // permissif (true) pour les archétypes non-FATCA / non-frontaliers.
+      prevoyanceFallback: true,
+    );
+
     // Compute smart estimates via MinimalProfileService (financial_core)
     // so the aperçu financier shows realistic values instead of zeros.
     final minimal = MinimalProfileService.compute(
       age: age,
       grossSalary: clampedGrossSalary,
       canton: canton,
+      canContribute3a: canContribute3a,
     );
 
     // AVS contribution years (LAVS art. 29 — cotisations dès 21 ans).
