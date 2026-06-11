@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: core-journey-truth
 milestone_name: Core Journey Truth / Prod Ready
 status: executing
-stopped_at: Phase mint-illogism-fixes PLANNED+VERIFIED (17 plans / 14 waves, plan-checker PASS iter 2, commits 768b3b155 + d58baa137) — next: /gsd:execute-phase mint-illogism-fixes (W1 source unique). CJT-015/CJT-013 still open behind it.
-last_updated: "2026-06-11T08:20:00+02:00"
-last_activity: 2026-06-11 -- mint-illogism-fixes planned (matrice 44+D12 -> 17 plans), checker PASS
+stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
+last_updated: "2026-06-11T11:14:37.607Z"
+last_activity: 2026-06-11 -- Phase mint-illogism-fixes execution started
 progress:
-  total_phases: 1
-  completed_phases: 0
-  total_plans: 27
-  completed_plans: 4
-  percent: 15
+  total_phases: 15
+  completed_phases: 2
+  total_plans: 75
+  completed_plans: 76
+  percent: 13
 ---
 
 # GSD State: MINT Core Journey Truth / Prod Ready
@@ -29,24 +29,26 @@ router for production-readiness work.
 navigation, reduced duplicate surfaces, current/cited Coach claims, and
 Maestro-proofed journeys.
 
-**Current focus:** Core Journey Truth — close or explicitly defer the open
+**Current focus:** Phase mint-illogism-fixes — Illogism fixes (17 plans)
 gates before expanding scope.
 
 ## Strategic Frame
 
 - **Doctrine:** matrix first, tracker second, code third. A capability is not
   considered proven because a route, widget, or unit test exists.
+
 - **Source:** `.planning/phases/mint-prod-ready-core-journey-truth-20260601/`.
 - **Proof contract:** fresh command output, Maestro/runtime evidence when the
   row is a human journey, and deterministic citation in the tracker.
+
 - **Anti-drift check:** `python3 tools/checks/cjt_context_guard.py`.
 
 ## Current Position
 
-Phase: `mint-prod-ready-core-journey-truth-20260601` — EXECUTING
-Plan: CJT-OPS-00 context guard and next-proof routing
-Status: Executing Core Journey Truth / Prod Ready
-Last activity: 2026-06-03 -- Journey Truth Matrix v0 committed and context
+Phase: mint-illogism-fixes (Illogism fixes (17 plans)) — EXECUTING
+Plan: 1 of 17
+Status: Executing Phase mint-illogism-fixes
+Last activity: 2026-06-11 -- Phase mint-illogism-fixes execution started
 guard added
 
 **Known open gates:**
