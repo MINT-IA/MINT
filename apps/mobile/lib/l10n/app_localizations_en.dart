@@ -23591,4 +23591,59 @@ class SEn extends S {
 
   @override
   String get reportStatusAlerte => 'Alert';
+
+  @override
+  String get onboardingEmploymentPrompt => 'What is your work situation?';
+
+  @override
+  String get onboardingEmploymentSalarie => 'Employee';
+
+  @override
+  String get onboardingEmploymentIndependant => 'Self-employed';
+
+  @override
+  String get onboardingEmploymentSansActivite => 'Not working';
+
+  @override
+  String get onboardingCivilPrompt => 'What is your family situation?';
+
+  @override
+  String get onboardingCivilCelibataire => 'Single';
+
+  @override
+  String get onboardingCivilMarie => 'Married';
+
+  @override
+  String get onboardingCivilConcubinage => 'Cohabiting';
+
+  @override
+  String get onboardingCivilDivorce => 'Divorced';
+
+  @override
+  String get onboardingCivilVeuf => 'Widowed';
+
+  @override
+  String get onboardingAvsPrompt => 'Have you spent years outside Switzerland?';
+
+  @override
+  String get onboardingAvsNoGaps => 'No, always in Switzerland';
+
+  @override
+  String get onboardingAvsLivedAbroad => 'Yes, a few years abroad';
+
+  @override
+  String get onboardingAvsArrivedLate => 'I moved to Switzerland later';
+
+  @override
+  String get onboardingAvsUnknown => 'I\'m not sure';
+
+  @override
+  String get onboardingAvsArrivalYearPrompt =>
+      'What year did you arrive in Switzerland?';
+
+  @override
+  String get onboardingAvsYearsAbroadPrompt => 'How many years abroad?';
+
+  @override
+  String get onboardingAvsContinue => 'Continue';
 }

@@ -23764,4 +23764,62 @@ class SDe extends S {
 
   @override
   String get reportStatusAlerte => 'Warnung';
+
+  @override
+  String get onboardingEmploymentPrompt =>
+      'Wie ist deine berufliche Situation?';
+
+  @override
+  String get onboardingEmploymentSalarie => 'Angestellt';
+
+  @override
+  String get onboardingEmploymentIndependant => 'Selbstständig';
+
+  @override
+  String get onboardingEmploymentSansActivite => 'Nicht erwerbstätig';
+
+  @override
+  String get onboardingCivilPrompt => 'Wie ist deine familiäre Situation?';
+
+  @override
+  String get onboardingCivilCelibataire => 'Ledig';
+
+  @override
+  String get onboardingCivilMarie => 'Verheiratet';
+
+  @override
+  String get onboardingCivilConcubinage => 'In Lebensgemeinschaft';
+
+  @override
+  String get onboardingCivilDivorce => 'Geschieden';
+
+  @override
+  String get onboardingCivilVeuf => 'Verwitwet';
+
+  @override
+  String get onboardingAvsPrompt =>
+      'Hast du Jahre ausserhalb der Schweiz verbracht?';
+
+  @override
+  String get onboardingAvsNoGaps => 'Nein, immer in der Schweiz';
+
+  @override
+  String get onboardingAvsLivedAbroad => 'Ja, einige Jahre im Ausland';
+
+  @override
+  String get onboardingAvsArrivedLate =>
+      'Ich bin später in die Schweiz gekommen';
+
+  @override
+  String get onboardingAvsUnknown => 'Ich weiss es nicht';
+
+  @override
+  String get onboardingAvsArrivalYearPrompt =>
+      'In welchem Jahr kamst du in die Schweiz?';
+
+  @override
+  String get onboardingAvsYearsAbroadPrompt => 'Wie viele Jahre im Ausland?';
+
+  @override
+  String get onboardingAvsContinue => 'Weiter';
 }

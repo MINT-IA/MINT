@@ -41445,6 +41445,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Alerte'**
   String get reportStatusAlerte;
+
+  /// No description provided for @onboardingEmploymentPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est ta situation professionnelle ?'**
+  String get onboardingEmploymentPrompt;
+
+  /// No description provided for @onboardingEmploymentSalarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié'**
+  String get onboardingEmploymentSalarie;
+
+  /// No description provided for @onboardingEmploymentIndependant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indépendant'**
+  String get onboardingEmploymentIndependant;
+
+  /// No description provided for @onboardingEmploymentSansActivite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans activité'**
+  String get onboardingEmploymentSansActivite;
+
+  /// No description provided for @onboardingCivilPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est ta situation familiale ?'**
+  String get onboardingCivilPrompt;
+
+  /// No description provided for @onboardingCivilCelibataire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get onboardingCivilCelibataire;
+
+  /// No description provided for @onboardingCivilMarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié'**
+  String get onboardingCivilMarie;
+
+  /// No description provided for @onboardingCivilConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage'**
+  String get onboardingCivilConcubinage;
+
+  /// No description provided for @onboardingCivilDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé'**
+  String get onboardingCivilDivorce;
+
+  /// No description provided for @onboardingCivilVeuf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf'**
+  String get onboardingCivilVeuf;
+
+  /// No description provided for @onboardingAvsPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu passé des années hors de Suisse ?'**
+  String get onboardingAvsPrompt;
+
+  /// No description provided for @onboardingAvsNoGaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, toujours en Suisse'**
+  String get onboardingAvsNoGaps;
+
+  /// No description provided for @onboardingAvsLivedAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, quelques années à l\'étranger'**
+  String get onboardingAvsLivedAbroad;
+
+  /// No description provided for @onboardingAvsArrivedLate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis arrivé en Suisse plus tard'**
+  String get onboardingAvsArrivedLate;
+
+  /// No description provided for @onboardingAvsUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get onboardingAvsUnknown;
+
+  /// No description provided for @onboardingAvsArrivalYearPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'En quelle année es-tu arrivé en Suisse ?'**
+  String get onboardingAvsArrivalYearPrompt;
+
+  /// No description provided for @onboardingAvsYearsAbroadPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien d\'années à l\'étranger ?'**
+  String get onboardingAvsYearsAbroadPrompt;
+
+  /// No description provided for @onboardingAvsContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get onboardingAvsContinue;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

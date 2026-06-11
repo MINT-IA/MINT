@@ -23717,4 +23717,59 @@ class SPt extends S {
 
   @override
   String get reportStatusAlerte => 'Alerta';
+
+  @override
+  String get onboardingEmploymentPrompt =>
+      'Qual é a tua situação profissional?';
+
+  @override
+  String get onboardingEmploymentSalarie => 'Assalariado';
+
+  @override
+  String get onboardingEmploymentIndependant => 'Independente';
+
+  @override
+  String get onboardingEmploymentSansActivite => 'Sem atividade';
+
+  @override
+  String get onboardingCivilPrompt => 'Qual é a tua situação familiar?';
+
+  @override
+  String get onboardingCivilCelibataire => 'Solteiro';
+
+  @override
+  String get onboardingCivilMarie => 'Casado';
+
+  @override
+  String get onboardingCivilConcubinage => 'Em união de facto';
+
+  @override
+  String get onboardingCivilDivorce => 'Divorciado';
+
+  @override
+  String get onboardingCivilVeuf => 'Viúvo';
+
+  @override
+  String get onboardingAvsPrompt => 'Passaste anos fora da Suíça?';
+
+  @override
+  String get onboardingAvsNoGaps => 'Não, sempre na Suíça';
+
+  @override
+  String get onboardingAvsLivedAbroad => 'Sim, alguns anos no estrangeiro';
+
+  @override
+  String get onboardingAvsArrivedLate => 'Cheguei à Suíça mais tarde';
+
+  @override
+  String get onboardingAvsUnknown => 'Não sei';
+
+  @override
+  String get onboardingAvsArrivalYearPrompt => 'Em que ano chegaste à Suíça?';
+
+  @override
+  String get onboardingAvsYearsAbroadPrompt => 'Quantos anos no estrangeiro?';
+
+  @override
+  String get onboardingAvsContinue => 'Continuar';
 }

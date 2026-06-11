@@ -23,7 +23,10 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/dossier_strip.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_etat_civil.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_lacunes_avs.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_statut_emploi.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
 import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/profile_migration_service.dart';
@@ -105,6 +108,12 @@ class _OnboardingShellBody extends StatelessWidget {
         return const _UsTaxPersonStep();
       case OnboardingStep.nationality:
         return const _NationalityStep();
+      case OnboardingStep.employment:
+        return const _EmploymentStep();
+      case OnboardingStep.civilStatus:
+        return const _CivilStatusStep();
+      case OnboardingStep.avsLacunes:
+        return const _AvsLacunesStep();
       case OnboardingStep.age:
         return const _AgeStep();
       case OnboardingStep.canton:
@@ -242,6 +251,70 @@ class _NationalityStep extends StatelessWidget {
           const SizedBox(height: 12),
         ],
       ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// T2.7-T2.9 — W2 (mint-illogism-fixes-06) archetype-truth questions
+// ────────────────────────────────────────────────────────────────────
+
+/// Thin wrappers connecting the W2 archetype scenes to the onboarding
+/// step machine. Each scene writes its q_* key to CoachProfileProvider
+/// (sealed by SecureWizardStore) AND records the value on the
+/// OnboardingProvider so the terminal flush re-emits it deterministically.
+/// On answer the orchestrator advances to the next step. Like the FATCA +
+/// nationality steps, these write NO dossier-strip line — PII archetype
+/// signals stay invisible to the user post-answer.
+class _EmploymentStep extends StatelessWidget {
+  const _EmploymentStep();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<OnboardingProvider>();
+    return MintSceneStatutEmploi(
+      onAnswered: (status) {
+        provider.setEmploymentStatus(status);
+        provider.advance();
+      },
+    );
+  }
+}
+
+class _CivilStatusStep extends StatelessWidget {
+  const _CivilStatusStep();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<OnboardingProvider>();
+    return MintSceneEtatCivil(
+      onAnswered: (status) {
+        provider.setCivilStatus(status);
+        provider.advance();
+      },
+    );
+  }
+}
+
+class _AvsLacunesStep extends StatelessWidget {
+  const _AvsLacunesStep();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<OnboardingProvider>();
+    return MintSceneLacunesAvs(
+      onAnswered: (status, {arrivalYear, yearsAbroad}) {
+        // Mirror the captured values onto the OnboardingProvider so the
+        // terminal flush re-emits them. ReportPersistenceService.saveAnswers
+        // REPLACES the store, so the flush map must carry the year/count —
+        // the scene's own mergeAnswers write alone would be overwritten.
+        provider.setAvsLacunes(
+          status,
+          arrivalYear: arrivalYear,
+          yearsAbroad: yearsAbroad,
+        );
+        provider.advance();
+      },
     );
   }
 }
