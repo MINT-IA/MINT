@@ -14,7 +14,7 @@ must_haves:
   truths:
     - "L'arbre AX de RenteVsCapitalScreen est peuplé : chaque valeur financière, slider et CTA de l'écran est exposé aux technologies d'assistance (plus d'écran à 1 élément idb)."
     - "Le flow Maestro bug__ILLOG02__rvc_ax_tree_empty.yaml passe GREEN (était OPEN-RED, reproduit froid+chaud)."
-    - "Les assertions Maestro sur cet écran deviennent possibles — débloque le gate du plan 11 (ILLOG-01, dépendance inter-vagues explicite)."
+    - "Les assertions Maestro sur cet écran deviennent possibles — débloque le gate du plan 10 (ILLOG-01, dépendance inter-vagues explicite)."
   artifacts:
     - path: "apps/mobile/test/screens/rente_vs_capital_semantics_test.dart"
       provides: "Test SemanticsTester : l'arbre contient les nœuds attendus (titres, valeurs, CTA)"
@@ -27,7 +27,7 @@ must_haves:
 ---
 
 <objective>
-W5/ILLOG-02 (P1, exécuté TÔT) — `RenteVsCapitalScreen` rend les pixels mais son arbre accessibilité est (quasi) vide : triangulé Maestro (assert fail sur écran visible) + idb (1 élément) + screenshot, reproduit froid+chaud. Tant que l'arbre AX est vide, AUCUNE assertion Maestro ne peut tourner sur cet écran — ce plan débloque mécaniquement le gate ILLOG-01 du plan 11 (dépendance inter-vagues du CONTEXT).
+W5/ILLOG-02 (P1, exécuté TÔT) — `RenteVsCapitalScreen` rend les pixels mais son arbre accessibilité est (quasi) vide : triangulé Maestro (assert fail sur écran visible) + idb (1 élément) + screenshot, reproduit froid+chaud. Tant que l'arbre AX est vide, AUCUNE assertion Maestro ne peut tourner sur cet écran — ce plan débloque mécaniquement le gate ILLOG-01 du plan 10 (dépendance inter-vagues du CONTEXT).
 
 CONTRAINTE de parallélisme : ce plan ne touche AUCUN fichier ARB (réutiliser les strings localisées existantes comme labels sémantiques) — il tourne en parallèle du plan 07.
 
@@ -46,7 +46,7 @@ Output: arbre AX peuplé + test Semantics + flow GREEN.
 @tools/simulator/flows/regression/_INDEX.md
 
 <interfaces>
-Écran : apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart (défauts :62-66 et _autoFillFromProfile :180-215 appartiennent au plan 11 — NE PAS y toucher ici, fichier partagé en waves successives).
+Écran : apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart (défauts :62-66 et _autoFillFromProfile :180-215 appartiennent au plan 10 — NE PAS y toucher ici, fichier partagé en waves successives).
 Repro device : run ~/.maestro/tests/2026-06-11_065259 ; flow bug__ILLOG02 OPEN-RED.
 Causes plausibles d'un arbre AX vide avec pixels OK : ExcludeSemantics / BlockSemantics ancestral, CustomPaint sans Semantics, RepaintBoundary+Opacity mal composés, `Semantics(container:)` manquant sur du contenu canvas, ou un package de chart qui peint sans nœuds sémantiques.
 </interfaces>
@@ -89,11 +89,12 @@ Causes plausibles d'un arbre AX vide avec pixels OK : ExcludeSemantics / BlockSe
     - `maestro test tools/simulator/flows/regression/bug__ILLOG02__rvc_ax_tree_empty.yaml` exit 0 (sortie citée — gate mécanique du CONTEXT).
     - `idb ui describe-all` sur l'écran RvC montre > 5 éléments (citation snapshot dans le SUMMARY).
     - `git diff --stat` ne montre AUCUN fichier ARB modifié (contrainte de parallélisme wave 7).
+    - Panel design 4-personnes (UX + a11y + adversarial + engineering/wiring) exécuté AVANT push sur rente_vs_capital_screen (Semantics = territoire a11y du panel), verdicts cités dans le SUMMARY — règle feedback_design_panel_before_push.
   </acceptance_criteria>
   <verify>
     <automated>cd apps/mobile && flutter test test/screens/rente_vs_capital_semantics_test.dart && flutter analyze</automated>
   </verify>
-  <done>D6/ILLOG-02 fermé : flow GREEN cité, arbre AX peuplé, gate Maestro du plan 11 débloqué.</done>
+  <done>D6/ILLOG-02 fermé : flow GREEN cité, arbre AX peuplé, gate Maestro du plan 10 débloqué.</done>
 </task>
 
 </tasks>
@@ -116,7 +117,7 @@ Causes plausibles d'un arbre AX vide avec pixels OK : ExcludeSemantics / BlockSe
 </verification>
 
 <success_criteria>
-- D6 fermé ; plan 11 (ILLOG-01) exécutable.
+- D6 fermé ; plan 10 (ILLOG-01) exécutable.
 </success_criteria>
 
 <output>

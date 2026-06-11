@@ -69,6 +69,7 @@ Backend : services/backend/app/api/v1/endpoints/lucidity.py:46 (« LCC art. 28 �
     - `grep -n "\* 13\|\*13" apps/mobile/lib/screens/mortgage/affordability_screen.dart` → 0.
     - `cd apps/mobile && flutter test test/screens/affordability_prefill_test.dart` exit 0 (oracle re-run : 196800 par les deux routes).
     - Tests existants de mortgage_service inchangés et verts.
+    - Panel design 4-personnes (UX + a11y + adversarial + engineering/wiring) exécuté AVANT push sur affordability_screen (écran modifié), verdicts cités dans le SUMMARY — règle feedback_design_panel_before_push.
   </acceptance_criteria>
   <verify>
     <automated>cd apps/mobile && flutter test test/screens/affordability_prefill_test.dart && flutter analyze</automated>

@@ -44,7 +44,7 @@ updated: 2026-06-11
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 01-T1 | 01 | 1 | MATRIX-salarie_swiss-1, cadre_divorce_hypo-2, returning_swiss_gaps-3/-4, jeune_diplome-1 | T-ILF-01-01 | parité avoir LPP au centime | parity (RED Wave 0) | `cd apps/mobile && flutter test test/services/financial_parity_test.dart` | ❌ W0 | ⬜ pending |
 | 01-T2 | 01 | 1 | MATRIX-independent_no_lpp-4, expat_us-3, frontalier-2/-5, couple_acheteurs-2 | T-ILF-01-01 | clamp 64260 + 1.25% partout | parity+oracle | `cd apps/mobile && flutter test test/services/financial_parity_test.dart && flutter analyze` | ❌ W0 | ⬜ pending |
-| 02-T1 | 02 | 2 | MATRIX-salarie_swiss-4, independent_no_lpp-5, expat_us-4, frontalier-3, cadre_divorce_hypo-3, couple_acheteurs-3, returning_swiss_gaps-5, D4 | T-ILF-02-01 | un taux de conversion par cas | parity+oracle | `cd apps/mobile && flutter test test/services/financial_parity_test.dart` | ❌ W0 | ⬜ pending |
+| 02-T1 | 02 | 2 | MATRIX-salarie_swiss-4, independent_no_lpp-5, expat_us-4, frontalier-3, cadre_divorce_hypo-3, couple_acheteurs-3, returning_swiss_gaps-5, D4 | T-ILF-02-01 | un taux de conversion par cas | parity+oracle+panel | `cd apps/mobile && flutter test test/services/financial_parity_test.dart` | ❌ W0 | ⬜ pending |
 | 02-T2 | 02 | 2 | MATRIX-§2-rachat | T-ILF-02-01 | impact rachat base unique | parity | `cd apps/mobile && flutter test test/services/` | ❌ W0 | ⬜ pending |
 | 03-T1 | 03 | 3 | MATRIX-salarie_swiss-5, independent_no_lpp-6, expat_us-5, frontalier-4, cadre_divorce_hypo-4, jeune_diplome-3, couple_acheteurs-4, returning_swiss_gaps-6, D3, §2-retraite | T-ILF-03-01 | dénominateur NET unique | parity+oracle | `cd apps/mobile && flutter test test/services/financial_parity_test.dart` | ❌ W0 | ⬜ pending |
 | 03-T2 | 03 | 3 | MATRIX-§2-marge-libre | T-ILF-03-01 | net via NetIncomeBreakdown partout | parity | `cd apps/mobile && flutter test test/services/` | ❌ W0 | ⬜ pending |
@@ -58,7 +58,7 @@ updated: 2026-06-11
 | 08-T1 | 08 | 8 | MATRIX-expat_us-1 | T-ILF-08-01 | gate FATCA global, pas de bypass | widget (redirect) | `cd apps/mobile && flutter test test/screens/fatca_gate_test.dart` | ❌ | ⬜ pending |
 | 08-T2 | 08 | 8 | MATRIX-expat_us-2, frontalier-1 | T-ILF-08-02 | compute archétype-aware | parity+oracle+sim | `cd apps/mobile && flutter test && flutter analyze` | ❌ | ⬜ pending |
 | 09-T1 | 09 | 7 | MATRIX-D6 (diagnostic) | T-ILF-09-01 | — | semantics (RED) | `cd apps/mobile && flutter test test/screens/rente_vs_capital_semantics_test.dart` | ❌ | ⬜ pending |
-| 09-T2 | 09 | 7 | MATRIX-D6 | T-ILF-09-01 | arbre AX peuplé | semantics+maestro | `maestro test tools/simulator/flows/regression/bug__ILLOG02__rvc_ax_tree_empty.yaml` | ✅ (flow RED) | ⬜ pending |
+| 09-T2 | 09 | 7 | MATRIX-D6 | T-ILF-09-01 | arbre AX peuplé | semantics+maestro+panel | `maestro test tools/simulator/flows/regression/bug__ILLOG02__rvc_ax_tree_empty.yaml` | ✅ (flow RED) | ⬜ pending |
 | 10-T1 | 10 | 8 | MATRIX-D5 | T-ILF-10-01 | fiction ≠ réel | widget | `cd apps/mobile && flutter test test/screens/rente_vs_capital_defaults_test.dart` | ❌ | ⬜ pending |
 | 10-T2 | 10 | 8 | MATRIX-D5 / ILLOG-01 | T-ILF-10-01 | flow gate | maestro | `maestro test tools/simulator/flows/regression/bug__ILLOG01__rvc_fiction_defaults.yaml` | ✅ (flow RED) | ⬜ pending |
 | 11-T1 | 11 | 9 | MATRIX-D12 | T-ILF-11-02 | une source de confiance | unit | `cd apps/mobile && flutter test test/services/` | ❌ | ⬜ pending |
@@ -69,12 +69,12 @@ updated: 2026-06-11
 | 13-T2 | 13 | 11 | MATRIX-returning_swiss_gaps-2, jeune_diplome-2 | T-ILF-13-01 | scène honnête + hypothèse | widget+sim+panel | `cd apps/mobile && flutter test && flutter analyze` | ❌ | ⬜ pending |
 | 14-T1 | 14 | 12 | MATRIX-D10 (diagnostic) | T-ILF-14-01 | — | grep/diagnostic | `grep -rn "marge" apps/mobile/lib/services/budget_living_engine.dart` | ✅ | ⬜ pending |
 | 14-T2 | 14 | 12 | MATRIX-D10 | T-ILF-14-01 | suggestion ≤ plafond restant | unit+oracle+sim | `cd apps/mobile && flutter test test/services/suggestion_3a_cap_test.dart` | ❌ | ⬜ pending |
-| 15-T1 | 15 | 12 | MATRIX-couple_acheteurs-1 | T-ILF-15-01 | revenu ménage unique | widget+oracle | `cd apps/mobile && flutter test test/screens/affordability_prefill_test.dart` | ❌ | ⬜ pending |
+| 15-T1 | 15 | 12 | MATRIX-couple_acheteurs-1 | T-ILF-15-01 | revenu ménage unique | widget+oracle+panel | `cd apps/mobile && flutter test test/screens/affordability_prefill_test.dart` | ❌ | ⬜ pending |
 | 15-T2 | 15 | 12 | MATRIX-W4-citation-LCC | T-ILF-15-02 | citation vérifiée | grep+pytest | `grep -c "LCC" services/backend/app/api/v1/endpoints/lucidity.py` | ✅ | ⬜ pending |
 | 16-T1 | 16 | 13 | MATRIX-D7/D8 (diagnostic) | T-ILF-16-01 | — | diagnostic | `grep -n "Provider" apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart` | ✅ | ⬜ pending |
 | 16-T2 | 16 | 13 | MATRIX-D7, D8 | T-ILF-16-01/-02 | source unique + CTA vivant | widget+sim+panel | `cd apps/mobile && flutter test test/screens/retirement_dashboard_profile_test.dart` | ❌ | ⬜ pending |
 | 17-T1 | 17 | 14 | MATRIX-D9 | T-ILF-17-01 | hypothèses what-if étiquetées | widget+sim+panel | `cd apps/mobile && flutter test test/screens/mariage_whatif_labels_test.dart` | ❌ | ⬜ pending |
-| 17-T2 | 17 | 14 | MATRIX-D11, i18n hardcode + clôture phase | T-ILF-17-02 | labels localisés | grep+maestro+sim D1-D12 | `cd apps/mobile && flutter gen-l10n && flutter analyze && flutter test` | ❌ | ⬜ pending |
+| 17-T2 | 17 | 14 | MATRIX-D11, i18n hardcode + clôture phase | T-ILF-17-02 | labels localisés | grep+maestro+sim D1-D12+panel | `cd apps/mobile && flutter gen-l10n && flutter analyze && flutter test` | ❌ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

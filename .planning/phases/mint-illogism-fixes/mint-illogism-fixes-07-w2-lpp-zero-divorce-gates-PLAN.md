@@ -101,7 +101,7 @@ Sémantique unifiée (lock CONTEXT) : LPP=0 si l'archétype indépendant-sans-LP
     - Divorcé AVEC valeur réelle saisie/scannée → valeur conservée, confiance normale.
     - La confiance du profil divorcé sans valeur réelle est dégradée (axe completeness/accuracy).
   </behavior>
-  <action>Ajouter `ArchetypePredicates.canEstimateLppByAgeSalary({required CoachCivilStatus? civilStatus})` → false pour divorce. Dans coach_profile:2850-2859 (et le chemin minimal_profile équivalent), brancher AVANT l'appel d'estimation : si interdit → pas d'estimation, exposer l'état « valeur réelle requise » consommable par l'UI (nouvelle clé ARB ×6, formulation FR du type « Valeur réelle requise — scanne ton certificat LPP », sans terme banni) + dégradation de confiance via le scorer existant. NE PAS construire d'écran ici (l'affichage hero états connu/estimé/inconnu = plan 10).</action>
+  <action>Ajouter `ArchetypePredicates.canEstimateLppByAgeSalary({required CoachCivilStatus? civilStatus})` → false pour divorce. Dans coach_profile:2850-2859 (et le chemin minimal_profile équivalent), brancher AVANT l'appel d'estimation : si interdit → pas d'estimation, exposer l'état « valeur réelle requise » consommable par l'UI (nouvelle clé ARB ×6, formulation FR du type « Valeur réelle requise — scanne ton certificat LPP », sans terme banni) + dégradation de confiance via le scorer existant. NE PAS construire d'écran ici (l'affichage hero états connu/estimé/inconnu = plan 11).</action>
   <acceptance_criteria>
     - `cd apps/mobile && flutter test test/services/financial_parity_test.dart` exit 0 (oracle cadre_divorce_hypo-1 re-run : divorcé → aucun avoir estimé).
     - `python3 tools/checks/accent_lint_fr.py` exit 0 + `validate_arb_parity()` OK + `check_banned_terms` clean sur la nouvelle string.
@@ -110,7 +110,7 @@ Sémantique unifiée (lock CONTEXT) : LPP=0 si l'archétype indépendant-sans-LP
   <verify>
     <automated>cd apps/mobile && flutter test && flutter analyze</automated>
   </verify>
-  <done>cadre_divorce_hypo-1 fermé : plus d'avoir certain de 416k pour un divorcé ; fallback localisé prêt pour le plan 10.</done>
+  <done>cadre_divorce_hypo-1 fermé : plus d'avoir certain de 416k pour un divorcé ; fallback localisé prêt pour le plan 11.</done>
 </task>
 
 </tasks>

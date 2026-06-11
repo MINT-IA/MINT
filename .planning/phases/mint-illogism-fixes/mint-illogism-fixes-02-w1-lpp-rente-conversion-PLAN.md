@@ -85,15 +85,16 @@ Sites divergents à re-câbler (matrice §2) :
     - Lignes matrice : salarie_swiss-4, cadre_divorce_hypo-3 (incl. note commentaire :779), D4
   </read_first>
   <behavior>
-    - Test (RED d'abord) : avoir stocké 300000, âge de retraite référence → la rente mensuelle calculée par chaque chemin public (mariage prefill, response card replacement, financial summary, independants, cap_sequence) est IDENTIQUE et == avoir × adjustedConversionRate(...) / 12.
+    - Test (RED d'abord) : avoir stocké 300000, âge de retraite référence → la rente mensuelle calculée par chaque chemin public (mariage prefill, response card replacement, financial summary, independants) est IDENTIQUE et == avoir × adjustedConversionRate(...) / 12.
     - Cas retraite anticipée : départ avant l'âge de référence → la réduction art.13 al.2 s'applique (rente strictement inférieure au cas référence).
   </behavior>
-  <action>Ajouter le groupe « Rente LPP » à financial_parity_test.dart (RED, valeurs divergentes 1700 vs 1450 citées au commit). Puis re-câbler : chaque site calcule la rente via `LppCalculator.adjustedConversionRate` (passer l'âge de retraite du profil ; défaut = âge de référence). Supprimer `0.068` hardcodé (mariage_screen:94, independants_service _tauxConversion), remplacer l'usage direct de `lppTauxConversionSurobligDecimal` (response_card:776) et de `profile.tauxConversion` (financial_summary:127, cap_sequence:622) par l'appel canonique. Unifier la branche minimal_profile_service:108-111. Corriger le commentaire :779 pour refléter le taux réellement appliqué. Si un helper est utile, l'ajouter dans lpp_calculator.dart (ex. `static double monthlyRenteFromAvoir({required double avoir, ...})`) — PAS dans les services.</action>
+  <action>Ajouter le groupe « Rente LPP » à financial_parity_test.dart (RED, valeurs divergentes 1700 vs 1450 citées au commit). Puis re-câbler : chaque site calcule la rente via `LppCalculator.adjustedConversionRate` (passer l'âge de retraite du profil ; défaut = âge de référence). Supprimer `0.068` hardcodé (mariage_screen:94, independants_service _tauxConversion), remplacer l'usage direct de `lppTauxConversionSurobligDecimal` (response_card:776) et de `profile.tauxConversion` (financial_summary:127) par l'appel canonique (cap_sequence_engine:622 est traité en Task 2, qui possède ce fichier). Unifier la branche minimal_profile_service:108-111. Corriger le commentaire :779 pour refléter le taux réellement appliqué. Si un helper est utile, l'ajouter dans lpp_calculator.dart (ex. `static double monthlyRenteFromAvoir({required double avoir, ...})`) — PAS dans les services.</action>
   <acceptance_criteria>
     - `grep -n "0\.068" apps/mobile/lib/screens/mariage_screen.dart apps/mobile/lib/services/independants_service.dart` → 0 résultat hors commentaires.
     - `grep -rn "adjustedConversionRate\|monthlyRenteFromAvoir" apps/mobile/lib/screens/mariage_screen.dart apps/mobile/lib/services/response_card_service.dart apps/mobile/lib/screens/profile/financial_summary_screen.dart apps/mobile/lib/services/independants_service.dart` ≥ 4 sites.
     - `cd apps/mobile && flutter test test/services/financial_parity_test.dart` exit 0 (oracle matrice re-run : avoir 300000 → UNE rente, plus de spread 250 CHF/mois).
     - response_card_service.dart:779 ne contient plus « 5.4% ».
+    - Panel design 4-personnes (UX + a11y + adversarial + engineering/wiring) exécuté AVANT push sur mariage_screen + financial_summary_screen (écrans modifiés), verdicts cités dans le SUMMARY — règle feedback_design_panel_before_push, aucune exception « petit fix ».
   </acceptance_criteria>
   <verify>
     <automated>cd apps/mobile && flutter test test/services/financial_parity_test.dart && flutter analyze</automated>
@@ -109,7 +110,7 @@ Sites divergents à re-câbler (matrice §2) :
     - apps/mobile/lib/services/job_comparison_service.dart:60-90
     - Ligne matrice §2 « Capacité rachat LPP »
   </read_first>
-  <action>`cap_sequence_engine._estimateRachatImpact` (:639-644) et `job_comparison_service.dart:75` calculent l'impact mensuel d'un rachat/avoir avec la MÊME base canonique `LppCalculator.adjustedConversionRate` que la Task 1 (fin de l'incohérence 0.068 vs surobligatoire). La capacité de rachat (rachatMaximum, champ profil lu du certificat) reste inchangée — seul l'IMPACT mensuel est re-câblé. Ajouter 1 cas au groupe « Rente LPP » : rachat 50000 → impact identique par les deux chemins.</action>
+  <action>`cap_sequence_engine._estimateLppMonthly` (:622, `avoir * profile.tauxConversion / 12`), `cap_sequence_engine._estimateRachatImpact` (:639-644) et `job_comparison_service.dart:75` calculent rente et impact mensuel d'un rachat/avoir avec la MÊME base canonique `LppCalculator.adjustedConversionRate` que la Task 1 (fin de l'incohérence 0.068 vs surobligatoire). La capacité de rachat (rachatMaximum, champ profil lu du certificat) reste inchangée — seul l'IMPACT mensuel est re-câblé. Ajouter 2 cas au groupe « Rente LPP » : chemin cap_sequence (avoir 300000 → rente identique aux chemins Task 1) et rachat 50000 → impact identique par les deux chemins.</action>
   <acceptance_criteria>
     - `grep -n "tauxConversion" apps/mobile/lib/services/cap_sequence_engine.dart apps/mobile/lib/services/job_comparison_service.dart` → plus d'usage direct pour le calcul d'impact (délégation visible).
     - `cd apps/mobile && flutter test test/services/financial_parity_test.dart test/services/` exit 0.

@@ -98,6 +98,7 @@ Post-plan 11 : pattern d'étiquetage « hypothèse » disponible — réutiliser
     - `cd apps/mobile && flutter gen-l10n && flutter analyze && flutter test` exit 0 ; `accent_lint_fr` + `validate_arb_parity` OK.
     - Flows `maestro test tools/simulator/flows/regression/bug__ILLOG01__rvc_fiction_defaults.yaml` et `bug__ILLOG02__rvc_ax_tree_empty.yaml` GREEN (gate de phase, re-run final).
     - Tableau D1-D12 re-vérifié sur sim avec verdict par ligne + captures citées (0-TRUST : la phase ne se déclare pas fermée sur tests verts).
+    - Panel design 4-personnes exécuté AVANT push (peut être le MÊME run que celui de la Task 1) mais NOMMANT explicitement les DEUX écrans modifiés du plan : mariage_screen ET explorer_screen ; verdicts par écran cités dans le SUMMARY — règle feedback_design_panel_before_push.
   </acceptance_criteria>
   <verify>
     <automated>cd apps/mobile && flutter gen-l10n && flutter analyze && flutter test && python3 tools/checks/accent_lint_fr.py</automated>
