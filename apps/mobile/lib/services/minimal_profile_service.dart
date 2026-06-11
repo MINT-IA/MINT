@@ -173,9 +173,9 @@ class MinimalProfileService {
             : taxImpact.annualCeiling;
     final taxSaving3a = taxImpact.estimatedTaxSaving;
 
-    // --- Liquidity analysis ---
+    // --- Liquidity analysis (base nette canonique, plus de ratio plat) ---
     final estimatedMonthlyExpenses = _estimateMonthlyExpenses(
-      grossSalary,
+      netMonthlyIncome,
       effectiveHousehold,
       effectivePropertyOwner,
     );
@@ -225,27 +225,19 @@ class MinimalProfileService {
     );
   }
 
-  /// Estimate monthly expenses from gross salary and household type.
+  /// Estimate monthly expenses from canonical NET income and household type.
   ///
-  /// Uses typical Swiss expense ratios:
-  /// - Housing: 25-30% of net income
-  /// - Insurance (LAMal + other): 8-12%
-  /// - Living expenses: 30-40%
+  /// Uses typical Swiss expense ratios applied to the canonical monthly NET
+  /// ([NetIncomeBreakdown.compute], canton + âge aware) — plus de ratio plat
+  /// 0.75 comme proxy de net (base nette unique app-wide, matrice §2 « Marge
+  /// libre »). Seuls les ratios de *dépense* par type de ménage restent ici.
   static double _estimateMonthlyExpenses(
-    double grossAnnualSalary,
+    double monthlyNet,
     String householdType,
     bool isPropertyOwner,
   ) {
-    // Expense base ≈ 75% of gross — intentionally different from NetIncomeBreakdown
-    // (which computes actual net payslip and requires canton + age).
-    // Here 0.75 approximates disposable spending capacity as a quick proxy
-    // for the minimal profile context where canton may not be reliable yet.
-    // Swiss average: social charges ~6.4%, LPP ~5-9%, taxes ~10-15% → net ~70-78%.
-    // 0.75 is a reasonable median. For canton-aware precision, use
-    // NetIncomeBreakdown.compute() when canton and age are confirmed.
-    final netMonthly = grossAnnualSalary * 0.75 / 12;
-
-    // Expense ratio depends on household type
+    // Expense ratio depends on household type (ratio de dépense, pas un proxy
+    // de net) : housing 25-30% + LAMal 8-12% + vie courante 30-40%.
     final expenseRatio = switch (householdType) {
       'single' => 0.80,
       'couple' => 0.75,
@@ -253,6 +245,6 @@ class MinimalProfileService {
       _ => 0.80,
     };
 
-    return netMonthly * expenseRatio;
+    return monthlyNet * expenseRatio;
   }
 }

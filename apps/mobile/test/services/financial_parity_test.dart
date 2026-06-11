@@ -26,6 +26,7 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/replacement_rate.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -598,6 +599,82 @@ void main() {
       expect(gap!.replacementRate, closeTo(expected, 0.01),
           reason: 'le dénominateur doit être present.monthlyNet (NET), '
               'pas grossMonthlySalary (BRUT)');
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Parity W3 — Base nette (plan 03, Task 2)
+  //
+  //  Oracle matrice §2 « Marge libre mensuelle » : pour un même brut + canton,
+  //  le revenu NET est IDENTIQUE par tous les chemins. Fin des ratios plats
+  //  0.75 / 0.78 (spread device-prouvé ~300 CHF/mois sur 120k brut). UNE base
+  //  nette canonique : NetIncomeBreakdown.compute (canton + âge aware).
+  // ════════════════════════════════════════════════════════════════
+
+  group('Parity W3 — Base nette', () {
+    test('minimal_profile — dépenses dérivées du NET canonique (fin du 0.75)',
+        () {
+      const age = 45;
+      const gross = 120000.0;
+      const canton = 'GE';
+
+      final result = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        householdType: 'single',
+      );
+
+      final canonicalNet = NetIncomeBreakdown.compute(
+        grossSalary: gross,
+        canton: canton,
+        age: age,
+      ).monthlyNetPayslip;
+
+      // Les dépenses « single » = 80% du NET canonique (ratio de dépense),
+      // plus 0.75 × brut comme proxy. Preuve que la base nette est canonique.
+      expect(result.estimatedMonthlyExpenses, closeTo(canonicalNet * 0.80, 0.01),
+          reason: 'la base nette doit venir de NetIncomeBreakdown, pas 0.75');
+
+      // Régression : le proxy plat brut×0.75/12 produirait une autre valeur.
+      const flatProxy = gross * 0.75 / 12 * 0.80;
+      expect(result.estimatedMonthlyExpenses,
+          isNot(closeTo(flatProxy, 0.01)),
+          reason: 'ne doit plus utiliser le ratio plat 0.75');
+    });
+
+    test('coach_profile_seeds — net mensuel via NetIncomeBreakdown (fin du 0.78)',
+        () {
+      const age = 50;
+      const grossMonthly = 10000.0; // 120k annuel
+      const canton = 'GE';
+      const seed = CoachProfileSeed(
+        slug: 'parity_w3_base_nette',
+        firstName: 'Test',
+        age: age,
+        canton: canton,
+        archetype: 'swiss_native',
+        grossMonthlySalary: grossMonthly,
+        employmentStatus: 'salarie',
+      );
+
+      final answers = seed.toWizardAnswers(now: DateTime(2026));
+      final net = answers['q_net_income_period_chf'] as double;
+
+      final canonicalNet = NetIncomeBreakdown.compute(
+        grossSalary: grossMonthly * 12,
+        canton: canton,
+        age: age,
+      ).monthlyNetPayslip.roundToDouble();
+
+      expect(net, closeTo(canonicalNet, 0.01),
+          reason: 'le seed doit dériver le net du canonique, pas brut×0.78');
+
+      // Régression : le proxy plat brut×0.78 produirait une autre valeur.
+      final flatProxy = (grossMonthly * 0.78).roundToDouble();
+      expect(net, isNot(closeTo(flatProxy, 0.01)),
+          reason: 'ne doit plus utiliser le ratio plat 0.78');
     });
   });
 }

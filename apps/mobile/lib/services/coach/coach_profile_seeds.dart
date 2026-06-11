@@ -23,6 +23,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// A pinned, named seed for a single walker archetype.
 class CoachProfileSeed {
@@ -129,8 +130,16 @@ class CoachProfileSeed {
   Map<String, dynamic> toWizardAnswers({DateTime? now}) {
     final year = (now ?? DateTime.now()).year;
     final birthYear = year - age;
-    final monthlyNetIncome =
-        netMonthlyIncome ?? (grossMonthlySalary * 0.78).roundToDouble();
+    // Net mensuel via la source canonique NetIncomeBreakdown (canton + âge
+    // aware) — plus de ratio plat 0.78 (base nette unique app-wide, matrice
+    // §2 « Marge libre »). Le canton du seed est utilisé ; à défaut, ZH par
+    // défaut (estimation pour les fixtures e2e sans canton fiable).
+    final monthlyNetIncome = netMonthlyIncome ??
+        NetIncomeBreakdown.compute(
+          grossSalary: grossMonthlySalary * 12,
+          canton: canton.isNotEmpty ? canton : 'ZH',
+          age: age,
+        ).monthlyNetPayslip.roundToDouble();
     final hasLpp = hasPensionFund ?? usTaxPerson != true;
     final annual3a = annual3aContribution ?? (hasLpp ? 7056.0 : 0.0);
     final threeAAccounts = threeAAccountsCount ?? (hasLpp ? 1 : 0);
