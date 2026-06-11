@@ -3396,10 +3396,7 @@ class SEs extends S {
 
   @override
   String jobCompareRetirementBody(
-    String betterJob,
-    String annualDelta,
-    String monthlyDelta,
-  ) {
+      String betterJob, String annualDelta, String monthlyDelta) {
     return '$betterJob vale $annualDelta/año más en renta vitalicia, es decir $monthlyDelta/mes DE POR VIDA tras la jubilación.';
   }
 
@@ -5485,10 +5482,7 @@ class SEs extends S {
 
   @override
   String simLppBuybackDisclaimer(
-    String fundRate,
-    int staggeringYears,
-    String taxableIncome,
-  ) {
+      String fundRate, int staggeringYears, String taxableIncome) {
     return 'Simulación que incluye el interés de la caja ($fundRate %) y el impacto fiscal indicativo repartido en $staggeringYears años para una renta imponible de CHF $taxableIncome. El rendimiento real se calcula sobre tu esfuerzo neto real.';
   }
 
@@ -5683,10 +5677,7 @@ class SEs extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-    String amount,
-    int years,
-    String plural,
-  ) {
+      String amount, int years, String plural) {
     return 'Pierdes $amount/mes de por vida. Pero ganas $years año$plural de libertad.';
   }
 
@@ -5763,10 +5754,7 @@ class SEs extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-    String ordinary,
-    String forfait,
-    String savings,
-  ) {
+      String ordinary, String forfait, String savings) {
     return 'Comparación forfait fiscal. Imposición ordinaria: $ordinary. Forfait fiscal: $forfait.';
   }
 
@@ -6674,21 +6662,24 @@ class SEs extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(month, {
-      '1': 'enero',
-      '2': 'febrero',
-      '3': 'marzo',
-      '4': 'abril',
-      '5': 'mayo',
-      '6': 'junio',
-      '7': 'julio',
-      '8': 'agosto',
-      '9': 'septiembre',
-      '10': 'octubre',
-      '11': 'noviembre',
-      '12': 'diciembre',
-      'other': 'mes',
-    });
+    String _temp0 = intl.Intl.selectLogic(
+      month,
+      {
+        '1': 'enero',
+        '2': 'febrero',
+        '3': 'marzo',
+        '4': 'abril',
+        '5': 'mayo',
+        '6': 'junio',
+        '7': 'julio',
+        '8': 'agosto',
+        '9': 'septiembre',
+        '10': 'octubre',
+        '11': 'noviembre',
+        '12': 'diciembre',
+        'other': 'mes',
+      },
+    );
     return '$_temp0';
   }
 
@@ -8089,9 +8080,7 @@ class SEs extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-    String chargesTheoriques,
-    String chargesReelles,
-  ) {
+      String chargesTheoriques, String chargesReelles) {
     return 'Los bancos suizos calculan con una tasa teórica del 5 % (directiva ASB), aunque la tasa real del mercado es mucho menor. Es una prueba de resistencia: verifican que podrías asumir los cargos si las tasas subieran. Tus cargos teóricos: $chargesTheoriques/mes. A tasa de mercado (~1,5 %): $chargesReelles/mes.';
   }
 
@@ -13371,16 +13360,15 @@ class SEs extends S {
 
   @override
   String agentLetterAvsExtractBody(
-    String name,
-    String ssn,
-    String address,
-    String postalCity,
-    String avsOrg,
-    String avsAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-  ) {
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nAsunto: $subject\n\nEstimado/a Sr./Sra.,\n\nLes solicito que me remitan un extracto de mi cuenta individual AVS (CI) para verificar el estado de mis cotizaciones e identificar posibles lagunas.\n\nLes agradezco de antemano su diligencia.\n\nAtentamente,\n\n$name';
   }
 
@@ -13408,32 +13396,30 @@ class SEs extends S {
 
   @override
   String agentLetterLppTransferBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisseSource,
-    String caisseCurrentAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String toComplete,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nAsunto: $subject\n\nEstimado/a Sr./Sra.,\n\nDebido a la terminación de mi relación laboral / mi salida de Suiza (tachar lo que no corresponda), les solicito que procedan a la transferencia de mi haber de libre paso.\n\nImporte a transferir: la totalidad del haber de libre paso a la fecha de salida.\n\nEntidad de destino:\nNombre: $toComplete\nIBAN o número de cuenta: $toComplete\nDirección: $toComplete\n\nFecha de salida: $toComplete\n\nLes agradezco su diligencia y les ruego que confirmen la correcta ejecución de esta transferencia.\n\nAtentamente,\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisse,
-    String caisseAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String year,
-    String policeNumber,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nAsunto: $subject\n\nEstimado/a Sr./Sra.,\n\nPor medio de la presente, me permito dirigirles las siguientes solicitudes en relación con mi expediente de previsión profesional:\n\n1. Certificado de previsión actualizado $year (haber de vejez, prestaciones cubiertas, tasa de conversión aplicable)\n\n2. Confirmación de mi capacidad de rescate (importe máximo según el art. 79b LPP)\n\n3. Simulación de jubilación anticipada (proyección del haber y de la renta a los 63 y 64 años, en su caso)\n\nLes agradezco de antemano su diligencia y quedo a su disposición para cualquier información adicional.\n\nAtentamente,\n\n$name\n$policeNumber';
   }
 
@@ -15427,10 +15413,7 @@ class SEs extends S {
 
   @override
   String disabilityGapAct3Detail(
-    String aiAmount,
-    String lppAmount,
-    String totalAmount,
-  ) {
+      String aiAmount, String lppAmount, String totalAmount) {
     return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mes';
   }
 
@@ -19265,9 +19248,7 @@ class SEs extends S {
 
   @override
   String rcReplacementRateExplanation(
-    String totalMonthly,
-    String currentMonthly,
-  ) {
+      String totalMonthly, String currentMonthly) {
     return 'Ingresos estimados en la jubilación: $totalMonthly CHF/mes vs $currentMonthly CHF/mes actualmente';
   }
 
@@ -19500,10 +19481,7 @@ class SEs extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-    String legal,
-    String monthly,
-    String free,
-  ) {
+      String legal, String monthly, String free) {
     return 'Margen legal restante: $legal/año. Equivalente mensual: $monthly/mes. Presupuesto libre actual: $free/mes. Margen legal ≠ capacidad mensual: mantén una reserva antes de aumentar el 3a.';
   }
 
@@ -19735,13 +19713,8 @@ class SEs extends S {
   String get scoreGaugeSectionPrevoyance => 'Previsión';
 
   @override
-  String scoreGaugeSemanticsLabel(
-    String score,
-    String level,
-    String budget,
-    String prevoyance,
-    String patrimoine,
-  ) {
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
     return 'Puntuación de forma financiera. $score de 100. Nivel $level. Presupuesto $budget, Previsión $prevoyance, Patrimonio $patrimoine.';
   }
 
@@ -19830,11 +19803,7 @@ class SEs extends S {
 
   @override
   String semanticsBenchmarkMetric(
-    String label,
-    String status,
-    String low,
-    String high,
-  ) {
+      String label, String status, String low, String high) {
     return '$label: $status. Rango típico de $low a $high';
   }
 
@@ -23768,4 +23737,29 @@ class SEs extends S {
 
   @override
   String get onboardingCivilVeuf => 'Viudo';
+
+  @override
+  String get onboardingAvsPrompt => '¿Has pasado años fuera de Suiza?';
+
+  @override
+  String get onboardingAvsNoGaps => 'No, siempre en Suiza';
+
+  @override
+  String get onboardingAvsLivedAbroad => 'Sí, algunos años en el extranjero';
+
+  @override
+  String get onboardingAvsArrivedLate => 'Llegué a Suiza más tarde';
+
+  @override
+  String get onboardingAvsUnknown => 'No lo sé';
+
+  @override
+  String get onboardingAvsArrivalYearPrompt => '¿En qué año llegaste a Suiza?';
+
+  @override
+  String get onboardingAvsYearsAbroadPrompt =>
+      '¿Cuántos años en el extranjero?';
+
+  @override
+  String get onboardingAvsContinue => 'Continuar';
 }

@@ -41,9 +41,22 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
     // {'q_us_tax_person': bool} via the same mergeAnswers entry-point.
     // It is NOT the T8 dossier flush — exclude it from throw + log,
     // so the existing throwOnMerge tests still target the flush.
-    final isUsTaxPersonGateOnly =
-        partial.length == 1 && partial.containsKey('q_us_tax_person');
-    if (isUsTaxPersonGateOnly) {
+    //
+    // W2 (mint-illogism-fixes-06): the archetype-truth scenes (statut
+    // d'emploi / état civil / lacunes AVS) write their q_* key in-flow the
+    // same way and are ALSO mirrored onto the OnboardingProvider so the T8
+    // flush re-emits them. Like the us-tax gate, these in-flow writes are
+    // not the dossier flush — exclude them so `mergedCalls.single` keeps
+    // targeting the single authoritative T8 flush write.
+    const inFlowGateKeys = <String>{
+      'q_us_tax_person',
+      'q_employment_status',
+      'q_civil_status',
+      'q_avs_lacunes_status',
+    };
+    final isInFlowGateWrite =
+        partial.keys.every((k) => inFlowGateKeys.contains(k));
+    if (isInFlowGateWrite) {
       // Gate writes succeed unconditionally — they are not the
       // failure-under-test for the T8 SnackBar story.
       return;
@@ -169,6 +182,28 @@ Future<void> _commonEntry(
   expect(find.text('Quelle est ta nationalité ?'), findsOneWidget);
   await tester.tap(find.byKey(const ValueKey('onboarding-nationality-ch')));
   await tester.pumpAndSettle();
+
+  // T2.7-T2.9 → W2 (mint-illogism-fixes-06) archetype-truth steps, inserted
+  // between nationality and age. Storyboard tests pick the swissNative
+  // baseline (salarié / marié / pas de lacunes AVS) so the resolved
+  // archetype stays swissNative and the coach remains reachable. Archetype
+  // variants (independant / divorce / lived_abroad) are covered in
+  // mint_scene_*_test.dart + onboarding_archetype_flow_test.dart.
+  expect(find.text('Quelle est ta situation professionnelle ?'),
+      findsOneWidget);
+  await tester
+      .tap(find.byKey(const ValueKey('onboarding-employment-salarie')));
+  await tester.pumpAndSettle();
+
+  expect(find.text('Quelle est ta situation familiale ?'), findsOneWidget);
+  await tester.tap(find.byKey(const ValueKey('onboarding-civil-marie')));
+  await tester.pumpAndSettle();
+
+  expect(
+      find.text('As-tu passé des années hors de Suisse ?'), findsOneWidget);
+  await tester.tap(find.byKey(const ValueKey('onboarding-avs-no-gaps')));
+  await tester.pumpAndSettle();
+
   expect(find.text('Quelle est ta date de naissance ?'), findsOneWidget);
 }
 

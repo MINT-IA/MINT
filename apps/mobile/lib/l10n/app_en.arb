@@ -11382,5 +11382,13 @@
   "onboardingCivilMarie": "Married",
   "onboardingCivilConcubinage": "Cohabiting",
   "onboardingCivilDivorce": "Divorced",
-  "onboardingCivilVeuf": "Widowed"
+  "onboardingCivilVeuf": "Widowed",
+  "onboardingAvsPrompt": "Have you spent years outside Switzerland?",
+  "onboardingAvsNoGaps": "No, always in Switzerland",
+  "onboardingAvsLivedAbroad": "Yes, a few years abroad",
+  "onboardingAvsArrivedLate": "I moved to Switzerland later",
+  "onboardingAvsUnknown": "I'm not sure",
+  "onboardingAvsArrivalYearPrompt": "What year did you arrive in Switzerland?",
+  "onboardingAvsYearsAbroadPrompt": "How many years abroad?",
+  "onboardingAvsContinue": "Continue"
 }

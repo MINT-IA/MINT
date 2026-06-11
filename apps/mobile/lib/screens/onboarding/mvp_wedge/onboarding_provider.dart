@@ -60,6 +60,17 @@ enum OnboardingStep {
   // the flush so CoachProfile.fromWizardAnswers reaches the swissNative /
   // expatEu / expatNonEu archetype branches. NEVER coerced null→'CH'.
   nationality, // T2.6
+  // T2.7-T2.9 — W2 (mint-illogism-fixes-06) archetype-truth questions.
+  // Placed AFTER nationality and BEFORE age: like the FATCA + nationality
+  // signals, employment / civil status / AVS gaps are archetype signals
+  // that disambiguate the user BEFORE financial-data collection (NEVER #7).
+  // `advance()` walks OnboardingStep.values via indexOf, so inserting
+  // mid-enum is ordinal-safe — no `.index` is persisted or used in
+  // analytics. The captured values populate the EXISTING q_* keys read by
+  // CoachProfile.fromWizardAnswers (no new schema field).
+  employment, // T2.7 — statut d'emploi
+  civilStatus, // T2.8 — état civil (incl. divorce)
+  avsLacunes, // T2.9 — lacunes AVS (années à l'étranger)
   age, // T3
   canton, // T4
   revenue, // T5 — slider fourchette + lien exact
@@ -125,6 +136,16 @@ class OnboardingProvider extends ChangeNotifier {
   /// Mapped to a nationality string at the flush (mirrors
   /// CoachProfileProvider.updateFromSmartFlow). null until the user picks.
   String? _nationalityGroup;
+  // W2 (mint-illogism-fixes-06) — archetype-truth captures. null until the
+  // user answers; the flush emits the EXACT q_* values the parser reads.
+  // No DossierEntry side-effect: like nationality these are archetype
+  // signals kept invisible to the user post-answer (PII: civil status /
+  // employment), surfaced only by the coach gate.
+  String? _employmentStatus;
+  String? _civilStatus;
+  String? _avsLacunesStatus;
+  int? _avsArrivalYear;
+  int? _avsYearsAbroad;
   String? _cantonCode;
   ({double low, double high})? _netMonthlyRange;
   double? _netMonthlyExact;
@@ -143,6 +164,11 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   DateTime? get dateOfBirth => _dateOfBirth;
+  String? get employmentStatus => _employmentStatus;
+  String? get civilStatus => _civilStatus;
+  String? get avsLacunesStatus => _avsLacunesStatus;
+  int? get avsArrivalYear => _avsArrivalYear;
+  int? get avsYearsAbroad => _avsYearsAbroad;
   String? get nationalityGroup => _nationalityGroup;
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;
@@ -226,6 +252,39 @@ class OnboardingProvider extends ChangeNotifier {
   void setNationality(String group) {
     _nationalityGroup = group;
     _confidenceByField['nationality'] = OnboardingConfidence.high;
+    notifyListeners();
+  }
+
+  /// W2 — capture the employment status. [status] ∈ {salarie, independant,
+  /// sans_activite} (the EXACT values _parseEmploymentStatus reads). Plain
+  /// field setter, NO DossierEntry side-effect (PII, archetype signal).
+  void setEmploymentStatus(String status) {
+    _employmentStatus = status;
+    _confidenceByField['employment'] = OnboardingConfidence.high;
+    notifyListeners();
+  }
+
+  /// W2 — capture the civil status. [status] ∈ {celibataire, marie, divorce,
+  /// veuf, concubinage} (the EXACT values _parseCivilStatus reads).
+  void setCivilStatus(String status) {
+    _civilStatus = status;
+    _confidenceByField['civilStatus'] = OnboardingConfidence.high;
+    notifyListeners();
+  }
+
+  /// W2 — capture the AVS-lacunes status. [status] ∈ {no_gaps, lived_abroad,
+  /// arrived_late, unknown}. For arrived_late, pass [arrivalYear]; for
+  /// lived_abroad, pass [yearsAbroad]. Both feed the avsGaps derivation in
+  /// CoachProfile.fromWizardAnswers (coach_profile.dart:2808-2824).
+  void setAvsLacunes(
+    String status, {
+    int? arrivalYear,
+    int? yearsAbroad,
+  }) {
+    _avsLacunesStatus = status;
+    _avsArrivalYear = arrivalYear;
+    _avsYearsAbroad = yearsAbroad;
+    _confidenceByField['avsLacunes'] = OnboardingConfidence.high;
     notifyListeners();
   }
 
@@ -339,21 +398,41 @@ class OnboardingProvider extends ChangeNotifier {
     };
     if (nationality != null) answers['q_nationality'] = nationality;
 
-    // SALVAGE-01 (onb-03): derive employment + LPP affiliation at flush
-    // (no second question). The wedge captures no employment signal, so the
-    // default is 'salarie' (→ isSalaried: true). q_has_pension_fund mirrors
-    // updateFromSmartFlow's rule (gross-annual >= LPP-entry seuil 22 680 AND
-    // salaried). Gross is derived from the captured net via the canonical
-    // IncomeConverter (NOT net×12, NOT an inlined factor). Written ONLY when
-    // net income is non-null — omit the key entirely otherwise.
-    const String employmentStatus = 'salarie';
+    // onb-03 + W2 (mint-illogism-fixes-06): employment + LPP affiliation at
+    // flush. The W2 statut-d'emploi scene now captures employment; when the
+    // user skipped it (legacy / partial flow) the default stays 'salarie' so
+    // the existing archetype contract is preserved. q_has_pension_fund
+    // mirrors updateFromSmartFlow's rule (gross-annual >= LPP-entry seuil AND
+    // salaried) AND respects a 'sans_activite'/'independant' answer: a
+    // non-salaried user is NOT auto-assumed to have a 2nd pillar (NEVER #7).
+    final String employmentStatus = _employmentStatus ?? 'salarie';
     answers['q_employment_status'] = employmentStatus;
+    final bool isSalaried = employmentStatus == 'salarie';
     final double? net = netMonthlyEffective;
-    if (net != null) {
+    if (net != null && isSalaried) {
       final double grossAnnual =
           IncomeConverter.netMonthlyToGrossAnnual(net, isSalaried: true);
       answers['q_has_pension_fund'] =
           grossAnnual >= reg('lpp.entry_threshold', lppSeuilEntree);
+    } else if (net != null) {
+      // Independant / sans activité → no LPP affiliation presumed.
+      answers['q_has_pension_fund'] = false;
+    }
+
+    // W2 — civil status + AVS gaps, emitted ONLY when captured (omit the
+    // keys entirely otherwise so the parser keeps its safe defaults). These
+    // are PII keys: they flow ONLY through this flush map into the encrypted
+    // SecureWizardStore (sealed by SecureWizardStore._sensitiveKeys +
+    // the q_avs_ prefix rule), never into logs or analytics.
+    if (_civilStatus != null) answers['q_civil_status'] = _civilStatus;
+    if (_avsLacunesStatus != null) {
+      answers['q_avs_lacunes_status'] = _avsLacunesStatus;
+      if (_avsArrivalYear != null) {
+        answers['q_avs_arrival_year'] = _avsArrivalYear;
+      }
+      if (_avsYearsAbroad != null) {
+        answers['q_avs_years_abroad'] = _avsYearsAbroad;
+      }
     }
 
     answers['q_wants_deeper'] = _wantsDeeper;

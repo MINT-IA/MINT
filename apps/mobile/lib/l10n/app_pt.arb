@@ -11365,5 +11365,13 @@
   "onboardingCivilMarie": "Casado",
   "onboardingCivilConcubinage": "Em união de facto",
   "onboardingCivilDivorce": "Divorciado",
-  "onboardingCivilVeuf": "Viúvo"
+  "onboardingCivilVeuf": "Viúvo",
+  "onboardingAvsPrompt": "Passaste anos fora da Suíça?",
+  "onboardingAvsNoGaps": "Não, sempre na Suíça",
+  "onboardingAvsLivedAbroad": "Sim, alguns anos no estrangeiro",
+  "onboardingAvsArrivedLate": "Cheguei à Suíça mais tarde",
+  "onboardingAvsUnknown": "Não sei",
+  "onboardingAvsArrivalYearPrompt": "Em que ano chegaste à Suíça?",
+  "onboardingAvsYearsAbroadPrompt": "Quantos anos no estrangeiro?",
+  "onboardingAvsContinue": "Continuar"
 }
