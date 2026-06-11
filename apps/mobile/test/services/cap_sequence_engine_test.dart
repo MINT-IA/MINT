@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -428,14 +430,15 @@ void main() {
     });
 
     test('budget margin estimate ignores implausible housing', () {
-      final seq = CapSequenceEngine.build(
-        profile: _profile(
-          salaireBrutMensuel: 5000,
-          depenses: const DepensesProfile(
-            loyer: 19272200,
-            assuranceMaladie: 420,
-          ),
+      final profile = _profile(
+        salaireBrutMensuel: 5000,
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 420,
         ),
+      );
+      final seq = CapSequenceEngine.build(
+        profile: profile,
         memory: emptyMemory,
         goalIntentTag: 'budget_overview',
         l: _l,
@@ -443,7 +446,18 @@ void main() {
 
       final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
 
-      expect(step3.impactEstimate, closeTo(3480, 0.01));
+      // Marge libre = NET canonique (NetIncomeBreakdown, canton + âge aware) -
+      // dépenses plausibles. Plus de ratio plat brut×0.78 (matrice §2 « Marge
+      // libre », base nette unique app-wide).
+      final net = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.ageOrNull!,
+      ).monthlyNetPayslip;
+      final expected =
+          net - BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
+
+      expect(step3.impactEstimate, closeTo(expected, 0.01));
     });
   });
 

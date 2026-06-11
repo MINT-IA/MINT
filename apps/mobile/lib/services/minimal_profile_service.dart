@@ -125,15 +125,30 @@ class MinimalProfileService {
     }
     final lppMonthly = lppAnnualRente / 12;
 
-    // --- Debt service impact (anti-double-counting: subtract from income, not expenses) ---
+    // --- Debt service impact (donnée budget, surfacée pour l'affichage) ---
+    // Le service de la dette est une donnée *budget*, PAS un revenu de retraite.
+    // Il n'est plus soustrait du revenu de retraite total (composition canonique
+    // = AVS + LPP, alignée sur response_card et retirement_projection_service).
+    // Voir financial_core/replacement_rate.dart + matrice D3.
     final effectiveDebtService = monthlyDebtService
         ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
 
-    // --- Total retirement income (clamped >= 0, aligned with backend) ---
-    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly - effectiveDebtService);
+    // --- Total retirement income (composition canonique : AVS + LPP) ---
+    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly);
     final grossMonthlySalary = grossSalary / 12;
-    final replacementRate =
-        grossMonthlySalary > 0 ? totalMonthlyRetirement / grossMonthlySalary : 0.0;
+    // --- Taux de remplacement : dénominateur NET courant (lock CONTEXT W1) ---
+    // Source canonique unique ReplacementRate (financial_core L1) : dénominateur
+    // = revenu NET via NetIncomeBreakdown (canton + âge aware), plus le brut.
+    // Champ conservé en fraction (0-1) pour les consommateurs historiques.
+    final netMonthlyIncome = NetIncomeBreakdown.compute(
+      grossSalary: grossSalary,
+      canton: canton.isNotEmpty ? canton : 'ZH',
+      age: age,
+    ).monthlyNetPayslip;
+    final replacementRate = ReplacementRate.fraction(
+      totalMonthlyRetirement: totalMonthlyRetirement,
+      netMonthlyIncome: netMonthlyIncome,
+    );
     final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core) ---
@@ -158,9 +173,9 @@ class MinimalProfileService {
             : taxImpact.annualCeiling;
     final taxSaving3a = taxImpact.estimatedTaxSaving;
 
-    // --- Liquidity analysis ---
+    // --- Liquidity analysis (base nette canonique, plus de ratio plat) ---
     final estimatedMonthlyExpenses = _estimateMonthlyExpenses(
-      grossSalary,
+      netMonthlyIncome,
       effectiveHousehold,
       effectivePropertyOwner,
     );
@@ -210,27 +225,19 @@ class MinimalProfileService {
     );
   }
 
-  /// Estimate monthly expenses from gross salary and household type.
+  /// Estimate monthly expenses from canonical NET income and household type.
   ///
-  /// Uses typical Swiss expense ratios:
-  /// - Housing: 25-30% of net income
-  /// - Insurance (LAMal + other): 8-12%
-  /// - Living expenses: 30-40%
+  /// Uses typical Swiss expense ratios applied to the canonical monthly NET
+  /// ([NetIncomeBreakdown.compute], canton + âge aware) — plus de ratio plat
+  /// 0.75 comme proxy de net (base nette unique app-wide, matrice §2 « Marge
+  /// libre »). Seuls les ratios de *dépense* par type de ménage restent ici.
   static double _estimateMonthlyExpenses(
-    double grossAnnualSalary,
+    double monthlyNet,
     String householdType,
     bool isPropertyOwner,
   ) {
-    // Expense base ≈ 75% of gross — intentionally different from NetIncomeBreakdown
-    // (which computes actual net payslip and requires canton + age).
-    // Here 0.75 approximates disposable spending capacity as a quick proxy
-    // for the minimal profile context where canton may not be reliable yet.
-    // Swiss average: social charges ~6.4%, LPP ~5-9%, taxes ~10-15% → net ~70-78%.
-    // 0.75 is a reasonable median. For canton-aware precision, use
-    // NetIncomeBreakdown.compute() when canton and age are confirmed.
-    final netMonthly = grossAnnualSalary * 0.75 / 12;
-
-    // Expense ratio depends on household type
+    // Expense ratio depends on household type (ratio de dépense, pas un proxy
+    // de net) : housing 25-30% + LAMal 8-12% + vie courante 30-40%.
     final expenseRatio = switch (householdType) {
       'single' => 0.80,
       'couple' => 0.75,
@@ -238,6 +245,6 @@ class MinimalProfileService {
       _ => 0.80,
     };
 
-    return netMonthly * expenseRatio;
+    return monthlyNet * expenseRatio;
   }
 }

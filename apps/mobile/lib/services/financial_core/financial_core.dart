@@ -21,6 +21,7 @@ export 'lpp_calculator.dart';
 export 'monte_carlo_models.dart';
 export 'monte_carlo_service.dart';
 export 'pillar3a_room_calculator.dart';
+export 'replacement_rate.dart';
 export 'tax_calculator.dart';
 export 'tornado_sensitivity_service.dart';
 export 'withdrawal_sequencing_service.dart';

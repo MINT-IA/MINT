@@ -373,8 +373,14 @@ class PremierEclairageSelector {
     // Swiss standard: 42h/week × 52 weeks = 2'184h, minus 5 weeks vacation
     // → ~1'974 working hours/year. Simplified: 174h/month × 12 = 2'088h.
     const workingHoursPerYear = 2088.0;
-    // Approximate net = 75% of gross (social charges + taxes)
-    final netAnnual = profile.grossAnnualSalary * 0.75;
+    // Net annuel via la source canonique NetIncomeBreakdown (canton + âge
+    // aware) — plus de ratio plat 0.75 (base nette unique app-wide, matrice
+    // §2 « Marge libre »).
+    final netAnnual = NetIncomeBreakdown.compute(
+      grossSalary: profile.grossAnnualSalary,
+      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+      age: profile.age,
+    ).netPayslip;
     final hourlyNet = netAnnual / workingHoursPerYear;
     final hourlyFormatted = 'CHF\u00A0${hourlyNet.round()}';
 

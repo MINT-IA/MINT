@@ -657,11 +657,19 @@ class CapSequenceEngine {
   /// Monthly free margin estimate.
   static double? _estimateFreeMontly(CoachProfile profile) {
     if (profile.salaireBrutMensuel <= 0) return null;
+    final age = profile.ageOrNull;
+    if (age == null) return null;
     final depenses =
         BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
     if (depenses <= 0) return null;
-    // Rough net = brut * 0.78 (average Swiss tax + social charges)
-    final net = profile.salaireBrutMensuel * 0.78;
+    // Net mensuel via la source canonique NetIncomeBreakdown (canton + âge
+    // aware) — plus de ratio plat 0.78. Base nette unique app-wide (matrice
+    // §2 « Marge libre », fin du spread cross-écrans).
+    final net = NetIncomeBreakdown.compute(
+      grossSalary: profile.revenuBrutAnnuel,
+      canton: profile.canton,
+      age: age,
+    ).monthlyNetPayslip;
     final libre = net - depenses;
     return libre > 0 ? libre : null;
   }
