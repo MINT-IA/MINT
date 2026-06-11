@@ -158,12 +158,22 @@ class MinimalProfileService {
     // remplacement est ré-employé comme base nette annuelle.
     final netProfessionalIncome =
         isIndependantNoLpp ? netMonthlyIncome * 12 : null;
+    // État civil câblé jusqu'au barème fiscal 3a (findings salarie_swiss-2/-3) :
+    // un marié doit recevoir le barème marié (familyAdjustment 0.85), pas le
+    // barème célibataire (1.00). householdType 'couple'/'family' = ménage marié
+    // (même sémantique que budget_inputs.dart + _estimateMonthlyExpenses).
+    // children : pas exposé dans les inputs du service → 0 (le détail enfants
+    // est affiné en aval par response_card quand le profil le porte).
+    final isMarriedHousehold =
+        effectiveHousehold == 'couple' || effectiveHousehold == 'family';
     final resolvedCanton = resolveCanton(canton);
     final taxImpact = resolvedCanton.isResolved && grossSalary > 0
         ? RetirementTaxCalculator.estimate3aTaxImpact(
             grossAnnualSalary: grossSalary,
             canton: resolvedCanton.code,
             hasLpp: !isIndependantNoLpp,
+            isMarried: isMarriedHousehold,
+            children: 0,
             netProfessionalIncome: netProfessionalIncome,
             age: age,
           )

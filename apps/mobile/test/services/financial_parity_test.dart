@@ -811,4 +811,181 @@ void main() {
           reason: 'minimal_profile ne doit plus calculer le plafond sur le brut');
     });
   });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Parity W5 — Économie 3a (barème marié) (plan 05)
+  //
+  //  Oracle matrice salarie_swiss-2 (ILLOGICAL_FOR_ARCHETYPE : minimal_profile
+  //  appelle estimate3aTaxImpact SANS isMarried/children → barème célibataire
+  //  appliqué à un marié) + salarie_swiss-3 (DIVERGENT inter-écran : onboarding
+  //  ~1405 CHF célibataire vs response_card ~1194 CHF marié pour le même input).
+  //
+  //  La fonction estimate3aTaxImpact ACCEPTE isMarried/children
+  //  (tax_calculator.dart:535) ; le câblage manquant était dans l'appelant
+  //  minimal_profile_service. Après le fix : minimal_profile transmet
+  //  isMarried (householdType couple/family) + children (0, non disponible dans
+  //  les inputs du service) → barème marié appliqué (familyAdjustment
+  //  marie_sans_enfant=0.85, tax_calculator.dart:373) → taux marginal et
+  //  économie 3a IDENTIQUES au chemin de référence response_card.
+  //
+  //  Référence canonique = estimate3aTaxImpact(isMarried:, children:) appelée
+  //  directement (la même fonction que response_card_service.dart:674-678
+  //  invoque via estimateMarginalRate avec l'état civil câblé).
+  // ════════════════════════════════════════════════════════════════
+
+  group('Parity W5 — Économie 3a (marié)', () {
+    test(
+        'salarie_swiss-2 — marié VD 102000 : minimal_profile applique le barème '
+        'marié (taux marginal == estimate3aTaxImpact isMarried:true)', () {
+      const age = 42;
+      const gross = 102000.0;
+      const canton = 'VD';
+
+      // Chemin minimal_profile (onboarding) — householdType 'couple' → marié.
+      final marie = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        householdType: 'couple',
+      );
+
+      // Référence canonique : la fonction financial_core appelée avec l'état
+      // civil câblé (même fonction que response_card via estimateMarginalRate).
+      final canonicalMarie = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: gross,
+        canton: canton,
+        hasLpp: true,
+        isMarried: true,
+        children: 0,
+        age: age,
+      );
+
+      // Le taux marginal de l'onboarding doit être celui du barème MARIÉ.
+      expect(marie.marginalTaxRate, closeTo(canonicalMarie.marginalRate, 0.0001),
+          reason: 'minimal_profile doit appliquer le barème marié (0.85), '
+              'pas le barème célibataire (1.00)');
+      // L'économie 3a affichée doit être celle du barème marié.
+      expect(marie.taxSaving3a, closeTo(canonicalMarie.estimatedTaxSaving, 0.01),
+          reason: 'l\'économie 3a doit être calculée au barème marié');
+    });
+
+    test(
+        'salarie_swiss-2 — régression : le barème marié donne un taux/économie '
+        'STRICTEMENT inférieur au barème célibataire (fin de la surestimation '
+        '+17.6%)', () {
+      const age = 42;
+      const gross = 102000.0;
+      const canton = 'VD';
+
+      final marie = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        householdType: 'couple',
+      );
+      final celibataire = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        householdType: 'single',
+      );
+
+      // familyAdjustment marie_sans_enfant=0.85 < celibataire=1.00 → le marié
+      // a un taux marginal et une économie 3a strictement inférieurs.
+      expect(marie.marginalTaxRate, lessThan(celibataire.marginalTaxRate),
+          reason: 'le marié ne doit plus hériter du barème célibataire');
+      expect(marie.taxSaving3a, lessThan(celibataire.taxSaving3a),
+          reason: 'fin de la surestimation +17.6% pour un marié');
+
+      // Le ratio des économies suit l'écart de barème (~0.85), pas 1.0.
+      // 0.85 est l'ajustement marie_sans_enfant ; on borne large (≤ 0.95)
+      // pour absorber le clamp marginal et l'effet sur la déduction.
+      expect(marie.taxSaving3a / celibataire.taxSaving3a, lessThan(0.95),
+          reason: 'l\'économie mariée doit refléter l\'ajustement familial 0.85');
+    });
+
+    test(
+        'salarie_swiss-3 — parité inter-écran : onboarding et response_card '
+        'produisent la MÊME économie 3a pour un marié (fin de 1405 vs 1194)', () {
+      const age = 42;
+      const gross = 102000.0;
+      const canton = 'VD';
+
+      // Onboarding : barème marié désormais câblé.
+      final onboarding = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        householdType: 'couple',
+      );
+
+      // Onboarding (estimate3aTaxImpact) expose son taux marginal interne via
+      // marginalTaxRate. La divergence structurelle salarie_swiss-3 était :
+      // onboarding sur barème CÉLIBATAIRE vs response_card sur barème MARIÉ.
+      // Référence des DEUX barèmes au point de revenu de l'onboarding.
+      final marginalMarie = RetirementTaxCalculator.estimateMarginalRate(
+        gross,
+        canton,
+        isMarried: true,
+        children: 0,
+      );
+      final marginalCelibataire = RetirementTaxCalculator.estimateMarginalRate(
+        gross,
+        canton,
+        isMarried: false,
+        children: 0,
+      );
+
+      // L'onboarding suit désormais le barème MARIÉ (proche de marginalMarie,
+      // au léger ajustement de revenu près dû à la demi-déduction), et plus du
+      // tout le barème célibataire — fin de la divergence inter-écran
+      // 1405 (single) vs 1194 (married). Tolérance 0.01 : estimate3aTaxImpact
+      // évalue le taux à (gross - déduction/2), response_card au gross plein ;
+      // les deux partagent l'ajustement familial 0.85, c'est le point clé.
+      expect(onboarding.marginalTaxRate, closeTo(marginalMarie, 0.01),
+          reason: 'onboarding doit utiliser le barème marié comme response_card');
+      expect((onboarding.marginalTaxRate - marginalMarie).abs(),
+          lessThan((onboarding.marginalTaxRate - marginalCelibataire).abs()),
+          reason: 'onboarding doit être plus proche du barème marié que du '
+              'barème célibataire — fin de la divergence structurelle');
+    });
+
+    test(
+        'contrôle négatif — un célibataire garde le barème célibataire '
+        '(pas de régression)', () {
+      const age = 42;
+      const gross = 102000.0;
+      const canton = 'VD';
+
+      final celibataire = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        householdType: 'single',
+      );
+
+      final canonicalCelibataire = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: gross,
+        canton: canton,
+        hasLpp: true,
+        isMarried: false,
+        children: 0,
+        age: age,
+      );
+
+      // Un single non marié → barème célibataire inchangé (le fix ne touche
+      // que le chemin marié, householdType single/null reste isMarried=false).
+      expect(celibataire.marginalTaxRate,
+          closeTo(canonicalCelibataire.marginalRate, 0.0001),
+          reason: 'le célibataire garde le barème célibataire (1.00)');
+      expect(celibataire.taxSaving3a,
+          closeTo(canonicalCelibataire.estimatedTaxSaving, 0.01),
+          reason: 'aucune régression sur le chemin célibataire');
+    });
+  });
 }
