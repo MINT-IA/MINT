@@ -204,6 +204,40 @@ class LppCalculator {
         .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
   }
 
+  /// Estimate the CURRENT accumulated LPP balance (avoir) from contributions
+  /// already made, from [startAge] up to (but excluding) [currentAge].
+  ///
+  /// This is the canonical balance-only mirror of [projectToRetirement] — it
+  /// does NOT convert to a rente. Every estimator of "avoir LPP estimé" MUST
+  /// delegate here so the salaire coordonné clamping (LPP art. 8, [3780,
+  /// 64260]), the registry interest rate (`lpp.min_interest_rate`) and the
+  /// age-based bonifications (LPP art. 16) stay identical across engines.
+  /// See CLAUDE.md NEVER #3 (pas de calcul dupliqué L1) +
+  /// ADR-20260223-unified-financial-engine.md.
+  ///
+  /// [startAge]: first contribution year. Defaults to 25 (LPP art. 7). For
+  /// expats arriving late in Switzerland, pass the arrival age so accumulation
+  /// does not start before they were insured. Clamped to [25, 65].
+  ///
+  /// Returns 0 below the LPP seuil d'entrée (LPP art. 7) and for any window
+  /// where no bonification year elapses (e.g. a 25-year-old).
+  static double accumulateAvoir({
+    required int currentAge,
+    required double grossAnnualSalary,
+    int? startAge,
+  }) {
+    final salaireCoord = computeSalaireCoordonne(grossAnnualSalary);
+    if (salaireCoord <= 0) return 0;
+    final interest = reg('lpp.min_interest_rate', lppTauxInteretMin) / 100;
+    final effectiveStart = (startAge ?? 25).clamp(25, 65);
+    double balance = 0;
+    for (int a = effectiveStart; a < currentAge && a < 65; a++) {
+      balance *= (1 + interest);
+      balance += salaireCoord * getLppBonificationRate(a);
+    }
+    return balance < 0 ? 0 : balance;
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  SURVIVOR PENSION — LPP art. 19-20
   // ════════════════════════════════════════════════════════════════

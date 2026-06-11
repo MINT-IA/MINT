@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
@@ -3570,24 +3571,23 @@ class CoachProfile {
   }
 
   /// Estime l'avoir LPP total selon l'age et le salaire brut mensuel.
-  /// Approximation basee sur les taux de bonification LPP par age.
-  /// [arrivalAge]: age d'arrivee en Suisse (si expat). La boucle de
-  /// bonification demarre a max(25, arrivalAge) au lieu de toujours 25,
-  /// pour ne pas surestimer le LPP des personnes arrivees tardivement.
+  ///
+  /// Façade qui délègue à la source canonique [LppCalculator.accumulateAvoir]
+  /// (financial_core L1) — CLAUDE.md NEVER #3 : pas de calcul dupliqué L1. Le
+  /// salaire coordonné (clamp [3780, 64260] LPP art. 8), l'intérêt registry
+  /// (`lpp.min_interest_rate`) et les bonifications (LPP art. 16) viennent tous
+  /// du canonique. Plus aucun clamp min-only ni rendement 1% hardcodé.
+  ///
+  /// [arrivalAge]: age d'arrivee en Suisse (si expat). L'accumulation demarre a
+  /// max(25, arrivalAge) au lieu de toujours 25, pour ne pas surestimer le LPP
+  /// des personnes arrivees tardivement.
   static double _estimateLppAvoir(int age, double salaireBrutMensuel,
       {int? arrivalAge}) {
-    final salaireBrut = salaireBrutMensuel * 12;
-    final salaireCoordonne = (salaireBrut - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin.toDouble(), double.infinity);
-    // LPP bonifications start at 25 (LPP art. 7), but only if the person
-    // was contributing in Switzerland. Expats start at their arrival age.
-    final startAge = arrivalAge != null ? arrivalAge.clamp(25, 65) : 25;
-    double total = 0;
-    for (int a = startAge; a < age && a < 65; a++) {
-      final taux = getLppBonificationRate(a);
-      total = total * 1.01 + salaireCoordonne * taux; // 1% rendement
-    }
-    return total;
+    return LppCalculator.accumulateAvoir(
+      currentAge: age,
+      grossAnnualSalary: salaireBrutMensuel * 12,
+      startAge: arrivalAge,
+    );
   }
 
   /// Estime le total 3a en fonction de la contribution annuelle et de l'age.

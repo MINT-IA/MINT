@@ -43,6 +43,9 @@ class MinimalProfileService {
     String? gender,
     /// Birth year — used with [gender] for AVS21 transitional cohorts.
     int? birthYear,
+    /// Age d'arrivée en Suisse (si expat). Plumbé jusqu'à l'estimation LPP
+    /// pour démarrer l'accumulation à l'arrivée, pas toujours à 25 (LPP art. 7).
+    int? arrivalAge,
   }) {
     final estimatedFields = <String>[];
 
@@ -68,10 +71,12 @@ class MinimalProfileService {
     final isIndependantNoLpp = effectiveEmployment == 'independant';
     final isSansEmploi = effectiveEmployment == 'sans_emploi';
 
-    // Estimate LPP balance from age-weighted bonifications since age 25
+    // Estimate LPP balance from age-weighted bonifications since arrival/25.
     // Independent without LPP declaration → 0 balance
     final effectiveLpp = existingLpp
-        ?? (isIndependantNoLpp ? 0.0 : _estimateLppBalance(age, grossSalary));
+        ?? (isIndependantNoLpp
+            ? 0.0
+            : _estimateLppBalance(age, grossSalary, arrivalAge: arrivalAge));
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
     // F7-2: Use gender-aware retirement age when gender + birth year are provided.
@@ -191,21 +196,17 @@ class MinimalProfileService {
 
   /// Estimate LPP balance from age and salary using cumulative bonifications.
   ///
-  /// Applies LPP art. 16 age-dependent bonification rates since age 25.
-  /// Returns 0 if below LPP seuil d'entree (LPP art. 7).
-  static double _estimateLppBalance(int age, double grossAnnualSalary) {
-    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
-      return 0.0;
-    }
-
-    final salaireCoord = (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
-        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
-    double balance = 0;
-    for (int a = 25; a < age && a < 65; a++) {
-      balance *= (1 + reg('lpp.min_interest_rate', lppTauxInteretMin) / 100);
-      balance += salaireCoord * getLppBonificationRate(a);
-    }
-    return balance;
+  /// Façade qui délègue à la source canonique [LppCalculator.accumulateAvoir]
+  /// (financial_core L1) — CLAUDE.md NEVER #3 : pas de calcul dupliqué L1.
+  /// [arrivalAge]: démarre l'accumulation à l'arrivée (LPP art. 7), pas
+  /// toujours à 25, pour les profils arrivés tardivement en Suisse.
+  static double _estimateLppBalance(int age, double grossAnnualSalary,
+      {int? arrivalAge}) {
+    return LppCalculator.accumulateAvoir(
+      currentAge: age,
+      grossAnnualSalary: grossAnnualSalary,
+      startAge: arrivalAge,
+    );
   }
 
   /// Estimate monthly expenses from gross salary and household type.
