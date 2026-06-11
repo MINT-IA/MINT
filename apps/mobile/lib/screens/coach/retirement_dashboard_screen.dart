@@ -89,6 +89,11 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   bool _snapshotPersisted = false;
   bool _slmPromptChecked = false;
 
+  // D7 device fix: true once this screen has rendered with a hydrated profile.
+  // Guards against a settled clear of the shared provider regressing the screen
+  // back to the « 4 infos suffisent » onboarding state (device-proven 2026-06).
+  bool _everHadProfile = false;
+
   // ── Sequence (Tier A) ─────────────────────────────────
   String? _seqRunId;
   String? _seqStepId;
@@ -115,6 +120,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         _computeScoreHistorySignature(provider.scoreHistory);
 
     if (!provider.hasProfile) {
+      // D7 device fix: if the provider was cleared AFTER we already held a
+      // profile (a settled clear, not a fresh empty state), keep the last-known
+      // projection so build() can still render the dashboard instead of
+      // regressing to « 4 infos suffisent ». Only wipe when we genuinely never
+      // had a profile (legitimate empty onboarding state).
+      if (_everHadProfile && _profile != null) {
+        return;
+      }
       _profile = null;
       _projection = null;
       _confidence = null;
@@ -127,6 +140,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _temporalItems = const [];
       return;
     }
+    _everHadProfile = true;
 
     final newProfile = provider.profile!;
     if (_profile != null && _profile == newProfile) {
@@ -383,8 +397,24 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     // has genuinely never had a profile (isLoaded stays false until the first
     // load resolves) must still reach State C. We gate on the in-flight flags
     // (isHydrating / isLoading), never on the passive `!isLoaded`.
+    // Device probe (refix run, 2026-06-12) proved the failure mechanism: the
+    // dashboard first builds with hasProfile=true (profile present, projection
+    // computed), then a LATER build flips to hasProfile=false with
+    // isLoaded=true / isHydrating=false / isLoading=false — i.e. the shared
+    // provider's profile was CLEARED out from under the mounted screen (a
+    // settled clear, not a hydration race). Rendering « 4 infos suffisent » in
+    // that case is the D7 illogism: a profile that existed cannot logically
+    // collapse into the empty onboarding state while the screen is open.
+    //
+    // Two distinct non-empty conditions therefore suppress State C:
+    //   1. hydrationPending — the first load is still in flight (race window).
+    //   2. _everHadProfile  — this screen already rendered a profile this
+    //      session, so a transient clear must not regress to State C; we keep
+    //      the last-known projection (or a recoverable retry), never the
+    //      onboarding empty state.
     final bool hydrationPending =
         !provider.hasProfile && (provider.isHydrating || provider.isLoading);
+    if (provider.hasProfile) _everHadProfile = true;
 
     // D7: l'état vide onboarding (« 4 infos suffisent ») ne doit s'afficher que
     // si le profil est RÉELLEMENT vide — la MÊME source que /home
@@ -392,14 +422,24 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     // visible sur /home) mais que la projection a échoué, on ne ment pas en
     // affichant l'onboarding : on rend un état « réessayer » récupérable.
     final Widget child;
-    if (!provider.hasProfile && hydrationPending) {
+    if (provider.hasProfile) {
+      // Profile present — render the dashboard, or a recoverable retry if the
+      // projection failed (NOT the onboarding empty state).
+      child = _projection == null ? _buildProjectionUnavailable() : _buildDashboard();
+    } else if (hydrationPending) {
+      // First load still in flight — a recoverable loading state, not State C.
       child = _buildHydrating();
-    } else if (!provider.hasProfile) {
-      child = _buildStateC();
-    } else if (_projection == null) {
-      child = _buildProjectionUnavailable();
+    } else if (_everHadProfile) {
+      // Settled clear after we already had a profile (device-proven): keep the
+      // last-known projection if we still hold it, else a recoverable retry.
+      // NEVER « 4 infos suffisent » — a profile that existed cannot collapse
+      // into the empty onboarding state while this screen is open.
+      child =
+          _projection == null ? _buildProjectionUnavailable() : _buildDashboard();
     } else {
-      child = _buildDashboard();
+      // Genuinely empty, settled provider that never had a profile this
+      // session — the legitimate onboarding empty state.
+      child = _buildStateC();
     }
 
     return PopScope(

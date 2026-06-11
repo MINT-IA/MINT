@@ -217,6 +217,52 @@ void main() {
       expect(find.text(l.dashboardQuickStartBody), findsNothing,
           reason: 'profil hydraté → jamais l\'état vide onboarding');
     });
+
+    // D7 device ROOT-CAUSE (FAIL #2, device-probe-confirmed 2026-06-12): the
+    // dashboard first builds with hasProfile=true, then a LATER build flips to
+    // hasProfile=false with isLoaded=true / isHydrating=false / isLoading=false
+    // — the shared provider's profile is CLEARED out from under the mounted
+    // screen (a settled clear, e.g. a release-mode loadFromWizard that finds no
+    // disk answers). Pre-fix this regressed /retraite to « 4 infos suffisent »
+    // even though it had just rendered the projection. A profile that existed
+    // must NOT collapse into the onboarding empty state while the screen is open.
+    testWidgets(
+        'D7 device — profil effacé APRÈS rendu (clear settled) → '
+        'jamais « 4 infos suffisent »', (tester) async {
+      tester.view.physicalSize = const Size(1400, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      // 1) Hydrated at mount → dashboard renders (no State C).
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers(_hydratedAnswers());
+      expect(provider.hasProfile, isTrue);
+
+      await tester.pumpWidget(_buildHarness(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 1));
+      tester.takeException();
+
+      final l = S.of(tester.element(find.byType(RetirementDashboardScreen)))!;
+      expect(find.text(l.dashboardQuickStartBody), findsNothing,
+          reason: 'profil hydraté → dashboard, pas State C');
+
+      // 2) Provider profile is CLEARED while the screen is open (settled clear:
+      //    not hydrating, not loading). The device-proven illogism.
+      provider.clearAll();
+      expect(provider.hasProfile, isFalse);
+      expect(provider.isHydrating, isFalse);
+      expect(provider.isLoading, isFalse);
+
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      tester.takeException();
+
+      // 3) State C must NOT appear — the screen already had a profile.
+      expect(find.text(l.dashboardQuickStartBody), findsNothing,
+          reason: 'D7 device : un profil déjà rendu ne doit jamais régresser '
+              'vers « 4 infos suffisent » sur un clear transitoire');
+      expect(find.byKey(const Key('state_c_start_cta')), findsNothing);
+    });
   });
 
   group('D8 — CTA vivant vers un parcours qui pose des questions', () {
