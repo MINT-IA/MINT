@@ -2395,6 +2395,10 @@ class SEn extends S {
   String get mariageRevenu2 => 'Income 2';
 
   @override
+  String get mariageRevenu2Hypothesis =>
+      'Editable assumption — enter your partner\'s actual income to refine the scenario.';
+
+  @override
   String get mariageCanton => 'Canton';
 
   @override

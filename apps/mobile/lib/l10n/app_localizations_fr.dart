@@ -2407,6 +2407,10 @@ class SFr extends S {
   String get mariageRevenu2 => 'Revenu 2';
 
   @override
+  String get mariageRevenu2Hypothesis =>
+      'Hypothèse modifiable — saisis le revenu réel de ton conjoint pour affiner le scénario.';
+
+  @override
   String get mariageCanton => 'Canton';
 
   @override

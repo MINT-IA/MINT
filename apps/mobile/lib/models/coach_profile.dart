@@ -3150,16 +3150,28 @@ class CoachProfile {
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
     final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
     final conjEmployment = answers['q_partner_employment_status'] as String?;
-    final hasConjointData = (partnerIncome != null && partnerIncome > 0) ||
-        partnerBirthYear != null ||
-        answers.containsKey('q_spouse_avs_contribution_years') ||
-        answers.containsKey('q_spouse_avs_lacunes_status') ||
-        answers.containsKey('q_partner_firstname') ||
-        answers.containsKey('q_partner_employment_status') ||
-        answers.containsKey('q_partner_nationality') ||
-        answers.containsKey('q_partner_gender') ||
-        answers.containsKey('q_partner_canton') ||
-        answers.containsKey('q_partner_enfants');
+    // Ghost-conjoint gate (Codex W2 review) : ne reconstruire un conjoint que
+    // si le MÉNAGE est cohérent avec une vie de couple. Un user qui repasse en
+    // « single » (ou qui divorce en quittant le couple) peut garder des clés
+    // `q_partner_*` résiduelles non purgées côté stockage ; sans ce gate,
+    // fromWizardAnswers ressuscitait un conjoint fantôme (AVS couple cap 150 %
+    // appliqué à un célibataire). On se cale sur l'état déclaré du ménage —
+    // pas sur l'état civil seul : un divorcé PEUT vivre en couple, donc on
+    // exclut UNIQUEMENT le ménage explicitement déclaré « single ».
+    final householdSingle =
+        (answers['q_household_type'] as String?)?.trim().toLowerCase() ==
+            'single';
+    final hasConjointData = !householdSingle &&
+        ((partnerIncome != null && partnerIncome > 0) ||
+            partnerBirthYear != null ||
+            answers.containsKey('q_spouse_avs_contribution_years') ||
+            answers.containsKey('q_spouse_avs_lacunes_status') ||
+            answers.containsKey('q_partner_firstname') ||
+            answers.containsKey('q_partner_employment_status') ||
+            answers.containsKey('q_partner_nationality') ||
+            answers.containsKey('q_partner_gender') ||
+            answers.containsKey('q_partner_canton') ||
+            answers.containsKey('q_partner_enfants'));
     if (hasConjointData) {
       // Net -> Brut estimation via the SAME canonical IncomeConverter factor
       // as the main user (single source — onb-02). No divergent charges rate.

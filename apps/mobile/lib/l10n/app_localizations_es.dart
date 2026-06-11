@@ -2407,6 +2407,10 @@ class SEs extends S {
   String get mariageRevenu2 => 'Ingreso 2';
 
   @override
+  String get mariageRevenu2Hypothesis =>
+      'Hipótesis editable — introduce el ingreso real de tu pareja para afinar el escenario.';
+
+  @override
   String get mariageCanton => 'Cantón';
 
   @override

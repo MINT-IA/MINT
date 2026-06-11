@@ -2413,6 +2413,10 @@ class SIt extends S {
   String get mariageRevenu2 => 'Reddito 2';
 
   @override
+  String get mariageRevenu2Hypothesis =>
+      'Ipotesi modificabile — inserisci il reddito reale del tuo partner per affinare lo scenario.';
+
+  @override
   String get mariageCanton => 'Cantone';
 
   @override

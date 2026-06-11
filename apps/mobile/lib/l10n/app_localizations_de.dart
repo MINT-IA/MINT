@@ -2424,6 +2424,10 @@ class SDe extends S {
   String get mariageRevenu2 => 'Einkommen 2';
 
   @override
+  String get mariageRevenu2Hypothesis =>
+      'Anpassbare Annahme — gib das tatsächliche Einkommen deiner Partnerin oder deines Partners ein, um das Szenario zu verfeinern.';
+
+  @override
   String get mariageCanton => 'Kanton';
 
   @override

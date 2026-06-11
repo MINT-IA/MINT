@@ -2407,6 +2407,10 @@ class SPt extends S {
   String get mariageRevenu2 => 'Rendimento 2';
 
   @override
+  String get mariageRevenu2Hypothesis =>
+      'Hipótese editável — introduz o rendimento real do teu parceiro para afinar o cenário.';
+
+  @override
   String get mariageCanton => 'Cantão';
 
   @override

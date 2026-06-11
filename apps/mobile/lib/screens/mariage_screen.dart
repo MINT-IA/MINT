@@ -51,6 +51,11 @@ class _MariageScreenState extends State<MariageScreen>
   // ── Tab 1: Impots inputs ──────────────────────────────
   double _revenu1 = 80000;
   double _revenu2 = 60000;
+  // D9 — what-if honnête : tant qu'aucun conjoint réel n'est connu, le
+  // « Revenu 2 » est une HYPOTHÈSE modifiable de l'outil de scénario, pas un
+  // fait du profil. Devient false uniquement si un conjoint réel hydrate la
+  // valeur (prefill ci-dessous).
+  bool _revenu2IsHypothesis = true;
   String _canton = 'VD';
   int _nbEnfants = 0;
   Map<String, dynamic>? _fiscalResult;
@@ -89,6 +94,14 @@ class _MariageScreenState extends State<MariageScreen>
           _canton = profile.canton;
         }
         if (profile.nombreEnfants > 0) _nbEnfants = profile.nombreEnfants;
+        // D9 — Revenu 2 : n'utiliser une vraie valeur que si un conjoint réel
+        // existe. Sinon, le défaut reste une hypothèse explicitement étiquetée.
+        final conjoint = profile.conjoint;
+        final conjointGross = conjoint?.salaireBrutMensuel;
+        if (conjointGross != null && conjointGross > 0) {
+          _revenu2 = conjointGross * conjoint!.nombreDeMois;
+          _revenu2IsHypothesis = false;
+        }
         final lppRente = profile.prevoyance.avoirLppTotal;
         if (lppRente != null && lppRente > 0) {
           // Rente mensuelle via la source canonique (financial_core L1) :
@@ -274,6 +287,7 @@ class _MariageScreenState extends State<MariageScreen>
           ),
           const SizedBox(height: MintSpacing.lg),
           MintAmountField(
+            key: const Key('mariage_revenu2_field'),
             label: S.of(context)!.mariageRevenu2,
             value: _revenu2,
             formatValue: (v) => FamilyService.formatChf(v),
@@ -286,6 +300,30 @@ class _MariageScreenState extends State<MariageScreen>
             min: 0,
             max: 300000,
           ),
+          // D9 — étiquette hypothèse : sans conjoint réel connu, le Revenu 2
+          // est une valeur de scénario modifiable, pas un fait du profil.
+          if (_revenu2IsHypothesis) ...[
+            const SizedBox(height: MintSpacing.xs),
+            Row(
+              key: const Key('mariage_revenu2_hypothesis_note'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.tune,
+                  size: 14,
+                  color: MintColors.textMuted,
+                ),
+                const SizedBox(width: MintSpacing.xs),
+                Expanded(
+                  child: Text(
+                    S.of(context)!.mariageRevenu2Hypothesis,
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textMuted),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: MintSpacing.lg),
 
           // Canton dropdown

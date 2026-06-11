@@ -4479,6 +4479,12 @@ abstract class S {
   /// **'Revenu 2'**
   String get mariageRevenu2;
 
+  /// No description provided for @mariageRevenu2Hypothesis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse modifiable — saisis le revenu réel de ton conjoint pour affiner le scénario.'**
+  String get mariageRevenu2Hypothesis;
+
   /// No description provided for @mariageCanton.
   ///
   /// In fr, this message translates to:
