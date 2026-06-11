@@ -22,10 +22,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
+import 'package:mint_mobile/services/financial_core/replacement_rate.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
+import 'package:mint_mobile/services/response_card_service.dart';
 
 /// Construit les réponses du wizard pour un profil salarié canonique.
 ///
@@ -381,6 +386,218 @@ void main() {
       expect(canonicalImpact, closeTo(50000 * 0.068 / 12, 0.01));
       expect(impactCap, closeTo(canonicalImpact, 0.01),
           reason: 'impact rachat doit déléguer à la même base canonique');
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Parity W3 — Taux de remplacement (plan 03)
+  //
+  //  Oracle matrice §2 « Taux de remplacement » + « Marge libre » +
+  //  « Retraite projetée » + D3 (63% vs 46.5% même session).
+  //
+  //  UNE définition app-wide (lock CONTEXT W1) :
+  //    taux = revenu retraite mensuel (AVS+LPP, SANS soustraction de dette)
+  //           / revenu NET mensuel courant (NetIncomeBreakdown), en %.
+  //
+  //  La source canonique est `ReplacementRate.percent` (financial_core L1).
+  //  Tous les chemins publics (minimal_profile, response_card, budget_living)
+  //  délèguent à ce helper — fin du mélange numérateur-net / dénominateur-brut
+  //  et de la soustraction de dette dans un seul moteur.
+  // ════════════════════════════════════════════════════════════════
+
+  group('Parity W3 — Taux de remplacement', () {
+    final l = SFr();
+
+    /// Carte « taux de remplacement » via la surface publique ResponseCardService.
+    ResponseCard replacementCard(CoachProfile profile) {
+      final cards = ResponseCardService.generateForPulse(profile, l: l, limit: 8);
+      return cards.firstWhere(
+        (c) => c.type == ResponseCardType.replacementRate,
+        orElse: () => throw StateError('replacement_rate card absente'),
+      );
+    }
+
+    // ── Définition canonique : dénominateur NET, clamp ≥ 0, échelle % ──
+
+    test('ReplacementRate.percent — dénominateur NET, échelle %', () {
+      // 4000 retraite / 8000 net = 50%.
+      expect(
+        ReplacementRate.percent(
+            totalMonthlyRetirement: 4000, netMonthlyIncome: 8000),
+        closeTo(50.0, 0.001),
+      );
+    });
+
+    test('ReplacementRate.percent — clamp ≥ 0 et net non-positif → 0', () {
+      expect(
+        ReplacementRate.percent(
+            totalMonthlyRetirement: -100, netMonthlyIncome: 8000),
+        closeTo(0.0, 0.001),
+        reason: 'numérateur négatif → clamp 0',
+      );
+      expect(
+        ReplacementRate.percent(
+            totalMonthlyRetirement: 4000, netMonthlyIncome: 0),
+        closeTo(0.0, 0.001),
+        reason: 'net non-positif → 0 (pas de division par zéro)',
+      );
+    });
+
+    // ── minimal_profile : dénominateur NET (plus BRUT) + pas de dette ──
+
+    test(
+        'minimal_profile — dénominateur NET via NetIncomeBreakdown (fin du brut)',
+        () {
+      const age = 50;
+      const gross = 102000.0;
+      const canton = 'GE';
+
+      final result = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+      );
+
+      // Le revenu net courant canonique (référence response_card).
+      final net = NetIncomeBreakdown.compute(
+        grossSalary: gross,
+        canton: canton,
+        age: age,
+      ).monthlyNetPayslip;
+
+      // Le taux est désormais revenu_retraite / NET (champ fraction 0-1
+      // conservé pour les consommateurs existants — percent / 100).
+      final expectedFraction = ReplacementRate.percent(
+            totalMonthlyRetirement: result.totalMonthlyRetirement,
+            netMonthlyIncome: net,
+          ) /
+          100.0;
+
+      expect(result.replacementRate, closeTo(expectedFraction, 0.0001),
+          reason: 'le dénominateur doit être le NET (NetIncomeBreakdown), '
+              'pas le brut');
+
+      // Régression : avec un dénominateur NET (< brut), le taux est
+      // strictement supérieur au taux brut historique (même numérateur).
+      final grossMonthly = gross / 12;
+      final ratioBrut = result.totalMonthlyRetirement / grossMonthly;
+      expect(result.replacementRate, greaterThan(ratioBrut),
+          reason: 'NET < BRUT ⇒ taux NET > taux BRUT historique');
+    });
+
+    test(
+        'minimal_profile — la dette n\'est plus soustraite du revenu retraite '
+        '(D3 §2 « Retraite projetée »)', () {
+      const age = 50;
+      const gross = 120000.0;
+      const canton = 'GE';
+
+      final sansDette = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+      );
+      final avecDette = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        monthlyDebtService: 800,
+      );
+
+      // La composition canonique du revenu retraite = AVS + LPP (la dette est
+      // une donnée budget, PAS un revenu retraite). Le service de dette ne doit
+      // plus diminuer le revenu retraite total ni le taux de remplacement.
+      expect(avecDette.totalMonthlyRetirement,
+          closeTo(sansDette.totalMonthlyRetirement, 0.01),
+          reason: 'la dette ne doit plus être soustraite du revenu retraite');
+      expect(avecDette.replacementRate, closeTo(sansDette.replacementRate, 0.0001),
+          reason: 'le taux de remplacement ne dépend plus du service de dette');
+    });
+
+    // ── response_card : délègue au helper (chemin de référence) ──
+
+    test('response_card — value == ReplacementRate.percent(total, net)', () {
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 52,
+        canton: 'GE',
+        salaireBrutMensuel: 102000.0 / 12,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 300000,
+          tauxConversion: lppTauxConversionMinDecimal,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2039),
+          label: 'Retraite',
+        ),
+      );
+
+      final card = replacementCard(profile);
+
+      // La carte expose value (le %) et, dans son explication, le revenu
+      // retraite total et le revenu net courant (arrondis). value doit être
+      // EXACTEMENT le helper canonique appliqué à ces composantes — preuve que
+      // response_card délègue à ReplacementRate.percent et n'a pas de formule
+      // ad-hoc (numérateur AVS+LPP, dénominateur NET).
+      final numbers = RegExp(r'\d+')
+          .allMatches(card.premierEclairage.explanation)
+          .map((m) => double.parse(m.group(0)!))
+          .toList();
+      expect(numbers.length, greaterThanOrEqualTo(2),
+          reason: 'explication doit citer total retraite + net courant');
+      final total = numbers[0];
+      final net = numbers[1];
+
+      final expected =
+          ReplacementRate.percent(totalMonthlyRetirement: total, netMonthlyIncome: net);
+      // Tolérance 0.5 pt : total/net sont arrondis à l'entier dans l'explication.
+      expect(card.premierEclairage.value, closeTo(expected, 0.5),
+          reason: 'response_card doit déléguer à ReplacementRate.percent');
+    });
+
+    // ── budget_living : fin de la formule mixte (NET/BRUT) ──
+
+    test(
+        'budget_living — taux NET/NET en % (fin de la formule mixte net/brut)',
+        () {
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 50,
+        canton: 'GE',
+        salaireBrutMensuel: 108000.0 / 12,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 250000,
+          tauxConversion: lppTauxConversionMinDecimal,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2041),
+          label: 'Retraite',
+        ),
+      );
+
+      final snapshot = BudgetLivingEngine.compute(profile);
+      final gap = snapshot.gap;
+      expect(gap, isNotNull, reason: 'le gap retraite doit être calculé');
+
+      final present = snapshot.present;
+      final retirement = snapshot.retirement;
+      expect(retirement, isNotNull);
+
+      // Le taux canonique = revenu retraite NET / revenu présent NET, en %.
+      // Plus de dénominateur brut : present.monthlyNet (NET) est le diviseur,
+      // identique au numérateur du monthlyGap (les deux sont NET).
+      final expected = ReplacementRate.percent(
+        totalMonthlyRetirement: retirement!.monthlyNet,
+        netMonthlyIncome: present.monthlyNet,
+      );
+      expect(gap!.replacementRate, closeTo(expected, 0.01),
+          reason: 'le dénominateur doit être present.monthlyNet (NET), '
+              'pas grossMonthlySalary (BRUT)');
     });
   });
 }
