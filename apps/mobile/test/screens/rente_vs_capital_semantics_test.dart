@@ -43,6 +43,16 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 
+/// Non-deprecated accessor for the compiled root semantics node (mirrors
+/// test/semantics_test_helpers.dart — avoids the deprecated
+/// `binding.pipelineOwner`).
+SemanticsNode _rootSemantics(WidgetTester tester) {
+  return tester.binding.renderViews
+      .map((view) => view.owner?.semanticsOwner?.rootSemanticsNode)
+      .whereType<SemanticsNode>()
+      .first;
+}
+
 Widget _buildWrapped(Widget screen) {
   return ChangeNotifierProvider<CoachProfileProvider>(
     create: (_) => CoachProfileProvider(),
@@ -129,7 +139,7 @@ void main() {
       await tester.pumpWidget(_buildWrapped(const RenteVsCapitalScreen()));
       await tester.pump();
 
-      final root = tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!;
+      final root = _rootSemantics(tester);
       final labels = _collectSemanticLabels(root);
       final joined = labels.join(' | ');
 
@@ -182,8 +192,7 @@ void main() {
       await tester.pumpWidget(_buildWrapped(const RenteVsCapitalScreen()));
       await tester.pump();
 
-      final root =
-          tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!;
+      final root = _rootSemantics(tester);
 
       final screenNode = _findByIdentifier(root, 'rente_vs_capital_screen');
       handle.dispose();

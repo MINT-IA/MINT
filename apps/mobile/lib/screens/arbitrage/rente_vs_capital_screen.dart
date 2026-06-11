@@ -595,7 +595,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturnOnPop();
       },
-      child: Scaffold(
+      // ILLOG-02 fix: screen-root Semantics boundary (matches the canonical
+      // healthy pattern of mon_argent_screen / budget_screen). The identifier
+      // must wrap the whole Scaffold as a container with explicit child nodes
+      // — NOT sit on the AppBar title leaf — otherwise the iOS accessibility
+      // bridge collapses the entire route into that single header node and
+      // `idb ui describe-all` reports "1 element" (the ILLOG-02 symptom).
+      child: Semantics(
+        key: const Key('rente_vs_capital_screen'),
+        identifier: 'rente_vs_capital_screen',
+        container: true,
+        explicitChildNodes: true,
+        child: Scaffold(
           body: Center(
               child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 600),
@@ -607,13 +618,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         backgroundColor: MintColors.white,
                         foregroundColor: MintColors.textPrimary,
                         surfaceTintColor: MintColors.white,
-                        title: Semantics(
-                          key: const Key('rente_vs_capital_screen'),
-                          identifier: 'rente_vs_capital_screen',
-                          child: Text(
-                            S.of(context)!.renteVsCapitalAppBarTitle,
-                            style: MintTextStyles.headlineMedium(),
-                          ),
+                        title: Text(
+                          S.of(context)!.renteVsCapitalAppBarTitle,
+                          style: MintTextStyles.headlineMedium(),
                         ),
                       ),
 
@@ -727,6 +734,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       ),
                     ],
                   )))),
+      ),
     );
   }
 
