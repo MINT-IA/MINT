@@ -5,6 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -271,6 +272,10 @@ class ArbitrageSummaryService {
     required double lppAvoir,
   }) {
     final convRate = profile.prevoyance.tauxConversion;
+    // D12 : la confiance affichee par RvC = la confiance canonique du profil
+    // (EnhancedConfidence.combined), pas un score d'arbitrage local divergent.
+    final canonicalConfidence =
+        ConfidenceScorer.scoreEnhanced(profile).combined;
     final result = ArbitrageEngine.compareRenteVsCapital(
       capitalLppTotal: lppAvoir,
       capitalObligatoire: lppAvoir * 0.6,
@@ -282,6 +287,7 @@ class ArbitrageSummaryService {
       canton: canton,
       isMarried: isMarried,
       dataSources: profile.dataSources,
+      canonicalConfidence: canonicalConfidence,
       currentAge: profile.age,
       grossAnnualSalary: profile.revenuBrutAnnuel,
       caisseReturn: profile.prevoyance.rendementCaisse,

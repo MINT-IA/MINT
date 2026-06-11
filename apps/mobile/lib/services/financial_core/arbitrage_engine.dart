@@ -35,24 +35,40 @@ class ArbitrageEngine {
   /// [inputKeys] The input field names used in this arbitrage.
   /// [dataSources] Data quality per field (from CoachProfile.dataSources).
   /// Returns 50 in standalone mode (no profile), 30-95 otherwise.
+  /// Source de confiance unique (D12).
+  ///
+  /// Quand l'appelant fournit [canonicalConfidence] (= `EnhancedConfidence.combined`
+  /// calcule sur le MEME profil que celui qui alimente l'arbitrage), c'est CETTE
+  /// valeur qui est rendue — un profil = un score sur toutes les surfaces.
+  ///
+  /// Sinon, fallback heuristique de couverture des inputs pour les appelants
+  /// sans profil (harnais de test, prefill API brut). Ce fallback NE renvoie
+  /// PLUS un plancher trompeur de 50.0 quand les donnees sont absentes :
+  /// l'absence de donnees doit produire une confiance basse, jamais un 50 qui
+  /// depasse un profil reel partiel (inversion « fiction > reel », matrice D12).
   static double _computeArbitrageConfidence(
     List<String> inputKeys,
-    Map<String, ProfileDataSource>? dataSources,
-  ) {
-    if (dataSources == null || dataSources.isEmpty) return 50.0;
-    int known = 0;
+    Map<String, ProfileDataSource>? dataSources, {
+    double? canonicalConfidence,
+  }) {
+    if (canonicalConfidence != null) {
+      return canonicalConfidence.clamp(0.0, 100.0);
+    }
     final total = inputKeys.length;
-    if (total == 0) return 50.0;
+    if (total == 0) return 0.0;
+    int known = 0;
     for (final key in inputKeys) {
-      if (dataSources[key] == ProfileDataSource.certificate ||
-          dataSources[key] == ProfileDataSource.openBanking) {
+      final source = dataSources?[key];
+      if (source == ProfileDataSource.certificate ||
+          source == ProfileDataSource.openBanking) {
         known += 2;
-      } else if (dataSources[key] == ProfileDataSource.userInput ||
-          dataSources[key] == ProfileDataSource.crossValidated) {
+      } else if (source == ProfileDataSource.userInput ||
+          source == ProfileDataSource.crossValidated) {
         known += 1;
       }
     }
-    return (known / (total * 2) * 100).clamp(30, 95);
+    // 0..100, plus de plancher 50 pour l'absence de donnees (D12).
+    return (known / (total * 2) * 100).clamp(0.0, 95.0);
   }
 
   // ════════════════════════════════════════════════════════════
@@ -86,6 +102,10 @@ class ArbitrageEngine {
     int horizon = 30,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+    /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
+    /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
+    /// affiche par RvC — un profil = un score sur toutes les surfaces (D12).
+    double? canonicalConfidence,
     // ── Projection params (estimate mode) ──
     int? currentAge,
     double? grossAnnualSalary,
@@ -460,6 +480,7 @@ class ArbitrageEngine {
       confidenceScore: _computeArbitrageConfidence(
         ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
         dataSources,
+        canonicalConfidence: canonicalConfidence,
       ),
       sensitivity: sensitivity,
       // ── New hero + card fields ──
