@@ -45,7 +45,7 @@ Plans:
 - [x] mint-illogism-fixes-09-w5-illog02-rvc-semantics-PLAN.md — ILLOG-02 arbre AX RvC (débloque le gate Maestro d'ILLOG-01)
 - [x] mint-illogism-fixes-10-w3-rvc-fiction-defaults-PLAN.md — défauts fiction RvC tués + flow ILLOG01 GREEN
 - [x] mint-illogism-fixes-11-w3-confidence-gate-estime-tags-PLAN.md — Confidence Gate <50 + hero 3 états + source de confiance unique
-- [ ] mint-illogism-fixes-12-w4-divorce-split-mariage-PLAN.md — split divorce borné à la part-mariage (CC art.122)
+- [x] mint-illogism-fixes-12-w4-divorce-split-mariage-PLAN.md — split divorce borné à la part-mariage (CC art.122)
 - [ ] mint-illogism-fixes-13-w4-avs-gapfactor-PLAN.md — gapFactor AVS plumbé + scène rente_trouee honnête
 - [ ] mint-illogism-fixes-14-w4-3a-suggestion-cap-PLAN.md — suggestion 3a plafonnée au plafond légal restant
 - [ ] mint-illogism-fixes-15-w4-affordability-unify-lcc-PLAN.md — revenu de ménage unifié + citation LCC corrigée
