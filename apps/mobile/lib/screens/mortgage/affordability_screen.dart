@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
@@ -21,6 +22,51 @@ import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+
+/// Revenu brut annuel du menage pour la capacite d'achat hypothecaire.
+///
+/// SOURCE UNIQUE consommee par les DEUX routes d'entree de
+/// [AffordabilityScreen] (auto-remplissage profil + prefill coach), afin que
+/// la capacite affichee soit identique quelle que soit la route — clot
+/// couple_acheteurs-1.
+///
+/// Les deux salaires comptent (directive ASB sur le credit hypothecaire) et
+/// chaque cote applique son propre nombreDeMois (jamais un facteur 13 fige).
+/// Delegue au getter canonique [CoachProfile.revenuBrutAnnuelCouple] qui somme
+/// l'utilisateur et le conjoint sans derouler ce dernier.
+double revenuBrutMenageFromProfile(CoachProfile profile) {
+  return profile.revenuBrutAnnuelCouple;
+}
+
+/// Resout le revenu brut annuel a preremplir pour [AffordabilityScreen].
+///
+/// Regle de priorite :
+///  - un prefill coach COMPLET (cle `revenuBrut`, revenu annuel explicite)
+///    reste prioritaire ;
+///  - un prefill PARTIEL (seul un `salaireBrut` mensuel) est COMPLETE depuis
+///    le revenu du menage du profil — jamais en deroulant silencieusement le
+///    conjoint ni en figeant un facteur 13 ;
+///  - sans prefill exploitable, on retombe sur le revenu du menage du profil ;
+///  - si rien n'est disponible, retourne `null` (l'ecran garde son defaut).
+double? resolveAffordabilityRevenu({
+  required Map<String, dynamic>? prefill,
+  required CoachProfile? profile,
+}) {
+  // Prefill complet : revenu annuel explicite fourni par le coach.
+  final revenuComplet = prefill?['revenuBrut'];
+  if (revenuComplet is num && revenuComplet > 0) {
+    return revenuComplet.toDouble();
+  }
+
+  // Prefill partiel (mensuel) OU pas de prefill : on derive depuis le profil
+  // pour garantir que le conjoint compte (ASB) et que nombreDeMois est honore.
+  if (profile != null) {
+    final menage = revenuBrutMenageFromProfile(profile);
+    if (menage > 0) return menage;
+  }
+
+  return null;
+}
 
 /// Ecran de capacite d'achat immobilier (Cat B — Decision Canvas).
 ///
@@ -59,13 +105,9 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       if (profile == null) return;
 
       bool changed = false;
-      // Use household income if married/concubinage (both salaries count
-      // for mortgage capacity per ASB directive).
-      var revenuAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
-      final conjointRevenu = profile.conjoint?.salaireBrutMensuel ?? 0;
-      if (conjointRevenu > 0) {
-        revenuAnnuel += conjointRevenu * profile.nombreDeMois;
-      }
+      // Revenu du menage via la SOURCE UNIQUE partagee avec la route coach
+      // (both salaries count for mortgage capacity per ASB directive).
+      final revenuAnnuel = revenuBrutMenageFromProfile(profile);
       if (revenuAnnuel > 0) {
         _revenuBrut = revenuAnnuel;
         _prefilledFields.add('revenu_brut');
@@ -112,10 +154,20 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   void _applyPrefill(Map<String, dynamic> prefill) {
     bool changed = false;
 
-    final salaireBrut = prefill['salaireBrut'];
-    if (salaireBrut is num && salaireBrut > 0) {
-      // Monthly value — multiply by 13 for annual
-      _revenuBrut = salaireBrut.toDouble() * 13;
+    // Revenu : meme SOURCE UNIQUE que la route profil. Un prefill mensuel
+    // partiel est complete depuis le revenu du menage (le conjoint compte,
+    // ASB) au lieu de l'ancien facteur 13 fige qui deroulait le conjoint —
+    // clot couple_acheteurs-1.
+    CoachProfile? profile;
+    try {
+      profile = context.read<CoachProfileProvider>().profile;
+    } catch (_) {
+      profile = null;
+    }
+    final revenuMenage =
+        resolveAffordabilityRevenu(prefill: prefill, profile: profile);
+    if (revenuMenage != null && revenuMenage > 0) {
+      _revenuBrut = revenuMenage;
       _prefilledFields.add('revenu_brut');
       changed = true;
     }
