@@ -343,10 +343,21 @@ class BudgetLivingEngine {
     }
 
     // Cap 2: 3a max — if not already maxing out.
+    // Eligibility gate (Codex W4 P2): a FATCA / non-eligible profile must NOT
+    // receive a « 3a_max » lever. The archetype-aware ceiling returns 0.0 for
+    // non-eligible profiles (canContribute3a == false) and the income-based
+    // room for independents — using the raw pilier3aPlafondAvecLpp constant
+    // leaked the lever to ineligible users (context_injector → coach).
+    final eligibleAnnualCeiling =
+        Pillar3aRoomCalculator.annualCeiling(profile);
     final current3aMensuel = profile.total3aMensuel;
-    final plafondMensuel =
-        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12;
-    final has3aGap = current3aMensuel < plafondMensuel * 0.95;
+    // Ceiling 0 → no 3a room → no 3a_max impact. When eligible (ceiling > 0),
+    // use the eligibility-aware ceiling: for non-independent eligible profiles
+    // it equals the backend-synced/with-LPP plafond, for independents it is the
+    // income-based room — both correct.
+    final plafondMensuel = eligibleAnnualCeiling / 12;
+    final has3aGap =
+        plafondMensuel > 0 && current3aMensuel < plafondMensuel * 0.95;
     if (has3aGap) {
       final additional3aMonthly = plafondMensuel - current3aMensuel;
       // Project additional monthly 3a to retirement at 4.5% average return

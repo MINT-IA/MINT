@@ -350,6 +350,58 @@ void main() {
             reason: 'Cap delta must be positive (it is a benefit)');
       }
     });
+
+    test(
+        'profil expatUs (non éligible 3a) → aucun levier « 3a_max » '
+        '(Codex W4 P2)', () {
+      // nationality 'US' → canContribute3a == false → annualCeiling == 0 →
+      // pas de room 3a → le levier 3a_max ne doit jamais être proposé.
+      final expatUs = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        nationality: 'US',
+        salaireBrutMensuel: 12000,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 80000,
+          totalEpargne3a: 0, // aucun 3a versé : sans le gate, un gap apparaîtrait
+        ),
+        patrimoine: const PatrimoineProfile(epargneLiquide: 20000),
+        depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 430),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+      expect(expatUs.canContribute3a, isFalse,
+          reason: 'US person — providers 3a refusent (FATCA)');
+
+      final snapshot = BudgetLivingEngine.compute(expatUs);
+      final has3aMax =
+          snapshot.capImpacts.any((c) => c.capId == '3a_max');
+      expect(has3aMax, isFalse,
+          reason:
+              'Aucun levier 3a_max ne doit fuiter vers un profil non éligible');
+    });
+
+    test(
+        'profil suisse éligible avec gap 3a → levier « 3a_max » présent '
+        '(contrôle positif du gate)', () {
+      final eligible = buildProfile(
+        salaireBrutMensuel: 12000,
+        totalEpargne3a: 0, // zéro 3a → gap maximal → levier attendu
+        avoirLppTotal: 100000,
+      );
+      expect(eligible.canContribute3a, isTrue);
+
+      final snapshot = BudgetLivingEngine.compute(eligible);
+      if (snapshot.stage != BudgetStage.presentOnly) {
+        final has3aMax =
+            snapshot.capImpacts.any((c) => c.capId == '3a_max');
+        expect(has3aMax, isTrue,
+            reason: 'Le gate ne doit pas supprimer le levier pour un éligible');
+      }
+    });
   });
 
   // ── Group 6: Golden couple Julien ────────────────────────────
