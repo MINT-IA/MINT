@@ -68,15 +68,26 @@ class MinimalProfileService {
     // Independant sans LPP: LPP = 0, 3a max = 36'288 CHF (OPP3 art. 7)
     // Sans emploi: reduced AVS, no LPP contributions
     final effectiveEmployment = employmentStatus ?? 'salarie';
-    final isIndependantNoLpp = effectiveEmployment == 'independant';
+    // Gate LPP=0 partagé (financial_core) — même prédicat que coach_profile,
+    // sinon les deux moteurs divergent (oracle independent_no_lpp-3).
+    // Ce service n'a pas de question caisse séparée : pour un indépendant
+    // l'ESTIMATION est interdite. hasPensionFund=false ⇒ pas d'estimation
+    // âge×salaire pour un indépendant.
+    final canEstimateLppByEmployment =
+        ArchetypePredicates.canEstimateLppByEmployment(
+      employmentStatus: effectiveEmployment,
+      hasPensionFund: effectiveEmployment != 'independant',
+    );
+    final isIndependantNoLpp = !canEstimateLppByEmployment &&
+        effectiveEmployment == 'independant';
     final isSansEmploi = effectiveEmployment == 'sans_emploi';
 
     // Estimate LPP balance from age-weighted bonifications since arrival/25.
     // Independent without LPP declaration → 0 balance
     final effectiveLpp = existingLpp
-        ?? (isIndependantNoLpp
-            ? 0.0
-            : _estimateLppBalance(age, grossSalary, arrivalAge: arrivalAge));
+        ?? (canEstimateLppByEmployment
+            ? _estimateLppBalance(age, grossSalary, arrivalAge: arrivalAge)
+            : 0.0);
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
     // F7-2: Use gender-aware retirement age when gender + birth year are provided.

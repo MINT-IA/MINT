@@ -9,6 +9,7 @@ library;
 
 export 'arbitrage_engine.dart';
 export 'arbitrage_models.dart';
+export 'archetype_predicates.dart';
 export 'avs_calculator.dart';
 export 'cross_pillar_calculator.dart';
 export 'bayesian_enricher.dart';
