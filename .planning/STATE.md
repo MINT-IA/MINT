@@ -4,8 +4,8 @@ milestone: core-journey-truth
 milestone_name: Core Journey Truth / Prod Ready
 status: executing
 stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-06-11T11:14:37.607Z"
-last_activity: 2026-06-11 -- Phase mint-illogism-fixes execution started
+last_updated: "2026-06-11T23:47:36.639Z"
+last_activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (17/17, verification 20/21)
 progress:
   total_phases: 15
   completed_phases: 2
@@ -45,10 +45,10 @@ gates before expanding scope.
 
 ## Current Position
 
-Phase: mint-illogism-fixes (Illogism fixes (17 plans)) — EXECUTING
-Plan: 1 of 17
-Status: Executing Phase mint-illogism-fixes
-Last activity: 2026-06-11 -- Phase mint-illogism-fixes execution started
+Phase: mint-illogism-fixes (Illogism fixes (17 plans)) — EXECUTED, verification 20/21
+Plan: 17 of 17 complete
+Status: Phase executed 2026-06-12 — 17/17 plans + 4 Codex wave reviews (gap closures: 3 P1 + 7 P2 + 2 P3) + device gate (ILLOG01/02 GREEN, D10 re-fix device-PASS). Remaining: 1 human-verify item (D7 /retraite green capture on device — fix root-caused + widget-test-proven, blocked by onboarding-shell AX automation gap). Final suites: mobile 9446 passed / backend 7586 passed / analyze clean.
+Last activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (resumed post-quota from plan 06)
 guard added
 
 **Known open gates:**
