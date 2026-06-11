@@ -34,11 +34,11 @@
 **Acceptance**: chaque ligne de matrice fermée = oracle de reproduction re-run vert + device-proof sim (0-TRUST §9) ; flows ILLOG01/02 GREEN ; aucun claim sans citation.
 **Plans**: 17 plans (14 vagues d'exécution — séquentiel sur les hotspots minimal_profile_service + ARB, parallèle waves 7/8/12)
 Plans:
-- [ ] mint-illogism-fixes-01-w1-lpp-avoir-canonical-PLAN.md — avoir LPP → LppCalculator (+ squelette parité Wave 0)
-- [ ] mint-illogism-fixes-02-w1-lpp-rente-conversion-PLAN.md — rente LPP → adjustedConversionRate partout (+ impact rachat)
-- [ ] mint-illogism-fixes-03-w1-replacement-rate-net-PLAN.md — taux de remplacement NET unique + base nette NetIncomeBreakdown
-- [ ] mint-illogism-fixes-04-w1-plafond-3a-net-base-PLAN.md — plafond 3a indépendant sur revenu NET (OPP3 art.7 al.2)
-- [ ] mint-illogism-fixes-05-w1-3a-tax-saving-married-PLAN.md — économie 3a isMarried/children + device-proof W1
+- [x] mint-illogism-fixes-01-w1-lpp-avoir-canonical-PLAN.md — avoir LPP → LppCalculator (+ squelette parité Wave 0)
+- [x] mint-illogism-fixes-02-w1-lpp-rente-conversion-PLAN.md — rente LPP → adjustedConversionRate partout (+ impact rachat)
+- [x] mint-illogism-fixes-03-w1-replacement-rate-net-PLAN.md — taux de remplacement NET unique + base nette NetIncomeBreakdown
+- [x] mint-illogism-fixes-04-w1-plafond-3a-net-base-PLAN.md — plafond 3a indépendant sur revenu NET (OPP3 art.7 al.2)
+- [x] mint-illogism-fixes-05-w1-3a-tax-saving-married-PLAN.md — économie 3a isMarried/children + device-proof W1
 - [ ] mint-illogism-fixes-06-w2-onboarding-archetype-questions-PLAN.md — questions statut emploi / état civil / lacunes AVS
 - [ ] mint-illogism-fixes-07-w2-lpp-zero-divorce-gates-PLAN.md — prédicat LPP=0 unifié + gate divorcé
 - [ ] mint-illogism-fixes-08-w2-3a-eligibility-fatca-global-PLAN.md — FATCA gate global GoRouter + 3a quasi-résident
