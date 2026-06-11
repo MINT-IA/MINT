@@ -12759,5 +12759,15 @@
   "mentorFabProfileSubtitle": "Données complètes, projections plus solides",
   "reportStatusSerein": "Serein",
   "reportStatusARenforcer": "À renforcer",
-  "reportStatusAlerte": "Alerte"
+  "reportStatusAlerte": "Alerte",
+  "onboardingEmploymentPrompt": "Quelle est ta situation professionnelle ?",
+  "onboardingEmploymentSalarie": "Salarié",
+  "onboardingEmploymentIndependant": "Indépendant",
+  "onboardingEmploymentSansActivite": "Sans activité",
+  "onboardingCivilPrompt": "Quelle est ta situation familiale ?",
+  "onboardingCivilCelibataire": "Célibataire",
+  "onboardingCivilMarie": "Marié",
+  "onboardingCivilConcubinage": "En concubinage",
+  "onboardingCivilDivorce": "Divorcé",
+  "onboardingCivilVeuf": "Veuf"
 }

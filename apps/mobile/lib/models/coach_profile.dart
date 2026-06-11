@@ -3473,6 +3473,14 @@ class CoachProfile {
       case 'mixed':
       case 'mixte':
         return 'mixte';
+      // W2 (mint-illogism-fixes-06) — « sans activité » must NOT be coerced
+      // to 'salarie' (the default), otherwise a non-active user is silently
+      // presumed salaried-with-LPP (NEVER #7, D1 root). Preserve the answer.
+      case 'unemployed':
+      case 'sans_activite':
+      case 'sans activité':
+      case 'inactif':
+        return 'sans_activite';
       default:
         return 'salarie';
     }
@@ -3486,6 +3494,7 @@ class CoachProfile {
         'retraite' => 'retired',
         'etudiant' => 'student',
         'mixte' => 'mixed',
+        'sans_activite' => 'unemployed',
         _ => status,
       };
 
@@ -3497,6 +3506,7 @@ class CoachProfile {
         'self_employed' => 'independant',
         'retired' => 'retraite',
         'student' => 'etudiant',
+        'unemployed' => 'sans_activite',
         _ => status,
       };
 

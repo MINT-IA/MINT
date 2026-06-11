@@ -11372,5 +11372,15 @@
   "mentorFabProfileSubtitle": "Complete data, stronger projections",
   "reportStatusSerein": "Calm",
   "reportStatusARenforcer": "To strengthen",
-  "reportStatusAlerte": "Alert"
+  "reportStatusAlerte": "Alert",
+  "onboardingEmploymentPrompt": "What is your work situation?",
+  "onboardingEmploymentSalarie": "Employee",
+  "onboardingEmploymentIndependant": "Self-employed",
+  "onboardingEmploymentSansActivite": "Not working",
+  "onboardingCivilPrompt": "What is your family situation?",
+  "onboardingCivilCelibataire": "Single",
+  "onboardingCivilMarie": "Married",
+  "onboardingCivilConcubinage": "Cohabiting",
+  "onboardingCivilDivorce": "Divorced",
+  "onboardingCivilVeuf": "Widowed"
 }
