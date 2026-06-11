@@ -595,7 +595,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturnOnPop();
       },
-      child: Scaffold(
+      // ILLOG-02 fix: screen-root Semantics boundary (matches the canonical
+      // healthy pattern of mon_argent_screen / budget_screen). The identifier
+      // must wrap the whole Scaffold as a container with explicit child nodes
+      // — NOT sit on the AppBar title leaf — otherwise the iOS accessibility
+      // bridge collapses the entire route into that single header node and
+      // `idb ui describe-all` reports "1 element" (the ILLOG-02 symptom).
+      child: Semantics(
+        key: const Key('rente_vs_capital_screen'),
+        identifier: 'rente_vs_capital_screen',
+        container: true,
+        explicitChildNodes: true,
+        child: Scaffold(
           body: Center(
               child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 600),
@@ -607,13 +618,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         backgroundColor: MintColors.white,
                         foregroundColor: MintColors.textPrimary,
                         surfaceTintColor: MintColors.white,
-                        title: Semantics(
-                          key: const Key('rente_vs_capital_screen'),
-                          identifier: 'rente_vs_capital_screen',
-                          child: Text(
-                            S.of(context)!.renteVsCapitalAppBarTitle,
-                            style: MintTextStyles.headlineMedium(),
-                          ),
+                        title: Text(
+                          S.of(context)!.renteVsCapitalAppBarTitle,
+                          style: MintTextStyles.headlineMedium(),
                         ),
                       ),
 
@@ -727,6 +734,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       ),
                     ],
                   )))),
+      ),
     );
   }
 
@@ -1169,46 +1177,58 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }) {
     final isPrefilled =
         fieldName != null && _prefilledFields.contains(fieldName);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(child: Text(label, style: _labelStyle)),
-            if (isPrefilled)
-              const SmartDefaultIndicator(
-                source: 'Depuis ton profil MINT',
-                confidence: 0.60,
+    // ILLOG-02: scope each field to its own semantics container whose
+    // accessible name is the field [label], so the label is exposed as a
+    // single discrete node on the iOS accessibility tree (and is findable by
+    // Maestro `assertVisible`) rather than being merged into one big blob
+    // with every other label in the input section. The inner visual label
+    // `Text` is `ExcludeSemantics`-wrapped to avoid duplicating the name.
+    return Semantics(
+      container: true,
+      label: label,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: ExcludeSemantics(child: Text(label, style: _labelStyle)),
               ),
-            if (fieldName != null) FieldHelpTooltip(fieldName: fieldName),
-          ],
-        ),
-        const SizedBox(height: MintSpacing.xs),
-        TextField(
-          controller: controller,
-          keyboardType: isPercent
-              ? const TextInputType.numberWithOptions(decimal: true)
-              : TextInputType.number,
-          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-          inputFormatters: isPercent
-              ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
-              : [FilteringTextInputFormatter.digitsOnly],
-          style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: MintColors.surface,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.md,
-              vertical: 14,
-            ),
+              if (isPrefilled)
+                const SmartDefaultIndicator(
+                  source: 'Depuis ton profil MINT',
+                  confidence: 0.60,
+                ),
+              if (fieldName != null) FieldHelpTooltip(fieldName: fieldName),
+            ],
           ),
-          onChanged: (_) => _userRecalculate(),
-        ),
-      ],
+          const SizedBox(height: MintSpacing.xs),
+          TextField(
+            controller: controller,
+            keyboardType: isPercent
+                ? const TextInputType.numberWithOptions(decimal: true)
+                : TextInputType.number,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
+            inputFormatters: isPercent
+                ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
+                : [FilteringTextInputFormatter.digitsOnly],
+            style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: MintColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md,
+                vertical: 14,
+              ),
+            ),
+            onChanged: (_) => _userRecalculate(),
+          ),
+        ],
+      ),
     );
   }
 

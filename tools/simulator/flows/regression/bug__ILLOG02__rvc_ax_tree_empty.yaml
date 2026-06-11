@@ -47,5 +47,9 @@ tags:
       text: "Rente ou capital.*"
     timeout: 15000
 - assertVisible: "Estimer pour moi"
-- assertVisible: "Ton avoir LPP actuel (CHF)"
+# Escape the literal parentheses — Maestro matches `text` as a regex, so an
+# unescaped `(CHF)` is a capture group that fails to match the on-screen
+# literal "(CHF)". (Rule-1 fix: the original assertion was unmatchable by the
+# regex engine regardless of the AX-tree state.)
+- assertVisible: "Ton avoir LPP actuel \\(CHF\\)"
 - takeScreenshot: "illog02-rvc-ax-tree"
