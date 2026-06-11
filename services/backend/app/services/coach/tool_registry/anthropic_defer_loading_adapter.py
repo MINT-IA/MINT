@@ -16,8 +16,8 @@ Wires Anthropic Tool Search Tool (beta ``tool-search-tool-2025-10-19``) :
 Plan 09 (W2-03 description rewrite, Concern A) ships the ``_TOOL_DESCRIPTIONS_FR``
 map below : per-tool French descriptions with Swiss legal article refs (CC art.
 122-124 divorce, LAVS art. 29sexies splitting, CC art. 462+467-469 succession,
-LIFD art. 33 al. 1 let. d/e déductions, LPP art. 14 conversion, LCC art. 28
-hypothèque, LIFD art. 38 capital, LAA, LAMal, LAI…) so the Anthropic Tool
+LIFD art. 33 al. 1 let. d/e déductions, LPP art. 14 conversion, Directives ASB
+(FINMA) hypothèque, LIFD art. 38 capital, LAA, LAMal, LAI…) so the Anthropic Tool
 Search BM25 surfacing earns top-3 matches on French user queries (« si je
 divorce demain », « racheter ma LPP », « frontalier vaudois FATCA »…).
 
@@ -111,10 +111,10 @@ def _load_chip_emitter_descriptions() -> dict[str, ToolDefinition]:
 # (paraphrase verb).
 #
 _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
-    # ── Housing / mortgage (LCC art. 28, OPP2 art. 5, FINMA Tragbarkeit) ────
+    # ── Housing / mortgage (Directives ASB (FINMA), OPP2 art. 5, Tragbarkeit) ──
     "affordability_service__AffordabilityService_calculate_affordability": (
         "Calcule la capacité d'achat immobilier selon les règles FINMA/ASB "
-        "(LCC art. 28 plafond charges 33% revenu brut, taux théorique 5%, "
+        "(Directives ASB (FINMA) plafond charges 33% revenu brut, taux théorique 5%, "
         "amortissement 1%/an, frais 1%/an) avec fonds propres minimum 20% "
         "(max 10% issu du 2e pilier OPP2 art. 5). Produit le prix d'achat "
         "plafond CHF et l'écart vs prix cible. Mots-clés : hypothèque, achat, "
@@ -122,14 +122,14 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
     ),
     "amortization_service__AmortizationService_compare": (
         "Compare l'amortissement direct vs indirect d'une hypothèque suisse "
-        "(LCC art. 28) sur la durée résiduelle, avec effet fiscal LIFD art. 33 "
+        "(Directives ASB (FINMA)) sur la durée résiduelle, avec effet fiscal LIFD art. 33 "
         "des déductions 3a en cas d'amortissement indirect. Produit le coût "
         "net cumulé CHF + le rendement 3a versus économies d'intérêts. "
         "Mots-clés : amortissement, hypothèque, 3a, déduction, fiscal, prêt."
     ),
     "saron_vs_fixed_service__SaronVsFixedService_compare": (
         "Compare un taux SARON variable vs un taux fixe pour une hypothèque "
-        "(LCC art. 28) sur plusieurs scénarios de taux d'intérêt. Estime le "
+        "(Directives ASB (FINMA)) sur plusieurs scénarios de taux d'intérêt. Estime le "
         "coût cumulé CHF + la sensibilité au mouvement de courbe. "
         "Mots-clés : SARON, taux fixe, hypothèque, taux variable, financement."
     ),
@@ -423,7 +423,7 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
     "debt_ratio_service__DebtRatioService_calculate_debt_ratio": (
         "Calcule le ratio d'endettement personnel selon revenus mensuels et "
         "charges de dette. Identifie les dépassements du seuil de 33% "
-        "endettement-revenu (référence FINMA hypothèque LCC art. 28). "
+        "endettement-revenu (référence FINMA hypothèque Directives ASB (FINMA)). "
         "Mots-clés : dette, endettement, ratio, charges, revenu, surendettement."
     ),
     "repayment_service__RepaymentService_compare_strategies": (
@@ -436,7 +436,7 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
     "allocation_annuelle__compare_allocation_annuelle": (
         "Compare l'allocation annuelle d'une épargne disponible entre 3a "
         "(LIFD art. 33), rachat LPP (LIFD art. 33), amortissement hypothèque "
-        "(LCC art. 28) et placement libre. Produit le ROI par scénario selon "
+        "(Directives ASB (FINMA)) et placement libre. Produit le ROI par scénario selon "
         "canton et profil. Mots-clés : 3a, rachat, LPP, hypothèque, "
         "arbitrage, allocation, fiscal."
     ),

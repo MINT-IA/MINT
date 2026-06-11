@@ -166,21 +166,26 @@ def test_l2_narrative_parity_accepts_balanced_scenarios() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Test 5 — L4 invariant happy path : « 33% LCC plafond » constructs valid
+# Test 5 — L4 invariant happy path : « 33% Tragbarkeit plafond » constructs valid
 # ---------------------------------------------------------------------------
 
 
 def test_l4_invariant_constructs_with_valid_legal_ref_and_condition_text() -> None:
-    """The L4 wedge payload (Finding 5) carries a legal article ref + FR text."""
+    """The L4 wedge payload (Finding 5) carries a legal article ref + FR text.
+
+    NB : the 33% charge cap is a FINMA/ASB mortgage self-regulation rule. The
+    LCC (consumer credit) explicitly excludes mortgage credit, so the citable
+    source is « Directives ASB (FINMA) », not « LCC art. 28 » (Codex W4).
+    """
     payload = L4InvariantPayload(
-        legal_article_ref="LCC art. 28",
+        legal_article_ref="Directives ASB (FINMA)",
         condition_text_fr=(
             "Quel que soit le scénario, ta capacité d'emprunt "
-            "est plafonnée à 33% LCC."
+            "est plafonnée à 33% selon les Directives ASB."
         ),
     )
     assert payload.level == LucidityLevel.L4
-    assert payload.legal_article_ref == "LCC art. 28"
+    assert payload.legal_article_ref == "Directives ASB (FINMA)"
     assert "33%" in payload.condition_text_fr
 
 
@@ -196,7 +201,7 @@ def test_l4_invariant_rejects_empty_legal_article_ref() -> None:
             legal_article_ref="",
             condition_text_fr=(
                 "Quel que soit le scénario, ta capacité d'emprunt "
-                "est plafonnée à 33% LCC."
+                "est plafonnée à 33% selon les Directives ASB."
             ),
         )
 
@@ -210,7 +215,7 @@ def test_l4_invariant_rejects_short_condition_text() -> None:
     """`condition_text_fr` requires min_length=20 to prevent trivial invariants."""
     with pytest.raises(ValidationError):
         L4InvariantPayload(
-            legal_article_ref="LCC art. 28",
+            legal_article_ref="Directives ASB (FINMA)",
             condition_text_fr="trop court",
         )
 
@@ -239,15 +244,16 @@ def test_lucidity_payload_discriminator_routes_by_level() -> None:
     l4 = LucidityPayload.model_validate(
         {
             "level": "L4",
-            "legal_article_ref": "LCC art. 28",
+            "legal_article_ref": "Directives ASB (FINMA)",
             "condition_text_fr": (
                 "Quel que soit le scénario d'investissement, "
-                "ta capacité d'emprunt est plafonnée à 33% LCC."
+                "ta capacité d'emprunt est plafonnée à 33% selon les "
+                "Directives ASB."
             ),
         }
     )
     assert isinstance(l4.root, L4InvariantPayload)
-    assert l4.root.legal_article_ref == "LCC art. 28"
+    assert l4.root.legal_article_ref == "Directives ASB (FINMA)"
 
     # Unknown level → ValidationError from the discriminator
     with pytest.raises(ValidationError):

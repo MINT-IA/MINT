@@ -6,7 +6,7 @@ framework :
   - L1 Chiffrer  : « Ta rente AVS projetée à 65 ans est X CHF/mois »
   - L2 Comparer  : « Voici les 3 scénarios chiffrés : A=X, B=Y, C=Z »
   - L3 Éclairer  : « Si tu choisis A, ça change ton 3a, ton impôt … dans 5 ans »
-  - L4 Surfacer  : « Quel que soit le scénario, plafond 33% LCC »
+  - L4 Surfacer  : « Quel que soit le scénario, plafond 33% (Directives ASB) »
 
 D-CE-15 schema-impossibility (the structural counterpart to D-CE-16(b)
 lint + D-CE-16(c) runtime gate) :
@@ -228,20 +228,23 @@ class L4InvariantPayload(_LucidityBase):
     no ranking, no recommendation — just the regulatory invariant the user
     needs to know.
 
-    Example payload (the « 33% LCC plafond » wedge invariant for Finding 5) :
+    Example payload (the « 33% Tragbarkeit plafond » wedge invariant for
+    Finding 5). NB : the 33% charge-to-income cap is a FINMA/ASB mortgage
+    self-regulation rule — the LCC (consumer credit) explicitly EXCLUDES
+    mortgage credit, so the citable source is the ASB directives, not the LCC :
 
       L4InvariantPayload(
-          legal_article_ref="LCC art. 28",
+          legal_article_ref="Directives ASB (FINMA)",
           condition_text_fr=(
               "Quel que soit le scénario, ta capacité d'emprunt "
               "hypothécaire reste plafonnée à 33% de tes revenus bruts "
-              "annuels selon la LCC art. 28."
+              "annuels selon les Directives ASB (FINMA)."
           ),
       )
 
     Constraints :
       - `legal_article_ref` min_length=5 to ensure a citable source
-        (e.g. « LCC art. 28 », « CC art. 122 »).
+        (e.g. « Directives ASB (FINMA) », « CC art. 122 »).
       - `condition_text_fr` min_length=20 to prevent trivial invariants
         (« plafond 33% » alone is not an invariant — it needs context).
     """

@@ -698,7 +698,7 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "access_level": "user_scoped",
         "description": (
             "Estime la capacité d'emprunt hypothécaire selon les règles FINMA/ASB "
-            "(LCC art. 28, taux théorique 5%, charges max 33% du revenu brut, "
+            "(Directives ASB (FINMA), taux théorique 5%, charges max 33% du revenu brut, "
             "fonds propres min 20% dont max 10% issu du 2e pilier) en croisant "
             "salaire brut, épargne disponible, avoirs 3a et LPP du profil. Produit "
             "le prix d'achat plafond CHF, le delta vs propriété visée et le Cap du "
