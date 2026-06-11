@@ -3,6 +3,7 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -606,14 +607,31 @@ class CapSequenceEngine {
 
   // ── IMPACT ESTIMATES ─────────────────────────────────────────
 
-  /// Rough monthly AVS estimate (max rente / 44 * years contributed).
+  /// Monthly AVS estimate via the canonical source (financial_core L1).
+  ///
+  /// L'ancienne formule plate `2520 * years / 44` était income-blind : elle
+  /// rendait la même rente quel que soit le revenu (surestimation +655..+998
+  /// CHF/mois pour les bas RAMD — matrice §2 « Rente AVS »). On délègue à
+  /// AvsCalculator (RAMD + années réelles, échelle 44 LAVS art. 34) — un seul
+  /// estimateur AVS canonique dans toute l'app.
   static double? _estimateAvsMonthly(CoachProfile profile) {
     final years = profile.prevoyance.anneesContribuees;
     if (years == null || years <= 0) return null;
-    // Max rente mensuelle AVS = 2'520 CHF (2025/2026)
-    const maxRenteMensuelle = 2520.0;
-    return (maxRenteMensuelle * years / 44).clamp(0, maxRenteMensuelle);
+    final currentAge = profile.ageOrNull;
+    return AvsCalculator.computeMonthlyRente(
+      // Si l'âge est inconnu, on borne sur les années cotisées seules :
+      // currentAge=années garantit gapFactor dérivé d'anneesContribuees.
+      currentAge: currentAge ?? years,
+      retirementAge: profile.effectiveRetirementAge,
+      anneesContribuees: years,
+      grossAnnualSalary: profile.revenuBrutAnnuel,
+    );
   }
+
+  /// Test seam pour la parité W4 — n'expose pas de logique métier nouvelle,
+  /// pointe simplement vers l'estimateur privé canonique (financial_parity).
+  static double? debugEstimateAvsMonthly(CoachProfile profile) =>
+      _estimateAvsMonthly(profile);
 
   /// Monthly LPP estimate from current avoir via the canonical conversion
   /// base (financial_core L1) : un seul taux de conversion par cas (taux de

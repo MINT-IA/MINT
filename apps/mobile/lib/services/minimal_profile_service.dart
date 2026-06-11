@@ -45,7 +45,18 @@ class MinimalProfileService {
     int? birthYear,
     /// Age d'arrivée en Suisse (si expat). Plumbé jusqu'à l'estimation LPP
     /// pour démarrer l'accumulation à l'arrivée, pas toujours à 25 (LPP art. 7).
+    /// AUSSI transmis à AvsCalculator : une arrivée tardive ⇒ années de
+    /// cotisation réduites ⇒ gapFactor < 1 (LAVS art. 29). Sans lui, l'aperçu
+    /// rendait la rente MAX (2520) pour un Suisse de retour (incohérence ×2
+    /// avec response_card / forecaster — matrice returning_swiss_gaps-1).
     int? arrivalAge,
+    /// Années manquantes au sens AVS (lacunes — LAVS art. 29). Plumbées
+    /// jusqu'à AvsCalculator pour appliquer le gapFactor, exactement comme
+    /// forecaster_service:831 (chemin de référence).
+    int lacunes = 0,
+    /// Années cotisées AVS connues (certificat / dérivation onboarding).
+    /// Si fourni, prime sur la dérivation arrivalAge dans AvsCalculator.
+    int? anneesContribuees,
     /// Droit à la DÉDUCTION fiscale 3a pour cet archétype (plan 08, oracles
     /// expat_us-2 + frontalier-1). False → plafond3a, taxSaving3a et
     /// marginalTaxRate sont émis à 0 : un US person (FATCA) ou un frontalier
@@ -116,6 +127,14 @@ class MinimalProfileService {
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
       retirementAge: effectiveRetAge,
+      // Plumbing du gapFactor : arrivée tardive + lacunes ⇒ années réduites
+      // (LAVS art. 29). Même chemin que forecaster_service:826-835 et
+      // response_card_service:764 — un Suisse de retour (arrivalAge=43) voit
+      // désormais ~1260 CHF/mois, plus jamais la rente MAX 2520 (gapFactor=1.0
+      // forcé). Matrice returning_swiss_gaps-1 + §2 « Rente AVS ».
+      arrivalAge: arrivalAge,
+      anneesContribuees: anneesContribuees,
+      lacunes: lacunes,
       grossAnnualSalary: avsGrossSalary,
       isFemale: gender != null ? gender == 'F' : null,
       birthYear: gender != null ? effectiveBirthYear : null,

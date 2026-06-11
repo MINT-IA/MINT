@@ -28,6 +28,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/financial_core/archetype_predicates.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/replacement_rate.dart';
@@ -1379,6 +1380,139 @@ void main() {
         isTrue,
         reason: 'salarié suisse : délègue au fallback (true)',
       );
+    });
+  });
+
+  // ── W4 — Rente AVS : lacunes plumbées + parité cap_sequence/canonique ──
+  //
+  // returning_swiss_gaps-1 + §2 « Rente AVS » de la matrice : le gapFactor
+  // dérivé d'arrivalAge/lacunes ne doit plus être ignoré silencieusement.
+  // minimal_profile (aperçu onboarding) et cap_sequence_engine (impact
+  // estimates) doivent rendre la MÊME rente que la source canonique
+  // AvsCalculator — plus jamais la rente MAX 2520 forcée (gapFactor=1.0).
+  group('Parity W4 — Rente AVS', () {
+    test(
+        'minimal_profile — arrivalAge=43 plumbé : rente == AvsCalculator '
+        'avec lacunes (≈1260), plus jamais 2520', () {
+      const age = 48;
+      const gross = 120000.0;
+      const canton = 'GE';
+      const arrivalAge = 43;
+
+      // Source canonique (financial_core L1) — le même appel que
+      // response_card_service:764 / forecaster_service:826.
+      final canonical = AvsCalculator.computeMonthlyRente(
+        currentAge: age,
+        retirementAge: avsAgeReferenceHomme,
+        arrivalAge: arrivalAge,
+        grossAnnualSalary: gross,
+      );
+
+      final result = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        arrivalAge: arrivalAge,
+      );
+
+      // La rente AVS de l'aperçu doit être EXACTEMENT la canonique.
+      expect(result.avsMonthlyRente, closeTo(canonical, 0.01),
+          reason: 'minimal_profile doit transmettre arrivalAge à '
+              'AvsCalculator (gapFactor dérivé d\'arrivée tardive)');
+
+      // Régression du bug : un Suisse de retour arrivé à 43 ans ne voit
+      // PLUS la rente MAX. 2520 = rente max mensuelle (carrière complète).
+      expect(result.avsMonthlyRente, lessThan(2000),
+          reason: 'arrivée à 43 ans ⇒ lacunes ⇒ rente nettement < max '
+              '(plus de gapFactor=1.0 forcé)');
+    });
+
+    test(
+        'minimal_profile — sans arrivalAge (carrière complète) : pas de '
+        'régression', () {
+      const age = 48;
+      const gross = 120000.0;
+
+      final canonical = AvsCalculator.computeMonthlyRente(
+        currentAge: age,
+        retirementAge: avsAgeReferenceHomme,
+        grossAnnualSalary: gross,
+      );
+
+      final result = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: 'GE',
+        employmentStatus: 'salarie',
+      );
+
+      expect(result.avsMonthlyRente, closeTo(canonical, 0.01),
+          reason: 'profil sans lacunes : rente inchangée (pas de régression)');
+    });
+
+    test(
+        'cap_sequence._estimateAvsMonthly — délègue à AvsCalculator '
+        '(RAMD + années réelles), plus la formule plate 2520×years/44', () {
+      // Profil avec carrière complète (44 ans) mais RAMD modeste (50000).
+      // L'ancienne formule plate rendait 2520 (income-blind) ; la canonique
+      // module par RAMD → nettement moins (surestimation +655..+998/mois
+      // documentée §2).
+      const grossMonthly = 50000.0 / 12;
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 50,
+        canton: 'ZH',
+        salaireBrutMensuel: grossMonthly,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          anneesContribuees: 44,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(DateTime.now().year + 15),
+          label: 'Retraite',
+        ),
+      );
+
+      final canonical = AvsCalculator.computeMonthlyRente(
+        currentAge: 50,
+        retirementAge: profile.effectiveRetirementAge,
+        anneesContribuees: 44,
+        grossAnnualSalary: 50000.0,
+      );
+
+      final estimate = CapSequenceEngine.debugEstimateAvsMonthly(profile);
+
+      expect(estimate, isNotNull);
+      expect(estimate!, closeTo(canonical, 0.01),
+          reason: 'cap_sequence doit déléguer à AvsCalculator (RAMD-based), '
+              'plus la formule plate income-blind');
+
+      // Régression du bug : la formule plate 2520×44/44 rendait 2520.
+      // La canonique RAMD-based avec RAMD=50000 est sensiblement < 2520.
+      expect(estimate, lessThan(2520),
+          reason: 'RAMD=50000 ⇒ rente < max ; l\'ancienne formule plate '
+              'rendait 2520 (income-blind)');
+    });
+
+    test(
+        'cap_sequence._estimateAvsMonthly — années nulles → null (pas de '
+        'régression du contrat existant)', () {
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 50,
+        canton: 'ZH',
+        salaireBrutMensuel: 8000,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(DateTime.now().year + 15),
+          label: 'Retraite',
+        ),
+      );
+
+      expect(CapSequenceEngine.debugEstimateAvsMonthly(profile), isNull,
+          reason: 'pas d\'années cotisées connues → pas d\'estimation');
     });
   });
 }

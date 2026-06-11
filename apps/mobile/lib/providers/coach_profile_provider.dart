@@ -1236,23 +1236,20 @@ class CoachProfileProvider extends ChangeNotifier {
       prevoyanceFallback: true,
     );
 
-    // Compute smart estimates via MinimalProfileService (financial_core)
-    // so the aperçu financier shows realistic values instead of zeros.
-    final minimal = MinimalProfileService.compute(
-      age: age,
-      grossSalary: clampedGrossSalary,
-      canton: canton,
-      canContribute3a: canContribute3a,
-    );
-
     // AVS contribution years (LAVS art. 29 — cotisations dès 21 ans).
+    // Dérivé AVANT le calcul minimal_profile : ces années (et l'âge d'arrivée
+    // pour un expat) pilotent le gapFactor d'AvsCalculator. Sans plumbing,
+    // l'aperçu rendait la rente MAX (2520) pour un Suisse de retour / expat
+    // arrivé tardivement (incohérence ×2 — matrice returning_swiss_gaps-1).
     final int rawAvsYears;
+    int? minimalArrivalAge;
     if (isReturningSwiss) {
       // Reduced by time abroad
       rawAvsYears = (age - 20) - (yearsAbroad ?? 0);
     } else if (isExpat) {
       // Contributions start from max(arrivalAge, 21)
       final arrivalAge = arrivalYear - birthYear;
+      minimalArrivalAge = arrivalAge;
       final startAge = arrivalAge > 21 ? arrivalAge : 21;
       rawAvsYears = age - startAge;
     } else {
@@ -1262,6 +1259,19 @@ class CoachProfileProvider extends ChangeNotifier {
     final avsContributionYears = rawAvsYears.clamp(0, 44);
     // Flag when the raw value was outside [0, 44] so UI can inform the user.
     final bool avsYearsWereClamped = rawAvsYears != avsContributionYears;
+
+    // Compute smart estimates via MinimalProfileService (financial_core)
+    // so the aperçu financier shows realistic values instead of zeros.
+    // anneesContribuees/arrivalAge plumbés ⇒ gapFactor honoré (le même chiffre
+    // que response_card / forecaster — plus de divergence intra-app).
+    final minimal = MinimalProfileService.compute(
+      age: age,
+      grossSalary: clampedGrossSalary,
+      canton: canton,
+      canContribute3a: canContribute3a,
+      arrivalAge: minimalArrivalAge,
+      anneesContribuees: avsContributionYears,
+    );
 
     final answers = <String, dynamic>{
       if (firstName != null && firstName.isNotEmpty) 'q_firstname': firstName,
