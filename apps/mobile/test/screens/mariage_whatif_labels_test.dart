@@ -188,4 +188,131 @@ void main() {
               'un divorcé en concubinage déclaré (household=couple) garde son conjoint réel');
     });
   });
+
+  // ───────────────────────────────────────────────────────────────────
+  //  Ghost conjoint — directions P1/P2 (Codex W5 review)
+  //
+  //  L'onboarding V2 (MintSceneEtatCivil → onboarding_provider.dart) n'écrit
+  //  QUE `q_civil_status`, jamais `q_household_type`. Keyer le gate sur le seul
+  //  `q_household_type` cassait dans deux directions :
+  //    [P1] `q_household_type=single` PÉRIMÉ + `q_civil_status=marié` FRAIS +
+  //         vrai conjoint → le vrai conjoint était silencieusement supprimé.
+  //    [P2] `q_household_type` ABSENT + `q_civil_status` non-couple + clés
+  //         `q_partner_*` résiduelles → conjoint fantôme toujours ressuscité.
+  //  Le fix lit les DEUX signaux, l'état civil frais primant.
+  // ───────────────────────────────────────────────────────────────────
+  group('Ghost conjoint — état civil frais prime sur household périmé (W5)', () {
+    test(
+        '[P1] q_household_type=single PÉRIMÉ + q_civil_status=marie FRAIS + vrai conjoint → conjoint conservé',
+        () {
+      // Profil V2 : onboarding réécrit q_civil_status=marie après un ancien
+      // q_household_type=single persisté. Le vrai conjoint NE doit PAS être
+      // supprimé — l'état civil frais (marié) prime sur le household périmé.
+      final answers = {
+        'q_birth_year': 1985,
+        'q_household_type': 'single', // périmé, non purgé côté stockage
+        'q_civil_status': 'marie', // frais (V2 MintSceneEtatCivil)
+        'q_partner_net_income_chf': 5000.0,
+        'q_partner_birth_year': 1987,
+        'q_partner_employment_status': 'salarie',
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.conjoint, isNotNull,
+          reason:
+              'P1 : un état civil marié frais doit reconstruire le vrai conjoint malgré un q_household_type=single périmé');
+    });
+
+    test(
+        '[P2] q_household_type ABSENT + q_civil_status non-couple + clés q_partner_* résiduelles → AUCUN conjoint',
+        () {
+      // Profil V2 : aucun q_household_type écrit. État civil non-couple +
+      // résidus q_partner_* d'un ancien couple → conjoint fantôme historique
+      // (bug W2 jamais corrigé pour les profils de forme V2).
+      final answers = {
+        'q_birth_year': 1985,
+        // q_household_type ABSENT (onboarding V2 ne l'écrit pas)
+        'q_civil_status': 'divorce',
+        'q_partner_net_income_chf': 5000.0,
+        'q_partner_birth_year': 1987,
+        'q_partner_employment_status': 'salarie',
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.conjoint, isNull,
+          reason:
+              'P2 : un état civil non-couple sans q_household_type ne doit JAMAIS ressusciter un conjoint depuis des clés résiduelles');
+    });
+
+    test(
+        '[P2-célibataire] q_household_type ABSENT + q_civil_status=celibataire + résidus → AUCUN conjoint',
+        () {
+      final answers = {
+        'q_birth_year': 1985,
+        // q_household_type ABSENT
+        'q_civil_status': 'celibataire',
+        'q_partner_net_income_chf': 4800.0,
+        'q_partner_birth_year': 1988,
+        'q_partner_employment_status': 'salarie',
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.conjoint, isNull,
+          reason:
+              'P2 : un célibataire (V2, sans household) ne doit pas ressusciter un conjoint fantôme');
+    });
+
+    test(
+        '[divorcé+couple, V2] q_household_type=couple explicite + q_civil_status=divorce → conjoint conservé',
+        () {
+      // Propriété plan 17 préservée : un divorcé qui déclare household=couple
+      // garde son conjoint réel, même avec le nouveau gate.
+      final answers = {
+        'q_birth_year': 1985,
+        'q_household_type': 'couple', // déclaration explicite vie de couple
+        'q_civil_status': 'divorce',
+        'q_partner_net_income_chf': 4200.0,
+        'q_partner_birth_year': 1986,
+        'q_partner_employment_status': 'salarie',
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.conjoint, isNotNull,
+          reason:
+              'un divorcé qui déclare explicitement household=couple garde son conjoint réel (propriété plan 17)');
+    });
+
+    test(
+        '[état civil absent — legacy] aucun q_civil_status + q_household_type=single + résidus → AUCUN conjoint',
+        () {
+      // Profils legacy (avant V2) : pas de q_civil_status. Comportement
+      // historique préservé — on exclut le seul household=single explicite.
+      final answers = {
+        'q_birth_year': 1985,
+        'q_household_type': 'single',
+        // q_civil_status ABSENT (profil legacy)
+        'q_partner_net_income_chf': 5000.0,
+        'q_partner_birth_year': 1987,
+        'q_partner_employment_status': 'salarie',
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.conjoint, isNull,
+          reason:
+              'legacy : sans état civil, on exclut le household=single explicite (comportement historique)');
+    });
+
+    test(
+        '[état civil absent — legacy] aucun q_civil_status + aucun q_household_type + résidus → conjoint conservé (legacy allow)',
+        () {
+      // Profils legacy sans aucun signal de ménage : comportement historique
+      // = legacy allow (pas de régression sur les anciens profils couple).
+      final answers = {
+        'q_birth_year': 1985,
+        // ni q_civil_status ni q_household_type
+        'q_partner_net_income_chf': 5000.0,
+        'q_partner_birth_year': 1987,
+        'q_partner_employment_status': 'salarie',
+      };
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.conjoint, isNotNull,
+          reason:
+              'legacy allow : sans aucun signal de ménage, les anciens profils couple ne régressent pas');
+    });
+  });
 }

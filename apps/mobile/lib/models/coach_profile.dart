@@ -3150,18 +3150,46 @@ class CoachProfile {
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
     final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
     final conjEmployment = answers['q_partner_employment_status'] as String?;
-    // Ghost-conjoint gate (Codex W2 review) : ne reconstruire un conjoint que
-    // si le MÉNAGE est cohérent avec une vie de couple. Un user qui repasse en
-    // « single » (ou qui divorce en quittant le couple) peut garder des clés
+    // Ghost-conjoint gate (Codex W2 + W5 review) : ne reconstruire un conjoint
+    // que si le ménage est cohérent avec une vie de couple. Un user qui repasse
+    // en « single » (ou qui divorce en quittant le couple) peut garder des clés
     // `q_partner_*` résiduelles non purgées côté stockage ; sans ce gate,
     // fromWizardAnswers ressuscitait un conjoint fantôme (AVS couple cap 150 %
-    // appliqué à un célibataire). On se cale sur l'état déclaré du ménage —
-    // pas sur l'état civil seul : un divorcé PEUT vivre en couple, donc on
-    // exclut UNIQUEMENT le ménage explicitement déclaré « single ».
-    final householdSingle =
-        (answers['q_household_type'] as String?)?.trim().toLowerCase() ==
-            'single';
-    final hasConjointData = !householdSingle &&
+    // appliqué à un célibataire).
+    //
+    // Le gate lit DEUX signaux, l'état civil frais primant sur un éventuel
+    // `q_household_type` périmé : l'onboarding V2 (MintSceneEtatCivil) n'écrit
+    // QUE `q_civil_status`, jamais `q_household_type`. Se caler sur le seul
+    // `q_household_type` cassait dans deux directions (W5) :
+    //   [P1] `q_household_type=single` périmé + `q_civil_status=marié` frais +
+    //        vrai conjoint → le vrai conjoint était silencieusement supprimé.
+    //   [P2] `q_household_type` ABSENT + `q_civil_status` non-couple + clés
+    //        `q_partner_*` résiduelles → conjoint fantôme toujours ressuscité.
+    //
+    // Règle :
+    //   - état civil = couple (marié/concubinage/pacsé) → AUTORISER même si un
+    //     `q_household_type=single` périmé persiste (l'état civil frais gagne).
+    //   - état civil = non-couple (célibataire/divorcé/veuf) → SUPPRIMER SAUF si
+    //     `q_household_type == 'couple'` explicite (un divorcé PEUT vivre en
+    //     couple déclaré — propriété conservée du plan 17).
+    //   - état civil absent → comportement historique : on n'exclut que le
+    //     ménage explicitement déclaré « single » (les deux absents = legacy
+    //     allow, pas de régression sur les anciens profils).
+    final householdRaw =
+        (answers['q_household_type'] as String?)?.trim().toLowerCase();
+    final householdCouple = householdRaw == 'couple';
+    final civilStatusPartnered = etatCivil == CoachCivilStatus.marie ||
+        etatCivil == CoachCivilStatus.concubinage;
+    final bool householdConsistentWithCouple;
+    if (civilStatusRaw != null) {
+      // L'état civil frais prime sur un éventuel `q_household_type` périmé.
+      householdConsistentWithCouple = civilStatusPartnered || householdCouple;
+    } else {
+      // État civil absent : comportement historique (exclure le seul
+      // `q_household_type=single` explicite).
+      householdConsistentWithCouple = householdRaw != 'single';
+    }
+    final hasConjointData = householdConsistentWithCouple &&
         ((partnerIncome != null && partnerIncome > 0) ||
             partnerBirthYear != null ||
             answers.containsKey('q_spouse_avs_contribution_years') ||
