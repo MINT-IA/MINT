@@ -1514,5 +1514,89 @@ void main() {
       expect(CapSequenceEngine.debugEstimateAvsMonthly(profile), isNull,
           reason: 'pas d\'années cotisées connues → pas d\'estimation');
     });
+
+    test(
+        'cap_sequence._estimateAvsMonthly — arrivalAge=43 sans anneesContribuees '
+        '→ parité avec minimal_profile (Codex W4 P3)', () {
+      // Suisse de retour arrivé à 43 ans, aucune année cotisée renseignée.
+      // Avant le fix, cap_sequence ignorait arrivalAge → rente divergente
+      // (souvent la rente max) ; minimal_profile la plumbait déjà (plan 13).
+      const age = 48;
+      const gross = 120000.0;
+      const arrivalAge = 43;
+      final birthYear = DateTime.now().year - age;
+
+      final profile = CoachProfile(
+        birthYear: birthYear,
+        canton: 'GE',
+        salaireBrutMensuel: gross / 12,
+        employmentStatus: 'salarie',
+        arrivalAge: arrivalAge,
+        prevoyance: const PrevoyanceProfile(), // anneesContribuees == null
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(DateTime.now().year + (avsAgeReferenceHomme - age)),
+          label: 'Retraite',
+        ),
+      );
+
+      // Référence : l'aperçu onboarding canonique (MinimalProfileService).
+      final minimal = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: 'GE',
+        employmentStatus: 'salarie',
+        arrivalAge: arrivalAge,
+      );
+
+      final capSequence = CapSequenceEngine.debugEstimateAvsMonthly(profile);
+
+      expect(capSequence, isNotNull,
+          reason: 'arrivalAge connu + âge connu → estimation possible');
+      expect(capSequence!, closeTo(minimal.avsMonthlyRente, 0.01),
+          reason: 'cap_sequence doit transmettre arrivalAge à AvsCalculator — '
+              'parité au centime avec l\'estimateur minimal canonique');
+      // Régression du bug : un retour à 43 ans ⇒ lacunes ⇒ rente < max.
+      expect(capSequence, lessThan(2000),
+          reason: 'arrivalAge=43 ⇒ gapFactor < 1 ⇒ plus de rente max forcée');
+    });
+
+    test(
+        'cap_sequence._estimateAvsMonthly — lacunesAVS plumbées : parité '
+        'avec AvsCalculator (Codex W4 P3)', () {
+      const age = 50;
+      const gross = 90000.0;
+      const lacunes = 4;
+
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - age,
+        canton: 'VD',
+        salaireBrutMensuel: gross / 12,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          anneesContribuees: 30,
+          lacunesAVS: lacunes,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(DateTime.now().year + 15),
+          label: 'Retraite',
+        ),
+      );
+
+      final canonical = AvsCalculator.computeMonthlyRente(
+        currentAge: age,
+        retirementAge: profile.effectiveRetirementAge,
+        anneesContribuees: 30,
+        lacunes: lacunes,
+        grossAnnualSalary: gross,
+      );
+
+      final estimate = CapSequenceEngine.debugEstimateAvsMonthly(profile);
+
+      expect(estimate, isNotNull);
+      expect(estimate!, closeTo(canonical, 0.01),
+          reason: 'cap_sequence doit transmettre lacunesAVS à AvsCalculator');
+    });
   });
 }

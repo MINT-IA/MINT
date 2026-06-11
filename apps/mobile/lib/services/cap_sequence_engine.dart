@@ -614,17 +614,46 @@ class CapSequenceEngine {
   /// CHF/mois pour les bas RAMD — matrice §2 « Rente AVS »). On délègue à
   /// AvsCalculator (RAMD + années réelles, échelle 44 LAVS art. 34) — un seul
   /// estimateur AVS canonique dans toute l'app.
+  ///
+  /// Codex W4 P3 — parité avec MinimalProfileService.compute (plan 13) :
+  /// arrivalAge, lacunesAVS, genre et année de naissance sont désormais
+  /// transmis. Sans cela, un Suisse de retour (arrivalAge=43) ou un profil avec
+  /// lacunesAVS sortait une rente divergente de l'estimateur minimal canonique.
   static double? _estimateAvsMonthly(CoachProfile profile) {
     final years = profile.prevoyance.anneesContribuees;
-    if (years == null || years <= 0) return null;
+    final arrivalAge = profile.arrivalAge;
     final currentAge = profile.ageOrNull;
+
+    // Contrat null inchangé : sans base de cotisation connue (ni années
+    // cotisées > 0, ni arrivalAge exploitable), pas d'estimation. arrivalAge
+    // pilote la base uniquement si l'âge réel est connu (currentAge - arrivalAge).
+    final hasYears = years != null && years > 0;
+    final hasArrivalBasis =
+        arrivalAge != null && arrivalAge > 20 && currentAge != null;
+    if (!hasYears && !hasArrivalBasis) return null;
+
+    // Année de naissance effective, dérivée comme MinimalProfileService :
+    // birthYear renseigné (sentinelle « 0 » = non renseigné, cf. ageOrNull),
+    // sinon (année courante − âge). Sert l'âge de référence AVS21 (64F/65M)
+    // quand le genre est connu.
+    final rawBirthYear = profile.birthYear;
+    final effectiveBirthYear = rawBirthYear >= 1900
+        ? rawBirthYear
+        : (currentAge != null ? DateTime.now().year - currentAge : null);
+
     return AvsCalculator.computeMonthlyRente(
-      // Si l'âge est inconnu, on borne sur les années cotisées seules :
-      // currentAge=années garantit gapFactor dérivé d'anneesContribuees.
-      currentAge: currentAge ?? years,
+      // Si l'âge est inconnu mais qu'on a les années cotisées, currentAge=années
+      // garantit un gapFactor dérivé d'anneesContribuees (AvsCalculator ignore
+      // alors arrivalAge). Si arrivalAge pilote la base, currentAge réel est
+      // requis pour (currentAge - arrivalAge) — d'où le fallback prudent.
+      currentAge: currentAge ?? years ?? 0,
       retirementAge: profile.effectiveRetirementAge,
       anneesContribuees: years,
+      arrivalAge: arrivalAge,
+      lacunes: profile.prevoyance.lacunesAVS ?? 0,
       grossAnnualSalary: profile.revenuBrutAnnuel,
+      isFemale: profile.gender != null ? profile.gender == 'F' : null,
+      birthYear: profile.gender != null ? effectiveBirthYear : null,
     );
   }
 
