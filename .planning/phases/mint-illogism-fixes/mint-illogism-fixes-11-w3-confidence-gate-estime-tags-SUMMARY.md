@@ -160,5 +160,51 @@ Caveat   : end-to-end UNKNOWN — pas de walkthrough sim ; tests verts ≠ featu
 - Commits exist: `43f32b713`, `e37c67ce5`, `ad2e4c86e`, `fe676d0f2`.
 
 ---
+
+## Post-review gap closure (Codex W3)
+
+Une revue indépendante (Codex CLI) de la vague W3 mergée (plans 09/10/11, tous touchant `RenteVsCapitalScreen` + la confiance) a relevé **1 P1 + 2 P2**, vérifiés par l'orchestrateur. Les trois sont corrigés ici, un commit par finding, avec tests prouvant le chemin cassé. Ce sont des régressions/portées-manquantes révélées par les fixes W3 eux-mêmes (notamment la suppression du plancher fiction 50.0 au plan 11 et la suppression des défauts fiction au plan 10) — pas une remise en cause des décisions du plan.
+
+### Finding 1 (P1) — Le prefill de route RvC n'était jamais appliqué (flux coach/séquence ouvre un écran vide)
+
+- **Cause** : `rente_vs_capital_screen.dart` — le `postFrameCallback` de `initState` ne faisait que **stocker** `_goRouterPrefill`, sans jamais l'appliquer. `_autoFillFromProfile()` (one-shot depuis `didChangeDependencies`) tourne AVANT la première frame, donc son `if (_goRouterPrefill != null) _applyPrefill(...)` voyait toujours `null`. Le early-return `profile == null` sautait aussi le prefill entièrement. Avant le plan 10, les défauts fiction masquaient le bug ; après (contrôleurs vides), un RvC pré-rempli par le coach (`RouteSuggestionCard` pousse `GoRouterState.extra = {'prefill': {...}}`) **ouvrait VIDE** et ne calculait rien.
+- **Fix** : appliquer le prefill directement dans le `postFrameCallback` (seul endroit où l'`extra` GoRouter est lisible), **indépendamment de la présence d'un profil**. Il tourne après l'auto-fill profil → l'invariant « les valeurs coach gagnent sur l'auto-fill profil » est préservé. Le champ write-only `_goRouterPrefill` + la branche redondante de `_autoFillFromProfile` sont retirés (Karpathy #3).
+- **Test** : `apps/mobile/test/screens/rente_vs_capital_prefill_test.dart` — pump l'écran avec `extra.prefill` et SANS profil → le champ avoir LPP est rempli (240000), pas d'état vide, le moteur calcule. RED→GREEN cité (échec « empty-state shown » → +2 green).
+- **Commit** : `b4ed7dea4`.
+
+### Finding 2 (P2) — Le Confidence Gate classait toute fact card sourcée comme financière
+
+- **Cause** : `widget_renderer.dart:207` — `isFinancial = p['is_financial'] == true || p['source'] != null`. Or `coach_tools.py` (`:152,159`) **exige** `source` (« Legal or official source ») sur chaque `show_fact_card` → TOUTES les fact cards (légales/éducatives incluses) étaient classées financières et gatées par la confiance du profil. Une carte purement légale (« le pilier 3a est déductible — LIFD art. 33 ») était **masquée** quand la confiance < 50.
+- **Fix** : gater uniquement sur des signaux de chiffre financier réel : `is_financial == true`, OU une source de type estimateur (`estimated`/`system_estimate`/`systemEstimate`), OU la valeur affichée (`value`/`highlight_value`) contenant un nombre/motif CHF (`_looksFinancial`). Une citation légale statique sans chiffre ne déclenche plus le gate. Le badge « estimé » des sources estimateur est préservé.
+- **Test** : `apps/mobile/test/widgets/home_hero_confidence_test.dart` (étendu) — carte légale-source rendue **non gatée** à confiance basse (≈30) ; carte `is_financial:true` et carte avec figure CHF restent gatées (invariant D2). RED→GREEN cité (échec « gated_cta found » sur la carte légale → +7 green).
+- **Commit** : `fd3e8814f`.
+
+### Finding 3 (P2) — La suppression du plancher 50 fuyait une confiance 0% sur les autres écrans d'arbitrage
+
+- **Cause** : `arbitrage_engine.dart` — le fallback `_computeArbitrageConfidence` renvoie désormais `0.0` avec dataSources vides/absentes (plancher 50.0 retiré au plan 11). RvC a été câblé sur `canonicalConfidence`, mais allocation/location appelaient le moteur inchangé et rendaient `result.confidenceScore` directement → un what-if standalone (sans profil) affichait une bannière « Résultat indicatif (0 % de fiabilité) » — un changement de comportement hors scope RvC du plan 11.
+- **Fix (honnête, pas fiction)** : `canonicalConfidence` ajouté à `compareAllocationAnnuelle` + `compareLocationVsPropriete` et câblé aux deux écrans (`ConfidenceScorer.scoreEnhanced(profile).combined` quand un profil existe — un profil = un score, D12 généralisé). En usage standalone (pas de profil → pas de score canonique ET pas de dataSources), l'écran **ne rend PAS de bannière** plutôt qu'un 0%. **Aucun retour du plancher fiction 50.**
+- **Test** : `apps/mobile/test/screens/arbitrage/allocation_confidence_test.dart` + `location_confidence_test.dart` — avec profil → score canonique reflété + bannière affichée ; sans profil/dataSources → aucune bannière 0% ; le moteur ne renvoie jamais le plancher 50. RED→GREEN cité (échec compile « No named parameter canonicalConfidence » → +7 green).
+- **Commit** : `9ee290814`.
+
+### Verification (0-TRUST)
+
+```
+Evidence : flutter analyze (rente_vs_capital_screen + widget_renderer + arbitrage_engine + allocation_annuelle_screen + location_vs_propriete_screen) → "No issues found!"
+Evidence : flutter test (rente_vs_capital_defaults + rente_vs_capital_semantics + rente_vs_capital_prefill + home_hero_confidence + services/financial_core/ + screens/arbitrage/) → "00:05 +599: All tests passed!"
+Evidence : flutter test (widget_renderer_test + check_in_tool_test) → "00:00 +22: All tests passed!" (régression surface finding 2)
+Evidence : flutter test (arbitrage_summary_service_test) → "00:00 +22: All tests passed!" (le param optionnel ne casse pas l'autre appelant production)
+Evidence : RED→GREEN par finding — F1 echec « empty-state shown » (+0 -2) → +2 ; F2 echec « gated_cta found sur carte légale » (+0 -1) → +7 ; F3 echec compile « No named parameter » → +7
+Caveat   : end-to-end UNKNOWN — pas de walkthrough sim (build iOS depuis worktree .nosync isolé, comme W1/W2). Tests verts ≠ feature working (§9.2). STATE.md / ROADMAP.md non modifiés (hors scope de cette gap-closure).
+```
+
+### Self-Check (Codex W3 gap closure): PASSED
+
+- Created file exists: `apps/mobile/test/screens/rente_vs_capital_prefill_test.dart`
+- Created file exists: `apps/mobile/test/screens/arbitrage/allocation_confidence_test.dart`
+- Created file exists: `apps/mobile/test/screens/arbitrage/location_confidence_test.dart`
+- Commits exist: `b4ed7dea4` (F1), `fd3e8814f` (F2), `9ee290814` (F3).
+
+---
 *Phase: mint-illogism-fixes*
 *Completed: 2026-06-11*
+*Codex W3 gap closure: 2026-06-11*
