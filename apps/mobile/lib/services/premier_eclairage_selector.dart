@@ -50,7 +50,10 @@ class PremierEclairageSelector {
     if (profile.liquidityMonths < 2 &&
         profile.currentSavings >= 0 &&
         (!savingsEstimated || profile.liquidityMonths < 1)) {
-      return _withConfidence(_buildLiquidityChoc(profile), profile);
+      return _withConfidence(
+        _buildLiquidityChoc(profile, savingsEstimated: savingsEstimated),
+        profile,
+      );
     }
 
     // Retirement gap: relevant from age 30+ (below that, it's too abstract)
@@ -246,19 +249,32 @@ class PremierEclairageSelector {
   // Chiffre choc builders
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static PremierEclairage _buildLiquidityChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildLiquidityChoc(
+    MinimalProfileResult profile, {
+    bool savingsEstimated = false,
+  }) {
+    // jeune_diplome-5 : quand l'epargne (donc les mois de liquidite) vient de
+    // l'estimateur age×salaire (0 dur a 25 ans), on ne presente PAS « 0 mois »
+    // comme une mesure : tag estime + cadrage pedagogique (pas de fausse
+    // precision sur un artefact d'estimation).
+    const estimatedNote =
+        ' Reserve estimee — saisis ton epargne reelle pour affiner.';
+    final base = profile.liquidityMonths < 1
+        ? 'Moins d\'un mois de reserves. '
+            'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.'
+        : '${profile.liquidityMonths.toStringAsFixed(1)} mois de reserves. '
+            'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.';
     return PremierEclairage(
       type: PremierEclairageType.liquidityAlert,
       value: '${profile.liquidityMonths.toStringAsFixed(1)} mois',
       rawValue: profile.liquidityMonths,
       title: 'Ta reserve de liquidite',
-      subtitle: profile.liquidityMonths < 1
-          ? 'Moins d\'un mois de reserves. '
-              'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.'
-          : '${profile.liquidityMonths.toStringAsFixed(1)} mois de reserves. '
-              'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.',
+      subtitle: savingsEstimated ? '$base$estimatedNote' : base,
       iconName: 'warning_amber',
       colorKey: 'error',
+      confidenceMode: savingsEstimated
+          ? PremierEclairageConfidence.pedagogical
+          : PremierEclairageConfidence.factual,
     );
   }
 

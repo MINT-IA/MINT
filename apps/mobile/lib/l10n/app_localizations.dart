@@ -3225,6 +3225,36 @@ abstract class S {
   /// **'manquant'**
   String get budgetQualityMissing;
 
+  /// Hero fact card gated state title when confidence < 50 (SOT §5 Confidence Gate)
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée à compléter'**
+  String get heroFactGatedTitle;
+
+  /// Hero fact card gated state CTA pushing the user to add data
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour voir ce chiffre'**
+  String get heroFactGatedCta;
+
+  /// Hero fact card uncertainty band note for confidence 50-69
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette indicative — affine avec tes vraies données'**
+  String get heroFactUncertaintyNote;
+
+  /// Tag shown on archetype-dependent figures when employment status is unknown
+  ///
+  /// In fr, this message translates to:
+  /// **'hypothèse : salarié'**
+  String get heroFactEmploymentAssumption;
+
+  /// Note on liquidity months when derived from an estimated savings value (jeune_diplome-5)
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve estimée — saisis ton épargne réelle'**
+  String get liquidityEstimatedNote;
+
   /// No description provided for @budgetAvailable.
   ///
   /// In fr, this message translates to:

@@ -791,6 +791,26 @@
   "budgetOtherFixed": "Autres charges fixes",
   "budgetQualityEstimated": "estimé",
   "budgetQualityMissing": "manquant",
+  "heroFactGatedTitle": "Donnée à compléter",
+  "@heroFactGatedTitle": {
+    "description": "Hero fact card gated state title when confidence < 50 (SOT §5 Confidence Gate)"
+  },
+  "heroFactGatedCta": "Complète ton profil pour voir ce chiffre",
+  "@heroFactGatedCta": {
+    "description": "Hero fact card gated state CTA pushing the user to add data"
+  },
+  "heroFactUncertaintyNote": "Fourchette indicative — affine avec tes vraies données",
+  "@heroFactUncertaintyNote": {
+    "description": "Hero fact card uncertainty band note for confidence 50-69"
+  },
+  "heroFactEmploymentAssumption": "hypothèse : salarié",
+  "@heroFactEmploymentAssumption": {
+    "description": "Tag shown on archetype-dependent figures when employment status is unknown"
+  },
+  "liquidityEstimatedNote": "Réserve estimée — saisis ton épargne réelle",
+  "@liquidityEstimatedNote": {
+    "description": "Note on liquidity months when derived from an estimated savings value (jeune_diplome-5)"
+  },
   "budgetAvailable": "Disponible",
   "budgetEnvelopeFuture": "🔒 Futur (Épargne, Projets)",
   "budgetEnvelopeVariables": "🛍️ Variables (Vivre)",

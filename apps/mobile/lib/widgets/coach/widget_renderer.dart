@@ -5,6 +5,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
@@ -181,7 +182,59 @@ class WidgetRenderer {
           p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
       description: p['description'] as String? ?? p['content'] as String? ?? '',
       onTap: route != null ? () => context.push(route) : null,
+      confidenceState: _factConfidenceState(context, p),
     );
+  }
+
+  /// Derive the Confidence Gate state for a hero fact card (SOT \u00a75, D2).
+  ///
+  /// A financial figure (`is_financial: true`, or an explicit `source`) is
+  /// gated by the profile's canonical confidence (`EnhancedConfidence.combined`)
+  /// AND its data source \u2014 a hero number must NEVER appear nu when it comes from
+  /// an estimator or when confidence is below the SOT \u00a75 gate :
+  ///   - combined < 50            \u2192 [FactConfidenceState.gated]   (ask for data)
+  ///   - estimator source OR <70  \u2192 [FactConfidenceState.estimated] (tagged)
+  ///   - known source AND >= 70   \u2192 [FactConfidenceState.known]   (bare allowed)
+  ///
+  /// Non-financial fact cards (levier, action du mois\u2026) keep the default
+  /// [FactConfidenceState.known] \u2014 they are not subject to the gate.
+  static FactConfidenceState _factConfidenceState(
+    BuildContext context,
+    Map<String, dynamic> p,
+  ) {
+    // Only financial figures are gated. Backend marks them via `is_financial`
+    // or by providing a `source`. Default: not gated (legacy behaviour).
+    final isFinancial = p['is_financial'] == true || p['source'] != null;
+    if (!isFinancial) return FactConfidenceState.known;
+
+    // Canonical confidence from the same profile every other surface reads.
+    double? combined;
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile != null) {
+        combined = ConfidenceScorer.scoreEnhanced(profile).combined;
+      }
+    } catch (_) {
+      combined = null;
+    }
+    // Backend may override with an explicit confidence (0-100).
+    final explicit = (p['confidence'] as num?)?.toDouble();
+    final score = explicit ?? combined;
+
+    // SOT \u00a75 gate.
+    if (score != null && score < 50) return FactConfidenceState.gated;
+
+    // Estimator-sourced values are always tagged (never nu), even >= 50.
+    final source = p['source'] as String?;
+    final isEstimated = source == 'estimated' ||
+        source == 'system_estimate' ||
+        source == 'systemEstimate';
+    if (isEstimated) return FactConfidenceState.estimated;
+
+    // Below the high-confidence bar \u2192 uncertainty band (estimated state).
+    if (score != null && score < 70) return FactConfidenceState.estimated;
+
+    return FactConfidenceState.known;
   }
 
   // ────────────────────────────────────────────────────────────

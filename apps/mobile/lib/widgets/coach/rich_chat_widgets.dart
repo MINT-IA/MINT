@@ -1,9 +1,19 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
+
+/// Etat de confiance d'un chiffre vedette (hero), applique le Confidence Gate
+/// de SOT §5 :
+///   - [known]     : source connue/certifiee (combined >= 70) → chiffre nu OK.
+///   - [estimated] : valeur d'estimateur (50-69, ou prefill estime) → chiffre
+///     affiche AVEC le badge « estime » (+ note d'incertitude), jamais nu (D2).
+///   - [gated]     : combined < 50 → le chiffre N'EST PAS affiche ; on pousse
+///     vers la saisie de donnees (l'inverse exact de D2).
+enum FactConfidenceState { known, estimated, gated }
 
 // ────────────────────────────────────────────────────────────
 //  RICH CHAT WIDGETS — S56
@@ -296,6 +306,11 @@ class ChatFactCard extends StatelessWidget {
   final Color? accentColor;
   final VoidCallback? onTap;
 
+  /// Etat de confiance du chiffre vedette (SOT §5 Confidence Gate). Par defaut
+  /// [FactConfidenceState.known] → comportement nu retro-compatible pour les
+  /// fact cards non-financieres (levier, action du mois, etc.).
+  final FactConfidenceState confidenceState;
+
   const ChatFactCard({
     super.key,
     required this.eyebrow,
@@ -303,11 +318,13 @@ class ChatFactCard extends StatelessWidget {
     required this.description,
     this.accentColor,
     this.onTap,
+    this.confidenceState = FactConfidenceState.known,
   });
 
   @override
   Widget build(BuildContext context) {
     final color = accentColor ?? MintColors.textPrimary;
+    final l = S.of(context);
 
     return GestureDetector(
       onTap: onTap,
@@ -325,15 +342,43 @@ class ChatFactCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              eyebrow,
+              // Etat gate : le titre devient « Donnee a completer » plutot que
+              // l'eyebrow du chiffre, pour ne pas laisser croire qu'un chiffre
+              // existe (D2).
+              confidenceState == FactConfidenceState.gated && l != null
+                  ? l.heroFactGatedTitle
+                  : eyebrow,
               style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
             const SizedBox(height: MintSpacing.sm),
-            Text(
-              value,
-              style: MintTextStyles.displaySmall(color: color)
-                  ,
-            ),
+            if (confidenceState == FactConfidenceState.gated)
+              // Confidence Gate (<50) : PAS de chiffre nu — on demande la donnee.
+              _GatedPrompt(label: l?.heroFactGatedCta ?? '')
+            else ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      value,
+                      style: MintTextStyles.displaySmall(color: color),
+                    ),
+                  ),
+                  if (confidenceState == FactConfidenceState.estimated) ...[
+                    const SizedBox(width: MintSpacing.sm),
+                    _EstimatedBadge(label: l?.budgetQualityEstimated ?? 'estimé'),
+                  ],
+                ],
+              ),
+              if (confidenceState == FactConfidenceState.estimated &&
+                  l != null) ...[
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  l.heroFactUncertaintyNote,
+                  style: MintTextStyles.bodySmall(color: MintColors.warning),
+                ),
+              ],
+            ],
             const SizedBox(height: MintSpacing.sm),
             Text(
               description,
@@ -358,6 +403,57 @@ class ChatFactCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Badge « estime » sur un chiffre vedette (pattern Mon Argent generalise — D2).
+class _EstimatedBadge extends StatelessWidget {
+  final String label;
+  const _EstimatedBadge({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('hero_fact_estimated_badge'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.sm,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: MintTextStyles.labelSmall(color: MintColors.warning)
+            .copyWith(fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+/// Etat gate (<50) : pas de chiffre, on pousse vers la saisie (l'inverse de D2).
+class _GatedPrompt extends StatelessWidget {
+  final String label;
+  const _GatedPrompt({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      key: const Key('hero_fact_gated_cta'),
+      children: [
+        const Icon(Icons.lock_outline_rounded,
+            size: 18, color: MintColors.textMuted),
+        const SizedBox(width: MintSpacing.sm),
+        Flexible(
+          child: Text(
+            label,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
     );
   }
 }
