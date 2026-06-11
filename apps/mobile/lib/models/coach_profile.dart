@@ -2104,13 +2104,21 @@ class CoachProfile {
   /// Also delegates to [PrevoyanceProfile.canContribute3a] which may be
   /// set independently (e.g. when profile is loaded from a certificate).
   bool get canContribute3a {
-    // US citizens with FATCA: blocked (most Swiss providers refuse)
-    if (archetype == FinancialArchetype.expatUs) return false;
-    if (nationality == 'US') return false;
-    // FIX-102: Frontaliers GE can deduct 3a if quasi-resident (≥90% Swiss income)
-    // or if they have Swiss employment income (AVS-contributing salary).
-    if (isCrossBorder && revenuBrutAnnuel > 0) return true;
-    return prevoyance.canContribute3a;
+    // Prédicat partagé (financial_core) — source of truth unique consommée
+    // aussi par MinimalProfileService.compute() (CLAUDE.md NEVER #3). Avant le
+    // plan 08, la branche frontalier accordait la déduction à TOUT frontalier
+    // salarié (`isCrossBorder && revenuBrutAnnuel > 0 → true`) SANS test
+    // quasi-résident, contredisant le hub segments_service (frontalier-1).
+    // Désormais : US person bloqué (FATCA) ; frontalier déductible uniquement
+    // si quasi-résident GE (LIPP GE art. 6 al. 1) ; sinon délègue au fallback.
+    return ArchetypePredicates.canContribute3a(
+      isUsPerson:
+          archetype == FinancialArchetype.expatUs || nationality == 'US',
+      isCrossBorder: isCrossBorder,
+      workCanton: canton,
+      grossAnnualIncome: revenuBrutAnnuel,
+      prevoyanceFallback: prevoyance.canContribute3a,
+    );
   }
 
   /// Est-ce un profil couple ?

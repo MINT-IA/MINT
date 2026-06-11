@@ -47,4 +47,44 @@ class ArchetypePredicates {
   /// doit exposer l'état « valeur réelle requise » + dégrader la confiance.
   static bool canEstimateLppByCivilStatus({required bool isDivorced}) =>
       !isDivorced;
+
+  /// SOURCE OF TRUTH du droit à la DÉDUCTION fiscale 3a (plan
+  /// mint-illogism-fixes-08, oracles expat_us-2 + frontalier-1).
+  ///
+  /// Aligne le chemin générique (minimal_profile + coach_profile.canContribute3a)
+  /// sur le hub frontalier dédié (segments_service._add3aRules) qui gate déjà
+  /// correctement. Avant ce plan les deux chemins divergeaient pour le MÊME
+  /// archétype (CLAUDE.md NEVER #3) : le hub gate sur le statut quasi-résident,
+  /// le chemin générique accordait la déduction à TOUT frontalier salarié.
+  ///
+  /// Règles :
+  ///   * US person (FATCA) → false : la plupart des prestataires 3a suisses
+  ///     refusent les US persons (CLAUDE.md NEVER #7).
+  ///   * Frontalier (permis G) → déductible UNIQUEMENT si quasi-résident.
+  ///     Le seul canton offrant ce statut est Genève (LIPP GE art. 6 al. 1 /
+  ///     LIFD art. 83 al. 3 — ≥ 90% des revenus de source suisse + passage à
+  ///     la déclaration ordinaire). Même prédicat que segments_service
+  ///     (`cantonTravail == 'GE'`). Hors GE : « pas de déduction possible »
+  ///     (imposé à la source, OPP3 art. 7 / LIFD art. 33a).
+  ///   * Autres archétypes → on délègue au fallback fourni
+  ///     ([prevoyanceFallback], p.ex. `PrevoyanceProfile.canContribute3a`).
+  ///
+  /// [workCanton] = canton de travail (sur CoachProfile = `canton`). Normalisé
+  /// en amont par l'appelant si nécessaire.
+  static bool canContribute3a({
+    required bool isUsPerson,
+    required bool isCrossBorder,
+    required String? workCanton,
+    required double grossAnnualIncome,
+    required bool prevoyanceFallback,
+  }) {
+    if (isUsPerson) return false;
+    if (isCrossBorder) {
+      // Quasi-résident = seul cas frontalier déductible. Genève uniquement,
+      // et seulement avec un revenu suisse positif (sinon rien à déduire).
+      final isGeneva = workCanton == 'GE';
+      return isGeneva && grossAnnualIncome > 0;
+    }
+    return prevoyanceFallback;
+  }
 }

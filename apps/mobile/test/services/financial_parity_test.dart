@@ -27,6 +27,7 @@ import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/financial_core/archetype_predicates.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/replacement_rate.dart';
@@ -1197,6 +1198,187 @@ void main() {
       expect(divorceScore, lessThan(marieScore),
           reason: 'le divorce sans valeur reelle (estimation interdite) a une '
               'confiance plus basse — l\'axe completeness se degrade');
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Parity W6 — Éligibilité 3a archétype-aware (plan 08)
+  //
+  //  Oracles matrice expat_us-2 (ILLOGICAL_FOR_ARCHETYPE : minimal_profile
+  //  émet plafond 7258 pour un US person alors que canContribute3a==false) +
+  //  frontalier-1 (canContribute3a accorde la déduction à TOUT frontalier
+  //  salarié, sans test quasi-résident — contredit le hub segments_service).
+  //
+  //  Fix : MinimalProfileService.compute() gagne un paramètre canContribute3a
+  //  (default true) ; quand false → plafond3a et taxSaving3a = 0. Le prédicat
+  //  partagé ArchetypePredicates.canContribute3a est la source of truth unique
+  //  (consommée par compute() ET coach_profile.canContribute3a) — fin de la
+  //  divergence inter-chemin (CLAUDE.md NEVER #3). Cross-border déductible
+  //  uniquement si quasi-résident GE (même prédicat que segments_service).
+  // ════════════════════════════════════════════════════════════════
+
+  group('Parity W6 — Éligibilité 3a (FATCA / frontalier)', () {
+    test(
+        'expat_us-2 — compute() canContribute3a:false : plafond3a==0 ET '
+        'taxSaving3a==0 (plus jamais 7258 pour un US person)', () {
+      const age = 42;
+      const gross = 120000.0;
+      const canton = 'GE';
+
+      final usPerson = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+        canContribute3a: false,
+      );
+
+      expect(usPerson.plafond3a, 0.0,
+          reason: 'un US person ne peut pas déduire en 3a (FATCA) → plafond 0');
+      expect(usPerson.taxSaving3a, 0.0,
+          reason: 'aucune économie d\'impôt 3a pour un US person');
+      expect(usPerson.marginalTaxRate, 0.0,
+          reason: 'pas de taux marginal 3a actionnable pour un US person');
+
+      // Régression WRONG : le forfait avec-LPP 7258 ne doit JAMAIS réapparaître.
+      expect(usPerson.plafond3a, isNot(closeTo(pilier3aPlafondAvecLpp, 0.01)),
+          reason: 'le plafond 7258 ne doit plus être émis pour un expatUs');
+    });
+
+    test(
+        'contrôle négatif salarie_swiss-6 — compute() défaut (canContribute3a '
+        'true) : plafond 7258 inchangé pour un salarié affilié LPP', () {
+      const age = 42;
+      const gross = 102000.0;
+      const canton = 'VD';
+
+      final salarie = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: canton,
+        employmentStatus: 'salarie',
+      );
+
+      expect(salarie.plafond3a, closeTo(pilier3aPlafondAvecLpp, 0.01),
+          reason: 'le salarié affilié LPP garde le forfait fixe 7258 (OPP3 '
+              'art. 7 al. 1) — le gate FATCA ne doit pas régresser ce profil');
+      expect(salarie.taxSaving3a, greaterThan(0.0),
+          reason: 'le salarié standard garde une économie 3a non nulle');
+    });
+
+    test(
+        'expat_us-2 — coach_profile.canContribute3a == false pour un expatUs',
+        () {
+      final usPerson = CoachProfile.defaults().copyWith(
+        usTaxPerson: true,
+        nationality: 'US',
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        nombreDeMois: 12,
+      );
+      expect(usPerson.archetype, FinancialArchetype.expatUs,
+          reason: 'fixture sanity: usTaxPerson=true → expatUs');
+      expect(usPerson.canContribute3a, isFalse,
+          reason: 'un US person ne peut pas contribuer en 3a déductible (FATCA)');
+    });
+
+    test(
+        'frontalier-1 — coach_profile.canContribute3a == false pour un '
+        'frontalier NON quasi-résident (permis G hors GE)', () {
+      final frontalierVd = CoachProfile.defaults().copyWith(
+        residencePermit: 'G',
+        canton: 'VD', // hors GE → pas de statut quasi-résident
+        nationality: 'FR',
+        salaireBrutMensuel: 7000,
+        nombreDeMois: 12,
+      );
+      expect(frontalierVd.archetype, FinancialArchetype.crossBorder,
+          reason: 'fixture sanity: permis G → crossBorder');
+      expect(frontalierVd.isCrossBorder, isTrue);
+      expect(frontalierVd.revenuBrutAnnuel, greaterThan(0.0));
+      expect(frontalierVd.canContribute3a, isFalse,
+          reason: 'frontalier hors GE : pas de déduction 3a en Suisse '
+              '(imposé à la source — aligné sur segments_service)');
+    });
+
+    test(
+        'frontalier-1 — coach_profile.canContribute3a == true pour un '
+        'frontalier GE quasi-résident (comportement déductible conservé)', () {
+      final frontalierGe = CoachProfile.defaults().copyWith(
+        residencePermit: 'G',
+        canton: 'GE', // quasi-résident possible (LIPP GE art. 6)
+        nationality: 'FR',
+        salaireBrutMensuel: 7000,
+        nombreDeMois: 12,
+      );
+      expect(frontalierGe.archetype, FinancialArchetype.crossBorder);
+      expect(frontalierGe.canContribute3a, isTrue,
+          reason: 'frontalier GE quasi-résident : déduction 3a conservée');
+    });
+
+    test(
+        'prédicat partagé ArchetypePredicates.canContribute3a — source of '
+        'truth unique (expat_us-2 + frontalier-1)', () {
+      // US person → false quel que soit le canton.
+      expect(
+        ArchetypePredicates.canContribute3a(
+          isUsPerson: true,
+          isCrossBorder: false,
+          workCanton: 'GE',
+          grossAnnualIncome: 120000,
+          prevoyanceFallback: true,
+        ),
+        isFalse,
+        reason: 'US person bloqué (FATCA)',
+      );
+      // Frontalier hors GE → false même avec revenu.
+      expect(
+        ArchetypePredicates.canContribute3a(
+          isUsPerson: false,
+          isCrossBorder: true,
+          workCanton: 'VD',
+          grossAnnualIncome: 84000,
+          prevoyanceFallback: true,
+        ),
+        isFalse,
+        reason: 'frontalier non-GE : pas de déduction',
+      );
+      // Frontalier GE avec revenu → true.
+      expect(
+        ArchetypePredicates.canContribute3a(
+          isUsPerson: false,
+          isCrossBorder: true,
+          workCanton: 'GE',
+          grossAnnualIncome: 84000,
+          prevoyanceFallback: false,
+        ),
+        isTrue,
+        reason: 'frontalier GE quasi-résident : déductible',
+      );
+      // Frontalier GE sans revenu → false (rien à déduire).
+      expect(
+        ArchetypePredicates.canContribute3a(
+          isUsPerson: false,
+          isCrossBorder: true,
+          workCanton: 'GE',
+          grossAnnualIncome: 0,
+          prevoyanceFallback: true,
+        ),
+        isFalse,
+        reason: 'aucun revenu suisse → rien à déduire',
+      );
+      // Non-frontalier non-US → délègue au fallback prévoyance.
+      expect(
+        ArchetypePredicates.canContribute3a(
+          isUsPerson: false,
+          isCrossBorder: false,
+          workCanton: 'ZH',
+          grossAnnualIncome: 102000,
+          prevoyanceFallback: true,
+        ),
+        isTrue,
+        reason: 'salarié suisse : délègue au fallback (true)',
+      );
     });
   });
 }

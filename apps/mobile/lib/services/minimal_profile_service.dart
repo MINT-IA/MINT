@@ -46,6 +46,14 @@ class MinimalProfileService {
     /// Age d'arrivée en Suisse (si expat). Plumbé jusqu'à l'estimation LPP
     /// pour démarrer l'accumulation à l'arrivée, pas toujours à 25 (LPP art. 7).
     int? arrivalAge,
+    /// Droit à la DÉDUCTION fiscale 3a pour cet archétype (plan 08, oracles
+    /// expat_us-2 + frontalier-1). False → plafond3a, taxSaving3a et
+    /// marginalTaxRate sont émis à 0 : un US person (FATCA) ou un frontalier
+    /// NON quasi-résident ne peut pas déduire en Suisse. L'appelant calcule
+    /// ce booléen via [ArchetypePredicates.canContribute3a] (source of truth
+    /// unique, partagée avec coach_profile.canContribute3a — CLAUDE.md
+    /// NEVER #3). Default true : tout salarié/indépendant suisse standard.
+    bool canContribute3a = true,
   }) {
     final estimatedFields = <String>[];
 
@@ -178,23 +186,31 @@ class MinimalProfileService {
     final isMarriedHousehold =
         effectiveHousehold == 'couple' || effectiveHousehold == 'family';
     final resolvedCanton = resolveCanton(canton);
-    final taxImpact = resolvedCanton.isResolved && grossSalary > 0
-        ? RetirementTaxCalculator.estimate3aTaxImpact(
-            grossAnnualSalary: grossSalary,
-            canton: resolvedCanton.code,
-            hasLpp: !isIndependantNoLpp,
-            isMarried: isMarriedHousehold,
-            children: 0,
-            netProfessionalIncome: netProfessionalIncome,
-            age: age,
-          )
-        : Pillar3aTaxImpactEstimate.unavailable;
+    // Gate FATCA / frontalier non quasi-résident (plan 08, expat_us-2 +
+    // frontalier-1) : si l'archétype n'a pas droit à la déduction 3a en Suisse,
+    // n'estime AUCUN impact fiscal — le plafond, l'économie et le taux
+    // marginal sont émis à 0 (un US person voyait sinon 7258 CHF actionnables
+    // alors que canContribute3a==false).
+    final taxImpact =
+        canContribute3a && resolvedCanton.isResolved && grossSalary > 0
+            ? RetirementTaxCalculator.estimate3aTaxImpact(
+                grossAnnualSalary: grossSalary,
+                canton: resolvedCanton.code,
+                hasLpp: !isIndependantNoLpp,
+                isMarried: isMarriedHousehold,
+                children: 0,
+                netProfessionalIncome: netProfessionalIncome,
+                age: age,
+              )
+            : Pillar3aTaxImpactEstimate.unavailable;
     final marginalRate =
         taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
             ? 0.0
             : taxImpact.marginalRate;
-    final plafond3a =
-        taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
+    final plafond3a = !canContribute3a
+        // Pas de déduction possible → aucun plafond déductible à afficher.
+        ? 0.0
+        : taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
             ? (isIndependantNoLpp
                 ? min((netProfessionalIncome ?? 0.0) * pilier3aTauxRevenuSansLpp,
                     reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
