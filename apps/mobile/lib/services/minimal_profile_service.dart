@@ -109,10 +109,11 @@ class MinimalProfileService {
       lppAnnualRente = 0.0;
     } else {
       // Caisse complémentaire uses a blended conversion rate (~5.8%)
-      // vs standard minimum 6.8% (LPP art. 14 al. 2).
+      // vs standard minimum 6.8% (LPP art. 14 al. 2). Les deux branches
+      // utilisent les constantes nommées du registry — plus de littéral inline.
       final effectiveConversionRate = lppCaisseType == 'complementaire'
-          ? 0.058
-          : reg('lpp.conversion_rate_pct', lppTauxConversionMin) / 100;
+          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
+          : reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
       lppAnnualRente = LppCalculator.projectToRetirement(
         currentBalance: effectiveLpp,
         currentAge: age,

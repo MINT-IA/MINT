@@ -772,12 +772,14 @@ class ResponseCardService {
     );
 
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
-    final lppMonthly = lppAvoir > 0
-        ? (lppAvoir *
-            reg('lpp.conversion_rate_suroblig',
-                lppTauxConversionSurobligDecimal) /
-            12) // conservative 5.4% (suroblig estimate)
-        : 0.0;
+    // Rente mensuelle via la source canonique (financial_core L1) : un seul
+    // taux de conversion par cas — le taux de la caisse (défaut 6.8% min légal,
+    // LPP art. 14 al. 2) avec réduction retraite anticipée (LPP art. 13 al. 2).
+    final lppMonthly = LppCalculator.monthlyRenteFromAvoir(
+      avoir: lppAvoir,
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: profile.effectiveRetirementAge,
+    );
 
     final totalMonthly = monthlyAvs + lppMonthly;
     // Use NetIncomeBreakdown for consistent net calculation (same as Pulse)

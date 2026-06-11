@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANTS SERVICE — Sprint S18 / Indépendants complet
@@ -596,7 +597,14 @@ class IndependantsService {
       capitalLpp =
           capitalLpp * (1 + _projectedReturn) + salaireCoordonne * taux;
     }
-    final renteLpp = capitalLpp * _tauxConversion;
+    // Rente annuelle via la source canonique (financial_core L1) : un seul
+    // taux de conversion par cas. Les indépendants visent l'âge de référence
+    // (65, anneesRestantes = 65 - age), donc pas de réduction anticipée ici.
+    final renteLpp = capitalLpp *
+        LppCalculator.adjustedConversionRate(
+          baseRate: _tauxConversion,
+          retirementAge: 65,
+        );
     final projectionAvecLpp = renteAvsMax + renteLpp;
 
     return LppVolontaireResult(
