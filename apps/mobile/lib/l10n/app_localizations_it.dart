@@ -1761,6 +1761,10 @@ class SIt extends S {
   String get heroFactEmploymentAssumption => 'ipotesi: dipendente';
 
   @override
+  String get onboardingSceneFullCareerAssumption =>
+      'ipotesi: carriera completa';
+
+  @override
   String get liquidityEstimatedNote =>
       'Riserva stimata — inserisci i tuoi risparmi reali';
 

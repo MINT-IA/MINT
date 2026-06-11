@@ -1070,6 +1070,10 @@ class _SceneStep extends StatelessWidget {
           currentAge: age,
           netMonthly: netMonthly,
           isRange: provider.netMonthlyRange != null,
+          // Plumbing du gapFactor : la scène « rente trouée » reflète
+          // désormais le trou de cotisation (arrivée tardive + lacunes).
+          arrivalAge: provider.avsArrivalAge,
+          lacunes: provider.avsGaps,
         ),
       OnboardingIntent.achat => MintSceneCapaciteAchat(
           netMonthly: netMonthly,
@@ -1084,6 +1088,8 @@ class _SceneStep extends StatelessWidget {
           currentAge: age,
           netMonthly: netMonthly,
           isRange: provider.netMonthlyRange != null,
+          arrivalAge: provider.avsArrivalAge,
+          lacunes: provider.avsGaps,
         ),
     };
 

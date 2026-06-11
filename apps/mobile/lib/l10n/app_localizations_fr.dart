@@ -1761,6 +1761,10 @@ class SFr extends S {
   String get heroFactEmploymentAssumption => 'hypothèse : salarié';
 
   @override
+  String get onboardingSceneFullCareerAssumption =>
+      'hypothèse : carrière complète';
+
+  @override
   String get liquidityEstimatedNote =>
       'Réserve estimée — saisis ton épargne réelle';
 

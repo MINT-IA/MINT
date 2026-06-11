@@ -1752,6 +1752,9 @@ class SEn extends S {
   String get heroFactEmploymentAssumption => 'assumption: employee';
 
   @override
+  String get onboardingSceneFullCareerAssumption => 'assumption: full career';
+
+  @override
   String get liquidityEstimatedNote =>
       'Estimated reserve — enter your real savings';
 

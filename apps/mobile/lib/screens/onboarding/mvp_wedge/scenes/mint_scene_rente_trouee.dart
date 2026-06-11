@@ -1,9 +1,16 @@
 /// MintSceneRenteTrouee — scène N2 intent RETRAITE.
 ///
-/// Au tour 7 de l'onboarding MVP wedge. Appelle `AvsCalculator` +
-/// une estimation LPP proportionnelle au revenu brut dérivé. Affiche
-/// un **intervalle** CHF X – Y / mois, pas un point. Contrôle discret sur
-/// l'âge d'espérance de vie pour ressentir l'effet longévité.
+/// Au tour 7 de l'onboarding MVP wedge. Appelle `AvsCalculator` (avec
+/// arrivalAge/lacunes — la scène s'appelle « rente TROUÉE », elle DOIT
+/// refléter le trou) + `LppCalculator.projectToRetirement` (plus de forfait
+/// `gross*0.34/12` qui bypassait le moteur). Affiche un **intervalle**
+/// CHF X – Y / mois, pas un point. Contrôle discret sur l'âge d'espérance de
+/// vie pour ressentir l'effet longévité.
+///
+/// Pour un jeune (<30 ans) SANS lacune, le gapFactor vaut 1.0 (carrière
+/// complète projetée) : le chiffre porte alors l'étiquette « hypothèse :
+/// carrière complète » — le plus career-contingent ne reçoit plus
+/// silencieusement le chiffre le plus career-certain (jeune_diplome-2).
 ///
 /// Panel final 2026-04-22 — eyebrow « SCENE · ta retraite projetée »,
 /// chiffre héros intervalle, phrase de recul Fraunces 17pt.
@@ -12,9 +19,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/discrete_adjust_control.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -25,11 +34,22 @@ class MintSceneRenteTrouee extends StatefulWidget {
     required this.currentAge,
     required this.netMonthly,
     required this.isRange,
+    this.arrivalAge,
+    this.lacunes = 0,
   });
 
   final int currentAge;
   final double netMonthly;
   final bool isRange;
+
+  /// Age d'arrivée en Suisse (si Suisse de retour / expat). Plumbé à
+  /// AvsCalculator pour démarrer les années de cotisation à l'arrivée, pas
+  /// toujours à 21 (LAVS art. 29). Null ⇒ carrière depuis 21 ans.
+  final int? arrivalAge;
+
+  /// Années manquantes au sens AVS (lacunes — LAVS art. 29). Réduisent la
+  /// composante AVS de la rente projetée.
+  final int lacunes;
 
   @override
   State<MintSceneRenteTrouee> createState() => _MintSceneRenteTroueeState();
@@ -38,25 +58,53 @@ class MintSceneRenteTrouee extends StatefulWidget {
 class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
   double _ageEsperance = 85;
 
+  /// gapFactor==1.0 (carrière complète projetée) ⇔ aucune lacune ET pas
+  /// d'arrivée tardive. Pour un jeune (<30 ans) c'est une HYPOTHÈSE — il n'a
+  /// objectivement pas encore cotisé 44 ans — donc le chiffre est étiqueté.
+  bool get _isFullCareerAssumption =>
+      widget.lacunes == 0 &&
+      (widget.arrivalAge == null || widget.arrivalAge! <= 20) &&
+      widget.currentAge < 30;
+
   ({double low, double high}) _computeRenteRange() {
     // Revenu brut annuel dérivé (salarié, facteur 1.17).
     final grossAnnual =
         IncomeConverter.netMonthlyToGrossAnnual(widget.netMonthly);
 
-    // AVS brute mensuelle estimée sur carrière complète, retraite 65.
+    // AVS brute mensuelle via la source canonique AVEC arrivalAge/lacunes :
+    // la scène s'appelle « rente trouée », elle DOIT refléter le trou de
+    // cotisation (LAVS art. 29). Plus de calcul « sur carrière complète »
+    // forcé pour un profil à lacunes (matrice returning_swiss_gaps-2).
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: widget.currentAge,
-      retirementAge: 65,
+      retirementAge: avsAgeReferenceHomme,
+      arrivalAge: widget.arrivalAge,
+      lacunes: widget.lacunes,
       grossAnnualSalary: grossAnnual,
     );
 
-    // LPP estimation : taux de remplacement ~34% du salaire coordonné
-    // (moyenne suisse salarié 40 ans de cotisation, rendement 2.5%).
-    // Taux de conversion OPP2 art. 14 : 6.8% — on reste dans une
-    // fourchette réaliste 30-38% selon rendement effectif (1.5 à 3.5%).
-    final lppMonthlyMid = (grossAnnual * 0.34) / 12;
-    final lppMonthlyLow = lppMonthlyMid * 0.88; // rendement 1.5% → -12%
-    final lppMonthlyHigh = lppMonthlyMid * 1.12; // rendement 3.5% → +12%
+    // LPP estimation via la source canonique LppCalculator.projectToRetirement
+    // (accumulation salaire-pondérée dès 25 ans, taux conv. min 6.8% LPP art.
+    // 14 al. 2). Plus de forfait `gross*0.34/12` qui bypassait le moteur.
+    // La fourchette reflète l'incertitude du rendement caisse (1.5%/3.5%).
+    final lppAnnualLow = LppCalculator.projectToRetirement(
+      currentBalance: 0,
+      currentAge: widget.currentAge,
+      retirementAge: avsAgeReferenceHomme,
+      grossAnnualSalary: grossAnnual,
+      caisseReturn: 0.015, // rendement bas 1.5%
+      conversionRate: lppTauxConversionMinDecimal,
+    );
+    final lppAnnualHigh = LppCalculator.projectToRetirement(
+      currentBalance: 0,
+      currentAge: widget.currentAge,
+      retirementAge: avsAgeReferenceHomme,
+      grossAnnualSalary: grossAnnual,
+      caisseReturn: 0.035, // rendement haut 3.5%
+      conversionRate: lppTauxConversionMinDecimal,
+    );
+    final lppMonthlyLow = lppAnnualLow / 12;
+    final lppMonthlyHigh = lppAnnualHigh / 12;
 
     // Total mensuel : AVS (peu de variance, fixée par LPP) + LPP range.
     // On applique aussi un facteur longévité : plus tu vis, plus le
@@ -111,6 +159,19 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
           '/ mois, dès 65 ans',
           style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
+        // Jeune (<30) sans lacune ⇒ gapFactor 1.0 = carrière complète
+        // PROJETÉE, pas acquise. On l'étiquette pour ne pas vendre le chiffre
+        // le plus career-certain au profil le plus career-contingent
+        // (jeune_diplome-2). i18n : clé ARB ×6.
+        if (_isFullCareerAssumption) ...[
+          const SizedBox(height: 8),
+          Text(
+            l10n.onboardingSceneFullCareerAssumption,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.corailDiscret,
+            ).copyWith(fontStyle: FontStyle.italic),
+          ),
+        ],
         const SizedBox(height: 28),
         Container(
           padding: const EdgeInsets.all(16),

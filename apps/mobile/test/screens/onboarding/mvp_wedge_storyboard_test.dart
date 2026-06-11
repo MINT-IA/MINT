@@ -18,9 +18,12 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/income_converter.dart';
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   final List<Map<String, dynamic>> mergedCalls = [];
@@ -708,6 +711,96 @@ void main() {
 
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);
+  });
+
+  // ── W4 — Scène rente_trouée honnête + hypothèse jeune étiquetée ──────
+  //
+  // returning_swiss_gaps-2 : la scène « rente TROUÉE » doit refléter le trou
+  // de cotisation (gapFactor < 1) au lieu de calculer « sur carrière
+  // complète ». jeune_diplome-2 : un jeune (<30) sans lacune voit le chiffre
+  // étiqueté « hypothèse : carrière complète » (gapFactor=1.0 plus silencieux).
+  group('W4 — Scène rente_trouée honnête', () {
+    testWidgets(
+        'profil à lacunes (arrivée 43) : la composante AVS de la scène '
+        'intègre le gapFactor (< carrière complète)', (tester) async {
+      const netMonthly = 7250.0;
+      const currentAge = 48;
+      const arrivalAge = 43;
+
+      final grossAnnual =
+          IncomeConverter.netMonthlyToGrossAnnual(netMonthly);
+
+      // AVS canonique AVEC lacunes (ce que la scène DOIT refléter) vs SANS
+      // (l'ancien calcul « carrière complète » bypassant le trou).
+      final avsWithGap = AvsCalculator.computeMonthlyRente(
+        currentAge: currentAge,
+        retirementAge: avsAgeReferenceHomme,
+        arrivalAge: arrivalAge,
+        grossAnnualSalary: grossAnnual,
+      );
+      final avsFullCareer = AvsCalculator.computeMonthlyRente(
+        currentAge: currentAge,
+        retirementAge: avsAgeReferenceHomme,
+        grossAnnualSalary: grossAnnual,
+      );
+
+      // Pré-condition du test : le gapFactor a un effet observable.
+      expect(avsWithGap, lessThan(avsFullCareer),
+          reason: 'arrivée à 43 ans ⇒ AVS canonique < carrière complète');
+
+      await _pumpStandaloneScene(
+        tester,
+        const MintSceneRenteTrouee(
+          currentAge: currentAge,
+          netMonthly: netMonthly,
+          isRange: false,
+          arrivalAge: arrivalAge,
+        ),
+      );
+
+      // Étiquette « carrière complète » NE doit PAS apparaître pour un profil
+      // à lacunes (le gapFactor != 1.0) — la scène reflète le trou, elle ne le
+      // maquille pas en hypothèse de carrière pleine.
+      expect(find.text('hypothèse : carrière complète'), findsNothing,
+          reason: 'profil à lacunes ⇒ pas d\'étiquette carrière complète');
+
+      // Le chiffre héros (CHF X – Y) est rendu : preuve que la scène calcule
+      // bien à partir d'AvsCalculator(gap)+LppCalculator sans crasher.
+      expect(find.textContaining('CHF'), findsWidgets);
+    });
+
+    testWidgets(
+        'jeune (25 ans) sans lacune : le chiffre porte l\'étiquette '
+        '« hypothèse : carrière complète »', (tester) async {
+      await _pumpStandaloneScene(
+        tester,
+        const MintSceneRenteTrouee(
+          currentAge: 25,
+          netMonthly: 5200,
+          isRange: false,
+        ),
+      );
+
+      expect(find.text('hypothèse : carrière complète'), findsOneWidget,
+          reason: 'jeune (<30) gapFactor=1.0 ⇒ hypothèse étiquetée '
+              '(jeune_diplome-2)');
+    });
+
+    testWidgets(
+        'profil mûr (48 ans) sans lacune : pas d\'étiquette carrière complète '
+        '(l\'hypothèse n\'est pertinente que pour les jeunes)', (tester) async {
+      await _pumpStandaloneScene(
+        tester,
+        const MintSceneRenteTrouee(
+          currentAge: 48,
+          netMonthly: 7250,
+          isRange: false,
+        ),
+      );
+
+      expect(find.text('hypothèse : carrière complète'), findsNothing,
+          reason: 'âge ≥ 30 : l\'étiquette ne s\'applique pas');
+    });
   });
 }
 

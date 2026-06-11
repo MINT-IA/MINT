@@ -169,6 +169,39 @@ class OnboardingProvider extends ChangeNotifier {
   String? get avsLacunesStatus => _avsLacunesStatus;
   int? get avsArrivalYear => _avsArrivalYear;
   int? get avsYearsAbroad => _avsYearsAbroad;
+
+  /// Âge d'arrivée en Suisse dérivé de q_avs_arrival_year (statut
+  /// 'arrived_late'). MÊME dérivation que CoachProfile.fromWizardAnswers
+  /// (coach_profile.dart:2838) — source unique du gapFactor pour la scène
+  /// rente_trouée. Null si pas d'arrivée tardive ou âge inconnu.
+  int? get avsArrivalAge {
+    if (_avsLacunesStatus != 'arrived_late') return null;
+    final arrivalYear = _avsArrivalYear;
+    final dob = _dateOfBirth;
+    if (arrivalYear == null || dob == null) return null;
+    return arrivalYear - dob.year;
+  }
+
+  /// Lacunes AVS dérivées (années manquantes — LAVS art. 29). MÊME logique
+  /// que CoachProfile.fromWizardAnswers (coach_profile.dart:2834-2849) pour
+  /// que la scène rente_trouée et le profil coach convergent.
+  int get avsGaps {
+    final dob = _dateOfBirth;
+    switch (_avsLacunesStatus) {
+      case 'arrived_late':
+        final arrivalYear = _avsArrivalYear;
+        if (arrivalYear != null && dob != null) {
+          return (arrivalYear - (dob.year + 21)).clamp(0, 44);
+        }
+        return 5;
+      case 'lived_abroad':
+        return _avsYearsAbroad ?? 3;
+      case 'unknown':
+        return 2; // Estimation conservatrice
+      default: // 'no_gaps' ou null
+        return 0;
+    }
+  }
   String? get nationalityGroup => _nationalityGroup;
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;

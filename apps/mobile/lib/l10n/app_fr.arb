@@ -812,6 +812,10 @@
   "@heroFactEmploymentAssumption": {
     "description": "Tag shown on archetype-dependent figures when employment status is unknown"
   },
+  "onboardingSceneFullCareerAssumption": "hypothèse : carrière complète",
+  "@onboardingSceneFullCareerAssumption": {
+    "description": "Tag shown on the retirement scene figure for a young user (<30) with no AVS gaps — the AVS rente assumes a full uninterrupted career (gapFactor 1.0)"
+  },
   "liquidityEstimatedNote": "Réserve estimée — saisis ton épargne réelle",
   "@liquidityEstimatedNote": {
     "description": "Note on liquidity months when derived from an estimated savings value (jeune_diplome-5)"

@@ -1755,6 +1755,10 @@ class SPt extends S {
   String get heroFactEmploymentAssumption => 'hipótese: assalariado';
 
   @override
+  String get onboardingSceneFullCareerAssumption =>
+      'hipótese: carreira completa';
+
+  @override
   String get liquidityEstimatedNote =>
       'Reserva estimada — insere a tua poupança real';
 

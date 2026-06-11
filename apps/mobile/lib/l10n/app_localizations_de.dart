@@ -1769,6 +1769,10 @@ class SDe extends S {
   String get heroFactEmploymentAssumption => 'Annahme: angestellt';
 
   @override
+  String get onboardingSceneFullCareerAssumption =>
+      'Annahme: vollständige Erwerbsbiografie';
+
+  @override
   String get liquidityEstimatedNote =>
       'Geschätzte Reserve — gib dein echtes Erspartes ein';
 

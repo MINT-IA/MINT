@@ -1757,6 +1757,10 @@ class SEs extends S {
   String get heroFactEmploymentAssumption => 'supuesto: asalariado';
 
   @override
+  String get onboardingSceneFullCareerAssumption =>
+      'supuesto: carrera completa';
+
+  @override
   String get liquidityEstimatedNote =>
       'Reserva estimada — introduce tu ahorro real';
 

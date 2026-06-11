@@ -3279,6 +3279,12 @@ abstract class S {
   /// **'hypothèse : salarié'**
   String get heroFactEmploymentAssumption;
 
+  /// Tag shown on the retirement scene figure for a young user (<30) with no AVS gaps — the AVS rente assumes a full uninterrupted career (gapFactor 1.0)
+  ///
+  /// In fr, this message translates to:
+  /// **'hypothèse : carrière complète'**
+  String get onboardingSceneFullCareerAssumption;
+
   /// Note on liquidity months when derived from an estimated savings value (jeune_diplome-5)
   ///
   /// In fr, this message translates to:
