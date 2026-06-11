@@ -41,7 +41,7 @@ Plans:
 - [x] mint-illogism-fixes-05-w1-3a-tax-saving-married-PLAN.md — économie 3a isMarried/children + device-proof W1
 - [x] mint-illogism-fixes-06-w2-onboarding-archetype-questions-PLAN.md — questions statut emploi / état civil / lacunes AVS
 - [x] mint-illogism-fixes-07-w2-lpp-zero-divorce-gates-PLAN.md — prédicat LPP=0 unifié + gate divorcé
-- [ ] mint-illogism-fixes-08-w2-3a-eligibility-fatca-global-PLAN.md — FATCA gate global GoRouter + 3a quasi-résident
+- [x] mint-illogism-fixes-08-w2-3a-eligibility-fatca-global-PLAN.md — FATCA gate global GoRouter + 3a quasi-résident
 - [ ] mint-illogism-fixes-09-w5-illog02-rvc-semantics-PLAN.md — ILLOG-02 arbre AX RvC (débloque le gate Maestro d'ILLOG-01)
 - [ ] mint-illogism-fixes-10-w3-rvc-fiction-defaults-PLAN.md — défauts fiction RvC tués + flow ILLOG01 GREEN
 - [ ] mint-illogism-fixes-11-w3-confidence-gate-estime-tags-PLAN.md — Confidence Gate <50 + hero 3 états + source de confiance unique
