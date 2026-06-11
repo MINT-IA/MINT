@@ -186,25 +186,40 @@ class WidgetRenderer {
     );
   }
 
+  /// Estimator-type `source` values (profile figures derived by an estimator,
+  /// never certified) \u2014 always tagged \u00ab estim\u00e9 \u00bb, never shown nu.
+  static const _estimatorSources = {
+    'estimated',
+    'system_estimate',
+    'systemEstimate',
+  };
+
   /// Derive the Confidence Gate state for a hero fact card (SOT \u00a75, D2).
   ///
-  /// A financial figure (`is_financial: true`, or an explicit `source`) is
-  /// gated by the profile's canonical confidence (`EnhancedConfidence.combined`)
-  /// AND its data source \u2014 a hero number must NEVER appear nu when it comes from
-  /// an estimator or when confidence is below the SOT \u00a75 gate :
+  /// Only a profile-dependent FINANCIAL FIGURE is gated by the profile's
+  /// canonical confidence (`EnhancedConfidence.combined`) :
   ///   - combined < 50            \u2192 [FactConfidenceState.gated]   (ask for data)
   ///   - estimator source OR <70  \u2192 [FactConfidenceState.estimated] (tagged)
   ///   - known source AND >= 70   \u2192 [FactConfidenceState.known]   (bare allowed)
   ///
-  /// Non-financial fact cards (levier, action du mois\u2026) keep the default
-  /// [FactConfidenceState.known] \u2014 they are not subject to the gate.
+  /// Non-financial fact cards keep the default [FactConfidenceState.known] and
+  /// are NOT subject to the gate. Crucially this includes static legal /
+  /// educational citations : `show_fact_card` REQUIRES `source` (a \u00ab Legal or
+  /// official source \u00bb per coach_tools.py), so `source != null` cannot mean
+  /// \u00ab financial \u00bb. A legal card (\u00ab le 3a est d\u00e9ductible \u2014 LIFD art. 33 \u00bb)
+  /// carries no profile-dependent number and must render ungated even when
+  /// confidence is low (Codex W3 finding 2).
   static FactConfidenceState _factConfidenceState(
     BuildContext context,
     Map<String, dynamic> p,
   ) {
-    // Only financial figures are gated. Backend marks them via `is_financial`
-    // or by providing a `source`. Default: not gated (legacy behaviour).
-    final isFinancial = p['is_financial'] == true || p['source'] != null;
+    // Gate only on actual financial-figure signals \u2014 never on the mere
+    // presence of a `source` (always present, and legal by definition).
+    final source = p['source'] as String?;
+    final value = (p['value'] as String?) ?? (p['highlight_value'] as String?);
+    final isFinancial = p['is_financial'] == true ||
+        _estimatorSources.contains(source) ||
+        (value != null && _looksFinancial(value));
     if (!isFinancial) return FactConfidenceState.known;
 
     // Canonical confidence from the same profile every other surface reads.
@@ -225,16 +240,24 @@ class WidgetRenderer {
     if (score != null && score < 50) return FactConfidenceState.gated;
 
     // Estimator-sourced values are always tagged (never nu), even >= 50.
-    final source = p['source'] as String?;
-    final isEstimated = source == 'estimated' ||
-        source == 'system_estimate' ||
-        source == 'systemEstimate';
-    if (isEstimated) return FactConfidenceState.estimated;
+    if (_estimatorSources.contains(source)) {
+      return FactConfidenceState.estimated;
+    }
 
     // Below the high-confidence bar \u2192 uncertainty band (estimated state).
     if (score != null && score < 70) return FactConfidenceState.estimated;
 
     return FactConfidenceState.known;
+  }
+
+  /// Whether a displayed value carries a profile-dependent financial figure
+  /// (a CHF amount or a number). A bare label without a figure (\u00ab d\u00e9ductible \u00bb)
+  /// is NOT financial. Used to gate only real numbers, never legal citations.
+  static final RegExp _financialFigure = RegExp(r'\d');
+  static bool _looksFinancial(String value) {
+    final v = value.trim();
+    if (v.isEmpty || v == '\u2014') return false;
+    return _financialFigure.hasMatch(v);
   }
 
   // ────────────────────────────────────────────────────────────
