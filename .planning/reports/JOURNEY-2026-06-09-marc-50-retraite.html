@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MINT — Parcours bout-en-bout : Marc, 50 ans, divorcé, hypothèque — 2026-06-09</title>
+<style>
+body{font:15px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;color:#1a1a1a;background:#faf8f3;max-width:980px;margin:0 auto;padding:30px 22px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 8px;border-bottom:2px solid #e3ddd0;padding-bottom:4px}
+.sub{color:#666;margin:0 0 18px}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13.5px}
+th,td{border:1px solid #e3ddd0;padding:7px 9px;text-align:left;vertical-align:top}th{background:#f0ece2}
+code{background:#efe9dc;padding:1px 5px;border-radius:3px;font-size:12.5px}
+.ok{color:#0a7d3c;font-weight:700}.warn{color:#c05600;font-weight:700}.bad{color:#b00020;font-weight:700}
+.verdict{background:#fff;border:1px solid #e3ddd0;border-left:4px solid #c05600;padding:14px 18px;border-radius:6px}
+blockquote{border-left:3px solid #e3ddd0;margin:8px 0;padding:5px 14px;background:#fff;color:#333}
+.bug{background:#fff;border:1px solid #e3ddd0;border-radius:6px;padding:9px 13px;margin:7px 0}
+</style></head><body>
+
+<h1>MINT — Parcours bout-en-bout, données réelles, sur simulateur</h1>
+<p class="sub">2026-06-09 · iPhone 16e · build staging (<code>API_BASE_URL=mint-staging</code>) · 24 captures · persona <strong>Marc, 50 ans, Vaud, divorcé, hypothèque 1'600/mois, prépare sa retraite</strong> · 0-TRUST (piloté écran par écran via idb)</p>
+
+<div class="verdict">
+<strong>Verdict :</strong> MINT est aujourd'hui un excellent <strong>explorateur de lucidité + coach</strong> — on entre ses données, on voit sa situation estimée, on explore des scénarios chiffrés et cités, et le coach donne une analyse de niveau VZ (il a relié divorce → recalcul bancaire → taux 5% FINMA → règle du tiers → risque de refinancement). <strong>Mais ce n'est PAS encore un « planificateur » :</strong> aucun plan structuré multi-étapes qu'on construit, enregistre et suit mois après mois. « Faire un plan » = conversation + outils ; « suivre un plan » = absent (UI inexistante).
+</div>
+
+<h2>Déblocage technique</h2>
+<p>Le build sim était cassé par le codesign <code>.nosync</code> (xattr <code>com.apple.provenance</code>). <strong>Résolu</strong> en redirigeant le dossier de build hors de <code>.nosync</code> : <code>ln -s /tmp/mint_build_ios apps/mobile/build</code> → <code>flutter build ios --simulator --no-codesign --dart-define=API_BASE_URL=…staging</code> ✓. Réutilisable pour tous les device-gates futurs.</p>
+
+<h2>Le parcours, écran par écran (vérifié)</h2>
+<table>
+<tr><th>#</th><th>Écran</th><th>Ce qui se passe</th><th>Verdict</th></tr>
+<tr><td>1</td><td>Landing</td><td>« Voir clair, décider seul. » + disclaimer LSFin</td><td class="ok">✓</td></tr>
+<tr><td>2-3</td><td>Intro → « Qu'est-ce qui t'amène ? »</td><td>RETRAITE / ACHAT / IMPÔTS / EXPLORER + « TON DOSSIER se remplit »</td><td class="ok">✓</td></tr>
+<tr><td>4</td><td>Gate FATCA</td><td>« Citoyen/résident fiscal US ? » → hard-gate (NEVER #7)</td><td class="ok">✓</td></tr>
+<tr><td>5-6</td><td>Nationalité → Date naissance</td><td>Suisse · date-picker → 15.07.1975 (50 ans)</td><td class="ok">✓</td></tr>
+<tr><td>7-8</td><td>Canton → Revenu</td><td>VD · fourchette 7'000-7'500 (slider ±500, « chiffre exact » dispo)</td><td class="ok">✓</td></tr>
+<tr><td>9</td><td>1er insight</td><td>« 63% — ce que tu gardes à 65 ans »</td><td class="ok">✓</td></tr>
+<tr><td>10</td><td>Scène projetée</td><td>« CHF 4'653-6'210/mois dès 65 ans » (fourchette), slider espérance de vie, cumul 1'303'617, hypothèses citées (AVS art.33ter, LPP)</td><td class="ok">✓ VZ</td></tr>
+<tr><td>11</td><td>Bifurcation</td><td>« On peut le creuser. Je garde tout. » → Creuser</td><td class="ok">✓</td></tr>
+<tr><td>12</td><td>Home / Coach</td><td>Hero « 204'520 Avoir LPP », taux remplacement « 46.5% », « Explorer mes scénarios »</td><td class="warn">⚠ voir bugs</td></tr>
+<tr><td>13</td><td>Mon Argent</td><td>« Libre mensuel 6'164 CHF · Fiabilité 44% » + 5 onglets (Aujourd'hui/Mois/Patrimoine/Prévoyance/Futur)</td><td class="warn">⚠</td></tr>
+<tr><td>14</td><td>Enrichir dossier</td><td>Scanner doc : LPP / fiscal / AVS / salaire (OCR) — scan-only</td><td class="warn">⚠</td></tr>
+<tr><td>15</td><td>Explorer</td><td>7 life-events (Retraite, Famille, Travail, Logement, Fiscalité, Patrimoine&Succession, Santé)</td><td class="ok">✓</td></tr>
+<tr><td>16</td><td>Retraite & Prévoyance</td><td>6 outils : Projection · Rente vs Capital · Rachat LPP · EPL · Séquence décaissement · Libre passage</td><td class="ok">✓</td></tr>
+<tr><td>17</td><td>Rente vs Capital</td><td>Toggle Rente/Capital/Mixte, âge départ 58→70, pré-rempli profil, « Résultat indicatif 30% fiabilité »</td><td class="ok">✓</td></tr>
+<tr><td>18</td><td>Aujourd'hui</td><td>« Cap du jour : Il manque une pièce » + actions Explique/Simule/Rassure — <em>pas de carte plan/suivi</em></td><td class="bad">✗ plan</td></tr>
+<tr><td>19</td><td>Coach — « fais-moi un plan retraite »</td><td>Analyse divorce+hypothèque excellente (FINMA 5%, règle 1/3, refinancement) + question — <em>mais conversation, pas plan structuré</em></td><td class="warn">⚠</td></tr>
+</table>
+
+<h2>Réponse à tes questions précises</h2>
+<table>
+<tr><th>Question</th><th>Réponse (device-verified)</th></tr>
+<tr><td>On arrive à rentrer ses données ?</td><td class="ok">OUI</td></tr>
+<tr><td>… données détaillées (hypothèque, LPP exact) ?</td><td class="warn">SCAN-dépendant — les trous sont comblés par des estimations ; je n'ai pas trouvé de saisie manuelle rapide de l'hypothèque 1'600 (le « libre 6'164 » ignore sa vraie hypothèque)</td></tr>
+<tr><td>Il a un budget / une situation financière ?</td><td class="ok">OUI (Mon Argent, Patrimoine, Prévoyance) — mais tourne sur des estimations tant qu'on n'a pas scanné</td></tr>
+<tr><td>Mint l'aide à faire un plan ?</td><td class="warn">PARTIELLEMENT — coaching VZ + outils de scénario, mais pas de plan structuré multi-étapes</td></tr>
+<tr><td>On peut suivre ce plan ?</td><td class="bad">NON — aucun cockpit de suivi / check-in (services backend existent, UI absente)</td></tr>
+</table>
+
+<h2>Coach — la réponse complète (verbatim, staging)</h2>
+<blockquote>« Après un divorce, la banque pourrait recalculer ta capacité financière avec le taux théorique de 5% (Directives FINMA/ASB en matière d'hypothèques) et exiger que tes charges hypothécaires totales (intérêts théoriques + amortissement) ne dépassent pas un tiers de ton revenu brut. Si ton revenu a changé ou si ta part de propriété a été redéfinie, tu pourrais devoir refinancer ou amortir davantage. <strong>La vraie question :</strong> ton revenu actuel couvre-t-il encore confortablement cette charge, ou es-tu en limite de tolérance ? »</blockquote>
+<p>Cité, scénarisé, sans terme banni, pertinent pour le divorce+hypothèque. Excellent — mais s'arrête à l'analyse, ne produit pas de plan suivi.</p>
+
+<h2>Bugs trouvés EN DIRECT pendant le parcours</h2>
+<div class="bug"><b class="bad">1.</b> <b>Taux de remplacement incohérent</b> : onboarding « 63% » vs home « 46.5% » — même user, même session (moteurs divergents, vu live).</div>
+<div class="bug"><b class="bad">2.</b> <b>Suggestion 3a probablement au-dessus du plafond</b> : « verser 1541 CHF en 3a » — si mensuel, 1541×12 = 18'492 >> plafond 7'258.</div>
+<div class="bug"><b class="warn">3.</b> <b>« 204'520 Avoir LPP » = estimation affichée en hero gras</b> — seul « Fiabilité 44% » le signale ; risque de fausse précision.</div>
+<div class="bug"><b class="warn">4.</b> <b>Clés brutes en labels a11y</b> : « coach-context-point-de-depart », « ouvrir-profil-drawer » — bug i18n/VoiceOver.</div>
+<div class="bug"><b class="warn">5.</b> <b>« Libre mensuel 6'164 » ne capte pas la vraie hypothèque de Marc</b> — tout est estimé, pas de correction manuelle simple trouvée.</div>
+
+<h2>Limites (0-TRUST)</h2>
+<ul>
+<li>Mode <b>anonyme/local</b> (pas de compte créé) — le sync backend authentifié + claim-local-data non testé.</li>
+<li>Enrichissement par scan non testé (pas de vrai document) → la situation reste sur estimations.</li>
+<li>Un seul persona, un seul tour de coach pour le plan.</li>
+</ul>
+<p class="sub">Captures : <code>.planning/_walker/audit-live/p01…p24*.png</code> · engram obs #1595 · audits liés : <a href="MAP-2026-06-09-coach-lucidite-live.html">carte lucidité coach</a> · <a href="SESSION-2026-06-09-mint-state-audit.html">audit code</a></p>
+</body></html>

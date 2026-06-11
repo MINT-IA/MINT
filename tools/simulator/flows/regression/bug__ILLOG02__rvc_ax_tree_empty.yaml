@@ -1,0 +1,51 @@
+# tools/simulator/flows/regression/bug__ILLOG02__rvc_ax_tree_empty.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Audit illogismes 2026-06-11 (engram obs topic
+# product:device:rvc-ax-tree-empty) — regression flow gating ILLOG-02.
+#
+# ILLOG-02 bug : RenteVsCapitalScreen renders pixels but exposes an
+# (almost) EMPTY accessibility tree. Triangulated 2026-06-11 on iPhone
+# 16e staging build :
+#   - `idb ui describe-all` returns 1 element while the screen fully
+#     renders (screenshots .planning/_walker/audit-live/illog02-cold.png
+#     + illog01-debug.png) ;
+#   - Maestro itself cannot see the screen title (assertVisible
+#     « Rente ou capital.* » FAILED on a visibly rendered screen,
+#     run 2026-06-11_065259) ;
+#   - reproduced on BOTH cold launch + deeplink AND warm navigation
+#     after scroll.
+# Impact : the single most consequential decision screen of the app
+# (rente vs capital, one-time irreversible) is silent for VoiceOver and
+# unreachable for UI automation. Also BLOCKS bug__ILLOG01 (its
+# assertions need a populated AX tree).
+#
+# RED state (registration time, 2026-06-11) : extendedWaitUntil on the
+# title fails although the title is on screen.
+# GREEN gate : flow exits 0 once the screen exposes a Semantics tree
+# (title + at least the two input fields findable by text).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted sim, bundle id ch.mint.app, staging build.
+# - Any profile state (the AX emptiness reproduces regardless).
+
+appId: ch.mint.app
+tags:
+  - illogism-matrix
+  - regression
+  - a11y
+---
+- launchApp:
+    appId: ch.mint.app
+    stopApp: true
+# Triple-slash preserves the GoRouter path (cf. bug__S003 header).
+- openLink: "mintapp:///rente-vs-capital"
+# ILLOG-02 core assertion — the rendered screen must be visible TO THE
+# ACCESSIBILITY TREE. RED today : pixels render, AX tree is empty.
+- extendedWaitUntil:
+    visible:
+      text: "Rente ou capital.*"
+    timeout: 15000
+- assertVisible: "Estimer pour moi"
+- assertVisible: "Ton avoir LPP actuel (CHF)"
+- takeScreenshot: "illog02-rvc-ax-tree"

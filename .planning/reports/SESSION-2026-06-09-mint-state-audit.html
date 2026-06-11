@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MINT — État du codebase & lucidité reçue — 2026-06-09</title>
+<style>
+  :root{--ink:#1a1a1a;--mut:#666;--bg:#faf8f3;--p0:#b00020;--p1:#c05600;--p2:#7a6a00;--ok:#0a7d3c;--line:#e3ddd0}
+  body{font:15px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);max-width:960px;margin:0 auto;padding:32px 24px}
+  h1{font-size:26px;margin:0 0 4px} h2{font-size:19px;margin:34px 0 10px;border-bottom:2px solid var(--line);padding-bottom:5px}
+  h3{font-size:15px;margin:20px 0 6px}
+  .sub{color:var(--mut);margin:0 0 20px}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#f0ece2}
+  code{background:#efe9dc;padding:1px 5px;border-radius:3px;font-size:12.5px}
+  .p0{color:var(--p0);font-weight:700}.p1{color:var(--p1);font-weight:700}.p2{color:var(--p2);font-weight:700}.ok{color:var(--ok);font-weight:700}
+  blockquote{border-left:3px solid var(--line);margin:8px 0;padding:4px 14px;color:#333;background:#fff}
+  .ev{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:10px 0}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;background:#eee;color:#333;margin-left:6px}
+  .verdict{background:#fff;border:1px solid var(--line);border-left:4px solid var(--ok);padding:14px 18px;border-radius:6px}
+</style>
+</head>
+<body>
+
+<h1>MINT — État du codebase &amp; de la lucidité reçue</h1>
+<p class="sub">Audit 2026-06-09 · branche <code>qa/runtime-navigation-spine-20260602</code> · 5 experts (code) + sonde live coach (staging) · protocole 0-TRUST</p>
+
+<div class="verdict">
+<strong>Verdict d'une phrase :</strong> le code est globalement sain et la spine de navigation est disciplinée ; le coach délivre une lucidité <em>réellement</em> de niveau VZ quand il répond (constantes correctes + citations légales + fourchettes + angle mort) — mais un <strong>refus reproductible du gate temporel</strong> fait échouer la formulation la plus naturelle de la question la plus basique (« le plafond 3a cette année ? » → « Je n'ai pas cette donnée »), ce qui est exactement le motif de <em>trust collapse</em> à corriger en priorité.
+</div>
+
+<h2>1. Méthode &amp; périmètre de preuve</h2>
+<ul>
+<li><strong>Track A — code :</strong> 5 experts read-only en parallèle (architect-review, code-reviewer, flutter-expert, backend-architect, security-auditor), chaque finding cité <code>file:line</code>.</li>
+<li><strong>Track B — lucidité reçue :</strong> sonde directe du coach <strong>live sur staging</strong> (<code>POST /api/v1/anonymous/chat</code>), car la couche de contenu (lucidité) vient du backend, pas du shell app.</li>
+<li><strong>Config vérifiée (Railway staging) :</strong> <code>COACH_CITATION_GATE_ENABLED=true</code>, <code>COACH_DUAL_LLM_ENABLED=true</code>, <code>COACH_BUNDLE_COMPILER_ENABLED=true</code> — les gardes anti-hallucination sont ACTIFS côté serveur.</li>
+<li><strong>Limite de preuve honnête :</strong> l'E2E on-device complet n'a PAS pu tourner — build frais bloqué par le codesign <code>.nosync</code> (xattr <code>com.apple.provenance</code> system-immutable, documenté <code>strip_provenance.sh:4-9</code>) ; build installé = cible localhost (« Pas de réseau »). Le contenu coach a donc été validé via l'API staging, le shell app via le build installé (landing OK, coach injoignable).</li>
+</ul>
+
+<h2>2. La lucidité reçue — preuve live (le cœur de la question)</h2>
+
+<h3 class="ok">✅ Quand le coach répond, c'est du niveau VZ</h3>
+<div class="ev">
+<strong>Q :</strong> « C'est combien le maximum 3a en 2026 ? »<br>
+<strong>R :</strong> <em>« Pour 2026, <strong>7'258 CHF si tu as une caisse de pension (OPP3 art. 7 al. 1)</strong>, et <strong>36'288 CHF si tu es indépendant sans LPP (OPP3 art. 7 al. 2)</strong>. Ce qui surprend souvent : ce plafond ne reflète pas ta capacité d'épargne réelle… l'économie d'impôt pourrait représenter entre 1'800 et 3'100 CHF… mais ton argent reste bloqué jusqu'à 5 ans avant l'âge AVS. Tu envisages de verser le maximum cette année, ou tu cherches à arbitrer ? »</em>
+</div>
+<p>Caractéristiques observées : constantes 2026 correctes, <strong>citations d'articles de loi</strong> (OPP3, LIFD, LIPP GE), fourchettes (jamais de promesse), framing « angle mort », caveat de blocage, question de suivi détectant l'archétype, disclaimer LSFin, zéro terme banni. <strong>C'est la vision lucidité, réellement livrée.</strong></p>
+
+<h3 class="p1">⚠️ Mais refus reproductible sur la formulation naturelle directe</h3>
+<table>
+<tr><th>Formulation</th><th>Résultat</th></tr>
+<tr><td>« C'est combien le maximum 3a <strong>en 2026</strong> ? »</td><td class="ok">✅ 7'258 / 36'288 + citations</td></tr>
+<tr><td>« Explique-moi le 3a » · « j'ai 35 ans… combien d'impôts ? »</td><td class="ok">✅ VZ-grade, cité, scénarisé</td></tr>
+<tr><td>« Quel est le plafond… <strong>cette année</strong> ? »</td><td class="p1">❌ « Je n'ai pas cette donnée à jour pour l'instant. »</td></tr>
+<tr><td>« Quel est le montant maximum que je peux verser <strong>cette année</strong> ? »</td><td class="p1">❌ refus identique</td></tr>
+</table>
+<p><strong>Cause-racine (corrobore le finding backend) :</strong> le gate de fraîcheur/temporel (<code>coach_chat.py:5344</code>) ne peut pas prouver que « cette année » = à jour, il déclenche le fallback de refus (<code>citation_parser.py:245</code>) — alors que le coach connaît la valeur (<code>tokensUsed:3385</code> → le LLM a tourné). Reformuler avec l'année explicite suffit ; l'utilisateur ne le saura pas. <strong>P1 — c'est le « trust collapse » de la mémoire <code>project_coach_forced_tool_invocation</code>.</strong></p>
+
+<h2>3. Track A — qualité du code (findings cités)</h2>
+<p>Convergence notable : <strong>backend-architect ET security-auditor</strong> ont tous deux levé le même P0 (gate par défaut <code>False</code>) — <span class="ok">déclassé</span> car staging l'a <code>true</code> et le gate tourne côté serveur. Reste un risque defense-in-depth (un déploiement hors-Railway sans la var serait non gardé).</p>
+
+<h3>Dégradent la lucidité <em>reçue</em></h3>
+<table>
+<tr><th>#</th><th>Sév.</th><th>Lieu</th><th>Défaut → impact</th></tr>
+<tr><td>1</td><td class="p1">P1</td><td><code>arbitrage/rente_vs_capital.py</code> + financial_core</td><td>AVS rente &amp; arbitrage = 2 moteurs divergents, <strong>sans gate de parité</strong> → chiffre calculateur ≠ chiffre coach pour le même profil</td></tr>
+<tr><td>2</td><td class="p1">P1</td><td>financial_core 3a (fallback brut/net)</td><td>Plafond 3a sur revenu brut au lieu de net → <strong>marge 3a + économie d'impôt surévaluées</strong> (indépendant sans net déclaré)</td></tr>
+<tr><td>3</td><td class="p1">P1</td><td><code>mon_argent_screen.dart:530</code></td><td><code>_MissingDataSurface</code> = cul-de-sac sans issue (jumeau du désastre « Aucune donnée » du 2026-05-07)</td></tr>
+<tr><td>4</td><td class="p1">P1</td><td><code>coach_chat.py:4453</code></td><td>Épuisement de boucle coach → réponse vide sans template terminal → bulle de chat vide</td></tr>
+<tr><td>5</td><td class="p1">P1</td><td><code>models/lucidity/_payload.py</code> vs <code>arbitrage/*</code></td><td>Payloads typés L1/L2/L3 (garde anti-ranking LSFin) <strong>non câblés</strong> aux comparateurs live → garde inopérante (façade)</td></tr>
+</table>
+
+<h3>Compliance / confiance</h3>
+<table>
+<tr><th>#</th><th>Sév.</th><th>Lieu</th><th>Défaut</th></tr>
+<tr><td>6</td><td class="p1">P1</td><td><code>claude_coach_service.py:306</code> + <code>widget_renderer.dart:510</code></td><td>Terme banni « <strong>Parfait</strong> » dans le résumé check-in atteint l'écran sans filtrage</td></tr>
+<tr><td>7</td><td class="p1">P1</td><td><code>config.py:126</code></td><td><code>CONSENT_GATE_ENFORCEMENT_MODE="log_only"</code> → consentement transfert US (nLPD) non appliqué (var absente de Railway)</td></tr>
+<tr><td>8</td><td class="p1">P1</td><td><code>sentry_scrub.py:41</code></td><td>Snippet de contexte financier (±80 car) envoyé à Sentry sans scrub</td></tr>
+</table>
+
+<h3>P2 / régression de branche</h3>
+<ul>
+<li><span class="p2">P2 (nouveau)</span> <code>first_job_screen.dart:985</code> — projection point-unique 4 % (« tu auras ~X CHF à 65 ans »), pas de fourchette Bas/Moyen/Haut → frôle la promesse (NEVER #8).</li>
+<li><span class="p2">P2</span> <code>app.dart:1210</code> — « Document non disponible » hardcodé (i18n).</li>
+<li><span class="p2">P2</span> <code>lucidity.py:46</code> — citation légale probablement fausse « LCC art. 28 » pour la règle 33 % hypothécaire (= FINMA/ASB, pas LCC).</li>
+</ul>
+
+<h2>4. Ce qui est PROPRE (vérifié)</h2>
+<ul>
+<li><span class="ok">Spine de navigation disciplinée</span> : 1 orphelin / 117 écrans, 39/39 liens de hub résolvent, 1 seul <code>Navigator.push</code> (intentionnel), design-system propre. Le risque réel = cul-de-sac d'état vide <em>dans</em> des écrans atteignables (#3), pas des routes orphelines.</li>
+<li><span class="ok">Termes bannis ARB propres</span> (« garanti » seulement en négation).</li>
+<li><span class="ok">Gating FATCA correct</span> (hard-block <code>expat_us</code> / <code>cross_border</code>).</li>
+<li><span class="ok">Nouvelles scènes onboarding</span> (3a levier, rente trouée) conformes scénario-based.</li>
+<li><span class="ok">Citation gate</span> : machinerie solide ET active sur staging ; landing app on-brand (« Voir clair, décider seul. » + disclaimer LSFin).</li>
+</ul>
+
+<h2>5. Priorités recommandées</h2>
+<ol>
+<li><span class="p1">P1</span> <strong>Gate temporel — refus faux-négatif</strong> (<code>coach_chat.py:5344</code>) : traiter les constantes réglementaires de l'année courante comme fraîches par défaut, ou résoudre « cette année » → année courante avant le check. <em>Plus haut levier sur la lucidité perçue.</em></li>
+<li><span class="p1">P1</span> <strong>Parité des moteurs de calcul</strong> (#1) : gate de parité AVS/arbitrage L1↔L2 pour éliminer chiffre-calculateur ≠ chiffre-coach.</li>
+<li><span class="p1">P1</span> <strong>« Parfait » banni</strong> (#6) : retrait du prompt + filtre sur <code>summary_message</code> (correctif quasi nul, surface utilisateur).</li>
+<li><span class="p1">P1</span> <strong>Cul-de-sac d'état vide</strong> (#3) : issue de secours sur <code>_MissingDataSurface</code>.</li>
+<li>Infra : débloquer le build sim local (codesign <code>.nosync</code>) OU valider via CI/TestFlight pour permettre l'E2E on-device complet (Lauren expat_us, frontalier, indépendant).</li>
+</ol>
+
+<h2>6. Limites &amp; non-vérifié (0-TRUST)</h2>
+<ul>
+<li>E2E on-device complet <strong>non exécuté</strong> (build local bloqué) — contenu coach validé via API staging uniquement.</li>
+<li>Findings code = rapportés par les experts avec citations <code>file:line</code>, <strong>pas tous re-vérifiés ligne à ligne par moi.</strong></li>
+<li>Sonde coach = archétype anonyme (teaser 3 messages) ; le coach <strong>authentifié</strong> (profil + LPP/budget) n'a pas été testé — c'est là que vit la lucidité personnalisée la plus profonde.</li>
+<li>Un seul domaine sondé en profondeur (3a) ; LPP / hypothèque / fiscalité / héritage non sondés live.</li>
+</ul>
+
+<p class="sub">Artefacts : <code>.planning/_walker/audit-live/01-launch.png</code> · engram obs #1586/#1588/#1589/#1591/#1592 · run logs <code>.planning/_walker/audit2-*-julien.log</code></p>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+# tools/simulator/flows/regression/bug__ILLOG01__rvc_fiction_defaults.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Audit illogismes 2026-06-09/11 (MATRIX-illogismes-2026-06-09.md +
+# engram obs #1604) — regression flow that gates the ILLOG-01 fix.
+#
+# ILLOG-01 bug : RenteVsCapitalScreen ships HARDCODED FICTION defaults
+# (rente_vs_capital_screen.dart:62-66 — age '50', salaire '100000',
+# avoir LPP '350000'). _autoFillFromProfile (line 180-215) only
+# overwrites them when profile.prevoyance.avoirLppTotal != null && > 0.
+# For any profile without a stored LPP (the COMMON case — onboarding
+# never captures it), the most consequential one-time decision tool of
+# the app renders pure fiction visually indistinguishable from
+# personalized prefill, computes « Capital estimé à 65 ans ~619'013 /
+# Rente ~35'886/an » on it, and the defaults BYPASS ProfileDataSource
+# tracking (hasEstimates only set on real prefill) — violating SOT §5
+# Source Tracking. Device evidence 2026-06-11 : home hero said
+# « Avoir LPP 43'691 » while this screen showed 350'000 (8x apart,
+# same user, same minute). Screenshots :
+# .planning/_walker/audit-live/ind-home.png + ind-rvc-mid.png.
+#
+# Reachability path tested :
+#   warm launch (profile present, NO stored avoirLppTotal — see
+#   PRE-CONDITION) → deeplink mintapp:///rente-vs-capital
+#   → RenteVsCapitalScreen « Estimer pour moi » mode
+#   → ILLOG-01 ASSERTION : the literal fiction value « 350000 » must
+#     NOT be presented as the user's avoir LPP. After the fix the field
+#     is either empty (explicit « remplis ce champ » state) or carries a
+#     profile-derived value tagged estimé via ProfileDataSource.
+#
+# RED state (registration time, 2026-06-11) : assertNotVisible fails —
+# « 350000 » IS visible (fiction rendered as data). NOTE : currently the
+# flow fails EARLIER, on the title visibility wait, because of
+# bug__ILLOG02 (RvC screen exposes an empty accessibility tree — see
+# bug__ILLOG02__rvc_ax_tree_empty.yaml). ILLOG-02 GATES this flow :
+# its assertions only become meaningful once the AX tree is fixed.
+# GREEN gate : flow exits 0 once defaults are removed/replaced by
+# tracked profile values or an explicit empty state.
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted sim, bundle id ch.mint.app, staging build.
+# - A profile exists (onboarding completed) WITHOUT a stored LPP
+#   certificate value (avoirLppTotal == null) — the default state for
+#   every fresh onboarding, since onboarding never asks for LPP.
+# - No clearState : the flow asserts the warm-profile fallback path.
+
+appId: ch.mint.app
+tags:
+  - illogism-matrix
+  - regression
+---
+# Triple-slash form preserves the GoRouter path (cf. bug__S003 header).
+- openLink: "mintapp:///rente-vs-capital"
+- extendedWaitUntil:
+    visible:
+      text: "Rente ou capital.*"
+    timeout: 15000
+- waitForAnimationToEnd
+- assertVisible: "Estimer pour moi"
+# ILLOG-01 core assertion — the hardcoded fiction must not render as
+# the user's data. RED today : 350000 is visible.
+- assertNotVisible: "350000"
+# Companion fiction value (salary default) — same defect, same fix.
+- assertNotVisible: "100000"
