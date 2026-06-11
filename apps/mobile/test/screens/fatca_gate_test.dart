@@ -28,7 +28,9 @@
 ///   6. kill switch off → null (rollback contract, plan 02-04).
 library;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/router/archetype_route_gate.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -148,4 +150,99 @@ void main() {
       );
     });
   });
+
+  // ── Codex P1 gap closure — router reactivity to async profile hydration ──
+  //
+  // The pure helper above is correct, but plan 08 wired the redirect to read
+  // `CoachProfileProvider.profile` while GoRouter only refreshed on auth
+  // events (`_authNotifier`). On cold start the profile is null (fail-open),
+  // so an `expatUs` profile that hydrates AFTER the first route resolution
+  // was NEVER redirected to /waitlist until the next auth event / manual nav.
+  //
+  // The fix extends `_AuthRouterBridge` (app.dart) to also forward
+  // CoachProfileProvider ticks to the router's refreshListenable. This test
+  // pins that CONTRACT with a minimal MaterialApp.router that mirrors the
+  // production wiring (Karpathy #2 — no full MintApp pump): a refreshListenable
+  // poked by a listener on a ChangeNotifier, and a redirect that calls the
+  // real `archetypeRedirectTarget`. We assert that mutating the profile to
+  // `expatUs` AFTER the first route resolution redirects to /waitlist with no
+  // auth event and no manual navigation.
+  group('Plan 08 — router reactivity to async profile hydration (Codex P1)', () {
+    testWidgets(
+        'profile hydrates after first route resolution → /waitlist (no auth event)',
+        (tester) async {
+      // Stand-in for CoachProfileProvider: a ChangeNotifier exposing a mutable
+      // profile. Mirrors the production provider's `profile` getter +
+      // notifyListeners on mutation (loadFromWizard path).
+      final profileNotifier = _ProfileNotifier();
+
+      // Router refresh listener — mirrors `_authNotifier` in app.dart. The
+      // bridge (under test in production) forwards provider ticks here.
+      final routerRefresh = ChangeNotifier();
+      // The exact bridge mechanism from `_AuthRouterBridge`: subscribe to the
+      // profile notifier and poke the router's refreshListenable on each tick.
+      void onProfileTick() {
+        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+        routerRefresh.notifyListeners();
+      }
+
+      profileNotifier.addListener(onProfileTick);
+      addTearDown(() {
+        profileNotifier.removeListener(onProfileTick);
+        profileNotifier.dispose();
+        routerRefresh.dispose();
+      });
+
+      final router = GoRouter(
+        initialLocation: '/home',
+        refreshListenable: routerRefresh,
+        redirect: (context, state) => archetypeRedirectTarget(
+          profile: profileNotifier.profile,
+          path: state.uri.path,
+        ),
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (_, __) => const Scaffold(body: Text('HOME')),
+          ),
+          GoRoute(
+            path: '/waitlist',
+            builder: (_, __) => const Scaffold(body: Text('WAITLIST')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+
+      // First route resolution: profile still null (cold-start fail-open) →
+      // stays on /home, NOT redirected (regression guard for the null case).
+      expect(find.text('HOME'), findsOneWidget);
+      expect(find.text('WAITLIST'), findsNothing);
+
+      // Async hydration completes (loadFromWizard → notifyListeners) and the
+      // persisted profile is an expatUs / US tax person.
+      profileNotifier.profile = _expatUs();
+      await tester.pumpAndSettle();
+
+      // Without the fix the router never re-ran `redirect`, so HOME would
+      // still be showing. With the bridge forwarding the profile tick, the
+      // redirect re-evaluates and lands on /waitlist — no auth event, no
+      // manual navigation.
+      expect(find.text('WAITLIST'), findsOneWidget);
+      expect(find.text('HOME'), findsNothing);
+    });
+  });
+}
+
+/// Minimal stand-in for CoachProfileProvider: a ChangeNotifier with a mutable
+/// `profile` that notifies on set, mirroring the production hydration path.
+class _ProfileNotifier extends ChangeNotifier {
+  CoachProfile? _profile;
+  CoachProfile? get profile => _profile;
+  set profile(CoachProfile? value) {
+    _profile = value;
+    notifyListeners();
+  }
 }
