@@ -686,13 +686,30 @@ class SEs extends S {
 
   @override
   String get divorcePrevoyanceSubtitle =>
-      'LPP y 3a acumulados durante el matrimonio';
+      'LPP y 3a — saldo actual y saldo al matrimonio';
 
   @override
-  String get divorceLppConjoint1 => 'LPP Cónyuge 1 (durante el matrimonio)';
+  String get divorceLppConjoint1 => 'LPP Cónyuge 1 — saldo actual';
 
   @override
-  String get divorceLppConjoint2 => 'LPP Cónyuge 2 (durante el matrimonio)';
+  String get divorceLppConjoint2 => 'LPP Cónyuge 2 — saldo actual';
+
+  @override
+  String get divorceAvoirAuMariage1 => 'LPP Cónyuge 1 — saldo al matrimonio';
+
+  @override
+  String get divorceAvoirAuMariage2 => 'LPP Cónyuge 2 — saldo al matrimonio';
+
+  @override
+  String get divorceAvoirAuMariageHint =>
+      'Solo se reparte la parte de previsión acumulada durante el matrimonio (CC art. 122 / LFLP art. 22a). Indica el saldo LPP de cada cónyuge en la fecha del matrimonio.';
+
+  @override
+  String get divorceNonRenseigne => 'Sin indicar';
+
+  @override
+  String get divorceSplitDonneeRequise =>
+      'Saldo al matrimonio requerido para cada cónyuge — sin este dato, no se puede establecer el importe del reparto.';
 
   @override
   String get divorce3aConjoint1 => '3a Cónyuge 1';

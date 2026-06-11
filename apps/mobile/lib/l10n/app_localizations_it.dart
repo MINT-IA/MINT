@@ -688,13 +688,30 @@ class SIt extends S {
 
   @override
   String get divorcePrevoyanceSubtitle =>
-      'LPP e 3a accumulati durante il matrimonio';
+      'LPP e 3a — saldo attuale e saldo al matrimonio';
 
   @override
-  String get divorceLppConjoint1 => 'LPP Coniuge 1 (durante il matrimonio)';
+  String get divorceLppConjoint1 => 'LPP Coniuge 1 — saldo attuale';
 
   @override
-  String get divorceLppConjoint2 => 'LPP Coniuge 2 (durante il matrimonio)';
+  String get divorceLppConjoint2 => 'LPP Coniuge 2 — saldo attuale';
+
+  @override
+  String get divorceAvoirAuMariage1 => 'LPP Coniuge 1 — saldo al matrimonio';
+
+  @override
+  String get divorceAvoirAuMariage2 => 'LPP Coniuge 2 — saldo al matrimonio';
+
+  @override
+  String get divorceAvoirAuMariageHint =>
+      'Si divide solo la quota di previdenza accumulata durante il matrimonio (CC art. 122 / LFLP art. 22a). Indica il saldo LPP di ciascun coniuge alla data del matrimonio.';
+
+  @override
+  String get divorceNonRenseigne => 'Non indicato';
+
+  @override
+  String get divorceSplitDonneeRequise =>
+      'Saldo al matrimonio richiesto per ciascun coniuge — senza questo dato non è possibile stabilire l\'importo della divisione.';
 
   @override
   String get divorce3aConjoint1 => '3a Coniuge 1';

@@ -59,6 +59,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // Section 3 — Prévoyance
   double _lppConjoint1 = 180000;
   double _lppConjoint2 = 80000;
+  // Avoir LPP de chaque conjoint AU MARIAGE (CC art. 122 / LFLP art. 22a).
+  // null = non renseigné : le partage ne peut alors pas être établi (le service
+  // renvoie un résultat incomplet plutôt que de splitter l'avoir total).
+  double? _avoirAuMariage1;
+  double? _avoirAuMariage2;
   double _pillar3aConjoint1 = 60000;
   double _pillar3aConjoint2 = 20000;
 
@@ -83,8 +88,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       if (profile != null) {
         final gross = profile.salaireBrutMensuel * 12;
         if (gross > 0) _incomeConjoint1 = gross;
+        // Pré-remplissage LPP UNIQUEMENT depuis une valeur réelle (certificat
+        // scanné), jamais depuis l'estimation âge×salaire — cohérent avec les
+        // plans 07/11 : un avoir estimé reste marqué « estimé », il ne doit pas
+        // alimenter un calcul de partage présenté comme certain.
         final lpp = profile.prevoyance.avoirLppTotal;
-        if (lpp != null && lpp > 0) _lppConjoint1 = lpp;
+        if (lpp != null && lpp > 0 && profile.prevoyance.isLppFromCertificate) {
+          _lppConjoint1 = lpp;
+        }
         final p3a = profile.prevoyance.totalEpargne3a;
         if (p3a > 0) _pillar3aConjoint1 = p3a;
         if (profile.nombreEnfants > 0) {
@@ -109,6 +120,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       incomeConjoint2: _incomeConjoint2,
       lppConjoint1: _lppConjoint1,
       lppConjoint2: _lppConjoint2,
+      avoirAuMariage1: _avoirAuMariage1,
+      avoirAuMariage2: _avoirAuMariage2,
       pillar3aConjoint1: _pillar3aConjoint1,
       pillar3aConjoint2: _pillar3aConjoint2,
       fortuneCommune: _fortuneCommune,
@@ -399,12 +412,41 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
           MintAmountField(
+            label: S.of(context)!.divorceAvoirAuMariage1,
+            value: _avoirAuMariage1 ?? 0,
+            formatValue: (v) => _avoirAuMariage1 == null
+                ? S.of(context)!.divorceNonRenseigne
+                : _chfFmt(v),
+            onChanged: (v) => setState(() => _avoirAuMariage1 = v),
+            min: 0,
+            max: 500000,
+          ),
+          const SizedBox(height: MintSpacing.md),
+          MintAmountField(
             label: S.of(context)!.divorceLppConjoint2,
             value: _lppConjoint2,
             formatValue: (v) => _chfFmt(v),
             onChanged: (v) => setState(() => _lppConjoint2 = v),
             min: 0,
             max: 500000,
+          ),
+          const SizedBox(height: MintSpacing.md),
+          MintAmountField(
+            label: S.of(context)!.divorceAvoirAuMariage2,
+            value: _avoirAuMariage2 ?? 0,
+            formatValue: (v) => _avoirAuMariage2 == null
+                ? S.of(context)!.divorceNonRenseigne
+                : _chfFmt(v),
+            onChanged: (v) => setState(() => _avoirAuMariage2 = v),
+            min: 0,
+            max: 500000,
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            S.of(context)!.divorceAvoirAuMariageHint,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textMuted,
+            ).copyWith(height: 1.4),
           ),
           const SizedBox(height: MintSpacing.md),
           MintAmountField(
@@ -502,49 +544,71 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: MintSpacing.md),
-          MintSignalRow(
-            label: S.of(context)!.divorceTotalLpp,
-            value: _chfFmt(r.lppSplit.totalLpp),
-          ),
-          MintSignalRow(
-            label: S.of(context)!.divorcePartConjoint1,
-            value: _chfFmt(r.lppSplit.shareConjoint1),
-          ),
-          MintSignalRow(
-            label: S.of(context)!.divorcePartConjoint2,
-            value: _chfFmt(r.lppSplit.shareConjoint2),
-          ),
-          if (r.lppSplit.transferAmount > 0) ...[
-            const SizedBox(height: MintSpacing.sm),
-            MintSurface(
-              tone: MintSurfaceTone.blanc,
-              padding: const EdgeInsets.all(MintSpacing.sm + 4),
-              radius: 12,
+          if (r.lppSplit.isIncomplete) ...[
+            Semantics(
+              label: S.of(context)!.divorceSplitDonneeRequise,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.arrow_forward,
-                      size: 16, color: MintColors.info),
+                  const Icon(Icons.info_outline,
+                      size: 18, color: MintColors.info),
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
-                    child: Semantics(
-                      label: S.of(context)!.divorceTransfertAmount(
-                        _chfFmt(r.lppSplit.transferAmount),
-                        r.lppSplit.transferDirection,
-                      ),
-                      child: Text(
-                        S.of(context)!.divorceTransfertAmount(
-                          _chfFmt(r.lppSplit.transferAmount),
-                          r.lppSplit.transferDirection,
-                        ),
-                        style: MintTextStyles.bodyMedium(
-                          color: MintColors.info,
-                        ).copyWith(fontWeight: FontWeight.w600),
-                      ),
+                    child: Text(
+                      S.of(context)!.divorceSplitDonneeRequise,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textSecondary,
+                      ).copyWith(height: 1.4),
                     ),
                   ),
                 ],
               ),
             ),
+          ] else ...[
+            MintSignalRow(
+              label: S.of(context)!.divorceTotalLpp,
+              value: _chfFmt(r.lppSplit.totalLpp),
+            ),
+            MintSignalRow(
+              label: S.of(context)!.divorcePartConjoint1,
+              value: _chfFmt(r.lppSplit.shareConjoint1),
+            ),
+            MintSignalRow(
+              label: S.of(context)!.divorcePartConjoint2,
+              value: _chfFmt(r.lppSplit.shareConjoint2),
+            ),
+            if (r.lppSplit.transferAmount > 0) ...[
+              const SizedBox(height: MintSpacing.sm),
+              MintSurface(
+                tone: MintSurfaceTone.blanc,
+                padding: const EdgeInsets.all(MintSpacing.sm + 4),
+                radius: 12,
+                child: Row(
+                  children: [
+                    const Icon(Icons.arrow_forward,
+                        size: 16, color: MintColors.info),
+                    const SizedBox(width: MintSpacing.sm),
+                    Expanded(
+                      child: Semantics(
+                        label: S.of(context)!.divorceTransfertAmount(
+                          _chfFmt(r.lppSplit.transferAmount),
+                          r.lppSplit.transferDirection,
+                        ),
+                        child: Text(
+                          S.of(context)!.divorceTransfertAmount(
+                            _chfFmt(r.lppSplit.transferAmount),
+                            r.lppSplit.transferDirection,
+                          ),
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.info,
+                          ).copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ],
       ),

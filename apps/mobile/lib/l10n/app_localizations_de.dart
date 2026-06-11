@@ -689,13 +689,32 @@ class SDe extends S {
 
   @override
   String get divorcePrevoyanceSubtitle =>
-      'BVG und 3a während der Ehe angespart';
+      'BVG und 3a — aktuelles Guthaben und Guthaben bei der Heirat';
 
   @override
-  String get divorceLppConjoint1 => 'BVG Ehepartner 1 (während der Ehe)';
+  String get divorceLppConjoint1 => 'BVG Ehepartner 1 — aktuelles Guthaben';
 
   @override
-  String get divorceLppConjoint2 => 'BVG Ehepartner 2 (während der Ehe)';
+  String get divorceLppConjoint2 => 'BVG Ehepartner 2 — aktuelles Guthaben';
+
+  @override
+  String get divorceAvoirAuMariage1 =>
+      'BVG Ehepartner 1 — Guthaben bei der Heirat';
+
+  @override
+  String get divorceAvoirAuMariage2 =>
+      'BVG Ehepartner 2 — Guthaben bei der Heirat';
+
+  @override
+  String get divorceAvoirAuMariageHint =>
+      'Nur der während der Ehe angesparte Vorsorgeanteil wird geteilt (ZGB Art. 122 / FZG Art. 22a). Gib das BVG-Guthaben jedes Ehepartners am Tag der Heirat an.';
+
+  @override
+  String get divorceNonRenseigne => 'Nicht angegeben';
+
+  @override
+  String get divorceSplitDonneeRequise =>
+      'Guthaben bei der Heirat für beide Ehepartner erforderlich — ohne diese Angabe kann der Teilungsbetrag nicht ermittelt werden.';
 
   @override
   String get divorce3aConjoint1 => '3a Ehepartner 1';

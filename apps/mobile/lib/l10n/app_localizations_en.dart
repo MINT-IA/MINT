@@ -684,13 +684,30 @@ class SEn extends S {
 
   @override
   String get divorcePrevoyanceSubtitle =>
-      'LPP and 3a accumulated during marriage';
+      'LPP and 3a — current balance and balance at marriage';
 
   @override
-  String get divorceLppConjoint1 => 'LPP Spouse 1 (during marriage)';
+  String get divorceLppConjoint1 => 'LPP Spouse 1 — current balance';
 
   @override
-  String get divorceLppConjoint2 => 'LPP Spouse 2 (during marriage)';
+  String get divorceLppConjoint2 => 'LPP Spouse 2 — current balance';
+
+  @override
+  String get divorceAvoirAuMariage1 => 'LPP Spouse 1 — balance at marriage';
+
+  @override
+  String get divorceAvoirAuMariage2 => 'LPP Spouse 2 — balance at marriage';
+
+  @override
+  String get divorceAvoirAuMariageHint =>
+      'Only the pension share accumulated during the marriage is split (CC art. 122 / LFLP art. 22a). Enter each spouse\'s LPP balance at the date of marriage.';
+
+  @override
+  String get divorceNonRenseigne => 'Not provided';
+
+  @override
+  String get divorceSplitDonneeRequise =>
+      'Balance at marriage required for each spouse — without it, the split amount cannot be established.';
 
   @override
   String get divorce3aConjoint1 => '3a Spouse 1';

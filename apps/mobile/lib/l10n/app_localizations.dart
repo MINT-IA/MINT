@@ -1374,20 +1374,50 @@ abstract class S {
   /// No description provided for @divorcePrevoyanceSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'LPP et 3a accumulés pendant le mariage'**
+  /// **'LPP et 3a — avoir actuel et avoir au mariage'**
   String get divorcePrevoyanceSubtitle;
 
   /// No description provided for @divorceLppConjoint1.
   ///
   /// In fr, this message translates to:
-  /// **'LPP Conjoint 1 (pendant le mariage)'**
+  /// **'LPP Conjoint 1 — avoir actuel'**
   String get divorceLppConjoint1;
 
   /// No description provided for @divorceLppConjoint2.
   ///
   /// In fr, this message translates to:
-  /// **'LPP Conjoint 2 (pendant le mariage)'**
+  /// **'LPP Conjoint 2 — avoir actuel'**
   String get divorceLppConjoint2;
+
+  /// No description provided for @divorceAvoirAuMariage1.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP Conjoint 1 — avoir au mariage'**
+  String get divorceAvoirAuMariage1;
+
+  /// No description provided for @divorceAvoirAuMariage2.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP Conjoint 2 — avoir au mariage'**
+  String get divorceAvoirAuMariage2;
+
+  /// No description provided for @divorceAvoirAuMariageHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seule la part de prévoyance acquise pendant le mariage est partagée (CC art. 122 / LFLP art. 22a). Renseigne l\'avoir LPP de chaque conjoint au jour du mariage.'**
+  String get divorceAvoirAuMariageHint;
+
+  /// No description provided for @divorceNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get divorceNonRenseigne;
+
+  /// No description provided for @divorceSplitDonneeRequise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir au mariage requis pour chaque conjoint — sans cette donnée, le montant du partage ne peut pas être établi.'**
+  String get divorceSplitDonneeRequise;
 
   /// No description provided for @divorce3aConjoint1.
   ///

@@ -686,13 +686,30 @@ class SFr extends S {
 
   @override
   String get divorcePrevoyanceSubtitle =>
-      'LPP et 3a accumulés pendant le mariage';
+      'LPP et 3a — avoir actuel et avoir au mariage';
 
   @override
-  String get divorceLppConjoint1 => 'LPP Conjoint 1 (pendant le mariage)';
+  String get divorceLppConjoint1 => 'LPP Conjoint 1 — avoir actuel';
 
   @override
-  String get divorceLppConjoint2 => 'LPP Conjoint 2 (pendant le mariage)';
+  String get divorceLppConjoint2 => 'LPP Conjoint 2 — avoir actuel';
+
+  @override
+  String get divorceAvoirAuMariage1 => 'LPP Conjoint 1 — avoir au mariage';
+
+  @override
+  String get divorceAvoirAuMariage2 => 'LPP Conjoint 2 — avoir au mariage';
+
+  @override
+  String get divorceAvoirAuMariageHint =>
+      'Seule la part de prévoyance acquise pendant le mariage est partagée (CC art. 122 / LFLP art. 22a). Renseigne l\'avoir LPP de chaque conjoint au jour du mariage.';
+
+  @override
+  String get divorceNonRenseigne => 'Non renseigné';
+
+  @override
+  String get divorceSplitDonneeRequise =>
+      'Avoir au mariage requis pour chaque conjoint — sans cette donnée, le montant du partage ne peut pas être établi.';
 
   @override
   String get divorce3aConjoint1 => '3a Conjoint 1';

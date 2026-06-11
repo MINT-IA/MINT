@@ -685,13 +685,30 @@ class SPt extends S {
 
   @override
   String get divorcePrevoyanceSubtitle =>
-      'LPP e 3a acumulados durante o casamento';
+      'LPP e 3a — saldo atual e saldo no casamento';
 
   @override
-  String get divorceLppConjoint1 => 'LPP Cônjuge 1 (durante o casamento)';
+  String get divorceLppConjoint1 => 'LPP Cônjuge 1 — saldo atual';
 
   @override
-  String get divorceLppConjoint2 => 'LPP Cônjuge 2 (durante o casamento)';
+  String get divorceLppConjoint2 => 'LPP Cônjuge 2 — saldo atual';
+
+  @override
+  String get divorceAvoirAuMariage1 => 'LPP Cônjuge 1 — saldo no casamento';
+
+  @override
+  String get divorceAvoirAuMariage2 => 'LPP Cônjuge 2 — saldo no casamento';
+
+  @override
+  String get divorceAvoirAuMariageHint =>
+      'Apenas a parte de previdência acumulada durante o casamento é partilhada (CC art. 122 / LFLP art. 22a). Indica o saldo LPP de cada cônjuge na data do casamento.';
+
+  @override
+  String get divorceNonRenseigne => 'Não indicado';
+
+  @override
+  String get divorceSplitDonneeRequise =>
+      'Saldo no casamento necessário para cada cônjuge — sem este dado, o valor da partilha não pode ser estabelecido.';
 
   @override
   String get divorce3aConjoint1 => '3a Cônjuge 1';
