@@ -218,8 +218,11 @@ class DataDrivenOpenerService {
     final hasSalary = state.profile.revenuBrutAnnuel > _minSalaryForSavings;
     if (!hasSalary) return null;
 
-    // Check canContribute3a flag (FATCA compliance: US persons may be blocked).
-    if (!state.profile.prevoyance.canContribute3a) return null;
+    // Check eligibility (FATCA compliance: US persons are blocked). Uses the
+    // archetype-aware top-level getter (source of truth), NOT prevoyance which
+    // defaults to true and is never set by fromWizardAnswers — so a US person
+    // built via the normal flow would otherwise leak a 3a opener (Codex P1).
+    if (!state.profile.canContribute3a) return null;
 
     final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
       state.profile,
@@ -275,7 +278,8 @@ class DataDrivenOpenerService {
     final hasSalary = state.profile.revenuBrutAnnuel > _minSalaryForSavings;
     if (!hasSalary) return null;
 
-    if (!state.profile.prevoyance.canContribute3a) return null;
+    // Archetype-aware eligibility (FATCA) — see _checkDeadlineUrgency note.
+    if (!state.profile.canContribute3a) return null;
 
     final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
       state.profile,

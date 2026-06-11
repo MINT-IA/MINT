@@ -44,6 +44,8 @@ CoachProfile _makeProfile({
   double salaireBrutMensuel = 8000,
   double totalEpargne3a = 0,
   bool canContribute3a = true,
+  bool usTaxPerson = false,
+  String? nationality,
   List<PlannedMonthlyContribution> plannedContributions = const [],
 }) {
   return CoachProfile(
@@ -54,6 +56,8 @@ CoachProfile _makeProfile({
     salaireBrutMensuel: salaireBrutMensuel,
     nombreDeMois: 12,
     employmentStatus: 'salarie',
+    usTaxPerson: usTaxPerson,
+    nationality: nationality,
     depenses: const DepensesProfile(),
     prevoyance: PrevoyanceProfile(
       totalEpargne3a: totalEpargne3a,
@@ -338,6 +342,62 @@ void main() {
         now: december15,
       );
       expect(opener?.type, isNot(DataOpenerType.deadlineUrgency));
+    });
+
+    // ── Codex P1 gap closure — US person leak via wrong eligibility source ──
+    //
+    // Test 7 above sets prevoyance.canContribute3a=false explicitly. The real
+    // leak: a US person built via the normal flow keeps prevoyance.canContribute3a
+    // at its default `true` (CoachProfile.fromWizardAnswers never sets it), so
+    // the opener — which gated on prevoyance.canContribute3a — fired a 3a
+    // opener for someone who cannot contribute (FATCA, CLAUDE.md NEVER #7). The
+    // fix switches the opener to the archetype-aware top-level getter
+    // profile.canContribute3a.
+    test('7b. December + US person (usTaxPerson) → no deadlineUrgency (Codex P1)',
+        () {
+      final profile = _makeProfile(
+        totalEpargne3a: 0,
+        salaireBrutMensuel: 8000,
+        usTaxPerson: true,
+        nationality: 'US',
+        // prevoyance.canContribute3a left at default true — this is the leak.
+      );
+      expect(profile.prevoyance.canContribute3a, isTrue,
+          reason: 'fixture sanity: the leaking default the gate used to read');
+      expect(profile.canContribute3a, isFalse,
+          reason: 'archetype-aware getter correctly blocks the US person');
+
+      final state = _makeState(
+        profile: profile,
+        archetype: FinancialArchetype.expatUs,
+      );
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: december15,
+      );
+      expect(opener?.type, isNot(DataOpenerType.deadlineUrgency),
+          reason: 'US person must never see a 3a deadline opener (FATCA)');
+    });
+
+    test('12b. US person (usTaxPerson) → no savingsOpportunity (Codex P1)', () {
+      final profile = _makeProfile(
+        totalEpargne3a: 0,
+        salaireBrutMensuel: 8000,
+        usTaxPerson: true,
+        nationality: 'US',
+      );
+      final state = _makeState(
+        profile: profile,
+        archetype: FinancialArchetype.expatUs,
+      );
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: march22,
+      );
+      expect(opener?.type, isNot(DataOpenerType.savingsOpportunity),
+          reason: 'US person must never see a 3a savings opener (FATCA)');
     });
 
     // ── Test 8: Replacement rate 55% → gapWarning ─────────────

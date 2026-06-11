@@ -9,6 +9,8 @@ CoachProfile _profile({
   double? explicitMonthlyNetIncome,
   double? independentNetProfessionalIncomeAnnual,
   List<PlannedMonthlyContribution> plannedContributions = const [],
+  bool usTaxPerson = false,
+  String? nationality,
 }) {
   return CoachProfile(
     birthYear: 1985,
@@ -21,6 +23,8 @@ CoachProfile _profile({
         independentNetProfessionalIncomeAnnual,
     nombreDeMois: 12,
     employmentStatus: employmentStatus,
+    usTaxPerson: usTaxPerson,
+    nationality: nationality,
     depenses: const DepensesProfile(),
     prevoyance: const PrevoyanceProfile(canContribute3a: true),
     patrimoine: const PatrimoineProfile(),
@@ -146,6 +150,52 @@ void main() {
         ),
         19200,
       );
+    });
+
+    // ── Codex P1 gap closure — eligibility gate (FATCA) ──────────────
+    //
+    // Before this fix annualCeiling() ignored eligibility and returned the
+    // statutory 7258 CHF for every non-independentNoLpp archetype, INCLUDING
+    // expatUs. US persons cannot contribute to 3a (FATCA — Swiss providers
+    // refuse them; CLAUDE.md NEVER #7), so the deductible room must be 0.
+    group('eligibility gate (expatUs / FATCA — Codex P1)', () {
+      test('expatUs annual ceiling is 0 (cannot contribute 3a)', () {
+        final profile = _profile(usTaxPerson: true, nationality: 'US');
+        expect(profile.archetype, FinancialArchetype.expatUs,
+            reason: 'fixture sanity: usTaxPerson=true → expatUs');
+        expect(profile.canContribute3a, isFalse,
+            reason: 'FATCA: US persons cannot contribute to 3a');
+
+        expect(Pillar3aRoomCalculator.annualCeiling(profile), 0.0,
+            reason: 'a US person has no deductible 3a room (FATCA gate)');
+      });
+
+      test('expatUs remaining room is 0', () {
+        final profile = _profile(
+          usTaxPerson: true,
+          nationality: 'US',
+          plannedContributions: const [
+            PlannedMonthlyContribution(
+              id: '3a_monthly',
+              label: '3a mensuel',
+              amount: 250,
+              category: '3a',
+            ),
+          ],
+        );
+
+        expect(Pillar3aRoomCalculator.remainingAnnualRoom(profile), 0.0,
+            reason: 'remaining room flows through the gated ceiling');
+      });
+
+      test('swissNative ceiling unaffected (no regression)', () {
+        final profile = _profile(nationality: 'CH');
+        expect(profile.canContribute3a, isTrue);
+        expect(
+          Pillar3aRoomCalculator.annualCeiling(profile),
+          pilier3aPlafondAvecLpp,
+        );
+      });
     });
   });
 }
