@@ -1731,6 +1731,23 @@ class SFr extends S {
   String get budgetQualityMissing => 'manquant';
 
   @override
+  String get heroFactGatedTitle => 'Donnée à compléter';
+
+  @override
+  String get heroFactGatedCta => 'Complète ton profil pour voir ce chiffre';
+
+  @override
+  String get heroFactUncertaintyNote =>
+      'Fourchette indicative — affine avec tes vraies données';
+
+  @override
+  String get heroFactEmploymentAssumption => 'hypothèse : salarié';
+
+  @override
+  String get liquidityEstimatedNote =>
+      'Réserve estimée — saisis ton épargne réelle';
+
+  @override
   String get budgetAvailable => 'Disponible';
 
   @override

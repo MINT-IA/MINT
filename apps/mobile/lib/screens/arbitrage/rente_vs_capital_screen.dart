@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -110,6 +111,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   bool _didAutoFill = false;
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
+  // D12 : confiance canonique du profil (EnhancedConfidence.combined), capturee
+  // a l'auto-fill et passee au fallback local pour qu'un profil = un score sur
+  // toutes les surfaces (plus de moteur de confiance d'arbitrage divergent).
+  double? _canonicalConfidence;
 
   // ── GoRouter prefill from coach suggestion ──
   Map<String, dynamic>? _goRouterPrefill;
@@ -193,6 +198,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final provider = context.read<CoachProfileProvider>();
     final profile = provider.profile;
     if (profile == null) return;
+
+    // D12 : score canonique unique, calcule sur ce profil.
+    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
 
     final sources = profile.dataSources;
     bool changed = false;
@@ -558,6 +566,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           horizon: horizon,
           isMarried: _isMarried,
           dataSources: _dataSources,
+          canonicalConfidence: _canonicalConfidence,
           currentAge: currentAge,
           grossAnnualSalary: salary,
         );

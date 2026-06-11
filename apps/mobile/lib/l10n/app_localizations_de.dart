@@ -1736,6 +1736,24 @@ class SDe extends S {
   String get budgetQualityMissing => 'fehlend';
 
   @override
+  String get heroFactGatedTitle => 'Daten zu vervollständigen';
+
+  @override
+  String get heroFactGatedCta =>
+      'Vervollständige dein Profil, um diese Zahl zu sehen';
+
+  @override
+  String get heroFactUncertaintyNote =>
+      'Richtwert — verfeinere mit deinen echten Daten';
+
+  @override
+  String get heroFactEmploymentAssumption => 'Annahme: angestellt';
+
+  @override
+  String get liquidityEstimatedNote =>
+      'Geschätzte Reserve — gib dein echtes Erspartes ein';
+
+  @override
   String get budgetAvailable => 'Verfügbar';
 
   @override

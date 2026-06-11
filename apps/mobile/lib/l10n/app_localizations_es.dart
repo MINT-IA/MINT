@@ -1727,6 +1727,23 @@ class SEs extends S {
   String get budgetQualityMissing => 'faltante';
 
   @override
+  String get heroFactGatedTitle => 'Dato por completar';
+
+  @override
+  String get heroFactGatedCta => 'Completa tu perfil para ver esta cifra';
+
+  @override
+  String get heroFactUncertaintyNote =>
+      'Rango indicativo — afina con tus datos reales';
+
+  @override
+  String get heroFactEmploymentAssumption => 'supuesto: asalariado';
+
+  @override
+  String get liquidityEstimatedNote =>
+      'Reserva estimada — introduce tu ahorro real';
+
+  @override
   String get budgetAvailable => 'Disponible';
 
   @override

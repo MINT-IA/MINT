@@ -1725,6 +1725,23 @@ class SPt extends S {
   String get budgetQualityMissing => 'em falta';
 
   @override
+  String get heroFactGatedTitle => 'Dado a completar';
+
+  @override
+  String get heroFactGatedCta => 'Completa o teu perfil para ver este valor';
+
+  @override
+  String get heroFactUncertaintyNote =>
+      'Intervalo indicativo — afina com os teus dados reais';
+
+  @override
+  String get heroFactEmploymentAssumption => 'hipótese: assalariado';
+
+  @override
+  String get liquidityEstimatedNote =>
+      'Reserva estimada — insere a tua poupança real';
+
+  @override
   String get budgetAvailable => 'Disponível';
 
   @override

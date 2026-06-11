@@ -1730,6 +1730,24 @@ class SIt extends S {
   String get budgetQualityMissing => 'mancante';
 
   @override
+  String get heroFactGatedTitle => 'Dato da completare';
+
+  @override
+  String get heroFactGatedCta =>
+      'Completa il tuo profilo per vedere questa cifra';
+
+  @override
+  String get heroFactUncertaintyNote =>
+      'Intervallo indicativo — affina con i tuoi dati reali';
+
+  @override
+  String get heroFactEmploymentAssumption => 'ipotesi: dipendente';
+
+  @override
+  String get liquidityEstimatedNote =>
+      'Riserva stimata — inserisci i tuoi risparmi reali';
+
+  @override
   String get budgetAvailable => 'Disponibile';
 
   @override

@@ -1722,6 +1722,23 @@ class SEn extends S {
   String get budgetQualityMissing => 'missing';
 
   @override
+  String get heroFactGatedTitle => 'Data to complete';
+
+  @override
+  String get heroFactGatedCta => 'Complete your profile to see this figure';
+
+  @override
+  String get heroFactUncertaintyNote =>
+      'Indicative range — refine with your real data';
+
+  @override
+  String get heroFactEmploymentAssumption => 'assumption: employee';
+
+  @override
+  String get liquidityEstimatedNote =>
+      'Estimated reserve — enter your real savings';
+
+  @override
   String get budgetAvailable => 'Available';
 
   @override
