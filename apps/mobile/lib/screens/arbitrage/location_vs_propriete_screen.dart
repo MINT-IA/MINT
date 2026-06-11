@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -58,6 +59,9 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   // ── CoachProfile auto-fill (P8 Phase 4) ──
   bool _didAutoFill = false;
   Map<String, ProfileDataSource> _dataSources = {};
+  // Codex W3 : confiance canonique du profil (un profil = un score). Null en
+  // usage standalone → la banniere indicative est masquee plutot que 0%.
+  double? _canonicalConfidence;
 
   @override
   void initState() {
@@ -77,6 +81,9 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   void _autoFillFromProfile() {
     final profile = context.read<CoachProfileProvider>().profile;
     if (profile == null) return;
+
+    // Codex W3 : score canonique unique, calcule sur ce profil.
+    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
 
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
@@ -142,6 +149,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       tauxEntretien: 0.01,
       isMarried: _isMarried,
       dataSources: _dataSources.isNotEmpty ? _dataSources : null,
+      canonicalConfidence: _canonicalConfidence,
     );
 
     setState(() => _result = result);
@@ -187,10 +195,14 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
                   // ── Indicatif banner (P8 Phase 4) ──
-                  IndicatifBanner(
-                    confidenceScore: _result!.confidenceScore,
-                    topEnrichmentCategory: 'patrimoine',
-                  ),
+                  // Codex W3 : pas de banniere 0% en usage standalone (pas de
+                  // profil → pas de score canonique ET pas de dataSources). Le
+                  // plancher fiction 50.0 a ete retire au plan 11.
+                  if (_canonicalConfidence != null || _dataSources.isNotEmpty)
+                    IndicatifBanner(
+                      confidenceScore: _result!.confidenceScore,
+                      topEnrichmentCategory: 'patrimoine',
+                    ),
                   if (_hasEstimatedValues)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),

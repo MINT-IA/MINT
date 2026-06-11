@@ -518,6 +518,11 @@ class ArbitrageEngine {
     double rendementMarche = 0.04,
     String canton = 'ZH',
     Map<String, ProfileDataSource>? dataSources,
+    /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
+    /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
+    /// affiche — un profil = un score sur toutes les surfaces (D12, generalise
+    /// a l'allocation depuis Codex W3).
+    double? canonicalConfidence,
     S? l,
   }) {
     final startYear = DateTime.now().year;
@@ -892,6 +897,7 @@ class ArbitrageEngine {
       confidenceScore: _computeArbitrageConfidence(
         ['montantDisponible', 'tauxMarginal', 'potentielRachatLpp', 'canton'],
         dataSources,
+        canonicalConfidence: canonicalConfidence,
       ),
       sensitivity: sensitivity,
     );
@@ -921,6 +927,11 @@ class ArbitrageEngine {
     double tauxEntretien = 0.01,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+    /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
+    /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
+    /// affiche — un profil = un score sur toutes les surfaces (D12, generalise
+    /// a la location depuis Codex W3).
+    double? canonicalConfidence,
   }) {
     final startYear = DateTime.now().year;
 
@@ -1159,6 +1170,7 @@ class ArbitrageEngine {
       confidenceScore: _computeArbitrageConfidence(
         ['capitalDisponible', 'loyerMensuel', 'prixBien', 'canton'],
         dataSources,
+        canonicalConfidence: canonicalConfidence,
       ),
       sensitivity: sensitivity,
     );

@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -61,6 +62,11 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   bool _didAutoFill = false;
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
+  // Codex W3 : confiance canonique du profil (EnhancedConfidence.combined),
+  // captee a l'auto-fill et passee a l'arbitrage (un profil = un score). Null
+  // en usage standalone (pas de profil) → la banniere indicative est masquee
+  // plutot que d'afficher 0% (le plancher fiction 50.0 a ete retire au plan 11).
+  double? _canonicalConfidence;
 
   @override
   void initState() {
@@ -88,6 +94,8 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   }
 
   void _autoFillFromProfileData(CoachProfile profile) {
+    // Codex W3 : score canonique unique, calcule sur ce profil.
+    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
 
     // Annual contribution capacity: 3a max for salaried
     if (profile.salaireBrutMensuel > 0) {
@@ -156,6 +164,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       rendementMarche: (_hypotheses['rendement_marche'] ?? 4.0) / 100,
       canton: _canton,
       dataSources: _dataSources,
+      canonicalConfidence: _canonicalConfidence,
     );
 
     setState(() => _result = result);
@@ -200,10 +209,15 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                 // ── Chart ──
                 if (_result != null && _result!.options.isNotEmpty) ...[
                   // ── Indicatif banner (P8 Phase 4) ──
-                  IndicatifBanner(
-                    confidenceScore: _result!.confidenceScore,
-                    topEnrichmentCategory: '3a',
-                  ),
+                  // Codex W3 : en usage standalone (pas de profil → pas de score
+                  // canonique ET pas de dataSources), on NE rend PAS de banniere
+                  // 0% (le plancher fiction 50.0 a ete retire au plan 11). La
+                  // banniere n'apparait que quand il y a un profil a scorer.
+                  if (_canonicalConfidence != null || _dataSources.isNotEmpty)
+                    IndicatifBanner(
+                      confidenceScore: _result!.confidenceScore,
+                      topEnrichmentCategory: '3a',
+                    ),
                   if (_hasEstimatedValues)
                     Padding(
                       padding: const EdgeInsets.only(bottom: MintSpacing.sm),
