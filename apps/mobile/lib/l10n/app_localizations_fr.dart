@@ -712,6 +712,13 @@ class SFr extends S {
       'Avoir au mariage requis pour chaque conjoint — sans cette donnée, le montant du partage ne peut pas être établi.';
 
   @override
+  String get divorceHeroDonneeRequiseValue => 'Donnée requise';
+
+  @override
+  String get divorceHeroDonneeRequiseLabel =>
+      'Partage LPP — avoir au mariage manquant';
+
+  @override
   String get divorce3aConjoint1 => '3a Conjoint 1';
 
   @override
@@ -730,7 +737,7 @@ class SFr extends S {
   String get divorcePartageLpp => 'PARTAGE LPP';
 
   @override
-  String get divorceTotalLpp => 'Total LPP (pendant le mariage)';
+  String get divorceTotalLpp => 'Avoir LPP total (actuel)';
 
   @override
   String get divorcePartConjoint1 => 'Part Conjoint 1';

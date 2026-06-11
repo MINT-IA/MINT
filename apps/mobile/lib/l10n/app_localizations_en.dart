@@ -710,6 +710,13 @@ class SEn extends S {
       'Balance at marriage required for each spouse — without it, the split amount cannot be established.';
 
   @override
+  String get divorceHeroDonneeRequiseValue => 'Data required';
+
+  @override
+  String get divorceHeroDonneeRequiseLabel =>
+      'LPP split — balance at marriage missing';
+
+  @override
   String get divorce3aConjoint1 => '3a Spouse 1';
 
   @override
@@ -728,7 +735,7 @@ class SEn extends S {
   String get divorcePartageLpp => 'LPP SHARING';
 
   @override
-  String get divorceTotalLpp => 'Total LPP (during marriage)';
+  String get divorceTotalLpp => 'Total LPP assets (current)';
 
   @override
   String get divorcePartConjoint1 => 'Share Spouse 1';

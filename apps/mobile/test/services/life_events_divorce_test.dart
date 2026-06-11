@@ -138,6 +138,12 @@ void main() {
       expect(result.lppSplit.transferAmount, 0,
           reason: 'Aucun montant de transfert certain sans la donnée');
       expect(result.lppSplit.transferDirection, '-');
+      // L'avoir LPP total ACTUEL est connu (300000 + 100000) — il est conservé,
+      // seul le split/transfert reste bloqué.
+      expect(result.lppSplit.totalLpp, 400000,
+          reason: 'Le total LPP actuel connu n\'est pas remis à zéro');
+      expect(result.lppSplit.acquisConjoint1, 0);
+      expect(result.lppSplit.acquisConjoint2, 0);
     });
 
     test(

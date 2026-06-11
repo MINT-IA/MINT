@@ -711,6 +711,13 @@ class SPt extends S {
       'Saldo no casamento necessário para cada cônjuge — sem este dado, o valor da partilha não pode ser estabelecido.';
 
   @override
+  String get divorceHeroDonneeRequiseValue => 'Dado necessário';
+
+  @override
+  String get divorceHeroDonneeRequiseLabel =>
+      'Partilha LPP — saldo no casamento em falta';
+
+  @override
   String get divorce3aConjoint1 => '3a Cônjuge 1';
 
   @override
@@ -729,7 +736,7 @@ class SPt extends S {
   String get divorcePartageLpp => 'PARTILHA LPP';
 
   @override
-  String get divorceTotalLpp => 'Total LPP (durante o casamento)';
+  String get divorceTotalLpp => 'Haver LPP total (atual)';
 
   @override
   String get divorcePartConjoint1 => 'Parte Cônjuge 1';

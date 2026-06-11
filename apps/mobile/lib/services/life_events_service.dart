@@ -154,8 +154,11 @@ class DivorceService {
       // peut pas isoler la part acquise pendant le mariage. On ne splitte PAS
       // l'avoir total \u2014 on signale un r\u00e9sultat incomplet \u00e0 l'UI.
       lppTransfer = 0;
-      lppSplit = const LppSplitResult(
-        totalLpp: 0,
+      lppSplit = LppSplitResult(
+        // L'avoir LPP total ACTUEL des deux conjoints est connu — on le conserve.
+        // Seule la part acquise pendant le mariage (et donc le split/transfert)
+        // reste bloquée faute d'avoir au mariage.
+        totalLpp: totalLpp,
         acquisConjoint1: 0,
         acquisConjoint2: 0,
         shareConjoint1: 0,

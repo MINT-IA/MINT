@@ -223,6 +223,20 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   // --- Hero Card (shown after simulation) ---
   Widget _buildDivorceHeroCard() {
     final r = _result!;
+    // Quand l'avoir au mariage manque, le montant du transfert ne peut pas être
+    // établi avec certitude. Le hero ne doit JAMAIS afficher un « CHF 0 » de
+    // transfert fabriqué — il rend l'état « donnée requise », cohérent avec la
+    // carte détaillée (CC art. 122 / LFLP art. 22a).
+    if (r.lppSplit.isIncomplete) {
+      return MintResultHeroCard(
+        eyebrow: S.of(context)!.divorcePartageLpp,
+        primaryValue: S.of(context)!.divorceHeroDonneeRequiseValue,
+        primaryLabel: S.of(context)!.divorceHeroDonneeRequiseLabel,
+        narrative: S.of(context)!.divorceSplitDonneeRequise,
+        accentColor: MintColors.info,
+        tone: MintSurfaceTone.peche,
+      );
+    }
     return MintResultHeroCard(
       eyebrow: S.of(context)!.divorcePartageLpp,
       primaryValue: _chfFmt(r.lppSplit.transferAmount),

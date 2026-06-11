@@ -717,6 +717,13 @@ class SDe extends S {
       'Guthaben bei der Heirat für beide Ehepartner erforderlich — ohne diese Angabe kann der Teilungsbetrag nicht ermittelt werden.';
 
   @override
+  String get divorceHeroDonneeRequiseValue => 'Angabe erforderlich';
+
+  @override
+  String get divorceHeroDonneeRequiseLabel =>
+      'BVG-Teilung — Guthaben bei der Heirat fehlt';
+
+  @override
   String get divorce3aConjoint1 => '3a Ehepartner 1';
 
   @override
@@ -735,7 +742,7 @@ class SDe extends S {
   String get divorcePartageLpp => 'BVG-TEILUNG';
 
   @override
-  String get divorceTotalLpp => 'Total BVG (während der Ehe)';
+  String get divorceTotalLpp => 'Gesamtes BVG-Guthaben (aktuell)';
 
   @override
   String get divorcePartConjoint1 => 'Anteil Ehepartner 1';

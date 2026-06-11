@@ -1419,6 +1419,18 @@ abstract class S {
   /// **'Avoir au mariage requis pour chaque conjoint — sans cette donnée, le montant du partage ne peut pas être établi.'**
   String get divorceSplitDonneeRequise;
 
+  /// No description provided for @divorceHeroDonneeRequiseValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée requise'**
+  String get divorceHeroDonneeRequiseValue;
+
+  /// No description provided for @divorceHeroDonneeRequiseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage LPP — avoir au mariage manquant'**
+  String get divorceHeroDonneeRequiseLabel;
+
   /// No description provided for @divorce3aConjoint1.
   ///
   /// In fr, this message translates to:
@@ -1458,7 +1470,7 @@ abstract class S {
   /// No description provided for @divorceTotalLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Total LPP (pendant le mariage)'**
+  /// **'Avoir LPP total (actuel)'**
   String get divorceTotalLpp;
 
   /// No description provided for @divorcePartConjoint1.

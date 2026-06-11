@@ -712,6 +712,13 @@ class SEs extends S {
       'Saldo al matrimonio requerido para cada cónyuge — sin este dato, no se puede establecer el importe del reparto.';
 
   @override
+  String get divorceHeroDonneeRequiseValue => 'Dato requerido';
+
+  @override
+  String get divorceHeroDonneeRequiseLabel =>
+      'Reparto LPP — falta el saldo al matrimonio';
+
+  @override
   String get divorce3aConjoint1 => '3a Cónyuge 1';
 
   @override
@@ -730,7 +737,7 @@ class SEs extends S {
   String get divorcePartageLpp => 'REPARTO LPP';
 
   @override
-  String get divorceTotalLpp => 'Total LPP (durante el matrimonio)';
+  String get divorceTotalLpp => 'Haber LPP total (actual)';
 
   @override
   String get divorcePartConjoint1 => 'Parte Cónyuge 1';
