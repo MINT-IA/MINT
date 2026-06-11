@@ -1,9 +1,9 @@
 """Phase mint-calc-engine-v1 Plan 04 — L4 wedge endpoint contract tests.
 
 Finding 5 of CONTEXT.md : L4 invariants ship FIRST in W1 as the wedge for
-L2/L3 (which carry higher LSFin risk). The « 33% LCC plafond » mortgage-cap
-invariant is pure information générale + legal article reference (LCC art. 28)
-— lowest LSFin-risk surface, highest user-value surface.
+L2/L3 (which carry higher LSFin risk). The « 33% plafond de charge » mortgage-cap
+invariant is pure information générale + legal article reference (Directives ASB,
+FINMA) — lowest LSFin-risk surface, highest user-value surface.
 
 Tests :
   1. GET returns 200 with L4InvariantPayload-shaped JSON (camelCase aliasing).
@@ -42,9 +42,12 @@ def test_l4_mortgage_cap_returns_200_with_l4_envelope(client: TestClient) -> Non
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert body["level"] == "L4"
-    assert body["legal_article_ref"] == "LCC art. 28"
+    assert body["legal_article_ref"] == "Directives ASB (FINMA)"
     assert "33%" in body["condition_text_fr"]
-    assert "LCC" in body["condition_text_fr"]
+    assert "ASB" in body["condition_text_fr"]
+    # The 33% mortgage-charge cap does NOT derive from the LCC (which excludes
+    # mortgage credit, LCC art. 7) — guard against the prior false citation.
+    assert "LCC" not in body["condition_text_fr"]
 
 
 # ---------------------------------------------------------------------------
@@ -62,7 +65,7 @@ def test_l4_mortgage_cap_body_validates_against_l4_payload(client: TestClient) -
     assert resp.status_code == 200
     payload = L4InvariantPayload.model_validate(resp.json())
     assert payload.level.value == "L4"
-    assert payload.legal_article_ref == "LCC art. 28"
+    assert payload.legal_article_ref == "Directives ASB (FINMA)"
     assert len(payload.condition_text_fr) >= 20  # min_length floor
 
 
