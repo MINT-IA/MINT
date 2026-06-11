@@ -140,6 +140,44 @@ Both tasks followed RED → GREEN. RED commits (`e52c598a9`, `3443bda83`) docume
 - All 9 declared files exist on disk (2 created, 6 modified, 1 SUMMARY).
 - All 4 task commits exist in git log (`e52c598a9`, `a931b6a0a`, `3443bda83`, `eeffec4ae`).
 
+## Post-review gap closure (Codex P1)
+
+An independent Codex CLI review of the merged W2 wave found 2 verified P1 issues in the FATCA/3a gates this plan shipped. Both fixed, with tests. (Date: 2026-06-11.)
+
+### P1 #1 — Global FATCA gate not reactive to async profile hydration
+
+- **Found by:** Codex CLI review (merged-W2 audit).
+- **Issue:** The global archetype/FATCA redirect (this plan, Task 1) reads `context.read<CoachProfileProvider>().profile` synchronously inside `redirect:` (`apps/mobile/lib/app.dart`), but `GoRouter.refreshListenable` was bound to `_authNotifier` only. The profile hydrates asynchronously (`loadFromWizard()` → `notifyListeners()` on `CoachProfileProvider`). On cold start a persisted `expatUs` profile lands on `/home` with `profile == null` (fail-open by design) and was **never** redirected to `/waitlist` until the next auth event or manual navigation.
+- **Fix:** Extended `_AuthRouterBridge` (the existing widget that exists precisely because `refreshListenable` alone missed auth changes) to also bind `CoachProfileProvider` and forward its ticks to the router-bound `_authNotifier` — same subscribe-and-poke pattern as the auth binding. Now any profile `notifyListeners()` re-runs the redirect.
+- **Files modified:** `apps/mobile/lib/app.dart` (`_AuthRouterBridge` → binds both `AuthProvider` and `CoachProfileProvider`).
+- **Test:** `apps/mobile/test/screens/fatca_gate_test.dart` — new `testWidgets` group "router reactivity to async profile hydration (Codex P1)". A minimal `MaterialApp.router` mirrors production wiring (refreshListenable poked by a listener on a profile notifier, redirect calls the real `archetypeRedirectTarget`); proves: profile hydrates to `expatUs` AFTER first route resolution → redirected to `/waitlist` with no auth event and no manual navigation. First-resolution null-profile case asserts no flash-block (stays on /home).
+- **Commit:** `c70e73337`
+
+### P1 #2 — 3a plafond still leaked for US persons (room calculator + opener)
+
+Two leak paths this plan's gate missed:
+
+- **(a) `Pillar3aRoomCalculator.annualCeiling()`** (`apps/mobile/lib/services/financial_core/pillar3a_room_calculator.dart`) ignored eligibility and returned the statutory 7258 CHF for every non-`independentNoLpp` archetype, including `expatUs`. `remainingAnnualRoom` flows through `annualCeiling`, so US persons saw deductible room.
+- **(b) `DataDrivenOpenerService`** (`apps/mobile/lib/services/coach/data_driven_opener_service.dart`, `_checkDeadlineUrgency` + `_checkSavingsOpportunity`) gated on `state.profile.prevoyance.canContribute3a`, but `PrevoyanceProfile.canContribute3a` defaults to `true` and `CoachProfile.fromWizardAnswers()` never sets it — so a US person built via the normal flow passed the gate.
+- **Fix (a):** `annualCeiling` returns `0.0` when the archetype-aware top-level getter `CoachProfile.canContribute3a` (delegates to `ArchetypePredicates`) is false; `remainingAnnualRoom` is gated transitively.
+- **Fix (b):** Both opener call sites switched from `prevoyance.canContribute3a` to the top-level `profile.canContribute3a` (defense-in-depth alongside fix (a)).
+- **Scope check (`grep -rn "prevoyance.canContribute3a" apps/mobile/lib/`):** Only the two opener call sites were eligibility gates for the **main user** that the review flagged. The getter's own fallback at `coach_profile.dart:2120` (`prevoyanceFallback`) was left untouched (intentional). `couple_action_plan.dart:316` reads the **conjoint's** prevoyance (a different person, not the US main user) — out of scope. The narrative-service gate at `coach_narrative_service.dart:1019` (`remaining3aRoom > 0 && profile.prevoyance.canContribute3a`) is now protected by `remaining3aRoom > 0` becoming false via fix (a) for US persons, so it was left surgical.
+- **Tests:**
+  - `apps/mobile/test/services/financial_core/pillar3a_room_calculator_test.dart` — new "eligibility gate (expatUs / FATCA — Codex P1)" group: expatUs `annualCeiling` → 0.0, `remainingAnnualRoom` → 0.0, swissNative ceiling unaffected (no regression).
+  - `apps/mobile/test/services/coach/data_driven_opener_service_test.dart` — new tests `7b` (December + US person via `usTaxPerson` with `prevoyance.canContribute3a` left at default `true` → no `deadlineUrgency`) and `12b` (US person → no `savingsOpportunity`). These exercise the realistic leak the review described.
+- **Commit:** `8fbe74baa`
+
+### Gap-closure verification
+
+- `flutter analyze` on the 6 changed files → **No issues found! (ran in 5.2s)**.
+- `flutter test test/screens/fatca_gate_test.dart` → **+8 All tests passed** (7 original + 1 router-reactivity).
+- `flutter test test/services/financial_core/pillar3a_room_calculator_test.dart` → **+10 All tests passed** (7 original + 3 eligibility-gate).
+- `flutter test test/services/coach/data_driven_opener_service_test.dart` → **+24 All tests passed** (22 original + 2 US-person).
+- `flutter test test/services/financial_core/ test/services/coach/` → **+951 All tests passed** (no regression across the financial_core + coach service dirs).
+- `flutter test test/services/response_card_service_fatca_test.dart test/widgets/coach/countdown_3a_widget_test.dart test/services/financial_parity_test.dart` → **+54 All tests passed** (FATCA/3a-adjacent regression guard).
+- **Caveat (0-TRUST §9):** unit + widget tests green; end-to-end sim walkthrough of the cold-start hydration redirect remains UNKNOWN — same W2 device-proof gate already deferred to the orchestrator above.
+
 ---
 *Phase: mint-illogism-fixes*
 *Completed: 2026-06-11*
+*Codex P1 gap closure appended: 2026-06-11*
