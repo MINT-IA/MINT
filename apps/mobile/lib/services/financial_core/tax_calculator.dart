@@ -538,15 +538,36 @@ class RetirementTaxCalculator {
     int contributionMonths = 12,
     double? contribution,
     double? actualMarginalRate,
+    /// Revenu professionnel NET (indépendant sans LPP). Quand fourni, sert de
+    /// base au plafond sans-LPP (OPP3 art. 7 al. 2). Si absent, le net est
+    /// dérivé du brut via [NetIncomeBreakdown] — JAMAIS le brut nu.
+    double? netProfessionalIncome,
+    /// Âge — utilisé uniquement pour dériver le net (NetIncomeBreakdown) quand
+    /// [netProfessionalIncome] est absent.
+    int age = 45,
   }) {
     if (grossAnnualSalary <= 0) return Pillar3aTaxImpactEstimate.unavailable;
     final months = contributionMonths.clamp(1, 12);
 
-    // Ceiling depends on LPP affiliation (OPP3 art. 7)
-    final double annualCeiling = hasLpp
-        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
-        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
-            .clamp(0.0, pilier3aPlafondSansLpp);
+    // Ceiling depends on LPP affiliation (OPP3 art. 7).
+    // Sans LPP (art. 7 al. 2) : 20% du revenu professionnel NET, borné 36288.
+    // Base NET fournie par l'appelant, ou dérivée du brut (NetIncomeBreakdown,
+    // canton + âge aware) — JAMAIS le brut nu (finding independent_no_lpp-1).
+    final double annualCeiling;
+    if (hasLpp) {
+      annualCeiling = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    } else {
+      final double netBase = netProfessionalIncome ??
+          NetIncomeBreakdown.compute(
+            grossSalary: grossAnnualSalary,
+            canton: canton,
+            age: age,
+            etatCivil: isMarried ? 'marie' : 'celibataire',
+            nombreEnfants: children,
+          ).netPayslip;
+      annualCeiling =
+          (netBase * pilier3aTauxRevenuSansLpp).clamp(0.0, pilier3aPlafondSansLpp);
+    }
 
     // Pro-rate for partial year
     final double proRatedCeiling = annualCeiling * months / 12;
