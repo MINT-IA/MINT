@@ -2881,6 +2881,7 @@
   "renteVsCapitalAge": "A tua idade",
   "renteVsCapitalSalary": "O teu rendimento bruto anual (CHF)",
   "renteVsCapitalLppTotal": "O teu capital LPP atual (CHF)",
+  "renteVsCapitalEmptyState": "Completa o teu perfil ou introduz os teus valores para iniciar a simulação.",
   "renteVsCapitalLppOblig": "Capital LPP obrigatório (certificado LPP)",
   "renteVsCapitalLppSurob": "Capital LPP sobreobrigatório (certificado LPP)",
   "renteVsCapitalRenteProposed": "Renda anual proposta (certificado LPP)",

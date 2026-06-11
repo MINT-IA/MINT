@@ -2881,6 +2881,7 @@
   "renteVsCapitalAge": "Dein Alter",
   "renteVsCapitalSalary": "Dein jährliches Bruttoeinkommen (CHF)",
   "renteVsCapitalLppTotal": "Dein aktuelles BVG-Guthaben (CHF)",
+  "renteVsCapitalEmptyState": "Vervollständige dein Profil oder gib deine Werte ein, um die Simulation zu starten.",
   "renteVsCapitalLppOblig": "Obligatorisches BVG-Guthaben (Vorsorgeausweis)",
   "renteVsCapitalLppSurob": "Überobligatorisches BVG-Guthaben (Vorsorgeausweis)",
   "renteVsCapitalRenteProposed": "Vorgeschlagene Jahresrente (Vorsorgeausweis)",

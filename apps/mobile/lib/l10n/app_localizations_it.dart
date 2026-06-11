@@ -6046,6 +6046,10 @@ class SIt extends S {
   String get renteVsCapitalLppTotal => 'Il tuo avere LPP attuale (CHF)';
 
   @override
+  String get renteVsCapitalEmptyState =>
+      'Completa il tuo profilo o inserisci i tuoi valori per avviare la simulazione.';
+
+  @override
   String get renteVsCapitalLppOblig =>
       'Avere LPP obbligatorio (certificato LPP)';
 

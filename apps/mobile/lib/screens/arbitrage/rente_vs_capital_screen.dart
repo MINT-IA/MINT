@@ -59,16 +59,28 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   _InputMode _inputMode = _InputMode.estimate;
 
   // ── Estimate mode controllers ──
-  final _ageCtrl = TextEditingController(text: '50');
+  // ILLOG-01 (MATRIX D5) : NO fiction defaults. Fields start empty so the
+  // screen never renders an invented avoir/salaire/âge as if it were the
+  // user's data (which bypassed ProfileDataSource and computed a phantom
+  // « Capital estimé à 65 ans »). The ONLY fill path is
+  // _autoFillFromProfile (ProfileDataSource-tagged) ; without usable
+  // profile data the fields stay empty and an explicit empty state invites
+  // the user to complete their profile or type their values.
+  final _ageCtrl = TextEditingController();
   final _ageRetraiteSlider =
       ValueNotifier<double>(avsAgeReferenceHomme.toDouble());
-  final _salaryCtrl = TextEditingController(text: '100000');
-  final _lppTotalCtrl = TextEditingController(text: '350000');
+  final _salaryCtrl = TextEditingController();
+  final _lppTotalCtrl = TextEditingController();
 
   // ── Certificate mode controllers ──
-  final _capitalObligCtrl = TextEditingController(text: '500000');
-  final _capitalSurobCtrl = TextEditingController(text: '150000');
-  final _renteCtrl = TextEditingController(text: '37000');
+  // Capital / rente fields are the user's OWN certificate values — never
+  // pre-invented (ILLOG-01). The conversion-rate fields keep the Swiss LPP
+  // statutory minima (6.8% obligatoire / 5.0% surobligatoire) as a starting
+  // hypothesis — these are regulatory constants, NOT user-data fiction, and
+  // are clearly editable.
+  final _capitalObligCtrl = TextEditingController();
+  final _capitalSurobCtrl = TextEditingController();
+  final _renteCtrl = TextEditingController();
   final _tcObligCtrl = TextEditingController(text: '6.8');
   final _tcSurobCtrl = TextEditingController(text: '5.0');
 
@@ -413,9 +425,36 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     });
   }
 
+  /// ILLOG-01 : whether there is a usable LPP input to project on. Without
+  /// it the screen shows the explicit empty state instead of computing a
+  /// projection on a phantom (invented) avoir.
+  bool get _hasUsableInputs {
+    if (_inputMode == _InputMode.estimate) {
+      final lpp = double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 0;
+      return lpp > 0;
+    }
+    final oblig =
+        double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 0;
+    final surob =
+        double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 0;
+    return oblig > 0 || surob > 0;
+  }
+
   Future<void> _recalculateAsync() async {
     final requestId = ++_requestCounter;
     final ageRetraite = _ageRetraiteSlider.value.round();
+
+    // ILLOG-01 : never compute on a phantom avoir. With no usable LPP input,
+    // clear any prior result so the explicit empty state renders.
+    if (!_hasUsableInputs) {
+      if (!mounted) return;
+      setState(() {
+        _result = null;
+        _isLoading = false;
+        _hasError = false;
+      });
+      return;
+    }
 
     double capitalOblig, capitalSurob, renteAnnuelle;
     double tcOblig, tcSurob;
@@ -423,9 +462,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     double? salary;
 
     if (_inputMode == _InputMode.estimate) {
-      // Estimate mode: use LPP total with 70/30 split as starting point
+      // Estimate mode: use LPP total with 70/30 split as starting point.
+      // No fiction fallback — _hasUsableInputs already guaranteed lpp > 0.
       final lppTotal =
-          double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 350000;
+          double.tryParse(_lppTotalCtrl.text.replaceAll("'", '')) ?? 0;
       capitalOblig = lppTotal * 0.7;
       capitalSurob = lppTotal * 0.3;
       tcOblig = lppTauxConversionMin / 100;
@@ -434,13 +474,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       currentAge = int.tryParse(_ageCtrl.text);
       salary = double.tryParse(_salaryCtrl.text.replaceAll("'", ''));
     } else {
-      // Certificate mode: direct values
+      // Certificate mode: direct values. No fiction fallback — empty fields
+      // parse to 0 (the user's own values are the only source).
       capitalOblig =
-          double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 500000;
+          double.tryParse(_capitalObligCtrl.text.replaceAll("'", '')) ?? 0;
       capitalSurob =
-          double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 150000;
-      renteAnnuelle =
-          double.tryParse(_renteCtrl.text.replaceAll("'", '')) ?? 37000;
+          double.tryParse(_capitalSurobCtrl.text.replaceAll("'", '')) ?? 0;
+      renteAnnuelle = double.tryParse(_renteCtrl.text.replaceAll("'", '')) ?? 0;
       tcOblig = (double.tryParse(_tcObligCtrl.text) ?? 6.8) / 100;
       tcSurob = (double.tryParse(_tcSurobCtrl.text) ?? 5.0) / 100;
       currentAge = null;
@@ -922,6 +962,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               label: S.of(context)!.renteVsCapitalLppTotal,
               fieldName: 'lpp_total',
             ),
+            // ILLOG-01 : explicit empty state when no usable input — replaces
+            // the removed fiction defaults. No projection on a phantom avoir.
+            if (!_hasUsableInputs) ...[
+              const SizedBox(height: MintSpacing.sm),
+              _buildEmptyStateHint(),
+            ],
             // Auto-computed readout
             if (_result != null && _result!.isProjected) ...[
               const SizedBox(height: MintSpacing.sm),
@@ -1003,6 +1049,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 ),
               ],
             ),
+            // ILLOG-01 : explicit empty state when no usable certificate
+            // capital entered — no projection on a phantom avoir.
+            if (!_hasUsableInputs) ...[
+              const SizedBox(height: MintSpacing.sm),
+              _buildEmptyStateHint(),
+            ],
             // Confidence gratification
             if (_result != null)
               Padding(
@@ -1228,6 +1280,42 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             onChanged: (_) => _userRecalculate(),
           ),
         ],
+      ),
+    );
+  }
+
+  /// ILLOG-01 (MATRIX D5) : explicit empty-state invitation shown in place of
+  /// the removed fiction defaults. Renders when no usable LPP input exists, so
+  /// the user sees a clear « complète ton profil ou saisis tes valeurs » call
+  /// to action rather than an invented projection presented as their data.
+  Widget _buildEmptyStateHint() {
+    return Semantics(
+      label: S.of(context)!.renteVsCapitalEmptyState,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.edit_note_outlined,
+                size: 20, color: MintColors.textMuted),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: ExcludeSemantics(
+                child: Text(
+                  S.of(context)!.renteVsCapitalEmptyState,
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

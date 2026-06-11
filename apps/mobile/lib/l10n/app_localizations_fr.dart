@@ -6039,6 +6039,10 @@ class SFr extends S {
   String get renteVsCapitalLppTotal => 'Ton avoir LPP actuel (CHF)';
 
   @override
+  String get renteVsCapitalEmptyState =>
+      'Complète ton profil ou saisis tes valeurs pour lancer la simulation.';
+
+  @override
   String get renteVsCapitalLppOblig => 'Avoir LPP obligatoire (certificat LPP)';
 
   @override

@@ -127,11 +127,16 @@ void main() {
       expect(find.textContaining('Mixte'), findsWidgets);
     });
 
-    testWidgets('has default LPP total input pre-filled', (tester) async {
+    testWidgets(
+        'ILLOG-01: no fiction LPP default — empty fields + explicit empty '
+        'state when no profile', (tester) async {
       await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      // Default text: '350000'
-      expect(find.textContaining('350'), findsWidgets);
+      await tester.pump(const Duration(milliseconds: 600));
+      // The removed fiction default ('350000') must NOT render as data.
+      expect(find.text('350000'), findsNothing);
+      // An explicit empty-state invitation is shown instead.
+      final ctx = tester.element(find.byType(RenteVsCapitalScreen));
+      expect(find.text(S.of(ctx)!.renteVsCapitalEmptyState), findsOneWidget);
     });
 
     testWidgets('has age input field', (tester) async {
@@ -200,7 +205,12 @@ void main() {
       tester.view.physicalSize = const Size(800, 1600);
       addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(buildScreen());
+      // ILLOG-01: a result only computes from a usable LPP input (no fiction
+      // default), so seed a profile with a real LPP balance.
+      await tester.pumpWidget(
+        _buildWrapped(const RenteVsCapitalScreen(),
+            profile: _debtPriorityProfile()),
+      );
       await tester.pump(const Duration(milliseconds: 350));
       await tester.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
