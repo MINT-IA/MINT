@@ -16,16 +16,16 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
+      const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: const Scaffold(
+        home: Scaffold(
           body: Center(
             child: CoachPacketInsightCard(insight: insight),
           ),

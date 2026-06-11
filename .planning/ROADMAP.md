@@ -50,7 +50,7 @@ Plans:
 - [x] mint-illogism-fixes-14-w4-3a-suggestion-cap-PLAN.md — suggestion 3a plafonnée au plafond légal restant
 - [x] mint-illogism-fixes-15-w4-affordability-unify-lcc-PLAN.md — revenu de ménage unifié + citation LCC corrigée
 - [x] mint-illogism-fixes-16-w5-cta-dashboard-truth-PLAN.md — tableau retraite sur la source /home + CTA vivant
-- [ ] mint-illogism-fixes-17-w5-surfaces-honnetes-strings-PLAN.md — what-if mariage étiqueté + labels a11y + i18n + clôture device D1-D12
+- [x] mint-illogism-fixes-17-w5-surfaces-honnetes-strings-PLAN.md — what-if mariage étiqueté + labels a11y + i18n + clôture device D1-D12
 
 ### Phase: mint-calc-engine-v1
 **Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
