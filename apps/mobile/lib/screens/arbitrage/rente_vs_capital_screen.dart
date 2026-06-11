@@ -117,7 +117,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   double? _canonicalConfidence;
 
   // ── GoRouter prefill from coach suggestion ──
-  Map<String, dynamic>? _goRouterPrefill;
+  // The prefill map is read from GoRouterState.extra in the postFrameCallback
+  // and applied immediately (it is not stored — see _applyPrefill / Codex W3 fix).
   final Set<String> _prefilledFields = {};
 
   // ── F2-6: Gate ScreenReturn behind user interaction ──
@@ -146,7 +147,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           _seqStepId = extra['stepId'] as String?;
           final prefill = extra['prefill'] as Map<String, dynamic>?;
           if (prefill != null) {
-            _goRouterPrefill = prefill;
+            // Codex W3 fix : the postFrameCallback runs AFTER didChangeDependencies
+            // (so AFTER _autoFillFromProfile), and the GoRouter extra is only
+            // readable here — apply the coach prefill now. _applyPrefill running
+            // last preserves the "coach values win over profile autofill"
+            // invariant, and it runs independent of profile presence (a coach
+            // suggestion can target a user with no stored profile).
+            if (!mounted) return;
+            _applyPrefill(prefill);
           }
         }
       } catch (_) {}
@@ -296,10 +304,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       _recalculate();
     }
 
-    // Apply GoRouter coach prefill AFTER profile auto-fill so coach values win.
-    if (_goRouterPrefill != null) {
-      _applyPrefill(_goRouterPrefill!);
-    }
+    // Coach prefill is applied from the postFrameCallback (the only place the
+    // GoRouter extra is readable, and which runs AFTER this profile auto-fill
+    // so coach values win). It is intentionally NOT applied here: the prefill
+    // is not yet available because didChangeDependencies fires before the
+    // first frame. (Codex W3 fix.)
   }
 
   /// Write computed results back to CoachProfile.
