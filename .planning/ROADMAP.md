@@ -32,6 +32,25 @@
 **Status**: 📋 Planned — opened 2026-06-11 under milestone Core Journey Truth / Prod Ready (la matrice EST du journey-truth).
 **Depends on**: `reports/MATRIX-illogismes-2026-06-09.md` (contrat d'entrée) ; flows de régression `tools/simulator/flows/regression/bug__ILLOG0{1,2}*.yaml` (OPEN-RED, doivent passer GREEN) ; coexiste avec `mint-data-architecture-v1-02-deploy` (pas de chevauchement schéma — cette phase est calcul mobile + UX onboarding).
 **Acceptance**: chaque ligne de matrice fermée = oracle de reproduction re-run vert + device-proof sim (0-TRUST §9) ; flows ILLOG01/02 GREEN ; aucun claim sans citation.
+**Plans**: 17 plans (14 vagues d'exécution — séquentiel sur les hotspots minimal_profile_service + ARB, parallèle waves 7/8/12)
+Plans:
+- [ ] mint-illogism-fixes-01-w1-lpp-avoir-canonical-PLAN.md — avoir LPP → LppCalculator (+ squelette parité Wave 0)
+- [ ] mint-illogism-fixes-02-w1-lpp-rente-conversion-PLAN.md — rente LPP → adjustedConversionRate partout (+ impact rachat)
+- [ ] mint-illogism-fixes-03-w1-replacement-rate-net-PLAN.md — taux de remplacement NET unique + base nette NetIncomeBreakdown
+- [ ] mint-illogism-fixes-04-w1-plafond-3a-net-base-PLAN.md — plafond 3a indépendant sur revenu NET (OPP3 art.7 al.2)
+- [ ] mint-illogism-fixes-05-w1-3a-tax-saving-married-PLAN.md — économie 3a isMarried/children + device-proof W1
+- [ ] mint-illogism-fixes-06-w2-onboarding-archetype-questions-PLAN.md — questions statut emploi / état civil / lacunes AVS
+- [ ] mint-illogism-fixes-07-w2-lpp-zero-divorce-gates-PLAN.md — prédicat LPP=0 unifié + gate divorcé
+- [ ] mint-illogism-fixes-08-w2-3a-eligibility-fatca-global-PLAN.md — FATCA gate global GoRouter + 3a quasi-résident
+- [ ] mint-illogism-fixes-09-w5-illog02-rvc-semantics-PLAN.md — ILLOG-02 arbre AX RvC (débloque le gate Maestro d'ILLOG-01)
+- [ ] mint-illogism-fixes-10-w3-rvc-fiction-defaults-PLAN.md — défauts fiction RvC tués + flow ILLOG01 GREEN
+- [ ] mint-illogism-fixes-11-w3-confidence-gate-estime-tags-PLAN.md — Confidence Gate <50 + hero 3 états + source de confiance unique
+- [ ] mint-illogism-fixes-12-w4-divorce-split-mariage-PLAN.md — split divorce borné à la part-mariage (CC art.122)
+- [ ] mint-illogism-fixes-13-w4-avs-gapfactor-PLAN.md — gapFactor AVS plumbé + scène rente_trouee honnête
+- [ ] mint-illogism-fixes-14-w4-3a-suggestion-cap-PLAN.md — suggestion 3a plafonnée au plafond légal restant
+- [ ] mint-illogism-fixes-15-w4-affordability-unify-lcc-PLAN.md — revenu de ménage unifié + citation LCC corrigée
+- [ ] mint-illogism-fixes-16-w5-cta-dashboard-truth-PLAN.md — tableau retraite sur la source /home + CTA vivant
+- [ ] mint-illogism-fixes-17-w5-surfaces-honnetes-strings-PLAN.md — what-if mariage étiqueté + labels a11y + i18n + clôture device D1-D12
 
 ### Phase: mint-calc-engine-v1
 **Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
