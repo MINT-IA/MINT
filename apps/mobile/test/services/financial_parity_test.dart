@@ -923,23 +923,35 @@ void main() {
         householdType: 'couple',
       );
 
-      // response_card_service.dart:674-678 calcule taxSaving = remainingRoom ×
-      // estimateMarginalRate(isMarried: true, children:). Le taux marginal du
-      // barème marié est le même côté onboarding (estimate3aTaxImpact passe par
-      // estimateMarginalRate avec isMarried câblé) — fin de la divergence
-      // structurelle inter-écran.
+      // Onboarding (estimate3aTaxImpact) expose son taux marginal interne via
+      // marginalTaxRate. La divergence structurelle salarie_swiss-3 était :
+      // onboarding sur barème CÉLIBATAIRE vs response_card sur barème MARIÉ.
+      // Référence des DEUX barèmes au point de revenu de l'onboarding.
       final marginalMarie = RetirementTaxCalculator.estimateMarginalRate(
         gross,
         canton,
         isMarried: true,
         children: 0,
       );
+      final marginalCelibataire = RetirementTaxCalculator.estimateMarginalRate(
+        gross,
+        canton,
+        isMarried: false,
+        children: 0,
+      );
 
-      // Les DEUX chemins utilisent le barème marié → le taux marginal est
-      // identique (fin de la divergence 1405 (single) vs 1194 (married)).
-      expect(onboarding.marginalTaxRate, closeTo(marginalMarie, 0.0001),
-          reason: 'onboarding et response_card doivent utiliser le même barème '
-              'marié — fin de la divergence 1405 (single) vs 1194 (married)');
+      // L'onboarding suit désormais le barème MARIÉ (proche de marginalMarie,
+      // au léger ajustement de revenu près dû à la demi-déduction), et plus du
+      // tout le barème célibataire — fin de la divergence inter-écran
+      // 1405 (single) vs 1194 (married). Tolérance 0.01 : estimate3aTaxImpact
+      // évalue le taux à (gross - déduction/2), response_card au gross plein ;
+      // les deux partagent l'ajustement familial 0.85, c'est le point clé.
+      expect(onboarding.marginalTaxRate, closeTo(marginalMarie, 0.01),
+          reason: 'onboarding doit utiliser le barème marié comme response_card');
+      expect((onboarding.marginalTaxRate - marginalMarie).abs(),
+          lessThan((onboarding.marginalTaxRate - marginalCelibataire).abs()),
+          reason: 'onboarding doit être plus proche du barème marié que du '
+              'barème célibataire — fin de la divergence structurelle');
     });
 
     test(
