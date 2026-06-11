@@ -133,6 +133,49 @@ class BudgetLivingEngine {
     );
   }
 
+  /// Monthly 3a contribution we may legitimately suggest from a free margin.
+  ///
+  /// W4 / D10 fix — a free-margin number is NEVER suggested as a 3a versement
+  /// without clamping to the statutory ceiling. Reproduced on device: a margin
+  /// of 1541 CHF/month suggested as-is is ~2.55× the 7258 CHF annual ceiling.
+  ///
+  /// Semantics:
+  ///   - The room is the CANONICAL remaining annual 3a room
+  ///     (`Pillar3aRoomCalculator.remainingAnnualRoom`, archetype-aware,
+  ///     net-base for independents per plan 04, FATCA-gated to 0 per plan 08).
+  ///   - A room of 0 (ceiling reached OR US person who cannot contribute) means
+  ///     NO 3a suggestion at all — returns 0.0, not a dissonant 0-CHF suggestion.
+  ///   - Otherwise the room is pro-rated over the remaining calendar months and
+  ///     capped by the available margin:
+  ///       `min(availableMonthlyMargin, remainingRoom / monthsRemaining)`.
+  ///   - A non-positive margin (deficit) yields 0.0 — nothing to suggest.
+  ///
+  /// Pure and deterministic. [now] is injectable for tests; defaults to the
+  /// current date so the proration tracks the real calendar.
+  static double cappedMonthly3aSuggestion(
+    CoachProfile profile, {
+    required double availableMonthlyMargin,
+    FinancialArchetype? archetype,
+    DateTime? now,
+  }) {
+    if (availableMonthlyMargin <= 0) return 0.0;
+
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+      profile,
+      archetype: archetype,
+    );
+    // 0 ceiling (FATCA / US person) or ceiling already reached → NO suggestion.
+    if (remainingRoom <= 0) return 0.0;
+
+    final reference = now ?? DateTime.now();
+    // Months left in the calendar year, current month inclusive
+    // (January → 12, December → 1). The room can be spread across them.
+    final monthsRemaining = (13 - reference.month).clamp(1, 12);
+    final monthlyRoom = remainingRoom / monthsRemaining;
+
+    return min(availableMonthlyMargin, monthlyRoom);
+  }
+
   // ══════════════════════════════════════════════════════════
   //  STEP 1 — PRESENT BUDGET
   // ══════════════════════════════════════════════════════════

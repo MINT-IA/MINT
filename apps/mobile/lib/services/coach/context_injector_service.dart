@@ -26,6 +26,7 @@ import 'package:mint_mobile/models/coaching_preference.dart';
 import 'package:mint_mobile/services/biography/anonymized_biography_service.dart';
 import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/biography/biography_refresh_detector.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -331,6 +332,28 @@ class ContextInjectorService {
           'Marge libre\u00a0: ${formatChfWithPrefix(snap.present.monthlyFree)}/mois');
       lines.add(
           'Charges fixes\u00a0: ${formatChfWithPrefix(snap.present.monthlyCharges)}/mois');
+
+      // W4 / D10 \u2014 NEVER suggest the raw free margin as a 3a versement.
+      // Inject the CAPPED 3a suggestion (clamped to the statutory remaining
+      // ceiling, archetype-aware) so the coach never derives an over-ceiling
+      // number (device: 1541/mois \u2248 2.55\u00d7 the 7258 annual ceiling).
+      if (profile != null && snap.present.monthlyFree > 0) {
+        final capped3a = BudgetLivingEngine.cappedMonthly3aSuggestion(
+          profile,
+          availableMonthlyMargin: snap.present.monthlyFree,
+        );
+        if (capped3a > 0) {
+          lines.add(
+              'Versement 3a sugg\u00e9rable (plafonn\u00e9 au plafond l\u00e9gal '
+              'restant)\u00a0: ${formatChfWithPrefix(capped3a)}/mois max\u00a0\u2014 '
+              'ne jamais sugg\u00e9rer plus que ce montant en 3a, ni la marge libre '
+              'enti\u00e8re.');
+        } else {
+          lines.add(
+              'Versement 3a sugg\u00e9rable\u00a0: 0 (plafond 3a atteint ou '
+              'non-\u00e9ligible)\u00a0\u2014 ne pas sugg\u00e9rer de versement 3a.');
+        }
+      }
 
       if (snap.hasFullGap) {
         final isEstimated = profile?.prevoyance.isLppEstimated ?? true;
