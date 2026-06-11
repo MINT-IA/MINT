@@ -1,0 +1,188 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+
+// ─────────────────────────────────────────────────────────────────────
+//  RETIREMENT DASHBOARD — D7 (même source que /home) + D8 (CTA vivant)
+//
+//  D7: /retraite lit le MÊME CoachProfileProvider que /home. L'état vide
+//      (« 4 infos suffisent ») ne doit PAS apparaître quand un profil est
+//      hydraté (avoir LPP visible sur /home dans la même minute). Il ne
+//      s'affiche que si le profil est RÉELLEMENT vide.
+//  D8: le CTA de l'état vide (« Commencer — 2 min ») mène à un parcours
+//      qui pose réellement des questions (route /onb avec champs de saisie),
+//      plus jamais vers le home coach sans formulaire.
+// ─────────────────────────────────────────────────────────────────────
+
+/// Wizard answers for a fully hydrated salaried profile with an LPP avoir.
+/// Mirrors the data /home reads to render « 43'691 Avoir LPP ».
+Map<String, dynamic> _hydratedAnswers() => {
+      'q_birth_year': 1983,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 6500.0,
+      'q_pay_frequency': 'monthly',
+      'q_gross_salary_annual': 102000.0,
+      'q_employment_status': 'salarie',
+      'q_household_type': 'single',
+      'q_has_pension_fund': true,
+      '_coach_avoir_lpp': 43691.0,
+      'q_target_retirement_age': 65,
+    };
+
+const _localizations = [
+  S.delegate,
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+];
+
+Widget _buildHarness({
+  required CoachProfileProvider coachProvider,
+  GoRouter? router,
+}) {
+  final app = router != null
+      ? MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: _localizations,
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        )
+      : const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: _localizations,
+          supportedLocales: S.supportedLocales,
+          home: RetirementDashboardScreen(),
+        );
+
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>.value(value: coachProvider),
+      ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
+      ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+    ],
+    child: app,
+  );
+}
+
+void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
+  group('D7 — même source que /home', () {
+    testWidgets(
+        'profil hydraté (avoir LPP) → PAS d\'état vide « 4 infos suffisent »',
+        (tester) async {
+      tester.view.physicalSize = const Size(1400, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers(_hydratedAnswers());
+      expect(provider.hasProfile, isTrue,
+          reason: 'le profil doit être hydraté (même source que /home)');
+
+      await tester.pumpWidget(_buildHarness(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 1));
+
+      // RetirementHeroZone has a fixed-width Row that overflows in the test
+      // viewport (pre-existing harness limitation, cf. retirement_dashboard_test
+      // .dart note). The overflow proves the DASHBOARD rendered, not State C —
+      // which is exactly what D7 asserts. Drain the layout exception so the
+      // text assertions below can run.
+      tester.takeException();
+
+      final l = S.of(tester.element(find.byType(RetirementDashboardScreen)))!;
+      // L'état vide d'onboarding (« 4 infos suffisent… ») ne doit PAS être rendu
+      // pour un profil hydraté : ce serait la contradiction D7 avec /home.
+      expect(find.text(l.dashboardQuickStartBody), findsNothing,
+          reason:
+              'D7: profil hydraté ne doit jamais afficher l\'état vide onboarding');
+      expect(find.byKey(const Key('state_c_start_cta')), findsNothing,
+          reason: 'D7: le CTA d\'état vide ne doit pas apparaître avec profil');
+    });
+
+    testWidgets('profil RÉELLEMENT vide → état vide affiché', (tester) async {
+      tester.view.physicalSize = const Size(1400, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final provider = CoachProfileProvider(); // no profile
+      expect(provider.hasProfile, isFalse);
+
+      await tester.pumpWidget(_buildHarness(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 1));
+
+      final l = S.of(tester.element(find.byType(RetirementDashboardScreen)))!;
+      expect(find.text(l.dashboardQuickStartBody), findsOneWidget,
+          reason: 'profil vide → l\'état vide onboarding est légitime');
+      expect(find.byKey(const Key('state_c_start_cta')), findsOneWidget);
+    });
+  });
+
+  group('D8 — CTA vivant vers un parcours qui pose des questions', () {
+    testWidgets('tap CTA état vide → route /onb (formulaire avec champ)',
+        (tester) async {
+      tester.view.physicalSize = const Size(1400, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final provider = CoachProfileProvider(); // empty → State C
+
+      final router = GoRouter(
+        initialLocation: '/retraite',
+        routes: [
+          GoRoute(
+            path: '/retraite',
+            builder: (_, __) => const RetirementDashboardScreen(),
+          ),
+          // Stub du parcours réel : un écran qui POSE une question (champ).
+          GoRoute(
+            path: '/onb',
+            builder: (_, __) => const Scaffold(
+              body: Column(
+                children: [
+                  Text('Question onboarding'),
+                  TextField(key: Key('onb_input_field')),
+                ],
+              ),
+            ),
+          ),
+          // Cible MORTE historique (D8) : home coach sans formulaire.
+          GoRoute(
+            path: '/coach/chat',
+            builder: (_, __) => const Scaffold(
+              body: Text('Home coach — aucun formulaire'),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+          _buildHarness(coachProvider: provider, router: router));
+      await tester.pump(const Duration(seconds: 1));
+
+      final cta = find.byKey(const Key('state_c_start_cta'));
+      expect(cta, findsOneWidget, reason: 'le CTA d\'état vide doit exister');
+
+      await tester.tap(cta);
+      await tester.pumpAndSettle();
+
+      // D8 fermé : le CTA mène à un écran qui POSE une question (champ de saisie),
+      // pas au home coach sans formulaire.
+      expect(find.byKey(const Key('onb_input_field')), findsOneWidget,
+          reason:
+              'D8: le CTA doit mener à un parcours avec un champ de saisie réel');
+      expect(find.text('Home coach — aucun formulaire'), findsNothing,
+          reason: 'D8: le CTA ne doit plus pointer vers le home coach mort');
+    });
+  });
+}
