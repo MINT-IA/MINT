@@ -3,6 +3,7 @@ import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 
 /// Deterministic coach whisper for the Mon argent tab.
@@ -14,12 +15,16 @@ class CoachWhisperService {
   CoachWhisperService._();
 
   /// Evaluate whisper rules. Returns null if nothing to say.
+  ///
+  /// [now] is injectable for deterministic tests; defaults to the current date
+  /// so the 3a-suggestion proration tracks the real calendar.
   static String? evaluate({
     BudgetSnapshot? budgetSnapshot,
     required BudgetInputs? budgetInputs,
     required BudgetPlan? budgetPlan,
     required PatrimoineSummary patrimoine,
     required CoachProfile? profile,
+    DateTime? now,
   }) {
     // Rule 1: Budget deficit — urgent. BudgetPlan.available is an allocation
     // amount and is intentionally non-negative, so use signed cashflow here.
@@ -38,7 +43,22 @@ class CoachWhisperService {
       final monthlyFree = budgetSnapshot?.present.monthlyFree ??
           _signedMonthlyFree(budgetSnapshot, budgetInputs, budgetPlan);
       if (monthlyNet > 0 && monthlyFree > monthlyNet * 0.15) {
-        final suggestion = (monthlyFree * 0.25).round();
+        // D10 fix \u2014 NEVER suggest the raw free margin as a 3a versement.
+        // Route through the SAME canonical clamp the LLM-context path uses
+        // (`BudgetLivingEngine.cappedMonthly3aSuggestion`, NEVER #3 reuse):
+        // - clamps to the statutory remaining annual room, archetype-aware,
+        //   pro-rated over the remaining calendar months;
+        // - returns 0 when the ceiling is reached OR the user cannot
+        //   contribute (US person / FATCA) \u2192 NO 3a whisper at all (a 0-CHF
+        //   suggestion would be a dissonant illogism).
+        // Device repro (married swiss, marge 6164): round(6164\u00d70.25)=1541/mois
+        // \u2248 2.55\u00d7 the 7258 annual ceiling. Clamped \u2192 \u2264 7258/12 \u2248 605/mois.
+        final capped = BudgetLivingEngine.cappedMonthly3aSuggestion(
+          profile,
+          availableMonthlyMargin: monthlyFree,
+          now: now,
+        );
+        final suggestion = capped.round();
         if (suggestion >= 100) {
           return 'Bon mois. Tu pourrais verser $suggestion\u00a0CHF en 3a.';
         }

@@ -211,9 +211,14 @@ void main() {
             label: 'Retraite',
           ),
         ),
+        now: DateTime(2026, 1, 15), // deterministic proration (12 months left)
       );
 
-      expect(whisper, 'Bon mois. Tu pourrais verser 1000\u00a0CHF en 3a.');
+      // D10 clamp: monthlyFree 4000 \u2192 round(4000\u00d70.25)=1000 pre-fix, but the
+      // statutory remaining ceiling /12 = 7258/12 \u2248 604.83 \u2192 605 governs.
+      // The raw 1000 (\u00d712 = 12'000 \u2248 1.65\u00d7 the 7258 ceiling) is NO LONGER
+      // suggested \u2014 the canonical clamp caps the figure.
+      expect(whisper, 'Bon mois. Tu pourrais verser 605\u00a0CHF en 3a.');
     });
   });
 }
