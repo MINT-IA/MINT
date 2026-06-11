@@ -152,12 +152,20 @@ class MinimalProfileService {
     final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core) ---
+    // Indépendant sans LPP : plafond = 20% du revenu professionnel NET
+    // (OPP3 art. 7 al. 2), JAMAIS du brut nu (finding independent_no_lpp-1).
+    // Le NET canonique (NetIncomeBreakdown) déjà calculé pour le taux de
+    // remplacement est ré-employé comme base nette annuelle.
+    final netProfessionalIncome =
+        isIndependantNoLpp ? netMonthlyIncome * 12 : null;
     final resolvedCanton = resolveCanton(canton);
     final taxImpact = resolvedCanton.isResolved && grossSalary > 0
         ? RetirementTaxCalculator.estimate3aTaxImpact(
             grossAnnualSalary: grossSalary,
             canton: resolvedCanton.code,
             hasLpp: !isIndependantNoLpp,
+            netProfessionalIncome: netProfessionalIncome,
+            age: age,
           )
         : Pillar3aTaxImpactEstimate.unavailable;
     final marginalRate =
@@ -167,7 +175,7 @@ class MinimalProfileService {
     final plafond3a =
         taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
             ? (isIndependantNoLpp
-                ? min(grossSalary * 0.20,
+                ? min((netProfessionalIncome ?? 0.0) * pilier3aTauxRevenuSansLpp,
                     reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
                 : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))
             : taxImpact.annualCeiling;

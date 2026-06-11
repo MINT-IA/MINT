@@ -30,6 +30,7 @@ import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/replacement_rate.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 
@@ -675,6 +676,139 @@ void main() {
       final flatProxy = (grossMonthly * 0.78).roundToDouble();
       expect(net, isNot(closeTo(flatProxy, 0.01)),
           reason: 'ne doit plus utiliser le ratio plat 0.78');
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Parity W4 — Plafond 3a indépendant (plan 04)
+  //
+  //  Oracle matrice independent_no_lpp-1 (WRONG : plafond sur le BRUT) +
+  //  independent_no_lpp-2 (DIVERGENT : tax_calculator sur brut vs
+  //  independants_service sur net).
+  //
+  //  UNE base app-wide (OPP3 art. 7 al. 2) : le plafond 3a d'un indépendant
+  //  sans LPP = min(20% du revenu professionnel NET, 36288). Plus jamais sur
+  //  le brut nu. Référence canonique = IndependantsService.calculate3aIndependant
+  //  (déjà sur le net). tax_calculator.estimate3aTaxImpact converge dessus.
+  //
+  //  Contrôle négatif : un salarié affilié LPP garde le plafond fixe 7258.
+  // ════════════════════════════════════════════════════════════════
+
+  group('Parity W4 — Plafond 3a indépendant', () {
+    test(
+        'independent_no_lpp-1/-2 — net pro 86400 : plafond 17280 sur les deux '
+        'moteurs (plus jamais 21600 sur le brut 108000)', () {
+      const netPro = 86400.0;
+      const brut = 108000.0;
+      const canton = 'GE';
+
+      // Moteur fiscal financial_core : base = revenu professionnel NET fourni.
+      final fiscalImpact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: brut,
+        canton: canton,
+        hasLpp: false,
+        netProfessionalIncome: netPro,
+      );
+
+      // Moteur de référence (déjà sur le net) : IndependantsService.
+      final indepRef = IndependantsService.calculate3aIndependant(
+        netPro,
+        false, // affilieLpp
+        0.30, // tauxMarginal (sans incidence sur le plafond)
+      );
+
+      // OPP3 art. 7 al. 2 : 20% du net = 17280 (< 36288, pas de cap).
+      expect(fiscalImpact.annualCeiling, closeTo(17280.0, 0.01),
+          reason: 'le plafond doit être 20% du NET (86400), pas du brut');
+      expect(indepRef.plafond, closeTo(17280.0, 0.01),
+          reason: 'référence indépendant déjà sur le net');
+
+      // Parité inter-moteurs (fin de la classe DIVERGENT independent_no_lpp-2).
+      expect(fiscalImpact.annualCeiling, closeTo(indepRef.plafond, 0.01),
+          reason: 'tax_calculator et independants_service doivent converger');
+
+      // Régression WRONG (independent_no_lpp-1) : le plafond sur le BRUT aurait
+      // donné 108000 × 0.20 = 21600 (+25%). Il ne doit JAMAIS réapparaître.
+      const brutBasedCeiling = brut * 0.20; // 21600
+      expect(fiscalImpact.annualCeiling, isNot(closeTo(brutBasedCeiling, 0.01)),
+          reason: 'le plafond ne doit plus être calculé sur le brut');
+    });
+
+    test(
+        'contrôle négatif — salarié affilié LPP : plafond 7258 inchangé '
+        '(salarie_swiss-6 / jeune_diplome-4 / cadre_divorce_hypo-6)', () {
+      final impact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 108000,
+        canton: 'GE',
+        hasLpp: true,
+      );
+      expect(impact.annualCeiling, closeTo(pilier3aPlafondAvecLpp, 0.01),
+          reason: 'le plafond avec LPP reste le forfait fixe 7258');
+    });
+
+    test(
+        'net absent (null) — le plafond sans-LPP dérive du NET, jamais du brut '
+        'nu', () {
+      const brut = 108000.0;
+      const canton = 'GE';
+      const age = 45;
+
+      // Aucun netProfessionalIncome fourni → l'engine dérive le net via
+      // NetIncomeBreakdown (canton + âge aware), JAMAIS le brut nu.
+      final impact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: brut,
+        canton: canton,
+        hasLpp: false,
+        age: age,
+      );
+
+      final derivedNet = NetIncomeBreakdown.compute(
+        grossSalary: brut,
+        canton: canton,
+        age: age,
+      ).netPayslip;
+      final expectedCeiling =
+          (derivedNet * pilier3aTauxRevenuSansLpp).clamp(0.0, pilier3aPlafondSansLpp);
+
+      expect(impact.annualCeiling, closeTo(expectedCeiling, 0.01),
+          reason: 'le plafond doit dériver du NET (NetIncomeBreakdown)');
+
+      // Le net dérivé est strictement inférieur au brut → le plafond aussi.
+      const brutBasedCeiling = brut * 0.20; // 21600
+      expect(impact.annualCeiling, lessThan(brutBasedCeiling),
+          reason: 'NET < BRUT ⇒ plafond NET < plafond brut historique');
+    });
+
+    test(
+        'minimal_profile — indépendant sans LPP : plafond3a sur le NET dérivé '
+        '(fin du brut)', () {
+      const age = 45;
+      const brut = 108000.0;
+      const canton = 'GE';
+
+      final result = MinimalProfileService.compute(
+        age: age,
+        grossSalary: brut,
+        canton: canton,
+        employmentStatus: 'independant',
+      );
+
+      // Le plafond attendu = 20% du NET dérivé (NetIncomeBreakdown), borné 36288.
+      final derivedNet = NetIncomeBreakdown.compute(
+        grossSalary: brut,
+        canton: canton,
+        age: age,
+      ).netPayslip;
+      final expectedCeiling =
+          (derivedNet * pilier3aTauxRevenuSansLpp).clamp(0.0, pilier3aPlafondSansLpp);
+
+      expect(result.plafond3a, closeTo(expectedCeiling, 0.01),
+          reason: 'minimal_profile doit calculer le plafond sur le NET');
+
+      // Régression : le proxy plat brut×0.20 (21600) ne doit plus apparaître.
+      const brutBasedCeiling = brut * pilier3aTauxRevenuSansLpp; // 21600
+      expect(result.plafond3a, isNot(closeTo(brutBasedCeiling, 0.01)),
+          reason: 'minimal_profile ne doit plus calculer le plafond sur le brut');
     });
   });
 }

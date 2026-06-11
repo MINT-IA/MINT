@@ -141,8 +141,21 @@ void main() {
       expect(result.age, 49);
     });
 
-    test('independant sans LPP: LPP rente = 0, 3a plafond = min(20% revenu, 36288) (OPP3 art. 7)', () {
-      // With 200k salary: 20% = 40k > 36288 → capped at 36288
+    test('independant sans LPP: LPP rente = 0, 3a plafond = min(20% NET, 36288) (OPP3 art. 7 al. 2)', () {
+      // OPP3 art. 7 al. 2 : le plafond porte sur le revenu professionnel NET,
+      // PAS sur le brut nu (finding independent_no_lpp-1). Base nette canonique
+      // = NetIncomeBreakdown (canton + âge aware).
+      double expectedCeiling(double gross, int age) {
+        final net = NetIncomeBreakdown.compute(
+          grossSalary: gross,
+          canton: 'GE',
+          age: age,
+        ).netPayslip;
+        return (net * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+      }
+
+      // With 200k gross: 20% du NET reste > 36288 → capped at 36288.
       final resultHigh = MinimalProfileService.compute(
         age: 45,
         grossSalary: 200000,
@@ -151,10 +164,10 @@ void main() {
       );
       expect(resultHigh.lppMonthlyRente, equals(0.0),
           reason: 'Independant sans LPP has no LPP rente');
-      expect(resultHigh.plafond3a, equals(pilier3aPlafondSansLpp),
-          reason: 'High earner independant capped at 36288 CHF');
+      expect(resultHigh.plafond3a, closeTo(expectedCeiling(200000, 45), 0.01),
+          reason: 'High earner independant : 20% du NET, capped 36288 CHF');
 
-      // With 100k salary: 20% = 20k < 36288 → plafond = 20k
+      // With 100k gross: 20% du NET < 36288 → plafond = 20% du NET (< 20000).
       final resultLow = MinimalProfileService.compute(
         age: 45,
         grossSalary: 100000,
@@ -162,8 +175,11 @@ void main() {
         employmentStatus: 'independant',
       );
       expect(resultLow.lppMonthlyRente, equals(0.0));
-      expect(resultLow.plafond3a, closeTo(20000, 0.01),
-          reason: '20% of 100k = 20000 < 36288');
+      expect(resultLow.plafond3a, closeTo(expectedCeiling(100000, 45), 0.01),
+          reason: '20% du NET de 100k brut (< 20000 = 20% du brut)');
+      // Régression : le plafond ne doit plus être 20% du BRUT (20000).
+      expect(resultLow.plafond3a, isNot(closeTo(20000, 0.01)),
+          reason: 'plus jamais sur le brut nu (independent_no_lpp-1)');
       expect(resultLow.employmentStatus, 'independant');
     });
 
@@ -216,20 +232,39 @@ void main() {
       expect(noSalary.marginalTaxRate, 0);
     });
 
-    test('independent no-LPP taxSaving3a uses 20% income ceiling', () {
+    test('independent no-LPP taxSaving3a uses 20% NET income ceiling (OPP3 art. 7 al. 2)', () {
+      const gross = 50000.0;
+      const canton = 'VD';
+      const age = 45;
       final result = MinimalProfileService.compute(
-        age: 45,
-        grossSalary: 50000,
-        canton: 'VD',
+        age: age,
+        grossSalary: gross,
+        canton: canton,
         employmentStatus: 'independant',
       );
-      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
-        grossAnnualSalary: 50000,
-        canton: 'VD',
-        hasLpp: false,
-      );
 
-      expect(result.plafond3a, closeTo(10000, 0.01));
+      // Base nette canonique = NetIncomeBreakdown (plus le brut nu).
+      final net = NetIncomeBreakdown.compute(
+        grossSalary: gross,
+        canton: canton,
+        age: age,
+      ).netPayslip;
+      // minimal_profile passe ce NET dérivé à estimate3aTaxImpact.
+      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: gross,
+        canton: canton,
+        hasLpp: false,
+        netProfessionalIncome: net,
+        age: age,
+      );
+      final expectedCeiling =
+          (net * pilier3aTauxRevenuSansLpp).clamp(0.0, pilier3aPlafondSansLpp);
+
+      expect(result.plafond3a, closeTo(expectedCeiling, 0.01),
+          reason: 'plafond = 20% du NET, plus 20% du brut (10000)');
+      // Régression : le plafond ne doit plus être 20% du BRUT (10000).
+      expect(result.plafond3a, isNot(closeTo(10000, 0.01)),
+          reason: 'plus jamais sur le brut nu (independent_no_lpp-1)');
       expect(result.taxSaving3a, closeTo(expected.estimatedTaxSaving, 0.01));
     });
 
