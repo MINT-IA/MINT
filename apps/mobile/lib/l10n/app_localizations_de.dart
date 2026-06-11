@@ -23822,4 +23822,8 @@ class SDe extends S {
 
   @override
   String get onboardingAvsContinue => 'Weiter';
+
+  @override
+  String get lppEstimationBlockedRealValueRequired =>
+      'Echter Wert erforderlich — scanne deinen BVG-Ausweis';
 }

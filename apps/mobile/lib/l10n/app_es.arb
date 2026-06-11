@@ -11373,5 +11373,6 @@
   "onboardingAvsUnknown": "No lo sé",
   "onboardingAvsArrivalYearPrompt": "¿En qué año llegaste a Suiza?",
   "onboardingAvsYearsAbroadPrompt": "¿Cuántos años en el extranjero?",
-  "onboardingAvsContinue": "Continuar"
+  "onboardingAvsContinue": "Continuar",
+  "lppEstimationBlockedRealValueRequired": "Valor real necesario — escanea tu certificado LPP"
 }

@@ -23761,4 +23761,8 @@ class SFr extends S {
 
   @override
   String get onboardingAvsContinue => 'Continuer';
+
+  @override
+  String get lppEstimationBlockedRealValueRequired =>
+      'Valeur réelle requise — scanne ton certificat LPP';
 }

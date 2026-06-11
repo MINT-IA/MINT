@@ -23646,4 +23646,8 @@ class SEn extends S {
 
   @override
   String get onboardingAvsContinue => 'Continue';
+
+  @override
+  String get lppEstimationBlockedRealValueRequired =>
+      'Real value required — scan your LPP certificate';
 }

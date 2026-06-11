@@ -23772,4 +23772,8 @@ class SPt extends S {
 
   @override
   String get onboardingAvsContinue => 'Continuar';
+
+  @override
+  String get lppEstimationBlockedRealValueRequired =>
+      'Valor real necessário — digitaliza o teu certificado LPP';
 }

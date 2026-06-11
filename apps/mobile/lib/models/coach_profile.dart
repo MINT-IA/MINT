@@ -417,6 +417,16 @@ class PrevoyanceProfile {
   // --- Libre passage ---
   final List<LibrePassageCompte> librePassage;
 
+  /// True quand l'avoir LPP NE PEUT PAS être estimé par âge×salaire et qu'aucune
+  /// valeur réelle n'a été saisie — l'UI doit afficher « valeur réelle requise »
+  /// (scan du certificat) au lieu d'un nombre estimé.
+  ///
+  /// Déclenché pour un divorcé sans valeur réelle (CC art. 122 / LFLP art. 22a :
+  /// partage de prévoyance path-dependent du jugement — plan 07,
+  /// cadre_divorce_hypo-1). Consommé par l'écran hero (plan 11) et concourt à la
+  /// dégradation de confiance (avoirLppTotal reste null ⇒ completeness baisse).
+  final bool lppEstimationBlocked;
+
   const PrevoyanceProfile({
     this.anneesContribuees,
     this.lacunesAVS,
@@ -444,6 +454,7 @@ class PrevoyanceProfile {
     this.comptes3a = const [],
     this.canContribute3a = true,
     this.librePassage = const [],
+    this.lppEstimationBlocked = false,
   });
 
   /// Total avoir libre passage
@@ -528,6 +539,7 @@ class PrevoyanceProfile {
               ?.map((lp) => LibrePassageCompte.fromJson(lp))
               .toList() ??
           const [],
+      lppEstimationBlocked: json['lppEstimationBlocked'] as bool? ?? false,
     );
   }
 
@@ -558,6 +570,7 @@ class PrevoyanceProfile {
     List<Compte3a>? comptes3a,
     bool? canContribute3a,
     List<LibrePassageCompte>? librePassage,
+    bool? lppEstimationBlocked,
   }) {
     return PrevoyanceProfile(
       anneesContribuees: anneesContribuees ?? this.anneesContribuees,
@@ -590,6 +603,7 @@ class PrevoyanceProfile {
       comptes3a: comptes3a ?? this.comptes3a,
       canContribute3a: canContribute3a ?? this.canContribute3a,
       librePassage: librePassage ?? this.librePassage,
+      lppEstimationBlocked: lppEstimationBlocked ?? this.lppEstimationBlocked,
     );
   }
 
@@ -620,6 +634,7 @@ class PrevoyanceProfile {
         'comptes3a': comptes3a.map((c) => c.toJson()).toList(),
         'canContribute3a': canContribute3a,
         'librePassage': librePassage.map((lp) => lp.toJson()).toList(),
+        'lppEstimationBlocked': lppEstimationBlocked,
       };
 
   @override
@@ -652,7 +667,8 @@ class PrevoyanceProfile {
           disabilityCoverage == other.disabilityCoverage &&
           deathCoverage == other.deathCoverage &&
           listEquals(comptes3a, other.comptes3a) &&
-          listEquals(librePassage, other.librePassage);
+          listEquals(librePassage, other.librePassage) &&
+          lppEstimationBlocked == other.lppEstimationBlocked;
 
   @override
   int get hashCode => Object.hashAll([
@@ -682,6 +698,7 @@ class PrevoyanceProfile {
         deathCoverage,
         comptes3a.length,
         librePassage.length,
+        lppEstimationBlocked,
       ]);
 }
 
@@ -2860,16 +2877,35 @@ class CoachProfile {
       employmentStatus: employmentStatus,
       hasPensionFund: hasPensionFund,
     );
-    final double estimatedLpp;
+    // Gate divorcé (CC art. 122 / LFLP art. 22a) — l'avoir LPP a été partagé
+    // au divorce sur la seule part acquise pendant le mariage : il est
+    // path-dependent du jugement et NE PEUT PAS être estimé par âge×salaire
+    // (oracle cadre_divorce_hypo-1, valeur fantôme 416250.42). Sans valeur
+    // réelle, on n'estime rien et on expose l'état « valeur réelle requise ».
+    final canEstimateLppByCivilStatus =
+        ArchetypePredicates.canEstimateLppByCivilStatus(
+      isDivorced: etatCivil == CoachCivilStatus.divorce,
+    );
+    final double? estimatedLpp;
+    final bool lppEstimationBlocked;
     if (coachAvoirLpp != null) {
+      // Valeur réelle saisie/scannée — préférée quel que soit le profil.
       estimatedLpp = coachAvoirLpp;
+      lppEstimationBlocked = false;
     } else if (!canEstimateLppByEmployment) {
       // Indépendant (estimation interdite), déclaration "pas de caisse",
-      // ou tout autre statut sans LPP estimable.
+      // ou tout autre statut sans LPP estimable → avoir 0.
       estimatedLpp = 0.0;
+      lppEstimationBlocked = false;
+    } else if (!canEstimateLppByCivilStatus) {
+      // Divorcé sans valeur réelle : on n'estime PAS (path-dependent), on
+      // laisse l'avoir indéterminé et on flagge l'état pour l'UI (plan 11).
+      estimatedLpp = null;
+      lppEstimationBlocked = true;
     } else {
       estimatedLpp = _estimateLppAvoir(age, salaireBrutMensuel,
           arrivalAge: computedArrivalAge);
+      lppEstimationBlocked = false;
     }
 
     // Estimate 3a total from contribution and age
@@ -2893,6 +2929,7 @@ class CoachProfile {
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
+      lppEstimationBlocked: lppEstimationBlocked,
     );
 
     // ── Patrimoine ──────────────────────────────────────────

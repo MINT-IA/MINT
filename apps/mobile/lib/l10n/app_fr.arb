@@ -12777,5 +12777,9 @@
   "onboardingAvsUnknown": "Je ne sais pas",
   "onboardingAvsArrivalYearPrompt": "En quelle année es-tu arrivé en Suisse ?",
   "onboardingAvsYearsAbroadPrompt": "Combien d'années à l'étranger ?",
-  "onboardingAvsContinue": "Continuer"
+  "onboardingAvsContinue": "Continuer",
+  "lppEstimationBlockedRealValueRequired": "Valeur réelle requise — scanne ton certificat LPP",
+  "@lppEstimationBlockedRealValueRequired": {
+    "description": "Affiché quand l'avoir LPP ne peut pas être estimé par âge×salaire (divorcé sans valeur réelle — partage de prévoyance au divorce, CC art. 122). Invite à scanner le certificat plutôt qu'à afficher un nombre estimé."
+  }
 }

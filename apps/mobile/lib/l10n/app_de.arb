@@ -11370,5 +11370,6 @@
   "onboardingAvsUnknown": "Ich weiss es nicht",
   "onboardingAvsArrivalYearPrompt": "In welchem Jahr kamst du in die Schweiz?",
   "onboardingAvsYearsAbroadPrompt": "Wie viele Jahre im Ausland?",
-  "onboardingAvsContinue": "Weiter"
+  "onboardingAvsContinue": "Weiter",
+  "lppEstimationBlockedRealValueRequired": "Echter Wert erforderlich — scanne deinen BVG-Ausweis"
 }
