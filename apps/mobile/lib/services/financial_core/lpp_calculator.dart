@@ -51,6 +51,36 @@ class LppCalculator {
     return (baseRate - yearsEarly * reductionPerYear).clamp(0.03, baseRate);
   }
 
+  /// Monthly LPP rente from an ALREADY-accumulated avoir (balance → rente).
+  ///
+  /// Canonical single entry point for every surface that converts a stored
+  /// `avoirLppTotal` into a monthly rente estimate. Applies the early-retirement
+  /// reduction (LPP art. 13 al. 2) via [adjustedConversionRate], then divides by
+  /// 12. Every estimator MUST delegate here so the conversion base (taux de
+  /// caisse + réduction anticipée) stays identical across engines — see
+  /// CLAUDE.md NEVER #3 (pas de calcul dupliqué L1).
+  ///
+  /// [baseRate]: the caisse conversion rate as a fraction (default 6.8% min
+  /// legal, LPP art. 14 al. 2). Pass the profile's `tauxConversion` when known.
+  /// [retirementAge]: defaults to the reference age (65), where no reduction
+  /// applies. Pass the profile's effective retirement age for early retirement.
+  ///
+  /// Returns 0 for a non-positive avoir.
+  static double monthlyRenteFromAvoir({
+    required double avoir,
+    double baseRate = lppTauxConversionMinDecimal,
+    int retirementAge = avsAgeReferenceHomme,
+    int referenceAge = avsAgeReferenceHomme,
+  }) {
+    if (avoir <= 0) return 0;
+    final rate = adjustedConversionRate(
+      baseRate: baseRate,
+      retirementAge: retirementAge,
+      referenceAge: referenceAge,
+    );
+    return avoir * rate / 12;
+  }
+
   /// Project LPP balance to retirement with bonifications.
   ///
   /// Returns the projected annual rente (balance × conversionRate).

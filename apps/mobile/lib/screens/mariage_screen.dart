@@ -8,6 +8,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
@@ -90,8 +91,14 @@ class _MariageScreenState extends State<MariageScreen>
         if (profile.nombreEnfants > 0) _nbEnfants = profile.nombreEnfants;
         final lppRente = profile.prevoyance.avoirLppTotal;
         if (lppRente != null && lppRente > 0) {
-          // Rough annual rente estimate: avoir × 6.8% / 12
-          _renteLpp = (lppRente * 0.068 / 12).roundToDouble();
+          // Rente mensuelle via la source canonique (financial_core L1) :
+          // un seul taux de conversion par cas (LppCalculator), réduction
+          // retraite anticipée (LPP art. 13 al. 2) appliquée partout.
+          _renteLpp = LppCalculator.monthlyRenteFromAvoir(
+            avoir: lppRente,
+            baseRate: profile.prevoyance.tauxConversion,
+            retirementAge: profile.effectiveRetirementAge,
+          ).roundToDouble();
         }
         _recalculate();
       }

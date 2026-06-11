@@ -3,6 +3,7 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -614,12 +615,17 @@ class CapSequenceEngine {
     return (maxRenteMensuelle * years / 44).clamp(0, maxRenteMensuelle);
   }
 
-  /// Rough monthly LPP estimate from current avoir and conversion rate.
+  /// Monthly LPP estimate from current avoir via the canonical conversion
+  /// base (financial_core L1) : un seul taux de conversion par cas (taux de
+  /// caisse + réduction retraite anticipée LPP art. 13 al. 2).
   static double? _estimateLppMonthly(CoachProfile profile) {
     final avoir = profile.prevoyance.avoirLppTotal;
     if (avoir == null || avoir <= 0) return null;
-    final taux = profile.prevoyance.tauxConversion; // default 0.068
-    return avoir * taux / 12;
+    return LppCalculator.monthlyRenteFromAvoir(
+      avoir: avoir,
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: profile.effectiveRetirementAge,
+    );
   }
 
   /// Annual 3a tax saving estimate using canton-aware marginal rate.
@@ -635,12 +641,17 @@ class CapSequenceEngine {
     return annualSaving / 12;
   }
 
-  /// Rough LPP buyback monthly benefit (rachat × taux conversion / 12).
+  /// LPP buyback monthly benefit via the SAME canonical conversion base as the
+  /// rente (fin de la divergence 283 vs 242 CHF/mois). Seul l'IMPACT mensuel
+  /// est calculé ici ; la capacité de rachat (rachatMaximum) reste inchangée.
   static double? _estimateRachatImpact(CoachProfile profile) {
     final rachat = profile.prevoyance.rachatMaximum ?? 0;
     if (rachat <= 0) return null;
-    final taux = profile.prevoyance.tauxConversion;
-    return rachat * taux / 12;
+    return LppCalculator.monthlyRenteFromAvoir(
+      avoir: rachat,
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: profile.effectiveRetirementAge,
+    );
   }
 
   /// Monthly free margin estimate.

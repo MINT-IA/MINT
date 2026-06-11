@@ -14,6 +14,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
+import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/profile/hero_gap_card.dart';
 import 'package:mint_mobile/widgets/profile/financial_drawer.dart';
@@ -124,7 +125,14 @@ class FinancialSummaryScreen extends StatelessWidget {
     final currentMonthlyNet =
         breakdown != null ? breakdown.disposableIncome / 12 : 0.0;
     final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
-    final renteLpp = (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12;
+    // Rente mensuelle via la source canonique (financial_core L1) : un seul
+    // taux de conversion par cas (taux de caisse + réduction retraite anticipée
+    // LPP art. 13 al. 2), identique à tous les autres écrans de rente.
+    final renteLpp = LppCalculator.monthlyRenteFromAvoir(
+      avoir: prev.avoirLppTotal ?? 0,
+      baseRate: prev.tauxConversion,
+      retirementAge: profile.effectiveRetirementAge,
+    );
     final projectedMonthly = renteAvs + renteLpp;
 
     // ── Confidence ──

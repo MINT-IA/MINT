@@ -19,7 +19,11 @@
 //   - « Parity W5 — Invariants »          (plan 05)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 
@@ -174,6 +178,209 @@ void main() {
       expect(minimal, closeTo(canonicalArrival, 0.01),
           reason: 'minimal doit démarrer l\'accumulation à arrivalAge=43');
       expect(coach, closeTo(minimal, 0.01));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Parity W2 — Rente LPP (plan 02)
+  //
+  //  Oracle matrice §2 « Rente LPP » + « Capacité rachat LPP » :
+  //  pour un même avoirLppTotal stocké, la rente mensuelle estimée est
+  //  IDENTIQUE quel que soit le chemin (cap_sequence, minimal_profile, …) —
+  //  fin du spread device-prouvé 250-347 CHF/mois (D4). UNE base de taux
+  //  via LppCalculator.adjustedConversionRate / monthlyRenteFromAvoir.
+  // ════════════════════════════════════════════════════════════════
+
+  group('Parity W2 — Rente LPP', () {
+    const memory = CapMemory();
+    final l = SFr();
+
+    /// Construit un profil retraite minimal avec un avoir LPP stocké
+    /// et un taux de conversion de caisse explicite.
+    CoachProfile retirementProfile({
+      required double avoirLpp,
+      double tauxConversion = lppTauxConversionMinDecimal,
+      int birthYear = 1976, // ~50 ans
+      double salaireBrutMensuel = 9000,
+      int? targetRetirementAge,
+      double rachatMaximum = 0,
+    }) {
+      return CoachProfile(
+        birthYear: birthYear,
+        canton: 'GE',
+        salaireBrutMensuel: salaireBrutMensuel,
+        employmentStatus: 'salarie',
+        targetRetirementAge: targetRetirementAge,
+        prevoyance: PrevoyanceProfile(
+          avoirLppTotal: avoirLpp,
+          tauxConversion: tauxConversion,
+          rachatMaximum: rachatMaximum,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2041),
+          label: 'Retraite',
+        ),
+      );
+    }
+
+    /// Rente LPP mensuelle estimée via le chemin public CapSequenceEngine
+    /// (step « ret_03_lpp », impactEstimate = rente mensuelle).
+    double capSequenceRente(CoachProfile profile) {
+      final seq = CapSequenceEngine.build(
+        profile: profile,
+        memory: memory,
+        goalIntentTag: 'retirement_choice',
+        l: l,
+      );
+      final step = seq.steps.firstWhere((s) => s.id == 'ret_03_lpp');
+      return step.impactEstimate ?? 0.0;
+    }
+
+    /// Impact mensuel d'un rachat via le chemin public CapSequenceEngine
+    /// (step « ret_06_rachat », impactEstimate = impact mensuel).
+    double capSequenceRachatImpact(CoachProfile profile) {
+      final seq = CapSequenceEngine.build(
+        profile: profile,
+        memory: memory,
+        goalIntentTag: 'retirement_choice',
+        l: l,
+      );
+      final step = seq.steps.firstWhere((s) => s.id == 'ret_06_rachat');
+      return step.impactEstimate ?? 0.0;
+    }
+
+    // ── Task 1 : source canonique unique pour la conversion avoir → rente ──
+
+    test('avoir 300000 — monthlyRenteFromAvoir : UNE rente (1700 CHF/mois)', () {
+      const avoir = 300000.0;
+      final profile = retirementProfile(avoirLpp: avoir);
+
+      // Référence canonique : avoir × adjustedConversionRate(0.068, 65) / 12.
+      // C'est exactement la formule à laquelle mariage_screen, response_card,
+      // financial_summary délèguent désormais (fin du spread 250-347 CHF/mois).
+      final canonical = LppCalculator.monthlyRenteFromAvoir(
+        avoir: avoir,
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: profile.effectiveRetirementAge,
+      );
+
+      // À l'âge de référence (65), adjustedConversionRate retourne baseRate :
+      // 300000 × 0.068 / 12 = 1700 CHF/mois.
+      expect(canonical, closeTo(1700.0, 0.01));
+    });
+
+    test('monthlyRenteFromAvoir — retraite anticipée 62 < 65 : réduction art.13',
+        () {
+      const avoir = 300000.0;
+
+      final renteReference = LppCalculator.monthlyRenteFromAvoir(
+        avoir: avoir,
+        baseRate: lppTauxConversionMinDecimal,
+        retirementAge: 65,
+      );
+      // 3 ans avant 65 → 3 × 0.002 = 0.006 de réduction → taux 0.062.
+      final renteEarly = LppCalculator.monthlyRenteFromAvoir(
+        avoir: avoir,
+        baseRate: lppTauxConversionMinDecimal,
+        retirementAge: 62,
+      );
+      expect(renteEarly, closeTo(300000 * 0.062 / 12, 0.01));
+
+      // La retraite anticipée produit une rente strictement inférieure —
+      // la réduction LPP art. 13 al. 2 s'applique via le canonique.
+      expect(renteEarly, lessThan(renteReference),
+          reason: 'la réduction retraite anticipée doit s\'appliquer');
+    });
+
+    test('minimal_profile — rente projetée applique la réduction anticipée',
+        () {
+      // minimal_profile PROJETTE l'avoir jusqu'à la retraite (projectToRetirement),
+      // contrairement aux écrans qui convertissent l'avoir STOCKÉ. C'est une
+      // opération distincte ; ici on vérifie seulement que son chemin canonique
+      // applique bien la réduction retraite anticipée (LPP art. 13 al. 2).
+      const age = 50;
+      const gross = 108000.0;
+      const avoir = 250000.0;
+
+      final reference = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: 'GE',
+        employmentStatus: 'salarie',
+        existingLpp: avoir,
+        targetRetirementAge: 65,
+      );
+      final early = MinimalProfileService.compute(
+        age: age,
+        grossSalary: gross,
+        canton: 'GE',
+        employmentStatus: 'salarie',
+        existingLpp: avoir,
+        targetRetirementAge: 62,
+      );
+
+      // Retraite anticipée → moins d'années d'accumulation ET taux réduit →
+      // rente strictement inférieure (chemin canonique projectToRetirement).
+      expect(early.lppMonthlyRente, lessThan(reference.lppMonthlyRente),
+          reason: 'minimal_profile doit passer par le taux canonique réduit');
+    });
+
+    // ── Task 2 : cap_sequence (rente + impact rachat) sur la même base ──
+
+    test('cap_sequence avoir 300000 — délègue à monthlyRenteFromAvoir', () {
+      const avoir = 300000.0;
+      final profile = retirementProfile(avoirLpp: avoir);
+
+      final canonical = LppCalculator.monthlyRenteFromAvoir(
+        avoir: avoir,
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: profile.effectiveRetirementAge,
+      );
+
+      expect(capSequenceRente(profile), closeTo(canonical, 0.01),
+          reason: 'cap_sequence doit déléguer à monthlyRenteFromAvoir');
+    });
+
+    test('cap_sequence retraite anticipée 62 < 65 — réduction art.13 al.2', () {
+      const avoir = 300000.0;
+      final reference = retirementProfile(avoirLpp: avoir);
+      final early = retirementProfile(avoirLpp: avoir, targetRetirementAge: 62);
+
+      final renteReference = capSequenceRente(reference);
+      final renteEarly = capSequenceRente(early);
+
+      final canonicalEarly = LppCalculator.monthlyRenteFromAvoir(
+        avoir: avoir,
+        baseRate: lppTauxConversionMinDecimal,
+        retirementAge: 62,
+      );
+
+      // La retraite anticipée produit une rente strictement inférieure : la
+      // réduction LPP art. 13 al. 2 doit transiter par le canonique.
+      expect(renteEarly, lessThan(renteReference),
+          reason: 'cap_sequence doit appliquer la réduction anticipée');
+      expect(renteEarly, closeTo(canonicalEarly, 0.01));
+    });
+
+    test('cap_sequence rachat 50000 — impact sur la même base (fin 283 vs 242)',
+        () {
+      const avoir = 200000.0;
+      const rachat = 50000.0;
+      final profile = retirementProfile(avoirLpp: avoir, rachatMaximum: rachat);
+
+      final impactCap = capSequenceRachatImpact(profile);
+
+      // L'impact d'un rachat utilise la MÊME base de taux que la rente
+      // (fin de la divergence 283 vs 242 CHF/mois). 50000 × 0.068 / 12.
+      final canonicalImpact = LppCalculator.monthlyRenteFromAvoir(
+        avoir: rachat,
+        baseRate: profile.prevoyance.tauxConversion,
+        retirementAge: profile.effectiveRetirementAge,
+      );
+      expect(canonicalImpact, closeTo(50000 * 0.068 / 12, 0.01));
+      expect(impactCap, closeTo(canonicalImpact, 0.01),
+          reason: 'impact rachat doit déléguer à la même base canonique');
     });
   });
 }
