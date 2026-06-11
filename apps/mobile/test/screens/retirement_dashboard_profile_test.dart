@@ -126,6 +126,97 @@ void main() {
           reason: 'profil vide → l\'état vide onboarding est légitime');
       expect(find.byKey(const Key('state_c_start_cta')), findsOneWidget);
     });
+
+    // D7 DEVICE regression (FAIL #2): the device scenario is NOT a profile
+    // hydrated BEFORE first pump — it is a profile that hydrates AFTER the
+    // dashboard is already mounted (arriving from onboarding, the flush →
+    // notifyListeners lands after /retraite is on screen). The dashboard MUST
+    // leave State C and render data once the SAME provider it watches notifies.
+    // Mirrors the FATCA-gate post-pump hydration pattern.
+    testWidgets(
+        'D7 device — profil hydraté APRÈS le premier pump → quitte l\'état vide',
+        (tester) async {
+      tester.view.physicalSize = const Size(1400, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      // 1) Provider empty at mount → dashboard renders State C legitimately.
+      final provider = CoachProfileProvider();
+      expect(provider.hasProfile, isFalse);
+
+      await tester.pumpWidget(_buildHarness(coachProvider: provider));
+      await tester.pump(const Duration(seconds: 1));
+
+      final l = S.of(tester.element(find.byType(RetirementDashboardScreen)))!;
+      expect(find.text(l.dashboardQuickStartBody), findsOneWidget,
+          reason: 'pré-hydratation : State C est légitime tant que vide');
+
+      // 2) Onboarding flush lands: same provider hydrates + notifies, AFTER the
+      //    dashboard is already on screen (the exact device order).
+      provider.updateFromAnswers(_hydratedAnswers());
+      expect(provider.hasProfile, isTrue,
+          reason: 'post-flush : le profil est hydraté (même source que /home)');
+
+      await tester.pump(); // process notifyListeners
+      await tester.pump(const Duration(seconds: 1));
+      tester.takeException(); // dashboard hero overflow proves it rendered
+
+      // 3) State C must be GONE — the dashboard now reads the hydrated profile,
+      //    exactly like /home. Device illogism : « 4 infos suffisent » persisted.
+      expect(find.text(l.dashboardQuickStartBody), findsNothing,
+          reason: 'D7 device : profil hydraté après mount ne doit plus '
+              'afficher « 4 infos suffisent »');
+      expect(find.byKey(const Key('state_c_start_cta')), findsNothing,
+          reason: 'D7 device : le CTA d\'état vide doit disparaître post-flush');
+    });
+
+    // D7 device ROOT-CAUSE (FAIL #2): /retraite is a top-level route reachable
+    // before the shared CoachProfileProvider has run loadFromWizard() in this
+    // session. While hydration is still in flight (isLoading / isHydrating) the
+    // provider's in-memory _profile is null. Pre-fix the dashboard rendered
+    // State C immediately (« 4 infos suffisent ») against a provider that is
+    // merely still loading — the device illogism (a profile /home renders, but
+    // /retraite, reached a beat earlier, shows the empty onboarding state). The
+    // dashboard MUST show a loading state — NOT State C — while the SAME
+    // provider it watches is hydrating.
+    testWidgets(
+        'D7 device — provider en cours d\'hydratation → état chargement, '
+        'PAS « 4 infos suffisent »', (tester) async {
+      tester.view.physicalSize = const Size(1400, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      // Provider is hydrating (loadFromWizard in flight): _profile still null
+      // but isHydrating true — the exact "arrived before hydration" race.
+      final provider = CoachProfileProvider()..startHydrating();
+      expect(provider.hasProfile, isFalse);
+      expect(provider.isHydrating, isTrue);
+
+      await tester.pumpWidget(_buildHarness(coachProvider: provider));
+      await tester.pump();
+
+      final l = S.of(tester.element(find.byType(RetirementDashboardScreen)))!;
+      // The empty onboarding state must NOT show while hydration is pending —
+      // that is the D7 device illogism. A loading indicator is shown instead.
+      expect(find.text(l.dashboardQuickStartBody), findsNothing,
+          reason: 'D7 device : pas d\'« 4 infos suffisent » pendant '
+              'l\'hydratation (le profil /home arrive juste après)');
+      expect(find.byKey(const Key('state_c_start_cta')), findsNothing);
+      expect(find.byKey(const Key('retirement_dashboard_hydrating')),
+          findsOneWidget,
+          reason: 'un état chargement récupérable est rendu, pas l\'état vide');
+
+      // Once hydration completes WITH a profile, the dashboard leaves the
+      // loading state and never falls back to State C.
+      provider.updateFromAnswers(_hydratedAnswers());
+      provider.finishHydrating();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      tester.takeException();
+
+      expect(find.text(l.dashboardQuickStartBody), findsNothing,
+          reason: 'profil hydraté → jamais l\'état vide onboarding');
+    });
   });
 
   group('D8 — CTA vivant vers un parcours qui pose des questions', () {

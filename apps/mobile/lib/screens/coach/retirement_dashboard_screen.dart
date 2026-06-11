@@ -371,13 +371,30 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
+    // D7 device root-cause: /retraite is a top-level route reachable a beat
+    // BEFORE the shared CoachProfileProvider finishes loadFromWizard() this
+    // session. During that window `hasProfile` is transiently false even though
+    // a profile is loading from disk (the same one /home renders). Showing the
+    // onboarding empty state (« 4 infos suffisent ») in that window is the
+    // device illogism. While hydration is in flight, render a recoverable
+    // loading state — NOT State C. Only a provider that is genuinely settled
+    // (loaded AND not hydrating) with no profile is truly empty.
+    // Only an ACTIVE load counts as pending — a fresh, settled provider that
+    // has genuinely never had a profile (isLoaded stays false until the first
+    // load resolves) must still reach State C. We gate on the in-flight flags
+    // (isHydrating / isLoading), never on the passive `!isLoaded`.
+    final bool hydrationPending =
+        !provider.hasProfile && (provider.isHydrating || provider.isLoading);
+
     // D7: l'état vide onboarding (« 4 infos suffisent ») ne doit s'afficher que
     // si le profil est RÉELLEMENT vide — la MÊME source que /home
     // (CoachProfileProvider.hasProfile). Si un profil est hydraté (avoir LPP
     // visible sur /home) mais que la projection a échoué, on ne ment pas en
     // affichant l'onboarding : on rend un état « réessayer » récupérable.
     final Widget child;
-    if (!provider.hasProfile) {
+    if (!provider.hasProfile && hydrationPending) {
+      child = _buildHydrating();
+    } else if (!provider.hasProfile) {
       child = _buildStateC();
     } else if (_projection == null) {
       child = _buildProjectionUnavailable();
@@ -633,6 +650,26 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   ),
                 ],
               ))),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  HYDRATING — profile load in flight (D7 device race)
+  // ────────────────────────────────────────────────────────────
+
+  /// Shown while the shared CoachProfileProvider is still loading this session.
+  /// Prevents the « 4 infos suffisent » onboarding state from flashing on
+  /// /retraite (a top-level route) when a profile is about to hydrate from the
+  /// same source /home reads. A plain, recoverable loading indicator.
+  Widget _buildHydrating() {
+    return const Scaffold(
+      backgroundColor: MintColors.porcelaine,
+      body: Center(
+        child: CircularProgressIndicator(
+          key: Key('retirement_dashboard_hydrating'),
+          color: MintColors.success,
+        ),
+      ),
     );
   }
 
