@@ -70,9 +70,16 @@ class LPPPlanInput {
 
   /// Estimated annual pension (rente).
   double get renteAnnuelle {
-    // Use weighted conversion rate (simplified: use surobligatoire rate as
-    // the enveloping rate since we don't split obligatoire/surobligatoire).
-    return avoirVieillesse * tauxConversionSurobligatoire / 100;
+    // Taux de conversion enveloppant de la caisse (surobligatoire, en %),
+    // routé par la base canonique (financial_core L1) pour partager la même
+    // clé de réduction retraite anticipée que la rente. Âge de référence (65)
+    // par défaut : un LPPPlanInput de comparaison d'emploi n'a pas d'âge de
+    // départ, donc adjustedConversionRate retourne le taux non réduit.
+    final rate = LppCalculator.adjustedConversionRate(
+      baseRate: tauxConversionSurobligatoire / 100,
+      retirementAge: avsAgeReferenceHomme,
+    );
+    return avoirVieillesse * rate;
   }
 
   /// Monthly pension.
@@ -199,14 +206,18 @@ class JobComparisonService {
     final deltaCapital = capitalNew - capitalCurrent;
 
     // ---- Axis 4: Rente mensuelle projetee ----
-    final renteCurrent = capitalCurrent *
-        current.tauxConversionSurobligatoire /
-        100 /
-        12;
-    final renteNew = capitalNew *
-        newJob.tauxConversionSurobligatoire /
-        100 /
-        12;
+    // Même base canonique que renteAnnuelle (financial_core L1) : taux de
+    // caisse routé par adjustedConversionRate à l'âge de référence (65).
+    final renteCurrent = LppCalculator.monthlyRenteFromAvoir(
+      avoir: capitalCurrent,
+      baseRate: current.tauxConversionSurobligatoire / 100,
+      retirementAge: avsAgeReferenceHomme,
+    );
+    final renteNew = LppCalculator.monthlyRenteFromAvoir(
+      avoir: capitalNew,
+      baseRate: newJob.tauxConversionSurobligatoire / 100,
+      retirementAge: avsAgeReferenceHomme,
+    );
     final deltaRente = renteNew - renteCurrent;
 
     // ---- Axis 5: Couverture deces ----
