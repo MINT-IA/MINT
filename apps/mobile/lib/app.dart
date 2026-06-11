@@ -6,6 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/router/archetype_route_gate.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
@@ -312,6 +313,20 @@ final _router = GoRouter(
         if (!isLoggedIn && !auth.isLocalMode) {
           return '/auth/register?redirect=${Uri.encodeComponent(path)}';
         }
+        // ── GLOBAL archetype/FATCA gate (plan 08, oracle expat_us-1) ──
+        // Before this branch the only FATCA gate lived at the coach entry,
+        // so an expatUs profile reaching /home, /mon-argent, /profile/bilan
+        // or /explore/* rendered prévoyance content it must never see
+        // (CLAUDE.md NEVER #7). The pure decision helper REUSES
+        // evaluateCoachArchetypeGate (no duplicated verdict) and the
+        // enableCoachHardGate kill switch. It only fires for a hydrated,
+        // positively-identified gated archetype — a null/unknown profile at
+        // boot is never gated (no flash-block of non-US users). The
+        // coach-entry point-defense gate is intentionally kept (T-ILF-08-01).
+        final profile = context.read<CoachProfileProvider>().profile;
+        final archetypeRedirect =
+            archetypeRedirectTarget(profile: profile, path: path);
+        if (archetypeRedirect != null) return archetypeRedirect;
         return null;
     }
   },
