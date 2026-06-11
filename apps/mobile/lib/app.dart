@@ -2292,10 +2292,16 @@ class _MintErrorScreen extends StatelessWidget {
   }
 }
 
-/// Bridge that subscribes to AuthProvider once and forwards every tick
-/// to the router-bound `_authNotifier`. Without this, GoRouter's
-/// `refreshListenable` never rebuilds redirect after login/logout
-/// (Gate 0 P0-1).
+/// Bridge that subscribes to AuthProvider AND CoachProfileProvider once and
+/// forwards every tick to the router-bound `_authNotifier`. Without the
+/// AuthProvider bridge, GoRouter's `refreshListenable` never rebuilds redirect
+/// after login/logout (Gate 0 P0-1). Without the CoachProfileProvider bridge,
+/// the GLOBAL archetype/FATCA gate (plan 08) added to `redirect` reads
+/// `CoachProfileProvider.profile` but the router only refreshes on auth events
+/// — so a persisted `expatUs` profile that hydrates asynchronously AFTER the
+/// first route resolution (loadFromWizard → notifyListeners) lands on /home
+/// (fail-open: profile==null at boot) and is NEVER redirected to /waitlist
+/// until the next auth event or manual navigation (Codex P1, gap closure).
 class _AuthRouterBridge extends StatefulWidget {
   const _AuthRouterBridge({required this.child});
   final Widget child;
@@ -2305,13 +2311,14 @@ class _AuthRouterBridge extends StatefulWidget {
 }
 
 class _AuthRouterBridgeState extends State<_AuthRouterBridge> {
-  AuthProvider? _bound;
+  AuthProvider? _boundAuth;
+  CoachProfileProvider? _boundProfile;
 
-  void _onAuthTick() {
-    // Forward AuthProvider state changes to the router's listener so it
-    // re-runs `redirect`. notifyListeners is safe here — we are not in
-    // the middle of a build phase (the call originates from
-    // AuthProvider.notifyListeners which is fired post-state-change).
+  void _onTick() {
+    // Forward provider state changes to the router's listener so it re-runs
+    // `redirect`. notifyListeners is safe here — we are not in the middle of a
+    // build phase (the call originates from a provider's own notifyListeners
+    // which is fired post-state-change).
     // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
     _authNotifier.notifyListeners();
   }
@@ -2320,19 +2327,29 @@ class _AuthRouterBridgeState extends State<_AuthRouterBridge> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final auth = context.read<AuthProvider>();
-    if (!identical(_bound, auth)) {
-      _bound?.removeListener(_onAuthTick);
-      auth.addListener(_onAuthTick);
-      _bound = auth;
+    if (!identical(_boundAuth, auth)) {
+      _boundAuth?.removeListener(_onTick);
+      auth.addListener(_onTick);
+      _boundAuth = auth;
       // Tick once on bind so the router evaluates the initial auth state
       // (e.g. token already loaded from secure storage on cold start).
-      _onAuthTick();
+      _onTick();
+    }
+    // Profile hydrates asynchronously after boot; the global FATCA gate in
+    // `redirect` depends on it, so forward its ticks too (Codex P1).
+    final profile = context.read<CoachProfileProvider>();
+    if (!identical(_boundProfile, profile)) {
+      _boundProfile?.removeListener(_onTick);
+      profile.addListener(_onTick);
+      _boundProfile = profile;
+      _onTick();
     }
   }
 
   @override
   void dispose() {
-    _bound?.removeListener(_onAuthTick);
+    _boundAuth?.removeListener(_onTick);
+    _boundProfile?.removeListener(_onTick);
     super.dispose();
   }
 
