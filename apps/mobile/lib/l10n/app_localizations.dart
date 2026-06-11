@@ -819,6 +819,12 @@ abstract class S {
   /// **'Cette action est irréversible.'**
   String get documentsDeleteMessage;
 
+  /// No description provided for @documentNonDisponible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document non disponible'**
+  String get documentNonDisponible;
+
   /// No description provided for @documentsEmpty.
   ///
   /// In fr, this message translates to:
@@ -34857,6 +34863,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Activer les comparaisons cantonales'**
   String get semanticsBenchmarkToggle;
+
+  /// No description provided for @semanticsCoachContextStartingPoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Point de départ du contexte coach'**
+  String get semanticsCoachContextStartingPoint;
+
+  /// No description provided for @semanticsOpenProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le profil'**
+  String get semanticsOpenProfile;
 
   /// No description provided for @semanticsBudgetStartButton.
   ///

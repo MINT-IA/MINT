@@ -99,10 +99,10 @@ tags:
 - runFlow:
     when:
       visible:
-        text: "ouvrir-profil-drawer"
+        id: "ouvrir-profil-drawer"
     commands:
       - tapOn:
-          text: "ouvrir-profil-drawer"
+          id: "ouvrir-profil-drawer"
       - takeScreenshot: "g2-03-drawer"
 
 # 12 — Final state screenshot (whether drawer opened or not)

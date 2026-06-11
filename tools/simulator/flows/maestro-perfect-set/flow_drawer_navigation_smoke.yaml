@@ -105,15 +105,16 @@ tags:
     timeout: 8000
 - extendedWaitUntil:
     visible:
-      text: "ouvrir-profil-drawer"
+      id: "ouvrir-profil-drawer"
     timeout: 5000
 - takeScreenshot: "01-explore-home"
 
 # 02 — open drawer via person icon
-# explorer_screen.dart:24-33 — IconButton wrapped in
-#   Semantics(label: 'ouvrir-profil-drawer', button: true) (2026-05-09).
+# explorer_screen.dart:24-36 — IconButton wrapped in Semantics with
+#   identifier: 'ouvrir-profil-drawer' (machine selector) + a LOCALISED
+#   a11y label (D11, plan 17). Locator switched text: → id: accordingly.
 - tapOn:
-    text: "ouvrir-profil-drawer"
+    id: "ouvrir-profil-drawer"
 - extendedWaitUntil:
     visible:
       text: "Mon profil"      # drawerMyProfile — first drawer entry
@@ -131,12 +132,12 @@ tags:
 - openLink: "mintapp:///explore"
 - extendedWaitUntil:
     visible:
-      text: "ouvrir-profil-drawer"
+      id: "ouvrir-profil-drawer"
     timeout: 5000
 
 # 04 — re-open drawer + Mes documents → /documents
 - tapOn:
-    text: "ouvrir-profil-drawer"
+    id: "ouvrir-profil-drawer"
 - tapOn:
     text: "Mes documents"
 - extendedWaitUntil:
@@ -147,12 +148,12 @@ tags:
 - openLink: "mintapp:///explore"
 - extendedWaitUntil:
     visible:
-      text: "ouvrir-profil-drawer"
+      id: "ouvrir-profil-drawer"
     timeout: 5000
 
 # 05 — re-open drawer + Historique coach → /coach/history
 - tapOn:
-    text: "ouvrir-profil-drawer"
+    id: "ouvrir-profil-drawer"
 - tapOn:
     text: "Historique coach"
 - extendedWaitUntil:
@@ -162,12 +163,12 @@ tags:
 - openLink: "mintapp:///explore"
 - extendedWaitUntil:
     visible:
-      text: "ouvrir-profil-drawer"
+      id: "ouvrir-profil-drawer"
     timeout: 5000
 
 # 06 — re-open drawer + Langue → /settings/langue
 - tapOn:
-    text: "ouvrir-profil-drawer"
+    id: "ouvrir-profil-drawer"
 - tapOn:
     text: "Langue"
 - extendedWaitUntil:
@@ -177,12 +178,12 @@ tags:
 - openLink: "mintapp:///explore"
 - extendedWaitUntil:
     visible:
-      text: "ouvrir-profil-drawer"
+      id: "ouvrir-profil-drawer"
     timeout: 5000
 
 # 07 — re-open drawer + Ce que MINT sait de toi → /profile/privacy-control
 - tapOn:
-    text: "ouvrir-profil-drawer"
+    id: "ouvrir-profil-drawer"
 - tapOn:
     text: "Ce que MINT sait de toi"
 - extendedWaitUntil:
@@ -197,11 +198,13 @@ tags:
 # violated the « semantic locators ONLY » rule from
 # .planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md.
 #
-# Fix shipped 2026-05-09 (Maestro paroxysm panel synthesis Tier 1) :
-#   apps/mobile/lib/screens/explore/explorer_screen.dart:24-33 wraps the
-#   IconButton in `Semantics(label: 'ouvrir-profil-drawer', button: true)`
-#   so the locator is now `text: "ouvrir-profil-drawer"` (Maestro reads
-#   Flutter Semantics labels via the accessibility-text matcher).
+# Fix shipped 2026-05-09 (Maestro paroxysm panel synthesis Tier 1),
+# updated 2026-06-11 (D11, plan 17) :
+#   apps/mobile/lib/screens/explore/explorer_screen.dart:24-36 wraps the
+#   IconButton in `Semantics(identifier: 'ouvrir-profil-drawer', label: <localised>)`.
+#   The a11y label is now LOCALISED (no raw key leaked to VoiceOver), so the
+#   stable machine locator is `id: "ouvrir-profil-drawer"` (Maestro matches
+#   the Flutter Semantics identifier via the accessibility-id matcher).
 #
 # ─── BOOTSTRAP CONTRACT (2026-05-24) ──────────────────────────────────
 # This flow is now self-bootstrapping:

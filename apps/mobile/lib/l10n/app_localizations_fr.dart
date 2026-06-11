@@ -392,6 +392,9 @@ class SFr extends S {
   String get documentsDeleteMessage => 'Cette action est irréversible.';
 
   @override
+  String get documentNonDisponible => 'Document non disponible';
+
+  @override
   String get documentsEmpty => 'Aucun document';
 
   @override
@@ -19864,6 +19867,13 @@ class SFr extends S {
 
   @override
   String get semanticsBenchmarkToggle => 'Activer les comparaisons cantonales';
+
+  @override
+  String get semanticsCoachContextStartingPoint =>
+      'Point de départ du contexte coach';
+
+  @override
+  String get semanticsOpenProfile => 'Ouvrir le profil';
 
   @override
   String get semanticsBudgetStartButton => 'Commencer la saisie du budget';

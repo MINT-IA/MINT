@@ -395,6 +395,9 @@ class SDe extends S {
   String get documentsDeleteMessage => 'Diese Aktion ist unwiderruflich.';
 
   @override
+  String get documentNonDisponible => 'Dokument nicht verfügbar';
+
+  @override
   String get documentsEmpty => 'Keine Dokumente';
 
   @override
@@ -19917,6 +19920,13 @@ class SDe extends S {
 
   @override
   String get semanticsBenchmarkToggle => 'Kantonale Vergleiche aktivieren';
+
+  @override
+  String get semanticsCoachContextStartingPoint =>
+      'Ausgangspunkt des Coach-Kontexts';
+
+  @override
+  String get semanticsOpenProfile => 'Profil öffnen';
 
   @override
   String get semanticsBudgetStartButton => 'Budgeteingabe starten';

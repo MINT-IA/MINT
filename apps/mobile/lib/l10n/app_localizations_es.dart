@@ -392,6 +392,9 @@ class SEs extends S {
   String get documentsDeleteMessage => 'Esta accion es irreversible.';
 
   @override
+  String get documentNonDisponible => 'Documento no disponible';
+
+  @override
   String get documentsEmpty => 'Ningun documento';
 
   @override
@@ -19870,6 +19873,13 @@ class SEs extends S {
 
   @override
   String get semanticsBenchmarkToggle => 'Activar comparaciones cantonales';
+
+  @override
+  String get semanticsCoachContextStartingPoint =>
+      'Punto de partida del contexto del coach';
+
+  @override
+  String get semanticsOpenProfile => 'Abrir el perfil';
 
   @override
   String get semanticsBudgetStartButton => 'Comenzar a ingresar el presupuesto';

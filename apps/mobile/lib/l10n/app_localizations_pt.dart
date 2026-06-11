@@ -391,6 +391,9 @@ class SPt extends S {
   String get documentsDeleteMessage => 'Esta acao e irreversivel.';
 
   @override
+  String get documentNonDisponible => 'Documento não disponível';
+
+  @override
   String get documentsEmpty => 'Nenhum documento';
 
   @override
@@ -19872,6 +19875,13 @@ class SPt extends S {
 
   @override
   String get semanticsBenchmarkToggle => 'Ativar comparações cantonais';
+
+  @override
+  String get semanticsCoachContextStartingPoint =>
+      'Ponto de partida do contexto do coach';
+
+  @override
+  String get semanticsOpenProfile => 'Abrir o perfil';
 
   @override
   String get semanticsBudgetStartButton => 'Começar a inserir o orçamento';

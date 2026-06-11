@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/data_spine/coach_packet_insight_presenter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -15,7 +16,11 @@ class CoachPacketInsightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'coach-context-point-de-depart',
+      // D11 — label a11y LOCALISÉ (plus de clé brute lue par VoiceOver) ;
+      // `identifier` reste le selector machine stable pour Maestro
+      // (flow_money_trust_chain_3a_contributing.yaml).
+      identifier: 'coach-context-point-de-depart',
+      label: S.of(context)!.semanticsCoachContextStartingPoint,
       container: true,
       explicitChildNodes: true,
       child: ConstrainedBox(

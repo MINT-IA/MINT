@@ -391,6 +391,9 @@ class SIt extends S {
   String get documentsDeleteMessage => 'Questa azione è irreversibile.';
 
   @override
+  String get documentNonDisponible => 'Documento non disponibile';
+
+  @override
   String get documentsEmpty => 'Nessun documento';
 
   @override
@@ -19924,6 +19927,13 @@ class SIt extends S {
 
   @override
   String get semanticsBenchmarkToggle => 'Attiva confronti cantonali';
+
+  @override
+  String get semanticsCoachContextStartingPoint =>
+      'Punto di partenza del contesto del coach';
+
+  @override
+  String get semanticsOpenProfile => 'Apri il profilo';
 
   @override
   String get semanticsBudgetStartButton => 'Inizia a inserire il budget';

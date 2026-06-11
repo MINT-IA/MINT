@@ -390,6 +390,9 @@ class SEn extends S {
   String get documentsDeleteMessage => 'This action cannot be undone.';
 
   @override
+  String get documentNonDisponible => 'Document unavailable';
+
+  @override
   String get documentsEmpty => 'No documents';
 
   @override
@@ -19776,6 +19779,13 @@ class SEn extends S {
 
   @override
   String get semanticsBenchmarkToggle => 'Enable cantonal comparisons';
+
+  @override
+  String get semanticsCoachContextStartingPoint =>
+      'Coach context starting point';
+
+  @override
+  String get semanticsOpenProfile => 'Open profile';
 
   @override
   String get semanticsBudgetStartButton => 'Start entering your budget';

@@ -21,12 +21,13 @@ class ExplorerScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          // Semantics label exposes the icon-only button to a11y screen
-          // readers AND to Maestro flow selectors (replaces the
-          // `point: "95%, 8%"` pixel fallback in
-          // flow_drawer_navigation_smoke.yaml + flow_empty_state_cascade.yaml).
+          // D11 — le `label` a11y porte un texte LOCALISÉ lisible par VoiceOver
+          // (plus de clé brute « ouvrir-profil-drawer »). Le selector machine
+          // stable pour Maestro passe par `identifier`, ciblé via `id:` dans
+          // flow_drawer_navigation_smoke.yaml + flow_row22_primary_screen_visual_crawl.yaml.
           Semantics(
-            label: 'ouvrir-profil-drawer',
+            identifier: 'ouvrir-profil-drawer',
+            label: S.of(context)!.semanticsOpenProfile,
             button: true,
             child: IconButton(
               icon: const Icon(Icons.person_outline, color: MintColors.textPrimary),

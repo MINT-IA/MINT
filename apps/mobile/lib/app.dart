@@ -1221,8 +1221,9 @@ final _router = GoRouter(
       builder: (context, state) {
         final result = state.extra as ExtractionResult?;
         if (result == null) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
+          return Scaffold(
+            body: Center(
+                child: Text(S.of(context)!.documentNonDisponible)),
           );
         }
         return ExtractionReviewScreen(result: result);
@@ -1236,8 +1237,9 @@ final _router = GoRouter(
         if (extra == null ||
             extra['result'] is! ExtractionResult ||
             extra['previousConfidence'] is! int) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
+          return Scaffold(
+            body: Center(
+                child: Text(S.of(context)!.documentNonDisponible)),
           );
         }
         return DocumentImpactScreen(
