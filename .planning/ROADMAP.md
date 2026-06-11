@@ -47,7 +47,7 @@ Plans:
 - [x] mint-illogism-fixes-11-w3-confidence-gate-estime-tags-PLAN.md — Confidence Gate <50 + hero 3 états + source de confiance unique
 - [x] mint-illogism-fixes-12-w4-divorce-split-mariage-PLAN.md — split divorce borné à la part-mariage (CC art.122)
 - [x] mint-illogism-fixes-13-w4-avs-gapfactor-PLAN.md — gapFactor AVS plumbé + scène rente_trouee honnête
-- [ ] mint-illogism-fixes-14-w4-3a-suggestion-cap-PLAN.md — suggestion 3a plafonnée au plafond légal restant
+- [x] mint-illogism-fixes-14-w4-3a-suggestion-cap-PLAN.md — suggestion 3a plafonnée au plafond légal restant
 - [ ] mint-illogism-fixes-15-w4-affordability-unify-lcc-PLAN.md — revenu de ménage unifié + citation LCC corrigée
 - [ ] mint-illogism-fixes-16-w5-cta-dashboard-truth-PLAN.md — tableau retraite sur la source /home + CTA vivant
 - [ ] mint-illogism-fixes-17-w5-surfaces-honnetes-strings-PLAN.md — what-if mariage étiqueté + labels a11y + i18n + clôture device D1-D12
