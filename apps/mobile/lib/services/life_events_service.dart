@@ -21,6 +21,17 @@ class DivorceInput {
   final double incomeConjoint2;
   final double lppConjoint1;
   final double lppConjoint2;
+
+  /// Avoir de prévoyance LPP de chaque conjoint AU MOMENT DU MARIAGE.
+  ///
+  /// CC art. 122 / LFLP art. 22a : le partage 50/50 ne porte que sur la
+  /// prévoyance acquise PENDANT le mariage. La part constituée avant le
+  /// mariage est exclue du partage. Sans cette donnée (null), le service
+  /// renvoie un résultat marqué incomplet plutôt que de splitter l'avoir
+  /// total.
+  final double? avoirAuMariage1;
+  final double? avoirAuMariage2;
+
   final double pillar3aConjoint1;
   final double pillar3aConjoint2;
   final double fortuneCommune;
@@ -34,6 +45,8 @@ class DivorceInput {
     required this.incomeConjoint2,
     required this.lppConjoint1,
     required this.lppConjoint2,
+    this.avoirAuMariage1,
+    this.avoirAuMariage2,
     required this.pillar3aConjoint1,
     required this.pillar3aConjoint2,
     required this.fortuneCommune,
@@ -44,17 +57,31 @@ class DivorceInput {
 /// LPP split result.
 class LppSplitResult {
   final double totalLpp;
+
+  /// Part de prévoyance acquise PENDANT le mariage par chaque conjoint —
+  /// seule base de partage (CC art. 122 / LFLP art. 22a).
+  final double acquisConjoint1;
+  final double acquisConjoint2;
+
   final double shareConjoint1;
   final double shareConjoint2;
   final double transferAmount;
   final String transferDirection; // "1 → 2" or "2 → 1"
 
+  /// True quand l'avoir au mariage manque pour au moins un conjoint : le
+  /// montant de transfert ne peut pas être calculé de façon certaine. L'UI
+  /// doit demander la donnée plutôt qu'afficher un transfert.
+  final bool isIncomplete;
+
   const LppSplitResult({
     required this.totalLpp,
+    required this.acquisConjoint1,
+    required this.acquisConjoint2,
     required this.shareConjoint1,
     required this.shareConjoint2,
     required this.transferAmount,
     required this.transferDirection,
+    this.isIncomplete = false,
   });
 }
 
@@ -111,23 +138,52 @@ class DivorceResult {
 class DivorceService {
   /// Run a full divorce financial simulation.
   static DivorceResult simulate({required DivorceInput input}) {
-    // ---- LPP Split (CC 122 / LFLP 22) ----
-    // During marriage, accumulated LPP is split 50/50.
+    // ---- LPP Split (CC art. 122 / LFLP art. 22a) ----
+    // Le partage 50/50 porte uniquement sur la pr\u00e9voyance acquise PENDANT le
+    // mariage : part acquise_i = max(0, avoir actuel_i \u2212 avoir au mariage_i).
+    // L'avoir constitu\u00e9 avant le mariage est exclu du partage. Splitter l'avoir
+    // total surestime le transfert.
     final totalLpp = input.lppConjoint1 + input.lppConjoint2;
-    final halfLpp = totalLpp / 2;
-    final lppTransfer = (input.lppConjoint1 - input.lppConjoint2).abs() / 2;
-    final lppDirection =
-        input.lppConjoint1 > input.lppConjoint2 ? '1 \u2192 2' : '2 \u2192 1';
+    final bool lppIncomplete =
+        input.avoirAuMariage1 == null || input.avoirAuMariage2 == null;
 
-    final lppSplit = LppSplitResult(
-      totalLpp: totalLpp,
-      shareConjoint1: halfLpp,
-      shareConjoint2: halfLpp,
-      transferAmount: lppTransfer,
-      transferDirection: input.lppConjoint1 == input.lppConjoint2
-          ? '-'
-          : lppDirection,
-    );
+    late final LppSplitResult lppSplit;
+    double lppTransfer;
+    if (lppIncomplete) {
+      // Donn\u00e9e requise : sans l'avoir au mariage de chaque conjoint, on ne
+      // peut pas isoler la part acquise pendant le mariage. On ne splitte PAS
+      // l'avoir total \u2014 on signale un r\u00e9sultat incomplet \u00e0 l'UI.
+      lppTransfer = 0;
+      lppSplit = const LppSplitResult(
+        totalLpp: 0,
+        acquisConjoint1: 0,
+        acquisConjoint2: 0,
+        shareConjoint1: 0,
+        shareConjoint2: 0,
+        transferAmount: 0,
+        transferDirection: '-',
+        isIncomplete: true,
+      );
+    } else {
+      final acquis1 =
+          (input.lppConjoint1 - input.avoirAuMariage1!).clamp(0.0, double.infinity);
+      final acquis2 =
+          (input.lppConjoint2 - input.avoirAuMariage2!).clamp(0.0, double.infinity);
+      final totalAcquis = acquis1 + acquis2;
+      final halfAcquis = totalAcquis / 2;
+      lppTransfer = (acquis1 - acquis2).abs() / 2;
+      final lppDirection = acquis1 > acquis2 ? '1 \u2192 2' : '2 \u2192 1';
+
+      lppSplit = LppSplitResult(
+        totalLpp: totalLpp,
+        acquisConjoint1: acquis1,
+        acquisConjoint2: acquis2,
+        shareConjoint1: halfAcquis,
+        shareConjoint2: halfAcquis,
+        transferAmount: lppTransfer,
+        transferDirection: acquis1 == acquis2 ? '-' : lppDirection,
+      );
+    }
 
     // ---- 3a Split ----
     // Under participation aux acquêts, 3a accumulated during marriage is

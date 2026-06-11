@@ -15,7 +15,11 @@ void main() {
   //  DIVORCE SERVICE — LPP SPLIT
   // ════════════════════════════════════════════════════════════
 
-  group('DivorceService - LPP Split (CC 122 / LFLP 22)', () {
+  group('DivorceService - LPP Split (CC 122 / LFLP 22a)', () {
+    // Note : depuis le plan mint-illogism-fixes-12, le split ne porte que sur
+    // la part acquise PENDANT le mariage (acquis_i = avoir actuel_i − avoir au
+    // mariage_i). Ces cas fixent avoirAuMariage=0 pour que la part acquise =
+    // l'avoir total et préserver les attentes chiffrées historiques.
     test('equal LPP avoirs produce zero transfer', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
@@ -26,6 +30,8 @@ void main() {
           incomeConjoint2: 80000,
           lppConjoint1: 200000,
           lppConjoint2: 200000,
+          avoirAuMariage1: 0,
+          avoirAuMariage2: 0,
           pillar3aConjoint1: 0,
           pillar3aConjoint2: 0,
           fortuneCommune: 100000,
@@ -33,7 +39,10 @@ void main() {
         ),
       );
 
+      expect(result.lppSplit.isIncomplete, isFalse);
       expect(result.lppSplit.totalLpp, 400000);
+      expect(result.lppSplit.acquisConjoint1, 200000);
+      expect(result.lppSplit.acquisConjoint2, 200000);
       expect(result.lppSplit.shareConjoint1, 200000);
       expect(result.lppSplit.shareConjoint2, 200000);
       expect(result.lppSplit.transferAmount, 0);
@@ -50,6 +59,8 @@ void main() {
           incomeConjoint2: 40000,
           lppConjoint1: 300000,
           lppConjoint2: 100000,
+          avoirAuMariage1: 0,
+          avoirAuMariage2: 0,
           pillar3aConjoint1: 0,
           pillar3aConjoint2: 0,
           fortuneCommune: 0,
@@ -57,6 +68,7 @@ void main() {
         ),
       );
 
+      expect(result.lppSplit.isIncomplete, isFalse);
       expect(result.lppSplit.totalLpp, 400000);
       expect(result.lppSplit.shareConjoint1, 200000);
       expect(result.lppSplit.shareConjoint2, 200000);
@@ -75,6 +87,8 @@ void main() {
           incomeConjoint2: 50000,
           lppConjoint1: 500000,
           lppConjoint2: 50000,
+          avoirAuMariage1: 0,
+          avoirAuMariage2: 0,
           pillar3aConjoint1: 0,
           pillar3aConjoint2: 0,
           fortuneCommune: 0,
@@ -82,6 +96,7 @@ void main() {
         ),
       );
 
+      // Part acquise = avoir total (avoir au mariage = 0).
       // Transfer = |500000 - 50000| / 2 = 225000, which is > 100000
       expect(result.lppSplit.transferAmount, 225000);
       expect(
