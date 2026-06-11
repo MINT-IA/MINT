@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: core-journey-truth
 milestone_name: Core Journey Truth / Prod Ready
 status: executing
-stopped_at: CJT-024 and CJT-018 runtime proof refreshed; next execution wave is release-gate CJT-015 or backend cutover CJT-013 unless product journey proof is prioritized.
-last_updated: "2026-06-04T08:55:00+02:00"
-last_activity: 2026-06-04 -- CJT-024 closed, CJT-018 current AX frame audit green
+stopped_at: Phase mint-illogism-fixes PLANNED+VERIFIED (17 plans / 14 waves, plan-checker PASS iter 2, commits 768b3b155 + d58baa137) — next: /gsd:execute-phase mint-illogism-fixes (W1 source unique). CJT-015/CJT-013 still open behind it.
+last_updated: "2026-06-11T08:20:00+02:00"
+last_activity: 2026-06-11 -- mint-illogism-fixes planned (matrice 44+D12 -> 17 plans), checker PASS
 progress:
   total_phases: 1
   completed_phases: 0
