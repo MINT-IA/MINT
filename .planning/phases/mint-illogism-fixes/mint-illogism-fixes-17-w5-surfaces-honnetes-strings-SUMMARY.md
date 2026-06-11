@@ -169,3 +169,48 @@ Build : `flutter build ios --simulator --debug` à **23:00:22** (postérieur aux
 - `.planning/_walker/illogism-fixes/final/D11-explorer-localized-a11y.png` — FOUND
 - commit `d59153883` (Task 1) — FOUND
 - commit `5b8553abc` (Task 2) — FOUND
+
+## Post-review gap closure (Codex W5)
+
+Une revue Codex indépendante a trouvé **1 P1 + 1 P2 — la même racine, deux directions** — dans le gate ghost-conjoint ajouté par le plan 17 dans `CoachProfile.fromWizardAnswers` (`apps/mobile/lib/models/coach_profile.dart:3153`).
+
+### Racine
+
+Le gate suppimait la reconstruction du conjoint ssi `q_household_type == 'single'`. Mais l'onboarding V2 (plan 06 `MintSceneEtatCivil` via `onboarding_provider.dart:460`) n'écrit QUE `q_civil_status`, jamais `q_household_type` (`wizard_test.dart:94` documente que V2 remplace `q_household_type` par `q_civil_status`). Deux échecs atteignables :
+
+- **[P1]** `q_household_type=single` périmé persisté + `q_civil_status=marié` frais + vraies données partenaire → le VRAI conjoint était silencieusement supprimé (`mariage_screen.dart:99` traitait alors `conjoint==null` comme « pas de vrai conjoint » et affichait le chemin hypothèse-fabriquée).
+- **[P2]** `q_household_type` ABSENT + `q_civil_status` célibataire/divorcé/veuf + clés `q_partner_*` résiduelles → conjoint fantôme toujours ressuscité (le bug W2 d'origine, jamais corrigé pour les profils de forme V2).
+
+### Fix
+
+Le prédicat lit désormais les DEUX signaux, l'état civil frais primant (mêmes valeurs/parsing que `_parseCivilStatus` à `coach_profile.dart:3501`) :
+
+- état civil = couple (`marié`/`concubinage`) → AUTORISER même si un `q_household_type=single` périmé persiste.
+- état civil = non-couple (`célibataire`/`divorcé`/`veuf`) → SUPPRIMER SAUF si `q_household_type == 'couple'` explicite (un divorcé PEUT vivre en couple déclaré — propriété conservée du plan 17).
+- état civil absent → comportement historique inchangé (n'exclure que `q_household_type=single` explicite ; les deux absents = legacy allow, pas de régression sur les anciens profils).
+
+Commentaire explicatif dans le code mis à jour honnêtement (`coach_profile.dart:3153-3191`).
+
+### Tests (6 nouveaux cas, `test/screens/mariage_whatif_labels_test.dart`)
+
+Nouveau groupe `Ghost conjoint — état civil frais prime sur household périmé (W5)` :
+
+- (a) **[P1]** `q_household_type=single` périmé + `q_civil_status=marie` frais + vrai conjoint → conjoint **présent**.
+- (b) **[P2]** `q_household_type` ABSENT + `q_civil_status=divorce` + résidus → conjoint **null**.
+- (b') **[P2-célibataire]** `q_household_type` ABSENT + `q_civil_status=celibataire` + résidus → conjoint **null**.
+- (c) **[divorcé+couple]** `q_household_type=couple` explicite + `q_civil_status=divorce` + données partenaire → conjoint **présent** (propriété plan 17 préservée).
+- + 2 gardes de non-régression legacy (état civil absent : `single` → null ; les deux absents → conjoint présent).
+
+### Citation déterministe
+
+- `cd apps/mobile && flutter analyze` → `No issues found! (ran in 4.9s)`.
+- `flutter test test/screens/mariage_whatif_labels_test.dart` → `00:00 +11: All tests passed!` (6 → 11 tests).
+- `flutter test test/wizard_test.dart` → `+12: All tests passed!`.
+- `flutter test test/services/life_events_divorce_test.dart` → `+5: All tests passed!`.
+- `flutter test test/models/` → `+277: All tests passed!`.
+- `flutter test test/services/financial_parity_test.dart` → `+45: All tests passed!`.
+- Audit des callers de `fromWizardAnswers` asseyant sur `conjoint` (`income_converter_test`, `fact_extraction_fallback_test`, `auth_provider_test`, `coach_profile_provider_open_banking_test`) : aucun n'encodait le prédicat bogué — tous restent verts (les cas sans état civil tombent dans la branche legacy-allow, inchangée).
+
+**Commit :** `894940831` — `fix(mint-illogism-fixes-17): ghost-conjoint gate reads civil status, not just q_household_type` (2 fichiers, +165/-10).
+
+**Honnêteté 0-TRUST :** ce qui est prouvé déterministiquement = `flutter analyze` clean + suites ciblées vertes (tails cités) + 4 cas P1/P2 couverts. Ce qui N'EST PAS reprouvé = walkthrough device end-to-end de la surface mariage (hors scope de cette gap-closure ; la surface D9 reste device-proofée sur le build frais du plan 17 d'origine).
