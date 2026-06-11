@@ -33,15 +33,26 @@ void main() {
       }
     });
 
-    test('replacementRate uses grossMonthlySalary as denominator', () {
+    test('replacementRate uses NET income as denominator (canonical, W1 lock)',
+        () {
+      const age = 50;
+      const gross = 100000.0;
+      const canton = 'ZH';
       final result = MinimalProfileService.compute(
-        age: 50,
-        grossSalary: 100000,
-        canton: 'ZH',
+        age: age,
+        grossSalary: gross,
+        canton: canton,
       );
-      final expectedRate =
-          result.totalMonthlyRetirement / result.grossMonthlySalary;
-      expect(result.replacementRate, closeTo(expectedRate, 0.001));
+      // Dénominateur canonique = revenu NET (NetIncomeBreakdown), plus le brut.
+      // Champ conservé en fraction (0-1) — percent / 100.
+      final net = NetIncomeBreakdown.compute(
+        grossSalary: gross,
+        canton: canton,
+        age: age,
+      ).monthlyNetPayslip;
+      final expectedFraction =
+          result.totalMonthlyRetirement / net; // NET, pas grossMonthlySalary
+      expect(result.replacementRate, closeTo(expectedFraction, 0.001));
     });
 
     test('retirementGapMonthly = grossMonthlySalary - retirement', () {
@@ -56,7 +67,8 @@ void main() {
           closeTo(expectedGap < 0 ? 0 : expectedGap, 0.01));
     });
 
-    test('monthlyDebtImpact reflects debt subtracted from retirement', () {
+    test('monthlyDebtImpact surfaced but NOT subtracted from retirement (W1)',
+        () {
       final withDebt = MinimalProfileService.compute(
         age: 45,
         grossSalary: 60000,
@@ -70,11 +82,14 @@ void main() {
         monthlyDebtService: 0,
       );
 
+      // Le service de dette reste exposé pour l'affichage budget…
       expect(withDebt.monthlyDebtImpact, equals(500.0));
       expect(withoutDebt.monthlyDebtImpact, equals(0.0));
+      // …mais n'est PLUS soustrait du revenu de retraite (composition canonique
+      // AVS + LPP). Le revenu de retraite est identique avec ou sans dette.
       expect(
-        withoutDebt.totalMonthlyRetirement - withDebt.totalMonthlyRetirement,
-        closeTo(500.0, 0.01),
+        withDebt.totalMonthlyRetirement,
+        closeTo(withoutDebt.totalMonthlyRetirement, 0.01),
       );
     });
 
@@ -93,9 +108,15 @@ void main() {
         totalDebts: 100000,
       );
 
+      // Le service de dette explicite (200) prime sur l'estimation depuis
+      // totalDebts (100000 × 0.005 = 500). La priorité s'observe désormais sur
+      // monthlyDebtImpact (donnée budget surfacée), plus sur le revenu de
+      // retraite : la dette n'est plus soustraite du revenu de retraite (W1).
+      expect(result.monthlyDebtImpact, closeTo(200.0, 0.01));
+      expect(resultOnlyTotal.monthlyDebtImpact, closeTo(500.0, 0.01));
       expect(
-        result.totalMonthlyRetirement,
-        greaterThan(resultOnlyTotal.totalMonthlyRetirement),
+        result.monthlyDebtImpact,
+        lessThan(resultOnlyTotal.monthlyDebtImpact),
         reason: 'monthlyDebtService=200 < totalDebts estimate=500',
       );
     });

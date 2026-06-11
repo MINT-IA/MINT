@@ -104,7 +104,7 @@ class BudgetLivingEngine {
         retirementAgeUser: targetRetirementAge,
       );
       retirementBudget = _wrapRetirementResult(retirementResult, profile);
-      gap = _computeGap(present, retirementBudget, profile.salaireBrutMensuel);
+      gap = _computeGap(present, retirementBudget);
     } catch (_) {
       // Graceful degradation: show present-only if retirement calc fails.
       return BudgetSnapshot(
@@ -243,16 +243,18 @@ class BudgetLivingEngine {
   static BudgetGap _computeGap(
     PresentBudget present,
     RetirementBudget retirement,
-    double grossMonthlySalary,
   ) {
     // Gap: positive means retirement income < today (need to plan).
     final monthlyGap = present.monthlyNet - retirement.monthlyNet;
 
-    // Replacement rate: retirement income as % of GROSS income (CLAUDE.md §8).
-    // Consistent with minimal_profile_service and ForecasterService.
-    final replacementRate = grossMonthlySalary > 0
-        ? (retirement.monthlyNet / grossMonthlySalary * 100).clamp(0.0, 200.0)
-        : 0.0;
+    // Taux de remplacement : définition canonique unique (financial_core L1).
+    // Numérateur ET dénominateur sont NET (fin de la formule mixte net/brut) :
+    // revenu retraite NET / revenu présent NET, en %. Plus de grossMonthlySalary
+    // au dénominateur (lock CONTEXT W1, voir replacement_rate.dart + D3).
+    final replacementRate = ReplacementRate.percent(
+      totalMonthlyRetirement: retirement.monthlyNet,
+      netMonthlyIncome: present.monthlyNet,
+    ).clamp(0.0, 200.0);
 
     return BudgetGap(
       monthlyGap: monthlyGap,

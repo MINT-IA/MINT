@@ -480,7 +480,7 @@ void main() {
 
       // Régression : avec un dénominateur NET (< brut), le taux est
       // strictement supérieur au taux brut historique (même numérateur).
-      final grossMonthly = gross / 12;
+      const grossMonthly = gross / 12;
       final ratioBrut = result.totalMonthlyRetirement / grossMonthly;
       expect(result.replacementRate, greaterThan(ratioBrut),
           reason: 'NET < BRUT ⇒ taux NET > taux BRUT historique');

@@ -788,8 +788,13 @@ class ResponseCardService {
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: age,
     ).monthlyNetPayslip;
-    final replacementRate =
-        currentMonthly > 0 ? (totalMonthly / currentMonthly * 100) : 0.0;
+    // Définition canonique unique (financial_core L1) : ce chemin est la
+    // référence (dénominateur NET, numérateur AVS+LPP). Comportement inchangé,
+    // délégation explicite pour interdire toute formule ad-hoc divergente.
+    final replacementRate = ReplacementRate.percent(
+      totalMonthlyRetirement: totalMonthly,
+      netMonthlyIncome: currentMonthly,
+    );
 
     return ResponseCard(
       id: 'replacement_rate',

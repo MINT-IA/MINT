@@ -125,15 +125,30 @@ class MinimalProfileService {
     }
     final lppMonthly = lppAnnualRente / 12;
 
-    // --- Debt service impact (anti-double-counting: subtract from income, not expenses) ---
+    // --- Debt service impact (donnée budget, surfacée pour l'affichage) ---
+    // Le service de la dette est une donnée *budget*, PAS un revenu de retraite.
+    // Il n'est plus soustrait du revenu de retraite total (composition canonique
+    // = AVS + LPP, alignée sur response_card et retirement_projection_service).
+    // Voir financial_core/replacement_rate.dart + matrice D3.
     final effectiveDebtService = monthlyDebtService
         ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
 
-    // --- Total retirement income (clamped >= 0, aligned with backend) ---
-    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly - effectiveDebtService);
+    // --- Total retirement income (composition canonique : AVS + LPP) ---
+    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly);
     final grossMonthlySalary = grossSalary / 12;
-    final replacementRate =
-        grossMonthlySalary > 0 ? totalMonthlyRetirement / grossMonthlySalary : 0.0;
+    // --- Taux de remplacement : dénominateur NET courant (lock CONTEXT W1) ---
+    // Source canonique unique ReplacementRate (financial_core L1) : dénominateur
+    // = revenu NET via NetIncomeBreakdown (canton + âge aware), plus le brut.
+    // Champ conservé en fraction (0-1) pour les consommateurs historiques.
+    final netMonthlyIncome = NetIncomeBreakdown.compute(
+      grossSalary: grossSalary,
+      canton: canton.isNotEmpty ? canton : 'ZH',
+      age: age,
+    ).monthlyNetPayslip;
+    final replacementRate = ReplacementRate.fraction(
+      totalMonthlyRetirement: totalMonthlyRetirement,
+      netMonthlyIncome: netMonthlyIncome,
+    );
     final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core) ---
