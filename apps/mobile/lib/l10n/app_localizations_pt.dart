@@ -8643,6 +8643,14 @@ class SPt extends S {
       'Nenhum dado armazenado sem o teu consentimento.';
 
   @override
+  String get dashboardProjectionUnavailableTitle =>
+      'Projeção temporariamente indisponível';
+
+  @override
+  String get dashboardProjectionUnavailableBody =>
+      'Os teus dados estão aqui, mas desta vez não conseguimos construir a projeção. Podes verificar as tuas informações ou tentar novamente.';
+
+  @override
   String get dashboardEducationTitle => 'Como funciona a reforma na Suíça?';
 
   @override

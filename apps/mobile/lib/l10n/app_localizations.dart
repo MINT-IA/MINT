@@ -15277,6 +15277,18 @@ abstract class S {
   /// **'Aucune donnée stockée sans ton accord.'**
   String get dashboardOnboardingConsent;
 
+  /// No description provided for @dashboardProjectionUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection momentanément indisponible'**
+  String get dashboardProjectionUnavailableTitle;
+
+  /// No description provided for @dashboardProjectionUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données sont bien là, mais nous n’avons pas pu construire la projection cette fois. Tu peux vérifier tes informations ou réessayer.'**
+  String get dashboardProjectionUnavailableBody;
+
   /// No description provided for @dashboardEducationTitle.
   ///
   /// In fr, this message translates to:

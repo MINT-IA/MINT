@@ -8647,6 +8647,14 @@ class SEs extends S {
       'Ningún dato almacenado sin tu consentimiento.';
 
   @override
+  String get dashboardProjectionUnavailableTitle =>
+      'Proyección no disponible por el momento';
+
+  @override
+  String get dashboardProjectionUnavailableBody =>
+      'Tus datos están aquí, pero esta vez no pudimos construir la proyección. Puedes revisar tu información o volver a intentarlo.';
+
+  @override
   String get dashboardEducationTitle =>
       '¿Cómo funciona la jubilación en Suiza?';
 

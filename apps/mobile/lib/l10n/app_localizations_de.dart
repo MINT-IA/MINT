@@ -8676,6 +8676,14 @@ class SDe extends S {
       'Keine Daten ohne deine Zustimmung gespeichert.';
 
   @override
+  String get dashboardProjectionUnavailableTitle =>
+      'Projektion vorübergehend nicht verfügbar';
+
+  @override
+  String get dashboardProjectionUnavailableBody =>
+      'Deine Daten sind vorhanden, aber wir konnten die Projektion diesmal nicht erstellen. Du kannst deine Angaben überprüfen oder es erneut versuchen.';
+
+  @override
   String get dashboardEducationTitle =>
       'Wie funktioniert die Pensionierung in der Schweiz?';
 

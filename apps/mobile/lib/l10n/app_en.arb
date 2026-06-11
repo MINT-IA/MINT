@@ -4014,6 +4014,8 @@
   "dashboardOnboardingHeroTitle": "Your retirement at a glance",
   "dashboardOnboardingCta": "Get started — 2 min",
   "dashboardOnboardingConsent": "No data stored without your consent.",
+  "dashboardProjectionUnavailableTitle": "Projection temporarily unavailable",
+  "dashboardProjectionUnavailableBody": "Your data is here, but we couldn’t build the projection this time. You can review your information or try again.",
   "dashboardEducationTitle": "How does retirement work in Switzerland?",
   "dashboardEducationSubtitle": "AVS, LPP, 3a — the basics in 5 minutes",
   "dashboardCockpitTitle": "Detailed cockpit",

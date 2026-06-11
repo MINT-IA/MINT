@@ -8600,6 +8600,14 @@ class SEn extends S {
       'No data stored without your consent.';
 
   @override
+  String get dashboardProjectionUnavailableTitle =>
+      'Projection temporarily unavailable';
+
+  @override
+  String get dashboardProjectionUnavailableBody =>
+      'Your data is here, but we couldn’t build the projection this time. You can review your information or try again.';
+
+  @override
   String get dashboardEducationTitle =>
       'How does retirement work in Switzerland?';
 

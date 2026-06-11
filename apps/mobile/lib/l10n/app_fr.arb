@@ -4409,6 +4409,8 @@
   "dashboardOnboardingHeroTitle": "Ta retraite en un coup d’œil",
   "dashboardOnboardingCta": "Commencer — 2 min",
   "dashboardOnboardingConsent": "Aucune donnée stockée sans ton accord.",
+  "dashboardProjectionUnavailableTitle": "Projection momentanément indisponible",
+  "dashboardProjectionUnavailableBody": "Tes données sont bien là, mais nous n’avons pas pu construire la projection cette fois. Tu peux vérifier tes informations ou réessayer.",
   "dashboardEducationTitle": "Comment fonctionne la retraite en Suisse ?",
   "dashboardEducationSubtitle": "AVS, LPP, 3a — les bases en 5 minutes",
   "dashboardCockpitTitle": "Cockpit de détail",

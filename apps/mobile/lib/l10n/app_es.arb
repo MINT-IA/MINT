@@ -4014,6 +4014,8 @@
   "dashboardOnboardingHeroTitle": "Tu jubilación de un vistazo",
   "dashboardOnboardingCta": "Empezar — 2 min",
   "dashboardOnboardingConsent": "Ningún dato almacenado sin tu consentimiento.",
+  "dashboardProjectionUnavailableTitle": "Proyección no disponible por el momento",
+  "dashboardProjectionUnavailableBody": "Tus datos están aquí, pero esta vez no pudimos construir la proyección. Puedes revisar tu información o volver a intentarlo.",
   "dashboardEducationTitle": "¿Cómo funciona la jubilación en Suiza?",
   "dashboardEducationSubtitle": "AVS, LPP, 3a — lo básico en 5 minutos",
   "dashboardCockpitTitle": "Cockpit detallado",

@@ -8649,6 +8649,14 @@ class SFr extends S {
       'Aucune donnée stockée sans ton accord.';
 
   @override
+  String get dashboardProjectionUnavailableTitle =>
+      'Projection momentanément indisponible';
+
+  @override
+  String get dashboardProjectionUnavailableBody =>
+      'Tes données sont bien là, mais nous n’avons pas pu construire la projection cette fois. Tu peux vérifier tes informations ou réessayer.';
+
+  @override
   String get dashboardEducationTitle =>
       'Comment fonctionne la retraite en Suisse ?';
 

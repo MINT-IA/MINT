@@ -4014,6 +4014,8 @@
   "dashboardOnboardingHeroTitle": "La tua pensione a colpo d'occhio",
   "dashboardOnboardingCta": "Inizia — 2 min",
   "dashboardOnboardingConsent": "Nessun dato memorizzato senza il tuo consenso.",
+  "dashboardProjectionUnavailableTitle": "Proiezione momentaneamente non disponibile",
+  "dashboardProjectionUnavailableBody": "I tuoi dati ci sono, ma questa volta non siamo riusciti a costruire la proiezione. Puoi verificare le tue informazioni o riprovare.",
   "dashboardEducationTitle": "Come funziona la pensione in Svizzera?",
   "dashboardEducationSubtitle": "AVS, LPP, 3a — le basi in 5 minuti",
   "dashboardCockpitTitle": "Cockpit dettagliato",

@@ -4014,6 +4014,8 @@
   "dashboardOnboardingHeroTitle": "A tua reforma num relance",
   "dashboardOnboardingCta": "Começar — 2 min",
   "dashboardOnboardingConsent": "Nenhum dado armazenado sem o teu consentimento.",
+  "dashboardProjectionUnavailableTitle": "Projeção temporariamente indisponível",
+  "dashboardProjectionUnavailableBody": "Os teus dados estão aqui, mas desta vez não conseguimos construir a projeção. Podes verificar as tuas informações ou tentar novamente.",
   "dashboardEducationTitle": "Como funciona a reforma na Suíça?",
   "dashboardEducationSubtitle": "AVS, LPP, 3a — o básico em 5 minutos",
   "dashboardCockpitTitle": "Cockpit detalhado",

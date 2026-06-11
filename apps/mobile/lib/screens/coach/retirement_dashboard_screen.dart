@@ -371,9 +371,19 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
 
-    final child = (!provider.hasProfile || _projection == null)
-        ? _buildStateC()
-        : _buildDashboard();
+    // D7: l'état vide onboarding (« 4 infos suffisent ») ne doit s'afficher que
+    // si le profil est RÉELLEMENT vide — la MÊME source que /home
+    // (CoachProfileProvider.hasProfile). Si un profil est hydraté (avoir LPP
+    // visible sur /home) mais que la projection a échoué, on ne ment pas en
+    // affichant l'onboarding : on rend un état « réessayer » récupérable.
+    final Widget child;
+    if (!provider.hasProfile) {
+      child = _buildStateC();
+    } else if (_projection == null) {
+      child = _buildProjectionUnavailable();
+    } else {
+      child = _buildDashboard();
+    }
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
@@ -649,6 +659,128 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                         _buildOnboardingHero(),
                         const SizedBox(height: MintSpacing.md),
                         _buildEducationalCard(),
+                        const SizedBox(height: MintSpacing.lg),
+                        _buildDisclaimer(),
+                        const SizedBox(height: MintSpacing.xl),
+                      ]),
+                    ),
+                  ),
+                ],
+              ))),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  PROJECTION UNAVAILABLE — profile hydrated but projection failed
+  //  (D7: NEVER the misleading « 4 infos suffisent » onboarding state
+  //  when /home already shows the user's data from the same provider).
+  // ────────────────────────────────────────────────────────────
+
+  /// Re-run the projection from the current (hydrated) profile.
+  /// Same code path as [didChangeDependencies] — keeps a single source.
+  void _retryProjection() {
+    final profile = _profile;
+    if (profile == null) return;
+    setState(() {
+      try {
+        _score = FinancialFitnessService.calculate(
+          profile: profile,
+          previousScore: context.read<CoachProfileProvider>().previousScore,
+        );
+        _projection = ForecasterService.project(profile: profile);
+        _confidence = ConfidenceScorer.score(profile);
+        _confidenceScore = _confidence!.score;
+        _enhancedConfidence = ConfidenceScorer.scoreEnhanced(profile);
+        final tips = _buildCoachingTips(profile);
+        _curateDashboardContent(tips);
+      } catch (e) {
+        debugPrint('RetirementDashboard: retry projection error: $e');
+        _projection = null;
+      }
+    });
+  }
+
+  Widget _buildProjectionUnavailable() {
+    final l = S.of(context)!;
+    return Scaffold(
+      backgroundColor: MintColors.porcelaine,
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(_profile?.firstName),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: MintSpacing.lg,
+                      vertical: MintSpacing.md,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        MintSurface(
+                          tone: MintSurfaceTone.porcelaine,
+                          padding: const EdgeInsets.all(MintSpacing.lg),
+                          radius: 16,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.hourglass_empty_outlined,
+                                  size: 40, color: MintColors.textSecondary),
+                              const SizedBox(height: MintSpacing.md),
+                              Text(
+                                l.dashboardProjectionUnavailableTitle,
+                                style: MintTextStyles.headlineSmall(),
+                              ),
+                              const SizedBox(height: MintSpacing.sm),
+                              Text(
+                                l.dashboardProjectionUnavailableBody,
+                                style: MintTextStyles.bodyMedium()
+                                    .copyWith(height: 1.5),
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Semantics(
+                                  button: true,
+                                  label: l.commonRetry,
+                                  child: FilledButton(
+                                    key: const Key('projection_retry_cta'),
+                                    // lint-ignore: prefer_mint_cta
+                                    onPressed: _retryProjection,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: MintColors.primary,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      l.commonRetry,
+                                      style: MintTextStyles.labelLarge(
+                                          color: MintColors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: MintSpacing.sm),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Semantics(
+                                  button: true,
+                                  label: l.dashboardMyData,
+                                  child: OutlinedButton(
+                                    key: const Key('projection_review_cta'),
+                                    // lint-ignore: prefer_mint_cta
+                                    onPressed: () =>
+                                        context.push('/profile/bilan'),
+                                    child: Text(l.dashboardMyData),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: MintSpacing.lg),
                         _buildDisclaimer(),
                         const SizedBox(height: MintSpacing.xl),
@@ -942,8 +1074,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               button: true,
               label: l.dashboardOnboardingCta,
               child: FilledButton(
+                key: const Key('state_c_start_cta'),
                 // lint-ignore: prefer_mint_cta
-                onPressed: () => context.go('/coach/chat'),
+                // D8: « Commencer — 2 min » mène au parcours de questions réel
+                // (OnboardingShellScreen via /onb — âge / canton / revenu …),
+                // plus jamais vers le home coach sans formulaire (CTA mort).
+                onPressed: () => context.go('/onb'),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),

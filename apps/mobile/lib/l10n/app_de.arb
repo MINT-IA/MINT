@@ -4014,6 +4014,8 @@
   "dashboardOnboardingHeroTitle": "Deine Pensionierung auf einen Blick",
   "dashboardOnboardingCta": "Starten — 2 Min.",
   "dashboardOnboardingConsent": "Keine Daten ohne deine Zustimmung gespeichert.",
+  "dashboardProjectionUnavailableTitle": "Projektion vorübergehend nicht verfügbar",
+  "dashboardProjectionUnavailableBody": "Deine Daten sind vorhanden, aber wir konnten die Projektion diesmal nicht erstellen. Du kannst deine Angaben überprüfen oder es erneut versuchen.",
   "dashboardEducationTitle": "Wie funktioniert die Pensionierung in der Schweiz?",
   "dashboardEducationSubtitle": "AHV, BVG, Säule 3a — die Grundlagen in 5 Minuten",
   "dashboardCockpitTitle": "Detailliertes Cockpit",

@@ -8666,6 +8666,14 @@ class SIt extends S {
       'Nessun dato memorizzato senza il tuo consenso.';
 
   @override
+  String get dashboardProjectionUnavailableTitle =>
+      'Proiezione momentaneamente non disponibile';
+
+  @override
+  String get dashboardProjectionUnavailableBody =>
+      'I tuoi dati ci sono, ma questa volta non siamo riusciti a costruire la proiezione. Puoi verificare le tue informazioni o riprovare.';
+
+  @override
   String get dashboardEducationTitle =>
       'Come funziona la pensione in Svizzera?';
 
