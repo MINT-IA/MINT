@@ -27,6 +27,7 @@ import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/replacement_rate.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -1091,6 +1092,111 @@ void main() {
               '(le gate independant ne doit pas le toucher)');
       expect(canonical, greaterThan(0.0),
           reason: 'sanity : un salarie de 42 ans a un avoir LPP non nul');
+    });
+  });
+
+  group('Gate divorce — estimation LPP interdite (plan 07)', () {
+    /// Réponses wizard pour un cadre salarié, état civil paramétrable.
+    Map<String, dynamic> salariedCivilAnswers({
+      required int age,
+      required double grossAnnual,
+      required String civilStatus,
+      double? coachAvoirLppReel,
+    }) {
+      final birthYear = DateTime.now().year - age;
+      return <String, dynamic>{
+        'q_birth_year': birthYear,
+        'q_canton': 'VD',
+        'q_employment_status': 'salarie',
+        'q_civil_status': civilStatus,
+        'q_pay_frequency': 'yearly',
+        'q_gross_salary_annual': grossAnnual,
+        'q_has_pension_fund': true,
+        if (coachAvoirLppReel != null) '_coach_avoir_lpp': coachAvoirLppReel,
+      };
+    }
+
+    test(
+        'cadre_divorce_hypo-1 — divorce 52/162000 sans valeur reelle : '
+        'avoir LPP estime ABSENT (plus jamais 416250.42)', () {
+      final profile = CoachProfile.fromWizardAnswers(salariedCivilAnswers(
+        age: 52,
+        grossAnnual: 162000,
+        civilStatus: 'divorce',
+      ));
+
+      // L'estimation age*salaire est interdite (CC art. 122) → aucun avoir
+      // estime stocke. avoirLppTotal null/0 + flag inestimable.
+      expect(profile.prevoyance.avoirLppTotal ?? 0.0, closeTo(0.0, 0.01),
+          reason: 'un divorce ne doit JAMAIS recevoir un avoir LPP estime '
+              'par age*salaire (416250.42 historique)');
+      expect(profile.prevoyance.lppEstimationBlocked, isTrue,
+          reason: 'l\'etat « valeur reelle requise » doit etre expose a l\'UI');
+    });
+
+    test(
+        'divorce AVEC valeur reelle saisie : valeur conservee, '
+        'pas de blocage', () {
+      const valeurReelle = 240000.0;
+      final profile = CoachProfile.fromWizardAnswers(salariedCivilAnswers(
+        age: 52,
+        grossAnnual: 162000,
+        civilStatus: 'divorce',
+        coachAvoirLppReel: valeurReelle,
+      ));
+
+      expect(profile.prevoyance.avoirLppTotal, closeTo(valeurReelle, 0.01),
+          reason: 'la valeur reelle saisie/scannee d\'un divorce est conservee');
+      expect(profile.prevoyance.lppEstimationBlocked, isFalse,
+          reason: 'avec une valeur reelle il n\'y a plus de blocage');
+    });
+
+    test(
+        'controle negatif — un marie garde son estimation LPP '
+        '(le gate ne touche que le divorce)', () {
+      final divorce = CoachProfile.fromWizardAnswers(salariedCivilAnswers(
+        age: 52,
+        grossAnnual: 162000,
+        civilStatus: 'divorce',
+      ));
+      final marie = CoachProfile.fromWizardAnswers(salariedCivilAnswers(
+        age: 52,
+        grossAnnual: 162000,
+        civilStatus: 'marie',
+      ));
+
+      final canonical = LppCalculator.accumulateAvoir(
+        currentAge: 52,
+        grossAnnualSalary: 162000,
+      );
+
+      expect(marie.prevoyance.avoirLppTotal, closeTo(canonical, 0.01),
+          reason: 'un marie/celibataire garde l\'estimation canonique');
+      expect(marie.prevoyance.lppEstimationBlocked, isFalse);
+      // Le divorce, lui, n'a pas d'estimation.
+      expect(divorce.prevoyance.avoirLppTotal ?? 0.0, closeTo(0.0, 0.01));
+    });
+
+    test(
+        'confiance degradee — le divorce sans valeur reelle a une '
+        'completeness LPP < celle d\'un marie estime', () {
+      final divorce = CoachProfile.fromWizardAnswers(salariedCivilAnswers(
+        age: 52,
+        grossAnnual: 162000,
+        civilStatus: 'divorce',
+      ));
+      final marie = CoachProfile.fromWizardAnswers(salariedCivilAnswers(
+        age: 52,
+        grossAnnual: 162000,
+        civilStatus: 'marie',
+      ));
+
+      final divorceScore = ConfidenceScorer.score(divorce).score;
+      final marieScore = ConfidenceScorer.score(marie).score;
+
+      expect(divorceScore, lessThan(marieScore),
+          reason: 'le divorce sans valeur reelle (estimation interdite) a une '
+              'confiance plus basse — l\'axe completeness se degrade');
     });
   });
 }
