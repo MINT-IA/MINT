@@ -23824,4 +23824,8 @@ class SIt extends S {
 
   @override
   String get onboardingAvsContinue => 'Continua';
+
+  @override
+  String get lppEstimationBlockedRealValueRequired =>
+      'Valore reale richiesto — scansiona il tuo certificato LPP';
 }

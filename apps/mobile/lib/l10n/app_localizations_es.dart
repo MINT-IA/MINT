@@ -23762,4 +23762,8 @@ class SEs extends S {
 
   @override
   String get onboardingAvsContinue => 'Continuar';
+
+  @override
+  String get lppEstimationBlockedRealValueRequired =>
+      'Valor real necesario — escanea tu certificado LPP';
 }

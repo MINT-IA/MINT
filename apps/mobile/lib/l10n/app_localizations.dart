@@ -41553,6 +41553,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Continuer'**
   String get onboardingAvsContinue;
+
+  /// Affiché quand l'avoir LPP ne peut pas être estimé par âge×salaire (divorcé sans valeur réelle — partage de prévoyance au divorce, CC art. 122). Invite à scanner le certificat plutôt qu'à afficher un nombre estimé.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur réelle requise — scanne ton certificat LPP'**
+  String get lppEstimationBlockedRealValueRequired;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
