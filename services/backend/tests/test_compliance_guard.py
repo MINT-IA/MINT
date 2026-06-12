@@ -113,14 +113,24 @@ class TestBannedTerms:
         # Verify sanitization replaced the banned terms
         assert "garanti" not in result.sanitized_text.lower() or "possible" in result.sanitized_text.lower()
 
-    def test_fallback_on_egregious_banned_terms(self, guard):
-        # 6+ banned terms still trigger fallback (new threshold).
+    def test_egregious_banned_terms_sanitised_no_residual(self, guard):
+        # UPDATED 2026-06-12 (mint-grounded-coach-m1-02, education-strict
+        # perimeter): the old >5-count fallback branch is removed. L1 now
+        # blocks only on a banned term that SURVIVES sanitisation (residual).
+        # The sanitiser cleans all 7 of these distinct banned terms, so no
+        # residual remains and the response is preserved (sanitised), not
+        # killed. The old assertion (use_fallback on 6+ count) encoded the
+        # removed count-based tolerance.
         result = guard.validate(
             "C'est garanti, assuré, certain, optimal, parfait, "
             "sans risque, le meilleur et l'idéal."
         )
-        assert result.use_fallback
+        assert not result.use_fallback, (
+            "All banned terms sanitise cleanly → no residual → preserved"
+        )
         assert len(result.violations) >= 6
+        # No residual banned term in the sanitised output.
+        assert guard._check_banned_terms(result.sanitized_text) == []
 
     # ─── Gerund / present-participle bypass (deep-audit 2026-04-17) ───
 
@@ -158,26 +168,29 @@ class TestBannedTerms:
 class TestPrescriptiveLanguage:
     """Layer 2 — Prescriptive financial instructions.
 
-    Single match: violation logged, NOT fallback (too many false positives
-    in conversational French — "rachète" in "potentiel de rachat", etc.).
-    3+ matches: fallback triggered (genuinely prescriptive response).
+    UPDATED 2026-06-12 (mint-grounded-coach-m1-02, education-strict perimeter,
+    CONTEXT decision 1 / audit 01 HOLE-4): the prescriptive layer is now a
+    garde BLOQUANTE. A single prescriptive instruction triggers fallback rather
+    than shipping to the user (the prior log-only posture delegated the
+    perimeter entirely to the prompt). The methods below previously asserted
+    `not use_fallback`, encoding the removed log-only behaviour.
     """
 
-    def test_single_match_detected_but_no_fallback(self, guard):
+    def test_single_match_blocks(self, guard):
         result = guard.validate("Fais un rachat de 10'000 CHF cette année.")
-        assert not result.use_fallback, "Single prescriptive match should NOT trigger fallback"
+        assert result.use_fallback, "Single prescriptive instruction now blocks"
         assert any("prescriptif" in v.lower() for v in result.violations)
 
-    def test_two_matches_no_fallback(self, guard):
+    def test_two_matches_block(self, guard):
         result = guard.validate("Verse sur ton 3e pilier. Achète un appartement.")
-        assert not result.use_fallback, "2 prescriptive matches should NOT trigger fallback"
+        assert result.use_fallback, "Prescriptive instructions block"
         assert len([v for v in result.violations if "prescriptif" in v.lower()]) >= 2
 
-    def test_three_plus_matches_logged_not_fallback(self, guard):
+    def test_three_plus_matches_block(self, guard):
         result = guard.validate(
             "Fais un rachat. Verse sur ton 3a. Achète un bien. Vends tes actions."
         )
-        assert not result.use_fallback, "Prescriptive language never triggers fallback (defense is in prompt)"
+        assert result.use_fallback, "Prescriptive language now blocks (education-strict perimeter)"
         assert len([v for v in result.violations if "prescriptif" in v.lower()]) >= 3
 
     def test_catches_verse_sur_ton(self, guard):
