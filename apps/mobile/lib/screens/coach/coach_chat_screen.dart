@@ -1406,6 +1406,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (mounted) {
         final provider = context.read<CoachProfileProvider>();
         for (final call in response.toolCalls) {
+          // WS-D (mint-grounded-coach-m1 Plan 06): the backend now emits an
+          // additive `fact_saved` echo carrying {key, value} when an internal
+          // save_fact actually persisted server-side. save_fact itself is in
+          // INTERNAL_TOOL_NAMES and is filtered out of flutter_tool_calls, so
+          // the ServerKey path only ever sees `fact_saved`. The BYOK/orchestrator
+          // path may still re-expose the raw `save_fact` tool_use — handle both
+          // by routing through the provider write path (applySaveFact →
+          // _mapFactKeyToAnswers → mergeAnswers). No write inside any build
+          // method; this is the chat tool_calls processing layer.
+          if (call.name == 'fact_saved') {
+            unawaited(provider.applyFactSavedEcho(call.input));
+            continue;
+          }
           if (call.name != 'save_fact') continue;
           final key = call.input['key'];
           final value = call.input['value'];

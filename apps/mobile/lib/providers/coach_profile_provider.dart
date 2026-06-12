@@ -958,6 +958,29 @@ class CoachProfileProvider extends ChangeNotifier {
     return true;
   }
 
+  /// Apply a backend `fact_saved` echo to the local profile.
+  ///
+  /// WS-D (mint-grounded-coach-m1 Plan 06): `save_fact` is internal server-side
+  /// and is filtered out of `flutter_tool_calls`, so the value the user stated
+  /// in chat (« j'ai 50 ans ») never reached the local CoachProfile the screens
+  /// read — the split-brain bug (audit 04 §1.3 P0-bis, W1 WTF-W1-04). The
+  /// backend now appends an additive `fact_saved` tool_call carrying
+  /// `{key, value}`; the chat tool_calls PROCESSING layer dispatches it here so
+  /// the value is written through the same provider path as [applySaveFact] —
+  /// reusing the canonical key correspondence in [_mapFactKeyToAnswers] (no
+  /// parallel mapping, no new store, no write inside a widget build method).
+  ///
+  /// [input] is the echo's `RagToolCall.input` map (`{"key": …, "value": …}`).
+  /// Returns `true` when the fact mapped and was applied, `false` when the key
+  /// is unknown / missing / the value is null (caller may log).
+  Future<bool> applyFactSavedEcho(Map<String, dynamic> input) async {
+    final key = input['key'];
+    final value = input['value'];
+    if (key is! String || key.isEmpty || value == null) return false;
+    final confidence = input['confidence']?.toString() ?? 'medium';
+    return applySaveFact(key, value, confidence: confidence);
+  }
+
   /// Translates a `save_fact` canonical key + value into the corresponding
   /// wizard answer keys expected by `CoachProfile.fromWizardAnswers`.
   /// Returns an empty map when the key is unknown.
