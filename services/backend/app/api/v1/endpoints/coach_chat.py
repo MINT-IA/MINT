@@ -2432,6 +2432,35 @@ def _coerce_fact_value(key: str, value):
     return None
 
 
+def _build_fact_saved_echo(call: dict) -> Optional[dict]:
+    """Build a forward-safe ``fact_saved`` echo entry for a save_fact call.
+
+    CONTEXT WS-D (audit 04 §1.3 P0-bis): ``save_fact`` is internal, so its
+    value never reaches the mobile client and the chat-stated fact (« 50 ans »)
+    is lost to the local CoachProfile the screens read. This helper produces an
+    additive ``fact_saved`` tool_call carrying ``{key, value}`` so the mobile
+    can mirror the value into its local store via the CoachProfileProvider
+    write path. The raw save_fact stays internal (persistence unchanged) — this
+    is the minimal split-brain bridge, NOT the M2 event-log cutover.
+
+    Privacy (T-m1-06-01): gated by the same persist whitelist
+    (``_SAVE_FACT_ALLOWED_KEYS``). A non-whitelisted key returns ``None`` so it
+    is never echoed. The value is the canonical post-``_coerce_fact_value``
+    form — only values that would actually persist are echoed; coercion
+    failures (e.g. out-of-bounds birthYear) return ``None``.
+
+    Returns the echo dict, or ``None`` when nothing should be echoed.
+    """
+    tool_input = call.get("input") or {}
+    fact_key = tool_input.get("key")
+    if not isinstance(fact_key, str) or fact_key not in _SAVE_FACT_ALLOWED_KEYS:
+        return None
+    coerced = _coerce_fact_value(fact_key, tool_input.get("value"))
+    if coerced is None:
+        return None
+    return {"name": "fact_saved", "input": {"key": fact_key, "value": coerced}}
+
+
 # ---------------------------------------------------------------------------
 # Phase 91 Wave 2 — dual-LLM extractor stage (behind COACH_DUAL_LLM_ENABLED)
 # ---------------------------------------------------------------------------
@@ -4782,6 +4811,18 @@ async def _run_agent_loop(
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
                 background_tasks=background_tasks,
             )
+            # WS-D (mint-grounded-coach-m1 Plan 06) — echo a successful save_fact
+            # back to the mobile so the chat-stated value reaches the local
+            # CoachProfile the screens read (split-brain bridge, audit 04
+            # §1.3 P0-bis). save_fact stays internal (persistence above); this
+            # is an additive forward-safe `fact_saved` entry gated by the persist
+            # whitelist (privacy T-m1-06-01). Both DB ("Fait enregistré : …") and
+            # hors-DB ("Fait noté (hors DB) : …") successes start with "Fait ";
+            # failures ("[save_fact ÉCHEC …]") and low-confidence skips do not.
+            if call.get("name") == "save_fact" and result_text.startswith("Fait "):
+                _echo = _build_fact_saved_echo(call)
+                if _echo is not None:
+                    flutter_tool_calls.append(_echo)
             # Wave 1b Plan 04 — extract citation chip BEFORE truncation /
             # injection sanitization so the JSON parse sees the full
             # Pydantic dump. Helper returns None for non-Wave-1b tools
