@@ -13,7 +13,10 @@ export 'archetype_predicates.dart';
 export 'avs_calculator.dart';
 export 'cross_pillar_calculator.dart';
 export 'bayesian_enricher.dart';
-export 'coach_reasoner.dart';
+// coach_reasoner.dart removed in mint-grounded-coach-m1 Plan 07 (WS-C
+// activate-or-delete): CoachReasonerService had zero production callers
+// (audit 01 HOLE-5) — a façade per NEVER #6. Git history preserves it for a
+// future M3 revival; deleted here with its tests.
 export 'confidence_scorer.dart';
 export 'couple_optimizer.dart';
 export 'fri_calculator.dart';
