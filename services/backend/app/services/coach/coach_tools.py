@@ -41,6 +41,12 @@ from typing import Any
 from app.services.coach._route_intents_generated import (
     GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS,
 )
+from app.services.coach.concept_registry import CONCEPT_REGISTRY, resolve
+
+# Closed-world enum for explain_concept.concept_key — exactly the registry keys
+# (sorted for deterministic tool-schema serialisation). The LLM may only ask the
+# backend to define a concept that exists in the curated registry (Plan 04).
+_CONCEPT_REGISTRY_KEYS: tuple[str, ...] = tuple(sorted(CONCEPT_REGISTRY.keys()))
 
 # ---------------------------------------------------------------------------
 # Tool category — used by backend for access control (never sent to LLM)
@@ -66,6 +72,11 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "get_cap_status",
     "get_couple_optimization",
     "get_regulatory_constant",
+    # WS-B Plan 05: explain_concept is backend-handled — the backend resolves
+    # concept_key → CONCEPT_REGISTRY and feeds the curated page back into the
+    # loop as a tool_result (mirrors get_regulatory_constant). Never forwarded
+    # to Flutter as a raw tool_use.
+    "explain_concept",
     # STAB-12 (07-04 / AUDIT_COACH_WIRING rows 7-9): these three tools have
     # no Flutter renderer case — they are backend-only acknowledgements that
     # let the LLM track state ("goal set", "step done", "insight saved")
@@ -124,6 +135,42 @@ ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = sorted(GENERATED_ROUTE_TO_SCREEN_INTENT
 # ---------------------------------------------------------------------------
 
 COACH_TOOLS: list[dict[str, Any]] = [
+    # ─────────────────────────────────────────────────────────────────
+    # explain_concept — grounded definition retrieval (WS-B, Plan 05)
+    # ─────────────────────────────────────────────────────────────────
+    # The LLM is "disarmed on the facts" (CONTEXT decision 2): it may NOT
+    # define a regulated Swiss concept from its weights. When it needs a
+    # definition it MUST invoke this tool; the backend resolves the
+    # concept_key against CONCEPT_REGISTRY (Plan 04) and returns the curated
+    # canonical_fr + source as the tool_result — there is no LLM paraphrase
+    # of the definition itself. The concept_key enum is the closed world.
+    {
+        "name": "explain_concept",
+        "category": "search",
+        "access_level": "user_scoped",
+        "description": (
+            "Return the curated, source-backed definition of a regulated Swiss "
+            "financial concept (rachat LPP, EPL, pilier 3a, splitting AVS, taux de "
+            "conversion, etc.). You MUST call this to DEFINE any such concept — "
+            "never define a regulated concept from memory. The backend returns the "
+            "canonical definition text and its legal source; ground your reply on "
+            "that result."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "concept_key": {
+                    "type": "string",
+                    "enum": list(_CONCEPT_REGISTRY_KEYS),
+                    "description": (
+                        "The registry key of the concept to define "
+                        "(e.g. 'rachat_lpp', 'epl', 'pilier_3a')."
+                    ),
+                },
+            },
+            "required": ["concept_key"],
+        },
+    },
     # ─────────────────────────────────────────────────────────────────
     # show_fact_card — inline educational widget
     # ─────────────────────────────────────────────────────────────────
@@ -1202,6 +1249,42 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
 ]
+
+
+# ---------------------------------------------------------------------------
+# explain_concept handler — grounded definition retrieval (WS-B, Plan 05)
+# ---------------------------------------------------------------------------
+
+
+def handle_explain_concept(tool_input: dict[str, Any]) -> str:
+    """Resolve a concept_key to its curated CONCEPT_REGISTRY page text.
+
+    Backend-handled tool (registered in INTERNAL_TOOL_NAMES): the result is fed
+    back into the agent loop as a tool_result so the LLM grounds its reply on
+    the curated definition rather than its own weights (CONTEXT decision 2 —
+    "le LLM est désarmé sur les faits").
+
+    Args:
+        tool_input: Anthropic tool_use input — expects ``{"concept_key": str}``.
+
+    Returns:
+        The canonical FR definition + its legal source as a single text block
+        (no LLM paraphrase of the definition itself). On an unknown / missing
+        key, returns a structured "not in registry" string — it NEVER invents a
+        definition.
+    """
+    concept_key = tool_input.get("concept_key", "") if isinstance(tool_input, dict) else ""
+    page = resolve(concept_key) if isinstance(concept_key, str) else None
+    if page is None:
+        return (
+            f"Concept '{concept_key}' absent du registre de concepts. "
+            "Ne définis pas ce concept de mémoire ; invite la personne à "
+            "reformuler ou propose un concept proche du registre."
+        )
+    return (
+        f"Définition (source du registre) : {page.canonical_fr}\n"
+        f"Source : {page.source_title}"
+    )
 
 
 # ---------------------------------------------------------------------------

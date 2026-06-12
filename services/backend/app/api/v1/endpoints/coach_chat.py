@@ -2955,6 +2955,14 @@ def _execute_internal_tool(
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
 
+    # WS-B Plan 05: explain_concept resolves the curated CONCEPT_REGISTRY page
+    # and returns its canonical definition + source as the tool_result. The LLM
+    # grounds its reply on this text instead of defining from memory.
+    if name == "explain_concept":
+        from app.services.coach.coach_tools import handle_explain_concept
+
+        return handle_explain_concept(tool_input)
+
     # STAB-12 (07-04): set_goal / mark_step_completed are acknowledgement-only tools.
     # They let the LLM track conversational state without rendering a widget.
     # save_insight was upgraded to persist to DB in Phase 21 (CTX-02).
