@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:go_router/go_router.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -42,8 +44,66 @@ class EclairageCard extends StatelessWidget {
 
   // ── Defensive accessors ─────────────────────────────────────────────
 
-  String get _headline => (payload['headline'] as String? ?? '').trim();
-  String get _body => (payload['body'] as String? ?? '').trim();
+  /// Raw payload headline (may be empty for the forced-kind / fallback path,
+  /// where the localized string is resolved from [_kind] instead).
+  String get _payloadHeadline => (payload['headline'] as String? ?? '').trim();
+  String get _payloadBody => (payload['body'] as String? ?? '').trim();
+
+  /// Parsed [EclairageKind] from the payload `kind` wire name, or null.
+  EclairageKind? get _kind =>
+      EclairageKind.fromWire(payload['kind'] as String?);
+
+  /// Localized headline — payload value wins (backend-localized prose);
+  /// otherwise resolved from [_kind] via ARB keys (forced-kind / seed fallback
+  /// path, hotfix 2026-06-12). Empty when neither is available.
+  String _headlineFor(BuildContext context) {
+    if (_payloadHeadline.isNotEmpty) return _payloadHeadline;
+    final kind = _kind;
+    if (kind == null) return '';
+    return _localizedEclairageString(
+      context,
+      EclairageCardData.eclairageKindHeadlineKey(kind),
+    );
+  }
+
+  /// Localized body — payload value wins; otherwise resolved from [_kind].
+  String _bodyFor(BuildContext context) {
+    if (_payloadBody.isNotEmpty) return _payloadBody;
+    final kind = _kind;
+    if (kind == null) return '';
+    return _localizedEclairageString(
+      context,
+      EclairageCardData.eclairageKindBodyKey(kind),
+    );
+  }
+
+  /// Resolve an éclairage ARB key to its localized value. The generated `S`
+  /// class exposes getters, not a string-keyed lookup, so we map the small
+  /// fixed key set explicitly. Returns '' on an unknown key (defensive —
+  /// keeps the card from rendering a literal key string).
+  static String _localizedEclairageString(BuildContext context, String key) {
+    final l = S.of(context)!;
+    switch (key) {
+      case 'eclairageFiscalMargin3aHeadline':
+        return l.eclairageFiscalMargin3aHeadline;
+      case 'eclairageFiscalMargin3aBody':
+        return l.eclairageFiscalMargin3aBody;
+      case 'eclairageLppRachatWindowHeadline':
+        return l.eclairageLppRachatWindowHeadline;
+      case 'eclairageLppRachatWindowBody':
+        return l.eclairageLppRachatWindowBody;
+      case 'eclairageLiquidityRunwayHeadline':
+        return l.eclairageLiquidityRunwayHeadline;
+      case 'eclairageLiquidityRunwayBody':
+        return l.eclairageLiquidityRunwayBody;
+      case 'eclairageCompoundGrowthEdgeHeadline':
+        return l.eclairageCompoundGrowthEdgeHeadline;
+      case 'eclairageCompoundGrowthEdgeBody':
+        return l.eclairageCompoundGrowthEdgeBody;
+      default:
+        return '';
+    }
+  }
   int? get _chfRangeLow {
     final v = payload['chfRangeLow'];
     if (v is int) return v;
@@ -91,16 +151,21 @@ class EclairageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Resolve localized headline / body (payload value wins; otherwise from
+    // [_kind] via ARB keys — hotfix 2026-06-12).
+    final headline = _headlineFor(context);
+    final body = _bodyFor(context);
+
     // §5 row 3 — render-guard: if either headline or body is empty, omit
     // the card entirely. Caller is expected to skip this when payload is
     // null already, but we guard regardless (defensive).
-    if (_headline.isEmpty || _body.isEmpty) {
+    if (headline.isEmpty || body.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    const eyebrow = 'Premier éclairage';
+    final eyebrow = S.of(context)!.eclairageEyebrow;
     final semanticsLabel =
-        '$eyebrow. $_headline. ${_rangeReadable.isNotEmpty ? '$_rangeReadable. ' : ''}$_body.';
+        '$eyebrow. $headline. ${_rangeReadable.isNotEmpty ? '$_rangeReadable. ' : ''}$body.';
 
     return Padding(
       // §1 — margin top 8 / bottom 16 (visual separation from coach bubble).
@@ -154,7 +219,7 @@ class EclairageCard extends StatelessWidget {
                             _buildEyebrow(eyebrow),
                             const SizedBox(height: 6),
                             // 2 — Headline
-                            _buildHeadline(),
+                            _buildHeadline(headline),
                             // 3 — CHF range (omitted if both bounds null)
                             if (_hasRange) ...[
                               const SizedBox(height: 12),
@@ -162,7 +227,7 @@ class EclairageCard extends StatelessWidget {
                             ],
                             // 4 — Body
                             const SizedBox(height: 12),
-                            _buildBody(),
+                            _buildBody(body),
                             // 5 — softAccountHint (omitted if empty)
                             if (_softAccountHint.isNotEmpty)
                               _buildSoftAccountHint(context),
@@ -193,9 +258,9 @@ class EclairageCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeadline() {
+  Widget _buildHeadline(String headline) {
     return Text(
-      _headline,
+      headline,
       style: MintTextStyles.titleLarge(color: MintColors.inkPrimary).copyWith(
         fontFamily: 'Gambarino',
         fontWeight: FontWeight.w500,
@@ -307,9 +372,9 @@ class EclairageCard extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(String body) {
     return Text(
-      _body,
+      body,
       style: MintTextStyles.bodyMedium(color: MintColors.inkPrimary),
       // §5 row 1 — NO maxLines, NO ellipsis. Card grows vertically.
     );

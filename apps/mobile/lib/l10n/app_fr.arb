@@ -12819,5 +12819,41 @@
   "lppEstimationBlockedRealValueRequired": "Valeur réelle requise — scanne ton certificat LPP",
   "@lppEstimationBlockedRealValueRequired": {
     "description": "Affiché quand l'avoir LPP ne peut pas être estimé par âge×salaire (divorcé sans valeur réelle — partage de prévoyance au divorce, CC art. 122). Invite à scanner le certificat plutôt qu'à afficher un nombre estimé."
+  },
+  "eclairageEyebrow": "Premier éclairage",
+  "@eclairageEyebrow": {
+    "description": "Eyebrow label above a Premier Éclairage card in the anonymous chat."
+  },
+  "eclairageFiscalMargin3aHeadline": "Ta marge fiscale 3a",
+  "@eclairageFiscalMargin3aHeadline": {
+    "description": "Headline for the 3a fiscal margin éclairage card (conditional, LSFin-safe)."
+  },
+  "eclairageFiscalMargin3aBody": "Si tu cotises au 3e pilier, verser jusqu'au plafond pourrait réduire ton revenu imposable chaque année. Le levier dépend de ton canton et de ta tranche marginale.",
+  "@eclairageFiscalMargin3aBody": {
+    "description": "Body for the 3a fiscal margin éclairage card. Conditional phrasing, no presumption of income."
+  },
+  "eclairageLppRachatWindowHeadline": "Une fenêtre de rachat LPP",
+  "@eclairageLppRachatWindowHeadline": {
+    "description": "Headline for the LPP buy-in window éclairage card."
+  },
+  "eclairageLppRachatWindowBody": "Si ta caisse de pension permet des rachats, en effectuer sur les prochaines années pourrait abaisser ton revenu imposable. L'effet dépend de ta tranche marginale et du plafond communiqué par ta caisse.",
+  "@eclairageLppRachatWindowBody": {
+    "description": "Body for the LPP buy-in window éclairage card. Conditional — does not presume a certificate."
+  },
+  "eclairageLiquidityRunwayHeadline": "Ta réserve de liquidité",
+  "@eclairageLiquidityRunwayHeadline": {
+    "description": "Headline for the liquidity reserve éclairage card."
+  },
+  "eclairageLiquidityRunwayBody": "Si on prend tes dépenses courantes comme repère, une réserve de 3 à 6 mois est souvent citée par les conseillers indépendants pour absorber un imprévu.",
+  "@eclairageLiquidityRunwayBody": {
+    "description": "Body for the liquidity reserve éclairage card. Conditional — does not presume expense data."
+  },
+  "eclairageCompoundGrowthEdgeHeadline": "Ton avantage temps",
+  "@eclairageCompoundGrowthEdgeHeadline": {
+    "description": "Headline for the compound growth advantage éclairage card."
+  },
+  "eclairageCompoundGrowthEdgeBody": "Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.",
+  "@eclairageCompoundGrowthEdgeBody": {
+    "description": "Body for the compound growth advantage éclairage card."
   }
 }

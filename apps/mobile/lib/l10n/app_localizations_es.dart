@@ -23837,4 +23837,36 @@ class SEs extends S {
   @override
   String get lppEstimationBlockedRealValueRequired =>
       'Valor real necesario — escanea tu certificado LPP';
+
+  @override
+  String get eclairageEyebrow => 'Primera mirada';
+
+  @override
+  String get eclairageFiscalMargin3aHeadline => 'Tu margen fiscal 3a';
+
+  @override
+  String get eclairageFiscalMargin3aBody =>
+      'Si cotizas al pilar 3a, aportar hasta el tope podría reducir tu renta imponible cada año. El efecto depende de tu cantón y de tu tramo marginal.';
+
+  @override
+  String get eclairageLppRachatWindowHeadline =>
+      'Una posible ventana de rescate LPP';
+
+  @override
+  String get eclairageLppRachatWindowBody =>
+      'Si tu caja de pensiones permite rescates, efectuarlos en los próximos años podría reducir tu renta imponible. El efecto depende de tu tramo marginal y del tope que comunique tu caja.';
+
+  @override
+  String get eclairageLiquidityRunwayHeadline => 'Tu reserva de liquidez';
+
+  @override
+  String get eclairageLiquidityRunwayBody =>
+      'Tomando tus gastos corrientes como referencia, los asesores independientes suelen citar una reserva de 3 a 6 meses para absorber un imprevisto.';
+
+  @override
+  String get eclairageCompoundGrowthEdgeHeadline => 'Tu ventaja de tiempo';
+
+  @override
+  String get eclairageCompoundGrowthEdgeBody =>
+      'Empezar a invertir pronto en lugar de más tarde podría marcar una diferencia a largo plazo, con un esfuerzo mensual modesto. La capitalización recompensa la duración.';
 }

@@ -11394,5 +11394,14 @@
   "onboardingAvsArrivalYearPrompt": "Em que ano chegaste à Suíça?",
   "onboardingAvsYearsAbroadPrompt": "Quantos anos no estrangeiro?",
   "onboardingAvsContinue": "Continuar",
-  "lppEstimationBlockedRealValueRequired": "Valor real necessário — digitaliza o teu certificado LPP"
+  "lppEstimationBlockedRealValueRequired": "Valor real necessário — digitaliza o teu certificado LPP",
+  "eclairageEyebrow": "Primeira leitura",
+  "eclairageFiscalMargin3aHeadline": "A tua margem fiscal 3a",
+  "eclairageFiscalMargin3aBody": "Se contribuis para o pilar 3a, contribuir até ao limite poderia reduzir o teu rendimento tributável a cada ano. O efeito depende do teu cantão e do teu escalão marginal.",
+  "eclairageLppRachatWindowHeadline": "Uma possível janela de resgate LPP",
+  "eclairageLppRachatWindowBody": "Se a tua caixa de pensões permitir resgates, efetuá-los nos próximos anos poderia reduzir o teu rendimento tributável. O efeito depende do teu escalão marginal e do limite comunicado pela tua caixa.",
+  "eclairageLiquidityRunwayHeadline": "A tua reserva de liquidez",
+  "eclairageLiquidityRunwayBody": "Tomando as tuas despesas correntes como referência, os consultores independentes citam frequentemente uma reserva de 3 a 6 meses para absorver um imprevisto.",
+  "eclairageCompoundGrowthEdgeHeadline": "A tua vantagem de tempo",
+  "eclairageCompoundGrowthEdgeBody": "Começar a investir cedo em vez de mais tarde poderia fazer a diferença a longo prazo, para um esforço mensal modesto. A capitalização recompensa a duração."
 }

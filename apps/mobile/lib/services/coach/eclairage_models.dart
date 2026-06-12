@@ -140,16 +140,20 @@ class EclairageCardData {
   /// Return a copy with [kind] overridden — used by the
   /// `MINT_E2E_FORCE_ECLAIRAGE_KIND` dart-define path (ECLW-01 + ECLW-04).
   ///
-  /// The headline/body/range are also rewritten to the deterministic template
-  /// for the forced kind so widget tests can assert on stable copy without
-  /// depending on the LLM-natural payload.
+  /// The CHF range is rewritten to the deterministic template for the forced
+  /// kind. Headline / body are left EMPTY so the rendering widget resolves the
+  /// localized copy from [kind] via `AppLocalizations` (hotfix 2026-06-12 —
+  /// i18n + honest conditional copy; see [eclairageKindHeadlineKey] /
+  /// [eclairageKindBodyKey]). This removes the hardcoded French presumption
+  /// that previously shipped here (« Selon ton certificat LPP, … » for an
+  /// anonymous user who never provided a certificate).
   EclairageCardData withForcedKind(EclairageKind forcedKind) {
     if (forcedKind == kind) return this;
     final tpl = _templateFor(forcedKind);
     return EclairageCardData(
       kind: forcedKind,
-      headline: tpl.headline,
-      body: tpl.body,
+      headline: '',
+      body: '',
       chfRangeLow: tpl.low,
       chfRangeHigh: tpl.high,
       chfRangePeriod: tpl.period,
@@ -161,21 +165,53 @@ class EclairageCardData {
   /// Build a deterministic card from a forced kind alone (used when the
   /// backend did NOT emit any eclairage payload but the dart-define is set
   /// — typically in walker / widget-test runs).
+  ///
+  /// Headline / body are intentionally EMPTY: the localized strings are
+  /// resolved by the rendering widget from [kind] (hotfix 2026-06-12). The
+  /// LSFin disclaimer is likewise resolved by the widget; the empty sentinel
+  /// here keeps the data class free of hardcoded user-facing French.
   static EclairageCardData fromForcedKind(EclairageKind forcedKind) {
     final tpl = _templateFor(forcedKind);
     return EclairageCardData(
       kind: forcedKind,
-      headline: tpl.headline,
-      body: tpl.body,
+      headline: '',
+      body: '',
       chfRangeLow: tpl.low,
       chfRangeHigh: tpl.high,
       chfRangePeriod: tpl.period,
-      lsfinDisclaimer:
-          'Information à but éducatif. Pas un conseil personnalisé au sens '
-          'de la LSFin. Vérifie ta situation auprès d’un conseiller '
-          'agréé avant toute décision.',
+      lsfinDisclaimer: '',
       softAccountHint: null,
     );
+  }
+
+  /// ARB key for the localized headline of [kind] — resolved by the rendering
+  /// widget via `AppLocalizations` (hotfix 2026-06-12). Kept as a pure
+  /// kind→key map so the const data class stays BuildContext-free.
+  static String eclairageKindHeadlineKey(EclairageKind kind) {
+    switch (kind) {
+      case EclairageKind.fiscalMargin3a:
+        return 'eclairageFiscalMargin3aHeadline';
+      case EclairageKind.lppRachatWindow:
+        return 'eclairageLppRachatWindowHeadline';
+      case EclairageKind.liquidityRunway:
+        return 'eclairageLiquidityRunwayHeadline';
+      case EclairageKind.compoundGrowthEdge:
+        return 'eclairageCompoundGrowthEdgeHeadline';
+    }
+  }
+
+  /// ARB key for the localized body of [kind] (hotfix 2026-06-12).
+  static String eclairageKindBodyKey(EclairageKind kind) {
+    switch (kind) {
+      case EclairageKind.fiscalMargin3a:
+        return 'eclairageFiscalMargin3aBody';
+      case EclairageKind.lppRachatWindow:
+        return 'eclairageLppRachatWindowBody';
+      case EclairageKind.liquidityRunway:
+        return 'eclairageLiquidityRunwayBody';
+      case EclairageKind.compoundGrowthEdge:
+        return 'eclairageCompoundGrowthEdgeBody';
+    }
   }
 
   static double? _asDouble(Object? v) {
@@ -187,18 +223,22 @@ class EclairageCardData {
 }
 
 /// Internal template payload for deterministic rendering when a kind is
-/// forced via dart-define. Matches the v2.10 archetype-pinned copy so the
-/// Phase 80 widget test can assert on stable strings.
+/// forced via dart-define.
+///
+/// Hotfix 2026-06-12: only the CHF range (low / high / period) lives here now.
+/// The user-facing headline / body strings were moved to ARB keys ×6 locales
+/// (resolved by the rendering widget via `AppLocalizations`) — see
+/// [EclairageCardData.eclairageKindHeadlineKey] /
+/// [EclairageCardData.eclairageKindBodyKey]. This removes hardcoded French
+/// from the data layer (CLAUDE.md NEVER #1) and replaces the presumptuous
+/// « Selon ton certificat LPP, … » copy with honest conditional phrasing in
+/// the ARBs.
 class _EclairageTemplate {
   const _EclairageTemplate({
-    required this.headline,
-    required this.body,
     required this.low,
     required this.high,
     required this.period,
   });
-  final String headline;
-  final String body;
   final double low;
   final double high;
   final String period;
@@ -207,47 +247,13 @@ class _EclairageTemplate {
 _EclairageTemplate _templateFor(EclairageKind kind) {
   switch (kind) {
     case EclairageKind.fiscalMargin3a:
-      return const _EclairageTemplate(
-        headline: 'Ta marge fiscale 3a',
-        body: 'À ton revenu, cotiser au plafond du 3e pilier pourrait '
-            'réduire ton impôt de l’ordre indiqué chaque année. '
-            'Le levier fiscal dépend de ton canton et de ta tranche '
-            'marginale.',
-        low: 1500,
-        high: 2500,
-        period: 'year',
-      );
+      return const _EclairageTemplate(low: 1500, high: 2500, period: 'year');
     case EclairageKind.lppRachatWindow:
-      return const _EclairageTemplate(
-        headline: 'Ta fenêtre de rachat LPP',
-        body: 'Selon ton certificat LPP, des rachats pourraient être '
-            'envisagés sur les prochaines années. L’économie '
-            'd’impôt indiquée est conditionnelle à ta tranche '
-            'marginale et au plafond communiqué par ta caisse.',
-        low: 4000,
-        high: 9000,
-        period: 'year',
-      );
+      return const _EclairageTemplate(low: 4000, high: 9000, period: 'year');
     case EclairageKind.liquidityRunway:
-      return const _EclairageTemplate(
-        headline: 'Ta réserve de liquidité',
-        body: 'Avec tes dépenses courantes, ton coussin couvre la '
-            'fenêtre indiquée. Une réserve de 3 à 6 mois reste un '
-            'repère cité par les conseillers indépendants.',
-        low: 2,
-        high: 4,
-        period: 'months',
-      );
+      return const _EclairageTemplate(low: 2, high: 4, period: 'months');
     case EclairageKind.compoundGrowthEdge:
       return const _EclairageTemplate(
-        headline: 'Ton avantage temps',
-        body: 'Commencer maintenant plutôt qu’à 35 ans pourrait '
-            'faire une différence dans la fourchette indiquée à 65 ans, '
-            'pour un effort mensuel modeste. La capitalisation '
-            'récompense la durée, pas le timing.',
-        low: 35000,
-        high: 70000,
-        period: 'lifetime',
-      );
+          low: 35000, high: 70000, period: 'lifetime');
   }
 }

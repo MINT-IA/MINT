@@ -11411,5 +11411,14 @@
   "onboardingAvsArrivalYearPrompt": "What year did you arrive in Switzerland?",
   "onboardingAvsYearsAbroadPrompt": "How many years abroad?",
   "onboardingAvsContinue": "Continue",
-  "lppEstimationBlockedRealValueRequired": "Real value required — scan your LPP certificate"
+  "lppEstimationBlockedRealValueRequired": "Real value required — scan your LPP certificate",
+  "eclairageEyebrow": "First insight",
+  "eclairageFiscalMargin3aHeadline": "Your 3a tax margin",
+  "eclairageFiscalMargin3aBody": "If you contribute to pillar 3a, paying up to the cap could lower your taxable income each year. The leverage depends on your canton and your marginal bracket.",
+  "eclairageLppRachatWindowHeadline": "A possible LPP buy-in window",
+  "eclairageLppRachatWindowBody": "If your pension fund allows buy-ins, making them over the coming years could reduce your taxable income. The effect depends on your marginal bracket and the cap your fund communicates.",
+  "eclairageLiquidityRunwayHeadline": "Your liquidity reserve",
+  "eclairageLiquidityRunwayBody": "Using your current expenses as a benchmark, a reserve of 3 to 6 months is often cited by independent advisors to absorb an unexpected event.",
+  "eclairageCompoundGrowthEdgeHeadline": "Your time advantage",
+  "eclairageCompoundGrowthEdgeBody": "Starting to invest early rather than later could make a difference over the long run, for a modest monthly effort. Compounding rewards duration."
 }

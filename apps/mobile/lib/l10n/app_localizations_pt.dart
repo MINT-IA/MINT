@@ -23847,4 +23847,36 @@ class SPt extends S {
   @override
   String get lppEstimationBlockedRealValueRequired =>
       'Valor real necessário — digitaliza o teu certificado LPP';
+
+  @override
+  String get eclairageEyebrow => 'Primeira leitura';
+
+  @override
+  String get eclairageFiscalMargin3aHeadline => 'A tua margem fiscal 3a';
+
+  @override
+  String get eclairageFiscalMargin3aBody =>
+      'Se contribuis para o pilar 3a, contribuir até ao limite poderia reduzir o teu rendimento tributável a cada ano. O efeito depende do teu cantão e do teu escalão marginal.';
+
+  @override
+  String get eclairageLppRachatWindowHeadline =>
+      'Uma possível janela de resgate LPP';
+
+  @override
+  String get eclairageLppRachatWindowBody =>
+      'Se a tua caixa de pensões permitir resgates, efetuá-los nos próximos anos poderia reduzir o teu rendimento tributável. O efeito depende do teu escalão marginal e do limite comunicado pela tua caixa.';
+
+  @override
+  String get eclairageLiquidityRunwayHeadline => 'A tua reserva de liquidez';
+
+  @override
+  String get eclairageLiquidityRunwayBody =>
+      'Tomando as tuas despesas correntes como referência, os consultores independentes citam frequentemente uma reserva de 3 a 6 meses para absorver um imprevisto.';
+
+  @override
+  String get eclairageCompoundGrowthEdgeHeadline => 'A tua vantagem de tempo';
+
+  @override
+  String get eclairageCompoundGrowthEdgeBody =>
+      'Começar a investir cedo em vez de mais tarde poderia fazer a diferença a longo prazo, para um esforço mensal modesto. A capitalização recompensa a duração.';
 }

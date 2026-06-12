@@ -23900,4 +23900,36 @@ class SDe extends S {
   @override
   String get lppEstimationBlockedRealValueRequired =>
       'Echter Wert erforderlich — scanne deinen BVG-Ausweis';
+
+  @override
+  String get eclairageEyebrow => 'Erster Einblick';
+
+  @override
+  String get eclairageFiscalMargin3aHeadline => 'Dein 3a-Steuerspielraum';
+
+  @override
+  String get eclairageFiscalMargin3aBody =>
+      'Wenn du in die Säule 3a einzahlst, könnte eine Einzahlung bis zum Maximum dein steuerbares Einkommen jährlich senken. Der Hebel hängt von deinem Kanton und deiner Grenzsteuerstufe ab.';
+
+  @override
+  String get eclairageLppRachatWindowHeadline =>
+      'Ein mögliches BVG-Einkaufsfenster';
+
+  @override
+  String get eclairageLppRachatWindowBody =>
+      'Wenn deine Pensionskasse Einkäufe zulässt, könnten Einkäufe in den nächsten Jahren dein steuerbares Einkommen senken. Der Effekt hängt von deiner Grenzsteuerstufe und dem von deiner Kasse mitgeteilten Maximum ab.';
+
+  @override
+  String get eclairageLiquidityRunwayHeadline => 'Deine Liquiditätsreserve';
+
+  @override
+  String get eclairageLiquidityRunwayBody =>
+      'Nimmt man deine laufenden Ausgaben als Richtwert, wird von unabhängigen Beratern oft eine Reserve von 3 bis 6 Monaten genannt, um Unerwartetes abzufedern.';
+
+  @override
+  String get eclairageCompoundGrowthEdgeHeadline => 'Dein Zeitvorteil';
+
+  @override
+  String get eclairageCompoundGrowthEdgeBody =>
+      'Früh statt spät mit dem Investieren zu beginnen, könnte langfristig einen Unterschied machen, bei moderatem monatlichem Aufwand. Der Zinseszins belohnt die Dauer.';
 }

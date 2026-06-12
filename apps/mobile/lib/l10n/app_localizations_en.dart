@@ -23720,4 +23720,35 @@ class SEn extends S {
   @override
   String get lppEstimationBlockedRealValueRequired =>
       'Real value required — scan your LPP certificate';
+
+  @override
+  String get eclairageEyebrow => 'First insight';
+
+  @override
+  String get eclairageFiscalMargin3aHeadline => 'Your 3a tax margin';
+
+  @override
+  String get eclairageFiscalMargin3aBody =>
+      'If you contribute to pillar 3a, paying up to the cap could lower your taxable income each year. The leverage depends on your canton and your marginal bracket.';
+
+  @override
+  String get eclairageLppRachatWindowHeadline => 'A possible LPP buy-in window';
+
+  @override
+  String get eclairageLppRachatWindowBody =>
+      'If your pension fund allows buy-ins, making them over the coming years could reduce your taxable income. The effect depends on your marginal bracket and the cap your fund communicates.';
+
+  @override
+  String get eclairageLiquidityRunwayHeadline => 'Your liquidity reserve';
+
+  @override
+  String get eclairageLiquidityRunwayBody =>
+      'Using your current expenses as a benchmark, a reserve of 3 to 6 months is often cited by independent advisors to absorb an unexpected event.';
+
+  @override
+  String get eclairageCompoundGrowthEdgeHeadline => 'Your time advantage';
+
+  @override
+  String get eclairageCompoundGrowthEdgeBody =>
+      'Starting to invest early rather than later could make a difference over the long run, for a modest monthly effort. Compounding rewards duration.';
 }

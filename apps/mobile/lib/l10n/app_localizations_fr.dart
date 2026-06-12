@@ -23836,4 +23836,35 @@ class SFr extends S {
   @override
   String get lppEstimationBlockedRealValueRequired =>
       'Valeur réelle requise — scanne ton certificat LPP';
+
+  @override
+  String get eclairageEyebrow => 'Premier éclairage';
+
+  @override
+  String get eclairageFiscalMargin3aHeadline => 'Ta marge fiscale 3a';
+
+  @override
+  String get eclairageFiscalMargin3aBody =>
+      'Si tu cotises au 3e pilier, verser jusqu\'au plafond pourrait réduire ton revenu imposable chaque année. Le levier dépend de ton canton et de ta tranche marginale.';
+
+  @override
+  String get eclairageLppRachatWindowHeadline => 'Une fenêtre de rachat LPP';
+
+  @override
+  String get eclairageLppRachatWindowBody =>
+      'Si ta caisse de pension permet des rachats, en effectuer sur les prochaines années pourrait abaisser ton revenu imposable. L\'effet dépend de ta tranche marginale et du plafond communiqué par ta caisse.';
+
+  @override
+  String get eclairageLiquidityRunwayHeadline => 'Ta réserve de liquidité';
+
+  @override
+  String get eclairageLiquidityRunwayBody =>
+      'Si on prend tes dépenses courantes comme repère, une réserve de 3 à 6 mois est souvent citée par les conseillers indépendants pour absorber un imprévu.';
+
+  @override
+  String get eclairageCompoundGrowthEdgeHeadline => 'Ton avantage temps';
+
+  @override
+  String get eclairageCompoundGrowthEdgeBody =>
+      'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.';
 }

@@ -41679,6 +41679,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Valeur réelle requise — scanne ton certificat LPP'**
   String get lppEstimationBlockedRealValueRequired;
+
+  /// Eyebrow label above a Premier Éclairage card in the anonymous chat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier éclairage'**
+  String get eclairageEyebrow;
+
+  /// Headline for the 3a fiscal margin éclairage card (conditional, LSFin-safe).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta marge fiscale 3a'**
+  String get eclairageFiscalMargin3aHeadline;
+
+  /// Body for the 3a fiscal margin éclairage card. Conditional phrasing, no presumption of income.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu cotises au 3e pilier, verser jusqu\'au plafond pourrait réduire ton revenu imposable chaque année. Le levier dépend de ton canton et de ta tranche marginale.'**
+  String get eclairageFiscalMargin3aBody;
+
+  /// Headline for the LPP buy-in window éclairage card.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fenêtre de rachat LPP'**
+  String get eclairageLppRachatWindowHeadline;
+
+  /// Body for the LPP buy-in window éclairage card. Conditional — does not presume a certificate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si ta caisse de pension permet des rachats, en effectuer sur les prochaines années pourrait abaisser ton revenu imposable. L\'effet dépend de ta tranche marginale et du plafond communiqué par ta caisse.'**
+  String get eclairageLppRachatWindowBody;
+
+  /// Headline for the liquidity reserve éclairage card.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réserve de liquidité'**
+  String get eclairageLiquidityRunwayHeadline;
+
+  /// Body for the liquidity reserve éclairage card. Conditional — does not presume expense data.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si on prend tes dépenses courantes comme repère, une réserve de 3 à 6 mois est souvent citée par les conseillers indépendants pour absorber un imprévu.'**
+  String get eclairageLiquidityRunwayBody;
+
+  /// Headline for the compound growth advantage éclairage card.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avantage temps'**
+  String get eclairageCompoundGrowthEdgeHeadline;
+
+  /// Body for the compound growth advantage éclairage card.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.'**
+  String get eclairageCompoundGrowthEdgeBody;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

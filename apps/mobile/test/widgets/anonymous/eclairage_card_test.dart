@@ -226,9 +226,14 @@ void main() {
     testWidgets(
         'Test 5 — empty headline OR empty body returns SizedBox.shrink (size 0×0)',
         (tester) async {
-      // Case A — empty headline
+      // Hotfix 2026-06-12: a VALID `kind` now backfills empty headline/body
+      // from the ARBs (forced-kind / seed fallback path). So the genuine
+      // "collapse" case is empty strings AND an UNKNOWN kind that cannot be
+      // resolved — i.e. a partial backend payload with no usable copy. Use an
+      // unknown kind here to keep the defensive-collapse contract.
+      // Case A — empty headline, unknown kind
       const emptyHeadline = <String, dynamic>{
-        'kind': 'fiscal_margin_3a',
+        'kind': 'unknown_kind_no_fallback',
         'headline': '   ', // whitespace-only → trims to ''
         'body': 'A real body that should never render alone.',
         'chfRangeLow': 1500,
@@ -244,12 +249,12 @@ void main() {
       expect(
         tester.getSize(find.byType(EclairageCard)),
         Size.zero,
-        reason: 'Empty headline must collapse the card to 0×0.',
+        reason: 'Empty headline + unknown kind must collapse the card to 0×0.',
       );
 
-      // Case B — empty body
+      // Case B — empty body, unknown kind
       const emptyBody = <String, dynamic>{
-        'kind': 'fiscal_margin_3a',
+        'kind': 'unknown_kind_no_fallback',
         'headline': 'A real headline that should never render alone.',
         'body': '',
         'chfRangeLow': 1500,
@@ -265,7 +270,7 @@ void main() {
       expect(
         tester.getSize(find.byType(EclairageCard)),
         Size.zero,
-        reason: 'Empty body must collapse the card to 0×0.',
+        reason: 'Empty body + unknown kind must collapse the card to 0×0.',
       );
     });
   });
@@ -350,8 +355,10 @@ void main() {
 
     testWidgets('STAMP-04 — empty payload produces no orphan focus target',
         (tester) async {
+      // Hotfix 2026-06-12: a known `kind` now backfills empty copy from the
+      // ARBs, so a genuinely empty card requires an UNKNOWN kind (no fallback).
       const emptyPayload = <String, dynamic>{
-        'kind': 'fiscal_margin_3a',
+        'kind': 'unknown_kind_no_fallback',
         'headline': '',
         'body': '',
         'softAccountHint': '',

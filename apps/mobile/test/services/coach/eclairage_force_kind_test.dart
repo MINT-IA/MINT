@@ -27,8 +27,10 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
@@ -105,8 +107,12 @@ void main() {
         ChatToolDispatcher.dispatchEclairagePayload(naturalPayload);
     expect(dispatched, isNotNull);
     expect(dispatched!.kind, CoachOrchestrator.forcedEclairageKind);
-    // The headline must come from the deterministic template, NOT the LLM.
+    // Hotfix 2026-06-12: forced-kind cards no longer carry hardcoded FR
+    // headline/body — the localized copy is resolved by the rendering widget
+    // from `kind`. So the LLM-natural headline must NOT survive (it is
+    // replaced by an empty sentinel here).
     expect(dispatched.headline, isNot('LLM-natural headline'));
+    expect(dispatched.headline, isEmpty);
   });
 
   test('ChatToolDispatcher fabricates a card from template when no payload '
@@ -117,7 +123,12 @@ void main() {
     final dispatched = ChatToolDispatcher.dispatchEclairagePayload(null);
     expect(dispatched, isNotNull);
     expect(dispatched!.kind, CoachOrchestrator.forcedEclairageKind);
-    expect(dispatched.lsfinDisclaimer, isNotEmpty);
+    // Hotfix 2026-06-12: the forced-kind data class no longer bakes the LSFin
+    // disclaimer — it is resolved by the rendering widget (above-input single
+    // source). The sentinel is empty here; the safety-net contract is now
+    // "kind is set + range is valid", not "disclaimer string present".
+    expect(dispatched.lsfinDisclaimer, isEmpty);
+    expect(dispatched.chfRangeLow, lessThan(dispatched.chfRangeHigh));
   });
 
   test('ChatToolDispatcher returns null when no force and no payload '
@@ -126,27 +137,41 @@ void main() {
     expect(ChatToolDispatcher.dispatchEclairagePayload(null), isNull);
   });
 
-  test('EclairageCardData.fromForcedKind produces deterministic '
-      'fiscal_margin_3a copy (ECLW-05)', () {
+  test('EclairageCardData.fromForcedKind carries the kind + deterministic '
+      'range, NO hardcoded FR copy (ECLW-05, hotfix 2026-06-12)', () {
+    // Post-hotfix contract: headline/body are EMPTY in the data class — the
+    // localized copy lives in the ARBs and is resolved by the widget from
+    // `kind`. This is the i18n + honest-copy fix: zero hardcoded user-facing
+    // French in eclairage_models.dart.
     final card = EclairageCardData.fromForcedKind(EclairageKind.fiscalMargin3a);
     expect(card.kind, EclairageKind.fiscalMargin3a);
-    expect(card.headline, 'Ta marge fiscale 3a');
-    expect(card.body, contains('plafond du 3e pilier'));
+    expect(card.headline, isEmpty,
+        reason: 'forced-kind headline is resolved from ARB by the widget');
+    expect(card.body, isEmpty,
+        reason: 'forced-kind body is resolved from ARB by the widget');
     expect(card.chfRangeLow, lessThan(card.chfRangeHigh));
-    expect(card.lsfinDisclaimer, isNotEmpty);
+    // kind→key map is the contract the widget consumes.
+    expect(
+      EclairageCardData.eclairageKindHeadlineKey(EclairageKind.fiscalMargin3a),
+      'eclairageFiscalMargin3aHeadline',
+    );
+    expect(
+      EclairageCardData.eclairageKindBodyKey(EclairageKind.fiscalMargin3a),
+      'eclairageFiscalMargin3aBody',
+    );
   });
 
-  testWidgets('EclairageCard renders forced fiscal_margin_3a template '
-      '(ECLW-05 widget assertion)', (tester) async {
+  testWidgets('EclairageCard resolves forced fiscal_margin_3a copy from ARB '
+      '(ECLW-05 widget assertion, hotfix 2026-06-12)', (tester) async {
     final card = EclairageCardData.fromForcedKind(EclairageKind.fiscalMargin3a);
 
-    // Phase 86 (v2.12) — EclairageCard now accepts a payload Map<String,dynamic>
-    // (panel-locked Phase 72 widgets/anonymous variant). The Phase 80
-    // `data: EclairageCardData` constructor was deleted as a duplicate.
+    // Hotfix 2026-06-12 — headline/body are empty in the forced-kind data
+    // class; the widget resolves them from `kind` via AppLocalizations. The
+    // payload must carry the `kind` wire name so the resolution fires.
     final payload = <String, dynamic>{
       'kind': card.kind.wireName,
-      'headline': card.headline,
-      'body': card.body,
+      'headline': card.headline, // empty — triggers ARB resolution
+      'body': card.body, // empty — triggers ARB resolution
       'chf_range_low': card.chfRangeLow,
       'chf_range_high': card.chfRangeHigh,
       'chf_range_period': card.chfRangePeriod,
@@ -156,6 +181,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        locale: const Locale('fr'),
         home: Scaffold(
           body: SingleChildScrollView(
             child: EclairageCard(payload: payload),
@@ -165,24 +198,52 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // The deterministic template strings MUST be visible — proves the
-    // forced kind path produces stable copy walker SSIM goldens can lock to.
+    // The localized fr_CH copy MUST render — proves the forced-kind path now
+    // resolves stable, honest, i18n strings from the ARBs instead of the old
+    // hardcoded « Ta marge fiscale 3a ».
     expect(find.text('Ta marge fiscale 3a'), findsOneWidget);
-    expect(find.textContaining('plafond du 3e pilier'), findsOneWidget);
-    // Phase 86 (v2.12) — eyebrow source is the const « Premier éclairage »
-    // (line 101 of widgets/anonymous/eclairage_card.dart) but `_buildEyebrow`
-    // renders `text.toUpperCase()` (line 188), so the actual widget tree
-    // text is « PREMIER ÉCLAIRAGE ». Test asserts what is rendered, not
-    // what is in source. The deleted Phase 80 widgets/coach variant had
-    // a different « PREMIER ÉCLAIRAGE · 3E PILIER » kind-suffix output ;
-    // panel-lock Phase 72 is what ships.
+    expect(find.textContaining('plafond'), findsOneWidget);
+    // Eyebrow is localized + upper-cased by `_buildEyebrow`.
     expect(find.text('PREMIER ÉCLAIRAGE'), findsOneWidget);
-    // Phase 86 (v2.12) — LSFin disclaimer is intentionally NOT rendered
-    // inside the card (Phase 71a §1.4 declares the above-input
-    // disclaimer the single source). The card-side `lsfin_disclaimer`
-    // payload field exists for the EclairageCardData round-trip but
-    // the panel-locked Phase 72 widget skips it (line 169 of
-    // widgets/anonymous/eclairage_card.dart : « disclaimer SKIPPED
-    // (Phase 71a §1.4) »). Removing the in-card LSFin assertion.
+  });
+
+  testWidgets('EclairageCard forced lpp_rachat_window copy is honest + '
+      'conditional — no presumed certificate (BUG 2 regression, '
+      'hotfix 2026-06-12)', (tester) async {
+    final card =
+        EclairageCardData.fromForcedKind(EclairageKind.lppRachatWindow);
+    final payload = <String, dynamic>{
+      'kind': card.kind.wireName,
+      'headline': card.headline,
+      'body': card.body,
+      'chf_range_low': card.chfRangeLow,
+      'chf_range_high': card.chfRangeHigh,
+      'chf_range_period': card.chfRangePeriod,
+      'lsfin_disclaimer': card.lsfinDisclaimer,
+    };
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        locale: const Locale('fr'),
+        home: Scaffold(
+          body: SingleChildScrollView(child: EclairageCard(payload: payload)),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // BUG 2 regression guard: the old copy presumed a certificate
+    // (« Selon ton certificat LPP, … ») for an anonymous user. The new copy
+    // is conditional (« Si ta caisse de pension permet des rachats, … »).
+    expect(find.textContaining('Selon ton certificat'), findsNothing,
+        reason: 'must not presume a certificate the user never provided');
+    expect(find.textContaining('Si ta caisse de pension'), findsOneWidget);
   });
 }
