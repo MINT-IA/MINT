@@ -514,7 +514,16 @@ class ComplianceGuard:
         # individually small can still compound into a wrong picture.
         _HALLUCINATION_MAJOR_THRESHOLD_PCT = 15.0
         _HALLUCINATION_MINOR_CUMULATIVE_LIMIT = 3
-        if context and context.known_values:
+        # Education-strict perimeter (CONTEXT decision 1, audit 01 HOLE-3): the
+        # numeric verification no longer requires a POPULATED profile. The old
+        # `if context and context.known_values:` escape hatch skipped the
+        # detector entirely for empty/onboarding/anonymous profiles — the most
+        # trust-formation-critical users got the LEAST numeric verification. We
+        # now run the detector whenever a context object exists; it no-ops
+        # gracefully on an empty known_values dict (HallucinationDetector.detect
+        # returns [] for an empty dict), so the structural skip is removed while
+        # future registry-anchored checks can fire on anonymous traffic.
+        if context is not None:
             hallucinations = self._detector.detect(text, context.known_values)
             if hallucinations:
                 major = [h for h in hallucinations if h.deviation_pct >= _HALLUCINATION_MAJOR_THRESHOLD_PCT]
