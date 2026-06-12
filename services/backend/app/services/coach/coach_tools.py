@@ -716,11 +716,12 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Compare les arbitrages financiers d'un couple (mariage CC art. 159 vs "
+            "Compare les scénarios financiers d'un couple (mariage CC art. 159 vs "
             "concubinage) selon les deux cantons, revenus et archétypes (FATCA pour "
             "expat US). Estime l'écart d'impôt CHF/an, l'effet du cap AVS couple "
-            "(LAVS art. 35, plafond 150%), l'ordre de rachat LPP entre conjoints "
-            "et l'impact 3a. Produit les scénarios chiffrés sans ranking. "
+            "(LAVS art. 35, plafond 150%), le rachat LPP de chaque conjoint "
+            "et l'impact 3a. Produit les scénarios chiffrés côte à côte, avec "
+            "hypothèses explicites et sans ranking ni répartition recommandée. "
             "Mots-clés : couple, mariage, concubinage, conjoint, partenaire, "
             "fiscal, FATCA, splitting, rachat, cap AVS."
         ),

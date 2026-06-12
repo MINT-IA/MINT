@@ -356,3 +356,44 @@ def test_dispatcher_breadcrumb_profile_id_hashed_is_not_raw(monkeypatch) -> None
     # 16-char hex prefix per app.utils.hashing.hash_profile_id contract.
     assert len(captured["profile_id_hashed"]) == 16
     int(captured["profile_id_hashed"], 16)  # valid hex.
+
+
+# ---------------------------------------------------------------------------
+# WS-A (plan 03 Task 2) — get_couple_optimization tool description must be
+# education-strict (scenarios side-by-side, explicit assumptions) with ZERO
+# residual ranked-ish/ordering language. The « sans ranking » framing already
+# present (plan-check correction) must be preserved.
+# ---------------------------------------------------------------------------
+
+
+def _couple_tool_description() -> str:
+    """Fetch the get_couple_optimization tool description from COACH_TOOLS."""
+    from app.services.coach.coach_tools import COACH_TOOLS
+
+    entry = next(
+        t for t in COACH_TOOLS if t["name"] == "get_couple_optimization"
+    )
+    return entry["description"]
+
+
+def test_couple_tool_description_has_no_residual_ranked_ordering_language() -> None:
+    desc = _couple_tool_description()
+    # Residual ranked-ish/ordering fragments must be gone (small-diff target).
+    assert "l'ordre de rachat" not in desc, (
+        "residual inter-spouse ordering claim « l'ordre de rachat … » must "
+        "be removed (WS-A education-strict)"
+    )
+    assert "l'ordre de" not in desc, "no ordering language « l'ordre de … »"
+    assert "la meilleure répartition" not in desc
+    assert "tu devrais" not in desc
+    # No LSFin banned ranking adjectives.
+    for banned in ("optimal", "meilleur", "garanti"):
+        assert banned not in desc.lower(), f"banned ranked term « {banned} »"
+
+
+def test_couple_tool_description_preserves_education_comparison_framing() -> None:
+    desc = _couple_tool_description()
+    # « sans ranking » framing is preserved (plan-check: already present).
+    assert "sans ranking" in desc
+    # Still a comparison of scenarios (side-by-side, no personalised arbitrage).
+    assert "scénarios" in desc.lower() or "compar" in desc.lower()
