@@ -182,5 +182,77 @@ None new. This plan CLOSES the Plan 04 threat-flag (the LLM-authored `show_fact_
 - VERIFIED: full backend suite → 7808 passed, 116 skipped, 4 xfailed, 0 failed
 
 ---
+
+## Post-review gap closure (Codex grounding stack)
+
+An adversarial Codex review (with live probes) of plans 01-05 found 6 real
+holes in the grounding stack. Each was closed with a probe-reproducing test
+first (RED), then the fix (GREEN), one commit each. STATE.md / ROADMAP.md
+intentionally NOT touched (orchestrator owns those writes).
+
+### Fixes (RED→GREEN, one commit each)
+
+| # | Sev | Hole | Fix | Commit |
+|---|-----|------|-----|--------|
+| fix_5 | P2 | `ach[eè]te` regex had no leading `\b` → matched inside `racheter`/`rachetées`, killing legitimate conditional phrasing (`compliance_guard.py:254`) | Word-boundary every imperative/2nd-person verb pattern (audited the whole list + the ticker-buy pattern). Real `Achète un 3a` / `Fais un rachat` still block. | `6f60acab3` |
+| fix_3a | P1+P2 | `claim_checker` missed verb-family inversions of `rachat` (`puiser dans ton avoir`, `faire sortir une partie de ton avoir`) | Broadened `rachat_lpp.not_this_fr` with multi-word verb-family markers anchored to the 2e-pilier object; kept the multi-word constraint; EPL canonical `retrait anticipé du 2e pilier` still passes; probes added to `inversions_eval.jsonl` (hygiene-clean). | `b8fd4ff85` |
+| fix_3b | P1+P2 | `_classify_user_intent` missed interrogative families (`comment fonctionne`, `ce que veut dire`, `j'aimerais comprendre`) → forced `explain_concept` never fired | Broadened `_DEFINITION_INTERROGATIVES`; declaration `j'ai fait un rachat l'année passée` still does NOT force. | `469fd71ff` |
+| fix_4 | P2 | `show_fact_card` with an unresolvable concept passed an invented source untouched (`Source inventée art. 999`) | For unresolvable cards, a legal-citation-shaped `source` is neutralised to `Information générale`; content passes (truth not deterministically verifiable — residual documented); resolvable-card repair unchanged. | `6bc5fa27c` |
+| fix_1 | P1 | Flutter-bound tool payloads (`route_to_screen.context_message`, fact-card prose, …) crossed with PII scrubbing ONLY; `widget_renderer.dart:120` renders `context_message` directly | Run the FULL `ComplianceGuard` (banned + prescriptive L2 + inversion L6) over every free-text PROSE field of every outbound tool payload (closed-world `_TOOL_PAYLOAD_PROSE_FIELDS`; numeric/enum fields excluded). Blocked → neutral fallback, log `tool_payload_blocked`; salvageable banned term → softened in place. Wired into `_run_agent_loop`. | `c1bf9e7bc` |
+| fix_6 | P2 | Anonymous surface exposed/forced only `get_regulatory_constant`; the W1 rachat incident happened HERE | Exposed `explain_concept` anonymously + added a definition-intent detector that forces it first-call-only (reusing the constant-forcing pattern); constant-forcing intact. | `36c22225d` |
+| fix_2 | P1 | `coach_orchestrator.dart:656,746` showed RAW text when the Dart guard signalled fallback (fail-open) | Shared `resolveGuardedText()` makes both SLM + BYOK tiers FAIL CLOSED: on `useFallback` render the templated safe reply, never the blocked raw text. | `50c78ff2c` |
+
+### Probe reproductions (RED) → fixes (GREEN)
+
+- **fix_5** RED: `« Tu pourrais envisager de racheter des années LPP selon ta
+  situation. »` → `prescriptive_blocked` (false positive). GREEN: passes; real
+  `« Achète un 3a maintenant »` still blocks.
+- **fix_3a** RED: `check_claims("Un rachat LPP, c'est puiser dans ton avoir…")`
+  → `[]` (missed). GREEN: `['rachat_lpp']`; EPL canonical still `[]`.
+- **fix_3b** RED: `_classify_user_intent("Comment fonctionne un rachat LPP ?")`
+  → no `definition_request` (missed). GREEN: forces; declaration still no-force.
+- **fix_4** RED: unresolvable card with `source="art. 999 LIFD"` shipped
+  untouched. GREEN: source → `Information générale`; resolvable repair unchanged.
+- **fix_1** RED: `route_to_screen.context_message` carrying the rachat inversion
+  crossed to Flutter raw (PII scrub only). GREEN: field → neutral fallback;
+  clean payload untouched.
+- **fix_6** RED: anonymous tool list = `['get_regulatory_constant']` only.
+  GREEN: `['explain_concept', 'get_regulatory_constant']`; definition ask forces
+  `explain_concept`, chitchat stays auto, loop terminates with grounded text.
+- **fix_2** RED: `resolveGuardedText` analogue returned RAW blocked text on
+  `useFallback`. GREEN: returns the templated safe reply (both tiers).
+
+### Residuals / M2 candidates (documented, not closed here)
+
+- **Dart Layer 6 (claim-checker) NOT ported** — per the objective, the full
+  semantic definitional-inversion detector remains **backend-canonical**. The
+  Dart guard now fails closed on L1/L2/L3, but a Dart-side definitional
+  inversion would only be caught if the backend already blocked it. Porting
+  Layer 6 to Dart is an **M2 candidate** (would require shipping CONCEPT_REGISTRY
+  to the client).
+- **fix_4 content truth** — for an UNRESOLVABLE fact card, the content cannot be
+  verified deterministically (no registry page to compare against). The fix
+  strips the false legal *authority* but the *content* still passes; verifying
+  free-form content truth on an off-registry topic is a residual.
+
+### Verification (gates quoted)
+
+- Backend: `cd services/backend && python3 -m pytest tests/ -q` →
+  **`7841 passed, 116 skipped, 4 xfailed, 6 warnings in 93.41s`** (the 4 xfailed
+  are the Plan 01 RED proofs; 0 failed).
+- Mobile: `cd apps/mobile && flutter analyze` → **`No issues found!`**.
+- Mobile targeted: `flutter test test/services/coach_orchestrator_test.dart` →
+  **`All tests passed!`** (22 tests incl. the fix_2 fail-closed group).
+
+### Deferred (out of scope)
+
+See `deferred-items.md`:
+- **DEF-1** — pre-existing accent-lint flags on the `EclairagePayload` local
+  variable in `anonymous_chat.py` (Python identifier, pre-exists in HEAD `67d0119`).
+- **DEF-2** — pre-existing accent-lint flags on the `MINT_E2E_FORCE_ECLAIRAGE_KIND`
+  dart-define references in `coach_orchestrator.dart` doc comments (mirror the
+  code symbol, pre-exist in HEAD). My fix_2 changes added zero accent violations.
+
+---
 *Phase: mint-grounded-coach-m1*
 *Completed: 2026-06-12*
