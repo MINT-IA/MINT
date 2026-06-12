@@ -111,15 +111,22 @@ void main() {
       );
     });
 
-    test('EPL risk mentioned (LPP art. 79b al. 3)', () {
+    test('EPL/79b risk widened per TF 26.02.2026 (every capital withdrawal, '
+        'entire capital)', () {
       final result = CoachReasonerService.analyse(
           profile(rachatMax: 50000));
       final rachat = result.recommendations
           .firstWhere((r) => r.id == 'rachat_lpp');
-      expect(
-        rachat.risks.any((r) => r.contains('79b')),
-        isTrue,
-      );
+      final riskText = rachat.risks.join(' ');
+      // Still cites the legal anchor.
+      expect(riskText, contains('79b'));
+      // Audit 01 DET-2 / TF 26.02.2026: the 3-year block is no longer narrowed
+      // to "tout retrait EPL". It covers every capital withdrawal and the
+      // entire retirement capital.
+      expect(riskText, contains('tout retrait en capital'));
+      expect(riskText, contains('capital entier'));
+      // The old narrowed wording must be gone.
+      expect(riskText, isNot(contains('tout retrait EPL est bloqué')));
     });
 
     test('near retirement (3y) adds limited return warning', () {
@@ -145,16 +152,30 @@ void main() {
       expect(impactHigh, greaterThan(impactLow));
     });
 
-    test('rachat copy frames fiscal amount as indicative', () {
+    test('rachat copy is an educational scenario comparison, not a ranked '
+        'return claim', () {
       final result = CoachReasonerService.analyse(
           profile(rachatMax: 50000));
       final rachat = result.recommendations
           .firstWhere((r) => r.id == 'rachat_lpp');
       final text = '${rachat.title} ${rachat.summary}';
 
-      expect(text, contains('impact fiscal indicatif'));
+      // WS-A: framing surfaces the assumptions ("avec ces hypothèses…"),
+      // not a ranked-to-top return claim.
+      expect(text, contains('hypothèses'));
+      // Still neutral about the fiscal figure (indicative, not a promise).
+      expect(text, contains('indicatif'));
+      // No promise / banned framing.
       expect(text, isNot(contains('économie fiscale')));
       expect(text, isNot(contains('réduit ton impôt')));
+      expect(text, isNot(contains('meilleur')));
+      expect(text, isNot(contains('garanti')));
+      // The assumptions[] block remains the framing source.
+      expect(rachat.assumptions, isNotEmpty);
+      expect(
+        rachat.assumptions.any((a) => a.contains('LSFin')),
+        isTrue,
+      );
     });
   });
 
@@ -331,27 +352,53 @@ void main() {
     });
   });
 
-  // ── Sorting & compliance ───────────────────────────────────
+  // ── Ordering & compliance ──────────────────────────────────
 
-  group('Sorting & compliance', () {
-    test('recommendations sorted by annualized impact descending', () {
+  group('Ordering & compliance', () {
+    // WS-A (audit 01 HOLE-6 / §5.1): the reasoner must NOT rank levers by
+    // return into a "top" recommendation — that crosses from education into
+    // ranked advice (LSFin art. 3). Output order is catalogue-stable (the
+    // fixed evaluation order: rachat, 3a, amortissement, échelonnement, split),
+    // independent of effective annual return.
+    test('recommendations are in catalogue order, NOT return-descending', () {
+      // Profile where a lower-return lever is evaluated BEFORE a higher-return
+      // one. With a small lacune the rachat impact is modest, while the 3a gap
+      // (no existing 3a) carries a large fiscal impact. Catalogue order puts
+      // rachat first regardless — a return-descending sort would not.
+      final result = CoachReasonerService.analyse(profile(
+        age: 50,
+        salaire: 12000,
+        rachatMax: 6000,
+        nombre3a: 0,
+        totalEpargne3a: 0,
+      ));
+
+      final ids = result.recommendations.map((r) => r.id).toList();
+      // Both rachat and 3a must be present for this assertion to be meaningful.
+      expect(ids, contains('rachat_lpp'));
+      expect(ids, contains('3a_non_maxe'));
+
+      // Catalogue order: rachat_lpp is evaluated (and therefore listed) before
+      // 3a_non_maxe — the engine no longer reorders by annualized return.
+      expect(
+        ids.indexOf('rachat_lpp'),
+        lessThan(ids.indexOf('3a_non_maxe')),
+        reason: 'output must follow catalogue order, not return ranking',
+      );
+    });
+
+    test('no single lever sorted to the "top" by return', () {
+      // Catalogue order is fixed: rachat (lever 1) is always first when present,
+      // even if another lever has a higher annualized impact.
       final result = CoachReasonerService.analyse(profile(
         age: 58,
         rachatMax: 80000,
         nombre3a: 3,
         totalEpargne3a: 150000,
       ));
-      if (result.recommendations.length >= 2) {
-        // Verify non-increasing annualized order
-        for (int i = 0; i < result.recommendations.length - 1; i++) {
-          final a = result.recommendations[i];
-          final b = result.recommendations[i + 1];
-          double annualize(Recommendation r) =>
-              r.impact.period == Period.oneoff
-                  ? r.impact.amountCHF / 7 // ~yearsToRetirement
-                  : r.impact.amountCHF;
-          expect(annualize(a), greaterThanOrEqualTo(annualize(b)));
-        }
+      if (result.recommendations.isNotEmpty) {
+        // The first slot is determined by catalogue position, not return.
+        expect(result.recommendations.first.id, 'rachat_lpp');
       }
     });
 

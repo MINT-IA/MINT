@@ -6,8 +6,10 @@ import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
-/// Result of [CoachReasonerService.analyse]: ranked recommendations
-/// plus the profile's confidence score.
+/// Result of [CoachReasonerService.analyse]: an unranked, catalogue-ordered
+/// list of educational scenario comparisons plus the profile's confidence
+/// score. Recommendations are presented side-by-side, never ranked by return
+/// (WS-A / audit 01 HOLE-6 — éducation stricte, jamais de conseil classé).
 class ReasonerResult {
   final List<Recommendation> recommendations;
   final ProjectionConfidence confidence;
@@ -19,7 +21,8 @@ class ReasonerResult {
 }
 
 /// Pure Dart rules engine that analyses a [CoachProfile] and produces
-/// ranked, actionable [Recommendation]s sorted by effective annual return.
+/// educational [Recommendation]s presented side-by-side in catalogue order
+/// (never ranked by effective annual return — WS-A / audit 01 HOLE-6).
 ///
 /// 5 levers evaluated:
 ///   1. Rachat LPP (tax-deductible buyback)
@@ -35,8 +38,8 @@ class ReasonerResult {
 class CoachReasonerService {
   const CoachReasonerService._();
 
-  /// Analyse the profile and return ranked opportunities
-  /// with the profile's confidence score.
+  /// Analyse the profile and return educational scenario comparisons in
+  /// catalogue order (unranked) with the profile's confidence score.
   ///
   /// Returns an empty list if the profile lacks minimum data
   /// (birthYear, salaire, canton).
@@ -82,17 +85,13 @@ class CoachReasonerService {
     final split = _evaluateSplitLibrePassage(profile, age);
     if (split != null) results.add(split);
 
-    // Sort by descending annualized impact (CHF).
-    // Normalize one-off amounts over years to retirement for fair comparison.
-    double annualized(Recommendation r) {
-      if (r.impact.period == Period.oneoff && yearsToRetirement > 0) {
-        return r.impact.amountCHF / yearsToRetirement;
-      }
-      return r.impact.amountCHF;
-    }
-
-    results.sort((a, b) => annualized(b).compareTo(annualized(a)));
-
+    // WS-A (audit 01 HOLE-6 / §5.1, CONTEXT décision 1) — éducation stricte :
+    // les leviers sont présentés en ordre de catalogue stable (rachat, 3a,
+    // amortissement, échelonnement, split), JAMAIS classés par rendement annuel.
+    // Classer par « rendement effectif » revient à recommander un levier « en
+    // tête » = conseil personnalisé (LSFin art. 3). On émet donc les scénarios
+    // côte à côte, sans tri par impact. (arbitrage_engine.dart:19 :
+    // « NEVER rank options — side-by-side only ».)
     return ReasonerResult(recommendations: results, confidence: confidence);
   }
 
@@ -142,7 +141,14 @@ class CoachReasonerService {
     ];
 
     final risks = <String>[
-      'LPP art. 79b al. 3 : tout retrait EPL est bloqué pendant 3 ans après un rachat.',
+      // Audit 01 DET-2 / arrêts TF du 26.02.2026 : le délai de blocage de 3 ans
+      // après un rachat s'applique à tout retrait en capital (retraite, départ
+      // de Suisse, indépendant, EPL) et gèle le capital de prévoyance entier,
+      // pas seulement le montant racheté.
+      'LPP art. 79b al. 3 (arrêts TF du 26.02.2026) : après un rachat, tout '
+          'retrait en capital (retraite, départ de Suisse, indépendant, EPL) '
+          'est bloqué pendant 3 ans. Le blocage porte sur le capital entier de '
+          'prévoyance, pas seulement sur le montant racheté.',
     ];
 
     if (yearsToRetirement <= 3) {
@@ -154,13 +160,18 @@ class CoachReasonerService {
     return Recommendation(
       id: 'rachat_lpp',
       kind: 'rachat_lpp',
-      title:
-          'Rachat LPP : impact fiscal indicatif ${taxSaving.toStringAsFixed(0)} CHF/an',
+      // WS-A : cadrage scénario éducatif comparé, pas un classement « en tête »
+      // par rendement. Le titre nomme le scénario ; le chiffre indicatif et ses
+      // hypothèses sont surfacés dans le résumé (les hypothèses[] ci-dessous en
+      // sont le cadre, pas une note de bas de page).
+      title: 'Rachat LPP : scénario à comparer',
       summary:
-          'Avec une lacune de ${lacune.toStringAsFixed(0)} CHF, un rachat annuel '
-          'de ${annualBuyback.toStringAsFixed(0)} CHF aurait un impact fiscal '
-          'indicatif de ${taxSaving.toStringAsFixed(0)} CHF/an et augmente le '
-          'capital projeté à la retraite.',
+          'Scénario à comparer côte à côte avec tes autres options. Avec ces '
+          'hypothèses (lacune de ${lacune.toStringAsFixed(0)} CHF, rachat annuel '
+          'de ${annualBuyback.toStringAsFixed(0)} CHF), l\'impact fiscal '
+          'indicatif serait d\'environ ${taxSaving.toStringAsFixed(0)} CHF/an et '
+          'le capital projeté à la retraite augmenterait. Les chiffres dépendent '
+          'des hypothèses ci-dessous.',
       why: [
         'Déduction fiscale immédiate (LIFD art. 33 al. 1 lit. d)',
         'Le capital racheté est rémunéré au taux de la caisse (${(r * 100).toStringAsFixed(1)}%)',
