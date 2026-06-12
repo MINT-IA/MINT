@@ -1,0 +1,118 @@
+# MINT Coach Eval Gate — mint-grounded-coach-m1 Plan 07 (WS-E)
+#
+# Runs the grounded-coach regression suite on every backend-touching PR so the
+# definitional-inversion class (HOLE-1, e.g. « un rachat LPP, c'est sortir ton
+# capital ») can NEVER regress silently. The suite is the deterministic
+# fail-fast gate per CONTEXT decision 3 (fixture-first, RED then green in CI):
+#
+#   - test_coach_claim_inversions.py  — the 18 inversion fixtures (Plan 01/04),
+#       now hard-GREEN; any regression that lets an inverted definition through
+#       the ComplianceGuard claim-checker FAILS the build.
+#   - test_claim_checker.py           — the deterministic claim-checker unit +
+#       ComplianceGuard Layer-6 integration tests (Plan 04).
+#   - test_concept_registry.py        — the curated closed-world concept
+#       registry contract (18 P0 Swiss concepts, frozen Mapping) (Plan 04).
+#   - test_facade_resolution.py       — the Plan 07 activate-or-delete post-
+#       state (no dark flag / no façade remains; citation gate active).
+#
+# Path-filter note (CI path-filter blind-spot lesson, memory
+# feedback_ci_path_filter_blind_spots): this gate is wired to fire not only on
+# generic backend changes but ALSO on direct edits to the coach prompt /
+# registry / claim-checker source AND the eval fixtures themselves — so a
+# registry-only or prompt-only PR cannot ship an undetected inversion
+# regression by dodging a coarse path filter.
+
+name: Coach Eval Gate
+
+on:
+  push:
+    branches: [dev, staging, main]
+  pull_request:
+    branches: [dev, staging, main]
+
+concurrency:
+  group: coach-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Detect coach-relevant path changes ──────────────────────
+  changes:
+    name: Detect coach-eval changes
+    runs-on: ubuntu-latest
+    outputs:
+      coach: ${{ steps.filter.outputs.coach }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3
+        id: filter
+        with:
+          filters: |
+            coach:
+              # Generic backend change (broad floor).
+              - 'services/backend/app/**'
+              # Coach prompt / grounding source (narrow, blind-spot mitigation).
+              - 'services/backend/app/services/coach/**'
+              - 'services/backend/app/api/v1/endpoints/coach_chat.py'
+              - 'services/backend/app/core/config.py'
+              # The eval fixtures + suites themselves.
+              - 'services/backend/tests/test_coach_claim_inversions.py'
+              - 'services/backend/tests/test_claim_checker.py'
+              - 'services/backend/tests/test_concept_registry.py'
+              - 'services/backend/tests/test_facade_resolution.py'
+              # This workflow.
+              - '.github/workflows/coach-eval.yml'
+
+  # ─── Coach grounded-eval regression suite ────────────────────
+  coach-eval:
+    name: Coach inversion + claim-checker regression
+    needs: [changes]
+    if: needs.changes.outputs.coach == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+
+      - name: Install dependencies (app + dev/test)
+        run: pip install ".[dev]"
+
+      - name: Run coach grounded-eval suite (inversions + claim-checker + registry + façade)
+        env:
+          TESTING: "1"
+          DATABASE_URL: "sqlite:///./test_coach_eval.db"
+        run: |
+          # -x (fail-fast) so any inversion regression stops the build
+          # immediately with a clear signal. The inversion fixtures are
+          # the first suite listed so a regression surfaces fastest.
+          python -m pytest \
+            tests/test_coach_claim_inversions.py \
+            tests/test_claim_checker.py \
+            tests/test_concept_registry.py \
+            tests/test_facade_resolution.py \
+            -q --tb=short -x
+          rm -f test_coach_eval.db
+
+  # ─── Gate: the coach-eval job must pass ──────────────────────
+  coach-eval-gate:
+    name: Coach Eval Gate
+    needs: [changes, coach-eval]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check coach-eval result
+        run: |
+          result="${{ needs.coach-eval.result }}"
+          # Skipped = no coach-relevant changes on a PR → treat as pass.
+          [[ "$result" == "skipped" ]] && result="success"
+          if [[ "$result" != "success" ]]; then
+            echo "::error::Coach eval gate failed — an inversion / claim-checker / registry / façade regression was detected (result=$result)"
+            exit 1
+          fi
+          echo "Coach eval gate passed (result=$result)"
