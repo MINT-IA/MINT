@@ -63,7 +63,16 @@ class AnonymousChatScreen extends StatefulWidget {
   /// message after build.
   final String? intent;
 
-  const AnonymousChatScreen({super.key, this.intent});
+  /// Test-only override for the `/anonymous/chat` round-trip. When non-null,
+  /// [_sendMessage] calls this instead of [CoachChatApiService]. Lets the
+  /// ECL-01 gate widget tests (hotfix 2026-06-12) drive deterministic coach
+  /// responses carrying an `eclairage` payload without a live backend or an
+  /// HTTP mock seam (MintHttpClient.shared is a final static). Always null in
+  /// production — the default branch hits the real service.
+  @visibleForTesting
+  final Future<Map<String, dynamic>> Function(String message)? sendOverride;
+
+  const AnonymousChatScreen({super.key, this.intent, this.sendOverride});
 
   @override
   State<AnonymousChatScreen> createState() => _AnonymousChatScreenState();
@@ -93,17 +102,22 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// equivalent to "opener present, no user reply yet").
   bool _openerShown = false;
 
-  /// Whether an `eclairage` payload has been delivered to the user. Used
-  /// by the ECL-01 gate (turns ≥ 2). Reset only on cold-restore that
-  /// finds an existing eclairage in the persisted conversation (out of
-  /// scope for Phase 71a — backend payload lands Phase 71b).
-  // ignore: unused_field
-  final bool _eclairageDelivered = false;
+  /// Whether an `eclairage` card has already been delivered in this
+  /// conversation. Wired ECL-01 gate (hotfix 2026-06-12): once ANY coach
+  /// turn has attached a Premier Éclairage card, every subsequent turn must
+  /// NOT render another — the backend may (re)emit `response['eclairage']`
+  /// across turns, and the walker / seed fallback path
+  /// ([_resolveEclairageForTurn]) fires on every turn when a CoachProfileSeed
+  /// is pinned. Without this gate the user saw two IDENTICAL cards in one
+  /// conversation (device bug, sim iPhone 17 Pro).
+  ///
+  /// Set true the moment a card is attached to a coach message; restored from
+  /// persisted messages on cold-restore (see [_hydrateFromStoreOrShowOpener]).
+  bool _eclairageDelivered = false;
 
   /// Number of completed coach responses in the current session. Increments
   /// only after `_messages.add(coach response)` — not on user-send, not
-  /// on error. ECL-01 fires when `_coachTurnsCompleted >= 2 &&
-  /// !_eclairageDelivered` (gate read is Phase 71b backend integration).
+  /// on error.
   // ignore: unused_field
   int _coachTurnsCompleted = 0;
 
@@ -159,8 +173,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           // Conversation already had user-coach exchanges; opener should
           // not re-appear. Mark openerShown so chips also stay hidden.
           _openerShown = true;
-          _coachTurnsCompleted =
+          final coachTurns =
               restored.where((m) => m.role == 'assistant').length;
+          _coachTurnsCompleted = coachTurns;
+          // ECL-01 restore (hotfix 2026-06-12): the Premier Éclairage card is
+          // emitted by the backend once the conversation reaches ≥2 coach
+          // turns (anonymous_chat.py: `new_count >= 2 && !eclairage_delivered`)
+          // and is delivered exactly once. ConversationStore persists only the
+          // bubble text, not the card payload, so a restored conversation that
+          // already crossed that threshold must mark the gate as delivered —
+          // otherwise the FIRST new turn after cold-restore would render a
+          // second card.
+          _eclairageDelivered = coachTurns >= 2;
         });
         _scrollToBottom();
         return;
@@ -228,10 +252,12 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     // Only pass intent on the first message
     final isFirstMessage = _messages.where((m) => m.isUser).length == 1;
 
-    final response = await CoachChatApiService.sendAnonymousMessage(
-      message: trimmed,
-      intent: isFirstMessage ? widget.intent : null,
-    );
+    final response = widget.sendOverride != null
+        ? await widget.sendOverride!(trimmed)
+        : await CoachChatApiService.sendAnonymousMessage(
+            message: trimmed,
+            intent: isFirstMessage ? widget.intent : null,
+          );
 
     if (!mounted) return;
 
@@ -279,6 +305,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       _isLoading = false;
       // Phase 71a panel §4: increment ONLY after a real coach response.
       _coachTurnsCompleted += 1;
+      // ECL-01 gate (hotfix 2026-06-12): latch the delivered flag the moment a
+      // card is attached so no later turn renders a duplicate.
+      if (eclairage != null) _eclairageDelivered = true;
     });
     _scrollToBottom();
 
@@ -353,6 +382,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   ///      walker captures a real card even when the backend half of the
   ///      contract has not landed yet (Phase 81 sequencing).
   EclairageCardData? _resolveEclairageForTurn(Map<String, dynamic> response) {
+    // ECL-01 gate (hotfix 2026-06-12): at most ONE Premier Éclairage card per
+    // conversation. Once delivered, never render another — guards against the
+    // backend (re)emitting `response['eclairage']` on later turns and against
+    // the seed fallback below firing on every turn in walker / pinned-seed
+    // builds.
+    if (_eclairageDelivered) return null;
+
     final raw = response['eclairage'];
     final rawMap = raw is Map<String, dynamic>
         ? raw
@@ -522,29 +558,16 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   }
                   final msg = _messages[index];
                   final isOpener = index == 0 && _openerShown;
-                  // Phase 72: render the bubble + (optionally) the
-                  // EclairageCard immediately below it when this coach
-                  // message delivered an `eclairage` payload.
-                  final bubble = _buildMessageBubble(msg, isOpener: isOpener);
-                  if (msg.eclairage == null) {
-                    return bubble;
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      bubble,
-                      EclairageCard(payload: <String, dynamic>{
-                        'kind': msg.eclairage!.kind.wireName,
-                        'headline': msg.eclairage!.headline,
-                        'body': msg.eclairage!.body,
-                        'chf_range_low': msg.eclairage!.chfRangeLow,
-                        'chf_range_high': msg.eclairage!.chfRangeHigh,
-                        'chf_range_period': msg.eclairage!.chfRangePeriod,
-                        'soft_account_hint': msg.eclairage!.softAccountHint,
-                        'lsfin_disclaimer': msg.eclairage!.lsfinDisclaimer,
-                      }),
-                    ],
-                  );
+                  // Phase 72: [_buildMessageBubble] already renders the
+                  // EclairageCard immediately below the coach bubble when this
+                  // message carries an `eclairage` payload (see the
+                  // `message.eclairage != null` branch there). The ListView
+                  // itemBuilder previously ALSO wrapped the bubble in a Column
+                  // and re-rendered a second EclairageCard — producing TWO
+                  // identical cards per turn (device bug, hotfix 2026-06-12).
+                  // Return the bubble directly; the card render lives in one
+                  // place only.
+                  return _buildMessageBubble(msg, isOpener: isOpener);
                 },
               ),
             ),
