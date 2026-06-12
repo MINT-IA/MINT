@@ -93,6 +93,26 @@ _REGISTRY: dict[str, ConceptPage] = {
             "retirer de l'argent de ta caisse",
             "récupérer ton argent du 2e pilier",
             "retrait anticipé de ta prévoyance",
+            # Codex grounding-stack review (fix_3a): verb families for the
+            # "take money OUT" inversion of a rachat (which is paying money IN).
+            # Multi-word + anchored to the 2e-pilier object so they NEVER match a
+            # canonical definition (the canonical rachat prose says "verser…
+            # dans ta caisse"). EPL's canonical "retrait anticipé du 2e pilier"
+            # stays clean because the rachat definiendum is not its subject AND
+            # these phrasings ("puiser dans ton avoir", "faire sortir … de ton
+            # avoir") never appear in EPL's curated text.
+            "puiser dans ton avoir",
+            "puiser dans ton capital",
+            "puiser dans ton 2e pilier",
+            "puiser dans ta caisse",
+            "faire sortir ton avoir",
+            "faire sortir une partie de ton avoir",
+            "faire sortir de l'argent de ta caisse",
+            "prélever sur ton avoir",
+            "prélever sur ton capital",
+            "prélever sur ton 2e pilier",
+            "toucher ton capital du 2e pilier",
+            "toucher à ton avoir",
         ),
         related=("rachat_deductibilite", "epl_blocage_3ans", "lacunes_prevoyance"),
     ),

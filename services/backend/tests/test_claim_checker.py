@@ -61,6 +61,42 @@ def test_rachat_canonical_is_not_flagged() -> None:
     )
 
 
+# ── Codex grounding-stack review (fix_3a): verb-family inversions ────────────
+# These probes PASSED the marker lexicon before the fix. They are now in the
+# rachat-lpp fixture (so the fixture-driven tests below also exercise them) and
+# pinned here explicitly as the RED→GREEN proof. The canonical EPL definition
+# ("retrait anticipé du 2e pilier") must STILL pass (no false positive).
+_VERB_FAMILY_INVERSIONS = [
+    "Un rachat LPP, c'est puiser dans ton avoir du deuxième pilier.",
+    "Faire un rachat LPP, c'est faire sortir une partie de ton avoir du 2e pilier.",
+    "Un rachat LPP, c'est prélever sur ton capital du 2e pilier.",
+    "Un rachat LPP te permet de toucher ton capital du 2e pilier.",
+]
+
+
+@pytest.mark.parametrize("text", _VERB_FAMILY_INVERSIONS)
+def test_verb_family_inversion_is_flagged(text: str) -> None:
+    violations = check_claims(text)
+    assert violations, f"verb-family inversion not caught: {text!r}"
+    assert any(v.concept_key == "rachat_lpp" for v in violations), (
+        f"flagged but not attributed to rachat_lpp: "
+        f"{[v.concept_key for v in violations]}"
+    )
+
+
+def test_epl_canonical_retrait_anticipe_still_passes() -> None:
+    # Canonical false-positive guard: EPL legitimately IS a "retrait anticipé du
+    # 2e pilier" — broadening rachat markers must not flag it.
+    violations = check_claims(
+        "L'EPL, c'est un retrait anticipé du 2e pilier pour devenir "
+        "propriétaire de ton logement principal."
+    )
+    assert not violations, (
+        f"FALSE POSITIVE — EPL canonical flagged: "
+        f"{[(v.concept_key, v.matched_inversion) for v in violations]}"
+    )
+
+
 # ── Fixture-driven: every inversion flagged, every canonical clean ───────────
 @pytest.mark.parametrize("case", CASES, ids=CASE_IDS)
 def test_every_inversion_is_flagged(case: dict) -> None:
