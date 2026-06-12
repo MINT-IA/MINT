@@ -54,7 +54,7 @@ Plans:
 
 ### Phase: mint-grounded-coach-m1
 **Goal**: M1 de la refondation lucidity-spine ([decisions/2026-06-12-refondation-lucidity-spine.md](decisions/2026-06-12-refondation-lucidity-spine.md)) : (A) blindage compliance périmètre éducation stricte — sorties d'arbitrage en comparaisons de scénarios, gardes prescriptives bloquantes, cohérence prompt↔code ; (B) grounding des claims — registre de concepts suisses + `explain_concept` forcé, claim-checker à détection d'inversions (fixture rachat-inversion RED d'abord), `show_fact_card` gated, gates dark activés-ou-supprimés, `coach_reasoner` câblé-ou-supprimé ; (C) `save_fact` → retour mobile + corrections domaine (réf. AVS femmes 64.5/2026, prose 79b post-arrêts TF 02.2026).
-**Status**: 📋 Planned — opened 2026-06-12. Périmètre compliance tranché par le fondateur (éducation stricte, bulletproof).
+**Status**: ✅ executed + gate passed 2026-06-12 — 8/8 plans, revue Codex adversariale (3 P1 + 3 P2 fermés), walkthrough persona de clôture sur staging `6a07753ee` : ZÉRO P1 périmètre coach, WTF-W1-01 (inversion rachat) fermé device sur les 2 surfaces ([rapport](phases/mint-grounded-coach-m1/mint-grounded-coach-m1-VERIFICATION-REPORT.html)). Résiduels hors-coach : P2 taux remplacement 33/44 (→ M2 spine), P2 overflow, P3 accent. save_fact echo device NOT-RUN (limite outillage, 35 tests unitaires verts).
 **Depends on**: état des lieux 2026-06-12 (rapports 01-06) ; phase mint-illogism-fixes (exécutée).
 **Acceptance**: fixtures inversions vertes en CI (après RED prouvé) ; zéro sortie prescriptive non bloquée ; walkthrough persona sim sans P1 sur surfaces coach ; suites mobile+backend vertes.
 **Plans**: TBD (planner)
