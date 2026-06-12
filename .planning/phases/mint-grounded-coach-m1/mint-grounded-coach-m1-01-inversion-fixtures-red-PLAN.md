@@ -65,6 +65,15 @@ Ground truth for the rachat assertion (audit 01 §HOLE-1, W1-cadre-50 WTF-W1-01)
 - CANONICAL: "un rachat LPP = verser de l'argent DANS la caisse (déductible, LPP art. 79b)"
 - KNOWN INVERSION (must be detected as wrong): any sentence asserting rachat = "retirer",
   "retrait", "sortir", "récupérer" son capital / argent du 2e pilier.
+
+FIXTURE-STRING HYGIENE (load-bearing for the RED proof — plan-check fix):
+- Every fixture string (question_fr, canonical_relation_fr, known_inversions,
+  forbidden_substrings, and any synthetic test sentence built from them) must contain NO
+  ComplianceGuard L1 banned term (BANNED_TERMS, compliance_guard.py:43-117, incl. the
+  "certain"-guarantee patterns) and NO L2 prescriptive pattern (PRESCRIPTIVE_PATTERNS,
+  compliance_guard.py:238-276). Rationale: Plan 02 makes L1/L2 blocking; a fixture string
+  that trips L1/L2 would be blocked for the WRONG reason, flipping the xfail-strict cases
+  to XPASS and breaking the suite. The RED proof must isolate the DEFINITIONAL hole only.
 </interfaces>
 </context>
 
@@ -85,12 +94,15 @@ Ground truth for the rachat assertion (audit 01 §HOLE-1, W1-cadre-50 WTF-W1-01)
       and ≥1 plausible inversion an LLM could emit.
     - Each line schema: {"id","concept_key","question_fr","canonical_relation_fr",
       "known_inversions":[...],"forbidden_substrings":[...]} — deterministic, no LLM-judge fields.
+    - Fixture-string hygiene (see interfaces): NO L1 banned term, NO L2 prescriptive
+      pattern in ANY fixture string — guaranteed by construction, so Plan 02's hardening
+      cannot flip the xfail-strict cases to XPASS.
   </behavior>
-  <action>Create the JSONL fixture mirroring the line-per-case format of citation_gate_eval_50.jsonl. forbidden_substrings is the deterministic scorer hook: substrings that, if present in coach output for that question, prove an inversion (e.g. for rachat: "retirer ton capital", "retrait du 2e pilier"). All strings FR with correct accents (per CLAUDE.md rule 2). No banned LSFin terms in canonical strings (per CLAUDE.md rule 1 / 5).</action>
+  <action>Create the JSONL fixture mirroring the line-per-case format of citation_gate_eval_50.jsonl. forbidden_substrings is the deterministic scorer hook: substrings that, if present in coach output for that question, prove an inversion (e.g. for rachat: "retirer ton capital", "retrait du 2e pilier"). All strings FR with correct accents (per CLAUDE.md rule 2). No banned LSFin terms in canonical strings (per CLAUDE.md rule 1 / 5). While authoring, run every fixture string through ComplianceGuard._check_banned_terms and _check_prescriptive and rewrite any string that trips them — the inversion must be expressible in guard-neutral French (e.g. "un rachat c'est retirer ton capital" trips neither L1 nor L2).</action>
   <verify>
     <automated>cd services/backend && python3 -c "import json,pathlib; ls=[json.loads(l) for l in pathlib.Path('tests/fixtures/inversions_eval.jsonl').read_text().splitlines() if l.strip()]; assert len(ls)>=15, len(ls); assert any(c['concept_key']=='rachat_lpp' for c in ls); assert all({'id','concept_key','question_fr','canonical_relation_fr','known_inversions','forbidden_substrings'} <= set(c) for c in ls); print('OK', len(ls))"</automated>
   </verify>
-  <done>≥15 valid JSONL cases load; rachat_lpp case present; schema complete on every line.</done>
+  <done>≥15 valid JSONL cases load; rachat_lpp case present; schema complete on every line; every fixture string guard-neutral (no L1/L2 hit).</done>
 </task>
 
 <task type="auto" tdd="true">
@@ -102,6 +114,12 @@ Ground truth for the rachat assertion (audit 01 §HOLE-1, W1-cadre-50 WTF-W1-01)
       deterministic inversion-scorer (substring-based, no LLM judge — per CLAUDE.md §9).
     - The scorer FAILS a case when an output containing a known forbidden_substring is NOT
       flagged by any guard layer (proving the hole). It PASSES when the inversion is caught.
+    - Tests are PER-CASE parametrized (pytest.mark.parametrize over the fixture ids) so each
+      inversion case is an individually reported test item.
+    - A dedicated HYGIENE self-test asserts, per fixture string, that
+      ComplianceGuard._check_banned_terms and _check_prescriptive return NO hit on the
+      fixture strings themselves — guaranteeing the xfail RED proof isolates the
+      definitional hole and that Plan 02's L1/L2 hardening cannot flip cases to XPASS.
     - Includes one test parametrized over the fixtures that feeds each case's
       known-inversion text through ComplianceGuard.validate() and asserts (TODAY, RED) that
       the guard returns is_compliant=True / use_fallback=False on an inverted definition —
@@ -110,11 +128,11 @@ Ground truth for the rachat assertion (audit 01 §HOLE-1, W1-cadre-50 WTF-W1-01)
       asserts the guard SHOULD block the inversion. It is xfail-strict now (RED proof) and
       flips to passing once Plan 04 wires the claim-checker into ComplianceGuard.
   </behavior>
-  <action>Use pytest.mark.xfail(strict=True, reason="RED proof — claim-checker not yet wired, Plan 04 flips this") on the "should be blocked" test so CI is GREEN today (xfail counts as expected) while the artifact records the deterministic RED proof. Do NOT call the live Anthropic API — feed the fixture's known-inversion string directly into ComplianceGuard.validate() as if it were LLM output. This isolates the guard hole deterministically and runs in <5s. Capture the RED proof in the SUMMARY by pasting the `pytest -rx` xfail line showing test_inversions_are_blocked XFAIL.</action>
+  <action>Use pytest.mark.xfail(strict=True, reason="RED proof — claim-checker not yet wired, Plan 04 flips this") on the "should be blocked" test so CI is GREEN today (xfail counts as expected) while the artifact records the deterministic RED proof. Parametrize per fixture id. Add the hygiene self-test (every fixture string guard-neutral on L1/L2). Do NOT call the live Anthropic API — feed the fixture's known-inversion string directly into ComplianceGuard.validate() as if it were LLM output. This isolates the guard hole deterministically and runs in <5s. Capture the RED proof in the SUMMARY by pasting the `pytest -rx` xfail line showing test_inversions_are_blocked XFAIL.</action>
   <verify>
     <automated>cd services/backend && python3 -m pytest tests/test_coach_claim_inversions.py -q -rx 2>&1 | tail -20</automated>
   </verify>
-  <done>Suite is GREEN (xfail-strict records the RED proof); `pytest -rx` shows test_inversions_are_blocked as XFAIL with the rachat inversion in the report. The committed test is the deterministic artifact CONTEXT decision 3 requires.</done>
+  <done>Suite is GREEN (xfail-strict records the RED proof); `pytest -rx` shows test_inversions_are_blocked as XFAIL with the rachat inversion in the report; the hygiene self-test passes per fixture string. The committed test is the deterministic artifact CONTEXT decision 3 requires.</done>
 </task>
 
 </tasks>
@@ -137,11 +155,13 @@ Ground truth for the rachat assertion (audit 01 §HOLE-1, W1-cadre-50 WTF-W1-01)
 <verification>
 - `cd services/backend && python3 -m pytest tests/test_coach_claim_inversions.py -q` exits 0 (xfail-strict GREEN).
 - The xfail report names the rachat inversion (deterministic RED proof captured in SUMMARY).
+- The hygiene self-test (fixture strings guard-neutral on L1/L2) passes.
 - No production code modified in this plan (test + fixture only) — `git diff --name-only` lists only the two files under tests/.
 </verification>
 
 <success_criteria>
-The inversion fixture set exists (≥15 cases incl. rachat_lpp), the deterministic scorer
+The inversion fixture set exists (≥15 cases incl. rachat_lpp, every string guard-neutral on
+L1/L2 by construction and by self-test), the deterministic per-case-parametrized scorer
 records the guard's definitional blind spot as a strict-xfail RED proof, and the suite is
 GREEN so it can be wired into CI now and flipped to a hard pass by Plan 04.
 </success_criteria>

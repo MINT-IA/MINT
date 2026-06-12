@@ -17,7 +17,7 @@ requirements: [WS-B]
 must_haves:
   truths:
     - "An explain_concept tool returns the curated registry page for a concept (no LLM paraphrase)"
-    - "A definition-intent question forces tool_choice to explain_concept on the AUTHENTICATED surface"
+    - "A definition-intent question forces tool_choice to explain_concept on the AUTHENTICATED surface — first LLM call of the turn only"
     - "show_fact_card content/source are validated against the concept registry before render"
   artifacts:
     - path: "services/backend/app/services/coach/coach_tools.py"
@@ -26,7 +26,7 @@ must_haves:
   key_links:
     - from: "coach_chat.py intent classifier"
       to: "tool_choice explain_concept"
-      via: "forced tool on definition intent"
+      via: "forced tool on definition intent (first call only)"
       pattern: "explain_concept"
     - from: "show_fact_card handler"
       to: "concept_registry"
@@ -63,15 +63,24 @@ Exact anchors (read in context — do NOT re-explore):
 - anonymous_chat.py:204-208 — the pattern to generalise:
     tool_choice = {"type":"tool","name":"get_regulatory_constant"} if force_tool else {"type":"auto"}
   driven by a finance-keyword regex at :183-187. Generalise to intent-forcing explain_concept.
+  NOTE the loop shape of that pattern: the FORCE applies to the FIRST LLM call only; the
+  follow-up call (with the tool_result) runs unforced so the model can produce the final
+  text answer ("force turn 1, answer turn 2").
 - llm_client.py:227 — authenticated path hardcodes tool_choice {"type":"auto", ...}. This is
   where the forced-tool decision must be threadable (pass tool_choice through, defaulting to
   auto, so coach_chat can force explain_concept on definition intent).
 - coach_chat.py:1868 _classify_user_intent(message) -> set[str] — existing intent classifier
   on the authenticated surface. Add/derive a "definition_request" intent (concept definiendum
   from CONCEPT_REGISTRY present + interrogative pattern "c'est quoi", "qu'est-ce que",
-  "explique"). When detected, force tool_choice explain_concept for that turn.
+  "explique"). When detected, force tool_choice explain_concept for that turn's FIRST call.
 - coach_chat.py:4699 detected_intents = _classify_user_intent(...) — where intents are
   already consumed; thread the forced tool_choice from here.
+- FIRST-CALL-ONLY CONSTRAINT (plan-check blocker fix): the forced
+  {"type":"tool","name":"explain_concept"} tool_choice applies ONLY to the FIRST LLM call of
+  the turn. Subsequent agent-loop iterations (the loop is capped by
+  MAX_AGENT_LOOP_ITERATIONS=4) MUST revert to {"type":"auto"} — otherwise every iteration is
+  forced to call the tool again and the loop can never emit the final text answer. This
+  mirrors the anonymous_chat.py shape exactly (force turn 1, answer turn 2).
 - coach_tools.py COACH_TOOLS list (starts :126) — add the explain_concept tool definition
   (input: concept_key enum over the registry keys). Handler returns the registry page
   (canonical_fr + source) — backend-handled, fed back as tool_result (like get_regulatory_constant).
@@ -107,22 +116,25 @@ Exact anchors (read in context — do NOT re-explore):
 </task>
 
 <task type="auto" tdd="true">
-  <name>Task 2: Force explain_concept on definition intent (authenticated surface)</name>
+  <name>Task 2: Force explain_concept on definition intent (authenticated surface, first call only)</name>
   <files>services/backend/app/api/v1/endpoints/coach_chat.py, services/backend/app/services/rag/llm_client.py, services/backend/app/services/coach/claude_coach_service.py, services/backend/tests/test_coach_chat_intent_force.py</files>
   <behavior>
     - A "c'est quoi un rachat" style message (registry definiendum + interrogative) causes
       the authenticated path to set tool_choice {"type":"tool","name":"explain_concept"} for
-      that turn (generalising the anonymous_chat.py:204 pattern).
-    - A non-definition message leaves tool_choice at auto (no regression to save_fact /
-      route_to_screen flows).
+      the FIRST LLM call of that turn (generalising the anonymous_chat.py:204 pattern).
+    - FIRST-CALL-ONLY: subsequent agent-loop iterations (MAX_AGENT_LOOP_ITERATIONS=4) revert
+      to {"type":"auto"} — mirroring the anonymous pattern (force turn 1, answer turn 2) —
+      so the loop terminates with a final text answer after the explain_concept tool_result.
+    - A non-definition message leaves tool_choice at auto on every call (no regression to
+      save_fact / route_to_screen flows).
     - The CONNAISSANCES SUISSES directive (claude_coach_service.py:740) instructs the LLM to
       DEFINE regulated concepts only via explain_concept, never from memory.
   </behavior>
-  <action>Thread a tool_choice override through llm_client.generate (replace the hardcoded :227 with a parameter defaulting to auto). In coach_chat.py, extend _classify_user_intent (:1868) to detect a definition_request intent (registry definiendum + "c'est quoi/qu'est-ce que/explique"); where intents are consumed (:4699 region) compute the forced tool_choice and pass it to the LLM call. Tighten the claude_coach_service.py:740 directive prose (neutral language, correct accents, no banned terms). Write test_coach_chat_intent_force.py: definition message → forced explain_concept; chitchat → auto; existing save_fact path unaffected (assert tool_choice stays auto for a fact-declaration message).</action>
+  <action>Thread a tool_choice override through llm_client.generate (replace the hardcoded :227 with a parameter defaulting to auto). In coach_chat.py, extend _classify_user_intent (:1868) to detect a definition_request intent (registry definiendum + "c'est quoi/qu'est-ce que/explique"); where intents are consumed (:4699 region) compute the forced tool_choice and pass it to the FIRST LLM call ONLY — the agent loop's follow-up iterations after the tool_result revert to auto. Tighten the claude_coach_service.py:740 directive prose (neutral language, correct accents, no banned terms). Write test_coach_chat_intent_force.py: definition message → first call forced explain_concept AND second/loop calls auto AND the loop TERMINATES with a text answer after the tool_result; chitchat → auto on all calls; existing save_fact path unaffected (assert tool_choice stays auto for a fact-declaration message).</action>
   <verify>
     <automated>cd services/backend && python3 -m pytest tests/test_coach_chat_intent_force.py -q 2>&1 | tail -12</automated>
   </verify>
-  <done>Definition intent forces explain_concept on authenticated surface; non-definition stays auto; directive tightened; test green.</done>
+  <done>Definition intent forces explain_concept on the FIRST call only; loop iterations revert to auto and terminate with a text answer after the tool_result; non-definition stays auto; directive tightened; test green.</done>
 </task>
 
 <task type="auto" tdd="true">
@@ -166,23 +178,25 @@ Exact anchors (read in context — do NOT re-explore):
 
 | Threat ID | Category | Component | Disposition | Mitigation Plan |
 |-----------|----------|-----------|-------------|-----------------|
-| T-m1-05-01 | Information disclosure | tool_choice=auto on definitions | mitigate | Force explain_concept on definition intent (authenticated surface) |
+| T-m1-05-01 | Information disclosure | tool_choice=auto on definitions | mitigate | Force explain_concept on definition intent (authenticated surface, first call of the turn) |
 | T-m1-05-02 | Spoofing | show_fact_card fabricated source | mitigate | Validate card content via claim_checker; force registry source |
+| T-m1-05-03 | Denial of service (loop never answers) | forced tool_choice on every loop iteration | mitigate | First-call-only force; iterations 2..MAX_AGENT_LOOP_ITERATIONS revert to auto; termination test |
 | T-m1-05-SC | Tampering | pip installs | accept | No new packages; existing SDK + pytest |
 </threat_model>
 
 <verification>
 - `grep -n "explain_concept" services/backend/app/services/coach/coach_tools.py` shows the tool definition.
-- `grep -n "explain_concept" services/backend/app/api/v1/endpoints/coach_chat.py` shows the forced-tool wiring.
+- `grep -n "explain_concept" services/backend/app/api/v1/endpoints/coach_chat.py` shows the forced-tool wiring (first call only).
 - `grep -c "auto" services/backend/app/services/rag/llm_client.py` confirms tool_choice is now parameterised (not hardcoded auto-only).
+- The intent-force test asserts loop termination with a text answer after the tool_result.
 - `cd services/backend && python3 -m pytest tests/ -q` exits 0.
 </verification>
 
 <success_criteria>
 explain_concept returns curated registry pages, definition-intent questions force that tool
-on the authenticated surface, show_fact_card content/source are validated/repaired against
-the registry, the CONNAISSANCES directive routes definitions through the tool, and the full
-backend suite is green.
+on the FIRST LLM call of the turn (loop iterations revert to auto and terminate with a text
+answer), show_fact_card content/source are validated/repaired against the registry, the
+CONNAISSANCES directive routes definitions through the tool, and the full backend suite is green.
 </success_criteria>
 
 <output>

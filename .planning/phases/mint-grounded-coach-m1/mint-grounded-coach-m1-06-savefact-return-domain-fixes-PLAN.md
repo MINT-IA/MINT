@@ -8,18 +8,21 @@ depends_on:
 files_modified:
   - services/backend/app/api/v1/endpoints/coach_chat.py
   - services/backend/app/services/regulatory/registry.py
-  - apps/mobile/lib/widgets/coach/widget_renderer.dart
+  - apps/mobile/lib/providers/coach_profile_provider.dart
   - apps/mobile/lib/models/coach_profile.dart
+  # plus the mobile chat tool_calls processing file (controller/service consuming
+  # flutter tool_calls) — located by the executor in Task 3; NOT widget_renderer's
+  # build switch (plan-check re-anchor).
   - services/backend/tests/test_coach_chat_savefact_return.py
   - services/backend/tests/test_registry_avs_age.py
-  - apps/mobile/test/widgets/coach/savefact_echo_test.dart
+  - apps/mobile/test/services/coach/savefact_echo_test.dart
 autonomous: true
 requirements: [WS-D]
 must_haves:
   truths:
     - "A fact extracted in chat is echoed back to the mobile client so the local profile can update"
     - "avs.reference_age_women is 64.5 for 2026 (transition value), not the AVS21 endpoint 65"
-    - "The mobile widget_renderer applies the save_fact echo to the local CoachProfile"
+    - "The mobile tool_calls processing applies the save_fact echo to the local CoachProfile via the provider write path"
   artifacts:
     - path: "services/backend/app/services/regulatory/registry.py"
       provides: "Correct 2026 AVS women reference age"
@@ -29,10 +32,10 @@ must_haves:
       to: "flutter_tool_calls echo"
       via: "value returned to mobile"
       pattern: "save_fact"
-    - from: "widget_renderer.dart"
-      to: "CoachProfile update"
-      via: "save_fact echo case"
-      pattern: "save_fact"
+    - from: "mobile chat tool_calls processing"
+      to: "CoachProfileProvider write path"
+      via: "fact_saved echo apply"
+      pattern: "fact_saved"
 ---
 
 <objective>
@@ -62,19 +65,25 @@ Output: save_fact echo path + mobile apply + AVS age fix; backend + mobile suite
 
 <interfaces>
 Exact anchors (read in context — do NOT re-explore):
-- coach_chat.py:104 INTERNAL_TOOL_NAMES includes "save_fact" → it is filtered from
-  flutter_tool_calls at :4314-4362, so the value never reaches mobile. The minimal fix is
-  NOT to make save_fact a normal external tool (it still persists internally) but to ADD a
-  lightweight echo: when _persist_extracted_fact (coach_chat.py:2380) succeeds, append a
-  forward-safe echo entry to flutter_tool_calls (e.g. a "fact_saved" confirmation carrying
-  {key, value}) so the mobile can update its local store. Keep the internal persistence.
+- coach_tools.py:104 INTERNAL_TOOL_NAMES includes "save_fact" (imported by coach_chat.py:101)
+  → it is filtered from flutter_tool_calls at coach_chat.py:4314-4362, so the value never
+  reaches mobile. The minimal fix is NOT to make save_fact a normal external tool (it still
+  persists internally) but to ADD a lightweight echo: when _persist_extracted_fact
+  (coach_chat.py:2380) succeeds, append a forward-safe echo entry to flutter_tool_calls
+  (e.g. a "fact_saved" confirmation carrying {key, value}) so the mobile can update its
+  local store. Keep the internal persistence.
 - coach_chat.py:2380 _persist_extracted_fact(...) returns ok bool (:2630). The whitelist of
   echo-able keys must match the existing persist whitelist (coach_chat.py:2099 region) — do
   NOT echo PII beyond the already-persisted profile fields. Privacy: unknown fields dropped.
-- widget_renderer.dart:62-81 switch — add a case for the echo tool name ("fact_saved") that
-  updates CoachProfileProvider/CoachProfile with the {key,value}. The field-key mapping
-  already exists at widget_renderer.dart:345-431 (name/age/salaireBrut/avoirLpp/epargne3a/
-  canton/...). Reuse it — do not invent a parallel mapping.
+- MOBILE APPLY PATH (plan-check re-anchor): widget_renderer.dart:345-431 is
+  `_buildInputRequest` — the field→input-picker mapping for ask_user_input (a UI mapping),
+  NOT a value-apply path. The save_fact echo must NOT be applied inside widget_renderer's
+  build switch (no profile write inside a build method). Apply the echo where the chat
+  tool_calls are PROCESSED: the chat controller path (the same layer that handles
+  onInputSubmitted) writing through the CoachProfileProvider write path
+  (apps/mobile/lib/providers/coach_profile_provider.dart:45), REUSING the field-name
+  correspondence that `_buildInputRequest` encodes (age/salaireBrut/avoirLpp/epargne3a/
+  canton/...) — extract/share that correspondence, do not invent a parallel mapping.
 - coach_profile.dart — CoachProfile is the local SecureStorage model the screens read.
   Update via the existing provider write path (do not add a new store).
 - registry.py:502-512 avs.reference_age_women value=65.0 → 64.5. Update the value and the
@@ -113,7 +122,7 @@ card (audit 04 §3.d) is M2 — here the echo updates the local store directly (
     - save_fact still persists internally (no behaviour removed) — the echo is additive.
     - Non-whitelisted / PII keys are NOT echoed (privacy parity with the persist whitelist).
   </behavior>
-  <action>In coach_chat.py, after a successful _persist_extracted_fact (:2592/:2630 paths), append a "fact_saved" echo to flutter_tool_calls with the same key/value, gated by the existing persist whitelist (:2099 region). Keep save_fact in INTERNAL_TOOL_NAMES (internal persistence intact) — the echo is a separate forward-safe confirmation entry, not un-internalising save_fact. Write test_coach_chat_savefact_return.py: a declared age yields a fact_saved echo with {age, value} in tool_calls; a non-whitelisted field is not echoed; internal persistence still occurs.</action>
+  <action>In coach_chat.py, after a successful _persist_extracted_fact (:2592/:2630 paths), append a "fact_saved" echo to flutter_tool_calls with the same key/value, gated by the existing persist whitelist (:2099 region). Keep save_fact in INTERNAL_TOOL_NAMES (coach_tools.py:104 — internal persistence intact); the echo is a separate forward-safe confirmation entry, not un-internalising save_fact. Write test_coach_chat_savefact_return.py: a declared age yields a fact_saved echo with {age, value} in tool_calls; a non-whitelisted field is not echoed; internal persistence still occurs.</action>
   <verify>
     <automated>cd services/backend && python3 -m pytest tests/test_coach_chat_savefact_return.py -q 2>&1 | tail -10</automated>
   </verify>
@@ -121,20 +130,26 @@ card (audit 04 §3.d) is M2 — here the echo updates the local store directly (
 </task>
 
 <task type="auto" tdd="true">
-  <name>Task 3: Apply the echo to the local CoachProfile (mobile)</name>
-  <files>apps/mobile/lib/widgets/coach/widget_renderer.dart, apps/mobile/lib/models/coach_profile.dart, apps/mobile/test/widgets/coach/savefact_echo_test.dart</files>
+  <name>Task 3: Apply the echo via the CoachProfileProvider write path (mobile)</name>
+  <files>apps/mobile/lib/providers/coach_profile_provider.dart, apps/mobile/lib/models/coach_profile.dart, apps/mobile/test/services/coach/savefact_echo_test.dart</files>
   <behavior>
-    - widget_renderer handles the "fact_saved" echo: it maps {key,value} via the existing
-      field-key mapping (:345-431) and updates the local CoachProfile through the provider.
+    - The mobile chat tool_calls PROCESSING (the controller layer that consumes the backend
+      response's tool_calls — same layer as onInputSubmitted handling) handles the
+      "fact_saved" echo: it maps {key,value} via the field-name correspondence already
+      encoded in widget_renderer's _buildInputRequest (age/salaireBrut/avoirLpp/epargne3a/
+      canton/...) and writes through the CoachProfileProvider write path
+      (coach_profile_provider.dart:45).
+    - NO profile write happens inside widget_renderer's build switch (re-anchor per
+      plan-check: :345-431 is a UI input-picker mapping, not a value-apply path).
     - An age echo of "50" updates the local profile age to 50 (the W1 WTF-W1-04 fix: what
       Marc tells the coach now feeds the profile the simulators read).
     - An unknown key is ignored (no crash).
   </behavior>
-  <action>Add a "fact_saved" case to the widget_renderer.dart:62 switch that reuses the existing field-key mapping to write to CoachProfile via the provider. Do not add a new store; route through the existing SecureStorage write. Write savefact_echo_test.dart: age echo updates profile, unknown key no-ops, no new hardcoded user-facing string introduced (if a confirmation string is shown, it must use AppLocalizations — CLAUDE.md rule 5).</action>
+  <action>Locate the chat controller/service that processes the backend tool_calls (the layer that routes calls to widget_renderer and handles onInputSubmitted) and add the "fact_saved" handling there: map {key,value} reusing (extracting/sharing, not duplicating) the field-name correspondence from _buildInputRequest, then write via CoachProfileProvider (coach_profile_provider.dart:45) so the existing SecureStorage path persists it. Do NOT add a new store and do NOT write the profile from widget_renderer's build switch. Write savefact_echo_test.dart: age echo updates profile through the provider, unknown key no-ops, no new hardcoded user-facing string introduced (if a confirmation string is shown, it must use AppLocalizations — CLAUDE.md rule 5).</action>
   <verify>
-    <automated>cd apps/mobile && flutter test test/widgets/coach/savefact_echo_test.dart 2>&1 | tail -12</automated>
+    <automated>cd apps/mobile && flutter test test/services/coach/savefact_echo_test.dart 2>&1 | tail -12</automated>
   </verify>
-  <done>Echo updates local CoachProfile; chat-stated age now reaches the profile store; test green.</done>
+  <done>Echo applied in the tool_calls processing layer via the provider write path; chat-stated age reaches the profile store; no build-switch profile write; test green.</done>
 </task>
 
 <task type="auto">
@@ -168,14 +183,15 @@ card (audit 04 §3.d) is M2 — here the echo updates the local store directly (
 <verification>
 - `grep -n "reference_age_women" services/backend/app/services/regulatory/registry.py` then confirm value 64.5.
 - `grep -n "fact_saved\|save_fact" services/backend/app/api/v1/endpoints/coach_chat.py` shows the echo append.
-- `grep -n "fact_saved" apps/mobile/lib/widgets/coach/widget_renderer.dart` shows the apply case.
-- `cd services/backend && python3 -m pytest tests/ -q` exits 0; `cd apps/mobile && flutter test test/widgets/coach/savefact_echo_test.dart` exits 0.
+- `grep -rn "fact_saved" apps/mobile/lib` shows the apply in the chat tool_calls processing layer + provider write path — and NO hit inside widget_renderer's build switch.
+- `cd services/backend && python3 -m pytest tests/ -q` exits 0; `cd apps/mobile && flutter test test/services/coach/savefact_echo_test.dart` exits 0.
 </verification>
 
 <success_criteria>
-A fact stated in chat is echoed to the mobile client and updates the local CoachProfile, the
-AVS women reference age is 64.5 for 2026, no PII is over-echoed, and backend + mobile suites
-are green — without any event-log cutover (M2 scope preserved).
+A fact stated in chat is echoed to the mobile client and applied through the
+CoachProfileProvider write path (never inside a build method), the AVS women reference age
+is 64.5 for 2026, no PII is over-echoed, and backend + mobile suites are green — without any
+event-log cutover (M2 scope preserved).
 </success_criteria>
 
 <output>

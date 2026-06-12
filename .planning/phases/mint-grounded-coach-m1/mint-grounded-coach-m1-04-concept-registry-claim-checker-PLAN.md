@@ -12,6 +12,7 @@ files_modified:
   - services/backend/app/services/coach/compliance_guard.py
   - services/backend/tests/test_concept_registry.py
   - services/backend/tests/test_claim_checker.py
+  - services/backend/tests/test_coach_claim_inversions.py
 autonomous: true
 requirements: [WS-B, WS-E]
 must_haves:
@@ -77,7 +78,8 @@ Existing patterns to mirror (read in context — do NOT re-explore):
   set MUST be a superset of the fixture concept_keys so every fixture maps to a page.
 - test_coach_claim_inversions.py (Plan 01) has test_inversions_are_blocked as xfail-strict.
   After this plan, that xfail must FLIP: it now PASSES because ComplianceGuard blocks the
-  inversion. Remove the xfail marker as part of this plan's Task 3.
+  inversion. Remove the xfail marker as part of this plan's Task 3 (the file is therefore in
+  this plan's files_modified).
 
 Concept set (CONTEXT WS-B "top ~50", start with the P0 closed-world set, ≥15 to cover all
 Plan 01 fixtures): rachat_lpp, epl, splitting_avs, bonifications_lpp, pilier_3a, pilier_3b,
@@ -132,7 +134,7 @@ Each page: canonical definition FR (correct accents, no banned terms), legal sou
 
 <task type="auto" tdd="true">
   <name>Task 3: Wire claim-checker into ComplianceGuard + flip Plan 01 xfail</name>
-  <files>services/backend/app/services/coach/compliance_guard.py, services/backend/tests/test_claim_checker.py</files>
+  <files>services/backend/app/services/coach/compliance_guard.py, services/backend/tests/test_coach_claim_inversions.py, services/backend/tests/test_claim_checker.py</files>
   <behavior>
     - ComplianceGuard.validate() now runs check_claims as a blocking layer: a definitional
       inversion sets use_fallback=True with fallback_reasons "definition_inversion <key>".

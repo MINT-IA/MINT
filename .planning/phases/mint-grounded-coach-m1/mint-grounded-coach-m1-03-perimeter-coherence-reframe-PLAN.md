@@ -67,9 +67,12 @@ Exact anchors (read in context — do NOT re-explore):
   un rachat" is narrowed. Widen per audit 01 DET-2 / TF 26.02.2026: the 3-year block applies
   to EVERY capital withdrawal (retraite, départ de Suisse, indépendant, EPL) and freezes the
   ENTIRE retirement capital, not only the rachat amount.
-- get_couple_optimization tool: coach_tools.py:67 (name) + :715 (definition). Reframe its
-  description so the LLM presents it as a comparison of couple scenarios with stated
-  assumptions, never "for your couple, lever A beats lever B".
+- get_couple_optimization tool: coach_tools.py:67 (name) + :715 (definition).
+  STALE-PREMISE CORRECTION (plan-check fix): the :715 description ALREADY states
+  « sans ranking » — it is partially education-framed today. The target of Task 2 is the
+  RESIDUAL ranked-ish language in the description/descriptor strings (e.g. « l'ordre de
+  rachat LPP entre conjoints »), not a from-scratch reframe. The executor should expect a
+  SMALL diff, not a rewrite.
 - financial_core is L1 canonical (CLAUDE.md NEVER #3) — do NOT re-implement calculations,
   only reshape framing/ordering of the existing reasoner output.
 </interfaces>
@@ -98,21 +101,23 @@ Exact anchors (read in context — do NOT re-explore):
 </task>
 
 <task type="auto" tdd="true">
-  <name>Task 2: Reframe get_couple_optimization to educational comparison</name>
+  <name>Task 2: Clean residual ranked-ish language in get_couple_optimization</name>
   <files>services/backend/app/services/coach/coach_tools.py, services/backend/tests/test_coach_tools_couple_optimization.py</files>
   <behavior>
-    - The get_couple_optimization tool description (coach_tools.py:715 block) instructs the
-      LLM to present couple scenarios side-by-side with stated assumptions, never as a
-      personalised ranked recommendation.
-    - The tool's output framing (and any descriptor strings) contain no ranked-advice
-      language ("la meilleure répartition", "tu devrais…").
+    - PREMISE (corrected by plan-check): the get_couple_optimization description
+      (coach_tools.py:715 block) ALREADY says « sans ranking ». This task hunts and rewrites
+      the RESIDUAL ranked-ish phrasing only (e.g. « l'ordre de rachat LPP entre conjoints »)
+      in the description and any human-facing descriptor strings — expect a small diff.
+    - After the pass, the description/descriptors instruct the LLM to present couple
+      scenarios side-by-side with stated assumptions, with zero residual ranked/ordering
+      language ("l'ordre de…", "la meilleure répartition", "tu devrais…").
     - Existing numeric computation is unchanged (L2 backend-canonical — do not move calc).
   </behavior>
-  <action>Edit the get_couple_optimization tool definition description (coach_tools.py:715) and any human-facing descriptor so it is framed as an education-strict comparison: explicit assumptions, scenarios side-by-side, no "for your couple X beats Y". Do NOT change the numeric calculation. Update test_coach_tools_couple_optimization.py to assert the description carries education-strict comparison framing and no banned/ranked-advice substring.</action>
+  <action>Scan the get_couple_optimization definition (coach_tools.py:715) and its descriptor strings for residual ranked-ish/ordering language and rewrite only those fragments in education-strict comparison phrasing (explicit assumptions, scenarios side-by-side, no "for your couple X beats Y", no inter-spouse ordering claims). Do NOT rewrite the parts already education-framed (« sans ranking » stays). Do NOT change the numeric calculation. Update test_coach_tools_couple_optimization.py to assert the description carries education-strict comparison framing and no ranked-advice/ordering substring (incl. « l'ordre de »).</action>
   <verify>
     <automated>cd services/backend && python3 -m pytest tests/test_coach_tools_couple_optimization.py -q 2>&1 | tail -10</automated>
   </verify>
-  <done>Couple tool framed as educational comparison; test green; numerics untouched.</done>
+  <done>Residual ranked-ish language removed (small diff); « sans ranking » framing preserved; test green; numerics untouched.</done>
 </task>
 
 <task type="auto">
@@ -151,8 +156,9 @@ Exact anchors (read in context — do NOT re-explore):
 </verification>
 
 <success_criteria>
-The reasoner and couple-optimization outputs are education-strict scenario comparisons with
-explicit assumptions and no ranked-advice framing, the EPL/79b prose is widened to the
+The reasoner output is an education-strict scenario comparison with explicit assumptions and
+no ranked-advice framing, get_couple_optimization carries zero residual ranked-ish language
+(small-diff pass — « sans ranking » already present), the EPL/79b prose is widened to the
 TF 26.02.2026 rule, and mobile + backend touched suites are green.
 </success_criteria>
 

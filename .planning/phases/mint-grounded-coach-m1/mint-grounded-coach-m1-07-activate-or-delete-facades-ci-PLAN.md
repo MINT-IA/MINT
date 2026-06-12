@@ -73,11 +73,20 @@ Exact anchors (read in context — do NOT re-explore):
   production caller in the coach surface) OR remove it + its barrel export.
 
 DECISION GUIDANCE (this is a checkpoint:decision — surface the resolution, then execute):
+- MANDATORY DECISION INPUT (plan-check fix): before choosing to ACTIVATE the citation gate,
+  read the observed `fallback_reasons` counts recorded in the Plan 02 and Plan 04 SUMMARYs
+  (the structured fallback attribution logged by ComplianceGuard). Three stacked fail-closed
+  layers (Plan 02 blocking prescriptive/banned + Plan 04 claim-checker + an activated
+  citation gate) risk a fallback-rate spike — too many legitimate replies replaced by the
+  templated fallback — which would bounce the Plan 08 persona walkthrough. If the observed
+  fallback counts are already elevated, prefer REMOVE (or defer activation behind a staged
+  staging soak) over a third blocking layer.
 - Citation gate: with the claim-checker + education-strict gates now LIVE, the numeric
   citation gate is the smaller remaining surface. Recommended default: activate it on the
   authenticated narrator stage (flip the flag + keep the byte-identity test for the OFF path
-  as a rollback), OR remove the flag + dead branches if activation needs work beyond M1.
-  Pick ONE and make it true — do not leave it dark.
+  as a rollback), OR remove the flag + dead branches if activation needs work beyond M1 —
+  WEIGHED against the observed fallback_reasons counts above. Pick ONE and make it true —
+  do not leave it dark.
 - Dual-LLM + bundle compiler: recommended default REMOVE (out of M1 scope to activate;
   carrying them dark violates NEVER #6). Removal = delete flag + dead consumers + their
   dark-only tests, leaving the legacy single-LLM live path (which Plans 02/04/05 hardened).
@@ -91,25 +100,25 @@ DECISION GUIDANCE (this is a checkpoint:decision — surface the resolution, the
 
 <task type="checkpoint:decision" gate="blocking">
   <decision>For each dark gate (dual-LLM, bundle compiler, citation gate) and the unwired coach_reasoner: activate/wire or remove?</decision>
-  <context>CONTEXT decision 4 forbids leaving any of these as a flag-OFF façade. The education-strict gates + claim-checker are now live, so the citation gate's marginal value and the reasoner's role are decidable. This decision sets Task 1 and Task 2 scope.</context>
+  <context>CONTEXT decision 4 forbids leaving any of these as a flag-OFF façade. The education-strict gates + claim-checker are now live, so the citation gate's marginal value and the reasoner's role are decidable. MANDATORY INPUT (plan-check fix): the observed `fallback_reasons` counts from the Plan 02 and Plan 04 SUMMARYs MUST be weighed before activating the citation gate — three stacked fail-closed layers risk a fallback-rate spike that would bounce the Plan 08 walkthrough. This decision sets Task 1 and Task 2 scope.</context>
   <options>
     <option id="recommended">
-      <name>Citation gate ACTIVATE; dual-LLM + bundle compiler REMOVE; reasoner REMOVE (or thin-wire)</name>
+      <name>Citation gate ACTIVATE (only if Plan 02/04 fallback_reasons counts are low); dual-LLM + bundle compiler REMOVE; reasoner REMOVE (or thin-wire)</name>
       <pros>Ends all façades; smallest activation surface; keeps the hardened legacy live path; rollback via retained byte-identity test</pros>
-      <cons>Removing dual-LLM/bundle deletes prior phase scaffolding (intentional per NEVER #6)</cons>
+      <cons>Removing dual-LLM/bundle deletes prior phase scaffolding (intentional per NEVER #6); activation adds a third fail-closed layer — verify fallback counts first</cons>
     </option>
     <option id="activate-all">
       <name>Activate all three gates + wire reasoner</name>
       <pros>Maximum guard coverage live</pros>
-      <cons>Dual-LLM + bundle activation likely exceeds M1 context budget; risks regression breadth</cons>
+      <cons>Dual-LLM + bundle activation likely exceeds M1 context budget; risks regression breadth; highest fallback-rate spike risk</cons>
     </option>
     <option id="remove-all">
       <name>Remove all three gates + reasoner</name>
-      <pros>Leanest spine; fewest moving parts</pros>
+      <pros>Leanest spine; fewest moving parts; zero added fallback-rate risk on top of Plans 02/04</pros>
       <cons>Discards the citation gate whose numeric grounding complements the new claim-checker</cons>
     </option>
   </options>
-  <resume-signal>Select: recommended, activate-all, remove-all, or specify per-item</resume-signal>
+  <resume-signal>Select: recommended, activate-all, remove-all, or specify per-item — citing the Plan 02/04 fallback_reasons counts consulted</resume-signal>
 </task>
 
 <task type="auto">
@@ -157,6 +166,7 @@ DECISION GUIDANCE (this is a checkpoint:decision — surface the resolution, the
 |-----------|----------|-----------|-------------|-----------------|
 | T-m1-07-01 | Repudiation (false confidence) | 3 dark gates + unwired reasoner | mitigate | Activate-or-delete each; test_facade_resolution asserts no dark/unwired remains |
 | T-m1-07-02 | Information disclosure (regression) | inversion class re-emerges | mitigate | CI eval gate fails build on any inversion regression |
+| T-m1-07-03 | Denial of service (over-blocking) | 3 stacked fail-closed layers | mitigate | Decision MUST weigh Plan 02/04 fallback_reasons counts before citation-gate activation |
 | T-m1-07-SC | Tampering | pip/pub installs | accept | No new packages; CI uses existing runners |
 </threat_model>
 
@@ -169,11 +179,12 @@ DECISION GUIDANCE (this is a checkpoint:decision — surface the resolution, the
 
 <success_criteria>
 Every dark gate and the reasoner reach a binding wired-or-deleted resolution (no façade
-remains per NEVER #6), the inversion fixtures run as a CI regression gate, and backend +
+remains per NEVER #6), the citation-gate decision is grounded in the observed Plan 02/04
+fallback_reasons counts, the inversion fixtures run as a CI regression gate, and backend +
 mobile suites/analyze are green.
 </success_criteria>
 
 <output>
 Create `.planning/phases/mint-grounded-coach-m1/mint-grounded-coach-m1-07-SUMMARY.md` when done.
-Record the per-item activate/remove decision and its rationale.
+Record the per-item activate/remove decision, its rationale, and the fallback_reasons counts consulted.
 </output>
