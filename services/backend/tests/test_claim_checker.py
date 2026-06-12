@@ -24,6 +24,8 @@ from pathlib import Path
 import pytest
 
 from app.services.coach.claim_checker import ClaimViolation, check_claims
+from app.services.coach.coach_models import ComponentType
+from app.services.coach.compliance_guard import ComplianceGuard
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "inversions_eval.jsonl"
 
@@ -123,3 +125,61 @@ def test_runs_over_all_fixtures_under_2s() -> None:
         check_claims(blob)
     elapsed = time.perf_counter() - start
     assert elapsed < 2.0, f"claim-checker too slow: {elapsed:.3f}s for 50 passes"
+
+
+# ── Task 3: ComplianceGuard blocking-layer integration ───────────────────────
+# The claim-checker is wired into ComplianceGuard as a blocking layer (after L2):
+# a definitional inversion sets use_fallback=True with a 'definition_inversion'
+# fallback reason; a canonical definition still passes.
+def test_guard_blocks_rachat_inversion() -> None:
+    guard = ComplianceGuard()
+    result = guard.validate(
+        "Un rachat LPP, c'est sortir ton capital du 2e pilier avant l'heure.",
+        component_type=ComponentType.general,
+    )
+    assert result.use_fallback is True, (
+        "ComplianceGuard must force fallback on a definitional inversion"
+    )
+    assert result.is_compliant is False
+    # The user-facing violation names the inverted concept + its marker.
+    assert any(
+        "rachat_lpp" in v and "invers" in v.lower() for v in result.violations
+    ), f"expected a rachat_lpp inversion violation, got {result.violations}"
+    # On fallback, the inverted text is NOT shipped (sanitized_text empty).
+    assert result.sanitized_text == ""
+
+
+def test_guard_passes_rachat_canonical() -> None:
+    guard = ComplianceGuard()
+    result = guard.validate(
+        "Un rachat LPP, c'est verser de l'argent dans ta caisse de pension, "
+        "avec un effet fiscal déductible.",
+        component_type=ComponentType.general,
+    )
+    assert result.use_fallback is False, (
+        f"the canonical rachat definition must pass, violations={result.violations}"
+    )
+
+
+@pytest.mark.parametrize("case", CASES, ids=CASE_IDS)
+def test_guard_blocks_every_fixture_inversion(case: dict) -> None:
+    guard = ComplianceGuard()
+    for inversion in case["known_inversions"]:
+        result = guard.validate(inversion, component_type=ComponentType.general)
+        assert result.use_fallback is True, (
+            f"{case['id']}: ComplianceGuard did NOT block inversion {inversion!r}"
+        )
+
+
+@pytest.mark.parametrize("case", CASES, ids=CASE_IDS)
+def test_guard_passes_every_fixture_canonical(case: dict) -> None:
+    """No false positive: the canonical definition of every fixture concept must
+    pass the guard (the claim-checker layer must not block correct prose)."""
+    guard = ComplianceGuard()
+    result = guard.validate(
+        case["canonical_relation_fr"], component_type=ComponentType.general
+    )
+    assert result.use_fallback is False, (
+        f"{case['id']}: FALSE POSITIVE — canonical definition blocked, "
+        f"violations={result.violations}"
+    )

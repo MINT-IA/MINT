@@ -22,6 +22,7 @@ import re
 import unicodedata
 from typing import Optional
 
+from app.services.coach.claim_checker import check_claims
 from app.services.coach.coach_models import (
     ComplianceResult,
     CoachContext,
@@ -42,6 +43,13 @@ class ComplianceGuard:
     garde bloquante — a single prescriptive financial instruction falls back to
     a templated safe reply rather than shipping to the user. The CODE matches
     the perimeter, not just the prompt.
+
+    Grounding contract (CONTEXT decision 2, WS-B): the semantic Layer 6
+    (definitional claim-checker, audit 04 §3.b.3) is the closed-world detector
+    over the concept registry — it blocks a definitional inversion of a Swiss
+    concept ("un rachat LPP, c'est sortir ton capital") the way Layer 3 blocks a
+    wrong number. It is deterministic (substring/pattern, no LLM judge per
+    CLAUDE.md §9), runs after L2 so it composes with the blocking gates above.
     """
 
     # ═══════════════════════════════════════════════════════════════════
@@ -481,6 +489,39 @@ class ComplianceGuard:
             use_fallback = True
             fallback_reasons.append(
                 f"prescriptive_blocked ({len(prescriptive_found)}: {prescriptive_found[:5]})"
+            )
+
+        # ── Layer 6 (semantic): Definitional-inversion claim-checker ──
+        # Garde sémantique BLOQUANTE (education-strict perimeter, CONTEXT
+        # decision 2 — grounding contract, WS-B, audit 04 §3.b.3). The numeric
+        # gates (L3 hallucination) only inspect CHF/%/durations; a definitional
+        # inversion of a registry concept ("un rachat LPP, c'est sortir ton
+        # capital") carries no number and no banned term, so it traverses every
+        # numeric/lexical layer intact. The claim-checker is the closed-world
+        # detector over CONCEPT_REGISTRY that catches it — the semantic analogue
+        # of the hallucination detector. A detected inversion is out-of-doctrine
+        # (LSFin art. 8, quality of information) and falls back to a templated
+        # safe reply rather than shipping a wrong definition to the user.
+        claim_violations = check_claims(text)
+        if claim_violations:
+            logger.warning(
+                "ComplianceGuard L6: use_fallback=True reason=definition_inversion "
+                "hits=%s component=%s user=%s",
+                [(v.concept_key, v.matched_inversion) for v in claim_violations[:5]],
+                component_type, user_id or "anonymous",
+            )
+            violations.extend(
+                [
+                    f"Définition à revoir: '{v.concept_key}' "
+                    f"(formulation inversée: '{v.matched_inversion}')"
+                    for v in claim_violations
+                ]
+            )
+            use_fallback = True
+            fallback_reasons.append(
+                "definition_inversion "
+                f"({len(claim_violations)}: "
+                f"{[v.concept_key for v in claim_violations[:5]]})"
             )
 
         # ── Layer 2b: High-register drift (N4/N5 only) ──
