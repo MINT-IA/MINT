@@ -33,7 +33,9 @@ from unittest.mock import AsyncMock, MagicMock
 from app.api.v1.endpoints.coach_chat import (
     _classify_user_intent,
     _gate_fact_card_against_registry,
+    _guard_tool_payload_text_fields,
     _run_agent_loop,
+    _TOOL_PAYLOAD_FALLBACK_FR,
 )
 
 
@@ -386,3 +388,135 @@ class TestFactCardUnknownConceptSourceNeutralized:
         kept = _gate_fact_card_against_registry(card)
         assert kept is not None
         assert kept["input"]["source"] == "LPP art. 79b"
+
+
+class TestToolPayloadGuard:
+    """Codex grounding-stack review (fix_1): outbound tool payload free-text
+    fields are guarded through the full ComplianceGuard, not PII-scrubbed only."""
+
+    def test_route_to_screen_inversion_field_replaced(self):
+        # PROBE (Codex): a route_to_screen payload carrying the rachat inversion
+        # in context_message crossed to Flutter untouched (PII scrub only).
+        call = {
+            "name": "route_to_screen",
+            "input": {
+                "intent": "retirement_simulation",
+                "confidence": 0.9,
+                "context_message": (
+                    "Un rachat LPP, c'est sortir ton capital du 2e pilier "
+                    "avant l'heure."
+                ),
+            },
+        }
+        guarded = _guard_tool_payload_text_fields(call)
+        assert guarded["input"]["context_message"] == _TOOL_PAYLOAD_FALLBACK_FR, (
+            "an inverted definition in a tool payload field must be replaced "
+            "with the neutral fallback (not shipped to the renderer)"
+        )
+        # Non-prose fields untouched.
+        assert guarded["input"]["intent"] == "retirement_simulation"
+        assert guarded["input"]["confidence"] == 0.9
+
+    def test_route_to_screen_prescriptive_field_replaced(self):
+        call = {
+            "name": "route_to_screen",
+            "input": {
+                "intent": "lpp_buyback",
+                "confidence": 0.8,
+                "context_message": "Fais un rachat de 10000 CHF cette année.",
+            },
+        }
+        guarded = _guard_tool_payload_text_fields(call)
+        assert guarded["input"]["context_message"] == _TOOL_PAYLOAD_FALLBACK_FR
+
+    def test_clean_payload_untouched(self):
+        clean = (
+            "Cette simulation t'aide à voir l'effet d'un rachat sur ta rente ; "
+            "l'impact dépend de ta situation."
+        )
+        call = {
+            "name": "route_to_screen",
+            "input": {
+                "intent": "retirement_simulation",
+                "confidence": 0.9,
+                "context_message": clean,
+            },
+        }
+        guarded = _guard_tool_payload_text_fields(call)
+        assert guarded["input"]["context_message"] == clean, (
+            "a clean tool payload field must pass through untouched"
+        )
+
+    def test_fact_card_prose_inversion_replaced(self):
+        call = {
+            "name": "show_fact_card",
+            "input": {
+                "title": "Le rachat LPP",
+                "content": (
+                    "Un rachat LPP, c'est sortir ton capital du 2e pilier "
+                    "avant l'heure."
+                ),
+                "source": "LPP art. 79b",
+            },
+        }
+        guarded = _guard_tool_payload_text_fields(call)
+        assert guarded["input"]["content"] == _TOOL_PAYLOAD_FALLBACK_FR
+        # Non-prose identifier/source untouched by THIS guard.
+        assert guarded["input"]["source"] == "LPP art. 79b"
+
+    def test_salvageable_banned_term_sanitized_in_place(self):
+        # A salvageable banned term ("conseiller") is softened, not killed — the
+        # field is sanitised in place rather than replaced with the fallback.
+        call = {
+            "name": "generate_financial_plan",
+            "input": {
+                "goal": "Demande à un conseiller pour ton dossier 3a.",
+                "projected_outcome": "Un effet possible selon ta situation.",
+                "narrative": "On regarde ensemble, pas à pas.",
+            },
+        }
+        guarded = _guard_tool_payload_text_fields(call)
+        assert "spécialiste" in guarded["input"]["goal"]
+        assert guarded["input"]["goal"] != _TOOL_PAYLOAD_FALLBACK_FR
+
+    def test_non_prose_tool_untouched(self):
+        # A tool with no prose fields in the map is returned unchanged.
+        call = {
+            "name": "show_score_gauge",
+            "input": {"show_breakdown": True},
+        }
+        guarded = _guard_tool_payload_text_fields(call)
+        assert guarded["input"] == {"show_breakdown": True}
+
+    def test_guard_wired_into_agent_loop(self):
+        """End-to-end: the loop runs the tool-payload guard so the inverted
+        context_message reaching flutter_tool_calls is the fallback, not raw."""
+        orch = _make_mock_orchestrator(
+            _make_result(
+                answer="Voici une piste à explorer.",
+                tool_calls=[
+                    {
+                        "name": "route_to_screen",
+                        "input": {
+                            "intent": "retirement_simulation",
+                            "confidence": 0.9,
+                            "context_message": (
+                                "Un rachat LPP, c'est sortir ton capital du 2e "
+                                "pilier avant l'heure."
+                            ),
+                        },
+                    }
+                ],
+            )
+        )
+        result = _run(
+            _run_agent_loop(orchestrator=orch, **_base_kwargs("ok", set()))
+        )
+        flutter_calls = result["tool_calls"]
+        route = next(
+            c for c in flutter_calls if c["name"] == "route_to_screen"
+        )
+        assert route["input"]["context_message"] == _TOOL_PAYLOAD_FALLBACK_FR, (
+            "the loop must guard the outbound tool payload — the inverted "
+            "context_message must not reach the renderer raw"
+        )

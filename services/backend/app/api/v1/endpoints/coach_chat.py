@@ -4261,6 +4261,112 @@ _LEGAL_CITATION_PATTERN = re.compile(
 _NEUTRAL_SOURCE_LABEL_FR = "Information générale"
 
 
+# ---------------------------------------------------------------------------
+# Codex grounding-stack review (fix_1): guard outbound tool payload free-text
+# ---------------------------------------------------------------------------
+#
+# Backend filters answer_text through the full ComplianceGuard, but Flutter-bound
+# tool_calls (route_to_screen.context_message, fact-card prose, gauges, budget
+# widgets…) used to cross with ONLY PII scrubbing (coach_chat.py:4511,4523).
+# widget_renderer.dart renders context_message directly, so an inverted
+# definition or a banned/prescriptive phrase carried in a tool payload reached
+# the user untouched. This map is the closed-world set of USER-FACING PROSE
+# fields per Flutter-bound tool — the strings the renderer shows as sentences.
+# Identifier/enum/value fields (intent, field_key, input_type, focus_category,
+# document_type, month, estimated_canton, route, confidence, source,
+# highlight_value) are intentionally EXCLUDED: they are not prose and `source`
+# is already gated by the registry gate (fix_4).
+_TOOL_PAYLOAD_PROSE_FIELDS: dict[str, tuple[str, ...]] = {
+    "show_fact_card": ("title", "content"),
+    "ask_user_input": ("prompt_text",),
+    "route_to_screen": ("context_message",),
+    "record_check_in": ("summary_message",),
+    "generate_financial_plan": ("goal", "projected_outcome", "narrative"),
+    "generate_document": ("context",),
+    "show_commitment_card": ("when_text", "where_text", "if_then_text"),
+    # save_insight.summary is PII-scrubbed AND not user-facing (persisted), but
+    # it is still LLM prose — guard it too (defense in depth).
+    "save_insight": ("summary",),
+}
+
+# Neutral fallback substituted into a blocked prose field. Short, calm, and
+# itself guard-clean (no banned term, no prescriptive verb, no inversion).
+_TOOL_PAYLOAD_FALLBACK_FR = (
+    "Je préfère rester prudent ici ; reformule ta question et je te réponds "
+    "sur la base de la source officielle."
+)
+
+
+def _guard_tool_payload_text_fields(
+    call: dict,
+    *,
+    user_id: Optional[str] = None,
+) -> dict:
+    """Run ComplianceGuard over every free-text PROSE field of a Flutter-bound
+    tool payload (Codex fix_1).
+
+    For each prose field listed in ``_TOOL_PAYLOAD_PROSE_FIELDS`` for this tool,
+    the value is validated through the FULL ComplianceGuard pipeline (banned
+    terms, prescriptive L2, definitional-inversion L6, …). A field whose guard
+    result is ``use_fallback`` (blocked) OR whose sanitised text differs is
+    replaced: blocked → the neutral fallback text; sanitised → the sanitised
+    text (so a salvageable banned term is softened rather than killing the
+    field). The mutation is in place on ``call["input"]``; the call is returned.
+
+    Numeric/enum/identifier fields are never inspected (not in the prose map).
+    """
+    from app.services.coach.compliance_guard import ComplianceGuard
+    from app.services.coach.coach_models import ComponentType
+
+    name = call.get("name", "")
+    fields = _TOOL_PAYLOAD_PROSE_FIELDS.get(name)
+    if not fields:
+        return call
+    inp = call.get("input")
+    if not isinstance(inp, dict):
+        return call
+
+    guard = ComplianceGuard()
+    for field in fields:
+        value = inp.get(field)
+        if not isinstance(value, str) or not value.strip():
+            continue
+        result = guard.validate(
+            value,
+            component_type=ComponentType.general,
+            user_id=user_id,
+        )
+        if result.use_fallback:
+            # Blocked by a HARD layer (banned residual, prescriptive L2, or
+            # definitional inversion L6) → substitute the neutral fallback.
+            logger.warning(
+                "coach.tool_payload.blocked tool=%s field=%s reason=tool_payload_blocked "
+                "violations=%d user=%s",
+                name,
+                field,
+                len(result.violations),
+                user_id or "anonymous",
+            )
+            inp[field] = _TOOL_PAYLOAD_FALLBACK_FR
+            continue
+        # Not blocked: soften any salvageable banned term IN PLACE without the
+        # answer-text side effects (Layer 4 disclaimer injection + Layer 5
+        # length truncation) that `validate` applies to a full reply — those are
+        # wrong for a short widget prose field. We compare against the
+        # banned-term-only sanitisation, which is idempotent on clean prose.
+        softened = guard._sanitize_banned_terms(value)
+        if softened != value:
+            logger.info(
+                "coach.tool_payload.sanitized tool=%s field=%s user=%s",
+                name,
+                field,
+                user_id or "anonymous",
+            )
+            inp[field] = softened
+    call["input"] = inp
+    return call
+
+
 def _gate_fact_card_against_registry(card: dict) -> Optional[dict]:
     """Validate a show_fact_card payload against CONCEPT_REGISTRY (WS-B Plan 05).
 
@@ -4603,6 +4709,20 @@ async def _run_agent_loop(
             else:
                 _gated_external.append(tc)
         external_calls = _gated_external
+
+        # Codex grounding-stack review (fix_1) — run the FULL ComplianceGuard
+        # (banned terms + prescriptive L2 + definitional-inversion L6) over every
+        # free-text PROSE field of every outbound tool payload BEFORE it crosses
+        # to the mobile renderer. Previously these strings (context_message,
+        # fact-card prose, plan narrative…) crossed with PII scrubbing only, so
+        # an inverted definition or prescriptive phrase in a tool payload reached
+        # the user untouched. A blocked field is replaced with the neutral
+        # fallback; a salvageable banned term is softened in place.
+        external_calls = [
+            _guard_tool_payload_text_fields(tc, user_id=user_id)
+            for tc in external_calls
+        ]
+
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done — but only if Claude
