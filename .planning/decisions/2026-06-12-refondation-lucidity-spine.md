@@ -38,7 +38,7 @@ Session manuelle fondateur (2026-06-12) + walkthrough persona W1 : coach inverse
 - **M4 — Depth Wedge** : les 3 events au niveau VZ-beating, boucle document (certificat LPP → spine → recalc → nouvel éclairage d'arbitrage), budget évolutif.
 - **Docs** : PRODUCT-SPINE.md créé comme north star (squelette dans 05), ROADMAP_V2 dégradé en historique (headers mensongers corrigés), SOT+IDENTITY patchés — PR quick-wins immédiat.
 
-**Décision requise du fondateur (unique blocage réel)** : le plafond compliance (§7 du PRODUCT-SPINE) — éducation stricte vs advisor léger assumé — qui détermine le langage autorisé du moteur d'arbitrage en M4. M1-M3 n'en dépendent pas.
+**Plafond compliance — TRANCHÉ par le fondateur 2026-06-12 : périmètre ÉDUCATION STRICTE, bulletproof.** Conséquences opérationnelles : toutes les sorties d'arbitrage sont formulées en comparaisons de scénarios éducatives avec hypothèses explicites (jamais en recommandations personnalisées classées) ; le code est aligné sur ce périmètre (reframe des sorties `coach_reasoner`/`get_couple_optimization`, gardes prescriptives bloquantes, cohérence prompt↔code) — workstream prioritaire intégré à M1. Le reste du plan : délégation complète au Product Leader (« je te laisse suivre le meilleur plan possible »).
 
 ## Counter-arguments and data gaps
 

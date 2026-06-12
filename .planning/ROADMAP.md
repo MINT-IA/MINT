@@ -52,6 +52,13 @@ Plans:
 - [x] mint-illogism-fixes-16-w5-cta-dashboard-truth-PLAN.md — tableau retraite sur la source /home + CTA vivant
 - [x] mint-illogism-fixes-17-w5-surfaces-honnetes-strings-PLAN.md — what-if mariage étiqueté + labels a11y + i18n + clôture device D1-D12
 
+### Phase: mint-grounded-coach-m1
+**Goal**: M1 de la refondation lucidity-spine ([decisions/2026-06-12-refondation-lucidity-spine.md](decisions/2026-06-12-refondation-lucidity-spine.md)) : (A) blindage compliance périmètre éducation stricte — sorties d'arbitrage en comparaisons de scénarios, gardes prescriptives bloquantes, cohérence prompt↔code ; (B) grounding des claims — registre de concepts suisses + `explain_concept` forcé, claim-checker à détection d'inversions (fixture rachat-inversion RED d'abord), `show_fact_card` gated, gates dark activés-ou-supprimés, `coach_reasoner` câblé-ou-supprimé ; (C) `save_fact` → retour mobile + corrections domaine (réf. AVS femmes 64.5/2026, prose 79b post-arrêts TF 02.2026).
+**Status**: 📋 Planned — opened 2026-06-12. Périmètre compliance tranché par le fondateur (éducation stricte, bulletproof).
+**Depends on**: état des lieux 2026-06-12 (rapports 01-06) ; phase mint-illogism-fixes (exécutée).
+**Acceptance**: fixtures inversions vertes en CI (après RED prouvé) ; zéro sortie prescriptive non bloquée ; walkthrough persona sim sans P1 sur surfaces coach ; suites mobile+backend vertes.
+**Plans**: TBD (planner)
+
 ### Phase: mint-calc-engine-v1
 **Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
 **Status**: ◆ code-shipped on dev 2026-05-17, pending operational gates — 20/20 plans landed across 4 waves on `dev` (109 commits, backend suite **7264 passed** zero regression). Phase is Stage 1 of 4 per CLAUDE.md §9.5 — cannot claim ✅ SHIPPED without **G2 Julien device sign-off** + 7 deferred operational gates (staging env-flip · Railway cron activation · Railway metrics scraping · endpoint metric fanout · Flutter 45-field drift fix incl. dead-COUP-04 · FR description tone review · S12-API consolidation). See [`phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md`](phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md) + [`phases/mint-calc-engine-v1/mint-calc-engine-v1-VERIFICATION-REPORT.html`](phases/mint-calc-engine-v1/mint-calc-engine-v1-VERIFICATION-REPORT.html).
