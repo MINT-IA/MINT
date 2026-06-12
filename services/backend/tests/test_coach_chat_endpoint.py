@@ -210,8 +210,20 @@ class TestCoachChatResponse:
         assert isinstance(data["message"], str)
         assert len(data["message"]) > 0
 
-    def test_response_message_matches_orchestrator_answer(self, client_with_auth):
-        """'message' in response must match the orchestrator 'answer' field."""
+    def test_response_message_matches_orchestrator_answer(
+        self, client_with_auth, monkeypatch
+    ):
+        """'message' in response must match the orchestrator 'answer' field.
+
+        Asserts the raw orchestrator passthrough. The citation gate is now
+        ACTIVE by default (Plan 07) and would gate this uncited-number answer
+        to the templated fallback, so this passthrough/wiring contract is
+        pinned with the gate in its OFF rollback state (the gated behavior is
+        covered by tests/test_citation_gate/ + test_narrator_refuses_uncited).
+        """
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
         with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
@@ -331,10 +343,18 @@ class TestCoachChatResponse:
 class TestCoachChatOrchestratorWiring:
     """Verify that the endpoint passes the right arguments to the orchestrator."""
 
-    def test_tools_passed_to_orchestrator(self, client_with_auth):
-        """COACH_TOOLS must be passed to orchestrator.query as the 'tools' arg."""
+    def test_tools_passed_to_orchestrator(self, client_with_auth, monkeypatch):
+        """COACH_TOOLS must be passed to orchestrator.query as the 'tools' arg.
+
+        Gate OFF (rollback) so the orchestrator is invoked exactly once: with
+        the citation gate ACTIVE (Plan 07 default) the uncited-number answer
+        triggers a single gated retry, which is asserted in the citation-gate
+        suite, not here. This test isolates the tools-wiring contract.
+        """
+        from app.core.config import settings
         from app.services.coach.coach_tools import COACH_TOOLS
 
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
         mock_orch = MagicMock()
         mock_orch.query = AsyncMock(return_value=_ORCHESTRATOR_OK_RESULT)
 
@@ -356,8 +376,17 @@ class TestCoachChatOrchestratorWiring:
             assert "access_level" not in tool
             assert "name" in tool
 
-    def test_message_forwarded_as_question(self, client_with_auth):
-        """The user 'message' must be forwarded to orchestrator as 'question'."""
+    def test_message_forwarded_as_question(self, client_with_auth, monkeypatch):
+        """The user 'message' must be forwarded to orchestrator as 'question'.
+
+        Gate OFF (rollback) so the question is the raw user message: with the
+        citation gate ACTIVE (Plan 07 default) an uncited-number answer would
+        trigger a retry whose question carries the reprompt addendum — the
+        gated-retry path is covered in the citation-gate suite, not here.
+        """
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
         mock_orch = MagicMock()
         mock_orch.query = AsyncMock(return_value=_ORCHESTRATOR_OK_RESULT)
 

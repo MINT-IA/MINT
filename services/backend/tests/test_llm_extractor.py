@@ -630,37 +630,11 @@ def test_extractor_system_prompt_is_french_and_json_only():
     assert '"low"' in EXTRACTOR_SYSTEM_PROMPT  # literal mentioning the rule
 
 
-def test_run_llm_extractor_imported_by_coach_chat_in_wave_2():
-    """Phase 91 Wave 2 wiring invariant: `coach_chat.py` imports
-    `run_llm_extractor` from the new module AND uses it SEQUENTIALLY
-    (never via `asyncio.gather` with the narrator agent loop).
-
-    Replaces the Wave 1 isolation invariant — Wave 2 has landed and
-    the dual-LLM wiring is in place behind the `COACH_DUAL_LLM_ENABLED`
-    flag (default False). This test now pins:
-      1. The import exists (wiring landed).
-      2. No `asyncio.gather(...)` runs the extractor + narrator in
-         parallel (RESEARCH §6 Pitfall 2 — narrator must read AFTER
-         extractor persists).
-    """
-    import pathlib
-    import re
-
-    coach_chat_path = pathlib.Path(__file__).resolve().parents[1] / (
-        "app/api/v1/endpoints/coach_chat.py"
-    )
-    src = coach_chat_path.read_text(encoding="utf-8")
-    assert "run_llm_extractor" in src, (
-        "Wave 2 wiring missing: coach_chat.py should import run_llm_extractor"
-    )
-    assert "from app.services.coach.llm_extractor import run_llm_extractor" in src
-    # Sequential invariant — extractor + narrator must NOT run via gather.
-    forbidden = [
-        r"asyncio\.gather\([^)]*run_llm_extractor",
-        r"asyncio\.gather\([^)]*_run_agent_loop",
-        r"asyncio\.gather\([^)]*_run_extractor_stage",
-    ]
-    for pat in forbidden:
-        assert re.search(pat, src) is None, (
-            f"Sequential invariant violated: pattern {pat!r} matched in coach_chat.py"
-        )
+# NOTE (mint-grounded-coach-m1 Plan 07): the
+# `test_run_llm_extractor_imported_by_coach_chat_in_wave_2` wiring-invariant
+# test was removed. The dual-LLM extractor stage (COACH_DUAL_LLM_ENABLED) was
+# deleted as a flag-OFF façade (WS-C activate-or-delete, NEVER #6), so
+# coach_chat.py no longer imports `run_llm_extractor`. The `llm_extractor`
+# library module itself is retained and is still covered by the unit tests
+# above (system prompt, schema, parsing); only the now-false coach_chat
+# import-wiring assertion was dropped.

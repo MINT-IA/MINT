@@ -1,11 +1,14 @@
-"""Phase 94 Wave 1 — D-07 flag-OFF fallback to global CITATION_REGISTRY.
+"""D-07 fallback to the global CITATION_REGISTRY (now the only path).
+
+mint-grounded-coach-m1 Plan 07 deleted the bundle compiler (WS-C
+activate-or-delete), so the citation-gate wrapper ALWAYS passes
+`citation_allowlist=None` — there is no compile-time allowlist anymore.
 
 Pins :
-- When `COACH_BUNDLE_COMPILER_ENABLED=False`, the wrapper passes
-  `citation_allowlist=None` to `_citation_gate(...)`.
+- The wrapper unconditionally sets `_gate_allowlist = None`
+  (the bundle-compiler compile-time allowlist branch was removed).
 - The gate's `gate()` body interprets `citation_allowlist=None` as a
-  fall-back to `set(CITATION_REGISTRY.keys())` (Wave 0 + Task 1
-  contract — `test_global_registry_fallback_resolves_pass`).
+  fall-back to `set(CITATION_REGISTRY.keys())`.
 - Every key in `CITATION_REGISTRY` is recognized by the gate as
   cited when adjacent to a number and the allowlist is None.
 """
@@ -31,16 +34,20 @@ def _coach_chat_src() -> str:
 # ---------------------------------------------------------------------------
 
 
-def test_wrapper_passes_none_when_compiler_flag_off():
-    """The `_gate_allowlist = None` branch fires when
-    `COACH_BUNDLE_COMPILER_ENABLED=False` — irrespective of whether
-    `_compiled_bundle` is None (it always is on this branch thanks to
-    H1 fix iter 1).
+def test_wrapper_unconditionally_passes_none_allowlist():
+    """The wrapper unconditionally sets `_gate_allowlist = None` after the
+    Plan 07 bundle-compiler removal — there is no compile-time allowlist
+    branch left, so the gate always falls back to the global registry.
     """
     src = _coach_chat_src()
-    # The else branch of the ternary must yield `None`.
-    pattern = re.compile(r"else\s+None\s*\n\s*\)")
+    # The bundle-compiler allowlist ternary is gone; a plain assignment
+    # to None remains.
+    pattern = re.compile(r"_gate_allowlist\s*=\s*None")
     assert pattern.search(src) is not None
+    # And the removed dark flag must no longer appear as a functional
+    # `settings.` reference in the source.
+    assert "settings.COACH_BUNDLE_COMPILER_ENABLED" not in src
+    assert "settings.COACH_DUAL_LLM_ENABLED" not in src
 
 
 # ---------------------------------------------------------------------------

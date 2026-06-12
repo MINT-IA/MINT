@@ -60,8 +60,6 @@ from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import (
-    build_narrator_system_prompt,
-    build_narrator_system_prompt_from_bundles,
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
@@ -100,7 +98,6 @@ from app.services.coach.runtime_temporal_gate import gate as _runtime_temporal_g
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
-    get_narrator_llm_tools,
 )
 from app.services.coach.context_packet_sanitizer import (
     sanitize_coach_context_packet,
@@ -114,8 +111,6 @@ from app.services.coach.turn_cap import (
     is_cap_hit,
     render_terminal_template,
 )
-from app.services.coach.extractor_schema import ExtractedFact, ExtractorOutput
-from app.services.coach.llm_extractor import run_llm_extractor
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
 from app.services.rules_engine import get_3a_ceiling
 from app.services.coach.structured_reasoning import StructuredReasoningService
@@ -1420,103 +1415,40 @@ def _build_system_prompt_with_memory(
     The memory block is sanitized for PII and wrapped in prompt injection
     armor before being appended to the system prompt.
 
-    Phase 91 Wave 2: when `settings.COACH_DUAL_LLM_ENABLED` is True, uses
-    the trimmed narrator builder (no « EXTRACTION DE PROFIL » block, no
-    « TOUJOURS appeler save_insight » mandate) — fact capture moves to
-    the dedicated extractor LLM. When False (default), uses the legacy
-    builder verbatim — flag-OFF path is byte-identical to today.
+    Single-LLM live path: the legacy `build_system_prompt` builder (the
+    dual-LLM extractor/narrator split and the bundle compiler were removed
+    in mint-grounded-coach-m1 Plan 07 — no flag-OFF façade remains, NEVER #6).
 
-    Phase 93.5 Wave 1: when `settings.COACH_BUNDLE_COMPILER_ENABLED` is
-    True (default False), routes via `build_narrator_system_prompt_from_bundles`
-    (compile_bundles → 6 named bundle fragments). The legacy path remains
-    byte-identical when the flag is OFF (CONTEXT D-15/D-16, proven by
-    `tests/test_coach_chat_bundles.py::test_flag_off_byte_identical_to_snapshot`).
-    On `KeyError`/`ValueError` the bundle path falls back to the legacy
-    narrator path so a misdeclared slot in a bundle never breaks the
-    coach for users (RESEARCH Pitfall 1 + H4).
+    mint-grounded-coach-m1 Plan 07 — citation grammar: when the citation
+    gate is ACTIVE (`settings.COACH_CITATION_GATE_ENABLED`, default True),
+    the closed-world citation-grammar fragment is appended so the narrator
+    is instructed to emit {{cite:...}} placeholders for numeric/regulatory
+    claims. Without this instruction the activated gate would REJECT every
+    uncited number and fall back. The fragment is intent-scoped when
+    `detected_intents` is non-empty (shorter, registry-keys-for-intent), or
+    the full 18-key fragment otherwise (cold-start default). When the gate
+    is OFF (rollback), the prompt is byte-identical to the legacy output.
     """
-    # Phase 93.5 — bundle-compiler path (CONTEXT D-15 / D-16 / D-01 supersession).
-    # Default OFF in prod — flip-on is gated by Plan 93.5-04 Stage 3 eval ≥95%.
-    # Deferred-import (same pattern as `_validate_cap_response` at line 3330)
-    # to survive `importlib.reload(app.core.config)` contamination from
-    # test_config_guards + sibling tests — module-level `settings` binding
-    # captured at coach_chat.py load time becomes stale after reload, breaking
-    # monkeypatch in test_flag_on_uses_compile_bundles.
-    from app.core.config import settings as _live_settings
+    prompt = build_system_prompt(
+        ctx=coach_ctx, language=language, cash_level=cash_level
+    )
 
-    if _live_settings.COACH_BUNDLE_COMPILER_ENABLED:
-        try:
-            prompt = build_narrator_system_prompt_from_bundles(
-                intents=detected_intents or set(),
-                ctx=coach_ctx,
-                language=language,
-                cash_level=cash_level,
-            )
-            # Memory blocks concatenated POST-prompt — IDENTICAL to the
-            # legacy flow below (lines under the `else:`). Order matters.
-            sanitized = _sanitize_memory_block(memory_block)
-            if sanitized:
-                prompt = prompt + "\n\n" + sanitized
-            if commitment_block:
-                prompt = prompt + "\n\n" + commitment_block
-            if intelligence_block:
-                prompt = prompt + "\n\n" + intelligence_block
-            if insight_block:
-                prompt = prompt + "\n\n" + insight_block
-
-            # T-93.5-07 — Sentry breadcrumb : whitelisted keys ONLY,
-            # never user message content.
-            try:
-                import sentry_sdk
-                from app.services.coach.bundle_compiler import (
-                    compile_bundles as _cb,
-                )
-
-                _telemetry = _cb(
-                    intents=detected_intents or set(),
-                    ctx=coach_ctx,
-                    language=language,
-                )
-                sentry_sdk.add_breadcrumb(
-                    category="coach.bundle",
-                    level="info",
-                    data={
-                        "activated_bundles": _telemetry.activated_bundles,
-                        "prompt_tokens": _telemetry.estimated_tokens,
-                        "dropped_bundles": _telemetry.dropped_bundles,
-                    },
-                )
-            except Exception:  # noqa: BLE001 — telemetry must never break narrator
-                pass
-            return prompt
-        except (KeyError, ValueError) as exc:
-            # Defensive Pitfall 1 — slot interpolation failure or H4
-            # undeclared-slot guard → fall back to legacy path.
-            logger.warning(
-                "coach.bundle.fallback type=%s reason=%s — using legacy path",
-                type(exc).__name__,
-                str(exc)[:200],
-            )
-            try:
-                import sentry_sdk
-
-                sentry_sdk.add_breadcrumb(
-                    category="coach.bundle.fallback",
-                    level="warning",
-                    data={"exc_type": type(exc).__name__},
-                )
-            except Exception:  # noqa: BLE001
-                pass
-            # fall through to legacy path below
-
-    if settings.COACH_DUAL_LLM_ENABLED:
-        prompt = build_narrator_system_prompt(
-            ctx=coach_ctx, language=language, cash_level=cash_level
+    # mint-grounded-coach-m1 Plan 07 — append the closed-world citation
+    # grammar when the gate is active. Deferred import keeps the early
+    # FastAPI module graph clean (same pattern as the legacy narrator
+    # builder). Separator mirrors the prior narrator-builder join.
+    if settings.COACH_CITATION_GATE_ENABLED:
+        from app.services.coach.citation_grammar import (
+            CITATION_GRAMMAR_FRAGMENT,
+            build_intent_scoped_citation_grammar,
         )
-    else:
-        prompt = build_system_prompt(
-            ctx=coach_ctx, language=language, cash_level=cash_level
-        )
+
+        if detected_intents:
+            grammar = build_intent_scoped_citation_grammar(detected_intents)
+        else:
+            grammar = CITATION_GRAMMAR_FRAGMENT
+        prompt = prompt + "\n\n---\n\n" + grammar
+
     sanitized = _sanitize_memory_block(memory_block)
     if sanitized:
         prompt = prompt + "\n\n" + sanitized
@@ -2462,118 +2394,11 @@ def _build_fact_saved_echo(call: dict) -> Optional[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Phase 91 Wave 2 — dual-LLM extractor stage (behind COACH_DUAL_LLM_ENABLED)
-# ---------------------------------------------------------------------------
-#
-# The STAGE 2 LLM extractor runs SEQUENTIALLY between the regex extractor
-# (STAGE 1, kept forever as deterministic floor per CONTEXT D-09) and the
-# narrator agent loop. The narrator must read the freshly-persisted profile
-# AFTER the extractor writes — wrapping these two in `asyncio.gather(...)`
-# would race the read against the write (RESEARCH §6 Pitfall 2).
-#
-# Anonymous chat (CONTEXT D-04): when no `_user`, the extractor still runs
-# but its output goes to a request-scoped Python dict, NEVER the DB.
-#
-# Cache (CONTEXT D-10/D-11): canonical post-_coerce_fact_value values cached
-# 30s; the cache NEVER stores raw `source_quote` strings (no PII in cache).
-
-# Map from regex-extractor `Fact.topic` strings to canonical `_SAVE_FACT_*`
-# key names. Used by `_run_extractor_stage` to compute the "regex-covered
-# keys" set so the LLM extractor can be merged with regex-floor-wins per
-# CONTEXT D-09. Topics emitted today: identity / salary / location /
-# household / family / lpp / 3a / debt
-# (`services/backend/app/services/coach/profile_extractor.py:_extract_*`).
-_REGEX_TOPIC_TO_CANONICAL_KEYS: dict[str, set[str]] = {
-    "identity": {"birthYear"},
-    "salary": {"incomeGrossYearly", "incomeNetYearly"},
-    "location": {"canton"},
-    "household": {"householdType"},
-    # `family` topic has no canonical key in _SAVE_FACT_ALLOWED_KEYS — the
-    # regex emits a Fact but it doesn't shadow any LLM-extractable field.
-    "family": set(),
-    "lpp": {"avoirLpp"},
-    "3a": {"pillar3aBalance"},
-    "debt": {"hasDebt", "totalDebt"},
-}
-
-
-def _persist_extracted_fact(
-    fact: "ExtractedFact",
-    *,
-    user_id: Optional[str],
-    db: Optional[Session],
-    in_memory_state: Optional[dict] = None,
-) -> bool:
-    """Persist a single extracted fact (refactor of save_fact handler).
-
-    Branches per CONTEXT D-04:
-      - Authenticated (`user_id` set, `db` set, `in_memory_state` None):
-        write canonical value to ProfileModel.data via the same code path
-        as the existing save_fact handler.
-      - Anonymous (`user_id` None, `in_memory_state` provided):
-        write canonical value to the request-scoped dict, NEVER to DB.
-
-    Returns True on persistence, False on coercion failure or no-op.
-    The legacy save_fact handler is kept byte-identical when the
-    COACH_DUAL_LLM_ENABLED flag is OFF (Wave 0 invariant); Wave 2 ADDS
-    this extractor-side caller without refactoring the handler itself.
-    """
-    coerced = _coerce_fact_value(fact.key, fact.value)
-    if coerced is None:
-        return False
-
-    if user_id is None and in_memory_state is not None:
-        # Anonymous chat path — D-04 in-memory only.
-        in_memory_state[fact.key] = coerced
-        return True
-
-    if user_id is not None and db is not None:
-        try:
-            from app.models.profile_model import ProfileModel as _PM
-
-            profile = (
-                db.query(_PM)
-                .filter(_PM.user_id == user_id)
-                .order_by(_PM.updated_at.desc())
-                .first()
-            )
-            if profile is None:
-                return False
-            data = dict(profile.data or {})
-            data[fact.key] = coerced
-            profile.data = data
-            profile.updated_at = datetime.now(timezone.utc)
-            db.add(profile)
-            db.commit()
-            return True
-        except Exception:
-            try:
-                db.rollback()
-            except Exception:
-                pass
-            logger.exception(
-                "_persist_extracted_fact DB commit failed key=%s", fact.key
-            )
-            return False
-
-    return False
-
-
-def _merge_extracted(
-    regex_covered_keys: set[str],
-    llm_facts: list["ExtractedFact"],
-) -> list["ExtractedFact"]:
-    """Merge LLM-extracted facts on top of the regex floor.
-
-    Regex floor wins on conflict (CONTEXT D-09): any LLM fact whose
-    canonical key is already covered by the regex extractor is DROPPED.
-    LLM facts on missing keys are KEPT (regex didn't catch them).
-
-    The regex Fact list itself isn't returned by this helper — the regex
-    pipeline persists its own facts via the legacy CoachInsightRecord
-    path at the existing site. This helper only filters the LLM output.
-    """
-    return [f for f in llm_facts if f.key not in regex_covered_keys]
+# mint-grounded-coach-m1 Plan 07 — the dual-LLM extractor stage was removed
+# (WS-C activate-or-delete, NEVER #6). The regex extractor (STAGE 1) remains
+# the deterministic fact-capture floor per CONTEXT D-09; the now-unused
+# `_REGEX_TOPIC_TO_CANONICAL_KEYS` merge map, `_persist_extracted_fact`
+# extractor-side persister, and `_merge_extracted` helper were deleted with it.
 
 
 def _extractor_in_memory_state_for_request() -> dict:
@@ -2586,184 +2411,26 @@ def _extractor_in_memory_state_for_request() -> dict:
     return {}
 
 
-# Tiny in-memory TTL cache (CONTEXT D-10 with in-memory dict fallback).
-# Stores canonical post-`_coerce_fact_value` values only — NEVER raw
-# extractor output (D-11; no `source_quote` substrings in the cache).
-# Keyed by `f"extractor:{user_id_or_anon}:{sha256(message)[:16]}"`.
-_EXTRACTOR_CACHE: dict[str, tuple[float, list[dict]]] = {}
-_EXTRACTOR_CACHE_TTL_SECONDS = 30.0
+# mint-grounded-coach-m1 Plan 07 — the dual-LLM extractor TTL cache
+# (_EXTRACTOR_CACHE + _extractor_cache_{get,set,key}) and _merge_extracted
+# were removed with the dual-LLM extractor stage (WS-C activate-or-delete,
+# NEVER #6). The single-LLM live path uses the regex extractor floor only.
 
 
-def _extractor_cache_get(key: str) -> Optional[list[dict]]:
-    """Return the cached canonical fact list, or None on miss/expiry."""
-    import time as _time
+async def _run_extractor_stage() -> dict:
+    """Single-LLM live path — no-op extractor shim.
 
-    entry = _EXTRACTOR_CACHE.get(key)
-    if entry is None:
-        return None
-    expires_at, payload = entry
-    if expires_at < _time.time():
-        _EXTRACTOR_CACHE.pop(key, None)
-        return None
-    return payload
-
-
-def _extractor_cache_set(
-    key: str, payload: list[dict], *, ttl: float = _EXTRACTOR_CACHE_TTL_SECONDS
-) -> None:
-    """Store canonical fact list under key for `ttl` seconds (D-10)."""
-    import time as _time
-
-    _EXTRACTOR_CACHE[key] = (_time.time() + ttl, payload)
-
-
-def _extractor_cache_key(user_id_or_anon: str, sanitized_message: str) -> str:
-    """Build a deterministic cache key with sha256-hashed message slice."""
-    import hashlib
-
-    digest = hashlib.sha256(
-        (sanitized_message or "").encode("utf-8", errors="ignore")
-    ).hexdigest()[:16]
-    return f"extractor:{user_id_or_anon}:{digest}"
-
-
-async def _run_extractor_stage(
-    *,
-    sanitized_message: str,
-    safe_history: list[dict],
-    safe_profile: dict,
-    regex_covered_keys: set[str],
-    user_id: Optional[str],
-    db: Optional[Session],
-    api_key: str,
-    provider: str,
-    persistence_consent: bool,
-) -> dict:
-    """Phase 91 Wave 2 — STAGE 2 LLM extractor wrapper.
-
-    Runs SEQUENTIALLY between the regex extractor (STAGE 1) and the
-    narrator (`_run_agent_loop`). The narrator's PROFIL block reads the
-    freshly persisted state AFTER this returns — wrapping in
-    `asyncio.gather` would race the read against the write
-    (RESEARCH §6 Pitfall 2).
-
-    Returns a dict with:
-        extractor_facts: list[ExtractedFact] — merged LLM facts post-D-09
-        in_memory_state: dict — anonymous-chat fact buffer (D-04); always
-            populated when `user_id is None`, empty otherwise
-
-    Failure paths (all non-fatal — narrator runs anyway with regex floor):
-      - Flag OFF → no-op, returns empty.
-      - `_has_concrete_facts(message) is False` → skip-on-empty (RESEARCH §5).
-      - Authenticated + persistence_consent=False → gate closed.
-      - Anonymous: ALWAYS run when flag ON + concrete facts present (D-04).
-      - asyncio.TimeoutError / any extractor exception → empty fallback.
-
-    Cache (D-10/D-11): canonical post-`_coerce_fact_value` values cached
-    30s under `extractor:<user_or_anon>:<sha256(message)>`. NEVER stores
-    raw `source_quote` (D-11).
+    The dual-LLM STAGE 2 LLM extractor was removed in
+    mint-grounded-coach-m1 Plan 07 (WS-C activate-or-delete, NEVER #6 — the
+    COACH_DUAL_LLM_ENABLED flag and its ON-path are gone, no façade remains).
+    The deterministic regex extractor (STAGE 1) is the only fact-capture
+    path. This shim returns an empty fact list plus a fresh request-scoped
+    in-memory anonymous-fact buffer (the only state the narrator reads
+    downstream), so the single call site (Step 1.4 cont'd) stays unchanged.
     """
-    in_memory_state: dict = _extractor_in_memory_state_for_request()
-    empty_result = {
-        "extractor_facts": [],
-        "in_memory_state": in_memory_state,
-    }
-
-    if not settings.COACH_DUAL_LLM_ENABLED:
-        return empty_result
-
-    if not _has_concrete_facts(sanitized_message):
-        # Skip-on-empty mitigation (RESEARCH §5) — pure ack messages
-        # never invoke the extractor LLM. Bounds cost regression.
-        return empty_result
-
-    # Persistence gate (CONTEXT D-04):
-    #   - authenticated + consent True  → DB write path
-    #   - authenticated + consent False → SKIP entirely (matches today's
-    #       regex extractor gate at the legacy STAGE 1 site)
-    #   - anonymous (no user_id)        → ALWAYS run, in-memory buffer
-    if user_id is not None and not persistence_consent:
-        return empty_result
-
-    cache_id = user_id or "anon"
-    cache_key = _extractor_cache_key(cache_id, sanitized_message)
-    cached_payload = _extractor_cache_get(cache_key)
-    if cached_payload is not None:
-        # Replay cached canonical values into the appropriate sink.
-        replayed_facts: list[ExtractedFact] = []
-        for entry in cached_payload:
-            try:
-                replayed_facts.append(
-                    ExtractedFact(
-                        key=entry["key"],
-                        value=entry["value"],
-                        confidence="high",
-                        # Cache stores no source_quote (D-11). Re-emit a
-                        # neutral marker so Pydantic validation passes;
-                        # downstream code reads `.key` and `.value` only.
-                        source_quote="cached",
-                    )
-                )
-            except Exception:
-                continue
-        # Re-persist from cache so the narrator sees the same state
-        # (matches the no-cache path's invariants).
-        for fact in replayed_facts:
-            _persist_extracted_fact(
-                fact,
-                user_id=user_id,
-                db=db,
-                in_memory_state=in_memory_state if user_id is None else None,
-            )
-        return {
-            "extractor_facts": replayed_facts,
-            "in_memory_state": in_memory_state,
-        }
-
-    # Live extractor call — sequential, with a hard timeout (non-fatal).
-    extractor_output = ExtractorOutput()
-    try:
-        extractor_output = await asyncio.wait_for(
-            run_llm_extractor(
-                user_message=sanitized_message,
-                # CONTEXT D-12: 6-turn history symmetric for both LLMs.
-                conversation_history=(safe_history or [])[-6:],
-                profile_snapshot={
-                    k: v for k, v in (safe_profile or {}).items() if v is not None
-                },
-                api_key=api_key,
-                provider=provider,
-                model="claude-sonnet-4-5-20250929",
-            ),
-            timeout=10.0,
-        )
-    except (asyncio.TimeoutError, Exception) as exc:  # noqa: BLE001
-        logger.warning("llm_extractor failed (non-fatal): %s", type(exc).__name__)
-        extractor_output = ExtractorOutput()
-
-    merged = _merge_extracted(regex_covered_keys, extractor_output.facts)
-
-    # Persistence loop — branches per D-04. Only persist what was merged
-    # (regex-floor-wins already filtered).
-    canonical_payload: list[dict] = []
-    for fact in merged:
-        ok = _persist_extracted_fact(
-            fact,
-            user_id=user_id,
-            db=db,
-            in_memory_state=in_memory_state if user_id is None else None,
-        )
-        if ok:
-            coerced = _coerce_fact_value(fact.key, fact.value)
-            canonical_payload.append({"key": fact.key, "value": coerced})
-
-    # Cache canonical values only (D-11 — no source_quote).
-    if canonical_payload:
-        _extractor_cache_set(cache_key, canonical_payload)
-
     return {
-        "extractor_facts": merged,
-        "in_memory_state": in_memory_state,
+        "extractor_facts": [],
+        "in_memory_state": _extractor_in_memory_state_for_request(),
     }
 
 
@@ -2785,15 +2452,6 @@ PRIMARY_MODEL_DEFAULT = "claude-sonnet-4-5-20250929"
 FALLBACK_MODEL_HAIKU = "claude-haiku-4-5-20251001"
 FALLBACK_TIMEOUT_SECONDS = 20
 FALLBACK_HISTORY_MAX_TURNS = 10
-
-# Phase 91 D-01 — narrator model resolver map. Reads
-# settings.COACH_NARRATOR_MODEL when COACH_DUAL_LLM_ENABLED.
-# Reuses the same model ids defined above (single source of truth);
-# narrator and Sonnet→Haiku fallback share the literal model strings.
-_NARRATOR_MODEL_MAP = {
-    "sonnet": PRIMARY_MODEL_DEFAULT,
-    "haiku": FALLBACK_MODEL_HAIKU,
-}
 
 # v2.7 Task 4: hard-cap user-facing text (FR only in backend; mobile
 # MUST re-localize via ARB key coach.budget.daily_limit_reached).
@@ -5196,33 +4854,14 @@ async def coach_chat(
         )
 
     # ------------------------------------------------------------------
-    # Step 1.4 (cont'd) — Phase 91 Wave 2 STAGE 2 LLM extractor.
+    # Step 1.4 (cont'd) — single-LLM live path.
     # ------------------------------------------------------------------
-    # Behind COACH_DUAL_LLM_ENABLED (default False — flag-OFF path is
-    # byte-identical to today). When ON: runs SEQUENTIALLY after the
-    # regex extractor (STAGE 1) and BEFORE the narrator agent loop.
-    # See `_run_extractor_stage` for failure paths + cache + D-04
-    # anonymous handling.
-    _regex_covered_keys: set[str] = set()
-    try:
-        for _f in locals().get("extracted_facts") or []:
-            _regex_covered_keys |= _REGEX_TOPIC_TO_CANONICAL_KEYS.get(
-                getattr(_f, "topic", ""), set()
-            )
-    except Exception:
-        _regex_covered_keys = set()
-
-    _extractor_stage_result = await _run_extractor_stage(
-        sanitized_message=sanitized_message,
-        safe_history=safe_history,
-        safe_profile=safe_profile or {},
-        regex_covered_keys=_regex_covered_keys,
-        user_id=str(_user.id) if _user else None,
-        db=db,
-        api_key=effective_api_key,
-        provider=body.provider,
-        persistence_consent=body.persistence_consent,
-    )
+    # The dual-LLM STAGE 2 extractor was removed (mint-grounded-coach-m1
+    # Plan 07 — WS-C activate-or-delete, NEVER #6). The regex extractor
+    # (STAGE 1) is the deterministic floor; `_run_extractor_stage` is now a
+    # thin no-op shim that only provides the request-scoped in-memory
+    # anonymous-fact buffer the narrator reads downstream.
+    _extractor_stage_result = await _run_extractor_stage()
     _extractor_in_memory_state: dict = _extractor_stage_result["in_memory_state"]
 
     reasoning_output = StructuredReasoningService.reason(
@@ -5530,73 +5169,29 @@ async def coach_chat(
     # Flutter-bound tools (show_*, route_to_screen) are collected and
     # returned in the response without re-calling the LLM.
     #
-    # Phase 91 Wave 2: when COACH_DUAL_LLM_ENABLED, the narrator path uses
-    # `get_narrator_llm_tools()` (excludes save_fact + save_insight per
-    # EXTR-04). Flag-OFF default keeps `get_llm_tools()` so today's path
-    # is byte-identical.
+    # Single-LLM live path: the legacy tool registry (`get_llm_tools()`).
+    # The dual-LLM narrator registry and the bundle-compiler tool filter
+    # were removed in mint-grounded-coach-m1 Plan 07 (WS-C activate-or-delete,
+    # NEVER #6 — no flag-OFF façade remains).
     # ------------------------------------------------------------------
-    # Phase 93.5 Wave 1 — when the bundle compiler is on, filter the
-    # narrator tool registry by the union of activated bundles' allowed_tools
-    # (CONTEXT D-12 + D-20). On any compile failure (KeyError / ValueError —
-    # H4 undeclared-slot guard), gracefully fall back to the unfiltered
-    # narrator registry so the coach never breaks for users.
-    #
-    # Phase 94 Wave 1 (H1 fix iter 1) — initialize `_compiled_bundle = None`
-    # immediately BEFORE the bundle-compiler branch so the citation-gate
-    # wrapper (Plan 94-02 below at the narrator call site) can safely read
-    # `_compiled_bundle is not None` on EVERY code path : flag-OFF, the
-    # `except (KeyError, ValueError)` branch, the `elif COACH_DUAL_LLM_ENABLED`
-    # branch, and the `else` branch. The success branch overwrites with the
-    # compiled bundle. Type annotation is a forward-reference string so no
-    # import of `CompiledBundle` is required (Karpathy #3 surgical).
-    _compiled_bundle: "CompiledBundle | None" = None  # noqa: F821 — fwd ref
-    if settings.COACH_BUNDLE_COMPILER_ENABLED:
-        try:
-            from app.services.coach.bundle_compiler import (
-                compile_bundles as _cb,
-            )
-
-            _compiled_bundle = _cb(
-                intents=detected_intents or set(),
-                ctx=coach_ctx,
-                language=body.language,
-            )
-            _allowed_names = set(_compiled_bundle.allowed_tools)
-            _narrator_tools = [
-                t for t in get_narrator_llm_tools() if t["name"] in _allowed_names
-            ]
-        except (KeyError, ValueError):
-            _narrator_tools = get_narrator_llm_tools()
-    elif settings.COACH_DUAL_LLM_ENABLED:
-        _narrator_tools = get_narrator_llm_tools()
-    else:
-        _narrator_tools = get_llm_tools()
-    # Phase 91 D-01 — when dual-LLM is on, the narrator's model is selected
-    # by COACH_NARRATOR_MODEL (default 'sonnet' — preserves today's hardcoded
-    # Wave 2 behavior). When dual-LLM is off, the legacy effective_model
-    # resolution stands unchanged (body.model OR budget tier override OR
-    # fallback chain). Stage 3 eval gate (plan 91-05) is the explicit
-    # decision point that may flip the default to 'haiku' (-2.5%/turn) per
-    # ADR-20260419-v2.8-kill-policy.md.
-    _narrator_model = (
-        _NARRATOR_MODEL_MAP[settings.COACH_NARRATOR_MODEL]
-        if settings.COACH_DUAL_LLM_ENABLED
-        else effective_model
-    )
-    # Phase 94 Wave 1 — citation-gate wrapper. Karpathy #3 surgical: ZERO
-    # edits inside `_run_agent_loop` (1726-2624). The wrapper :
+    _narrator_tools = get_llm_tools()
+    # Legacy effective_model resolution (body.model OR budget tier override
+    # OR fallback chain) — the dual-LLM COACH_NARRATOR_MODEL branch was
+    # removed with the dual-LLM split (Plan 07).
+    _narrator_model = effective_model
+    # mint-grounded-coach-m1 Plan 07 — citation-gate wrapper. The wrapper :
     #   1. Calls `_run_agent_loop` once.
-    #   2. If `COACH_CITATION_GATE_ENABLED=False` (D-19 default), returns
-    #      the loop_result UNCHANGED — flag-OFF byte-identical bypass per
+    #   2. If `COACH_CITATION_GATE_ENABLED=False` (rollback override),
+    #      returns the loop_result UNCHANGED — byte-identical bypass per
     #      D-20 (asserted by tests/test_citation_gate/test_byte_identity_*).
-    #   3. If flag-ON, runs `gate(loop_result["answer"], ...)`. On
-    #      `retry_needed=True`, calls `_run_agent_loop` a SECOND time
+    #   3. When ACTIVE (default True), runs `gate(loop_result["answer"], ...)`.
+    #      On `retry_needed=True`, calls `_run_agent_loop` a SECOND time
     #      with `question = body.message + reprompt_addendum` (D-08
     #      hard-cap=1 ; the second-pass gate is invoked with
     #      `is_retry=True` which collapses any rejection to FALLBACK).
-    # D-07 — citation_allowlist is the bundle's compile-time allowlist
-    # when the compiler flag is on AND the bundle compiled successfully ;
-    # else None → gate falls back to the global CITATION_REGISTRY keys.
+    # The citation_allowlist is None → the gate falls back to the global
+    # CITATION_REGISTRY keys (the bundle-compiler compile-time allowlist was
+    # removed with the compiler in Plan 07).
     _initial_loop_kwargs = dict(
         orchestrator=orchestrator,
         api_key=effective_api_key,
@@ -5617,14 +5212,9 @@ async def coach_chat(
         # handlers (pre_compute.precompute_after_fact_save site).
         background_tasks=background_tasks,
     )
-    _gate_allowlist = (
-        list(_compiled_bundle.citation_allowlist)
-        if (
-            settings.COACH_BUNDLE_COMPILER_ENABLED
-            and _compiled_bundle is not None
-        )
-        else None
-    )
+    # None → the gate uses the global CITATION_REGISTRY keys (the
+    # bundle-compiler compile-time allowlist was removed in Plan 07).
+    _gate_allowlist = None
 
     # P003 (2026-05-12) — user-input number awareness for the citation gate.
     # Extract numeric tokens from the current user message AND the last 8

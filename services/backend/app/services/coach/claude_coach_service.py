@@ -30,7 +30,6 @@ Sources:
 
 import logging as _n5_logging
 import os
-import warnings
 from datetime import datetime as _n5_dt, timedelta as _n5_td, timezone as _n5_tz
 from typing import TYPE_CHECKING, Optional
 
@@ -53,28 +52,11 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Phase 93.5 Plan 04 (BUNDLE-04, H5) — deprecation signal at import time.
-#
-# When the bundle-compiler flag is ON, emit a DeprecationWarning so any
-# tooling that imports this module sees the legacy narrator base prompt
-# is on its way out. Deletion is deferred to Phase 95 per CONTEXT D-19
-# (the legacy path remains the byte-identity reference until prod traffic
-# has run on the bundle path for ≥4 weeks with zero rollback incidents).
-#
-# Reading the env var directly (NOT settings.X) avoids a circular import
-# via app.core.config when this module is loaded early in the FastAPI
-# import graph.
-# ---------------------------------------------------------------------------
-if os.getenv("COACH_BUNDLE_COMPILER_ENABLED", "").lower() == "true":
-    warnings.warn(
-        "_NARRATOR_BASE_SYSTEM_PROMPT is superseded by the bundle "
-        "compiler (Phase 93.5). Deletion is deferred to Phase 95 per "
-        "CONTEXT D-19. Update consumers to call "
-        "build_narrator_system_prompt_from_bundles instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+# mint-grounded-coach-m1 Plan 07 — the COACH_BUNDLE_COMPILER_ENABLED
+# import-time DeprecationWarning was removed: the bundle-compiler flag was
+# deleted (WS-C activate-or-delete, NEVER #6), so the env var no longer
+# maps to any Settings field and the legacy narrator base prompt is the
+# single live template (the dual-LLM / bundle-compiler dark paths are gone).
 
 
 # ---------------------------------------------------------------------------
@@ -1089,8 +1071,13 @@ def build_narrator_system_prompt_from_bundles(
     Replaces `_NARRATOR_BASE_SYSTEM_PROMPT` (legacy single template) with
     a dynamic union of bundle fragments per CONTEXT D-09 / D-10 / D-11 /
     D-12 / D-13 / D-14. Coexists with `build_narrator_system_prompt` per
-    CONTEXT D-16 ; the coach_chat caller selects via
-    `settings.COACH_BUNDLE_COMPILER_ENABLED` (flag-OFF default = legacy).
+    CONTEXT D-16.
+
+    NOTE (mint-grounded-coach-m1 Plan 07): the production coach_chat caller
+    no longer selects this builder — the `COACH_BUNDLE_COMPILER_ENABLED`
+    flag and its consumer branch were removed (WS-C activate-or-delete,
+    NEVER #6). This builder + the bundle compiler are retained as
+    test-covered library code only (no production caller).
 
     Per C3 fix (revision iter1 2026-05-10) — kwargs-only, NO memory-block
     parameters. The 3 memory blocks (`commitment_block`,

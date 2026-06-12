@@ -34,6 +34,23 @@ from app.services.coach.bundles import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _citation_gate_off(monkeypatch):
+    """These tests pin the BASE bundle-composition algorithm (drop priority,
+    budget, dedup, always-on ordering) independent of the citation grammar.
+
+    mint-grounded-coach-m1 Plan 07 ACTIVATED the citation gate by default, so
+    `compile_bundles` now appends the always-on `citation-grammar` bundle when
+    `COACH_CITATION_GATE_ENABLED` is True (bundle_compiler.py). To keep these
+    composition assertions stable against the base set, the gate is forced OFF
+    here. The gate-ON citation-grammar addition is covered by
+    tests/test_citation_gate/ (intent-scoped grammar + narrator fragment).
+    """
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
+
+
 # ---------------------------------------------------------------------------
 # Module-level invariants (T-93.5-06)
 # ---------------------------------------------------------------------------

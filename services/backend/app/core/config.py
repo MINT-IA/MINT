@@ -1,7 +1,7 @@
 import os
 from typing import Literal
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -60,35 +60,23 @@ class Settings(BaseSettings):
     COACH_MAX_TOKENS: int = 350
     COACH_DAILY_QUOTA: int = 30  # per user, free tier
 
-    # Phase 91 dual-LLM (extractor + narrator) split kill-flag.
-    # False = legacy single-LLM path (current production).
-    # True  = dual-LLM path: extractor LLM captures facts before the
-    #         narrator LLM delivers the user-facing reply.
-    # Wave 0 (this commit): scaffolding only — no consumers yet. The flag
-    # is wired in Wave 2 (coach_chat.py Step 1.5) and flipped per Stage 4
-    # staging soak. See .planning/phases/91-mvp-extractor-v2/RESEARCH.md
-    # §4 Stage 0 T0.2 + 91-CONTEXT.md decision D-12.
-    COACH_DUAL_LLM_ENABLED: bool = False
-
-    # Phase 93.5 — feature flag for skill-bundle compiler (CONTEXT D-15).
-    # Default `false` in prod ; `true` in staging during Stage 3 eval
-    # (Plan 93.5-04). Mirrors `COACH_DUAL_LLM_ENABLED` rollout pattern.
-    # When `true`, `coach_chat._build_system_prompt_with_memory` routes via
-    # `build_narrator_system_prompt_from_bundles` (compile_bundles → 6 named
-    # bundle fragments + tool allowlist + citation allowlist) instead of
-    # the legacy `_NARRATOR_BASE_SYSTEM_PROMPT` template.
-    COACH_BUNDLE_COMPILER_ENABLED: bool = False
-
-    # COACH_CITATION_GATE_ENABLED — Phase 94 (CONTEXT D-19/D-20).
-    # Closed-world citation gate post-process parser. Default OFF in prod ;
-    # ON in staging during Stage 3 eval (Plan 94-03). Wired in coach_chat
-    # narrator response stage (Plan 94-02) when True ; flag-OFF path is
-    # byte-identical to the pre-Phase-94 narrator output (asserted by
-    # tests/test_citation_gate/test_byte_identity_flag_off.py against the
-    # 5 captured legacy snapshots in tests/fixtures/narrator_legacy_snapshots/).
-    # Sunset clause: D-21 — flag + bypass code path removed in Phase 96 OR
-    # after 4-week staging soak with `coach.citation_gate.fallback` rate ≤2%.
-    COACH_CITATION_GATE_ENABLED: bool = False
+    # COACH_CITATION_GATE_ENABLED — Phase 94 (CONTEXT D-19/D-20), ACTIVATED
+    # in mint-grounded-coach-m1 Plan 07 (WS-C activate-or-delete resolution).
+    # Closed-world citation gate post-process parser, now DEFAULT ON: the
+    # narrator must emit {{cite:...}} placeholders for numeric/regulatory
+    # claims and the gate enforces them against the closed-world citation
+    # registry (REJECTED_UNCITED → retry → templated fallback). The
+    # decision to activate weighed the observed fallback_reasons counts from
+    # Plans 02 (38.5% on an adversarial-skewed probe, dominated by
+    # prescriptive_blocked) and 04 (zero incremental fallback on clean
+    # definitional shapes) plus the racheter word-boundary false-positive
+    # fix (commit 6f60acab3) — the smaller remaining surface complementing
+    # the now-live claim-checker + education-strict gates.
+    # Rollback: set COACH_CITATION_GATE_ENABLED=false in env to restore the
+    # byte-identical OFF path (the bypass branch + the OFF-path byte-identity
+    # test in tests/test_citation_gate/test_byte_identity_flag_off.py are
+    # retained as the rollback contract).
+    COACH_CITATION_GATE_ENABLED: bool = True
 
     # === Wave 1a server-side compute rollback flags (D-05, D-09) ===
     # Plans 01-06 READ these flags but do NOT add new ones.
@@ -124,25 +112,6 @@ class Settings(BaseSettings):
     # v2.9 ships log_only by default — LSFin Art 8 « ability to demonstrer
     # la conformité » minimum. Promotion ladder lives in v2.10 (W3-T3 + W4-T2).
     CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "log_only"
-
-    # Phase 91 D-01 — Narrator model selection. Default 'sonnet' matches
-    # today's hardcoded Wave 2 narrator branch (preserves production
-    # parity until Stage 3 eval gate flips the default in 91-05).
-    # Per ADR-20260419-v2.8-kill-policy.md, Stage 3 fail => keep 'sonnet'
-    # (cost +54% per turn ceiling); Stage 3 pass => flip to 'haiku'
-    # (cost -2.5% per turn). The flip is the explicit decision documented
-    # in 91-05-SUMMARY.md, NOT an automated default change here.
-    # Wired in coach_chat.py via _NARRATOR_MODEL_MAP when
-    # COACH_DUAL_LLM_ENABLED is True; flag-OFF path is unaffected.
-    COACH_NARRATOR_MODEL: Literal["sonnet", "haiku"] = Field(
-        default="sonnet",
-        description=(
-            "Phase 91 narrator model selection. 'sonnet' (default) = "
-            "claude-sonnet-4-5-20250929; 'haiku' = claude-haiku-4-5-20251001. "
-            "Wired in coach_chat narrator branch when COACH_DUAL_LLM_ENABLED. "
-            "Per D-01 + ADR-20260419-v2.8-kill-policy.md."
-        ),
-    )
 
     # Apple IAP / StoreKit
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
