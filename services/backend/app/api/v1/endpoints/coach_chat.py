@@ -1865,11 +1865,67 @@ _INTENT_KEYWORDS: dict[str, tuple[str, ...]] = {
 }
 
 
+# WS-B Plan 05 — definiendum lexicon for the definition_request intent.
+# A user asks for a DEFINITION when an interrogative pattern ("c'est quoi",
+# "qu'est-ce que", "explique"…) co-occurs with a registry concept term.
+# Diacritic-stripped, lowercase (matched against the normalised message).
+_DEFINITION_INTERROGATIVES: tuple[str, ...] = (
+    "c'est quoi",
+    "cest quoi",
+    "c est quoi",
+    "qu'est-ce que",
+    "qu est ce que",
+    "quest ce que",
+    "qu'est ce que",
+    "explique",
+    "explication",
+    "definition de",
+    "definir",
+    "ca veut dire quoi",
+    "ca signifie quoi",
+)
+
+# Surface terms that name a registry concept. Kept diacritic-free and broad
+# enough to catch the way users name these concepts in plain text, but each
+# term maps unambiguously to the curated CONCEPT_REGISTRY (Plan 04).
+_DEFINITION_CONCEPT_TERMS: tuple[str, ...] = (
+    "rachat",
+    "epl",
+    "encouragement a la propriete",
+    "3a",
+    "3 a",
+    "pilier 3a",
+    "pilier 3b",
+    "3eme pilier",
+    "troisieme pilier",
+    "splitting",
+    "taux de conversion",
+    "lacune de prevoyance",
+    "lacunes de prevoyance",
+    "deduction de coordination",
+    "coordination",
+    "libre passage",
+    "bonification",
+    "frontalier",
+    "fatca",
+    "rente du 2e pilier",
+    "imposition de la rente",
+    "imposition du capital",
+    "age de reference",
+    "age avs",
+)
+
+
 def _classify_user_intent(message: Optional[str]) -> set[str]:
     """Classify a user message into one or more life-event intent labels.
 
     Heuristic, not ML. Strips diacritics for robustness ("dette" matches
     "dettes" / "endetté"). Returns set() when no keyword fires.
+
+    WS-B Plan 05 — also emits "definition_request" when an interrogative
+    pattern co-occurs with a registry concept term (so the agent loop can force
+    explain_concept on the turn's first call). This is intentionally narrow:
+    naming a concept without asking for its definition does NOT fire it.
     """
     if not message or not message.strip():
         return set()
@@ -1886,6 +1942,13 @@ def _classify_user_intent(message: Optional[str]) -> set[str]:
             if kw in normalized:
                 detected.add(intent)
                 break
+
+    # WS-B Plan 05 — definition_request: interrogative + registry concept term.
+    _has_interrogative = any(p in normalized for p in _DEFINITION_INTERROGATIVES)
+    _has_concept = any(t in normalized for t in _DEFINITION_CONCEPT_TERMS)
+    if _has_interrogative and _has_concept:
+        detected.add("definition_request")
+
     return detected
 
 
@@ -2696,6 +2759,7 @@ async def _call_with_fallback(
     user_id,
     conversation_history: Optional[list],
     n_results: int = 5,
+    tool_choice: Optional[dict] = None,
 ) -> tuple[dict, dict]:
     """Call orchestrator.query() with Sonnet→Haiku graceful degradation.
 
@@ -2740,6 +2804,7 @@ async def _call_with_fallback(
             user_id=user_id,
             conversation_history=q_history,
             n_results=n_results,  # Wave 1c-A2 plumbing
+            tool_choice=tool_choice,  # WS-B Plan 05 — forced explain_concept (first call)
         )
 
     try:
@@ -4144,6 +4209,62 @@ def _handle_regulatory_constant(tool_input: dict) -> str:
     return handle_regulatory_constant(tool_input)
 
 
+def _gate_fact_card_against_registry(card: dict) -> Optional[dict]:
+    """Validate a show_fact_card payload against CONCEPT_REGISTRY (WS-B Plan 05).
+
+    The card's content/source are 100% LLM-generated today (audit 04 §1.3 P1).
+    This closes that ungated channel: when a card concerns a registry concept,
+    its content must not contradict the curated page, and its source must be the
+    page's source.
+
+    Args:
+        card: a Flutter-bound tool_call dict ``{"name": "show_fact_card",
+            "input": {"title", "content", "source", ...}}``.
+
+    Returns:
+        - The card (source repaired in place) when it passes or is repairable.
+        - ``None`` when the card content inverts a registry definition — the
+          caller drops the card and emits the templated fallback text.
+        - The card untouched when it concerns no registry concept (no false
+          rejection of non-registry fact cards).
+    """
+    from app.services.coach.claim_checker import check_claims, resolve_definiendum
+    from app.services.coach.concept_registry import resolve as _resolve_concept
+
+    inp = card.get("input") or {}
+    title = inp.get("title", "") or ""
+    content = inp.get("content", "") or ""
+    combined = f"{title}\n{content}"
+
+    concept_key = resolve_definiendum(combined)
+    if concept_key is None:
+        # Card is about a non-registry topic — not gated.
+        return card
+
+    # 1) Content gate: a definitional inversion of a known concept is blocked.
+    if check_claims(combined):
+        logger.info(
+            "coach.fact_card.blocked concept=%s reason=definition_inversion",
+            concept_key,
+        )
+        return None
+
+    # 2) Source repair: force the curated page source for a known concept so a
+    #    fabricated/off-registry source cannot ship.
+    page = _resolve_concept(concept_key)
+    if page is not None and inp.get("source") != page.source_title:
+        logger.info(
+            "coach.fact_card.source_repaired concept=%s from=%r to=%r",
+            concept_key,
+            inp.get("source"),
+            page.source_title,
+        )
+        inp["source"] = page.source_title
+        card["input"] = inp
+
+    return card
+
+
 async def _run_agent_loop(
     orchestrator,
     question: str,
@@ -4214,6 +4335,14 @@ async def _run_agent_loop(
     # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
     _MAX_UNKNOWN_TOOL_CALLS = 2
     unknown_tool_count = 0
+    # WS-B Plan 05 — set when the registry gate drops a show_fact_card so the
+    # no-text path can substitute a calm fallback instead of an empty answer.
+    _fact_card_blocked = False
+    _FACT_CARD_FALLBACK_FR = (
+        "Je préfère ne pas afficher cette fiche : sa formulation ne correspond "
+        "pas à la définition de référence. Reformule ta question et je te "
+        "réponds sur la base de la source officielle."
+    )
 
     for iteration in range(MAX_AGENT_LOOP_ITERATIONS):
         # Check token budget BEFORE calling (except first iteration)
@@ -4269,6 +4398,28 @@ async def _run_agent_loop(
                     ),
                 )
 
+            # WS-B Plan 05 — FIRST-CALL-ONLY forced explain_concept. When the
+            # user's intent is a definition request for a registry concept,
+            # force tool_choice {"type":"tool","name":"explain_concept"} on the
+            # turn's FIRST LLM call so the model retrieves the curated definition
+            # instead of defining from its weights (generalises
+            # anonymous_chat.py:204). Iterations 2..MAX revert to auto (None)
+            # — otherwise every iteration re-forces the tool and the loop never
+            # emits the final text answer (mirrors "force turn 1, answer turn 2").
+            _forced_tool_choice = (
+                {"type": "tool", "name": "explain_concept"}
+                if (
+                    iteration == 0
+                    and "definition_request" in (detected_intents or set())
+                    and any(
+                        (t.get("name") if isinstance(t, dict) else None)
+                        == "explain_concept"
+                        for t in (stripped_tools or [])
+                    )
+                )
+                else None
+            )
+
             # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
             # _call_with_fallback has its own inner timeout; outer wait_for keeps
             # AGENT_ITERATION_TIMEOUT_SECONDS as a hard upper bound for the
@@ -4287,6 +4438,7 @@ async def _run_agent_loop(
                     user_id=user_id,
                     conversation_history=iter_history,
                     n_results=_n_results_for_call,  # Wave 1c-A2
+                    tool_choice=_forced_tool_choice,  # WS-B Plan 05 (first call only)
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
@@ -4367,6 +4519,22 @@ async def _run_agent_loop(
                     inp["context_message"] = pattern.sub(
                         "[***]", inp["context_message"]
                     )
+
+        # WS-B Plan 05 — gate show_fact_card content/source against the registry
+        # BEFORE the card crosses to the mobile renderer (audit 04 §1.3 P1). An
+        # inverted definition is dropped (fallback text); an off-registry source
+        # for a known concept is repaired to the page source.
+        _gated_external: list = []
+        for tc in external_calls:
+            if tc.get("name") == "show_fact_card":
+                _kept = _gate_fact_card_against_registry(tc)
+                if _kept is None:
+                    _fact_card_blocked = True
+                    continue
+                _gated_external.append(_kept)
+            else:
+                _gated_external.append(tc)
+        external_calls = _gated_external
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done — but only if Claude
@@ -4383,6 +4551,12 @@ async def _run_agent_loop(
             if external_calls:
                 # (a) tools emitted, no text → ask for narration
                 current_question = _REPROMPT_EMPTY_NARRATION
+            elif _fact_card_blocked:
+                # WS-B Plan 05 — the only emitted card was dropped by the
+                # registry gate and there is no narration: substitute the calm
+                # fallback instead of re-prompting into an empty answer.
+                final_answer = _FACT_CARD_FALLBACK_FR
+                break
             else:
                 # (b) empty end_turn with no tools → reflective retry
                 logger.warning(

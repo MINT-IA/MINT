@@ -116,6 +116,7 @@ class LLMClient:
         context_chunks: list[str],
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
+        tool_choice: dict | None = None,
     ) -> str | dict:
         """
         Generate a response using the configured LLM.
@@ -140,6 +141,7 @@ class LLMClient:
             return await self._call_claude(
                 system_prompt, augmented_message, tools=tools,
                 conversation_history=conversation_history,
+                tool_choice=tool_choice,
             )
         elif self.provider == "openai":
             return await self._call_openai(system_prompt, augmented_message)
@@ -171,6 +173,7 @@ class LLMClient:
         user_message: str,
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
+        tool_choice: dict | None = None,
     ) -> str | dict:
         """Call the Anthropic Claude API, optionally with tool definitions.
 
@@ -224,10 +227,20 @@ class LLMClient:
                 # when the system prompt says "MANDATORY call save_fact".
                 # disable_parallel_tool_use=False → Claude can call multiple
                 # save_fact in a single turn when user declares several facts.
-                kwargs["tool_choice"] = {
-                    "type": "auto",
-                    "disable_parallel_tool_use": False,
-                }
+                #
+                # WS-B Plan 05: a caller may FORCE a specific tool for the
+                # turn's first call (e.g. {"type":"tool","name":"explain_concept"}
+                # on definition intent — generalising anonymous_chat.py:204).
+                # The override applies to THIS call only; the agent loop reverts
+                # to auto on follow-up iterations (coach_chat._run_agent_loop),
+                # so the loop terminates with a text answer after the tool_result.
+                if tool_choice is not None:
+                    kwargs["tool_choice"] = tool_choice
+                else:
+                    kwargs["tool_choice"] = {
+                        "type": "auto",
+                        "disable_parallel_tool_use": False,
+                    }
 
             # Wave 1c instrumentation (engram obs id 74, 2026-05-15): when
             # WAVE1C_INSTRUMENT_ENABLED=true is set on the staging env, log the

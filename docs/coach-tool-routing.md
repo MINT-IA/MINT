@@ -46,6 +46,10 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "get_cap_status",
     "get_couple_optimization",
     "get_regulatory_constant",
+    # WS-B mint-grounded-coach-m1 Plan 05: explain_concept resolves the
+    # curated CONCEPT_REGISTRY page (canonical_fr + source) and feeds it back
+    # as a tool_result — grounded definition retrieval, never forwarded to Flutter.
+    "explain_concept",
     # Wave E-PRIME 2026-04-18: 3 ack-only tools kept internal
     # (goal_set, step_done, insight_saved) — persistence deferred.
     "save_fact",
@@ -64,6 +68,7 @@ INTERNAL_TOOL_NAMES: list[str] = [
 | `get_cap_status` | Reads CapMemoryStore → tool_result | Defaults | No |
 | `get_couple_optimization` | Couple calculator → tool_result | Defaults | No |
 | `get_regulatory_constant` | RegulatoryConstantsService → tool_result | Same | No |
+| `explain_concept` | CONCEPT_REGISTRY.resolve → canonical_fr + source as tool_result; forced via tool_choice on definition_request intent (FIRST loop call only, then auto) | Same | No |
 | `save_fact` | **Writes ProfileModel.data row** ← persistence | **Hits `# Hors-DB path`, returns "Fait noté (hors DB)" with no write** ⚠ | **No** ← this is the bug |
 | `suggest_actions` | `_compute_suggested_actions` reads DB gaps | Empty suggestions | No |
 

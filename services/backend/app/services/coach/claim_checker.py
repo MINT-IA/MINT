@@ -103,6 +103,38 @@ def _inversion_markers(page) -> list[str]:
     return [m for m in page.not_this_fr if len(m.split()) >= 2]
 
 
+def resolve_definiendum(text: str) -> str | None:
+    """Return the registry concept_key whose definiendum is the subject of ``text``.
+
+    WS-B Plan 05 — used by the show_fact_card gate to decide whether a card
+    concerns a registry concept (and therefore whose source it must carry). It
+    reuses the SAME closed-world definiendum lexicon as ``check_claims`` so the
+    two stay in sync (single source of truth — no duplicated concept-matching).
+
+    Args:
+        text: candidate definitional text (a fact-card title + content).
+
+    Returns:
+        The first matching concept_key, or ``None`` if the text names no
+        registry concept. Longer (more specific) definiendum forms are matched
+        first so « pilier 3a » wins over a bare token where both could apply.
+    """
+    if not text or not text.strip():
+        return None
+    low = _normalize(text)
+    # Match the most specific (longest) definiendum form first.
+    candidates: list[tuple[int, str]] = []
+    for concept_key, lexicon in _DEFINIENDUM_LEXICON.items():
+        for form in lexicon:
+            if _normalize(form) in low:
+                candidates.append((len(form), concept_key))
+                break
+    if not candidates:
+        return None
+    candidates.sort(reverse=True)
+    return candidates[0][1]
+
+
 def check_claims(text: str) -> list[ClaimViolation]:
     """Detect definitional inversions of CONCEPT_REGISTRY concepts in ``text``.
 
@@ -141,4 +173,4 @@ def check_claims(text: str) -> list[ClaimViolation]:
     return violations
 
 
-__all__ = ["ClaimViolation", "check_claims"]
+__all__ = ["ClaimViolation", "check_claims", "resolve_definiendum"]
