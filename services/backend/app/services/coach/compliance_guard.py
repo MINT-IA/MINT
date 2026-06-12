@@ -34,7 +34,15 @@ logger = logging.getLogger(__name__)
 
 
 class ComplianceGuard:
-    """Validates LLM output before user display."""
+    """Validates LLM output before user display.
+
+    Education-strict perimeter (CONTEXT decision 1, mint-grounded-coach-m1):
+    the coach is a narrateur, not a conseiller. Layer 1 (banned terms) blocks
+    any term that survives sanitisation; Layer 2 (prescriptive language) is a
+    garde bloquante — a single prescriptive financial instruction falls back to
+    a templated safe reply rather than shipping to the user. The CODE matches
+    the perimeter, not just the prompt.
+    """
 
     # ═══════════════════════════════════════════════════════════════════
     # Layer 1: Banned terms
@@ -434,30 +442,45 @@ class ComplianceGuard:
             violations.extend(
                 [f"Terme interdit: '{term}'" for term in banned_found]
             )
-            # Always sanitize banned terms instead of fallback.
-            # The >2 threshold was killing legitimate French finance responses
-            # where "meilleur/optimal" appear naturally. Sanitization replaces
-            # terms with compliant alternatives — sufficient for LSFin.
+            # Education-strict perimeter (CONTEXT decision 1, WS-A): sanitise
+            # first, then re-scan. Any banned term that SURVIVES sanitisation
+            # is a residual the perimeter no longer tolerates — the >5 count
+            # tolerance is removed. Sanitisation handles the common case (the
+            # term is replaced with a compliant alternative and no residual
+            # remains, so the response is preserved); the residual re-scan is
+            # the bloquante garde for a future bypass that sanitisation misses.
             text = self._sanitize_banned_terms(text)
-            if len(banned_found) > 5:
-                # Only fallback on truly egregious cases (5+ distinct banned terms
-                # suggests a fundamentally non-compliant response).
+            scan_after = text
+            for neg in self._NEGATED_GUARANTEE_PATTERNS:
+                scan_after = neg.sub("", scan_after)
+            banned_residual = self._check_banned_terms(scan_after)
+            if banned_residual:
                 use_fallback = True
                 fallback_reasons.append(
-                    f"banned_terms>5 ({len(banned_found)}: {banned_found[:5]})"
+                    f"banned_residual ({len(banned_residual)}: {banned_residual[:5]})"
                 )
 
         # ── Layer 2: Prescriptive patterns ──
-        # NEVER fallback on prescriptive language — always log only.
-        # The system prompt already instructs Claude to use conditional language.
-        # Killing the response for natural French like "rachète ta LPP" or
-        # "investis dans ton 3a" destroys every substantive coach response.
-        # Defense is in the prompt, not in post-hoc rejection.
+        # Garde prescriptive BLOQUANTE (education-strict perimeter, CONTEXT
+        # decision 1, WS-A). The coach is a narrateur, not a conseiller: a
+        # single prescriptive financial instruction ("tu devrais racheter ta
+        # LPP", "fais un rachat") is out-of-perimeter and falls back to a
+        # templated safe reply rather than shipping to the user. This replaces
+        # the prior log-only posture, which delegated the perimeter entirely to
+        # the prompt — the CODE now matches the perimeter, not just the prompt.
         prescriptive_found = self._check_prescriptive(text)
         if prescriptive_found:
-            logger.info("ComplianceGuard L2: prescriptive %s in %s user=%s (logged, not rejected)", prescriptive_found, component_type, user_id or "anonymous")
+            logger.warning(
+                "ComplianceGuard L2: use_fallback=True reason=prescriptive_blocked "
+                "hits=%s component=%s user=%s",
+                prescriptive_found, component_type, user_id or "anonymous",
+            )
             violations.extend(
                 [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
+            )
+            use_fallback = True
+            fallback_reasons.append(
+                f"prescriptive_blocked ({len(prescriptive_found)}: {prescriptive_found[:5]})"
             )
 
         # ── Layer 2b: High-register drift (N4/N5 only) ──
