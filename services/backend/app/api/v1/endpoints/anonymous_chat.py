@@ -174,9 +174,19 @@ class _NoRagOrchestrator:
 
         guardrails = ComplianceGuardrails()
 
-        # Couche A — pass get_regulatory_constant tool definition only (anonymous = no profile)
+        # Couche A — anonymous tool surface. Two grounded read-only tools:
+        #   get_regulatory_constant — Swiss plafonds/taux/barèmes (numbers).
+        #   explain_concept — curated CONCEPT_REGISTRY definitions (Codex fix_6).
+        # The W1 rachat-inversion incident happened HERE (anonymous surface): the
+        # LLM defined a regulated concept from its weights. Exposing + forcing
+        # explain_concept disarms it on definitions the same way
+        # get_regulatory_constant disarms it on numbers.
         all_tools = get_llm_tools()
-        anon_tools = [t for t in all_tools if t.get("name") == "get_regulatory_constant"]
+        anon_tools = [
+            t
+            for t in all_tools
+            if t.get("name") in ("get_regulatory_constant", "explain_concept")
+        ]
 
         # Couche C — finance-keyword detector tightens tool_choice from auto to forced
         # Use word boundaries; lowercase the question for case-insensitive matching.
@@ -184,7 +194,32 @@ class _NoRagOrchestrator:
             r"\b(3a|3eme|3ème|3e\s*pilier|lpp|avs|plafond|rente|cotisation|fiscal|imp[oô]t|fortune|salaire|taux|d[ée]duction|barreme|bareme|barème)\b",
             re.IGNORECASE,
         )
-        force_tool = bool(_FINANCE_KW.search(question))
+        # Codex fix_6 — definition-intent detector for the anonymous surface.
+        # An interrogative ("c'est quoi", "explique", "comment fonctionne",
+        # "ce que veut dire", "j'aimerais comprendre"…) co-occurring with a
+        # registry concept term forces explain_concept on the FIRST call. Mirrors
+        # the authenticated _classify_user_intent definition_request narrowness:
+        # naming a concept without asking for its definition does NOT fire it.
+        _DEF_INTERROGATIVE = re.compile(
+            r"(c['’\s]?est\s+quoi|qu['’\s]?est[\s-]?ce\s+que|explique|explication|"
+            r"d[ée]finition|d[ée]finir|comment\s+(?:fonctionne|marche|[çc]a\s+marche)|"
+            r"ce\s+que\s+(?:[çc]a\s+)?veut\s+dire|veut\s+dire\s+quoi|signifie\s+quoi|"
+            r"j['’\s]?aimerais\s+(?:comprendre|savoir)|tu\s+peux\s+m['’\s]?expliquer|"
+            r"peux[\s-]?tu\s+m['’\s]?expliquer|[çc]a\s+veut\s+dire\s+quoi)",
+            re.IGNORECASE,
+        )
+        _DEF_CONCEPT = re.compile(
+            r"\b(rachat|epl|encouragement\s+[àa]\s+la\s+propri[ée]t[ée]|pilier\s+3[ab]|"
+            r"3e(?:me)?\s+pilier|troisi[èe]me\s+pilier|splitting|taux\s+de\s+conversion|"
+            r"lacune|coordination|libre\s+passage|bonification|frontalier|fatca)\b",
+            re.IGNORECASE,
+        )
+        force_definition = bool(
+            _DEF_INTERROGATIVE.search(question) and _DEF_CONCEPT.search(question)
+        )
+        # Definition intent takes priority over the generic finance-keyword
+        # force (a definition ask is more specific than a number lookup).
+        force_tool = (not force_definition) and bool(_FINANCE_KW.search(question))
 
         # Direct Anthropic SDK call (LLMClient.generate doesn't support
         # multi-block content for tool_result — see llm_client.py:196-198).
@@ -201,11 +236,15 @@ class _NoRagOrchestrator:
         client = AsyncAnthropic(api_key=api_key, timeout=60.0)
 
         messages: list[dict] = [{"role": "user", "content": question}]
-        tool_choice: dict = (
-            {"type": "tool", "name": "get_regulatory_constant"}
-            if force_tool
-            else {"type": "auto"}
-        )
+        # First-call-only force (Codex fix_6): definition intent → explain_concept;
+        # else finance keyword → get_regulatory_constant; else auto. The follow-up
+        # call after a tool_result reverts to auto (already the case below).
+        if force_definition:
+            tool_choice: dict = {"type": "tool", "name": "explain_concept"}
+        elif force_tool:
+            tool_choice = {"type": "tool", "name": "get_regulatory_constant"}
+        else:
+            tool_choice = {"type": "auto"}
 
         # First LLM turn — may emit text + tool_use blocks.
         first = await client.messages.create(
@@ -276,6 +315,34 @@ class _NoRagOrchestrator:
                         ).hexdigest()
                         emit_coach_tool_breadcrumb(
                             tool_name="regulatory_constant",
+                            inputs_hash=_inputs_hash,
+                            profile_id_hashed="anonymous",
+                            elapsed_ms=int((_time.monotonic() - _t0) * 1000),
+                            flag_state="on",
+                            extra_tags={"path": "anonymous"},
+                        )
+                    except Exception:
+                        pass  # fail-open per coach_breadcrumbs.py contract
+                elif b.name == "explain_concept":
+                    # Codex fix_6 — resolve the curated CONCEPT_REGISTRY page so
+                    # the anonymous LLM grounds its definition on the registry,
+                    # never on its weights (the W1 rachat-inversion fix). Imported
+                    # from the shared coach_tools module (no endpoint import →
+                    # preserves T-13-06 isolation; handle_explain_concept touches
+                    # no auth/profile/DB).
+                    from app.services.coach.coach_tools import (
+                        handle_explain_concept,
+                    )
+
+                    tool_input_dict = b.input or {}
+                    result_str = handle_explain_concept(tool_input_dict)
+                    executed_tool_names.append("explain_concept")
+                    try:  # pragma: no cover — telemetry-only
+                        _inputs_hash = _hashlib.sha256(
+                            _json.dumps(tool_input_dict, sort_keys=True).encode()
+                        ).hexdigest()
+                        emit_coach_tool_breadcrumb(
+                            tool_name="explain_concept",
                             inputs_hash=_inputs_hash,
                             profile_id_hashed="anonymous",
                             elapsed_ms=int((_time.monotonic() - _t0) * 1000),

@@ -183,8 +183,10 @@ async def test_tool_use_triggers_second_call_with_tool_result():
 
 
 @pytest.mark.asyncio
-async def test_tools_list_is_filtered_to_regulatory_only():
-    """Anonymous path only wires get_regulatory_constant — not budget / projection / etc."""
+async def test_tools_list_is_filtered_to_grounded_tools_only():
+    """Anonymous path wires the two GROUNDED read-only tools only —
+    get_regulatory_constant (numbers) + explain_concept (definitions, Codex
+    fix_6) — never budget / projection / write tools."""
     from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
 
     orchestrator = _NoRagOrchestrator()
@@ -203,11 +205,180 @@ async def test_tools_list_is_filtered_to_regulatory_only():
         )
 
         kwargs = instance.messages.create.call_args.kwargs
-        tool_names = [t.get("name") for t in kwargs.get("tools", [])]
-        # Single tool exposed to anonymous LLM.
-        assert tool_names == ["get_regulatory_constant"], (
-            f"anonymous path must expose ONLY get_regulatory_constant ; got {tool_names}"
+        tool_names = sorted(t.get("name") for t in kwargs.get("tools", []))
+        assert tool_names == ["explain_concept", "get_regulatory_constant"], (
+            f"anonymous path must expose ONLY the two grounded read tools ; "
+            f"got {tool_names}"
         )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Codex grounding-stack review (fix_6) — explain_concept on anonymous surface
+# The W1 rachat-inversion incident happened on THIS surface. Tests mirror the
+# authenticated ones: force on a definition ask, auto on chitchat, loop
+# terminates with grounded text after the tool_result.
+# ═══════════════════════════════════════════════════════════════════════
+
+
+@pytest.mark.asyncio
+async def test_definition_ask_forces_explain_concept():
+    """Definition interrogative + registry concept -> tool_choice explain_concept."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+
+    orchestrator = _NoRagOrchestrator()
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(
+            return_value=_fake_anthropic_text_response("Un rachat LPP, c'est…")
+        )
+
+        await orchestrator.query(
+            question="C'est quoi un rachat LPP exactement ?",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+            language="fr",
+        )
+
+        kwargs = instance.messages.create.call_args.kwargs
+        assert kwargs.get("tool_choice") == {
+            "type": "tool", "name": "explain_concept"
+        }, (
+            f"a definition ask must force explain_concept ; "
+            f"got {kwargs.get('tool_choice')}"
+        )
+
+
+@pytest.mark.asyncio
+async def test_definition_ask_takes_priority_over_finance_keyword():
+    """A definition ask that also contains a finance keyword forces
+    explain_concept (more specific than the number lookup)."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+
+    orchestrator = _NoRagOrchestrator()
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(
+            return_value=_fake_anthropic_text_response("Le taux de conversion…")
+        )
+
+        # "taux de conversion" matches both the finance KW (taux) and the
+        # definition concept — the definition interrogative wins.
+        await orchestrator.query(
+            question="Explique-moi le taux de conversion LPP.",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+        )
+
+        kwargs = instance.messages.create.call_args.kwargs
+        assert kwargs.get("tool_choice") == {
+            "type": "tool", "name": "explain_concept"
+        }
+
+
+@pytest.mark.asyncio
+async def test_chitchat_uses_auto_not_explain_concept():
+    """A non-definition, non-finance message stays auto (no forced tool)."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+
+    orchestrator = _NoRagOrchestrator()
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(
+            return_value=_fake_anthropic_text_response("Salut ! Avec plaisir.")
+        )
+
+        await orchestrator.query(
+            question="Salut, je découvre l'app, c'est sympa !",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+        )
+
+        kwargs = instance.messages.create.call_args.kwargs
+        assert kwargs.get("tool_choice") == {"type": "auto"}
+
+
+@pytest.mark.asyncio
+async def test_explain_concept_loop_terminates_with_grounded_text():
+    """LLM emits explain_concept -> backend resolves registry page -> 2nd call
+    produces grounded text. The loop terminates with text (not an empty answer)."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+
+    orchestrator = _NoRagOrchestrator()
+    responses = [
+        _fake_anthropic_tool_use_response(
+            tool_name="explain_concept",
+            tool_input={"concept_key": "rachat_lpp"},
+            tool_use_id="tu_def_1",
+        ),
+        _fake_anthropic_text_response(
+            "Un rachat LPP, c'est verser dans ta caisse de pension pour combler "
+            "une lacune (LPP art. 79b).",
+            input_tokens=15,
+            output_tokens=30,
+        ),
+    ]
+
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(side_effect=responses)
+
+        result = await orchestrator.query(
+            question="C'est quoi un rachat LPP ?",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+            language="fr",
+        )
+
+    # Two LLM calls: explain_concept tool_use, then grounded text.
+    assert instance.messages.create.call_count == 2
+    # The second (follow-up) call reverted to auto.
+    second_kwargs = instance.messages.create.call_args_list[1].kwargs
+    assert second_kwargs.get("tool_choice") == {"type": "auto"}
+    # The tool_result carried the curated registry definition (NOT from weights).
+    user_blocks = second_kwargs["messages"][2]["content"]
+    tool_result = next(b for b in user_blocks if b.get("type") == "tool_result")
+    assert "caisse de pension" in tool_result["content"], (
+        "explain_concept must feed the curated registry definition back as the "
+        "tool_result (grounding, not weights)"
+    )
+    assert "79b" in tool_result["content"]
+    # Loop terminated with grounded text.
+    assert result["answer"].strip() != ""
+    assert result.get("tool_calls") == [{"name": "explain_concept"}]
+
+
+@pytest.mark.asyncio
+async def test_get_regulatory_constant_forcing_intact():
+    """Regression: the existing number-forcing path is unchanged by fix_6."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+
+    orchestrator = _NoRagOrchestrator()
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(
+            return_value=_fake_anthropic_text_response("7'258 CHF.")
+        )
+
+        await orchestrator.query(
+            question="Quel est le plafond 3a cette année ?",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+        )
+
+        kwargs = instance.messages.create.call_args.kwargs
+        assert kwargs.get("tool_choice") == {
+            "type": "tool", "name": "get_regulatory_constant"
+        }
 
 
 @pytest.mark.asyncio
