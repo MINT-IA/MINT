@@ -41,9 +41,16 @@ class TestPrescriptiveBlocking:
     """L2 prescriptive language is now BLOCKING (was log-only)."""
 
     def test_single_prescriptive_instruction_blocks(self, guard):
-        # Audit 01 HOLE-4 Exhibit: "tu devrais racheter ta LPP maintenant" —
-        # one prescriptive hit, shipped to the user today. Now it falls back.
-        result = guard.validate("Tu devrais racheter ta LPP maintenant.")
+        # Audit 01 HOLE-4 Exhibit: a single direct prescriptive instruction must
+        # fall back under the education-strict perimeter. NOTE (Codex fix_5):
+        # "Tu devrais racheter…" is NOT this exhibit — "tu devrais" is a banned
+        # term that SANITISES to the in-doctrine conditional "tu pourrais
+        # envisager de racheter…", which is a compliant reply (the old block was
+        # an accidental side effect of the ach[eè]te-inside-racheter regex bug,
+        # not a real prescriptive block). The genuine prescriptive imperative
+        # "Fais un rachat…" is the correct HOLE-4 exhibit: it is caught by the
+        # L2 prescriptive gate and cannot be sanitised away.
+        result = guard.validate("Fais un rachat de ta LPP maintenant.")
         assert result.use_fallback, (
             "A prescriptive financial instruction must fall back under the "
             "education-strict perimeter (CONTEXT decision 1)."
@@ -52,6 +59,7 @@ class TestPrescriptiveBlocking:
             "Fallback path returns empty text so the endpoint substitutes a "
             "templated safe reply."
         )
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_imperative_rachat_blocks(self, guard):
         # PRESCRIPTIVE_PATTERNS catches "fais un rachat" — a direct instruction.
@@ -100,6 +108,60 @@ class TestBannedResidualBlocking:
         result = guard.validate("Demande à un conseiller pour ton dossier.")
         assert not result.use_fallback
         assert "spécialiste" in result.sanitized_text
+
+
+class TestPrescriptiveWordBoundary:
+    """L2 prescriptive verb patterns must carry a leading word boundary.
+
+    Codex grounding-stack review (fix_5): ``ach[eè]te`` had no leading ``\\b``,
+    so it matched INSIDE ``racheter`` / ``rachetées`` and killed legitimate
+    conditional phrasing. The fix word-boundaries the verb patterns while
+    KEEPING real 2nd-person/imperative prescriptive forms blocked.
+    """
+
+    def test_conditional_racheter_passes(self, guard):
+        # PROBE (Codex): false-positive — "racheter" matched ach[eè]te inside.
+        result = guard.validate(
+            "Tu pourrais envisager de racheter des années LPP selon ta situation."
+        )
+        assert not result.use_fallback, (
+            "Conditional 'racheter' phrasing must pass — the ach[eè]te pattern "
+            "must not match inside 'racheter' (no leading word boundary bug)."
+        )
+        assert result.is_compliant
+
+    def test_rachetees_passes(self, guard):
+        # "rachetées" also embeds "achet" — must not trip the gate.
+        result = guard.validate(
+            "Les années rachetées peuvent réduire ta charge fiscale selon ta "
+            "situation."
+        )
+        assert not result.use_fallback
+
+    def test_real_imperative_achete_still_blocks(self, guard):
+        # The genuine 2nd-person imperative is still prescriptive → blocks.
+        result = guard.validate("Achète un 3a maintenant.")
+        assert result.use_fallback, (
+            "A real imperative 'Achète un 3a' must still block under the "
+            "education-strict perimeter."
+        )
+        assert any("prescriptif" in v.lower() for v in result.violations)
+
+    def test_real_imperative_achete_accent_still_blocks(self, guard):
+        result = guard.validate("Achete des actions Nestlé tout de suite.")
+        assert result.use_fallback
+
+    def test_verse_inside_word_does_not_block(self, guard):
+        # "verse sur ton" must not match inside "renverse"/"averse". A real
+        # conditional reference to versements must pass.
+        result = guard.validate(
+            "Un versement sur ton 3a pourrait être pertinent selon ta tranche."
+        )
+        assert not result.use_fallback
+
+    def test_real_verse_sur_ton_still_blocks(self, guard):
+        result = guard.validate("Verse sur ton 3a 7000 CHF cette semaine.")
+        assert result.use_fallback
 
 
 class TestCleanConditionalPasses:

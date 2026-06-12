@@ -251,19 +251,28 @@ class ComplianceGuard:
     # Layer 2: Prescriptive patterns
     # ═══════════════════════════════════════════════════════════════════
 
+    # Codex grounding-stack review (fix_5): every imperative/2nd-person verb
+    # pattern carries a LEADING word boundary (\b). Without it, `ach[eè]te`
+    # matched INSIDE `racheter` / `rachetées` (compliance_guard.py:254 bug),
+    # killing legitimate conditional phrasing ("Tu pourrais envisager de
+    # racheter…" → prescriptive_blocked). The same no-boundary class of bug was
+    # latent on `verse`, `vends`, `souscris`, `transfère`, etc. (any verb whose
+    # stem appears mid-word: "renverse", "revends", …). The trailing \b on
+    # `rach[eè]te\b` already prevented "racheter" matching THAT pattern; the
+    # regression came from the separate boundary-less `ach[eè]te`.
     PRESCRIPTIVE_PATTERNS = [
-        re.compile(r"fais\s+un\s+rachat", re.IGNORECASE),
-        re.compile(r"verse\s+sur\s+ton", re.IGNORECASE),
-        re.compile(r"ach[eè]te", re.IGNORECASE),
-        re.compile(r"vends\b", re.IGNORECASE),
-        re.compile(r"choisis\s+la\s+rente", re.IGNORECASE),
-        re.compile(r"prends?\s+le\s+capital", re.IGNORECASE),
-        re.compile(r"investis?\s+dans", re.IGNORECASE),
-        re.compile(r"priorit[ée]\s+absolue", re.IGNORECASE),
+        re.compile(r"\bfais\s+un\s+rachat", re.IGNORECASE),
+        re.compile(r"\bverse\s+sur\s+ton", re.IGNORECASE),
+        re.compile(r"\bach[eè]te\b", re.IGNORECASE),
+        re.compile(r"\bvends\b", re.IGNORECASE),
+        re.compile(r"\bchoisis\s+la\s+rente", re.IGNORECASE),
+        re.compile(r"\bprends?\s+le\s+capital", re.IGNORECASE),
+        re.compile(r"\binvestis?\s+dans", re.IGNORECASE),
+        re.compile(r"\bpriorit[ée]\s+absolue", re.IGNORECASE),
         re.compile("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", re.IGNORECASE),
-        re.compile(r"souscris\b", re.IGNORECASE),
-        re.compile(r"rach[eè]te\b", re.IGNORECASE),
-        re.compile(r"transf[eè]re\b", re.IGNORECASE),
+        re.compile(r"\bsouscris\b", re.IGNORECASE),
+        re.compile(r"\brach[eè]te\b", re.IGNORECASE),
+        re.compile(r"\btransf[eè]re\b", re.IGNORECASE),
         # Social comparison patterns (GAP #2: ranking users against others)
         re.compile(r"top\s+\d+\s*%", re.IGNORECASE),
         re.compile(r"meilleur\s+que\s+\d+\s*%", re.IGNORECASE),
@@ -284,8 +293,11 @@ class ComplianceGuard:
         ),
         # "achète/vends/investis dans <TICKER>" — catches conjugated forms
         # even when the ticker is mentioned without a noun marker.
+        # fix_5 audit: leading \b so "racheter X" / "revends X" don't false-match
+        # the verb stem mid-word (the trailing [A-Z]{2,5} ticker guard already
+        # made a false positive unlikely, but the boundary makes it explicit).
         re.compile(
-            r"(?:ach[eè]te|vend[s]?|investi[sr]?|souscri[sr]?)\s+"
+            r"\b(?:ach[eè]te|vend[s]?|investi[sr]?|souscri[sr]?)\s+"
             r"(?:des?\s+|du\s+)?[A-Z]{2,5}\b",
             re.IGNORECASE,
         ),
