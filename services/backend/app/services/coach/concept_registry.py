@@ -89,12 +89,10 @@ _REGISTRY: dict[str, ConceptPage] = {
         ),
         not_this_fr=(
             "sortir ton capital",
+            "retirer ton capital",
             "retirer de l'argent de ta caisse",
             "récupérer ton argent du 2e pilier",
             "retrait anticipé de ta prévoyance",
-            "retirer",
-            "sortir",
-            "retrait",
         ),
         related=("rachat_deductibilite", "epl_blocage_3ans", "lacunes_prevoyance"),
     ),
@@ -132,7 +130,6 @@ _REGISTRY: dict[str, ConceptPage] = {
         not_this_fr=(
             "n'est pas imposée comme un revenu",
             "exonérée d'impôt sur le revenu",
-            "exonérée",
         ),
         related=("capital_imposition", "taux_conversion"),
     ),
