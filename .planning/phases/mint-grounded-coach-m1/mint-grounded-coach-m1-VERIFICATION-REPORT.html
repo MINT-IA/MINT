@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MINT — Verification Report — mint-grounded-coach-m1</title>
+<style>
+  :root { --ink:#1c1c1a; --muted:#6b6b66; --line:#e3e1da; --bg:#faf9f5; --ok:#1f7a4d; --warn:#9a6b1e; --skip:#7a7a72; --accent:#003b2f; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); margin:0; padding:0 18px 80px; line-height:1.5; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  h1 { font-size:1.7rem; margin:28px 0 4px; }
+  h2 { font-size:1.2rem; margin:36px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); }
+  h3 { font-size:1.02rem; margin:22px 0 6px; }
+  .sub { color:var(--muted); font-size:0.95rem; margin:0 0 18px; }
+  table { border-collapse:collapse; width:100%; margin:10px 0 18px; font-size:0.9rem; }
+  th,td { border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:#f1efe8; font-weight:600; }
+  code { background:#f1efe8; padding:1px 5px; border-radius:4px; font-size:0.85em; }
+  .ok { color:var(--ok); font-weight:600; }
+  .warn { color:var(--warn); font-weight:600; }
+  .skip { color:var(--skip); font-weight:600; }
+  .badge { display:inline-block; padding:2px 9px; border-radius:11px; font-size:0.78rem; font-weight:600; }
+  .b-ok { background:#dcefe3; color:var(--ok); }
+  .b-warn { background:#f3e7cf; color:var(--warn); }
+  .b-skip { background:#e8e8e2; color:var(--skip); }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:14px 0; }
+  .meta { font-size:0.85rem; color:var(--muted); }
+  ul { margin:6px 0 12px; padding-left:22px; }
+  li { margin:3px 0; }
+  .kpi { display:flex; gap:14px; flex-wrap:wrap; margin:14px 0; }
+  .kpi div { flex:1 1 150px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .kpi .n { font-size:1.6rem; font-weight:700; color:var(--accent); }
+  .kpi .l { font-size:0.8rem; color:var(--muted); }
+  footer { margin-top:40px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:0.82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>MINT — Rapport de vérification</h1>
+<p class="sub">Milestone <strong>mint-grounded-coach-m1</strong> (Grounded Coach M1) — clôture
+2026-06-12 · branche d'exécution <code>qa/runtime-navigation-spine-20260602</code> ·
+backend HEAD <code>6a07753ee</code></p>
+
+<div class="kpi">
+  <div><div class="n">7</div><div class="l">plans exécutés (01-07) + gate clôture (08)</div></div>
+  <div><div class="n">7792</div><div class="l">tests backend verts (exit 0)</div></div>
+  <div><div class="n">190</div><div class="l">fixtures inversion+claim+registry vertes</div></div>
+  <div><div class="n">0</div><div class="l">P1 sur le périmètre coach (gate device)</div></div>
+</div>
+
+<h2>1. Verdict de clôture</h2>
+<div class="card">
+<p><span class="badge b-ok">GATE PASSÉE — périmètre coach</span>
+La gate de sortie M1 (CONTEXT décision 5) est passée sur son critère : sur un déploiement staging
+== M1 HEAD et un build NON-seedé, la définition <em>rachat</em> est correcte (<strong>versement</strong>)
+sur la surface authentifiée (WTF-W1-01 fermé) ET aucune inversion ne ship sur la surface anonyme,
+avec <strong>zéro P1 sur le périmètre coach</strong>. Suites + fixtures d'inversion vertes.</p>
+<p><strong>Réserves device honnêtes (0-TRUST, CLAUDE.md §9)</strong> :</p>
+<ul>
+<li>Echo <code>save_fact</code> « j'ai 50 ans » → profil 50 : <span class="skip">NON-RUN sur device</span>
+(limite 3-messages mode local pré-empte le tour ; création de compte bloquée par une limitation
+d'outillage idb sur la saisie « @ » — pas un défaut produit). Mécanisme corroboré vert au niveau
+unitaire : <code>pytest -k save_fact</code> = 35 passed. WTF-W1-04 non re-fermé device cette passe.</li>
+<li>2 findings résiduels <strong>hors périmètre coach</strong>, ≤ P2 (taux remplacement home 33% vs
+/retraite 44% ; RenderFlex overflow /retraite) + 1 accent-lint P3.</li>
+</ul>
+</div>
+
+<h2>2. Précondition staging + build (gate device)</h2>
+<table>
+<tr><th>Élément</th><th>Valeur</th><th>État</th></tr>
+<tr><td>Railway staging deploy</td><td>commit <code>6a07753ee</code> = SUCCESS @ 2026-06-12T13:05Z</td><td><span class="ok">OK</span></td></tr>
+<tr><td>Staging == M1 backend HEAD</td><td><code>6a07753ee</code> (HEAD branche exécution = staging deploy)</td><td><span class="ok">OK</span></td></tr>
+<tr><td>Health-check staging</td><td><code>GET /api/v1/health/ready</code> → <code>{"status":"ok","version":"0.1.0","environment":"staging","database":"ok"}</code> HTTP 200 (re-vérifié 13:50:49Z)</td><td><span class="ok">200</span></td></tr>
+<tr><td>Build sim</td><td><code>flutter build ios --simulator --no-codesign --dart-define=API_BASE_URL=…staging…/api/v1 --dart-define=SENTRY_DSN=…</code> — exit 0, artefact 15:09:30</td><td><span class="ok">OK</span></td></tr>
+<tr><td>Seed pin</td><td><strong>SANS</strong> <code>MINT_E2E_ARCHETYPE</code> — profil non-seedé (DOB onboarding → âge 45, echo falsifiable)</td><td><span class="ok">OK</span></td></tr>
+<tr><td>Device</td><td>iPhone 17 Pro sim (rebooté), fresh-install, cible Railway staging</td><td><span class="ok">OK</span></td></tr>
+</table>
+
+<h2>3. Suites + lints (pré-gate déterministe, Task 1)</h2>
+<table>
+<tr><th>Gate</th><th>Résultat</th><th>Commande</th><th>État</th></tr>
+<tr><td>Backend full suite</td><td>7792 passed · 116 skipped · 3 xfailed</td><td><code>pytest tests/ -q</code> (91.94s)</td><td><span class="ok">exit 0</span></td></tr>
+<tr><td>Inversion + claim-checker + concept-registry</td><td>190 passed</td><td><code>pytest test_coach_claim_inversions.py test_claim_checker.py test_concept_registry.py -q</code></td><td><span class="ok">exit 0</span></td></tr>
+<tr><td>save_fact return-path (Plan 06)</td><td>35 passed</td><td><code>pytest -k "save_fact or savefact or save_return"</code></td><td><span class="ok">exit 0</span></td></tr>
+<tr><td>flutter analyze</td><td>No issues found</td><td><code>flutter analyze</code> (4.6s)</td><td><span class="ok">exit 0</span></td></tr>
+</table>
+
+<h2>4. Lignée RED → GREEN (fixtures d'inversion)</h2>
+<div class="card">
+<p>La fixture « rachat-inversion » (et la classe d'inversions du top suisse) a été écrite
+<strong>ROUGE d'abord</strong> contre le coach pré-fix, puis flippée verte par le claim-checker
+câblé — preuve déterministe (CONTEXT décision 3, fixture-first).</p>
+<table>
+<tr><th>Étape</th><th>Plan</th><th>Commit</th><th>État fixture</th></tr>
+<tr><td>RED — 18 cas d'inversion + scorer déterministe (xfail-strict)</td><td>01</td><td><code>62bdcb25d</code>, <code>610c23eca</code></td><td><span class="warn">xfail (RED prouvé)</span></td></tr>
+<tr><td>GREEN — registre + claim-checker câblé en ComplianceGuard Layer 6, xfail flippé</td><td>04</td><td><code>247ec0557</code>, <code>266fb5039</code>, <code>fd5c7a359</code></td><td><span class="ok">hard pass</span></td></tr>
+<tr><td>CI — fixtures câblées dans le gate de régression coach-eval.yml</td><td>07</td><td><code>92906bd8d</code></td><td><span class="ok">fail-fast en CI</span></td></tr>
+</table>
+</div>
+
+<h2>5. Livraison par plan</h2>
+
+<h3>Plan 01 — Fixtures d'inversion (RED proof)</h3>
+<p class="meta">Commits <code>62bdcb25d</code> · <code>610c23eca</code> · <code>ee64bc546</code></p>
+<ul>
+<li>18 cas d'inversion Swiss-assertion (subject/relation/object + forbidden_substrings) + scorer
+déterministe par cas ; preuve ROUGE strict-xfail du blind-spot définitionnel ; ancre de régression Plan 04.</li>
+</ul>
+
+<h3>Plan 02 — Gates compliance bloquantes (éducation stricte)</h3>
+<p class="meta">Commits <code>be0fb88b1</code> · <code>a7dbc0e36</code> · <code>3bc742dec</code></p>
+<ul>
+<li>Couches prescriptive + termes-bannis rendues BLOQUANTES (tolérance > 0 → 0, education-strict).</li>
+<li>Suppression de l'escape-hatch d'hallucination profil-vide. Attribution <code>fallback_reasons</code>
+(prescriptive_blocked dominant) = input décision d'activation du citation-gate.</li>
+</ul>
+
+<h3>Plan 03 — Reframe cohérence périmètre</h3>
+<p class="meta">Commits <code>74f497c1d</code> · <code>65948d872</code></p>
+<ul>
+<li>Sortie reasoner dé-rankée → comparaison de scénarios éducative (risques/hypothèses/sources).
+Langage ranked résiduel retiré de <code>get_couple_optimization</code>. Note 79b élargie.</li>
+</ul>
+
+<h3>Plan 04 — Registre de concepts + claim-checker</h3>
+<p class="meta">Commits <code>247ec0557</code> · <code>266fb5039</code> · <code>fd5c7a359</code></p>
+<ul>
+<li>CONCEPT_REGISTRY — registre suisse closed-world (18 pages P0, Mapping gelé, source unique de
+définitions FR canoniques).</li>
+<li><code>claim_checker.check_claims()</code> — détecteur déterministe d'inversion définitionnelle
+(sans LLM, substring/lexicon), câblé en ComplianceGuard Layer 6 bloquant. Fixtures Plan 01 flippées GREEN.</li>
+</ul>
+
+<h3>Plan 05 — explain_concept forcé (forced-tool)</h3>
+<p class="meta">Commits <code>08a6a03d8</code> · <code>cb3b5b837</code> · <code>268280484</code></p>
+<ul>
+<li>Outil <code>explain_concept</code> + handler registry-backed ; <code>tool_choice</code> forcé sur
+intent définition (1er call) ; <code>show_fact_card</code> gated contre le registre.</li>
+</ul>
+
+<h3>Plan 05+ — Gap closure revue Codex (grounding-stack)</h3>
+<p class="meta">Commits <code>6f60acab3</code> · <code>b8fd4ff85</code> · <code>469fd71ff</code> · <code>6bc5fa27c</code> · <code>c1bf9e7bc</code> · <code>36c22225d</code> · <code>50c78ff2c</code></p>
+<ul>
+<li>Revue Codex CLI par vague (pattern validé phase illogism). 7 correctifs : regex prescriptif
+word-boundary (fix_5) ; lexique rachat élargi familles de verbes (fix_3a) ; interrogatifs
+définition élargis (fix_3b) ; source inventée neutralisée sur fact-card inconnue (fix_4) ; garde
+free-text payload outil (fix_1) ; explain_concept exposé+forcé surface anonyme (fix_6) ; garde
+fail-closed orchestrateur (fix_2).</li>
+</ul>
+
+<h3>Plan 06 — save_fact return-path + corrections domaine</h3>
+<p class="meta">Commits <code>fe0dd8a12</code> · <code>402b1f200</code> · <code>ebae9b1fe</code></p>
+<ul>
+<li>Echo <code>save_fact</code> vers le mobile (fact_saved appliqué via CoachProfileProvider) — fix
+split-brain minimal (cutover spine complet = M2). 35 tests verts.</li>
+<li>Domaine : <code>avs.reference_age_women</code> 65.0 → 64.5 (transition 2026).</li>
+</ul>
+
+<h3>Plan 07 — Activer-ou-supprimer les façades + CI gate</h3>
+<p class="meta">Commits <code>39c70e7da</code> · <code>a7dccd26b</code> · <code>81e73c88b</code> · <code>92906bd8d</code> · <code>6a07753ee</code></p>
+<table>
+<tr><th>Gate dark / façade</th><th>Décision M1</th></tr>
+<tr><td><code>COACH_CITATION_GATE_ENABLED</code></td><td><span class="ok">ACTIVÉ</span> (default True) — citation-gate closed-world = garde live du stage narrateur</td></tr>
+<tr><td><code>COACH_DUAL_LLM_ENABLED</code> + <code>COACH_BUNDLE_COMPILER_ENABLED</code> + <code>COACH_NARRATOR_MODEL</code></td><td><span class="warn">SUPPRIMÉS</span> de Settings + branches consommatrices collapsées sur le chemin single-LLM legacy</td></tr>
+<tr><td><code>CoachReasonerService</code> (non câblé, audit HOLE-5)</td><td><span class="warn">SUPPRIMÉ</span> (zéro caller prod) + export barrel + tests orphelins</td></tr>
+<tr><td>CI <code>coach-eval.yml</code></td><td><span class="ok">CÂBLÉ</span> — gate de régression inversion + claim-checker + concept-registry + façade-resolution, fail-fast</td></tr>
+</table>
+
+<h3>Plan 08 — Walkthrough persona (gate de clôture)</h3>
+<p class="meta">Artefact <code>W1-cadre-50-rerun.md</code> · 88 captures sous <code>.planning/_walker/grounded-coach-m1/closure/</code></p>
+<ul>
+<li>Re-run persona « Marc cadre 50 » sur sim contre staging M1, build non-seedé. Verdicts device ci-dessous.</li>
+</ul>
+
+<h2>6. Verdicts device (gate de clôture)</h2>
+<table>
+<tr><th>#</th><th>Assertion</th><th>Verdict</th><th>Citation</th></tr>
+<tr><td>1</td><td>Anonyme — rachat sans inversion (définition correcte ou fallback)</td><td><span class="badge b-ok">PASS</span> définition correcte (versement)</td><td><code>05-anon-rachat-reply.png</code> + AX</td></tr>
+<tr><td>2</td><td>Authentifié — rachat = VERSEMENT (explain_concept forcé) — WTF-W1-01</td><td><span class="badge b-ok">PASS</span> closed</td><td><code>29</code>,<code>30</code> + AX texte exact</td></tr>
+<tr><td>2b</td><td>Paraphrase « comment fonctionne un rachat LPP » (classifieur élargi)</td><td><span class="badge b-ok">PASS</span></td><td><code>31</code> + AX</td></tr>
+<tr><td>3</td><td>save_fact echo « j'ai 50 ans » → profil reflète 50</td><td><span class="badge b-skip">NOT-RUN device</span></td><td><code>32</code>,<code>39</code>,<code>40</code> ; corrob. 35 tests verts</td></tr>
+<tr><td>4</td><td>Prescriptif éducatif, pas d'impératif, 0 fallback-spam</td><td><span class="badge b-ok">PASS</span></td><td><code>70-prescriptive-full.png</code> + AX</td></tr>
+<tr><td>5</td><td>Sweep cohérence (~20 actions)</td><td><span class="badge b-warn">PASS partiel</span> (1×P2 chiffres, 1×P2 layout, 1×P3 accent)</td><td><code>76</code>-<code>87</code></td></tr>
+</table>
+
+<h2>7. Findings résiduels (tous hors périmètre coach)</h2>
+<table>
+<tr><th>ID</th><th>Sévérité</th><th>Surface</th><th>Description</th><th>Note vs W1</th></tr>
+<tr><td>WTF-W1R-01</td><td><span class="warn">P2</span></td><td>home / /retraite</td><td>Taux remplacement home 33% vs /retraite 44% (écart 11 pts)</td><td>Dégradé P1→P2 vs W1 (28/69, 41 pts, registres opposés). Même registre émotionnel maintenant.</td></tr>
+<tr><td>WTF-W1R-02</td><td><span class="warn">P2</span></td><td>/retraite</td><td>RenderFlex « RIGHT OVERFLOWED BY 192 PIXELS »</td><td>Récurrence W1-W1-11 (191px). Masqué en release.</td></tr>
+<tr><td>WTF-W1R-03</td><td><span class="skip">P3</span></td><td>header / message limite / événement</td><td>Accent FR : « Prevoyance », « Cree un compte », « marie »</td><td>accent_lint_fr. Cosmétique.</td></tr>
+</table>
+
+<h2>8. Items différés</h2>
+<table>
+<tr><th>ID</th><th>Description</th><th>Raison du report</th></tr>
+<tr><td>DEF-1</td><td>accent-lint <code>eclairage</code> (identifiant Python, anonymous_chat.py)</td><td>Pré-existe en HEAD ; identifiant, pas string user-facing ; touche le contrat EclairagePayload (Phase 71b)</td></tr>
+<tr><td>DEF-2</td><td>accent-lint <code>eclairage</code> (doc-comment dart-define, coach_orchestrator.dart)</td><td>Pré-existe en HEAD ; miroir d'un symbole UPPER_SNAKE ; « fixer » désyncerait du code</td></tr>
+<tr><td>SAVEFACT-DEVICE</td><td>Echo save_fact non re-prouvé device</td><td>Limite 3-messages mode local + blocage outillage idb (saisie « @ »). Mécanisme vert unit (35 tests). À re-prouver en session authentifiée (M2 spine cutover).</td></tr>
+<tr><td>WTF-W1R-01/02/03</td><td>Findings chiffres/layout/accent hors périmètre coach</td><td>Surfaces projection/layout/lint, pas grounding coach. À traiter dans une vague chiffres-cohérence dédiée.</td></tr>
+</table>
+
+<footer>
+Généré 2026-06-12 · gate de clôture mint-grounded-coach-m1 · 0-TRUST : chaque verdict cité (exit
+codes, snippets AX idb, captures sim). PASS/NOT-RUN/PASS-partiel honnêtes. Aucun changement de code
+produit dans cette passe — uniquement artefacts walkthrough + rapport sous <code>.planning/</code>.
+Walkthrough détaillé : <code>W1-cadre-50-rerun.md</code>.
+</footer>
+
+</div>
+</body>
+</html>
