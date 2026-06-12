@@ -637,10 +637,14 @@ class CoachOrchestrator {
 
     if (result == null || result.text.trim().isEmpty) return null;
 
-    // Run ComplianceGuard for SLM output ONLY for sanitization (banned terms
-    // replaced). Never fallback — SLM is on-device, there's no retry tier
-    // below it. If the SLM produced text, we show it (sanitized).
-    // This matches the bypass policy applied to BYOK / server-key tiers.
+    // Run ComplianceGuard for SLM output. Codex grounding-stack review (fix_2):
+    // this path used to FAIL OPEN — when the guard signalled `useFallback`
+    // (empty sanitizedText), the old `sanitizedText.isNotEmpty ? … : result.text`
+    // ternary fell through to the RAW SLM text, shipping the very output the
+    // guard just blocked (a prescriptive instruction, a banned residual, …).
+    // The guard is now FAIL CLOSED: on fallback we render the templated safe
+    // reply, never the raw text. (Full Layer 6 claim-checker stays backend-
+    // canonical — see SUMMARY M2 note; the Dart guard still blocks L1/L2/L3.)
     ComplianceResult? compliance;
     try {
       compliance = ComplianceGuard.validate(
@@ -653,9 +657,16 @@ class CoachOrchestrator {
           '[Orchestrator] ComplianceGuard error on SLM output: $e (returning raw)');
     }
 
-    final text = (compliance != null && compliance.sanitizedText.isNotEmpty)
-        ? compliance.sanitizedText
-        : result.text;
+    if (compliance != null && compliance.useFallback) {
+      debugPrint(
+          '[Orchestrator] SLM output blocked by ComplianceGuard — rendering fallback');
+    }
+    final text = resolveGuardedText(
+      compliance: compliance,
+      rawText: result.text,
+      componentType: componentType,
+      ctx: ctx,
+    );
 
     return OrchestratorOutput(
       text: text,
@@ -721,9 +732,12 @@ class CoachOrchestrator {
       return null;
     }
 
-    // Backend RAG has its own compliance pipeline. Client ComplianceGuard here
-    // caused double-validation false positives. Trust the backend; keep only
-    // a light sanitize for local banned-term replacement.
+    // Backend RAG has its own compliance pipeline. The client ComplianceGuard
+    // here is a defense-in-depth net for local banned-term replacement.
+    // Codex grounding-stack review (fix_2): this path used to FAIL OPEN — on
+    // `useFallback` (empty sanitizedText) the ternary fell through to the RAW
+    // BYOK text, shipping output the guard blocked. Now FAIL CLOSED: on fallback
+    // render the templated safe reply, never the raw text.
     ComplianceResult? compliance;
     try {
       compliance = ComplianceGuard.validate(
@@ -743,9 +757,16 @@ class CoachOrchestrator {
       prompt,
     );
 
-    final text = (compliance != null && compliance.sanitizedText.isNotEmpty)
-        ? compliance.sanitizedText
-        : rawText;
+    if (compliance != null && compliance.useFallback) {
+      debugPrint(
+          '[Orchestrator] BYOK narrative blocked by ComplianceGuard — rendering fallback');
+    }
+    final text = resolveGuardedText(
+      compliance: compliance,
+      rawText: rawText,
+      componentType: componentType,
+      ctx: ctx,
+    );
 
     return OrchestratorOutput(
       text: text,
@@ -1356,6 +1377,30 @@ class CoachOrchestrator {
   /// For [ComponentType.tip], selects a context-aware template based on the
   /// user's archetype and life situation. Falls back to the generic
   /// [FallbackTemplates.tipNarrative] when no specialized template matches.
+  /// Fail-closed text resolution for a guarded LLM output (Codex fix_2).
+  ///
+  /// Decision (shared by the SLM and BYOK tiers so the fail-closed contract
+  /// cannot drift between them):
+  ///   - guard threw (`compliance == null`)        → raw text (last resort).
+  ///   - guard signalled `useFallback`             → templated safe reply
+  ///     (NEVER the raw text the guard just blocked — this is the fix).
+  ///   - guard sanitised (non-empty sanitizedText) → sanitised text.
+  ///   - otherwise                                 → raw text.
+  @visibleForTesting
+  static String resolveGuardedText({
+    required ComplianceResult? compliance,
+    required String rawText,
+    required ComponentType componentType,
+    required CoachContext ctx,
+  }) {
+    if (compliance == null) return rawText;
+    if (compliance.useFallback) {
+      return _fallbackForComponent(componentType, ctx);
+    }
+    if (compliance.sanitizedText.isNotEmpty) return compliance.sanitizedText;
+    return rawText;
+  }
+
   static String _fallbackForComponent(
     ComponentType type,
     CoachContext ctx,

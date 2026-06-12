@@ -431,4 +431,112 @@ void main() {
       expect(out.tier, isA<CoachTier>());
     }
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  //  16. Codex grounding-stack review (fix_2) — fail-CLOSED guard
+  //  Both the SLM and BYOK tiers route their guarded output through
+  //  resolveGuardedText(). On useFallback the helper MUST return the
+  //  templated safe reply, never the raw text the guard blocked.
+  // ═══════════════════════════════════════════════════════════════
+
+  group('16. resolveGuardedText fails closed (fix_2)', () {
+    const rawBlocked =
+        "Un rachat LPP, c'est sortir ton capital du 2e pilier avant l'heure.";
+
+    test('useFallback renders the templated reply, NOT the raw text', () {
+      final ctx = _ctx();
+      const compliance = ComplianceResult(
+        isCompliant: false,
+        sanitizedText: '', // guard returns empty on fallback
+        violations: ['definition_inversion'],
+        useFallback: true,
+      );
+
+      final text = CoachOrchestrator.resolveGuardedText(
+        compliance: compliance,
+        rawText: rawBlocked,
+        componentType: ComponentType.general,
+        ctx: ctx,
+      );
+
+      expect(text, isNot(equals(rawBlocked)),
+          reason: 'fail-open bug: raw blocked text rendered');
+      expect(text, isNotEmpty);
+      // The rendered text must not carry the inverted definition.
+      expect(text.toLowerCase(), isNot(contains('sortir ton capital')));
+    });
+
+    test('prescriptive fallback also renders the templated reply', () {
+      final ctx = _ctx();
+      const rawPrescriptive = 'Fais un rachat de 10000 CHF cette année.';
+      const compliance = ComplianceResult(
+        isCompliant: false,
+        sanitizedText: '',
+        violations: ['prescriptive'],
+        useFallback: true,
+      );
+
+      final text = CoachOrchestrator.resolveGuardedText(
+        compliance: compliance,
+        rawText: rawPrescriptive,
+        componentType: ComponentType.tip,
+        ctx: ctx,
+      );
+
+      expect(text, isNot(equals(rawPrescriptive)));
+      expect(text, isNotEmpty);
+    });
+
+    test('sanitised (non-fallback) text passes through', () {
+      final ctx = _ctx();
+      const sanitised = 'Tu pourrais envisager un rachat selon ta situation.';
+      const compliance = ComplianceResult(
+        isCompliant: false,
+        sanitizedText: sanitised,
+        violations: ['banned:conseiller'],
+        useFallback: false,
+      );
+
+      final text = CoachOrchestrator.resolveGuardedText(
+        compliance: compliance,
+        rawText: 'Demande à un conseiller.',
+        componentType: ComponentType.general,
+        ctx: ctx,
+      );
+
+      expect(text, equals(sanitised));
+    });
+
+    test('clean compliant text passes through unchanged', () {
+      final ctx = _ctx();
+      const clean = 'Voici une piste à explorer ensemble.';
+      const compliance = ComplianceResult(
+        isCompliant: true,
+        sanitizedText: clean,
+        violations: [],
+        useFallback: false,
+      );
+
+      final text = CoachOrchestrator.resolveGuardedText(
+        compliance: compliance,
+        rawText: clean,
+        componentType: ComponentType.general,
+        ctx: ctx,
+      );
+
+      expect(text, equals(clean));
+    });
+
+    test('guard threw (null) returns raw text as last resort', () {
+      final ctx = _ctx();
+      const raw = 'Réponse brute du modèle.';
+      final text = CoachOrchestrator.resolveGuardedText(
+        compliance: null,
+        rawText: raw,
+        componentType: ComponentType.general,
+        ctx: ctx,
+      );
+      expect(text, equals(raw));
+    });
+  });
 }
