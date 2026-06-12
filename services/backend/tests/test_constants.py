@@ -150,9 +150,12 @@ class TestAVSConsistency:
         """Facteur survivant entre 60% et 100%."""
         assert 0.6 <= AVS_SURVIVOR_FACTOR <= 1.0
 
-    def test_ages_reference_equal(self):
-        """Depuis AVS 21, age de reference identique H/F."""
-        assert AVS_AGE_REFERENCE_HOMME == AVS_AGE_REFERENCE_FEMME == 65
+    def test_ages_reference_transition_2026(self):
+        """Transition AVS 21 (2026) : hommes 65 ; femmes 64 (valeur
+        transitoire entiere, derivee de 64.5 dans le registre). L'egalite
+        H/F a 65 n'est atteinte qu'en 2028."""
+        assert AVS_AGE_REFERENCE_HOMME == 65
+        assert AVS_AGE_REFERENCE_FEMME == 64
 
     def test_avs_volontaire_range(self):
         """Min < Max pour cotisations volontaires."""

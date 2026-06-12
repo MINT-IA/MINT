@@ -501,13 +501,18 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.reference_age_women",
-        value=65.0,
+        value=64.5,
         unit="years",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 21 (réforme AVS 21)",
         source_type="law",
-        description="Âge de référence AVS pour les femmes (depuis réforme AVS 21).",
+        description=(
+            "Âge de référence AVS pour les femmes : valeur transitoire 64.5 "
+            "en 2026 (cohorte née en 1962). La réforme AVS 21 relève l'âge "
+            "progressivement de 64 à 65 ans pour les naissances 1961-1963 ; "
+            "il atteint 65 ans en 2028."
+        ),
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(

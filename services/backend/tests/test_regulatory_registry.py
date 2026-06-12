@@ -451,24 +451,25 @@ class TestHistoricalLimits:
 
 
 class TestAvsReferenceAges:
-    """AVS reference ages must reflect post-AVS 21 reform values."""
+    """AVS reference ages must reflect the 2026 AVS 21 transition values."""
 
     def test_men_reference_age_65(self, registry):
         param = registry.get("avs.reference_age_men")
         assert param is not None
         assert param.value == 65.0
 
-    def test_women_reference_age_65(self, registry):
-        """Women's reference age is 65 since AVS 21 reform."""
+    def test_women_reference_age_64_5_in_2026(self, registry):
+        """Women's reference age is the 2026 transitional value 64.5 (not the
+        AVS 21 endpoint 65 — that is only reached in 2028)."""
         param = registry.get("avs.reference_age_women")
         assert param is not None
-        assert param.value == 65.0
+        assert param.value == 64.5
 
-    def test_gender_equality_post_reform(self, registry):
-        """Both genders have the same reference age after AVS 21."""
+    def test_genders_differ_during_transition(self, registry):
+        """During the 2026 AVS 21 transition the two reference ages differ."""
         men = registry.get("avs.reference_age_men")
         women = registry.get("avs.reference_age_women")
-        assert men.value == women.value
+        assert men.value != women.value
 
 
 # ---------------------------------------------------------------------------
