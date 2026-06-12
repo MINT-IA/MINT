@@ -316,3 +316,73 @@ class TestFactCardRegistryGate:
         kept = _gate_fact_card_against_registry(card)
         assert kept is not None
         assert kept["input"]["source"] == "MINT"
+
+
+class TestFactCardUnknownConceptSourceNeutralized:
+    """Codex grounding-stack review (fix_4): an UNRESOLVABLE card must not ship
+    an invented legal authority. resolve_definiendum() → None used to return the
+    card untouched, including a fabricated « art. 999 LIFD » source."""
+
+    def test_invented_legal_source_neutralized(self):
+        # PROBE (Codex): "Source inventée" on a non-registry card shipped today.
+        card = {
+            "name": "show_fact_card",
+            "input": {
+                "title": "Le super-bonus fiscal 2026",
+                "content": "Un dispositif spécial te permet de déduire le double.",
+                "source": "art. 999 LIFD",
+            },
+        }
+        kept = _gate_fact_card_against_registry(card)
+        assert kept is not None  # content passes (cannot verify truth)
+        assert kept["input"]["source"] == "Information générale", (
+            "an invented legal citation on an unresolvable card must be "
+            "neutralised — no fabricated authority shown to the user"
+        )
+
+    def test_invented_lpp_article_neutralized(self):
+        card = {
+            "name": "show_fact_card",
+            "input": {
+                "title": "Astuce méconnue",
+                "content": "Une règle peu connue change tout.",
+                "source": "LPP art. 250 al. 7",
+            },
+        }
+        kept = _gate_fact_card_against_registry(card)
+        assert kept is not None
+        assert kept["input"]["source"] == "Information générale"
+
+    def test_neutral_source_untouched_on_unknown_card(self):
+        # A non-legal source on a non-registry card is left as-is (no false
+        # neutralisation of legitimate « MINT » / « ton relevé » sources).
+        for src in ("MINT", "ton relevé de caisse", ""):
+            card = {
+                "name": "show_fact_card",
+                "input": {
+                    "title": "Astuce budget",
+                    "content": "Pense à mettre de côté chaque mois.",
+                    "source": src,
+                },
+            }
+            kept = _gate_fact_card_against_registry(card)
+            assert kept is not None
+            assert kept["input"]["source"] == src, (
+                f"non-legal source {src!r} must not be neutralised"
+            )
+
+    def test_resolvable_card_repair_behavior_unchanged(self):
+        # Regression guard: a RESOLVABLE card with an off-registry source is
+        # still repaired to the curated page source (existing behaviour), NOT
+        # neutralised to « Information générale ».
+        card = {
+            "name": "show_fact_card",
+            "input": {
+                "title": "Le rachat LPP",
+                "content": "Un rachat LPP, c'est verser de l'argent dans ta caisse de pension.",
+                "source": "Source inventée art. 999",
+            },
+        }
+        kept = _gate_fact_card_against_registry(card)
+        assert kept is not None
+        assert kept["input"]["source"] == "LPP art. 79b"

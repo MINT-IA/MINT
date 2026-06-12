@@ -4237,6 +4237,30 @@ def _handle_regulatory_constant(tool_input: dict) -> str:
     return handle_regulatory_constant(tool_input)
 
 
+# Codex grounding-stack review (fix_4): legal-citation shape detector. A fact
+# card about an UNRESOLVABLE concept (no registry page) carries a 100%
+# LLM-generated source — the « Source inventée art. 999 » probe shipped an
+# invented authority untouched. We cannot verify the TRUTH of free-form content
+# deterministically (residual documented in the SUMMARY), but we CAN strip the
+# false authority: if an unresolvable card's source looks like a legal citation
+# (art. / LPP / LIFD / CC / OPP / OPP3 / LFLP / LAVS / RS-digits…) we replace it
+# with the neutral label below so the user is not shown a fabricated legal source.
+_LEGAL_CITATION_PATTERN = re.compile(
+    r"""
+    (?:
+        \bart(?:icle)?\.?\s*\d            # « art. 79b », « article 33 »
+      | \b(?:LPP|LIFD|LAVS|LFLP|LCA|LPD|LSFin|CO|CC|CCS|CP|ALCP)\b  # Swiss codes
+      | \bOPP\s*\d?                       # OPP2 / OPP3
+      | \bRS\s*\d                         # « RS 831.40 »
+      | \bal\.\s*\d                       # « al. 3 »
+      | \blet\.\s*[a-z]                   # « let. e »
+    )
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+_NEUTRAL_SOURCE_LABEL_FR = "Information générale"
+
+
 def _gate_fact_card_against_registry(card: dict) -> Optional[dict]:
     """Validate a show_fact_card payload against CONCEPT_REGISTRY (WS-B Plan 05).
 
@@ -4266,7 +4290,23 @@ def _gate_fact_card_against_registry(card: dict) -> Optional[dict]:
 
     concept_key = resolve_definiendum(combined)
     if concept_key is None:
-        # Card is about a non-registry topic — not gated.
+        # Card is about a non-registry topic — content cannot be verified
+        # deterministically (closed-world detector has no page to compare
+        # against), so the content passes through. BUT a fabricated LEGAL source
+        # must not ship with a non-registry card (Codex fix_4): if the source
+        # looks like a legal citation we cannot anchor to a curated page, we
+        # neutralise it to « Information générale » so no invented authority is
+        # presented to the user. A neutral/non-legal source (« MINT », « ton
+        # relevé ») is left untouched.
+        _src = inp.get("source")
+        if isinstance(_src, str) and _src.strip() and _LEGAL_CITATION_PATTERN.search(_src):
+            logger.info(
+                "coach.fact_card.source_neutralized concept=None from=%r to=%r",
+                _src,
+                _NEUTRAL_SOURCE_LABEL_FR,
+            )
+            inp["source"] = _NEUTRAL_SOURCE_LABEL_FR
+            card["input"] = inp
         return card
 
     # 1) Content gate: a definitional inversion of a known concept is blocked.
