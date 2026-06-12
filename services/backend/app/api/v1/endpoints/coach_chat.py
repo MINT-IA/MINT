@@ -1877,12 +1877,40 @@ _DEFINITION_INTERROGATIVES: tuple[str, ...] = (
     "qu est ce que",
     "quest ce que",
     "qu'est ce que",
-    "explique",
+    "explique",  # substring → also covers "explique-moi" / "explique moi"
     "explication",
     "definition de",
     "definir",
     "ca veut dire quoi",
     "ca signifie quoi",
+    # Codex grounding-stack review (fix_3b): interrogative families that PASSED
+    # the classifier today (forced explain_concept never fired) and must now
+    # force when co-occurring with a registry concept term:
+    #   « Comment fonctionne un rachat LPP ? »
+    #   « Tu peux me dire ce que veut dire EPL ? »
+    #   « J'aimerais comprendre le taux de conversion. »
+    "comment fonctionne",
+    "comment marche",
+    "comment ca marche",
+    "ce que veut dire",
+    "ce que ca veut dire",
+    "ce que signifie",
+    "veut dire quoi",  # « le rachat veut dire quoi »
+    "signifie quoi",
+    "j'aimerais comprendre",
+    "jaimerais comprendre",
+    "j aimerais comprendre",
+    "j'aimerais savoir ce qu",  # « j'aimerais savoir ce qu'est… »
+    "jaimerais savoir ce qu",
+    "tu peux m'expliquer",
+    "tu peux mexpliquer",
+    "peux-tu m'expliquer",
+    "peux tu m expliquer",
+    "tu peux me dire ce que",
+    "tu peux me dire ce qu",
+    "peux-tu me dire ce qu",
+    "j'aimerais que tu m'expliques",
+    "jaimerais que tu mexpliques",
 )
 
 # Surface terms that name a registry concept. Kept diacritic-free and broad

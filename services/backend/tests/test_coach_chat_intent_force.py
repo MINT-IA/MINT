@@ -122,6 +122,47 @@ class TestDefinitionIntentClassifier:
         assert "definition_request" not in _classify_user_intent(_CHITCHAT_MSG)
 
 
+class TestDefinitionIntentBroadenedInterrogatives:
+    """Codex grounding-stack review (fix_3b): interrogative families that the
+    classifier MISSED before the fix must now force explain_concept."""
+
+    def test_comment_fonctionne_is_definition_request(self):
+        # PROBE (Codex miss): "Comment fonctionne un rachat LPP ?"
+        assert "definition_request" in _classify_user_intent(
+            "Comment fonctionne un rachat LPP ?"
+        )
+
+    def test_ce_que_veut_dire_is_definition_request(self):
+        # PROBE (Codex miss): "Tu peux me dire ce que veut dire EPL ?"
+        assert "definition_request" in _classify_user_intent(
+            "Tu peux me dire ce que veut dire EPL ?"
+        )
+
+    def test_jaimerais_comprendre_is_definition_request(self):
+        # PROBE (Codex miss): "J'aimerais comprendre le taux de conversion."
+        assert "definition_request" in _classify_user_intent(
+            "J'aimerais comprendre le taux de conversion."
+        )
+
+    def test_tu_peux_mexpliquer_is_definition_request(self):
+        assert "definition_request" in _classify_user_intent(
+            "Tu peux m'expliquer le splitting AVS ?"
+        )
+
+    def test_past_rachat_declaration_does_not_force(self):
+        # False-positive guard (Codex): a DECLARATION of a past action must NOT
+        # force the tool — no interrogative present.
+        assert "definition_request" not in _classify_user_intent(
+            "j'ai fait un rachat l'année passée"
+        )
+
+    def test_comment_ca_va_does_not_force(self):
+        # "comment" alone (greeting) must not force without a concept term.
+        assert "definition_request" not in _classify_user_intent(
+            "salut, comment ça va aujourd'hui ?"
+        )
+
+
 # ===========================================================================
 # Task 2 — first-call-only forced tool_choice
 # ===========================================================================
