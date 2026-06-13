@@ -21,11 +21,11 @@ Checks run on this phase:
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after session-profile handoff fix | PASS, iPhone 17 Pro with same local stub; artifacts under `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
-| `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
-| `flutter test test/providers/auth_provider_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart` | PASS, 115 tests; fresh-install Keychain purge, pending retry, and profile `clearAll` secure-key purge red/green covered |
-| `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 181 tests |
-| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/services/api_service_test.dart test/providers/auth_provider_test.dart` | PASS, 80 tests; missing choice keeps data separate, existing-account login keeps the local dossier separate without explicit choice, explicit keep, explicit restart purge, stale choice expiry, feature-flag off, budget/letters detection, registration UI choice, session-only wedge profile detection, and magic-link auth bootstrap covered |
-| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 98 tests |
+| `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 105 tests |
+| `flutter test test/providers/auth_provider_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart` | PASS, 119 tests; fresh-install Keychain purge, pending retry, backend-claim retry, and profile `clearAll` secure-key purge red/green covered |
+| `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 185 tests |
+| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/services/api_service_test.dart test/providers/auth_provider_test.dart` | PASS, 82 tests; missing choice keeps data separate, existing-account login keeps the local dossier separate without explicit choice, explicit keep, explicit restart purge, failed backend claim stays retryable, pending backend claim retries on auth restore, stale choice expiry, feature-flag off, budget/letters detection, registration UI choice, session-only wedge profile detection, and magic-link auth bootstrap covered |
+| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 100 tests |
 | `flutter analyze` | PASS, no issues |
 | `./tools/mint-routes check` | PASS, 145 routes after known-miss exemptions |
 | `flutter gen-l10n` | PASS |
@@ -92,6 +92,10 @@ Runtime notes:
 - Existing-account login is provider-tested with cloud sync enabled: without an
   explicit handoff choice, Mint does not call `/sync/claim-local-data`, the
   account namespace stays separate, and the anonymous dossier remains available.
+- Backend claim failure during explicit anonymous -> account handoff is
+  provider-tested: local migration still owns the account namespace,
+  `local_data_sync_pending_<user>` stays true, and auth restore retries the
+  claim before clearing that pending flag on success.
 - Magic-link verification now fetches `/auth/me` with the fresh bearer before
   saving the final session; `AuthService.saveToken()` remains strict and never
   accepts empty user IDs or emails.

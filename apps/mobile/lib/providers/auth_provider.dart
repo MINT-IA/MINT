@@ -104,6 +104,9 @@ class AuthProvider extends ChangeNotifier {
   // keychain failure). `register()`/`login()` explicitly flip this to false.
   bool _isLocalMode = true;
 
+  static String _localDataSyncPendingKey(String userId) =>
+      'local_data_sync_pending_$userId';
+
   bool get isLoggedIn => _isLoggedIn;
   String? get userId => _userId;
   String? get email => _email;
@@ -929,17 +932,20 @@ class AuthProvider extends ChangeNotifier {
     if (currentUserId == null || currentUserId.isEmpty) return;
 
     try {
-      final shouldMigrate =
-          await AccountHandoffService.prepareLocalDataForAccount(
-        currentUserId,
-        handoffEnabled: FeatureFlags.enableMvpWedgeOnboarding,
-      );
+      final prefs = await SharedPreferences.getInstance();
+      final pendingSyncKey = _localDataSyncPendingKey(currentUserId);
+      final syncPending = prefs.getBool(pendingSyncKey) ?? false;
+      final shouldMigrate = syncPending
+          ? true
+          : await AccountHandoffService.prepareLocalDataForAccount(
+              currentUserId,
+              handoffEnabled: FeatureFlags.enableMvpWedgeOnboarding,
+            );
       if (!shouldMigrate) return;
 
-      final prefs = await SharedPreferences.getInstance();
       final alreadyMigrated =
           prefs.getBool('local_data_migrated_$currentUserId') ?? false;
-      if (alreadyMigrated) return;
+      if (alreadyMigrated && !syncPending) return;
 
       // Check if local data already belongs to a different user.
       final existingOwner = prefs.getString('local_data_owner');
@@ -960,17 +966,22 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
-      // Migrate anonymous conversations to authenticated user namespace.
-      // Must happen before wizard data push so conversation history is preserved.
-      try {
-        await ConversationStore.migrateAnonymousToUser(currentUserId);
-        await AnonymousSessionService.clearSession();
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint(
-              '[AuthProvider] Anonymous conversation migration failed: $e');
+      if (!alreadyMigrated) {
+        // Migrate anonymous conversations to authenticated user namespace.
+        // Must happen before wizard data push so conversation history is preserved.
+        try {
+          await ConversationStore.migrateAnonymousToUser(currentUserId);
+          await AnonymousSessionService.clearSession();
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint(
+                '[AuthProvider] Anonymous conversation migration failed: $e');
+          }
         }
       }
+
+      await prefs.setString('local_data_owner', currentUserId);
+      await prefs.setBool('local_data_migrated_$currentUserId', true);
 
       // Phase 52.1 B-2: gate the wizard-data backend push on the
       // cloud-sync toggle. New accounts default OFF (Phase 52 D-01)
@@ -982,7 +993,7 @@ class AuthProvider extends ChangeNotifier {
       final cloudSyncEnabled = !(prefs.getBool('auth_local_mode') ?? true);
       if (cloudSyncEnabled) {
         // Push local wizard data to backend via claimLocalData.
-        // Best-effort: failure does not block the auth flow.
+        // Best-effort: failure does not block auth, but keeps a retry flag.
         try {
           final answers = await ReportPersistenceService.loadAnswers();
           if (answers.isNotEmpty) {
@@ -997,15 +1008,16 @@ class AuthProvider extends ChangeNotifier {
               wizardAnswers: answers,
             );
           }
+          await prefs.remove(pendingSyncKey);
         } catch (e) {
+          await prefs.setBool(pendingSyncKey, true);
           if (kDebugMode) {
             debugPrint('[AuthProvider] claimLocalData sync failed: $e');
           }
         }
+      } else if (syncPending) {
+        await prefs.remove(pendingSyncKey);
       }
-
-      await prefs.setString('local_data_owner', currentUserId);
-      await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
       if (kDebugMode) {

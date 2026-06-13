@@ -35,11 +35,11 @@
       <tr><td>Maestro diagnostic Situation</td><td>PASS</td><td><code>flow_diagnostic_situation_scene.yaml</code> passe: repères captés, données manquantes, pas de fallback retraite. Repassé après le correctif session-profile.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
-      <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>97 tests ciblés.</td></tr>
-      <tr><td>Flutter tests reset/secure storage</td><td>PASS</td><td>115 tests ciblés, incluant purge fresh install, retry pending et clearAll secure.</td></tr>
-      <tr><td>Flutter tests handoff/auth</td><td>PASS</td><td>80 tests ciblés: choix absent séparé, login compte existant sans claim implicite, conserver explicite, repartir, expiration, budget/lettres, UI inscription, profil wedge session-only, magic-link.</td></tr>
-      <tr><td>Flutter tests auth screens</td><td>PASS</td><td>98 tests sur auth screens, handoff et AuthProvider.</td></tr>
-      <tr><td>Flutter regression combinée</td><td>PASS</td><td>181 tests sur DataSpine, onboarding, auth, reset, secure storage et retraite.</td></tr>
+      <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>105 tests ciblés.</td></tr>
+      <tr><td>Flutter tests reset/secure storage</td><td>PASS</td><td>119 tests ciblés, incluant purge fresh install, retry pending, retry backend claim et clearAll secure.</td></tr>
+      <tr><td>Flutter tests handoff/auth</td><td>PASS</td><td>82 tests ciblés: choix absent séparé, login compte existant sans claim implicite, conserver explicite, repartir, claim backend retryable, expiration, budget/lettres, UI inscription, profil wedge session-only, magic-link.</td></tr>
+      <tr><td>Flutter tests auth screens</td><td>PASS</td><td>100 tests sur auth screens, handoff et AuthProvider.</td></tr>
+      <tr><td>Flutter regression combinée</td><td>PASS</td><td>185 tests sur DataSpine, onboarding, auth, reset, secure storage et retraite.</td></tr>
       <tr><td>Analyze/routes/i18n/compliance</td><td>PASS LOCAL</td><td>Analyse, route registry, ARB parity 6986 clés, banned terms, accent lint, public-doc admission lint.</td></tr>
     </tbody>
   </table>

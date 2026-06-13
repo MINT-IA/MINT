@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -239,6 +240,128 @@ void main() {
           seenPaths,
           isNot(contains('/api/v1/sync/claim-local-data')),
         );
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        ConversationStore.setCurrentUserId(null);
+      }
+    });
+
+    test('failed local data claim keeps retryable account-local dossier',
+        () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+      await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', false);
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ConversationStore().saveConversation('local-before-claim-fails', [
+        ChatMessage(
+          role: 'user',
+          content: 'Je veux garder mon diagnostic.',
+          timestamp: DateTime(2026, 6, 13, 13),
+        ),
+      ]);
+
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/login') {
+            return http.Response(
+              '{"access_token":"claim-token","refresh_token":"claim-refresh","user_id":"claim-user","email":"claim@example.ch","display_name":"Claim User"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              '{}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/sync/claim-local-data') {
+            return http.Response(
+              '{"detail":"staging unavailable"}',
+              503,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      try {
+        final success = await provider.login('claim@example.ch', 'password');
+
+        expect(success, isTrue);
+        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+        expect(await ReportPersistenceService.loadAnswers(), {
+          'q_canton': 'VD',
+        });
+        expect(
+          await ConversationStore().loadConversation(
+            'local-before-claim-fails',
+          ),
+          isNotEmpty,
+        );
+        expect(prefs.getString('local_data_owner'), 'claim-user');
+        expect(prefs.getBool('local_data_migrated_claim-user'), isTrue);
+        expect(prefs.getBool('local_data_sync_pending_claim-user'), isTrue);
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        ConversationStore.setCurrentUserId(null);
+        await AccountHandoffService.clearChoice();
+      }
+    });
+
+    test('pending local data claim retries on auth restore and clears flag',
+        () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('mint_install_marker_v1', true);
+      await prefs.setBool('auth_local_mode', false);
+      await prefs.setString('local_data_owner', 'claim-user');
+      await prefs.setBool('local_data_migrated_claim-user', true);
+      await prefs.setBool('local_data_sync_pending_claim-user', true);
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await AuthService.saveToken(
+        'retry-token',
+        'claim-user',
+        'claim@example.ch',
+      );
+
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/sync/claim-local-data') {
+            return http.Response(
+              '{"status":"ok"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              '{}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      try {
+        await provider.checkAuth();
+
+        expect(provider.isLoggedIn, isTrue);
+        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+        expect(prefs.getBool('local_data_sync_pending_claim-user'), isNull);
+        expect(prefs.getBool('local_data_migrated_claim-user'), isTrue);
+        expect(prefs.getString('local_data_owner'), 'claim-user');
       } finally {
         FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
         ConversationStore.setCurrentUserId(null);
