@@ -11778,6 +11778,10 @@
   "@anonymousChatCreateAccount": {
     "description": "Anonymous chat — CTA button to create account."
   },
+  "anonymousChatNewConversation": "Nouvelle discussion",
+  "@anonymousChatNewConversation": {
+    "description": "Anonymous chat — top-bar action shown only when an anonymous conversation was restored from local storage."
+  },
   "anonymousChatError": "Je rencontre un problème technique. Réessaie dans un instant.",
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
@@ -12798,6 +12802,36 @@
   "reportStatusSerein": "Serein",
   "reportStatusARenforcer": "À renforcer",
   "reportStatusAlerte": "Alerte",
+  "diagnosticOnboardingEntryTitle": "Un premier aperçu suisse.",
+  "diagnosticOnboardingEntryBody": "On commence par quelques repères. Mint te montre ce qu’il sait, ce qu’il suppose, et ce qu’il manque avant de créer un compte.",
+  "diagnosticOnboardingEntryCta": "Voir mon aperçu",
+  "diagnosticOnboardingIntentPrompt": "Qu’est-ce que tu veux éclairer d’abord ?",
+  "diagnosticOnboardingIntentTaxesEyebrow": "Impôts",
+  "diagnosticOnboardingIntentTaxesPhrase": "Voir où tu pourrais agir.",
+  "diagnosticOnboardingIntentTaxesHuman": "Mes impôts",
+  "diagnosticOnboardingIntentHousingEyebrow": "Logement",
+  "diagnosticOnboardingIntentHousingPhrase": "Savoir ce que ton revenu permet.",
+  "diagnosticOnboardingIntentHousingHuman": "Acheter un lieu",
+  "diagnosticOnboardingIntentPensionEyebrow": "Prévoyance",
+  "diagnosticOnboardingIntentPensionPhrase": "Comprendre ce que tes années changent.",
+  "diagnosticOnboardingIntentPensionHuman": "Ma prévoyance",
+  "diagnosticOnboardingIntentExploreEyebrow": "Situation",
+  "diagnosticOnboardingIntentExplorePhrase": "Voir les angles morts possibles.",
+  "diagnosticOnboardingIntentExploreHuman": "Comprendre ma situation",
+  "diagnosticOnboardingExploreSceneEyebrow": "Aperçu",
+  "diagnosticOnboardingExploreSceneTitle": "Ce que Mint peut déjà situer",
+  "diagnosticOnboardingExploreKnownLabel": "Repères captés",
+  "diagnosticOnboardingExploreKnownValue": "{canton} · environ {income} CHF/mois net",
+  "@diagnosticOnboardingExploreKnownValue": {
+    "placeholders": {
+      "canton": {},
+      "income": {}
+    }
+  },
+  "diagnosticOnboardingExploreAssumptionsLabel": "Hypothèses de départ",
+  "diagnosticOnboardingExploreAssumptionsBody": "Mint garde des repères simples tant que tes documents ne sont pas ajoutés.",
+  "diagnosticOnboardingExploreMissingLabel": "À préciser ensuite",
+  "diagnosticOnboardingExploreMissingBody": "Certificat LPP, dépenses fixes et objectif concret.",
   "onboardingEmploymentPrompt": "Quelle est ta situation professionnelle ?",
   "onboardingEmploymentSalarie": "Salarié",
   "onboardingEmploymentIndependant": "Indépendant",

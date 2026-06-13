@@ -1,0 +1,72 @@
+# tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml
+#
+# PURPOSE
+# Validates the diagnostic-onboarding rollout switch:
+#   landing CTA -> /start -> /onb when backend feature flags return
+#   {"enableMvpWedgeOnboarding": true}.
+#
+# This flow deliberately stops after the first diagnostic transition. It is a
+# routing/runtime contract, not a full onboarding completion proof.
+#
+# PRE-CONDITION
+# - App bundle ch.mint.app installed on a booted iOS simulator.
+# - Backend reachable by the app and configured with:
+#     FF_ENABLE_MVP_WEDGE_ONBOARDING=true
+# - Recommended build:
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - Fresh install or clear app state before the run. If a previous run left a
+#   keychain auth token, uninstall + install before invoking this flow.
+#
+# LOCATOR STRATEGY
+# - Landing CTA uses the current FR l10n label "Parle à Mint".
+# - Diagnostic assertions use onboarding semantics identifiers where available
+#   to avoid coupling this route contract to long marketing copy.
+
+appId: ch.mint.app
+tags:
+  - acquisition
+  - diagnostic-onboarding
+  - feature-flag
+  - route-contract
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# 01 — landing visible.
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 8000
+- takeScreenshot: "01-landing"
+
+# 02 — landing CTA delegates to /start, then backend flag routes to /onb.
+- tapOn:
+    text: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-entry-open"
+    timeout: 8000
+- assertVisible:
+    text: "Un premier aperçu suisse."
+- assertNotVisible:
+    text: "Écris ce qui te trotte en tête…"
+- takeScreenshot: "02-diagnostic-entry"
+
+# 03 — prove the diagnostic shell is actionable, not a route dead end.
+- tapOn:
+    id: "onboarding-entry-open"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-intent-explorer"
+    timeout: 5000
+- assertVisible:
+    text: "Qu’est-ce que tu veux éclairer d’abord ?"
+- takeScreenshot: "03-diagnostic-intents"

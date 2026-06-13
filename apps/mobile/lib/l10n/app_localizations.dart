@@ -39946,6 +39946,12 @@ abstract class S {
   /// **'Créer un compte'**
   String get anonymousChatCreateAccount;
 
+  /// Anonymous chat — top-bar action shown only when an anonymous conversation was restored from local storage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle discussion'**
+  String get anonymousChatNewConversation;
+
   /// Anonymous chat — fallback error message.
   ///
   /// In fr, this message translates to:
@@ -41565,6 +41571,150 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Alerte'**
   String get reportStatusAlerte;
+
+  /// No description provided for @diagnosticOnboardingEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un premier aperçu suisse.'**
+  String get diagnosticOnboardingEntryTitle;
+
+  /// No description provided for @diagnosticOnboardingEntryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On commence par quelques repères. Mint te montre ce qu’il sait, ce qu’il suppose, et ce qu’il manque avant de créer un compte.'**
+  String get diagnosticOnboardingEntryBody;
+
+  /// No description provided for @diagnosticOnboardingEntryCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon aperçu'**
+  String get diagnosticOnboardingEntryCta;
+
+  /// No description provided for @diagnosticOnboardingIntentPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu’est-ce que tu veux éclairer d’abord ?'**
+  String get diagnosticOnboardingIntentPrompt;
+
+  /// No description provided for @diagnosticOnboardingIntentTaxesEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôts'**
+  String get diagnosticOnboardingIntentTaxesEyebrow;
+
+  /// No description provided for @diagnosticOnboardingIntentTaxesPhrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir où tu pourrais agir.'**
+  String get diagnosticOnboardingIntentTaxesPhrase;
+
+  /// No description provided for @diagnosticOnboardingIntentTaxesHuman.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes impôts'**
+  String get diagnosticOnboardingIntentTaxesHuman;
+
+  /// No description provided for @diagnosticOnboardingIntentHousingEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement'**
+  String get diagnosticOnboardingIntentHousingEyebrow;
+
+  /// No description provided for @diagnosticOnboardingIntentHousingPhrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Savoir ce que ton revenu permet.'**
+  String get diagnosticOnboardingIntentHousingPhrase;
+
+  /// No description provided for @diagnosticOnboardingIntentHousingHuman.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter un lieu'**
+  String get diagnosticOnboardingIntentHousingHuman;
+
+  /// No description provided for @diagnosticOnboardingIntentPensionEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance'**
+  String get diagnosticOnboardingIntentPensionEyebrow;
+
+  /// No description provided for @diagnosticOnboardingIntentPensionPhrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ce que tes années changent.'**
+  String get diagnosticOnboardingIntentPensionPhrase;
+
+  /// No description provided for @diagnosticOnboardingIntentPensionHuman.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma prévoyance'**
+  String get diagnosticOnboardingIntentPensionHuman;
+
+  /// No description provided for @diagnosticOnboardingIntentExploreEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation'**
+  String get diagnosticOnboardingIntentExploreEyebrow;
+
+  /// No description provided for @diagnosticOnboardingIntentExplorePhrase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les angles morts possibles.'**
+  String get diagnosticOnboardingIntentExplorePhrase;
+
+  /// No description provided for @diagnosticOnboardingIntentExploreHuman.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ma situation'**
+  String get diagnosticOnboardingIntentExploreHuman;
+
+  /// No description provided for @diagnosticOnboardingExploreSceneEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu'**
+  String get diagnosticOnboardingExploreSceneEyebrow;
+
+  /// No description provided for @diagnosticOnboardingExploreSceneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que Mint peut déjà situer'**
+  String get diagnosticOnboardingExploreSceneTitle;
+
+  /// No description provided for @diagnosticOnboardingExploreKnownLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repères captés'**
+  String get diagnosticOnboardingExploreKnownLabel;
+
+  /// No description provided for @diagnosticOnboardingExploreKnownValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{canton} · environ {income} CHF/mois net'**
+  String diagnosticOnboardingExploreKnownValue(Object canton, Object income);
+
+  /// No description provided for @diagnosticOnboardingExploreAssumptionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de départ'**
+  String get diagnosticOnboardingExploreAssumptionsLabel;
+
+  /// No description provided for @diagnosticOnboardingExploreAssumptionsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint garde des repères simples tant que tes documents ne sont pas ajoutés.'**
+  String get diagnosticOnboardingExploreAssumptionsBody;
+
+  /// No description provided for @diagnosticOnboardingExploreMissingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'À préciser ensuite'**
+  String get diagnosticOnboardingExploreMissingLabel;
+
+  /// No description provided for @diagnosticOnboardingExploreMissingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP, dépenses fixes et objectif concret.'**
+  String get diagnosticOnboardingExploreMissingBody;
 
   /// No description provided for @onboardingEmploymentPrompt.
   ///

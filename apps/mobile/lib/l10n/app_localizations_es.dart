@@ -22829,6 +22829,9 @@ class SEs extends S {
   String get anonymousChatCreateAccount => 'Crear una cuenta';
 
   @override
+  String get anonymousChatNewConversation => 'Nueva conversación';
+
+  @override
   String get anonymousChatError =>
       'Tengo un problema técnico. Inténtalo de nuevo en un momento.';
 
@@ -23778,6 +23781,90 @@ class SEs extends S {
 
   @override
   String get reportStatusAlerte => 'Alerta';
+
+  @override
+  String get diagnosticOnboardingEntryTitle => 'Una primera vista suiza.';
+
+  @override
+  String get diagnosticOnboardingEntryBody =>
+      'Empezamos con unas referencias. Mint te muestra lo que sabe, lo que supone y lo que falta antes de crear una cuenta.';
+
+  @override
+  String get diagnosticOnboardingEntryCta => 'Ver mi vista inicial';
+
+  @override
+  String get diagnosticOnboardingIntentPrompt =>
+      '¿Qué quieres aclarar primero?';
+
+  @override
+  String get diagnosticOnboardingIntentTaxesEyebrow => 'Impuestos';
+
+  @override
+  String get diagnosticOnboardingIntentTaxesPhrase =>
+      'Ver dónde podrías actuar.';
+
+  @override
+  String get diagnosticOnboardingIntentTaxesHuman => 'Mis impuestos';
+
+  @override
+  String get diagnosticOnboardingIntentHousingEyebrow => 'Vivienda';
+
+  @override
+  String get diagnosticOnboardingIntentHousingPhrase =>
+      'Ver lo que permite tu ingreso.';
+
+  @override
+  String get diagnosticOnboardingIntentHousingHuman => 'Comprar vivienda';
+
+  @override
+  String get diagnosticOnboardingIntentPensionEyebrow => 'Previsión';
+
+  @override
+  String get diagnosticOnboardingIntentPensionPhrase =>
+      'Entender qué cambian tus años.';
+
+  @override
+  String get diagnosticOnboardingIntentPensionHuman => 'Mi previsión';
+
+  @override
+  String get diagnosticOnboardingIntentExploreEyebrow => 'Situación';
+
+  @override
+  String get diagnosticOnboardingIntentExplorePhrase =>
+      'Ver posibles puntos ciegos.';
+
+  @override
+  String get diagnosticOnboardingIntentExploreHuman => 'Entender mi situación';
+
+  @override
+  String get diagnosticOnboardingExploreSceneEyebrow => 'Vista';
+
+  @override
+  String get diagnosticOnboardingExploreSceneTitle =>
+      'Lo que Mint ya puede situar';
+
+  @override
+  String get diagnosticOnboardingExploreKnownLabel => 'Referencias captadas';
+
+  @override
+  String diagnosticOnboardingExploreKnownValue(Object canton, Object income) {
+    return '$canton · aprox. $income CHF/mes netos';
+  }
+
+  @override
+  String get diagnosticOnboardingExploreAssumptionsLabel =>
+      'Supuestos iniciales';
+
+  @override
+  String get diagnosticOnboardingExploreAssumptionsBody =>
+      'Mint mantiene referencias simples mientras tus documentos no se hayan añadido.';
+
+  @override
+  String get diagnosticOnboardingExploreMissingLabel => 'A precisar después';
+
+  @override
+  String get diagnosticOnboardingExploreMissingBody =>
+      'Certificado LPP, gastos fijos y objetivo concreto.';
 
   @override
   String get onboardingEmploymentPrompt => '¿Cuál es tu situación laboral?';

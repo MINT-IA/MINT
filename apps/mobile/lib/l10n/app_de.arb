@@ -10757,6 +10757,10 @@
   "@anonymousChatCreateAccount": {
     "description": "Anonymous chat — CTA button to create account."
   },
+  "anonymousChatNewConversation": "Neues Gespräch",
+  "@anonymousChatNewConversation": {
+    "description": "Anonymous chat — top-bar action shown only when an anonymous conversation was restored from local storage."
+  },
   "anonymousChatError": "Ich habe ein technisches Problem. Versuch es gleich nochmal.",
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
@@ -11373,6 +11377,30 @@
   "reportStatusSerein": "Stabil",
   "reportStatusARenforcer": "Zu stärken",
   "reportStatusAlerte": "Warnung",
+  "diagnosticOnboardingEntryTitle": "Ein erster Schweizer Überblick.",
+  "diagnosticOnboardingEntryBody": "Wir starten mit ein paar Eckwerten. Mint zeigt dir, was es weiss, was es annimmt und was noch fehlt, bevor du ein Konto erstellst.",
+  "diagnosticOnboardingEntryCta": "Meinen Überblick sehen",
+  "diagnosticOnboardingIntentPrompt": "Was möchtest du zuerst klären?",
+  "diagnosticOnboardingIntentTaxesEyebrow": "Steuern",
+  "diagnosticOnboardingIntentTaxesPhrase": "Sehen, wo du handeln könntest.",
+  "diagnosticOnboardingIntentTaxesHuman": "Meine Steuern",
+  "diagnosticOnboardingIntentHousingEyebrow": "Wohnen",
+  "diagnosticOnboardingIntentHousingPhrase": "Sehen, was dein Einkommen ermöglicht.",
+  "diagnosticOnboardingIntentHousingHuman": "Ein Zuhause kaufen",
+  "diagnosticOnboardingIntentPensionEyebrow": "Vorsorge",
+  "diagnosticOnboardingIntentPensionPhrase": "Verstehen, was deine Jahre verändern.",
+  "diagnosticOnboardingIntentPensionHuman": "Meine Vorsorge",
+  "diagnosticOnboardingIntentExploreEyebrow": "Situation",
+  "diagnosticOnboardingIntentExplorePhrase": "Mögliche blinde Flecken sehen.",
+  "diagnosticOnboardingIntentExploreHuman": "Meine Situation verstehen",
+  "diagnosticOnboardingExploreSceneEyebrow": "Überblick",
+  "diagnosticOnboardingExploreSceneTitle": "Was Mint bereits einordnen kann",
+  "diagnosticOnboardingExploreKnownLabel": "Erfasste Eckwerte",
+  "diagnosticOnboardingExploreKnownValue": "{canton} · ca. {income} CHF/Monat netto",
+  "diagnosticOnboardingExploreAssumptionsLabel": "Erste Annahmen",
+  "diagnosticOnboardingExploreAssumptionsBody": "Mint nutzt einfache Eckwerte, solange deine Dokumente noch nicht hinzugefügt sind.",
+  "diagnosticOnboardingExploreMissingLabel": "Als Nächstes klären",
+  "diagnosticOnboardingExploreMissingBody": "LPP-Ausweis, fixe Ausgaben und ein konkretes Ziel.",
   "onboardingEmploymentPrompt": "Wie ist deine berufliche Situation?",
   "onboardingEmploymentSalarie": "Angestellt",
   "onboardingEmploymentIndependant": "Selbstständig",

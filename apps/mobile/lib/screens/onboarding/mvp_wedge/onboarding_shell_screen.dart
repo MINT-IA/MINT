@@ -409,27 +409,55 @@ class _EntryStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final provider = context.read<OnboardingProvider>();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      child: Column(
-        children: [
-          const Spacer(),
-          Text(
-            'Il est temps que tu comprennes.',
-            textAlign: TextAlign.center,
-            style: MintTextStyles.displaySmall(color: MintColors.textPrimary)
-                .copyWith(fontWeight: FontWeight.w600),
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(height: 24),
+                Column(
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.diagnosticOnboardingEntryTitle,
+                        textAlign: TextAlign.center,
+                        style: MintTextStyles.displaySmall(
+                          color: MintColors.textPrimary,
+                        ).copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.diagnosticOnboardingEntryBody,
+                      textAlign: TextAlign.center,
+                      style: MintTextStyles.bodyLarge(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    _PrimaryButton(
+                      key: const ValueKey('onboarding-entry-open'),
+                      semanticsIdentifier: 'onboarding-entry-open',
+                      label: l10n.diagnosticOnboardingEntryCta,
+                      onPressed: () => provider.advance(),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const Spacer(),
-          _PrimaryButton(
-            key: const ValueKey('onboarding-entry-open'),
-            semanticsIdentifier: 'onboarding-entry-open',
-            label: 'Ouvrir',
-            onPressed: () => provider.advance(),
-          ),
-          const SizedBox(height: 8),
-        ],
+        ),
       ),
     );
   }
@@ -444,44 +472,45 @@ class _IntentsStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final provider = context.read<OnboardingProvider>();
-    const items = <(OnboardingIntent, String, String, String, Key, String)>[
-      (
-        OnboardingIntent.retraite,
-        'RETRAITE',
-        'Ce que je toucherai, vraiment.',
-        'Ma retraite',
-        ValueKey('onboarding-intent-retraite'),
-        'onboarding-intent-retraite',
-      ),
+    final items = <(OnboardingIntent, String, String, String, Key, String)>[
       (
         OnboardingIntent.achat,
-        'ACHAT',
-        'Ce que je peux viser.',
-        'Acheter un lieu',
-        ValueKey('onboarding-intent-achat'),
+        l10n.diagnosticOnboardingIntentHousingEyebrow,
+        l10n.diagnosticOnboardingIntentHousingPhrase,
+        l10n.diagnosticOnboardingIntentHousingHuman,
+        const ValueKey('onboarding-intent-achat'),
         'onboarding-intent-achat',
       ),
       (
         OnboardingIntent.impots,
-        'IMPOTS',
-        'Ce que je paie de trop.',
-        'Mes impôts',
-        ValueKey('onboarding-intent-impots'),
+        l10n.diagnosticOnboardingIntentTaxesEyebrow,
+        l10n.diagnosticOnboardingIntentTaxesPhrase,
+        l10n.diagnosticOnboardingIntentTaxesHuman,
+        const ValueKey('onboarding-intent-impots'),
         'onboarding-intent-impots',
       ),
       (
+        OnboardingIntent.retraite,
+        l10n.diagnosticOnboardingIntentPensionEyebrow,
+        l10n.diagnosticOnboardingIntentPensionPhrase,
+        l10n.diagnosticOnboardingIntentPensionHuman,
+        const ValueKey('onboarding-intent-retraite'),
+        'onboarding-intent-retraite',
+      ),
+      (
         OnboardingIntent.explorer,
-        'EXPLORER',
-        'Je regarde d\u2019abord.',
-        'Je regarde',
-        ValueKey('onboarding-intent-explorer'),
+        l10n.diagnosticOnboardingIntentExploreEyebrow,
+        l10n.diagnosticOnboardingIntentExplorePhrase,
+        l10n.diagnosticOnboardingIntentExploreHuman,
+        const ValueKey('onboarding-intent-explorer'),
         'onboarding-intent-explorer',
       ),
     ];
 
     return _StepScaffold(
-      prompt: 'Qu\u2019est-ce qui t\u2019amène ?',
+      prompt: l10n.diagnosticOnboardingIntentPrompt,
       child: ListView.separated(
         padding: EdgeInsets.zero,
         itemCount: items.length,
@@ -525,8 +554,10 @@ class _IntentCard extends StatelessWidget {
     return Semantics(
       key: cardKey,
       identifier: semanticsIdentifier,
+      label: '$eyebrow. $phrase',
       button: true,
       onTap: onTap,
+      excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -1084,12 +1115,9 @@ class _SceneStep extends StatelessWidget {
           cantonCode: provider.cantonCode ?? 'VD',
           isRange: provider.netMonthlyRange != null,
         ),
-      OnboardingIntent.explorer || null => MintSceneRenteTrouee(
-          currentAge: age,
+      OnboardingIntent.explorer || null => _ExplorerOverviewScene(
+          cantonCode: provider.cantonCode,
           netMonthly: netMonthly,
-          isRange: provider.netMonthlyRange != null,
-          arrivalAge: provider.avsArrivalAge,
-          lacunes: provider.avsGaps,
         ),
     };
 
@@ -1107,6 +1135,120 @@ class _SceneStep extends StatelessWidget {
             onPressed: () => context.read<OnboardingProvider>().advance(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ExplorerOverviewScene extends StatelessWidget {
+  const _ExplorerOverviewScene({
+    required this.cantonCode,
+    required this.netMonthly,
+  });
+
+  final String? cantonCode;
+  final double netMonthly;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final knownValue = l10n.diagnosticOnboardingExploreKnownValue(
+      _cantonName(cantonCode),
+      _RevenueStepState._fmt(netMonthly),
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      decoration: BoxDecoration(
+        color: MintColors.craie,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.textPrimary.withValues(alpha: 0.08),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.diagnosticOnboardingExploreSceneEyebrow,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.corailDiscret,
+            ).copyWith(
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.diagnosticOnboardingExploreSceneTitle,
+              style: MintTextStyles.titleLarge(
+                color: MintColors.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(height: 18),
+          _ExplorerOverviewRow(
+            label: l10n.diagnosticOnboardingExploreKnownLabel,
+            body: knownValue,
+          ),
+          const SizedBox(height: 12),
+          _ExplorerOverviewRow(
+            label: l10n.diagnosticOnboardingExploreAssumptionsLabel,
+            body: l10n.diagnosticOnboardingExploreAssumptionsBody,
+          ),
+          const SizedBox(height: 12),
+          _ExplorerOverviewRow(
+            label: l10n.diagnosticOnboardingExploreMissingLabel,
+            body: l10n.diagnosticOnboardingExploreMissingBody,
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _cantonName(String? code) {
+    if (code == null) return '';
+    for (final (cantonCode, name) in _cantons) {
+      if (cantonCode == code) return name;
+    }
+    return code;
+  }
+}
+
+class _ExplorerOverviewRow extends StatelessWidget {
+  const _ExplorerOverviewRow({
+    required this.label,
+    required this.body,
+  });
+
+  final String label;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: MintTextStyles.labelMedium(
+                color: MintColors.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              body,
+              style: MintTextStyles.bodyMedium(
+                color: MintColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

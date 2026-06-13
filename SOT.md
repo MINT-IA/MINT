@@ -1,6 +1,18 @@
 # Source of Truth (SOT) — MINT
 
-> **LAST SYNCED**: 2026-03-25 | Production: v0.1.0
+> **LAST SYNCED**: 2026-06-13 | Production: v0.1.0
+
+## 0. API Contract: Feature Flags
+
+`GET /api/v1/config/feature-flags` is the backend-driven feature flag contract
+consumed by Flutter `FeatureFlags.applyFromMap(...)`. It is intentionally
+available before login because onboarding route selection happens before
+account creation.
+
+- `enableMvpWedgeOnboarding`: boolean, default `false`, env override
+  `FF_ENABLE_MVP_WEDGE_ONBOARDING`. When `true`, mobile `/start` enters the
+  diagnostic onboarding flow (`/onb`). When `false`, `/start` preserves the
+  anonymous chat fallback.
 
 ## 1. Domain Object: Profile
 

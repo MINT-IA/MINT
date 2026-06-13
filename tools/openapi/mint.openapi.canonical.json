@@ -9724,6 +9724,10 @@
             "title": "Enableexperttier",
             "type": "boolean"
           },
+          "enableMvpWedgeOnboarding": {
+            "title": "Enablemvpwedgeonboarding",
+            "type": "boolean"
+          },
           "enableOpenBanking": {
             "title": "Enableopenbanking",
             "type": "boolean"
@@ -9754,7 +9758,8 @@
           "enableOpenBanking",
           "enablePensionFundConnect",
           "enableExpertTier",
-          "enableAdminScreens"
+          "enableAdminScreens",
+          "enableMvpWedgeOnboarding"
         ],
         "title": "FeatureFlagsResponse",
         "type": "object"
@@ -12612,7 +12617,7 @@
       },
       "L4InvariantPayload": {
         "additionalProperties": false,
-        "description": "L4 « Surfacer les invariants » : information générale + legal article ref.\n\nFinding 5 of CONTEXT.md : « L4 is MINT's strongest LSFin moat + highest\nuser-value surface ». Pure information générale (no user-profile data),\nno ranking, no recommendation — just the regulatory invariant the user\nneeds to know.\n\nExample payload (the « 33% LCC plafond » wedge invariant for Finding 5) :\n\n  L4InvariantPayload(\n      legal_article_ref=\"LCC art. 28\",\n      condition_text_fr=(\n          \"Quel que soit le scénario, ta capacité d'emprunt \"\n          \"hypothécaire reste plafonnée à 33% de tes revenus bruts \"\n          \"annuels selon la LCC art. 28.\"\n      ),\n  )\n\nConstraints :\n  - `legal_article_ref` min_length=5 to ensure a citable source\n    (e.g. « LCC art. 28 », « CC art. 122 »).\n  - `condition_text_fr` min_length=20 to prevent trivial invariants\n    (« plafond 33% » alone is not an invariant — it needs context).",
+        "description": "L4 « Surfacer les invariants » : information générale + legal article ref.\n\nFinding 5 of CONTEXT.md : « L4 is MINT's strongest LSFin moat + highest\nuser-value surface ». Pure information générale (no user-profile data),\nno ranking, no recommendation — just the regulatory invariant the user\nneeds to know.\n\nExample payload (the « 33% Tragbarkeit plafond » wedge invariant for\nFinding 5). NB : the 33% charge-to-income cap is a FINMA/ASB mortgage\nself-regulation rule — the LCC (consumer credit) explicitly EXCLUDES\nmortgage credit, so the citable source is the ASB directives, not the LCC :\n\n  L4InvariantPayload(\n      legal_article_ref=\"Directives ASB (FINMA)\",\n      condition_text_fr=(\n          \"Quel que soit le scénario, ta capacité d'emprunt \"\n          \"hypothécaire reste plafonnée à 33% de tes revenus bruts \"\n          \"annuels selon les Directives ASB (FINMA).\"\n      ),\n  )\n\nConstraints :\n  - `legal_article_ref` min_length=5 to ensure a citable source\n    (e.g. « Directives ASB (FINMA) », « CC art. 122 »).\n  - `condition_text_fr` min_length=20 to prevent trivial invariants\n    (« plafond 33% » alone is not an invariant — it needs context).",
         "properties": {
           "condition_text_fr": {
             "minLength": 20,
@@ -27561,11 +27566,6 @@
             "description": "Successful Response"
           }
         },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
         "summary": "Get Feature Flags",
         "tags": [
           "Config"
@@ -31120,7 +31120,7 @@
     },
     "/api/v1/lucidity/invariants/mortgage-cap": {
       "get": {
-        "description": "L4 wedge invariant : 33% LCC mortgage cap.\n\nReturns the canonical FR condition text + LCC art. 28 legal reference.\nNo user-profile input required — this is information générale.\n\nSources : LCC art. 28 (Loi sur le crédit à la consommation).\nDoctrine : MINT_IDENTITY.md « Mint te dit ce que personne n'a intérêt\nà te dire ».",
+        "description": "L4 wedge invariant : 33% mortgage tenability cap.\n\nReturns the canonical FR condition text + ASB directive legal reference.\nNo user-profile input required — this is information générale.\n\nSources : Directives ASB (FINMA) sur le crédit hypothécaire. Le plafond\nde charge de 33% ne relève PAS de la loi sur le crédit à la consommation\n(qui exclut explicitement le crédit hypothécaire de son champ).\nDoctrine : MINT_IDENTITY.md « Mint te dit ce que personne n'a intérêt\nà te dire ».",
         "operationId": "lucidity_invariant_mortgage_cap_api_v1_lucidity_invariants_mortgage_cap_get",
         "responses": {
           "200": {

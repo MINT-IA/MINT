@@ -1,0 +1,147 @@
+# tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml
+#
+# PURPOSE
+# Validates that the neutral "Situation" intent is wired to a real overview
+# scene with captured values, not to the retirement fallback scene.
+#
+# PRE-CONDITION
+# - App bundle ch.mint.app installed on a booted iOS simulator.
+# - Backend reachable by the app and configured with:
+#     FF_ENABLE_MVP_WEDGE_ONBOARDING=true
+# - Recommended build:
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+
+appId: ch.mint.app
+tags:
+  - diagnostic-onboarding
+  - situation-intent
+  - no-facade
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 8000
+- tapOn:
+    text: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-entry-open"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-entry-open"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-intent-explorer"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-intent-explorer"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: ".*États-Unis.*"
+    timeout: 5000
+- tapOn:
+    text: "Non"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Suisse"
+    timeout: 5000
+- tapOn:
+    text: "Suisse"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Salarié"
+    timeout: 5000
+- tapOn:
+    text: "Salarié"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Marié"
+    timeout: 5000
+- tapOn:
+    text: "Marié"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Non, toujours en Suisse"
+    timeout: 5000
+- tapOn:
+    text: "Non, toujours en Suisse"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Choisir ma date"
+    timeout: 5000
+- tapOn: "Choisir ma date"
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-dob-continue"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-canton-vd"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-canton-vd"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-revenue-range-continue"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-revenue-range-continue"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-insight-view"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-insight-view"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Ce que Mint peut déjà situer"
+    timeout: 8000
+- assertVisible:
+    text: "Repères captés"
+- assertVisible:
+    text: "Vaud · environ 7’250 CHF/mois net"
+- assertVisible:
+    text: "À préciser ensuite"
+- assertNotVisible:
+    text: "SCENE · TA RETRAITE PROJETEE"
+- takeScreenshot: "04-situation-overview"

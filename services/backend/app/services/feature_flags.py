@@ -46,6 +46,9 @@ class FeatureFlags:
     # Admin screens: observability, analytics (off by default)
     enable_admin_screens: bool = False
 
+    # Diagnostic onboarding wedge (off by default until rollout)
+    enable_mvp_wedge_onboarding: bool = False
+
     # Phase 02 Plan 02-03 PR-1 (D-05) — dual-write SnapshotModel -> fact_event.
     # OFF in dev/staging/prod by default ; flipped ON on staging only during
     # the PR-3a backfill + soak window ; removed entirely in PR-4 decommission.
@@ -102,6 +105,10 @@ class FeatureFlags:
             ),
             "enable_admin_screens": _env_bool(
                 "FF_ENABLE_ADMIN_SCREENS", cls.enable_admin_screens
+            ),
+            "enable_mvp_wedge_onboarding": _env_bool(
+                "FF_ENABLE_MVP_WEDGE_ONBOARDING",
+                cls.enable_mvp_wedge_onboarding,
             ),
             "fact_event_dual_write": _env_bool(
                 "FF_FACT_EVENT_DUAL_WRITE", cls.fact_event_dual_write

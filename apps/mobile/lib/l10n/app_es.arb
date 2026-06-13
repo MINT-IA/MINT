@@ -10757,6 +10757,10 @@
   "@anonymousChatCreateAccount": {
     "description": "Anonymous chat — CTA button to create account."
   },
+  "anonymousChatNewConversation": "Nueva conversación",
+  "@anonymousChatNewConversation": {
+    "description": "Anonymous chat — top-bar action shown only when an anonymous conversation was restored from local storage."
+  },
   "anonymousChatError": "Tengo un problema técnico. Inténtalo de nuevo en un momento.",
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
@@ -11376,6 +11380,30 @@
   "reportStatusSerein": "Sereno",
   "reportStatusARenforcer": "A reforzar",
   "reportStatusAlerte": "Alerta",
+  "diagnosticOnboardingEntryTitle": "Una primera vista suiza.",
+  "diagnosticOnboardingEntryBody": "Empezamos con unas referencias. Mint te muestra lo que sabe, lo que supone y lo que falta antes de crear una cuenta.",
+  "diagnosticOnboardingEntryCta": "Ver mi vista inicial",
+  "diagnosticOnboardingIntentPrompt": "¿Qué quieres aclarar primero?",
+  "diagnosticOnboardingIntentTaxesEyebrow": "Impuestos",
+  "diagnosticOnboardingIntentTaxesPhrase": "Ver dónde podrías actuar.",
+  "diagnosticOnboardingIntentTaxesHuman": "Mis impuestos",
+  "diagnosticOnboardingIntentHousingEyebrow": "Vivienda",
+  "diagnosticOnboardingIntentHousingPhrase": "Ver lo que permite tu ingreso.",
+  "diagnosticOnboardingIntentHousingHuman": "Comprar vivienda",
+  "diagnosticOnboardingIntentPensionEyebrow": "Previsión",
+  "diagnosticOnboardingIntentPensionPhrase": "Entender qué cambian tus años.",
+  "diagnosticOnboardingIntentPensionHuman": "Mi previsión",
+  "diagnosticOnboardingIntentExploreEyebrow": "Situación",
+  "diagnosticOnboardingIntentExplorePhrase": "Ver posibles puntos ciegos.",
+  "diagnosticOnboardingIntentExploreHuman": "Entender mi situación",
+  "diagnosticOnboardingExploreSceneEyebrow": "Vista",
+  "diagnosticOnboardingExploreSceneTitle": "Lo que Mint ya puede situar",
+  "diagnosticOnboardingExploreKnownLabel": "Referencias captadas",
+  "diagnosticOnboardingExploreKnownValue": "{canton} · aprox. {income} CHF/mes netos",
+  "diagnosticOnboardingExploreAssumptionsLabel": "Supuestos iniciales",
+  "diagnosticOnboardingExploreAssumptionsBody": "Mint mantiene referencias simples mientras tus documentos no se hayan añadido.",
+  "diagnosticOnboardingExploreMissingLabel": "A precisar después",
+  "diagnosticOnboardingExploreMissingBody": "Certificado LPP, gastos fijos y objetivo concreto.",
   "onboardingEmploymentPrompt": "¿Cuál es tu situación laboral?",
   "onboardingEmploymentSalarie": "Empleado",
   "onboardingEmploymentIndependant": "Autónomo",

@@ -147,13 +147,15 @@ Future<void> _pumpShell(
 
 Future<void> _commonEntry(
   WidgetTester tester, {
-  required String intentLabel,
+  required Key intentKey,
 }) async {
   // T1 → T2
-  await tester.tap(find.text('Ouvrir'));
+  await tester.tap(find.byKey(const ValueKey('onboarding-entry-open')));
   await tester.pumpAndSettle();
   expect(
-      find.textContaining('Qu\u2019est-ce qui t\u2019amène'), findsOneWidget);
+    find.text('Qu’est-ce que tu veux éclairer d’abord\u00a0?'),
+    findsOneWidget,
+  );
 
   // T2 → T2.5 (tap intent card)
   // Sub-phase 01.5 W02-T03 inserted a us-tax-person gate between
@@ -165,7 +167,7 @@ Future<void> _commonEntry(
       find.byKey(const ValueKey('onboarding-intent-impots')), findsOneWidget);
   expect(
       find.byKey(const ValueKey('onboarding-intent-explorer')), findsOneWidget);
-  await tester.tap(find.text(intentLabel));
+  await tester.tap(find.byKey(intentKey));
   await tester.pumpAndSettle();
   expect(
     find.text('Es-tu citoyen ou résident fiscal aux États-Unis ?'),
@@ -192,18 +194,16 @@ Future<void> _commonEntry(
   // archetype stays swissNative and the coach remains reachable. Archetype
   // variants (independant / divorce / lived_abroad) are covered in
   // mint_scene_*_test.dart + onboarding_archetype_flow_test.dart.
-  expect(find.text('Quelle est ta situation professionnelle ?'),
-      findsOneWidget);
-  await tester
-      .tap(find.byKey(const ValueKey('onboarding-employment-salarie')));
+  expect(
+      find.text('Quelle est ta situation professionnelle ?'), findsOneWidget);
+  await tester.tap(find.byKey(const ValueKey('onboarding-employment-salarie')));
   await tester.pumpAndSettle();
 
   expect(find.text('Quelle est ta situation familiale ?'), findsOneWidget);
   await tester.tap(find.byKey(const ValueKey('onboarding-civil-marie')));
   await tester.pumpAndSettle();
 
-  expect(
-      find.text('As-tu passé des années hors de Suisse ?'), findsOneWidget);
+  expect(find.text('As-tu passé des années hors de Suisse ?'), findsOneWidget);
   await tester.tap(find.byKey(const ValueKey('onboarding-avs-no-gaps')));
   await tester.pumpAndSettle();
 
@@ -249,12 +249,16 @@ void main() {
         .setMockMethodCallHandler(_secureStorageChannel, (call) async => null);
   });
 
-  testWidgets('T1 entry: only title + [Ouvrir], no dossier strip yet',
+  testWidgets('T1 entry: first Swiss preview, no dossier strip yet',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    expect(find.text('Il est temps que tu comprennes.'), findsOneWidget);
-    expect(find.text('Ouvrir'), findsOneWidget);
+    expect(find.text('Un premier aperçu suisse.'), findsOneWidget);
+    expect(
+      find.textContaining('ce qu’il manque avant de créer un compte'),
+      findsOneWidget,
+    );
+    expect(find.text('Voir mon aperçu'), findsOneWidget);
     expect(find.byKey(const ValueKey('onboarding-entry-open')), findsOneWidget);
     expect(find.text('TON DOSSIER'), findsNothing);
   });
@@ -267,7 +271,10 @@ void main() {
       await _pumpShell(tester, fake);
 
       _expectSemanticsIdentifier(tester, 'onboarding-entry-open');
-      await _commonEntry(tester, intentLabel: 'Ce que je paie de trop.');
+      await _commonEntry(
+        tester,
+        intentKey: const ValueKey('onboarding-intent-impots'),
+      );
       await _selectExplicitDateOfBirth(tester);
       _expectSemanticsIdentifier(tester, 'onboarding-dob-continue');
       await tester.tap(find.text('Continuer'));
@@ -308,7 +315,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je paie de trop.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-impots'),
+    );
 
     await _selectExplicitDateOfBirth(tester);
     await tester.tap(find.text('Continuer'));
@@ -396,7 +406,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('onboarding-entry-open')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Je regarde d’abord.'));
+    await tester.tap(find.byKey(const ValueKey('onboarding-intent-explorer')));
     await tester.pumpAndSettle();
     expect(
       find.text('Es-tu citoyen ou résident fiscal aux États-Unis ?'),
@@ -411,16 +421,39 @@ void main() {
     expect(find.text('Où tu vis ?'), findsNothing);
   });
 
+  testWidgets('Intent situation: scene stays neutral, not retraite fallback',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-explorer'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ce que Mint peut déjà situer'), findsOneWidget);
+    expect(find.text('Repères captés'), findsOneWidget);
+    expect(find.text('Vaud · environ 7’250 CHF/mois net'), findsOneWidget);
+    expect(find.text('À préciser ensuite'), findsOneWidget);
+    expect(find.text('SCENE · TA RETRAITE PROJETEE'), findsNothing);
+  });
+
   testWidgets('Intent retraite: dossier gains one line per tour',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
 
     // After T2 validated, the dossier strip exists with intent line.
     expect(find.text('TON DOSSIER'), findsOneWidget);
     expect(find.text('Intention'), findsOneWidget);
-    expect(find.text('Ma retraite'), findsOneWidget);
+    expect(find.text('Ma prévoyance'), findsOneWidget);
 
     await _commonData(tester);
     // After T5, dossier holds 4 lines: intent, date of birth, canton, revenue.
@@ -439,7 +472,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je paie de trop.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-impots'),
+    );
     await _commonData(tester);
 
     // T6 insight → T7 scene
@@ -497,7 +533,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
     await _commonData(tester);
 
     // T6 insight → T7 scene → T8 bifurcation → Plus tard flushes to /home.
@@ -530,7 +569,10 @@ void main() {
       '(gross ≈ 7250×12×1.17 ≈ 101 790 ≥ 22 680)', (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
     await _commonData(tester);
 
     await tester.tap(find.text('Voir'));
@@ -549,7 +591,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je peux viser.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-achat'),
+    );
     await _commonData(tester);
 
     await tester.tap(find.text('Voir'));
@@ -565,7 +610,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
 
     // T3 date of birth default, advance
     await _selectExplicitDateOfBirth(tester);
@@ -604,7 +652,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider()..throwOnMerge = true;
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
     await _commonData(tester);
 
     // T6 → T7 → T8
@@ -637,7 +688,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
     await _commonData(tester);
 
     await tester.tap(find.text('Voir'));
@@ -664,7 +718,10 @@ void main() {
     final fake = _FakeCoachProfileProvider()
       ..leaveProfileEmptyAfterMerge = true;
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
     await _commonData(tester);
 
     await tester.tap(find.text('Voir'));
@@ -689,7 +746,10 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
     await _commonData(tester);
 
     // T6 → T7 → T8 : user picks "Creuser" instead of "Plus tard".
@@ -727,8 +787,7 @@ void main() {
       const currentAge = 48;
       const arrivalAge = 43;
 
-      final grossAnnual =
-          IncomeConverter.netMonthlyToGrossAnnual(netMonthly);
+      final grossAnnual = IncomeConverter.netMonthlyToGrossAnnual(netMonthly);
 
       // AVS canonique AVEC lacunes (ce que la scène DOIT refléter) vs SANS
       // (l'ancien calcul « carrière complète » bypassant le trou).
