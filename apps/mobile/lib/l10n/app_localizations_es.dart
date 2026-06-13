@@ -23874,6 +23874,73 @@ class SEs extends S {
       'Certificado LPP, gastos fijos y objetivo concreto.';
 
   @override
+  String get diagnosticOnboardingTerminalStateTitle => 'Estado del dossier';
+
+  @override
+  String get diagnosticOnboardingTerminalAnonymousLocal =>
+      'Anónimo · conservado en este dispositivo';
+
+  @override
+  String get diagnosticOnboardingTerminalSignedOut =>
+      'Sesión cerrada · datos locales visibles';
+
+  @override
+  String get diagnosticOnboardingTerminalAccountSyncOff =>
+      'Con sesión · sincronización desactivada';
+
+  @override
+  String get diagnosticOnboardingTerminalCloudSyncOn =>
+      'Con sesión · sincronización cloud activada';
+
+  @override
+  String get diagnosticOnboardingTerminalDeletePending =>
+      'Eliminación de datos en curso';
+
+  @override
+  String get diagnosticOnboardingTerminalUnderstoodTitle =>
+      'Lo que Mint entendió';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingTitle => 'Lo que falta';
+
+  @override
+  String get diagnosticOnboardingTerminalNextQuestionsTitle =>
+      'Próximas preguntas útiles';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingLpp => 'Certificado LPP';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingExpenses => 'Gastos fijos';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingGoal => 'Objetivo concreto';
+
+  @override
+  String get diagnosticOnboardingTerminalQuestionGoal =>
+      '¿Qué objetivo concreto quieres aclarar?';
+
+  @override
+  String get diagnosticOnboardingTerminalQuestionExpenses =>
+      '¿Qué gastos son fijos cada mes?';
+
+  @override
+  String get diagnosticOnboardingTerminalQuestionDocument =>
+      '¿Qué documento quieres añadir primero?';
+
+  @override
+  String get diagnosticOnboardingTerminalContinueAction => 'Continuar';
+
+  @override
+  String get diagnosticOnboardingTerminalCreateAccountAction => 'Crear cuenta';
+
+  @override
+  String get diagnosticOnboardingTerminalResetAction => 'Empezar de cero';
+
+  @override
+  String get diagnosticOnboardingTerminalExitAction => 'Salir';
+
+  @override
   String get onboardingEmploymentPrompt => '¿Cuál es tu situación laboral?';
 
   @override

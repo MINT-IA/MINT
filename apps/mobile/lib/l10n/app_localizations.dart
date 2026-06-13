@@ -41728,6 +41728,120 @@ abstract class S {
   /// **'Certificat LPP, dépenses fixes et objectif concret.'**
   String get diagnosticOnboardingExploreMissingBody;
 
+  /// No description provided for @diagnosticOnboardingTerminalStateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'État du dossier'**
+  String get diagnosticOnboardingTerminalStateTitle;
+
+  /// No description provided for @diagnosticOnboardingTerminalAnonymousLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anonyme · conservé sur cet appareil'**
+  String get diagnosticOnboardingTerminalAnonymousLocal;
+
+  /// No description provided for @diagnosticOnboardingTerminalSignedOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecté · données locales visibles'**
+  String get diagnosticOnboardingTerminalSignedOut;
+
+  /// No description provided for @diagnosticOnboardingTerminalAccountSyncOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté · synchronisation désactivée'**
+  String get diagnosticOnboardingTerminalAccountSyncOff;
+
+  /// No description provided for @diagnosticOnboardingTerminalCloudSyncOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté · synchronisation cloud activée'**
+  String get diagnosticOnboardingTerminalCloudSyncOn;
+
+  /// No description provided for @diagnosticOnboardingTerminalDeletePending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression des données en cours'**
+  String get diagnosticOnboardingTerminalDeletePending;
+
+  /// No description provided for @diagnosticOnboardingTerminalUnderstoodTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que Mint a compris'**
+  String get diagnosticOnboardingTerminalUnderstoodTitle;
+
+  /// No description provided for @diagnosticOnboardingTerminalMissingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui manque'**
+  String get diagnosticOnboardingTerminalMissingTitle;
+
+  /// No description provided for @diagnosticOnboardingTerminalNextQuestionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaines questions utiles'**
+  String get diagnosticOnboardingTerminalNextQuestionsTitle;
+
+  /// No description provided for @diagnosticOnboardingTerminalMissingLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP'**
+  String get diagnosticOnboardingTerminalMissingLpp;
+
+  /// No description provided for @diagnosticOnboardingTerminalMissingExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses fixes'**
+  String get diagnosticOnboardingTerminalMissingExpenses;
+
+  /// No description provided for @diagnosticOnboardingTerminalMissingGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif concret'**
+  String get diagnosticOnboardingTerminalMissingGoal;
+
+  /// No description provided for @diagnosticOnboardingTerminalQuestionGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel objectif concret veux-tu éclairer ?'**
+  String get diagnosticOnboardingTerminalQuestionGoal;
+
+  /// No description provided for @diagnosticOnboardingTerminalQuestionExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelles dépenses sont fixes chaque mois ?'**
+  String get diagnosticOnboardingTerminalQuestionExpenses;
+
+  /// No description provided for @diagnosticOnboardingTerminalQuestionDocument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel document veux-tu ajouter en premier ?'**
+  String get diagnosticOnboardingTerminalQuestionDocument;
+
+  /// No description provided for @diagnosticOnboardingTerminalContinueAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get diagnosticOnboardingTerminalContinueAction;
+
+  /// No description provided for @diagnosticOnboardingTerminalCreateAccountAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get diagnosticOnboardingTerminalCreateAccountAction;
+
+  /// No description provided for @diagnosticOnboardingTerminalResetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repartir de zéro'**
+  String get diagnosticOnboardingTerminalResetAction;
+
+  /// No description provided for @diagnosticOnboardingTerminalExitAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortir'**
+  String get diagnosticOnboardingTerminalExitAction;
+
   /// No description provided for @onboardingEmploymentPrompt.
   ///
   /// In fr, this message translates to:

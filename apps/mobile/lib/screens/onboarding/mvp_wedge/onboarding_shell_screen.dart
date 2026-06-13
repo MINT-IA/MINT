@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/onboarding_intent.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/discrete_adjust_control.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/dossier_strip.dart';
@@ -1260,9 +1261,11 @@ class _ExplorerOverviewRow extends StatelessWidget {
 
 /// Terminal step of the wedge since 2026-04-24.
 ///
-/// Both buttons flush the dossier to CoachProfile + navigate:
-///   - Creuser   \u2192 /coach/chat (continue the conversation inline)
-///   - Plus tard \u2192 /home       (enter the shell with seeded profile)
+/// Terminal actions:
+///   - Continuer        \u2192 seal + /coach/chat
+///   - Créer un compte  \u2192 seal + /auth/register
+///   - Repartir de zéro \u2192 clear pre-account diagnostic only
+///   - Sortir           \u2192 seal + /home
 ///
 /// Auth conversion happens later via the existing `auth_gate_bottom_sheet`
 /// after 3 anonymous messages \u2014 no email, no "I'll see you tomorrow"
@@ -1277,7 +1280,10 @@ class _BifurcationStep extends StatefulWidget {
 class _BifurcationStepState extends State<_BifurcationStep> {
   bool _sealing = false;
 
-  Future<void> _sealAndGo({required bool deeper}) async {
+  Future<void> _sealAndGo({
+    required bool deeper,
+    required String route,
+  }) async {
     if (_sealing) return;
     final provider = context.read<OnboardingProvider>();
     final coach = context.read<CoachProfileProvider>();
@@ -1309,18 +1315,28 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           action: SnackBarAction(
             label: l10n.onboardingSealRetry,
             textColor: MintColors.background,
-            onPressed: () => _sealAndGo(deeper: deeper),
+            onPressed: () => _sealAndGo(deeper: deeper, route: route),
           ),
         ),
       );
       return;
     }
     if (!mounted) return;
-    router.go(deeper ? '/coach/chat' : '/home');
+    router.go(route);
+  }
+
+  Future<void> _resetDiagnostic() async {
+    if (_sealing) return;
+    final provider = context.read<OnboardingProvider>();
+    setState(() => _sealing = true);
+    await provider.resetDiagnostic();
+    if (!mounted) return;
+    setState(() => _sealing = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final provider = context.read<OnboardingProvider>();
     final intent = provider.intent;
     final phrase = switch (intent) {
@@ -1334,35 +1350,308 @@ class _BifurcationStepState extends State<_BifurcationStep> {
       null =>
         'On peut continuer ensemble quand tu veux.',
     };
+
+    Widget secondaryAction({
+      required Key key,
+      required String semanticsIdentifier,
+      required String label,
+      required VoidCallback? onPressed,
+    }) {
+      return Semantics(
+        key: key,
+        identifier: semanticsIdentifier,
+        label: label,
+        button: true,
+        onTap: onPressed,
+        child: ExcludeSemantics(
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton(
+              // lint-ignore: prefer_mint_cta
+              onPressed: onPressed,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: MintColors.textPrimary,
+                side: BorderSide(
+                  color: MintColors.textPrimary.withValues(alpha: 0.18),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: MintTextStyles.labelLarge(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return _StepScaffold(
       prompt: phrase,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Spacer(),
+          const Expanded(child: _TerminalDossierSummary()),
+          const SizedBox(height: 16),
           _PrimaryButton(
-            key: const ValueKey('onboarding-bifurcation-creuser'),
-            semanticsIdentifier: 'onboarding-bifurcation-creuser',
-            label: _sealing ? 'On garde\u2026' : 'Creuser',
-            onPressed: _sealing ? null : () => _sealAndGo(deeper: true),
+            key: const ValueKey('onboarding-bifurcation-continue'),
+            semanticsIdentifier: 'onboarding-bifurcation-continue',
+            label: _sealing
+                ? 'On garde\u2026'
+                : l10n.diagnosticOnboardingTerminalContinueAction,
+            onPressed: _sealing
+                ? null
+                : () => _sealAndGo(
+                      deeper: true,
+                      route: '/coach/chat',
+                    ),
           ),
-          const SizedBox(height: 10),
-          Semantics(
-            key: const ValueKey('onboarding-bifurcation-plus-tard'),
-            identifier: 'onboarding-bifurcation-plus-tard',
-            label: 'Plus tard',
-            button: true,
-            onTap: _sealing ? null : () => _sealAndGo(deeper: false),
-            child: ExcludeSemantics(
-              child: TextButton(
-                // lint-ignore: prefer_mint_cta
-                onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
-                child: Text(
-                  'Plus tard',
-                  style: MintTextStyles.labelLarge(
-                    color: MintColors.textSecondary,
-                  ),
+          const SizedBox(height: 8),
+          secondaryAction(
+            key: const ValueKey('onboarding-bifurcation-create-account'),
+            semanticsIdentifier: 'onboarding-bifurcation-create-account',
+            label: l10n.diagnosticOnboardingTerminalCreateAccountAction,
+            onPressed: _sealing
+                ? null
+                : () => _sealAndGo(
+                      deeper: false,
+                      route: '/auth/register',
+                    ),
+          ),
+          const SizedBox(height: 8),
+          secondaryAction(
+            key: const ValueKey('onboarding-bifurcation-reset'),
+            semanticsIdentifier: 'onboarding-bifurcation-reset',
+            label: l10n.diagnosticOnboardingTerminalResetAction,
+            onPressed: _sealing ? null : _resetDiagnostic,
+          ),
+          const SizedBox(height: 8),
+          secondaryAction(
+            key: const ValueKey('onboarding-bifurcation-exit'),
+            semanticsIdentifier: 'onboarding-bifurcation-exit',
+            label: l10n.diagnosticOnboardingTerminalExitAction,
+            onPressed: _sealing
+                ? null
+                : () => _sealAndGo(
+                      deeper: false,
+                      route: '/home',
+                    ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TerminalDossierSummary extends StatelessWidget {
+  const _TerminalDossierSummary();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final onboarding = context.watch<OnboardingProvider>();
+    final accountState = context.watch<AuthProvider>().accountDataState;
+    final dossier = onboarding.dossier;
+
+    return Semantics(
+      container: true,
+      label: l10n.diagnosticOnboardingTerminalStateTitle,
+      child: SingleChildScrollView(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          decoration: BoxDecoration(
+            color: MintColors.craie,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: MintColors.textPrimary.withValues(alpha: 0.08),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.diagnosticOnboardingTerminalStateTitle,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.corailDiscret,
+                ).copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _accountStateLabel(accountState, l10n),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 18),
+              _TerminalSummarySection(
+                title: l10n.diagnosticOnboardingTerminalUnderstoodTitle,
+                children: [
+                  for (final entry in dossier)
+                    _TerminalSummaryRow(
+                      label: entry.label,
+                      value: entry.value,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _TerminalSummarySection(
+                title: l10n.diagnosticOnboardingTerminalMissingTitle,
+                children: [
+                  _TerminalSummaryBullet(
+                    l10n.diagnosticOnboardingTerminalMissingLpp,
+                  ),
+                  _TerminalSummaryBullet(
+                    l10n.diagnosticOnboardingTerminalMissingExpenses,
+                  ),
+                  _TerminalSummaryBullet(
+                    l10n.diagnosticOnboardingTerminalMissingGoal,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _TerminalSummarySection(
+                title: l10n.diagnosticOnboardingTerminalNextQuestionsTitle,
+                children: [
+                  _TerminalSummaryBullet(
+                    l10n.diagnosticOnboardingTerminalQuestionGoal,
+                  ),
+                  _TerminalSummaryBullet(
+                    l10n.diagnosticOnboardingTerminalQuestionExpenses,
+                  ),
+                  _TerminalSummaryBullet(
+                    l10n.diagnosticOnboardingTerminalQuestionDocument,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _accountStateLabel(
+    MintAccountDataState state,
+    S l10n,
+  ) {
+    return switch (state) {
+      MintAccountDataState.anonymousLocal =>
+        l10n.diagnosticOnboardingTerminalAnonymousLocal,
+      MintAccountDataState.signedOut =>
+        l10n.diagnosticOnboardingTerminalSignedOut,
+      MintAccountDataState.accountSyncOff =>
+        l10n.diagnosticOnboardingTerminalAccountSyncOff,
+      MintAccountDataState.cloudSyncOn =>
+        l10n.diagnosticOnboardingTerminalCloudSyncOn,
+      MintAccountDataState.deletePending =>
+        l10n.diagnosticOnboardingTerminalDeletePending,
+    };
+  }
+}
+
+class _TerminalSummarySection extends StatelessWidget {
+  const _TerminalSummarySection({
+    required this.title,
+    required this.children,
+  });
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: MintTextStyles.titleMedium(
+            color: MintColors.textPrimary,
+          ).copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        ...children,
+      ],
+    );
+  }
+}
+
+class _TerminalSummaryRow extends StatelessWidget {
+  const _TerminalSummaryRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 4,
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 5,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TerminalSummaryBullet extends StatelessWidget {
+  const _TerminalSummaryBullet(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '•',
+            style: MintTextStyles.bodySmall(
+              color: MintColors.corailDiscret,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
               ),
             ),
           ),

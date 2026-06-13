@@ -4,7 +4,7 @@
 /// Vérifie les 3 flows intents (retraite / achat / impots) tour par
 /// tour, de T1 (landing) à T8 (bifurcation), avec assertion sur la
 /// densification du dossier à chaque tour et le flush vers
-/// CoachProfileProvider au tour 8 (déclenché par Creuser ou Plus tard).
+/// CoachProfileProvider au tour 8 (déclenché par Continuer, compte ou Sortir).
 library;
 
 import 'package:flutter/material.dart';
@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -122,6 +123,10 @@ Future<void> _pumpShell(
         builder: (_, __) => const Scaffold(body: Text('coach-chat-landed')),
       ),
       GoRoute(
+        path: '/auth/register',
+        builder: (_, __) => const Scaffold(body: Text('register-landed')),
+      ),
+      GoRoute(
         path: '/waitlist',
         builder: (_, state) => Scaffold(
           body: Text(
@@ -132,8 +137,11 @@ Future<void> _pumpShell(
     ],
   );
   await tester.pumpWidget(
-    ChangeNotifierProvider<CoachProfileProvider>.value(
-      value: fake,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CoachProfileProvider>.value(value: fake),
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+      ],
       child: MaterialApp.router(
         routerConfig: router,
         localizationsDelegates: S.localizationsDelegates,
@@ -296,14 +304,27 @@ void main() {
       );
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
-      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-creuser');
-      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-plus-tard');
+      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-continue');
+      _expectSemanticsIdentifier(
+        tester,
+        'onboarding-bifurcation-create-account',
+      );
+      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-reset');
+      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-exit');
       expect(
-        find.byKey(const ValueKey('onboarding-bifurcation-creuser')),
+        find.byKey(const ValueKey('onboarding-bifurcation-continue')),
         findsOneWidget,
       );
       expect(
-        find.byKey(const ValueKey('onboarding-bifurcation-plus-tard')),
+        find.byKey(const ValueKey('onboarding-bifurcation-create-account')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('onboarding-bifurcation-reset')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('onboarding-bifurcation-exit')),
         findsOneWidget,
       );
     } finally {
@@ -346,7 +367,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plus tard'));
+    await tester.tap(find.text('Sortir'));
     await tester.pumpAndSettle();
 
     expect(find.text('home-landed'), findsOneWidget);
@@ -493,14 +514,14 @@ void main() {
       findsOneWidget,
     );
 
-    // T8 bifurcation: tap "Plus tard" → flush + navigate to /home.
+    // T8 bifurcation: tap "Sortir" → flush + navigate to /home.
     // (2026-04-24: T9 magic-link email scene killed, bifurcation is now
-    // terminal. Creuser → /coach/chat, Plus tard → /home.)
+    // terminal. Continuer → /coach/chat, Sortir → /home.)
     expect(
-      find.byKey(const ValueKey('onboarding-bifurcation-plus-tard')),
+      find.byKey(const ValueKey('onboarding-bifurcation-exit')),
       findsOneWidget,
     );
-    await tester.tap(find.text('Plus tard'));
+    await tester.tap(find.text('Sortir'));
     await tester.pumpAndSettle();
 
     // Landed on /home (router stub shows 'home-landed').
@@ -528,6 +549,47 @@ void main() {
   });
 
   testWidgets(
+      'T8 terminal shows account/data state, understood facts, gaps and next questions',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-impots'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('État du dossier'), findsOneWidget);
+    expect(find.text('Anonyme · conservé sur cet appareil'), findsOneWidget);
+    expect(find.text('Ce que Mint a compris'), findsOneWidget);
+    expect(find.text('Mes impôts'), findsWidgets);
+    expect(find.text('Vaud'), findsWidgets);
+    expect(find.text("7'000 – 7'500 CHF"), findsWidgets);
+    expect(find.text('Ce qui manque'), findsOneWidget);
+    expect(find.text('Certificat LPP'), findsOneWidget);
+    expect(find.text('Dépenses fixes'), findsOneWidget);
+    expect(find.text('Prochaines questions utiles'), findsOneWidget);
+    expect(
+        find.text('Quel objectif concret veux-tu éclairer ?'), findsOneWidget);
+    expect(find.text('Continuer'), findsOneWidget);
+    expect(find.text('Créer un compte'), findsOneWidget);
+    expect(find.text('Repartir de zéro'), findsOneWidget);
+    expect(find.text('Sortir'), findsOneWidget);
+    _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-continue');
+    _expectSemanticsIdentifier(
+      tester,
+      'onboarding-bifurcation-create-account',
+    );
+    _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-reset');
+    _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-exit');
+  });
+
+  testWidgets(
       'SALVAGE-01: RETRAITE branch flush writes the canonical key contract '
       '(q_date_of_birth + q_birth_year + q_nationality + q_employment_status + q_has_pension_fund)',
       (tester) async {
@@ -539,12 +601,12 @@ void main() {
     );
     await _commonData(tester);
 
-    // T6 insight → T7 scene → T8 bifurcation → Plus tard flushes to /home.
+    // T6 insight → T7 scene → T8 bifurcation → Sortir flushes to /home.
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plus tard'));
+    await tester.tap(find.text('Sortir'));
     await tester.pumpAndSettle();
 
     expect(find.text('home-landed'), findsOneWidget);
@@ -579,7 +641,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plus tard'));
+    await tester.tap(find.text('Sortir'));
     await tester.pumpAndSettle();
 
     final merged = fake.mergedCalls.single;
@@ -632,12 +694,12 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    // T6 → T7 → T8 (terminal) : Plus tard flushes + lands on /home.
+    // T6 → T7 → T8 (terminal) : Sortir flushes + lands on /home.
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plus tard'));
+    await tester.tap(find.text('Sortir'));
     await tester.pumpAndSettle();
 
     expect(find.text('home-landed'), findsOneWidget);
@@ -648,7 +710,7 @@ void main() {
   });
 
   testWidgets(
-      'T8 seal failure: SnackBar shown on Plus tard, user stays on bifurcation',
+      'T8 seal failure: SnackBar shown on Sortir, user stays on bifurcation',
       (tester) async {
     final fake = _FakeCoachProfileProvider()..throwOnMerge = true;
     await _pumpShell(tester, fake);
@@ -664,8 +726,8 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    // Tap Plus tard while mergeAnswers throws.
-    await tester.tap(find.text('Plus tard'));
+    // Tap Sortir while mergeAnswers throws.
+    await tester.tap(find.text('Sortir'));
     await tester.pump(); // dispatch the tap
     await tester.pump(const Duration(milliseconds: 50)); // let the throw land
 
@@ -675,7 +737,7 @@ void main() {
       findsOneWidget,
     );
     // "Réessayer" is the SnackBar action label from onboardingSealRetry.
-    expect(find.text('Plus tard'), findsOneWidget,
+    expect(find.text('Sortir'), findsOneWidget,
         reason: 'User still on T8 bifurcation, not navigated to /home');
     expect(find.text('home-landed'), findsNothing);
     // mergeAnswers did throw — no successful merge recorded (fake only
@@ -700,7 +762,7 @@ void main() {
     await tester.pumpAndSettle();
 
     _mockSecureStorageUnavailableOnWrite();
-    await tester.tap(find.text('Plus tard'));
+    await tester.tap(find.text('Sortir'));
     await tester.pumpAndSettle();
 
     expect(find.text('home-landed'), findsOneWidget);
@@ -729,7 +791,7 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Creuser'));
+    await tester.tap(find.text('Continuer'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
@@ -737,12 +799,12 @@ void main() {
       find.textContaining('Impossible de sceller ton dossier'),
       findsOneWidget,
     );
-    expect(find.text('Creuser'), findsOneWidget);
+    expect(find.text('Continuer'), findsOneWidget);
     expect(find.text('coach-chat-landed'), findsNothing);
     expect(fake.mergedCalls, hasLength(1));
   });
 
-  testWidgets('T8 Creuser: flushes wantsDeeper=true + navigates to /coach/chat',
+  testWidgets('T8 Continuer: flushes wantsDeeper=true + navigates to /coach/chat',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
@@ -752,7 +814,7 @@ void main() {
     );
     await _commonData(tester);
 
-    // T6 → T7 → T8 : user picks "Creuser" instead of "Plus tard".
+    // T6 → T7 → T8 : user picks "Continuer" instead of "Sortir".
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('onboarding-scene-continue')),
@@ -760,10 +822,10 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
     expect(
-      find.byKey(const ValueKey('onboarding-bifurcation-creuser')),
+      find.byKey(const ValueKey('onboarding-bifurcation-continue')),
       findsOneWidget,
     );
-    await tester.tap(find.text('Creuser'));
+    await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
     // Landed on /coach/chat (router stub shows 'coach-chat-landed').
@@ -771,6 +833,53 @@ void main() {
 
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);
+  });
+
+  testWidgets('T8 Créer un compte: seals dossier then routes to register',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-impots'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Créer un compte'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('register-landed'), findsOneWidget);
+    expect(fake.mergedCalls, hasLength(1));
+    expect(fake.mergedCalls.single['q_wants_deeper'], isFalse);
+  });
+
+  testWidgets('T8 Repartir de zéro resets local diagnostic without profile flush',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-impots'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Repartir de zéro'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Un premier aperçu suisse.'), findsOneWidget);
+    expect(fake.mergedCalls, isEmpty);
+    expect(fake.updateCalls, isEmpty);
+    expect(fake.hasProfile, isFalse);
   });
 
   // ── W4 — Scène rente_trouée honnête + hypothèse jeune étiquetée ──────

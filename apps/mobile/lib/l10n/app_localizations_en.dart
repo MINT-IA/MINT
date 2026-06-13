@@ -23758,6 +23758,74 @@ class SEn extends S {
       'LPP certificate, fixed expenses, and a concrete goal.';
 
   @override
+  String get diagnosticOnboardingTerminalStateTitle => 'Dossier state';
+
+  @override
+  String get diagnosticOnboardingTerminalAnonymousLocal =>
+      'Anonymous · kept on this device';
+
+  @override
+  String get diagnosticOnboardingTerminalSignedOut =>
+      'Signed out · local data visible';
+
+  @override
+  String get diagnosticOnboardingTerminalAccountSyncOff =>
+      'Signed in · sync off';
+
+  @override
+  String get diagnosticOnboardingTerminalCloudSyncOn =>
+      'Signed in · cloud sync on';
+
+  @override
+  String get diagnosticOnboardingTerminalDeletePending =>
+      'Data deletion in progress';
+
+  @override
+  String get diagnosticOnboardingTerminalUnderstoodTitle =>
+      'What Mint understood';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingTitle => 'What is missing';
+
+  @override
+  String get diagnosticOnboardingTerminalNextQuestionsTitle =>
+      'Useful next questions';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingLpp => 'LPP certificate';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingExpenses => 'Fixed expenses';
+
+  @override
+  String get diagnosticOnboardingTerminalMissingGoal => 'Concrete goal';
+
+  @override
+  String get diagnosticOnboardingTerminalQuestionGoal =>
+      'Which concrete goal do you want to clarify?';
+
+  @override
+  String get diagnosticOnboardingTerminalQuestionExpenses =>
+      'Which expenses are fixed each month?';
+
+  @override
+  String get diagnosticOnboardingTerminalQuestionDocument =>
+      'Which document do you want to add first?';
+
+  @override
+  String get diagnosticOnboardingTerminalContinueAction => 'Continue';
+
+  @override
+  String get diagnosticOnboardingTerminalCreateAccountAction =>
+      'Create account';
+
+  @override
+  String get diagnosticOnboardingTerminalResetAction => 'Start over';
+
+  @override
+  String get diagnosticOnboardingTerminalExitAction => 'Exit';
+
+  @override
   String get onboardingEmploymentPrompt => 'What is your work situation?';
 
   @override

@@ -375,6 +375,33 @@ class OnboardingProvider extends ChangeNotifier {
     }
   }
 
+  /// Clears the current pre-account diagnostic and returns to the entry step.
+  ///
+  /// This is intentionally scoped to onboarding/wizard state. It does not
+  /// perform account deletion, logout, backend deletion, or app-wide profile
+  /// purge; those remain separate account/data-control flows.
+  Future<void> resetDiagnostic() async {
+    await ReportPersistenceService.clearDiagnostic();
+    _step = OnboardingStep.entry;
+    _dossier.clear();
+    _intent = null;
+    _ageYears = null;
+    _dateOfBirth = null;
+    _nationalityGroup = null;
+    _employmentStatus = null;
+    _civilStatus = null;
+    _avsLacunesStatus = null;
+    _avsArrivalYear = null;
+    _avsYearsAbroad = null;
+    _cantonCode = null;
+    _netMonthlyRange = null;
+    _netMonthlyExact = null;
+    _wantsDeeper = false;
+    _sealed = false;
+    _confidenceByField.clear();
+    notifyListeners();
+  }
+
   // ── Flush to CoachProfile au tour 9 ─────────────────────────────
 
   /// Persiste la capture dans `wizard_answers_v2` + seed
