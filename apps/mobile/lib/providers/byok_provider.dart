@@ -28,6 +28,11 @@ enum ByokError {
 class ByokProvider extends ChangeNotifier {
   static const String _providerKey = 'byok_provider';
   static const String _apiKeyKey = 'byok_api_key';
+  static const FlutterSecureStorage _defaultStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device),
+  );
 
   final FlutterSecureStorage _storage;
   final RagService _ragService;
@@ -44,7 +49,7 @@ class ByokProvider extends ChangeNotifier {
   ByokProvider({
     FlutterSecureStorage? storage,
     RagService? ragService,
-  })  : _storage = storage ?? const FlutterSecureStorage(),
+  })  : _storage = storage ?? _defaultStorage,
         _ragService = ragService ?? RagService();
 
   /// Clear persisted BYOK credentials without requiring a Provider instance.
@@ -52,7 +57,7 @@ class ByokProvider extends ChangeNotifier {
   /// Used by logout/account purge flows that must remove MINT-owned secure
   /// storage keys without calling FlutterSecureStorage.deleteAll().
   static Future<void> clearStoredKey({FlutterSecureStorage? storage}) async {
-    final secureStorage = storage ?? const FlutterSecureStorage();
+    final secureStorage = storage ?? _defaultStorage;
     try {
       await secureStorage.delete(key: _providerKey);
     } catch (_) {

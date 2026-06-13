@@ -1518,7 +1518,7 @@ class SDe extends S {
 
   @override
   String get profileResetScopeNote =>
-      'Login und BYOK-Schlüssel bleiben erhalten. Backend-Dokumente werden nicht gelöscht.';
+      'Der Login bleibt erhalten. Diagnose, lokaler BYOK-Schlüssel und MINT-Entwürfe werden gelöscht; Backend-Dokumente nicht.';
 
   @override
   String get checkinScoreReasonStable =>
@@ -21720,7 +21720,7 @@ class SDe extends S {
 
   @override
   String get dataTransparencyDeleteDetail =>
-      'Alles wird gelöscht: Datenbank, lokaler Speicher, Embeddings. Nichts bleibt.';
+      'Mint löscht bekannte MINT-Daten auf Server und Gerät. Ein iCloud- oder Geräte-Backup kann eine wiederhergestellte Kopie zurückbringen.';
 
   @override
   String get dataTransparencyLocal => 'Lokal';

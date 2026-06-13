@@ -578,7 +578,7 @@
   "profileResetDialogInvalid": "Ungültiges Schlüsselwort.",
   "profileResetDialogAction": "Zurücksetzen",
   "profileResetSuccess": "Lokale Finanzhistorie wurde zurückgesetzt.",
-  "profileResetScopeNote": "Login und BYOK-Schlüssel bleiben erhalten. Backend-Dokumente werden nicht gelöscht.",
+  "profileResetScopeNote": "Der Login bleibt erhalten. Diagnose, lokaler BYOK-Schlüssel und MINT-Entwürfe werden gelöscht; Backend-Dokumente nicht.",
   "checkinScoreReasonStable": "Stabiler Score diesen Monat: Halte die Regelmässigkeit deiner Aktionen bei.",
   "checkinScoreReasonPositiveContrib": "Hauptanstieg: Bestätigte Einzahlungen ({amount}) diesen Monat.",
   "@checkinScoreReasonPositiveContrib": {
@@ -10110,7 +10110,7 @@
   "dataTransparencyImport": "Wenn du einen Kontoauszug importierst",
   "dataTransparencyImportDetail": "Verschlüsselt gesendet. Kategorisiert. Rohdatei gelöscht. Nur Zusammenfassungen bleiben.",
   "dataTransparencyDelete": "Wenn du dein Konto löschst",
-  "dataTransparencyDeleteDetail": "Alles wird gelöscht: Datenbank, lokaler Speicher, Embeddings. Nichts bleibt.",
+  "dataTransparencyDeleteDetail": "Mint löscht bekannte MINT-Daten auf Server und Gerät. Ein iCloud- oder Geräte-Backup kann eine wiederhergestellte Kopie zurückbringen.",
   "dataTransparencyLocal": "Lokal",
   "dataTransparencyServer": "Server (verschlüsselt)",
   "dataTransparencyThirdParty": "Drittanbieter (mit deiner Zustimmung)",

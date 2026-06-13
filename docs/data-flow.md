@@ -269,6 +269,20 @@ installs) have **no `user_id`** and therefore:
    `AnonymousSessionService` + `flutter_secure_storage` fall back
    gracefully to SharedPreferences.
 
+**Install lifecycle guard.** iOS Keychain entries can survive a local app
+uninstall. Mint therefore writes `mint_install_marker_v1` in
+SharedPreferences, outside Keychain. On startup, if that marker is absent and
+the prefs store is otherwise empty, `InstallLifecycleService` purges known
+MINT secure-storage namespaces before `AuthProvider.checkAuth()` reads stored
+credentials. If prefs already contain state but the marker is absent, Mint
+adopts the marker without purging so an app update does not log out existing
+users. If that fresh-install purge is only partial, Mint keeps
+`mint_install_secure_purge_pending_v1` and blocks auth restore on subsequent
+launches until the owned-key purge succeeds. New secure-storage writes use
+`first_unlock_this_device` where `flutter_secure_storage` supports it. This
+protects the local reinstall case; it is not a promise that iCloud Keychain or
+an encrypted backup cannot reintroduce data together with restored prefs.
+
 **Scan-first onboarding.** Before the fix commits in
 `triage/flow-utilisateur-2026-04-20`, `updateFrom*Extraction` silently
 returned if `_profile == null`, losing all scanned data for fresh users.

@@ -2850,7 +2850,7 @@ abstract class S {
   /// No description provided for @profileResetScopeNote.
   ///
   /// In fr, this message translates to:
-  /// **'Conserve la connexion et la clé BYOK. Les documents backend ne sont pas supprimés.'**
+  /// **'Conserve la connexion. Le diagnostic, la clé BYOK locale et les brouillons MINT sont supprimés; les documents backend ne le sont pas.'**
   String get profileResetScopeNote;
 
   /// No description provided for @checkinScoreReasonStable.
@@ -37963,7 +37963,7 @@ abstract class S {
   /// No description provided for @dataTransparencyDeleteDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Tout est purgé : base de données, stockage local, embeddings. Rien ne reste.'**
+  /// **'Mint supprime les données MINT connues côté serveur et appareil. Une sauvegarde iCloud ou de l\'appareil peut réintroduire une copie restaurée.'**
   String get dataTransparencyDeleteDetail;
 
   /// No description provided for @dataTransparencyLocal.

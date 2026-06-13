@@ -21,9 +21,9 @@
   <p class="status">IN_FLIGHT - local simulator proof captured</p>
   <h1>Mint onboarding/auth/reset/restore integration</h1>
   <p>Rapport du 13 juin 2026. La phase a maintenant un contrat, des fixtures,
-  une première tranche produit, et une preuve simulateur iPhone. Le simulateur
-  ne clôt pas les risques Keychain/iCloud/backup, auth redirect ou Apple
-  entitlement.</p>
+  une première tranche produit, une preuve simulateur iPhone, et un garde
+  d'installation pour le cas Keychain persistant. Le simulateur ne clôt pas les
+  risques Keychain/iCloud/backup, auth redirect ou Apple entitlement.</p>
 
   <h2>Preuves locales</h2>
   <table>
@@ -32,7 +32,9 @@
       <tr><td>iPhone 17 Pro simulator</td><td>PASS</td><td>Landing -> /start -> /onb -> terminal dossier.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
-      <tr><td>Flutter tests</td><td>PASS</td><td>97 tests ciblés.</td></tr>
+      <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>97 tests ciblés.</td></tr>
+      <tr><td>Flutter tests reset/secure storage</td><td>PASS</td><td>115 tests ciblés, incluant purge fresh install, retry pending et clearAll secure.</td></tr>
+      <tr><td>Flutter regression combinée</td><td>PASS</td><td>181 tests sur DataSpine, onboarding, auth, reset, secure storage et retraite.</td></tr>
       <tr><td>Analyze/routes/i18n/compliance</td><td>PASS LOCAL</td><td>Analyse, route registry, ARB parity 6978 clés, banned terms, accent lint, public-doc admission lint.</td></tr>
     </tbody>
   </table>
@@ -53,7 +55,7 @@
       <tr><td>G1 Maestro/walker</td><td>PARTIAL</td><td>xcodebuildmcp simulator passé; Maestro/walker reste ouvert.</td></tr>
       <tr><td>G2 Julien/device</td><td>OPEN</td><td>Obligatoire pour Keychain, iCloud/backup, auth et Apple.</td></tr>
       <tr><td>G3 CI/dev/local</td><td>PARTIAL</td><td>Local vert; CI/dev équivalence après workflow branche.</td></tr>
-      <tr><td>G4 Régression</td><td>PASS LOCAL</td><td>Tests ciblés verts.</td></tr>
+      <tr><td>G4 Régression</td><td>PASS LOCAL</td><td>Tests ciblés onboarding, DataSpine et secure storage verts.</td></tr>
       <tr><td>G5 Lints/parity/compliance</td><td>PASS LOCAL</td><td>Checks locaux verts.</td></tr>
     </tbody>
   </table>

@@ -18,6 +18,8 @@ Checks run on this phase:
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
+| `flutter test test/providers/auth_provider_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart` | PASS, 115 tests; fresh-install Keychain purge, pending retry, and profile `clearAll` secure-key purge red/green covered |
+| `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 181 tests |
 | `flutter analyze` | PASS, no issues |
 | `./tools/mint-routes check` | PASS, 145 routes after known-miss exemptions |
 | `flutter gen-l10n` | PASS |
@@ -38,7 +40,7 @@ Gate state:
 | G1 Maestro/walker | PARTIAL | xcodebuildmcp simulator smoke passed with screenshots; Maestro/walker still not run. |
 | G2 Julien/device | OPEN | Required for Keychain persistence, iCloud/backup restore, auth redirects, and Apple entitlement. |
 | G3 CI/dev/local | PARTIAL | Local tests/analyze/routes pass; CI/dev equivalence still requires branch/rebase workflow. |
-| G4 Regression | PASS LOCAL | Focused DataSpine/auth/profile/onboarding regressions passed locally. |
+| G4 Regression | PASS LOCAL | Focused DataSpine/auth/profile/onboarding and secure-storage reset regressions passed locally. |
 | G5 Lints/parity/compliance | PASS LOCAL | L10n parity, banned terms, accent lint, public-doc admission lint passed locally. |
 
 Non-proofs: simulator-only Keychain/iCloud/backup, Apple-primary UI without
@@ -52,5 +54,13 @@ Runtime notes:
 - The first simulator launch logged Keychain read `-34018` for token access in
   debug simulator; onboarding continued. This is not a device proof and keeps
   G2 open.
+- The fresh-install Keychain contract is unit-tested with an empty
+  SharedPreferences marker store and stale MINT secure-storage keys. It proves
+  the Dart decision order, not iCloud/backup restoration semantics.
+- Partial secure purge failure keeps `mint_install_secure_purge_pending_v1`
+  and blocks auth restore on the next launch until the owned-key purge succeeds.
+- Profile reset preserves the login session but purges local owned secure
+  feature keys such as BYOK, partner estimate, biography, anonymous session
+  and wizard secure values.
 - The 3a scene displayed an indicative fiscal range only after canton, income
   range, employment/LPP status, and source/hypothesis text were visible.

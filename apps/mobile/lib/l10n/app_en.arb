@@ -578,7 +578,7 @@
   "profileResetDialogInvalid": "Invalid keyword.",
   "profileResetDialogAction": "Reset",
   "profileResetSuccess": "Local financial history has been reset.",
-  "profileResetScopeNote": "Keeps login and BYOK key. Backend documents are not deleted.",
+  "profileResetScopeNote": "Keeps login. The diagnostic, local BYOK key and MINT drafts are deleted; backend documents are not.",
   "checkinScoreReasonStable": "Stable score this month: keep your actions consistent.",
   "checkinScoreReasonPositiveContrib": "Main increase driver: confirmed contributions ({amount}) this month.",
   "@checkinScoreReasonPositiveContrib": {
@@ -10110,7 +10110,7 @@
   "dataTransparencyImport": "When you import a statement",
   "dataTransparencyImportDetail": "Sent encrypted. Categorized. Raw file deleted. Only summaries are kept.",
   "dataTransparencyDelete": "When you delete your account",
-  "dataTransparencyDeleteDetail": "Everything is purged: database, local storage, embeddings. Nothing remains.",
+  "dataTransparencyDeleteDetail": "Mint deletes known MINT data on the server and device. An iCloud or device backup can reintroduce a restored copy.",
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Server (encrypted)",
   "dataTransparencyThirdParty": "Third party (with your consent)",

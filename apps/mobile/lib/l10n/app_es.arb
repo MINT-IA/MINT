@@ -578,7 +578,7 @@
   "profileResetDialogInvalid": "Palabra clave no válida.",
   "profileResetDialogAction": "Restablecer",
   "profileResetSuccess": "Historial financiero local restablecido.",
-  "profileResetScopeNote": "Conserva la conexión y la clave BYOK. Los documentos del backend no se eliminan.",
+  "profileResetScopeNote": "Conserva la conexión. Se eliminan el diagnóstico, la clave BYOK local y los borradores de MINT; los documentos del backend no.",
   "checkinScoreReasonStable": "Puntuación estable este mes: continúa con la regularidad de tus acciones.",
   "checkinScoreReasonPositiveContrib": "Subida principal: aportaciones confirmadas ({amount}) este mes.",
   "@checkinScoreReasonPositiveContrib": {
@@ -10110,7 +10110,7 @@
   "dataTransparencyImport": "Cuando importas un extracto",
   "dataTransparencyImportDetail": "Enviado cifrado. Categorizado. Archivo original eliminado. Solo se conservan los resúmenes.",
   "dataTransparencyDelete": "Cuando eliminas tu cuenta",
-  "dataTransparencyDeleteDetail": "Todo se elimina: base de datos, almacenamiento local, embeddings. No queda nada.",
+  "dataTransparencyDeleteDetail": "Mint elimina los datos MINT conocidos en el servidor y el dispositivo. Una copia de seguridad de iCloud o del dispositivo puede reintroducir una copia restaurada.",
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Servidor (cifrado)",
   "dataTransparencyThirdParty": "Terceros (con tu consentimiento)",

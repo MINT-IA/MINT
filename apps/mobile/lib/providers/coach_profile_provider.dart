@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/archetype_predicates.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
+import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
@@ -3133,6 +3134,9 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     await ReportPersistenceService.clear(
       conversationUserId: conversationUserId,
+    );
+    await InstallLifecycleService.purgeMintSecureStorage(
+      includeAuthSession: false,
     );
   }
 

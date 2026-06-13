@@ -18,8 +18,16 @@ class AuthService {
 
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device),
   );
+  static const _sessionKeys = {
+    _tokenKey,
+    _refreshTokenKey,
+    _userIdKey,
+    _userEmailKey,
+    _displayNameKey,
+  };
 
   // In-memory fallback cache. Populated by `saveToken` *before* the
   // keychain write is attempted, so the session survives a keychain
@@ -120,7 +128,9 @@ class AuthService {
       if (v != null && v.isNotEmpty) _memToken = v;
       return v;
     } on PlatformException catch (e) {
-      if (kDebugMode) debugPrint('[AuthService] Keychain read(token) failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthService] Keychain read(token) failed: $e');
+      }
       return null;
     }
   }
@@ -133,7 +143,9 @@ class AuthService {
       if (v != null && v.isNotEmpty) _memRefreshToken = v;
       return v;
     } on PlatformException catch (e) {
-      if (kDebugMode) debugPrint('[AuthService] Keychain read(refresh) failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthService] Keychain read(refresh) failed: $e');
+      }
       return null;
     }
   }
@@ -146,7 +158,9 @@ class AuthService {
       if (v != null && v.isNotEmpty) _memUserId = v;
       return v;
     } on PlatformException catch (e) {
-      if (kDebugMode) debugPrint('[AuthService] Keychain read(userId) failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthService] Keychain read(userId) failed: $e');
+      }
       return null;
     }
   }
@@ -159,7 +173,9 @@ class AuthService {
       if (v != null && v.isNotEmpty) _memUserEmail = v;
       return v;
     } on PlatformException catch (e) {
-      if (kDebugMode) debugPrint('[AuthService] Keychain read(email) failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthService] Keychain read(email) failed: $e');
+      }
       return null;
     }
   }
@@ -172,7 +188,9 @@ class AuthService {
       if (v != null && v.isNotEmpty) _memDisplayName = v;
       return v;
     } on PlatformException catch (e) {
-      if (kDebugMode) debugPrint('[AuthService] Keychain read(name) failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthService] Keychain read(name) failed: $e');
+      }
       return null;
     }
   }
@@ -228,8 +246,7 @@ class AuthService {
         // 401 = refresh token expired, reused, or revoked. Caller must
         // re-auth. Other codes (5xx) are transient — same outcome for
         // the caller, but worth logging.
-        debugPrint(
-            '[AuthService] refresh failed: ${response.statusCode}');
+        debugPrint('[AuthService] refresh failed: ${response.statusCode}');
         return null;
       }
 
@@ -262,21 +279,33 @@ class AuthService {
     }
   }
 
-  /// Clear all tokens (logout)
-  static Future<void> logout() async {
+  /// Clear all auth tokens and identity keys from memory + secure storage.
+  ///
+  /// Returns `false` if any known MINT auth key could not be removed. Callers
+  /// that are guarding a fresh install should then avoid restoring auth from
+  /// Keychain during the same launch.
+  static Future<bool> purgeStoredSession() async {
     _memToken = null;
     _memRefreshToken = null;
     _memUserId = null;
     _memUserEmail = null;
     _memDisplayName = null;
-    try {
-      await _storage.delete(key: _tokenKey);
-      await _storage.delete(key: _refreshTokenKey);
-      await _storage.delete(key: _userIdKey);
-      await _storage.delete(key: _userEmailKey);
-      await _storage.delete(key: _displayNameKey);
-    } on PlatformException catch (e) {
-      if (kDebugMode) debugPrint('[AuthService] Keychain logout failed: $e');
+    var purged = true;
+    for (final key in _sessionKeys) {
+      try {
+        await _storage.delete(key: key);
+      } on PlatformException catch (e) {
+        purged = false;
+        if (kDebugMode) {
+          debugPrint('[AuthService] Keychain purge failed for $key: $e');
+        }
+      }
     }
+    return purged;
+  }
+
+  /// Clear all tokens (logout)
+  static Future<void> logout() async {
+    await purgeStoredSession();
   }
 }

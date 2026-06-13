@@ -1503,7 +1503,7 @@ class SEn extends S {
 
   @override
   String get profileResetScopeNote =>
-      'Keeps login and BYOK key. Backend documents are not deleted.';
+      'Keeps login. The diagnostic, local BYOK key and MINT drafts are deleted; backend documents are not.';
 
   @override
   String get checkinScoreReasonStable =>
@@ -21558,7 +21558,7 @@ class SEn extends S {
 
   @override
   String get dataTransparencyDeleteDetail =>
-      'Everything is purged: database, local storage, embeddings. Nothing remains.';
+      'Mint deletes known MINT data on the server and device. An iCloud or device backup can reintroduce a restored copy.';
 
   @override
   String get dataTransparencyLocal => 'Local';

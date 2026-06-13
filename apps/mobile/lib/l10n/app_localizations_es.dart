@@ -1507,7 +1507,7 @@ class SEs extends S {
 
   @override
   String get profileResetScopeNote =>
-      'Conserva la conexión y la clave BYOK. Los documentos del backend no se eliminan.';
+      'Conserva la conexión. Se eliminan el diagnóstico, la clave BYOK local y los borradores de MINT; los documentos del backend no.';
 
   @override
   String get checkinScoreReasonStable =>
@@ -21668,7 +21668,7 @@ class SEs extends S {
 
   @override
   String get dataTransparencyDeleteDetail =>
-      'Todo se elimina: base de datos, almacenamiento local, embeddings. No queda nada.';
+      'Mint elimina los datos MINT conocidos en el servidor y el dispositivo. Una copia de seguridad de iCloud o del dispositivo puede reintroducir una copia restaurada.';
 
   @override
   String get dataTransparencyLocal => 'Local';

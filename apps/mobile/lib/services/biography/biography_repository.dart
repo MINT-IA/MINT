@@ -50,6 +50,11 @@ class BiographyRepository {
   static const _dbName = 'mint_biography.db';
   static const _keyAlias = 'mint_biography_key';
   static const _tableName = 'biography_facts';
+  static const _defaultSecureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device),
+  );
 
   static BiographyRepository? _instance;
 
@@ -66,7 +71,7 @@ class BiographyRepository {
   }) async {
     if (_instance != null) return _instance!;
 
-    final storage = secureStorage ?? const FlutterSecureStorage();
+    final storage = secureStorage ?? _defaultSecureStorage;
 
     // Get or generate encryption key. P1 walkthrough fix (2026-05-07):
     // on a fresh iOS simulator (or any never-logged-in device) the
@@ -138,7 +143,7 @@ class BiographyRepository {
   static Future<void> clearEncryptionKey({
     FlutterSecureStorage? secureStorage,
   }) async {
-    final storage = secureStorage ?? const FlutterSecureStorage();
+    final storage = secureStorage ?? _defaultSecureStorage;
     try {
       await storage.delete(key: _keyAlias);
       resetInstance();

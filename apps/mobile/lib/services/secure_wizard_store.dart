@@ -26,6 +26,8 @@ class SecureWizardSealResult {
 class SecureWizardStore {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device),
   );
 
   static const _manifestKey = '_mint_wizard_secure_keys_v1';

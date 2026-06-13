@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -175,6 +176,132 @@ void main() {
       expect(provider.accountDataState, MintAccountDataState.cloudSyncOn);
     });
 
+    test(
+        'fresh install marker absence with empty prefs purges stale MINT keychain '
+        'before auth restore', () async {
+      secureStorage.addAll({
+        'jwt_token': 'old-jwt',
+        'refresh_token': 'old-refresh',
+        'user_id': 'old-user',
+        'user_email': 'old@example.ch',
+        'display_name': 'Old User',
+        'byok_provider': 'openai',
+        'byok_api_key': 'sk-old',
+        'mint_partner_estimate': '{"estimated_salary":100000}',
+        'anonymous_session_id': 'anon-old',
+        'anonymous_message_count': '2',
+        'mint_biography_key': 'bio-old',
+        '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+        'q_net_income_period_chf': '8000',
+        'foreign_app_key': 'must-stay',
+      });
+
+      await provider.checkAuth();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('mint_install_marker_v1'), isTrue);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
+      expect(deleteAllCalls, 0);
+      expect(secureStorage['foreign_app_key'], 'must-stay');
+      expect(secureStorage.containsKey('jwt_token'), isFalse);
+      expect(secureStorage.containsKey('refresh_token'), isFalse);
+      expect(secureStorage.containsKey('user_id'), isFalse);
+      expect(secureStorage.containsKey('user_email'), isFalse);
+      expect(secureStorage.containsKey('display_name'), isFalse);
+      expect(secureStorage.containsKey('byok_provider'), isFalse);
+      expect(secureStorage.containsKey('byok_api_key'), isFalse);
+      expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
+      expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+      expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+      expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+      expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test(
+        'missing install marker on an existing prefs store adopts marker '
+        'without deleting current keychain session', () async {
+      SharedPreferences.setMockInitialValues({'auth_local_mode': false});
+      secureStorage.addAll({
+        'jwt_token': 'current-jwt',
+        'user_id': 'current-user',
+        'user_email': 'current@example.ch',
+      });
+
+      await provider.checkAuth();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('mint_install_marker_v1'), isTrue);
+      expect(provider.isLoggedIn, isTrue);
+      expect(provider.userId, 'current-user');
+      expect(provider.email, 'current@example.ch');
+      expect(secureStorage['jwt_token'], 'current-jwt');
+      expect(deleteAllCalls, 0);
+    });
+
+    test(
+        'fresh install purge failure stays pending and blocks stale auth '
+        'on the next launch', () async {
+      var failJwtDelete = true;
+      secureStorage.addAll({
+        'jwt_token': 'old-jwt',
+        'user_id': 'old-user',
+        'user_email': 'old@example.ch',
+      });
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        secureStorageChannel,
+        (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'write':
+              final value = call.arguments['value'] as String?;
+              if (key != null && value != null) {
+                secureStorage[key] = value;
+              }
+              return null;
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'jwt_token' && failJwtDelete) {
+                throw PlatformException(code: '-34018');
+              }
+              if (key != null) {
+                secureStorage.remove(key);
+              }
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+
+      await provider.checkAuth();
+      var prefs = await SharedPreferences.getInstance();
+
+      expect(provider.isLoggedIn, isFalse);
+      expect(prefs.getBool('mint_install_marker_v1'), isNull);
+      expect(prefs.getBool('mint_install_secure_purge_pending_v1'), isTrue);
+      expect(secureStorage['jwt_token'], 'old-jwt');
+
+      failJwtDelete = false;
+      AuthService.resetMemoryCacheForTest();
+      await provider.checkAuth();
+      prefs = await SharedPreferences.getInstance();
+
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
+      expect(prefs.getBool('mint_install_marker_v1'), isTrue);
+      expect(prefs.getBool('mint_install_secure_purge_pending_v1'), isNull);
+      expect(secureStorage.containsKey('jwt_token'), isFalse);
+      expect(deleteAllCalls, 0);
+    });
+
     // ── requiresEmailVerification starts false ──
 
     test('requiresEmailVerification defaults to false', () {
@@ -293,6 +420,32 @@ void main() {
       expect(deleteAllCalls, 0);
       expect(secureStorage['foreign_app_key'], 'must-stay');
       expect(secureStorage['byok_api_key'], 'sk-delete-fails');
+      expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
+      expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+      expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+      expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+      expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('profile clearAll purges owned secure feature keys', () async {
+      secureStorage.addAll({
+        'byok_provider': 'openai',
+        'byok_api_key': 'sk-profile-reset',
+        'mint_partner_estimate': '{"estimated_salary":100000}',
+        'anonymous_session_id': 'anon-1',
+        'anonymous_message_count': '1',
+        'mint_biography_key': 'bio-key',
+        '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+        'q_net_income_period_chf': '8000',
+        'foreign_app_key': 'must-stay',
+      });
+
+      await CoachProfileProvider().clearAll();
+
+      expect(deleteAllCalls, 0);
+      expect(secureStorage['foreign_app_key'], 'must-stay');
+      expect(secureStorage.containsKey('byok_provider'), isFalse);
+      expect(secureStorage.containsKey('byok_api_key'), isFalse);
       expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
       expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
       expect(secureStorage.containsKey('anonymous_message_count'), isFalse);

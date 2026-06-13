@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
+import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -378,7 +379,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final isLoggedIn = await AuthService.isLoggedIn();
+      final mayRestoreAuth =
+          await InstallLifecycleService.prepareForAuthRestore();
+      final isLoggedIn =
+          mayRestoreAuth ? await AuthService.isLoggedIn() : false;
       if (isLoggedIn) {
         _userId = await AuthService.getUserId();
         _email = await AuthService.getUserEmail();

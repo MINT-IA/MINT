@@ -1505,7 +1505,7 @@ class SPt extends S {
 
   @override
   String get profileResetScopeNote =>
-      'Conserva a ligação e a chave BYOK. Os documentos do backend não são eliminados.';
+      'Conserva a ligação. O diagnóstico, a chave BYOK local e os rascunhos MINT são eliminados; os documentos do backend não.';
 
   @override
   String get checkinScoreReasonStable =>
@@ -21673,7 +21673,7 @@ class SPt extends S {
 
   @override
   String get dataTransparencyDeleteDetail =>
-      'Tudo é eliminado: base de dados, armazenamento local, embeddings. Nada resta.';
+      'Mint elimina os dados MINT conhecidos no servidor e no dispositivo. Uma cópia iCloud ou do dispositivo pode reintroduzir uma cópia restaurada.';
 
   @override
   String get dataTransparencyLocal => 'Local';
