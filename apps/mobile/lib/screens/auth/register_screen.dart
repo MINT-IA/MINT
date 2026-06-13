@@ -5,7 +5,11 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/screens/auth/auth_platform.dart';
+import 'package:mint_mobile/screens/auth/auth_redirect.dart';
+import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/dob_age_calculator.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -34,6 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _confirmed18Plus = false;
   bool _consentNotifications = false;
   bool _consentAnalytics = false;
+  bool _showEmailForm = true;
+  bool _appleSignInLoading = false;
+  String? _appleSignInError;
 
   /// P2-17: Guard to prevent concurrent SharedPreferences writes.
   bool _isWriting = false;
@@ -41,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+    _showEmailForm = !canShowAppleSignIn;
     _passwordController.addListener(() => setState(() {}));
     _confirmPasswordController.addListener(() => setState(() {}));
     // Clear any stale auth error that would otherwise surface a red "Action
@@ -93,32 +101,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await ReportPersistenceService.saveAnswers(answers);
       }
 
-      // Persist consent preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('consent_notifications', _consentNotifications);
-      await prefs.setBool('consent_analytics', _consentAnalytics);
-      await prefs.setBool('accepted_cgu_v1', true);
-      await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
+      await _persistConsentPreferences();
 
       if (!mounted) return;
       // F2-2: Email verification MUST happen before any redirect.
       // Flow: register -> verify-email -> redirect (not register -> redirect -> 403)
       if (authProvider.requiresEmailVerification) {
-        // F3-2: Preserve redirect through the email verification step.
-        final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
-        if (redirect != null && redirect.startsWith('/')) {
-          context.go('/auth/verify-email?redirect=${Uri.encodeComponent(redirect)}');
-        } else {
-          context.go('/auth/verify-email');
-        }
+        context.go(authRouteWithRedirect(
+          '/auth/verify-email',
+          GoRouterState.of(context).uri,
+        ));
       } else {
-        final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
-        if (redirect != null && redirect.startsWith('/')) {
-          context.go(Uri.decodeComponent(redirect));
-        } else {
-          // KILL-05: all post-auth routing goes to /coach/chat
-          context.go('/coach/chat');
-        }
+        _goAfterAccountCreated();
       }
     }
     } finally {
@@ -126,10 +120,142 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> _handleAppleSignIn() async {
+    if (_isWriting || _appleSignInLoading) return;
+    if (!_acceptedCgu || !_confirmed18Plus) {
+      setState(() {
+        _appleSignInError = S.of(context)!.authRequiredConsents;
+      });
+      return;
+    }
+
+    _isWriting = true;
+    setState(() {
+      _appleSignInLoading = true;
+      _appleSignInError = null;
+    });
+
+    final authProvider = context.read<AuthProvider>();
+    try {
+      final response = await AppleSignInService.signIn();
+      if (response == null || !mounted) return;
+
+      final ok = await authProvider.completeAppleSignIn(response);
+      if (!ok) {
+        if (!mounted) return;
+        setState(() {
+          _appleSignInError = authProvider.error != null
+              ? localizeAuthError(authProvider.error!, S.of(context)!)
+              : S.of(context)!.authErrorGeneric;
+        });
+        return;
+      }
+
+      await _persistConsentPreferences();
+      if (!mounted) return;
+      _goAfterAccountCreated();
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _appleSignInError = S.of(context)!.authErrorGeneric;
+        });
+      }
+    } finally {
+      _isWriting = false;
+      if (mounted) {
+        setState(() => _appleSignInLoading = false);
+      }
+    }
+  }
+
+  Future<void> _persistConsentPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('consent_notifications', _consentNotifications);
+    await prefs.setBool('consent_analytics', _consentAnalytics);
+    await prefs.setBool('accepted_cgu_v1', true);
+    await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
+  }
+
+  void _goAfterAccountCreated() {
+    final redirect = resolvePostAuthRedirect(GoRouterState.of(context).uri);
+    // KILL-05: all post-auth routing goes to /coach/chat when no explicit
+    // safe handoff destination is present.
+    context.go(redirect ?? '/coach/chat');
+  }
+
+  Widget _buildRequiredConsents(S l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CheckboxListTile(
+          value: _acceptedCgu,
+          onChanged: (v) => setState(() {
+            _acceptedCgu = v ?? false;
+            _appleSignInError = null;
+          }),
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: RichText(
+            text: TextSpan(
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+              children: [
+                TextSpan(text: l10n.authCguAccept),
+                TextSpan(
+                  text: l10n.authCguLink,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.primary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => context.push('/about'),
+                ),
+                TextSpan(text: l10n.authCguAndPrivacy),
+                TextSpan(
+                  text: l10n.authPrivacyPolicyText,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.primary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => context.push('/about'),
+                ),
+                const TextSpan(text: ' *'),
+              ],
+            ),
+          ),
+        ),
+        CheckboxListTile(
+          value: _confirmed18Plus,
+          onChanged: (v) => setState(() {
+            _confirmed18Plus = v ?? false;
+            _appleSignInError = null;
+          }),
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(
+            l10n.authConfirm18,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final l10n = S.of(context)!;
+    final accountActionBusy = authProvider.isLoading || _appleSignInLoading;
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -206,6 +332,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: MintTextStyles.bodyLarge(),
                   textAlign: TextAlign.center,
                 )),
+                if (_showEmailForm || !canShowAppleSignIn) ...[
                 const SizedBox(height: MintSpacing.md),
                 MintEntrance(delay: const Duration(milliseconds: 300), child: MintSurface(
                   padding: const EdgeInsets.all(14),
@@ -225,6 +352,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 )),
                 const SizedBox(height: MintSpacing.xxl),
+                ] else
+                  const SizedBox(height: MintSpacing.lg),
+                if (canShowAppleSignIn) ...[
+                  _buildRequiredConsents(l10n),
+                  const SizedBox(height: MintSpacing.lg),
+                ],
+                if (canShowAppleSignIn) ...[
+                  SizedBox(
+                    height: 48,
+                    child: _appleSignInLoading
+                        ? const Center(
+                            child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : SignInWithAppleButton(
+                            onPressed: _handleAppleSignIn,
+                            style: SignInWithAppleButtonStyle.black,
+                          ),
+                  ),
+                  if (_appleSignInError != null) ...[
+                    const SizedBox(height: MintSpacing.sm),
+                    Text(
+                      _appleSignInError!,
+                      style: MintTextStyles.bodySmall(color: MintColors.error),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: MintSpacing.sm + 4),
+                  if (!_showEmailForm) ...[
+                    OutlinedButton(
+                      onPressed: accountActionBusy
+                          ? null
+                          : () {
+                              setState(() {
+                                _showEmailForm = true;
+                                _appleSignInError = null;
+                              });
+                            },
+                      child: Text(l10n.authCreateWithEmail),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
+                  ],
+                ],
+                if (_showEmailForm) ...[
                 // Email field
                 MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                   label: l10n.authEmail,
@@ -441,69 +615,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   password: _passwordController.text,
                 ),
                 const SizedBox(height: MintSpacing.lg),
-                // ── CGU & Consent checkboxes ──
-                // CGU checkbox (required, non-pre-checked)
-                CheckboxListTile(
-                  value: _acceptedCgu,
-                  onChanged: (v) => setState(() => _acceptedCgu = v ?? false),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: RichText(
-                    text: TextSpan(
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.textSecondary,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: l10n.authCguAccept,
-                        ),
-                        TextSpan(
-                          text: l10n.authCguLink,
-                          style: MintTextStyles.bodySmall(
-                            color: MintColors.primary,
-                          ).copyWith(
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => context.push('/about'),
-                        ),
-                        TextSpan(
-                          text: l10n.authCguAndPrivacy,
-                        ),
-                        TextSpan(
-                          text: l10n.authPrivacyPolicyText,
-                          style: MintTextStyles.bodySmall(
-                            color: MintColors.primary,
-                          ).copyWith(
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => context.push('/about'),
-                        ),
-                        const TextSpan(text: ' *'),
-                      ],
-                    ),
-                  ),
-                ),
-                // 18+ checkbox (required, non-pre-checked)
-                CheckboxListTile(
-                  value: _confirmed18Plus,
-                  onChanged: (v) =>
-                      setState(() => _confirmed18Plus = v ?? false),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: Text(
-                    l10n.authConfirm18,
-                    style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.sm + 4),
+                if (!canShowAppleSignIn) ...[
+                  _buildRequiredConsents(l10n),
+                  const SizedBox(height: MintSpacing.sm + 4),
+                ],
                 // "Consentements optionnels" divider
                 Row(
                   children: [
@@ -614,7 +729,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: FilledButton(
                     onPressed: (_acceptedCgu &&
                             _confirmed18Plus &&
-                            !authProvider.isLoading)
+                            !accountActionBusy)
                         ? () {
                             HapticFeedback.lightImpact();
                             _handleRegister();
@@ -634,18 +749,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.sm + 4),
+                ],
                 Semantics(
                   label: l10n.authContinueLocal,
                   button: true,
                   child: OutlinedButton(
-                    onPressed: authProvider.isLoading
+                    onPressed: accountActionBusy
                         ? null
                         : () async {
                             await authProvider.enableLocalMode();
                             if (!context.mounted) return;
-                            final redirect = GoRouterState.of(context)
-                                .uri
-                                .queryParameters['redirect'];
+                            final redirect = resolvePostAuthRedirect(
+                              GoRouterState.of(context).uri,
+                            );
                             context.go(redirect ?? '/home');
                           },
                     child: Text(l10n.authContinueLocal),

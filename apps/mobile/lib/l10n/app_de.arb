@@ -3562,6 +3562,8 @@
   "authConsentAnalytics": "Anonymisierte Daten zur Verbesserung der Schweizer Benchmarks",
   "authPrivacyReassurance": "Deine Daten bleiben verschlüsselt auf deinem Gerät. Keine Bankverbindung.",
   "authContinueLocal": "Im lokalen Modus fortfahren",
+  "authCreateWithEmail": "Mit E-Mail erstellen",
+  "authRequiredConsents": "Bestätige die Bedingungen und die Altersprüfung, bevor du dein Konto erstellst.",
   "authBack": "Zurück",
   "budgetTaxProvisionNotProvided": "Steuerrückstellung (nicht angegeben)",
   "budgetHealthInsuranceNotProvided": "Krankenkassenprämien (KVG) (nicht angegeben)",

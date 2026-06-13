@@ -7854,6 +7854,13 @@ class SEn extends S {
   String get authContinueLocal => 'Continue in local mode';
 
   @override
+  String get authCreateWithEmail => 'Create with email';
+
+  @override
+  String get authRequiredConsents =>
+      'Confirm the terms and age check before creating your account.';
+
+  @override
   String get authBack => 'Back';
 
   @override

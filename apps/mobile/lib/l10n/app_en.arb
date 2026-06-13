@@ -3562,6 +3562,8 @@
   "authConsentAnalytics": "Anonymous data to improve Swiss benchmarks",
   "authPrivacyReassurance": "Your data stays encrypted on your device. No bank connection.",
   "authContinueLocal": "Continue in local mode",
+  "authCreateWithEmail": "Create with email",
+  "authRequiredConsents": "Confirm the terms and age check before creating your account.",
   "authBack": "Back",
   "budgetTaxProvisionNotProvided": "Tax provision (not provided)",
   "budgetHealthInsuranceNotProvided": "Health insurance (LAMal) (not provided)",

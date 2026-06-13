@@ -3562,6 +3562,8 @@
   "authConsentAnalytics": "Datos anónimos para mejorar los benchmarks suizos",
   "authPrivacyReassurance": "Tus datos permanecen cifrados en tu dispositivo. Sin conexión bancaria.",
   "authContinueLocal": "Continuar en modo local",
+  "authCreateWithEmail": "Crear con e-mail",
+  "authRequiredConsents": "Confirma las condiciones y la verificación de edad antes de crear tu cuenta.",
   "authBack": "Volver",
   "budgetTaxProvisionNotProvided": "Provisión impuestos (no indicado)",
   "budgetHealthInsuranceNotProvided": "Seguro médico (LAMal) (no indicado)",

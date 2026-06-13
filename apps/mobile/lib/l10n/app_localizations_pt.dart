@@ -7897,6 +7897,13 @@ class SPt extends S {
   String get authContinueLocal => 'Continuar em modo local';
 
   @override
+  String get authCreateWithEmail => 'Criar com e-mail';
+
+  @override
+  String get authRequiredConsents =>
+      'Confirma os termos e a verificação de idade antes de criar a tua conta.';
+
+  @override
   String get authBack => 'Voltar';
 
   @override

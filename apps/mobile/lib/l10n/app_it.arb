@@ -3562,6 +3562,8 @@
   "authConsentAnalytics": "Dati anonimi per migliorare i benchmark svizzeri",
   "authPrivacyReassurance": "I tuoi dati restano crittografati sul tuo dispositivo. Nessuna connessione bancaria.",
   "authContinueLocal": "Continua in modalità locale",
+  "authCreateWithEmail": "Crea con e-mail",
+  "authRequiredConsents": "Conferma le condizioni e la verifica dell'età prima di creare il conto.",
   "authBack": "Indietro",
   "budgetTaxProvisionNotProvided": "Accantonamento imposte (non indicato)",
   "budgetHealthInsuranceNotProvided": "Premi malattia (LAMal) (non indicato)",

@@ -3953,6 +3953,8 @@
   "authConsentAnalytics": "Données anonymisées pour améliorer les benchmarks suisses",
   "authPrivacyReassurance": "Tes données restent chiffrées sur ton appareil. Aucune connexion bancaire.",
   "authContinueLocal": "Continuer en mode local",
+  "authCreateWithEmail": "Créer avec e-mail",
+  "authRequiredConsents": "Confirme les conditions et l'âge avant de créer ton compte.",
   "authBack": "Retour",
   "coachComplianceError": "Je préfère ne pas répondre à ça. Reformule ta question, ou utilise un simulateur pour un chiffre direct.",
   "coachErrorInvalidKey": "Ta clé API semble invalide ou expirée. Vérifie-la dans les paramètres.",
