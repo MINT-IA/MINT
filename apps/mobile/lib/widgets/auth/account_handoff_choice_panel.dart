@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:provider/provider.dart';
 
 class AccountHandoffChoicePanel extends StatefulWidget {
   const AccountHandoffChoicePanel({super.key});
@@ -42,6 +44,8 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
+    final hasSessionProfile = context.watch<CoachProfileProvider>().hasProfile;
+    final hasLocalData = _hasLocalData || hasSessionProfile;
     final hint = switch (_choice) {
       AccountHandoffChoice.keepLocal => l10n.authHandoffKeepHint,
       AccountHandoffChoice.restartClean => l10n.authHandoffRestartHint,
@@ -76,7 +80,7 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _hasLocalData
+                      hasLocalData
                           ? l10n.authHandoffLocalDetected
                           : l10n.authHandoffNoLocalData,
                       style: MintTextStyles.bodySmall(

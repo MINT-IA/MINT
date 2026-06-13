@@ -15,16 +15,17 @@ Checks run on this phase:
 | `jq empty golden-onboarding-archetypes.json` | PASS |
 | iPhone 17 Pro simulator, local feature-flag stub | PASS, landing -> `/start` -> `/onb` -> terminal dossier |
 | Simulator screenshots | PASS, `evidence/simulator/01-landing.jpg` through `10-reset-returned-entry.jpg` |
-| Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg` and `12-account-handoff-register-apple.jpg` |
+| Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg`, `12-account-handoff-register-apple.jpg`, `14-account-handoff-register-session-profile.jpg`, and `15-account-handoff-register-restart-session-profile.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/account-handoff-route-20260613T2245/` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` | PASS, structured diagnostic Situation path; artifacts under `evidence/maestro/diagnostic-situation-20260613T2255/` |
+| `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after session-profile handoff fix | PASS, iPhone 17 Pro with same local stub; artifacts under `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
 | `flutter test test/providers/auth_provider_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart` | PASS, 115 tests; fresh-install Keychain purge, pending retry, and profile `clearAll` secure-key purge red/green covered |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 181 tests |
-| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/services/api_service_test.dart test/providers/auth_provider_test.dart` | PASS, 78 tests; missing choice keeps data separate, explicit keep, explicit restart purge, stale choice expiry, feature-flag off, budget/letters detection, registration UI choice, and magic-link auth bootstrap covered |
-| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 96 tests |
+| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/services/api_service_test.dart test/providers/auth_provider_test.dart` | PASS, 79 tests; missing choice keeps data separate, explicit keep, explicit restart purge, stale choice expiry, feature-flag off, budget/letters detection, registration UI choice, session-only wedge profile detection, and magic-link auth bootstrap covered |
+| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 97 tests |
 | `flutter analyze` | PASS, no issues |
 | `./tools/mint-routes check` | PASS, 145 routes after known-miss exemptions |
 | `flutter gen-l10n` | PASS |
@@ -69,6 +70,12 @@ Runtime notes:
 - The account entry simulator run verified login and registration: the handoff
   segmented control is visible, `Repartir` updates the explanatory copy, Apple
   remains primary on iPhone registration, and e-mail remains a fallback.
+- The session-profile simulator run caught and fixed a runtime-only handoff
+  gap: after wedge completion on the debug simulator, secure seal may fail with
+  Keychain `-34018`, leaving a CoachProfile only in memory. The register
+  handoff panel now also observes `CoachProfileProvider.hasProfile`, so it shows
+  `Mint a des éléments...` instead of `Aucune donnée locale...` for that current
+  dossier.
 - The first simulator launch logged Keychain read `-34018` for token access in
   debug simulator; onboarding continued. This is not a device proof and keeps
   G2 open.

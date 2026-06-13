@@ -30,15 +30,15 @@
     <thead><tr><th>Preuve</th><th>Statut</th><th>Note</th></tr></thead>
     <tbody>
       <tr><td>iPhone 17 Pro simulator</td><td>PASS</td><td>Landing -> /start -> /onb -> terminal dossier.</td></tr>
-      <tr><td>Account handoff simulator</td><td>PASS</td><td>Login + inscription Apple-primary affichent Conserver/Repartir.</td></tr>
+      <tr><td>Account handoff simulator</td><td>PASS</td><td>Login + inscription Apple-primary affichent Conserver/Repartir. Le profil wedge session-only est détecté sur l'écran inscription.</td></tr>
       <tr><td>Maestro route-contract</td><td>PASS</td><td><code>flow_landing_to_diagnostic_onboarding.yaml</code> passe via watchdog: landing -> diagnostic, sans prompt de chat vide.</td></tr>
-      <tr><td>Maestro diagnostic Situation</td><td>PASS</td><td><code>flow_diagnostic_situation_scene.yaml</code> passe: repères captés, données manquantes, pas de fallback retraite.</td></tr>
+      <tr><td>Maestro diagnostic Situation</td><td>PASS</td><td><code>flow_diagnostic_situation_scene.yaml</code> passe: repères captés, données manquantes, pas de fallback retraite. Repassé après le correctif session-profile.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
       <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>97 tests ciblés.</td></tr>
       <tr><td>Flutter tests reset/secure storage</td><td>PASS</td><td>115 tests ciblés, incluant purge fresh install, retry pending et clearAll secure.</td></tr>
-      <tr><td>Flutter tests handoff/auth</td><td>PASS</td><td>78 tests ciblés: choix absent séparé, conserver explicite, repartir, expiration, budget/lettres, UI inscription, magic-link.</td></tr>
-      <tr><td>Flutter tests auth screens</td><td>PASS</td><td>96 tests sur auth screens, handoff et AuthProvider.</td></tr>
+      <tr><td>Flutter tests handoff/auth</td><td>PASS</td><td>79 tests ciblés: choix absent séparé, conserver explicite, repartir, expiration, budget/lettres, UI inscription, profil wedge session-only, magic-link.</td></tr>
+      <tr><td>Flutter tests auth screens</td><td>PASS</td><td>97 tests sur auth screens, handoff et AuthProvider.</td></tr>
       <tr><td>Flutter regression combinée</td><td>PASS</td><td>181 tests sur DataSpine, onboarding, auth, reset, secure storage et retraite.</td></tr>
       <tr><td>Analyze/routes/i18n/compliance</td><td>PASS LOCAL</td><td>Analyse, route registry, ARB parity 6986 clés, banned terms, accent lint, public-doc admission lint.</td></tr>
     </tbody>
@@ -53,6 +53,9 @@
     <img src="evidence/simulator/10-reset-returned-entry.jpg" alt="Retour après reset">
     <img src="evidence/simulator/11-account-handoff-login-restart.jpg" alt="Handoff compte login">
     <img src="evidence/simulator/12-account-handoff-register-apple.jpg" alt="Handoff compte inscription Apple">
+    <img src="evidence/simulator/13-terminal-actions-session-profile.jpg" alt="Terminal session profile avec actions">
+    <img src="evidence/simulator/14-account-handoff-register-session-profile.jpg" alt="Handoff inscription profil session-only">
+    <img src="evidence/simulator/15-account-handoff-register-restart-session-profile.jpg" alt="Handoff inscription repartir profil session-only">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/01-landing.png" alt="Maestro landing">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/02-diagnostic-entry.png" alt="Maestro entrée diagnostic">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/03-diagnostic-intents.png" alt="Maestro intentions diagnostic">

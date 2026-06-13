@@ -7,17 +7,25 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
-Widget _testApp() {
+Widget _testApp({CoachProfileProvider? coachProfileProvider}) {
   return MaterialApp(
     locale: const Locale('fr'),
     localizationsDelegates: S.localizationsDelegates,
     supportedLocales: S.supportedLocales,
-    home: ChangeNotifierProvider<AuthProvider>(
-      create: (_) => AuthProvider(),
+    home: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: coachProfileProvider ?? CoachProfileProvider(),
+        ),
+      ],
       child: const RegisterScreen(),
     ),
   );
@@ -97,6 +105,40 @@ void main() {
       expect(
         prefs.getString(AccountHandoffService.choiceKey),
         'restart_clean',
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('registration detects session-only wedge profile',
+      (tester) async {
+    FeatureFlags.enableMvpWedgeOnboarding = true;
+    final coachProfileProvider = CoachProfileProvider()
+      ..updateFromAnswers({
+        'onb_intent': 'explorer',
+        'q_birth_year': 1992,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7250,
+      });
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp(
+        coachProfileProvider: coachProfileProvider,
+      ));
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Mint a des éléments sur cet appareil: diagnostic, brouillons ou discussion anonyme.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Aucune donnée locale Mint détectée sur cet appareil.'),
+        findsNothing,
       );
     } finally {
       debugDefaultTargetPlatformOverride = null;
