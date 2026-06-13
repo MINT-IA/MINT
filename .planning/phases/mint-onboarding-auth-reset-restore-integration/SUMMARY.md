@@ -22,7 +22,9 @@ worktree ARB parity, banned terms, accent lint, public-doc admission lint, and
 iPhone 17 Pro simulator screenshots under `evidence/simulator/`, including
 account handoff login/register screens. Targeted Maestro route-contract proof
 for landing -> diagnostic onboarding also passed with screenshots under
-`evidence/maestro/account-handoff-route-20260613T2245/`.
+`evidence/maestro/account-handoff-route-20260613T2245/`; the structured
+Situation diagnostic scene passed under
+`evidence/maestro/diagnostic-situation-20260613T2255/`.
 
 Open: no rebase on `origin/dev`; broader persona walker still open; G2
 Julien/device still required for Keychain/auth/Apple; staging/TestFlight

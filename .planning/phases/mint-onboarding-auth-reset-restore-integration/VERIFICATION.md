@@ -17,6 +17,7 @@ Checks run on this phase:
 | Simulator screenshots | PASS, `evidence/simulator/01-landing.jpg` through `10-reset-returned-entry.jpg` |
 | Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg` and `12-account-handoff-register-apple.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/account-handoff-route-20260613T2245/` |
+| `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` | PASS, structured diagnostic Situation path; artifacts under `evidence/maestro/diagnostic-situation-20260613T2255/` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
@@ -60,6 +61,11 @@ Runtime notes:
   absence of the old empty-chat prompt, and the intent explorer. Stubbed
   non-contract routes such as `/snapshots` returned 404 and did not affect the
   flow.
+- The Maestro Situation run covered a deeper structured path: selected the
+  Situation intent, answered FATCA/residence/status/household/move/date/canton
+  and revenue prompts, then asserted `Ce que Mint peut déjà situer`, `Repères
+  captés`, `Vaud · environ 7’250 CHF/mois net`, `À préciser ensuite`, and
+  absence of the retirement fallback scene.
 - The account entry simulator run verified login and registration: the handoff
   segmented control is visible, `Repartir` updates the explanatory copy, Apple
   remains primary on iPhone registration, and e-mail remains a fallback.
