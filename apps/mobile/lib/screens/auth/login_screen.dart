@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -9,35 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/screens/auth/auth_platform.dart';
+import 'package:mint_mobile/screens/auth/auth_redirect.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-
-@visibleForTesting
-String? resolvePostAuthRedirect(Uri uri) {
-  final redirect = uri.queryParameters['redirect'];
-  if (redirect == null) return null;
-
-  late final String decoded;
-  try {
-    decoded = Uri.decodeComponent(redirect);
-  } on Object {
-    return null;
-  }
-  final target = Uri.tryParse(decoded);
-  if (!decoded.startsWith('/') ||
-      decoded.startsWith('//') ||
-      decoded.contains(r'\') ||
-      target == null ||
-      target.hasScheme ||
-      target.hasAuthority) {
-    return null;
-  }
-  return decoded;
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -363,7 +340,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: MintSpacing.md),
 
                         // ── Apple Sign-In (iOS only) ──
-                        if (!kIsWeb && Platform.isIOS) ...[
+                        if (canShowAppleSignIn) ...[
                           Center(
                             child: Text(
                               'ou',
