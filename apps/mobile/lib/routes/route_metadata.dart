@@ -124,7 +124,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.alias,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    description: 'Landing CTA redirect — flag-gated to /onb or /coach/chat',
+    description: 'Landing CTA redirect — flag-gated to /onb or /anonymous/chat',
   ),
   '/onb': RouteMeta(
     path: '/onb',
@@ -178,7 +178,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
 
   // ── Anonymous flow (public, outside shell) ─────────────────────
   // Phase 71a (2026-05-05) : /anonymous/intent retired; /anonymous/chat
-  // is now the chat-first cold-open with opener bubble + chip suggestions.
+  // remains the anonymous fallback with opener bubble + chip suggestions.
   '/anonymous/chat': RouteMeta(
     path: '/anonymous/chat',
     category: RouteCategory.destination,

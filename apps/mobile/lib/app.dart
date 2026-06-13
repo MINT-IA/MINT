@@ -337,15 +337,13 @@ final _router = GoRouter(
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
     ),
-    // Landing CTA target — Phase 71a (panel §8.5) : unconditionally
-    // redirect to /anonymous/chat. The intent picker (/anonymous/intent)
-    // was killed in favour of the chat-first cold-open with coach opener
-    // bubble + 3 chip suggestions. The `enableMvpWedgeOnboarding` flag
-    // survives for the /onb storyboard but is decoupled from /start.
+    // Landing CTA target. Keep LandingScreen state-free and let the router
+    // decide which first-run experience is active for this rollout.
     ScopedGoRoute(
       path: '/start',
       scope: RouteScope.public,
-      redirect: (_, __) => '/anonymous/chat',
+      redirect: (_, __) =>
+          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
     ),
     // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
     // with 4 intents + dossier densification + 3 N2 scenes + magic link.
@@ -385,7 +383,7 @@ final _router = GoRouter(
 
     // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
     // Phase 71a (2026-05-05) : /anonymous/intent route killed; the chat
-    // cold-open carries the opener bubble + 3 chip suggestions inline.
+    // fallback carries the opener bubble + 3 chip suggestions inline.
     ScopedGoRoute(
       path: '/anonymous/chat',
       scope: RouteScope.public,

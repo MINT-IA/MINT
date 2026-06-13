@@ -30,12 +30,12 @@ GoRouter _buildRouter() {
       GoRoute(
         path: '/start',
         redirect: (_, __) =>
-            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
+            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
       ),
       GoRoute(
-        path: '/anonymous/intent',
+        path: '/anonymous/chat',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('ANONYMOUS_INTENT_STUB')),
+          body: Center(child: Text('ANONYMOUS_CHAT_STUB')),
         ),
       ),
       GoRoute(
@@ -70,6 +70,14 @@ Widget _wrap({Locale locale = const Locale('fr')}) {
 
 void main() {
   group('Phase 73 — Landing v3 structural panel-lock', () {
+    setUp(() {
+      FeatureFlags.enableMvpWedgeOnboarding = false;
+    });
+
+    tearDown(() {
+      FeatureFlags.enableMvpWedgeOnboarding = false;
+    });
+
     testWidgets('Test 1: hero renders landingV3Hero in Fraunces italic',
         (tester) async {
       await tester.pumpWidget(_wrap());
@@ -92,7 +100,8 @@ void main() {
       // Phase 92-03 (FONT-05/07) swapped Fraunces → Gambarino — see
       // apps/mobile/lib/screens/landing_screen.dart:133 + MintTextStyles.displayGambarinoItalic40.
       expect(style.fontFamily, contains('Gambarino'),
-          reason: 'PANEL-VERDICT §3: typography = Gambarino italic 40pt (post Phase 92).');
+          reason:
+              'PANEL-VERDICT §3: typography = Gambarino italic 40pt (post Phase 92).');
     });
 
     testWidgets(
@@ -111,8 +120,7 @@ void main() {
           reason: 'PANEL-VERDICT §4 decision 4: borderRadius 14.');
     });
 
-    testWidgets('Test 3: wordmark letterSpacing = 2 (not 4)',
-        (tester) async {
+    testWidgets('Test 3: wordmark letterSpacing = 2 (not 4)', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
@@ -120,7 +128,8 @@ void main() {
       final ls = wordmark.style?.letterSpacing;
       expect(ls, isNotNull);
       expect(ls!, closeTo(2, 0.001),
-          reason: 'PANEL-VERDICT §4 decision 6: letterSpacing 2 (descended from 4).');
+          reason:
+              'PANEL-VERDICT §4 decision 6: letterSpacing 2 (descended from 4).');
     });
 
     testWidgets('Test 4: long-press wordmark navigates to /auth/login',
@@ -146,7 +155,8 @@ void main() {
       expect(find.text('LOGIN_STUB'), findsOneWidget);
     });
 
-    testWidgets('Test 6: tap CTA navigates to /start → /anonymous/intent',
+    testWidgets(
+        'Test 6: tap CTA navigates to /start → /anonymous/chat by default',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -154,9 +164,24 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_INTENT_STUB'), findsOneWidget,
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget,
           reason:
-              'CTA → /start, which redirects to /anonymous/intent under default FeatureFlags.');
+              'CTA → /start, which redirects to /anonymous/chat when the diagnostic flag is off.');
+    });
+
+    testWidgets('Test 6b: tap CTA navigates to /start → /onb when flag is on',
+        (tester) async {
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+
+      await tester.pumpWidget(_wrap());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('ONB_STUB'), findsOneWidget,
+          reason:
+              'CTA → /start, which redirects to /onb when the diagnostic flag is on.');
     });
 
     // Test 7: Golden baseline. Skipped on first run; flip to false once
