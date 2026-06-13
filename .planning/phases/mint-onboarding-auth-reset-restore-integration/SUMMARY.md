@@ -35,7 +35,8 @@ the retryable-claim fix with visual proof
 Situation diagnostic scene passed under
 `evidence/maestro/diagnostic-situation-20260613T2255/` and again under
 `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` after
-the session-profile handoff fix.
+the session-profile handoff fix, then after the retryable-claim fix with
+`evidence/simulator/17-post-retry-situation-terminal.jpg`.
 
 Open: no rebase on `origin/dev`; broader persona walker still open; G2
 Julien/device still required for Keychain/auth/Apple; staging/TestFlight

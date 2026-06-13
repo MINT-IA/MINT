@@ -20,6 +20,7 @@ Checks run on this phase:
 | `MINT_WALKER_ARTIFACTS=...route-contract-post-retry-20260614T014422 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` after retryable claim fix | PASS, iPhone 17 Pro; landing -> diagnostic entry -> intent explorer; visual proof `evidence/simulator/16-post-retry-intents.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` | PASS, structured diagnostic Situation path; artifacts under `evidence/maestro/diagnostic-situation-20260613T2255/` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after session-profile handoff fix | PASS, iPhone 17 Pro with same local stub; artifacts under `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` |
+| `MINT_WALKER_ARTIFACTS=...situation-post-retry-20260614T014801 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after retryable claim fix | PASS, iPhone 17 Pro; Situation path to terminal diagnostic; visual proof `evidence/simulator/17-post-retry-situation-terminal.jpg` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 105 tests |
@@ -72,6 +73,9 @@ Runtime notes:
   and revenue prompts, then asserted `Ce que Mint peut déjà situer`, `Repères
   captés`, `Vaud · environ 7’250 CHF/mois net`, `À préciser ensuite`, and
   absence of the retirement fallback scene.
+- The same Situation flow was rerun after commit `0ade0bf8c`; the terminal
+  diagnostic screenshot is
+  `evidence/simulator/17-post-retry-situation-terminal.jpg`.
 - The account entry simulator run verified login and registration: the handoff
   segmented control is visible, `Repartir` updates the explanatory copy, Apple
   remains primary on iPhone registration, and e-mail remains a fallback.
