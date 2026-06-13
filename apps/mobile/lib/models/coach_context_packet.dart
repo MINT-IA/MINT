@@ -8,6 +8,10 @@ class CoachContextFact {
   final String freshness;
   final String? state;
   final DateTime? updatedAt;
+  final String storageLocation;
+  final String syncState;
+  final String aiSharingState;
+  final String deleteConsequence;
 
   const CoachContextFact({
     required this.id,
@@ -19,6 +23,10 @@ class CoachContextFact {
     required this.freshness,
     this.state,
     required this.updatedAt,
+    this.storageLocation = 'unknown',
+    this.syncState = 'unknown',
+    this.aiSharingState = 'unknown',
+    this.deleteConsequence = 'unknown',
   });
 
   Map<String, dynamic> toSafeMap() {
@@ -32,6 +40,10 @@ class CoachContextFact {
       'freshness': freshness,
       if (state != null) 'state': state,
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+      'storage_location': storageLocation,
+      'sync_state': syncState,
+      'ai_sharing_state': aiSharingState,
+      'delete_consequence': deleteConsequence,
     };
   }
 }

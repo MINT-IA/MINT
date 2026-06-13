@@ -713,7 +713,8 @@ class FinancialSummaryScreen extends StatelessWidget {
   //    wraps the whole InkWell
   Widget _buildSyncStatusRow(BuildContext context) {
     final s = S.of(context)!;
-    final cloudSyncOn = context.watch<AuthProvider>().isCloudSyncEnabled;
+    final accountState = context.watch<AuthProvider>().accountDataState;
+    final cloudSyncOn = accountState == MintAccountDataState.cloudSyncOn;
     final stateLabel = cloudSyncOn
         ? s.settingsPrivacyCloudSyncOn
         : s.settingsPrivacyCloudSyncOff;

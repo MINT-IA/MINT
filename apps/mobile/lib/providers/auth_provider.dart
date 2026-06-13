@@ -50,6 +50,14 @@ enum AuthError {
   genericError,
 }
 
+enum MintAccountDataState {
+  anonymousLocal,
+  signedOut,
+  accountSyncOff,
+  cloudSyncOn,
+  deletePending,
+}
+
 /// Translate an [AuthError] code to a localized user-facing string.
 ///
 /// Called by UI screens (login, register, profile) to display the error.
@@ -86,6 +94,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   AuthError? _error;
   bool _requiresEmailVerification = false;
+  bool _isDeletingAccount = false;
   // Local-mode default-on: the router's "authenticated" scope passes when
   // `isLoggedIn || isLocalMode`. Starting true keeps tab navigation alive
   // even if `checkAuth()` throws before the prefs block runs (e.g. on a
@@ -204,8 +213,7 @@ class AuthProvider extends ChangeNotifier {
         ),
       );
     }
-    if (data['selfEmployedNetIncome'] is num &&
-        !claimHasSelfEmployedAnnual) {
+    if (data['selfEmployedNetIncome'] is num && !claimHasSelfEmployedAnnual) {
       final annual = (data['selfEmployedNetIncome'] as num).toDouble();
       final previousAnnual =
           numberAnswer('q_self_employed_net_income_annual_chf');
@@ -351,6 +359,18 @@ class AuthProvider extends ChangeNotifier {
   /// is mirrored to the backend on each save. `false` (default after
   /// register) ⇔ data stays on device.
   bool get isCloudSyncEnabled => !_isLocalMode;
+
+  MintAccountDataState get accountDataState {
+    if (_isDeletingAccount) return MintAccountDataState.deletePending;
+    if (!_isLoggedIn) {
+      return _isLocalMode
+          ? MintAccountDataState.anonymousLocal
+          : MintAccountDataState.signedOut;
+    }
+    return _isLocalMode
+        ? MintAccountDataState.accountSyncOff
+        : MintAccountDataState.cloudSyncOn;
+  }
 
   /// Check stored auth on app startup
   Future<void> checkAuth() async {
@@ -694,6 +714,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> deleteAccount() async {
     _isLoading = true;
+    _isDeletingAccount = true;
     _error = null;
     notifyListeners();
     try {
@@ -711,11 +732,13 @@ class AuthProvider extends ChangeNotifier {
       _isLocalMode = false;
       await (await SharedPreferences.getInstance())
           .setBool('auth_local_mode', false);
+      _isDeletingAccount = false;
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
+      _isDeletingAccount = false;
       _isLoading = false;
       notifyListeners();
       return false;

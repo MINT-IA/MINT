@@ -248,6 +248,20 @@ void main() {
       expect(lpp.updatedAt, updatedAt);
     });
 
+    test('serializes trust metadata for facts sent to the coach packet', () {
+      final packet = buildPacket().toSafeMap();
+      final facts =
+          (packet['facts'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final lpp = facts.singleWhere(
+        (f) => f['id'] == 'pillar.lpp.total_balance',
+      );
+
+      expect(lpp['storage_location'], 'secureLocal');
+      expect(lpp['sync_state'], 'localOnly');
+      expect(lpp['ai_sharing_state'], 'sentToMintBackend');
+      expect(lpp['delete_consequence'], 'clearsLocally');
+    });
+
     test('passes through synthetic spine values and pillar fact state', () {
       final packet =
           CoachContextPacketService.fromSpine(syntheticSpine()).toSafeMap();

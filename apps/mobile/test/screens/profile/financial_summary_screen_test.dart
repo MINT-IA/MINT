@@ -18,13 +18,27 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
   CoachProfile? get profile => _profile;
 }
 
-Widget _pumpable(CoachProfile? profile) {
+class _FakeAuthProvider extends AuthProvider {
+  _FakeAuthProvider(this._state);
+
+  final MintAccountDataState _state;
+
+  @override
+  MintAccountDataState get accountDataState => _state;
+}
+
+Widget _pumpable(
+  CoachProfile? profile, {
+  AuthProvider? authProvider,
+}) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<CoachProfileProvider>.value(
         value: _FakeCoachProfileProvider(profile),
       ),
-      ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+      ChangeNotifierProvider<AuthProvider>.value(
+        value: authProvider ?? AuthProvider(),
+      ),
     ],
     child: const MaterialApp(
       locale: Locale('fr'),
@@ -127,5 +141,26 @@ void main() {
 
     expect(find.text('Hypothèque (CHF)'), findsOneWidget);
     expect(find.text('Crédit consommation (CHF)'), findsOneWidget);
+  });
+
+  testWidgets('sync row uses account data state instead of raw cloud bool',
+      (tester) async {
+    final profile = CoachProfile.fromWizardAnswers(
+      CoachProfileSeeds.registry['julien_swiss']!.toWizardAnswers(
+        now: DateTime(2026, 6, 4),
+      ),
+    );
+
+    await tester.pumpWidget(
+      _pumpable(
+        profile,
+        authProvider: _FakeAuthProvider(MintAccountDataState.cloudSyncOn),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+        find.text('Synchronisation cloud (multi-appareils)'), findsOneWidget);
+    expect(find.text('Activée'), findsOneWidget);
   });
 }

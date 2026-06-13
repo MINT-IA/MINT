@@ -153,6 +153,28 @@ void main() {
       expect(provider.isLoading, isFalse);
     });
 
+    test('account data state distinguishes anonymous, signed-out and sync',
+        () async {
+      expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
+
+      await provider.logout();
+      expect(provider.accountDataState, MintAccountDataState.signedOut);
+
+      await AuthService.saveToken('jwt', 'u1', 'u1@example.ch');
+      var prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', true);
+      await provider.checkAuth();
+      expect(provider.accountDataState, MintAccountDataState.accountSyncOff);
+
+      await AuthService.logout();
+      AuthService.resetMemoryCacheForTest();
+      await AuthService.saveToken('jwt', 'u1', 'u1@example.ch');
+      prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', false);
+      await provider.checkAuth();
+      expect(provider.accountDataState, MintAccountDataState.cloudSyncOn);
+    });
+
     // ── requiresEmailVerification starts false ──
 
     test('requiresEmailVerification defaults to false', () {
@@ -565,7 +587,8 @@ void main() {
       expect(profile.independentNetProfessionalIncomeAnnual, 96000);
     });
 
-    test('backend self-employed income preserves explicit local employee status',
+    test(
+        'backend self-employed income preserves explicit local employee status',
         () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
         {

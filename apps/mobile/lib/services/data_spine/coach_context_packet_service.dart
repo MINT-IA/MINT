@@ -435,6 +435,13 @@ abstract final class CoachContextPacketService {
       freshness: (meta?.freshness ?? FieldFreshness.unknown).name,
       state: state,
       updatedAt: meta?.updatedAt,
+      storageLocation:
+          (meta?.storageLocation ?? FieldStorageLocation.local).name,
+      syncState: (meta?.syncState ?? FieldSyncState.localOnly).name,
+      aiSharingState: FieldAiSharingState.sentToMintBackend.name,
+      deleteConsequence:
+          (meta?.deleteConsequence ?? FieldDeleteConsequence.clearsLocally)
+              .name,
     );
   }
 }

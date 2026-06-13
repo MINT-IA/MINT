@@ -216,6 +216,12 @@ abstract final class DataSpineService {
       freshness: _freshnessFor(updatedAt),
       updatedAt: updatedAt,
       sensitive: sensitive,
+      storageLocation: sensitive
+          ? FieldStorageLocation.secureLocal
+          : FieldStorageLocation.local,
+      syncState: FieldSyncState.localOnly,
+      aiSharingState: FieldAiSharingState.neverSent,
+      deleteConsequence: FieldDeleteConsequence.clearsLocally,
     );
   }
 

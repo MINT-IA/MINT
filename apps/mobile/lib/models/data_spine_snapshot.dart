@@ -15,6 +15,42 @@ enum FieldFreshness {
   unknown,
 }
 
+enum FieldStorageLocation {
+  local,
+  secureLocal,
+  backend,
+  mixed,
+  unknown,
+}
+
+enum FieldSyncState {
+  localOnly,
+  syncOff,
+  pending,
+  synced,
+  conflict,
+  deleted,
+  unknown,
+}
+
+enum FieldAiSharingState {
+  neverSent,
+  redacted,
+  bucketed,
+  sentToMintBackend,
+  sentToProvider,
+  unknown,
+}
+
+enum FieldDeleteConsequence {
+  clearsLocally,
+  clearsBackend,
+  anonymized,
+  retentionException,
+  pending,
+  unknown,
+}
+
 enum PillarFactState {
   known,
   estimated,
@@ -40,6 +76,10 @@ class SpineFieldMeta {
   final FieldFreshness freshness;
   final DateTime? updatedAt;
   final bool sensitive;
+  final FieldStorageLocation storageLocation;
+  final FieldSyncState syncState;
+  final FieldAiSharingState aiSharingState;
+  final FieldDeleteConsequence deleteConsequence;
 
   const SpineFieldMeta({
     this.source,
@@ -47,6 +87,10 @@ class SpineFieldMeta {
     required this.freshness,
     this.updatedAt,
     this.sensitive = true,
+    this.storageLocation = FieldStorageLocation.secureLocal,
+    this.syncState = FieldSyncState.localOnly,
+    this.aiSharingState = FieldAiSharingState.neverSent,
+    this.deleteConsequence = FieldDeleteConsequence.clearsLocally,
   });
 
   const SpineFieldMeta.missing()
@@ -54,7 +98,11 @@ class SpineFieldMeta {
         confidence = FieldConfidence.missing,
         freshness = FieldFreshness.unknown,
         updatedAt = null,
-        sensitive = true;
+        sensitive = true,
+        storageLocation = FieldStorageLocation.unknown,
+        syncState = FieldSyncState.unknown,
+        aiSharingState = FieldAiSharingState.neverSent,
+        deleteConsequence = FieldDeleteConsequence.unknown;
 }
 
 class SpineValue<T> {

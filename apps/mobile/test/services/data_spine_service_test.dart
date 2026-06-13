@@ -272,6 +272,25 @@ void main() {
       expect(meta.updatedAt, lppUpdatedAt);
     });
 
+    test('exposes trust metadata for local-only spine facts', () {
+      final spine = DataSpineService.fromProfile(buildProfile(), now: fixedNow);
+
+      final sensitive = spine.pillars.lpp.totalBalance.meta;
+      expect(sensitive.storageLocation, FieldStorageLocation.secureLocal);
+      expect(sensitive.syncState, FieldSyncState.localOnly);
+      expect(sensitive.aiSharingState, FieldAiSharingState.neverSent);
+      expect(sensitive.deleteConsequence, FieldDeleteConsequence.clearsLocally);
+
+      final nonSensitive = spine.situation.canton.meta;
+      expect(nonSensitive.storageLocation, FieldStorageLocation.local);
+      expect(nonSensitive.syncState, FieldSyncState.localOnly);
+      expect(nonSensitive.aiSharingState, FieldAiSharingState.neverSent);
+      expect(
+        nonSensitive.deleteConsequence,
+        FieldDeleteConsequence.clearsLocally,
+      );
+    });
+
     test('derives on-track trajectory when monthly capacity covers target', () {
       final spine = DataSpineService.fromProfile(
         buildProfile(
