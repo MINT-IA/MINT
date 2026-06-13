@@ -5,9 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -22,6 +26,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     AuthService.resetMemoryCacheForTest();
     ApiService.setHttpClientForTesting(null);
+    ConversationStore.setCurrentUserId(null);
     secureStorage.clear();
     deleteAllCalls = 0;
 
@@ -162,6 +167,82 @@ void main() {
       expect(await AuthService.getToken(), 'magic-token');
       expect(await AuthService.getUserId(), 'magic-user');
       expect(await AuthService.getUserEmail(), 'magic@example.ch');
+    });
+
+    test(
+        'existing account login keeps local dossier separate without explicit handoff choice',
+        () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', false);
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ConversationStore().saveConversation('local-before-login', [
+        ChatMessage(
+          role: 'user',
+          content: 'Je veux comprendre ma situation.',
+          timestamp: DateTime(2026, 6, 13, 12),
+        ),
+      ]);
+
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/login') {
+            return http.Response(
+              '{"access_token":"existing-token","refresh_token":"existing-refresh","user_id":"existing-user","email":"existing@example.ch","display_name":"Existing User"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              '{}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/sync/claim-local-data') {
+            return http.Response(
+              '{"detail":"local dossier must not be claimed without choice"}',
+              500,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      try {
+        final success =
+            await provider.login('existing@example.ch', 'correct-password');
+
+        expect(success, isTrue);
+        expect(provider.userId, 'existing-user');
+        expect(await ReportPersistenceService.loadAnswers(), {
+          'q_canton': 'VD',
+        });
+        expect(
+          await ConversationStore().loadConversation('local-before-login'),
+          isEmpty,
+        );
+        expect(prefs.getString('local_data_owner'), isNull);
+        expect(prefs.getBool('local_data_migrated_existing-user'), isNull);
+
+        ConversationStore.setCurrentUserId(null);
+        expect(
+          await ConversationStore().loadConversation('local-before-login'),
+          isNotEmpty,
+        );
+        expect(
+          seenPaths,
+          isNot(contains('/api/v1/sync/claim-local-data')),
+        );
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        ConversationStore.setCurrentUserId(null);
+      }
     });
 
     // ── Listener notification pattern ──

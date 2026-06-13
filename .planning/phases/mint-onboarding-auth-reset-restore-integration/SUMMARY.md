@@ -17,13 +17,15 @@ canonical `FinancialArchetype` slugs; Keychain/auth/Apple cannot be closed by
 simulator only; anonymous -> account handoff must expose keep vs restart.
 
 Verified locally: 97 focused onboarding/DataSpine tests, 115 secure-storage
-reset/profile tests, 79 handoff/auth bootstrap tests, a 97-test auth-screen
+reset/profile tests, 80 handoff/auth bootstrap tests, a 98-test auth-screen
 slice, a 181-test combined regression slice, `flutter analyze`, route registry,
 worktree ARB parity, banned terms, accent lint, public-doc admission lint, and
 iPhone 17 Pro simulator screenshots under `evidence/simulator/`, including
 account handoff login/register screens. A post-fix simulator pass also verified
 that a session-only wedge profile is detected by the register handoff panel even
-when debug simulator Keychain seal fails. Targeted Maestro route-contract proof
+when debug simulator Keychain seal fails; a provider contract also verifies that
+existing-account login does not claim a local dossier without explicit choice.
+Targeted Maestro route-contract proof
 for landing -> diagnostic onboarding also passed with screenshots under
 `evidence/maestro/account-handoff-route-20260613T2245/`; the structured
 Situation diagnostic scene passed under
