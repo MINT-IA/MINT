@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 // ADR-20260223: financial_core via barrel only — no direct sub-imports.
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
@@ -83,8 +84,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   final List<_ChatMessage> _messages = [];
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final String _conversationId =
-      'anonymous_${DateTime.now().millisecondsSinceEpoch}';
+  String _conversationId = _newConversationId();
   bool _isLoading = false;
   bool _isAuthGateLocked = false;
   // Holds a message typed while the previous coach turn is still in flight.
@@ -114,6 +114,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// Set true the moment a card is attached to a coach message; restored from
   /// persisted messages on cold-restore (see [_hydrateFromStoreOrShowOpener]).
   bool _eclairageDelivered = false;
+  bool _restoredConversation = false;
 
   /// Number of completed coach responses in the current session. Increments
   /// only after `_messages.add(coach response)` — not on user-send, not
@@ -161,6 +162,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       final latestId = convos.first.id;
       final restored = await store.loadConversation(latestId);
       if (restored.isNotEmpty && mounted) {
+        _conversationId = latestId;
         _openerFadeController.value = 1.0;
         setState(() {
           _messages.addAll(restored.map(
@@ -185,6 +187,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           // otherwise the FIRST new turn after cold-restore would render a
           // second card.
           _eclairageDelivered = coachTurns >= 2;
+          _restoredConversation = true;
         });
         _scrollToBottom();
         return;
@@ -196,6 +199,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// Add the static (Flutter const) coach opener bubble + start the 400ms
   /// fade-in. Panel §2 — NOT backend-generated (network-failure resistant).
   void _addOpenerIfNeeded() {
+    if (!mounted) return;
     if (_openerShown || _messages.isNotEmpty) return;
     final l = S.of(context)!;
     setState(() {
@@ -207,6 +211,33 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       _openerShown = true;
     });
     _openerFadeController.forward();
+  }
+
+  Future<void> _startNewConversation() async {
+    await ReportPersistenceService.clearConversationNamespace(userId: null);
+    final canSend = await AnonymousSessionService.canSendMessage();
+    if (!mounted) return;
+
+    _conversationId = _newConversationId();
+    _inputController.clear();
+    _openerFadeController.reset();
+    setState(() {
+      _messages.clear();
+      _isLoading = false;
+      _isAuthGateLocked = !canSend;
+      _queuedMessage = null;
+      _openerShown = false;
+      _eclairageDelivered = false;
+      _coachTurnsCompleted = 0;
+      _restoredConversation = false;
+    });
+
+    if (!canSend) {
+      _showAuthGate();
+      return;
+    }
+    _addOpenerIfNeeded();
+    _scrollToBottom();
   }
 
   @override
@@ -233,6 +264,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
     // Check if user can still send
     final canSend = await AnonymousSessionService.canSendMessage();
+    if (!mounted) return;
     if (!canSend) {
       _showAuthGate();
       return;
@@ -355,9 +387,17 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => AuthGateBottomSheet(
+        redirectPath: _postAuthRedirectPath,
         onDismissed: _onDismissed,
       ),
     );
+  }
+
+  String get _postAuthRedirectPath {
+    return Uri(
+      path: '/coach/chat',
+      queryParameters: {'conversationId': _conversationId},
+    ).toString();
   }
 
   void _onDismissed() {
@@ -531,17 +571,63 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Top bar — back button only (panel §1.1)
+            // Top bar — back button + restored-thread reset.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  color: MintColors.inkPrimary,
-                  onPressed: () => context.go('/'),
-                  tooltip: l.anonymousChatBack,
-                ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    color: MintColors.inkPrimary,
+                    onPressed: () => context.go('/'),
+                    tooltip: l.anonymousChatBack,
+                  ),
+                  const Spacer(),
+                  if (_restoredConversation)
+                    Flexible(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            if (constraints.maxWidth < 210) {
+                              return IconButton(
+                                key: const ValueKey(
+                                  'anonymous_chat_new_conversation',
+                                ),
+                                onPressed:
+                                    _isLoading ? null : _startNewConversation,
+                                icon: const Icon(Icons.add_comment_outlined),
+                                color: MintColors.inkPrimary,
+                                tooltip: l.anonymousChatNewConversation,
+                              );
+                            }
+                            return TextButton.icon(
+                              key: const ValueKey(
+                                'anonymous_chat_new_conversation',
+                              ),
+                              onPressed:
+                                  _isLoading ? null : _startNewConversation,
+                              icon: const Icon(
+                                Icons.add_comment_outlined,
+                                size: 18,
+                              ),
+                              label: Text(
+                                l.anonymousChatNewConversation,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: MintColors.inkPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
 
@@ -913,6 +999,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     );
   }
 }
+
+String _newConversationId() =>
+    'anonymous_${DateTime.now().millisecondsSinceEpoch}';
 
 /// Animated dot for typing indicator.
 class _TypingDot extends StatefulWidget {

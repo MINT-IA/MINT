@@ -3,19 +3,28 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
+import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Wrap widget with MaterialApp + l10n for testing.
-Widget _testApp({String? intent}) {
+Widget _testApp({
+  String? intent,
+  Future<Map<String, dynamic>> Function(String message)? sendOverride,
+}) {
   return MaterialApp(
     localizationsDelegates: S.localizationsDelegates,
     supportedLocales: S.supportedLocales,
     locale: const Locale('fr'),
-    home: AnonymousChatScreen(intent: intent),
+    home: AnonymousChatScreen(
+      intent: intent,
+      sendOverride: sendOverride,
+    ),
   );
 }
 
@@ -104,6 +113,197 @@ void main() {
         matching: find.byType(FadeTransition),
       ));
       expect(fades.map((fade) => fade.opacity.value), everyElement(1.0));
+    });
+
+    testWidgets('restored conversation can restart locally', (tester) async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_restart', [
+        ChatMessage(
+          role: 'user',
+          content: 'Ancienne question',
+          timestamp: DateTime(2026, 6, 13, 9),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ancienne reponse',
+          timestamp: DateTime(2026, 6, 13, 9, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question'), findsOneWidget);
+      expect(find.text('Nouvelle discussion'), findsOneWidget);
+
+      await tester.tap(find.text('Nouvelle discussion'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question'), findsNothing);
+      expect(find.text('Nouvelle discussion'), findsNothing);
+      expect(find.textContaining('Salut.'), findsOneWidget);
+      expect(await store.listConversations(), isEmpty);
+    });
+
+    testWidgets('restored conversation appends to the same conversation id',
+        (tester) async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      const restoredId = 'anonymous_restore_append';
+      await store.saveConversation(restoredId, [
+        ChatMessage(
+          role: 'user',
+          content: 'Question restauree',
+          timestamp: DateTime(2026, 6, 13, 9),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Reponse restauree',
+          timestamp: DateTime(2026, 6, 13, 9, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp(
+        sendOverride: (_) async => {
+          'message': 'Nouvelle reponse',
+          'messagesRemaining': 2,
+        },
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Nouvelle question');
+      await tester.tap(find.byIcon(Icons.send_rounded));
+      await tester.pumpAndSettle();
+
+      final ids = (await store.listConversations()).map((m) => m.id).toList();
+      expect(ids, [restoredId]);
+      final messages = await store.loadConversation(restoredId);
+      expect(messages.map((m) => m.content), contains('Nouvelle question'));
+      expect(messages.map((m) => m.content), contains('Nouvelle reponse'));
+    });
+
+    testWidgets('restored restart opens account gate when quota is spent',
+        (tester) async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_quota_spent', [
+        ChatMessage(
+          role: 'user',
+          content: 'Ancienne question quota',
+          timestamp: DateTime(2026, 6, 13, 10),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ancienne reponse quota',
+          timestamp: DateTime(2026, 6, 13, 10, 1),
+        ),
+      ]);
+      await AnonymousSessionService.updateFromResponse(0);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nouvelle discussion'), findsOneWidget);
+
+      await tester.tap(find.text('Nouvelle discussion'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question quota'), findsNothing);
+      expect(find.textContaining('Salut.'), findsNothing);
+      expect(find.textContaining('créer un compte'), findsWidgets);
+      expect(await store.listConversations(), isEmpty);
+    });
+
+    testWidgets('restored restart action remains reachable on short viewport',
+        (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 568);
+      addTearDown(tester.view.reset);
+
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_short_viewport', [
+        ChatMessage(
+          role: 'user',
+          content: 'Ancienne question mobile',
+          timestamp: DateTime(2026, 6, 13, 11),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ancienne reponse mobile',
+          timestamp: DateTime(2026, 6, 13, 11, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('anonymous_chat_new_conversation')),
+          findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey(
+        'anonymous_chat_new_conversation',
+      )));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question mobile'), findsNothing);
+      expect(find.textContaining('Salut.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('auth gate routes account actions back to active conversation',
+        (tester) async {
+      final router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => showModalBottomSheet<void>(
+                    context: context,
+                    builder: (_) => const AuthGateBottomSheet(
+                      redirectPath:
+                          '/coach/chat?conversationId=anonymous_restore_append',
+                    ),
+                  ),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/auth/register',
+            builder: (context, state) => Text(state.uri.toString()),
+          ),
+          GoRoute(
+            path: '/auth/login',
+            builder: (context, state) => Text(state.uri.toString()),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp.router(
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        locale: const Locale('fr'),
+        routerConfig: router,
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Créer un compte'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.textContaining(
+          'redirect=%2Fcoach%2Fchat%3FconversationId%3Danonymous_restore_append',
+        ),
+        findsOneWidget,
+      );
     });
   });
 
