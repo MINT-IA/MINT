@@ -283,6 +283,15 @@ launches until the owned-key purge succeeds. New secure-storage writes use
 protects the local reinstall case; it is not a promise that iCloud Keychain or
 an encrypted backup cannot reintroduce data together with restored prefs.
 
+**Anonymous -> account handoff.** The account entry stores the user's choice in
+`mint_account_handoff_choice_v1` before auth begins. Default `keep_local` keeps
+the anonymous/local dossier available for the existing migration path. Explicit
+`restart_clean` clears the local diagnostic, anonymous chat/session, budget
+companion stores, and wizard secure values before migration, then marks
+`local_data_migrated_<userId>` so stale anonymous data is not claimed later.
+This is a local-device boundary: it does not delete backend account data or
+claim to erase restored iCloud/device backups.
+
 **Scan-first onboarding.** Before the fix commits in
 `triage/flow-utilisateur-2026-04-20`, `updateFrom*Extraction` silently
 returned if `_profile == null`, losing all scanned data for fresh users.

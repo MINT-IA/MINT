@@ -30,12 +30,15 @@
     <thead><tr><th>Preuve</th><th>Statut</th><th>Note</th></tr></thead>
     <tbody>
       <tr><td>iPhone 17 Pro simulator</td><td>PASS</td><td>Landing -> /start -> /onb -> terminal dossier.</td></tr>
+      <tr><td>Account handoff simulator</td><td>PASS</td><td>Login + inscription Apple-primary affichent Conserver/Repartir.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
       <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>97 tests ciblés.</td></tr>
       <tr><td>Flutter tests reset/secure storage</td><td>PASS</td><td>115 tests ciblés, incluant purge fresh install, retry pending et clearAll secure.</td></tr>
+      <tr><td>Flutter tests handoff compte</td><td>PASS</td><td>6 tests ciblés: conserver, repartir, UI d'inscription.</td></tr>
+      <tr><td>Flutter tests auth screens</td><td>PASS</td><td>90 tests sur auth screens, handoff et AuthProvider.</td></tr>
       <tr><td>Flutter regression combinée</td><td>PASS</td><td>181 tests sur DataSpine, onboarding, auth, reset, secure storage et retraite.</td></tr>
-      <tr><td>Analyze/routes/i18n/compliance</td><td>PASS LOCAL</td><td>Analyse, route registry, ARB parity 6978 clés, banned terms, accent lint, public-doc admission lint.</td></tr>
+      <tr><td>Analyze/routes/i18n/compliance</td><td>PASS LOCAL</td><td>Analyse, route registry, ARB parity 6985 clés, banned terms, accent lint, public-doc admission lint.</td></tr>
     </tbody>
   </table>
 
@@ -46,6 +49,8 @@
     <img src="evidence/simulator/07-terminal-actions-fixed.jpg" alt="Terminal avec actions">
     <img src="evidence/simulator/09-terminal-next-questions-fixed.jpg" alt="Questions utiles terminales">
     <img src="evidence/simulator/10-reset-returned-entry.jpg" alt="Retour après reset">
+    <img src="evidence/simulator/11-account-handoff-login-restart.jpg" alt="Handoff compte login">
+    <img src="evidence/simulator/12-account-handoff-register-apple.jpg" alt="Handoff compte inscription Apple">
   </div>
 
   <h2>Gates</h2>

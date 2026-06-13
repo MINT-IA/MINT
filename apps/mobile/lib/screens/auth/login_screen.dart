@@ -10,10 +10,12 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/auth/auth_platform.dart';
 import 'package:mint_mobile/screens/auth/auth_redirect.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/auth/account_handoff_choice_panel.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -210,6 +212,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: MintTextStyles.bodyLarge(),
                               textAlign: TextAlign.center,
                             )),
+                        if (FeatureFlags.enableMvpWedgeOnboarding) ...[
+                          const SizedBox(height: MintSpacing.lg),
+                          const AccountHandoffChoicePanel(),
+                        ],
                         const SizedBox(height: MintSpacing.xxl),
 
                         // ── Magic Link Primary Flow ──

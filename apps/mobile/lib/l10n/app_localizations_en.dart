@@ -7857,6 +7857,31 @@ class SEn extends S {
   String get authCreateWithEmail => 'Create with email';
 
   @override
+  String get authHandoffTitle => 'Local data';
+
+  @override
+  String get authHandoffLocalDetected =>
+      'Mint has items on this device: diagnostic, drafts or anonymous chat.';
+
+  @override
+  String get authHandoffNoLocalData =>
+      'No local Mint data detected on this device.';
+
+  @override
+  String get authHandoffKeep => 'Keep';
+
+  @override
+  String get authHandoffRestart => 'Start over';
+
+  @override
+  String get authHandoffKeepHint =>
+      'Mint keeps the diagnostic and chat on this device; cloud sync stays off by default.';
+
+  @override
+  String get authHandoffRestartHint =>
+      'Mint clears the local diagnostic and anonymous chat before opening the account.';
+
+  @override
   String get authRequiredConsents =>
       'Confirm the terms and age check before creating your account.';
 

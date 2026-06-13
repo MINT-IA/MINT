@@ -8,6 +8,8 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 
 Widget _testApp() {
   return MaterialApp(
@@ -24,6 +26,11 @@ Widget _testApp() {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FeatureFlags.enableMvpWedgeOnboarding = false;
+  });
+
+  tearDown(() {
+    FeatureFlags.enableMvpWedgeOnboarding = false;
   });
 
   testWidgets('iOS registration starts with Apple and keeps email as fallback',
@@ -60,6 +67,36 @@ void main() {
         find.text(
             "Confirme les conditions et l'âge avant de créer ton compte."),
         findsOneWidget,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('registration exposes and persists anonymous handoff choice',
+      (tester) async {
+    FeatureFlags.enableMvpWedgeOnboarding = true;
+    SharedPreferences.setMockInitialValues({
+      'wizard_answers_v2': '{"q_canton":"VD"}',
+    });
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Données locales'), findsOneWidget);
+      expect(find.text('Conserver'), findsOneWidget);
+      expect(find.text('Repartir'), findsOneWidget);
+
+      await tester.tap(find.text('Repartir'));
+      await tester.pump();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getString(AccountHandoffService.choiceKey),
+        'restart_clean',
       );
     } finally {
       debugDefaultTargetPlatformOverride = null;

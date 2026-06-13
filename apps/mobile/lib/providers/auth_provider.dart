@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -936,6 +937,10 @@ class AuthProvider extends ChangeNotifier {
     if (currentUserId == null || currentUserId.isEmpty) return;
 
     try {
+      final shouldMigrate =
+          await AccountHandoffService.prepareLocalDataForAccount(currentUserId);
+      if (!shouldMigrate) return;
+
       final prefs = await SharedPreferences.getInstance();
       final alreadyMigrated =
           prefs.getBool('local_data_migrated_$currentUserId') ?? false;

@@ -7907,6 +7907,31 @@ class SFr extends S {
   String get authCreateWithEmail => 'Créer avec e-mail';
 
   @override
+  String get authHandoffTitle => 'Données locales';
+
+  @override
+  String get authHandoffLocalDetected =>
+      'Mint a des éléments sur cet appareil: diagnostic, brouillons ou discussion anonyme.';
+
+  @override
+  String get authHandoffNoLocalData =>
+      'Aucune donnée locale Mint détectée sur cet appareil.';
+
+  @override
+  String get authHandoffKeep => 'Conserver';
+
+  @override
+  String get authHandoffRestart => 'Repartir';
+
+  @override
+  String get authHandoffKeepHint =>
+      'Mint garde le diagnostic et la discussion sur cet appareil; la synchro cloud reste désactivée par défaut.';
+
+  @override
+  String get authHandoffRestartHint =>
+      'Mint efface le diagnostic local et la discussion anonyme avant d\'ouvrir le compte.';
+
+  @override
   String get authRequiredConsents =>
       'Confirme les conditions et l\'âge avant de créer ton compte.';
 

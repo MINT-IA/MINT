@@ -7920,6 +7920,31 @@ class SIt extends S {
   String get authCreateWithEmail => 'Crea con e-mail';
 
   @override
+  String get authHandoffTitle => 'Dati locali';
+
+  @override
+  String get authHandoffLocalDetected =>
+      'Mint ha elementi su questo dispositivo: diagnosi, bozze o chat anonima.';
+
+  @override
+  String get authHandoffNoLocalData =>
+      'Nessun dato locale Mint rilevato su questo dispositivo.';
+
+  @override
+  String get authHandoffKeep => 'Conservare';
+
+  @override
+  String get authHandoffRestart => 'Ripartire';
+
+  @override
+  String get authHandoffKeepHint =>
+      'Mint conserva diagnosi e chat su questo dispositivo; la sincronizzazione cloud resta disattivata di default.';
+
+  @override
+  String get authHandoffRestartHint =>
+      'Mint cancella la diagnosi locale e la chat anonima prima di aprire l\'account.';
+
+  @override
   String get authRequiredConsents =>
       'Conferma le condizioni e la verifica dell\'età prima di creare il conto.';
 

@@ -15,15 +15,18 @@ Checks run on this phase:
 | `jq empty golden-onboarding-archetypes.json` | PASS |
 | iPhone 17 Pro simulator, local feature-flag stub | PASS, landing -> `/start` -> `/onb` -> terminal dossier |
 | Simulator screenshots | PASS, `evidence/simulator/01-landing.jpg` through `10-reset-returned-entry.jpg` |
+| Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg` and `12-account-handoff-register-apple.jpg` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
 | `flutter test test/providers/auth_provider_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart` | PASS, 115 tests; fresh-install Keychain purge, pending retry, and profile `clearAll` secure-key purge red/green covered |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 181 tests |
+| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart` | PASS, 6 tests; default keep, explicit restart purge, and registration UI choice persistence covered |
+| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 90 tests |
 | `flutter analyze` | PASS, no issues |
 | `./tools/mint-routes check` | PASS, 145 routes after known-miss exemptions |
 | `flutter gen-l10n` | PASS |
-| `python3 tools/checks/arb_parity.py --locale all` | PASS, 6 locales, 6978 keys each |
+| `python3 tools/checks/arb_parity.py --locale all` | PASS, 6 locales, 6985 keys each |
 | `python3 tools/checks/banned_terms_arb.py --locale all` | PASS |
 | `python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_fr.arb` | PASS |
 | `python3 tools/checks/accent_lint_fr.py --scope .planning/phases/mint-north-star-experience-v1 .planning/phases/mint-onboarding-auth-reset-restore-integration` | PASS |
@@ -51,6 +54,9 @@ Runtime notes:
 - The simulator run used `API_BASE_URL=http://127.0.0.1:8888/api/v1` with a
   minimal local stub for `/health` and `/config/feature-flags`, returning
   `enableMvpWedgeOnboarding=true`.
+- The account entry simulator run verified login and registration: the handoff
+  segmented control is visible, `Repartir` updates the explanatory copy, Apple
+  remains primary on iPhone registration, and e-mail remains a fallback.
 - The first simulator launch logged Keychain read `-34018` for token access in
   debug simulator; onboarding continued. This is not a device proof and keeps
   G2 open.
@@ -59,6 +65,9 @@ Runtime notes:
   the Dart decision order, not iCloud/backup restoration semantics.
 - Partial secure purge failure keeps `mint_install_secure_purge_pending_v1`
   and blocks auth restore on the next launch until the owned-key purge succeeds.
+- Anonymous -> account handoff is widget/service-tested: default keeps the
+  local dossier available for migration; explicit restart clears the anonymous
+  local dossier before account migration.
 - Profile reset preserves the login session but purges local owned secure
   feature keys such as BYOK, partner estimate, biography, anonymous session
   and wizard secure values.

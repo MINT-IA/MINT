@@ -7928,6 +7928,31 @@ class SDe extends S {
   String get authCreateWithEmail => 'Mit E-Mail erstellen';
 
   @override
+  String get authHandoffTitle => 'Lokale Daten';
+
+  @override
+  String get authHandoffLocalDetected =>
+      'Mint hat Elemente auf diesem Gerät: Diagnose, Entwürfe oder anonymer Chat.';
+
+  @override
+  String get authHandoffNoLocalData =>
+      'Keine lokalen Mint-Daten auf diesem Gerät erkannt.';
+
+  @override
+  String get authHandoffKeep => 'Behalten';
+
+  @override
+  String get authHandoffRestart => 'Neu starten';
+
+  @override
+  String get authHandoffKeepHint =>
+      'Mint behält Diagnose und Chat auf diesem Gerät; Cloud-Sync bleibt standardmässig aus.';
+
+  @override
+  String get authHandoffRestartHint =>
+      'Mint löscht die lokale Diagnose und den anonymen Chat, bevor das Konto geöffnet wird.';
+
+  @override
   String get authRequiredConsents =>
       'Bestätige die Bedingungen und die Altersprüfung, bevor du dein Konto erstellst.';
 

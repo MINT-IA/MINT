@@ -14034,6 +14034,48 @@ abstract class S {
   /// **'Créer avec e-mail'**
   String get authCreateWithEmail;
 
+  /// No description provided for @authHandoffTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données locales'**
+  String get authHandoffTitle;
+
+  /// No description provided for @authHandoffLocalDetected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint a des éléments sur cet appareil: diagnostic, brouillons ou discussion anonyme.'**
+  String get authHandoffLocalDetected;
+
+  /// No description provided for @authHandoffNoLocalData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée locale Mint détectée sur cet appareil.'**
+  String get authHandoffNoLocalData;
+
+  /// No description provided for @authHandoffKeep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conserver'**
+  String get authHandoffKeep;
+
+  /// No description provided for @authHandoffRestart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repartir'**
+  String get authHandoffRestart;
+
+  /// No description provided for @authHandoffKeepHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint garde le diagnostic et la discussion sur cet appareil; la synchro cloud reste désactivée par défaut.'**
+  String get authHandoffKeepHint;
+
+  /// No description provided for @authHandoffRestartHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint efface le diagnostic local et la discussion anonyme avant d\'ouvrir le compte.'**
+  String get authHandoffRestartHint;
+
   /// No description provided for @authRequiredConsents.
   ///
   /// In fr, this message translates to:

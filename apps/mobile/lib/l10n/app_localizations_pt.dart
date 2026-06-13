@@ -7900,6 +7900,31 @@ class SPt extends S {
   String get authCreateWithEmail => 'Criar com e-mail';
 
   @override
+  String get authHandoffTitle => 'Dados locais';
+
+  @override
+  String get authHandoffLocalDetected =>
+      'Mint tem elementos neste dispositivo: diagnóstico, rascunhos ou chat anónimo.';
+
+  @override
+  String get authHandoffNoLocalData =>
+      'Nenhum dado local Mint detetado neste dispositivo.';
+
+  @override
+  String get authHandoffKeep => 'Conservar';
+
+  @override
+  String get authHandoffRestart => 'Recomeçar';
+
+  @override
+  String get authHandoffKeepHint =>
+      'Mint mantém o diagnóstico e o chat neste dispositivo; a sincronização cloud fica desativada por defeito.';
+
+  @override
+  String get authHandoffRestartHint =>
+      'Mint apaga o diagnóstico local e o chat anónimo antes de abrir a conta.';
+
+  @override
   String get authRequiredConsents =>
       'Confirma os termos e a verificação de idade antes de criar a tua conta.';
 

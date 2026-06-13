@@ -7906,6 +7906,31 @@ class SEs extends S {
   String get authCreateWithEmail => 'Crear con e-mail';
 
   @override
+  String get authHandoffTitle => 'Datos locales';
+
+  @override
+  String get authHandoffLocalDetected =>
+      'Mint tiene elementos en este dispositivo: diagnóstico, borradores o chat anónimo.';
+
+  @override
+  String get authHandoffNoLocalData =>
+      'No se detectaron datos locales de Mint en este dispositivo.';
+
+  @override
+  String get authHandoffKeep => 'Conservar';
+
+  @override
+  String get authHandoffRestart => 'Reiniciar';
+
+  @override
+  String get authHandoffKeepHint =>
+      'Mint conserva el diagnóstico y el chat en este dispositivo; la sincronización cloud sigue desactivada por defecto.';
+
+  @override
+  String get authHandoffRestartHint =>
+      'Mint borra el diagnóstico local y el chat anónimo antes de abrir la cuenta.';
+
+  @override
   String get authRequiredConsents =>
       'Confirma las condiciones y la verificación de edad antes de crear tu cuenta.';
 
