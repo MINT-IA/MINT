@@ -7904,6 +7904,9 @@ class SFr extends S {
   String get authContinueLocal => 'Continuer en mode local';
 
   @override
+  String get authAppleSignIn => 'Continuer avec Apple';
+
+  @override
   String get authCreateWithEmail => 'Créer avec e-mail';
 
   @override

@@ -392,6 +392,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   )
                                 : SignInWithAppleButton(
                                     onPressed: _handleAppleSignIn,
+                                    text: l10n.authAppleSignIn,
                                     style: SignInWithAppleButtonStyle.black,
                                   ),
                           ),

@@ -7903,6 +7903,9 @@ class SEs extends S {
   String get authContinueLocal => 'Continuar en modo local';
 
   @override
+  String get authAppleSignIn => 'Continuar con Apple';
+
+  @override
   String get authCreateWithEmail => 'Crear con e-mail';
 
   @override

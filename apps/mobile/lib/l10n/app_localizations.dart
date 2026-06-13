@@ -14028,6 +14028,12 @@ abstract class S {
   /// **'Continuer en mode local'**
   String get authContinueLocal;
 
+  /// No description provided for @authAppleSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get authAppleSignIn;
+
   /// No description provided for @authCreateWithEmail.
   ///
   /// In fr, this message translates to:

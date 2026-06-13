@@ -3562,6 +3562,7 @@
   "authConsentAnalytics": "Dados anónimos para melhorar os benchmarks suíços",
   "authPrivacyReassurance": "Os teus dados permanecem encriptados no teu dispositivo. Sem conexão bancária.",
   "authContinueLocal": "Continuar em modo local",
+  "authAppleSignIn": "Continuar com Apple",
   "authCreateWithEmail": "Criar com e-mail",
   "authHandoffTitle": "Dados locais",
   "authHandoffLocalDetected": "Mint tem elementos neste dispositivo: diagnóstico, rascunhos ou chat anónimo.",

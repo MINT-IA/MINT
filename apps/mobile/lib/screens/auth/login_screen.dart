@@ -369,6 +369,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   )
                                 : SignInWithAppleButton(
                                     onPressed: _handleAppleSignIn,
+                                    text: l10n.authAppleSignIn,
                                     style: SignInWithAppleButtonStyle.black,
                                   ),
                           ),

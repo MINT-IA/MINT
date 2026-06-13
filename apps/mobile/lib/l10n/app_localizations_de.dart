@@ -7925,6 +7925,9 @@ class SDe extends S {
   String get authContinueLocal => 'Im lokalen Modus fortfahren';
 
   @override
+  String get authAppleSignIn => 'Mit Apple fortfahren';
+
+  @override
   String get authCreateWithEmail => 'Mit E-Mail erstellen';
 
   @override

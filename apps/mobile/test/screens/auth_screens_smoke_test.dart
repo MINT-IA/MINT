@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/auth/login_screen.dart';
@@ -178,6 +180,21 @@ void main() {
 
       expect(find.byType(Form), findsOneWidget);
     });
+
+    testWidgets('uses localized Apple sign-in label on iOS', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
+        await tester.pump();
+
+        final button = tester.widget<SignInWithAppleButton>(
+          find.byType(SignInWithAppleButton),
+        );
+        expect(button.text, 'Continuer avec Apple');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
   });
 
   // ===========================================================================
@@ -291,7 +308,8 @@ void main() {
       await tester.pump();
 
       // Scroll down to see button
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.textContaining('er mon compte'), findsOneWidget);
@@ -315,7 +333,8 @@ void main() {
       await tester.pump();
 
       // Scroll down
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -300));
       await tester.pump();
 
       expect(find.textContaining('inscrit'), findsOneWidget);
@@ -337,12 +356,28 @@ void main() {
       expect(find.byType(Form), findsOneWidget);
     });
 
+    testWidgets('uses localized Apple sign-in label on iOS', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
+        await tester.pump();
+
+        final button = tester.widget<SignInWithAppleButton>(
+          find.byType(SignInWithAppleButton),
+        );
+        expect(button.text, 'Continuer avec Apple');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
     testWidgets('shows Retour button', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
       // Scroll down
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -400));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -400));
       await tester.pump();
 
       expect(find.text('Retour'), findsOneWidget);
@@ -352,8 +387,7 @@ void main() {
     // had to scroll past 5 fields + 4 checkboxes to reach the bottom "Retour"
     // link. We now expose an `AppBar` with a leading back IconButton that
     // stays pinned to the top regardless of scroll.
-    testWidgets(
-        'has persistent top-bar back button (BUG-W2026-07)',
+    testWidgets('has persistent top-bar back button (BUG-W2026-07)',
         (tester) async {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
@@ -442,7 +476,8 @@ void main() {
       await tester.pump();
 
       // Scroll to API key input
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.byType(TextField), findsOneWidget);
@@ -452,7 +487,8 @@ void main() {
       await tester.pumpWidget(buildByokTestable(const ByokSettingsScreen()));
       await tester.pump();
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -300));
       await tester.pump();
 
       expect(find.textContaining('Tester'), findsOneWidget);
@@ -463,7 +499,8 @@ void main() {
       await tester.pumpWidget(buildByokTestable(const ByokSettingsScreen()));
       await tester.pump();
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -600));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -600));
       await tester.pump();
 
       expect(find.textContaining('BYOK'), findsWidgets);
@@ -473,7 +510,8 @@ void main() {
       await tester.pumpWidget(buildByokTestable(const ByokSettingsScreen()));
       await tester.pump();
 
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.textContaining('Obtenir une cl'), findsOneWidget);
@@ -497,7 +535,8 @@ void main() {
       await tester.pump();
 
       // Scroll down
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -200));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
       expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);

@@ -7897,6 +7897,9 @@ class SPt extends S {
   String get authContinueLocal => 'Continuar em modo local';
 
   @override
+  String get authAppleSignIn => 'Continuar com Apple';
+
+  @override
   String get authCreateWithEmail => 'Criar com e-mail';
 
   @override

@@ -7854,6 +7854,9 @@ class SEn extends S {
   String get authContinueLocal => 'Continue in local mode';
 
   @override
+  String get authAppleSignIn => 'Continue with Apple';
+
+  @override
   String get authCreateWithEmail => 'Create with email';
 
   @override

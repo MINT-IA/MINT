@@ -7917,6 +7917,9 @@ class SIt extends S {
   String get authContinueLocal => 'Continua in modalità locale';
 
   @override
+  String get authAppleSignIn => 'Continua con Apple';
+
+  @override
   String get authCreateWithEmail => 'Crea con e-mail';
 
   @override

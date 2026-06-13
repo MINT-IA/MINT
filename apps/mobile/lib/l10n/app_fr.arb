@@ -3953,6 +3953,7 @@
   "authConsentAnalytics": "Données anonymisées pour améliorer les benchmarks suisses",
   "authPrivacyReassurance": "Tes données restent chiffrées sur ton appareil. Aucune connexion bancaire.",
   "authContinueLocal": "Continuer en mode local",
+  "authAppleSignIn": "Continuer avec Apple",
   "authCreateWithEmail": "Créer avec e-mail",
   "authHandoffTitle": "Données locales",
   "authHandoffLocalDetected": "Mint a des éléments sur cet appareil: diagnostic, brouillons ou discussion anonyme.",
