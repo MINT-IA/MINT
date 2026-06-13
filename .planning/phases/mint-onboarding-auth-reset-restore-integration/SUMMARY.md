@@ -20,10 +20,13 @@ reset/profile tests, 6 account-handoff tests, a 90-test auth-screen slice, a
 181-test combined regression slice, `flutter analyze`, route registry,
 worktree ARB parity, banned terms, accent lint, public-doc admission lint, and
 iPhone 17 Pro simulator screenshots under `evidence/simulator/`, including
-account handoff login/register screens.
+account handoff login/register screens. Targeted Maestro route-contract proof
+for landing -> diagnostic onboarding also passed with screenshots under
+`evidence/maestro/account-handoff-route-20260613T2245/`.
 
-Open: no rebase on `origin/dev`; G1 Maestro/walker still open; G2 Julien/device
-still required for Keychain/auth/Apple; staging/TestFlight intentionally not
-used in this pass.
+Open: no rebase on `origin/dev`; broader persona walker still open; G2
+Julien/device still required for Keychain/auth/Apple; staging/TestFlight
+intentionally not used in this pass.
 
-Next: run Maestro/walker and device validation for Keychain/auth/Apple.
+Next: run broader walker/persona coverage and device validation for
+Keychain/auth/Apple.

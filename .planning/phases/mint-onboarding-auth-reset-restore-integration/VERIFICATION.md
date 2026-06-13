@@ -16,6 +16,7 @@ Checks run on this phase:
 | iPhone 17 Pro simulator, local feature-flag stub | PASS, landing -> `/start` -> `/onb` -> terminal dossier |
 | Simulator screenshots | PASS, `evidence/simulator/01-landing.jpg` through `10-reset-returned-entry.jpg` |
 | Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg` and `12-account-handoff-register-apple.jpg` |
+| `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/account-handoff-route-20260613T2245/` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
@@ -40,7 +41,7 @@ Gate state:
 
 | Gate | Status | Note |
 |---|---|---|
-| G1 Maestro/walker | PARTIAL | xcodebuildmcp simulator smoke passed with screenshots; Maestro/walker still not run. |
+| G1 Maestro/walker | PASS TARGETED | Maestro route-contract flow passed for landing -> diagnostic onboarding; broader persona walker remains open. |
 | G2 Julien/device | OPEN | Required for Keychain persistence, iCloud/backup restore, auth redirects, and Apple entitlement. |
 | G3 CI/dev/local | PARTIAL | Local tests/analyze/routes pass; CI/dev equivalence still requires branch/rebase workflow. |
 | G4 Regression | PASS LOCAL | Focused DataSpine/auth/profile/onboarding and secure-storage reset regressions passed locally. |
@@ -54,6 +55,11 @@ Runtime notes:
 - The simulator run used `API_BASE_URL=http://127.0.0.1:8888/api/v1` with a
   minimal local stub for `/health` and `/config/feature-flags`, returning
   `enableMvpWedgeOnboarding=true`.
+- The Maestro route-contract run used the same local stub and `launchApp:
+  clearState`. Assertions covered landing CTA, `/onb` entry identifier,
+  absence of the old empty-chat prompt, and the intent explorer. Stubbed
+  non-contract routes such as `/snapshots` returned 404 and did not affect the
+  flow.
 - The account entry simulator run verified login and registration: the handoff
   segmented control is visible, `Repartir` updates the explanatory copy, Apple
   remains primary on iPhone registration, and e-mail remains a fallback.

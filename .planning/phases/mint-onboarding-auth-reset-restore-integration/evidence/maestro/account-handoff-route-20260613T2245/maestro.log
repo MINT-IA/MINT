@@ -1,0 +1,21 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow flow_landing_to_diagnostic_onboarding
+Launch app "ch.mint.app" with clear state... COMPLETED
+Run flow when "Je comprends, on y va" is visible...
+Run flow when "Je comprends, on y va" is visible... SKIPPED
+Assert that "Parle à Mint" is visible... COMPLETED
+Take screenshot 01-landing... COMPLETED
+Tap on "Parle à Mint"... COMPLETED
+Assert that id: onboarding-entry-open is visible... COMPLETED
+Assert that "Un premier aperçu suisse." is visible... COMPLETED
+Assert that "Écris ce qui te trotte en tête…" is not visible... COMPLETED
+Take screenshot 02-diagnostic-entry... COMPLETED
+Tap on id: onboarding-entry-open... COMPLETED
+Assert that id: onboarding-intent-explorer is visible... COMPLETED
+Assert that "Qu’est-ce que tu veux éclairer d’abord ?" is visible... COMPLETED
+Take screenshot 03-diagnostic-intents... COMPLETED

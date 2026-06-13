@@ -31,6 +31,7 @@
     <tbody>
       <tr><td>iPhone 17 Pro simulator</td><td>PASS</td><td>Landing -> /start -> /onb -> terminal dossier.</td></tr>
       <tr><td>Account handoff simulator</td><td>PASS</td><td>Login + inscription Apple-primary affichent Conserver/Repartir.</td></tr>
+      <tr><td>Maestro route-contract</td><td>PASS</td><td><code>flow_landing_to_diagnostic_onboarding.yaml</code> passe via watchdog: landing -> diagnostic, sans prompt de chat vide.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
       <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>97 tests ciblés.</td></tr>
@@ -51,13 +52,16 @@
     <img src="evidence/simulator/10-reset-returned-entry.jpg" alt="Retour après reset">
     <img src="evidence/simulator/11-account-handoff-login-restart.jpg" alt="Handoff compte login">
     <img src="evidence/simulator/12-account-handoff-register-apple.jpg" alt="Handoff compte inscription Apple">
+    <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/01-landing.png" alt="Maestro landing">
+    <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/02-diagnostic-entry.png" alt="Maestro entrée diagnostic">
+    <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/03-diagnostic-intents.png" alt="Maestro intentions diagnostic">
   </div>
 
   <h2>Gates</h2>
   <table>
     <thead><tr><th>Gate</th><th>Statut</th><th>Note</th></tr></thead>
     <tbody>
-      <tr><td>G1 Maestro/walker</td><td>PARTIAL</td><td>xcodebuildmcp simulator passé; Maestro/walker reste ouvert.</td></tr>
+      <tr><td>G1 Maestro/walker</td><td>PASS TARGETED</td><td>Flow Maestro route-contract passé; walker persona large reste ouvert.</td></tr>
       <tr><td>G2 Julien/device</td><td>OPEN</td><td>Obligatoire pour Keychain, iCloud/backup, auth et Apple.</td></tr>
       <tr><td>G3 CI/dev/local</td><td>PARTIAL</td><td>Local vert; CI/dev équivalence après workflow branche.</td></tr>
       <tr><td>G4 Régression</td><td>PASS LOCAL</td><td>Tests ciblés onboarding, DataSpine et secure storage verts.</td></tr>
