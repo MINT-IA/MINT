@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../services/waitlist_service.dart';
@@ -25,7 +27,7 @@ class WaitlistProvider extends ChangeNotifier {
   /// Security §6 Q5) without making this provider depend directly on
   /// [CoachProfileProvider] (avoids a cyclic import). Null callback =
   /// no-op (existing tests and isolated screens unaffected).
-  final VoidCallback? onGateSuccess;
+  final FutureOr<void> Function()? onGateSuccess;
 
   WaitlistStatus _status = WaitlistStatus.initial;
   String? _errorKey;
@@ -75,7 +77,7 @@ class WaitlistProvider extends ChangeNotifier {
     // UI has already transitioned to success state when the clearAll
     // side effect runs (Security §6 Q5 nLPD art. 6 minimization).
     if (_status == WaitlistStatus.success) {
-      onGateSuccess?.call();
+      await onGateSuccess?.call();
     }
   }
 

@@ -290,6 +290,27 @@ Everything else reads the derived `CoachProfile`, not the map directly.
 Every calculator / widget that needs profile data **must** read through
 `CoachProfileProvider.profile`, never through `loadAnswers()` directly.
 
+## Reset lifecycle — what "start over" must erase
+
+`CoachProfileProvider.clear()` / `clearAll()` are the user-facing reset paths.
+They must clear more than `wizard_answers_v2`, otherwise a user can delete the
+profile yet re-enter an old coach or budget state on relaunch.
+
+The reset contract is:
+
+- clear wizard answers, diagnostic state, coach check-ins, score history,
+  contribution history, and letters through `ReportPersistenceService.clear()`;
+- clear the current authenticated user's `ConversationStore` namespace when a
+  user id is available;
+- clear anonymous-session metadata and the degraded `budget_inputs_v1` read
+  model;
+- leave other authenticated users' conversation namespaces untouched.
+
+Anonymous chat's local "Nouvelle discussion" action is narrower: it calls
+`ReportPersistenceService.clearConversationNamespace(userId: null)` to erase
+only unprefixed anonymous conversation keys while preserving anonymous quota
+state.
+
 ---
 
 ## Scan pipeline — end-to-end

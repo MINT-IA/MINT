@@ -3112,7 +3112,7 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Clears both in-memory state AND persisted wizard data in SharedPreferences
   /// to prevent cross-account data bleed on shared devices.
-  void clear() {
+  Future<void> clear() async {
     _profile = null;
     _isPartialProfile = false;
     _isLoaded = false;
@@ -3122,10 +3122,18 @@ class CoachProfileProvider extends ChangeNotifier {
     _scoreHistory = [];
     _lastAnswers = const {};
     _hasSessionOnlyProfile = false;
-    // Fire-and-forget: clear persisted wizard answers + coach history
-    // to prevent cross-account bleed. In-memory state is already reset above.
-    ReportPersistenceService.clear();
     notifyListeners();
+    // Durable reset: wait for persisted diagnostic and companion local stores
+    // to clear before callers navigate or relaunch.
+    String? conversationUserId;
+    try {
+      conversationUserId = await AuthService.getUserId();
+    } catch (_) {
+      conversationUserId = null;
+    }
+    await ReportPersistenceService.clear(
+      conversationUserId: conversationUserId,
+    );
   }
 
   /// Sub-phase 01.5 W02-T03 Task 6 — nLPD art. 6 minimization
@@ -3141,9 +3149,9 @@ class CoachProfileProvider extends ChangeNotifier {
   /// intent explicit ("clear all profile data on gate fire") and
   /// gives us room to diverge if the semantics differ later (e.g.
   /// preserve a future opt-in marker that 'clear' would drop).
-  void clearAll() {
+  Future<void> clearAll() async {
     // nLPD art. 6 minimization (sub-phase 01.5 Security §6 Q5).
-    clear();
+    await clear();
   }
 }
 

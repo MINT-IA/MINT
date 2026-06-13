@@ -164,12 +164,12 @@ void main() {
               'finishHydrating must call notifyListeners for GoRouter refresh');
     });
 
-    test('clear resets isHydrating to false', () {
+    test('clear resets isHydrating to false', () async {
       final provider = CoachProfileProvider();
       provider.startHydrating();
       expect(provider.isHydrating, isTrue);
 
-      provider.clear();
+      await provider.clear();
       expect(provider.isHydrating, isFalse);
       expect(provider.hasProfile, isFalse);
     });

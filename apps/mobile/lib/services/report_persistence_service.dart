@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/data/budget/budget_local_store.dart';
+import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
@@ -718,11 +720,35 @@ class ReportPersistenceService {
   }
 
   /// Efface tout (Logout / Reset)
-  static Future<void> clear() async {
+  static Future<void> clear({String? conversationUserId}) async {
     final prefs = await SharedPreferences.getInstance();
     await clearDiagnostic();
     await clearCoachHistory();
+    await _clearConversationNamespace(prefs, userId: conversationUserId);
+    await AnonymousSessionService.clearSession();
+    await BudgetLocalStore().clear();
     await prefs.remove(_lettersKey);
+  }
+
+  static Future<void> clearConversationNamespace({String? userId}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await _clearConversationNamespace(prefs, userId: userId);
+  }
+
+  static Future<void> _clearConversationNamespace(
+    SharedPreferences prefs, {
+    required String? userId,
+  }) async {
+    final prefix = userId != null ? '${userId}_' : '';
+    final indexKey = '${prefix}_chat_conversation_index';
+    final messagesPrefix = '${prefix}_chat_conversations_';
+    final keys = prefs.getKeys().where((key) {
+      return key == indexKey || key.startsWith(messagesPrefix);
+    }).toList();
+
+    for (final key in keys) {
+      await prefs.remove(key);
+    }
   }
 
   /// Efface uniquement l'historique coach:

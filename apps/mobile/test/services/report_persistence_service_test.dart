@@ -2,6 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/data/budget/budget_local_store.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -923,6 +928,46 @@ void main() {
       expect(await ReportPersistenceService.loadAnswers(), isEmpty);
       expect(await ReportPersistenceService.isCompleted(), false);
       expect(await ReportPersistenceService.loadLettersHistory(), isEmpty);
+    });
+
+    test('clears diagnostic companion stores for a fresh local restart',
+        () async {
+      final conversationStore = ConversationStore();
+      final message = ChatMessage(
+        role: 'user',
+        content: 'Je veux repartir de zero',
+        timestamp: DateTime(2026, 6, 13, 14),
+      );
+
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await AnonymousSessionService.updateFromResponse(0);
+      await BudgetLocalStore().saveInputs(const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+      ));
+      await BudgetLocalStore().saveOverride('future', 500);
+
+      ConversationStore.setCurrentUserId('user-42');
+      await conversationStore.saveConversation('user-conv', [message]);
+      ConversationStore.setCurrentUserId(null);
+      await conversationStore.saveConversation('anon-conv', [message]);
+
+      ConversationStore.setCurrentUserId('user-42');
+      await ReportPersistenceService.clear(conversationUserId: 'user-42');
+
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+      expect(await AnonymousSessionService.getMessageCount(), 0);
+      expect(await BudgetLocalStore().loadInputs(), isNull);
+      expect(await BudgetLocalStore().getOverride('future'), isNull);
+      expect(await conversationStore.listConversations(), isEmpty);
+
+      ConversationStore.setCurrentUserId(null);
+      expect(
+        (await conversationStore.listConversations()).map((meta) => meta.id),
+        contains('anon-conv'),
+      );
     });
 
     test('clear is idempotent (calling twice does not throw)', () async {

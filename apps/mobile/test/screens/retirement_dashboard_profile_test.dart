@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -73,8 +74,47 @@ Widget _buildHarness({
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const secureStorageChannel =
+      MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final secureStorage = <String, String>{};
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    secureStorage.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      secureStorageChannel,
+      (call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) {
+              secureStorage[key] = value;
+            }
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) {
+              secureStorage.remove(key);
+            }
+            return null;
+          case 'deleteAll':
+            secureStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(secureStorageChannel, null);
   });
 
   group('D7 — même source que /home', () {
@@ -167,7 +207,8 @@ void main() {
           reason: 'D7 device : profil hydraté après mount ne doit plus '
               'afficher « 4 infos suffisent »');
       expect(find.byKey(const Key('state_c_start_cta')), findsNothing,
-          reason: 'D7 device : le CTA d\'état vide doit disparaître post-flush');
+          reason:
+              'D7 device : le CTA d\'état vide doit disparaître post-flush');
     });
 
     // D7 device ROOT-CAUSE (FAIL #2): /retraite is a top-level route reachable
@@ -248,7 +289,7 @@ void main() {
 
       // 2) Provider profile is CLEARED while the screen is open (settled clear:
       //    not hydrating, not loading). The device-proven illogism.
-      provider.clearAll();
+      await provider.clearAll();
       expect(provider.hasProfile, isFalse);
       expect(provider.isHydrating, isFalse);
       expect(provider.isLoading, isFalse);
@@ -303,8 +344,8 @@ void main() {
         ],
       );
 
-      await tester.pumpWidget(
-          _buildHarness(coachProvider: provider, router: router));
+      await tester
+          .pumpWidget(_buildHarness(coachProvider: provider, router: router));
       await tester.pump(const Duration(seconds: 1));
 
       final cta = find.byKey(const Key('state_c_start_cta'));
