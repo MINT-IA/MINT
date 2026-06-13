@@ -1,0 +1,27 @@
+# State Contract
+
+Every row becomes at least one red test before product code.
+
+| Initial state | Action | Expected state | Storage checked | Test | Maestro | Device | Risk |
+|---|---|---|---|---|---|---|---|
+| Fresh install, Mint Keychain persists | First launch | Non-Keychain marker absent -> purge Mint namespaces before hydration; visible `Anonyme` | prefs marker, Auth, wizard, anon, BYOK, partner, biography | `fresh_install_keychain_purge_test` | `fresh_install_no_prior_state.yaml` | Yes | iCloud/backup not proven by sim |
+| Anonymous active | Background/force-kill | Chat and facts restored; state banner; restart/exit visible | anon conversation, anon session, report store | `anonymous_restore_after_kill_test` | `anonymous_restore_after_kill.yaml` | Useful | secure session can return |
+| Anonymous old chat | New discussion/reset | Cold start has no old thread or diagnostic facts | conversation, report, secure wizard, budget, counters | `new_discussion_cold_start_purge_test` | `anonymous_new_discussion_cold_start.yaml` | Yes | best-effort delete is not enough |
+| Anonymous useful dossier | Account, keep | User namespace keeps local data; backend push only with sync/consent; no loss on failure | owner/migration flags, user prefix, answers | `account_handoff_keep_local_test` | `anonymous_to_account_keep.yaml` | Yes | partial migration |
+| Anonymous useful dossier | Account, restart | Old anon dossier purged before account home | anon/user prefixes, wizard, secure keys, anon session | `account_handoff_restart_test` | `anonymous_to_account_restart.yaml` | Yes | implicit handoff |
+| Fresh install plus local anon dossier | Login existing account | Explicit precedence: keep local separate, attach after choice, or discard after choice; remote data not overwritten silently | anon prefix, user prefix, backend profile, owner flags | `existing_account_login_precedence_test` | `existing_account_login_with_local_dossier.yaml` | Yes | local/remote conflict |
+| Connected session | Force-kill/relaunch | User restored or token refreshed; if refresh fails, local state visible and retryable | refresh token, access token, user prefix, profile cache | `connected_restore_token_refresh_test` | `connected_restore_after_kill.yaml` | Yes | expired token path |
+| Anonymous -> account | Token expired/staging down | Stay local or controlled anonymous; retry; local data intact | token cache, local dossier, flags | `migration_failure_preserves_local_test` | `anonymous_account_migration_failure.yaml` | Auth yes | silent fallback |
+| Connected | Logout | Tokens/prefix removed; owned local account data purged; state visible | auth keys, current user id, prefs | `logout_purges_owned_state_test` | `logout_state_boundary.yaml` | Yes | unknown keys |
+| Connected sync | Delete data | Backend call plus local Mint purge; no iCloud/backup erasure promise | backend, auth, secure wizard, anon, BYOK, biography, partner | `delete_data_local_backend_contract_test` | `delete_data_contract.yaml` | Yes | backend unavailable |
+| Connected account | Close account | Backend account closure plus local Mint purge; auth revoked; local mode clear | backend delete, auth keys, user prefs, secure namespaces | `close_account_contract_test` | `close_account_contract.yaml` | Yes | delete-data vs close-account |
+| Secure feature data exists | Reset/delete/logout | BYOK, partner estimate, and biography keys follow the same owned-key purge contract | BYOK storage, partner estimate, biography key | `owned_secure_feature_keys_purge_test` | covered by reset/delete flows | Yes | asserted but untested keys |
+| App killed during redirect | Relaunch/deeplink | Allowlisted redirect only; safe route; local dossier preserved | resolver, pending intent, auth state | `auth_redirect_interruption_test` | `auth_redirect_interrupted.yaml` | Yes | external deeplink |
+| App killed during Apple | Relaunch | No dead end; email/refusal/continuous-integration paths available | pending auth, local mode, register/login | `apple_interrupted_fallback_test` | `apple_interrupted_fallback.yaml` | Yes | portal capability |
+| Apple existing credential | Login/re-auth/revocation | Do not depend on email/name after first grant; handle private relay and revoked credential state | Apple user id, email optional, credential state, auth provider | `apple_existing_credential_state_test` | `apple_existing_credential.yaml` | Yes | first-grant-only fields |
+| Pre-account insufficient data | Show diagnostic | Qualitative preview only; next useful data clear | draft answers, profile, PremierEclairage guard | `diagnostic_insufficient_data_qualitative_test` | `diagnostic_missing_data.yaml` | No | premature amount |
+| Pre-account sufficient data | Show diagnostic | Educational scenario; amounts only from approved engines | inputs, source, confidence | `diagnostic_scenario_with_sources_test` | `diagnostic_sufficient_data.yaml` | No | copied UI calc |
+| iCloud/backup restore | First launch | Documented risk; marker-missing helps reinstall only; backup restore needs backup-excluded/device-bound nonce or forced revalidation | marker, nonce, secure purge, banner | `restore_backup_keychain_risk_contract_test` | manual G2 | Yes | sim cannot close |
+
+Minimal banner states: `Anonyme`, `Connecté`, `Dossier local`,
+`Dossier effacé`, `À vérifier sur device`.

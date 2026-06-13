@@ -1,5 +1,7 @@
 {
   "model_profile": "quality",
+  "cross_ai_timeout": 600,
+  "subagent_timeout": 600000,
   "commit_docs": true,
   "parallelization": false,
   "search_gitignored": false,
