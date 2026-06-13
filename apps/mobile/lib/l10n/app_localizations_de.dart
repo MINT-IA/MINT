@@ -7950,7 +7950,11 @@ class SDe extends S {
 
   @override
   String get authHandoffRestartHint =>
-      'Mint löscht die lokale Diagnose und den anonymen Chat, bevor das Konto geöffnet wird.';
+      'Mint öffnet das Konto, ohne lokale Diagnose oder anonymen Chat zu übernehmen.';
+
+  @override
+  String get authHandoffChooseHint =>
+      'Wähle vor der Anmeldung, damit du kontrollierst, was deinem Konto folgt.';
 
   @override
   String get authRequiredConsents =>

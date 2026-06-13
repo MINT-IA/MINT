@@ -14073,8 +14073,14 @@ abstract class S {
   /// No description provided for @authHandoffRestartHint.
   ///
   /// In fr, this message translates to:
-  /// **'Mint efface le diagnostic local et la discussion anonyme avant d\'ouvrir le compte.'**
+  /// **'Mint ouvre le compte sans reprendre le diagnostic local ni la discussion anonyme.'**
   String get authHandoffRestartHint;
+
+  /// No description provided for @authHandoffChooseHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis avant de te connecter pour garder le contrôle sur ce qui suit ton compte.'**
+  String get authHandoffChooseHint;
 
   /// No description provided for @authRequiredConsents.
   ///

@@ -23,12 +23,12 @@ Checks run on this phase:
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 97 tests |
 | `flutter test test/providers/auth_provider_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart` | PASS, 115 tests; fresh-install Keychain purge, pending retry, and profile `clearAll` secure-key purge red/green covered |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 181 tests |
-| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart` | PASS, 6 tests; default keep, explicit restart purge, and registration UI choice persistence covered |
-| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 90 tests |
+| `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/services/api_service_test.dart test/providers/auth_provider_test.dart` | PASS, 78 tests; missing choice keeps data separate, explicit keep, explicit restart purge, stale choice expiry, feature-flag off, budget/letters detection, registration UI choice, and magic-link auth bootstrap covered |
+| `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 96 tests |
 | `flutter analyze` | PASS, no issues |
 | `./tools/mint-routes check` | PASS, 145 routes after known-miss exemptions |
 | `flutter gen-l10n` | PASS |
-| `python3 tools/checks/arb_parity.py --locale all` | PASS, 6 locales, 6985 keys each |
+| `python3 tools/checks/arb_parity.py --locale all` | PASS, 6 locales, 6986 keys each |
 | `python3 tools/checks/banned_terms_arb.py --locale all` | PASS |
 | `python3 tools/checks/accent_lint_fr.py --file apps/mobile/lib/l10n/app_fr.arb` | PASS |
 | `python3 tools/checks/accent_lint_fr.py --scope .planning/phases/mint-north-star-experience-v1 .planning/phases/mint-onboarding-auth-reset-restore-integration` | PASS |
@@ -77,9 +77,14 @@ Runtime notes:
   the Dart decision order, not iCloud/backup restoration semantics.
 - Partial secure purge failure keeps `mint_install_secure_purge_pending_v1`
   and blocks auth restore on the next launch until the owned-key purge succeeds.
-- Anonymous -> account handoff is widget/service-tested: default keeps the
-  local dossier available for migration; explicit restart clears the anonymous
-  local dossier before account migration.
+- Anonymous -> account handoff is widget/service-tested: missing or stale
+  choice keeps the local dossier separate; fresh explicit keep attaches it for
+  migration; explicit restart clears the anonymous local dossier before account
+  migration. The detector now includes budget-only and generated-letter local
+  data.
+- Magic-link verification now fetches `/auth/me` with the fresh bearer before
+  saving the final session; `AuthService.saveToken()` remains strict and never
+  accepts empty user IDs or emails.
 - Profile reset preserves the login session but purges local owned secure
   feature keys such as BYOK, partner estimate, biography, anonymous session
   and wizard secure values.

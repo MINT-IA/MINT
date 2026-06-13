@@ -40,10 +40,10 @@ class ApiException implements Exception {
 
   /// FIX-071: User-friendly offline detection.
   static ApiException offline() => const ApiException(
-    'Network offline',
-    isOffline: true,
-    errorCode: ApiErrorCode.offline,
-  );
+        'Network offline',
+        isOffline: true,
+        errorCode: ApiErrorCode.offline,
+      );
 
   static const ApiException timeout = ApiException(
     'Request timeout',
@@ -51,10 +51,10 @@ class ApiException implements Exception {
   );
 
   static ApiException sessionExpired() => const ApiException(
-    'Session expired',
-    statusCode: 401,
-    errorCode: ApiErrorCode.sessionExpired,
-  );
+        'Session expired',
+        statusCode: 401,
+        errorCode: ApiErrorCode.sessionExpired,
+      );
 
   /// P2-18: Resolve a user-facing message from AppLocalizations.
   /// Call this in UI layers that have BuildContext.
@@ -102,7 +102,12 @@ class ApiService {
   /// Process-wide singleton HTTP client (defined in MintHttpClient.shared).
   /// Aliased here to keep the in-class call sites short. Every other MINT
   /// service uses `MintHttpClient.shared` directly.
-  static final MintHttpClient _mintHttp = MintHttpClient.shared;
+  static MintHttpClient _mintHttp = MintHttpClient.shared;
+
+  @visibleForTesting
+  static void setHttpClientForTesting(MintHttpClient? client) {
+    _mintHttp = client ?? MintHttpClient.shared;
+  }
 
   static const String _definedApiBaseUrl =
       String.fromEnvironment('API_BASE_URL');
@@ -230,11 +235,15 @@ class ApiService {
   // Helper method to get auth headers with JWT token + version
   static Future<Map<String, String>> _authHeaders() async {
     final token = await AuthService.getToken();
+    return _authHeadersForToken(token);
+  }
+
+  static Map<String, String> _authHeadersForToken(String? token) {
     final headers = {
       'Content-Type': 'application/json',
       'X-App-Version': _appVersion,
     };
-    if (token != null) {
+    if (token != null && token.trim().isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
     // OBS-04 (Phase 31-01) — D-05 dual-header trace propagation:
@@ -274,8 +283,8 @@ class ApiService {
   /// `_authHeaders()` and `_publicHeaders()` so both codepaths keep the
   /// exact same propagation semantics.
   static void _injectSentryTraceHeaders(Map<String, String> headers) {
-    final span =
-        Sentry.getSpan() ?? Sentry.startTransaction('api.request', 'http.client');
+    final span = Sentry.getSpan() ??
+        Sentry.startTransaction('api.request', 'http.client');
     final sentryTrace = span.toSentryTrace();
     headers['sentry-trace'] = sentryTrace.value;
     final baggage = span.toBaggageHeader();
@@ -317,7 +326,8 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = _safeJsonDecode(response.body, statusCode: response.statusCode);
+        final data =
+            _safeJsonDecode(response.body, statusCode: response.statusCode);
         // FIX-087: null-safe field extraction — backend may omit fields.
         final token = data['access_token'] as String?;
         final userId = data['user_id'] as String?;
@@ -342,17 +352,21 @@ class ApiService {
   // Méthodes génériques HTTP (now with JWT injection + auto-refresh + P1-7 timeout)
   static Future<Map<String, dynamic>> get(String endpoint) async {
     try {
-      var response = await _mintHttp.get(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: await _authHeaders(),
-      ).timeout(_httpTimeout);
+      var response = await _mintHttp
+          .get(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: await _authHeaders(),
+          )
+          .timeout(_httpTimeout);
 
       // Auto-refresh on 401
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await _mintHttp.get(
-          Uri.parse('$baseUrl$endpoint'),
-          headers: await _authHeaders(),
-        ).timeout(_httpTimeout);
+        response = await _mintHttp
+            .get(
+              Uri.parse('$baseUrl$endpoint'),
+              headers: await _authHeaders(),
+            )
+            .timeout(_httpTimeout);
       }
 
       if (response.statusCode == 200) {
@@ -363,7 +377,8 @@ class ApiService {
         await AuthService.logout();
         throw ApiException.sessionExpired();
       } else {
-        throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
+        throw ApiException('GET $endpoint failed: ${response.body}',
+            statusCode: response.statusCode);
       }
     } on SocketException {
       throw ApiException.offline();
@@ -374,16 +389,20 @@ class ApiService {
 
   static Future<String> getText(String endpoint) async {
     try {
-      var response = await _mintHttp.get(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: await _authHeaders(),
-      ).timeout(_httpTimeout);
+      var response = await _mintHttp
+          .get(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: await _authHeaders(),
+          )
+          .timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await _mintHttp.get(
-          Uri.parse('$baseUrl$endpoint'),
-          headers: await _authHeaders(),
-        ).timeout(_httpTimeout);
+        response = await _mintHttp
+            .get(
+              Uri.parse('$baseUrl$endpoint'),
+              headers: await _authHeaders(),
+            )
+            .timeout(_httpTimeout);
       }
 
       if (response.statusCode == 200) {
@@ -407,18 +426,22 @@ class ApiService {
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
     try {
-      var response = await _mintHttp.post(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: await _authHeaders(),
-        body: jsonEncode(data),
-      ).timeout(_httpTimeout);
+      var response = await _mintHttp
+          .post(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: await _authHeaders(),
+            body: jsonEncode(data),
+          )
+          .timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await _mintHttp.post(
-          Uri.parse('$baseUrl$endpoint'),
-          headers: await _authHeaders(),
-          body: jsonEncode(data),
-        ).timeout(_httpTimeout);
+        response = await _mintHttp
+            .post(
+              Uri.parse('$baseUrl$endpoint'),
+              headers: await _authHeaders(),
+              body: jsonEncode(data),
+            )
+            .timeout(_httpTimeout);
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -443,18 +466,22 @@ class ApiService {
   static Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> data) async {
     try {
-      var response = await _mintHttp.put(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: await _authHeaders(),
-        body: jsonEncode(data),
-      ).timeout(_httpTimeout);
+      var response = await _mintHttp
+          .put(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: await _authHeaders(),
+            body: jsonEncode(data),
+          )
+          .timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await _mintHttp.put(
-          Uri.parse('$baseUrl$endpoint'),
-          headers: await _authHeaders(),
-          body: jsonEncode(data),
-        ).timeout(_httpTimeout);
+        response = await _mintHttp
+            .put(
+              Uri.parse('$baseUrl$endpoint'),
+              headers: await _authHeaders(),
+              body: jsonEncode(data),
+            )
+            .timeout(_httpTimeout);
       }
 
       if (response.statusCode == 200) {
@@ -478,16 +505,20 @@ class ApiService {
 
   static Future<void> delete(String endpoint) async {
     try {
-      var response = await _mintHttp.delete(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: await _authHeaders(),
-      ).timeout(_httpTimeout);
+      var response = await _mintHttp
+          .delete(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: await _authHeaders(),
+          )
+          .timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await _mintHttp.delete(
-          Uri.parse('$baseUrl$endpoint'),
-          headers: await _authHeaders(),
-        ).timeout(_httpTimeout);
+        response = await _mintHttp
+            .delete(
+              Uri.parse('$baseUrl$endpoint'),
+              headers: await _authHeaders(),
+            )
+            .timeout(_httpTimeout);
       }
 
       if (response.statusCode == 401) {
@@ -591,7 +622,8 @@ class ApiService {
       return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
-      _extractErrorDetail(response.body, fallback: 'Magic link verification failed'),
+      _extractErrorDetail(response.body,
+          fallback: 'Magic link verification failed'),
       statusCode: response.statusCode,
     );
   }
@@ -615,7 +647,8 @@ class ApiService {
       return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
-      _extractErrorDetail(response.body, fallback: 'Apple Sign-In verification failed'),
+      _extractErrorDetail(response.body,
+          fallback: 'Apple Sign-In verification failed'),
       statusCode: response.statusCode,
     );
   }
@@ -626,6 +659,24 @@ class ApiService {
     final response = await _mintHttp.get(
       Uri.parse('$baseUrl/auth/me'),
       headers: await _authHeaders(),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    } else {
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to get user info'),
+        statusCode: response.statusCode,
+      );
+    }
+  }
+
+  /// Get current user info using a freshly issued access token that is not
+  /// persisted yet.
+  static Future<Map<String, dynamic>> getMeWithToken(String accessToken) async {
+    final response = await _mintHttp.get(
+      Uri.parse('$baseUrl/auth/me'),
+      headers: _authHeadersForToken(accessToken),
     );
 
     if (response.statusCode == 200) {
@@ -845,8 +896,10 @@ class ApiService {
       // These fields are NOT served by the backend API — null means unknown.
       // When the API does return them, use the value; otherwise leave null
       // so consuming screens can handle missing data gracefully.
-      employmentStatus: _readStringOrNull(response, const ['employmentStatus', 'employment_status']),
-      nationalityGroup: _readStringOrNull(response, const ['nationalityGroup', 'nationality_group']),
+      employmentStatus: _readStringOrNull(
+          response, const ['employmentStatus', 'employment_status']),
+      nationalityGroup: _readStringOrNull(
+          response, const ['nationalityGroup', 'nationality_group']),
       plafond3a: _readDoubleOrNull(response, const ['plafond3a', 'plafond_3a']),
       estimatedFields: _readStringList(
         response,
@@ -1064,8 +1117,7 @@ class ApiService {
     if (capitalOption != null && capitalOption.trajectory.length > 1) {
       final firstCashflow = capitalOption.trajectory.first.annualCashflow;
       for (int i = 1; i < capitalOption.trajectory.length; i++) {
-        if (capitalOption.trajectory[i].annualCashflow <
-            firstCashflow * 0.1) {
+        if (capitalOption.trajectory[i].annualCashflow < firstCashflow * 0.1) {
           capitalEpuiseAge = capitalOption.trajectory[i].year;
           break;
         }
@@ -1323,7 +1375,8 @@ class ApiService {
   // Legacy methods — kept for backward compatibility.
   // All data entry now goes through CoachProfile + chat.
 
-  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
+  @Deprecated(
+      'Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<Profile> createProfile({
     int? birthYear,
     String? canton,
@@ -1352,10 +1405,12 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return Profile.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
+      return Profile.fromJson(
+          _safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
       throw ApiException(
-        _extractErrorDetail(response.body, fallback: 'Failed to create profile'),
+        _extractErrorDetail(response.body,
+            fallback: 'Failed to create profile'),
         statusCode: response.statusCode,
       );
     }
@@ -1382,10 +1437,10 @@ class ApiService {
       return Session.fromJson(jsonDecode(response.body));
     } else {
       throw ApiException(
-        _extractErrorDetail(response.body, fallback: 'Failed to create session'),
+        _extractErrorDetail(response.body,
+            fallback: 'Failed to create session'),
         statusCode: response.statusCode,
       );
     }
   }
-
 }

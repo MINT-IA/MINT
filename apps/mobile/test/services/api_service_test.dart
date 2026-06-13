@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// Unit tests for ApiService
 ///
@@ -12,6 +15,10 @@ import 'package:mint_mobile/services/api_service.dart';
 /// - Class structure and method signatures
 /// - Endpoint path conventions
 void main() {
+  tearDown(() {
+    ApiService.setHttpClientForTesting(null);
+  });
+
   // ═══════════════════════════════════════════════════════════════════════
   // Base URL Configuration
   // ═══════════════════════════════════════════════════════════════════════
@@ -55,7 +62,8 @@ void main() {
           reason:
               'Debug mode must have ≥2 candidates: localhost + staging fallback');
       expect(candidates.first, equals('http://localhost:8888/api/v1'),
-          reason: 'localhost must remain first to preserve dev-loop with local backend');
+          reason:
+              'localhost must remain first to preserve dev-loop with local backend');
       expect(
         candidates,
         contains('https://mint-staging.up.railway.app/api/v1'),
@@ -65,7 +73,9 @@ void main() {
       );
     });
 
-    test('release-mode candidate ordering: production first, staging second, api third', () {
+    test(
+        'release-mode candidate ordering: production first, staging second, api third',
+        () {
       if (!kReleaseMode) return;
       final candidates = ApiService.baseUrlCandidatesForTest;
       expect(candidates, isNotEmpty);
@@ -73,9 +83,11 @@ void main() {
         (c) => c.startsWith('https://mint-'),
         orElse: () => '',
       );
-      expect(firstNonDefined, equals('https://mint-production-3a41.up.railway.app/api/v1'),
+      expect(firstNonDefined,
+          equals('https://mint-production-3a41.up.railway.app/api/v1'),
           reason: 'Release builds default production-first (App Store target)');
-      expect(candidates, contains('https://mint-staging.up.railway.app/api/v1'));
+      expect(
+          candidates, contains('https://mint-staging.up.railway.app/api/v1'));
     });
   });
 
@@ -123,6 +135,29 @@ void main() {
     test('nested endpoint paths remain valid URIs', () {
       final uri = Uri.parse('${ApiService.baseUrl}/rag/query');
       expect(uri.pathSegments, containsAll(['api', 'v1', 'rag', 'query']));
+    });
+  });
+
+  group('ApiService — auth bootstrap', () {
+    test('getMeWithToken uses the fresh bearer before token persistence',
+        () async {
+      http.Request? captured;
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          captured = request;
+          return http.Response(
+            '{"id":"user-42","email":"u@example.ch"}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+
+      final response = await ApiService.getMeWithToken('fresh-token');
+
+      expect(response['id'], 'user-42');
+      expect(captured?.url.path, '/api/v1/auth/me');
+      expect(captured?.headers['Authorization'], 'Bearer fresh-token');
     });
   });
 

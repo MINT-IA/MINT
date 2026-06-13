@@ -7929,7 +7929,11 @@ class SFr extends S {
 
   @override
   String get authHandoffRestartHint =>
-      'Mint efface le diagnostic local et la discussion anonyme avant d\'ouvrir le compte.';
+      'Mint ouvre le compte sans reprendre le diagnostic local ni la discussion anonyme.';
+
+  @override
+  String get authHandoffChooseHint =>
+      'Choisis avant de te connecter pour garder le contrôle sur ce qui suit ton compte.';
 
   @override
   String get authRequiredConsents =>

@@ -1,9 +1,13 @@
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -17,6 +21,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     AuthService.resetMemoryCacheForTest();
+    ApiService.setHttpClientForTesting(null);
     secureStorage.clear();
     deleteAllCalls = 0;
 
@@ -51,6 +56,7 @@ void main() {
   });
 
   tearDown(() {
+    ApiService.setHttpClientForTesting(null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(secureStorageChannel, null);
   });
@@ -112,6 +118,50 @@ void main() {
       final provider = AuthProvider();
       // Initial state: no error
       expect(provider.error, isNull);
+    });
+
+    test('magic-link verification fetches user info before saving session',
+        () async {
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/magic-link/verify') {
+            return http.Response(
+              '{"accessToken":"magic-token","tokenType":"bearer"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/auth/me') {
+            expect(request.headers['Authorization'], 'Bearer magic-token');
+            return http.Response(
+              '{"id":"magic-user","email":"magic@example.ch","display_name":"Magic User"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              '{}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      final success = await provider.verifyMagicLink('magic-code');
+
+      expect(success, isTrue);
+      expect(seenPaths, contains('/api/v1/auth/magic-link/verify'));
+      expect(seenPaths, contains('/api/v1/auth/me'));
+      expect(provider.userId, 'magic-user');
+      expect(provider.email, 'magic@example.ch');
+      expect(await AuthService.getToken(), 'magic-token');
+      expect(await AuthService.getUserId(), 'magic-user');
+      expect(await AuthService.getUserEmail(), 'magic@example.ch');
     });
 
     // ── Listener notification pattern ──

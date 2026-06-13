@@ -15,7 +15,7 @@ class AccountHandoffChoicePanel extends StatefulWidget {
 }
 
 class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
-  AccountHandoffChoice _choice = AccountHandoffChoice.keepLocal;
+  AccountHandoffChoice? _choice;
   bool _hasLocalData = false;
 
   @override
@@ -42,9 +42,11 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    final hint = _choice == AccountHandoffChoice.keepLocal
-        ? l10n.authHandoffKeepHint
-        : l10n.authHandoffRestartHint;
+    final hint = switch (_choice) {
+      AccountHandoffChoice.keepLocal => l10n.authHandoffKeepHint,
+      AccountHandoffChoice.restartClean => l10n.authHandoffRestartHint,
+      null => l10n.authHandoffChooseHint,
+    };
 
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -88,9 +90,13 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
           ),
           const SizedBox(height: MintSpacing.md),
           SegmentedButton<AccountHandoffChoice>(
+            emptySelectionAllowed: true,
             showSelectedIcon: false,
-            selected: {_choice},
-            onSelectionChanged: (values) => _setChoice(values.first),
+            selected: _choice == null ? {} : {_choice!},
+            onSelectionChanged: (values) {
+              if (values.isEmpty) return;
+              _setChoice(values.first);
+            },
             segments: [
               ButtonSegment(
                 value: AccountHandoffChoice.keepLocal,

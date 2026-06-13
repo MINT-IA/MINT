@@ -284,13 +284,16 @@ protects the local reinstall case; it is not a promise that iCloud Keychain or
 an encrypted backup cannot reintroduce data together with restored prefs.
 
 **Anonymous -> account handoff.** The account entry stores the user's choice in
-`mint_account_handoff_choice_v1` before auth begins. Default `keep_local` keeps
-the anonymous/local dossier available for the existing migration path. Explicit
-`restart_clean` clears the local diagnostic, anonymous chat/session, budget
-companion stores, and wizard secure values before migration, then marks
-`local_data_migrated_<userId>` so stale anonymous data is not claimed later.
-This is a local-device boundary: it does not delete backend account data or
-claim to erase restored iCloud/device backups.
+`mint_account_handoff_choice_v1` with a short timestamp before auth begins. No
+choice means the anonymous/local dossier stays separate from the account. Fresh
+explicit `keep_local` makes it available for the existing migration path.
+Fresh explicit `restart_clean` clears the local diagnostic, anonymous
+chat/session, budget companion stores, letters, and wizard secure values before
+migration, then marks `local_data_migrated_<userId>` so stale anonymous data is
+not claimed later. If the handoff UI is disabled or the choice is stale, Mint
+ignores and clears the stored choice. This is a local-device boundary: it does
+not delete backend account data or claim to erase restored iCloud/device
+backups.
 
 **Scan-first onboarding.** Before the fix commits in
 `triage/flow-utilisateur-2026-04-20`, `updateFrom*Extraction` silently

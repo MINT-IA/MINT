@@ -7942,7 +7942,11 @@ class SIt extends S {
 
   @override
   String get authHandoffRestartHint =>
-      'Mint cancella la diagnosi locale e la chat anonima prima di aprire l\'account.';
+      'Mint apre l\'account senza riprendere diagnosi locale o chat anonima.';
+
+  @override
+  String get authHandoffChooseHint =>
+      'Scegli prima di accedere per controllare cosa segue il tuo account.';
 
   @override
   String get authRequiredConsents =>

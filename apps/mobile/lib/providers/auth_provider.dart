@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -665,17 +666,8 @@ class AuthProvider extends ChangeNotifier {
       final accessToken =
           (response['accessToken'] ?? response['access_token']) as String;
 
-      // Get user info from the JWT to populate auth state.
-      // For now, store the token and fetch user info separately.
-      await AuthService.saveToken(
-        accessToken,
-        '', // userId will be populated from /me endpoint
-        '', // email will be populated from /me endpoint
-      );
-
-      // Fetch user info with the new token
       try {
-        final userInfo = await ApiService.getMe();
+        final userInfo = await ApiService.getMeWithToken(accessToken);
         final userId = userInfo['id']?.toString() ?? '';
         final userEmail = userInfo['email']?.toString() ?? '';
         final displayName = userInfo['display_name'] as String?;
@@ -691,7 +683,7 @@ class AuthProvider extends ChangeNotifier {
         _email = userEmail;
         _displayName = displayName;
       } catch (_) {
-        // Best-effort: token is valid even if /me fails
+        throw const FormatException('Magic link user info unavailable');
       }
 
       _isLoggedIn = true;
@@ -938,7 +930,10 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final shouldMigrate =
-          await AccountHandoffService.prepareLocalDataForAccount(currentUserId);
+          await AccountHandoffService.prepareLocalDataForAccount(
+        currentUserId,
+        handoffEnabled: FeatureFlags.enableMvpWedgeOnboarding,
+      );
       if (!shouldMigrate) return;
 
       final prefs = await SharedPreferences.getInstance();

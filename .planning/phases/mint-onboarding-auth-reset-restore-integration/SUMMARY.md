@@ -9,15 +9,16 @@ Product slice now adds a structured terminal dossier state, account/data state,
 DataSpine trust metadata, four terminal actions (`Continuer`, `Créer un
 compte`, `Repartir de zéro`, `Sortir`), and the reset/profile Keychain install
 guard. Account entry now exposes a persisted anonymous handoff choice:
-conserver local data or repartir with a clean local dossier.
+conserver local data or repartir with a clean local dossier. Missing/stale
+choices keep anonymous data separate from the account.
 
 Decisions: this integration phase owns the pre-code contract; fixtures use the
 canonical `FinancialArchetype` slugs; Keychain/auth/Apple cannot be closed by
 simulator only; anonymous -> account handoff must expose keep vs restart.
 
 Verified locally: 97 focused onboarding/DataSpine tests, 115 secure-storage
-reset/profile tests, 6 account-handoff tests, a 90-test auth-screen slice, a
-181-test combined regression slice, `flutter analyze`, route registry,
+reset/profile tests, 78 handoff/auth bootstrap tests, a 96-test auth-screen
+slice, a 181-test combined regression slice, `flutter analyze`, route registry,
 worktree ARB parity, banned terms, accent lint, public-doc admission lint, and
 iPhone 17 Pro simulator screenshots under `evidence/simulator/`, including
 account handoff login/register screens. Targeted Maestro route-contract proof

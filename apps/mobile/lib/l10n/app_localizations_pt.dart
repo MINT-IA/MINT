@@ -7922,7 +7922,11 @@ class SPt extends S {
 
   @override
   String get authHandoffRestartHint =>
-      'Mint apaga o diagnóstico local e o chat anónimo antes de abrir a conta.';
+      'Mint abre a conta sem retomar o diagnóstico local nem o chat anónimo.';
+
+  @override
+  String get authHandoffChooseHint =>
+      'Escolhe antes de iniciar sessão para controlar o que acompanha a tua conta.';
 
   @override
   String get authRequiredConsents =>

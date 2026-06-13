@@ -62,6 +62,14 @@ class BudgetLocalStore {
     return null;
   }
 
+  Future<bool> hasAnyData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey('${_overridePrefix}future') ||
+        prefs.containsKey('${_overridePrefix}variables') ||
+        prefs.containsKey(_inputsKey) ||
+        prefs.containsKey(_inputsOriginKey);
+  }
+
   Future<void> clearInputs() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_inputsKey);

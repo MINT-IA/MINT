@@ -7879,7 +7879,11 @@ class SEn extends S {
 
   @override
   String get authHandoffRestartHint =>
-      'Mint clears the local diagnostic and anonymous chat before opening the account.';
+      'Mint opens the account without taking over the local diagnostic or anonymous chat.';
+
+  @override
+  String get authHandoffChooseHint =>
+      'Choose before signing in so you control what follows your account.';
 
   @override
   String get authRequiredConsents =>

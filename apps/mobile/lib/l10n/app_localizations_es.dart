@@ -7928,7 +7928,11 @@ class SEs extends S {
 
   @override
   String get authHandoffRestartHint =>
-      'Mint borra el diagnóstico local y el chat anónimo antes de abrir la cuenta.';
+      'Mint abre la cuenta sin retomar el diagnóstico local ni el chat anónimo.';
+
+  @override
+  String get authHandoffChooseHint =>
+      'Elige antes de iniciar sesión para controlar qué acompaña a tu cuenta.';
 
   @override
   String get authRequiredConsents =>
