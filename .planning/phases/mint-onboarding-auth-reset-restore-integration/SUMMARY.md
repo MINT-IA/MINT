@@ -29,7 +29,9 @@ Provider contracts now also keep failed backend local-data claims retryable via
 `local_data_sync_pending_<user>` and clear that flag after auth-restore retry.
 Targeted Maestro route-contract proof
 for landing -> diagnostic onboarding also passed with screenshots under
-`evidence/maestro/account-handoff-route-20260613T2245/`; the structured
+`evidence/maestro/account-handoff-route-20260613T2245/` and was rerun after
+the retryable-claim fix with visual proof
+`evidence/simulator/16-post-retry-intents.jpg`; the structured
 Situation diagnostic scene passed under
 `evidence/maestro/diagnostic-situation-20260613T2255/` and again under
 `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` after

@@ -32,6 +32,7 @@
       <tr><td>iPhone 17 Pro simulator</td><td>PASS</td><td>Landing -> /start -> /onb -> terminal dossier.</td></tr>
       <tr><td>Account handoff simulator</td><td>PASS</td><td>Login + inscription Apple-primary affichent Conserver/Repartir. Le profil wedge session-only est détecté sur l'écran inscription.</td></tr>
       <tr><td>Maestro route-contract</td><td>PASS</td><td><code>flow_landing_to_diagnostic_onboarding.yaml</code> passe via watchdog: landing -> diagnostic, sans prompt de chat vide.</td></tr>
+      <tr><td>Maestro route-contract post-retry</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après le correctif retryable claim: landing -> diagnostic -> intentions.</td></tr>
       <tr><td>Maestro diagnostic Situation</td><td>PASS</td><td><code>flow_diagnostic_situation_scene.yaml</code> passe: repères captés, données manquantes, pas de fallback retraite. Repassé après le correctif session-profile.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
@@ -56,6 +57,7 @@
     <img src="evidence/simulator/13-terminal-actions-session-profile.jpg" alt="Terminal session profile avec actions">
     <img src="evidence/simulator/14-account-handoff-register-session-profile.jpg" alt="Handoff inscription profil session-only">
     <img src="evidence/simulator/15-account-handoff-register-restart-session-profile.jpg" alt="Handoff inscription repartir profil session-only">
+    <img src="evidence/simulator/16-post-retry-intents.jpg" alt="Intentions diagnostic après retry claim">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/01-landing.png" alt="Maestro landing">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/02-diagnostic-entry.png" alt="Maestro entrée diagnostic">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/03-diagnostic-intents.png" alt="Maestro intentions diagnostic">

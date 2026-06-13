@@ -17,6 +17,7 @@ Checks run on this phase:
 | Simulator screenshots | PASS, `evidence/simulator/01-landing.jpg` through `10-reset-returned-entry.jpg` |
 | Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg`, `12-account-handoff-register-apple.jpg`, `14-account-handoff-register-session-profile.jpg`, and `15-account-handoff-register-restart-session-profile.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/account-handoff-route-20260613T2245/` |
+| `MINT_WALKER_ARTIFACTS=...route-contract-post-retry-20260614T014422 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` after retryable claim fix | PASS, iPhone 17 Pro; landing -> diagnostic entry -> intent explorer; visual proof `evidence/simulator/16-post-retry-intents.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` | PASS, structured diagnostic Situation path; artifacts under `evidence/maestro/diagnostic-situation-20260613T2255/` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after session-profile handoff fix | PASS, iPhone 17 Pro with same local stub; artifacts under `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
@@ -62,6 +63,10 @@ Runtime notes:
   absence of the old empty-chat prompt, and the intent explorer. Stubbed
   non-contract routes such as `/snapshots` returned 404 and did not affect the
   flow.
+- The post-retry simulator run rebuilt and launched `ch.mint.app` on iPhone 17
+  Pro, then reran the same Maestro route-contract flow after commit
+  `0ade0bf8c`; the final captured screen is
+  `evidence/simulator/16-post-retry-intents.jpg`.
 - The Maestro Situation run covered a deeper structured path: selected the
   Situation intent, answered FATCA/residence/status/household/move/date/canton
   and revenue prompts, then asserted `Ce que Mint peut déjà situer`, `Repères
