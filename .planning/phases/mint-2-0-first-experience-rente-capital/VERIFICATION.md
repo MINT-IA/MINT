@@ -1,0 +1,48 @@
+# Mint 2.0 First Experience Rente/Capital — Proposed Verification
+
+Status: Proposed. These checks describe the contract before promotion.
+
+## Planning Checks
+
+```bash
+git diff --check -- .planning/phases/mint-2-0-first-experience-rente-capital
+python3 tools/checks/no_legal_admission_in_public_docs.py --paths .planning/phases/mint-2-0-first-experience-rente-capital
+git diff --name-only -- apps services
+python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/agent_reference_guard.py
+python3 tools/checks/claude_hooks_guard.py
+python3 tools/checks/verify_phase_acceptance.py
+```
+
+`verify_phase_acceptance.py` executes the active infra `SPEC.md` until the
+router points here. Do not cite it as Mint 2.0 proof before promotion.
+
+## Future Gates
+
+G1 automated mobile: `flutter analyze`, focused Flutter tests,
+`./tools/mint-routes check` if routes change, `flutter gen-l10n` and ARB parity
+if user-facing text changes, Maestro first-entry flow, negative signalétique
+tests.
+
+G2 runtime and viewport: iPhone 13 mini simulator screenshot or UI snapshot;
+real device remains required for Keychain/iCloud restore claims.
+
+G3 calculation boundary: canonical L1 or L2-L4 source named; no UI calculation
+copy; result receipt includes assumptions, sources, readiness, missing fields,
+and version.
+
+G4 dossier continuity: answer visible outside chat; reset/new discussion clears
+local draft and conversation state; account handoff preserves or discards local
+dossier only after explicit user choice.
+
+G5 language: no banned LSFin terms, no financial number without receipt, no tax
+promise, future user-facing strings through ARB/i18n, French accents checked for
+future FR copy.
+
+## Open Blockers
+
+No Mint 2.0 runtime flow exists yet; no router promotion GO has been given;
+Keychain/iCloud restore cannot be closed by simulator alone; Slice 2 still needs
+a code-mapped plan before implementation.
