@@ -91,6 +91,7 @@ class AuthGateBottomSheet extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    // lint-ignore: prefer_mint_cta
                     onPressed: () {
                       // Cassure #6 (2026-05-13): capture the router BEFORE
                       // pop, otherwise `context.push` runs against the

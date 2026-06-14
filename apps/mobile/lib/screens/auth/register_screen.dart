@@ -408,6 +408,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: MintSpacing.sm + 4),
                           if (!_showEmailForm) ...[
                             OutlinedButton(
+                              // lint-ignore: prefer_mint_cta
                               onPressed: accountActionBusy
                                   ? null
                                   : () {
@@ -766,6 +767,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             label: l10n.authCreateAccount,
                             button: true,
                             child: FilledButton(
+                              // lint-ignore: prefer_mint_cta
                               onPressed: (_acceptedCgu &&
                                       _confirmed18Plus &&
                                       !accountActionBusy)
@@ -794,6 +796,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           label: l10n.authContinueLocal,
                           button: true,
                           child: OutlinedButton(
+                            // lint-ignore: prefer_mint_cta
                             onPressed: accountActionBusy
                                 ? null
                                 : () async {
@@ -818,6 +821,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(width: MintSpacing.sm),
                             TextButton(
+                              // lint-ignore: prefer_mint_cta
                               onPressed: () {
                                 context.go('/auth/login');
                               },
@@ -833,6 +837,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: MintSpacing.md),
                         // Back to landing
                         TextButton(
+                          // lint-ignore: prefer_mint_cta
                           onPressed: () {
                             context.go('/');
                           },

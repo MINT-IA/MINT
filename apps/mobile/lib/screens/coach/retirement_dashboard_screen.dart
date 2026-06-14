@@ -425,7 +425,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     if (provider.hasProfile) {
       // Profile present — render the dashboard, or a recoverable retry if the
       // projection failed (NOT the onboarding empty state).
-      child = _projection == null ? _buildProjectionUnavailable() : _buildDashboard();
+      child = _projection == null
+          ? _buildProjectionUnavailable()
+          : _buildDashboard();
     } else if (hydrationPending) {
       // First load still in flight — a recoverable loading state, not State C.
       child = _buildHydrating();
@@ -434,8 +436,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       // last-known projection if we still hold it, else a recoverable retry.
       // NEVER « 4 infos suffisent » — a profile that existed cannot collapse
       // into the empty onboarding state while this screen is open.
-      child =
-          _projection == null ? _buildProjectionUnavailable() : _buildDashboard();
+      child = _projection == null
+          ? _buildProjectionUnavailable()
+          : _buildDashboard();
     } else {
       // Genuinely empty, settled provider that never had a profile this
       // session — the legitimate onboarding empty state.
@@ -821,6 +824,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                   button: true,
                                   label: l.commonRetry,
                                   child: FilledButton(
+                                    // lint-ignore: prefer_mint_cta
                                     key: const Key('projection_retry_cta'),
                                     // lint-ignore: prefer_mint_cta
                                     onPressed: _retryProjection,
@@ -847,6 +851,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                   button: true,
                                   label: l.dashboardMyData,
                                   child: OutlinedButton(
+                                    // lint-ignore: prefer_mint_cta
                                     key: const Key('projection_review_cta'),
                                     // lint-ignore: prefer_mint_cta
                                     onPressed: () =>
@@ -1151,6 +1156,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               button: true,
               label: l.dashboardOnboardingCta,
               child: FilledButton(
+                // lint-ignore: prefer_mint_cta
                 key: const Key('state_c_start_cta'),
                 // lint-ignore: prefer_mint_cta
                 // D8: « Commencer — 2 min » mène au parcours de questions réel

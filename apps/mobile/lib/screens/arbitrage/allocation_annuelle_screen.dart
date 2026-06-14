@@ -176,159 +176,165 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          // ── AppBar: white standard (Design System §4.5) ──
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: MintColors.white,
-            foregroundColor: MintColors.textPrimary,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            title: Semantics(
-              header: true,
-              child: Text(
-                l.allocAnnuelleTitle,
-                style: MintTextStyles.headlineMedium(),
-              ),
-            ),
-          ),
-
-          // ── Content ──
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.lg,
-              vertical: MintSpacing.md,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // ── Inputs ──
-                _buildInputSection(l),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ── Chart ──
-                if (_result != null && _result!.options.isNotEmpty) ...[
-                  // ── Indicatif banner (P8 Phase 4) ──
-                  // Codex W3 : en usage standalone (pas de profil → pas de score
-                  // canonique ET pas de dataSources), on NE rend PAS de banniere
-                  // 0% (le plancher fiction 50.0 a ete retire au plan 11). La
-                  // banniere n'apparait que quand il y a un profil a scorer.
-                  if (_canonicalConfidence != null || _dataSources.isNotEmpty)
-                    IndicatifBanner(
-                      confidenceScore: _result!.confidenceScore,
-                      topEnrichmentCategory: '3a',
-                    ),
-                  if (_hasEstimatedValues)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-                      child: SmartDefaultIndicator(
-                        source: l.allocAnnuellePreRempli,
-                        confidence: _result!.confidenceScore / 100,
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  // ── AppBar: white standard (Design System §4.5) ──
+                  SliverAppBar(
+                    pinned: true,
+                    backgroundColor: MintColors.white,
+                    foregroundColor: MintColors.textPrimary,
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    title: Semantics(
+                      header: true,
+                      child: Text(
+                        l.allocAnnuelleTitle,
+                        style: MintTextStyles.headlineMedium(),
                       ),
                     ),
-                  Semantics(
-                    label: l.allocAnnuelleTrajectoires,
-                    child: Text(
-                      l.allocAnnuelleTrajectoires,
-                      style: MintTextStyles.titleMedium(),
+                  ),
+
+                  // ── Content ──
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: MintSpacing.lg,
+                      vertical: MintSpacing.md,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        // ── Inputs ──
+                        _buildInputSection(l),
+                        const SizedBox(height: MintSpacing.lg),
+
+                        // ── Chart ──
+                        if (_result != null && _result!.options.isNotEmpty) ...[
+                          // ── Indicatif banner (P8 Phase 4) ──
+                          // Codex W3 : en usage standalone (pas de profil → pas de score
+                          // canonique ET pas de dataSources), on NE rend PAS de banniere
+                          // 0% (le plancher fiction 50.0 a ete retire au plan 11). La
+                          // banniere n'apparait que quand il y a un profil a scorer.
+                          if (_canonicalConfidence != null ||
+                              _dataSources.isNotEmpty)
+                            IndicatifBanner(
+                              confidenceScore: _result!.confidenceScore,
+                              topEnrichmentCategory: '3a',
+                            ),
+                          if (_hasEstimatedValues)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: MintSpacing.sm),
+                              child: SmartDefaultIndicator(
+                                source: l.allocAnnuellePreRempli,
+                                confidence: _result!.confidenceScore / 100,
+                              ),
+                            ),
+                          Semantics(
+                            label: l.allocAnnuelleTrajectoires,
+                            child: Text(
+                              l.allocAnnuelleTrajectoires,
+                              style: MintTextStyles.titleMedium(),
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.xs),
+                          Text(
+                            l.allocAnnuelleGraphHint,
+                            style: MintTextStyles.labelSmall(
+                              color: MintColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
+                          TrajectoryComparisonChart(
+                            options: _result!.options,
+                            breakevenYear: _result!.breakevenYear,
+                            colors: _colorsForOptions(_result!.options),
+                          ),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // ── Terminal values ──
+                          _buildTerminalValuesCard(l),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // ── Chiffre choc ──
+                          _buildPremierEclairageCard(l),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // ── Sensitivity ──
+                          BreakevenIndicatorWidget(
+                            breakevenYear: _result!.breakevenYear,
+                            ageRetraite: avsAgeReferenceHomme,
+                            horizon: _anneesAvantRetraite,
+                            sensitivity: _result!.sensitivity,
+                          ),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          ArbitrageTornadoSection(result: _result!),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // ── Hypothesis sliders ──
+                          HypothesisEditorWidget(
+                            hypotheses: [
+                              HypothesisConfig(
+                                key: 'rendement_marche',
+                                label: l.allocAnnuelleRendementMarche,
+                                min: 0,
+                                max: 8,
+                                divisions: 16,
+                                defaultValue: 4,
+                              ),
+                              HypothesisConfig(
+                                key: 'rendement_lpp',
+                                label: l.allocAnnuelleRendementLpp,
+                                min: 0,
+                                max: 4,
+                                divisions: 8,
+                                defaultValue: 1.25,
+                              ),
+                              HypothesisConfig(
+                                key: 'rendement_3a',
+                                label: l.allocAnnuelleRendement3a,
+                                min: 0,
+                                max: 5,
+                                divisions: 10,
+                                defaultValue: 2,
+                              ),
+                            ],
+                            values: _hypotheses,
+                            onChanged: (updated) {
+                              _hypotheses = updated;
+                              _recalculate();
+                            },
+                          ),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // ── Hypotheses list ──
+                          _buildHypothesesSection(l),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // ── Encouraging message ──
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: MintSpacing.md),
+                            child: Text(
+                              l.allocAnnuelleEncouragement,
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+
+                          // ── Disclaimer ──
+                          _buildDisclaimerCard(l),
+                          const SizedBox(height: MintSpacing.xl),
+                        ],
+                      ]),
                     ),
                   ),
-                  const SizedBox(height: MintSpacing.xs),
-                  Text(
-                    l.allocAnnuelleGraphHint,
-                    style: MintTextStyles.labelSmall(
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: MintSpacing.sm),
-                  TrajectoryComparisonChart(
-                    options: _result!.options,
-                    breakevenYear: _result!.breakevenYear,
-                    colors: _colorsForOptions(_result!.options),
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ── Terminal values ──
-                  _buildTerminalValuesCard(l),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ── Chiffre choc ──
-                  _buildPremierEclairageCard(l),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ── Sensitivity ──
-                  BreakevenIndicatorWidget(
-                    breakevenYear: _result!.breakevenYear,
-                    ageRetraite: avsAgeReferenceHomme,
-                    horizon: _anneesAvantRetraite,
-                    sensitivity: _result!.sensitivity,
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  ArbitrageTornadoSection(result: _result!),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ── Hypothesis sliders ──
-                  HypothesisEditorWidget(
-                    hypotheses: [
-                      HypothesisConfig(
-                        key: 'rendement_marche',
-                        label: l.allocAnnuelleRendementMarche,
-                        min: 0,
-                        max: 8,
-                        divisions: 16,
-                        defaultValue: 4,
-                      ),
-                      HypothesisConfig(
-                        key: 'rendement_lpp',
-                        label: l.allocAnnuelleRendementLpp,
-                        min: 0,
-                        max: 4,
-                        divisions: 8,
-                        defaultValue: 1.25,
-                      ),
-                      HypothesisConfig(
-                        key: 'rendement_3a',
-                        label: l.allocAnnuelleRendement3a,
-                        min: 0,
-                        max: 5,
-                        divisions: 10,
-                        defaultValue: 2,
-                      ),
-                    ],
-                    values: _hypotheses,
-                    onChanged: (updated) {
-                      _hypotheses = updated;
-                      _recalculate();
-                    },
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ── Hypotheses list ──
-                  _buildHypothesesSection(l),
-                  const SizedBox(height: MintSpacing.lg),
-
-                  // ── Encouraging message ──
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: MintSpacing.md),
-                    child: Text(
-                      l.allocAnnuelleEncouragement,
-                      style: MintTextStyles.bodyMedium(
-                        color: MintColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                  // ── Disclaimer ──
-                  _buildDisclaimerCard(l),
-                  const SizedBox(height: MintSpacing.xl),
                 ],
-              ]),
-            ),
-          ),
-        ],
-      ))),
+              ))),
     );
   }
 
@@ -339,9 +345,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       'amort_indirect': MintColors.trajectoryPrudent,
       'invest_libre': MintColors.purple,
     };
-    return options
-        .map((o) => colorMap[o.id] ?? MintColors.textMuted)
-        .toList();
+    return options.map((o) => colorMap[o.id] ?? MintColors.textMuted).toList();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -355,56 +359,65 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MintEntrance(child: Text(
+          MintEntrance(
+              child: Text(
             l.allocAnnuelleBudgetTitle,
             style: MintTextStyles.titleMedium(),
           )),
           const SizedBox(height: MintSpacing.md),
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
-            controller: _montantCtrl,
-            label: l.allocAnnuelleMontantLabel,
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 100),
+              child: _buildTextField(
+                controller: _montantCtrl,
+                label: l.allocAnnuelleMontantLabel,
+              )),
           const SizedBox(height: MintSpacing.md),
 
           // Taux marginal slider
-          MintEntrance(delay: const Duration(milliseconds: 200), child: MintPremiumSlider(
-            label: l.allocAnnuelleTauxMarginal,
-            value: _tauxMarginal,
-            min: 10,
-            max: 50,
-            divisions: 8,
-            formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
-            onChanged: (v) {
-              setState(() => _tauxMarginal = v);
-              _recalculate();
-            },
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 200),
+              child: MintPremiumSlider(
+                label: l.allocAnnuelleTauxMarginal,
+                value: _tauxMarginal,
+                min: 10,
+                max: 50,
+                divisions: 8,
+                formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+                onChanged: (v) {
+                  setState(() => _tauxMarginal = v);
+                  _recalculate();
+                },
+              )),
           const SizedBox(height: MintSpacing.sm),
 
           // Annees avant retraite slider
-          MintEntrance(delay: const Duration(milliseconds: 300), child: MintPremiumSlider(
-            label: l.allocAnnuelleAnneesRetraite,
-            value: _anneesAvantRetraite.toDouble(),
-            min: 5,
-            max: 40,
-            divisions: 35,
-            formatValue: (v) => l.allocAnnuelleAnneesValue(v.round()),
-            onChanged: (v) {
-              setState(() => _anneesAvantRetraite = v.round());
-              _recalculate();
-            },
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 300),
+              child: MintPremiumSlider(
+                label: l.allocAnnuelleAnneesRetraite,
+                value: _anneesAvantRetraite.toDouble(),
+                min: 5,
+                max: 40,
+                divisions: 35,
+                formatValue: (v) => l.allocAnnuelleAnneesValue(v.round()),
+                onChanged: (v) {
+                  setState(() => _anneesAvantRetraite = v.round());
+                  _recalculate();
+                },
+              )),
           const SizedBox(height: MintSpacing.sm),
 
           // Toggles
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggle(
-            label: l.allocAnnuelle3aMaxed,
-            value: _a3aMaxed,
-            onChanged: (v) {
-              _a3aMaxed = v;
-              _recalculate();
-            },
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 400),
+              child: _buildToggle(
+                label: l.allocAnnuelle3aMaxed,
+                value: _a3aMaxed,
+                onChanged: (v) {
+                  _a3aMaxed = v;
+                  _recalculate();
+                },
+              )),
           _buildToggle(
             label: l.allocAnnuelleRachatLpp,
             value: _hasRachatLpp,
@@ -435,12 +448,12 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               button: true,
               label: l.allocAnnuelleComparer,
               child: FilledButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: _recalculate,
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   foregroundColor: MintColors.white,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

@@ -321,6 +321,17 @@ class MintTextStyles {
         color: color ?? MintColors.inkPrimary,
       );
 
+  /// Card headline (18pt Gambarino medium, non-italic).
+  /// Used when an editorial card needs a serif headline without the italic
+  /// emphasis reserved for first-screen hero copy.
+  static TextStyle titleGambarino18Medium({Color? color}) => TextStyle(
+        fontFamily: 'Gambarino',
+        fontWeight: FontWeight.w500,
+        fontSize: 18,
+        height: 1.3,
+        color: color ?? MintColors.inkPrimary,
+      );
+
   /// Card / section title (18pt Supreme semibold).
   ///
   /// NOTE: Fontshare's Supreme catalog ships no weight 600 (Wave 1 finding #1).

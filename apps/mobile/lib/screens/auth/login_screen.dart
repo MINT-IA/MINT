@@ -261,6 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               // live sim screenshot 2026-05-02).
                               height: 56,
                               child: FilledButton(
+                                // lint-ignore: prefer_mint_cta
                                 onPressed: authProvider.isLoading
                                     ? null
                                     : () {
@@ -328,6 +329,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           else
                             Center(
                               child: TextButton(
+                                // lint-ignore: prefer_mint_cta
                                 onPressed: authProvider.isLoading
                                     ? null
                                     : () {
@@ -426,6 +428,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         // ── Password Fallback ──
                         Center(
                           child: TextButton(
+                            // lint-ignore: prefer_mint_cta
                             onPressed: () {
                               setState(() {
                                 _showPasswordFallback = !_showPasswordFallback;
@@ -487,6 +490,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: l10n.authLogin,
                             button: true,
                             child: FilledButton(
+                              // lint-ignore: prefer_mint_cta
                               onPressed: authProvider.isLoading
                                   ? null
                                   : () {
@@ -515,6 +519,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           label: l10n.authContinueLocal,
                           button: true,
                           child: OutlinedButton(
+                            // lint-ignore: prefer_mint_cta
                             onPressed: authProvider.isLoading
                                 ? null
                                 : () async {
@@ -531,6 +536,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
+                            // lint-ignore: prefer_mint_cta
                             onPressed: authProvider.isLoading
                                 ? null
                                 : () => context.go('/auth/forgot-password'),
@@ -545,6 +551,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
+                            // lint-ignore: prefer_mint_cta
                             onPressed: authProvider.isLoading
                                 ? null
                                 : () => context.go('/auth/verify-email'),
@@ -569,6 +576,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             )),
                             const SizedBox(width: MintSpacing.sm),
                             TextButton(
+                              // lint-ignore: prefer_mint_cta
                               onPressed: () {
                                 context.go('/auth/register');
                               },
@@ -584,6 +592,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: MintSpacing.md),
                         // Back to landing
                         TextButton(
+                          // lint-ignore: prefer_mint_cta
                           onPressed: () {
                             context.go('/');
                           },

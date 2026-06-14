@@ -132,8 +132,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   void _recalculate() {
     final capital =
         double.tryParse(_capitalCtrl.text.replaceAll("'", '')) ?? 200000;
-    final loyer =
-        double.tryParse(_loyerCtrl.text.replaceAll("'", '')) ?? 2000;
+    final loyer = double.tryParse(_loyerCtrl.text.replaceAll("'", '')) ?? 2000;
     final prixBien =
         double.tryParse(_prixBienCtrl.text.replaceAll("'", '')) ?? 800000;
 
@@ -158,184 +157,190 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          // ── SliverAppBar ──
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.primary,
-            foregroundColor: MintColors.white,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                S.of(context)!.locationLouerOuAcheter,
-                style: MintTextStyles.headlineMedium(color: MintColors.white),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [MintColors.primary, MintColors.accent],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // ── Content ──
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // ── Inputs ──
-                _buildInputSection(),
-                const SizedBox(height: 24),
-
-                // ── Chart ──
-                if (_result != null && _result!.options.isNotEmpty) ...[
-                  // ── Indicatif banner (P8 Phase 4) ──
-                  // Codex W3 : pas de banniere 0% en usage standalone (pas de
-                  // profil → pas de score canonique ET pas de dataSources). Le
-                  // plancher fiction 50.0 a ete retire au plan 11.
-                  if (_canonicalConfidence != null || _dataSources.isNotEmpty)
-                    IndicatifBanner(
-                      confidenceScore: _result!.confidenceScore,
-                      topEnrichmentCategory: 'patrimoine',
-                    ),
-                  if (_hasEstimatedValues)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: SmartDefaultIndicator(
-                        source: S.of(context)!.locationValeursProfil,
-                        confidence: _result!.confidenceScore / 100,
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  // ── SliverAppBar ──
+                  SliverAppBar(
+                    expandedHeight: 100,
+                    pinned: true,
+                    backgroundColor: MintColors.primary,
+                    foregroundColor: MintColors.white,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: Text(
+                        S.of(context)!.locationLouerOuAcheter,
+                        style: MintTextStyles.headlineMedium(
+                            color: MintColors.white),
+                      ),
+                      background: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [MintColors.primary, MintColors.accent],
+                          ),
+                        ),
                       ),
                     ),
-                  Text(
-                    S.of(context)!.locationTrajectoires,
-                    style: MintTextStyles.titleMedium(),
                   ),
-                  const SizedBox(height: MintSpacing.xs),
-                  Text(
-                    S.of(context)!.locationToucheGraphique,
-                    style: MintTextStyles.bodySmall(),
-                  ),
-                  const SizedBox(height: 12),
-                  TrajectoryComparisonChart(
-                    options: _result!.options,
-                    breakevenYear: _result!.breakevenYear,
-                    colors: const [
-                      MintColors.retirementAvs,
-                      MintColors.retirementLpp,
-                    ],
-                  ),
-                  const SizedBox(height: 20),
 
-                  // ── Breakeven ──
-                  BreakevenIndicatorWidget(
-                    breakevenYear: _result!.breakevenYear,
-                    ageRetraite: 0,
-                    horizon: (_hypotheses['horizon'] ?? 20).round(),
-                    sensitivity: _result!.sensitivity,
-                  ),
-                  const SizedBox(height: 20),
+                  // ── Content ──
+                  SliverPadding(
+                    padding: const EdgeInsets.all(20),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        // ── Inputs ──
+                        _buildInputSection(),
+                        const SizedBox(height: 24),
 
-                  ArbitrageTornadoSection(result: _result!),
-                  const SizedBox(height: 20),
+                        // ── Chart ──
+                        if (_result != null && _result!.options.isNotEmpty) ...[
+                          // ── Indicatif banner (P8 Phase 4) ──
+                          // Codex W3 : pas de banniere 0% en usage standalone (pas de
+                          // profil → pas de score canonique ET pas de dataSources). Le
+                          // plancher fiction 50.0 a ete retire au plan 11.
+                          if (_canonicalConfidence != null ||
+                              _dataSources.isNotEmpty)
+                            IndicatifBanner(
+                              confidenceScore: _result!.confidenceScore,
+                              topEnrichmentCategory: 'patrimoine',
+                            ),
+                          if (_hasEstimatedValues)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: SmartDefaultIndicator(
+                                source: S.of(context)!.locationValeursProfil,
+                                confidence: _result!.confidenceScore / 100,
+                              ),
+                            ),
+                          Text(
+                            S.of(context)!.locationTrajectoires,
+                            style: MintTextStyles.titleMedium(),
+                          ),
+                          const SizedBox(height: MintSpacing.xs),
+                          Text(
+                            S.of(context)!.locationToucheGraphique,
+                            style: MintTextStyles.bodySmall(),
+                          ),
+                          const SizedBox(height: 12),
+                          TrajectoryComparisonChart(
+                            options: _result!.options,
+                            breakevenYear: _result!.breakevenYear,
+                            colors: const [
+                              MintColors.retirementAvs,
+                              MintColors.retirementLpp,
+                            ],
+                          ),
+                          const SizedBox(height: 20),
 
-                  // ── Affordability warning ──
-                  _buildAffordabilityWarning(),
-                  const SizedBox(height: 20),
+                          // ── Breakeven ──
+                          BreakevenIndicatorWidget(
+                            breakevenYear: _result!.breakevenYear,
+                            ageRetraite: 0,
+                            horizon: (_hypotheses['horizon'] ?? 20).round(),
+                            sensitivity: _result!.sensitivity,
+                          ),
+                          const SizedBox(height: 20),
 
-                  // ── Chiffre choc ──
-                  _buildPremierEclairageCard(),
-                  const SizedBox(height: 20),
+                          ArbitrageTornadoSection(result: _result!),
+                          const SizedBox(height: 20),
 
-                  // ── Hypothesis sliders ──
-                  HypothesisEditorWidget(
-                    hypotheses: [
-                      HypothesisConfig(
-                        key: 'rendement_marche',
-                        label: S.of(context)!.locationRendementMarche,
-                        min: 0,
-                        max: 8,
-                        divisions: 16,
-                        defaultValue: 4,
-                      ),
-                      HypothesisConfig(
-                        key: 'appreciation_immo',
-                        label: S.of(context)!.locationAppreciationImmo,
-                        min: 0,
-                        max: 4,
-                        divisions: 8,
-                        defaultValue: 1.5,
-                      ),
-                      HypothesisConfig(
-                        key: 'taux_hypo',
-                        label: S.of(context)!.locationTauxHypo,
-                        min: 0.5,
-                        max: 5,
-                        divisions: 9,
-                        defaultValue: 2,
-                      ),
-                      HypothesisConfig(
-                        key: 'horizon',
-                        label: S.of(context)!.locationHorizon,
-                        min: 5,
-                        max: 30,
-                        divisions: 25,
-                        defaultValue: 20,
-                        unit: 'ans',
-                      ),
-                    ],
-                    values: _hypotheses,
-                    onChanged: (updated) {
-                      _hypotheses = updated;
-                      _recalculate();
-                    },
-                  ),
-                  const SizedBox(height: 20),
+                          // ── Affordability warning ──
+                          _buildAffordabilityWarning(),
+                          const SizedBox(height: 20),
 
-                  // ── Hypotheses list ──
-                  _buildHypothesesSection(),
-                  const SizedBox(height: 20),
+                          // ── Chiffre choc ──
+                          _buildPremierEclairageCard(),
+                          const SizedBox(height: 20),
 
-                  // ── P3-A : Grand Match Louer vs Acheter ─────────
-                  RentVsBuyScoreboardWidget(
-                    propertyPrice: double.tryParse(
-                            _prixBienCtrl.text.replaceAll("'", '')) ??
-                        800000,
-                    equity: double.tryParse(
-                            _capitalCtrl.text.replaceAll("'", '')) ??
-                        200000,
-                    monthlyRent: double.tryParse(
-                            _loyerCtrl.text.replaceAll("'", '')) ??
-                        2000,
-                    mortgageMonthly: ((double.tryParse(
+                          // ── Hypothesis sliders ──
+                          HypothesisEditorWidget(
+                            hypotheses: [
+                              HypothesisConfig(
+                                key: 'rendement_marche',
+                                label: S.of(context)!.locationRendementMarche,
+                                min: 0,
+                                max: 8,
+                                divisions: 16,
+                                defaultValue: 4,
+                              ),
+                              HypothesisConfig(
+                                key: 'appreciation_immo',
+                                label: S.of(context)!.locationAppreciationImmo,
+                                min: 0,
+                                max: 4,
+                                divisions: 8,
+                                defaultValue: 1.5,
+                              ),
+                              HypothesisConfig(
+                                key: 'taux_hypo',
+                                label: S.of(context)!.locationTauxHypo,
+                                min: 0.5,
+                                max: 5,
+                                divisions: 9,
+                                defaultValue: 2,
+                              ),
+                              HypothesisConfig(
+                                key: 'horizon',
+                                label: S.of(context)!.locationHorizon,
+                                min: 5,
+                                max: 30,
+                                divisions: 25,
+                                defaultValue: 20,
+                                unit: 'ans',
+                              ),
+                            ],
+                            values: _hypotheses,
+                            onChanged: (updated) {
+                              _hypotheses = updated;
+                              _recalculate();
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          // ── Hypotheses list ──
+                          _buildHypothesesSection(),
+                          const SizedBox(height: 20),
+
+                          // ── P3-A : Grand Match Louer vs Acheter ─────────
+                          RentVsBuyScoreboardWidget(
+                            propertyPrice: double.tryParse(
                                     _prixBienCtrl.text.replaceAll("'", '')) ??
-                                800000) -
-                            (double.tryParse(
+                                800000,
+                            equity: double.tryParse(
                                     _capitalCtrl.text.replaceAll("'", '')) ??
-                                200000)) *
-                        0.05 /
-                        12,
-                    years: (_hypotheses['horizon'] ?? 20).round(),
-                    appreciationRate: (_hypotheses['appreciation_immo'] ?? 1.5) /
-                        100,
-                    investmentReturnRate:
-                        (_hypotheses['rendement_marche'] ?? 4.0) / 100,
-                  ),
-                  const SizedBox(height: 20),
+                                200000,
+                            monthlyRent: double.tryParse(
+                                    _loyerCtrl.text.replaceAll("'", '')) ??
+                                2000,
+                            mortgageMonthly: ((double.tryParse(_prixBienCtrl
+                                            .text
+                                            .replaceAll("'", '')) ??
+                                        800000) -
+                                    (double.tryParse(_capitalCtrl.text
+                                            .replaceAll("'", '')) ??
+                                        200000)) *
+                                0.05 /
+                                12,
+                            years: (_hypotheses['horizon'] ?? 20).round(),
+                            appreciationRate:
+                                (_hypotheses['appreciation_immo'] ?? 1.5) / 100,
+                            investmentReturnRate:
+                                (_hypotheses['rendement_marche'] ?? 4.0) / 100,
+                          ),
+                          const SizedBox(height: 20),
 
-                  // ── Disclaimer ──
-                  _buildDisclaimerCard(),
-                  const SizedBox(height: 32),
+                          // ── Disclaimer ──
+                          _buildDisclaimerCard(),
+                          const SizedBox(height: 32),
+                        ],
+                      ]),
+                    ),
+                  ),
                 ],
-              ]),
-            ),
-          ),
-        ],
-      ))),
+              ))),
     );
   }
 
@@ -349,89 +354,101 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MintEntrance(child: Text(
+          MintEntrance(
+              child: Text(
             S.of(context)!.locationProjetImmobilier,
             style: MintTextStyles.titleMedium(),
           )),
           const SizedBox(height: 16),
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
-            controller: _capitalCtrl,
-            label: S.of(context)!.locationCapitalDispo,
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 100),
+              child: _buildTextField(
+                controller: _capitalCtrl,
+                label: S.of(context)!.locationCapitalDispo,
+              )),
           const SizedBox(height: 12),
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildTextField(
-            controller: _loyerCtrl,
-            label: S.of(context)!.locationLoyerMensuel,
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 200),
+              child: _buildTextField(
+                controller: _loyerCtrl,
+                label: S.of(context)!.locationLoyerMensuel,
+              )),
           const SizedBox(height: 12),
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTextField(
-            controller: _prixBienCtrl,
-            label: S.of(context)!.locationPrixBien,
-          )),
+          MintEntrance(
+              delay: const Duration(milliseconds: 300),
+              child: _buildTextField(
+                controller: _prixBienCtrl,
+                label: S.of(context)!.locationPrixBien,
+              )),
           const SizedBox(height: 16),
 
           // Canton dropdown + married toggle
-          MintEntrance(delay: const Duration(milliseconds: 400), child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context)!.locationCanton,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          MintEntrance(
+              delay: const Duration(milliseconds: 400),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          S.of(context)!.locationCanton,
+                          style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary),
+                        ),
+                        const SizedBox(height: 6),
+                        MintSurface(
+                          tone: MintSurfaceTone.porcelaine,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          radius: 12,
+                          child: DropdownButton<String>(
+                            value: _canton,
+                            isExpanded: true,
+                            underline: const SizedBox.shrink(),
+                            items: sortedCantonCodes.map((code) {
+                              final name = cantonFullNames[code] ?? code;
+                              return DropdownMenuItem(
+                                value: code,
+                                child: Text(
+                                  '$code - $name',
+                                  style: MintTextStyles.bodyMedium(
+                                      color: MintColors.textPrimary),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (v) {
+                              if (v != null) {
+                                _canton = v;
+                                _recalculate();
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 6),
-                    MintSurface(
-                      tone: MintSurfaceTone.porcelaine,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      radius: 12,
-                      child: DropdownButton<String>(
-                        value: _canton,
-                        isExpanded: true,
-                        underline: const SizedBox.shrink(),
-                        items: sortedCantonCodes.map((code) {
-                          final name = cantonFullNames[code] ?? code;
-                          return DropdownMenuItem(
-                            value: code,
-                            child: Text(
-                              '$code - $name',
-                              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-                            ),
-                          );
-                        }).toList(),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        S.of(context)!.locationMarie,
+                        style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary),
+                      ),
+                      const SizedBox(height: 6),
+                      Switch(
+                        value: _isMarried,
+                        activeTrackColor: MintColors.primary,
                         onChanged: (v) {
-                          if (v != null) {
-                            _canton = v;
-                            _recalculate();
-                          }
+                          _isMarried = v;
+                          _recalculate();
                         },
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.of(context)!.locationMarie,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-                  ),
-                  const SizedBox(height: 6),
-                  Switch(
-                    value: _isMarried,
-                    activeTrackColor: MintColors.primary,
-                    onChanged: (v) {
-                      _isMarried = v;
-                      _recalculate();
-                    },
+                    ],
                   ),
                 ],
-              ),
-            ],
-          )),
+              )),
           const SizedBox(height: 12),
           Semantics(
             button: true,
@@ -439,6 +456,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             child: SizedBox(
               width: double.infinity,
               child: FilledButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () {
                   HapticFeedback.lightImpact();
                   _recalculate();
@@ -532,17 +550,24 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
               children: [
                 Text(
                   S.of(context)!.locationCapaciteFinma,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  S.of(context)!.locationChargeTheorique(_formatChf(chargeTheorique)),
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  S
+                      .of(context)!
+                      .locationChargeTheorique(_formatChf(chargeTheorique)),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  S.of(context)!.locationRevenuMinimum(_formatChf(chargeTheorique * 3)),
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                  S
+                      .of(context)!
+                      .locationRevenuMinimum(_formatChf(chargeTheorique * 3)),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -604,7 +629,8 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
       childrenPadding: const EdgeInsets.only(bottom: 8),
       title: Text(
         S.of(context)!.locationHypotheses,
-        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+            .copyWith(fontWeight: FontWeight.w600),
       ),
       children: [
         for (final h in _result!.hypotheses)
@@ -618,7 +644,8 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 Expanded(
                   child: Text(
                     h,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary),
                   ),
                 ),
               ],
@@ -651,7 +678,8 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.locationAvertissement,
-                style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),

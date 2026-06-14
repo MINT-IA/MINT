@@ -102,83 +102,96 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              MintEntrance(child: Text(
-                l10n.authVerifyInstructions,
-                style: MintTextStyles.bodyMedium(),
-              )),
-              const SizedBox(height: MintSpacing.md),
-              MintEntrance(delay: const Duration(milliseconds: 100), child: Semantics(
-                label: l10n.authEmail,
-                textField: true,
-                child: TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: l10n.authEmail,
-                    prefixIcon: const Icon(Icons.email_outlined),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(MintSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MintEntrance(
+                          child: Text(
+                        l10n.authVerifyInstructions,
+                        style: MintTextStyles.bodyMedium(),
+                      )),
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(
+                          delay: const Duration(milliseconds: 100),
+                          child: Semantics(
+                            label: l10n.authEmail,
+                            textField: true,
+                            child: TextField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                labelText: l10n.authEmail,
+                                prefixIcon: const Icon(Icons.email_outlined),
+                              ),
+                            ),
+                          )),
+                      const SizedBox(height: MintSpacing.sm + 4),
+                      FilledButton.tonal(
+                        onPressed: auth.isLoading ? null : _requestToken,
+                        child: Text(l10n.authVerifySendLink),
+                      ),
+                      if (_debugToken != null) ...[
+                        const SizedBox(height: MintSpacing.sm + 4),
+                        Container(
+                          padding: const EdgeInsets.all(MintSpacing.sm + 4),
+                          decoration: BoxDecoration(
+                            color: MintColors.info.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${l10n.authDebugTokenLabel}: $_debugToken',
+                            style: MintTextStyles.labelSmall(
+                              color: MintColors.info,
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: Semantics(
+                            label: l10n.authVerifyTokenLabel,
+                            textField: true,
+                            child: TextField(
+                              controller: _tokenController,
+                              decoration: InputDecoration(
+                                labelText: l10n.authVerifyTokenLabel,
+                                prefixIcon: const Icon(Icons.key_outlined),
+                              ),
+                            ),
+                          )),
+                      const SizedBox(height: MintSpacing.md),
+                      if (auth.error != null)
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(bottom: MintSpacing.sm),
+                          child: Text(
+                            localizeAuthError(auth.error!, l10n),
+                            style: MintTextStyles.bodyMedium(
+                                color: MintColors.error),
+                          ),
+                        ),
+                      MintEntrance(
+                          delay: const Duration(milliseconds: 300),
+                          child: Semantics(
+                            label: l10n.authVerifySubmit,
+                            button: true,
+                            child: FilledButton(
+                              // lint-ignore: prefer_mint_cta
+                              onPressed: auth.isLoading ? null : _confirm,
+                              child: Text(l10n.authVerifySubmit),
+                            ),
+                          )),
+                    ],
                   ),
                 ),
-              )),
-              const SizedBox(height: MintSpacing.sm + 4),
-              FilledButton.tonal(
-                onPressed: auth.isLoading ? null : _requestToken,
-                child: Text(l10n.authVerifySendLink),
-              ),
-              if (_debugToken != null) ...[
-                const SizedBox(height: MintSpacing.sm + 4),
-                Container(
-                  padding: const EdgeInsets.all(MintSpacing.sm + 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.info.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${l10n.authDebugTokenLabel}: $_debugToken',
-                    style: MintTextStyles.labelSmall(
-                      color: MintColors.info,
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: MintSpacing.md),
-              MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
-                label: l10n.authVerifyTokenLabel,
-                textField: true,
-                child: TextField(
-                  controller: _tokenController,
-                  decoration: InputDecoration(
-                    labelText: l10n.authVerifyTokenLabel,
-                    prefixIcon: const Icon(Icons.key_outlined),
-                  ),
-                ),
-              )),
-              const SizedBox(height: MintSpacing.md),
-              if (auth.error != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-                  child: Text(
-                    localizeAuthError(auth.error!, l10n),
-                    style: MintTextStyles.bodyMedium(color: MintColors.error),
-                  ),
-                ),
-              MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
-                label: l10n.authVerifySubmit,
-                button: true,
-                child: FilledButton(
-                  onPressed: auth.isLoading ? null : _confirm,
-                  child: Text(l10n.authVerifySubmit),
-                ),
-              )),
-            ],
-          ),
-        ),
-      ))),
+              ))),
     );
   }
 }

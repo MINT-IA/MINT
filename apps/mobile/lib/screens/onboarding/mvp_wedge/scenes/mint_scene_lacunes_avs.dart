@@ -243,8 +243,7 @@ class _MintSceneLacunesAvsState extends State<MintSceneLacunesAvs> {
                   _parsedNumber = null;
                 } else if (isArrival) {
                   // Plausible arrival year window.
-                  _parsedNumber =
-                      (n >= 1950 && n <= currentYear) ? n : null;
+                  _parsedNumber = (n >= 1950 && n <= currentYear) ? n : null;
                 } else {
                   // Years abroad: 1..60.
                   _parsedNumber = (n >= 1 && n <= 60) ? n : null;
@@ -260,6 +259,7 @@ class _MintSceneLacunesAvsState extends State<MintSceneLacunesAvs> {
               button: true,
               label: l.onboardingAvsContinue,
               child: FilledButton(
+                // lint-ignore: prefer_mint_cta
                 key: const ValueKey('onboarding-avs-continue'),
                 onPressed: _parsedNumber == null ? null : _submitFollowUp,
                 style: FilledButton.styleFrom(

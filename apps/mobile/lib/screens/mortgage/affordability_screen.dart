@@ -200,9 +200,8 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       final result = _result;
       final updated = profile.copyWith(
         patrimoine: profile.patrimoine.copyWith(
-          mortgageCapacity: result.prixMaxAccessible > 0
-              ? result.prixMaxAccessible
-              : null,
+          mortgageCapacity:
+              result.prixMaxAccessible > 0 ? result.prixMaxAccessible : null,
           estimatedMonthlyPayment: result.chargesTheoriquesMensuelles > 0
               ? result.chargesTheoriquesMensuelles
               : null,
@@ -246,7 +245,8 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
       );
-      ScreenCompletionTracker.markCompletedWithReturn('affordability', screenReturn);
+      ScreenCompletionTracker.markCompletedWithReturn(
+          'affordability', screenReturn);
       return;
     }
 
@@ -261,7 +261,8 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       stepId: _seqStepId,
       eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
     );
-    ScreenCompletionTracker.markCompletedWithReturn('affordability', screenReturn);
+    ScreenCompletionTracker.markCompletedWithReturn(
+        'affordability', screenReturn);
   }
 
   double _revenuBrut = 120000;
@@ -273,9 +274,32 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   bool _showAdvancedParams = false;
 
   static const _cantons = [
-    'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
-    'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
-    'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+    'AG',
+    'AI',
+    'AR',
+    'BE',
+    'BL',
+    'BS',
+    'FR',
+    'GE',
+    'GL',
+    'GR',
+    'JU',
+    'LU',
+    'NE',
+    'NW',
+    'OW',
+    'SG',
+    'SH',
+    'SO',
+    'SZ',
+    'TG',
+    'TI',
+    'UR',
+    'VD',
+    'VS',
+    'ZG',
+    'ZH',
   ];
 
   AffordabilityResult get _result => AffordabilityCalculator.calculate(
@@ -293,308 +317,332 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     final l = S.of(context)!;
 
     return PopScope(
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _emitFinalReturn();
-      },
-      child: Scaffold(
-      backgroundColor: MintColors.porcelaine,
-      body: CustomScrollView(
-        slivers: [
-          // ── White standard AppBar (Design System §4.5) ──
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.white,
-            foregroundColor: MintColors.textPrimary,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                l.affordabilityTitle,
-                style: MintTextStyles.headlineMedium(),
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) _emitFinalReturn();
+        },
+        child: Scaffold(
+          backgroundColor: MintColors.porcelaine,
+          body: CustomScrollView(
+            slivers: [
+              // ── White standard AppBar (Design System §4.5) ──
+              SliverAppBar(
+                expandedHeight: 100,
+                pinned: true,
+                backgroundColor: MintColors.white,
+                foregroundColor: MintColors.textPrimary,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    l.affordabilityTitle,
+                    style: MintTextStyles.headlineMedium(),
+                  ),
+                ),
               ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.lg,
-              vertical: MintSpacing.lg,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 1 — L'ENJEU : la question hero
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                Text(
-                  l.affordabilityEmotionalPositif,
-                  style: MintTextStyles.headlineLarge(
-                    color: MintColors.textPrimary,
-                  ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.lg,
+                  vertical: MintSpacing.lg,
                 ),
-                const SizedBox(height: MintSpacing.xl),
-
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 2 — LE RESULTAT : consequence financiere
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintResultHeroCard(
-                  eyebrow: result.premierEclairagePositif
-                      ? l.affordabilityParameters
-                      : l.affordabilityInsightEquityTitle,
-                  primaryValue: result.premierEclairagePositif
-                      ? 'CHF\u00a0${formatChf(result.prixMaxAccessible)}'
-                      : 'CHF\u00a0${formatChf(result.manqueFondsPropres)}',
-                  primaryLabel: result.premierEclairagePositif
-                      ? l.affordabilityCalculationDetail
-                      : l.affordabilityExceeded,
-                  narrative: result.premierEclairageTexte,
-                  accentColor: result.premierEclairagePositif
-                      ? MintColors.success
-                      : MintColors.error,
-                  tone: MintSurfaceTone.porcelaine,
-                ),
-                const SizedBox(height: MintSpacing.xl),
-
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 3 — INDICATEURS : signaux, pas jauges
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintSurface(
-                  tone: MintSurfaceTone.blanc,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.affordabilityIndicators,
-                        style: MintTextStyles.labelSmall(
-                          color: MintColors.textMuted,
-                        ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 1 — L'ENJEU : la question hero
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    Text(
+                      l.affordabilityEmotionalPositif,
+                      style: MintTextStyles.headlineLarge(
+                        color: MintColors.textPrimary,
                       ),
-                      MintSignalRow(
-                        label: l.affordabilityChargesRatio,
-                        value: '${(result.ratioCharges * 100).toStringAsFixed(1)}\u00a0%',
-                        valueColor: result.capaciteOk
-                            ? MintColors.success
-                            : MintColors.error,
-                      ),
-                      MintSignalRow(
-                        label: l.affordabilityEquityRatio,
-                        value:
-                            'CHF\u00a0${formatChf(result.fondsPropresTotal)} / ${formatChf(result.fondsPropresRequis)}',
-                        valueColor: result.fondsPropresOk
-                            ? MintColors.success
-                            : MintColors.error,
-                      ),
-                      MintSignalRow(
-                        label: l.affordabilityMonthlyCharges,
-                        value:
-                            'CHF\u00a0${formatChf(result.chargesTheoriquesMensuelles)}',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 4 — INSIGHT pedagogique
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                _buildInsightCard(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 2 — LE RESULTAT : consequence financiere
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    MintResultHeroCard(
+                      eyebrow: result.premierEclairagePositif
+                          ? l.affordabilityParameters
+                          : l.affordabilityInsightEquityTitle,
+                      primaryValue: result.premierEclairagePositif
+                          ? 'CHF\u00a0${formatChf(result.prixMaxAccessible)}'
+                          : 'CHF\u00a0${formatChf(result.manqueFondsPropres)}',
+                      primaryLabel: result.premierEclairagePositif
+                          ? l.affordabilityCalculationDetail
+                          : l.affordabilityExceeded,
+                      narrative: result.premierEclairageTexte,
+                      accentColor: result.premierEclairagePositif
+                          ? MintColors.success
+                          : MintColors.error,
+                      tone: MintSurfaceTone.porcelaine,
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 5 — CONFIDENCE NOTICE (donnees estimees)
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintConfidenceNotice(
-                  percent: 45,
-                  message: l.affordabilityCalculationNote,
-                ),
-                const SizedBox(height: MintSpacing.xl),
-
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 6 — CONTROLES : sliders SOUS le resultat
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintSurface(
-                  tone: MintSurfaceTone.craie,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.affordabilityParameters,
-                        style: MintTextStyles.labelSmall(
-                          color: MintColors.textMuted,
-                        ),
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 3 — INDICATEURS : signaux, pas jauges
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    MintSurface(
+                      tone: MintSurfaceTone.blanc,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.affordabilityIndicators,
+                            style: MintTextStyles.labelSmall(
+                              color: MintColors.textMuted,
+                            ),
+                          ),
+                          MintSignalRow(
+                            label: l.affordabilityChargesRatio,
+                            value:
+                                '${(result.ratioCharges * 100).toStringAsFixed(1)}\u00a0%',
+                            valueColor: result.capaciteOk
+                                ? MintColors.success
+                                : MintColors.error,
+                          ),
+                          MintSignalRow(
+                            label: l.affordabilityEquityRatio,
+                            value:
+                                'CHF\u00a0${formatChf(result.fondsPropresTotal)} / ${formatChf(result.fondsPropresRequis)}',
+                            valueColor: result.fondsPropresOk
+                                ? MintColors.success
+                                : MintColors.error,
+                          ),
+                          MintSignalRow(
+                            label: l.affordabilityMonthlyCharges,
+                            value:
+                                'CHF\u00a0${formatChf(result.chargesTheoriquesMensuelles)}',
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: MintSpacing.md),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
 
-                      // Canton
-                      Semantics(
-                        label: l.affordabilityCanton,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l.affordabilityCanton,
-                              style: MintTextStyles.bodySmall(
-                                color: MintColors.textSecondary,
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 4 — INSIGHT pedagogique
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    _buildInsightCard(result, l),
+                    const SizedBox(height: MintSpacing.lg),
+
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 5 — CONFIDENCE NOTICE (donnees estimees)
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    MintConfidenceNotice(
+                      percent: 45,
+                      message: l.affordabilityCalculationNote,
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
+
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 6 — CONTROLES : sliders SOUS le resultat
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    MintSurface(
+                      tone: MintSurfaceTone.craie,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.affordabilityParameters,
+                            style: MintTextStyles.labelSmall(
+                              color: MintColors.textMuted,
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.md),
+
+                          // Canton
+                          Semantics(
+                            label: l.affordabilityCanton,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  l.affordabilityCanton,
+                                  style: MintTextStyles.bodySmall(
+                                    color: MintColors.textSecondary,
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: MintSpacing.sm + MintSpacing.xs,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border:
+                                        Border.all(color: MintColors.border),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: _canton,
+                                      items: _cantons
+                                          .map((c) => DropdownMenuItem(
+                                                value: c,
+                                                child: Text(c,
+                                                    style: MintTextStyles
+                                                        .bodySmall(
+                                                            color: MintColors
+                                                                .textPrimary)),
+                                              ))
+                                          .toList(),
+                                      onChanged: (v) {
+                                        if (v != null) {
+                                          setState(() {
+                                            _hasUserInteracted = true;
+                                            _canton = v;
+                                          });
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback(
+                                                  (_) => _writeBackResult());
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.lg),
+
+                          // Revenu brut annuel
+                          _buildAmountFieldWithBadge(
+                            label: l.affordabilityGrossIncome,
+                            value: _revenuBrut,
+                            fieldKey: 'revenu_brut',
+                            onChanged: (v) {
+                              setState(() {
+                                _hasUserInteracted = true;
+                                _revenuBrut = v;
+                              });
+                              WidgetsBinding.instance.addPostFrameCallback(
+                                  (_) => _writeBackResult());
+                            },
+                            min: 50000,
+                            max: 300000,
+                          ),
+                          const SizedBox(height: MintSpacing.md),
+
+                          // Prix d'achat
+                          MintAmountField(
+                            label: l.affordabilityTargetPrice,
+                            value: _prixAchat,
+                            formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                            onChanged: (v) => setState(() {
+                              _hasUserInteracted = true;
+                              _prixAchat = v;
+                            }),
+                            min: 200000,
+                            max: 3000000,
+                          ),
+                          const SizedBox(height: MintSpacing.md),
+
+                          // Epargne disponible
+                          MintAmountField(
+                            label: l.affordabilityAvailableSavings,
+                            value: _epargneDispo,
+                            formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                            onChanged: (v) => setState(() {
+                              _hasUserInteracted = true;
+                              _epargneDispo = v;
+                            }),
+                            min: 0,
+                            max: 500000,
+                          ),
+
+                          // Progressive disclosure: 3a + LPP behind toggle
+                          const SizedBox(height: MintSpacing.md),
+                          Semantics(
+                            button: true,
+                            label: l.affordabilityAdvancedParams,
+                            child: GestureDetector(
+                              onTap: () => setState(() =>
+                                  _showAdvancedParams = !_showAdvancedParams),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    _showAdvancedParams
+                                        ? Icons.expand_less
+                                        : Icons.expand_more,
+                                    color: MintColors.info,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: MintSpacing.xs),
+                                  Text(
+                                    l.affordabilityAdvancedParams,
+                                    style: MintTextStyles.bodySmall(
+                                        color: MintColors.info),
+                                  ),
+                                ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: MintSpacing.sm + MintSpacing.xs,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: MintColors.border),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: _canton,
-                                  items: _cantons
-                                      .map((c) => DropdownMenuItem(
-                                            value: c,
-                                            child: Text(c,
-                                                style: MintTextStyles.bodySmall(
-                                                    color: MintColors
-                                                        .textPrimary)),
-                                          ))
-                                      .toList(),
-                                  onChanged: (v) {
-                                    if (v != null) {
-                                      setState(() { _hasUserInteracted = true; _canton = v; });
-                                      WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
-                                    }
-                                  },
-                                ),
-                              ),
+                          ),
+                          if (_showAdvancedParams) ...[
+                            const SizedBox(height: MintSpacing.md),
+                            MintAmountField(
+                              label: l.affordabilityPillar3a,
+                              value: _avoir3a,
+                              formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                              onChanged: (v) => setState(() {
+                                _hasUserInteracted = true;
+                                _avoir3a = v;
+                              }),
+                              min: 0,
+                              max: 300000,
+                            ),
+                            const SizedBox(height: MintSpacing.md),
+                            _buildAmountFieldWithBadge(
+                              label: l.affordabilityPillarLpp,
+                              value: _avoirLpp,
+                              fieldKey: 'avoir_lpp',
+                              onChanged: (v) => setState(() {
+                                _hasUserInteracted = true;
+                                _avoirLpp = v;
+                              }),
+                              min: 0,
+                              max: 500000,
                             ),
                           ],
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: MintSpacing.lg),
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
 
-                      // Revenu brut annuel
-                      _buildAmountFieldWithBadge(
-                        label: l.affordabilityGrossIncome,
-                        value: _revenuBrut,
-                        fieldKey: 'revenu_brut',
-                        onChanged: (v) {
-                          setState(() { _hasUserInteracted = true; _revenuBrut = v; });
-                          WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
-                        },
-                        min: 50000,
-                        max: 300000,
-                      ),
-                      const SizedBox(height: MintSpacing.md),
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 7 — DETAIL calcul (progressive disclosure)
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    _buildDetailSection(result, l),
+                    const SizedBox(height: MintSpacing.lg),
 
-                      // Prix d'achat
-                      MintAmountField(
-                        label: l.affordabilityTargetPrice,
-                        value: _prixAchat,
-                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _prixAchat = v; }),
-                        min: 200000,
-                        max: 3000000,
-                      ),
-                      const SizedBox(height: MintSpacing.md),
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 8 — EXPLORER AUSSI
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    _buildRelatedSections(l),
+                    const SizedBox(height: MintSpacing.lg),
 
-                      // Epargne disponible
-                      MintAmountField(
-                        label: l.affordabilityAvailableSavings,
-                        value: _epargneDispo,
-                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _epargneDispo = v; }),
-                        min: 0,
-                        max: 500000,
-                      ),
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SECTION 9 — DISCLAIMER (micro)
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    Text(
+                      result.disclaimer,
+                      style: MintTextStyles.micro(),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
 
-                      // Progressive disclosure: 3a + LPP behind toggle
-                      const SizedBox(height: MintSpacing.md),
-                      Semantics(
-                        button: true,
-                        label: l.affordabilityAdvancedParams,
-                        child: GestureDetector(
-                          onTap: () => setState(
-                              () => _showAdvancedParams = !_showAdvancedParams),
-                          child: Row(
-                            children: [
-                              Icon(
-                                _showAdvancedParams
-                                    ? Icons.expand_less
-                                    : Icons.expand_more,
-                                color: MintColors.info,
-                                size: 20,
-                              ),
-                              const SizedBox(width: MintSpacing.xs),
-                              Text(
-                                l.affordabilityAdvancedParams,
-                                style: MintTextStyles.bodySmall(
-                                    color: MintColors.info),
-                              ),
-                            ],
-                          ),
-                        ),
+                    // ── P3-E : Parcours achat immobilier ──
+                    const MortgageJourneyWidget(),
+                    const SizedBox(height: MintSpacing.sm),
+
+                    // ── Source legale ──
+                    Semantics(
+                      label: l.affordabilitySource,
+                      child: Text(
+                        l.affordabilitySource,
+                        style: MintTextStyles.micro(),
                       ),
-                      if (_showAdvancedParams) ...[
-                        const SizedBox(height: MintSpacing.md),
-                        MintAmountField(
-                          label: l.affordabilityPillar3a,
-                          value: _avoir3a,
-                          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoir3a = v; }),
-                          min: 0,
-                          max: 300000,
-                        ),
-                        const SizedBox(height: MintSpacing.md),
-                        _buildAmountFieldWithBadge(
-                          label: l.affordabilityPillarLpp,
-                          value: _avoirLpp,
-                          fieldKey: 'avoir_lpp',
-                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirLpp = v; }),
-                          min: 0,
-                          max: 500000,
-                        ),
-                      ],
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: MintSpacing.xl),
+                  ]),
                 ),
-                const SizedBox(height: MintSpacing.xl),
-
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 7 — DETAIL calcul (progressive disclosure)
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                _buildDetailSection(result, l),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 8 — EXPLORER AUSSI
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                _buildRelatedSections(l),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // SECTION 9 — DISCLAIMER (micro)
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                Text(
-                  result.disclaimer,
-                  style: MintTextStyles.micro(),
-                ),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ── P3-E : Parcours achat immobilier ──
-                const MortgageJourneyWidget(),
-                const SizedBox(height: MintSpacing.sm),
-
-                // ── Source legale ──
-                Semantics(
-                  label: l.affordabilitySource,
-                  child: Text(
-                    l.affordabilitySource,
-                    style: MintTextStyles.micro(),
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.xl),
-              ]),
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ));
+        ));
   }
 
   /// Builds a MintAmountField with an optional SmartDefaultIndicator badge
@@ -725,15 +773,13 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           ),
           MintSignalRow(
             label: l.affordabilityLppMax10,
-            value:
-                'CHF\u00a0${formatChf(min(_avoirLpp, _prixAchat * 0.10))}',
+            value: 'CHF\u00a0${formatChf(min(_avoirLpp, _prixAchat * 0.10))}',
           ),
           MintSignalRow(
             label: l.affordabilityTotalEquity,
             value: 'CHF\u00a0${formatChf(result.fondsPropresTotal)}',
-            valueColor: result.fondsPropresOk
-                ? MintColors.success
-                : MintColors.error,
+            valueColor:
+                result.fondsPropresOk ? MintColors.success : MintColors.error,
           ),
           Divider(
             color: MintColors.border.withValues(alpha: 0.3),
@@ -752,11 +798,9 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
           }(),
           MintSignalRow(
             label: l.affordabilityChargesRatio,
-            value:
-                '${(result.ratioCharges * 100).toStringAsFixed(1)}\u00a0%',
-            valueColor: result.capaciteOk
-                ? MintColors.success
-                : MintColors.error,
+            value: '${(result.ratioCharges * 100).toStringAsFixed(1)}\u00a0%',
+            valueColor:
+                result.capaciteOk ? MintColors.success : MintColors.error,
           ),
         ],
       ),
@@ -808,6 +852,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
+        // lint-ignore: prefer_mint_cta
         onPressed: () => context.push(route),
         child: Text(label),
       ),

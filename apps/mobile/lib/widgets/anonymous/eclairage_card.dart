@@ -104,6 +104,7 @@ class EclairageCard extends StatelessWidget {
         return '';
     }
   }
+
   int? get _chfRangeLow {
     final v = payload['chfRangeLow'];
     if (v is int) return v;
@@ -261,8 +262,8 @@ class EclairageCard extends StatelessWidget {
   Widget _buildHeadline(String headline) {
     return Text(
       headline,
-      style: MintTextStyles.titleLarge(color: MintColors.inkPrimary).copyWith(
-        fontFamily: 'Gambarino',
+      style: MintTextStyles.titleGambarino18Medium(color: MintColors.inkPrimary)
+          .copyWith(
         fontWeight: FontWeight.w500,
         // §7 row 1 — italic OFF.
         fontStyle: FontStyle.normal,
