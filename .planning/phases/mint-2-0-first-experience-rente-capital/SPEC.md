@@ -76,6 +76,11 @@ audit names canonical source; Maestro starts from clear state; iPhone 13 mini
 snapshot shows no clipping; dossier revisit is separate from chat; account
 handoff appears after value.
 
+The device-tier criterion below references a Slice 2 Maestro flow that does not
+exist in this planning contract. Until that artifact lands, the deterministic
+tier is the executable planning gate; device-tier output is runtime evidence
+for the implementation slice.
+
 ```verify
 # tier: deterministic
 active-context: python3 tools/checks/active_context_guard.py

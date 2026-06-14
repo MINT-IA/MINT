@@ -61,4 +61,6 @@ Scenario/dossier/UI layers gate and render; they do not calculate.
 
 Promotion requires explicit GO from Julien and one coherent update to
 `.planning/ACTIVE_CONTEXT.md`, `.planning/ACTIVE_CONTEXT.json`,
-`.planning/STATE.md`, and `.planning/ROADMAP.md`.
+`.planning/STATE.md`, and `.planning/ROADMAP.md`. That promotion must repoint
+the router to these canonical files, including `CONTEXT.md`, not to the
+prefixed source receipts.
