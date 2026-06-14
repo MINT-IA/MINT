@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 PHASE_SLUG = "mint-prod-ready-core-journey-truth-20260601"
+ACTIVE_CJT_MILESTONES = {"core-journey-truth", PHASE_SLUG}
 PHASE_DIR = Path(".planning/phases") / PHASE_SLUG
 MATRIX = PHASE_DIR / "JOURNEY-TRUTH-MATRIX.md"
 BUG_TRACKER = PHASE_DIR / "BUG-TRACKER.md"
@@ -67,6 +68,25 @@ def _read(path: Path) -> str:
 
 def _contains_all(text: str, needles: tuple[str, ...] | list[str]) -> list[str]:
     return [needle for needle in needles if needle not in text]
+
+
+def _active_milestone_slug(state_text: str) -> str | None:
+    for line in state_text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("milestone:"):
+            continue
+        return stripped.split(":", maxsplit=1)[1].strip().strip("\"'")
+    return None
+
+
+def _is_cjt_active(root: Path) -> tuple[bool, str | None]:
+    state = root / ".planning/STATE.md"
+    if not state.exists():
+        return True, None
+    milestone = _active_milestone_slug(_read(state))
+    if milestone is None:
+        return True, None
+    return milestone in ACTIVE_CJT_MILESTONES, milestone
 
 
 def _bug_tracker_has_open_gate(text: str, gate: str) -> bool:
@@ -219,7 +239,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    errors = check(args.root.resolve())
+    root = args.root.resolve()
+    is_active, milestone = _is_cjt_active(root)
+    if not is_active:
+        print(
+            "OK cjt_context_guard: skipped because active milestone is "
+            f"{milestone}.",
+            file=sys.stderr,
+        )
+        return 0
+
+    errors = check(root)
     if not errors:
         print("OK cjt_context_guard: active CJT context is coherent.", file=sys.stderr)
         return 0
