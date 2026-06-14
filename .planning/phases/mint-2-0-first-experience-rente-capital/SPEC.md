@@ -1,6 +1,7 @@
-# Mint 2.0 First Experience Rente/Capital — Proposed Spec
+# Mint 2.0 First Experience Rente/Capital — Active Spec
 
-Status: Proposed. Not active until router promotion after explicit GO.
+Status: Active via router promotion. This is the active contract for Mint 2.0
+planning and future Slice 2 execution.
 
 ## User Promise
 
@@ -94,6 +95,6 @@ iphone-13-mini-runtime: bash tools/simulator/maestro_with_watchdog.sh test tools
 
 ## Caveat
 
-`verify_phase_acceptance.py` reads the active spec from
-`.planning/ACTIVE_CONTEXT.json`. Before router promotion, it proves the active
-infra phase only, not this proposed Mint 2.0 contract.
+`verify_phase_acceptance.py` reads this active spec from
+`.planning/ACTIVE_CONTEXT.json`. The deterministic tier is the promotion gate;
+the device tier remains opt-in until the Slice 2 Maestro flow exists.

@@ -1,13 +1,12 @@
-# Mint 2.0 First Experience Rente/Capital — Proposed Context
+# Mint 2.0 First Experience Rente/Capital — Active Context
 
-Status: Proposed. This phase stays `next_product_phase_context` until Julien
-gives explicit GO and the router files are promoted together.
+Status: Active via router promotion. Product code still requires the Slice 2
+plan, feature flag or kill switch, and implementation verification.
 
 ## Authority
 
-Canonical files for future promotion: `CONTEXT.md`, `SPEC.md`, `PLAN.md`,
-`VERIFICATION.md`. Earlier prefixed files in this directory are source receipts,
-not future guard targets.
+Canonical active files: `CONTEXT.md`, `SPEC.md`, `PLAN.md`, `VERIFICATION.md`.
+Earlier prefixed files in this directory are source receipts, not guard targets.
 
 Consolidated source receipts:
 `mint-2-0-first-experience-rente-capital-CONTEXT.md`, `PLANS.md`,
