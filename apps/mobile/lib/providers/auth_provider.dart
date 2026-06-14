@@ -822,6 +822,7 @@ class AuthProvider extends ChangeNotifier {
   /// Logout — V6-4 audit fix: purge ALL local data to prevent
   /// cross-account data bleed on shared devices.
   Future<void> logout() async {
+    await ApiService.logout(refreshToken: await AuthService.getRefreshToken());
     await AuthService.logout();
     // FIX-W11-7: Clear user prefix on logout.
     ConversationStore.setCurrentUserId(null);
@@ -935,12 +936,18 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final pendingSyncKey = _localDataSyncPendingKey(currentUserId);
       final syncPending = prefs.getBool(pendingSyncKey) ?? false;
-      final shouldMigrate = syncPending
-          ? true
-          : await AccountHandoffService.prepareLocalDataForAccount(
-              currentUserId,
-              handoffEnabled: FeatureFlags.enableMvpWedgeOnboarding,
-            );
+      bool shouldMigrate;
+      if (syncPending) {
+        shouldMigrate = true;
+      } else if (FeatureFlags.enableMvpWedgeOnboarding) {
+        shouldMigrate = await AccountHandoffService.prepareLocalDataForAccount(
+          currentUserId,
+          handoffEnabled: true,
+        );
+      } else {
+        await AccountHandoffService.clearChoice();
+        shouldMigrate = await AccountHandoffService.hasLocalData();
+      }
       if (!shouldMigrate) return;
 
       final alreadyMigrated =
@@ -1034,10 +1041,24 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _hydrateProfileFromBackend() async {
     try {
       final profileData = await ApiService.get('/profiles/me');
-      if (profileData.isEmpty) return;
-      final answers = await ReportPersistenceService.loadAnswers();
+      final prefs = await SharedPreferences.getInstance();
+      final currentUserId = _userId;
+      final accountOwnsLocalAnswers = currentUserId != null &&
+          prefs.getString('local_data_owner') == currentUserId &&
+          (prefs.getBool('local_data_migrated_$currentUserId') ?? false);
+      final existingAnswers = await ReportPersistenceService.loadAnswers();
+      final answers =
+          accountOwnsLocalAnswers ? existingAnswers : <String, dynamic>{};
       final merged = _mergeBackendProfileData(answers, profileData);
-      if (merged.isNotEmpty && !mapEquals(merged, answers)) {
+
+      if (!accountOwnsLocalAnswers && profileData.isEmpty) {
+        if (existingAnswers.isNotEmpty) {
+          await ReportPersistenceService.clearDiagnostic();
+        }
+        return;
+      }
+
+      if (merged.isNotEmpty && !mapEquals(merged, existingAnswers)) {
         await ReportPersistenceService.saveAnswers(merged);
       }
     } catch (e) {

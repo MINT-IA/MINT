@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +13,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -221,9 +224,7 @@ void main() {
 
         expect(success, isTrue);
         expect(provider.userId, 'existing-user');
-        expect(await ReportPersistenceService.loadAnswers(), {
-          'q_canton': 'VD',
-        });
+        expect(await ReportPersistenceService.loadAnswers(), isEmpty);
         expect(
           await ConversationStore().loadConversation('local-before-login'),
           isEmpty,
@@ -243,6 +244,75 @@ void main() {
       } finally {
         FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
         ConversationStore.setCurrentUserId(null);
+      }
+    });
+
+    test(
+        'flag-off legacy login still migrates anonymous dossier without '
+        'handoff UI choice', () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', false);
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ConversationStore().saveConversation('legacy-local-chat', [
+        ChatMessage(
+          role: 'user',
+          content: 'Je veux continuer mon diagnostic.',
+          timestamp: DateTime(2026, 6, 13, 12, 30),
+        ),
+      ]);
+
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/login') {
+            return http.Response(
+              '{"access_token":"legacy-token","refresh_token":"legacy-refresh","user_id":"legacy-user","email":"legacy@example.ch","display_name":"Legacy User"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              '{}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/sync/claim-local-data') {
+            return http.Response(
+              '{"status":"ok"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      try {
+        final success =
+            await provider.login('legacy@example.ch', 'correct-password');
+
+        expect(success, isTrue);
+        expect(provider.userId, 'legacy-user');
+        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+        expect(await ReportPersistenceService.loadAnswers(), {
+          'q_canton': 'VD',
+        });
+        expect(
+          await ConversationStore().loadConversation('legacy-local-chat'),
+          isNotEmpty,
+        );
+        expect(prefs.getString('local_data_owner'), 'legacy-user');
+        expect(prefs.getBool('local_data_migrated_legacy-user'), isTrue);
+        expect(prefs.getBool('local_data_sync_pending_legacy-user'), isNull);
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        ConversationStore.setCurrentUserId(null);
+        await AccountHandoffService.clearChoice();
       }
     });
 
@@ -596,6 +666,42 @@ void main() {
       expect(() => provider.dispose(), returnsNormally);
     });
 
+    test('logout revokes backend refresh token before local purge', () async {
+      await AuthService.saveToken(
+        'jwt-token',
+        'u1',
+        'u1@example.ch',
+        refreshToken: 'refresh-token',
+      );
+
+      final seenPaths = <String>[];
+      String? authHeader;
+      Map<String, dynamic>? logoutBody;
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/logout') {
+            authHeader = request.headers['Authorization'];
+            logoutBody = jsonDecode(request.body) as Map<String, dynamic>;
+            return http.Response(
+              '{"status":"logged_out"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      await provider.logout();
+
+      expect(seenPaths, contains('/api/v1/auth/logout'));
+      expect(authHeader, 'Bearer jwt-token');
+      expect(logoutBody, {'refresh_token': 'refresh-token'});
+      expect(await AuthService.getToken(), isNull);
+      expect(await AuthService.getRefreshToken(), isNull);
+    });
+
     test('logout purges only MINT-owned secure storage keys', () async {
       secureStorage.addAll({
         'jwt_token': 'jwt',
@@ -705,6 +811,52 @@ void main() {
       expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
       expect(secureStorage.containsKey('mint_biography_key'), isFalse);
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('profile clearAll records pending secure purge on partial failure',
+        () async {
+      secureStorage.addAll({
+        'byok_provider': 'openai',
+        'byok_api_key': 'sk-profile-reset',
+        'mint_partner_estimate': '{"estimated_salary":100000}',
+        'foreign_app_key': 'must-stay',
+      });
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        secureStorageChannel,
+        (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'byok_api_key') {
+                throw PlatformException(code: '-34018');
+              }
+              if (key != null) {
+                secureStorage.remove(key);
+              }
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+
+      await CoachProfileProvider().clearAll();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getBool(InstallLifecycleService.securePurgePendingKey),
+        isTrue,
+      );
+      expect(secureStorage['byok_api_key'], 'sk-profile-reset');
+      expect(secureStorage['foreign_app_key'], 'must-stay');
     });
 
     test('backend profile merge accepts flat profile payload', () {
