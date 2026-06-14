@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -24,11 +26,21 @@ WORKFLOW = Path("docs/MINT_AGENT_WORKFLOW.md")
 REQUIRED_MANIFEST_KEYS = {
     "schema_version",
     "active_milestone",
+    "active_phase_dir",
     "active_phase_context",
+    "active_spec",
     "next_product_phase_context",
+    "allowed_branches",
+    "base_ref",
+    "required_phase_files",
+    "forbidden_active_paths",
+    "agent_routes",
+    "memory_policy",
+    "phase_acceptance_verifier",
     "historical_not_active",
     "quarantine_paths",
 }
+INTEGRATION_BRANCHES = {"dev", "staging", "main"}
 
 
 def _read(path: Path) -> str:
@@ -58,6 +70,26 @@ def _active_section(text: str, *end_markers: str) -> str:
 
 def _contains_all(text: str, needles: list[str]) -> list[str]:
     return [needle for needle in needles if needle not in text]
+
+
+def _current_branch(root: Path) -> str | None:
+    proc = subprocess.run(
+        ["git", "-C", str(root), "branch", "--show-current"],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        return None
+    branch = proc.stdout.strip()
+    if not branch or branch == "HEAD":
+        return None
+    return branch
+
+
+def _is_ci_integration_branch(branch: str) -> bool:
+    if branch not in INTEGRATION_BRANCHES:
+        return False
+    return os.environ.get("GITHUB_ACTIONS") == "true" or os.environ.get("CI") == "true"
 
 
 def check(root: Path) -> list[str]:
@@ -96,11 +128,24 @@ def check(root: Path) -> list[str]:
         errors.append(f"{MANIFEST} missing required keys: {', '.join(missing_keys)}")
 
     active_milestone = str(manifest.get("active_milestone", ""))
+    active_phase_dir = str(manifest.get("active_phase_dir", ""))
     active_phase_context = str(manifest.get("active_phase_context", ""))
+    active_spec = str(manifest.get("active_spec", ""))
     next_product_phase_context = str(manifest.get("next_product_phase_context", ""))
+    phase_acceptance_verifier = str(manifest.get("phase_acceptance_verifier", ""))
     historical_not_active = [
         str(item) for item in manifest.get("historical_not_active", [])
     ]
+    allowed_branches = [str(item) for item in manifest.get("allowed_branches", [])]
+    required_phase_files = [
+        str(item) for item in manifest.get("required_phase_files", [])
+    ]
+    forbidden_active_paths = [
+        str(item) for item in manifest.get("forbidden_active_paths", [])
+    ]
+
+    if int(manifest.get("schema_version", 0)) < 2:
+        errors.append(f"{MANIFEST} schema_version must be >= 2")
 
     if active_milestone in historical_not_active:
         errors.append(
@@ -109,11 +154,41 @@ def check(root: Path) -> list[str]:
         )
 
     for key, path_value in (
+        ("active_phase_dir", active_phase_dir),
         ("active_phase_context", active_phase_context),
+        ("active_spec", active_spec),
         ("next_product_phase_context", next_product_phase_context),
+        ("phase_acceptance_verifier", phase_acceptance_verifier),
     ):
         if path_value and not (root / path_value).exists():
             errors.append(f"{MANIFEST} {key} path does not exist: {path_value}")
+
+    if active_phase_dir and required_phase_files:
+        for filename in required_phase_files:
+            if not (root / active_phase_dir / filename).exists():
+                errors.append(
+                    f"{MANIFEST} required active phase file missing: "
+                    f"{active_phase_dir}/{filename}"
+                )
+
+    branch = _current_branch(root)
+    if (
+        branch
+        and allowed_branches
+        and branch not in allowed_branches
+        and not _is_ci_integration_branch(branch)
+    ):
+        errors.append(
+            f"{MANIFEST} current branch {branch!r} not in allowed_branches: "
+            + ", ".join(allowed_branches)
+        )
+
+    resolved_root = str(root.resolve())
+    for forbidden in forbidden_active_paths:
+        if forbidden and Path(forbidden).expanduser().resolve() == root.resolve():
+            errors.append(
+                f"{MANIFEST} root is forbidden_active_path: {resolved_root}"
+            )
 
     state_text = _read(state_path)
     state_milestone = _frontmatter_value(state_text, "milestone")
@@ -164,6 +239,7 @@ def check(root: Path) -> list[str]:
         [
             "ACTIVE_CONTEXT.md",
             active_phase_context.removeprefix(".planning/"),
+            active_spec.removeprefix(".planning/"),
             next_product_phase_context.removeprefix(".planning/"),
         ],
     )

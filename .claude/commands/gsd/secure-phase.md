@@ -23,7 +23,7 @@ Output: updated SECURITY.md.
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/secure-phase.md
+@./.claude/get-shit-done/workflows/secure-phase.md
 </execution_context>
 
 <context>

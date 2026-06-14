@@ -90,10 +90,14 @@ rampart. After ship:
 4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md) for the Claude/Codex/GSD/Engram workflow.
 5. Read [`.planning/ACTIVE_CONTEXT.md`](.planning/ACTIVE_CONTEXT.md) and [`.planning/ACTIVE_CONTEXT.json`](.planning/ACTIVE_CONTEXT.json); they are the current session router.
 6. Run `python3 tools/checks/active_context_guard.py`.
-7. When the user names a subsystem, read the matching `docs/*.md` **before
+7. Run `python3 tools/checks/phase_contract_guard.py`.
+8. Run `python3 tools/checks/mint_rules_guard.py`.
+9. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
+   `SPEC.md` has a `verify` block.
+10. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-8. Run the grep verification from the table.
-9. *Only then* propose code.
+11. Run the grep verification from the table.
+12. *Only then* propose code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.

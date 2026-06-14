@@ -22,7 +22,7 @@ Validate `.planning/` directory integrity and report actionable issues. Checks f
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/health.md
+@./.claude/get-shit-done/workflows/health.md
 </execution_context>
 
 <process>

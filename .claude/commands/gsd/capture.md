@@ -36,12 +36,12 @@ Mode routing:
 </routing>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/add-todo.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/note.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/add-backlog.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/plant-seed.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/check-todos.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/ui-brand.md
+@./.claude/get-shit-done/workflows/add-todo.md
+@./.claude/get-shit-done/workflows/note.md
+@./.claude/get-shit-done/workflows/add-backlog.md
+@./.claude/get-shit-done/workflows/plant-seed.md
+@./.claude/get-shit-done/workflows/check-todos.md
+@./.claude/get-shit-done/references/ui-brand.md
 </execution_context>
 
 <context>

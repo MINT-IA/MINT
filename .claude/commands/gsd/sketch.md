@@ -30,13 +30,13 @@ Does not require prior new-project setup — auto-creates `.planning/sketches/` 
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/sketch.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/sketch-wrap-up.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/ui-brand.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/sketch-theme-system.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/sketch-interactivity.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/sketch-tooling.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/sketch-variant-patterns.md
+@./.claude/get-shit-done/workflows/sketch.md
+@./.claude/get-shit-done/workflows/sketch-wrap-up.md
+@./.claude/get-shit-done/references/ui-brand.md
+@./.claude/get-shit-done/references/sketch-theme-system.md
+@./.claude/get-shit-done/references/sketch-interactivity.md
+@./.claude/get-shit-done/references/sketch-tooling.md
+@./.claude/get-shit-done/references/sketch-variant-patterns.md
 </execution_context>
 
 <runtime_note>

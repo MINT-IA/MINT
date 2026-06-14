@@ -40,8 +40,8 @@ Si doc et code divergent, ne pas choisir par intuition : citer les deux chemins,
 
 Current phase pointer lives in `.planning/ACTIVE_CONTEXT.md`,
 `.planning/ACTIVE_CONTEXT.json`, and `.planning/STATE.md`. As of 2026-06-14,
-product code is frozen until `.planning/phases/mint-foundation-cleanup-20260614/`
-is clean, then Mint 2.0 continues through
+product code is frozen until `.planning/phases/mint-karpathy-rules-infra-20260614/`
+has installed Spec -> Verifier -> Environment guardrails, then Mint 2.0 continues through
 `.planning/phases/mint-2-0-first-experience-rente-capital/`.
 
 Sources de calcul :
@@ -87,6 +87,8 @@ sed -n '1,220p' CLAUDE.md
 sed -n '1,260p' AGENTS.md
 sed -n '1,220p' .planning/ACTIVE_CONTEXT.md
 python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
 ```
 
 Puis `mem_context(project="mint")` et
@@ -105,7 +107,16 @@ peut aider au diagnostic, mais le protocole de reprise ne dépend pas de lui.
 
 Équivalents Codex skills : `$gsd-plan-phase <slug>`, `$gsd-execute-phase <slug>`, `$gsd-verify-work <slug>`.
 
-4. Contract/tests avant implémentation : test rouge ou contrat d'entrée/sortie, golden I/O pour tout chemin LLM, flag ou kill switch, callsites listés avec `rg`, source canonique du calcul nommée.
+4. Spec -> Verifier -> Environment avant implémentation :
+   - `SPEC.md` définit promesse utilisateur, non-goals, forbidden outputs,
+     provenance, fixtures et critères d'acceptation ;
+   - `VERIFICATION.md` liste les commandes et preuves fraîches requises ;
+  - `rules.md`, hooks, CI, Engram et simulateur forment l'environnement.
+   - `python3 tools/checks/verify_phase_acceptance.py` exécute le bloc
+     `verify` du `SPEC.md` actif et produit le verdict déterministe de base.
+   Ensuite seulement : test rouge ou contrat d'entrée/sortie, golden I/O pour
+   tout chemin LLM, flag ou kill switch, callsites listés avec `rg`, source
+   canonique du calcul nommée.
 
 5. Implémentation par Claude : tâches courtes, atomiques, vérifiables. Utiliser `subagent-driven-development` si les tâches sont indépendantes : un sous-agent frais par tâche, revue spec, revue qualité, correction avant tâche suivante.
 
@@ -137,6 +148,17 @@ bash tools/simulator/maestro_with_watchdog.sh test \
 ```
 
 9. Engram/session summary, puis git seulement après diff relu et gates citables.
+
+Guards de workflow à citer avant tout commit infra :
+
+```bash
+python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/agent_reference_guard.py
+python3 tools/checks/claude_hooks_guard.py
+python3 tools/checks/verify_phase_acceptance.py
+```
 
 ## 5. Claude CLI invocation protocol
 

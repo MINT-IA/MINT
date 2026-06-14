@@ -18,7 +18,7 @@ Verify milestone achieved its definition of done. Check requirements coverage, c
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/audit-milestone.md
+@./.claude/get-shit-done/workflows/audit-milestone.md
 </execution_context>
 
 <context>

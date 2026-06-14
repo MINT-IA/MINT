@@ -23,7 +23,7 @@ Output: updated VALIDATION.md + generated test files.
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/validate-phase.md
+@./.claude/get-shit-done/workflows/validate-phase.md
 </execution_context>
 
 <context>
