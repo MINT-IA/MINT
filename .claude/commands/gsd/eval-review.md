@@ -19,8 +19,8 @@ Produces EVAL-REVIEW.md with score, verdict, gaps, and remediation plan.
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/eval-review.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/ai-evals.md
+@./.claude/get-shit-done/workflows/eval-review.md
+@./.claude/get-shit-done/references/ai-evals.md
 </execution_context>
 
 <context>

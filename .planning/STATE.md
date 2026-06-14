@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: mint-foundation-cleanup-20260614
-milestone_name: Mint Foundation Cleanup
+milestone: mint-karpathy-rules-infra-20260614
+milestone_name: Mint Karpathy Rules Infra
 status: executing
-stopped_at: Clean foundation worktree created from origin/dev; product code frozen until foundation docs are committed and reviewed.
+stopped_at: Karpathy-style Spec -> Verifier -> Environment guardrails are being installed on the clean foundation branch.
 last_updated: "2026-06-14T12:00:00.000Z"
-last_activity: 2026-06-14 -- Mint foundation cleanup opened; Mint 2.0 first-experience phase is next active product phase after cleanup.
+last_activity: 2026-06-14 -- Mint Karpathy rules infra opened on top of clean foundation; Mint 2.0 product work stays next after infra guards.
 progress:
   total_phases: 2
   completed_phases: 0
@@ -14,60 +14,66 @@ progress:
   percent: 0
 ---
 
-# GSD State: MINT Foundation Cleanup
+# GSD State: MINT Karpathy Rules Infra
 
 ## Project Reference
 
 Active operating map:
 `.planning/ACTIVE_CONTEXT.md`,
 `.planning/ACTIVE_CONTEXT.json`,
-`.planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md`
+`.planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md`,
+`.planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md`
 and `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`.
 
 The older GSD receipts below are retained as history. They are not the current
 router for production-readiness work.
 
-**Core value:** clean branch/worktree, one active phase pointer, stable
-Engram/GSD workflow, and no product code from a mixed dirty tree.
+**Core value:** AI work is controlled by Spec -> Verifier -> Environment, with
+mechanical guards for context, phase contract, rules, agent references, and
+Claude hooks.
 
-**Current focus:** Phase mint-foundation-cleanup-20260614, then Mint 2.0 first
-experience rente/capital.
+**Current focus:** Phase mint-karpathy-rules-infra-20260614, then Mint 2.0
+first experience rente/capital.
 
 ## Strategic Frame
 
-- **Doctrine:** clean foundation first, product code second. A capability is not
-  considered active because it exists in a dirty worktree, old roadmap, or
-  untracked phase directory.
+- **Doctrine:** spec first, verifier second, implementation third. A capability
+  is not considered active because an agent described it; it must have a phase
+  contract and fresh verification evidence.
 
-- **Source:** `.planning/phases/mint-foundation-cleanup-20260614/` until the
-  branch is committed/reviewed; then
+- **Source:** `.planning/phases/mint-karpathy-rules-infra-20260614/` until the
+  guardrail branch is committed/reviewed; then
   `.planning/phases/mint-2-0-first-experience-rente-capital/` for product work.
 
-- **Proof contract:** fresh command output, clean branch/worktree, Engram
-  summary, and no product claim without simulator/device evidence.
+- **Proof contract:** fresh command output, guard tests, Engram summary, and no
+  product claim without simulator/device evidence.
 
 ## Current Position
 
-Phase: mint-foundation-cleanup-20260614 — IN_FLIGHT
-Plan: foundation cleanup before Mint 2.0 code
-Status: Clean worktree created from `origin/dev`; accepted workflow and Mint 2.0 planning artifacts reintroduced. Original dirty tree remains quarantine.
-Last activity: 2026-06-14 -- Claude/Codex/agent foundation review loop in progress.
+Phase: mint-karpathy-rules-infra-20260614 — IN_FLIGHT
+Plan: install Spec -> Verifier -> Environment guardrails before Mint 2.0 code
+Status: Clean foundation branch exists; this stacked infra branch is adding
+rules, phase contract, agent reference, Claude hook, lefthook, and CI guards.
+Original dirty tree remains quarantine.
+Last activity: 2026-06-14 -- specialist agents and Claude CLI review in progress.
 
 **Closed foundation evidence:**
 
 - `0bdc8d9d7` — `tools: skip CJT guard outside active CJT phase`.
 - `7383abb6e` — `planning: establish Mint foundation workflow`.
+- `696c18c8d` — `planning: enforce active context router`.
+- PR #694 opened as draft to `dev`.
 - Claude final targeted follow-up returned `PASS`.
 - Engram session summary and observations saved.
 - `python3 tools/checks/active_context_guard.py` passes.
 
 **Remaining open items:**
 
-- Optional push / PR of the foundation branch.
-- Mint 2.0 Slice 2 starts from this clean foundation.
+- Commit/push/PR of the Karpathy rules infra branch.
+- Mint 2.0 Slice 2 starts only after the guards pass.
 
-**Next execution bias:** commit/review foundation first; then open Mint 2.0
-Slice 2 with tests before UI.
+**Next execution bias:** commit/review guardrails first; then open Mint 2.0
+Slice 2 with spec and tests before UI.
 
 ## Historical Receipts
 

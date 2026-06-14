@@ -2,12 +2,14 @@
 
 ## Active Pointer — 2026-06-14
 
-Current operating phase is **foundation cleanup**, then **Mint 2.0 first
-experience rente/capital**. The previous Core Journey Truth / Prod Ready and
-illogism-fixes entries below are retained as historical receipts; they are not
-the active router for new product work.
+Current operating phase is **Karpathy rules infrastructure**, then **Mint 2.0
+first experience rente/capital**. The foundation cleanup branch is the base;
+the previous Core Journey Truth / Prod Ready and illogism-fixes entries below
+are retained as historical receipts; they are not the active router for new
+product work.
 
-- Foundation cleanup: [`.planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md`](phases/mint-foundation-cleanup-20260614/CONTEXT.md)
+- Karpathy rules infra: [`.planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md`](phases/mint-karpathy-rules-infra-20260614/CONTEXT.md)
+- Karpathy rules spec: [`.planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md`](phases/mint-karpathy-rules-infra-20260614/SPEC.md)
 - Mint 2.0 first experience: [`.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md)
 
 ## Milestones

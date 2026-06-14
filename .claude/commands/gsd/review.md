@@ -20,7 +20,7 @@ planning via /gsd:plan-phase --reviews.
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/review.md
+@./.claude/get-shit-done/workflows/review.md
 </execution_context>
 
 <context>

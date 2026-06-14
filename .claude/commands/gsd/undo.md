@@ -21,9 +21,9 @@ Three modes:
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/undo.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/ui-brand.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/gate-prompts.md
+@./.claude/get-shit-done/workflows/undo.md
+@./.claude/get-shit-done/references/ui-brand.md
+@./.claude/get-shit-done/references/gate-prompts.md
 </execution_context>
 
 <context>

@@ -27,12 +27,27 @@ def _write_valid_fixture(root: Path) -> None:
         / ".planning/phases/mint-2-0-first-experience-rente-capital"
     ).mkdir(parents=True)
     (root / "docs").mkdir()
+    (root / "tools/checks").mkdir(parents=True)
 
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "active_milestone": "mint-foundation-cleanup-20260614",
+        "active_phase_dir": ".planning/phases/mint-foundation-cleanup-20260614",
         "active_phase_context": ".planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md",
+        "active_spec": ".planning/phases/mint-foundation-cleanup-20260614/SPEC.md",
         "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
+        "allowed_branches": ["codex/mint-foundation-cleanup-20260614"],
+        "base_ref": "origin/dev",
+        "required_phase_files": [
+            "CONTEXT.md",
+            "SPEC.md",
+            "PLAN.md",
+            "VERIFICATION.md",
+        ],
+        "forbidden_active_paths": ["/Users/julienbattaglia/Desktop/MINT.nosync"],
+        "agent_routes": {"environment": {"agents": ["context-manager"]}},
+        "memory_policy": {"engram_project": "mint", "repo_wins_over_memory": True},
+        "phase_acceptance_verifier": "tools/checks/verify_phase_acceptance.py",
         "historical_not_active": [
             "mint-prod-ready-core-journey-truth-20260601",
             "mint-illogism-fixes",
@@ -82,6 +97,7 @@ def _write_valid_fixture(root: Path) -> None:
                 "## Active Context",
                 "ACTIVE_CONTEXT.md",
                 "phases/mint-foundation-cleanup-20260614/CONTEXT.md",
+                "phases/mint-foundation-cleanup-20260614/SPEC.md",
                 "phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
             ]
         ),
@@ -95,10 +111,25 @@ def _write_valid_fixture(root: Path) -> None:
         "Current session router: `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.",
         encoding="utf-8",
     )
+    (root / "tools/checks/verify_phase_acceptance.py").write_text(
+        "#!/usr/bin/env python3\n",
+        encoding="utf-8",
+    )
     (root / ".planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md").write_text(
         "# Foundation\n",
         encoding="utf-8",
     )
+    (root / ".planning/phases/mint-foundation-cleanup-20260614/SPEC.md").write_text(
+        "# Foundation Spec\n",
+        encoding="utf-8",
+    )
+    (root / ".planning/phases/mint-foundation-cleanup-20260614/PLAN.md").write_text(
+        "# Foundation Plan\n",
+        encoding="utf-8",
+    )
+    (
+        root / ".planning/phases/mint-foundation-cleanup-20260614/VERIFICATION.md"
+    ).write_text("# Foundation Verification\n", encoding="utf-8")
     (
         root
         / ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md"
@@ -168,3 +199,38 @@ def test_guard_fails_when_index_skips_active_context(tmp_path: Path) -> None:
 
     assert proc.returncode == 1
     assert "INDEX.md" in proc.stderr
+
+
+def test_guard_fails_when_local_branch_is_not_allowed(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "checkout", "-b", "codex/unrelated"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "not in allowed_branches" in proc.stderr
+
+
+def test_guard_allows_integration_branch_inside_ci(
+    tmp_path: Path, monkeypatch
+) -> None:
+    _write_valid_fixture(tmp_path)
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "checkout", "-b", "dev"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 0
+    assert "OK active_context_guard" in proc.stderr

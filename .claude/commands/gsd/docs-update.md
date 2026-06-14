@@ -26,7 +26,7 @@ Flag handling rule:
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/docs-update.md
+@./.claude/get-shit-done/workflows/docs-update.md
 </execution_context>
 
 <context>

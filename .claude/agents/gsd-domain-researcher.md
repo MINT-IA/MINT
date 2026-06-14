@@ -40,7 +40,7 @@ works via Bash and produces equivalent output.
 </documentation_lookup>
 
 <required_reading>
-Read `/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/ai-evals.md` — specifically the rubric design and domain expert sections.
+Read `$CLAUDE_PROJECT_DIR/.claude/get-shit-done/references/ai-evals.md` — specifically the rubric design and domain expert sections.
 </required_reading>
 
 <input>

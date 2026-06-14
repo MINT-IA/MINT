@@ -25,10 +25,10 @@ Replaces gsd-plan-phase's internal gsd-plan-checker with external AI reviewers (
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/plan-review-convergence.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/revision-loop.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/gates.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/references/agent-contracts.md
+@./.claude/get-shit-done/workflows/plan-review-convergence.md
+@./.claude/get-shit-done/references/revision-loop.md
+@./.claude/get-shit-done/references/gates.md
+@./.claude/get-shit-done/references/agent-contracts.md
 </execution_context>
 
 <runtime_note>

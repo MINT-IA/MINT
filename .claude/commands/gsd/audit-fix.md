@@ -26,7 +26,7 @@ Flags:
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/audit-fix.md
+@./.claude/get-shit-done/workflows/audit-fix.md
 </execution_context>
 
 <process>

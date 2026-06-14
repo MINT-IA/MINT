@@ -226,7 +226,7 @@ Scan the output for suspicious patterns:
 
 ## Output: UI-SPEC.md
 
-Use template from `/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/templates/UI-SPEC.md`.
+Use template from `$CLAUDE_PROJECT_DIR/.claude/get-shit-done/templates/UI-SPEC.md`.
 
 Write to: `$PHASE_DIR/$PADDED_PHASE-UI-SPEC.md`
 
@@ -285,7 +285,7 @@ Batch questions into a single interaction where possible.
 
 ## Step 5: Compile UI-SPEC.md
 
-Read template: `/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/templates/UI-SPEC.md`
+Read template: `$CLAUDE_PROJECT_DIR/.claude/get-shit-done/templates/UI-SPEC.md`
 
 Fill all sections. Write to `$PHASE_DIR/$PADDED_PHASE-UI-SPEC.md`.
 

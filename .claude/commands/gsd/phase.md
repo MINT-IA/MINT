@@ -31,10 +31,10 @@ Mode routing:
 </routing>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/add-phase.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/insert-phase.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/remove-phase.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/edit-phase.md
+@./.claude/get-shit-done/workflows/add-phase.md
+@./.claude/get-shit-done/workflows/insert-phase.md
+@./.claude/get-shit-done/workflows/remove-phase.md
+@./.claude/get-shit-done/workflows/edit-phase.md
 </execution_context>
 
 <context>

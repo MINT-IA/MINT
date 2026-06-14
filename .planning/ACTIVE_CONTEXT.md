@@ -5,8 +5,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 
 ## Active Now
 
-- Active milestone: `mint-foundation-cleanup-20260614`
-- Active context: `.planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md`
+- Active milestone: `mint-karpathy-rules-infra-20260614`
+- Active context: `.planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md`
+- Active spec: `.planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md`
 - Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`
 
 ## Required Session Start
@@ -23,6 +24,8 @@ Then run:
 
 ```bash
 python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
 git status --short --branch
 ```
 
@@ -69,3 +72,23 @@ When Mint 2.0 Slice 2 becomes active, update these files in the same commit:
 - `.planning/ROADMAP.md`
 
 Then run `python3 tools/checks/active_context_guard.py`.
+
+## Spec -> Verifier -> Environment
+
+Mint uses this operating model for AI-assisted work:
+
+- **Spec:** the active phase contract lives in `SPEC.md`.
+- **Verifier:** `VERIFICATION.md` lists exact commands and evidence before any
+  completion claim.
+- **Environment:** `rules.md`, `AGENTS.md`, `docs/MINT_AGENT_WORKFLOW.md`,
+  hooks, CI, and Engram define the workspace boundaries.
+
+Run these guards before phase execution:
+
+```bash
+python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/agent_reference_guard.py
+python3 tools/checks/claude_hooks_guard.py
+```

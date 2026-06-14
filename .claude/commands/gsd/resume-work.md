@@ -22,7 +22,7 @@ Routes to the resume-project workflow which handles:
   </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/resume-project.md
+@./.claude/get-shit-done/workflows/resume-project.md
 </execution_context>
 
 <process>

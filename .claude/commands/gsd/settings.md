@@ -21,7 +21,7 @@ Routes to the settings workflow which handles:
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/settings.md
+@./.claude/get-shit-done/workflows/settings.md
 </execution_context>
 
 <process>
