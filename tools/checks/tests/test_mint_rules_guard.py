@@ -108,4 +108,3 @@ def test_guard_fails_when_bootstrap_skips_active_context(tmp_path: Path) -> None
 
     assert proc.returncode == 1
     assert "AGENT_BOOTSTRAP.md" in proc.stderr
-

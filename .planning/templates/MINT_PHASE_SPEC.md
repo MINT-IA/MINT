@@ -43,4 +43,3 @@ Canonical inputs and expected outputs, including failure cases.
 
 Required screenshots, snapshots, logs, or explicit reason why simulator is not
 required for this phase.
-

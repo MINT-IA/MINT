@@ -72,4 +72,3 @@ The branch is acceptable only if:
 - Claude bootstrap requires the active context router;
 - Claude CLI or specialist agents have reviewed the result;
 - Engram records the decision.
-

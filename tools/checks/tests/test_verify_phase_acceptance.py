@@ -122,4 +122,3 @@ def test_device_tier_is_reported_with_device_flag(tmp_path: Path) -> None:
     assert proc.returncode == 0
     assert "simulator" in proc.stdout
     assert "DEVICE-FAIL" in proc.stdout
-

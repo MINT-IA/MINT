@@ -67,4 +67,3 @@ def test_guard_fails_when_manifest_context_path_is_missing(tmp_path: Path) -> No
 
     assert proc.returncode == 1
     assert "active_phase_context" in proc.stderr
-

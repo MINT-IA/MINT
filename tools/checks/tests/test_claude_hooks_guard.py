@@ -75,4 +75,3 @@ def test_guard_fails_for_absolute_node_runtime(tmp_path: Path) -> None:
 
     assert proc.returncode == 1
     assert "absolute Node runtime" in proc.stderr
-
