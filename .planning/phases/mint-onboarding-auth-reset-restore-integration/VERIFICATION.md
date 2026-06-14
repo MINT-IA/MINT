@@ -18,9 +18,11 @@ Checks run on this phase:
 | Simulator account handoff screenshots | PASS, `evidence/simulator/11-account-handoff-login-restart.jpg`, `12-account-handoff-register-apple.jpg`, `14-account-handoff-register-session-profile.jpg`, and `15-account-handoff-register-restart-session-profile.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/account-handoff-route-20260613T2245/` |
 | `MINT_WALKER_ARTIFACTS=...route-contract-post-retry-20260614T014422 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml` after retryable claim fix | PASS, iPhone 17 Pro; landing -> diagnostic entry -> intent explorer; visual proof `evidence/simulator/16-post-retry-intents.jpg` |
+| `bash -lc 'maestro test --format junit --output .../route-contract.xml tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml'` after account-boundary fix `197a81bf4` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/route-contract-post-boundary-20260614T021512/`; visual proof `evidence/simulator/18-post-boundary-intents.jpg` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` | PASS, structured diagnostic Situation path; artifacts under `evidence/maestro/diagnostic-situation-20260613T2255/` |
 | `MINT_WALKER_ARTIFACTS=... bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after session-profile handoff fix | PASS, iPhone 17 Pro with same local stub; artifacts under `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` |
 | `MINT_WALKER_ARTIFACTS=...situation-post-retry-20260614T014801 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml` after retryable claim fix | PASS, iPhone 17 Pro; Situation path to terminal diagnostic; visual proof `evidence/simulator/17-post-retry-situation-terminal.jpg` |
+| `bash -lc 'maestro test --format junit --output .../situation.xml tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml'` after account-boundary fix `197a81bf4` | PASS, Maestro 2.5.1 on iPhone 17 Pro; artifacts under `evidence/maestro/situation-post-boundary-20260614T021559/`; visual proof `evidence/simulator/19-post-boundary-situation-terminal.jpg` |
 | Terminal actions | PASS, `Continuer`, `Créer un compte`, `Repartir de zéro`, `Sortir` visible with stable identifiers |
 | Simulator reset action | PASS, `Repartir de zéro` returns to the onboarding entry without profile flush |
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart` | PASS, 105 tests |
@@ -28,6 +30,9 @@ Checks run on this phase:
 | `flutter test test/services/data_spine_service_test.dart test/services/coach_context_packet_service_test.dart test/services/data_spine_readiness_digest_service_test.dart test/providers/auth_provider_test.dart test/screens/profile/financial_summary_screen_test.dart test/screens/onboarding/mvp_wedge_storyboard_test.dart test/services/secure_wizard_store_test.dart test/services/anonymous_session_service_test.dart test/services/report_persistence_service_test.dart test/screens/retirement_dashboard_profile_test.dart` | PASS, 185 tests |
 | `flutter test test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/services/api_service_test.dart test/providers/auth_provider_test.dart` | PASS, 82 tests; missing choice keeps data separate, existing-account login keeps the local dossier separate without explicit choice, explicit keep, explicit restart purge, failed backend claim stays retryable, pending backend claim retries on auth restore, stale choice expiry, feature-flag off, budget/letters detection, registration UI choice, session-only wedge profile detection, and magic-link auth bootstrap covered |
 | `flutter test test/screens/auth_screens_smoke_test.dart test/services/account_handoff_service_test.dart test/screens/register_account_entry_test.dart test/providers/auth_provider_test.dart` | PASS, 100 tests |
+| `flutter test test/providers/auth_provider_test.dart` after account-boundary fix `197a81bf4` | PASS, 48 tests; covers no-choice account login active-profile isolation, flag-off legacy migration, retryable backend claim, backend logout refresh-token revocation, fresh-install Keychain purge, and profile secure-purge pending marker |
+| `flutter test test/services/account_handoff_service_test.dart test/services/auth_service_test.dart` after account-boundary fix `197a81bf4` | PASS, 34 tests |
+| `xcodebuildmcp build_run_sim -quiet` after account-boundary fix `197a81bf4` | PASS, iPhone 17 Pro simulator, bundle `ch.mint.app`, build log `build_run_sim_2026-06-14T00-13-37-723Z_pid74589_7399df08.log` |
 | `flutter analyze` | PASS, no issues |
 | `./tools/mint-routes check` | PASS, 145 routes after known-miss exemptions |
 | `flutter gen-l10n` | PASS |
@@ -76,6 +81,16 @@ Runtime notes:
 - The same Situation flow was rerun after commit `0ade0bf8c`; the terminal
   diagnostic screenshot is
   `evidence/simulator/17-post-retry-situation-terminal.jpg`.
+- After commit `197a81bf4`, the iPhone 17 Pro simulator was rebuilt and the
+  route-contract and Situation Maestro flows were rerun with clean exit codes.
+  The final captured screens are `evidence/simulator/18-post-boundary-intents.jpg`
+  and `evidence/simulator/19-post-boundary-situation-terminal.jpg`.
+- Account-boundary provider tests now cover four review findings: no-choice
+  existing-account login clears active anonymous wizard answers instead of
+  exposing them in the connected profile, flag-off legacy login still migrates
+  the anonymous dossier, logout calls backend `/auth/logout` with the refresh
+  token before local purge, and profile `clearAll` records a pending secure
+  purge marker when an owned secure key cannot be removed.
 - The account entry simulator run verified login and registration: the handoff
   segmented control is visible, `Repartir` updates the explanatory copy, Apple
   remains primary on iPhone registration, and e-mail remains a fallback.

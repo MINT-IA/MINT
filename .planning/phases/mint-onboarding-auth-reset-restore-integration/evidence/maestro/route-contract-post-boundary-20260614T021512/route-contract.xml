@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="12.0">
+    <testcase id="flow_landing_to_diagnostic_onboarding" name="flow_landing_to_diagnostic_onboarding" classname="flow_landing_to_diagnostic_onboarding" time="12.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="acquisition, diagnostic-onboarding, feature-flag, route-contract, maestro-proof"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

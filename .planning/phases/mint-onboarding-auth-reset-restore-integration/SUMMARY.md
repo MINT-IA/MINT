@@ -37,6 +37,16 @@ Situation diagnostic scene passed under
 `evidence/maestro/diagnostic-handoff-session-profile-20260614T012029/` after
 the session-profile handoff fix, then after the retryable-claim fix with
 `evidence/simulator/17-post-retry-situation-terminal.jpg`.
+After commit `197a81bf4`, the auth/reset boundary review findings were fixed
+and reverified: no-choice existing-account login no longer exposes anonymous
+wizard answers in the connected profile, flag-off legacy login still migrates
+anonymous data, logout revokes the backend refresh token before local purge, and
+profile reset records pending secure-purge failures. `auth_provider_test.dart`
+passes 48 tests, `account_handoff_service_test.dart` + `auth_service_test.dart`
+pass 34 tests, `flutter analyze` is clean, `xcodebuildmcp build_run_sim -quiet`
+passes on iPhone 17 Pro, and Maestro route/Situation flows pass again with
+visual proofs `evidence/simulator/18-post-boundary-intents.jpg` and
+`evidence/simulator/19-post-boundary-situation-terminal.jpg`.
 
 Open: no rebase on `origin/dev`; broader persona walker still open; G2
 Julien/device still required for Keychain/auth/Apple; staging/TestFlight
