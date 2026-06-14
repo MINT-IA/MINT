@@ -170,7 +170,18 @@ class RenteVsCapitalRequest(ArbitrageBaseModel):
 
 class RenteVsCapitalResponse(ArbitrageResultSchema):
     """Resultat de la comparaison rente vs capital LPP."""
-    pass
+    calculation_version: str = Field(
+        default="",
+        description="Version du contrat de calcul utilise pour les chiffres",
+    )
+    missing_fields: List[str] = Field(
+        default_factory=list,
+        description="Champs requis manquants; vide quand le calcul peut s'afficher",
+    )
+    receipt_lines: List[str] = Field(
+        default_factory=list,
+        description="Recu utilisateur: origine, version, statut et champs manquants",
+    )
 
 
 # ===========================================================================

@@ -1166,6 +1166,26 @@ class ApiService {
       response,
       const ['breakevenYear', 'breakeven_year'],
     );
+    final calculationVersion = _readString(
+      response,
+      const ['calculationVersion', 'calculation_version'],
+    );
+    if (calculationVersion.isEmpty) {
+      throw const ApiException(
+        'Backend rente/capital receipt missing calculation version',
+      );
+    }
+    final missingFields = _readStringList(
+      response,
+      const ['missingFields', 'missing_fields'],
+    );
+    final readiness = missingFields.isEmpty
+        ? ArbitrageReadiness.complete
+        : ArbitrageReadiness.blocked;
+    final receiptLines = _readStringList(
+      response,
+      const ['receiptLines', 'receipt_lines'],
+    );
 
     // ── Derive hero fields from trajectory data ──
     // full_rente (option A) year-1 cashflow = annual net rente
@@ -1241,6 +1261,18 @@ class ApiService {
       impotCumulRente: impotCumulRente,
       impotRetraitCapital: impotRetraitCapital,
       renteReelleAn20: renteReelleAn20,
+      calculationOrigin: ArbitrageCalculationOrigin.backendL2,
+      calculationVersion: calculationVersion,
+      readiness: readiness,
+      missingFields: missingFields,
+      receiptLines: receiptLines.isNotEmpty
+          ? receiptLines
+          : buildArbitrageReceiptLines(
+              origin: ArbitrageCalculationOrigin.backendL2,
+              version: calculationVersion,
+              readiness: readiness,
+              missingFields: missingFields,
+            ),
     );
   }
 

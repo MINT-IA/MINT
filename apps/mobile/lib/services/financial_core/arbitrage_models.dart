@@ -71,6 +71,41 @@ class RetirementAsset {
   });
 }
 
+/// Calculation origin for a rendered arbitrage result.
+enum ArbitrageCalculationOrigin {
+  mobileL1,
+  backendL2,
+}
+
+/// Whether the result can render financial figures.
+enum ArbitrageReadiness {
+  complete,
+  blocked,
+}
+
+String arbitrageOriginLabel(ArbitrageCalculationOrigin origin) {
+  return switch (origin) {
+    ArbitrageCalculationOrigin.mobileL1 => 'moteur mobile L1',
+    ArbitrageCalculationOrigin.backendL2 => 'comparaison backend L2',
+  };
+}
+
+List<String> buildArbitrageReceiptLines({
+  required ArbitrageCalculationOrigin origin,
+  required String version,
+  required ArbitrageReadiness readiness,
+  required List<String> missingFields,
+  String? fallbackNotice,
+}) {
+  return [
+    'Origine du calcul : ${arbitrageOriginLabel(origin)}',
+    'Version du calcul : $version',
+    'Statut du calcul : ${readiness == ArbitrageReadiness.complete ? 'complet' : 'bloqué'}',
+    'Champs manquants : ${missingFields.isEmpty ? 'aucun' : missingFields.join(', ')}',
+    if (fallbackNotice != null) fallbackNotice,
+  ];
+}
+
 /// Full result of an arbitrage comparison.
 class ArbitrageResult {
   /// Available options (2-4 trajectories).
@@ -135,6 +170,21 @@ class ArbitrageResult {
   /// populated, UI MUST render before any projection figure.
   final List<String> alertes;
 
+  /// Canonical calculation origin for provenance.
+  final ArbitrageCalculationOrigin calculationOrigin;
+
+  /// Version of the calculation contract used to produce the figures.
+  final String calculationVersion;
+
+  /// Whether all required fields were present for the displayed figures.
+  final ArbitrageReadiness readiness;
+
+  /// Missing required fields. Empty means the result can render figures.
+  final List<String> missingFields;
+
+  /// User-visible receipt lines shown with the result provenance.
+  final List<String> receiptLines;
+
   const ArbitrageResult({
     required this.options,
     required this.breakevenYear,
@@ -155,6 +205,11 @@ class ArbitrageResult {
     this.capitalProjecte = 0,
     this.isProjected = false,
     this.alertes = const [],
+    this.calculationOrigin = ArbitrageCalculationOrigin.mobileL1,
+    this.calculationVersion = 'legacy-unversioned',
+    this.readiness = ArbitrageReadiness.complete,
+    this.missingFields = const [],
+    this.receiptLines = const [],
   });
 }
 

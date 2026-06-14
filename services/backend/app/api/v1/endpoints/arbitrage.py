@@ -57,6 +57,8 @@ from app.services.arbitrage import (
 
 router = APIRouter()
 
+RENTE_VS_CAPITAL_CALCULATION_VERSION = "backend-l2-rente-vs-capital-v1"
+
 
 def _option_to_schema(option) -> TrajectoireOptionSchema:
     """Convert service TrajectoireOption dataclass to Pydantic schema."""
@@ -90,6 +92,15 @@ def _result_to_response(result, response_class):
         confidence_score=result.confidence_score,
         sensitivity=result.sensitivity,
     )
+
+
+def _rente_vs_capital_receipt_lines() -> list[str]:
+    return [
+        "Origine du calcul : comparaison backend L2",
+        f"Version du calcul : {RENTE_VS_CAPITAL_CALCULATION_VERSION}",
+        "Statut du calcul : complet",
+        "Champs manquants : aucun",
+    ]
 
 
 @router.post("/rente-vs-capital", response_model=RenteVsCapitalResponse)
@@ -182,7 +193,11 @@ def arbitrage_rente_vs_capital(
             ),
         )
 
-        return _result_to_response(result, RenteVsCapitalResponse)
+        response = _result_to_response(result, RenteVsCapitalResponse)
+        response.calculation_version = RENTE_VS_CAPITAL_CALCULATION_VERSION
+        response.missing_fields = []
+        response.receipt_lines = _rente_vs_capital_receipt_lines()
+        return response
 
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")

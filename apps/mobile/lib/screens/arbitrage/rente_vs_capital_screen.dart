@@ -558,7 +558,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       setState(() => _result = result);
       _emitScreenReturn(result);
       return;
-    } catch (_) {
+    } catch (error) {
+      final fallbackNotice = error is ApiException &&
+              error.message.contains('receipt missing calculation version')
+          ? 'Réponse backend sans reçu : calcul local affiché'
+          : 'API backend indisponible : calcul local affiché';
       try {
         final fallback = ArbitrageEngine.compareRenteVsCapital(
           capitalLppTotal: capitalTotal,
@@ -576,6 +580,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           isMarried: _isMarried,
           dataSources: _dataSources,
           canonicalConfidence: _canonicalConfidence,
+          fallbackNotice: fallbackNotice,
           currentAge: currentAge,
           grossAnnualSalary: salary,
         );
@@ -2204,13 +2209,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (_result == null) return const SizedBox.shrink();
     final sources =
         S.of(context)!.renteVsCapitalSources(_result!.sources.join(' | '));
+    final receipt = _result!.receiptLines.join('. ');
     return Semantics(
       key: const Key('rente_vs_capital_disclaimer_card'),
       identifier: 'rente_vs_capital_disclaimer_card',
       container: true,
       focusable: true,
       label:
-          '${S.of(context)!.renteVsCapitalWarning}. ${_result!.disclaimer}. $sources',
+          '${S.of(context)!.renteVsCapitalWarning}. ${_result!.disclaimer}. $sources. $receipt',
       child: MintSurface(
         tone: MintSurfaceTone.blanc,
         padding: const EdgeInsets.all(MintSpacing.md),
@@ -2245,6 +2251,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               sources,
               style: MintTextStyles.micro(),
             ),
+            if (_result!.receiptLines.isNotEmpty) ...[
+              const SizedBox(height: MintSpacing.xs),
+              for (final line in _result!.receiptLines)
+                Text(
+                  line,
+                  style: MintTextStyles.micro(),
+                ),
+            ],
           ],
         ),
       ),

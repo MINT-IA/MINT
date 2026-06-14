@@ -223,5 +223,23 @@ void main() {
       final ids = certResult.options.map((o) => o.id).toSet();
       expect(ids, containsAll(['full_rente', 'full_capital', 'mixed']));
     });
+
+    test('calculation receipt exposes origin, version, and missing fields', () {
+      expect(certResult.calculationOrigin, ArbitrageCalculationOrigin.mobileL1);
+      expect(
+        certResult.calculationVersion,
+        ArbitrageEngine.renteVsCapitalCalculationVersion,
+      );
+      expect(certResult.readiness, ArbitrageReadiness.complete);
+      expect(certResult.missingFields, isEmpty);
+      final receipt = certResult.receiptLines.join('\n');
+      expect(receipt, contains('Origine du calcul : moteur mobile L1'));
+      expect(
+        receipt,
+        contains('Version du calcul : '
+            '${ArbitrageEngine.renteVsCapitalCalculationVersion}'),
+      );
+      expect(receipt, contains('Champs manquants : aucun'));
+    });
   });
 }

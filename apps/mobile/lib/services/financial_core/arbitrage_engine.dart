@@ -23,6 +23,9 @@ import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 class ArbitrageEngine {
   ArbitrageEngine._();
 
+  static const String renteVsCapitalCalculationVersion =
+      'mobile-l1-rente-vs-capital-v1';
+
   /// LPP art. 79b al. 3 / LIFD art. 33 al. 1 let. g : 3-year blockage
   /// between a rachat and any capital withdrawal (EPL, retraite anticipée,
   /// départ CH, retrait 3e pilier). Tribunal fédéral ATF 142 II 399
@@ -106,6 +109,7 @@ class ArbitrageEngine {
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche par RvC — un profil = un score sur toutes les surfaces (D12).
     double? canonicalConfidence,
+    String? fallbackNotice,
     // ── Projection params (estimate mode) ──
     int? currentAge,
     double? grossAnnualSalary,
@@ -449,6 +453,15 @@ class ArbitrageEngine {
             'Apres, le capital retire peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
             'L\'ecart de valeur totale est de ${chf.formatChfWithPrefix(delta)}.';
+    const missingFields = <String>[];
+    const readiness = ArbitrageReadiness.complete;
+    final receiptLines = buildArbitrageReceiptLines(
+      origin: ArbitrageCalculationOrigin.mobileL1,
+      version: renteVsCapitalCalculationVersion,
+      readiness: readiness,
+      missingFields: missingFields,
+      fallbackNotice: fallbackNotice,
+    );
 
     return ArbitrageResult(
       options: options,
@@ -493,6 +506,11 @@ class ArbitrageEngine {
       renteSurvivant: renteSurvivant,
       capitalProjecte: effectiveCapitalTotal,
       isProjected: isProjected,
+      calculationOrigin: ArbitrageCalculationOrigin.mobileL1,
+      calculationVersion: renteVsCapitalCalculationVersion,
+      readiness: readiness,
+      missingFields: missingFields,
+      receiptLines: receiptLines,
     );
   }
 

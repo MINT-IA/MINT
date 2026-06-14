@@ -1,9 +1,52 @@
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
+
+Map<String, dynamic> _rvcResponse({bool versioned = true}) => {
+      'options': [
+        {'id': 'full_rente', 'label': 'Rente', 'trajectory': [{'year': 65, 'netPatrimony': 0, 'annualCashflow': 24000, 'cumulativeTaxDelta': 1200}], 'terminalValue': 0, 'cumulativeTaxImpact': 1200},
+        {'id': 'full_capital', 'label': 'Capital', 'trajectory': [{'year': 65, 'netPatrimony': 500000, 'annualCashflow': 20000, 'cumulativeTaxDelta': 18000}], 'terminalValue': 500000, 'cumulativeTaxImpact': 18000},
+      ],
+      'breakevenYear': -1,
+      'premierEclairage': 'Comparaison backend.',
+      'displaySummary': 'Synthese backend.',
+      'hypotheses': ['Canton ZH'],
+      'disclaimer': 'Outil educatif.',
+      'sources': ['LPP art. 37', 'LIFD art. 38'],
+      'confidenceScore': 80,
+      'sensitivity': {},
+      if (versioned) 'calculationVersion': 'backend-l2-rente-vs-capital-v1',
+      'missingFields': [],
+      'receiptLines': [
+        'Origine du calcul : comparaison backend L2',
+        'Version du calcul : backend-l2-rente-vs-capital-v1',
+        'Statut du calcul : complet',
+        'Champs manquants : aucun',
+      ],
+    };
+
+Future<void> _mockRvcResponse(bool versioned) async {
+  ApiService.setHttpClientForTesting(MintHttpClient(MockClient((request) async {
+    expect(request.url.path, '/api/v1/arbitrage/rente-vs-capital');
+    return http.Response(jsonEncode(_rvcResponse(versioned: versioned)), 200,
+        headers: {'content-type': 'application/json'});
+  })));
+}
+
+Future<ArbitrageResult> _callRvc() => ApiService.compareRenteVsCapital(
+      capitalLppTotal: 500000,
+      capitalObligatoire: 300000,
+      capitalSurobligatoire: 200000,
+      renteAnnuelleProposee: 30000,
+      canton: 'ZH',
+    );
 
 /// Unit tests for ApiService
 ///
@@ -15,8 +58,16 @@ import 'package:mint_mobile/services/observability/mint_http_client.dart';
 /// - Class structure and method signatures
 /// - Endpoint path conventions
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    AuthService.resetMemoryCacheForTest();
+    FlutterSecureStorage.setMockInitialValues({'jwt_token': 'test-token'});
+  });
+
   tearDown(() {
     ApiService.setHttpClientForTesting(null);
+    AuthService.resetMemoryCacheForTest();
   });
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -158,6 +209,31 @@ void main() {
       expect(response['id'], 'user-42');
       expect(captured?.url.path, '/api/v1/auth/me');
       expect(captured?.headers['Authorization'], 'Bearer fresh-token');
+    });
+  });
+
+  group('ApiService — rente vs capital receipt', () {
+    test('parses backend receipt version and origin', () async {
+      await _mockRvcResponse(true);
+      final result = await _callRvc();
+
+      expect(result.calculationOrigin, ArbitrageCalculationOrigin.backendL2);
+      expect(result.calculationVersion, 'backend-l2-rente-vs-capital-v1');
+      expect(result.readiness, ArbitrageReadiness.complete);
+      expect(result.missingFields, isEmpty);
+      expect(result.receiptLines, contains('Origine du calcul : comparaison backend L2'));
+    });
+
+    test('rejects backend receipt without calculation version', () async {
+      await _mockRvcResponse(false);
+      expect(
+        _callRvc,
+        throwsA(isA<ApiException>().having(
+          (error) => error.message,
+          'message',
+          contains('receipt missing calculation version'),
+        )),
+      );
     });
   });
 
