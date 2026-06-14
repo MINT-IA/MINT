@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "updated": "2026-06-14",
+  "active_milestone": "mint-foundation-cleanup-20260614",
+  "active_phase_context": ".planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md",
+  "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
+  "must_read_first": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/MINT_AGENT_WORKFLOW.md",
+    ".planning/ACTIVE_CONTEXT.md",
+    ".planning/STATE.md"
+  ],
+  "historical_not_active": [
+    "mint-prod-ready-core-journey-truth-20260601",
+    "mint-illogism-fixes",
+    "mint-grounded-coach-m1",
+    "mint-onboarding-auth-reset-restore-integration",
+    "mint-diagnostic-onboarding-v1",
+    "mint-profile-clear-conversation-purge",
+    "mint-anonymous-chat-restore-control",
+    "mint-account-entry-apple-primary",
+    "mint-onboarding-lifecycle-reset",
+    "money-trust-contract-v1-03-onboarding-3a-number-gate",
+    "money-trust-contract-v1-33-3a-onboarding-tax-copy-guard"
+  ],
+  "quarantine_paths": [
+    "/Users/julienbattaglia/Desktop/MINT.nosync"
+  ],
+  "rules": [
+    "Only .planning/ACTIVE_CONTEXT.md, .planning/ACTIVE_CONTEXT.json, and .planning/STATE.md can define the active phase.",
+    "Historical phase directories are receipts, not routing authority.",
+    "Before this branch is merged, use the clean worktree /Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync for foundation work.",
+    "Do not physically archive historical phase directories without a dry-run inventory and a dedicated reviewable PR."
+  ]
+}
