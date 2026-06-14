@@ -1,64 +1,65 @@
 ---
 gsd_state_version: 1.0
-milestone: core-journey-truth
-milestone_name: Core Journey Truth / Prod Ready
+milestone: mint-foundation-cleanup-20260614
+milestone_name: Mint Foundation Cleanup
 status: executing
-stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-06-11T23:47:36.639Z"
-last_activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (17/17, verification 20/21)
+stopped_at: Clean foundation worktree created from origin/dev; product code frozen until foundation docs are committed and reviewed.
+last_updated: "2026-06-14T12:00:00.000Z"
+last_activity: 2026-06-14 -- Mint foundation cleanup opened; Mint 2.0 first-experience phase is next active product phase after cleanup.
 progress:
-  total_phases: 15
-  completed_phases: 2
-  total_plans: 75
-  completed_plans: 76
-  percent: 13
+  total_phases: 2
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT Core Journey Truth / Prod Ready
+# GSD State: MINT Foundation Cleanup
 
 ## Project Reference
 
 Active operating map:
-`.planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md`
-and `.planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md`.
+`.planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md`
+and `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`.
 
 The older GSD receipts below are retained as history. They are not the current
 router for production-readiness work.
 
-**Core value:** one narrow supported beta story with one user truth, coherent
-navigation, reduced duplicate surfaces, current/cited Coach claims, and
-Maestro-proofed journeys.
+**Core value:** clean branch/worktree, one active phase pointer, stable
+Engram/GSD workflow, and no product code from a mixed dirty tree.
 
-**Current focus:** Phase mint-illogism-fixes — Illogism fixes (17 plans)
-gates before expanding scope.
+**Current focus:** Phase mint-foundation-cleanup-20260614, then Mint 2.0 first
+experience rente/capital.
 
 ## Strategic Frame
 
-- **Doctrine:** matrix first, tracker second, code third. A capability is not
-  considered proven because a route, widget, or unit test exists.
+- **Doctrine:** clean foundation first, product code second. A capability is not
+  considered active because it exists in a dirty worktree, old roadmap, or
+  untracked phase directory.
 
-- **Source:** `.planning/phases/mint-prod-ready-core-journey-truth-20260601/`.
-- **Proof contract:** fresh command output, Maestro/runtime evidence when the
-  row is a human journey, and deterministic citation in the tracker.
+- **Source:** `.planning/phases/mint-foundation-cleanup-20260614/` until the
+  branch is committed/reviewed; then
+  `.planning/phases/mint-2-0-first-experience-rente-capital/` for product work.
 
-- **Anti-drift check:** `python3 tools/checks/cjt_context_guard.py`.
+- **Proof contract:** fresh command output, clean branch/worktree, Engram
+  summary, and no product claim without simulator/device evidence.
 
 ## Current Position
 
-Phase: mint-illogism-fixes (Illogism fixes (17 plans)) — EXECUTED, verification 20/21
-Plan: 17 of 17 complete
-Status: Phase executed 2026-06-12 — 17/17 plans + 4 Codex wave reviews (gap closures: 3 P1 + 7 P2 + 2 P3) + device gate (ILLOG01/02 GREEN, D10 re-fix device-PASS). Remaining: 1 human-verify item (D7 /retraite green capture on device — fix root-caused + widget-test-proven, blocked by onboarding-shell AX automation gap). Final suites: mobile 9446 passed / backend 7586 passed / analyze clean.
-Last activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (resumed post-quota from plan 06)
-guard added
+Phase: mint-foundation-cleanup-20260614 — IN_FLIGHT
+Plan: foundation cleanup before Mint 2.0 code
+Status: Clean worktree created from `origin/dev`; accepted workflow and Mint 2.0 planning artifacts reintroduced. Original dirty tree remains quarantine.
+Last activity: 2026-06-14 -- Claude/Codex/agent foundation review loop in progress.
 
 **Known open gates:**
 
-- CJT-013 — backend production Phase 02 fact-current cutover.
-- CJT-015 — TestFlight / Universal Links / signed real-device proof.
-- CJT-018 is no longer an open gate after the 2026-06-04 current AX frame audit.
+- Foundation branch committed atomically.
+- Claude review has no unresolved P1.
+- Engram session summary saved.
+- Mint 2.0 Slice 2 plan starts from this clean foundation.
 
-**Next execution bias:** CJT-015 if signed/TestFlight access is available;
-otherwise CJT-013 or the next human-journey proof wave from the matrix.
+**Next execution bias:** commit/review foundation first; then open Mint 2.0
+Slice 2 with tests before UI.
 
 ## Historical Receipts
 

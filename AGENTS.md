@@ -3,7 +3,8 @@
 > **Start here, every session.** This file tells any agent (human or LLM)
 > how to navigate MINT so the rules in `CLAUDE.md` apply to the right code.
 > Team structure + spawning recipes live further down.
-> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Sprint history: [`docs/SPRINT_TRACKER.md`](docs/SPRINT_TRACKER.md).
+> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Planning index: [`.planning/INDEX.md`](.planning/INDEX.md).
+> Agent/Codex/Claude/GSD workflow: [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
 
 ---
 
@@ -83,13 +84,14 @@ rampart. After ship:
 
 ## 🤝 Session handshake — run these in order, every time
 
-1. Read [`MEMORY.md`](memory/MEMORY.md) (auto-loaded).
+1. Read curator memory from `$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md`; if missing, stop instead of continuing blind.
 2. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
 3. Read this file.
-4. When the user names a subsystem, read the matching `docs/*.md` **before
+4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md) for the Claude/Codex/GSD/Engram workflow.
+5. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-5. Run the grep verification from the table.
-6. *Only then* propose code.
+6. Run the grep verification from the table.
+7. *Only then* propose code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.
