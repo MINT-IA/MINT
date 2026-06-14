@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: mint-karpathy-rules-infra-20260614
-milestone_name: Mint Karpathy Rules Infra
+milestone: mint-2-0-first-experience-rente-capital
+milestone_name: Mint 2.0 First Experience Rente/Capital
 status: executing
-stopped_at: Karpathy-style Spec -> Verifier -> Environment guardrails are being installed on the clean foundation branch.
-last_updated: "2026-06-14T12:00:00.000Z"
-last_activity: 2026-06-14 -- Mint Karpathy rules infra opened on top of clean foundation; Mint 2.0 product work stays next after infra guards.
+stopped_at: Active router promoted; Slice 2 code-mapped plan is next before product code.
+last_updated: "2026-06-14T18:02:45.000Z"
+last_activity: 2026-06-14 -- Mint 2.0 first experience became the active planning context; product code remains gated by Slice 2 planning and verification.
 progress:
   total_phases: 2
   completed_phases: 0
@@ -14,66 +14,61 @@ progress:
   percent: 0
 ---
 
-# GSD State: MINT Karpathy Rules Infra
+# GSD State: Mint 2.0 First Experience Rente/Capital
 
 ## Project Reference
 
 Active operating map:
 `.planning/ACTIVE_CONTEXT.md`,
 `.planning/ACTIVE_CONTEXT.json`,
-`.planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md`,
-`.planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md`
-and `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`.
+`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`,
+`.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
+and `.planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION.md`.
 
 The older GSD receipts below are retained as history. They are not the current
-router for production-readiness work.
+router for Mint 2.0 product planning.
 
-**Core value:** AI work is controlled by Spec -> Verifier -> Environment, with
-mechanical guards for context, phase contract, rules, agent references, and
-Claude hooks.
+**Core value:** Mint 2.0 first experience is a Swiss financial dossier and
+navigation flow. The first active door is rente/capital; logement and fiscal
+remain signalétique until their own implementation gates exist.
 
-**Current focus:** Phase mint-karpathy-rules-infra-20260614, then Mint 2.0
-first experience rente/capital.
+**Current focus:** Slice 2 code-mapped plan before any product implementation.
 
 ## Strategic Frame
 
-- **Doctrine:** spec first, verifier second, implementation third. A capability
-  is not considered active because an agent described it; it must have a phase
+- **Doctrine:** spec first, verifier second, implementation third. A product
+  surface is not active because an agent described it; it must have a phase
   contract and fresh verification evidence.
 
-- **Source:** `.planning/phases/mint-karpathy-rules-infra-20260614/` until the
-  guardrail branch is committed/reviewed; then
-  `.planning/phases/mint-2-0-first-experience-rente-capital/` for product work.
+- **Source:** `.planning/phases/mint-2-0-first-experience-rente-capital/`.
 
 - **Proof contract:** fresh command output, guard tests, Engram summary, and no
   product claim without simulator/device evidence.
 
 ## Current Position
 
-Phase: mint-karpathy-rules-infra-20260614 — IN_FLIGHT
-Plan: install Spec -> Verifier -> Environment guardrails before Mint 2.0 code
-Status: Clean foundation branch exists; this stacked infra branch is adding
-rules, phase contract, agent reference, Claude hook, lefthook, and CI guards.
-Original dirty tree remains quarantine.
-Last activity: 2026-06-14 -- specialist agents and Claude CLI review in progress.
+Phase: mint-2-0-first-experience-rente-capital — ACTIVE PLANNING
+Plan: promote the canonical Mint 2.0 contract, then write Slice 2 with exact
+files, tests, feature flag or kill switch, and iPhone 13 mini proof before code.
+Status: router now points to the canonical Mint 2.0 contract. Original dirty
+tree remains quarantine.
+Last activity: 2026-06-14 -- Julien gave GO for router promotion and Claude CLI
+review gave conditional GO for the 9-file promotion.
 
-**Closed foundation evidence:**
+**Promotion evidence:**
 
-- `0bdc8d9d7` — `tools: skip CJT guard outside active CJT phase`.
-- `7383abb6e` — `planning: establish Mint foundation workflow`.
-- `696c18c8d` — `planning: enforce active context router`.
-- PR #694 opened as draft to `dev`.
-- Claude final targeted follow-up returned `PASS`.
-- Engram session summary and observations saved.
-- `python3 tools/checks/active_context_guard.py` passes.
+- `python3 tools/checks/active_context_guard.py`.
+- `python3 tools/checks/phase_contract_guard.py`.
+- `python3 tools/checks/verify_phase_acceptance.py`.
+- Guard pytest suite for active context, phase contract, rules, agent reference,
+  Claude hooks, and phase acceptance.
 
 **Remaining open items:**
 
-- Commit/push/PR of the Karpathy rules infra branch.
-- Mint 2.0 Slice 2 starts only after the guards pass.
+- Slice 2 starts only after this active contract is accepted and mapped to code.
 
-**Next execution bias:** commit/review guardrails first; then open Mint 2.0
-Slice 2 with spec and tests before UI.
+**Next execution bias:** write the Slice 2 plan with grep-backed file targets,
+tests before UI, feature flag or kill switch, and iPhone 13 mini proof.
 
 ## Historical Receipts
 

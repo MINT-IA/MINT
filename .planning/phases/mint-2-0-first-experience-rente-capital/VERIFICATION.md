@@ -1,6 +1,6 @@
-# Mint 2.0 First Experience Rente/Capital — Proposed Verification
+# Mint 2.0 First Experience Rente/Capital — Active Verification
 
-Status: Proposed. These checks describe the contract before promotion.
+Status: Active via router promotion. These checks describe the active contract.
 
 ## Planning Checks
 
@@ -16,8 +16,8 @@ python3 tools/checks/claude_hooks_guard.py
 python3 tools/checks/verify_phase_acceptance.py
 ```
 
-`verify_phase_acceptance.py` executes the active infra `SPEC.md` until the
-router points here. Do not cite it as Mint 2.0 proof before promotion.
+`verify_phase_acceptance.py` executes this active `SPEC.md` after router
+promotion. Its deterministic tier is the planning promotion gate.
 
 ## Future Gates
 
@@ -43,6 +43,5 @@ future FR copy.
 
 ## Open Blockers
 
-No Mint 2.0 runtime flow exists yet; no router promotion GO has been given;
-Keychain/iCloud restore cannot be closed by simulator alone; Slice 2 still needs
-a code-mapped plan before implementation.
+No Mint 2.0 runtime flow exists yet; Keychain/iCloud restore cannot be closed by
+simulator alone; Slice 2 still needs a code-mapped plan before implementation.

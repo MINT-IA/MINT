@@ -1,16 +1,17 @@
-# Mint 2.0 First Experience Rente/Capital — Proposed Plan
+# Mint 2.0 First Experience Rente/Capital — Active Plan
 
-Status: Proposed. Planning-only until explicit GO from Julien.
+Status: Active via router promotion. Slice 2 product code still requires a
+code-mapped plan before implementation.
 
 ## Scope
 
-Allowed before GO:
-`.planning/phases/mint-2-0-first-experience-rente-capital/`.
+Promotion scope:
+`.planning/ACTIVE_CONTEXT.md`, `.planning/ACTIVE_CONTEXT.json`,
+`.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/INDEX.md`, and the
+four canonical files in this directory.
 
-Forbidden before GO:
-`apps/`, `services/`, `tools/`, `docs/`, `.planning/ACTIVE_CONTEXT.md`,
-`.planning/ACTIVE_CONTEXT.json`, `.planning/STATE.md`,
-`.planning/ROADMAP.md`, `.planning/INDEX.md`.
+Forbidden before the Slice 2 code plan:
+`apps/`, `services/`, `tools/`, `docs/`, `rules.md`, `AGENTS.md`, `CLAUDE.md`.
 
 ## Slice Order
 
@@ -28,14 +29,15 @@ before implementation.
 
 1. Consolidate canonical `CONTEXT.md`, `SPEC.md`, `PLAN.md`, `VERIFICATION.md`.
 2. Preserve prefixed files as receipts, not guard targets.
-3. Keep Mint 2.0 as `next_product_phase_context`.
+3. Promote Mint 2.0 through the active context router after Julien GO.
 4. Define eight synthetic archetypes and eight negative cases.
 5. Define receipt requirements for future numbers.
 6. Define signalétique-axis refusal rules.
-7. End with GO request before router promotion or product code.
+7. End with a Slice 2 code-plan gate before product code.
 
-Exit criteria: no product code, no router file, no public-doc lint finding in
-this directory, `git diff --check` passes, final report names open blockers.
+Promotion exit criteria: no product code, coherent router files, no public-doc
+lint finding in this directory, `git diff --check` passes, final report names
+open blockers.
 
 ## Slice 2 Preconditions
 
@@ -46,7 +48,7 @@ decision between `rente_vs_capital_calculator.dart` and
 tests for three axes, negative tests for signalétique axes, dossier persistence
 test, Maestro entry flow from clear state, and iPhone 13 mini proof.
 
-## Proposed Decision
+## Active Decision
 
-Remain `next_product_phase_context` after Slice 1. Ask Julien for GO before
-promotion. After GO, update the four router files in one coherent commit.
+Mint 2.0 first experience is the active planning context after router
+promotion. Product code remains blocked until the Slice 2 code-mapped plan.

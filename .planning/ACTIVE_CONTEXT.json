@@ -1,18 +1,19 @@
 {
   "schema_version": 2,
   "updated": "2026-06-14",
-  "active_milestone": "mint-karpathy-rules-infra-20260614",
-  "active_phase_dir": ".planning/phases/mint-karpathy-rules-infra-20260614",
-  "active_phase_context": ".planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md",
-  "active_spec": ".planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md",
-  "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
+  "active_milestone": "mint-2-0-first-experience-rente-capital",
+  "active_phase_dir": ".planning/phases/mint-2-0-first-experience-rente-capital",
+  "active_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
+  "active_spec": ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md",
+  "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
   "worktree_root": "/Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync",
   "allowed_branches": [
     "dev",
     "codex/mint-dev-active-context-20260614",
     "codex/mint-foundation-cleanup-20260614",
     "codex/mint-karpathy-rules-infra-20260614",
-    "codex/mint-2-first-experience-contract-20260614"
+    "codex/mint-2-first-experience-contract-20260614",
+    "codex/mint-2-router-promotion-20260614"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [
@@ -21,8 +22,8 @@
     "PLAN.md",
     "VERIFICATION.md"
   ],
-  "pre_verifier_report": ".planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md",
-  "post_verifier_report": ".planning/phases/mint-karpathy-rules-infra-20260614/VERIFICATION.md",
+  "pre_verifier_report": ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md",
+  "post_verifier_report": ".planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION.md",
   "environment_guard": "tools/checks/active_context_guard.py",
   "phase_contract_guard": "tools/checks/phase_contract_guard.py",
   "rules_guard": "tools/checks/mint_rules_guard.py",
@@ -37,6 +38,7 @@
     ".planning/STATE.md"
   ],
   "historical_not_active": [
+    "mint-karpathy-rules-infra-20260614",
     "mint-prod-ready-core-journey-truth-20260601",
     "mint-illogism-fixes",
     "mint-grounded-coach-m1",
@@ -87,12 +89,12 @@
     "engram_project": "mint",
     "repo_wins_over_memory": true,
     "curator_memory": "pointer-only",
-    "topic_key_prefix": "workflow:karpathy-rules-infra"
+    "topic_key_prefix": "workflow:mint-2-0-first-experience"
   },
   "rules": [
     "Only .planning/ACTIVE_CONTEXT.md, .planning/ACTIVE_CONTEXT.json, and .planning/STATE.md can define the active phase.",
     "Historical phase directories are receipts, not routing authority.",
-    "Before this branch is merged, use the clean worktree /Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync for foundation work.",
+    "Use the clean worktree /Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync for Mint 2.0 work.",
     "Do not physically archive historical phase directories without a dry-run inventory and a dedicated reviewable PR."
   ]
 }

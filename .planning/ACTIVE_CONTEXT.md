@@ -5,11 +5,13 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 
 ## Active Now
 
-- Active milestone: `mint-karpathy-rules-infra-20260614`
-- Active context: `.planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md`
-- Active spec: `.planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md`
+- Active milestone: `mint-2-0-first-experience-rente-capital`
+- Active context: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
+- Active spec: `.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
 - Active integration branch: `dev`
-- Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`
+- Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
+  self-references the active context as a placeholder; no successor product
+  phase is queued yet.
 
 ## Required Session Start
 
@@ -46,6 +48,7 @@ may be cited as evidence, but they are not active routing authority:
 - `mint-onboarding-lifecycle-reset`
 - `money-trust-contract-v1-03-onboarding-3a-number-gate`
 - `money-trust-contract-v1-33-3a-onboarding-tax-copy-guard`
+- `mint-karpathy-rules-infra-20260614`
 
 The original checkout `/Users/julienbattaglia/Desktop/MINT.nosync` is a dirty
 quarantine for this cleanup. It is not the authority for new Mint 2.0 work.
@@ -65,7 +68,7 @@ Instead:
 
 ## Promotion Rule
 
-When Mint 2.0 Slice 2 becomes active, update these files in the same commit:
+When the next successor phase is queued, update these files in the same commit:
 
 - `.planning/ACTIVE_CONTEXT.json`
 - `.planning/ACTIVE_CONTEXT.md`
