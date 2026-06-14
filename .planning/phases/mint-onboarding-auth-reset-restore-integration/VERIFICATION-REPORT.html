@@ -34,9 +34,11 @@
       <tr><td>Maestro route-contract</td><td>PASS</td><td><code>flow_landing_to_diagnostic_onboarding.yaml</code> passe via watchdog: landing -> diagnostic, sans prompt de chat vide.</td></tr>
       <tr><td>Maestro route-contract post-retry</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après le correctif retryable claim: landing -> diagnostic -> intentions.</td></tr>
       <tr><td>Maestro route-contract post-boundary</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après <code>197a81bf4</code>: landing -> diagnostic -> intentions.</td></tr>
+      <tr><td>Maestro route-contract final</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après <code>e7bf9d0d1</code>: landing -> diagnostic -> intentions, JUnit failures=0.</td></tr>
       <tr><td>Maestro diagnostic Situation</td><td>PASS</td><td><code>flow_diagnostic_situation_scene.yaml</code> passe: repères captés, données manquantes, pas de fallback retraite. Repassé après le correctif session-profile.</td></tr>
       <tr><td>Maestro diagnostic Situation post-retry</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après le correctif retryable claim: diagnostic terminal avec repères et dossier visible.</td></tr>
       <tr><td>Maestro diagnostic Situation post-boundary</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après <code>197a81bf4</code>: diagnostic terminal avec repères et dossier visible.</td></tr>
+      <tr><td>Maestro diagnostic Situation final</td><td>PASS</td><td>Repassé sur iPhone 17 Pro après <code>e7bf9d0d1</code>: diagnostic terminal avec repères et dossier visible, JUnit failures=0.</td></tr>
       <tr><td>Terminal actions</td><td>PASS</td><td><code>Continuer</code>, <code>Créer un compte</code>, <code>Repartir de zéro</code>, <code>Sortir</code>.</td></tr>
       <tr><td>Reset local</td><td>PASS</td><td><code>Repartir de zéro</code> revient à l'entrée onboarding.</td></tr>
       <tr><td>Flutter tests onboarding/DataSpine</td><td>PASS</td><td>105 tests ciblés.</td></tr>
@@ -44,7 +46,9 @@
       <tr><td>Flutter tests handoff/auth</td><td>PASS</td><td>82 tests ciblés: choix absent séparé, login compte existant sans claim implicite, conserver explicite, repartir, claim backend retryable, expiration, budget/lettres, UI inscription, profil wedge session-only, magic-link.</td></tr>
       <tr><td>Flutter tests auth screens</td><td>PASS</td><td>100 tests sur auth screens, handoff et AuthProvider.</td></tr>
       <tr><td>Flutter tests account-boundary</td><td>PASS</td><td>48 tests AuthProvider + 34 tests handoff/auth service après <code>197a81bf4</code>: no-choice isolation, legacy flag-off migration, backend logout, secure-purge pending.</td></tr>
+      <tr><td>Flutter tests held secure purge</td><td>PASS</td><td>154 tests auth/storage/handoff après <code>e7bf9d0d1</code>, incluant retry des valeurs secure anonymes tenues à part.</td></tr>
       <tr><td>XcodeBuildMCP run</td><td>PASS</td><td><code>build_run_sim -quiet</code> sur iPhone 17 Pro après <code>197a81bf4</code>.</td></tr>
+      <tr><td>XcodeBuildMCP final run</td><td>PASS</td><td><code>build_run_sim -quiet</code> sur iPhone 17 Pro après <code>e7bf9d0d1</code>.</td></tr>
       <tr><td>Flutter regression combinée</td><td>PASS</td><td>185 tests sur DataSpine, onboarding, auth, reset, secure storage et retraite.</td></tr>
       <tr><td>Analyze/routes/i18n/compliance</td><td>PASS LOCAL</td><td>Analyse, route registry, ARB parity 6986 clés, banned terms, accent lint, public-doc admission lint.</td></tr>
     </tbody>
@@ -66,6 +70,8 @@
     <img src="evidence/simulator/17-post-retry-situation-terminal.jpg" alt="Diagnostic Situation après retry claim">
     <img src="evidence/simulator/18-post-boundary-intents.jpg" alt="Intentions diagnostic après fix account boundary">
     <img src="evidence/simulator/19-post-boundary-situation-terminal.jpg" alt="Diagnostic Situation après fix account boundary">
+    <img src="evidence/simulator/22-final-intents.jpg" alt="Intentions diagnostic finales">
+    <img src="evidence/simulator/23-final-situation-terminal.jpg" alt="Diagnostic Situation final">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/01-landing.png" alt="Maestro landing">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/02-diagnostic-entry.png" alt="Maestro entrée diagnostic">
     <img src="evidence/maestro/account-handoff-route-20260613T2245/screenshots/03-diagnostic-intents.png" alt="Maestro intentions diagnostic">

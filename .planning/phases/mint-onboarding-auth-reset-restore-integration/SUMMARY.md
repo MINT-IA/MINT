@@ -47,6 +47,14 @@ pass 34 tests, `flutter analyze` is clean, `xcodebuildmcp build_run_sim -quiet`
 passes on iPhone 17 Pro, and Maestro route/Situation flows pass again with
 visual proofs `evidence/simulator/18-post-boundary-intents.jpg` and
 `evidence/simulator/19-post-boundary-situation-terminal.jpg`.
+After commit `e7bf9d0d1`, held anonymous secure values are included in the
+retryable purge path: `secure_delete_pending_v1` now retries both active wizard
+secure values and held anonymous values, while the held manifest stays until all
+held values are deleted. The focused auth/storage/handoff regression passes 154
+tests, `flutter analyze` remains clean, `xcodebuildmcp build_run_sim -quiet`
+passes on iPhone 17 Pro, and the final Maestro route/Situation passes are
+captured in `evidence/simulator/22-final-intents.jpg` and
+`evidence/simulator/23-final-situation-terminal.jpg`.
 
 Open: no rebase on `origin/dev`; broader persona walker still open; G2
 Julien/device still required for Keychain/auth/Apple; staging/TestFlight
