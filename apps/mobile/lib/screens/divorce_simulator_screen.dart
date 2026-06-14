@@ -358,12 +358,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 ),
                 child: Text(
                   opt.value,
-                  style: MintTextStyles.labelSmall(
+                  style: MintTextStyles.labelMedium(
                     color: selected
                         ? MintColors.purple
                         : MintColors.textSecondary,
                   ).copyWith(
-                    fontSize: 12,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
