@@ -11,7 +11,8 @@
     "dev",
     "codex/mint-dev-active-context-20260614",
     "codex/mint-foundation-cleanup-20260614",
-    "codex/mint-karpathy-rules-infra-20260614"
+    "codex/mint-karpathy-rules-infra-20260614",
+    "codex/mint-2-first-experience-contract-20260614"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [
