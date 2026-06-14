@@ -8,10 +8,10 @@ last_updated: "2026-06-14T18:02:45.000Z"
 last_activity: 2026-06-14 -- Mint 2.0 first experience became the active planning context; product code remains gated by Slice 2 planning and verification.
 progress:
   total_phases: 2
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 50
 ---
 
 # GSD State: Mint 2.0 First Experience Rente/Capital
