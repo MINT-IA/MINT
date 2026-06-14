@@ -5,8 +5,8 @@
 // Asserts:
 //   • The text surfaces render (wordmark, hero, CTA, legal, login link).
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates through /start and falls back to /anonymous/chat when
-//     diagnostic onboarding is disabled.
+//   • CTA navigates through /start into diagnostic onboarding even when
+//     backend feature flags are disabled or unavailable.
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -31,8 +31,7 @@ GoRouter _buildRouter() {
       // Mirror production /start redirect while keeping landing state-free.
       GoRoute(
         path: '/start',
-        redirect: (_, __) =>
-            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
+        redirect: (_, __) => '/onb',
       ),
       GoRoute(
         path: '/anonymous/chat',
@@ -133,7 +132,7 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /anonymous/chat when diagnostic flag is off',
+    testWidgets('CTA routes to /onb when diagnostic flag is off',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -141,13 +140,14 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+      expect(find.text('ONB_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
     });
 
     // S005 — anonymous local-mode link also delegates to /start so the router,
-    // not LandingScreen, owns the first-run rollout switch.
+    // not LandingScreen, owns the first-run entry contract.
     testWidgets(
-        'S005 — « Continuer sans compte » falls back to /anonymous/chat when flag is off',
+        'S005 — « Continuer sans compte » routes to /onb when flag is off',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -157,7 +157,8 @@ void main() {
       await tester.tap(find.text('Continuer sans compte'));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+      expect(find.text('ONB_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
     });
 
     testWidgets(

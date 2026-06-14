@@ -7907,6 +7907,10 @@ class SFr extends S {
   String get authAppleSignIn => 'Continuer avec Apple';
 
   @override
+  String get authAppleDobNotice =>
+      'Apple ne transmet pas ta date de naissance. Mint te la demandera ensuite pour le dossier AVS/LPP.';
+
+  @override
   String get authCreateWithEmail => 'Créer avec e-mail';
 
   @override

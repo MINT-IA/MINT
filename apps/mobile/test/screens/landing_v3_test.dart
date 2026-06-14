@@ -7,7 +7,7 @@
 //   • Wordmark letterSpacing = 2 (not 4).
 //   • Long-press wordmark → /auth/login.
 //   • Tap login link → /auth/login.
-//   • Tap CTA → /start (which redirects per FeatureFlags).
+//   • Tap CTA → /start → /onb.
 //   • Golden screenshot baseline for fr_CH (skipped first-run).
 
 import 'package:flutter/material.dart';
@@ -29,8 +29,7 @@ GoRouter _buildRouter() {
       ),
       GoRoute(
         path: '/start',
-        redirect: (_, __) =>
-            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
+        redirect: (_, __) => '/onb',
       ),
       GoRoute(
         path: '/anonymous/chat',
@@ -155,8 +154,7 @@ void main() {
       expect(find.text('LOGIN_STUB'), findsOneWidget);
     });
 
-    testWidgets(
-        'Test 6: tap CTA navigates to /start → /anonymous/chat by default',
+    testWidgets('Test 6: tap CTA navigates to /start → /onb by default',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -164,9 +162,9 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget,
-          reason:
-              'CTA → /start, which redirects to /anonymous/chat when the diagnostic flag is off.');
+      expect(find.text('ONB_STUB'), findsOneWidget,
+          reason: 'CTA → /start, which enters diagnostic onboarding.');
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
     });
 
     testWidgets('Test 6b: tap CTA navigates to /start → /onb when flag is on',

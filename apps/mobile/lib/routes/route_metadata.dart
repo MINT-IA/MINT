@@ -124,14 +124,13 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.alias,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    description: 'Landing CTA redirect — flag-gated to /onb or /anonymous/chat',
+    description: 'Landing CTA redirect — always enters /onb',
   ),
   '/onb': RouteMeta(
     path: '/onb',
     category: RouteCategory.destination,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    killFlag: 'enableMvpWedgeOnboarding',
     description: 'MVP wedge onboarding v2 — 9-step intent-led dossier flow',
   ),
   '/waitlist': RouteMeta(

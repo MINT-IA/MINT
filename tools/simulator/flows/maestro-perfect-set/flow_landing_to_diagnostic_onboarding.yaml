@@ -1,17 +1,15 @@
 # tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml
 #
 # PURPOSE
-# Validates the diagnostic-onboarding rollout switch:
-#   landing CTA -> /start -> /onb when backend feature flags return
-#   {"enableMvpWedgeOnboarding": true}.
+# Validates the diagnostic-onboarding entry contract:
+#   landing CTA -> /start -> /onb even when backend feature flags are false
+#   or unavailable.
 #
 # This flow deliberately stops after the first diagnostic transition. It is a
 # routing/runtime contract, not a full onboarding completion proof.
 #
 # PRE-CONDITION
 # - App bundle ch.mint.app installed on a booted iOS simulator.
-# - Backend reachable by the app and configured with:
-#     FF_ENABLE_MVP_WEDGE_ONBOARDING=true
 # - Recommended build:
 #     --dart-define=MINT_DISABLE_BETA_MODAL=true
 # - Fresh install or clear app state before the run. If a previous run left a
@@ -26,7 +24,6 @@ appId: ch.mint.app
 tags:
   - acquisition
   - diagnostic-onboarding
-  - feature-flag
   - route-contract
   - maestro-proof
 ---
@@ -47,7 +44,7 @@ tags:
     timeout: 8000
 - takeScreenshot: "01-landing"
 
-# 02 — landing CTA delegates to /start, then backend flag routes to /onb.
+# 02 — landing CTA delegates to /start, then app routes to /onb.
 - tapOn:
     text: "Parle à Mint"
 - extendedWaitUntil:

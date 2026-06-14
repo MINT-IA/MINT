@@ -7928,6 +7928,10 @@ class SDe extends S {
   String get authAppleSignIn => 'Mit Apple fortfahren';
 
   @override
+  String get authAppleDobNotice =>
+      'Apple übermittelt dein Geburtsdatum nicht. Mint fragt es danach für dein AHV/BVG-Dossier ab.';
+
+  @override
   String get authCreateWithEmail => 'Mit E-Mail erstellen';
 
   @override

@@ -3563,6 +3563,7 @@
   "authPrivacyReassurance": "Os teus dados permanecem encriptados no teu dispositivo. Sem conexão bancária.",
   "authContinueLocal": "Continuar em modo local",
   "authAppleSignIn": "Continuar com Apple",
+  "authAppleDobNotice": "A Apple não partilha a tua data de nascimento. A Mint vai pedi-la depois para o teu dossiê AVS/LPP.",
   "authCreateWithEmail": "Criar com e-mail",
   "authHandoffTitle": "Dados locais",
   "authHandoffLocalDetected": "Mint tem elementos neste dispositivo: diagnóstico, rascunhos ou chat anónimo.",

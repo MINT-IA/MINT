@@ -7906,6 +7906,10 @@ class SEs extends S {
   String get authAppleSignIn => 'Continuar con Apple';
 
   @override
+  String get authAppleDobNotice =>
+      'Apple no comparte tu fecha de nacimiento. Mint te la pedirá después para tu dossier AVS/LPP.';
+
+  @override
   String get authCreateWithEmail => 'Crear con e-mail';
 
   @override

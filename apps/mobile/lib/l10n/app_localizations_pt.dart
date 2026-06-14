@@ -7900,6 +7900,10 @@ class SPt extends S {
   String get authAppleSignIn => 'Continuar com Apple';
 
   @override
+  String get authAppleDobNotice =>
+      'A Apple não partilha a tua data de nascimento. A Mint vai pedi-la depois para o teu dossiê AVS/LPP.';
+
+  @override
   String get authCreateWithEmail => 'Criar com e-mail';
 
   @override

@@ -7857,6 +7857,10 @@ class SEn extends S {
   String get authAppleSignIn => 'Continue with Apple';
 
   @override
+  String get authAppleDobNotice =>
+      'Apple does not share your date of birth. Mint will ask for it next for your AVS/LPP dossier.';
+
+  @override
   String get authCreateWithEmail => 'Create with email';
 
   @override

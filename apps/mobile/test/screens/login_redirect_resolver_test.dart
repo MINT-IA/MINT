@@ -47,4 +47,49 @@ void main() {
       '/auth/verify-email',
     );
   });
+
+  test(
+      'post-auth destination completes dossier identity before answer surfaces',
+      () {
+    expect(
+      resolvePostAuthDestination(
+        currentUri: Uri.parse('/auth/register?redirect=%2Fanonymous%2Fchat'),
+        hasDossierIdentity: false,
+      ),
+      '/onb',
+    );
+    expect(
+      resolvePostAuthDestination(
+        currentUri: Uri.parse(
+          '/auth/login?redirect=%2Fcoach%2Fchat%3FconversationId%3Dabc',
+        ),
+        hasDossierIdentity: false,
+      ),
+      '/onb',
+    );
+    expect(
+      resolvePostAuthDestination(
+        currentUri: Uri.parse('/auth/login?redirect=%2Fsettings%2Flangue'),
+        hasDossierIdentity: false,
+      ),
+      '/settings/langue',
+    );
+    expect(
+      resolvePostAuthDestination(
+        currentUri: Uri.parse('/auth/register'),
+        hasDossierIdentity: true,
+      ),
+      '/coach/chat',
+    );
+  });
+
+  test('dossier identity accepts date of birth or birth year answers', () {
+    expect(hasDossierIdentityAnswers({}), isFalse);
+    expect(
+      hasDossierIdentityAnswers({'q_date_of_birth': '1992-07-15'}),
+      isTrue,
+    );
+    expect(hasDossierIdentityAnswers({'q_birth_year': 1992}), isTrue);
+    expect(hasDossierIdentityAnswers({'q_birth_year': '1992'}), isTrue);
+  });
 }

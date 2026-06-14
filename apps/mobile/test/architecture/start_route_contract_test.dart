@@ -1,7 +1,9 @@
 // Diagnostic onboarding route contract.
 //
 // The landing CTA stays dumb (`context.go('/start')`). The routing decision
-// belongs to app.dart so rollout can be controlled by FeatureFlags.
+// belongs to app.dart, and the first-run entry must fail closed to the
+// structured diagnostic onboarding. It must never fall back to the legacy
+// anonymous chat when backend feature flags are false or unavailable.
 
 import 'dart:io';
 
@@ -41,24 +43,29 @@ void main() {
       return appSource.substring(startIndex, onbIndex);
     }
 
-    test('app.dart flag-gates /start between /onb and anonymous chat', () {
+    test('app.dart routes /start to diagnostic onboarding only', () {
       final block = startRouteBlock();
 
       expect(
         block,
-        contains('FeatureFlags.enableMvpWedgeOnboarding'),
-        reason: '/start must use the rollout flag, not a hardcoded redirect',
+        isNot(contains('FeatureFlags.enableMvpWedgeOnboarding')),
+        reason:
+            '/start must not depend on a remote rollout flag for first-run UX',
       );
       expect(block, contains("'/onb'"));
-      expect(block, contains("'/anonymous/chat'"));
+      expect(
+        block,
+        isNot(contains("'/anonymous/chat'")),
+        reason: 'the legacy chat-first surface must not be a /start fallback',
+      );
     });
 
-    test('route metadata describes the same /start fallback', () {
+    test('route metadata describes the same /start contract', () {
       final meta = kRouteRegistry['/start'];
 
       expect(meta, isNotNull);
       expect(meta!.description, contains('/onb'));
-      expect(meta.description, contains('/anonymous/chat'));
+      expect(meta.description, isNot(contains('/anonymous/chat')));
     });
 
     test('LandingScreen delegates first-run routing to /start', () {
@@ -66,7 +73,7 @@ void main() {
       expect(
         landingSource,
         isNot(contains("context.go('/onb')")),
-        reason: 'LandingScreen must not bypass the /start rollout switch',
+        reason: 'LandingScreen must keep routing policy in /start',
       );
     });
   });

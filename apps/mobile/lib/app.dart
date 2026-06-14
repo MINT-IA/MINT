@@ -337,13 +337,13 @@ final _router = GoRouter(
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
     ),
-    // Landing CTA target. Keep LandingScreen state-free and let the router
-    // decide which first-run experience is active for this rollout.
+    // Landing CTA target. Keep LandingScreen state-free, but fail closed to
+    // the structured diagnostic path. The legacy anonymous chat remains a
+    // public route, never the first-run fallback.
     ScopedGoRoute(
       path: '/start',
       scope: RouteScope.public,
-      redirect: (_, __) =>
-          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
+      redirect: (_, __) => '/onb',
     ),
     // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
     // with 4 intents + dossier densification + 3 N2 scenes + magic link.

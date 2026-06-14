@@ -179,10 +179,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _goAfterAccountCreated() {
-    final redirect = resolvePostAuthRedirect(GoRouterState.of(context).uri);
-    // KILL-05: all post-auth routing goes to /coach/chat when no explicit
-    // safe handoff destination is present.
-    context.go(redirect ?? '/coach/chat');
+    final hasDossierIdentity = _dateOfBirth != null;
+    context.go(resolvePostAuthDestination(
+      currentUri: GoRouterState.of(context).uri,
+      hasDossierIdentity: hasDossierIdentity,
+    ));
   }
 
   Widget _buildRequiredConsents(S l10n) {
@@ -379,6 +380,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: MintSpacing.lg),
                         ],
                         if (canShowAppleSignIn) ...[
+                          Text(
+                            l10n.authAppleDobNotice,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
                           SizedBox(
                             height: 48,
                             child: _appleSignInLoading

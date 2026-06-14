@@ -3563,6 +3563,7 @@
   "authPrivacyReassurance": "Your data stays encrypted on your device. No bank connection.",
   "authContinueLocal": "Continue in local mode",
   "authAppleSignIn": "Continue with Apple",
+  "authAppleDobNotice": "Apple does not share your date of birth. Mint will ask for it next for your AVS/LPP dossier.",
   "authCreateWithEmail": "Create with email",
   "authHandoffTitle": "Local data",
   "authHandoffLocalDetected": "Mint has items on this device: diagnostic, drafts or anonymous chat.",

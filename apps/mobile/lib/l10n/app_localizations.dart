@@ -14034,6 +14034,12 @@ abstract class S {
   /// **'Continuer avec Apple'**
   String get authAppleSignIn;
 
+  /// No description provided for @authAppleDobNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apple ne transmet pas ta date de naissance. Mint te la demandera ensuite pour le dossier AVS/LPP.'**
+  String get authAppleDobNotice;
+
   /// No description provided for @authCreateWithEmail.
   ///
   /// In fr, this message translates to:

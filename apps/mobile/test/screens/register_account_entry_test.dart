@@ -52,6 +52,8 @@ void main() {
       expect(find.text('Créer avec e-mail'), findsOneWidget);
       expect(find.byIcon(Icons.email_outlined), findsNothing);
 
+      await tester.ensureVisible(find.text('Créer avec e-mail'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Créer avec e-mail'));
       await tester.pump();
 
@@ -74,6 +76,22 @@ void main() {
       expect(
         find.text(
             "Confirme les conditions et l'âge avant de créer ton compte."),
+        findsOneWidget,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('Apple registration explains date of birth is still needed',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      expect(
+        find.textContaining('Apple ne transmet pas ta date de naissance'),
         findsOneWidget,
       );
     } finally {

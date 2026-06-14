@@ -6,7 +6,7 @@
 //   3. Sending first message hides chips + opener stays in scroll-back
 //   4. `intent` query param still auto-sends (back-compat)
 //   5. Golden — anonymous_chat_cold_open.png (fr_CH)
-//   6. Routing : landing CTA → /start → /anonymous/chat
+//   6. Routing back-compat : /anonymous/chat stays directly reachable
 //   7. Unit : _coachTurnsCompleted increments only on coach response
 //
 // Tests intentionally use direct widget pumps; the `CoachChatApiService`
@@ -209,15 +209,11 @@ void main() {
   });
 
   group('Phase 71a — Routing back-compat', () {
-    testWidgets('Test 6 — landing /start redirects to /anonymous/chat',
+    testWidgets('Test 6 — /anonymous/chat remains directly reachable',
         (tester) async {
       final router = GoRouter(
-        initialLocation: '/start',
+        initialLocation: '/anonymous/chat',
         routes: [
-          GoRoute(
-            path: '/start',
-            redirect: (_, __) => '/anonymous/chat',
-          ),
           GoRoute(
             path: '/anonymous/chat',
             builder: (_, __) => const Scaffold(

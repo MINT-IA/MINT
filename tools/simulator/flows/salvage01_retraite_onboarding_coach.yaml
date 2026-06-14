@@ -41,15 +41,18 @@ appId: ch.mint.app
 # `assertVisible` / `assertNotVisible` use Maestro's default assertion window.
 
 # ─── T1 entry → T2 intents ──────────────────────────────────────────────
-# Cold launch lands on the chat-first LANDING screen (app.dart:326 — /start
-# redirects to /anonymous/chat; idb describe-all at gate time confirmed
-# "MINT / Voir clair, décider seul. / Parle à Mint / …"). The MVP wedge
-# storyboard is a DECOUPLED public route at `/onb` (app.dart:331-334,
-# "decoupled from /start"). The SALVAGE-01 contract is the WEDGE
-# onboarding→coach path, so we deeplink straight into it.
+# Cold launch must exercise the same first-run route as production users:
+# landing CTA -> /start -> /onb. This catches the previous TestFlight
+# regression where /start fell back to the legacy anonymous chat when the
+# backend rollout flag was false or unavailable.
 - launchApp:
     clearState: true
-- openLink: "mintapp:///onb"
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 10000
+- tapOn:
+    text: "Parle à Mint"
 - extendedWaitUntil:
     visible:
       text: "Il est temps que tu comprennes."

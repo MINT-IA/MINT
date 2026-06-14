@@ -3954,6 +3954,7 @@
   "authPrivacyReassurance": "Tes données restent chiffrées sur ton appareil. Aucune connexion bancaire.",
   "authContinueLocal": "Continuer en mode local",
   "authAppleSignIn": "Continuer avec Apple",
+  "authAppleDobNotice": "Apple ne transmet pas ta date de naissance. Mint te la demandera ensuite pour le dossier AVS/LPP.",
   "authCreateWithEmail": "Créer avec e-mail",
   "authHandoffTitle": "Données locales",
   "authHandoffLocalDetected": "Mint a des éléments sur cet appareil: diagnostic, brouillons ou discussion anonyme.",

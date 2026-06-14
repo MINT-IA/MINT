@@ -7920,6 +7920,10 @@ class SIt extends S {
   String get authAppleSignIn => 'Continua con Apple';
 
   @override
+  String get authAppleDobNotice =>
+      'Apple non condivide la tua data di nascita. Mint te la chiederà subito dopo per il dossier AVS/LPP.';
+
+  @override
   String get authCreateWithEmail => 'Crea con e-mail';
 
   @override

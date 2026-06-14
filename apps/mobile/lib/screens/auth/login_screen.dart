@@ -65,14 +65,16 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    final answers = await ReportPersistenceService.loadAnswers();
+    final hasDossierIdentity = hasDossierIdentityAnswers(answers);
     final completed =
         await ReportPersistenceService.isMiniOnboardingCompleted();
     if (!mounted) return;
-    if (completed) {
-      context.go('/coach/chat');
-    } else {
-      context.go('/coach/chat?topic=onboarding');
-    }
+    context.go(resolvePostAuthDestination(
+      currentUri: GoRouterState.of(context).uri,
+      hasDossierIdentity: hasDossierIdentity,
+      fallback: completed ? '/coach/chat' : '/coach/chat?topic=onboarding',
+    ));
   }
 
   Future<void> _handleSendMagicLink() async {

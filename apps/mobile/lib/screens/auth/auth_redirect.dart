@@ -22,6 +22,43 @@ String? resolvePostAuthRedirect(Uri uri) {
   return decoded;
 }
 
+bool hasDossierIdentityAnswers(Map<String, dynamic> answers) {
+  final dateOfBirth = answers['q_date_of_birth'];
+  if (dateOfBirth is String && DateTime.tryParse(dateOfBirth) != null) {
+    return true;
+  }
+
+  final birthYear = answers['q_birth_year'];
+  if (birthYear is int) return true;
+  if (birthYear is String && int.tryParse(birthYear) != null) return true;
+
+  return false;
+}
+
+String resolvePostAuthDestination({
+  required Uri currentUri,
+  required bool hasDossierIdentity,
+  String fallback = '/coach/chat',
+}) {
+  final redirect = resolvePostAuthRedirect(currentUri);
+  final destination = redirect ?? fallback;
+  if (!hasDossierIdentity && _requiresDossierIdentity(destination)) {
+    return '/onb';
+  }
+  return destination;
+}
+
+bool _requiresDossierIdentity(String destination) {
+  final path = Uri.tryParse(destination)?.path ?? destination;
+  return path == '/anonymous/chat' ||
+      path == '/coach/chat' ||
+      path == '/home' ||
+      path == '/mon-argent' ||
+      path == '/rapport' ||
+      path.startsWith('/explore') ||
+      path.startsWith('/profile/bilan');
+}
+
 String authRouteWithRedirect(String route, Uri currentUri) {
   final redirect = resolvePostAuthRedirect(currentUri);
   if (redirect == null) return route;

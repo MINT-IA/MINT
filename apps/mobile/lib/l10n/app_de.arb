@@ -3563,6 +3563,7 @@
   "authPrivacyReassurance": "Deine Daten bleiben verschlüsselt auf deinem Gerät. Keine Bankverbindung.",
   "authContinueLocal": "Im lokalen Modus fortfahren",
   "authAppleSignIn": "Mit Apple fortfahren",
+  "authAppleDobNotice": "Apple übermittelt dein Geburtsdatum nicht. Mint fragt es danach für dein AHV/BVG-Dossier ab.",
   "authCreateWithEmail": "Mit E-Mail erstellen",
   "authHandoffTitle": "Lokale Daten",
   "authHandoffLocalDetected": "Mint hat Elemente auf diesem Gerät: Diagnose, Entwürfe oder anonymer Chat.",
