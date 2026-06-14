@@ -8,6 +8,7 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Active milestone: `mint-karpathy-rules-infra-20260614`
 - Active context: `.planning/phases/mint-karpathy-rules-infra-20260614/CONTEXT.md`
 - Active spec: `.planning/phases/mint-karpathy-rules-infra-20260614/SPEC.md`
+- Active integration branch: `dev`
 - Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`
 
 ## Required Session Start

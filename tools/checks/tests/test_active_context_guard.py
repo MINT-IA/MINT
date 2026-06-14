@@ -36,7 +36,7 @@ def _write_valid_fixture(root: Path) -> None:
         "active_phase_context": ".planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md",
         "active_spec": ".planning/phases/mint-foundation-cleanup-20260614/SPEC.md",
         "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
-        "allowed_branches": ["codex/mint-foundation-cleanup-20260614"],
+        "allowed_branches": ["dev", "codex/mint-foundation-cleanup-20260614"],
         "base_ref": "origin/dev",
         "required_phase_files": [
             "CONTEXT.md",
