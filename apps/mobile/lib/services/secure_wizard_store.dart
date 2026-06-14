@@ -297,10 +297,12 @@ class SecureWizardStore {
         deletedAll = false;
       }
     }
-    try {
-      await _storage.delete(key: _heldManifestKey);
-    } on Exception {
-      deletedAll = false;
+    if (deletedAll) {
+      try {
+        await _storage.delete(key: _heldManifestKey);
+      } on Exception {
+        deletedAll = false;
+      }
     }
     return deletedAll;
   }

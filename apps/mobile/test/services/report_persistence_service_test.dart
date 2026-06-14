@@ -1039,6 +1039,90 @@ void main() {
       expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
     });
 
+    test('pending secure delete retries held anonymous secure values',
+        () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+      await ReportPersistenceService.holdActiveDiagnosticForAnonymous();
+      expect(
+        mockSecureStorage[
+            '_mint_held_anonymous_wizard_q_net_income_period_chf'],
+        '7000',
+      );
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : mockSecureStorage[key];
+            case 'delete':
+              if (key ==
+                  '_mint_held_anonymous_wizard_q_net_income_period_chf') {
+                throw PlatformException(code: '-34018');
+              }
+              if (key != null) {
+                mockSecureStorage.remove(key);
+              }
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('secure_delete_pending_v1'), isTrue);
+      expect(
+        mockSecureStorage[
+            '_mint_held_anonymous_wizard_q_net_income_period_chf'],
+        '7000',
+      );
+      expect(
+        mockSecureStorage['_mint_held_anonymous_wizard_secure_keys_v1'],
+        contains('q_net_income_period_chf'),
+      );
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : mockSecureStorage[key];
+            case 'delete':
+              if (key != null) {
+                mockSecureStorage.remove(key);
+              }
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+
+      expect(prefs.getBool('secure_delete_pending_v1'), isNull);
+      expect(
+        mockSecureStorage
+            .containsKey('_mint_held_anonymous_wizard_q_net_income_period_chf'),
+        isFalse,
+      );
+      expect(
+        mockSecureStorage
+            .containsKey('_mint_held_anonymous_wizard_secure_keys_v1'),
+        isFalse,
+      );
+    });
+
     test('clearDiagnostic marks pending secure deletion on delete failure',
         () async {
       await ReportPersistenceService.saveAnswers({

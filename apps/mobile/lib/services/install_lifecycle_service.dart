@@ -90,6 +90,7 @@ class InstallLifecycleService {
     var purged =
         includeAuthSession ? await AuthService.purgeStoredSession() : true;
     purged = await SecureWizardStore.deleteAll() && purged;
+    purged = await SecureWizardStore.deleteHeldSensitiveValues() && purged;
 
     for (final key in _directSecureKeys) {
       try {

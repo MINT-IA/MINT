@@ -162,7 +162,8 @@ class ReportPersistenceService {
   static Future<void> _retryPendingSecureDelete(SharedPreferences prefs) async {
     if (prefs.getBool(_secureDeletePendingKey) != true) return;
     final secureDeleted = await SecureWizardStore.deleteAll();
-    if (secureDeleted) {
+    final heldDeleted = await SecureWizardStore.deleteHeldSensitiveValues();
+    if (secureDeleted && heldDeleted) {
       await prefs.remove(_secureDeletePendingKey);
     }
   }
