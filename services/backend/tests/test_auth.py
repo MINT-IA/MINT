@@ -2,8 +2,15 @@
 Tests for authentication endpoints.
 """
 
-import pytest
+import base64
+import hashlib
+import json
 import os
+import time
+
+import jwt
+import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 
 from app.core.auth import get_current_user, require_current_user
@@ -1261,6 +1268,139 @@ def test_refresh_token_invalid(auth_client: TestClient):
     )
     assert resp.status_code == 401
 
+
+
+
+def _unsigned_apple_token(payload: dict) -> str:
+    header = {"alg": "none", "typ": "JWT"}
+    header_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b"=")
+    payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=")
+    return f"{header_b64.decode()}.{payload_b64.decode()}.forged"
+
+
+def _signed_apple_token(
+    private_key,
+    *,
+    raw_nonce: str,
+    audience: str = "ch.mint.app",
+    email: str = "apple-valid@example.com",
+) -> str:
+    nonce_hash = hashlib.sha256(raw_nonce.encode()).hexdigest()
+    return jwt.encode(
+        {
+            "iss": "https://appleid.apple.com",
+            "aud": audience,
+            "exp": int(time.time()) + 600,
+            "sub": f"apple-sub-{email}",
+            "email": email,
+            "nonce": nonce_hash,
+        },
+        private_key,
+        algorithm="RS256",
+        headers={"kid": "test-key"},
+    )
+
+
+def test_apple_verify_rejects_unsigned_identity_token(auth_client: TestClient):
+    token = _unsigned_apple_token(
+        {
+            "iss": "https://appleid.apple.com",
+            "aud": "ch.mint.app",
+            "exp": int(time.time()) + 600,
+            "sub": "forged-apple-sub",
+            "email": "forged-apple@example.com",
+        }
+    )
+
+    response = auth_client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identityToken": token, "nonce": "raw-nonce"},
+    )
+
+    assert response.status_code == 401
+
+
+def test_apple_verify_accepts_signed_token_with_matching_nonce(
+    auth_client: TestClient, monkeypatch
+):
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_key = private_key.public_key()
+    raw_nonce = "raw-nonce"
+    token = _signed_apple_token(
+        private_key,
+        raw_nonce=raw_nonce,
+        email="apple-valid@example.com",
+    )
+    monkeypatch.setattr(
+        auth_endpoint,
+        "_apple_signing_key_for_token",
+        lambda _identity_token: public_key,
+    )
+
+    response = auth_client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identityToken": token, "nonce": raw_nonce},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["email"] == "apple-valid@example.com"
+
+
+def test_apple_verify_rejects_nonce_mismatch(
+    auth_client: TestClient, monkeypatch
+):
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_key = private_key.public_key()
+    raw_nonce = "raw-nonce"
+    token = _signed_apple_token(
+        private_key,
+        raw_nonce="different-nonce",
+        email="apple-nonce@example.com",
+    )
+    monkeypatch.setattr(
+        auth_endpoint,
+        "_apple_signing_key_for_token",
+        lambda _identity_token: public_key,
+    )
+
+    response = auth_client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identityToken": token, "nonce": raw_nonce},
+    )
+
+    assert response.status_code == 401
+
+
+def test_apple_verify_rejects_wrong_audience(
+    auth_client: TestClient, monkeypatch
+):
+    from app.api.v1.endpoints import auth as auth_endpoint
+
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_key = private_key.public_key()
+    raw_nonce = "raw-nonce"
+    token = _signed_apple_token(
+        private_key,
+        raw_nonce=raw_nonce,
+        audience="wrong.bundle.id",
+        email="apple-audience@example.com",
+    )
+    monkeypatch.setattr(
+        auth_endpoint,
+        "_apple_signing_key_for_token",
+        lambda _identity_token: public_key,
+    )
+
+    response = auth_client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identityToken": token, "nonce": raw_nonce},
+    )
+
+    assert response.status_code == 401
 
 # ── Coverage for FIX-063 (registration IntegrityError) ──────────────
 

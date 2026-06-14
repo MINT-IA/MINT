@@ -114,6 +114,7 @@ class Settings(BaseSettings):
     CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "log_only"
 
     # Apple IAP / StoreKit
+    APPLE_SIGN_IN_AUDIENCE: str = "ch.mint.app"
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
     BILLING_ALLOW_CLIENT_APPLE_VERIFY: bool = False
     APPLE_WEBHOOK_SHARED_SECRET: str = ""

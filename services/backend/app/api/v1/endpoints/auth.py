@@ -4,11 +4,13 @@ Authentication endpoints - register, login, and user info.
 
 from uuid import uuid4
 from datetime import datetime, timezone, date, timedelta
-from typing import Optional
+from typing import Any, Optional
+import hashlib
 import os
 import logging
 import csv
 import io
+import jwt
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from fastapi import Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -96,6 +98,8 @@ from app.services.auth_admin_service import (
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+APPLE_IDENTITY_ISSUER = "https://appleid.apple.com"
+APPLE_JWKS_URL = "https://appleid.apple.com/auth/keys"
 
 
 def log_audit_event(*args, **kwargs) -> None:
@@ -117,6 +121,86 @@ def _request_ip(request: Request) -> Optional[str]:
         # Use RIGHTMOST IP — closest to the server, hardest to spoof
         return forwarded.split(",")[-1].strip()
     return request.client.host if request.client else None
+
+
+def _apple_allowed_audiences() -> list[str]:
+    raw = os.getenv("APPLE_SIGN_IN_AUDIENCE", settings.APPLE_SIGN_IN_AUDIENCE)
+    audiences = [audience.strip() for audience in raw.split(",") if audience.strip()]
+    if not audiences:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Apple Sign-In audience not configured",
+        )
+    return audiences
+
+
+def _apple_signing_key_for_token(identity_token: str) -> Any:
+    return jwt.PyJWKClient(APPLE_JWKS_URL).get_signing_key_from_jwt(
+        identity_token
+    ).key
+
+
+def _verify_apple_identity_token(
+    identity_token: str,
+    raw_nonce: Optional[str],
+) -> dict[str, Any]:
+    if not raw_nonce:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apple nonce required",
+        )
+
+    try:
+        header = jwt.get_unverified_header(identity_token)
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Apple identity token format",
+        )
+
+    if header.get("alg") != "RS256" or not header.get("kid"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple identity token header",
+        )
+
+    try:
+        claims = jwt.decode(
+            identity_token,
+            _apple_signing_key_for_token(identity_token),
+            algorithms=["RS256"],
+            audience=_apple_allowed_audiences(),
+            issuer=APPLE_IDENTITY_ISSUER,
+        )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Apple identity token expired",
+        )
+    except jwt.InvalidIssuerError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple token issuer",
+        )
+    except jwt.InvalidAudienceError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple token audience",
+        )
+    except (jwt.PyJWKClientError, jwt.InvalidTokenError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple identity token",
+        )
+
+    expected_nonce = hashlib.sha256(raw_nonce.encode("utf-8")).hexdigest()
+    if claims.get("nonce") != expected_nonce:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple nonce",
+        )
+
+    return claims
 
 
 def _email_verification_required() -> bool:
@@ -1250,57 +1334,12 @@ def apple_verify(
     """
     Verify an Apple identity token and return a JWT access token.
 
-    MVP verification: decode JWT payload and check issuer + audience.
-    Production: validate signature against Apple's public keys
-    (https://appleid.apple.com/auth/keys).
+    Verifies the token signature against Apple's JWKS, then enforces issuer,
+    audience, expiry, and SHA-256 nonce binding.
 
     Rate limited to 5 requests/minute per IP (T-01-11).
     """
-    import base64
-    import json as _json
-
-    # Decode Apple identity token (JWT) without signature verification (MVP).
-    # Production should verify against Apple's JWKS endpoint.
-    try:
-        # Apple identity tokens are standard JWTs (header.payload.signature)
-        parts = body.identity_token.split(".")
-        if len(parts) != 3:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid Apple identity token format",
-            )
-
-        # Decode payload (base64url)
-        payload_b64 = parts[1]
-        # Add padding if needed
-        padding = 4 - len(payload_b64) % 4
-        if padding != 4:
-            payload_b64 += "=" * padding
-        payload_bytes = base64.urlsafe_b64decode(payload_b64)
-        payload = _json.loads(payload_bytes)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to decode Apple identity token",
-        )
-
-    # T-01-11: Verify issuer
-    if payload.get("iss") != "https://appleid.apple.com":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Apple token issuer",
-        )
-
-    # T-01-12: Check token expiry
-    import time
-    token_exp = payload.get("exp", 0)
-    if token_exp < time.time():
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Apple identity token expired",
-        )
+    payload = _verify_apple_identity_token(body.identity_token, body.nonce)
 
     # Extract Apple user info
     apple_sub = payload.get("sub")  # Apple user ID (stable)
