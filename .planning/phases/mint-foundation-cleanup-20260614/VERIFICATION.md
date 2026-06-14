@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_FLIGHT.
+FOUNDATION_COMMITTED_LOCAL.
 
 ## Verified So Far
 
@@ -20,8 +20,11 @@ IN_FLIGHT.
   active milestone is not CJT.
 - `python3 -m pytest tools/checks/tests/test_cjt_context_guard.py -q` passes.
 - Final Claude CLI targeted follow-up returned `PASS`.
+- `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json` define the
+  single current session router.
+- `python3 tools/checks/active_context_guard.py` passes.
+- `python3 -m pytest tools/checks/tests/test_active_context_guard.py -q` passes.
 
 ## Open
 
-- Atomic commits.
 - Optional push after user approval.

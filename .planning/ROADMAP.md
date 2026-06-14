@@ -7,8 +7,8 @@ experience rente/capital**. The previous Core Journey Truth / Prod Ready and
 illogism-fixes entries below are retained as historical receipts; they are not
 the active router for new product work.
 
-- Foundation cleanup: [`phases/mint-foundation-cleanup-20260614/CONTEXT.md`](phases/mint-foundation-cleanup-20260614/CONTEXT.md)
-- Mint 2.0 first experience: [`phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md)
+- Foundation cleanup: [`.planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md`](phases/mint-foundation-cleanup-20260614/CONTEXT.md)
+- Mint 2.0 first experience: [`.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md)
 
 ## Milestones
 
@@ -24,10 +24,11 @@ the active router for new product work.
 - 🪦 **v2.9 Chat-as-Verb Pivot** — KILLED 2026-05-16 — see [decisions/2026-05-16-phase-96-killed.md](decisions/2026-05-16-phase-96-killed.md). Foundation phases (91/93.5/94/95) preserved as **v2.9 Lucidité Foundation** ; kill-tab + cards-home destination doctrine dropped. Direction restored : chat reste la porte d'entrée, tab Coach reste, widgets explorables inline ("Coach didactique vivant").
 - ◆ **v2.10 Lucidité Engine** — code-shipped on dev 2026-05-17, pending operational gates — Phase **mint-calc-engine-v1** closed 20/20 plans across W1-W4 (109 commits on `dev`, suite 7264, zero regression). Per CLAUDE.md §9.5 (0-TRUST 4-stage shipping pipeline) the phase is Stage 1 of 4 — cannot claim ✅ SHIPPED without Julien G2 device sign-off + 7 deferred operational gates (see [`phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md`](phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md) § Deferred). See [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md) for the full 4-problem framing.
 - 📋 **v2.11 Data Architecture v1 — Trust & Compliance Foundation** — initiated 2026-05-17 — see [decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md](decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md). Phase **mint-data-architecture-v1-01-calc-engine-canonical** opens the milestone — resolves the upstream calc-engine ownership conflict (mobile-canonical vs backend-canonical) that gates the event-log + projection migration (deferred Phase 02) and the coach-extractor guardrails (deferred Phase 03). Phases 02 + 03 will be declared in ROADMAP only after this phase's outcome is locked.
-- ◆ **Historical GSD: Core Journey Truth / Prod Ready** — opened 2026-06-01 on branch `qa/salvage-profile-truth-20260601` — convergence phase, not feature phase. Goal: one narrow beta-quality story with one user truth, coherent navigation, reduced duplicate surfaces, current/cited Coach claims, and Maestro-proofed journeys. Source of truth: [`phases/mint-prod-ready-core-journey-truth-20260601/CONTEXT.md`](phases/mint-prod-ready-core-journey-truth-20260601/CONTEXT.md), [`PLAN.md`](phases/mint-prod-ready-core-journey-truth-20260601/PLAN.md), [`CORE-JOURNEY-TRUTH-MAP.md`](phases/mint-prod-ready-core-journey-truth-20260601/CORE-JOURNEY-TRUTH-MAP.md), [`JOURNEY-TRUTH-MATRIX.md`](phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md), [`BUG-TRACKER.md`](phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md). Anti-drift guard: `python3 tools/checks/cjt_context_guard.py`.
+- ◆ **Historical GSD: Core Journey Truth / Prod Ready** — opened 2026-06-01 on branch `qa/salvage-profile-truth-20260601` — retired as active router by the 2026-06-14 foundation cleanup. Historical references: [`phases/mint-prod-ready-core-journey-truth-20260601/CONTEXT.md`](phases/mint-prod-ready-core-journey-truth-20260601/CONTEXT.md), [`PLAN.md`](phases/mint-prod-ready-core-journey-truth-20260601/PLAN.md), [`CORE-JOURNEY-TRUTH-MAP.md`](phases/mint-prod-ready-core-journey-truth-20260601/CORE-JOURNEY-TRUTH-MAP.md), [`JOURNEY-TRUTH-MATRIX.md`](phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md), [`BUG-TRACKER.md`](phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md). `tools/checks/cjt_context_guard.py` now skips unless CJT is the active milestone.
 
-  **Quality governance goals added 2026-06-04.** This GSD now has three
-  explicit operating gates in addition to product journey proof:
+  **Historical quality governance goals added 2026-06-04.** During that retired
+  CJT phase, the GSD had three explicit operating gates in addition to product
+  journey proof:
   1. **No drift** — every session starts from the active CJT roadmap, matrix,
      bug tracker, and context guard; no chat-only priority list may outrank
      those files.

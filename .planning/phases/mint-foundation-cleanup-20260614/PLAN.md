@@ -14,6 +14,8 @@ Create a clean, reviewable foundation before any Mint 2.0 product code.
 6. Commit the foundation in small atomic commits.
 7. Start Mint 2.0 Slice 2 only from this clean branch or a branch based on it.
 8. Keep `.planning/STATE.md` as the single current phase pointer.
+9. Add `.planning/ACTIVE_CONTEXT.md` / `.planning/ACTIVE_CONTEXT.json` as the
+   explicit session router and enforce it with `active_context_guard.py`.
 
 ## Commit Plan
 

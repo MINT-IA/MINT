@@ -23,20 +23,26 @@ Ordre d'autorité pour l'intention produit, la doctrine et les contraintes :
 1. `rules.md`, si présent.
 2. `CLAUDE.md`.
 3. `AGENTS.md`.
-4. `.planning/decisions/*.md` et `.planning/phases/*/CONTEXT.md`.
-5. Docs de domaine : `docs/calculator-graph.md`, `docs/data-flow.md`, `docs/coach-tool-routing.md`, `docs/ROUTE_POLICY.md`.
-6. Code source actuel, tests et scripts, pour le comportement observable.
-7. Skills et commandes : `.agents/skills/*`, `.claude/skills/*`, `.claude/commands/gsd/*`.
-8. Rosters : `.claude/agents/*.md`; `.codex/agents/*.toml` seulement si ce
+4. `.planning/ACTIVE_CONTEXT.md` et `.planning/ACTIVE_CONTEXT.json`.
+5. `.planning/STATE.md`.
+6. `.planning/decisions/*.md` et `.planning/phases/*/CONTEXT.md`.
+7. Docs de domaine : `docs/calculator-graph.md`, `docs/data-flow.md`, `docs/coach-tool-routing.md`, `docs/ROUTE_POLICY.md`.
+8. Code source actuel, tests et scripts, pour le comportement observable.
+9. Skills et commandes : `.agents/skills/*`, `.claude/skills/*`, `.claude/commands/gsd/*`.
+10. Rosters : `.claude/agents/*.md`; `.codex/agents/*.toml` seulement si ce
    dossier existe dans le checkout. Sinon les agents Codex sont fournis par la
    session et doivent être découverts via les outils disponibles, pas inventés
    comme fichiers repo.
-9. Engram MCP, projet `mint`, comme mémoire de décisions et découvertes.
+11. Engram MCP, projet `mint`, comme mémoire de décisions et découvertes.
 
 Engram évite de redécouvrir. Il ne surpasse jamais le repo.
 Si doc et code divergent, ne pas choisir par intuition : citer les deux chemins, ouvrir un finding, puis corriger la source fautive.
 
-Current phase pointer lives in `.planning/STATE.md`. As of 2026-06-14, product code is frozen until `.planning/phases/mint-foundation-cleanup-20260614/` is clean, then Mint 2.0 continues through `.planning/phases/mint-2-0-first-experience-rente-capital/`.
+Current phase pointer lives in `.planning/ACTIVE_CONTEXT.md`,
+`.planning/ACTIVE_CONTEXT.json`, and `.planning/STATE.md`. As of 2026-06-14,
+product code is frozen until `.planning/phases/mint-foundation-cleanup-20260614/`
+is clean, then Mint 2.0 continues through
+`.planning/phases/mint-2-0-first-experience-rente-capital/`.
 
 Sources de calcul :
 - L1 chiffrer mobile : `apps/mobile/lib/services/financial_core/`.
@@ -79,6 +85,8 @@ MEM="$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/ME
 sed -n '1,220p' "$MEM" || { echo "MEMORY.md introuvable: STOP"; exit 1; }
 sed -n '1,220p' CLAUDE.md
 sed -n '1,260p' AGENTS.md
+sed -n '1,220p' .planning/ACTIVE_CONTEXT.md
+python3 tools/checks/active_context_guard.py
 ```
 
 Puis `mem_context(project="mint")` et

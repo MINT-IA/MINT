@@ -19,6 +19,8 @@ progress:
 ## Project Reference
 
 Active operating map:
+`.planning/ACTIVE_CONTEXT.md`,
+`.planning/ACTIVE_CONTEXT.json`,
 `.planning/phases/mint-foundation-cleanup-20260614/CONTEXT.md`
 and `.planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md`.
 
@@ -51,12 +53,18 @@ Plan: foundation cleanup before Mint 2.0 code
 Status: Clean worktree created from `origin/dev`; accepted workflow and Mint 2.0 planning artifacts reintroduced. Original dirty tree remains quarantine.
 Last activity: 2026-06-14 -- Claude/Codex/agent foundation review loop in progress.
 
-**Known open gates:**
+**Closed foundation evidence:**
 
-- Foundation branch committed atomically.
-- Claude review has no unresolved P1.
-- Engram session summary saved.
-- Mint 2.0 Slice 2 plan starts from this clean foundation.
+- `0bdc8d9d7` — `tools: skip CJT guard outside active CJT phase`.
+- `7383abb6e` — `planning: establish Mint foundation workflow`.
+- Claude final targeted follow-up returned `PASS`.
+- Engram session summary and observations saved.
+- `python3 tools/checks/active_context_guard.py` passes.
+
+**Remaining open items:**
+
+- Optional push / PR of the foundation branch.
+- Mint 2.0 Slice 2 starts from this clean foundation.
 
 **Next execution bias:** commit/review foundation first; then open Mint 2.0
 Slice 2 with tests before UI.
