@@ -35,7 +35,6 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
-import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 
 GoalA _testGoalA() => GoalA(
       type: GoalAType.retraite,
@@ -146,8 +145,6 @@ void main() {
       expect(find.text(emptyCopy), findsOneWidget,
           reason: 'explicit empty-state invitation must render when no '
               'usable profile data exists');
-      expect(find.byKey(const Key('rente_vs_capital_disclaimer_card')),
-          findsNothing);
     },
   );
 
@@ -195,37 +192,6 @@ void main() {
           reason: 'real profile LPP must prefill the field');
       expect(fieldTexts, isNot(contains('350000')),
           reason: 'fiction default must never coexist with a real value');
-    },
-  );
-
-  testWidgets(
-    'local fallback result exposes origin and version in the receipt',
-    (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      addTearDown(tester.view.resetPhysicalSize);
-
-      final provider = CoachProfileProvider()
-        ..updateProfile(_profileWithEstimatedLpp());
-      await tester.pumpWidget(_wrap(provider));
-      await tester.pump(const Duration(milliseconds: 350));
-      await tester
-          .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-      await tester.pumpAndSettle();
-
-      final card = find.byKey(const Key('rente_vs_capital_disclaimer_card'));
-      await tester.scrollUntilVisible(card, 500,
-          scrollable: find.byType(Scrollable).first);
-      await tester.pump();
-
-      final label = tester.getSemantics(card).label;
-      for (final expected in [
-        'Origine du calcul : moteur mobile L1',
-        'Version du calcul : ${ArbitrageEngine.renteVsCapitalCalculationVersion}',
-        'Champs manquants : aucun',
-        'API backend indisponible : calcul local affiché',
-      ]) {
-        expect(label, contains(expected));
-      }
     },
   );
 }

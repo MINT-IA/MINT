@@ -233,6 +233,9 @@ void main() {
       expect(semantics.label, contains('LSFin'));
       expect(semantics.label, contains('LPP art. 14'));
       expect(semantics.label, contains('LIFD art. 38'));
+      expect(semantics.label, contains('Origine du calcul : moteur mobile L1'));
+      expect(semantics.label,
+          contains('Version du calcul : mobile-l1-rente-vs-capital-v1'));
     });
 
     test('warning label is localized in the 6 supported locales', () async {

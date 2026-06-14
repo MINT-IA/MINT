@@ -10,29 +10,12 @@ import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 Map<String, dynamic> _rvcResponse({bool versioned = true}) => {
-      'options': [
-        {'id': 'full_rente', 'label': 'Rente', 'trajectory': [{'year': 65, 'netPatrimony': 0, 'annualCashflow': 24000, 'cumulativeTaxDelta': 1200}], 'terminalValue': 0, 'cumulativeTaxImpact': 1200},
-        {'id': 'full_capital', 'label': 'Capital', 'trajectory': [{'year': 65, 'netPatrimony': 500000, 'annualCashflow': 20000, 'cumulativeTaxDelta': 18000}], 'terminalValue': 500000, 'cumulativeTaxImpact': 18000},
-      ],
-      'breakevenYear': -1,
-      'premierEclairage': 'Comparaison backend.',
-      'displaySummary': 'Synthese backend.',
-      'hypotheses': ['Canton ZH'],
-      'disclaimer': 'Outil educatif.',
-      'sources': ['LPP art. 37', 'LIFD art. 38'],
-      'confidenceScore': 80,
-      'sensitivity': {},
+      'options': <Map<String, dynamic>>[],
       if (versioned) 'calculationVersion': 'backend-l2-rente-vs-capital-v1',
-      'missingFields': [],
-      'receiptLines': [
-        'Origine du calcul : comparaison backend L2',
-        'Version du calcul : backend-l2-rente-vs-capital-v1',
-        'Statut du calcul : complet',
-        'Champs manquants : aucun',
-      ],
+      'receiptLines': ['Origine du calcul : comparaison backend L2'],
     };
 
-Future<void> _mockRvcResponse(bool versioned) async {
+void _mockRvcResponse(bool versioned) {
   ApiService.setHttpClientForTesting(MintHttpClient(MockClient((request) async {
     expect(request.url.path, '/api/v1/arbitrage/rente-vs-capital');
     return http.Response(jsonEncode(_rvcResponse(versioned: versioned)), 200,
@@ -214,18 +197,19 @@ void main() {
 
   group('ApiService — rente vs capital receipt', () {
     test('parses backend receipt version and origin', () async {
-      await _mockRvcResponse(true);
+      _mockRvcResponse(true);
       final result = await _callRvc();
 
       expect(result.calculationOrigin, ArbitrageCalculationOrigin.backendL2);
       expect(result.calculationVersion, 'backend-l2-rente-vs-capital-v1');
       expect(result.readiness, ArbitrageReadiness.complete);
       expect(result.missingFields, isEmpty);
-      expect(result.receiptLines, contains('Origine du calcul : comparaison backend L2'));
+      expect(result.receiptLines,
+          contains('Origine du calcul : comparaison backend L2'));
     });
 
     test('rejects backend receipt without calculation version', () async {
-      await _mockRvcResponse(false);
+      _mockRvcResponse(false);
       expect(
         _callRvc,
         throwsA(isA<ApiException>().having(
