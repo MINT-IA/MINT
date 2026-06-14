@@ -17,13 +17,14 @@ Claude phase review status: `PASS_WITH_FIXES`, P1 fixes incorporated here.
 ## Slice Order
 
 1. `01-contract-before-code`
-2. `02-entry-and-three-doors`
+2. `02-entry-and-three-axes-code-map`
 3. `03-rente-capital-data-readiness`
 4. `04-rente-capital-result-provenance`
 5. `05-dossier-navigation-and-account-handoff`
 6. `06-simulator-and-gates`
 
-Only Slice 1 is planned in detail here. Later slices must get their own `*-PLAN.md` before code.
+Slice 2 is now proposed as a code-mapped plan. Product code still requires a
+separate implementation branch after this plan is accepted.
 
 ## Slice 1 — Contract Before Code
 
@@ -53,11 +54,16 @@ No slice may close with only screenshots, only tests, or only a written rational
 
 ## Slice 2 Preconditions
 
-Before code in Slice 2, write `mint-2-0-first-experience-rente-capital-02-entry-and-three-doors-PLAN.md` with:
+Before code in Slice 2, use
+`mint-2-0-first-experience-rente-capital-02-entry-and-three-axes-code-map-PLAN.md`
+with:
 
 - exact files to touch, including landing/entry screen and route wiring;
 - explicit reuse of `/rente-vs-capital` rather than a new screen;
-- calculator-boundary decision for `rente_vs_capital_calculator.dart` vs `financial_core/arbitrage_engine.dart`;
+- binding calculator-boundary decision for `rente_vs_capital_calculator.dart` vs `financial_core/arbitrage_engine.dart`;
+- explicit chat guard and dossier-independence tests;
+- versioned persistence and legacy-intent migration tests;
+- feature flag `FeatureFlags.enableMint2FirstExperienceEntry` default off;
 - widget test asserting three axes visible;
 - negative tests asserting signalétique axes do not calculate and do not collect detailed unused data;
 - Maestro flow `flow_mint2_first_experience_rente_capital_entry.yaml` starting with `launchApp: { clearState: true }`;

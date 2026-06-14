@@ -22,8 +22,10 @@ Forbidden before the Slice 2 code plan:
 5. Dossier navigation and account handoff.
 6. Simulator, iPhone 13 mini, and closeout evidence.
 
-Only Slice 1 is planned here. Later slices require their own code-mapped plan
-before implementation.
+Slice 1 is the promotion baseline. Slice 2 now has a proposed code-mapped plan:
+`mint-2-0-first-experience-rente-capital-02-entry-and-three-axes-code-map-PLAN.md`.
+Product implementation remains blocked until that plan is reviewed and accepted
+for a separate implementation branch.
 
 ## Slice 1 Tasks
 
@@ -41,12 +43,23 @@ open blockers.
 
 ## Slice 2 Preconditions
 
-Before mobile code, write a new plan with exact files, reuse of
-`/rente-vs-capital`, grep proof for route/calculator symbols, calculator-boundary
-decision between `rente_vs_capital_calculator.dart` and
-`financial_core/arbitrage_engine.dart`, feature flag or kill switch, widget
-tests for three axes, negative tests for signalétique axes, dossier persistence
-test, Maestro entry flow from clear state, and iPhone 13 mini proof.
+Before mobile code, the Slice 2 plan must keep these binding gates:
+
+- exact file targets and grep evidence;
+- reuse of `/onb` and `/rente-vs-capital`, with no new route unless a separate
+  route-change plan exists;
+- `financial_core/arbitrage_engine.dart` as the mobile L1 source of truth for
+  the live rente/capital path;
+- explicit disposition for `domain/rente_vs_capital_calculator.dart`;
+- no silent API-to-local fallback without calculation-origin and version
+  disclosure;
+- `FeatureFlags.enableMint2FirstExperienceEntry` default off;
+- versioned `onb_axis_v2` persistence and legacy `onb_intent` migration tests;
+- chat guard tests proving navigation/orchestration only;
+- signalétique axes that invoke no calculator and show no financial number;
+- dossier persistence outside chat;
+- unauthenticated local-anonymous proof before account handoff;
+- Maestro clear-state first-entry flow and iPhone 13 mini layout proof.
 
 ## Active Decision
 
