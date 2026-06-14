@@ -5,9 +5,9 @@ Status: Active via router promotion. These checks describe the active contract.
 ## Planning Checks
 
 ```bash
-git diff --check -- .planning/phases/mint-2-0-first-experience-rente-capital
+git diff --check -- .planning/ACTIVE_CONTEXT.json .planning/phases/mint-2-0-first-experience-rente-capital
 python3 tools/checks/no_legal_admission_in_public_docs.py --paths .planning/phases/mint-2-0-first-experience-rente-capital
-git diff --name-only -- apps services
+git diff --name-only -- apps services tools docs rules.md AGENTS.md CLAUDE.md
 python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
@@ -40,6 +40,21 @@ dossier only after explicit user choice.
 G5 language: no banned LSFin terms, no financial number without receipt, no tax
 promise, future user-facing strings through ARB/i18n, French accents checked for
 future FR copy.
+
+## Slice 2 Plan Checks
+
+The Slice 2 planning artifact must map every contract clause to a future test
+file before product code starts:
+
+- calculator boundary and fallback provenance;
+- three axes at 375pt width;
+- signalétique axes with zero calculator calls and zero financial numbers;
+- chat navigation/orchestration only;
+- dossier persistence without chat;
+- versioned axis persistence and legacy intent migration;
+- local-anonymous access before account handoff;
+- ARB/i18n parity for future user-facing strings;
+- clear-state first-entry Maestro proof on iPhone 13 mini.
 
 ## Open Blockers
 
