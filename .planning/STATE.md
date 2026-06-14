@@ -7,6 +7,7 @@ stopped_at: Active router promoted; Slice 2 code-mapped plan is next before prod
 last_updated: "2026-06-14T18:02:45.000Z"
 last_activity: 2026-06-14 -- Mint 2.0 first experience became the active planning context; product code remains gated by Slice 2 planning and verification.
 progress:
+  scope: planning_router_only
   total_phases: 2
   completed_phases: 1
   total_plans: 2
@@ -54,6 +55,9 @@ Status: router now points to the canonical Mint 2.0 contract. Original dirty
 tree remains quarantine.
 Last activity: 2026-06-14 -- Julien gave GO for router promotion and Claude CLI
 review gave conditional GO for the 9-file promotion.
+
+Progress counters measure planning/router milestones only: Slice 1 contract and
+router promotion are counted; Slice 2 implementation remains pending.
 
 **Promotion evidence:**
 
