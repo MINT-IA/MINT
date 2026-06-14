@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -225,6 +226,9 @@ void main() {
         expect(success, isTrue);
         expect(provider.userId, 'existing-user');
         expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+        expect(await ReportPersistenceService.loadHeldAnonymousAnswers(), {
+          'q_canton': 'VD',
+        });
         expect(
           await ConversationStore().loadConversation('local-before-login'),
           isEmpty,
@@ -237,6 +241,67 @@ void main() {
           await ConversationStore().loadConversation('local-before-login'),
           isNotEmpty,
         );
+        expect(
+          seenPaths,
+          isNot(contains('/api/v1/sync/claim-local-data')),
+        );
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        ConversationStore.setCurrentUserId(null);
+      }
+    });
+
+    test(
+        'existing account login clears active local dossier even when profile '
+        'hydration fails', () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', false);
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/login') {
+            return http.Response(
+              '{"access_token":"existing-token","refresh_token":"existing-refresh","user_id":"existing-user","email":"existing@example.ch","display_name":"Existing User"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              '{"detail":"profile temporarily unavailable"}',
+              500,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/sync/claim-local-data') {
+            return http.Response(
+              '{"detail":"local dossier must not be claimed without choice"}',
+              500,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      try {
+        final success =
+            await provider.login('existing@example.ch', 'correct-password');
+
+        expect(success, isTrue);
+        expect(provider.userId, 'existing-user');
+        expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+        expect(await ReportPersistenceService.loadHeldAnonymousAnswers(), {
+          'q_canton': 'VD',
+        });
+        expect(prefs.getString('local_data_owner'), isNull);
+        expect(prefs.getBool('local_data_migrated_existing-user'), isNull);
+        expect(seenPaths, contains('/api/v1/profiles/me'));
         expect(
           seenPaths,
           isNot(contains('/api/v1/sync/claim-local-data')),
@@ -702,6 +767,113 @@ void main() {
       expect(await AuthService.getRefreshToken(), isNull);
     });
 
+    test('logout retries backend revocation after captured refresh succeeds',
+        () async {
+      await AuthService.saveToken(
+        'expired-jwt',
+        'u1',
+        'u1@example.ch',
+        refreshToken: 'refresh-token',
+      );
+
+      var logoutCalls = 0;
+      final seenPaths = <String>[];
+      final secondLogoutSeen = Completer<void>();
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/logout') {
+            logoutCalls += 1;
+            if (logoutCalls == 1) {
+              expect(request.headers['Authorization'], 'Bearer expired-jwt');
+              return http.Response(
+                '{"detail":"expired"}',
+                401,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            expect(request.headers['Authorization'], 'Bearer fresh-jwt');
+            expect(jsonDecode(request.body), {
+              'refresh_token': 'fresh-refresh',
+            });
+            if (!secondLogoutSeen.isCompleted) {
+              secondLogoutSeen.complete();
+            }
+            return http.Response(
+              '{"status":"logged_out"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/auth/refresh') {
+            expect(jsonDecode(request.body), {
+              'refresh_token': 'refresh-token',
+            });
+            return http.Response(
+              '{"access_token":"fresh-jwt","refresh_token":"fresh-refresh","user_id":"u1","email":"u1@example.ch"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      await provider.logout();
+      await secondLogoutSeen.future.timeout(const Duration(seconds: 1));
+
+      expect(seenPaths, [
+        '/api/v1/auth/logout',
+        '/api/v1/auth/refresh',
+        '/api/v1/auth/logout',
+      ]);
+      expect(await AuthService.getToken(), isNull);
+      expect(await AuthService.getRefreshToken(), isNull);
+    });
+
+    test(
+        'logout clears local session before delayed backend revocation returns',
+        () async {
+      await AuthService.saveToken(
+        'jwt-token',
+        'u1',
+        'u1@example.ch',
+        refreshToken: 'refresh-token',
+      );
+
+      final requestSeen = Completer<void>();
+      final releaseResponse = Completer<void>();
+      final responseReturned = Completer<void>();
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          if (request.url.path == '/api/v1/auth/logout' &&
+              !requestSeen.isCompleted) {
+            requestSeen.complete();
+          }
+          await releaseResponse.future;
+          if (!responseReturned.isCompleted) {
+            responseReturned.complete();
+          }
+          return http.Response(
+            '{"status":"logged_out"}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+
+      final logoutFuture = provider.logout();
+      await requestSeen.future;
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(await AuthService.getToken(), isNull);
+      expect(await AuthService.getRefreshToken(), isNull);
+
+      releaseResponse.complete();
+      await logoutFuture;
+      await responseReturned.future.timeout(const Duration(seconds: 1));
+    });
+
     test('logout purges only MINT-owned secure storage keys', () async {
       secureStorage.addAll({
         'jwt_token': 'jwt',
@@ -785,6 +957,11 @@ void main() {
       expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
       expect(secureStorage.containsKey('mint_biography_key'), isFalse);
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+        isTrue,
+      );
     });
 
     test('profile clearAll purges owned secure feature keys', () async {
@@ -852,10 +1029,42 @@ void main() {
 
       final prefs = await SharedPreferences.getInstance();
       expect(
-        prefs.getBool(InstallLifecycleService.securePurgePendingKey),
+        prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
         isTrue,
       );
       expect(secureStorage['byok_api_key'], 'sk-profile-reset');
+      expect(secureStorage['foreign_app_key'], 'must-stay');
+    });
+
+    test(
+        'normal install retries pending owned secure purge without deleting '
+        'auth session', () async {
+      secureStorage.addAll({
+        'jwt_token': 'jwt',
+        'refresh_token': 'refresh',
+        'user_id': 'u1',
+        'user_email': 'u1@example.ch',
+        'byok_api_key': 'stale-key',
+        'foreign_app_key': 'must-stay',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
+      await prefs.setBool(
+        InstallLifecycleService.ownedSecurePurgePendingKey,
+        true,
+      );
+
+      final mayRestoreAuth =
+          await InstallLifecycleService.prepareForAuthRestore();
+
+      expect(mayRestoreAuth, isTrue);
+      expect(
+        prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+        isNull,
+      );
+      expect(secureStorage['jwt_token'], 'jwt');
+      expect(secureStorage['refresh_token'], 'refresh');
+      expect(secureStorage.containsKey('byok_api_key'), isFalse);
       expect(secureStorage['foreign_app_key'], 'must-stay');
     });
 

@@ -1016,6 +1016,29 @@ void main() {
       expect(await ReportPersistenceService.loadAnswers(), isEmpty);
     });
 
+    test('holdActiveDiagnosticForAnonymous moves active answers aside',
+        () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+      expect(mockSecureStorage['q_net_income_period_chf'], '7000');
+
+      await ReportPersistenceService.holdActiveDiagnosticForAnonymous();
+
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+      expect(await ReportPersistenceService.loadHeldAnonymousAnswers(), {
+        'q_canton': 'VD',
+        'q_net_income_period_chf': '7000',
+      });
+      expect(
+        mockSecureStorage[
+            '_mint_held_anonymous_wizard_q_net_income_period_chf'],
+        '7000',
+      );
+      expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
     test('clearDiagnostic marks pending secure deletion on delete failure',
         () async {
       await ReportPersistenceService.saveAnswers({

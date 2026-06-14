@@ -1,11 +1,11 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -17,7 +17,6 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
@@ -822,7 +821,12 @@ class AuthProvider extends ChangeNotifier {
   /// Logout — V6-4 audit fix: purge ALL local data to prevent
   /// cross-account data bleed on shared devices.
   Future<void> logout() async {
-    await ApiService.logout(refreshToken: await AuthService.getRefreshToken());
+    final accessToken = await AuthService.getToken();
+    final refreshToken = await AuthService.getRefreshToken();
+    unawaited(ApiService.logout(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    ));
     await AuthService.logout();
     // FIX-W11-7: Clear user prefix on logout.
     ConversationStore.setCurrentUserId(null);
@@ -885,36 +889,19 @@ class AuthProvider extends ChangeNotifier {
       if (preservedWhiteLabel != null) {
         await prefs.setString('_white_label_config', preservedWhiteLabel);
       }
-      // Purge MINT-owned secure storage explicitly. Never call
-      // FlutterSecureStorage.deleteAll(): the keychain may contain
-      // non-MINT entries from extensions or shared app groups.
-      await _bestEffortPurge('wizard diagnostic', () {
-        return ReportPersistenceService.clearDiagnostic();
-      });
-      await _bestEffortPurge('BYOK key', () => ByokProvider.clearStoredKey());
-      await _bestEffortPurge(
-          'partner estimate', () => PartnerEstimateService.clear());
-      await _bestEffortPurge(
-          'anonymous session', () => AnonymousSessionService.clearSession());
-      await _bestEffortPurge(
-          'biography key', () => BiographyRepository.clearEncryptionKey());
+      await ReportPersistenceService.clearDiagnostic();
+      final ownedSecurePurged =
+          await InstallLifecycleService.purgeMintSecureStorage(
+        includeAuthSession: false,
+      );
+      await InstallLifecycleService.recordOwnedSecurePurgeResult(
+        ownedSecurePurged,
+        prefs: prefs,
+      );
     } catch (e) {
       // Purge is best-effort — never block auth flow
       if (kDebugMode) {
         debugPrint('[AuthProvider] Local data purge failed: $e');
-      }
-    }
-  }
-
-  Future<void> _bestEffortPurge(
-    String label,
-    Future<void> Function() action,
-  ) async {
-    try {
-      await action();
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('[AuthProvider] Local $label purge failed: $e');
       }
     }
   }
@@ -1040,21 +1027,23 @@ class AuthProvider extends ChangeNotifier {
   /// don't show an empty state.
   Future<void> _hydrateProfileFromBackend() async {
     try {
-      final profileData = await ApiService.get('/profiles/me');
       final prefs = await SharedPreferences.getInstance();
       final currentUserId = _userId;
       final accountOwnsLocalAnswers = currentUserId != null &&
           prefs.getString('local_data_owner') == currentUserId &&
           (prefs.getBool('local_data_migrated_$currentUserId') ?? false);
-      final existingAnswers = await ReportPersistenceService.loadAnswers();
+      var existingAnswers = await ReportPersistenceService.loadAnswers();
+      if (!accountOwnsLocalAnswers && existingAnswers.isNotEmpty) {
+        await ReportPersistenceService.holdActiveDiagnosticForAnonymous();
+        existingAnswers = const {};
+      }
+
+      final profileData = await ApiService.get('/profiles/me');
       final answers =
           accountOwnsLocalAnswers ? existingAnswers : <String, dynamic>{};
       final merged = _mergeBackendProfileData(answers, profileData);
 
       if (!accountOwnsLocalAnswers && profileData.isEmpty) {
-        if (existingAnswers.isNotEmpty) {
-          await ReportPersistenceService.clearDiagnostic();
-        }
         return;
       }
 

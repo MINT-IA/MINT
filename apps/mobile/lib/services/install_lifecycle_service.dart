@@ -14,6 +14,8 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 class InstallLifecycleService {
   static const installMarkerKey = 'mint_install_marker_v1';
   static const securePurgePendingKey = 'mint_install_secure_purge_pending_v1';
+  static const ownedSecurePurgePendingKey =
+      'mint_owned_secure_purge_pending_v1';
 
   static const _directSecureKeys = {
     'byok_provider',
@@ -33,6 +35,10 @@ class InstallLifecycleService {
   /// Returns whether AuthService may read stored credentials this launch.
   static Future<bool> prepareForAuthRestore() async {
     final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(ownedSecurePurgePendingKey) == true) {
+      await _retryOwnedSecurePurge(prefs);
+    }
+
     if (prefs.getBool(installMarkerKey) == true) return true;
 
     if (prefs.getBool(securePurgePendingKey) == true) {
@@ -58,6 +64,23 @@ class InstallLifecycleService {
       await prefs.setBool(installMarkerKey, true);
     } else {
       await prefs.setBool(securePurgePendingKey, true);
+    }
+  }
+
+  static Future<void> _retryOwnedSecurePurge(SharedPreferences prefs) async {
+    final purged = await purgeMintSecureStorage(includeAuthSession: false);
+    await recordOwnedSecurePurgeResult(purged, prefs: prefs);
+  }
+
+  static Future<void> recordOwnedSecurePurgeResult(
+    bool purged, {
+    SharedPreferences? prefs,
+  }) async {
+    final store = prefs ?? await SharedPreferences.getInstance();
+    if (purged) {
+      await store.remove(ownedSecurePurgePendingKey);
+    } else {
+      await store.setBool(ownedSecurePurgePendingKey, true);
     }
   }
 

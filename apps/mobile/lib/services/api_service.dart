@@ -351,29 +351,84 @@ class ApiService {
 
   /// Best-effort backend logout.
   ///
-  /// Must run before local token purge so the backend can blacklist both the
-  /// access token and the refresh token. Network/backend failures never block
-  /// local logout.
-  static Future<void> logout({String? refreshToken}) async {
-    final accessToken = await AuthService.getToken();
-    if (accessToken == null || accessToken.isEmpty) return;
+  /// Accepts captured tokens so local logout can purge immediately while the
+  /// backend still gets a chance to blacklist access and refresh tokens.
+  /// Network/backend failures never block local logout.
+  static Future<void> logout({
+    String? accessToken,
+    String? refreshToken,
+    Duration timeout = const Duration(seconds: 3),
+  }) async {
+    final token = accessToken ?? await AuthService.getToken();
+    if (token == null || token.isEmpty) return;
 
     try {
-      final body = <String, dynamic>{};
-      if (refreshToken != null && refreshToken.trim().isNotEmpty) {
-        body['refresh_token'] = refreshToken;
+      var response = await _postLogoutWithToken(
+        token,
+        refreshToken: refreshToken,
+        timeout: timeout,
+      );
+      if (response.statusCode == 401 &&
+          refreshToken != null &&
+          refreshToken.trim().isNotEmpty) {
+        final refreshed = await _refreshCapturedSession(
+          refreshToken,
+          timeout: timeout,
+        );
+        if (refreshed != null) {
+          response = await _postLogoutWithToken(
+            refreshed.$1,
+            refreshToken: refreshed.$2 ?? refreshToken,
+            timeout: timeout,
+          );
+        }
       }
-      await _mintHttp
-          .post(
-            Uri.parse('$baseUrl/auth/logout'),
-            headers: await _authHeaders(),
-            body: jsonEncode(body),
-          )
-          .timeout(_httpTimeout);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ApiService] backend logout failed: $e');
       }
+    }
+  }
+
+  static Future<http.Response> _postLogoutWithToken(
+    String accessToken, {
+    String? refreshToken,
+    required Duration timeout,
+  }) {
+    final body = <String, dynamic>{};
+    if (refreshToken != null && refreshToken.trim().isNotEmpty) {
+      body['refresh_token'] = refreshToken;
+    }
+    return _mintHttp
+        .post(
+          Uri.parse('$baseUrl/auth/logout'),
+          headers: _authHeadersForToken(accessToken),
+          body: jsonEncode(body),
+        )
+        .timeout(timeout);
+  }
+
+  static Future<(String, String?)?> _refreshCapturedSession(
+    String refreshToken, {
+    required Duration timeout,
+  }) async {
+    try {
+      final response = await _mintHttp
+          .post(
+            Uri.parse('$baseUrl/auth/refresh'),
+            headers: _publicHeaders(),
+            body: jsonEncode({'refresh_token': refreshToken}),
+          )
+          .timeout(timeout);
+      if (response.statusCode != 200) return null;
+      final data =
+          _safeJsonDecode(response.body, statusCode: response.statusCode);
+      final access = data['access_token'] as String?;
+      final refresh = data['refresh_token'] as String?;
+      if (access == null || access.isEmpty) return null;
+      return (access, refresh);
+    } catch (_) {
+      return null;
     }
   }
 

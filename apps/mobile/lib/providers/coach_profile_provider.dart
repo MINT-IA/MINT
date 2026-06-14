@@ -3138,12 +3138,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final securePurged = await InstallLifecycleService.purgeMintSecureStorage(
       includeAuthSession: false,
     );
-    final prefs = await SharedPreferences.getInstance();
-    if (securePurged) {
-      await prefs.remove(InstallLifecycleService.securePurgePendingKey);
-    } else {
-      await prefs.setBool(InstallLifecycleService.securePurgePendingKey, true);
-    }
+    await InstallLifecycleService.recordOwnedSecurePurgeResult(securePurged);
   }
 
   /// Sub-phase 01.5 W02-T03 Task 6 — nLPD art. 6 minimization

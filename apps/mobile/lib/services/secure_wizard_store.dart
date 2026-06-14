@@ -31,6 +31,8 @@ class SecureWizardStore {
   );
 
   static const _manifestKey = '_mint_wizard_secure_keys_v1';
+  static const _heldPrefix = '_mint_held_anonymous_wizard_';
+  static const _heldManifestKey = '_mint_held_anonymous_wizard_secure_keys_v1';
 
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
@@ -222,6 +224,85 @@ class SecureWizardStore {
       // canonical keys, and dynamic prefixes are cleaned when the manifest works.
       return false;
     }
+  }
+
+  static Future<Set<String>> _readHeldManifest() async {
+    try {
+      final raw = await _storage.read(key: _heldManifestKey);
+      if (raw == null || raw.isEmpty) return {};
+      final decoded = json.decode(raw);
+      if (decoded is! List) return {};
+      return decoded.whereType<String>().toSet();
+    } on Exception {
+      return {};
+    }
+  }
+
+  static Future<bool> _rememberHeldKey(String key) async {
+    try {
+      final keys = await _readHeldManifest();
+      if (keys.add(key)) {
+        await _storage.write(
+          key: _heldManifestKey,
+          value: json.encode(keys.toList()),
+        );
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<bool> holdSensitiveValuesForKeys(Iterable<String> keys) async {
+    var heldAll = true;
+    for (final key in keys.where(isSensitive).toSet()) {
+      final value = await read(key);
+      if (value == null) continue;
+      try {
+        await _storage.write(key: '$_heldPrefix$key', value: value);
+        heldAll = await _rememberHeldKey(key) && heldAll;
+      } on Exception {
+        heldAll = false;
+      }
+    }
+    return heldAll;
+  }
+
+  static Future<Map<String, dynamic>> restoreHeldSensitiveKeys(
+    Map<String, dynamic> answers,
+  ) async {
+    final restored = Map<String, dynamic>.from(answers);
+    for (final entry in restored.entries.toList()) {
+      if (entry.value == '__secure__' && isSensitive(entry.key)) {
+        try {
+          final value = await _storage.read(key: '$_heldPrefix${entry.key}');
+          if (value != null) {
+            restored[entry.key] = value;
+          }
+        } on Exception {
+          // Keep placeholder when held secure storage is unavailable.
+        }
+      }
+    }
+    return restored;
+  }
+
+  static Future<bool> deleteHeldSensitiveValues() async {
+    var deletedAll = true;
+    final keys = await _readHeldManifest();
+    for (final key in keys) {
+      try {
+        await _storage.delete(key: '$_heldPrefix$key');
+      } on Exception {
+        deletedAll = false;
+      }
+    }
+    try {
+      await _storage.delete(key: _heldManifestKey);
+    } on Exception {
+      deletedAll = false;
+    }
+    return deletedAll;
   }
 
   /// Delete all sensitive keys from encrypted storage.

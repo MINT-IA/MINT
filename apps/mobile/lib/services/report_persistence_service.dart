@@ -10,6 +10,14 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 class ReportPersistenceService {
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
+  static const String _heldAnonymousWizardKey =
+      'anonymous_wizard_answers_held_v1';
+  static const String _heldAnonymousCompletedKey =
+      'anonymous_wizard_completed_held_v1';
+  static const String _heldAnonymousMiniCompletedKey =
+      'anonymous_mini_onboarding_completed_held_v1';
+  static const String _heldAnonymousSelectedIntentKey =
+      'anonymous_selected_onboarding_intent_held_v1';
 
   /// Sauvegarde les réponses du wizard (incremental off).
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
@@ -45,6 +53,77 @@ class ReportPersistenceService {
           error: e, stackTrace: stack, name: 'Persistence');
       return {};
     }
+  }
+
+  static Future<void> holdActiveDiagnosticForAnonymous() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_wizardKey);
+    if (jsonString != null && jsonString.isNotEmpty) {
+      try {
+        final decoded = json.decode(jsonString);
+        if (decoded is Map) {
+          await SecureWizardStore.holdSensitiveValuesForKeys(
+            decoded.keys.whereType<String>(),
+          );
+        }
+      } catch (_) {
+        // Keep the raw payload; loadHeldAnonymousAnswers will ignore bad JSON.
+      }
+      await prefs.setString(_heldAnonymousWizardKey, jsonString);
+    }
+
+    await _copyBoolIfPresent(prefs, _completedKey, _heldAnonymousCompletedKey);
+    await _copyBoolIfPresent(
+      prefs,
+      _miniOnboardingKey,
+      _heldAnonymousMiniCompletedKey,
+    );
+    final selectedIntent = prefs.getString(_selectedIntentKey);
+    if (selectedIntent != null) {
+      await prefs.setString(_heldAnonymousSelectedIntentKey, selectedIntent);
+    }
+
+    await clearDiagnostic(includeHeldAnonymous: false);
+  }
+
+  static Future<void> _copyBoolIfPresent(
+    SharedPreferences prefs,
+    String source,
+    String target,
+  ) async {
+    final value = prefs.getBool(source);
+    if (value != null) {
+      await prefs.setBool(target, value);
+    }
+  }
+
+  static Future<Map<String, dynamic>> loadHeldAnonymousAnswers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_heldAnonymousWizardKey);
+    if (jsonString == null) return {};
+    try {
+      final answers = Map<String, dynamic>.from(json.decode(jsonString));
+      return await SecureWizardStore.restoreHeldSensitiveKeys(answers);
+    } catch (_) {
+      return {};
+    }
+  }
+
+  static Future<bool> hasHeldAnonymousDiagnostic() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey(_heldAnonymousWizardKey) ||
+        prefs.containsKey(_heldAnonymousCompletedKey) ||
+        prefs.containsKey(_heldAnonymousMiniCompletedKey) ||
+        prefs.containsKey(_heldAnonymousSelectedIntentKey);
+  }
+
+  static Future<bool> clearHeldAnonymousDiagnostic() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_heldAnonymousWizardKey);
+    await prefs.remove(_heldAnonymousCompletedKey);
+    await prefs.remove(_heldAnonymousMiniCompletedKey);
+    await prefs.remove(_heldAnonymousSelectedIntentKey);
+    return SecureWizardStore.deleteHeldSensitiveValues();
   }
 
   static Future<void> _scrubLegacyPlainSensitiveAnswers(
@@ -775,7 +854,9 @@ class ReportPersistenceService {
   /// - réponses wizard/mini-onboarding
   /// - flags de complétion
   /// - contributions planifiées liées au profil
-  static Future<void> clearDiagnostic() async {
+  static Future<void> clearDiagnostic({
+    bool includeHeldAnonymous = true,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_wizardKey);
     await prefs.remove(_completedKey);
@@ -796,6 +877,12 @@ class ReportPersistenceService {
       await prefs.remove(_secureDeletePendingKey);
     } else {
       await prefs.setBool(_secureDeletePendingKey, true);
+    }
+    if (includeHeldAnonymous) {
+      final heldDeleted = await clearHeldAnonymousDiagnostic();
+      if (!heldDeleted) {
+        await prefs.setBool(_secureDeletePendingKey, true);
+      }
     }
   }
 }
