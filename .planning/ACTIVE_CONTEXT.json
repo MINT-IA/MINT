@@ -8,10 +8,12 @@
   "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
   "worktree_root": "/Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync",
   "allowed_branches": [
+    "dev",
+    "codex/mint-dev-active-context-20260614",
     "codex/mint-foundation-cleanup-20260614",
     "codex/mint-karpathy-rules-infra-20260614"
   ],
-  "base_ref": "origin/codex/mint-foundation-cleanup-20260614",
+  "base_ref": "origin/dev",
   "required_phase_files": [
     "CONTEXT.md",
     "SPEC.md",
