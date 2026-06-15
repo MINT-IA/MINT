@@ -1020,11 +1020,13 @@ class CoachProfileProvider extends ChangeNotifier {
         return {
           'q_net_income_period_chf': value,
           'q_pay_frequency': 'monthly',
+          'q_net_income_period_source': 'save_fact_monthly',
         };
       case 'incomeNetYearly':
         return {
           'q_net_income_period_chf': value,
           'q_pay_frequency': 'yearly',
+          'q_net_income_period_source': 'save_fact_yearly',
         };
       case 'incomeGrossMonthly':
         final monthly = _asNum(value);

@@ -202,6 +202,7 @@ class OnboardingProvider extends ChangeNotifier {
         return 0;
     }
   }
+
   String? get nationalityGroup => _nationalityGroup;
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;
@@ -436,6 +437,7 @@ class OnboardingProvider extends ChangeNotifier {
     if (_netMonthlyExact != null) {
       answers['q_net_income_period_chf'] = _netMonthlyExact;
       answers['q_net_income_confidence'] = 'high';
+      answers['q_net_income_period_source'] = 'onboarding_exact';
     } else if (_netMonthlyRange != null) {
       // Persiste le milieu de la fourchette en valeur effective, et
       // archive la fourchette brute pour les upgrades de confidence.
@@ -443,6 +445,7 @@ class OnboardingProvider extends ChangeNotifier {
       answers['q_net_income_range_low'] = _netMonthlyRange!.low;
       answers['q_net_income_range_high'] = _netMonthlyRange!.high;
       answers['q_net_income_confidence'] = 'medium';
+      answers['q_net_income_period_source'] = 'onboarding_range_midpoint';
     }
     // SALVAGE-01 (archetype-waitlist): derive q_nationality from the
     // captured group, mirroring updateFromSmartFlow's CH/EU/OTHER mapping.

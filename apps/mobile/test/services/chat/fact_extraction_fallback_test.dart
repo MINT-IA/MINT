@@ -456,6 +456,7 @@ void main() {
       final persisted = await ReportPersistenceService.loadAnswers();
       expect(persisted['q_net_income_period_chf'], 7600);
       expect(persisted['q_pay_frequency'], 'monthly');
+      expect(persisted['q_net_income_period_source'], 'save_fact_monthly');
       expect(persisted['q_total_debt_balance_chf'], 9000);
 
       final reloaded = CoachProfileProvider();

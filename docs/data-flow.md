@@ -107,12 +107,19 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   income for independent/no-LPP OPP3 art. 7 calculations; Coach `save_fact`
   also writes a derived monthly proxy `q_net_income_period_chf = annual/12`
   with `q_pay_frequency='monthly'` when no better cashflow is known, so
-  Budget/Rapport start coherent. Auth/backend hydration refreshes the annual
-  fact and only refreshes the monthly cashflow when it was missing or still
-  equal to the old annual-derived monthly value, preserving explicit Budget
-  entries. Budget Setup clears `q_net_income_period_source` when the user types
-  a monthly income so later annual corrections cannot overwrite an explicit
-  cashflow that happens to equal the old derived proxy. Budget read models
+  Budget/Rapport start coherent. Onboarding v2 also writes
+  `q_net_income_period_source` to distinguish an exact monthly value from a
+  range midpoint (`onboarding_exact` vs `onboarding_range_midpoint`) while
+  preserving `q_net_income_range_low`, `q_net_income_range_high`, and
+  `q_net_income_confidence`. Later coach `save_fact` writes for
+  `incomeNetMonthly` / `incomeNetYearly` replace that source with
+  `save_fact_monthly` / `save_fact_yearly` so provenance follows the current
+  amount instead of the old onboarding value. Auth/backend hydration refreshes
+  the annual fact and only refreshes the monthly cashflow when it was missing or
+  still equal to the old annual-derived monthly value, preserving explicit
+  Budget entries. Budget Setup clears `q_net_income_period_source` when the
+  user types a monthly income so later annual corrections cannot overwrite an
+  explicit cashflow that happens to equal the old derived proxy. Budget read models
   normalize non-monthly income to monthly and persist normalized Budget inputs
   back as `q_pay_frequency='monthly'` to avoid reload drift. Rapport uses the
   annual fact directly for the OPP3 art. 7 3a ceiling and uses the monthly key
