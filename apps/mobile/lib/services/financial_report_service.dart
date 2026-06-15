@@ -404,8 +404,7 @@ class FinancialReportService {
     // FIX-047: Use legal minimum 6.8% (same as dashboard) to avoid
     // confusing users with different CHF amounts. Was 5.8% (surobligatoire)
     // which understated rente by 18.6% vs dashboard.
-    final convRate =
-        reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+    final convRate = reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
     final monthlyLppRent = (lppCapital * convRate) / 12;
 
     return RetirementProjection(

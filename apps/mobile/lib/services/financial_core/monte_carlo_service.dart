@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MONTE CARLO PROJECTION SERVICE
@@ -74,6 +75,8 @@ class MonteCarloProjectionService {
       return _incompleteBirthDateResult(retirementAgeUser: retirementAgeUser);
     }
 
+    final regulatoryCache = RegulatorySyncService.cacheSnapshotForIsolate();
+
     return Isolate.run(() => _simulateSync(
           profile: profile,
           retirementAgeUser: retirementAgeUser,
@@ -81,6 +84,7 @@ class MonteCarloProjectionService {
           depensesMensuelles: depensesMensuelles,
           numSimulations: numSimulations,
           seed: seed,
+          regulatoryCache: regulatoryCache,
         ));
   }
 
@@ -92,10 +96,13 @@ class MonteCarloProjectionService {
     double? depensesMensuelles,
     int numSimulations = 1000,
     int? seed,
+    Map<String, double>? regulatoryCache,
   }) {
     if (profile.ageOrNull == null) {
       return _incompleteBirthDateResult(retirementAgeUser: retirementAgeUser);
     }
+
+    RegulatorySyncService.hydrateCacheForIsolate(regulatoryCache);
 
     final random = Random(seed);
     final results = <List<double>>[];
@@ -254,12 +261,12 @@ class MonteCarloProjectionService {
       double lppCapitalNet = 0;
       // Split oblig/suroblig conversion rates (LPP art. 14)
       final convRateOblig = LppCalculator.adjustedConversionRate(
-        baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+        baseRate: reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
         retirementAge: retirementAgeUser,
       );
       final convRateSurob = LppCalculator.adjustedConversionRate(
         baseRate: profile.prevoyance.tauxConversionSuroblig ??
-            reg('lpp.conversion_rate_suroblig',
+            reg('lpp.conversion_rate_complementaire',
                 lppTauxConversionSurobligDecimal),
         retirementAge: retirementAgeUser,
       );
@@ -276,11 +283,11 @@ class MonteCarloProjectionService {
         // No certificate split: use conservative rate when profile has default 6.8%
         final profileRate = profile.prevoyance.tauxConversion;
         final isDefault = (profileRate -
-                    reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal))
+                    reg('lpp.conversion_rate', lppTauxConversionMinDecimal))
                 .abs() <
             0.001;
         final baseRate = isDefault
-            ? reg('lpp.conversion_rate_suroblig',
+            ? reg('lpp.conversion_rate_complementaire',
                 lppTauxConversionSurobligDecimal)
             : profileRate;
         final envRate = LppCalculator.adjustedConversionRate(

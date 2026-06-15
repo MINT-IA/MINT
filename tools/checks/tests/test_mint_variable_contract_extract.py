@@ -70,8 +70,8 @@ def test_cli_json_freezes_current_variable_contract_snapshot() -> None:
         snapshot["regulatory"]["dart_generated_snapshot"]["effective_on"]
         == "2026-06-12"
     )
-    assert snapshot["regulatory"]["dart_reg_unique_key_count"] == 45
-    assert snapshot["regulatory"]["dart_reg_exact_miss_count"] == 26
+    assert snapshot["regulatory"]["dart_reg_unique_key_count"] == 43
+    assert snapshot["regulatory"]["dart_reg_exact_miss_count"] == 9
 
 
 def test_cli_check_passes_for_current_repo_snapshot() -> None:
@@ -100,9 +100,71 @@ def test_snapshot_flags_interpolated_reg_keys_as_non_static() -> None:
     proc = _run("--json")
     snapshot = json.loads(proc.stdout)
 
-    assert snapshot["regulatory"]["non_static_reg_keys"] == [
-        'avs.max_annual_pension_${year >= avs13emeRenteAnneeDebut ? "13m" : "12m"}',
+    assert snapshot["regulatory"]["non_static_reg_keys"] == []
+
+
+def test_snapshot_classifies_remaining_regulatory_misses_for_pr6() -> None:
+    proc = _run("--json")
+    snapshot = json.loads(proc.stdout)
+
+    assert snapshot["regulatory"]["dart_reg_exact_misses"] == [
+        "ac.enhanced_rate_threshold",
+        "ac.intermediate_days",
+        "ac.min_days",
+        "ac.senior_age_threshold",
+        "ac.senior_days",
+        "projection.avs_indexation_rate",
+        "projection.inflation_rate",
+        "projection.life_expectancy",
+        "projection.safe_withdrawal_rate",
     ]
+    assert snapshot["regulatory"]["dart_reg_registry_backfill_required"] == [
+        "ac.enhanced_rate_threshold",
+        "ac.intermediate_days",
+        "ac.min_days",
+        "ac.senior_age_threshold",
+        "ac.senior_days",
+    ]
+    assert snapshot["regulatory"]["dart_reg_descoped_until_owner_phase"] == [
+        "projection.avs_indexation_rate",
+        "projection.inflation_rate",
+        "projection.life_expectancy",
+        "projection.safe_withdrawal_rate",
+    ]
+    assert snapshot["regulatory"]["dart_reg_unclassified_exact_misses"] == []
+
+
+def test_regulatory_miss_classifier_keeps_unknown_misses_fail_loud() -> None:
+    module = _checker_module()
+
+    classification = module._classify_dart_reg_exact_misses(
+        [
+            "ac.min_days",
+            "projection.inflation_rate",
+            "new.unknown_key",
+        ]
+    )
+
+    assert classification["dart_reg_registry_backfill_required"] == ["ac.min_days"]
+    assert classification["dart_reg_descoped_until_owner_phase"] == [
+        "projection.inflation_rate",
+    ]
+    assert classification["dart_reg_unclassified_exact_misses"] == [
+        "new.unknown_key",
+    ]
+
+    proc = _run("--json")
+    snapshot = json.loads(proc.stdout)
+    snapshot["regulatory"]["dart_reg_unclassified_exact_misses"] = [
+        "new.unknown_key",
+    ]
+
+    errors = module.check(snapshot)
+
+    assert (
+        "regulatory.dart_reg_unclassified_exact_misses: expected [], "
+        "got ['new.unknown_key']"
+    ) in errors
 
 
 def test_snapshot_lists_secure_wizard_outputs_not_covered_by_static_or_prefix() -> None:

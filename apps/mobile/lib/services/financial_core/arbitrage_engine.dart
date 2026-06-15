@@ -102,6 +102,7 @@ class ArbitrageEngine {
     int horizon = 30,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+
     /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche par RvC — un profil = un score sur toutes les surfaces (D12).
@@ -307,7 +308,9 @@ class ArbitrageEngine {
       assumptionHigh: retraitHigh,
     );
 
-    final tcObligLow = math.max(reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), tauxConversionObligatoire - 0.005);
+    final tcObligLow = math.max(
+        reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
+        tauxConversionObligatoire - 0.005);
     final tcObligHigh = tauxConversionObligatoire + 0.005;
     _addTornadoSensitivity(
       sensitivity,
@@ -386,7 +389,8 @@ class ArbitrageEngine {
       // Extract remaining capital: netPatrimony - cumulativeCashflow
       // Since we don't track separately, use the trajectory's design:
       // when the withdrawal is capped to remaining capital and capital is 0
-      if (i > 1 && snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
+      if (i > 1 &&
+          snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
         capitalEpuiseAge = ageRetraite + i;
         break;
       }
@@ -518,6 +522,7 @@ class ArbitrageEngine {
     double rendementMarche = 0.04,
     String canton = 'ZH',
     Map<String, ProfileDataSource>? dataSources,
+
     /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche — un profil = un score sur toutes les surfaces (D12, generalise
@@ -927,6 +932,7 @@ class ArbitrageEngine {
     double tauxEntretien = 0.01,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+
     /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche — un profil = un score sur toutes les surfaces (D12, generalise
@@ -975,7 +981,8 @@ class ArbitrageEngine {
               ) *
               12
           : 0.0;
-      annualProprioCharges.add(interets + amortissement + entretien + taxImpact);
+      annualProprioCharges
+          .add(interets + amortissement + entretien + taxImpact);
       tempHyp = math.max(seuil1erRang, tempHyp - amortissement);
     }
 
@@ -1030,7 +1037,8 @@ class ArbitrageEngine {
       }
       valeurBien *= (1 + appreciationImmo);
       // Amortization: 2nd rank only, stops when mortgage reaches 1st rank level
-      final amortissement = hypotheque > seuil1erRang ? amortAnnuel2ndRank : 0.0;
+      final amortissement =
+          hypotheque > seuil1erRang ? amortAnnuel2ndRank : 0.0;
       hypotheque = math.max(seuil1erRang, hypotheque - amortissement);
 
       buySnapshots.add(YearlySnapshot(
@@ -1658,7 +1666,8 @@ class ArbitrageEngine {
         ? 'Tu economiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impot en etalant tes retraits.'
         : 'Dans ce cas, l\'ecart d\'impot est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
 
-    final displaySummary = 'Retrait total : ${chf.formatChfWithPrefix(totalCapital)}. '
+    final displaySummary =
+        'Retrait total : ${chf.formatChfWithPrefix(totalCapital)}. '
         'Impot "tout en un" : ${chf.formatChfWithPrefix(taxToutEnUn)} vs '
         'impot etale : ${chf.formatChfWithPrefix(totalTaxEtale)}.';
 
@@ -1876,7 +1885,8 @@ class ArbitrageEngine {
       final nominalWithdrawal =
           initialWithdrawal * math.pow(1 + inflation, y - 1);
       // Cap withdrawal to remaining capital (can't withdraw more than exists)
-      final actualWithdrawal = math.min(nominalWithdrawal, math.max(0, capitalNet));
+      final actualWithdrawal =
+          math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= actualWithdrawal;
 
       // Express in real terms (deflate to today's purchasing power)
@@ -1951,7 +1961,8 @@ class ArbitrageEngine {
           math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= capitalWithdrawal;
 
-      final totalNominalCashflow = renteObligatoire - renteTax + capitalWithdrawal;
+      final totalNominalCashflow =
+          renteObligatoire - renteTax + capitalWithdrawal;
       cumulativeCashflow += totalNominalCashflow;
       cumulativeTax += renteTax;
 
@@ -2060,7 +2071,8 @@ class ArbitrageEngine {
         continue;
       }
       // 3a contribution
-      final contribution = math.min(montantAnnuel, reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
+      final contribution = math.min(
+          montantAnnuel, reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
       balance3a += contribution;
       balance3a *= (1 + rendement3a);
 

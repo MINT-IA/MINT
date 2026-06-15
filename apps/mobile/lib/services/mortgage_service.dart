@@ -97,13 +97,17 @@ class AffordabilityCalculator {
     //   Charges = P x 7% - (hardEquity + P x 10%) x 6%
     //           = P x (7% - 0.6%) - hardEquity x 6%
     //   P = (rev/3 + hardEquity x 6%) / (7% - 0.6%)
-    final regTauxTheorique = reg('mortgage.theoretical_rate', hypothequeTauxTheorique);
-    final regTauxAmort = reg('mortgage.amortization_rate', hypothequeTauxAmortissement);
-    final regTauxFrais = reg('mortgage.accessory_rate', hypothequeTauxFraisAccessoires);
-    final regTauxChargesTotal = reg('mortgage.total_charges_rate', hypothequeTauxChargesTotal);
-    final regRatioMax = reg('mortgage.max_charge_ratio', hypothequeRatioChargesMax);
-    final regFpMin = reg('mortgage.min_equity_ratio', hypothequeFondsPropresMin);
-    final regPart2e = reg('mortgage.max_2nd_pillar_ratio', hypothequePart2ePilierMax);
+    final regTauxTheorique =
+        reg('mortgage.theoretical_rate', hypothequeTauxTheorique);
+    final regTauxAmort =
+        reg('mortgage.amortization_rate', hypothequeTauxAmortissement);
+    final regTauxFrais =
+        reg('mortgage.maintenance_rate', hypothequeTauxFraisAccessoires);
+    final regTauxChargesTotal = regTauxTheorique + regTauxAmort + regTauxFrais;
+    final regRatioMax =
+        reg('mortgage.max_charge_ratio', hypothequeRatioChargesMax);
+    final regFpMin = reg('mortgage.min_equity', hypothequeFondsPropresMin);
+    final regPart2e = reg('mortgage.max_2nd_pillar', hypothequePart2ePilierMax);
     final tauxChargesSansAccessoires = regTauxTheorique + regTauxAmort;
     final hardEquity = epargne + a3a;
 
@@ -112,13 +116,18 @@ class AffordabilityCalculator {
     if (revenu > 0) {
       // Essai avec tout le LPP
       final fpFull = hardEquity + lpp;
-      final pMaxFull = (revenu * regRatioMax + fpFull * tauxChargesSansAccessoires) / regTauxChargesTotal;
+      final pMaxFull =
+          (revenu * regRatioMax + fpFull * tauxChargesSansAccessoires) /
+              regTauxChargesTotal;
       if (lpp <= pMaxFull * regPart2e) {
         prixMaxRevenu = pMaxFull;
       } else {
         // LPP plafonne: resolution directe
-        final tauxEffectif = regTauxChargesTotal - regPart2e * tauxChargesSansAccessoires;
-        prixMaxRevenu = (revenu * regRatioMax + hardEquity * tauxChargesSansAccessoires) / tauxEffectif;
+        final tauxEffectif =
+            regTauxChargesTotal - regPart2e * tauxChargesSansAccessoires;
+        prixMaxRevenu =
+            (revenu * regRatioMax + hardEquity * tauxChargesSansAccessoires) /
+                tauxEffectif;
       }
     } else {
       prixMaxRevenu = 0.0;
@@ -133,9 +142,8 @@ class AffordabilityCalculator {
         prixMaxEquity = pMaxFull;
       } else {
         // LPP plafonne: P x 20% = hardEquity + P x 10% => P = hardEquity / 10%
-        prixMaxEquity = hardEquity > 0
-            ? hardEquity / (regFpMin - regPart2e)
-            : 0.0;
+        prixMaxEquity =
+            hardEquity > 0 ? hardEquity / (regFpMin - regPart2e) : 0.0;
       }
     }
 
@@ -144,24 +152,25 @@ class AffordabilityCalculator {
 
     // --- Validation du prix cible ---
     // FP pour le prix demande (LPP plafonne a 10% du prix cible)
-    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * regPart2e) : 0.0);
+    final fondsPropresTotal =
+        epargne + a3a + (prix > 0 ? min(lpp, prix * regPart2e) : 0.0);
     final fondsPropresRequis = prix * regFpMin;
-    final manqueFondsPropres =
-        fondsPropresRequis > fondsPropresTotal
-            ? fondsPropresRequis - fondsPropresTotal
-            : 0.0;
+    final manqueFondsPropres = fondsPropresRequis > fondsPropresTotal
+        ? fondsPropresRequis - fondsPropresTotal
+        : 0.0;
 
     // Charges theoriques pour le prix demande
     // interets + amortissement sur hypotheque (6%), frais accessoires sur prix (1%)
     final hypotheque = max(0.0, prix - fondsPropresTotal);
-    final chargesAnnuelles = hypotheque * tauxChargesSansAccessoires + prix * regTauxFrais;
+    final chargesAnnuelles =
+        hypotheque * tauxChargesSansAccessoires + prix * regTauxFrais;
     final chargesTheoriquesMensuelles = chargesAnnuelles / 12;
-    final ratioCharges =
-        revenu > 0 ? chargesAnnuelles / revenu : 1.0;
+    final ratioCharges = revenu > 0 ? chargesAnnuelles / revenu : 1.0;
 
     // Charges reelles (taux marche ~1.5%) pour comparaison educative
     const tauxReelMarche = 0.015;
-    final chargesReellesAnnuelles = hypotheque * (tauxReelMarche + regTauxAmort) + prix * regTauxFrais;
+    final chargesReellesAnnuelles =
+        hypotheque * (tauxReelMarche + regTauxAmort) + prix * regTauxFrais;
     final chargesReellesMensuelles = chargesReellesAnnuelles / 12;
 
     final capaciteOk = ratioCharges <= regRatioMax;
@@ -203,12 +212,12 @@ class AffordabilityCalculator {
       lppUtilise: lppUtilise,
       chargesReellesMensuelles: chargesReellesMensuelles,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. La capacite d\'achat '
-          'reelle depend de la politique de credit de chaque etablissement. '
-          'Le taux theorique de 5% est utilise pour le calcul de tenue '
-          '(pratique ASB), pas le taux reel du marche. '
-          'Base legale : directive ASB sur le credit hypothecaire. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Simulation pédagogique à titre indicatif. La capacité d\'achat '
+          'réelle dépend de la politique de crédit de chaque établissement. '
+          'Le taux théorique de 5% est utilisé pour le calcul de tenue '
+          '(pratique ASB), pas le taux réel du marché. '
+          'Base légale : directive ASB sur le crédit hypothécaire. '
+          'Consultez un ou une spécialiste avant toute décision.',
     );
   }
 }
@@ -470,8 +479,7 @@ class ImputedRentalCalculator {
     final deductionAssurance = valeur * 0.001;
 
     // Total deductions
-    final totalDeductions =
-        interets + deductionEntretien + deductionAssurance;
+    final totalDeductions = interets + deductionEntretien + deductionAssurance;
 
     // Impact net sur le revenu imposable
     final impactNet = valeurLocative - totalDeductions;
@@ -504,12 +512,12 @@ class ImputedRentalCalculator {
       premierEclairageTexte: premierEclairageTexte,
       premierEclairagePositif: premierEclairagePositif,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. La valeur locative '
-          'reelle est fixee par l\'autorite fiscale cantonale et peut '
-          'differer significativement de cette estimation. Les deductions '
-          'dependent de la situation personnelle. '
-          'Base legale : LIFD art. 21 al. 1 let. b, art. 32 (deductions). '
-          'Consultez un ou une specialiste en fiscalite.',
+          'Simulation pédagogique à titre indicatif. La valeur locative '
+          'réelle est fixée par l\'autorité fiscale cantonale et peut '
+          'différer significativement de cette estimation. Les déductions '
+          'dépendent de la situation personnelle. '
+          'Base légale : LIFD art. 21 al. 1 let. b, art. 32 (déductions). '
+          'Consultez un ou une spécialiste en fiscalité.',
     );
   }
 }
@@ -587,7 +595,10 @@ class AmortizationCalculator {
     final rend3a = rendement3a.clamp(0.0, 0.08);
 
     // Default : 1% de l'hypotheque, plafonne au max 3a (identique au backend)
-    final amortissementAnnuel = min(montant * reg('mortgage.amortization_rate', hypothequeTauxAmortissement), reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
+    final amortissementAnnuel = min(
+        montant *
+            reg('mortgage.amortization_rate', hypothequeTauxAmortissement),
+        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
 
     // --- Direct : amortissement annuel reduit la dette ---
     final directPlan = <AmortizationYearPoint>[];
@@ -625,10 +636,8 @@ class AmortizationCalculator {
       totalInteretsIndirect += interets;
       capital3a = (capital3a + amortissementAnnuel) * (1 + rend3a);
       // Double deduction : interets + versement 3a
-      final deductionIndirect =
-          (interets + amortissementAnnuel) * marginal;
-      final coutAnnuel =
-          interets + amortissementAnnuel - deductionIndirect;
+      final deductionIndirect = (interets + amortissementAnnuel) * marginal;
+      final coutAnnuel = interets + amortissementAnnuel - deductionIndirect;
       coutNetIndirect += coutAnnuel;
 
       indirectPlan.add(AmortizationYearPoint(
@@ -655,13 +664,12 @@ class AmortizationCalculator {
           ? 'L\'amortissement indirect t\'economise environ CHF ${formatChf(economie)} sur $duree ans'
           : 'L\'amortissement direct est environ CHF ${formatChf(-economie)} moins cher sur $duree ans',
       premierEclairagePositif: economie > 0,
-      disclaimer:
-          'Simulation pedagogique a titre indicatif. L\'avantage de '
-          'l\'amortissement indirect depend du taux marginal effectif, '
-          'du rendement 3a et des conditions hypothecaires. '
-          'Le nantissement du 3a doit etre accepte par le preteur. '
-          'Base legale : OPP3, pratique hypothecaire suisse. '
-          'Consultez un ou une specialiste avant toute decision.',
+      disclaimer: 'Simulation pédagogique à titre indicatif. L\'avantage de '
+          'l\'amortissement indirect dépend du taux marginal effectif, '
+          'du rendement 3a et des conditions hypothécaires. '
+          'Le nantissement du 3a doit être accepté par le prêteur. '
+          'Base légale : OPP3, pratique hypothécaire suisse. '
+          'Consultez un ou une spécialiste avant toute décision.',
     );
   }
 }
@@ -742,8 +750,11 @@ class EplCombinedCalculator {
     final prix = prixCible.clamp(0.0, 10000000.0);
 
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    final fondsPropresRequis = prix * reg('mortgage.min_equity_ratio', hypothequeFondsPropresMin);
-    final lppMax = prix * reg('mortgage.max_2nd_pillar_ratio', hypothequePart2ePilierMax); // Max 10% du prix en LPP
+    final fondsPropresRequis =
+        prix * reg('mortgage.min_equity', hypothequeFondsPropresMin);
+    final lppMax = prix *
+        reg('mortgage.max_2nd_pillar',
+            hypothequePart2ePilierMax); // Max 10% du prix en LPP
 
     // Allocation dans l'ordre recommande : Cash > 3a > LPP
     double restant = fondsPropresRequis;
@@ -766,8 +777,7 @@ class EplCombinedCalculator {
     final fondsPropresTotal = cashUtilise + a3aUtilise + lppUtilise;
     final totalImpots = impot3a + impotLpp;
     final montantNetTotal = fondsPropresTotal - totalImpots;
-    final pourcentageCouvert =
-        prix > 0 ? (montantNetTotal / prix) * 100 : 0.0;
+    final pourcentageCouvert = prix > 0 ? (montantNetTotal / prix) * 100 : 0.0;
     final objectifAtteint = montantNetTotal >= fondsPropresRequis;
 
     // Sources
@@ -849,12 +859,12 @@ class EplCombinedCalculator {
       premierEclairagePositif: objectifAtteint,
       alertes: alertes,
       disclaimer:
-          'Simulation pedagogique a titre indicatif. Les montants reels '
-          'dependent de la caisse de pension, de la fiscalite cantonale '
+          'Simulation pédagogique à titre indicatif. Les montants réels '
+          'dépendent de la caisse de pension, de la fiscalité cantonale '
           'et communale, et de la situation personnelle. '
-          'Le retrait LPP est soumis a l\'accord du conjoint (si marie). '
-          'Base legale : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Le retrait LPP est soumis à l\'accord du conjoint (si marié). '
+          'Base légale : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
+          'Consultez un ou une spécialiste avant toute décision.',
     );
   }
 

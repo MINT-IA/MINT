@@ -157,13 +157,17 @@ class TornadoSensitivityService {
         final highSalary = baseSalary * 1.20;
         final low = _projectWithProfile(
           profile.copyWith(salaireBrutMensuel: lowSalary),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithProfile(
           profile.copyWith(salaireBrutMensuel: highSalary),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: 'Salaire brut',
@@ -183,19 +187,25 @@ class TornadoSensitivityService {
       if (baseAvoir > 0) {
         final low = _projectWithPrevoyance(
           profile,
-          _clonePrevoyanceWith(profile.prevoyance,
+          _clonePrevoyanceWith(
+            profile.prevoyance,
             avoirLppTotal: baseAvoir * 0.70,
           ),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithPrevoyance(
           profile,
-          _clonePrevoyanceWith(profile.prevoyance,
+          _clonePrevoyanceWith(
+            profile.prevoyance,
             avoirLppTotal: baseAvoir * 1.30,
           ),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: 'Avoir LPP actuel',
@@ -213,19 +223,24 @@ class TornadoSensitivityService {
     {
       final baseTaux = profile.prevoyance.tauxConversion;
       const lowTaux = 0.050;
-      final convRateMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+      final convRateMin =
+          reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
       final highTaux = baseTaux >= convRateMin ? 0.072 : convRateMin;
       final low = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance, tauxConversion: lowTaux),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
+        retirementAgeUser,
+        retirementAgeConjoint,
+        depensesMensuelles,
+        lppCapitalPct,
       );
       final high = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance, tauxConversion: highTaux),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
+        retirementAgeUser,
+        retirementAgeConjoint,
+        depensesMensuelles,
+        lppCapitalPct,
       );
       variables.add(_buildVariable(
         label: 'Taux de conversion LPP',
@@ -243,14 +258,18 @@ class TornadoSensitivityService {
       final low = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance, rendementCaisse: 0.01),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
+        retirementAgeUser,
+        retirementAgeConjoint,
+        depensesMensuelles,
+        lppCapitalPct,
       );
       final high = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance, rendementCaisse: 0.03),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
+        retirementAgeUser,
+        retirementAgeConjoint,
+        depensesMensuelles,
+        lppCapitalPct,
       );
       variables.add(_buildVariable(
         label: 'Rendement caisse LPP',
@@ -271,15 +290,19 @@ class TornadoSensitivityService {
           profile,
           _clonePrevoyanceWith(profile.prevoyance,
               totalEpargne3a: base3a * 0.50),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithPrevoyance(
           profile,
           _clonePrevoyanceWith(profile.prevoyance,
               totalEpargne3a: base3a * 1.50),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: 'Capital 3e pilier',
@@ -318,13 +341,17 @@ class TornadoSensitivityService {
 
           final low = _projectWithProfile(
             profile.copyWith(plannedContributions: contribsNo3a),
-            retirementAgeUser, retirementAgeConjoint,
-            depensesMensuelles, lppCapitalPct,
+            retirementAgeUser,
+            retirementAgeConjoint,
+            depensesMensuelles,
+            lppCapitalPct,
           );
           final high = _projectWithProfile(
             profile.copyWith(plannedContributions: contribsCapped),
-            retirementAgeUser, retirementAgeConjoint,
-            depensesMensuelles, lppCapitalPct,
+            retirementAgeUser,
+            retirementAgeConjoint,
+            depensesMensuelles,
+            lppCapitalPct,
           );
           variables.add(_buildVariable(
             label: '\u00C9pargne 3a mensuelle',
@@ -343,22 +370,27 @@ class TornadoSensitivityService {
     {
       final baseYears = profile.prevoyance.anneesContribuees;
       if (baseYears != null && baseYears > 0) {
-        final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+        final fullYears = reg('avs.full_contribution_years',
+                avsDureeCotisationComplete.toDouble())
+            .toInt();
         final lowYears = (baseYears - 5).clamp(0, fullYears);
         final highYears = (baseYears + 5).clamp(0, fullYears);
         final low = _projectWithPrevoyance(
           profile,
-          _clonePrevoyanceWith(profile.prevoyance,
-              anneesContribuees: lowYears),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          _clonePrevoyanceWith(profile.prevoyance, anneesContribuees: lowYears),
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithPrevoyance(
           profile,
           _clonePrevoyanceWith(profile.prevoyance,
               anneesContribuees: highYears),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: 'Années AVS cotisées',
@@ -379,15 +411,19 @@ class TornadoSensitivityService {
         profile,
         _clonePrevoyanceWith(profile.prevoyance,
             lacunesAVS: baseLacunes + 3, forceLacunesAVS: true),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
+        retirementAgeUser,
+        retirementAgeConjoint,
+        depensesMensuelles,
+        lppCapitalPct,
       );
       final high = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance,
             lacunesAVS: 0, forceLacunesAVS: true),
-        retirementAgeUser, retirementAgeConjoint,
-        depensesMensuelles, lppCapitalPct,
+        retirementAgeUser,
+        retirementAgeConjoint,
+        depensesMensuelles,
+        lppCapitalPct,
       );
       variables.add(_buildVariable(
         label: 'Lacunes AVS',
@@ -414,8 +450,10 @@ class TornadoSensitivityService {
             plateformeInvestissement:
                 profile.patrimoine.plateformeInvestissement,
           ),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithPatrimoine(
           profile,
@@ -427,8 +465,10 @@ class TornadoSensitivityService {
             plateformeInvestissement:
                 profile.patrimoine.plateformeInvestissement,
           ),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: 'Investissements libres',
@@ -456,8 +496,10 @@ class TornadoSensitivityService {
             plateformeInvestissement:
                 profile.patrimoine.plateformeInvestissement,
           ),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithPatrimoine(
           profile,
@@ -469,8 +511,10 @@ class TornadoSensitivityService {
             plateformeInvestissement:
                 profile.patrimoine.plateformeInvestissement,
           ),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: '\u00C9pargne liquide',
@@ -503,13 +547,17 @@ class TornadoSensitivityService {
 
         final low = _projectWithProfile(
           profile.copyWith(plannedContributions: contribsLow),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithProfile(
           profile.copyWith(plannedContributions: contribsHigh),
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: '\u00C9pargne libre mensuelle',
@@ -539,13 +587,17 @@ class TornadoSensitivityService {
         );
         final low = _projectWithProfile(
           lowConj,
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         final high = _projectWithProfile(
           highConj,
-          retirementAgeUser, retirementAgeConjoint,
-          depensesMensuelles, lppCapitalPct,
+          retirementAgeUser,
+          retirementAgeConjoint,
+          depensesMensuelles,
+          lppCapitalPct,
         );
         variables.add(_buildVariable(
           label: 'Salaire conjoint\u00B7e',
@@ -645,8 +697,10 @@ class TornadoSensitivityService {
   ) {
     return _projectWithProfile(
       profile.copyWith(prevoyance: newPrevoyance),
-      retirementAgeUser, retirementAgeConjoint,
-      depensesMensuelles, lppCapitalPct,
+      retirementAgeUser,
+      retirementAgeConjoint,
+      depensesMensuelles,
+      lppCapitalPct,
     );
   }
 
@@ -661,8 +715,10 @@ class TornadoSensitivityService {
   ) {
     return _projectWithProfile(
       profile.copyWith(patrimoine: newPatrimoine),
-      retirementAgeUser, retirementAgeConjoint,
-      depensesMensuelles, lppCapitalPct,
+      retirementAgeUser,
+      retirementAgeConjoint,
+      depensesMensuelles,
+      lppCapitalPct,
     );
   }
 
@@ -684,9 +740,8 @@ class TornadoSensitivityService {
   }) {
     return PrevoyanceProfile(
       anneesContribuees: anneesContribuees ?? original.anneesContribuees,
-      lacunesAVS: forceLacunesAVS
-          ? lacunesAVS
-          : (lacunesAVS ?? original.lacunesAVS),
+      lacunesAVS:
+          forceLacunesAVS ? lacunesAVS : (lacunesAVS ?? original.lacunesAVS),
       renteAVSEstimeeMensuelle: original.renteAVSEstimeeMensuelle,
       nomCaisse: original.nomCaisse,
       avoirLppTotal: avoirLppTotal ?? original.avoirLppTotal,

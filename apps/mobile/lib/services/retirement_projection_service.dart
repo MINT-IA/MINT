@@ -270,11 +270,11 @@ class RetirementProjectionService {
       budgetGap: budgetGap,
       indexedProjection: indexedProjection,
       disclaimer: l?.retirementProjectionDisclaimer ??
-          'Projection educative basee sur les baremes AVS/LPP 2025. '
+          'Projection éducative basée sur les barèmes AVS/LPP 2025. '
               'Ne constitue pas un conseil financier ou en prévoyance. '
               'Les montants sont des estimations qui peuvent varier selon '
-              'l\'evolution legale et ta situation personnelle. '
-              'Consulte un·e specialiste pour un plan personnalise. LSFin.',
+              'l\'évolution légale et ta situation personnelle. '
+              'Consulte un·e spécialiste pour un plan personnalisé. LSFin.',
       sources: [
         'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
         'LPP art. 14 (taux de conversion minimum 6.8%)',
@@ -313,11 +313,11 @@ class RetirementProjectionService {
       ),
       indexedProjection: const [],
       disclaimer: l?.retirementProjectionDisclaimer ??
-          'Projection educative basee sur les baremes AVS/LPP 2025. '
+          'Projection éducative basée sur les barèmes AVS/LPP 2025. '
               'Ne constitue pas un conseil financier ou en prévoyance. '
               'Les montants sont des estimations qui peuvent varier selon '
-              'l\'evolution legale et ta situation personnelle. '
-              'Consulte un·e specialiste pour un plan personnalise. LSFin.',
+              'l\'évolution légale et ta situation personnelle. '
+              'Consulte un·e spécialiste pour un plan personnalisé. LSFin.',
       sources: const [
         'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
         'LPP art. 14 (taux de conversion minimum 6.8%)',
@@ -518,7 +518,7 @@ class RetirementProjectionService {
       final conjBuyback = _conjointLppBuyback(profile);
       final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
         baseRate: conjPrev?.tauxConversion ??
-            reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+            reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
         retirementAge: ageConjoint,
       );
       final conjGrossAnnualForLpp =
@@ -532,7 +532,7 @@ class RetirementProjectionService {
         grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
         conversionRate: conjPrev?.tauxConversion ??
-            reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+            reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
         monthlyBuyback: conjBuyback,
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -936,7 +936,7 @@ class RetirementProjectionService {
         grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
         conversionRate: conjPrev?.tauxConversion ??
-            reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+            reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
         monthlyBuyback: _conjointLppBuyback(profile),
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -950,7 +950,7 @@ class RetirementProjectionService {
         // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
         final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
           baseRate: conjPrev?.tauxConversion ??
-              reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+              reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
           retirementAge: ageConjoint,
         );
         final lppConjMonthly = LppCalculator.blendedMonthly(
@@ -1105,7 +1105,7 @@ class RetirementProjectionService {
       double adjustmentPct = 0;
       if (age < refAgeScen) {
         adjustmentPct =
-            -(reg('avs.early_retirement_reduction', avsReductionAnticipation) *
+            -(reg('avs.anticipation_reduction', avsReductionAnticipation) *
                 (refAgeScen - age) *
                 100);
       } else if (age > refAgeScen) {

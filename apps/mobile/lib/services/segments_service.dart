@@ -91,19 +91,24 @@ class GenderGapService {
   // ── Constants ──────────────────────────────────────────────
 
   /// LPP coordination deduction (art. 8). NOT prorated.
-  static double get deductionCoordination => reg('lpp.coordination_deduction', lppDeductionCoordination);
+  static double get deductionCoordination =>
+      reg('lpp.coordination_deduction', lppDeductionCoordination);
 
   /// Maximum coordinated salary (LPP).
-  static double get maxSalaireCoordonne => reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
+  static double get maxSalaireCoordonne =>
+      reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
 
   /// Minimum coordinated salary (LPP).
-  static double get minSalaireCoordonne => reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
+  static double get minSalaireCoordonne =>
+      reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
 
   /// Conversion rate at retirement — minimum legal, obligatoire only (LPP art. 14).
-  static double get tauxConversion => reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+  static double get tauxConversion =>
+      reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
 
   /// Swiss legal retirement age (post-AVS21).
-  static int get ageRetraite => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+  static int get ageRetraite =>
+      reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
   /// LPP contribution rates by age bracket (employee + employer).
   /// Source of truth: getLppBonificationRate() in social_insurance.dart
@@ -118,7 +123,10 @@ class GenderGapService {
 
   /// Analyse the pension gap between current activity rate and 100%.
   static GenderGapResult analyse({required GenderGapInput input}) {
-    final anneesRestantes = (reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt() - input.age).clamp(0, 40);
+    final anneesRestantes =
+        (reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt() -
+                input.age)
+            .clamp(0, 40);
 
     // Salary at 100% (extrapolated from current taux)
     final salaire100 = input.tauxActivite > 0
@@ -159,7 +167,7 @@ class GenderGapService {
     );
 
     // Convert capital to annual pension
-    final convRateMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+    final convRateMin = reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
     final renteAt100 = capital100 * convRateMin;
     final renteAtCurrentTaux = capitalActuel * convRateMin;
     final lacuneAnnuelle = renteAt100 - renteAtCurrentTaux;
@@ -179,7 +187,8 @@ class GenderGapService {
       lacuneTotale: lacuneTotale,
       salaireCoordonne100: salaireCoordonne100,
       salaireCoordonneActuel: salaireCoordonneActuel,
-      deductionCoordination: reg('lpp.coordination_deduction', lppDeductionCoordination),
+      deductionCoordination:
+          reg('lpp.coordination_deduction', lppDeductionCoordination),
       anneesRestantes: anneesRestantes,
       recommendations: recommendations,
       statistiqueOfs: statistiqueOfs,
@@ -203,8 +212,7 @@ class GenderGapService {
     if (lacuneAnnuelle > 0) {
       recs.add(const GenderGapRecommendation(
         title: 'Rachat LPP volontaire',
-        description:
-            'Un rachat volontaire permet de combler partiellement la '
+        description: 'Un rachat volontaire permet de combler partiellement la '
             'lacune de prévoyance tout en bénéficiant d\'une déduction '
             'fiscale. Vérifiez le montant de rachat possible auprès '
             'de ta caisse de pension.',
@@ -226,11 +234,12 @@ class GenderGapService {
     ));
 
     // 3. Proratisation coordination
-    if (input.tauxActivite < 100 && salaireCoordonneActuel < reg('lpp.max_coordinated_salary', lppSalaireCoordMax) * 0.5) {
+    if (input.tauxActivite < 100 &&
+        salaireCoordonneActuel <
+            reg('lpp.max_coordinated_salary', lppSalaireCoordMax) * 0.5) {
       recs.add(const GenderGapRecommendation(
         title: 'Vérifier la proratisation de la coordination',
-        description:
-            'Plusieurs caisses de pension proratisent la déduction '
+        description: 'Plusieurs caisses de pension proratisent la déduction '
             'de coordination en fonction du taux d\'activité, ce qui '
             'améliore significativement le salaire coordonné. Discutez-en '
             'avec ton employeur ou ta caisse de pension.',
@@ -243,8 +252,7 @@ class GenderGapService {
     if (input.tauxActivite < 80) {
       recs.add(const GenderGapRecommendation(
         title: 'Explorer une augmentation du taux d\'activité',
-        description:
-            'Même une augmentation de 10 à 20 points de pourcentage '
+        description: 'Même une augmentation de 10 à 20 points de pourcentage '
             'du taux d\'activité peut réduire significativement la '
             'lacune de prévoyance, surtout si la déduction de '
             'coordination n\'est pas proratisée.',
@@ -443,8 +451,7 @@ class FrontalierService {
         rules.add(const FrontalierRule(
           category: 'fiscal',
           title: 'Imposition en Allemagne (résidence)',
-          description:
-              'Les frontaliers résidant en Allemagne sont en principe '
+          description: 'Les frontaliers résidant en Allemagne sont en principe '
               'imposés en Allemagne. La Suisse retient un impôt à la '
               'source de max. 4.5%, imputable en Allemagne.',
           source: 'CDI CH-DE art. 15a',
@@ -467,8 +474,7 @@ class FrontalierService {
         rules.add(const FrontalierRule(
           category: 'fiscal',
           title: 'Imposition en Suisse (source)',
-          description:
-              'Les frontaliers résidant en Autriche sont en principe '
+          description: 'Les frontaliers résidant en Autriche sont en principe '
               'imposés à la source en Suisse. L\'Autriche peut '
               'également imposer ces revenus avec crédit d\'impôt.',
           source: 'CDI CH-AT art. 15',
@@ -498,8 +504,7 @@ class FrontalierService {
       rules.add(const FrontalierRule(
         category: '3a',
         title: '3e pilier : possible si quasi-résident GE',
-        description:
-            'Les frontaliers travaillant à Genève peuvent déduire '
+        description: 'Les frontaliers travaillant à Genève peuvent déduire '
             'le 3e pilier s\'ils obtiennent le statut de quasi-résident '
             '(>= 90% des revenus du ménage provenant de Suisse). '
             'Condition : passage à la déclaration ordinaire.',
@@ -509,8 +514,7 @@ class FrontalierService {
       rules.add(const FrontalierRule(
         category: '3a',
         title: '3e pilier : pas de déduction possible',
-        description:
-            'En tant que frontalier imposé dans ton pays de '
+        description: 'En tant que frontalier imposé dans ton pays de '
             'résidence, tu ne peux pas déduire les versements '
             '3a de tes impôts suisses. Le 3e pilier reste possible '
             'mais sans avantage fiscal en Suisse.',
@@ -527,8 +531,7 @@ class FrontalierService {
     rules.add(const FrontalierRule(
       category: 'lpp',
       title: 'LPP : affiliation obligatoire',
-      description:
-          'Les frontaliers sont obligatoirement affiliés à la LPP '
+      description: 'Les frontaliers sont obligatoirement affiliés à la LPP '
           'de leur employeur suisse, comme tout employé. Les mêmes '
           'règles de cotisation et de prestation s\'appliquent.',
       source: 'LPP art. 2',
@@ -537,8 +540,7 @@ class FrontalierService {
     rules.add(const FrontalierRule(
       category: 'lpp',
       title: 'Libre passage au départ',
-      description:
-          'En quittant la Suisse, ton avoir LPP est transféré '
+      description: 'En quittant la Suisse, ton avoir LPP est transféré '
           'sur un compte de libre passage. Si tu résides dans '
           'l\'UE/AELE, le transfert de la part obligatoire en cash '
           'n\'est pas possible (reste sur libre passage en CH). '
@@ -555,8 +557,7 @@ class FrontalierService {
     rules.add(FrontalierRule(
       category: 'avs',
       title: 'AVS : cotisation en Suisse',
-      description:
-          'Les frontaliers cotisent à l\'AVS suisse (1er pilier). '
+      description: 'Les frontaliers cotisent à l\'AVS suisse (1er pilier). '
           'Les périodes de cotisation en Suisse sont totalisées '
           'avec les périodes dans ton pays de résidence '
           '(${_paysLabels[input.paysResidence]}) pour le calcul '
@@ -567,8 +568,7 @@ class FrontalierService {
     rules.add(const FrontalierRule(
       category: 'avs',
       title: 'Rente AVS : calcul pro rata',
-      description:
-          'Ta rente AVS suisse sera calculée proportionnellement '
+      description: 'Ta rente AVS suisse sera calculée proportionnellement '
           'aux années de cotisation en Suisse. Tu recevras '
           'également une rente de ton pays de résidence pour '
           'les périodes cotisées là-bas.',
@@ -583,8 +583,7 @@ class FrontalierService {
     return const QuasiResidentResult(
       isEligible: true, // depends on actual income proportion
       cantonConcerne: 'GE',
-      description:
-          'Le statut de quasi-résident est accessible si au moins 90% '
+      description: 'Le statut de quasi-résident est accessible si au moins 90% '
           'des revenus de ton ménage proviennent de Suisse. Ce statut '
           'te permet de passer à la déclaration ordinaire et de '
           'bénéficier des mêmes déductions que les résidents '
@@ -741,7 +740,8 @@ class IndependantService {
     // If voluntary LPP: standard 7'258
     final plafond3a = input.hasLpp
         ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
-        : min(input.revenuNet * 0.20, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
+        : min(input.revenuNet * 0.20,
+            reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
 
     // Protection cost simulation
     final protectionCost = _computeProtectionCost(
@@ -841,8 +841,12 @@ class IndependantService {
 
   /// Compute AVS contribution for self-employed (degressive scale).
   static double _computeAvsContribution(double revenuNet) {
-    if (revenuNet <= 0) return 0;
-    if (revenuNet >= 58800) return revenuNet * reg('avs.total_rate', avsCotisationTotal);
+    if (revenuNet <= 0) {
+      return 0;
+    }
+    if (revenuNet >= 58800) {
+      return revenuNet * reg('avs.contribution_rate_total', avsCotisationTotal);
+    }
 
     // Find applicable bracket
     for (int i = _avsDegressifBrackets.length - 1; i >= 0; i--) {

@@ -183,22 +183,54 @@ class BayesianProfileEnricher {
   // Relative to Swiss median = 1.00.
   // Source: OFS Indice des prix a la consommation regionaux 2024.
   static const _cantonCostIndex = <String, double>{
-    'GE': 1.15, 'ZH': 1.10, 'BS': 1.08, 'VD': 1.12,
-    'ZG': 1.05, 'LU': 0.98, 'BE': 1.02, 'NE': 1.00,
-    'FR': 0.96, 'TI': 0.98, 'SG': 0.95, 'AG': 0.97,
-    'BL': 1.03, 'SO': 0.97, 'TG': 0.93, 'GR': 0.95,
-    'VS': 0.90, 'SZ': 1.00, 'NW': 0.95, 'OW': 0.93,
-    'UR': 0.92, 'GL': 0.93, 'SH': 0.96, 'AR': 0.94,
-    'AI': 0.92, 'JU': 0.93,
+    'GE': 1.15,
+    'ZH': 1.10,
+    'BS': 1.08,
+    'VD': 1.12,
+    'ZG': 1.05,
+    'LU': 0.98,
+    'BE': 1.02,
+    'NE': 1.00,
+    'FR': 0.96,
+    'TI': 0.98,
+    'SG': 0.95,
+    'AG': 0.97,
+    'BL': 1.03,
+    'SO': 0.97,
+    'TG': 0.93,
+    'GR': 0.95,
+    'VS': 0.90,
+    'SZ': 1.00,
+    'NW': 0.95,
+    'OW': 0.93,
+    'UR': 0.92,
+    'GL': 0.93,
+    'SH': 0.96,
+    'AR': 0.94,
+    'AI': 0.92,
+    'JU': 0.93,
   };
 
   // ── High-tax cantons where LPP buybacks are more common ────────────
   // Cantons with marginal rate > 30% → people tend to buy back more.
   static const _highTaxCantons = <String>{
-    'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'BL', 'TI',
+    'GE',
+    'VD',
+    'BS',
+    'BE',
+    'NE',
+    'JU',
+    'FR',
+    'BL',
+    'TI',
   };
   static const _lowTaxCantons = <String>{
-    'ZG', 'SZ', 'NW', 'OW', 'AI', 'UR',
+    'ZG',
+    'SZ',
+    'NW',
+    'OW',
+    'AI',
+    'UR',
   };
 
   /// Z-score for 80% credibility interval (normal distribution).
@@ -265,9 +297,9 @@ class BayesianProfileEnricher {
       overallUncertainty: overallUncertainty,
       disclaimer: l?.bayesianDisclaimer ??
           'Estimations bayesiennes basees sur les statistiques suisses '
-          '(OFS/BFS). Ces valeurs sont des approximations pedagogiques, '
-          'pas des certitudes. Ne constitue pas un conseil financier '
-          'au sens de la LSFin.',
+              '(OFS/BFS). Ces valeurs sont des approximations pedagogiques, '
+              'pas des certitudes. Ne constitue pas un conseil financier '
+              'au sens de la LSFin.',
       sources: const [
         'OFS Enquete sur le budget des menages 2024',
         'OFS Statistique des caisses de pension 2024',
@@ -357,11 +389,14 @@ class BayesianProfileEnricher {
     int? arrivalAge,
   }) {
     final salaireBrut = salaireBrutMensuel * 12;
-    final salaireCoordonne =
-        (salaireBrut - reg('lpp.coordination_deduction', lppDeductionCoordination)).clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), double.infinity);
+    final salaireCoordonne = (salaireBrut -
+            reg('lpp.coordination_deduction', lppDeductionCoordination))
+        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+            double.infinity);
 
     // Start age: 25 for Swiss natives, arrivalAge for expats (LPP art. 7)
-    final refAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final refAge =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final startAge = arrivalAge != null ? arrivalAge.clamp(25, refAge) : 25;
 
     double total = 0;
@@ -417,7 +452,10 @@ class BayesianProfileEnricher {
 
     // If user provided a non-default taux, treat as declared
     // Default in PrevoyanceProfile is lppTauxConversionMinDecimal (minimum legal)
-    final isNonDefault = (declared - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.001;
+    final isNonDefault =
+        (declared - reg('lpp.conversion_rate', lppTauxConversionMinDecimal))
+                .abs() >
+            0.001;
     if (isNonDefault) {
       return _collapseToDeclared(
         field: 'tauxConversion',
@@ -507,7 +545,8 @@ class BayesianProfileEnricher {
 
     // Has declared number of 3a accounts: assume max contribution
     final annualContrib = employment == 'independant'
-        ? (salary * pilier3aTauxRevenuSansLpp).clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+        ? (salary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
         : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     final fullEstimate = _compound3a(
@@ -763,7 +802,9 @@ class BayesianProfileEnricher {
     final lacunes = profile.prevoyance.lacunesAVS ?? 0;
     final arrivalAge = profile.arrivalAge;
 
-    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+    final fullYears = reg('avs.full_contribution_years',
+            avsDureeCotisationComplete.toDouble())
+        .toInt();
     double priorMean;
     if (arrivalAge != null && arrivalAge > 21) {
       // Expat: contributions start at arrival
@@ -800,7 +841,8 @@ class BayesianProfileEnricher {
   /// our retirement projection improve?"
   ///
   /// Higher EVI → more valuable to ask.
-  static double _computeEvi(PosteriorEstimate estimate, double projectionImpact) {
+  static double _computeEvi(
+      PosteriorEstimate estimate, double projectionImpact) {
     final uncertaintyWidth = estimate.ci80High - estimate.ci80Low;
     final normalizedUncertainty =
         uncertaintyWidth / estimate.mean.abs().clamp(1, double.infinity);
@@ -855,8 +897,7 @@ class BayesianProfileEnricher {
       ),
       'totalEpargne3a': _PromptDef(
         label: 'Renseigne tes soldes 3a',
-        action:
-            'Saisis le solde de chacun de tes comptes 3e pilier. '
+        action: 'Saisis le solde de chacun de tes comptes 3e pilier. '
             'Tu trouves ces montants sur tes releves bancaires ou ton app.',
         category: '3a',
       ),
@@ -869,22 +910,19 @@ class BayesianProfileEnricher {
       ),
       'conjointSalary': _PromptDef(
         label: 'Ajoute le salaire de ton ou ta conjoint-e',
-        action:
-            'Pour affiner la projection du couple, indique le salaire brut '
+        action: 'Pour affiner la projection du couple, indique le salaire brut '
             'mensuel de ton ou ta partenaire.',
         category: 'conjoint',
       ),
       'depensesMensuelles': _PromptDef(
         label: 'Detaille tes depenses mensuelles',
-        action:
-            'Ajoute ton loyer, assurance maladie et depenses fixes. '
+        action: 'Ajoute ton loyer, assurance maladie et depenses fixes. '
             'Plus c\'est precis, plus precise sera la projection.',
         category: 'depenses',
       ),
       'anneesContribuees': _PromptDef(
         label: 'Commande ton extrait AVS',
-        action:
-            'Gratuit sur inforegister.ch — tu sauras exactement combien '
+        action: 'Gratuit sur inforegister.ch — tu sauras exactement combien '
             'd\'annees tu as cotise a l\'AVS (et les lacunes eventuelles).',
         category: 'avs',
       ),

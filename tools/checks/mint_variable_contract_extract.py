@@ -124,11 +124,48 @@ EXPECTED = {
     ),
     ("regulatory", "dart_generated_snapshot", "param_count"): 103,
     ("regulatory", "dart_generated_snapshot", "effective_on"): "2026-06-12",
-    ("regulatory", "dart_reg_unique_key_count"): 45,
-    ("regulatory", "dart_reg_exact_miss_count"): 26,
-    ("regulatory", "non_static_reg_keys"): [
-        'avs.max_annual_pension_${year >= avs13emeRenteAnneeDebut ? "13m" : "12m"}',
+    ("regulatory", "dart_reg_unique_key_count"): 43,
+    ("regulatory", "dart_reg_exact_miss_count"): 9,
+    ("regulatory", "dart_reg_exact_misses"): [
+        "ac.enhanced_rate_threshold",
+        "ac.intermediate_days",
+        "ac.min_days",
+        "ac.senior_age_threshold",
+        "ac.senior_days",
+        "projection.avs_indexation_rate",
+        "projection.inflation_rate",
+        "projection.life_expectancy",
+        "projection.safe_withdrawal_rate",
     ],
+    ("regulatory", "dart_reg_registry_backfill_required"): [
+        "ac.enhanced_rate_threshold",
+        "ac.intermediate_days",
+        "ac.min_days",
+        "ac.senior_age_threshold",
+        "ac.senior_days",
+    ],
+    ("regulatory", "dart_reg_descoped_until_owner_phase"): [
+        "projection.avs_indexation_rate",
+        "projection.inflation_rate",
+        "projection.life_expectancy",
+        "projection.safe_withdrawal_rate",
+    ],
+    ("regulatory", "dart_reg_unclassified_exact_misses"): [],
+    ("regulatory", "non_static_reg_keys"): [],
+}
+
+DART_REGISTRY_BACKFILL_REQUIRED = {
+    "ac.enhanced_rate_threshold",
+    "ac.intermediate_days",
+    "ac.min_days",
+    "ac.senior_age_threshold",
+    "ac.senior_days",
+}
+DART_REG_DESCOPED_UNTIL_OWNER_PHASE = {
+    "projection.avs_indexation_rate",
+    "projection.inflation_rate",
+    "projection.life_expectancy",
+    "projection.safe_withdrawal_rate",
 }
 
 
@@ -454,6 +491,7 @@ def _extract_regulatory(root: Path) -> dict[str, Any]:
     unique_keys = sorted({call["key"] for call in calls})
     exact_misses = sorted(key for key in unique_keys if key not in active_keys)
     non_static = sorted(key for key in unique_keys if "${" in key)
+    dispositions = _classify_dart_reg_exact_misses(exact_misses)
     return {
         "backend_registry": {
             "count": registry.count(),
@@ -471,6 +509,7 @@ def _extract_regulatory(root: Path) -> dict[str, Any]:
             call for call in calls if call["key"] in exact_misses
         ],
         "non_static_reg_keys": non_static,
+        **dispositions,
     }
 
 
@@ -490,6 +529,19 @@ def _extract_dart_reg_calls(root: Path) -> list[dict[str, Any]]:
                 }
             )
     return calls
+
+
+def _classify_dart_reg_exact_misses(exact_misses: list[str]) -> dict[str, Any]:
+    miss_set = set(exact_misses)
+    registry_backfill = miss_set & DART_REGISTRY_BACKFILL_REQUIRED
+    descoped = miss_set & DART_REG_DESCOPED_UNTIL_OWNER_PHASE
+    return {
+        "dart_reg_registry_backfill_required": sorted(registry_backfill),
+        "dart_reg_descoped_until_owner_phase": sorted(descoped),
+        "dart_reg_unclassified_exact_misses": sorted(
+            miss_set - registry_backfill - descoped
+        ),
+    }
 
 
 def _classify_profile_contract(

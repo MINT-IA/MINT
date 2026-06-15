@@ -187,7 +187,7 @@ class ConfidenceScorer {
     // since ~50% of Swiss residents are in couples (BFS, 2024).
     final isExplicitlySingle = !isCoupled &&
         (profile.etatCivil == CoachCivilStatus.divorce ||
-         profile.etatCivil == CoachCivilStatus.veuf);
+            profile.etatCivil == CoachCivilStatus.veuf);
     if (isExplicitlySingle) {
       total += _wMenage;
     } else if (!isCoupled) {
@@ -205,7 +205,8 @@ class ConfidenceScorer {
         label: 'Ajoute les infos de ton\u00b7ta partenaire',
         impact: _wMenage,
         category: 'menage',
-        action: 'Revenu et age de ton\u00b7ta partenaire pour des projections couple',
+        action:
+            'Revenu et age de ton\u00b7ta partenaire pour des projections couple',
       ));
     } else {
       final hasRevenu = profile.conjoint!.salaireBrutMensuel != null &&
@@ -263,7 +264,9 @@ class ConfidenceScorer {
       total += _wTauxConversion; // Not applicable
     } else {
       final tauxConv = profile.prevoyance.tauxConversion;
-      if ((tauxConv - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.0001) {
+      if ((tauxConv - reg('lpp.conversion_rate', lppTauxConversionMinDecimal))
+              .abs() >
+          0.0001) {
         total += _wTauxConversion;
       } else {
         total += 1;
@@ -327,7 +330,8 @@ class ConfidenceScorer {
         label: 'Ajoute ta commune',
         impact: 4,
         category: 'fiscalite',
-        action: 'Le coefficient communal impacte ton taux d\'imposition de 60% a 130%',
+        action:
+            'Le coefficient communal impacte ton taux d\'imposition de 60% a 130%',
       ));
     }
     final ds = profile.dataSources;
@@ -336,7 +340,8 @@ class ConfidenceScorer {
         label: 'Scanne ta declaration fiscale',
         impact: 8,
         category: 'fiscalite',
-        action: 'Taux marginal reel + revenu imposable + fortune (LIFD art. 38)',
+        action:
+            'Taux marginal reel + revenu imposable + fortune (LIFD art. 38)',
       ));
     }
 
@@ -373,7 +378,10 @@ class ConfidenceScorer {
         total -= 5; // AVS extrait missing: extra -5
       }
       if (!isIndepSansLpp &&
-          (profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.0001) {
+          (profile.prevoyance.tauxConversion -
+                      reg('lpp.conversion_rate', lppTauxConversionMinDecimal))
+                  .abs() <
+              0.0001) {
         total -= 3; // Default taux: extra -3
       }
 
@@ -437,9 +445,7 @@ class ConfidenceScorer {
     final blocs = <String, BlockScore>{};
 
     // --- Salaire ---
-    final salaire = profile.salaireBrutMensuel > 0
-        ? _wSalaire.toDouble()
-        : 0.0;
+    final salaire = profile.salaireBrutMensuel > 0 ? _wSalaire.toDouble() : 0.0;
     blocs['revenu'] = BlockScore(
       score: salaire,
       maxScore: _wSalaire.toDouble(),
@@ -457,9 +463,8 @@ class ConfidenceScorer {
     );
 
     // --- Archetype ---
-    final archetype = _hasArchetypeSignals(profile)
-        ? _wArchetype.toDouble()
-        : 0.0;
+    final archetype =
+        _hasArchetypeSignals(profile) ? _wArchetype.toDouble() : 0.0;
     blocs['archetype'] = BlockScore(
       score: archetype,
       maxScore: _wArchetype.toDouble(),
@@ -468,7 +473,8 @@ class ConfidenceScorer {
 
     // --- Objectif retraite ---
     final hasExplicitRetirement = profile.targetRetirementAge != null;
-    final objectifScore = hasExplicitRetirement ? _wObjectifRetraite.toDouble() : 3.0;
+    final objectifScore =
+        hasExplicitRetirement ? _wObjectifRetraite.toDouble() : 3.0;
     blocs['objectifRetraite'] = BlockScore(
       score: objectifScore,
       maxScore: _wObjectifRetraite.toDouble(),
@@ -483,7 +489,7 @@ class ConfidenceScorer {
     // mirroring the logic in score().
     final isExplicitlySingle = !isCoupled &&
         (profile.etatCivil == CoachCivilStatus.divorce ||
-         profile.etatCivil == CoachCivilStatus.veuf);
+            profile.etatCivil == CoachCivilStatus.veuf);
     double menageScore;
     String menageStatus;
     if (isExplicitlySingle) {
@@ -545,7 +551,10 @@ class ConfidenceScorer {
     if (isIndepSansLpp) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
-    } else if ((profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() > 0.0001) {
+    } else if ((profile.prevoyance.tauxConversion -
+                reg('lpp.conversion_rate', lppTauxConversionMinDecimal))
+            .abs() >
+        0.0001) {
       tauxScore = _wTauxConversion.toDouble();
       tauxStatus = 'complete';
     } else {
@@ -646,7 +655,10 @@ class ConfidenceScorer {
         );
       }
       if (!isIndepSansLpp &&
-          (profile.prevoyance.tauxConversion - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.0001) {
+          (profile.prevoyance.tauxConversion -
+                      reg('lpp.conversion_rate', lppTauxConversionMinDecimal))
+                  .abs() <
+              0.0001) {
         final taux = blocs['taux_conversion']!;
         blocs['taux_conversion'] = BlockScore(
           score: (taux.score - 3).clamp(0, taux.maxScore),
@@ -661,7 +673,8 @@ class ConfidenceScorer {
 
   /// Combined call: returns both bloc scores AND projection confidence
   /// in a single profile traversal (avoids double scoring).
-  static ({Map<String, BlockScore> blocs, ProjectionConfidence confidence}) scoreWithBlocs(CoachProfile profile) {
+  static ({Map<String, BlockScore> blocs, ProjectionConfidence confidence})
+      scoreWithBlocs(CoachProfile profile) {
     return (
       blocs: scoreAsBlocs(profile),
       confidence: score(profile),
@@ -696,8 +709,8 @@ class ConfidenceScorer {
   /// Covers the same fields as V2 scorer for symmetric axes.
   static const Map<String, int> _trackedFields = {
     'salaireBrutMensuel': _wSalaire,
-    'age': 4,          // split from _wAgeCanton (8 → 4+4)
-    'canton': 4,       // split from _wAgeCanton (8 → 4+4)
+    'age': 4, // split from _wAgeCanton (8 → 4+4)
+    'canton': 4, // split from _wAgeCanton (8 → 4+4)
     'etatCivil': _wMenage,
     'prevoyance.avoirLppTotal': _wLpp,
     'prevoyance.tauxConversion': _wTauxConversion,
@@ -745,14 +758,16 @@ class ConfidenceScorer {
   /// Default French prompt templates (used when no [promptLabels] provided).
   static const Map<String, String> _defaultPromptLabels = {
     'freshnessPrefix': 'Actualise\u00a0: ',
-    'freshnessStale': 'Donn\u00e9e datant de {months} mois \u2014 rescanne ton certificat',
+    'freshnessStale':
+        'Donn\u00e9e datant de {months} mois \u2014 rescanne ton certificat',
     'freshnessConfirm': 'Confirme que cette valeur est toujours actuelle',
     'accuracyPrefix': 'Confirme\u00a0: ',
     'accuracyEstimated': 'Saisis ta valeur r\u00e9elle',
     'accuracyCertificate': 'Scanne ton certificat pour confirmer',
   };
 
-  static EnhancedConfidence scoreEnhanced(CoachProfile profile, {
+  static EnhancedConfidence scoreEnhanced(
+    CoachProfile profile, {
     DateTime? now,
     Map<String, String>? labels,
     Map<String, String>? promptLabels,
@@ -824,7 +839,7 @@ class ConfidenceScorer {
     const educationBonus = 0.0;
     final understanding =
         (literacyBase * 0.50 + sessionBonus * 0.30 + educationBonus * 0.20)
-        .clamp(0.0, 100.0);
+            .clamp(0.0, 100.0);
 
     // ── Combined: geometric mean of 4 axes ──────────────────
     // Adding small epsilon (1.0) to avoid zero-multiplication collapse.
@@ -853,9 +868,11 @@ class ConfidenceScorer {
           impact: (entry.value * (1.0 - decay)).round().clamp(1, 15),
           category: 'freshness',
           action: monthsOld > 0
-              ? (prompts['freshnessStale'] ?? 'Donn\u00e9e datant de {months} mois')
+              ? (prompts['freshnessStale'] ??
+                      'Donn\u00e9e datant de {months} mois')
                   .replaceAll('{months}', '$monthsOld')
-              : prompts['freshnessConfirm'] ?? 'Confirme que cette valeur est toujours actuelle',
+              : prompts['freshnessConfirm'] ??
+                  'Confirme que cette valeur est toujours actuelle',
         ));
       }
     }
@@ -863,16 +880,20 @@ class ConfidenceScorer {
     // Accuracy prompts: flag estimated fields
     for (final entry in _trackedFields.entries) {
       final fieldPath = entry.key;
-      final source = profile.dataSources[fieldPath] ?? ProfileDataSource.estimated;
+      final source =
+          profile.dataSources[fieldPath] ?? ProfileDataSource.estimated;
       if (source == ProfileDataSource.estimated ||
           source == ProfileDataSource.userInput) {
         final upgradeAction = source == ProfileDataSource.estimated
             ? prompts['accuracyEstimated'] ?? 'Saisis ta valeur r\u00e9elle'
-            : prompts['accuracyCertificate'] ?? 'Scanne ton certificat pour confirmer';
+            : prompts['accuracyCertificate'] ??
+                'Scanne ton certificat pour confirmer';
         final label = fieldLabels[fieldPath] ?? fieldPath;
         axisPrompts.add(EnrichmentPrompt(
           label: '${prompts['accuracyPrefix'] ?? 'Confirme\u00a0: '}$label',
-          impact: (entry.value * (1.0 - (_accuracyWeights[source] ?? 0.25))).round().clamp(1, 15),
+          impact: (entry.value * (1.0 - (_accuracyWeights[source] ?? 0.25)))
+              .round()
+              .clamp(1, 15),
           category: 'accuracy',
           action: upgradeAction,
         ));
@@ -885,7 +906,8 @@ class ConfidenceScorer {
         label: 'Explore les fiches \u00e9ducatives',
         impact: 10,
         category: 'understanding',
-        action: 'Lis les fiches sur tes th\u00e8mes cl\u00e9s (LPP, AVS, fiscalit\u00e9)',
+        action:
+            'Lis les fiches sur tes th\u00e8mes cl\u00e9s (LPP, AVS, fiscalit\u00e9)',
       ));
     }
     if (sessionCount < 3) {
@@ -893,7 +915,8 @@ class ConfidenceScorer {
         label: 'Pose une question au coach',
         impact: 5,
         category: 'understanding',
-        action: 'Chaque interaction affine ta compr\u00e9hension financi\u00e8re',
+        action:
+            'Chaque interaction affine ta compr\u00e9hension financi\u00e8re',
       ));
     }
 
@@ -936,9 +959,7 @@ class ConfidenceScorer {
     // partnerConfidence 0.25 at best → scale to 0-25 range
     final partnerScore = partnerConfidence * 100; // 0-25 range
     final blended = math.sqrt(base.score * math.max(partnerScore, 1.0));
-    final level = blended >= 70
-        ? 'high'
-        : (blended >= 40 ? 'medium' : 'low');
+    final level = blended >= 70 ? 'high' : (blended >= 40 ? 'medium' : 'low');
 
     return ProjectionConfidence(
       score: blended.clamp(0, 100),
@@ -1055,8 +1076,7 @@ class EnhancedConfidence {
         ? (scoreRaw <= 1.0 ? scoreRaw * 100.0 : scoreRaw)
         : (() {
             // Geometric mean fallback if score absent.
-            final product =
-                completeness * accuracy * freshness * understanding;
+            final product = completeness * accuracy * freshness * understanding;
             if (product <= 0) return 0.0;
             return math.pow(product, 0.25).toDouble();
           })();

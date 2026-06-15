@@ -159,6 +159,20 @@ class RegulatorySyncService {
         'isFromDisk': _isFromDisk,
       };
 
+  /// Copy the scalar cache so isolate-based calculators can hydrate [reg()].
+  static Map<String, double>? cacheSnapshotForIsolate() {
+    final cached = _cachedConstants;
+    return cached == null ? null : Map<String, double>.from(cached);
+  }
+
+  /// Hydrate an isolate-local regulatory cache before running calculations.
+  static void hydrateCacheForIsolate(Map<String, double>? constants) {
+    if (constants == null) return;
+    _cachedConstants = Map<String, double>.from(constants);
+    _lastSyncAt = DateTime.now();
+    _isFromDisk = false;
+  }
+
   /// Check freshness of the regulatory data.
   ///
   /// Returns list of stale parameter keys, or empty list if all fresh.
