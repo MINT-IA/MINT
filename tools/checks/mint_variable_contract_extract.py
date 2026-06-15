@@ -4,6 +4,7 @@
 This checker is intentionally read-only. It binds existing sources together so
 future PRs can detect drift before adding a runtime dictionary scaffold.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -101,8 +102,21 @@ EXPECTED = {
     ("mobile_mapping", "map_case_count"): 35,
     ("mobile_mapping", "save_fact_without_map_case"): [],
     ("mobile_mapping", "save_fact_explicitly_unsupported"): ["wealthEstimate"],
-    ("secure_wizard_store", "static_sensitive_count"): 93,
-    ("onboarding_flush", "completeAndFlushToProfile_key_count"): 16,
+    ("secure_wizard_store", "static_sensitive_count"): 101,
+    ("secure_wizard_store", "classified_sensitive_outputs"): [
+        "q_employment_rate",
+        "q_has_3a",
+        "q_has_consumer_debt",
+        "q_has_pension_fund",
+        "q_net_income_period_source",
+        "q_pay_frequency",
+        "q_self_employed_net_income_annual_chf",
+        "q_target_retirement_age",
+    ],
+    ("secure_wizard_store", "classified_non_sensitive_outputs"): ["q_canton"],
+    ("secure_wizard_store", "classified_product_preference_outputs"): ["q_main_goal"],
+    ("secure_wizard_store", "mapped_wizard_outputs_unclassified"): [],
+    ("onboarding_flush", "completeAndFlushToProfile_key_count"): 17,
     ("regulatory", "backend_registry", "count"): 113,
     ("regulatory", "backend_registry", "active_count_on_2026_06_15"): 103,
     ("regulatory", "backend_registry", "version_hash_on_2026_06_15"): (
@@ -129,8 +143,7 @@ def _class_ann_fields(root: Path, relative: str, class_name: str) -> list[str]:
             return [
                 stmt.target.id
                 for stmt in node.body
-                if isinstance(stmt, ast.AnnAssign)
-                and isinstance(stmt.target, ast.Name)
+                if isinstance(stmt, ast.AnnAssign) and isinstance(stmt.target, ast.Name)
             ]
     raise LookupError(f"{class_name} not found in {relative}")
 
@@ -261,7 +274,11 @@ def _extract_mobile_mapping(root: Path, save_fact: list[str]) -> dict[str, Any]:
     for index, key in enumerate(cases):
         start = body.find(f"case '{key}':")
         next_key = cases[index + 1] if index + 1 < len(cases) else None
-        end = body.find(f"case '{next_key}':", start + 1) if next_key else body.find("default:", start)
+        end = (
+            body.find(f"case '{next_key}':", start + 1)
+            if next_key
+            else body.find("default:", start)
+        )
         if end == -1:
             end = len(body)
         block = body[start:end]
@@ -283,16 +300,36 @@ def _extract_mobile_mapping(root: Path, save_fact: list[str]) -> dict[str, Any]:
     }
 
 
-def _extract_secure_wizard_store(root: Path, wizard_outputs: list[str]) -> dict[str, Any]:
+def _extract_secure_wizard_store(
+    root: Path, wizard_outputs: list[str]
+) -> dict[str, Any]:
     source = _read(root, "apps/mobile/lib/services/secure_wizard_store.dart")
-    match = re.search(r"static const _sensitiveKeys = \{(?P<body>.*?)\n  \};", source, re.S)
-    if not match:
-        raise LookupError("_sensitiveKeys not found")
-    static_keys = re.findall(r"'([^']+)'", match.group("body"))
+    static_keys = _dart_const_string_set(source, "_sensitiveKeys")
+    classified_sensitive = _dart_const_string_set(source, "_classifiedSensitiveKeys")
+    non_sensitive = _dart_const_string_set(source, "_nonSensitiveKeys")
+    product_preference = _dart_const_string_set(source, "_productPreferenceKeys")
     prefixes = re.findall(r"key\.startsWith\('([^']+)'\)", source)
+    unclassified = sorted(
+        key
+        for key in wizard_outputs
+        if key not in static_keys
+        and not any(key.startswith(prefix) for prefix in prefixes)
+        and key not in non_sensitive
+        and key not in product_preference
+    )
     return {
         "static_sensitive_count": len(static_keys),
         "static_sensitive_keys": static_keys,
+        "classified_sensitive_outputs": sorted(
+            set(wizard_outputs) & set(classified_sensitive)
+        ),
+        "classified_non_sensitive_outputs": sorted(
+            set(wizard_outputs) & set(non_sensitive)
+        ),
+        "classified_product_preference_outputs": sorted(
+            set(wizard_outputs) & set(product_preference)
+        ),
+        "mapped_wizard_outputs_unclassified": unclassified,
         "dynamic_prefixes": prefixes,
         "mapped_wizard_outputs_not_static_sensitive": sorted(
             set(wizard_outputs) - set(static_keys)
@@ -300,9 +337,42 @@ def _extract_secure_wizard_store(root: Path, wizard_outputs: list[str]) -> dict[
         "mapped_wizard_outputs_not_covered_by_static_or_prefix": sorted(
             key
             for key in wizard_outputs
-            if key not in static_keys and not any(key.startswith(prefix) for prefix in prefixes)
-    ),
-}
+            if key not in static_keys
+            and not any(key.startswith(prefix) for prefix in prefixes)
+        ),
+    }
+
+
+def _dart_const_string_set(source: str, symbol: str) -> list[str]:
+    sets_by_symbol = {
+        match.group("symbol"): match.group("body")
+        for match in re.finditer(
+            r"static const (?P<symbol>_[A-Za-z0-9_]+) = \{(?P<body>.*?)\n  \};",
+            source,
+            re.S,
+        )
+    }
+    if symbol not in sets_by_symbol:
+        raise LookupError(f"{symbol} not found")
+    return _resolve_dart_string_set(symbol, sets_by_symbol, seen=set())
+
+
+def _resolve_dart_string_set(
+    symbol: str,
+    sets_by_symbol: dict[str, str],
+    seen: set[str],
+) -> list[str]:
+    if symbol in seen:
+        raise LookupError(f"cycle while resolving {symbol}")
+    seen.add(symbol)
+    body = sets_by_symbol[symbol]
+    values = re.findall(r"'([^']+)'", body)
+    for spread in re.findall(r"\.\.\.(_[A-Za-z0-9_]+)", body):
+        if spread not in sets_by_symbol:
+            raise LookupError(f"{symbol} spreads unknown set {spread}")
+        values.extend(_resolve_dart_string_set(spread, sets_by_symbol, seen=set(seen)))
+    return values
+
 
 PROFILE_BASE_READ_ONLY_USER_DATA = {
     "isChurchMember",
@@ -321,7 +391,9 @@ PROFILE_BASE_OUT_OF_SCOPE = {
 
 
 def _extract_onboarding_flush(root: Path) -> dict[str, Any]:
-    source = _read(root, "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_provider.dart")
+    source = _read(
+        root, "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_provider.dart"
+    )
     match = re.search(
         r"Future<void> completeAndFlushToProfile\([\s\S]*?\) async \{"
         r"(?P<body>.*?)\n    final sealed = await ReportPersistenceService\.saveAnswers\(answers\);",
@@ -433,9 +505,7 @@ def _classify_profile_contract(
     write_only = sorted(profile_update_set - profile_base_set)
     save_fact_without_profile_base = save_fact_set - profile_base_set
     derived_mobile = sorted(
-        key
-        for key in save_fact_without_profile_base
-        if wizard_outputs_by_case.get(key)
+        key for key in save_fact_without_profile_base if wizard_outputs_by_case.get(key)
     )
     profile_base_without_save_fact = profile_base_set - save_fact_set
     read_only = sorted(
@@ -590,11 +660,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.check:
         errors = check(snapshot)
         if errors:
-            print("FAIL mint_variable_contract_extract: drift detected.", file=sys.stderr)
+            print(
+                "FAIL mint_variable_contract_extract: drift detected.", file=sys.stderr
+            )
             for error in errors:
                 print(f"  - {error}", file=sys.stderr)
             return 1
-        print("OK mint_variable_contract_extract: snapshot matches 02c baseline.", file=sys.stderr)
+        print(
+            "OK mint_variable_contract_extract: snapshot matches 02c baseline.",
+            file=sys.stderr,
+        )
 
     if not args.json and not args.check:
         print(json.dumps(snapshot, indent=2, ensure_ascii=False))

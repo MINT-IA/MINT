@@ -23,6 +23,13 @@ class SecureWizardSealResult {
   });
 }
 
+enum WizardStorageClassification {
+  sensitive,
+  nonSensitive,
+  productPreference,
+  unknown,
+}
+
 class SecureWizardStore {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -34,9 +41,29 @@ class SecureWizardStore {
   static const _heldPrefix = '_mint_held_anonymous_wizard_';
   static const _heldManifestKey = '_mint_held_anonymous_wizard_secure_keys_v1';
 
+  static const _classifiedSensitiveKeys = {
+    'q_employment_rate',
+    'q_has_3a',
+    'q_has_consumer_debt',
+    'q_has_pension_fund',
+    'q_net_income_period_source',
+    'q_pay_frequency',
+    'q_self_employed_net_income_annual_chf',
+    'q_target_retirement_age',
+  };
+
+  static const _nonSensitiveKeys = {
+    'q_canton',
+  };
+
+  static const _productPreferenceKeys = {
+    'q_main_goal',
+  };
+
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
   static const _sensitiveKeys = {
+    ..._classifiedSensitiveKeys,
     'q_firstname',
     'q_date_of_birth',
     'q_birth_year',
@@ -132,8 +159,24 @@ class SecureWizardStore {
     '_coach_tax_taux_marginal',
   };
 
+  static WizardStorageClassification classificationForKey(String key) {
+    if (_isSensitiveKey(key)) {
+      return WizardStorageClassification.sensitive;
+    }
+    if (_nonSensitiveKeys.contains(key)) {
+      return WizardStorageClassification.nonSensitive;
+    }
+    if (_productPreferenceKeys.contains(key)) {
+      return WizardStorageClassification.productPreference;
+    }
+    return WizardStorageClassification.unknown;
+  }
+
   /// Whether a key should be stored in secure storage.
   static bool isSensitive(String key) =>
+      classificationForKey(key) == WizardStorageClassification.sensitive;
+
+  static bool _isSensitiveKey(String key) =>
       _sensitiveKeys.contains(key) ||
       key.startsWith('_coach_depenses_') ||
       key.startsWith('_coach_dettes_') ||

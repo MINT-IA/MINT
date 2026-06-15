@@ -86,6 +86,43 @@ void main() {
       expect(loaded['q_has_3a'], 'yes');
     });
 
+    test('seals and restores PR5 classified wizard outputs', () async {
+      final answers = <String, dynamic>{
+        'q_canton': 'VD',
+        'q_main_goal': 'retirement',
+        'q_employment_rate': 80,
+        'q_has_3a': 'yes',
+        'q_has_consumer_debt': 'no',
+        'q_has_pension_fund': true,
+        'q_net_income_period_source': 'save_fact_monthly',
+        'q_pay_frequency': 'monthly',
+        'q_self_employed_net_income_annual_chf': 96000,
+        'q_target_retirement_age': 64,
+      };
+
+      await ReportPersistenceService.saveAnswers(answers);
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+          as Map<String, dynamic>;
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(raw['q_canton'], 'VD');
+      expect(raw['q_main_goal'], 'retirement');
+      for (final key in const {
+        'q_employment_rate',
+        'q_has_3a',
+        'q_has_consumer_debt',
+        'q_has_pension_fund',
+        'q_net_income_period_source',
+        'q_pay_frequency',
+        'q_self_employed_net_income_annual_chf',
+        'q_target_retirement_age',
+      }) {
+        expect(raw[key], '__secure__', reason: '$key must not stay raw');
+      }
+      expect(loaded, equals(answers));
+    });
+
     test('drops unresolved secure placeholders on load', () async {
       SharedPreferences.setMockInitialValues({
         'wizard_answers_v2': json.encode({

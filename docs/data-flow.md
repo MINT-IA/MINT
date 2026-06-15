@@ -72,6 +72,15 @@ after reload, it may save direct `BudgetInputs` to `budget_inputs_v1` so the
 budget UI and Coach opener can preserve the user's typed budget until the
 canonical profile path is available again.
 
+`SecureWizardStore` classifies mapped wizard outputs that are outside broad
+dynamic prefixes before the runtime dictionary exists. Financial/life-planning
+metadata such as `q_pay_frequency`, `q_net_income_period_source`,
+`q_employment_rate`, `q_target_retirement_age`, pension/debt booleans, and
+`q_self_employed_net_income_annual_chf` are sensitive and must be sealed.
+`q_canton` remains an explicit non-sensitive routing key, and `q_main_goal`
+remains a product preference. The 02c checker fails if a mapped wizard output
+is neither sealed nor explicitly classified.
+
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
 | 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |

@@ -142,7 +142,8 @@ void main() {
       final raw = json.decode(prefs.getString('wizard_answers_v2')!)
           as Map<String, dynamic>;
       final loaded = await ReportPersistenceService.loadAnswers();
-      expect(raw['q_has_pension_fund'], isTrue);
+      expect(raw['q_has_pension_fund'], '__secure__');
+      expect(loaded['q_has_pension_fund'], isTrue);
       expect(raw['q_main_goal'], 'retirement');
       expect(loaded['q_self_employed_net_income_annual_chf'], 96000);
       expect(loaded['q_net_income_period_chf'], closeTo(8000, 0.01));
@@ -154,7 +155,8 @@ void main() {
       expect(loaded['q_employment_status'], 'independant');
       expect(loaded['q_savings_monthly'], 1200);
       expect(loaded['q_cash_total'], 18000);
-      expect(raw['q_has_consumer_debt'], 'yes');
+      expect(raw['q_has_consumer_debt'], '__secure__');
+      expect(loaded['q_has_consumer_debt'], 'yes');
       expect(loaded['q_total_debt_balance_chf'], 9000);
       expect(loaded['q_partner_birth_year'], 1982);
       expect(loaded['q_partner_net_income_chf'], 5000);
@@ -333,9 +335,11 @@ void main() {
       final loaded = await ReportPersistenceService.loadAnswers();
       expect(loaded.containsKey('q_cash_total'), isFalse);
       expect(raw.containsKey('q_avs_lacunes_status'), isFalse);
-      expect(raw['q_has_consumer_debt'], 'yes');
+      expect(raw['q_has_consumer_debt'], '__secure__');
+      expect(loaded['q_has_consumer_debt'], 'yes');
       expect(p.profile!.dettes.totalDettes, 0);
-      expect(raw['q_has_pension_fund'], isTrue);
+      expect(raw['q_has_pension_fund'], '__secure__');
+      expect(loaded['q_has_pension_fund'], isTrue);
     });
 
     test('applySaveFact keeps total debt separate from categorized debts',
