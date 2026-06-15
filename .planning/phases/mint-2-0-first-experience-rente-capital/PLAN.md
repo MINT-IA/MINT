@@ -17,13 +17,19 @@ Forbidden before the Slice 2 code plan:
 
 1. Contract before code.
 2. Entry and three axes.
-3. Rente/capital data readiness.
-4. Rente/capital result provenance.
-5. Dossier navigation and account handoff.
-6. Simulator, iPhone 13 mini, and closeout evidence.
+3. Data dictionary and progressive profile.
+4. Rente/capital data readiness.
+5. Rente/capital result provenance.
+6. Dossier navigation and account handoff.
+7. Simulator, iPhone 13 mini, and closeout evidence.
 
 Slice 1 is the promotion baseline. Slice 2 now has a proposed code-mapped plan:
 `mint-2-0-first-experience-rente-capital-02-entry-and-three-axes-code-map-PLAN.md`.
+Slice 2 also has a proposed data dictionary and progressive profile
+precondition:
+`mint-2-0-first-experience-rente-capital-02a-data-dictionary-onboarding-profile-PLAN.md`.
+The existing variable coverage map for that precondition is:
+`mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md`.
 Product implementation remains blocked until that plan is reviewed and accepted
 for a separate implementation branch.
 
@@ -46,6 +52,11 @@ open blockers.
 Before mobile code, the Slice 2 plan must keep these binding gates:
 
 - exact file targets and grep evidence;
+- canonical user-variable bindings across backend profile keys, `save_fact`,
+  wizard answers, `CoachProfile`, sensitive storage, aliases, and per-axis
+  readiness;
+- explicit reconciliation of existing profile/save_fact/onboarding/security
+  and regulatory-key gaps before adding a runtime dictionary scaffold;
 - reuse of `/onb` and `/rente-vs-capital`, with no new route unless a separate
   route-change plan exists;
 - `financial_core/arbitrage_engine.dart` as the mobile L1 source of truth for
