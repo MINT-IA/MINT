@@ -490,7 +490,13 @@ def _extract_regulatory(root: Path) -> dict[str, Any]:
     calls = _extract_dart_reg_calls(root)
     unique_keys = sorted({call["key"] for call in calls})
     exact_misses = sorted(key for key in unique_keys if key not in active_keys)
-    non_static = sorted(key for key in unique_keys if "${" in key)
+    non_static = sorted(
+        {
+            call["raw"] if not call["is_static"] else call["key"]
+            for call in calls
+            if not call["is_static"] or "${" in call["key"]
+        }
+    )
     dispositions = _classify_dart_reg_exact_misses(exact_misses)
     return {
         "backend_registry": {
@@ -520,12 +526,29 @@ def _extract_dart_reg_calls(root: Path) -> list[dict[str, Any]]:
         if "/l10n/" in relative or "/generated/" in relative:
             continue
         source = path.read_text(encoding="utf-8")
-        for match in re.finditer(r"reg\(\s*'([^']+)'", source):
+        for match in re.finditer(r"reg\(\s*(?P<arg>[^,\n)]+)", source):
+            line_start = source.rfind("\n", 0, match.start()) + 1
+            line_end = source.find("\n", match.start())
+            if line_end == -1:
+                line_end = len(source)
+            line_text = source[line_start:line_end]
+            if re.match(
+                r"\s*(?:static\s+)?"
+                r"(?:double|int|num|String|bool|dynamic|Object|DateTime|Future<[^>]+>)"
+                r"\s+reg\s*\(",
+                line_text,
+            ):
+                continue
+            raw_arg = match.group("arg").strip()
+            static_match = re.fullmatch(r"""["']([^"']+)["']""", raw_arg)
+            key = static_match.group(1) if static_match else f"<non-static:{raw_arg}>"
             calls.append(
                 {
                     "path": relative,
                     "line": source.count("\n", 0, match.start()) + 1,
-                    "key": match.group(1),
+                    "key": key,
+                    "raw": raw_arg.strip("\"'"),
+                    "is_static": static_match is not None,
                 }
             )
     return calls

@@ -103,6 +103,29 @@ def test_snapshot_flags_interpolated_reg_keys_as_non_static() -> None:
     assert snapshot["regulatory"]["non_static_reg_keys"] == []
 
 
+def test_reg_call_extractor_flags_double_quoted_and_dynamic_calls(
+    tmp_path: Path,
+) -> None:
+    dart_file = tmp_path / "apps/mobile/lib/services/example.dart"
+    dart_file.parent.mkdir(parents=True)
+    dart_file.write_text(
+        "double a = reg(\"pillar3a.max_with_lpp\", fallback);\n"
+        "double b = reg(dynamicKey, fallback);\n"
+        "double c = reg('lpp.entry_threshold', fallback);\n",
+        encoding="utf-8",
+    )
+
+    calls = _checker_module()._extract_dart_reg_calls(tmp_path)
+
+    assert {call["key"] for call in calls if call["is_static"]} == {
+        "pillar3a.max_with_lpp",
+        "lpp.entry_threshold",
+    }
+    dynamic_calls = [call for call in calls if not call["is_static"]]
+    assert len(dynamic_calls) == 1
+    assert dynamic_calls[0]["raw"] == "dynamicKey"
+
+
 def test_snapshot_classifies_remaining_regulatory_misses_for_pr6() -> None:
     proc = _run("--json")
     snapshot = json.loads(proc.stdout)

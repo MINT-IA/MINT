@@ -39,6 +39,14 @@ Read `AGENTS.md`, `CLAUDE.md`, `docs/MINT_AGENT_WORKFLOW.md`,
 Run `python3 tools/checks/active_context_guard.py` before product work.
 """
 
+VALID_DICTIONARY_LINT = """from __future__ import annotations
+
+import sys
+
+print("OK mint_variable_dictionary_lint: dictionary view is coherent.", file=sys.stderr)
+raise SystemExit(0)
+"""
+
 
 def _run(root: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -50,9 +58,14 @@ def _run(root: Path) -> subprocess.CompletedProcess[str]:
 
 def _write_valid_fixture(root: Path) -> None:
     (root / ".claude").mkdir()
+    (root / "tools/checks").mkdir(parents=True)
     (root / "rules.md").write_text(VALID_RULES, encoding="utf-8")
     (root / ".claude/AGENT_BOOTSTRAP.md").write_text(
         VALID_BOOTSTRAP,
+        encoding="utf-8",
+    )
+    (root / "tools/checks/mint_variable_dictionary_lint.py").write_text(
+        VALID_DICTIONARY_LINT,
         encoding="utf-8",
     )
 
@@ -108,3 +121,20 @@ def test_guard_fails_when_bootstrap_skips_active_context(tmp_path: Path) -> None
 
     assert proc.returncode == 1
     assert "AGENT_BOOTSTRAP.md" in proc.stderr
+
+
+def test_guard_fails_when_variable_dictionary_lint_fails(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    (tmp_path / "tools/checks/mint_variable_dictionary_lint.py").write_text(
+        "from __future__ import annotations\n"
+        "import sys\n"
+        "print('FAIL mint_variable_dictionary_lint: fixture violation', file=sys.stderr)\n"
+        "raise SystemExit(1)\n",
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "mint_variable_dictionary_lint.py" in proc.stderr
+    assert "fixture violation" in proc.stderr
