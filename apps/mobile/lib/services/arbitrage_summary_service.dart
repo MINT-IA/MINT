@@ -296,6 +296,7 @@ class ArbitrageSummaryService {
     final diff =
         (result.capitalRetraitMensuel - result.renteNetMensuelle).abs();
     if (diff < 10) return null;
+    if (result.calculationReceipt?.isComplete != true) return null;
 
     return ArbitrageSummaryItem(
       id: 'rente_vs_capital',

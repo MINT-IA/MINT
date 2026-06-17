@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/generated/regulatory_constants.g.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -447,45 +448,82 @@ class ArbitrageEngine {
     }
 
     final displaySummary = breakevenYear != null
-        ? 'Les trajectoires se croisent vers l\'age de '
+        ? 'Les trajectoires se croisent vers l\'âge de '
             '${ageRetraite + breakevenYear} ans. '
-            'Avant ce point, la rente procure un revenu regulier. '
-            'Apres, le capital retire peut constituer un patrimoine plus important.'
+            'Avant ce point, la rente procure un revenu régulier. '
+            'Après, le capital retiré peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
-            'L\'ecart de valeur totale est de ${chf.formatChfWithPrefix(delta)}.';
+            'L\'écart de valeur totale est de ${chf.formatChfWithPrefix(delta)}.';
+
+    final hypotheses = [
+      'Ce que ton capital rapporte : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
+      'Retrait annuel du capital : ${(tauxRetrait * 100).toStringAsFixed(1)} % par an',
+      'Inflation : ${(inflation * 100).toStringAsFixed(1)} % par an',
+      'Horizon : $horizon ans (âge ${ageRetraite + horizon})',
+      'Canton : $canton',
+      'Taux de conversion obligatoire : ${(tauxConversionObligatoire * 100).toStringAsFixed(1)} %',
+      'Taux de conversion surobligatoire : ${(tauxConversionSurobligatoire * 100).toStringAsFixed(1)} %',
+      'Valeurs en francs d\'aujourd\'hui (pouvoir d\'achat réel)',
+      if (isMarried) 'Splitting marié : réduction ~15 % sur impôt retrait',
+      if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
+    ];
+    final sources = [
+      'LPP art. 14 (taux de conversion)',
+      'LIFD art. 22 (imposition des rentes)',
+      'LIFD art. 38 (impôt sur retrait en capital)',
+      if (isMarried) 'LPP art. 19 (rente de survivant)',
+    ];
+    final confidenceScore = _computeArbitrageConfidence(
+      ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
+      dataSources,
+      canonicalConfidence: canonicalConfidence,
+    );
+    final missingRequiredInputs = <String>[
+      if (capitalLppTotal <= 0) 'capital_lpp_total',
+      if (renteAnnuelleProposee <= 0) 'rente_annuelle_proposee',
+      if (canton.trim().isEmpty) 'canton',
+      if (horizon <= 0) 'horizon_years',
+      if (capitalLppTotal > 0 && tauxRetrait <= 0) 'safe_withdrawal_rate',
+      if (capitalObligatoire > 0 && tauxConversionObligatoire <= 0)
+        'conversion_rate_obligatory',
+      if (capitalSurobligatoire > 0 && tauxConversionSurobligatoire <= 0)
+        'conversion_rate_surobligatory',
+    ];
+    final receipt = ArbitrageCalculationReceipt(
+      calculationOrigin: 'mobile_l1_arbitrage_engine',
+      calculationVersion: 'rvc-arbitrage-engine-v1',
+      constantsVersionHash: regulatoryConstantsVersionHash,
+      unit: 'CHF/mois; CHF; percent; years',
+      assumptions: {
+        'safe_withdrawal_rate': tauxRetrait,
+        'expected_return': rendementCapital,
+        'inflation': inflation,
+        'horizon_years': horizon,
+        'canton': canton,
+        'conversion_rate_obligatory': tauxConversionObligatoire,
+        'conversion_rate_surobligatory': tauxConversionSurobligatoire,
+        'age_retirement': ageRetraite,
+        'is_married': isMarried,
+      },
+      sources: sources,
+      readiness:
+          missingRequiredInputs.isEmpty ? 'ready' : 'missing_required_inputs',
+      confidenceScore: confidenceScore,
+      missingRequiredInputs: missingRequiredInputs,
+    );
 
     return ArbitrageResult(
       options: options,
       breakevenYear: breakevenYear,
       premierEclairage: premierEclairage,
       displaySummary: displaySummary,
-      hypotheses: [
-        'Ce que ton capital rapporte : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
-        'Retrait annuel du capital : ${(tauxRetrait * 100).toStringAsFixed(1)} % par an',
-        'Inflation : ${(inflation * 100).toStringAsFixed(1)} % par an',
-        'Horizon : $horizon ans (age ${ageRetraite + horizon})',
-        'Canton : $canton',
-        'Taux de conversion obligatoire : ${(tauxConversionObligatoire * 100).toStringAsFixed(1)} %',
-        'Taux de conversion surobligatoire : ${(tauxConversionSurobligatoire * 100).toStringAsFixed(1)} %',
-        'Valeurs en francs d\'aujourd\'hui (pouvoir d\'achat reel)',
-        if (isMarried) 'Splitting marie : reduction ~15 % sur impot retrait',
-        if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
-      ],
+      hypotheses: hypotheses,
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
-      sources: [
-        'LPP art. 14 (taux de conversion)',
-        'LIFD art. 22 (imposition des rentes)',
-        'LIFD art. 38 (impot sur retrait en capital)',
-        if (isMarried) 'LPP art. 19 (rente de survivant)',
-      ],
-      confidenceScore: _computeArbitrageConfidence(
-        ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
-        dataSources,
-        canonicalConfidence: canonicalConfidence,
-      ),
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
+      sources: sources,
+      confidenceScore: confidenceScore,
       sensitivity: sensitivity,
       // ── New hero + card fields ──
       renteNetMensuelle: renteNetMensuelle,
@@ -497,6 +535,7 @@ class ArbitrageEngine {
       renteSurvivant: renteSurvivant,
       capitalProjecte: effectiveCapitalTotal,
       isProjected: isProjected,
+      calculationReceipt: receipt,
     );
   }
 

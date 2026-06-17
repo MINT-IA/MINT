@@ -166,7 +166,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (_seqRunId == null || _seqStepId == null) return;
     _finalReturnEmitted = true;
 
-    if (!_hasUserInteracted) {
+    if (!_hasUserInteracted || !_hasCompleteCalculationReceipt(_result)) {
       ScreenCompletionTracker.markCompletedWithReturn(
           'rente_vs_capital',
           ScreenReturn.abandoned(
@@ -317,6 +317,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   void _writeBackResult() {
     if (!_hasUserInteracted) return;
     if (_result == null) return;
+    if (!_hasCompleteCalculationReceipt(_result)) return;
     final provider = context.read<CoachProfileProvider>();
     final profile = provider.profile;
     if (profile == null) return;
@@ -597,6 +598,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // F2-6: Only emit ScreenReturn after user has actively interacted.
     // Prevents premature completion on initial auto-fill + auto-calc.
     if (!_hasUserInteracted) return;
+    if (!_hasCompleteCalculationReceipt(result)) return;
     if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final mode =
         _inputMode == _InputMode.certificate ? 'certificate' : 'estimate';
@@ -610,6 +612,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       screenReturn,
     );
   }
+
+  bool _hasCompleteCalculationReceipt(ArbitrageResult? result) =>
+      result?.calculationReceipt?.isComplete ?? false;
 
   int get _ageRetraite => _ageRetraiteSlider.value.round();
 
@@ -648,6 +653,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final chartOptions = _result == null
         ? const <TrajectoireOption>[]
         : _optionsAsAgeTrajectories(_result!.options);
+    final hasCompleteReceipt = _hasCompleteCalculationReceipt(_result);
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
@@ -665,133 +671,144 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         container: true,
         explicitChildNodes: true,
         child: Scaffold(
-          body: Center(
-              child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: CustomScrollView(
-                    slivers: [
-                      // ── SliverAppBar (white standard — Simulator screen) ──
-                      SliverAppBar(
-                        pinned: true,
-                        backgroundColor: MintColors.white,
-                        foregroundColor: MintColors.textPrimary,
-                        surfaceTintColor: MintColors.white,
-                        title: Text(
-                          S.of(context)!.renteVsCapitalAppBarTitle,
-                          style: MintTextStyles.headlineMedium(),
+            body: Center(
+                child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: CustomScrollView(
+                      slivers: [
+                        // ── SliverAppBar (white standard — Simulator screen) ──
+                        SliverAppBar(
+                          pinned: true,
+                          backgroundColor: MintColors.white,
+                          foregroundColor: MintColors.textPrimary,
+                          surfaceTintColor: MintColors.white,
+                          title: Text(
+                            S.of(context)!.renteVsCapitalAppBarTitle,
+                            style: MintTextStyles.headlineMedium(),
+                          ),
                         ),
-                      ),
 
-                      // ── Content ──
-                      SliverPadding(
-                        padding: const EdgeInsets.all(MintSpacing.lg),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
-                            // ── Hero intro (why this matters) ──
-                            _buildHeroIntro(),
-                            const SizedBox(height: MintSpacing.lg),
+                        // ── Content ──
+                        SliverPadding(
+                          padding: const EdgeInsets.all(MintSpacing.lg),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate([
+                              // ── Hero intro (why this matters) ──
+                              _buildHeroIntro(),
+                              const SizedBox(height: MintSpacing.lg),
 
-                            // ── Inputs (2 modes) ──
-                            _buildInputSection(),
-                            const SizedBox(height: MintSpacing.lg),
+                              // ── Inputs (2 modes) ──
+                              _buildInputSection(),
+                              const SizedBox(height: MintSpacing.lg),
 
-                            if (_isLoading && _result == null)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: MintSpacing.lg),
-                                child: MintLoadingSkeleton(),
-                              ),
-
-                            if (_hasError && _result == null)
-                              Container(
-                                padding: const EdgeInsets.all(MintSpacing.md),
-                                margin: const EdgeInsets.only(
-                                    bottom: MintSpacing.md),
-                                decoration: BoxDecoration(
-                                  color:
-                                      MintColors.error.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(12),
+                              if (_isLoading && _result == null)
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: MintSpacing.lg),
+                                  child: MintLoadingSkeleton(),
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.error_outline,
-                                        color: MintColors.error, size: 20),
-                                    const SizedBox(width: MintSpacing.sm),
-                                    Expanded(
-                                        child: Text(
-                                      S.of(context)!.renteVsCapitalErrorRetry,
-                                      style: MintTextStyles.bodySmall(
-                                          color: MintColors.error),
-                                    )),
-                                  ],
-                                ),
-                              ),
 
-                            if (_result != null) ...[
-                              // ── Confidence banner ──
-                              IndicatifBanner(
-                                confidenceScore: _result!.confidenceScore,
-                                topEnrichmentCategory: 'lpp',
-                              ),
-
-                              if (_hasEstimatedValues &&
-                                  _inputMode == _InputMode.estimate)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: MintSpacing.sm),
-                                  child: SmartDefaultIndicator(
-                                    source: S
-                                        .of(context)!
-                                        .renteVsCapitalProfileAutoFill,
-                                    confidence: _result!.confidenceScore / 100,
+                              if (_hasError && _result == null)
+                                Container(
+                                  padding: const EdgeInsets.all(MintSpacing.md),
+                                  margin: const EdgeInsets.only(
+                                      bottom: MintSpacing.md),
+                                  decoration: BoxDecoration(
+                                    color: MintColors.error
+                                        .withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.error_outline,
+                                          color: MintColors.error, size: 20),
+                                      const SizedBox(width: MintSpacing.sm),
+                                      Expanded(
+                                          child: Text(
+                                        S.of(context)!.renteVsCapitalErrorRetry,
+                                        style: MintTextStyles.bodySmall(
+                                            color: MintColors.error),
+                                      )),
+                                    ],
                                   ),
                                 ),
 
-                              // ══════════════════════════════════════════════
-                              //  BLOC A — ACCROCHE (RepaintBoundary for perf)
-                              //  Chiffre-choc + Hero CHF/mois + micro-légendes
-                              // ══════════════════════════════════════════════
-                              RepaintBoundary(
-                                child: Column(
-                                  children: [
-                                    _buildPremierEclairageAccroche(),
-                                    const SizedBox(height: MintSpacing.md),
-                                    _buildHeroMonthly(),
-                                  ],
+                              if (_result != null && !hasCompleteReceipt) ...[
+                                _buildReceiptRequiredCard(
+                                    _result!.calculationReceipt),
+                                const SizedBox(height: MintSpacing.xl),
+                              ],
+
+                              if (_result != null && hasCompleteReceipt) ...[
+                                _buildCalculationReceiptCard(
+                                    _result!.calculationReceipt!),
+                                const SizedBox(height: MintSpacing.md),
+
+                                // ── Confidence banner ──
+                                IndicatifBanner(
+                                  confidenceScore: _result!.confidenceScore,
+                                  topEnrichmentCategory: 'lpp',
                                 ),
-                              ),
-                              const SizedBox(height: MintSpacing.lg),
 
-                              // ══════════════════════════════════════════════
-                              //  BLOC C — COMPRENDRE
-                              //  3 cartes éducatives (fiscalité, inflation, transmission)
-                              // ══════════════════════════════════════════════
-                              _buildEducationalCards(),
-                              const SizedBox(height: MintSpacing.lg),
+                                if (_hasEstimatedValues &&
+                                    _inputMode == _InputMode.estimate)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        bottom: MintSpacing.sm),
+                                    child: SmartDefaultIndicator(
+                                      source: S
+                                          .of(context)!
+                                          .renteVsCapitalProfileAutoFill,
+                                      confidence:
+                                          _result!.confidenceScore / 100,
+                                    ),
+                                  ),
 
-                              // ══════════════════════════════════════════════
-                              //  BLOC B — EXPLORER
-                              //  Slider espérance + chart trajectoire (fused)
-                              // ══════════════════════════════════════════════
-                              _buildExplorerBloc(chartOptions),
-                              const SizedBox(height: MintSpacing.lg),
+                                // ══════════════════════════════════════════════
+                                //  BLOC A — ACCROCHE (RepaintBoundary for perf)
+                                //  Chiffre-choc + Hero CHF/mois + micro-légendes
+                                // ══════════════════════════════════════════════
+                                RepaintBoundary(
+                                  child: Column(
+                                    children: [
+                                      _buildPremierEclairageAccroche(),
+                                      const SizedBox(height: MintSpacing.md),
+                                      _buildHeroMonthly(),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: MintSpacing.lg),
 
-                              // ══════════════════════════════════════════════
-                              //  BLOC D — AFFINER
-                              //  Hypothèses + impact cards + tornado (ExpansionTile)
-                              // ══════════════════════════════════════════════
-                              _buildAffinerBloc(),
-                              const SizedBox(height: MintSpacing.lg),
+                                // ══════════════════════════════════════════════
+                                //  BLOC C — COMPRENDRE
+                                //  3 cartes éducatives (fiscalité, inflation, transmission)
+                                // ══════════════════════════════════════════════
+                                _buildEducationalCards(),
+                                const SizedBox(height: MintSpacing.lg),
 
-                              // ── Disclaimer ──
-                              _buildDisclaimerCard(),
-                              const SizedBox(height: MintSpacing.xl),
-                            ],
-                          ]),
+                                // ══════════════════════════════════════════════
+                                //  BLOC B — EXPLORER
+                                //  Slider espérance + chart trajectoire (fused)
+                                // ══════════════════════════════════════════════
+                                _buildExplorerBloc(chartOptions),
+                                const SizedBox(height: MintSpacing.lg),
+
+                                // ══════════════════════════════════════════════
+                                //  BLOC D — AFFINER
+                                //  Hypothèses + impact cards + tornado (ExpansionTile)
+                                // ══════════════════════════════════════════════
+                                _buildAffinerBloc(),
+                                const SizedBox(height: MintSpacing.lg),
+
+                                // ── Disclaimer ──
+                                _buildDisclaimerCard(),
+                                const SizedBox(height: MintSpacing.xl),
+                              ],
+                            ]),
+                          ),
                         ),
-                      ),
-                    ],
-                  )))),
+                      ],
+                    )))),
       ),
     );
   }
@@ -1135,13 +1152,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(S.of(context)!.renteVsCapitalCanton,
-                      style: _labelStyle),
+                  Text(S.of(context)!.renteVsCapitalCanton, style: _labelStyle),
                   const SizedBox(height: MintSpacing.xs),
                   MintSurface(
                     tone: MintSurfaceTone.porcelaine,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: MintSpacing.sm),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
                     radius: 12,
                     child: DropdownButton<String>(
                       value: _canton,
@@ -1170,8 +1186,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(S.of(context)!.renteVsCapitalMarried,
-                    style: _labelStyle),
+                Text(S.of(context)!.renteVsCapitalMarried, style: _labelStyle),
                 const SizedBox(height: MintSpacing.xs),
                 Semantics(
                   label: S.of(context)!.renteVsCapitalMarried,
@@ -2139,9 +2154,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   '${v.highLabel} : ${_formatDelta(highDelta)}',
                   textAlign: TextAlign.end,
                   style: MintTextStyles.labelSmall(
-                    color: highDelta >= 0
-                        ? MintColors.success
-                        : MintColors.danger,
+                    color:
+                        highDelta >= 0 ? MintColors.success : MintColors.danger,
                   ),
                 ),
               ),
@@ -2155,6 +2169,226 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
   //  CONFIDENCE BANNER
   // ═══════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════
+  //  RECEIPT GATE
+  // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildReceiptRequiredCard(ArbitrageCalculationReceipt? receipt) {
+    final l = S.of(context)!;
+    final readiness = _receiptReadinessText(l, receipt);
+    final missingInputs = _receiptMissingInputsText(l, receipt);
+    final label =
+        '${l.renteVsCapitalReceiptRequiredTitle}. ${l.renteVsCapitalReceiptRequiredBody} '
+        '${l.renteVsCapitalReceiptReadinessLabel}: $readiness. '
+        '${l.renteVsCapitalReceiptMissingLabel}: $missingInputs';
+
+    return Semantics(
+      key: const Key('rente_vs_capital_receipt_required'),
+      identifier: 'rente_vs_capital_receipt_required',
+      container: true,
+      label: label,
+      child: MintSurface(
+        tone: MintSurfaceTone.peche,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 14,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.lock_outline_rounded,
+                    size: 18, color: MintColors.warning),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l.renteVsCapitalReceiptRequiredTitle,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.renteVsCapitalReceiptRequiredBody,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              '${l.renteVsCapitalReceiptReadinessLabel}: $readiness',
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+            ),
+            Text(
+              '${l.renteVsCapitalReceiptMissingLabel}: $missingInputs',
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalculationReceiptCard(ArbitrageCalculationReceipt receipt) {
+    final l = S.of(context)!;
+    final rows = <String>[
+      '${l.renteVsCapitalReceiptOriginLabel}: ${receipt.calculationOrigin}',
+      '${l.renteVsCapitalReceiptVersionLabel}: ${receipt.calculationVersion}',
+      '${l.renteVsCapitalReceiptConstantsLabel}: ${_receiptConstantsVersionText(receipt.constantsVersionHash)}',
+      '${l.renteVsCapitalReceiptReadinessLabel}: ${_receiptReadinessText(l, receipt)}',
+      '${l.renteVsCapitalReceiptUnitLabel}: ${_receiptUnitText(receipt.unit)}',
+      '${l.renteVsCapitalReceiptConfidenceLabel}: ${receipt.confidenceScore.round()} %',
+      '${l.renteVsCapitalReceiptMissingLabel}: ${_receiptMissingInputsText(l, receipt)}',
+      '${l.renteVsCapitalReceiptAssumptionsLabel}: ${_receiptAssumptionsText(l, receipt)}',
+      '${l.renteVsCapitalReceiptSourcesLabel}: ${receipt.sources.join(' | ')}',
+    ];
+
+    return Semantics(
+      key: const Key('rente_vs_capital_calculation_receipt'),
+      identifier: 'rente_vs_capital_calculation_receipt',
+      container: true,
+      label: '${l.renteVsCapitalReceiptTitle}. ${rows.join('. ')}',
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 14,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.receipt_long_outlined,
+                    size: 18, color: MintColors.textMuted),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l.renteVsCapitalReceiptTitle,
+                    style: MintTextStyles.labelMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            for (final row in rows)
+              Padding(
+                padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+                child: Text(
+                  row,
+                  style: MintTextStyles.micro(),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _receiptReadinessText(
+    S l,
+    ArbitrageCalculationReceipt? receipt,
+  ) {
+    if (receipt == null) return l.renteVsCapitalReceiptReadinessMissing;
+    if (!receipt.isComplete) {
+      if (receipt.readiness == 'missing_required_inputs') {
+        return l.renteVsCapitalReceiptReadinessMissingRequiredInputs;
+      }
+      return l.renteVsCapitalReceiptReadinessIncomplete;
+    }
+    return switch (receipt.readiness) {
+      'ready' => l.renteVsCapitalReceiptReadinessReady,
+      'missing_required_inputs' =>
+        l.renteVsCapitalReceiptReadinessMissingRequiredInputs,
+      _ => receipt.readiness.replaceAll('_', ' '),
+    };
+  }
+
+  String _receiptMissingInputsText(
+    S l,
+    ArbitrageCalculationReceipt? receipt,
+  ) {
+    final missingInputs = receipt?.missingRequiredInputs ?? const <String>[];
+    if (missingInputs.isEmpty) {
+      return l.renteVsCapitalReceiptMissingNone;
+    }
+    return missingInputs
+        .map((input) => _receiptMissingInputText(l, input))
+        .join(', ');
+  }
+
+  String _receiptMissingInputText(S l, String input) {
+    return switch (input) {
+      'capital_lpp_total' => l.renteVsCapitalReceiptMissingCapitalLppTotal,
+      'rente_annuelle_proposee' =>
+        l.renteVsCapitalReceiptMissingRenteAnnuelleProposee,
+      'canton' => l.renteVsCapitalReceiptMissingCanton,
+      'horizon_years' => l.renteVsCapitalReceiptMissingHorizonYears,
+      'safe_withdrawal_rate' =>
+        l.renteVsCapitalReceiptMissingSafeWithdrawalRate,
+      'conversion_rate_obligatory' =>
+        l.renteVsCapitalReceiptMissingConversionRateObligatory,
+      'conversion_rate_surobligatory' =>
+        l.renteVsCapitalReceiptMissingConversionRateSurobligatory,
+      _ => l.renteVsCapitalReceiptMissingFallback,
+    };
+  }
+
+  String _receiptConstantsVersionText(String hash) {
+    if (hash.length <= 12) return hash;
+    return '${hash.substring(0, 12)}...';
+  }
+
+  String _receiptUnitText(String unit) {
+    return unit.replaceAll('percent', '%').replaceAll('years', 'ans');
+  }
+
+  String _receiptAssumptionsText(
+    S l,
+    ArbitrageCalculationReceipt receipt,
+  ) {
+    final entries = receipt.assumptions.entries
+        .where((entry) => entry.value != null)
+        .map(
+          (entry) =>
+              '${_receiptAssumptionLabel(l, entry.key)}: ${_receiptAssumptionValue(entry.key, entry.value)}',
+        )
+        .toList(growable: false);
+    if (entries.isEmpty) return l.renteVsCapitalReceiptMissingFallback;
+    return entries.join(' | ');
+  }
+
+  String _receiptAssumptionLabel(S l, String key) {
+    return switch (key) {
+      'safe_withdrawal_rate' =>
+        l.renteVsCapitalReceiptMissingSafeWithdrawalRate,
+      'expected_return' => l.renteVsCapitalHypRendement,
+      'inflation' => l.renteVsCapitalHypInflation,
+      'horizon_years' => l.renteVsCapitalReceiptMissingHorizonYears,
+      'canton' => l.renteVsCapitalReceiptMissingCanton,
+      'conversion_rate_obligatory' =>
+        l.renteVsCapitalReceiptMissingConversionRateObligatory,
+      'conversion_rate_surobligatory' =>
+        l.renteVsCapitalReceiptMissingConversionRateSurobligatory,
+      _ => key.replaceAll('_', ' '),
+    };
+  }
+
+  String _receiptAssumptionValue(String key, Object? value) {
+    if (value is num) {
+      if (key.contains('rate') ||
+          key == 'expected_return' ||
+          key == 'inflation') {
+        return '${(value * 100).toStringAsFixed(1)} %';
+      }
+      if (key == 'horizon_years') {
+        return '${value.round()} ans';
+      }
+      return value.toString();
+    }
+    return value.toString();
+  }
 
   // ═══════════════════════════════════════════════════════════════
   //  HYPOTHESES EXPANDABLE
