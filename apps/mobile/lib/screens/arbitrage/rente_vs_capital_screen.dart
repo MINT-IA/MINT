@@ -2309,7 +2309,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     S l,
     ArbitrageCalculationReceipt? receipt,
   ) {
-    final missingInputs = receipt?.missingRequiredInputs ?? const <String>[];
+    if (receipt == null) return l.renteVsCapitalReceiptMissingFallback;
+    final missingInputs = receipt.missingRequiredInputs;
     if (missingInputs.isEmpty) {
       return l.renteVsCapitalReceiptMissingNone;
     }

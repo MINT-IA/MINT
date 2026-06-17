@@ -300,6 +300,43 @@ void main() {
       expect(receipt!.isComplete, isFalse);
     });
 
+    test('backend receipt with invalid RvC assumption domain is incomplete',
+        () {
+      final receipts = <ArbitrageCalculationReceipt?>[
+        ArbitrageCalculationReceipt.fromMap(
+          _completeBackendReceiptMap(
+            assumptions: const <String, Object?>{
+              'safe_withdrawal_rate': 0,
+              'expected_return': 0.03,
+              'inflation': 0.02,
+              'horizon_years': 30,
+              'canton': 'VD',
+              'conversion_rate_obligatory': 0.068,
+              'conversion_rate_surobligatory': 0.05,
+            },
+          ),
+        ),
+        ArbitrageCalculationReceipt.fromMap(
+          _completeBackendReceiptMap(
+            assumptions: const <String, Object?>{
+              'safe_withdrawal_rate': 0.04,
+              'expected_return': 0.03,
+              'inflation': 0.02,
+              'horizon_years': 0,
+              'canton': 'VD',
+              'conversion_rate_obligatory': 0.068,
+              'conversion_rate_surobligatory': 0.05,
+            },
+          ),
+        ),
+      ];
+
+      for (final receipt in receipts) {
+        expect(receipt, isNotNull);
+        expect(receipt!.isComplete, isFalse);
+      }
+    });
+
     test('backend receipt without required legal sources is incomplete', () {
       final receipt = ArbitrageCalculationReceipt.fromMap(
         _completeBackendReceiptMap(sources: const ['LIFD art. 22']),

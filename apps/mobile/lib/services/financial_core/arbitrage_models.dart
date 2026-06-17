@@ -138,9 +138,21 @@ class ArbitrageCalculationReceipt {
         continue;
       }
       if (value is! num || !value.isFinite) return false;
+      if (!_isRvcAssumptionInDomain(key, value.toDouble())) return false;
     }
 
     return true;
+  }
+
+  static bool _isRvcAssumptionInDomain(String key, double value) {
+    return switch (key) {
+      'safe_withdrawal_rate' => value > 0 && value <= 1,
+      'expected_return' || 'inflation' => value > -1 && value <= 1,
+      'horizon_years' => value > 0,
+      'conversion_rate_obligatory' => value > 0 && value <= 1,
+      'conversion_rate_surobligatory' => value >= 0 && value <= 1,
+      _ => true,
+    };
   }
 
   static ArbitrageCalculationReceipt? fromMap(Map<String, dynamic>? data) {

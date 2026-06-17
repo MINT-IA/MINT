@@ -282,6 +282,21 @@ void main() {
     final context = tester.element(find.byType(RenteVsCapitalScreen));
     expect(receiptRequired, findsOneWidget);
     expect(find.text(S.of(context)!.renteVsCapitalPerMonth), findsNothing);
+    expect(
+      find.textContaining(S.of(context)!.renteVsCapitalReceiptMissingNone),
+      findsNothing,
+    );
+    expect(
+      find.textContaining(S.of(context)!.renteVsCapitalReceiptMissingFallback),
+      findsWidgets,
+    );
+    expect(
+      find.text(
+        '${S.of(context)!.renteVsCapitalReceiptMissingLabel}: '
+        '${S.of(context)!.renteVsCapitalReceiptMissingFallback}',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('incomplete backend receipt reports invalid receipt readiness',
