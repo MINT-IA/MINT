@@ -42,16 +42,17 @@ tags:
     text: "Parle à Mint"
 - extendedWaitUntil:
     visible:
-      text: "Voir mon aperçu"
+      text: "Un premier aperçu suisse."
     timeout: 10000
 - assertVisible:
     text: "Un premier aperçu suisse."
-- assertVisible:
-    text: "Voir mon aperçu"
 - takeScreenshot: "02-mint2-entry"
 
+# Maestro/iOS can omit the CTA text from its hierarchy here although
+# `idb ui describe-all` exposes AXUniqueId `onboarding-entry-open`.
 - tapOn:
-    text: "Voir mon aperçu"
+    point: "50%, 83%"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "2e pilier : rente ou capital"
