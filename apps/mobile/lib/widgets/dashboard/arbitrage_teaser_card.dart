@@ -11,20 +11,20 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 //  ARBITRAGE TEASER CARDS — Chantier 2 / Retirement Cockpit
 // ────────────────────────────────────────────────────────────
 //
-//  3 cartes teaser affichant des chiffres chocs rapides :
-//    1. Rente vs Capital — blendedMonthly comparison
-//    2. Calendrier retraits — indicative tax impact from staggering
-//    3. Rachat LPP — indicative tax impact from buyback
+//  Cartes teaser affichant des estimations rapides receipt-safe :
+//    1. Calendrier retraits — indicative tax impact from staggering
+//    2. Rachat LPP — indicative tax impact from buyback
 //
-//  Visible uniquement si age >= 45 (State A).
+//  Affichees quand les donnees necessaires sont presentes.
 //  Estimations rapides depuis financial_core, pas de calcul lourd.
+//  Rente vs Capital reste hors dashboard tant qu'un receipt complet
+//  n'est pas disponible dans ce widget.
 //
 //  Widget pur — aucune dependance Provider.
-//  Aucun terme banni (garanti, certain, optimal, meilleur…).
-//  Compliance : "Dans ce scenario simule..."
+//  Compliance : formulation conditionnelle et educative.
 // ────────────────────────────────────────────────────────────
 
-/// Container widget for the 3 arbitrage teasers.
+/// Container widget for arbitrage teasers.
 class ArbitrageTeaserSection extends StatelessWidget {
   final CoachProfile profile;
 
@@ -84,51 +84,10 @@ class ArbitrageTeaserSection extends StatelessWidget {
     final resolvedCanton = resolveCanton(profile.canton);
     if (!resolvedCanton.isResolved) return teasers;
     final canton = resolvedCanton.code;
-    final age = profile.ageOrNull;
 
-    // 1. Rente vs Capital
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
-    if (lppAvoir > 0 && age != null) {
-      final convRate = profile.prevoyance.tauxConversion;
-      final annualRente = LppCalculator.projectToRetirement(
-        currentBalance: lppAvoir,
-        currentAge: age,
-        retirementAge: 65,
-        grossAnnualSalary: profile.revenuBrutAnnuel,
-        caisseReturn: profile.prevoyance.rendementCaisse,
-        conversionRate: convRate,
-      );
 
-      // Compare 100% rente vs 60% rente + 40% capital
-      final monthlyFullRente = LppCalculator.blendedMonthly(
-        annualRente: annualRente,
-        conversionRate: convRate,
-        lppCapitalPct: 0.0,
-        canton: canton,
-        isMarried: isMarried,
-      );
-      final monthlyMixed = LppCalculator.blendedMonthly(
-        annualRente: annualRente,
-        conversionRate: convRate,
-        lppCapitalPct: 0.4,
-        canton: canton,
-        isMarried: isMarried,
-      );
-
-      final diff = (monthlyMixed - monthlyFullRente).abs();
-      if (diff > 50) {
-        teasers.add(_TeaserData(
-          icon: Icons.compare_arrows_rounded,
-          color: MintColors.purple,
-          title: 'Rente vs Capital',
-          premierEclairage:
-              'Écart de flux net simulé : CHF\u00a0${_fmt(diff)}/mois entre les variantes',
-          route: '/rente-vs-capital',
-        ));
-      }
-    }
-
-    // 2. Calendrier retraits — estimate indicative staggering impact
+    // 1. Calendrier retraits — estimate indicative staggering impact
     final total3a = profile.prevoyance.totalEpargne3a;
     if (lppAvoir > 0 && total3a > 0) {
       // Rough estimate: unstaggered = all in one year → higher progressive rate
@@ -159,7 +118,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
       }
     }
 
-    // 3. Rachat LPP
+    // 2. Rachat LPP
     final lacune = profile.prevoyance.lacuneRachatRestante;
     if (lacune > 1000) {
       // Rough marginal tax rate estimate: 25-35% for median Swiss incomes

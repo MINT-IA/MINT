@@ -36,9 +36,12 @@ void main() {
     );
 
     expect(find.text('Pistes d’arbitrage'), findsOneWidget);
+    expect(find.text('Rente vs Capital'), findsNothing);
     expect(find.text('Calendrier de retraits'), findsOneWidget);
     expect(find.text('Rachat LPP'), findsOneWidget);
     expect(find.textContaining('impact fiscal indicatif'), findsWidgets);
+    expect(find.textContaining('Écart de flux net simulé'), findsNothing);
+    expect(find.textContaining('/mois'), findsNothing);
     expect(find.textContaining('L’option'), findsNothing);
     expect(find.textContaining('pourrait donner'), findsNothing);
     expect(find.textContaining('pourrait économiser'), findsNothing);

@@ -814,7 +814,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  HERO INTRO — pourquoi tu devrais t'en soucier
+  //  HERO INTRO — contexte utilisateur
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHeroIntro() {
@@ -2053,9 +2053,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     // Filter out variables with negligible or zero swing — showing "+0" is
     // worse than not showing the row at all (misleads the user).
-    final top = variables.where((v) => v.swing > 50).take(4).toList();
-    if (top.isEmpty) return const SizedBox.shrink();
-    final maxSwing = top.first.swing;
+    final visibleVariables =
+        variables.where((v) => v.swing > 50).take(4).toList();
+    if (visibleVariables.isEmpty) return const SizedBox.shrink();
+    final maxSwing = visibleVariables.first.swing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2070,15 +2071,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: MintSpacing.sm),
-        for (int i = 0; i < top.length; i++) ...[
-          _impactCard(i + 1, top[i], maxSwing),
-          if (i < top.length - 1) const SizedBox(height: MintSpacing.sm),
+        for (int i = 0; i < visibleVariables.length; i++) ...[
+          _impactCard(visibleVariables[i], maxSwing),
+          if (i < visibleVariables.length - 1)
+            const SizedBox(height: MintSpacing.sm),
         ],
       ],
     );
   }
 
-  Widget _impactCard(int rank, ArbitrageTornadoVariable v, double maxSwing) {
+  Widget _impactCard(ArbitrageTornadoVariable v, double maxSwing) {
     final barFraction = maxSwing > 0 ? v.swing / maxSwing : 0.0;
     final lowDelta = v.lowValue - v.baseValue;
     final highDelta = v.highValue - v.baseValue;
@@ -2099,13 +2101,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   color: MintColors.primary.withAlpha(15),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Center(
-                  child: Text('#$rank',
-                      style: MintTextStyles.micro(color: MintColors.primary)
-                          .copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.normal,
-                      )),
+                child: const Center(
+                  child: Icon(
+                    Icons.tune_rounded,
+                    size: 14,
+                    color: MintColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(width: MintSpacing.sm),
