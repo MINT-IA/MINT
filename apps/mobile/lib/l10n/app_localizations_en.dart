@@ -6228,11 +6228,11 @@ class SEn extends S {
   String get renteVsCapitalTornadoToggle => 'View sensitivity diagram';
 
   @override
-  String get renteVsCapitalImpactTitle => 'What changes the result the most?';
+  String get renteVsCapitalImpactTitle => 'Parameters to test';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'The most influential parameters on the gap between your options.';
+      'Possible variations based on the calculation assumptions.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Assumptions for this simulation';

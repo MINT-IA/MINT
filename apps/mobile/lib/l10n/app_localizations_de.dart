@@ -6282,12 +6282,11 @@ class SDe extends S {
   String get renteVsCapitalTornadoToggle => 'Sensitivitätsdiagramm anzeigen';
 
   @override
-  String get renteVsCapitalImpactTitle =>
-      'Was verändert das Ergebnis am meisten?';
+  String get renteVsCapitalImpactTitle => 'Testparameter';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'Die einflussreichsten Parameter auf den Unterschied zwischen deinen Optionen.';
+      'Mögliche Variationen auf Basis der Berechnungsannahmen.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Annahmen dieser Simulation';

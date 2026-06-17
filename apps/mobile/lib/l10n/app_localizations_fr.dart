@@ -6269,12 +6269,11 @@ class SFr extends S {
   String get renteVsCapitalTornadoToggle => 'Voir le diagramme de sensibilité';
 
   @override
-  String get renteVsCapitalImpactTitle =>
-      'Qu\'est-ce qui change le plus le résultat ?';
+  String get renteVsCapitalImpactTitle => 'Paramètres à tester';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'Les paramètres les plus influents sur l\'écart entre tes options.';
+      'Variations possibles selon les hypothèses du calcul.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Hypothèses de cette simulation';

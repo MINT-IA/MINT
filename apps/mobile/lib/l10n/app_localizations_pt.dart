@@ -6263,11 +6263,11 @@ class SPt extends S {
   String get renteVsCapitalTornadoToggle => 'Ver o diagrama de sensibilidade';
 
   @override
-  String get renteVsCapitalImpactTitle => 'O que mais altera o resultado?';
+  String get renteVsCapitalImpactTitle => 'Parâmetros a testar';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'Os parâmetros mais influentes na diferença entre as tuas opções.';
+      'Variações possíveis segundo as hipóteses do cálculo.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Hipóteses desta simulação';

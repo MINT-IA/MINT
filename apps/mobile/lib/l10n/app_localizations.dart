@@ -11277,13 +11277,13 @@ abstract class S {
   /// No description provided for @renteVsCapitalImpactTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Qu\'est-ce qui change le plus le résultat ?'**
+  /// **'Paramètres à tester'**
   String get renteVsCapitalImpactTitle;
 
   /// No description provided for @renteVsCapitalImpactSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Les paramètres les plus influents sur l\'écart entre tes options.'**
+  /// **'Variations possibles selon les hypothèses du calcul.'**
   String get renteVsCapitalImpactSubtitle;
 
   /// No description provided for @renteVsCapitalHypothesesTitle.

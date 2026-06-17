@@ -1,0 +1,50 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  group('Rente vs Capital compliance surface', () {
+    test('impact cards do not expose ordinal labels', () {
+      final source = File('lib/screens/arbitrage/rente_vs_capital_screen.dart')
+          .readAsStringSync();
+
+      expect(
+        source,
+        isNot(contains("'#\$rank'")),
+        reason: 'RvC sensitivity cards must not display a #1/#2 list.',
+      );
+    });
+
+    test('impact section copy stays neutral across locales', () {
+      final bannedPatterns = <RegExp>[
+        RegExp(r'change\s+le\s+plus|plus\s+influent', caseSensitive: false),
+        RegExp(r'changes\s+the\s+result\s+the\s+most|most\s+influential',
+            caseSensitive: false),
+        RegExp(r'am\s+meisten|einflussreichsten', caseSensitive: false),
+        RegExp(r'cambia\s+m[aá]s|m[aá]s\s+influy', caseSensitive: false),
+        RegExp(r'cambia\s+di\s+pi[uù]|pi[uù]\s+influent', caseSensitive: false),
+        RegExp(r'mais\s+altera|mais\s+influ', caseSensitive: false),
+      ];
+
+      for (final locale in ['fr', 'en', 'de', 'es', 'it', 'pt']) {
+        final arb =
+            jsonDecode(File('lib/l10n/app_$locale.arb').readAsStringSync())
+                as Map<String, dynamic>;
+        final copy = [
+          arb['renteVsCapitalImpactTitle'] as String,
+          arb['renteVsCapitalImpactSubtitle'] as String,
+        ].join(' ');
+
+        for (final pattern in bannedPatterns) {
+          expect(
+            pattern.hasMatch(copy),
+            isFalse,
+            reason: 'RvC impact copy must avoid comparative/advice framing '
+                'in app_$locale.arb: $copy',
+          );
+        }
+      }
+    });
+  });
+}

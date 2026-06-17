@@ -6279,11 +6279,11 @@ class SIt extends S {
       'Visualizzare il diagramma di sensibilità';
 
   @override
-  String get renteVsCapitalImpactTitle => 'Cosa cambia di più il risultato?';
+  String get renteVsCapitalImpactTitle => 'Parametri da testare';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'I parametri più influenti sul divario tra le tue opzioni.';
+      'Variazioni possibili secondo le ipotesi di calcolo.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Ipotesi di questa simulazione';

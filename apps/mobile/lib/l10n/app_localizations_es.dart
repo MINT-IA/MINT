@@ -6266,11 +6266,11 @@ class SEs extends S {
   String get renteVsCapitalTornadoToggle => 'Ver el diagrama de sensibilidad';
 
   @override
-  String get renteVsCapitalImpactTitle => '¿Qué cambia más el resultado?';
+  String get renteVsCapitalImpactTitle => 'Parámetros para probar';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'Los parámetros más influyentes en la diferencia entre tus opciones.';
+      'Variaciones posibles según las hipótesis del cálculo.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Hipótesis de esta simulación';
