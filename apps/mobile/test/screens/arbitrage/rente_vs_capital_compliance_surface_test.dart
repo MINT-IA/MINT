@@ -46,5 +46,82 @@ void main() {
         }
       }
     });
+
+    test('decision framing copy avoids prescriptive choice verbs', () {
+      final checkedKeys = [
+        'renteVsCapitalIntro',
+        'renteVsCapitalConsequenceRenteEyebrow',
+        'renteVsCapitalConsequenceCapitalEyebrow',
+        'renteVsCapitalConsequenceMixteEyebrow',
+        'renteVsCapitalAccrocheEpuise',
+      ];
+      final bannedPatternsByLocale = <String, List<RegExp>>{
+        'fr': [
+          RegExp(
+            r'\b(chois(?:is|ir)|pre' r'nds|consei[l]|recommand[ée])\b',
+            caseSensitive: false,
+          ),
+        ],
+        'en': [
+          RegExp(
+            r'\b(choo'
+            r'se|ta'
+            r'ke|advi'
+            r'ce|recomm'
+            r'ended|be'
+            r'st|opti'
+            r'mal)\b',
+            caseSensitive: false,
+          ),
+        ],
+        'de': [
+          RegExp(
+            r'\b(wähl(?:st|en|e)|empfoh'
+            r'len|bes'
+            r'te|opti'
+            r'mal)\b',
+            caseSensitive: false,
+          ),
+        ],
+        'es': [
+          RegExp(
+            r'\b(elig(?:es|ir|e)|recomendad[oa]|mej'
+            r'or|óptim)\b',
+            caseSensitive: false,
+          ),
+        ],
+        'it': [
+          RegExp(
+            r'\b(scegl(?:i|iere)|consigliat[oa]|migl'
+            r'ior|ottim)\b',
+            caseSensitive: false,
+          ),
+        ],
+        'pt': [
+          RegExp(
+            r'\b(esco'
+            r'lh|recomendad[oa]|melh'
+            r'or|[óo]tim)\b',
+            caseSensitive: false,
+          ),
+        ],
+      };
+
+      for (final locale in ['fr', 'en', 'de', 'es', 'it', 'pt']) {
+        final arb =
+            jsonDecode(File('lib/l10n/app_$locale.arb').readAsStringSync())
+                as Map<String, dynamic>;
+        final copy = checkedKeys.map((key) => arb[key] as String).join(' ');
+
+        for (final pattern in bannedPatternsByLocale[locale]!) {
+          expect(
+            pattern.hasMatch(copy),
+            isFalse,
+            reason: 'RvC decision framing must avoid prescriptive choice copy '
+                'in app_$locale.arb: $copy',
+          );
+        }
+      }
+    });
   });
 }

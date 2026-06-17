@@ -13069,15 +13069,13 @@ class SPt extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'Um equilíbrio a construir';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow => 'Se escolheres a renda';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Cenário renda';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'Se escolheres o capital';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Cenário capital';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'Se escolheres a opção mista';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Cenário misto';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21331,7 +21329,7 @@ class SPt extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Com o capital, podes ficar sem dinheiro a partir dos $age anos. Com a renda, recebes um montante fixo vitalício. Só podes escolher uma vez.';
+    return 'Com o capital, podes ficar sem dinheiro a partir dos $age anos. Com a renda, recebes um montante fixo vitalício. Esta decisão é definitiva.';
   }
 
   @override
@@ -21387,7 +21385,7 @@ class SPt extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'Na reforma, escolhes de uma vez por todas: um rendimento vitalício ou o teu capital em mão.';
+      'Na reforma, a decisão coloca lado a lado um rendimento vitalício e capital disponível.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

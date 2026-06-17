@@ -13103,14 +13103,13 @@ class SIt extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'Un equilibrio da costruire';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow => 'Se scegli la rendita';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Scenario rendita';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow => 'Se scegli il capitale';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Scenario capitale';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'Se scegli l’opzione mista';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Scenario misto';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21387,7 +21386,7 @@ class SIt extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Con il capitale, potresti restare senza soldi dai $age anni. Con la rendita, ricevi un importo fisso a vita. Puoi scegliere solo una volta.';
+    return 'Con il capitale, potresti restare senza soldi dai $age anni. Con la rendita, ricevi un importo fisso a vita. Questa decisione è definitiva.';
   }
 
   @override
@@ -21443,7 +21442,7 @@ class SIt extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'Al pensionamento, scegli una volta per tutte: un reddito a vita o il tuo capitale in mano.';
+      'Al pensionamento, la decisione mette in parallelo un reddito a vita e capitale disponibile.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

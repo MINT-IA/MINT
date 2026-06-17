@@ -13010,16 +13010,13 @@ class SEn extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'A balance to build';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow =>
-      'If you choose the annuity';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Annuity scenario';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'If you choose the lump sum';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Lump-sum scenario';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'If you choose the mixed option';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Mixed scenario';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21217,7 +21214,7 @@ class SEn extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'With the capital, you could run out of money by age $age. With the annuity, you receive a fixed amount for life. You can only choose once.';
+    return 'With the capital, you could run out of money by age $age. With the annuity, you receive a fixed amount for life. This decision is final.';
   }
 
   @override
@@ -21273,7 +21270,7 @@ class SEn extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'At retirement, you choose once and for all: a lifetime income or your capital in hand.';
+      'At retirement, the decision sets lifetime income alongside available capital.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

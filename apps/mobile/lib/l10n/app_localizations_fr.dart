@@ -13074,14 +13074,13 @@ class SFr extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'Un équilibre à construire';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow => 'Si tu choisis la rente';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Scénario rente';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'Si tu choisis le capital';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Scénario capital';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow => 'Si tu choisis le mixte';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Scénario mixte';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21318,7 +21317,7 @@ class SFr extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Avec le capital, tu pourrais manquer d\'argent dès $age ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu\'une fois.';
+    return 'Avec le capital, tu pourrais manquer d\'argent dès $age ans. Avec la rente, tu reçois un montant fixe à vie. Cette décision est définitive.';
   }
 
   @override
@@ -21374,7 +21373,7 @@ class SFr extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.';
+      'À la retraite, la décision met en regard un revenu à vie et un capital disponible.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

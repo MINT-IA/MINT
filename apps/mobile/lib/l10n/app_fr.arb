@@ -6624,9 +6624,9 @@
   "renteVsCapitalChoiceRenteSubtitle": "Plus stable, moins flexible",
   "renteVsCapitalChoiceCapitalSubtitle": "Plus libre, plus exigeant",
   "renteVsCapitalChoiceMixteSubtitle": "Un équilibre à construire",
-  "renteVsCapitalConsequenceRenteEyebrow": "Si tu choisis la rente",
-  "renteVsCapitalConsequenceCapitalEyebrow": "Si tu choisis le capital",
-  "renteVsCapitalConsequenceMixteEyebrow": "Si tu choisis le mixte",
+  "renteVsCapitalConsequenceRenteEyebrow": "Scénario rente",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Scénario capital",
+  "renteVsCapitalConsequenceMixteEyebrow": "Scénario mixte",
   "renteVsCapitalConsequenceRenteNarrative": "Un revenu fixe chaque mois, sans te soucier des marchés. En échange, ton capital ne t’appartient plus.",
   "renteVsCapitalConsequenceCapitalNarrative": "Tu gères ton argent librement, mais il peut s’épuiser. Chaque année compte.",
   "renteVsCapitalConsequenceMixteNarrative": "La partie obligatoire en rente pour la sécurité, le surobligatoire en capital pour la flexibilité.",
@@ -10606,7 +10606,7 @@
   "quickStartVerdictGap": "À traiter",
   "quickStartVerdictGood": "En bonne voie",
   "quickStartVerdictWatch": "À surveiller",
-  "renteVsCapitalAccrocheEpuise": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu'une fois.",
+  "renteVsCapitalAccrocheEpuise": "Avec le capital, tu pourrais manquer d'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Cette décision est définitive.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -10668,7 +10668,7 @@
   "renteVsCapitalForLife": "à vie",
   "renteVsCapitalHeroCapital": "CAPITAL",
   "renteVsCapitalHeroRente": "RENTE",
-  "renteVsCapitalIntro": "À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.",
+  "renteVsCapitalIntro": "À la retraite, la décision met en regard un revenu à vie et un capital disponible.",
   "renteVsCapitalMaxPrecision": "Précision maximale — résultats basés sur tes vrais chiffres.",
   "renteVsCapitalMicroCapital": "Tu retires {swr} % par an (hypothèse) d'un capital placé à {rendement} %.",
   "@renteVsCapitalMicroCapital": {

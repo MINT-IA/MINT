@@ -6208,9 +6208,9 @@
   "renteVsCapitalChoiceRenteSubtitle": "Stabiler, weniger flexibel",
   "renteVsCapitalChoiceCapitalSubtitle": "Freier, anspruchsvoller",
   "renteVsCapitalChoiceMixteSubtitle": "Ein Gleichgewicht zum Aufbauen",
-  "renteVsCapitalConsequenceRenteEyebrow": "Wenn du die Rente wählst",
-  "renteVsCapitalConsequenceCapitalEyebrow": "Wenn du das Kapital wählst",
-  "renteVsCapitalConsequenceMixteEyebrow": "Wenn du die Mischform wählst",
+  "renteVsCapitalConsequenceRenteEyebrow": "Rentenszenario",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Kapitalszenario",
+  "renteVsCapitalConsequenceMixteEyebrow": "Gemischtes Szenario",
   "renteVsCapitalConsequenceRenteNarrative": "Ein festes Einkommen jeden Monat, unabhängig von den Märkten. Im Gegenzug gehört dir dein Kapital nicht mehr.",
   "renteVsCapitalConsequenceCapitalNarrative": "Du verwaltest dein Geld frei, aber es kann aufgebraucht werden. Jedes Jahr zählt.",
   "renteVsCapitalConsequenceMixteNarrative": "Der obligatorische Teil als Rente für die Sicherheit, der überobligatorische als Kapital für die Flexibilität.",
@@ -9879,7 +9879,7 @@
   "quickStartVerdictGap": "Deutliche Lücke",
   "quickStartVerdictGood": "Auf Kurs",
   "quickStartVerdictWatch": "Im Auge behalten",
-  "renteVsCapitalAccrocheEpuise": "Mit dem Kapital könnte dir ab {age} Jahren das Geld ausgehen. Mit der Rente erhältst du einen festen Betrag auf Lebenszeit. Du kannst nur einmal wählen.",
+  "renteVsCapitalAccrocheEpuise": "Mit dem Kapital könnte dir ab {age} Jahren das Geld ausgehen. Mit der Rente erhältst du einen festen Betrag auf Lebenszeit. Diese Entscheidung ist endgültig.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -9941,7 +9941,7 @@
   "renteVsCapitalForLife": "à vie",
   "renteVsCapitalHeroCapital": "CAPITAL",
   "renteVsCapitalHeroRente": "RENTE",
-  "renteVsCapitalIntro": "Bei der Pensionierung wählst du ein für alle Mal: ein Einkommen auf Lebenszeit oder dein Kapital in der Hand.",
+  "renteVsCapitalIntro": "Bei der Pensionierung stehen Einkommen auf Lebenszeit und verfügbares Kapital nebeneinander.",
   "renteVsCapitalMaxPrecision": "Maximale Genauigkeit — Ergebnisse basierend auf deinen tatsächlichen Zahlen.",
   "renteVsCapitalMicroCapital": "Du beziehst {swr} % pro Jahr (Hypothese) aus einem Kapital, das zu {rendement} % angelegt ist.",
   "@renteVsCapitalMicroCapital": {

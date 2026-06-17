@@ -23122,19 +23122,19 @@ abstract class S {
   /// No description provided for @renteVsCapitalConsequenceRenteEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu choisis la rente'**
+  /// **'Scénario rente'**
   String get renteVsCapitalConsequenceRenteEyebrow;
 
   /// No description provided for @renteVsCapitalConsequenceCapitalEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu choisis le capital'**
+  /// **'Scénario capital'**
   String get renteVsCapitalConsequenceCapitalEyebrow;
 
   /// No description provided for @renteVsCapitalConsequenceMixteEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu choisis le mixte'**
+  /// **'Scénario mixte'**
   String get renteVsCapitalConsequenceMixteEyebrow;
 
   /// No description provided for @renteVsCapitalConsequenceRenteNarrative.
@@ -37423,7 +37423,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalAccrocheEpuise.
   ///
   /// In fr, this message translates to:
-  /// **'Avec le capital, tu pourrais manquer d\'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu\'une fois.'**
+  /// **'Avec le capital, tu pourrais manquer d\'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Cette décision est définitive.'**
   String renteVsCapitalAccrocheEpuise(int age);
 
   /// No description provided for @renteVsCapitalAccrocheTax.
@@ -37507,7 +37507,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalIntro.
   ///
   /// In fr, this message translates to:
-  /// **'À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.'**
+  /// **'À la retraite, la décision met en regard un revenu à vie et un capital disponible.'**
   String get renteVsCapitalIntro;
 
   /// No description provided for @renteVsCapitalMaxPrecision.

@@ -6208,9 +6208,9 @@
   "renteVsCapitalChoiceRenteSubtitle": "Più stabile, meno flessibile",
   "renteVsCapitalChoiceCapitalSubtitle": "Più libero, più impegnativo",
   "renteVsCapitalChoiceMixteSubtitle": "Un equilibrio da costruire",
-  "renteVsCapitalConsequenceRenteEyebrow": "Se scegli la rendita",
-  "renteVsCapitalConsequenceCapitalEyebrow": "Se scegli il capitale",
-  "renteVsCapitalConsequenceMixteEyebrow": "Se scegli l’opzione mista",
+  "renteVsCapitalConsequenceRenteEyebrow": "Scenario rendita",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Scenario capitale",
+  "renteVsCapitalConsequenceMixteEyebrow": "Scenario misto",
   "renteVsCapitalConsequenceRenteNarrative": "Un reddito fisso ogni mese, indipendente dai mercati. In cambio, il tuo capitale non ti appartiene più.",
   "renteVsCapitalConsequenceCapitalNarrative": "Gestisci il tuo denaro liberamente, ma può esaurirsi. Ogni anno conta.",
   "renteVsCapitalConsequenceMixteNarrative": "La parte obbligatoria come rendita per la sicurezza, la sovraobbligatoria come capitale per la flessibilità.",
@@ -9879,7 +9879,7 @@
   "quickStartVerdictGap": "Divario significativo",
   "quickStartVerdictGood": "In buona strada",
   "quickStartVerdictWatch": "Da monitorare",
-  "renteVsCapitalAccrocheEpuise": "Con il capitale, potresti restare senza soldi dai {age} anni. Con la rendita, ricevi un importo fisso a vita. Puoi scegliere solo una volta.",
+  "renteVsCapitalAccrocheEpuise": "Con il capitale, potresti restare senza soldi dai {age} anni. Con la rendita, ricevi un importo fisso a vita. Questa decisione è definitiva.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -9941,7 +9941,7 @@
   "renteVsCapitalForLife": "à vie",
   "renteVsCapitalHeroCapital": "CAPITAL",
   "renteVsCapitalHeroRente": "RENTE",
-  "renteVsCapitalIntro": "Al pensionamento, scegli una volta per tutte: un reddito a vita o il tuo capitale in mano.",
+  "renteVsCapitalIntro": "Al pensionamento, la decisione mette in parallelo un reddito a vita e capitale disponibile.",
   "renteVsCapitalMaxPrecision": "Massima precisione — risultati basati sui tuoi veri dati.",
   "renteVsCapitalMicroCapital": "Prelevi {swr} % all'anno (ipotesi) da un capitale investito al {rendement} %.",
   "@renteVsCapitalMicroCapital": {

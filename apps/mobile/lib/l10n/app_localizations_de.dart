@@ -13107,16 +13107,13 @@ class SDe extends S {
       'Ein Gleichgewicht zum Aufbauen';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow =>
-      'Wenn du die Rente wählst';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Rentenszenario';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'Wenn du das Kapital wählst';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Kapitalszenario';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'Wenn du die Mischform wählst';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Gemischtes Szenario';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21375,7 +21372,7 @@ class SDe extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Mit dem Kapital könnte dir ab $age Jahren das Geld ausgehen. Mit der Rente erhältst du einen festen Betrag auf Lebenszeit. Du kannst nur einmal wählen.';
+    return 'Mit dem Kapital könnte dir ab $age Jahren das Geld ausgehen. Mit der Rente erhältst du einen festen Betrag auf Lebenszeit. Diese Entscheidung ist endgültig.';
   }
 
   @override
@@ -21431,7 +21428,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'Bei der Pensionierung wählst du ein für alle Mal: ein Einkommen auf Lebenszeit oder dein Kapital in der Hand.';
+      'Bei der Pensionierung stehen Einkommen auf Lebenszeit und verfügbares Kapital nebeneinander.';
 
   @override
   String get renteVsCapitalMaxPrecision =>
