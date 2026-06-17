@@ -56,7 +56,30 @@ def test_cli_json_freezes_current_variable_contract_snapshot() -> None:
         "wealthEstimate",
     ]
     assert snapshot["secure_wizard_store"]["static_sensitive_count"] == 101
-    assert snapshot["onboarding_flush"]["completeAndFlushToProfile_key_count"] == 17
+    assert snapshot["onboarding_flush"]["completeAndFlushToProfile_key_count"] == 21
+    assert snapshot["onboarding_flush"]["completeAndFlushToProfile_keys"] == [
+        "legacy_onb_intent",
+        "onb_axis_schema_version",
+        "onb_axis_v2",
+        "onb_intent",
+        "onb_signal_axes_v2",
+        "q_avs_arrival_year",
+        "q_avs_lacunes_status",
+        "q_avs_years_abroad",
+        "q_birth_year",
+        "q_canton",
+        "q_civil_status",
+        "q_date_of_birth",
+        "q_employment_status",
+        "q_has_pension_fund",
+        "q_nationality",
+        "q_net_income_confidence",
+        "q_net_income_period_chf",
+        "q_net_income_period_source",
+        "q_net_income_range_high",
+        "q_net_income_range_low",
+        "q_wants_deeper",
+    ]
     assert snapshot["regulatory"]["backend_registry"]["count"] == 113
     assert (
         snapshot["regulatory"]["backend_registry"]["active_count_on_2026_06_15"] == 103
