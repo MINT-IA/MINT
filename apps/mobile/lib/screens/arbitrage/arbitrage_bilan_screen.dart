@@ -56,6 +56,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                         MintEntrance(
                             delay: const Duration(milliseconds: 100),
                             child: FilledButton(
+                              // lint-ignore: prefer_mint_cta
                               onPressed: () => context.go('/coach/chat'),
                               child: Text(S.of(context)!.reportCommencer),
                             )),
