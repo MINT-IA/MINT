@@ -10,16 +10,17 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen
 import 'package:mint_mobile/services/feature_flags.dart';
 
 Widget _wrap() {
-  return const MaterialApp(
-    locale: Locale('fr'),
-    localizationsDelegates: [
+  return MaterialApp(
+    key: UniqueKey(),
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: S.supportedLocales,
-    home: OnboardingShellScreen(),
+    home: const OnboardingShellScreen(),
   );
 }
 
@@ -73,25 +74,52 @@ void main() {
 
   testWidgets('housing and fiscal axes stay signal-only after tap',
       (tester) async {
-    await _openAxes(tester);
-
-    const labels = [
-      'Logement : 2e / 3e pilier',
-      '3a et rachats : impact fiscal',
+    const axes = [
+      (
+        key: ValueKey('mint2-axis-logement_signal'),
+        label: 'Logement : 2e / 3e pilier',
+      ),
+      (
+        key: ValueKey('mint2-axis-fiscal_signal'),
+        label: '3a et rachats : impact fiscal',
+      ),
     ];
-    for (var index = 0; index < labels.length; index++) {
-      final label = labels[index];
-      await tester.tap(find.text(label).first);
+    for (final axis in axes) {
+      await _openAxes(tester);
+      final card = find.byKey(axis.key);
+      await tester.ensureVisible(card);
+      await tester.tap(card);
       await tester.pumpAndSettle();
 
       expect(find.text('Choisis le sujet que tu veux éclairer d\'abord.'),
           findsOneWidget);
-      expect(find.text(label), findsWidgets);
-      expect(find.text('Intérêt enregistré'), findsNWidgets(index + 1));
+      expect(find.text(axis.label), findsWidgets);
+      expect(find.text('Intérêt enregistré'), findsOneWidget);
       expect(find.textContaining('/mois'), findsNothing);
       expect(find.textContaining('CHF'), findsNothing);
       expect(find.textContaining('%'), findsNothing);
       expect(tester.takeException(), isNull);
     }
+  });
+
+  testWidgets('signal axis exposes a forward path to the live RvC gate',
+      (tester) async {
+    await _openAxes(tester);
+
+    await tester.tap(find.text('Logement : 2e / 3e pilier').first);
+    await tester.pumpAndSettle();
+
+    final continueLive = find.byKey(const ValueKey('mint2-axis-continue-live'));
+    expect(continueLive, findsOneWidget);
+    expect(find.text('Intérêt enregistré'), findsOneWidget);
+
+    await tester.tap(continueLive);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Choisis le sujet que tu veux éclairer d\'abord.'),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
   });
 }

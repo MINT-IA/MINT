@@ -544,6 +544,9 @@ class _Mint2AxesStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
     final provider = context.watch<OnboardingProvider>();
+    final showLiveContinuation =
+        provider.axisV2 != OnboardingAxisV2.lppRenteCapital &&
+            provider.signalAxesV2.isNotEmpty;
     final items = <_Mint2AxisData>[
       _Mint2AxisData(
         axis: OnboardingAxisV2.lppRenteCapital,
@@ -567,31 +570,53 @@ class _Mint2AxesStep extends StatelessWidget {
 
     return _StepScaffold(
       prompt: l10n.mint2FirstExperienceAxisPrompt,
-      child: ListView.separated(
-        padding: EdgeInsets.zero,
-        itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, i) {
-          final item = items[i];
-          final selected = provider.axisV2 == item.axis;
-          final recorded =
-              selected || provider.signalAxesV2.contains(item.axis);
-          return _Mint2AxisCard(
-            key: ValueKey('mint2-axis-${item.axis.id}'),
-            semanticsIdentifier: 'mint2-axis-${item.axis.id}',
-            label: item.label,
-            body: item.body,
-            status: item.status,
-            selected: selected,
-            recorded: recorded,
-            onTap: () {
-              provider.setAxisV2(item.axis, item.label);
-              if (item.axis == OnboardingAxisV2.lppRenteCapital) {
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, i) {
+                final item = items[i];
+                final selected = provider.axisV2 == item.axis;
+                final recorded =
+                    selected || provider.signalAxesV2.contains(item.axis);
+                return _Mint2AxisCard(
+                  key: ValueKey('mint2-axis-${item.axis.id}'),
+                  semanticsIdentifier: 'mint2-axis-${item.axis.id}',
+                  label: item.label,
+                  body: item.body,
+                  status: item.status,
+                  selected: selected,
+                  recorded: recorded,
+                  onTap: () {
+                    provider.setAxisV2(item.axis, item.label);
+                    if (item.axis == OnboardingAxisV2.lppRenteCapital) {
+                      provider.advance();
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+          if (showLiveContinuation) ...[
+            const SizedBox(height: 16),
+            _PrimaryButton(
+              key: const ValueKey('mint2-axis-continue-live'),
+              semanticsIdentifier: 'mint2-axis-continue-live',
+              label: l10n.mint2FirstExperienceLppLabel,
+              onPressed: () {
+                provider.setAxisV2(
+                  OnboardingAxisV2.lppRenteCapital,
+                  l10n.mint2FirstExperienceLppLabel,
+                );
                 provider.advance();
-              }
-            },
-          );
-        },
+              },
+            ),
+          ],
+        ],
       ),
     );
   }
