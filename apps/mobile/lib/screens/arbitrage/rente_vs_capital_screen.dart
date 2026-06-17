@@ -9,6 +9,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -127,6 +128,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
+  bool _routeProofLogged = false;
 
   // ── New fields ──
   double? _avsRenteMensuelle;
@@ -676,6 +678,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: CustomScrollView(
                       slivers: [
+                        SliverToBoxAdapter(
+                          child: _buildRouteProofAnchor(context),
+                        ),
                         // ── SliverAppBar (white standard — Simulator screen) ──
                         SliverAppBar(
                           pinned: true,
@@ -2174,6 +2179,33 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
   //  RECEIPT GATE
   // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildRouteProofAnchor(BuildContext context) {
+    if (!E2eRuntimeFlags.proofAnchors) return const SizedBox.shrink();
+
+    final route = GoRouterState.of(context).uri.path;
+    final label = 'route=$route';
+    if (!_routeProofLogged) {
+      _routeProofLogged = true;
+      debugPrint('[MINT_E2E_ROUTE_STATE] $label');
+    }
+
+    return Semantics(
+      key: const Key('rvc_route_state'),
+      identifier: 'rvc_route_state',
+      container: true,
+      label: label,
+      child: Text(
+        label,
+        maxLines: 1,
+        style: const TextStyle(
+          color: Color(0x01000000), // lint-ignore: prefer_mint_color_token
+          fontSize: 1, // lint-ignore: prefer_mint_text_style
+          height: 1,
+        ),
+      ),
+    );
+  }
 
   Widget _buildReceiptRequiredCard(ArbitrageCalculationReceipt? receipt) {
     final l = S.of(context)!;

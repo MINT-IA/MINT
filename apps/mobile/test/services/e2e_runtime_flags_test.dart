@@ -8,11 +8,14 @@ void main() {
     E2eRuntimeFlags.resetForTest();
 
     expect(E2eRuntimeFlags.proofAnchors, isFalse);
+    expect(E2eRuntimeFlags.mint2FirstExperienceEntry, isFalse);
   });
 
   test('runtime E2E flags can be overridden by focused tests', () {
     E2eRuntimeFlags.proofAnchorsOverride = true;
+    E2eRuntimeFlags.mint2FirstExperienceEntryOverride = true;
 
     expect(E2eRuntimeFlags.proofAnchors, isTrue);
+    expect(E2eRuntimeFlags.mint2FirstExperienceEntry, isTrue);
   });
 }

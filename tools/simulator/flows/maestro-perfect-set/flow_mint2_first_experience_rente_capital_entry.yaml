@@ -1,0 +1,76 @@
+# tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml
+#
+# PURPOSE
+# Deterministic runtime proof for Mint 2.0 first experience:
+# landing -> Mint 2.0 axes -> LPP/rente-capital -> /rente-vs-capital.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on the exact iPhone 13 mini simulator.
+# - Fresh app state; this flow calls launchApp clearState:true.
+# - Required build defines:
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+#     --dart-define=MINT_E2E_MINT2_FIRST_EXPERIENCE=true
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+
+appId: ch.mint.app
+tags:
+  - mint2
+  - first-experience
+  - rente-vs-capital
+  - iphone13mini
+  - runtime-proof
+---
+
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# 01 — fresh first screen observed.
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 10000
+- takeScreenshot: "01-mint2-first-screen"
+
+# 02 — enter Mint 2.0 first experience.
+- tapOn:
+    text: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-entry-open"
+    timeout: 10000
+- takeScreenshot: "02-mint2-entry"
+
+- tapOn:
+    id: "onboarding-entry-open"
+- extendedWaitUntil:
+    visible:
+      text: "2e pilier : rente ou capital"
+    timeout: 8000
+- assertVisible:
+    text: "2e pilier : rente ou capital"
+- assertNotVisible:
+    text: "CHF/mois"
+- takeScreenshot: "03-mint2-lpp-axis"
+
+# 03 — live LPP/rente-capital axis routes to the real RvC surface.
+- tapOn:
+    text: "2e pilier : rente ou capital"
+- extendedWaitUntil:
+    visible:
+      id: "rente_vs_capital_screen"
+    timeout: 12000
+- assertVisible:
+    id: "rvc_route_state"
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+- assertNotVisible:
+    text: "CHF/mois"
+- takeScreenshot: "04-rvc-route-state"

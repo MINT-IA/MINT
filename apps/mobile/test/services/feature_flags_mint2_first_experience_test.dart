@@ -1,10 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
 void main() {
   setUp(() {
+    E2eRuntimeFlags.resetForTest();
+    FeatureFlags.enableMint2FirstExperienceEntry = false;
+  });
+
+  tearDown(() {
+    E2eRuntimeFlags.resetForTest();
     FeatureFlags.enableMint2FirstExperienceEntry = false;
   });
 
@@ -46,6 +53,21 @@ void main() {
       FeatureFlags.enableMint2FirstExperienceEntry,
       isTrue,
       reason: 'Unrelated config refreshes must not kill an already-set flag.',
+    );
+  });
+
+  test('Mint 2 E2E runtime override survives a server false flag in debug', () {
+    E2eRuntimeFlags.mint2FirstExperienceEntryOverride = true;
+
+    FeatureFlags.applyFromMap(
+      const <String, dynamic>{'enableMint2FirstExperienceEntry': false},
+    );
+
+    expect(
+      FeatureFlags.enableMint2FirstExperienceEntry,
+      isTrue,
+      reason:
+          'The iPhone 13 mini runtime proof must not depend on staging flag rollout.',
     );
   });
 }
