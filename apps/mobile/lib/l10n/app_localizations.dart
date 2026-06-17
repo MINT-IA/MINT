@@ -67,7 +67,7 @@ import 'app_localizations_pt.dart';
 /// property.
 abstract class S {
   S(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class S {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -102,7 +102,7 @@ abstract class S {
     Locale('en'),
     Locale('es'),
     Locale('it'),
-    Locale('pt'),
+    Locale('pt')
   ];
 
   /// No description provided for @landingFeature1Title.
@@ -6338,10 +6338,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{betterJob} vaut {annualDelta}/an de plus en rente viagère, soit {monthlyDelta}/mois À VIE après la retraite.'**
   String jobCompareRetirementBody(
-    String betterJob,
-    String annualDelta,
-    String monthlyDelta,
-  );
+      String betterJob, String annualDelta, String monthlyDelta);
 
   /// No description provided for @jobCompareLifetime20Years.
   ///
@@ -10032,10 +10029,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
   String simLppBuybackDisclaimer(
-    String fundRate,
-    int staggeringYears,
-    String taxableIncome,
-  );
+      String fundRate, int staggeringYears, String taxableIncome);
 
   /// No description provided for @simRealInterestTitle.
   ///
@@ -10480,10 +10474,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comparaison forfait fiscal. Imposition ordinaire : {ordinary}. Forfait fiscal : {forfait}. Économie : {savings}.'**
   String forfaitFiscalSemanticsLabel(
-    String ordinary,
-    String forfait,
-    String savings,
-  );
+      String ordinary, String forfait, String savings);
 
   /// No description provided for @forfaitFiscalOrdinaryLabel.
   ///
@@ -11312,6 +11303,216 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sources : {sources}'**
   String renteVsCapitalSources(String sources);
+
+  /// No description provided for @renteVsCapitalReceiptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve du calcul'**
+  String get renteVsCapitalReceiptTitle;
+
+  /// No description provided for @renteVsCapitalReceiptRequiredTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat masqué'**
+  String get renteVsCapitalReceiptRequiredTitle;
+
+  /// No description provided for @renteVsCapitalReceiptRequiredBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les chiffres restent masqués car la preuve du calcul est incomplète.'**
+  String get renteVsCapitalReceiptRequiredBody;
+
+  /// No description provided for @renteVsCapitalReceiptOriginLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origine'**
+  String get renteVsCapitalReceiptOriginLabel;
+
+  /// No description provided for @renteVsCapitalReceiptVersionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version de calcul'**
+  String get renteVsCapitalReceiptVersionLabel;
+
+  /// No description provided for @renteVsCapitalReceiptConstantsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version des constantes'**
+  String get renteVsCapitalReceiptConstantsLabel;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'État de la preuve'**
+  String get renteVsCapitalReceiptReadinessLabel;
+
+  /// No description provided for @renteVsCapitalReceiptUnitLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Unités'**
+  String get renteVsCapitalReceiptUnitLabel;
+
+  /// No description provided for @renteVsCapitalReceiptConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance'**
+  String get renteVsCapitalReceiptConfidenceLabel;
+
+  /// No description provided for @renteVsCapitalReceiptAssumptionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses'**
+  String get renteVsCapitalReceiptAssumptionsLabel;
+
+  /// No description provided for @renteVsCapitalReceiptSourcesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources'**
+  String get renteVsCapitalReceiptSourcesLabel;
+
+  /// No description provided for @renteVsCapitalReceiptMissingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champs requis à compléter'**
+  String get renteVsCapitalReceiptMissingLabel;
+
+  /// No description provided for @renteVsCapitalReceiptMissingNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun champ requis manquant'**
+  String get renteVsCapitalReceiptMissingNone;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prête'**
+  String get renteVsCapitalReceiptReadinessReady;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessMissingRequiredInputs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champs requis manquants'**
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve incomplète'**
+  String get renteVsCapitalReceiptReadinessIncomplete;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve absente'**
+  String get renteVsCapitalReceiptReadinessMissing;
+
+  /// No description provided for @renteVsCapitalReceiptMissingFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'preuve du calcul'**
+  String get renteVsCapitalReceiptMissingFallback;
+
+  /// No description provided for @renteVsCapitalReceiptMissingCapitalLppTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'capital LPP total'**
+  String get renteVsCapitalReceiptMissingCapitalLppTotal;
+
+  /// No description provided for @renteVsCapitalReceiptMissingRenteAnnuelleProposee.
+  ///
+  /// In fr, this message translates to:
+  /// **'rente annuelle proposée'**
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee;
+
+  /// No description provided for @renteVsCapitalReceiptMissingCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'canton'**
+  String get renteVsCapitalReceiptMissingCanton;
+
+  /// No description provided for @renteVsCapitalReceiptMissingHorizonYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'horizon de comparaison'**
+  String get renteVsCapitalReceiptMissingHorizonYears;
+
+  /// No description provided for @renteVsCapitalReceiptMissingSafeWithdrawalRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'taux de retrait du capital'**
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate;
+
+  /// No description provided for @renteVsCapitalReceiptMissingConversionRateObligatory.
+  ///
+  /// In fr, this message translates to:
+  /// **'taux de conversion obligatoire'**
+  String get renteVsCapitalReceiptMissingConversionRateObligatory;
+
+  /// No description provided for @renteVsCapitalReceiptMissingConversionRateSurobligatory.
+  ///
+  /// In fr, this message translates to:
+  /// **'taux de conversion surobligatoire'**
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory;
+
+  /// No description provided for @mint2FirstExperienceAxisPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis le sujet que tu veux éclairer d\'abord.'**
+  String get mint2FirstExperienceAxisPrompt;
+
+  /// No description provided for @mint2FirstExperienceLiveStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get mint2FirstExperienceLiveStatus;
+
+  /// No description provided for @mint2FirstExperienceSignalStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signalétique'**
+  String get mint2FirstExperienceSignalStatus;
+
+  /// No description provided for @mint2FirstExperienceSignalSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêt enregistré'**
+  String get mint2FirstExperienceSignalSaved;
+
+  /// No description provided for @mint2FirstExperienceLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier : rente ou capital'**
+  String get mint2FirstExperienceLppLabel;
+
+  /// No description provided for @mint2FirstExperienceLppBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On prépare les champs nécessaires avant d\'ouvrir le comparateur défendable.'**
+  String get mint2FirstExperienceLppBody;
+
+  /// No description provided for @mint2FirstExperienceHousingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement : 2e / 3e pilier'**
+  String get mint2FirstExperienceHousingLabel;
+
+  /// No description provided for @mint2FirstExperienceHousingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On note ton intérêt et on garde cette porte sans simulation pour cette phase.'**
+  String get mint2FirstExperienceHousingBody;
+
+  /// No description provided for @mint2FirstExperienceFiscalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a et rachats : impact fiscal'**
+  String get mint2FirstExperienceFiscalLabel;
+
+  /// No description provided for @mint2FirstExperienceFiscalBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On note ton intérêt fiscal sans calculer de montant dans cette phase.'**
+  String get mint2FirstExperienceFiscalBody;
 
   /// No description provided for @renteVsCapitalRachatLabel.
   ///
@@ -14462,9 +14663,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : {chargesTheoriques}/mois. Au taux réel (~1,5 %) : {chargesReelles}/mois.'**
   String affordabilityInsightRevenueBody(
-    String chargesTheoriques,
-    String chargesReelles,
-  );
+      String chargesTheoriques, String chargesReelles);
 
   /// No description provided for @affordabilityInsightEquityTitle.
   ///
@@ -23873,16 +24072,15 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterAvsExtractBody(
-    String name,
-    String ssn,
-    String address,
-    String postalCity,
-    String avsOrg,
-    String avsAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-  );
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject);
 
   /// No description provided for @agentLetterAvsOrg.
   ///
@@ -23931,33 +24129,31 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : {toComplete}\nIBAN ou numéro de compte : {toComplete}\nAdresse : {toComplete}\n\nDate de sortie : {toComplete}\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterLppTransferBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisseSource,
-    String caisseCurrentAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String toComplete,
-  );
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete);
 
   /// No description provided for @agentLetterPensionFundBody.
   ///
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé {year} (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}\n{policeNumber}'**
   String agentLetterPensionFundBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisse,
-    String caisseAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String year,
-    String policeNumber,
-  );
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber);
 
   /// No description provided for @agentLetterPensionSubject.
   ///
@@ -27306,10 +27502,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois'**
   String disabilityGapAct3Detail(
-    String aiAmount,
-    String lppAmount,
-    String totalAmount,
-  );
+      String aiAmount, String lppAmount, String totalAmount);
 
   /// No description provided for @disabilityGapAct3Duration.
   ///
@@ -33994,9 +34187,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Revenu estimé à la retraite : {totalMonthly} CHF/mois vs {currentMonthly} CHF/mois actuellement'**
   String rcReplacementRateExplanation(
-    String totalMonthly,
-    String currentMonthly,
-  );
+      String totalMonthly, String currentMonthly);
 
   /// No description provided for @rcReplacementRateSubtitle.
   ///
@@ -34393,10 +34584,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marge légale restante : {legal}/an. Équivalent mensuel : {monthly}/mois. Budget libre actuel : {free}/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.'**
   String budgetIndependentNoLppDecisionSummary(
-    String legal,
-    String monthly,
-    String free,
-  );
+      String legal, String monthly, String free);
 
   /// No description provided for @budgetIndependentNoLppMonthlyCapacityShortfall.
   ///
@@ -34804,13 +34992,8 @@ abstract class S {
   ///
   /// In fr, this message translates to:
   /// **'Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.'**
-  String scoreGaugeSemanticsLabel(
-    String score,
-    String level,
-    String budget,
-    String prevoyance,
-    String patrimoine,
-  );
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine);
 
   /// No description provided for @scoreGaugeSubtitle.
   ///
@@ -34955,11 +35138,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{label} : {status}. Fourchette typique {low} à {high}'**
   String semanticsBenchmarkMetric(
-    String label,
-    String status,
-    String low,
-    String high,
-  );
+      String label, String status, String low, String high);
 
   /// No description provided for @semanticsBenchmarkToggle.
   ///
@@ -42100,156 +42279,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.'**
   String get eclairageCompoundGrowthEdgeBody;
-
-  /// No description provided for @renteVsCapitalReceiptTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Preuve du calcul'**
-  String get renteVsCapitalReceiptTitle;
-
-  /// No description provided for @renteVsCapitalReceiptRequiredTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Résultat masqué'**
-  String get renteVsCapitalReceiptRequiredTitle;
-
-  /// No description provided for @renteVsCapitalReceiptRequiredBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Les chiffres restent masqués car la preuve du calcul est incomplète.'**
-  String get renteVsCapitalReceiptRequiredBody;
-
-  /// No description provided for @renteVsCapitalReceiptOriginLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Origine'**
-  String get renteVsCapitalReceiptOriginLabel;
-
-  /// No description provided for @renteVsCapitalReceiptVersionLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Version de calcul'**
-  String get renteVsCapitalReceiptVersionLabel;
-
-  /// No description provided for @renteVsCapitalReceiptConstantsLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Version des constantes'**
-  String get renteVsCapitalReceiptConstantsLabel;
-
-  /// No description provided for @renteVsCapitalReceiptReadinessLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'État de la preuve'**
-  String get renteVsCapitalReceiptReadinessLabel;
-
-  /// No description provided for @renteVsCapitalReceiptUnitLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Unités'**
-  String get renteVsCapitalReceiptUnitLabel;
-
-  /// No description provided for @renteVsCapitalReceiptConfidenceLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confiance'**
-  String get renteVsCapitalReceiptConfidenceLabel;
-
-  /// No description provided for @renteVsCapitalReceiptAssumptionsLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Hypothèses'**
-  String get renteVsCapitalReceiptAssumptionsLabel;
-
-  /// No description provided for @renteVsCapitalReceiptSourcesLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sources'**
-  String get renteVsCapitalReceiptSourcesLabel;
-
-  /// No description provided for @renteVsCapitalReceiptMissingLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Champs requis à compléter'**
-  String get renteVsCapitalReceiptMissingLabel;
-
-  /// No description provided for @renteVsCapitalReceiptMissingNone.
-  ///
-  /// In fr, this message translates to:
-  /// **'Aucun champ requis manquant'**
-  String get renteVsCapitalReceiptMissingNone;
-
-  /// No description provided for @renteVsCapitalReceiptReadinessReady.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prête'**
-  String get renteVsCapitalReceiptReadinessReady;
-
-  /// No description provided for @renteVsCapitalReceiptReadinessMissingRequiredInputs.
-  ///
-  /// In fr, this message translates to:
-  /// **'Champs requis manquants'**
-  String get renteVsCapitalReceiptReadinessMissingRequiredInputs;
-
-  /// No description provided for @renteVsCapitalReceiptReadinessIncomplete.
-  ///
-  /// In fr, this message translates to:
-  /// **'Preuve incomplète'**
-  String get renteVsCapitalReceiptReadinessIncomplete;
-
-  /// No description provided for @renteVsCapitalReceiptReadinessMissing.
-  ///
-  /// In fr, this message translates to:
-  /// **'Preuve absente'**
-  String get renteVsCapitalReceiptReadinessMissing;
-
-  /// No description provided for @renteVsCapitalReceiptMissingFallback.
-  ///
-  /// In fr, this message translates to:
-  /// **'preuve du calcul'**
-  String get renteVsCapitalReceiptMissingFallback;
-
-  /// No description provided for @renteVsCapitalReceiptMissingCapitalLppTotal.
-  ///
-  /// In fr, this message translates to:
-  /// **'capital LPP total'**
-  String get renteVsCapitalReceiptMissingCapitalLppTotal;
-
-  /// No description provided for @renteVsCapitalReceiptMissingRenteAnnuelleProposee.
-  ///
-  /// In fr, this message translates to:
-  /// **'rente annuelle proposée'**
-  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee;
-
-  /// No description provided for @renteVsCapitalReceiptMissingCanton.
-  ///
-  /// In fr, this message translates to:
-  /// **'canton'**
-  String get renteVsCapitalReceiptMissingCanton;
-
-  /// No description provided for @renteVsCapitalReceiptMissingHorizonYears.
-  ///
-  /// In fr, this message translates to:
-  /// **'horizon de comparaison'**
-  String get renteVsCapitalReceiptMissingHorizonYears;
-
-  /// No description provided for @renteVsCapitalReceiptMissingSafeWithdrawalRate.
-  ///
-  /// In fr, this message translates to:
-  /// **'taux de retrait du capital'**
-  String get renteVsCapitalReceiptMissingSafeWithdrawalRate;
-
-  /// No description provided for @renteVsCapitalReceiptMissingConversionRateObligatory.
-  ///
-  /// In fr, this message translates to:
-  /// **'taux de conversion obligatoire'**
-  String get renteVsCapitalReceiptMissingConversionRateObligatory;
-
-  /// No description provided for @renteVsCapitalReceiptMissingConversionRateSurobligatory.
-  ///
-  /// In fr, this message translates to:
-  /// **'taux de conversion surobligatoire'**
-  String get renteVsCapitalReceiptMissingConversionRateSurobligatory;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
@@ -42262,13 +42291,13 @@ class _SDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => <String>[
-    'de',
-    'en',
-    'es',
-    'fr',
-    'it',
-    'pt',
-  ].contains(locale.languageCode);
+        'de',
+        'en',
+        'es',
+        'fr',
+        'it',
+        'pt'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_SDelegate old) => false;
@@ -42292,9 +42321,8 @@ S lookupS(Locale locale) {
   }
 
   throw FlutterError(
-    'S.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'S.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

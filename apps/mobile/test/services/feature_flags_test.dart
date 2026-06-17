@@ -18,6 +18,7 @@ void main() {
     //     enableMortgageTools, enableIndependantTools removed (always true, no consumers)
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
+    FeatureFlags.enableMint2FirstExperienceEntry = false;
   });
 
   group('FeatureFlags — default values', () {

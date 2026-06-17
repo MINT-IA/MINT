@@ -3445,10 +3445,7 @@ class SFr extends S {
 
   @override
   String jobCompareRetirementBody(
-    String betterJob,
-    String annualDelta,
-    String monthlyDelta,
-  ) {
+      String betterJob, String annualDelta, String monthlyDelta) {
     return '$betterJob vaut $annualDelta/an de plus en rente viagère, soit $monthlyDelta/mois À VIE après la retraite.';
   }
 
@@ -5540,10 +5537,7 @@ class SFr extends S {
 
   @override
   String simLppBuybackDisclaimer(
-    String fundRate,
-    int staggeringYears,
-    String taxableIncome,
-  ) {
+      String fundRate, int staggeringYears, String taxableIncome) {
     return 'Simulation incluant l\'intérêt de la caisse ($fundRate %) et l\'impact fiscal indicatif lissé sur $staggeringYears ans pour un revenu imposable de CHF $taxableIncome. Le rendement réel est calculé sur ton effort net réel.';
   }
 
@@ -5737,10 +5731,7 @@ class SFr extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-    String amount,
-    int years,
-    String plural,
-  ) {
+      String amount, int years, String plural) {
     return 'Tu perds $amount/mois à vie. Mais tu gagnes $years an$plural de liberté.';
   }
 
@@ -5817,10 +5808,7 @@ class SFr extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-    String ordinary,
-    String forfait,
-    String savings,
-  ) {
+      String ordinary, String forfait, String savings) {
     return 'Comparaison forfait fiscal. Imposition ordinaire : $ordinary. Forfait fiscal : $forfait. Économie : $savings.';
   }
 
@@ -6300,6 +6288,122 @@ class SFr extends S {
   }
 
   @override
+  String get renteVsCapitalReceiptTitle => 'Preuve du calcul';
+
+  @override
+  String get renteVsCapitalReceiptRequiredTitle => 'Résultat masqué';
+
+  @override
+  String get renteVsCapitalReceiptRequiredBody =>
+      'Les chiffres restent masqués car la preuve du calcul est incomplète.';
+
+  @override
+  String get renteVsCapitalReceiptOriginLabel => 'Origine';
+
+  @override
+  String get renteVsCapitalReceiptVersionLabel => 'Version de calcul';
+
+  @override
+  String get renteVsCapitalReceiptConstantsLabel => 'Version des constantes';
+
+  @override
+  String get renteVsCapitalReceiptReadinessLabel => 'État de la preuve';
+
+  @override
+  String get renteVsCapitalReceiptUnitLabel => 'Unités';
+
+  @override
+  String get renteVsCapitalReceiptConfidenceLabel => 'Confiance';
+
+  @override
+  String get renteVsCapitalReceiptAssumptionsLabel => 'Hypothèses';
+
+  @override
+  String get renteVsCapitalReceiptSourcesLabel => 'Sources';
+
+  @override
+  String get renteVsCapitalReceiptMissingLabel => 'Champs requis à compléter';
+
+  @override
+  String get renteVsCapitalReceiptMissingNone => 'Aucun champ requis manquant';
+
+  @override
+  String get renteVsCapitalReceiptReadinessReady => 'Prête';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
+      'Champs requis manquants';
+
+  @override
+  String get renteVsCapitalReceiptReadinessIncomplete => 'Preuve incomplète';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissing => 'Preuve absente';
+
+  @override
+  String get renteVsCapitalReceiptMissingFallback => 'preuve du calcul';
+
+  @override
+  String get renteVsCapitalReceiptMissingCapitalLppTotal => 'capital LPP total';
+
+  @override
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
+      'rente annuelle proposée';
+
+  @override
+  String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingHorizonYears =>
+      'horizon de comparaison';
+
+  @override
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
+      'taux de retrait du capital';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
+      'taux de conversion obligatoire';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
+      'taux de conversion surobligatoire';
+
+  @override
+  String get mint2FirstExperienceAxisPrompt =>
+      'Choisis le sujet que tu veux éclairer d\'abord.';
+
+  @override
+  String get mint2FirstExperienceLiveStatus => 'Disponible';
+
+  @override
+  String get mint2FirstExperienceSignalStatus => 'Signalétique';
+
+  @override
+  String get mint2FirstExperienceSignalSaved => 'Intérêt enregistré';
+
+  @override
+  String get mint2FirstExperienceLppLabel => '2e pilier : rente ou capital';
+
+  @override
+  String get mint2FirstExperienceLppBody =>
+      'On prépare les champs nécessaires avant d\'ouvrir le comparateur défendable.';
+
+  @override
+  String get mint2FirstExperienceHousingLabel => 'Logement : 2e / 3e pilier';
+
+  @override
+  String get mint2FirstExperienceHousingBody =>
+      'On note ton intérêt et on garde cette porte sans simulation pour cette phase.';
+
+  @override
+  String get mint2FirstExperienceFiscalLabel => '3a et rachats : impact fiscal';
+
+  @override
+  String get mint2FirstExperienceFiscalBody =>
+      'On note ton intérêt fiscal sans calculer de montant dans cette phase.';
+
+  @override
   String get renteVsCapitalRachatLabel => 'Rachat LPP annuel prévu (CHF)';
 
   @override
@@ -6732,21 +6836,24 @@ class SFr extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(month, {
-      '1': 'janvier',
-      '2': 'février',
-      '3': 'mars',
-      '4': 'avril',
-      '5': 'mai',
-      '6': 'juin',
-      '7': 'juillet',
-      '8': 'août',
-      '9': 'septembre',
-      '10': 'octobre',
-      '11': 'novembre',
-      '12': 'décembre',
-      'other': 'mois',
-    });
+    String _temp0 = intl.Intl.selectLogic(
+      month,
+      {
+        '1': 'janvier',
+        '2': 'février',
+        '3': 'mars',
+        '4': 'avril',
+        '5': 'mai',
+        '6': 'juin',
+        '7': 'juillet',
+        '8': 'août',
+        '9': 'septembre',
+        '10': 'octobre',
+        '11': 'novembre',
+        '12': 'décembre',
+        'other': 'mois',
+      },
+    );
     return '$_temp0';
   }
 
@@ -8190,9 +8297,7 @@ class SFr extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-    String chargesTheoriques,
-    String chargesReelles,
-  ) {
+      String chargesTheoriques, String chargesReelles) {
     return 'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : $chargesTheoriques/mois. Au taux réel (~1,5 %) : $chargesReelles/mois.';
   }
 
@@ -13480,16 +13585,15 @@ class SFr extends S {
 
   @override
   String agentLetterAvsExtractBody(
-    String name,
-    String ssn,
-    String address,
-    String postalCity,
-    String avsOrg,
-    String avsAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-  ) {
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, le $dateFormatted\n\nObjet : $subject\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n$name';
   }
 
@@ -13518,32 +13622,30 @@ class SFr extends S {
 
   @override
   String agentLetterLppTransferBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisseSource,
-    String caisseCurrentAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String toComplete,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, le $dateFormatted\n\nObjet : $subject\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : $toComplete\nIBAN ou numéro de compte : $toComplete\nAdresse : $toComplete\n\nDate de sortie : $toComplete\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisse,
-    String caisseAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String year,
-    String policeNumber,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, le $dateFormatted\n\nObjet : $subject\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé $year (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n$name\n$policeNumber';
   }
 
@@ -15524,10 +15626,7 @@ class SFr extends S {
 
   @override
   String disabilityGapAct3Detail(
-    String aiAmount,
-    String lppAmount,
-    String totalAmount,
-  ) {
+      String aiAmount, String lppAmount, String totalAmount) {
     return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mois';
   }
 
@@ -19360,9 +19459,7 @@ class SFr extends S {
 
   @override
   String rcReplacementRateExplanation(
-    String totalMonthly,
-    String currentMonthly,
-  ) {
+      String totalMonthly, String currentMonthly) {
     return 'Revenu estimé à la retraite : $totalMonthly CHF/mois vs $currentMonthly CHF/mois actuellement';
   }
 
@@ -19599,10 +19696,7 @@ class SFr extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-    String legal,
-    String monthly,
-    String free,
-  ) {
+      String legal, String monthly, String free) {
     return 'Marge légale restante : $legal/an. Équivalent mensuel : $monthly/mois. Budget libre actuel : $free/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.';
   }
 
@@ -19836,13 +19930,8 @@ class SFr extends S {
   String get scoreGaugeSectionPrevoyance => 'Prévoyance';
 
   @override
-  String scoreGaugeSemanticsLabel(
-    String score,
-    String level,
-    String budget,
-    String prevoyance,
-    String patrimoine,
-  ) {
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
     return 'Score de forme financière. $score sur 100. Niveau $level. Budget $budget, Prévoyance $prevoyance, Patrimoine $patrimoine.';
   }
 
@@ -19931,11 +20020,7 @@ class SFr extends S {
 
   @override
   String semanticsBenchmarkMetric(
-    String label,
-    String status,
-    String low,
-    String high,
-  ) {
+      String label, String status, String low, String high) {
     return '$label : $status. Fourchette typique $low à $high';
   }
 
@@ -24097,86 +24182,4 @@ class SFr extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.';
-
-  @override
-  String get renteVsCapitalReceiptTitle => 'Preuve du calcul';
-
-  @override
-  String get renteVsCapitalReceiptRequiredTitle => 'Résultat masqué';
-
-  @override
-  String get renteVsCapitalReceiptRequiredBody =>
-      'Les chiffres restent masqués car la preuve du calcul est incomplète.';
-
-  @override
-  String get renteVsCapitalReceiptOriginLabel => 'Origine';
-
-  @override
-  String get renteVsCapitalReceiptVersionLabel => 'Version de calcul';
-
-  @override
-  String get renteVsCapitalReceiptConstantsLabel => 'Version des constantes';
-
-  @override
-  String get renteVsCapitalReceiptReadinessLabel => 'État de la preuve';
-
-  @override
-  String get renteVsCapitalReceiptUnitLabel => 'Unités';
-
-  @override
-  String get renteVsCapitalReceiptConfidenceLabel => 'Confiance';
-
-  @override
-  String get renteVsCapitalReceiptAssumptionsLabel => 'Hypothèses';
-
-  @override
-  String get renteVsCapitalReceiptSourcesLabel => 'Sources';
-
-  @override
-  String get renteVsCapitalReceiptMissingLabel => 'Champs requis à compléter';
-
-  @override
-  String get renteVsCapitalReceiptMissingNone => 'Aucun champ requis manquant';
-
-  @override
-  String get renteVsCapitalReceiptReadinessReady => 'Prête';
-
-  @override
-  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
-      'Champs requis manquants';
-
-  @override
-  String get renteVsCapitalReceiptReadinessIncomplete => 'Preuve incomplète';
-
-  @override
-  String get renteVsCapitalReceiptReadinessMissing => 'Preuve absente';
-
-  @override
-  String get renteVsCapitalReceiptMissingFallback => 'preuve du calcul';
-
-  @override
-  String get renteVsCapitalReceiptMissingCapitalLppTotal => 'capital LPP total';
-
-  @override
-  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
-      'rente annuelle proposée';
-
-  @override
-  String get renteVsCapitalReceiptMissingCanton => 'canton';
-
-  @override
-  String get renteVsCapitalReceiptMissingHorizonYears =>
-      'horizon de comparaison';
-
-  @override
-  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
-      'taux de retrait du capital';
-
-  @override
-  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
-      'taux de conversion obligatoire';
-
-  @override
-  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
-      'taux de conversion surobligatoire';
 }
