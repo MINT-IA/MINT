@@ -594,7 +594,7 @@ class _Mint2AxesStep extends StatelessWidget {
                   onTap: () {
                     provider.setAxisV2(item.axis, item.label);
                     if (item.axis == OnboardingAxisV2.lppRenteCapital) {
-                      provider.advance();
+                      context.go('/rente-vs-capital');
                     }
                   },
                 );
@@ -612,7 +612,7 @@ class _Mint2AxesStep extends StatelessWidget {
                   OnboardingAxisV2.lppRenteCapital,
                   l10n.mint2FirstExperienceLppLabel,
                 );
-                provider.advance();
+                context.go('/rente-vs-capital');
               },
             ),
           ],
