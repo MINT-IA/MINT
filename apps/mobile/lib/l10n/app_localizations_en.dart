@@ -6246,6 +6246,121 @@ class SEn extends S {
   }
 
   @override
+  String get renteVsCapitalReceiptTitle => 'Calculation proof';
+
+  @override
+  String get renteVsCapitalReceiptRequiredTitle => 'Result hidden';
+
+  @override
+  String get renteVsCapitalReceiptRequiredBody =>
+      'Figures stay hidden because the calculation proof is incomplete.';
+
+  @override
+  String get renteVsCapitalReceiptOriginLabel => 'Origin';
+
+  @override
+  String get renteVsCapitalReceiptVersionLabel => 'Calculation version';
+
+  @override
+  String get renteVsCapitalReceiptConstantsLabel => 'Constants version';
+
+  @override
+  String get renteVsCapitalReceiptReadinessLabel => 'Proof status';
+
+  @override
+  String get renteVsCapitalReceiptUnitLabel => 'Units';
+
+  @override
+  String get renteVsCapitalReceiptConfidenceLabel => 'Confidence';
+
+  @override
+  String get renteVsCapitalReceiptAssumptionsLabel => 'Assumptions';
+
+  @override
+  String get renteVsCapitalReceiptSourcesLabel => 'Sources';
+
+  @override
+  String get renteVsCapitalReceiptMissingLabel => 'Missing inputs';
+
+  @override
+  String get renteVsCapitalReceiptMissingNone => 'No required input missing';
+
+  @override
+  String get renteVsCapitalReceiptReadinessReady => 'Ready';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
+      'Required fields missing';
+
+  @override
+  String get renteVsCapitalReceiptReadinessIncomplete => 'Incomplete proof';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissing => 'Missing proof';
+
+  @override
+  String get renteVsCapitalReceiptMissingFallback => 'calculation proof';
+
+  @override
+  String get renteVsCapitalReceiptMissingCapitalLppTotal => 'total LPP capital';
+
+  @override
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
+      'proposed annual pension';
+
+  @override
+  String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingHorizonYears => 'comparison horizon';
+
+  @override
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
+      'capital withdrawal rate';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
+      'mandatory conversion rate';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
+      'extra-mandatory conversion rate';
+
+  @override
+  String get mint2FirstExperienceAxisPrompt =>
+      'Choose the topic you want to clarify first.';
+
+  @override
+  String get mint2FirstExperienceLiveStatus => 'Available';
+
+  @override
+  String get mint2FirstExperienceSignalStatus => 'Signal only';
+
+  @override
+  String get mint2FirstExperienceSignalSaved => 'Interest saved';
+
+  @override
+  String get mint2FirstExperienceLppLabel => '2nd pillar: pension or capital';
+
+  @override
+  String get mint2FirstExperienceLppBody =>
+      'We prepare the required fields before opening the defensible comparison.';
+
+  @override
+  String get mint2FirstExperienceHousingLabel => 'Housing: 2nd / 3rd pillar';
+
+  @override
+  String get mint2FirstExperienceHousingBody =>
+      'We save your interest and keep this door without simulation in this phase.';
+
+  @override
+  String get mint2FirstExperienceFiscalLabel => '3a and buybacks: tax impact';
+
+  @override
+  String get mint2FirstExperienceFiscalBody =>
+      'We save your tax interest without calculating an amount in this phase.';
+
+  @override
   String get renteVsCapitalRachatLabel => 'Planned annual LPP buyback (CHF)';
 
   @override

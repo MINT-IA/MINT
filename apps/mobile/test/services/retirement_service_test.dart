@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:mint_mobile/services/retirement_service.dart';
 
 /// Tests unitaires pour RetirementService (Sprint S21).
@@ -12,6 +13,9 @@ import 'package:mint_mobile/services/retirement_service.dart';
 ///   - Taux conversion LPP min : 6.8%
 ///   - Duree cotisation complete : 44 ans
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   // ═══════════════════════════════════════════════════════════════════════════
   //  1. compareLpp — capital vs rente
   // ═══════════════════════════════════════════════════════════════════════════
@@ -187,6 +191,41 @@ void main() {
   group('constantes et helpers', () {
     test('rente AVS max annuelle = 30240', () {
       expect(RetirementService.avsMaxRenteAnnuelle, 30240.0);
+    });
+
+    test('rente AVS max annuelle year-aware applique la 13eme rente des 2026',
+        () {
+      expect(RetirementService.avsMaxRenteAnnuelleForYear(2025), 30240.0);
+      expect(
+        RetirementService.avsMaxRenteAnnuelleForYear(2026),
+        closeTo(32760.0, 0.01),
+      );
+      expect(
+        RetirementService.avsMaxRenteAnnuelleForYear(2035),
+        closeTo(32760.0, 0.01),
+      );
+    });
+
+    test('rente AVS max annuelle year-aware lit les cles registry statiques',
+        () {
+      RegulatorySyncService.setMockCache({
+        'avs.max_annual_pension': 24000.0,
+        'avs.13th_pension_active': 1.0,
+        'avs.13th_pension_start_year': 2030.0,
+        'avs.13th_pension_factor': 1.25,
+      });
+
+      expect(RetirementService.avsMaxRenteAnnuelleForYear(2029), 24000.0);
+      expect(RetirementService.avsMaxRenteAnnuelleForYear(2030), 30000.0);
+
+      RegulatorySyncService.setMockCache({
+        'avs.max_annual_pension': 24000.0,
+        'avs.13th_pension_active': 0.0,
+        'avs.13th_pension_start_year': 2030.0,
+        'avs.13th_pension_factor': 1.25,
+      });
+
+      expect(RetirementService.avsMaxRenteAnnuelleForYear(2035), 24000.0);
     });
 
     test('taux conversion LPP = 6.8%', () {

@@ -14,7 +14,8 @@
     "codex/mint-karpathy-rules-infra-20260614",
     "codex/mint-2-first-experience-contract-20260614",
     "codex/mint-2-router-promotion-20260614",
-    "codex/mint-2-slice-2-code-map-plan-20260614"
+    "codex/mint-2-slice-2-code-map-plan-20260614",
+    "feature/mint2-slice-2a-calculator-boundary"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

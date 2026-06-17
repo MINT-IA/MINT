@@ -6301,6 +6301,124 @@ class SDe extends S {
   }
 
   @override
+  String get renteVsCapitalReceiptTitle => 'Berechnungsnachweis';
+
+  @override
+  String get renteVsCapitalReceiptRequiredTitle => 'Ergebnis ausgeblendet';
+
+  @override
+  String get renteVsCapitalReceiptRequiredBody =>
+      'Die Zahlen bleiben ausgeblendet, weil der Berechnungsnachweis unvollständig ist.';
+
+  @override
+  String get renteVsCapitalReceiptOriginLabel => 'Ursprung';
+
+  @override
+  String get renteVsCapitalReceiptVersionLabel => 'Berechnungsversion';
+
+  @override
+  String get renteVsCapitalReceiptConstantsLabel => 'Konstantenversion';
+
+  @override
+  String get renteVsCapitalReceiptReadinessLabel => 'Nachweisstatus';
+
+  @override
+  String get renteVsCapitalReceiptUnitLabel => 'Einheiten';
+
+  @override
+  String get renteVsCapitalReceiptConfidenceLabel => 'Vertrauen';
+
+  @override
+  String get renteVsCapitalReceiptAssumptionsLabel => 'Annahmen';
+
+  @override
+  String get renteVsCapitalReceiptSourcesLabel => 'Quellen';
+
+  @override
+  String get renteVsCapitalReceiptMissingLabel =>
+      'Zu ergänzende Pflichtangaben';
+
+  @override
+  String get renteVsCapitalReceiptMissingNone => 'Keine Pflichtangabe fehlt';
+
+  @override
+  String get renteVsCapitalReceiptReadinessReady => 'Bereit';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
+      'Pflichtangaben fehlen';
+
+  @override
+  String get renteVsCapitalReceiptReadinessIncomplete =>
+      'Unvollständiger Nachweis';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissing => 'Nachweis fehlt';
+
+  @override
+  String get renteVsCapitalReceiptMissingFallback => 'Berechnungsnachweis';
+
+  @override
+  String get renteVsCapitalReceiptMissingCapitalLppTotal =>
+      'gesamtes BVG-Kapital';
+
+  @override
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
+      'vorgeschlagene Jahresrente';
+
+  @override
+  String get renteVsCapitalReceiptMissingCanton => 'Kanton';
+
+  @override
+  String get renteVsCapitalReceiptMissingHorizonYears => 'Vergleichshorizont';
+
+  @override
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
+      'Kapitalbezugsrate';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
+      'obligatorischer Umwandlungssatz';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
+      'überobligatorischer Umwandlungssatz';
+
+  @override
+  String get mint2FirstExperienceAxisPrompt =>
+      'Wähle zuerst das Thema, das du klären willst.';
+
+  @override
+  String get mint2FirstExperienceLiveStatus => 'Verfügbar';
+
+  @override
+  String get mint2FirstExperienceSignalStatus => 'Signal';
+
+  @override
+  String get mint2FirstExperienceSignalSaved => 'Interesse gespeichert';
+
+  @override
+  String get mint2FirstExperienceLppLabel => '2. Säule: Rente oder Kapital';
+
+  @override
+  String get mint2FirstExperienceLppBody =>
+      'Wir bereiten die nötigen Felder vor, bevor der belastbare Vergleich geöffnet wird.';
+
+  @override
+  String get mint2FirstExperienceHousingLabel => 'Wohnen: 2. / 3. Säule';
+
+  @override
+  String get mint2FirstExperienceHousingBody =>
+      'Wir speichern dein Interesse und lassen diese Tür in dieser Phase ohne Simulation.';
+
+  @override
+  String get mint2FirstExperienceFiscalLabel => '3a und Einkäufe: Steuereffekt';
+
+  @override
+  String get mint2FirstExperienceFiscalBody =>
+      'Wir speichern dein Steuerinteresse, ohne in dieser Phase einen Betrag zu berechnen.';
+
+  @override
   String get renteVsCapitalRachatLabel =>
       'Geplanter jährlicher BVG-Einkauf (CHF)';
 

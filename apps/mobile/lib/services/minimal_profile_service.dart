@@ -38,11 +38,14 @@ class MinimalProfileService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
+
     /// Gender: 'M', 'F', or null. Passed to AvsCalculator for AVS21
     /// reference age (LAVS art. 21 al. 1). Null defaults to male (65).
     String? gender,
+
     /// Birth year — used with [gender] for AVS21 transitional cohorts.
     int? birthYear,
+
     /// Age d'arrivée en Suisse (si expat). Plumbé jusqu'à l'estimation LPP
     /// pour démarrer l'accumulation à l'arrivée, pas toujours à 25 (LPP art. 7).
     /// AUSSI transmis à AvsCalculator : une arrivée tardive ⇒ années de
@@ -50,13 +53,16 @@ class MinimalProfileService {
     /// rendait la rente MAX (2520) pour un Suisse de retour (incohérence ×2
     /// avec response_card / forecaster — matrice returning_swiss_gaps-1).
     int? arrivalAge,
+
     /// Années manquantes au sens AVS (lacunes — LAVS art. 29). Plumbées
     /// jusqu'à AvsCalculator pour appliquer le gapFactor, exactement comme
     /// forecaster_service:831 (chemin de référence).
     int lacunes = 0,
+
     /// Années cotisées AVS connues (certificat / dérivation onboarding).
     /// Si fourni, prime sur la dérivation arrivalAge dans AvsCalculator.
     int? anneesContribuees,
+
     /// Droit à la DÉDUCTION fiscale 3a pour cet archétype (plan 08, oracles
     /// expat_us-2 + frontalier-1). False → plafond3a, taxSaving3a et
     /// marginalTaxRate sont émis à 0 : un US person (FATCA) ou un frontalier
@@ -97,14 +103,14 @@ class MinimalProfileService {
       employmentStatus: effectiveEmployment,
       hasPensionFund: effectiveEmployment != 'independant',
     );
-    final isIndependantNoLpp = !canEstimateLppByEmployment &&
-        effectiveEmployment == 'independant';
+    final isIndependantNoLpp =
+        !canEstimateLppByEmployment && effectiveEmployment == 'independant';
     final isSansEmploi = effectiveEmployment == 'sans_emploi';
 
     // Estimate LPP balance from age-weighted bonifications since arrival/25.
     // Independent without LPP declaration → 0 balance
-    final effectiveLpp = existingLpp
-        ?? (canEstimateLppByEmployment
+    final effectiveLpp = existingLpp ??
+        (canEstimateLppByEmployment
             ? _estimateLppBalance(age, grossSalary, arrivalAge: arrivalAge)
             : 0.0);
     if (existingLpp == null) estimatedFields.add('existingLpp');
@@ -112,15 +118,17 @@ class MinimalProfileService {
     // F7-2: Use gender-aware retirement age when gender + birth year are provided.
     // Falls back to male reference age (65) when gender is unknown.
     final effectiveBirthYear = birthYear ?? (DateTime.now().year - age);
-    final effectiveRetAge = targetRetirementAge
-        ?? (gender != null
-            ? avsReferenceAge(birthYear: effectiveBirthYear, isFemale: gender == 'F')
+    final effectiveRetAge = targetRetirementAge ??
+        (gender != null
+            ? avsReferenceAge(
+                birthYear: effectiveBirthYear, isFemale: gender == 'F')
             : avsAgeReferenceHomme);
 
     // --- AVS monthly rente (financial_core) ---
     // Sans emploi: use minimum AVS contribution salary
     final avsGrossSalary = isSansEmploi
-        ? reg('lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
+        ? reg(
+            'lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
         : grossSalary;
     // F7-2: Pass gender and birthYear when available so AvsCalculator
     // uses AVS21 reference age (64F / 65M — LAVS art. 21 al. 1).
@@ -150,8 +158,9 @@ class MinimalProfileService {
       // vs standard minimum 6.8% (LPP art. 14 al. 2). Les deux branches
       // utilisent les constantes nommées du registry — plus de littéral inline.
       final effectiveConversionRate = lppCaisseType == 'complementaire'
-          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
-          : reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+          ? reg('lpp.conversion_rate_complementaire',
+              lppTauxConversionSurobligDecimal)
+          : reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
       lppAnnualRente = LppCalculator.projectToRetirement(
         currentBalance: effectiveLpp,
         currentAge: age,
@@ -168,8 +177,8 @@ class MinimalProfileService {
     // Il n'est plus soustrait du revenu de retraite total (composition canonique
     // = AVS + LPP, alignée sur response_card et retirement_projection_service).
     // Voir financial_core/replacement_rate.dart + matrice D3.
-    final effectiveDebtService = monthlyDebtService
-        ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
+    final effectiveDebtService =
+        monthlyDebtService ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
 
     // --- Total retirement income (composition canonique : AVS + LPP) ---
     final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly);
@@ -187,7 +196,8 @@ class MinimalProfileService {
       totalMonthlyRetirement: totalMonthlyRetirement,
       netMonthlyIncome: netMonthlyIncome,
     );
-    final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
+    final retirementGapMonthly =
+        max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core) ---
     // Indépendant sans LPP : plafond = 20% du revenu professionnel NET
@@ -231,7 +241,8 @@ class MinimalProfileService {
         ? 0.0
         : taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
             ? (isIndependantNoLpp
-                ? min((netProfessionalIncome ?? 0.0) * pilier3aTauxRevenuSansLpp,
+                ? min(
+                    (netProfessionalIncome ?? 0.0) * pilier3aTauxRevenuSansLpp,
                     reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
                 : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))
             : taxImpact.annualCeiling;
@@ -243,8 +254,9 @@ class MinimalProfileService {
       effectiveHousehold,
       effectivePropertyOwner,
     );
-    final liquidityMonths =
-        estimatedMonthlyExpenses > 0 ? effectiveSavings / estimatedMonthlyExpenses : 0.0;
+    final liquidityMonths = estimatedMonthlyExpenses > 0
+        ? effectiveSavings / estimatedMonthlyExpenses
+        : 0.0;
 
     return MinimalProfileResult(
       avsMonthlyRente: avsMonthly,

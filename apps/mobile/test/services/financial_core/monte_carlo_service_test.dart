@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/monte_carlo_service.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   // ════════════════════════════════════════════════════════════
   //  MONTE CARLO PROJECTION SERVICE — COMPREHENSIVE TESTS
   // ════════════════════════════════════════════════════════════
@@ -720,6 +724,54 @@ void main() {
         resultWith.medianAt65,
         greaterThan(resultNo.medianAt65),
         reason: 'LPP buyback should increase retirement income',
+      );
+    });
+  });
+
+  group('MonteCarloProjectionService — registry aliases', () {
+    test('default LPP conversion uses registry complementaire alias', () async {
+      final nowYear = DateTime.now().year;
+      final profile = CoachProfile(
+        firstName: 'Julien',
+        birthYear: nowYear - 65,
+        canton: 'VS',
+        salaireBrutMensuel: 8000,
+        nombreDeMois: 12,
+        employmentStatus: 'salarie',
+        etatCivil: CoachCivilStatus.celibataire,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 240000,
+          tauxConversion: 0.068,
+        ),
+        patrimoine: const PatrimoineProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(nowYear, 1, 1),
+          label: 'Retraite',
+        ),
+      );
+
+      final fallback = await MonteCarloProjectionService.simulate(
+        profile: profile,
+        retirementAgeUser: 65,
+        numSimulations: 20,
+        seed: 42,
+      );
+
+      RegulatorySyncService.setMockCache({
+        'lpp.conversion_rate': 0.068,
+        'lpp.conversion_rate_complementaire': 0.02,
+      });
+      final overridden = await MonteCarloProjectionService.simulate(
+        profile: profile,
+        retirementAgeUser: 65,
+        numSimulations: 20,
+        seed: 42,
+      );
+
+      expect(
+        fallback.medianAt65 - overridden.medianAt65,
+        closeTo(240000 * (0.058 - 0.02) / 12, 0.01),
       );
     });
   });

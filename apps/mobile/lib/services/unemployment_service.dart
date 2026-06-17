@@ -77,10 +77,12 @@ class UnemploymentService {
 
   /// Maximum gain assure mensuel (CHF 12'350).
   /// Derived from acPlafondSalaireAssure / 12.
-  static double get _gainAssureMax => reg('ac.max_monthly_insured_income', acGainAssureMensuelMax);
+  static double get _gainAssureMax =>
+      reg('ac.max_insured_salary', acPlafondSalaireAssure) / 12;
 
   /// Salary threshold for enhanced rate (CHF 3'797).
-  static double get _salaryThresholdEnhanced => reg('ac.enhanced_rate_threshold', acSeuilSalaireMajore);
+  static double get _salaryThresholdEnhanced =>
+      reg('ac.enhanced_rate_threshold', acSeuilSalaireMajore);
 
   /// Standard waiting period (5 days).
   static const int _delaiCarenceStandard = 5;
@@ -140,17 +142,14 @@ class UnemploymentService {
     }
 
     // 2. Determine rate
-    final taux =
-        _determineRate(gainAssureMensuel, hasChildren, hasDisability);
+    final taux = _determineRate(gainAssureMensuel, hasChildren, hasDisability);
 
     // 3. Cap gain assure
     final gainRetenu = min(gainAssureMensuel, _gainAssureMax);
 
     // 4. Calculate benefits
-    final indemniteJournaliere =
-        (gainRetenu * taux) / _workingDaysPerMonth;
-    final indemniteMensuelle =
-        indemniteJournaliere * _workingDaysPerMonth;
+    final indemniteJournaliere = (gainRetenu * taux) / _workingDaysPerMonth;
+    final indemniteMensuelle = indemniteJournaliere * _workingDaysPerMonth;
 
     // 5. Duration
     final nombreIndemnites = _calculateDuration(age, moisCotisation);
@@ -159,8 +158,7 @@ class UnemploymentService {
     // 6. Chiffre choc
     final perteMensuelle = gainAssureMensuel - indemniteMensuelle;
     final pctPerte = ((1 - taux) * 100).toStringAsFixed(0);
-    final premierEclairage =
-        'Tu perdras ~${formatChf(perteMensuelle)}/mois '
+    final premierEclairage = 'Tu perdras ~${formatChf(perteMensuelle)}/mois '
         'soit $pctPerte% de ton salaire';
 
     return UnemploymentResult(
@@ -179,8 +177,7 @@ class UnemploymentService {
   }
 
   /// Determine indemnity rate based on salary, children, disability.
-  static double _determineRate(
-      double gain, bool children, bool disability) {
+  static double _determineRate(double gain, bool children, bool disability) {
     if (children || disability || gain < _salaryThresholdEnhanced) {
       return _rateEnhanced;
     }
@@ -192,9 +189,21 @@ class UnemploymentService {
   /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
   /// Uses centralized constants from social_insurance.dart.
   static int _calculateDuration(int age, int moisCotisation) {
-    if (age >= reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble()).toInt() && moisCotisation >= 22) return reg('ac.senior_days', acJoursSenior.toDouble()).toInt(); // 55+ = 520
-    if (age >= 25 && moisCotisation >= 18) return reg('ac.intermediate_days', acJoursIntermediaireCotisation.toDouble()).toInt(); // 260
-    if (moisCotisation >= 12) return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
+    if (age >=
+            reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble())
+                .toInt() &&
+        moisCotisation >= 22) {
+      return reg('ac.senior_days', acJoursSenior.toDouble())
+          .toInt(); // 55+ = 520
+    }
+    if (age >= 25 && moisCotisation >= 18) {
+      return reg(
+              'ac.intermediate_days', acJoursIntermediaireCotisation.toDouble())
+          .toInt(); // 260
+    }
+    if (moisCotisation >= 12) {
+      return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
+    }
     return 0;
   }
 
@@ -204,22 +213,19 @@ class UnemploymentService {
       UnemploymentTimelineItem(
         jour: 0,
         action: 'Inscription ORP',
-        description:
-            'S\'inscrire a l\'Office regional de placement',
+        description: 'S\'inscrire a l\'Office regional de placement',
         urgence: 'immediate',
       ),
       UnemploymentTimelineItem(
         jour: 1,
         action: 'Demande d\'indemnites',
-        description:
-            'Deposer le dossier aupres de la caisse de chomage',
+        description: 'Deposer le dossier aupres de la caisse de chomage',
         urgence: 'immediate',
       ),
       UnemploymentTimelineItem(
         jour: 5,
         action: 'Fin delai de carence',
-        description:
-            'Les 5 premiers jours ne sont pas indemnises',
+        description: 'Les 5 premiers jours ne sont pas indemnises',
         urgence: 'semaine1',
       ),
       UnemploymentTimelineItem(
@@ -231,22 +237,19 @@ class UnemploymentService {
       UnemploymentTimelineItem(
         jour: 30,
         action: 'Transfert LPP',
-        description:
-            'Transferer ton avoir LPP sur un compte de libre passage',
+        description: 'Transferer ton avoir LPP sur un compte de libre passage',
         urgence: 'mois1',
       ),
       UnemploymentTimelineItem(
         jour: 30,
         action: 'Pause 3a',
-        description:
-            'Plus de cotisation 3a sans revenu lucratif',
+        description: 'Plus de cotisation 3a sans revenu lucratif',
         urgence: 'mois1',
       ),
       UnemploymentTimelineItem(
         jour: 60,
         action: 'Revision LAMal',
-        description:
-            'Verifier tes droits a une reduction de prime',
+        description: 'Verifier tes droits a une reduction de prime',
         urgence: 'mois3',
       ),
       UnemploymentTimelineItem(

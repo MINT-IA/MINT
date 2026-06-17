@@ -51,6 +51,39 @@ void main() {
   });
 
   group('SecureWizardStore — happy path (provisioned keychain)', () {
+    test('classifies PR5 mapped wizard keys outside broad secure prefixes', () {
+      const sensitive = {
+        'q_employment_rate',
+        'q_has_3a',
+        'q_has_consumer_debt',
+        'q_has_pension_fund',
+        'q_net_income_period_source',
+        'q_pay_frequency',
+        'q_self_employed_net_income_annual_chf',
+        'q_target_retirement_age',
+      };
+
+      for (final key in sensitive) {
+        expect(
+          SecureWizardStore.classificationForKey(key),
+          WizardStorageClassification.sensitive,
+          reason: '$key must not stay in plain SharedPreferences',
+        );
+        expect(SecureWizardStore.isSensitive(key), isTrue);
+      }
+
+      expect(
+        SecureWizardStore.classificationForKey('q_canton'),
+        WizardStorageClassification.nonSensitive,
+      );
+      expect(SecureWizardStore.isSensitive('q_canton'), isFalse);
+      expect(
+        SecureWizardStore.classificationForKey('q_main_goal'),
+        WizardStorageClassification.productPreference,
+      );
+      expect(SecureWizardStore.isSensitive('q_main_goal'), isFalse);
+    });
+
     test('seals a sensitive value and round-trips it back', () async {
       FlutterSecureStorage.setMockInitialValues({});
 

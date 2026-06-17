@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 /// Tests unitaires pour MortgageService (Sprint S17).
 ///
@@ -12,12 +13,16 @@ import 'package:mint_mobile/services/mortgage_service.dart';
 ///
 /// Base legale : directive ASB, FINMA, LIFD, LPP art. 30c, OPP3.
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   // ═══════════════════════════════════════════════════════════════════════════
   //  A. AffordabilityCalculator
   // ═══════════════════════════════════════════════════════════════════════════
 
   group('AffordabilityCalculator', () {
-    test('scenario standard — revenu 150k, prix 800k, fonds propres suffisants', () {
+    test('scenario standard — revenu 150k, prix 800k, fonds propres suffisants',
+        () {
       final r = AffordabilityCalculator.calculate(
         revenuBrutAnnuel: 150000,
         epargneDispo: 120000,
@@ -35,7 +40,8 @@ void main() {
       expect(r.manqueFondsPropres, closeTo(0, 1));
     });
 
-    test('regle du 1/3 — charges theoriques ne depassent pas 33% du revenu', () {
+    test('regle du 1/3 — charges theoriques ne depassent pas 33% du revenu',
+        () {
       // Revenu 200k, prix 700k, fonds propres largement suffisants
       final r = AffordabilityCalculator.calculate(
         revenuBrutAnnuel: 200000,
@@ -147,7 +153,7 @@ void main() {
       );
 
       expect(r.disclaimer, contains('ASB'));
-      expect(r.disclaimer, contains('specialiste'));
+      expect(r.disclaimer, contains('spécialiste'));
     });
 
     test('premier éclairage positif quand capacite et fonds propres ok', () {
@@ -163,6 +169,31 @@ void main() {
       expect(r.capaciteOk, isTrue);
       expect(r.fondsPropresOk, isTrue);
       expect(r.premierEclairagePositif, isTrue);
+    });
+
+    test('cache registry pilote frais, fonds propres et plafond LPP', () {
+      RegulatorySyncService.setMockCache({
+        'mortgage.theoretical_rate': 0.04,
+        'mortgage.amortization_rate': 0.02,
+        'mortgage.maintenance_rate': 0.03,
+        'mortgage.max_charge_ratio': 1 / 3,
+        'mortgage.min_equity': 0.30,
+        'mortgage.max_2nd_pillar': 0.05,
+      });
+
+      final r = AffordabilityCalculator.calculate(
+        revenuBrutAnnuel: 180000,
+        epargneDispo: 100000,
+        avoir3a: 0,
+        avoirLpp: 100000,
+        prixAchat: 500000,
+        canton: 'ZH',
+      );
+
+      expect(r.lppUtilise, closeTo(25000, 1));
+      expect(r.fondsPropresTotal, closeTo(125000, 1));
+      expect(r.fondsPropresRequis, closeTo(150000, 1));
+      expect(r.chargesTheoriquesMensuelles, closeTo(37500 / 12, 1));
     });
   });
 
@@ -255,7 +286,8 @@ void main() {
       // mais "garanti" comme adjectif absolu est interdit.
       // On verifie l'absence de termes interdits sous forme absolue.
       expect(r.disclaimer, isNot(contains('sans risque')));
-      expect(r.disclaimer, isNot(contains('conseil hypothecaire personnalise')));
+      expect(
+          r.disclaimer, isNot(contains('conseil hypothecaire personnalise')));
       // Le disclaimer doit contenir la mention educative
       expect(r.disclaimer, contains('educatif'));
     });
@@ -317,7 +349,8 @@ void main() {
       expect(r.deductionFraisEntretien, closeTo(50000, 1));
     });
 
-    test('impact positif — premier éclairage negatif (impot supplementaire)', () {
+    test('impact positif — premier éclairage negatif (impot supplementaire)',
+        () {
       final r = ImputedRentalCalculator.calculate(
         valeurVenale: 1500000,
         interetsAnnuels: 5000,
@@ -352,7 +385,9 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   group('AmortizationCalculator', () {
-    test('indirect vs direct — indirect plus avantageux grace a la double deduction', () {
+    test(
+        'indirect vs direct — indirect plus avantageux grace a la double deduction',
+        () {
       final r = AmortizationCalculator.compare(
         montantHypothecaire: 500000,
         tauxInteret: 0.02,
@@ -509,8 +544,8 @@ void main() {
       );
 
       // Devrait avoir une alerte sur la progressivite
-      final hasProgressivityAlert = r.alertes.any(
-          (a) => a.contains('progressivite') || a.contains('etaler'));
+      final hasProgressivityAlert = r.alertes
+          .any((a) => a.contains('progressivite') || a.contains('etaler'));
       expect(hasProgressivityAlert, isTrue);
     });
 
@@ -553,6 +588,28 @@ void main() {
       expect(r.disclaimer, contains('LPP art. 30c'));
       expect(r.disclaimer, contains('OPP3'));
       expect(r.disclaimer, contains('LIFD art. 38'));
+    });
+
+    test('cache registry pilote fonds propres et plafond LPP EPL', () {
+      RegulatorySyncService.setMockCache({
+        'mortgage.min_equity': 0.30,
+        'mortgage.max_2nd_pillar': 0.05,
+      });
+
+      final r = EplCombinedCalculator.calculate(
+        epargneCash: 0,
+        avoir3a: 0,
+        avoirLpp: 100000,
+        prixCible: 500000,
+        canton: 'ZH',
+      );
+
+      expect(r.fondsPropresRequis, closeTo(150000, 1));
+      expect(r.fondsPropresTotal, closeTo(25000, 1));
+      expect(
+        r.sources.singleWhere((source) => source.label.contains('LPP')).montant,
+        closeTo(25000, 1),
+      );
     });
   });
 }

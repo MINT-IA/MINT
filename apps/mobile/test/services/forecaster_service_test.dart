@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 /// Unit tests for ForecasterService — Sprint C3 (MINT Coach)
 ///
@@ -9,6 +10,9 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 ///
 /// Legal references: LAVS art. 21-29, LPP art. 14, OPP3 art. 7, LPP art. 79b
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   // ════════════════════════════════════════════════════════════
   //  PROJECTION WITH DEMO PROFILE (Julien+Lauren)
   // ════════════════════════════════════════════════════════════
@@ -29,10 +33,10 @@ void main() {
     });
 
     test('optimiste > base > prudent capital final', () {
-      expect(result.optimiste.capitalFinal,
-          greaterThan(result.base.capitalFinal));
-      expect(result.base.capitalFinal,
-          greaterThan(result.prudent.capitalFinal));
+      expect(
+          result.optimiste.capitalFinal, greaterThan(result.base.capitalFinal));
+      expect(
+          result.base.capitalFinal, greaterThan(result.prudent.capitalFinal));
     });
 
     test('base scenario has reasonable capital for 16-year projection', () {
@@ -81,8 +85,8 @@ void main() {
 
     test('disclaimer is present and compliant', () {
       expect(result.disclaimer, isNotEmpty);
-      expect(result.disclaimer.contains('educatif') ||
-          result.disclaimer.contains('conseil financier'), true);
+      expect(result.disclaimer, contains('éducatives'));
+      expect(result.disclaimer, contains('conseil financier'));
       // No banned terms
       expect(result.disclaimer.contains('garanti'), false);
       expect(result.disclaimer.contains('certain'), false);
@@ -221,6 +225,42 @@ void main() {
       final result = ForecasterService.project(profile: single);
       expect(result.base.capitalFinal, greaterThan(100000));
       expect(result.base.decomposition['lpp_conjoint'], 0);
+    });
+
+    test('default LPP conversion uses registry complementaire alias', () {
+      final nowYear = DateTime.now().year;
+      final profile = CoachProfile(
+        firstName: 'Marc',
+        birthYear: nowYear - 60,
+        canton: 'ZH',
+        salaireBrutMensuel: 7000,
+        nombreDeMois: 12,
+        etatCivil: CoachCivilStatus.celibataire,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 80000,
+          tauxConversion: 0.068,
+        ),
+        patrimoine: const PatrimoineProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(nowYear + 5, 1, 1),
+          label: 'Retraite',
+        ),
+      );
+
+      final fallback = ForecasterService.project(profile: profile)
+          .base
+          .decomposition['lpp_user']!;
+
+      RegulatorySyncService.setMockCache({
+        'lpp.conversion_rate': 0.068,
+        'lpp.conversion_rate_complementaire': 0.02,
+      });
+      final overridden = ForecasterService.project(profile: profile)
+          .base
+          .decomposition['lpp_user']!;
+
+      expect(overridden, closeTo(fallback * (0.02 / 0.058), 0.01));
     });
   });
 
@@ -438,10 +478,8 @@ void main() {
       expect(restored.base.revenuAnnuelRetraite,
           original.base.revenuAnnuelRetraite);
       expect(restored.prudent.capitalFinal, original.prudent.capitalFinal);
-      expect(
-          restored.optimiste.capitalFinal, original.optimiste.capitalFinal);
-      expect(
-          restored.tauxRemplacementBase, original.tauxRemplacementBase);
+      expect(restored.optimiste.capitalFinal, original.optimiste.capitalFinal);
+      expect(restored.tauxRemplacementBase, original.tauxRemplacementBase);
 
       // Labels preserved
       expect(restored.prudent.label, 'Prudent');
@@ -472,8 +510,7 @@ void main() {
 
   group('ForecasterService - formatChf', () {
     test('formats with Swiss apostrophe', () {
-      expect(ForecasterService.formatChf(1234567),
-          contains("1'234'567"));
+      expect(ForecasterService.formatChf(1234567), contains("1'234'567"));
     });
 
     test('formats small amounts', () {
@@ -502,7 +539,8 @@ void main() {
       );
       expect(custom.lppReturn, 0.04);
       expect(custom.threeAReturn, 0.08);
-      expect(custom.investmentReturn, ScenarioAssumptions.base.investmentReturn);
+      expect(
+          custom.investmentReturn, ScenarioAssumptions.base.investmentReturn);
     });
 
     test('copyWith preserves label when not overridden', () {
@@ -529,8 +567,7 @@ void main() {
         customBase: ScenarioAssumptions.base,
       );
       // Same base assumptions → same base capital (within rounding)
-      expect(etSi.base.capitalFinal,
-          closeTo(standard.base.capitalFinal, 1.0));
+      expect(etSi.base.capitalFinal, closeTo(standard.base.capitalFinal, 1.0));
     });
 
     test('projectEtSi with higher returns increases capital', () {
@@ -543,8 +580,7 @@ void main() {
           investmentReturn: 0.10,
         ),
       );
-      expect(etSi.base.capitalFinal,
-          greaterThan(standard.base.capitalFinal));
+      expect(etSi.base.capitalFinal, greaterThan(standard.base.capitalFinal));
     });
 
     test('projectEtSi preserves 3-scenario ordering', () {
@@ -555,10 +591,8 @@ void main() {
           threeAReturn: 0.06,
         ),
       );
-      expect(etSi.optimiste.capitalFinal,
-          greaterThan(etSi.base.capitalFinal));
-      expect(etSi.base.capitalFinal,
-          greaterThan(etSi.prudent.capitalFinal));
+      expect(etSi.optimiste.capitalFinal, greaterThan(etSi.base.capitalFinal));
+      expect(etSi.base.capitalFinal, greaterThan(etSi.prudent.capitalFinal));
     });
 
     test('projectEtSi with very low returns still produces valid result', () {
@@ -610,7 +644,8 @@ void main() {
         profile: demo,
         customBase: const ScenarioAssumptions(
           label: 'Custom',
-          lppReturn: 0.005, // Very low — prudent would go negative without clamp
+          lppReturn:
+              0.005, // Very low — prudent would go negative without clamp
           threeAReturn: 0.01,
           investmentReturn: 0.02,
           savingsReturn: 0.002,
@@ -727,8 +762,8 @@ void main() {
       final result = ForecasterService.project(profile: profile);
       final resultBase = ForecasterService.project(profile: demo);
       // Rolling avg of last 3 = 1400/mo > planned 1209.66 → increases
-      expect(result.base.capitalFinal,
-          greaterThan(resultBase.base.capitalFinal));
+      expect(
+          result.base.capitalFinal, greaterThan(resultBase.base.capitalFinal));
     });
 
     test('check-ins with empty versements: no crash', () {
@@ -807,8 +842,8 @@ void main() {
       // FATCA/auto-injection branch is actually exercised (buildDemo ships
       // with `3a_lauren` hardcoded, which short-circuits the auto path).
       final filtered = demo.plannedContributions
-          .where((c) => !(c.category == '3a' &&
-              c.id.toLowerCase().contains('lauren')))
+          .where((c) =>
+              !(c.category == '3a' && c.id.toLowerCase().contains('lauren')))
           .toList();
       return demo.copyWith(conjoint: conj).copyWithContributions(filtered);
     }
@@ -842,8 +877,8 @@ void main() {
 
     test('nationality=US also blocks partner 3a (isFatcaResident unset)', () {
       final defaultConj = baseConjoint(const PrevoyanceProfile());
-      final usConj = baseConjoint(const PrevoyanceProfile())
-          .copyWith(nationality: 'US');
+      final usConj =
+          baseConjoint(const PrevoyanceProfile()).copyWith(nationality: 'US');
 
       final defaultResult = ForecasterService.project(
         profile: buildCoupleProfile(conj: defaultConj),

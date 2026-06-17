@@ -53,7 +53,8 @@ void main() {
   });
 
   group('onboarding archetype flow (W2)', () {
-    test('enum order: employment → civilStatus → avsLacunes, between '
+    test(
+        'enum order: employment → civilStatus → avsLacunes, between '
         'nationality and age', () {
       const order = OnboardingStep.values;
       final iNationality = order.indexOf(OnboardingStep.nationality);
@@ -90,7 +91,8 @@ void main() {
       expect(provider.step, OnboardingStep.age);
     });
 
-    test('flush re-emits captured archetype q_* keys (independant / divorce / '
+    test(
+        'flush re-emits captured archetype q_* keys (independant / divorce / '
         'lived_abroad) parsable by fromWizardAnswers', () async {
       final provider = OnboardingProvider();
       provider.setIntent(OnboardingIntent.values.first, 'test');
@@ -123,7 +125,50 @@ void main() {
       expect(hydrated.prevoyance.lacunesAVS, 4);
     });
 
-    test('flush omits civil/avs keys when not captured (safe defaults '
+    test(
+        'flush keeps civil status as the canonical onboarding writer and '
+        'does not create a household-type second writer', () async {
+      final provider = OnboardingProvider();
+      provider.setIntent(OnboardingIntent.impots, 'Impôts');
+      provider.setDateOfBirth(DateTime(1990, 1, 1));
+      provider.setNetMonthlyExact(7600);
+      provider.setCivilStatus('marie');
+
+      final coach = _CapturingCoachProvider();
+      await provider.completeAndFlushToProfile(coach);
+
+      final flushed = coach.flushedAnswers!;
+      expect(flushed['onb_intent'], 'impots');
+      expect(flushed['q_civil_status'], 'marie');
+      expect(flushed.containsKey('q_household_type'), isFalse);
+      expect(flushed['q_net_income_period_chf'], 7600);
+      expect(flushed['q_net_income_confidence'], 'high');
+      expect(flushed['q_net_income_period_source'], 'onboarding_exact');
+      expect(coach.profile!.etatCivil, CoachCivilStatus.marie);
+    });
+
+    test(
+        'flush preserves income range and marks the effective value as a '
+        'range midpoint', () async {
+      final provider = OnboardingProvider();
+      provider.setIntent(OnboardingIntent.retraite, 'Prévoyance');
+      provider.setDateOfBirth(DateTime(1988, 4, 12));
+      provider.setNetMonthlyRange(7000, 7500);
+
+      final coach = _CapturingCoachProvider();
+      await provider.completeAndFlushToProfile(coach);
+
+      final flushed = coach.flushedAnswers!;
+      expect(flushed['q_net_income_period_chf'], 7250);
+      expect(flushed['q_net_income_range_low'], 7000);
+      expect(flushed['q_net_income_range_high'], 7500);
+      expect(flushed['q_net_income_confidence'], 'medium');
+      expect(
+          flushed['q_net_income_period_source'], 'onboarding_range_midpoint');
+    });
+
+    test(
+        'flush omits civil/avs keys when not captured (safe defaults '
         'preserved)', () async {
       final provider = OnboardingProvider();
       provider.setIntent(OnboardingIntent.values.first, 'test');

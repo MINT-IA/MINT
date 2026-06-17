@@ -194,7 +194,7 @@ void main() {
         canton: 'VD',
       );
 
-      expect(result.disclaimer, contains('Outil educatif'));
+      expect(result.disclaimer, contains('Outil éducatif'));
       expect(result.disclaimer, contains('LSFin'));
       expect(result.sources.any((s) => s.contains('LPP art. 14')), isTrue);
       expect(result.sources.any((s) => s.contains('LIFD art. 38')), isTrue);

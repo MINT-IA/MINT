@@ -31,7 +31,7 @@ class ExpatService {
       'Estimations simplifiees a but educatif — ne constitue pas '
       'un conseil fiscal ou juridique. Les montants dependent de nombreux '
       'facteurs (deductions, commune, fortune, convention internationale, etc.). '
-      'Consulte un-e specialiste fiscal-e pour une analyse personnalisee.';
+      'Consulte un-e spécialiste fiscal-e pour une analyse personnalisée.';
 
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON
@@ -77,16 +77,20 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS/AI/APG employee share (%).
-  static double get avsAiApgRate => reg('avs.employee_rate', avsCotisationSalarie);
+  static double get avsAiApgRate =>
+      reg('avs.contribution_rate_employee', avsCotisationSalarie);
 
   /// AC employee share up to CHF 148'200.
-  static double get acRate => reg('ac.employee_rate', acCotisationSalarie);
+  static double get acRate =>
+      reg('ac.contribution_rate_employee', acCotisationSalarie);
 
   /// AC solidarite above CHF 148'200.
-  static double get acSolidariteRate => reg('ac.solidarity_rate', acCotisationSolidariteSalarie);
+  static double get acSolidariteRate =>
+      reg('ac.solidarity_rate_employee', acCotisationSolidariteSalarie);
 
   /// AC ceiling.
-  static double get acCeiling => reg('ac.salary_ceiling', acPlafondSalaireAssure);
+  static double get acCeiling =>
+      reg('ac.max_insured_salary', acPlafondSalaireAssure);
 
   /// Quasi-resident threshold: 90% of worldwide income in CH.
   static const double quasiResidentThreshold = 0.90;
@@ -105,26 +109,26 @@ class ExpatService {
   /// null means abolished / not available.
   /// Source: LIFD art. 14 al. 3 (base fédérale CHF 400'000), lois cantonales.
   static const Map<String, double?> forfaitMinimumByCanton = {
-    'VD': 1000000.0,  // LI-VD art. 60
-    'GE': 600000.0,   // LIPP-GE art. 15
-    'VS': 250000.0,   // LF-VS art. 12
-    'ZG': 500000.0,   // StG-ZG § 12
-    'FR': 400000.0,   // LICD-FR art. 12
-    'LU': 400000.0,   // StG-LU § 14 (base fédérale)
-    'BE': 400000.0,   // StG-BE art. 14
-    'NE': 500000.0,   // LCdir-NE art. 14
-    'TI': 400000.0,   // LT-TI art. 7 (base fédérale)
-    'GR': 400000.0,   // StG-GR art. 11
-    'SG': 400000.0,   // StG-SG art. 12
-    'TG': 400000.0,   // StG-TG § 12
-    'AG': 400000.0,   // StG-AG § 12
-    'SO': 400000.0,   // StG-SO § 11
-    'OW': 400000.0,   // StG-OW art. 12 (base fédérale)
-    'NW': 400000.0,   // StG-NW art. 12 (base fédérale)
-    'GL': 400000.0,   // StG-GL art. 12 (base fédérale)
-    'UR': 400000.0,   // StG-UR art. 12 (base fédérale)
-    'SZ': 400000.0,   // StG-SZ § 12
-    'JU': 400000.0,   // LI-JU art. 12
+    'VD': 1000000.0, // LI-VD art. 60
+    'GE': 600000.0, // LIPP-GE art. 15
+    'VS': 250000.0, // LF-VS art. 12
+    'ZG': 500000.0, // StG-ZG § 12
+    'FR': 400000.0, // LICD-FR art. 12
+    'LU': 400000.0, // StG-LU § 14 (base fédérale)
+    'BE': 400000.0, // StG-BE art. 14
+    'NE': 500000.0, // LCdir-NE art. 14
+    'TI': 400000.0, // LT-TI art. 7 (base fédérale)
+    'GR': 400000.0, // StG-GR art. 11
+    'SG': 400000.0, // StG-SG art. 12
+    'TG': 400000.0, // StG-TG § 12
+    'AG': 400000.0, // StG-AG § 12
+    'SO': 400000.0, // StG-SO § 11
+    'OW': 400000.0, // StG-OW art. 12 (base fédérale)
+    'NW': 400000.0, // StG-NW art. 12 (base fédérale)
+    'GL': 400000.0, // StG-GL art. 12 (base fédérale)
+    'UR': 400000.0, // StG-UR art. 12 (base fédérale)
+    'SZ': 400000.0, // StG-SZ § 12
+    'JU': 400000.0, // LI-JU art. 12
     // Abolished:
     'ZH': null,
     'SH': null,
@@ -136,7 +140,12 @@ class ExpatService {
 
   /// Cantons where forfait is abolished.
   static const Set<String> forfaitAbolishedCantons = {
-    'ZH', 'SH', 'AR', 'AI', 'BS', 'BL',
+    'ZH',
+    'SH',
+    'AR',
+    'AI',
+    'BS',
+    'BL',
   };
 
   /// List of eligible cantons for forfait (sorted).
@@ -154,16 +163,22 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS voluntary minimum contribution per year.
-  static double get avsVoluntaryMin => reg('avs.voluntary_min', avsVolontaireCotisationMin);
+  static double get avsVoluntaryMin =>
+      reg('avs.voluntary_contribution_min', avsVolontaireCotisationMin);
 
   /// AVS voluntary maximum contribution per year.
-  static double get avsVoluntaryMax => reg('avs.voluntary_max', avsVolontaireCotisationMax);
+  static double get avsVoluntaryMax =>
+      reg('avs.voluntary_contribution_max', avsVolontaireCotisationMax);
 
   /// Rente reduction per missing year (~2.3% per year on 44 years).
-  static double get reductionPerMissingYear => 1.0 / reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble());
+  static double get reductionPerMissingYear =>
+      1.0 /
+      reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble());
 
   /// Full contribution years for max AVS rente.
-  static int get fullContributionYears => reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+  static int get fullContributionYears =>
+      reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble())
+          .toInt();
 
   // ════════════════════════════════════════════════════════════
   //  NEIGHBOURING COUNTRY SOCIAL CHARGES (approx employee share)
@@ -177,27 +192,27 @@ class ExpatService {
       'vieillesse_compl': 0.0400,
       'chomage': 0.0240,
       'csg_crds': 0.0920,
-      'total': 0.225,  // ~22.5% (aligned with backend)
+      'total': 0.225, // ~22.5% (aligned with backend)
     },
     'Allemagne': {
       'krankenversicherung': 0.0730,
       'rentenversicherung': 0.0930,
       'arbeitslosenversicherung': 0.0130,
       'pflegeversicherung': 0.0260,
-      'total': 0.205,  // ~20.5% (aligned with backend)
+      'total': 0.205, // ~20.5% (aligned with backend)
     },
     'Italie': {
       'inps_pensione': 0.0700,
       'inps_malattia': 0.0150,
       'disoccupazione': 0.0150,
-      'total': 0.10,   // ~10% (aligned with backend)
+      'total': 0.10, // ~10% (aligned with backend)
     },
     'Autriche': {
       'krankenversicherung': 0.0387,
       'pensionsversicherung': 0.1025,
       'arbeitslosenversicherung': 0.0300,
       'wohnbaufoerderung': 0.0088,
-      'total': 0.18,   // ~18% (aligned with backend)
+      'total': 0.18, // ~18% (aligned with backend)
     },
   };
 
@@ -419,7 +434,7 @@ class ExpatService {
           'Risque fiscal — l\'imposition peut basculer vers ton pays de residence. '
           'Avec $riskDays jours de home office, tu depasses le seuil de 90 jours. '
           'Ton employeur pourrait devoir cotiser dans ton pays de residence. '
-          'Consulte un-e specialiste en fiscalite internationale.';
+          'Consulte un-e spécialiste en fiscalité internationale.';
     }
 
     return {
@@ -435,7 +450,7 @@ class ExpatService {
       'recommendation': recommendation,
       'legalReference':
           'Art. 15 al. 4 CDI CH-FR / Accord amiable du 22 decembre 2022 / '
-          'Reglement CE 883/2004 art. 13',
+              'Reglement CE 883/2004 art. 13',
       'disclaimer': disclaimer,
     };
   }
@@ -454,12 +469,16 @@ class ExpatService {
     // ── CH charges ──
     final chAvs = annualSalary * avsAiApgRate;
     final chAcBase = min(annualSalary, acCeiling) * acRate;
-    final chAcSolidarite =
-        annualSalary > acCeiling ? (annualSalary - acCeiling) * acSolidariteRate : 0.0;
+    final chAcSolidarite = annualSalary > acCeiling
+        ? (annualSalary - acCeiling) * acSolidariteRate
+        : 0.0;
     final chAc = chAcBase + chAcSolidarite;
 
     // Estimated LPP contribution (employee ~7% of coordinated salary)
-    final coordinatedSalary = max(0.0, min(annualSalary, reg('lpp.max_insured_salary', lppSalaireMax)) - reg('lpp.coordination_deduction', lppDeductionCoordination));
+    final coordinatedSalary = max(
+        0.0,
+        min(annualSalary, reg('lpp.max_insured_salary', lppSalaireMax)) -
+            reg('lpp.coordination_deduction', lppDeductionCoordination));
     final chLpp = coordinatedSalary * 0.07;
 
     final chTotal = chAvs + chAc + chLpp;
@@ -523,8 +542,8 @@ class ExpatService {
     }
 
     // Forfait base = max(living expenses, cantonal minimum, federal minimum)
-    final forfaitBase = [livingExpenses, cantonMin, forfaitFederalMinimum]
-        .reduce(max);
+    final forfaitBase =
+        [livingExpenses, cantonMin, forfaitFederalMinimum].reduce(max);
 
     // Forfait tax: apply a simplified effective rate (~25% on forfait base)
     // This is an approximation; actual rates vary by canton
@@ -572,10 +591,12 @@ class ExpatService {
     final totalYears = yearsAbroad + yearsInCh;
     final missingYears = max(0, fullContributionYears - yearsInCh);
     final completeness = min(1.0, yearsInCh / fullContributionYears);
-    final reductionPercent = (missingYears * reductionPerMissingYear * 100).clamp(0.0, 100.0);
+    final reductionPercent =
+        (missingYears * reductionPerMissingYear * 100).clamp(0.0, 100.0);
 
     // Max monthly AVS rente (LAVS art. 34)
-    final maxRenteMensuelle = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
+    final maxRenteMensuelle =
+        reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
     final estimatedRente = maxRenteMensuelle * completeness;
     final monthlyLoss = maxRenteMensuelle - estimatedRente;
 
@@ -594,8 +615,7 @@ class ExpatService {
           '(entre ${formatChf(avsVoluntaryMin)} et ${formatChf(avsVoluntaryMax)}/an) '
           'pour combler les lacunes.';
     } else {
-      recommendation =
-          'Attention, ta rente serait significativement reduite '
+      recommendation = 'Attention, ta rente serait significativement reduite '
           '(-${reductionPercent.toStringAsFixed(1)}%). '
           'La cotisation volontaire a l\'AVS depuis l\'etranger est fortement '
           'recommandee pour limiter la perte. '
@@ -666,10 +686,9 @@ class ExpatService {
         // source sur prestations en capital prévoyance (3-9 % selon
         // canton du dernier domicile). Pour une US person, ce retrait
         // déclenche aussi un exit event côté IRS (3a non-qualified).
-        'subtitle':
-            'Conditions OPP3 art. 3 al. 1 let. b : possible dès départ '
-                'définitif. Imposition séparée LIFD art. 38 + impôt '
-                'cantonal à la source (3-9 %).',
+        'subtitle': 'Conditions OPP3 art. 3 al. 1 let. b : possible dès départ '
+            'définitif. Imposition séparée LIFD art. 38 + impôt '
+            'cantonal à la source (3-9 %).',
         'timing': 'Avant le depart ou juste apres',
         'balance': pillar3aBalance,
         'priority': pillar3aBalance > 0 ? 'high' : 'low',
@@ -688,11 +707,10 @@ class ExpatService {
         // 01.06.2007) quand l'assuré est soumis à l'assurance obligatoire
         // retraite/invalidité/décès dans le pays UE/AELE. La PART
         // SUROBLIGATOIRE peut être retirée en capital (al. 2).
-        'subtitle':
-            'UE/AELE + affiliation sécu locale → part obligatoire sur '
-                'libre passage, part surobligatoire retirable en capital. '
-                'Hors UE/AELE (ou sans affiliation sécu) → retrait '
-                'intégral possible (LFLP art. 25f al. 1-2).',
+        'subtitle': 'UE/AELE + affiliation sécu locale → part obligatoire sur '
+            'libre passage, part surobligatoire retirable en capital. '
+            'Hors UE/AELE (ou sans affiliation sécu) → retrait '
+            'intégral possible (LFLP art. 25f al. 1-2).',
         'timing': 'A organiser avant le depart',
         'balance': lppBalance,
         'priority': lppBalance > 0 ? 'high' : 'low',
@@ -701,7 +719,8 @@ class ExpatService {
       {
         'id': 'commune',
         'title': 'Annoncer depart a la commune',
-        'subtitle': 'Formulaire de depart + desinscription registre des habitants.',
+        'subtitle':
+            'Formulaire de depart + desinscription registre des habitants.',
         'timing': '2-4 semaines avant le depart',
         'priority': 'high',
       },
@@ -726,9 +745,8 @@ class ExpatService {
       {
         'id': 'caution',
         'title': 'Recuperer caution de loyer',
-        'subtitle':
-            'Demander la liberation aupres de la banque. '
-                'Delai: jusqu\'a 1 an si le bailleur ne repond pas.',
+        'subtitle': 'Demander la liberation aupres de la banque. '
+            'Delai: jusqu\'a 1 an si le bailleur ne repond pas.',
         'timing': 'Apres la remise des cles',
         'priority': 'medium',
       },
@@ -752,8 +770,7 @@ class ExpatService {
       'lppBalance': lppBalance,
       'checklist': checklist,
       'noExitTax': true,
-      'exitTaxNote':
-          'La Suisse ne preleve pas de taxe de sortie (exit tax). '
+      'exitTaxNote': 'La Suisse ne preleve pas de taxe de sortie (exit tax). '
           'Tes gains en capital ne sont pas imposes au depart — '
           'contrairement a certains pays (USA, France, etc.).',
       'disclaimer': disclaimer,

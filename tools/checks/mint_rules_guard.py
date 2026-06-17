@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 RULES = Path("rules.md")
 BOOTSTRAP = Path(".claude/AGENT_BOOTSTRAP.md")
+VARIABLE_DICTIONARY_LINT = Path("tools/checks/mint_variable_dictionary_lint.py")
 
 REQUIRED_SECTIONS = ("ALWAYS DO", "ASK FIRST", "NEVER DO")
 
@@ -77,11 +79,14 @@ def check(root: Path) -> list[str]:
     errors: list[str] = []
     rules_path = root / RULES
     bootstrap_path = root / BOOTSTRAP
+    variable_dictionary_lint = root / VARIABLE_DICTIONARY_LINT
 
     if not rules_path.exists():
         errors.append(f"missing rules registry: {RULES}")
     if not bootstrap_path.exists():
         errors.append(f"missing Claude bootstrap: {BOOTSTRAP}")
+    if not variable_dictionary_lint.exists():
+        errors.append(f"missing variable dictionary lint: {VARIABLE_DICTIONARY_LINT}")
     if errors:
         return errors
 
@@ -112,6 +117,25 @@ def check(root: Path) -> list[str]:
         errors.append(
             f"{BOOTSTRAP} does not require active bootstrap items: "
             + ", ".join(missing_bootstrap)
+        )
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(variable_dictionary_lint),
+            "--root",
+            str(root),
+            "--check",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout).strip()
+        errors.append(
+            f"{VARIABLE_DICTIONARY_LINT} failed"
+            + (f": {detail}" if detail else "")
         )
 
     return errors

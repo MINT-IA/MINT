@@ -1166,6 +1166,7 @@ class ApiService {
       response,
       const ['breakevenYear', 'breakeven_year'],
     );
+    final calculationReceipt = _parseArbitrageCalculationReceipt(response);
 
     // ── Derive hero fields from trajectory data ──
     // full_rente (option A) year-1 cashflow = annual net rente
@@ -1241,7 +1242,26 @@ class ApiService {
       impotCumulRente: impotCumulRente,
       impotRetraitCapital: impotRetraitCapital,
       renteReelleAn20: renteReelleAn20,
+      calculationReceipt: calculationReceipt,
     );
+  }
+
+  static ArbitrageCalculationReceipt? _parseArbitrageCalculationReceipt(
+    Map<String, dynamic> response,
+  ) {
+    for (final key in const [
+      'calculationReceipt',
+      'calculation_receipt',
+      'receipt',
+    ]) {
+      final raw = response[key];
+      if (raw is Map) {
+        return ArbitrageCalculationReceipt.fromMap(
+          Map<String, dynamic>.from(raw),
+        );
+      }
+    }
+    return null;
   }
 
   static TrajectoireOption _parseTrajectoireOption(Map<String, dynamic> item) {

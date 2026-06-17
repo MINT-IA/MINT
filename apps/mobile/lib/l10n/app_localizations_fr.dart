@@ -6288,6 +6288,122 @@ class SFr extends S {
   }
 
   @override
+  String get renteVsCapitalReceiptTitle => 'Preuve du calcul';
+
+  @override
+  String get renteVsCapitalReceiptRequiredTitle => 'Résultat masqué';
+
+  @override
+  String get renteVsCapitalReceiptRequiredBody =>
+      'Les chiffres restent masqués car la preuve du calcul est incomplète.';
+
+  @override
+  String get renteVsCapitalReceiptOriginLabel => 'Origine';
+
+  @override
+  String get renteVsCapitalReceiptVersionLabel => 'Version de calcul';
+
+  @override
+  String get renteVsCapitalReceiptConstantsLabel => 'Version des constantes';
+
+  @override
+  String get renteVsCapitalReceiptReadinessLabel => 'État de la preuve';
+
+  @override
+  String get renteVsCapitalReceiptUnitLabel => 'Unités';
+
+  @override
+  String get renteVsCapitalReceiptConfidenceLabel => 'Confiance';
+
+  @override
+  String get renteVsCapitalReceiptAssumptionsLabel => 'Hypothèses';
+
+  @override
+  String get renteVsCapitalReceiptSourcesLabel => 'Sources';
+
+  @override
+  String get renteVsCapitalReceiptMissingLabel => 'Champs requis à compléter';
+
+  @override
+  String get renteVsCapitalReceiptMissingNone => 'Aucun champ requis manquant';
+
+  @override
+  String get renteVsCapitalReceiptReadinessReady => 'Prête';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
+      'Champs requis manquants';
+
+  @override
+  String get renteVsCapitalReceiptReadinessIncomplete => 'Preuve incomplète';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissing => 'Preuve absente';
+
+  @override
+  String get renteVsCapitalReceiptMissingFallback => 'preuve du calcul';
+
+  @override
+  String get renteVsCapitalReceiptMissingCapitalLppTotal => 'capital LPP total';
+
+  @override
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
+      'rente annuelle proposée';
+
+  @override
+  String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingHorizonYears =>
+      'horizon de comparaison';
+
+  @override
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
+      'taux de retrait du capital';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
+      'taux de conversion obligatoire';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
+      'taux de conversion surobligatoire';
+
+  @override
+  String get mint2FirstExperienceAxisPrompt =>
+      'Choisis le sujet que tu veux éclairer d\'abord.';
+
+  @override
+  String get mint2FirstExperienceLiveStatus => 'Disponible';
+
+  @override
+  String get mint2FirstExperienceSignalStatus => 'Signalétique';
+
+  @override
+  String get mint2FirstExperienceSignalSaved => 'Intérêt enregistré';
+
+  @override
+  String get mint2FirstExperienceLppLabel => '2e pilier : rente ou capital';
+
+  @override
+  String get mint2FirstExperienceLppBody =>
+      'On prépare les champs nécessaires avant d\'ouvrir le comparateur défendable.';
+
+  @override
+  String get mint2FirstExperienceHousingLabel => 'Logement : 2e / 3e pilier';
+
+  @override
+  String get mint2FirstExperienceHousingBody =>
+      'On note ton intérêt et on garde cette porte sans simulation pour cette phase.';
+
+  @override
+  String get mint2FirstExperienceFiscalLabel => '3a et rachats : impact fiscal';
+
+  @override
+  String get mint2FirstExperienceFiscalBody =>
+      'On note ton intérêt fiscal sans calculer de montant dans cette phase.';
+
+  @override
   String get renteVsCapitalRachatLabel => 'Rachat LPP annuel prévu (CHF)';
 
   @override

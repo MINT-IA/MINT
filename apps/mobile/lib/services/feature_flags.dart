@@ -103,6 +103,12 @@ class FeatureFlags {
   /// Kill-switch: backend set to false, no app redeploy needed.
   static bool enableMvpWedgeOnboarding = false;
 
+  /// Mint 2 first experience — three-axis T2 under `/onb`.
+  ///
+  /// Default-off until the Slice 2B/2C first-entry contract has runtime proof.
+  /// When false, `/onb` keeps the existing MVP wedge intent cards.
+  static bool enableMint2FirstExperienceEntry = false;
+
   /// Sub-phase 01.5 archetype HARD GATE kill switch (Codex R5 release-blocker).
   ///
   /// **Default: `true`** — gate is active. Non-supported archetypes
@@ -195,6 +201,10 @@ class FeatureFlags {
     }
     if (data.containsKey('enableMvpWedgeOnboarding')) {
       enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
+    }
+    if (data.containsKey('enableMint2FirstExperienceEntry')) {
+      enableMint2FirstExperienceEntry =
+          data['enableMint2FirstExperienceEntry'] == true;
     }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {

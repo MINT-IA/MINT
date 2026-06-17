@@ -98,30 +98,30 @@ class WithdrawalSequencingResult {
 
 /// Service d'optimisation de la sequence de retrait en capital.
 ///
-/// Calcule la sequence de retraits (3a, LPP capital) qui minimise la
-/// charge fiscale totale en echelonnant les retraits sur plusieurs
-/// annees fiscales. Pure static, sans etat.
+/// Calcule la séquence de retraits (3a, LPP capital) qui minimise la
+/// charge fiscale totale en échelonnant les retraits sur plusieurs
+/// années fiscales. Pure static, sans état.
 class WithdrawalSequencingService {
   WithdrawalSequencingService._();
 
   static const String _disclaimer =
-      'Simulation pedagogique de la sequence de retrait en capital. '
-      "L'optimisation fiscale depend de la legislation cantonale et "
-      'de la situation personnelle. Base legale : LIFD art. 38, OPP3 art. 3. '
-      'Consulte un ou une specialiste avant toute decision. '
+      'Simulation pédagogique de la séquence de retrait en capital. '
+      "L'optimisation fiscale dépend de la législation cantonale et "
+      'de la situation personnelle. Base légale : LIFD art. 38, OPP3 art. 3. '
+      'Consulte un ou une spécialiste avant toute décision. '
       'Cette simulation ne constitue pas un conseil financier au sens de la LSFin.';
 
   static const List<String> _sources = [
-    'LIFD art. 38 (imposition separee capital prevoyance)',
-    'OPP3 art. 3 (retrait anticipe 3a)',
+    'LIFD art. 38 (imposition séparée capital prévoyance)',
+    'OPP3 art. 3 (retrait anticipé 3a)',
     'LPP art. 37 (prestations en capital)',
   ];
 
-  /// Calcule la sequence de retrait optimale.
+  /// Calcule la séquence de retrait optimale.
   ///
   /// [profile]: profil financier complet.
-  /// [retirementAge]: age de retraite prevu (defaut 65).
-  /// [lppCapitalPct]: fraction du LPP retiree en capital (0.0 = 100% rente).
+  /// [retirementAge]: âge de retraite prévu (défaut 65).
+  /// [lppCapitalPct]: fraction du LPP retirée en capital (0.0 = 100% rente).
   static WithdrawalSequencingResult optimize({
     required CoachProfile profile,
     int retirementAge = avsAgeReferenceHomme,
@@ -130,10 +130,10 @@ class WithdrawalSequencingService {
     final currentYear = DateTime.now().year;
     final currentAge = profile.age;
 
-    // Guard: si la personne est deja a l'age de retraite ou au-dela,
-    // aucune optimisation de sequencage n'est possible.
+    // Guard: si la personne est déjà à l'âge de retraite ou au-delà,
+    // aucune optimisation de séquençage n'est possible.
     if (currentAge >= retirementAge) {
-      // Personne deja a l'age de retraite ou au-dela
+      // Personne déjà à l'âge de retraite ou au-delà
       return const WithdrawalSequencingResult(
         optimizedSequence: [],
         naiveSequence: [],
@@ -146,9 +146,8 @@ class WithdrawalSequencingService {
       );
     }
 
-    final canton = profile.canton.isNotEmpty
-        ? profile.canton.toUpperCase()
-        : 'ZH';
+    final canton =
+        profile.canton.isNotEmpty ? profile.canton.toUpperCase() : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
 
     // ── 1. Collecter les sources de capital ───────────────────────
@@ -183,8 +182,7 @@ class WithdrawalSequencingService {
       canton: canton,
       isMarried: isMarried,
     );
-    final totalTaxNaive =
-        naiveSequence.fold(0.0, (sum, e) => sum + e.tax);
+    final totalTaxNaive = naiveSequence.fold(0.0, (sum, e) => sum + e.tax);
 
     // ── 3. Scenario OPTIMISE: echelonner les retraits ────────────
     final optimizedSequence = _buildOptimizedSequence(
@@ -200,8 +198,7 @@ class WithdrawalSequencingService {
 
     // ── 4. Calculer les economies ────────────────────────────────
     final taxSavings = totalTaxNaive - totalTaxOptimized;
-    final savingsPercent =
-        totalTaxNaive > 0 ? taxSavings / totalTaxNaive : 0.0;
+    final savingsPercent = totalTaxNaive > 0 ? taxSavings / totalTaxNaive : 0.0;
 
     return WithdrawalSequencingResult(
       optimizedSequence: optimizedSequence,
@@ -281,7 +278,7 @@ class WithdrawalSequencingService {
         final effectiveConversion = LppCalculator.adjustedConversionRate(
           baseRate: profile.prevoyance.tauxConversion > 0
               ? profile.prevoyance.tauxConversion
-              : reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+              : reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
           retirementAge: retirementAge,
         );
         final projectedBalance = projectedLppRente / effectiveConversion;
@@ -332,11 +329,10 @@ class WithdrawalSequencingService {
 
     final projectedAmounts = <_CapitalSource, double>{};
     for (final src in capitalSources) {
-      final years = src.alreadyProjected
-          ? 0
-          : (retirementAge - currentAge).clamp(0, 50);
-      final projected = _projectBalance(
-          src.currentBalance, src.annualReturn, years);
+      final years =
+          src.alreadyProjected ? 0 : (retirementAge - currentAge).clamp(0, 50);
+      final projected =
+          _projectBalance(src.currentBalance, src.annualReturn, years);
       projectedAmounts[src] = projected;
       totalCapitalInYear += projected;
     }
@@ -351,9 +347,8 @@ class WithdrawalSequencingService {
     // Repartir l'impot au prorata de chaque source.
     for (final src in capitalSources) {
       final projected = projectedAmounts[src]!;
-      final proportion = totalCapitalInYear > 0
-          ? projected / totalCapitalInYear
-          : 0.0;
+      final proportion =
+          totalCapitalInYear > 0 ? projected / totalCapitalInYear : 0.0;
       final sourceTax = totalTax * proportion;
       events.add(WithdrawalEvent(
         year: retirementYear,
@@ -381,26 +376,24 @@ class WithdrawalSequencingService {
     required bool isMarried,
   }) {
     // Separer les sources 3a et non-3a.
-    final sources3a = capitalSources
-        .where((s) => s.type == _SourceType.pilier3a)
-        .toList();
+    final sources3a =
+        capitalSources.where((s) => s.type == _SourceType.pilier3a).toList();
     // Trier les comptes 3a par solde decroissant: le plus gros compte
     // est isole dans sa propre annee fiscale pour minimiser l'impact
     // des tranches progressives.
     sources3a.sort((a, b) => b.currentBalance.compareTo(a.currentBalance));
-    final sourcesOther = capitalSources
-        .where((s) => s.type != _SourceType.pilier3a)
-        .toList();
+    final sourcesOther =
+        capitalSources.where((s) => s.type != _SourceType.pilier3a).toList();
 
     // --- Planifier les retraits 3a ---
     // OPP3 art. 3: retrait anticipe 3a possible 5 ans avant l'age AVS
     // de reference (65), soit au plus tot a 60 ans. La fenetre ne depend
     // PAS de l'age de retraite choisi par l'utilisateur.
-    final int avsReferenceAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final int avsReferenceAge =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final earliestWithdrawalAge =
         (avsReferenceAge - 5).clamp(currentAge, 99); // = max(currentAge, 60)
-    final latestWithdrawalAge =
-        retirementAge.clamp(earliestWithdrawalAge, 70);
+    final latestWithdrawalAge = retirementAge.clamp(earliestWithdrawalAge, 70);
 
     // Echelonner les comptes 3a: un par annee, en commencant le plus tot.
     // Strategie: repartir uniformement dans la fenetre disponible.
@@ -431,8 +424,8 @@ class WithdrawalSequencingService {
       final src = sources3a[i];
       final withdrawalAge = withdrawalAges3a[i];
       final years = (withdrawalAge - currentAge).clamp(0, 50);
-      final projected = _projectBalance(
-          src.currentBalance, src.annualReturn, years);
+      final projected =
+          _projectBalance(src.currentBalance, src.annualReturn, years);
       final year = currentYear + (withdrawalAge - currentAge);
 
       yearlyWithdrawals.putIfAbsent(year, () => []);
@@ -447,11 +440,10 @@ class WithdrawalSequencingService {
     // LPP capital + autres: a l'age de retraite.
     final retirementYear = currentYear + (retirementAge - currentAge);
     for (final src in sourcesOther) {
-      final years = src.alreadyProjected
-          ? 0
-          : (retirementAge - currentAge).clamp(0, 50);
-      final projected = _projectBalance(
-          src.currentBalance, src.annualReturn, years);
+      final years =
+          src.alreadyProjected ? 0 : (retirementAge - currentAge).clamp(0, 50);
+      final projected =
+          _projectBalance(src.currentBalance, src.annualReturn, years);
 
       yearlyWithdrawals.putIfAbsent(retirementYear, () => []);
       yearlyWithdrawals[retirementYear]!.add(_PlannedWithdrawal(
@@ -479,9 +471,8 @@ class WithdrawalSequencingService {
 
       // Repartir l'impot au prorata des montants retires cette annee.
       for (final w in withdrawals) {
-        final proportion = totalInYear > 0
-            ? w.projectedAmount / totalInYear
-            : 0.0;
+        final proportion =
+            totalInYear > 0 ? w.projectedAmount / totalInYear : 0.0;
         final sourceTax = yearTax * proportion;
         events.add(WithdrawalEvent(
           year: w.year,

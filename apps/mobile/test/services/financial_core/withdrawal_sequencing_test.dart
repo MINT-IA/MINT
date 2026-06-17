@@ -64,8 +64,7 @@ void main() {
         retirementAge: 65,
       );
 
-      expect(result.totalTaxOptimized,
-          lessThanOrEqualTo(result.totalTaxNaive));
+      expect(result.totalTaxOptimized, lessThanOrEqualTo(result.totalTaxNaive));
       expect(result.taxSavings, greaterThanOrEqualTo(0));
     });
 
@@ -139,8 +138,7 @@ void main() {
 
       expect(marriedResult.totalTaxOptimized,
           lessThan(singleResult.totalTaxOptimized));
-      expect(marriedResult.totalTaxNaive,
-          lessThan(singleResult.totalTaxNaive));
+      expect(marriedResult.totalTaxNaive, lessThan(singleResult.totalTaxNaive));
     });
 
     // ──────────────────────────────────────────────────────────
@@ -188,10 +186,10 @@ void main() {
         lppCapitalPct: 0.5,
       );
 
-      final totalOptimized = result.optimizedSequence
-          .fold(0.0, (sum, e) => sum + e.amount);
-      final totalNaive = result.naiveSequence
-          .fold(0.0, (sum, e) => sum + e.amount);
+      final totalOptimized =
+          result.optimizedSequence.fold(0.0, (sum, e) => sum + e.amount);
+      final totalNaive =
+          result.naiveSequence.fold(0.0, (sum, e) => sum + e.amount);
 
       // Both scenarios should handle the same total capital.
       // NOTE: With 3a growth (returns > 0) projected to different years,
@@ -252,10 +250,9 @@ void main() {
         retirementAge: 65,
       );
 
-      expect(resultVD.totalTaxOptimized,
-          greaterThan(resultZG.totalTaxOptimized));
-      expect(resultVD.totalTaxNaive,
-          greaterThan(resultZG.totalTaxNaive));
+      expect(
+          resultVD.totalTaxOptimized, greaterThan(resultZG.totalTaxOptimized));
+      expect(resultVD.totalTaxNaive, greaterThan(resultZG.totalTaxNaive));
     });
 
     // ──────────────────────────────────────────────────────────
@@ -296,16 +293,14 @@ void main() {
 
       expect(result.disclaimer, contains('LIFD art. 38'));
       expect(result.disclaimer, contains('OPP3 art. 3'));
-      expect(result.disclaimer, contains('specialiste'));
-      expect(result.disclaimer, contains('Simulation pedagogique'));
+      expect(result.disclaimer, contains('spécialiste'));
+      expect(result.disclaimer, contains('Simulation pédagogique'));
 
       // Sources check
       expect(result.sources,
-          contains('LIFD art. 38 (imposition separee capital prevoyance)'));
-      expect(result.sources,
-          contains('OPP3 art. 3 (retrait anticipe 3a)'));
-      expect(result.sources,
-          contains('LPP art. 37 (prestations en capital)'));
+          contains('LIFD art. 38 (imposition séparée capital prévoyance)'));
+      expect(result.sources, contains('OPP3 art. 3 (retrait anticipé 3a)'));
+      expect(result.sources, contains('LPP art. 37 (prestations en capital)'));
     });
 
     // ──────────────────────────────────────────────────────────
@@ -334,8 +329,7 @@ void main() {
       );
 
       // More accounts = more staggering = more savings.
-      expect(result4.taxSavings,
-          greaterThanOrEqualTo(result2.taxSavings));
+      expect(result4.taxSavings, greaterThanOrEqualTo(result2.taxSavings));
     });
 
     // ──────────────────────────────────────────────────────────

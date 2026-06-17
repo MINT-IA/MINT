@@ -159,8 +159,8 @@ class FirstJobService {
     // Deductions
     final avs = brut * _avsAiApgRate;
     // AC: standard rate up to ceiling, solidarity 0.5% on excess (LACI art. 3)
-    final acCeil = reg('ac.salary_ceiling', acPlafondSalaireAssure);
-    final acEmpRate = reg('ac.employee_rate', acCotisationSalarie);
+    final acCeil = reg('ac.max_insured_salary', acPlafondSalaireAssure);
+    final acEmpRate = reg('ac.contribution_rate_employee', acCotisationSalarie);
     final ac = annuel <= acCeil
         ? brut * acEmpRate
         : (acCeil * acEmpRate + (annuel - acCeil) * 0.005) / 12;

@@ -18,13 +18,31 @@ Claude phase review status: `PASS_WITH_FIXES`, P1 fixes incorporated here.
 
 1. `01-contract-before-code`
 2. `02-entry-and-three-axes-code-map`
-3. `03-rente-capital-data-readiness`
-4. `04-rente-capital-result-provenance`
-5. `05-dossier-navigation-and-account-handoff`
-6. `06-simulator-and-gates`
+3. `02a-data-dictionary-onboarding-profile`
+4. `02b-existing-variable-coverage-map`
+5. `03-rente-capital-data-readiness`
+6. `04-rente-capital-result-provenance`
+7. `05-dossier-navigation-and-account-handoff`
+8. `06-simulator-and-gates`
 
 Slice 2 is now proposed as a code-mapped plan. Product code still requires a
 separate implementation branch after this plan is accepted.
+
+Slice 2 precondition adds the proposed user-variable dictionary and progressive
+profile contract:
+`mint-2-0-first-experience-rente-capital-02a-data-dictionary-onboarding-profile-PLAN.md`.
+It exists because onboarding/profile implementation must know which fields are
+canonical, which keys are deprecated aliases, which constants are versioned,
+and which fields are too early for signal axes.
+This precondition governs the data/profile contract before Slice 2B onward; the
+existing implementation label "Slice 2A" remains the calculator-boundary work
+defined in the code-map plan.
+
+The coverage map for that precondition is:
+`mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md`.
+It records the current repo surfaces and open mismatches so the future runtime
+dictionary is a binding/check layer, not a duplicate profile or constants
+library.
 
 ## Slice 1 — Contract Before Code
 
@@ -59,6 +77,10 @@ Before code in Slice 2, use
 with:
 
 - exact files to touch, including landing/entry screen and route wiring;
+- data dictionary bindings for backend profile keys, `save_fact`, wizard keys,
+  `CoachProfile` paths, sensitive-storage coverage, and per-axis readiness;
+- coverage-map reconciliation for existing profile/save_fact/onboarding,
+  secure-storage, and regulatory-key mismatches;
 - explicit reuse of `/rente-vs-capital` rather than a new screen;
 - binding calculator-boundary decision for `rente_vs_capital_calculator.dart` vs `financial_core/arbitrage_engine.dart`;
 - explicit chat guard and dossier-independence tests;

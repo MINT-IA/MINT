@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/generated/regulatory_constants.g.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -102,6 +103,7 @@ class ArbitrageEngine {
     int horizon = 30,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+
     /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche par RvC — un profil = un score sur toutes les surfaces (D12).
@@ -307,7 +309,9 @@ class ArbitrageEngine {
       assumptionHigh: retraitHigh,
     );
 
-    final tcObligLow = math.max(reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), tauxConversionObligatoire - 0.005);
+    final tcObligLow = math.max(
+        reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
+        tauxConversionObligatoire - 0.005);
     final tcObligHigh = tauxConversionObligatoire + 0.005;
     _addTornadoSensitivity(
       sensitivity,
@@ -386,7 +390,8 @@ class ArbitrageEngine {
       // Extract remaining capital: netPatrimony - cumulativeCashflow
       // Since we don't track separately, use the trajectory's design:
       // when the withdrawal is capped to remaining capital and capital is 0
-      if (i > 1 && snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
+      if (i > 1 &&
+          snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
         capitalEpuiseAge = ageRetraite + i;
         break;
       }
@@ -443,45 +448,82 @@ class ArbitrageEngine {
     }
 
     final displaySummary = breakevenYear != null
-        ? 'Les trajectoires se croisent vers l\'age de '
+        ? 'Les trajectoires se croisent vers l\'âge de '
             '${ageRetraite + breakevenYear} ans. '
-            'Avant ce point, la rente procure un revenu regulier. '
-            'Apres, le capital retire peut constituer un patrimoine plus important.'
+            'Avant ce point, la rente procure un revenu régulier. '
+            'Après, le capital retiré peut constituer un patrimoine plus important.'
         : 'Sur l\'horizon de $horizon ans, les trajectoires ne se croisent pas. '
-            'L\'ecart de valeur totale est de ${chf.formatChfWithPrefix(delta)}.';
+            'L\'écart de valeur totale est de ${chf.formatChfWithPrefix(delta)}.';
+
+    final hypotheses = [
+      'Ce que ton capital rapporte : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
+      'Retrait annuel du capital : ${(tauxRetrait * 100).toStringAsFixed(1)} % par an',
+      'Inflation : ${(inflation * 100).toStringAsFixed(1)} % par an',
+      'Horizon : $horizon ans (âge ${ageRetraite + horizon})',
+      'Canton : $canton',
+      'Taux de conversion obligatoire : ${(tauxConversionObligatoire * 100).toStringAsFixed(1)} %',
+      'Taux de conversion surobligatoire : ${(tauxConversionSurobligatoire * 100).toStringAsFixed(1)} %',
+      'Valeurs en francs d\'aujourd\'hui (pouvoir d\'achat réel)',
+      if (isMarried) 'Splitting marié : réduction ~15 % sur impôt retrait',
+      if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
+    ];
+    final sources = [
+      'LPP art. 14 (taux de conversion)',
+      'LIFD art. 22 (imposition des rentes)',
+      'LIFD art. 38 (impôt sur retrait en capital)',
+      if (isMarried) 'LPP art. 19 (rente de survivant)',
+    ];
+    final confidenceScore = _computeArbitrageConfidence(
+      ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
+      dataSources,
+      canonicalConfidence: canonicalConfidence,
+    );
+    final missingRequiredInputs = <String>[
+      if (capitalLppTotal <= 0) 'capital_lpp_total',
+      if (renteAnnuelleProposee <= 0) 'rente_annuelle_proposee',
+      if (canton.trim().isEmpty) 'canton',
+      if (horizon <= 0) 'horizon_years',
+      if (capitalLppTotal > 0 && tauxRetrait <= 0) 'safe_withdrawal_rate',
+      if (capitalObligatoire > 0 && tauxConversionObligatoire <= 0)
+        'conversion_rate_obligatory',
+      if (capitalSurobligatoire > 0 && tauxConversionSurobligatoire <= 0)
+        'conversion_rate_surobligatory',
+    ];
+    final receipt = ArbitrageCalculationReceipt(
+      calculationOrigin: 'mobile_l1_arbitrage_engine',
+      calculationVersion: 'rvc-arbitrage-engine-v1',
+      constantsVersionHash: regulatoryConstantsVersionHash,
+      unit: 'CHF/mois; CHF; percent; years',
+      assumptions: {
+        'safe_withdrawal_rate': tauxRetrait,
+        'expected_return': rendementCapital,
+        'inflation': inflation,
+        'horizon_years': horizon,
+        'canton': canton,
+        'conversion_rate_obligatory': tauxConversionObligatoire,
+        'conversion_rate_surobligatory': tauxConversionSurobligatoire,
+        'age_retirement': ageRetraite,
+        'is_married': isMarried,
+      },
+      sources: sources,
+      readiness:
+          missingRequiredInputs.isEmpty ? 'ready' : 'missing_required_inputs',
+      confidenceScore: confidenceScore,
+      missingRequiredInputs: missingRequiredInputs,
+    );
 
     return ArbitrageResult(
       options: options,
       breakevenYear: breakevenYear,
       premierEclairage: premierEclairage,
       displaySummary: displaySummary,
-      hypotheses: [
-        'Ce que ton capital rapporte : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
-        'Retrait annuel du capital : ${(tauxRetrait * 100).toStringAsFixed(1)} % par an',
-        'Inflation : ${(inflation * 100).toStringAsFixed(1)} % par an',
-        'Horizon : $horizon ans (age ${ageRetraite + horizon})',
-        'Canton : $canton',
-        'Taux de conversion obligatoire : ${(tauxConversionObligatoire * 100).toStringAsFixed(1)} %',
-        'Taux de conversion surobligatoire : ${(tauxConversionSurobligatoire * 100).toStringAsFixed(1)} %',
-        'Valeurs en francs d\'aujourd\'hui (pouvoir d\'achat reel)',
-        if (isMarried) 'Splitting marie : reduction ~15 % sur impot retrait',
-        if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
-      ],
+      hypotheses: hypotheses,
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
-      sources: [
-        'LPP art. 14 (taux de conversion)',
-        'LIFD art. 22 (imposition des rentes)',
-        'LIFD art. 38 (impot sur retrait en capital)',
-        if (isMarried) 'LPP art. 19 (rente de survivant)',
-      ],
-      confidenceScore: _computeArbitrageConfidence(
-        ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],
-        dataSources,
-        canonicalConfidence: canonicalConfidence,
-      ),
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
+      sources: sources,
+      confidenceScore: confidenceScore,
       sensitivity: sensitivity,
       // ── New hero + card fields ──
       renteNetMensuelle: renteNetMensuelle,
@@ -493,6 +535,7 @@ class ArbitrageEngine {
       renteSurvivant: renteSurvivant,
       capitalProjecte: effectiveCapitalTotal,
       isProjected: isProjected,
+      calculationReceipt: receipt,
     );
   }
 
@@ -518,6 +561,7 @@ class ArbitrageEngine {
     double rendementMarche = 0.04,
     String canton = 'ZH',
     Map<String, ProfileDataSource>? dataSources,
+
     /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche — un profil = un score sur toutes les surfaces (D12, generalise
@@ -627,7 +671,7 @@ class ArbitrageEngine {
     final ecart = maxTerminal - minTerminal;
 
     final premierEclairage =
-        'Dans ce scenario simule, l\'ecart entre les options atteint '
+        'Dans ce scénario simulé, l\'écart entre les options atteint '
         '${chf.formatChfWithPrefix(ecart)} sur $anneesAvantRetraite ans.';
 
     final displaySummary =
@@ -886,9 +930,9 @@ class ArbitrageEngine {
           'Potentiel de rachat LPP : ${chf.formatChfWithPrefix(potentielRachatLpp)}',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
       sources: [
         'OPP3 art. 7 (plafond 3a)',
         'LPP art. 79b al. 3 (blocage rachat 3 ans)',
@@ -927,6 +971,7 @@ class ArbitrageEngine {
     double tauxEntretien = 0.01,
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+
     /// Confiance canonique du profil (`EnhancedConfidence.combined`), calculee
     /// par l'appelant sur le MEME profil. Quand fournie, elle devient LE score
     /// affiche — un profil = un score sur toutes les surfaces (D12, generalise
@@ -975,7 +1020,8 @@ class ArbitrageEngine {
               ) *
               12
           : 0.0;
-      annualProprioCharges.add(interets + amortissement + entretien + taxImpact);
+      annualProprioCharges
+          .add(interets + amortissement + entretien + taxImpact);
       tempHyp = math.max(seuil1erRang, tempHyp - amortissement);
     }
 
@@ -1030,7 +1076,8 @@ class ArbitrageEngine {
       }
       valeurBien *= (1 + appreciationImmo);
       // Amortization: 2nd rank only, stops when mortgage reaches 1st rank level
-      final amortissement = hypotheque > seuil1erRang ? amortAnnuel2ndRank : 0.0;
+      final amortissement =
+          hypotheque > seuil1erRang ? amortAnnuel2ndRank : 0.0;
       hypotheque = math.max(seuil1erRang, hypotheque - amortissement);
 
       buySnapshots.add(YearlySnapshot(
@@ -1472,15 +1519,15 @@ class ArbitrageEngine {
         if (isMarried) 'Splitting marie',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
       sources: [
         'LPP art. 79b (rachat)',
         'LPP art. 79b al. 3 (blocage 3 ans)',
         'LPP art. 14 (taux de conversion)',
         'LIFD art. 33 (deduction rachat)',
-        'LIFD art. 38 (impot retrait capital)',
+        'LIFD art. 38 (impôt retrait capital)',
         if (blockageBreach) 'ATF 142 II 399 / 148 II 189 (abus rachat+retrait)',
       ],
       confidenceScore: _computeArbitrageConfidence(
@@ -1518,8 +1565,8 @@ class ArbitrageEngine {
         displaySummary: '',
         hypotheses: const [],
         disclaimer:
-            'Outil educatif — ne constitue pas un conseil financier (LSFin).',
-        sources: const ['LIFD art. 38 (impot sur retrait en capital)'],
+            'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
+        sources: const ['LIFD art. 38 (impôt sur retrait en capital)'],
         confidenceScore: _computeArbitrageConfidence([], dataSources),
         sensitivity: const {},
       );
@@ -1655,17 +1702,18 @@ class ArbitrageEngine {
     final taxSaved = taxToutEnUn - totalTaxEtale;
 
     final premierEclairage = taxSaved > 0
-        ? 'Tu economiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impot en etalant tes retraits.'
-        : 'Dans ce cas, l\'ecart d\'impot est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
+        ? 'Tu économiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impôt en étalant tes retraits.'
+        : 'Dans ce cas, l\'écart d\'impôt est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
 
-    final displaySummary = 'Retrait total : ${chf.formatChfWithPrefix(totalCapital)}. '
-        'Impot "tout en un" : ${chf.formatChfWithPrefix(taxToutEnUn)} vs '
-        'impot etale : ${chf.formatChfWithPrefix(totalTaxEtale)}.';
+    final displaySummary =
+        'Retrait total : ${chf.formatChfWithPrefix(totalCapital)}. '
+        'Impôt "tout en un" : ${chf.formatChfWithPrefix(taxToutEnUn)} vs '
+        'impôt étalé : ${chf.formatChfWithPrefix(totalTaxEtale)}.';
 
     final withdrawalDetails = withdrawalPlan
         .map((w) =>
-            '${w.type.toUpperCase()} : ${chf.formatChfWithPrefix(w.amount)} a ${w.age} ans '
-            '(impot : ${chf.formatChfWithPrefix(w.tax)})')
+            '${w.type.toUpperCase()} : ${chf.formatChfWithPrefix(w.amount)} à ${w.age} ans '
+            '(impôt : ${chf.formatChfWithPrefix(w.tax)})')
         .toList();
 
     final sensitivity = <String, double>{};
@@ -1714,11 +1762,11 @@ class ArbitrageEngine {
         ...withdrawalDetails,
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'L\'impot effectif depend des circonstances individuelles.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'L\'impôt effectif dépend des circonstances individuelles.',
       sources: [
-        'LIFD art. 38 (impot progressif sur retrait en capital)',
+        'LIFD art. 38 (impôt progressif sur retrait en capital)',
         'Legislations fiscales cantonales',
       ],
       confidenceScore: _computeArbitrageConfidence(
@@ -1876,7 +1924,8 @@ class ArbitrageEngine {
       final nominalWithdrawal =
           initialWithdrawal * math.pow(1 + inflation, y - 1);
       // Cap withdrawal to remaining capital (can't withdraw more than exists)
-      final actualWithdrawal = math.min(nominalWithdrawal, math.max(0, capitalNet));
+      final actualWithdrawal =
+          math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= actualWithdrawal;
 
       // Express in real terms (deflate to today's purchasing power)
@@ -1951,7 +2000,8 @@ class ArbitrageEngine {
           math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= capitalWithdrawal;
 
-      final totalNominalCashflow = renteObligatoire - renteTax + capitalWithdrawal;
+      final totalNominalCashflow =
+          renteObligatoire - renteTax + capitalWithdrawal;
       cumulativeCashflow += totalNominalCashflow;
       cumulativeTax += renteTax;
 
@@ -2060,7 +2110,8 @@ class ArbitrageEngine {
         continue;
       }
       // 3a contribution
-      final contribution = math.min(montantAnnuel, reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
+      final contribution = math.min(
+          montantAnnuel, reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
       balance3a += contribution;
       balance3a *= (1 + rendement3a);
 
