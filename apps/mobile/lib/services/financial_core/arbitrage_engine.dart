@@ -671,7 +671,7 @@ class ArbitrageEngine {
     final ecart = maxTerminal - minTerminal;
 
     final premierEclairage =
-        'Dans ce scenario simule, l\'ecart entre les options atteint '
+        'Dans ce scénario simulé, l\'écart entre les options atteint '
         '${chf.formatChfWithPrefix(ecart)} sur $anneesAvantRetraite ans.';
 
     final displaySummary =
@@ -930,9 +930,9 @@ class ArbitrageEngine {
           'Potentiel de rachat LPP : ${chf.formatChfWithPrefix(potentielRachatLpp)}',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
       sources: [
         'OPP3 art. 7 (plafond 3a)',
         'LPP art. 79b al. 3 (blocage rachat 3 ans)',
@@ -1519,15 +1519,15 @@ class ArbitrageEngine {
         if (isMarried) 'Splitting marie',
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
       sources: [
         'LPP art. 79b (rachat)',
         'LPP art. 79b al. 3 (blocage 3 ans)',
         'LPP art. 14 (taux de conversion)',
         'LIFD art. 33 (deduction rachat)',
-        'LIFD art. 38 (impot retrait capital)',
+        'LIFD art. 38 (impôt retrait capital)',
         if (blockageBreach) 'ATF 142 II 399 / 148 II 189 (abus rachat+retrait)',
       ],
       confidenceScore: _computeArbitrageConfidence(
@@ -1565,8 +1565,8 @@ class ArbitrageEngine {
         displaySummary: '',
         hypotheses: const [],
         disclaimer:
-            'Outil educatif — ne constitue pas un conseil financier (LSFin).',
-        sources: const ['LIFD art. 38 (impot sur retrait en capital)'],
+            'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
+        sources: const ['LIFD art. 38 (impôt sur retrait en capital)'],
         confidenceScore: _computeArbitrageConfidence([], dataSources),
         sensitivity: const {},
       );
@@ -1702,18 +1702,18 @@ class ArbitrageEngine {
     final taxSaved = taxToutEnUn - totalTaxEtale;
 
     final premierEclairage = taxSaved > 0
-        ? 'Tu economiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impot en etalant tes retraits.'
-        : 'Dans ce cas, l\'ecart d\'impot est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
+        ? 'Tu économiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impôt en étalant tes retraits.'
+        : 'Dans ce cas, l\'écart d\'impôt est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
 
     final displaySummary =
         'Retrait total : ${chf.formatChfWithPrefix(totalCapital)}. '
-        'Impot "tout en un" : ${chf.formatChfWithPrefix(taxToutEnUn)} vs '
-        'impot etale : ${chf.formatChfWithPrefix(totalTaxEtale)}.';
+        'Impôt "tout en un" : ${chf.formatChfWithPrefix(taxToutEnUn)} vs '
+        'impôt étalé : ${chf.formatChfWithPrefix(totalTaxEtale)}.';
 
     final withdrawalDetails = withdrawalPlan
         .map((w) =>
-            '${w.type.toUpperCase()} : ${chf.formatChfWithPrefix(w.amount)} a ${w.age} ans '
-            '(impot : ${chf.formatChfWithPrefix(w.tax)})')
+            '${w.type.toUpperCase()} : ${chf.formatChfWithPrefix(w.amount)} à ${w.age} ans '
+            '(impôt : ${chf.formatChfWithPrefix(w.tax)})')
         .toList();
 
     final sensitivity = <String, double>{};
@@ -1762,11 +1762,11 @@ class ArbitrageEngine {
         ...withdrawalDetails,
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'L\'impot effectif depend des circonstances individuelles.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'L\'impôt effectif dépend des circonstances individuelles.',
       sources: [
-        'LIFD art. 38 (impot progressif sur retrait en capital)',
+        'LIFD art. 38 (impôt progressif sur retrait en capital)',
         'Legislations fiscales cantonales',
       ],
       confidenceScore: _computeArbitrageConfidence(

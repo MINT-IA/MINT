@@ -349,7 +349,8 @@ class _TornadoMeta {
 
 /// Parse tornado variables from sensitivity map.
 /// [l] — optional localizations; when null, French fallbacks are used.
-List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input, {S? l}) {
+List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input,
+    {S? l}) {
   final grouped = <String, Map<String, double>>{};
 
   for (final entry in input.entries) {
@@ -426,79 +427,79 @@ String _formatChf(double value) => chf.formatChfWithPrefix(value);
 /// Build tornado metadata map with optional localized labels.
 /// [l] — when null, French fallback labels are used.
 Map<String, _TornadoMeta> _buildTornadoMetadata(S? l) => {
-  'rendement_capital': _TornadoMeta(
-    label: l?.tornadoLabelRendementCapital ?? 'Ce que ton capital rapporte',
-    category: 'libre',
-    assumptionFormatter: _formatPercent,
-  ),
-  'taux_retrait': _TornadoMeta(
-    label: l?.tornadoLabelTauxRetrait ?? 'Retrait annuel du capital',
-    category: 'strategy',
-    assumptionFormatter: _formatPercent,
-  ),
-  'taux_conversion_obligatoire': _TornadoMeta(
-    label: l?.tornadoLabelConversionOblig ?? 'Conversion LPP obligatoire',
-    category: 'lpp',
-    assumptionFormatter: _formatPercent,
-  ),
-  'taux_conversion_surobligatoire': _TornadoMeta(
-    label: l?.tornadoLabelConversionSurob ?? 'Conversion LPP suroblig.',
-    category: 'lpp',
-    assumptionFormatter: _formatPercent,
-  ),
-  'rendement_marche': _TornadoMeta(
-    label: l?.tornadoLabelRendementMarche ?? 'Rendement de tes placements',
-    category: 'libre',
-    assumptionFormatter: _formatPercent,
-  ),
-  'taux_marginal': _TornadoMeta(
-    label: l?.tornadoLabelTauxMarginal ?? 'Ton taux d\'imposition',
-    category: 'strategy',
-    assumptionFormatter: _formatPercent,
-  ),
-  'rendement_3a': _TornadoMeta(
-    label: l?.tornadoLabelRendement3a ?? 'Rendement de ton 3e pilier',
-    category: '3a',
-    assumptionFormatter: _formatPercent,
-  ),
-  'rendement_lpp': _TornadoMeta(
-    label: l?.tornadoLabelRendementLpp ?? 'Rendement de ta caisse LPP',
-    category: 'lpp',
-    assumptionFormatter: _formatPercent,
-  ),
-  'taux_hypothecaire': _TornadoMeta(
-    label: l?.tornadoLabelTauxHypothecaire ?? 'Taux hypothécaire',
-    category: 'depenses',
-    assumptionFormatter: _formatPercent,
-  ),
-  'appreciation_immo': _TornadoMeta(
-    label: l?.tornadoLabelAppreciationImmo ?? 'Appréciation immo',
-    category: 'strategy',
-    assumptionFormatter: _formatPercent,
-  ),
-  'loyer_mensuel': _TornadoMeta(
-    label: l?.tornadoLabelLoyerMensuel ?? 'Loyer mensuel',
-    category: 'depenses',
-    assumptionFormatter: _formatChf,
-  ),
-  'taux_impot_capital': _TornadoMeta(
-    label: l?.tornadoLabelTauxImpotCapital ?? 'Taux impôt capital',
-    category: 'strategy',
-    assumptionFormatter: _formatPercent,
-  ),
-  'age_retraite': _TornadoMeta(
-    label: l?.tornadoLabelAgeRetraite ?? 'Âge de retraite',
-    category: 'strategy',
-    assumptionFormatter: _formatAge,
-  ),
-  'capital_total': _TornadoMeta(
-    label: l?.tornadoLabelCapitalTotal ?? 'Capital total',
-    category: 'strategy',
-    assumptionFormatter: _formatChf,
-  ),
-  'annees_avant_retraite': _TornadoMeta(
-    label: l?.tornadoLabelAnneesAvantRetraite ?? 'Années avant retraite',
-    category: 'strategy',
-    assumptionFormatter: _formatAge,
-  ),
-};
+      'rendement_capital': _TornadoMeta(
+        label: l?.tornadoLabelRendementCapital ?? 'Ce que ton capital rapporte',
+        category: 'libre',
+        assumptionFormatter: _formatPercent,
+      ),
+      'taux_retrait': _TornadoMeta(
+        label: l?.tornadoLabelTauxRetrait ?? 'Retrait annuel du capital',
+        category: 'strategy',
+        assumptionFormatter: _formatPercent,
+      ),
+      'taux_conversion_obligatoire': _TornadoMeta(
+        label: l?.tornadoLabelConversionOblig ?? 'Conversion LPP obligatoire',
+        category: 'lpp',
+        assumptionFormatter: _formatPercent,
+      ),
+      'taux_conversion_surobligatoire': _TornadoMeta(
+        label: l?.tornadoLabelConversionSurob ?? 'Conversion LPP suroblig.',
+        category: 'lpp',
+        assumptionFormatter: _formatPercent,
+      ),
+      'rendement_marche': _TornadoMeta(
+        label: l?.tornadoLabelRendementMarche ?? 'Rendement de tes placements',
+        category: 'libre',
+        assumptionFormatter: _formatPercent,
+      ),
+      'taux_marginal': _TornadoMeta(
+        label: l?.tornadoLabelTauxMarginal ?? 'Ton taux d\'imposition',
+        category: 'strategy',
+        assumptionFormatter: _formatPercent,
+      ),
+      'rendement_3a': _TornadoMeta(
+        label: l?.tornadoLabelRendement3a ?? 'Rendement de ton 3e pilier',
+        category: '3a',
+        assumptionFormatter: _formatPercent,
+      ),
+      'rendement_lpp': _TornadoMeta(
+        label: l?.tornadoLabelRendementLpp ?? 'Rendement de ta caisse LPP',
+        category: 'lpp',
+        assumptionFormatter: _formatPercent,
+      ),
+      'taux_hypothecaire': _TornadoMeta(
+        label: l?.tornadoLabelTauxHypothecaire ?? 'Taux hypothécaire',
+        category: 'depenses',
+        assumptionFormatter: _formatPercent,
+      ),
+      'appreciation_immo': _TornadoMeta(
+        label: l?.tornadoLabelAppreciationImmo ?? 'Appréciation immo',
+        category: 'strategy',
+        assumptionFormatter: _formatPercent,
+      ),
+      'loyer_mensuel': _TornadoMeta(
+        label: l?.tornadoLabelLoyerMensuel ?? 'Loyer mensuel',
+        category: 'depenses',
+        assumptionFormatter: _formatChf,
+      ),
+      'taux_impot_capital': _TornadoMeta(
+        label: l?.tornadoLabelTauxImpotCapital ?? 'Taux impôt capital',
+        category: 'strategy',
+        assumptionFormatter: _formatPercent,
+      ),
+      'age_retraite': _TornadoMeta(
+        label: l?.tornadoLabelAgeRetraite ?? 'Âge de retraite',
+        category: 'strategy',
+        assumptionFormatter: _formatAge,
+      ),
+      'capital_total': _TornadoMeta(
+        label: l?.tornadoLabelCapitalTotal ?? 'Capital total',
+        category: 'strategy',
+        assumptionFormatter: _formatChf,
+      ),
+      'annees_avant_retraite': _TornadoMeta(
+        label: l?.tornadoLabelAnneesAvantRetraite ?? 'Années avant retraite',
+        category: 'strategy',
+        assumptionFormatter: _formatAge,
+      ),
+    };

@@ -152,9 +152,8 @@ void main() {
       final profile = _buildProfile(salaireBrutMensuel: 8000);
       final summary = ArbitrageSummaryService.compute(profile);
 
-      final allocItem = summary.items
-          .where((i) => i.id == 'allocation_annuelle')
-          .toList();
+      final allocItem =
+          summary.items.where((i) => i.id == 'allocation_annuelle').toList();
       expect(allocItem, isNotEmpty);
       expect(allocItem.first.route, '/arbitrage/allocation-annuelle');
     });
@@ -202,7 +201,9 @@ void main() {
       expect(summary.items, isEmpty);
       expect(summary.lockedItems.map((i) => i.id), contains('canton'));
       expect(
-        summary.lockedItems.firstWhere((i) => i.id == 'canton').missingDataPrompt,
+        summary.lockedItems
+            .firstWhere((i) => i.id == 'canton')
+            .missingDataPrompt,
         contains('canton'),
       );
     });
@@ -367,12 +368,16 @@ void main() {
       final summary = ArbitrageSummaryService.compute(profile);
       final after = DateTime.now();
 
-      expect(summary.computedAt.isAfter(before.subtract(
-        const Duration(seconds: 1),
-      )), true);
-      expect(summary.computedAt.isBefore(after.add(
-        const Duration(seconds: 1),
-      )), true);
+      expect(
+          summary.computedAt.isAfter(before.subtract(
+            const Duration(seconds: 1),
+          )),
+          true);
+      expect(
+          summary.computedAt.isBefore(after.add(
+            const Duration(seconds: 1),
+          )),
+          true);
     });
 
     // ── Test 15: All items have valid routes ──────────────────
