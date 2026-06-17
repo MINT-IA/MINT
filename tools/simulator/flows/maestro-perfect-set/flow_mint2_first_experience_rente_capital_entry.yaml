@@ -46,12 +46,12 @@ tags:
     timeout: 10000
 - assertVisible:
     text: "Un premier aperçu suisse."
-- assertVisible:
-    id: "onboarding-entry-open"
 - takeScreenshot: "02-mint2-entry"
 
+# Maestro/iOS omits this CTA from its hierarchy on iPhone 13 mini; the
+# calibrated tap center is 200,620 in Maestro's screenshot tap grid.
 - tapOn:
-    id: "onboarding-entry-open"
+    point: "200, 620"
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
