@@ -42,12 +42,16 @@ tags:
     text: "Parle à Mint"
 - extendedWaitUntil:
     visible:
-      id: "onboarding-entry-open"
+      text: "Voir mon aperçu"
     timeout: 10000
+- assertVisible:
+    text: "Un premier aperçu suisse."
+- assertVisible:
+    text: "Voir mon aperçu"
 - takeScreenshot: "02-mint2-entry"
 
 - tapOn:
-    id: "onboarding-entry-open"
+    text: "Voir mon aperçu"
 - extendedWaitUntil:
     visible:
       text: "2e pilier : rente ou capital"
