@@ -633,7 +633,7 @@ void main() {
 
       final d = result.disclaimer.toLowerCase();
       // Must mention educational nature and not being financial advice
-      expect(d, contains('educative'));
+      expect(d, contains('éducative'));
       expect(d, contains('ne constitue pas'));
     });
 
