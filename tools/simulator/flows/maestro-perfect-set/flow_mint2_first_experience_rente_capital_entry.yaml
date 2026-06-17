@@ -55,17 +55,17 @@ tags:
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: "2e pilier : rente ou capital"
+      id: "mint2-axis-lpp_rente_capital"
     timeout: 8000
 - assertVisible:
-    text: "2e pilier : rente ou capital"
+    id: "mint2-axis-lpp_rente_capital"
 - assertNotVisible:
     text: "CHF/mois"
 - takeScreenshot: "03-mint2-lpp-axis"
 
 # 03 — live LPP/rente-capital axis routes to the real RvC surface.
 - tapOn:
-    text: "2e pilier : rente ou capital"
+    id: "mint2-axis-lpp_rente_capital"
 - extendedWaitUntil:
     visible:
       id: "rente_vs_capital_screen"
