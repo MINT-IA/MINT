@@ -64,8 +64,10 @@ tags:
 - takeScreenshot: "03-mint2-lpp-axis"
 
 # 03 — live LPP/rente-capital axis routes to the real RvC surface.
+# Maestro/iOS projects the LPP axis id tap too low on iPhone 13 mini; the
+# calibrated tap center is 200,340 in Maestro's screenshot tap grid.
 - tapOn:
-    id: "mint2-axis-lpp_rente_capital"
+    point: "200, 340"
 - extendedWaitUntil:
     visible:
       id: "rente_vs_capital_screen"
