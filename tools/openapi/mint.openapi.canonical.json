@@ -25819,7 +25819,7 @@
     },
     "/api/v1/auth/apple/verify": {
       "post": {
-        "description": "Verify an Apple identity token and return a JWT access token.\n\nMVP verification: decode JWT payload and check issuer + audience.\nProduction: validate signature against Apple's public keys\n(https://appleid.apple.com/auth/keys).\n\nRate limited to 5 requests/minute per IP (T-01-11).",
+        "description": "Verify an Apple identity token and return a JWT access token.\n\nVerifies the token signature against Apple's JWKS, then enforces issuer,\naudience, expiry, and SHA-256 nonce binding.\n\nRate limited to 5 requests/minute per IP (T-01-11).",
         "operationId": "apple_verify_api_v1_auth_apple_verify_post",
         "requestBody": {
           "content": {
