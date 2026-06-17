@@ -46,12 +46,12 @@ tags:
     timeout: 10000
 - assertVisible:
     text: "Un premier aperçu suisse."
+- assertVisible:
+    id: "onboarding-entry-open"
 - takeScreenshot: "02-mint2-entry"
 
-# Maestro/iOS can omit the CTA text from its hierarchy here although
-# `idb ui describe-all` exposes AXUniqueId `onboarding-entry-open`.
 - tapOn:
-    point: "50%, 83%"
+    id: "onboarding-entry-open"
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:

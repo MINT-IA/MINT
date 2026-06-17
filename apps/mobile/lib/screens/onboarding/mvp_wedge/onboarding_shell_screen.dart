@@ -396,10 +396,7 @@ class _PrimaryButton extends StatelessWidget {
     return Semantics(
       key: buttonKey,
       identifier: identifier,
-      label: label,
-      button: true,
-      onTap: onPressed,
-      child: ExcludeSemantics(child: button),
+      child: button,
     );
   }
 }
