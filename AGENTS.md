@@ -100,9 +100,26 @@ MINT product truth: the approved worktree, checked-in governance, current code,
 local tests, and deterministic runtime evidence remain authoritative for
 product behavior.
 
+## Tooling autonomy of good sense
+
+When the current objective is already authorized, agents may autonomously use
+the tools needed to finish it: Engram MCP memory, local skills, repo checks,
+GitHub read/PR commands, feature-branch pushes, specialist panels, Maestro,
+`simctl`, `idb`, and xcodebuildmcp / Build iOS Apps when available.
+
+This is not permission to bypass product gates. Ask first for protected-branch
+pushes, merges, destructive Git operations, real user data, legal/compliance
+claims, new regulated financial sources, or anything listed in `rules.md`
+`ASK FIRST`.
+
+Claude Max is advisory. Use it when the local CLI/session or a fresh artifact
+is actually available and the task benefits from it; otherwise continue with
+the local expert panel and say that Claude Max was not available. Never present
+a local panel as Claude Max.
+
 ## 🤝 Session handshake — run these in order, every time
 
-1. Read curator memory from `$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md`; if missing, stop instead of continuing blind.
+1. Read curator memory from `$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md` when present. If missing, report it, recover with Engram MCP (`mem_context` / `mem_search`) plus checked-in docs, and continue unless the task explicitly depends on that private memory.
 2. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
 3. Read this file.
 4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md) for the Claude/Codex/GSD/Engram workflow.

@@ -8,6 +8,9 @@
 - **Don't save** : code patterns derivable from `git blame`, ephemeral state, content already in `CLAUDE.md`/`docs/`.
 - **Tag** : `topic_key: <phase-or-area>:<sub-area>:<specific>` (e.g. `wave-1a:00:backend-architect:review`).
 - **Link** : every save cites `prior_finding_refs: [obs_id, ...]` when building on past work — this is the **compounding observable** gated 2026-05-21 for vibe-coding Phase 1.
+- **Use MCP first** : `mem_*` tools are the normal path. Do not stop because a
+  private `MEMORY.md` file is missing; recover with `mem_context` /
+  `mem_search`, then report the gap.
 
 ## 1. What goes IN
 
@@ -138,6 +141,10 @@ Each `wshobson` agent (36 specialists in `.claude/agents/`) has `memory: local` 
 2. **Per task** : agent calls `mem_search` to load prior context, references obs_ids in its work.
 3. **Per finding** : agent calls `mem_save` with the right type + topic_key + prior_finding_refs. Conflicts are auto-judged silently when low-stakes.
 4. **Session end** : `mem_session_summary` records goal + discoveries + accomplished + next steps + relevant files.
+
+If private curator memory is missing or stale, that is a recoverable context
+gap, not a default STOP. Current repo files and deterministic evidence remain
+authoritative; Engram MCP supplies the durable memory fallback.
 
 ## 8. Where the data lives
 
