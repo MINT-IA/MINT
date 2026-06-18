@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
@@ -7,6 +9,8 @@ import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+const _mint2AxisHandoffKey = 'mint2_axis_handoff_v1';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -151,6 +155,18 @@ void main() {
     await ReportPersistenceService.saveLettersHistory([
       {'title': 'Attestation rachat LPP'}
     ]);
+
+    expect(await AccountHandoffService.hasLocalData(), isTrue);
+  });
+
+  test('local data detector includes Mint 2 axis handoff metadata only',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      _mint2AxisHandoffKey: json.encode({
+        'onb_axis_v2': 'lpp_rente_capital',
+        'onb_axis_schema_version': 2,
+      }),
+    });
 
     expect(await AccountHandoffService.hasLocalData(), isTrue);
   });

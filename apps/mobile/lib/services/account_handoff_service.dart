@@ -71,6 +71,9 @@ class AccountHandoffService {
     if (await ReportPersistenceService.isMiniOnboardingCompleted()) {
       return true;
     }
+    if ((await ReportPersistenceService.loadMint2AxisHandoff()).isNotEmpty) {
+      return true;
+    }
     final selectedIntent =
         await ReportPersistenceService.getSelectedOnboardingIntent();
     if (selectedIntent != null && selectedIntent.trim().isNotEmpty) {

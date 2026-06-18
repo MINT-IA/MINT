@@ -451,20 +451,8 @@ class OnboardingProvider extends ChangeNotifier {
     CoachProfileProvider coachProvider,
   ) async {
     final answers = <String, dynamic>{};
+    final axisAnswers = _mint2AxisAnswers();
     if (_intent != null) answers['onb_intent'] = _intent!.name;
-    if (FeatureFlags.enableMint2FirstExperienceEntry) {
-      final axis = _axisV2 ??
-          (_intent == null ? null : onboardingAxisV2FromLegacyIntent(_intent!));
-      if (axis != null) {
-        answers['onb_axis_v2'] = axis.id;
-        answers['onb_axis_schema_version'] = onbAxisSchemaVersion;
-        if (_intent != null) answers['legacy_onb_intent'] = _intent!.name;
-      }
-      if (_signalAxesV2.isNotEmpty) {
-        answers['onb_signal_axes_v2'] =
-            _signalAxesV2.map((axis) => axis.id).toList(growable: false);
-      }
-    }
     if (_dateOfBirth != null) {
       answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
       answers['q_birth_year'] = _dateOfBirth!.year;
@@ -539,6 +527,9 @@ class OnboardingProvider extends ChangeNotifier {
     answers['q_wants_deeper'] = _wantsDeeper;
 
     final sealed = await ReportPersistenceService.saveAnswers(answers);
+    if (axisAnswers.isNotEmpty) {
+      await ReportPersistenceService.saveMint2AxisHandoff(axisAnswers);
+    }
     if (!sealed) {
       coachProvider.updateFromAnswers(answers);
       if (!coachProvider.hasProfile) {
@@ -556,6 +547,41 @@ class OnboardingProvider extends ChangeNotifier {
     }
     _sealed = true;
     notifyListeners();
+  }
+
+  /// Persists only non-financial Mint 2 axis metadata before a live-axis route.
+  ///
+  /// The live LPP/RvC path intentionally bypasses the terminal T8 flush, so
+  /// this keeps dossier/account handoff context without adding CHF/%/age
+  /// calculation inputs or derived RvC values.
+  Future<bool> persistMint2AxisHandoff() async {
+    final axisAnswers = _mint2AxisAnswers();
+    if (axisAnswers.isEmpty) return true;
+
+    return ReportPersistenceService.saveMint2AxisHandoff(axisAnswers);
+  }
+
+  Map<String, dynamic> _mint2AxisAnswers() {
+    if (!FeatureFlags.enableMint2FirstExperienceEntry) {
+      return const <String, dynamic>{};
+    }
+    final axis = _axisV2 ??
+        (_intent == null ? null : onboardingAxisV2FromLegacyIntent(_intent!));
+    if (axis == null) return const <String, dynamic>{};
+
+    final answers = <String, dynamic>{
+      'onb_axis_v2': axis.id,
+      'onb_axis_schema_version': onbAxisSchemaVersion,
+    };
+    final legacyIntent = _intent ?? axis.legacyIntent;
+    if (legacyIntent != null) {
+      answers['legacy_onb_intent'] = legacyIntent.name;
+    }
+    if (_signalAxesV2.isNotEmpty) {
+      answers['onb_signal_axes_v2'] =
+          _signalAxesV2.map((axis) => axis.id).toList(growable: false);
+    }
+    return answers;
   }
 
   /// Format CHF suisse avec apostrophe comme séparateur de milliers.
