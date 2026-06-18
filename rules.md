@@ -19,6 +19,35 @@ explicit confirmation, and what must be refused.
 If sources disagree, stop product work, cite both paths, and fix the stale
 source instead of guessing.
 
+## Autonomous Tooling Authority
+
+Agents may use the normal Mint toolchain without asking for per-tool
+permission when it materially advances the current authorized objective:
+
+- read repo-local, user-level, and plugin skill repositories when paths are
+  present and readable;
+- use Engram MCP tools (`mem_context`, `mem_search`, `mem_save`,
+  `mem_session_summary`) for memory recovery and durable observations;
+- run local checks, tests, lints, route guards, banned-term/accent/i18n guards,
+  and read-only Git/GitHub inspection commands;
+- use Maestro, `simctl`, `idb`, xcodebuildmcp / Build iOS Apps, screenshots,
+  and runtime logs to produce simulator evidence;
+- spawn available specialist subagents or review panels when the user asks for
+  review, premerge, audit, or a task whose checked-in workflow requires a panel;
+- create feature branches, commits, pushes to feature branches, and PR updates
+  for the current authorized objective after diff review and required checks.
+
+Do not stop merely because a tool was not mentioned in the latest prompt. If a
+tool or skill is unavailable, cite the exact missing command/path/capability and
+use the closest deterministic fallback.
+
+Claude Max and external expert audits are advisory unless Julien explicitly
+makes them a gate for the current task. Use them when a local CLI/session or
+fresh audit artifact is available and the work is high-stakes; otherwise report
+that they were unavailable and rely on the local panel, tests, and runtime
+evidence. Never claim Claude Max, Maestro, Engram, or a panel was used unless
+there is an actual tool call, command output, or artifact path.
+
 ## ALWAYS DO
 
 - Read `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json` before

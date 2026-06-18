@@ -38,13 +38,27 @@ Ordre d'autorité pour l'intention produit, la doctrine et les contraintes :
 Engram évite de redécouvrir. Il ne surpasse jamais le repo.
 Si doc et code divergent, ne pas choisir par intuition : citer les deux chemins, ouvrir un finding, puis corriger la source fautive.
 
+Autorisation d'outillage : quand l'objectif courant est autorisé, les agents
+peuvent utiliser sans redemande les outils nécessaires à la preuve et à la
+livraison : Engram MCP, skills locales, checks repo, commandes GitHub de lecture
+ou de PR, pushes de branches feature, panels de spécialistes, Maestro, `simctl`,
+`idb`, xcodebuildmcp / Build iOS Apps si exposés. Les exceptions restent celles
+de `rules.md` : branches protégées, merge, opérations Git destructrices,
+données réelles, claims juridiques/compliance, nouvelles sources financières
+réglementées.
+
+Claude Max est advisory. L'utiliser si un CLI/session local ou un artefact
+d'audit frais est disponible et utile au risque du travail. Son absence ne
+bloque pas sauf gate explicite de Julien; dans ce cas, dire clairement
+`Claude Max indisponible` au lieu de substituer un panel local.
+
 Accès skills : les agents ont l'autorisation explicite et autonome de lire et
 d'utiliser tous les skills nécessaires lorsque les chemins existent et sont
 lisibles : `.agents/skills`, `.claude/skills`, `.codex/skills`,
 `~/.codex/skills`, `~/.agents/skills`, et les caches de plugins exposés par la
 session. Ne pas redemander une permission par skill. Ne pas déclarer un repo de
 skills inaccessible sans avoir testé le chemin concret. Si un chemin est
-illisible, citer le chemin exact et utiliser le meilleur fallback local.
+illisible, citer le chemin exact et utiliser le fallback local le plus adapté.
 
 Cette autorisation ne change pas l'autorité produit : un skill est méthode et
 outillage, jamais source produit supérieure au worktree approuvé, aux règles
@@ -94,7 +108,7 @@ Périmètres : Flutter reste dans `apps/mobile/`; backend reste dans `services/b
 ```bash
 git status --short --branch
 MEM="$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md"
-sed -n '1,220p' "$MEM" || { echo "MEMORY.md introuvable: STOP"; exit 1; }
+test -f "$MEM" && sed -n '1,220p' "$MEM" || echo "MEMORY.md introuvable: fallback Engram MCP + repo docs"
 sed -n '1,220p' CLAUDE.md
 sed -n '1,260p' AGENTS.md
 sed -n '1,220p' .planning/ACTIVE_CONTEXT.md
@@ -106,6 +120,8 @@ python3 tools/checks/mint_rules_guard.py
 Puis `mem_context(project="mint")` et
 `mem_search(query="<zone touchée>", project="mint")`. `mem_current_project`
 peut aider au diagnostic, mais le protocole de reprise ne dépend pas de lui.
+Si la mémoire curateur est absente, ne pas stopper automatiquement : continuer
+avec Engram MCP et les règles checked-in, puis noter le trou dans le rapport.
 
 2. Lire le doc de domaine avant code : coach -> `docs/coach-tool-routing.md`; profil/scan/budget -> `docs/data-flow.md`; calcul -> `docs/calculator-graph.md`; route -> `apps/mobile/lib/routes/route_metadata.dart`; i18n -> `apps/mobile/lib/l10n/app_*.arb`.
 
@@ -285,7 +301,7 @@ Décision produit courante : trois axes visibles, une seule porte live.
 | `Logement : 2e / 3e pilier` | Signalétique | explication, notification, suivi | chiffres, simulation, collecte non utilisée, promesse de décision |
 | `3a et rachats : impact fiscal` | Signalétique | explication prudente, données manquantes, notification | avantage fiscal promis, langage de promesse fiscale, montant fiscal sans moteur et sources |
 
-Slug recommandé : `/gsd:plan-phase mint-2-0-first-experience-rente-capital`.
+Slug de référence : `/gsd:plan-phase mint-2-0-first-experience-rente-capital`.
 
 Contrat utilisateur : l'utilisateur ouvre l'app, voit trois axes, entre par `2e pilier : rente ou capital`, fournit le minimum requis ou voit ce qui manque, reçoit un résultat chiffré seulement si le calcul est défendable, voit sources/hypothèses/readiness/version, puis revient aux deux autres axes comme signalétiques sans faux chiffre.
 
