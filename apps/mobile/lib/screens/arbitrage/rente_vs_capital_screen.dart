@@ -689,7 +689,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           surfaceTintColor: MintColors.white,
                           title: Text(
                             S.of(context)!.renteVsCapitalAppBarTitle,
-                            style: MintTextStyles.headlineMedium(),
+                            style: MintTextStyles.titleGambarino18Medium(
+                              color: MintColors.inkPrimary,
+                            ),
                           ),
                         ),
 
@@ -823,19 +825,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHeroIntro() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.info.withAlpha(12),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withAlpha(30)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             S.of(context)!.renteVsCapitalIntro,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+            style: MintTextStyles.bodySupreme15Regular(
+              color: MintColors.inkPrimary,
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           _introPuce(
@@ -869,15 +870,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('  \u2022  ',
-                    style: TextStyle(color: MintColors.info)),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 14,
+                  color: MintColors.mintForest,
+                ),
+                const SizedBox(width: MintSpacing.sm),
                 Text(
                   term,
-                  style:
-                      MintTextStyles.bodySmall(color: MintColors.info).copyWith(
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.mintForest,
+                  ).copyWith(
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
-                    decorationColor: MintColors.info.withAlpha(60),
+                    decorationColor: MintColors.mintForest.withAlpha(90),
                   ),
                 ),
               ],
