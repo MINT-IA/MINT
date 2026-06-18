@@ -17,6 +17,7 @@ import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_budget_bootstrap_screen.dart';
+import 'package:mint_mobile/screens/debug/debug_mint2_account_claim_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_profile_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/services/debug_profile_bootstrap_service.dart';
@@ -439,6 +440,12 @@ final _router = GoRouter(
         scope: RouteScope.public,
         builder: (context, state) {
           final query = state.uri.queryParameters;
+          if (query['scenario'] == 'mint2-axis-account-claim') {
+            return DebugMint2AccountClaimScreen(
+              key: ValueKey(state.uri.toString()),
+              mode: query['claim'] ?? 'keep',
+            );
+          }
           final mode = query['mode'] == 'update-income'
               ? DebugProfileBootstrapMode.updateIncome
               : DebugProfileBootstrapMode.establish;

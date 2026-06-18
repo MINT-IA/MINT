@@ -1,0 +1,83 @@
+appId: ch.mint.app
+tags:
+  - mint2
+  - account-claim
+  - dossier
+  - iphone13mini
+---
+
+- runFlow: flow_mint2_first_experience_rente_capital_entry.yaml
+
+- openLink: "mintapp:///profile/bilan"
+- extendedWaitUntil:
+    visible:
+      text: "MON PROFIL"
+    timeout: 12000
+- takeScreenshot: "01-profile-axis-before-claim"
+
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?scenario=mint2-axis-account-claim&claim=keep"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_mint2_axis_claim_claim_claimed"
+    timeout: 12000
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axis_lpp_rente_capital"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_wizardAnswers_0"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axisInWizardAnswers_false"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_owner_claimed"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_auth_present"
+- takeScreenshot: "02-axis-claim-keep"
+
+- stopApp
+- launchApp:
+    clearState: false
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?scenario=mint2-axis-account-claim&claim=status"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_mint2_axis_claim_claim_claimed"
+    timeout: 12000
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axis_lpp_rente_capital"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axisInWizardAnswers_false"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_owner_claimed"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_auth_present"
+- takeScreenshot: "03-axis-claim-status-after-relaunch"
+
+- openLink: "mintapp:///profile/bilan"
+- extendedWaitUntil:
+    visible:
+      text: "MON PROFIL"
+    timeout: 12000
+- takeScreenshot: "04-profile-axis-after-claim"
+
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?scenario=mint2-axis-account-claim&claim=restart"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_mint2_axis_claim_claim_restart_clean"
+    timeout: 12000
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axis_absent"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axisInWizardAnswers_false"
+- takeScreenshot: "05-axis-restart-clean"
+
+- stopApp
+- launchApp:
+    clearState: false
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?scenario=mint2-axis-account-claim&claim=status"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_mint2_axis_claim_claim_restart_clean"
+    timeout: 12000
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axis_absent"
+- assertVisible:
+    id: "e2e_mint2_axis_claim_axisInWizardAnswers_false"
+- takeScreenshot: "06-axis-status-after-restart-clean"
