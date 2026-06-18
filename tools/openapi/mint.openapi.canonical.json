@@ -1558,6 +1558,76 @@
         "title": "AppleWebhookRequest",
         "type": "object"
       },
+      "ArbitrageCalculationReceiptSchema": {
+        "description": "Receipt proving the provenance required before rendering RvC figures.",
+        "properties": {
+          "assumptions": {
+            "additionalProperties": true,
+            "description": "Typed assumptions used by the RvC calculation",
+            "title": "Assumptions",
+            "type": "object"
+          },
+          "calculationOrigin": {
+            "description": "Origin of the calculation result",
+            "title": "Calculationorigin",
+            "type": "string"
+          },
+          "calculationVersion": {
+            "description": "Version identifier of the calculation contract",
+            "title": "Calculationversion",
+            "type": "string"
+          },
+          "confidenceScore": {
+            "description": "Confidence score propagated from the calculation",
+            "title": "Confidencescore",
+            "type": "number"
+          },
+          "missingRequiredInputs": {
+            "description": "Receipt-required inputs that are still missing",
+            "items": {
+              "type": "string"
+            },
+            "title": "Missingrequiredinputs",
+            "type": "array"
+          },
+          "readiness": {
+            "description": "ready when all receipt-required inputs are present",
+            "title": "Readiness",
+            "type": "string"
+          },
+          "regulatoryConstantsVersionHash": {
+            "description": "Hash of the regulatory constants snapshot used",
+            "title": "Regulatoryconstantsversionhash",
+            "type": "string"
+          },
+          "sources": {
+            "description": "Legal and regulatory sources backing the calculation",
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "unit": {
+            "description": "Display unit covered by this receipt",
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "calculationOrigin",
+          "calculationVersion",
+          "regulatoryConstantsVersionHash",
+          "unit",
+          "assumptions",
+          "sources",
+          "readiness",
+          "confidenceScore",
+          "missingRequiredInputs"
+        ],
+        "title": "ArbitrageCalculationReceiptSchema",
+        "type": "object"
+      },
       "AuditEventResponse": {
         "description": "Single audit event returned by the admin endpoint.",
         "properties": {
@@ -19592,6 +19662,20 @@
             "title": "Capitalsurobligatoire",
             "type": "number"
           },
+          "currentAge": {
+            "anyOf": [
+              {
+                "maximum": 119.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Age actuel, requis pour un receipt RvC complet",
+            "title": "Currentage"
+          },
           "horizon": {
             "anyOf": [
               {
@@ -19702,6 +19786,10 @@
             "title": "Breakevenyear",
             "type": "integer"
           },
+          "calculationReceipt": {
+            "$ref": "#/components/schemas/ArbitrageCalculationReceiptSchema",
+            "description": "Receipt required before mobile renders RvC figures"
+          },
           "confidenceScore": {
             "description": "Score de confiance (0-100%)",
             "title": "Confidencescore",
@@ -19764,7 +19852,8 @@
           "disclaimer",
           "sources",
           "confidenceScore",
-          "sensitivity"
+          "sensitivity",
+          "calculationReceipt"
         ],
         "title": "RenteVsCapitalResponse",
         "type": "object"
