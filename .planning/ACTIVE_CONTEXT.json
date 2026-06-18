@@ -24,6 +24,8 @@
     "feature/mint2-claim-axis-handoff",
     "feature/S06-mint2-dossier-axis-continuity",
     "feature/S06-mint2-dossier-axis-surface",
+    "feature/S06-mint2-dossier-axis-runtime",
+    "feature/S06-mint2-account-runtime",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],
