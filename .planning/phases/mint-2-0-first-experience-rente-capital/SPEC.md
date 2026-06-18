@@ -1,7 +1,8 @@
 # Mint 2.0 First Experience Rente/Capital — Active Spec
 
-Status: Active via router promotion. This is the active contract for Mint 2.0
-planning and future Slice 2 execution.
+Status: Active via router promotion. First Slice 2 runtime route proof landed on
+`dev` via PR #705; this file remains the active contract for the unclosed phase
+requirements.
 
 ## User Promise
 
@@ -77,10 +78,10 @@ audit names canonical source; Maestro starts from clear state; iPhone 13 mini
 snapshot shows no clipping; dossier revisit is separate from chat; account
 handoff appears after value.
 
-The device-tier criterion below references a Slice 2 Maestro flow that does not
-exist in this planning contract. Until that artifact lands, the deterministic
-tier is the executable planning gate; device-tier output is runtime evidence
-for the implementation slice.
+Current implementation evidence: PR #705 covers the three-axis entry to the
+existing RvC surface, route-state proof, receipt gating, neutral copy, and
+iPhone 13 mini runtime artifacts. Dossier revisit/account handoff and
+Keychain/iCloud restore remain open.
 
 ```verify
 # tier: deterministic
@@ -96,5 +97,6 @@ iphone-13-mini-runtime: bash tools/simulator/maestro_with_watchdog.sh test tools
 ## Caveat
 
 `verify_phase_acceptance.py` reads this active spec from
-`.planning/ACTIVE_CONTEXT.json`. The deterministic tier is the promotion gate;
-the device tier remains opt-in until the Slice 2 Maestro flow exists.
+`.planning/ACTIVE_CONTEXT.json`. The deterministic tier remains the planning
+gate. The device-tier Maestro flow now exists, but its evidence is runtime
+proof for the implementation slice and must be rerun when behavior changes.

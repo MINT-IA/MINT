@@ -20,7 +20,8 @@
     "feature/mint2-live-axis-bridge",
     "feature/mint2-fix-cryptography-audit",
     "feature/mint2-rvc-proof-blockers",
-    "docs/agent-skill-authority"
+    "docs/agent-skill-authority",
+    "docs/mint2-rvc-runtime-closeout"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

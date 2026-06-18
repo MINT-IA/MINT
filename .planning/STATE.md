@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: mint-2-0-first-experience-rente-capital
 milestone_name: Mint 2.0 First Experience Rente/Capital
-status: executing
-stopped_at: Active router promoted; Slice 2 code-mapped plan is next before product code.
-last_updated: "2026-06-14T18:02:45.000Z"
-last_activity: 2026-06-14 -- Mint 2.0 first experience became the active planning context; product code remains gated by Slice 2 planning and verification.
+status: runtime-proof-merged
+stopped_at: PR #705 proved the first Mint 2.0 runtime path to RvC; remaining phase work is dossier/account handoff and residual runtime hardening.
+last_updated: "2026-06-18T09:35:00.000Z"
+last_activity: 2026-06-18 -- PR #705 landed Mint 2.0 -> LPP/rente-capital -> /rente-vs-capital proof on dev; PR #706 added autonomous skill-access governance.
 progress:
-  scope: planning_router_only
+  scope: runtime_path_proof
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 2
-  completed_plans: 1
-  percent: 50
+  completed_plans: 2
+  percent: 100
 ---
 
 # GSD State: Mint 2.0 First Experience Rente/Capital
@@ -33,7 +33,9 @@ router for Mint 2.0 product planning.
 navigation flow. The first active door is rente/capital; logement and fiscal
 remain signalétique until their own implementation gates exist.
 
-**Current focus:** Slice 2 code-mapped plan before any product implementation.
+**Current focus:** close the residual phase gaps after the first runtime path:
+dossier/account handoff, Keychain/iCloud restore evidence, and less brittle
+runtime interaction proof.
 
 ## Strategic Frame
 
@@ -48,16 +50,17 @@ remain signalétique until their own implementation gates exist.
 
 ## Current Position
 
-Phase: mint-2-0-first-experience-rente-capital — ACTIVE PLANNING
-Plan: promote the canonical Mint 2.0 contract, then write Slice 2 with exact
-files, tests, feature flag or kill switch, and iPhone 13 mini proof before code.
-Status: router now points to the canonical Mint 2.0 contract. Original dirty
-tree remains quarantine.
-Last activity: 2026-06-14 -- Julien gave GO for router promotion and Claude CLI
-review gave conditional GO for the 9-file promotion.
+Phase: mint-2-0-first-experience-rente-capital — RUNTIME PATH PROOF LANDED
+Plan: first route proof is merged; continue with the remaining user-value gaps
+instead of re-proving the same path.
+Status: `dev` contains the Mint 2.0 first-entry route to the existing
+`/rente-vs-capital` surface with receipt gates and neutral compliance copy.
+Original dirty tree remains quarantine.
+Last activity: 2026-06-18 -- PR #705 squash-merged as `485b56ff9`; PR #706
+squash-merged as `7aee403d8`.
 
-Progress counters measure planning/router milestones only: Slice 1 contract and
-router promotion are counted; Slice 2 implementation remains pending.
+Progress counters now measure the initial route/runtime proof. They do not close
+the full dossier/account handoff promise.
 
 **Promotion evidence:**
 
@@ -66,13 +69,23 @@ router promotion are counted; Slice 2 implementation remains pending.
 - `python3 tools/checks/verify_phase_acceptance.py`.
 - Guard pytest suite for active context, phase contract, rules, agent reference,
   Claude hooks, and phase acceptance.
+- PR #705 CI gate and local runtime artifacts under
+  `.planning/runtime-evidence/20260617T212912Z`.
+- Design-system runtime check artifacts under
+  `.planning/runtime-evidence/20260618T055622Z-design-check-final`.
 
 **Remaining open items:**
 
-- Slice 2 starts only after this active contract is accepted and mapped to code.
+- Dossier revisit and account handoff are not closed by the route proof.
+- Keychain/iCloud restore remains outside simulator-only proof.
+- Maestro proof is valid but still partly coordinate-tap based because iOS did
+  not expose every desired element action semantically.
+- Runtime evidence artifacts are local and untracked; the executable Maestro
+  flow is committed under `tools/simulator/flows/maestro-perfect-set/`.
 
-**Next execution bias:** write the Slice 2 plan with grep-backed file targets,
-tests before UI, feature flag or kill switch, and iPhone 13 mini proof.
+**Next execution bias:** pick one remaining user-visible gap and prove it
+end-to-end, preferably dossier continuity/account handoff or semantic runtime
+actionability for the iPhone 13 mini flow.
 
 ## Historical Receipts
 

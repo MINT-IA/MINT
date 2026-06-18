@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_FLIGHT.
+RUNTIME_ROUTE_PROOF_MERGED.
 
 ## What Is Now Locked
 
@@ -14,13 +14,16 @@ IN_FLIGHT.
 - iPhone 13 mini clipping is a blocking product defect, not cosmetic polish.
 - The existing `/rente-vs-capital` screen is the live surface to reuse after calculator-boundary review.
 - Row17 Maestro flows are regression coverage for that existing surface, not proof of the Mint 2.0 entry.
+- PR #705 now provides the Mint 2.0 entry runtime proof on iPhone 13 mini.
 
 ## What Is Not Done
 
-- No mobile code has been changed for Mint 2.0 in this phase.
-- No simulator flow has been run for Mint 2.0.
-- No device/TestFlight gate is closed.
+- Dossier revisit/account handoff is not closed.
+- Keychain/iCloud restore is not closed by simulator-only proof.
+- The current Maestro proof still contains coordinate taps where iOS does not
+  expose every desired semantic action.
 
 ## Next Action
 
-Open Slice 2 from a clean branch/worktree, write its plan, then write failing tests before UI changes.
+Pick the next unclosed user journey gap from a clean branch, write a failing
+test or contract first, then prove it with fresh runtime evidence.

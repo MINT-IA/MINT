@@ -1,7 +1,8 @@
 # Mint 2.0 First Experience Rente/Capital — Active Context
 
-Status: Active via router promotion. Product code still requires the Slice 2
-plan, feature flag or kill switch, and implementation verification.
+Status: Active via router promotion. The first Slice 2 runtime path was merged
+on `dev` through PR #705. Remaining phase work must target the unclosed user
+journey gaps rather than re-proving the same route.
 
 ## Authority
 
@@ -28,6 +29,17 @@ Mint 2.0 first experience shows three axes and makes one live:
 
 This is not a retirement app: 18-99, dossiers by life events, rente/capital as
 one live door rather than the whole product.
+
+## Current Runtime Position
+
+PR #705 (`485b56ff9`) proved the first runtime path:
+Mint 2.0 entry -> `2e pilier : rente ou capital` -> `/rente-vs-capital`, with
+iPhone 13 mini artifacts captured locally under
+`.planning/runtime-evidence/20260617T212912Z`. The committed executable flow is
+`tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml`.
+
+This closes the first route proof, not the whole phase. Dossier/account handoff,
+Keychain/iCloud restore, and coordinate-tap brittleness remain open.
 
 ## Dossier Minimum
 
