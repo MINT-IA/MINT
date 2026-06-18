@@ -189,10 +189,13 @@ class CoachProfileProvider extends ChangeNotifier {
         deviceId = const Uuid().v4();
         await prefs.setString('_mint_device_id', deviceId);
       }
+      final mint2AxisHandoff =
+          await ReportPersistenceService.loadMint2AxisHandoff();
       await ApiService.claimLocalData(
         localDataVersion: 1,
         deviceId: deviceId,
         wizardAnswers: answers,
+        mint2AxisHandoff: mint2AxisHandoff,
       );
     } catch (e, st) {
       // Non-fatal to local UX, but report so failures are not invisible.

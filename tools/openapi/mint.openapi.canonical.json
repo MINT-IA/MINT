@@ -3964,6 +3964,11 @@
             "title": "Mini Onboarding",
             "type": "object"
           },
+          "mint2_axis_handoff": {
+            "additionalProperties": true,
+            "title": "Mint2 Axis Handoff",
+            "type": "object"
+          },
           "updated_at": {
             "anyOf": [
               {

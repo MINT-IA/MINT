@@ -450,6 +450,103 @@ void main() {
       }
     });
 
+    test('account claim sends Mint2 axis handoff without wizard pollution',
+        () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+      await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auth_local_mode', false);
+      await ReportPersistenceService.saveMint2AxisHandoff({
+        'onb_axis_v2': 'lpp_rente_capital',
+        'onb_axis_schema_version': 2,
+        'legacy_onb_intent': 'retraite',
+        'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
+      });
+
+      final seenPaths = <String>[];
+      Map<String, dynamic>? claimBody;
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          if (request.url.path == '/api/v1/auth/login') {
+            return http.Response(
+              '{"access_token":"axis-token","refresh_token":"axis-refresh","user_id":"axis-user","email":"axis@example.ch","display_name":"Axis User"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/profiles/me') {
+            return http.Response(
+              jsonEncode({
+                'id': 'axis-profile',
+                'householdType': 'single',
+                'hasDebt': false,
+                'goal': 'other',
+                'factfindCompletionIndex': 0.0,
+                'voiceCursorPreference': 'direct',
+                'n5IssuedThisWeek': 0,
+                'recentGravityEvents': [],
+              }),
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          if (request.url.path == '/api/v1/sync/claim-local-data') {
+            claimBody = json.decode(request.body) as Map<String, dynamic>;
+            return http.Response(
+              '{"status":"ok"}',
+              200,
+              headers: {'content-type': 'application/json'},
+            );
+          }
+          return http.Response('{"detail":"not found"}', 404);
+        }),
+      ));
+
+      try {
+        final success = await provider.login('axis@example.ch', 'password');
+
+        expect(success, isTrue);
+        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+        expect(claimBody, isNotNull);
+        expect(claimBody!['wizard_answers'], isEmpty);
+        expect(
+          claimBody!['wizard_answers'],
+          isNot(contains('onb_axis_v2')),
+        );
+        expect(
+          claimBody!['wizard_answers'],
+          isNot(contains('onb_axis_schema_version')),
+        );
+        expect(
+          claimBody!['wizard_answers'],
+          isNot(contains('legacy_onb_intent')),
+        );
+        expect(
+          claimBody!['wizard_answers'],
+          isNot(contains('onb_signal_axes_v2')),
+        );
+        expect(
+          claimBody!['mint2_axis_handoff'],
+          {
+            'onb_axis_v2': 'lpp_rente_capital',
+            'onb_axis_schema_version': 2,
+            'legacy_onb_intent': 'retraite',
+            'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
+          },
+        );
+        expect(prefs.getString('local_data_owner'), 'axis-user');
+        expect(prefs.getBool('local_data_migrated_axis-user'), isTrue);
+        expect(prefs.getBool('local_data_sync_pending_axis-user'), isNull);
+        expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        ConversationStore.setCurrentUserId(null);
+        await AccountHandoffService.clearChoice();
+      }
+    });
+
     test('pending local data claim retries on auth restore and clears flag',
         () async {
       final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;

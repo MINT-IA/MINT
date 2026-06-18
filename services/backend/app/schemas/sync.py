@@ -17,6 +17,7 @@ class ClaimLocalDataRequest(BaseModel):
         "Used for timestamp-based conflict resolution instead of version integers.",
     )
     wizard_answers: dict[str, Any] = Field(default_factory=dict)
+    mint2_axis_handoff: dict[str, Any] = Field(default_factory=dict)
     mini_onboarding: dict[str, Any] = Field(default_factory=dict)
     budget_snapshot: dict[str, Any] = Field(default_factory=dict)
     checkins: list[dict[str, Any]] = Field(default_factory=list)

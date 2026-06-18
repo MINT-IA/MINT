@@ -427,6 +427,13 @@ def claim_local_data(
                 merged_fields_count=merged_fields_count,
             )
 
+    mint2_axis_handoff = body.mint2_axis_handoff
+    if existing_profile and not mint2_axis_handoff:
+        existing_claim = existing_profile.data.get("localDataClaim", {})
+        existing_handoff = existing_claim.get("mint2AxisHandoff")
+        if isinstance(existing_handoff, dict) and existing_handoff:
+            mint2_axis_handoff = dict(existing_handoff)
+
     claim_blob = {
         "meta": {
             "claimedAt": now.isoformat(),
@@ -436,6 +443,7 @@ def claim_local_data(
         },
         "miniOnboarding": body.mini_onboarding,
         "wizardAnswers": body.wizard_answers,
+        "mint2AxisHandoff": mint2_axis_handoff,
         "budgetSnapshot": body.budget_snapshot,
         "checkins": body.checkins,
     }
