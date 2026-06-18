@@ -175,4 +175,39 @@ void main() {
 
     expect(await AccountHandoffService.hasLocalData(), isTrue);
   });
+
+  test('requires explicit choice when local dossier exists and no choice saved',
+      () async {
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+    });
+
+    expect(
+      await AccountHandoffService.requiresExplicitChoice(
+        handoffEnabled: true,
+      ),
+      isTrue,
+    );
+
+    await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
+
+    expect(
+      await AccountHandoffService.requiresExplicitChoice(
+        handoffEnabled: true,
+      ),
+      isFalse,
+    );
+  });
+
+  test('does not require handoff choice when handoff UI is disabled', () async {
+    await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+
+    expect(
+      await AccountHandoffService.requiresExplicitChoice(
+        handoffEnabled: false,
+      ),
+      isFalse,
+    );
+  });
 }

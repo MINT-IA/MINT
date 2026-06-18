@@ -7,8 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/auth/auth_platform.dart';
 import 'package:mint_mobile/screens/auth/auth_redirect.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -36,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _appleSignInError;
   int _countdownSeconds = 0;
   Timer? _countdownTimer;
+  bool _handoffChoiceRequired = false;
 
   @override
   void initState() {
@@ -45,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<AuthProvider>().clearError();
+      _refreshHandoffChoiceRequired();
     });
   }
 
@@ -83,6 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
         !_emailController.text.contains('@')) {
       return;
     }
+    if (!await _canStartAccountAction()) return;
+    if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
     final success =
@@ -113,7 +119,46 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  Future<bool> _refreshHandoffChoiceRequired() async {
+    if (!FeatureFlags.enableMvpWedgeOnboarding) {
+      if (mounted && _handoffChoiceRequired) {
+        setState(() => _handoffChoiceRequired = false);
+      }
+      return false;
+    }
+    final hasSessionProfile = context.read<CoachProfileProvider>().hasProfile;
+    final required = await AccountHandoffService.requiresExplicitChoice(
+      handoffEnabled: true,
+      hasSessionProfile: hasSessionProfile,
+    );
+    if (!mounted) return required;
+    if (_handoffChoiceRequired != required) {
+      setState(() => _handoffChoiceRequired = required);
+    }
+    return required;
+  }
+
+  Future<bool> _canStartAccountAction() async {
+    final required = await _refreshHandoffChoiceRequired();
+    return mounted && !required;
+  }
+
+  Widget _buildAppleSignInButton(S l10n, bool handoffBlocksAuth) {
+    final button = SignInWithAppleButton(
+      onPressed: _handleAppleSignIn,
+      text: l10n.authAppleSignIn,
+      style: SignInWithAppleButtonStyle.black,
+    );
+    if (!handoffBlocksAuth) return button;
+    return Semantics(
+      enabled: false,
+      child: IgnorePointer(child: button),
+    );
+  }
+
   Future<void> _handleAppleSignIn() async {
+    if (!await _canStartAccountAction()) return;
+    if (!mounted) return;
     setState(() => _appleSignInLoading = true);
     try {
       final response = await AppleSignInService.signIn();
@@ -150,6 +195,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handlePasswordLogin() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!await _canStartAccountAction()) return;
+    if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.login(
@@ -166,6 +213,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final l10n = S.of(context)!;
+    final handoffBlocksAuth =
+        FeatureFlags.enableMvpWedgeOnboarding && _handoffChoiceRequired;
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -216,7 +265,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             )),
                         if (FeatureFlags.enableMvpWedgeOnboarding) ...[
                           const SizedBox(height: MintSpacing.lg),
-                          const AccountHandoffChoicePanel(),
+                          AccountHandoffChoicePanel(
+                            onChoiceChanged: _refreshHandoffChoiceRequired,
+                          ),
                         ],
                         const SizedBox(height: MintSpacing.xxl),
 
@@ -264,12 +315,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 56,
                               child: FilledButton(
                                 // lint-ignore: prefer_mint_cta
-                                onPressed: authProvider.isLoading
-                                    ? null
-                                    : () {
-                                        HapticFeedback.lightImpact();
-                                        _handleSendMagicLink();
-                                      },
+                                onPressed:
+                                    authProvider.isLoading || handoffBlocksAuth
+                                        ? null
+                                        : () {
+                                            HapticFeedback.lightImpact();
+                                            _handleSendMagicLink();
+                                          },
                                 child: authProvider.isLoading &&
                                         !_showPasswordFallback
                                     ? const SizedBox(
@@ -332,11 +384,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             Center(
                               child: TextButton(
                                 // lint-ignore: prefer_mint_cta
-                                onPressed: authProvider.isLoading
-                                    ? null
-                                    : () {
-                                        _handleSendMagicLink();
-                                      },
+                                onPressed:
+                                    authProvider.isLoading || handoffBlocksAuth
+                                        ? null
+                                        : () {
+                                            _handleSendMagicLink();
+                                          },
                                 child: Text(
                                   l10n.authResend,
                                   style: MintTextStyles.bodyMedium(
@@ -371,10 +424,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           strokeWidth: 2),
                                     ),
                                   )
-                                : SignInWithAppleButton(
-                                    onPressed: _handleAppleSignIn,
-                                    text: l10n.authAppleSignIn,
-                                    style: SignInWithAppleButtonStyle.black,
+                                : _buildAppleSignInButton(
+                                    l10n,
+                                    handoffBlocksAuth,
                                   ),
                           ),
                         ],
@@ -493,12 +545,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             button: true,
                             child: FilledButton(
                               // lint-ignore: prefer_mint_cta
-                              onPressed: authProvider.isLoading
-                                  ? null
-                                  : () {
-                                      HapticFeedback.lightImpact();
-                                      _handlePasswordLogin();
-                                    },
+                              onPressed:
+                                  authProvider.isLoading || handoffBlocksAuth
+                                      ? null
+                                      : () {
+                                          HapticFeedback.lightImpact();
+                                          _handlePasswordLogin();
+                                        },
                               child: authProvider.isLoading &&
                                       _showPasswordFallback
                                   ? const SizedBox(

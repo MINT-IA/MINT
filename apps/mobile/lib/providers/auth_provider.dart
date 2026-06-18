@@ -705,6 +705,16 @@ class AuthProvider extends ChangeNotifier {
 
   /// Verify a magic link token and complete authentication.
   Future<bool> verifyMagicLink(String token) async {
+    if (FeatureFlags.enableMvpWedgeOnboarding &&
+        await AccountHandoffService.requiresExplicitChoice(
+          handoffEnabled: true,
+        )) {
+      _error = AuthError.invalidInput;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();

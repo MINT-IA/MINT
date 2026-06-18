@@ -91,6 +91,17 @@ class AccountHandoffService {
     return await AnonymousSessionService.getMessageCount() > 0;
   }
 
+  static Future<bool> requiresExplicitChoice({
+    required bool handoffEnabled,
+    bool hasSessionProfile = false,
+    DateTime? now,
+  }) async {
+    if (!handoffEnabled) return false;
+    if (await loadChoice(now: now) != null) return false;
+    if (hasSessionProfile) return true;
+    return hasLocalData();
+  }
+
   /// Returns whether anonymous/local data should be migrated to [userId].
   ///
   /// `restartClean` means the user chose to open the account with a clean

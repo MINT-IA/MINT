@@ -175,6 +175,44 @@ void main() {
     });
 
     test(
+        'magic-link verification waits for explicit handoff choice when Mint2 axis exists',
+        () async {
+      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+      FeatureFlags.enableMvpWedgeOnboarding = true;
+      final seenPaths = <String>[];
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          seenPaths.add(request.url.path);
+          return http.Response(
+            '{"accessToken":"magic-token","tokenType":"bearer"}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+      await ReportPersistenceService.saveMint2AxisHandoff({
+        'onb_axis_v2': 'lpp_rente_capital',
+        'onb_axis_schema_version': 2,
+      });
+
+      try {
+        final provider = AuthProvider();
+        final success = await provider.verifyMagicLink('magic-code');
+
+        expect(success, isFalse);
+        expect(seenPaths, isEmpty);
+        expect(provider.isLoggedIn, isFalse);
+        expect(
+          (await ReportPersistenceService.loadMint2AxisHandoff())[
+              'onb_axis_v2'],
+          'lpp_rente_capital',
+        );
+      } finally {
+        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+      }
+    });
+
+    test(
         'existing account login keeps local dossier separate without explicit handoff choice',
         () async {
       final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
