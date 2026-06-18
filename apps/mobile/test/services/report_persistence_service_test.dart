@@ -10,6 +10,8 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _mint2AxisHandoffKey = 'mint2_axis_handoff_v1';
+
 /// Comprehensive unit tests for ReportPersistenceService
 ///
 /// Tests cover:
@@ -1040,6 +1042,20 @@ void main() {
       expect(planState, isEmpty);
     });
 
+    test('clearDiagnostic removes Mint 2 axis handoff metadata', () async {
+      SharedPreferences.setMockInitialValues({
+        _mint2AxisHandoffKey: json.encode({
+          'onb_axis_v2': 'lpp_rente_capital',
+          'onb_axis_schema_version': 2,
+        }),
+      });
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(_mint2AxisHandoffKey), isNull);
+    });
+
     test('clearDiagnostic removes sealed sensitive wizard values', () async {
       await ReportPersistenceService.saveAnswers({
         'q_canton': 'VD',
@@ -1074,6 +1090,31 @@ void main() {
         '7000',
       );
       expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('holdActiveDiagnosticForAnonymous preserves Mint 2 axis handoff',
+        () async {
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ReportPersistenceService.saveMint2AxisHandoff({
+        'onb_axis_v2': 'lpp_rente_capital',
+        'onb_axis_schema_version': 2,
+        'legacy_onb_intent': 'retraite',
+        'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
+      });
+
+      await ReportPersistenceService.holdActiveDiagnosticForAnonymous();
+
+      expect(await ReportPersistenceService.loadMint2AxisHandoff(), isEmpty);
+      final held =
+          await ReportPersistenceService.loadHeldAnonymousMint2AxisHandoff();
+      expect(held['onb_axis_v2'], 'lpp_rente_capital');
+      expect(held['onb_axis_schema_version'], 2);
+      expect(held['legacy_onb_intent'], 'retraite');
+      expect(
+        held['onb_signal_axes_v2'],
+        <String>['logement_signal', 'fiscal_signal'],
+      );
+      expect(await ReportPersistenceService.hasHeldAnonymousDiagnostic(), true);
     });
 
     test('pending secure delete retries held anonymous secure values',

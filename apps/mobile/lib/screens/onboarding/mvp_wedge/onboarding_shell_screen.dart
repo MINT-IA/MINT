@@ -539,6 +539,35 @@ class _IntentsStep extends StatelessWidget {
 class _Mint2AxesStep extends StatelessWidget {
   const _Mint2AxesStep();
 
+  Future<void> _openLiveAxis(
+    BuildContext context,
+    OnboardingProvider provider,
+    String label,
+  ) async {
+    provider.setAxisV2(OnboardingAxisV2.lppRenteCapital, label);
+    final persisted = await provider.persistMint2AxisHandoff();
+    if (!context.mounted) return;
+    if (!persisted) {
+      dev.log(
+        'Mint 2 axis handoff persistence failed',
+        name: 'Onboarding',
+      );
+      final l10n = S.of(context)!;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: MintColors.textPrimary,
+          content: Text(
+            l10n.onboardingSealError,
+            style: MintTextStyles.bodyMedium(color: MintColors.background),
+          ),
+        ),
+      );
+      return;
+    }
+    context.go('/rente-vs-capital');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
@@ -591,10 +620,11 @@ class _Mint2AxesStep extends StatelessWidget {
                   selected: selected,
                   recorded: recorded,
                   onTap: () {
-                    provider.setAxisV2(item.axis, item.label);
                     if (item.axis == OnboardingAxisV2.lppRenteCapital) {
-                      context.go('/rente-vs-capital');
+                      _openLiveAxis(context, provider, item.label);
+                      return;
                     }
+                    provider.setAxisV2(item.axis, item.label);
                   },
                 );
               },
@@ -607,11 +637,11 @@ class _Mint2AxesStep extends StatelessWidget {
               semanticsIdentifier: 'mint2-axis-continue-live',
               label: l10n.mint2FirstExperienceLppLabel,
               onPressed: () {
-                provider.setAxisV2(
-                  OnboardingAxisV2.lppRenteCapital,
+                _openLiveAxis(
+                  context,
+                  provider,
                   l10n.mint2FirstExperienceLppLabel,
                 );
-                context.go('/rente-vs-capital');
               },
             ),
           ],

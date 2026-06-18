@@ -58,6 +58,10 @@ flowchart LR
    `wizard_answers_v2` persistence fails, but readers may use it only when no
    material `CoachProfile` can supersede it. Any later successful profile
    hydration wins.
+6. `mint2_axis_handoff_v1` is non-financial route metadata for the Mint 2 live
+   axis handoff. It records the selected axis and schema version only. It must
+   not be read by `FinancialReportScreenV2`, `CoachProfile.fromWizardAnswers`,
+   or any calculator, and it must not unlock `/rapport`.
 
 ---
 
@@ -71,6 +75,16 @@ documented degradation path: if that canonical write leaves no material profile
 after reload, it may save direct `BudgetInputs` to `budget_inputs_v1` so the
 budget UI and Coach opener can preserve the user's typed budget until the
 canonical profile path is available again.
+
+Mint 2 axis metadata (`onb_axis_v2`, `onb_axis_schema_version`,
+`legacy_onb_intent`, and optional `onb_signal_axes_v2`) persists under
+`mint2_axis_handoff_v1`, not under `wizard_answers_v2`, whether it comes from
+the live-axis entry or the terminal onboarding flush. This keeps account
+handoff context without turning axis metadata into a financial report input or
+round-tripping sealed wizard placeholders.
+When an anonymous diagnostic is moved aside during account hydration, the same
+handoff payload moves to `anonymous_mint2_axis_handoff_held_v1` and is cleared
+only with the held-anonymous diagnostic.
 
 `SecureWizardStore` classifies mapped wizard outputs that are outside broad
 dynamic prefixes before the runtime dictionary exists. Financial/life-planning

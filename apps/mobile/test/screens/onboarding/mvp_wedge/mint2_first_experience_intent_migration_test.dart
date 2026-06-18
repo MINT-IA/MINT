@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/onboarding_intent.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 class _CapturingCoachProvider extends CoachProfileProvider {
   Map<String, dynamic>? flushedAnswers;
@@ -83,7 +84,7 @@ void main() {
     expect(flushed, isNot(contains('onb_signal_axes_v2')));
   });
 
-  test('flagged legacy onb_intent flushes versioned onb_axis_v2 mapping',
+  test('flagged legacy onb_intent stores axis metadata outside wizard answers',
       () async {
     FeatureFlags.enableMint2FirstExperienceEntry = true;
     final cases = <OnboardingIntent, String>{
@@ -97,9 +98,15 @@ void main() {
       final flushed = await _flushLegacyIntent(entry.key);
 
       expect(flushed['onb_intent'], entry.key.name);
-      expect(flushed['legacy_onb_intent'], entry.key.name);
-      expect(flushed['onb_axis_schema_version'], 2);
-      expect(flushed['onb_axis_v2'], entry.value);
+      expect(flushed, isNot(contains('legacy_onb_intent')));
+      expect(flushed, isNot(contains('onb_axis_schema_version')));
+      expect(flushed, isNot(contains('onb_axis_v2')));
+      expect(flushed, isNot(contains('onb_signal_axes_v2')));
+
+      final handoff = await ReportPersistenceService.loadMint2AxisHandoff();
+      expect(handoff['legacy_onb_intent'], entry.key.name);
+      expect(handoff['onb_axis_schema_version'], 2);
+      expect(handoff['onb_axis_v2'], entry.value);
     }
   });
 
@@ -108,10 +115,16 @@ void main() {
     FeatureFlags.enableMint2FirstExperienceEntry = true;
     final flushed = await _flushAxesAfterSignalInterest();
 
-    expect(flushed['onb_axis_v2'], 'lpp_rente_capital');
-    expect(flushed['onb_axis_schema_version'], 2);
+    expect(flushed, isNot(contains('legacy_onb_intent')));
+    expect(flushed, isNot(contains('onb_axis_schema_version')));
+    expect(flushed, isNot(contains('onb_axis_v2')));
+    expect(flushed, isNot(contains('onb_signal_axes_v2')));
+
+    final handoff = await ReportPersistenceService.loadMint2AxisHandoff();
+    expect(handoff['onb_axis_v2'], 'lpp_rente_capital');
+    expect(handoff['onb_axis_schema_version'], 2);
     expect(
-      flushed['onb_signal_axes_v2'],
+      handoff['onb_signal_axes_v2'],
       <String>['logement_signal', 'fiscal_signal'],
     );
   });
