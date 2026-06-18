@@ -2943,7 +2943,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "ahead",
+  "renteVsCapitalDeltaAdvance": "simulated difference between scenarios",
   "renteVsCapitalEducationalTitle": "What it actually changes",
   "renteVsCapitalFiscalTitle": "Taxation",
   "renteVsCapitalFiscalLeftSubtitle": "Taxed every year",
@@ -3003,8 +3003,8 @@
   "renteVsCapitalHypSwr": "How much you withdraw each year",
   "renteVsCapitalHypInflation": "Inflation",
   "renteVsCapitalTornadoToggle": "View sensitivity diagram",
-  "renteVsCapitalImpactTitle": "What changes the result the most?",
-  "renteVsCapitalImpactSubtitle": "The most influential parameters on the gap between your options.",
+  "renteVsCapitalImpactTitle": "Parameters to test",
+  "renteVsCapitalImpactSubtitle": "Possible variations based on the calculation assumptions.",
   "renteVsCapitalHypothesesTitle": "Assumptions for this simulation",
   "renteVsCapitalWarning": "Warning",
   "renteVsCapitalSources": "Sources: {sources}",
@@ -3036,6 +3036,7 @@
   "renteVsCapitalReceiptMissingCapitalLppTotal": "total LPP capital",
   "renteVsCapitalReceiptMissingRenteAnnuelleProposee": "proposed annual pension",
   "renteVsCapitalReceiptMissingCanton": "canton",
+  "renteVsCapitalReceiptMissingCurrentAge": "current age",
   "renteVsCapitalReceiptMissingHorizonYears": "comparison horizon",
   "renteVsCapitalReceiptMissingSafeWithdrawalRate": "capital withdrawal rate",
   "renteVsCapitalReceiptMissingConversionRateObligatory": "mandatory conversion rate",
@@ -6208,9 +6209,9 @@
   "renteVsCapitalChoiceRenteSubtitle": "More stable, less flexible",
   "renteVsCapitalChoiceCapitalSubtitle": "More freedom, more responsibility",
   "renteVsCapitalChoiceMixteSubtitle": "A balance to build",
-  "renteVsCapitalConsequenceRenteEyebrow": "If you choose the annuity",
-  "renteVsCapitalConsequenceCapitalEyebrow": "If you choose the lump sum",
-  "renteVsCapitalConsequenceMixteEyebrow": "If you choose the mixed option",
+  "renteVsCapitalConsequenceRenteEyebrow": "Annuity scenario",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Lump-sum scenario",
+  "renteVsCapitalConsequenceMixteEyebrow": "Mixed scenario",
   "renteVsCapitalConsequenceRenteNarrative": "A fixed income every month, regardless of markets. In exchange, your capital is no longer yours.",
   "renteVsCapitalConsequenceCapitalNarrative": "You manage your money freely, but it can run out. Every year counts.",
   "renteVsCapitalConsequenceMixteNarrative": "The mandatory part as annuity for security, the supplementary part as lump sum for flexibility.",
@@ -9879,7 +9880,7 @@
   "quickStartVerdictGap": "Significant gap",
   "quickStartVerdictGood": "On track",
   "quickStartVerdictWatch": "Worth watching",
-  "renteVsCapitalAccrocheEpuise": "With the capital, you could run out of money by age {age}. With the annuity, you receive a fixed amount for life. You can only choose once.",
+  "renteVsCapitalAccrocheEpuise": "With the capital, you could run out of money by age {age}. With the annuity, you receive a fixed amount for life. This decision is final.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -9941,7 +9942,7 @@
   "renteVsCapitalForLife": "à vie",
   "renteVsCapitalHeroCapital": "CAPITAL",
   "renteVsCapitalHeroRente": "RENTE",
-  "renteVsCapitalIntro": "At retirement, you choose once and for all: a lifetime income or your capital in hand.",
+  "renteVsCapitalIntro": "At retirement, the decision sets lifetime income alongside available capital.",
   "renteVsCapitalMaxPrecision": "Maximum precision — results based on your actual figures.",
   "renteVsCapitalMicroCapital": "You withdraw {swr}% per year (hypothesis) from capital invested at {rendement}%.",
   "@renteVsCapitalMicroCapital": {

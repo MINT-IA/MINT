@@ -33,7 +33,9 @@ import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
   const OnboardingShellScreen({super.key});
@@ -341,8 +343,8 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: MintTextStyles.headlineMedium(
-              color: MintColors.textPrimary,
+            style: MintTextStyles.editorialLarge(
+              color: MintColors.inkPrimary,
             ),
           ),
           const SizedBox(height: 32),
@@ -396,10 +398,7 @@ class _PrimaryButton extends StatelessWidget {
     return Semantics(
       key: buttonKey,
       identifier: identifier,
-      label: label,
-      button: true,
-      onTap: onPressed,
-      child: ExcludeSemantics(child: button),
+      child: button,
     );
   }
 }
@@ -432,17 +431,17 @@ class _EntryStep extends StatelessWidget {
                       child: Text(
                         l10n.diagnosticOnboardingEntryTitle,
                         textAlign: TextAlign.center,
-                        style: MintTextStyles.displaySmall(
-                          color: MintColors.textPrimary,
-                        ).copyWith(fontWeight: FontWeight.w600),
+                        style: MintTextStyles.displayGambarinoItalic40(
+                          color: MintColors.inkPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       l10n.diagnosticOnboardingEntryBody,
                       textAlign: TextAlign.center,
-                      style: MintTextStyles.bodyLarge(
-                        color: MintColors.textSecondary,
+                      style: MintTextStyles.bodySupreme15Regular(
+                        color: MintColors.textSecondaryAaa,
                       ),
                     ),
                   ],
@@ -659,50 +658,57 @@ class _Mint2AxisCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    final statusText = recorded ? l10n.mint2FirstExperienceSignalSaved : status;
+    final savedSignalText =
+        recorded && status == l10n.mint2FirstExperienceSignalStatus
+            ? l10n.mint2FirstExperienceSignalSaved
+            : null;
     return Semantics(
       identifier: semanticsIdentifier,
-      label: '$label. $statusText. $body',
+      label: savedSignalText == null
+          ? '$label. $status. $body'
+          : '$label. $status. $savedSignalText. $body',
       button: true,
       selected: recorded,
       onTap: onTap,
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          decoration: BoxDecoration(
-            color: recorded ? MintColors.porcelaine : MintColors.craie,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: recorded
-                  ? MintColors.primary.withValues(alpha: 0.35)
-                  : MintColors.textPrimary.withValues(alpha: 0.08),
-            ),
-          ),
+        borderRadius: BorderRadius.circular(16),
+        child: MintSurface(
+          tone: recorded ? MintSurfaceTone.sauge : MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.md),
+          radius: 16,
+          elevated: recorded,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                statusText,
-                style: MintTextStyles.labelSmall(
-                  color:
-                      recorded ? MintColors.primary : MintColors.corailDiscret,
-                ).copyWith(fontWeight: FontWeight.w600),
+                status,
+                style: MintTextStyles.labelSupreme12Uppercase025LS(
+                  color: MintColors.mintForest,
+                ),
               ),
-              const SizedBox(height: 8),
+              if (savedSignalText != null) ...[
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  savedSignalText,
+                  style: MintTextStyles.labelSupreme12Uppercase025LS(
+                    color: MintColors.mintForest,
+                  ),
+                ),
+              ],
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 label,
-                style: MintTextStyles.titleMedium(
-                  color: MintColors.textPrimary,
-                ).copyWith(fontWeight: FontWeight.w600),
+                style: MintTextStyles.titleGambarino18Medium(
+                  color: MintColors.inkPrimary,
+                ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 body,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textSecondary,
+                style: MintTextStyles.bodySupreme15Regular(
+                  color: MintColors.textSecondaryAaa,
                 ),
               ),
             ],
@@ -740,34 +746,26 @@ class _IntentCard extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          decoration: BoxDecoration(
-            color: MintColors.craie,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: MintColors.textPrimary.withValues(alpha: 0.08),
-            ),
-          ),
+        borderRadius: BorderRadius.circular(16),
+        child: MintSurface(
+          tone: MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.md),
+          radius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 eyebrow,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.corailDiscret,
-                ).copyWith(
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
+                style: MintTextStyles.labelSupreme12Uppercase025LS(
+                  color: MintColors.mintForest,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 phrase,
-                style: MintTextStyles.titleMedium(
-                  color: MintColors.textPrimary,
-                ).copyWith(fontWeight: FontWeight.w500),
+                style: MintTextStyles.titleGambarino18Medium(
+                  color: MintColors.inkPrimary,
+                ),
               ),
             ],
           ),

@@ -482,6 +482,7 @@ class ArbitrageEngine {
       if (capitalLppTotal <= 0) 'capital_lpp_total',
       if (renteAnnuelleProposee <= 0) 'rente_annuelle_proposee',
       if (canton.trim().isEmpty) 'canton',
+      if (currentAge == null) 'current_age',
       if (horizon <= 0) 'horizon_years',
       if (capitalLppTotal > 0 && tauxRetrait <= 0) 'safe_withdrawal_rate',
       if (capitalObligatoire > 0 && tauxConversionObligatoire <= 0)
@@ -503,6 +504,7 @@ class ArbitrageEngine {
         'conversion_rate_obligatory': tauxConversionObligatoire,
         'conversion_rate_surobligatory': tauxConversionSurobligatoire,
         'age_retirement': ageRetraite,
+        'current_age': currentAge,
         'is_married': isMarried,
       },
       sources: sources,

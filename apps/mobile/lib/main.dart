@@ -105,6 +105,7 @@ Future<void> main() async {
   } catch (_) {
     // Keep local defaults when backend is unavailable.
   }
+  FeatureFlags.applyRuntimeOverrides();
 
   // Chargement des données critiques en arrière-plan (non-bloquant)
   Future.wait([

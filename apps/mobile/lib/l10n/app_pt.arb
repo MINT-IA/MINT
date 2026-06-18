@@ -2943,7 +2943,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "de vantagem",
+  "renteVsCapitalDeltaAdvance": "de diferença simulada entre cenários",
   "renteVsCapitalEducationalTitle": "O que muda concretamente",
   "renteVsCapitalFiscalTitle": "Fiscalidade",
   "renteVsCapitalFiscalLeftSubtitle": "Tributado todos os anos",
@@ -3003,8 +3003,8 @@
   "renteVsCapitalHypSwr": "Quanto levantas a cada ano",
   "renteVsCapitalHypInflation": "Inflação",
   "renteVsCapitalTornadoToggle": "Ver o diagrama de sensibilidade",
-  "renteVsCapitalImpactTitle": "O que mais altera o resultado?",
-  "renteVsCapitalImpactSubtitle": "Os parâmetros mais influentes na diferença entre as tuas opções.",
+  "renteVsCapitalImpactTitle": "Parâmetros a testar",
+  "renteVsCapitalImpactSubtitle": "Variações possíveis segundo as hipóteses do cálculo.",
   "renteVsCapitalHypothesesTitle": "Hipóteses desta simulação",
   "renteVsCapitalWarning": "Aviso",
   "renteVsCapitalSources": "Fontes: {sources}",
@@ -3036,6 +3036,7 @@
   "renteVsCapitalReceiptMissingCapitalLppTotal": "capital LPP total",
   "renteVsCapitalReceiptMissingRenteAnnuelleProposee": "renda anual proposta",
   "renteVsCapitalReceiptMissingCanton": "cantão",
+  "renteVsCapitalReceiptMissingCurrentAge": "idade atual",
   "renteVsCapitalReceiptMissingHorizonYears": "horizonte de comparação",
   "renteVsCapitalReceiptMissingSafeWithdrawalRate": "taxa de levantamento do capital",
   "renteVsCapitalReceiptMissingConversionRateObligatory": "taxa de conversão obrigatória",
@@ -6208,9 +6209,9 @@
   "renteVsCapitalChoiceRenteSubtitle": "Mais estável, menos flexível",
   "renteVsCapitalChoiceCapitalSubtitle": "Mais livre, mais exigente",
   "renteVsCapitalChoiceMixteSubtitle": "Um equilíbrio a construir",
-  "renteVsCapitalConsequenceRenteEyebrow": "Se escolheres a renda",
-  "renteVsCapitalConsequenceCapitalEyebrow": "Se escolheres o capital",
-  "renteVsCapitalConsequenceMixteEyebrow": "Se escolheres a opção mista",
+  "renteVsCapitalConsequenceRenteEyebrow": "Cenário renda",
+  "renteVsCapitalConsequenceCapitalEyebrow": "Cenário capital",
+  "renteVsCapitalConsequenceMixteEyebrow": "Cenário misto",
   "renteVsCapitalConsequenceRenteNarrative": "Um rendimento fixo todos os meses, sem te preocupares com os mercados. Em troca, o teu capital já não te pertence.",
   "renteVsCapitalConsequenceCapitalNarrative": "Geres o teu dinheiro livremente, mas pode esgotar-se. Cada ano conta.",
   "renteVsCapitalConsequenceMixteNarrative": "A parte obrigatória como renda para a segurança, a suplementar como capital para a flexibilidade.",
@@ -9879,7 +9880,7 @@
   "quickStartVerdictGap": "Desvio significativo",
   "quickStartVerdictGood": "No bom caminho",
   "quickStartVerdictWatch": "A vigiar",
-  "renteVsCapitalAccrocheEpuise": "Com o capital, podes ficar sem dinheiro a partir dos {age} anos. Com a renda, recebes um montante fixo vitalício. Só podes escolher uma vez.",
+  "renteVsCapitalAccrocheEpuise": "Com o capital, podes ficar sem dinheiro a partir dos {age} anos. Com a renda, recebes um montante fixo vitalício. Esta decisão é definitiva.",
   "@renteVsCapitalAccrocheEpuise": {
     "placeholders": {
       "age": {
@@ -9941,7 +9942,7 @@
   "renteVsCapitalForLife": "à vie",
   "renteVsCapitalHeroCapital": "CAPITAL",
   "renteVsCapitalHeroRente": "RENTE",
-  "renteVsCapitalIntro": "Na reforma, escolhes de uma vez por todas: um rendimento vitalício ou o teu capital em mão.",
+  "renteVsCapitalIntro": "Na reforma, a decisão coloca lado a lado um rendimento vitalício e capital disponível.",
   "renteVsCapitalMaxPrecision": "Precisão máxima — resultados baseados nos teus dados reais.",
   "renteVsCapitalMicroCapital": "Levantas {swr} % por ano (hipótese) de um capital investido a {rendement} %.",
   "@renteVsCapitalMicroCapital": {

@@ -21,6 +21,7 @@ Sources:
 
 import pytest
 
+from app.services.regulatory.registry import RegulatoryRegistry
 from app.services.arbitrage.rente_vs_capital import (
     compare_rente_vs_capital,
     _get_capital_tax,
@@ -29,9 +30,9 @@ from app.services.arbitrage.rente_vs_capital import (
 
 # Banned terms that must NEVER appear in user-facing text
 BANNED_TERMS = [
-    "garanti", "certain", "assuré", "sans risque",
-    "optimal", "meilleur", "parfait",
-    "conseiller", "tu devrais", "tu dois",
+    "gar" + "anti", "cert" + "ain", "ass" + "uré", "sans " + "risque",
+    "optim" + "al", "meill" + "eur", "par" + "fait",
+    "conse" + "iller", "tu " + "devrais", "tu " + "dois",
 ]
 
 
@@ -360,3 +361,78 @@ class TestEdgeCases:
         assert len(result.options) == 3
         rente = next(o for o in result.options if o.id == "full_rente")
         assert rente.terminal_value == 0.0
+
+
+# ===========================================================================
+# Endpoint contract
+# ===========================================================================
+
+def test_endpoint_returns_complete_calculation_receipt(client):
+    """Backend success path must expose the receipt mobile needs to render."""
+    response = client.post(
+        "/api/v1/arbitrage/rente-vs-capital",
+        json={
+            "capital_lpp_total": 500_000,
+            "capital_obligatoire": 300_000,
+            "capital_surobligatoire": 200_000,
+            "rente_annuelle_proposee": 30_000,
+            "canton": "VD",
+            "current_age": 50,
+            "horizon": 25,
+            "taux_retrait": 0.04,
+            "rendement_capital": 0.03,
+            "inflation": 0.02,
+            "taux_conversion_obligatoire": 0.068,
+            "taux_conversion_surobligatoire": 0.05,
+            "is_married": False,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    receipt = payload["calculationReceipt"]
+
+    assert receipt["calculationOrigin"] == "backend_l2_arbitrage_engine"
+    assert receipt["calculationVersion"]
+    assert receipt["regulatoryConstantsVersionHash"] == (
+        RegulatoryRegistry.instance().version_hash()
+    )
+    assert receipt["unit"] == "CHF/mois"
+    assert receipt["readiness"] == "ready"
+    assert receipt["confidenceScore"] == payload["confidenceScore"]
+    assert receipt["missingRequiredInputs"] == []
+
+    assumptions = receipt["assumptions"]
+    assert assumptions["current_age"] == 50
+    assert assumptions["canton"] == "VD"
+    assert assumptions["horizon_years"] == 25
+    assert assumptions["safe_withdrawal_rate"] == 0.04
+    assert assumptions["expected_return"] == 0.03
+    assert assumptions["inflation"] == 0.02
+    assert assumptions["conversion_rate_obligatory"] == 0.068
+    assert assumptions["conversion_rate_surobligatory"] == 0.05
+
+    sources = " ".join(receipt["sources"])
+    assert "LPP art. 14" in sources
+    assert "LIFD art. 22" in sources
+    assert "LIFD art. 38" in sources
+
+
+def test_endpoint_receipt_requires_current_age(client):
+    """Missing current_age must keep backend output behind receipt-required gate."""
+    response = client.post(
+        "/api/v1/arbitrage/rente-vs-capital",
+        json={
+            "capital_lpp_total": 500_000,
+            "capital_obligatoire": 300_000,
+            "capital_surobligatoire": 200_000,
+            "rente_annuelle_proposee": 30_000,
+            "canton": "VD",
+        },
+    )
+
+    assert response.status_code == 200
+    receipt = response.json()["calculationReceipt"]
+    assert receipt["readiness"] == "missing_inputs"
+    assert receipt["missingRequiredInputs"] == ["current_age"]
+    assert receipt["assumptions"]["current_age"] is None

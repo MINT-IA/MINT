@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-06-14",
+  "updated": "2026-06-17",
   "active_milestone": "mint-2-0-first-experience-rente-capital",
   "active_phase_dir": ".planning/phases/mint-2-0-first-experience-rente-capital",
   "active_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
@@ -18,7 +18,8 @@
     "feature/mint2-slice-2a-calculator-boundary",
     "feature/mint2-variable-contract-drift",
     "feature/mint2-live-axis-bridge",
-    "feature/mint2-fix-cryptography-audit"
+    "feature/mint2-fix-cryptography-audit",
+    "feature/mint2-rvc-proof-blockers"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

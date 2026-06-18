@@ -9,6 +9,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -127,6 +128,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
+  bool _routeProofLogged = false;
 
   // ── New fields ──
   double? _avsRenteMensuelle;
@@ -554,6 +556,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
         horizon: horizon,
         isMarried: _isMarried,
+        currentAge: currentAge,
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
@@ -676,6 +679,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     constraints: const BoxConstraints(maxWidth: 600),
                     child: CustomScrollView(
                       slivers: [
+                        SliverToBoxAdapter(
+                          child: _buildRouteProofAnchor(context),
+                        ),
                         // ── SliverAppBar (white standard — Simulator screen) ──
                         SliverAppBar(
                           pinned: true,
@@ -684,7 +690,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           surfaceTintColor: MintColors.white,
                           title: Text(
                             S.of(context)!.renteVsCapitalAppBarTitle,
-                            style: MintTextStyles.headlineMedium(),
+                            style: MintTextStyles.titleGambarino18Medium(
+                              color: MintColors.inkPrimary,
+                            ),
                           ),
                         ),
 
@@ -814,23 +822,22 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  //  HERO INTRO — pourquoi tu devrais t'en soucier
+  //  HERO INTRO — contexte utilisateur
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHeroIntro() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.info.withAlpha(12),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.info.withAlpha(30)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             S.of(context)!.renteVsCapitalIntro,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+            style: MintTextStyles.bodySupreme15Regular(
+              color: MintColors.inkPrimary,
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           _introPuce(
@@ -864,15 +871,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('  \u2022  ',
-                    style: TextStyle(color: MintColors.info)),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 14,
+                  color: MintColors.mintForest,
+                ),
+                const SizedBox(width: MintSpacing.sm),
                 Text(
                   term,
-                  style:
-                      MintTextStyles.bodySmall(color: MintColors.info).copyWith(
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.mintForest,
+                  ).copyWith(
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
-                    decorationColor: MintColors.info.withAlpha(60),
+                    decorationColor: MintColors.mintForest.withAlpha(90),
                   ),
                 ),
               ],
@@ -1004,7 +1016,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               _buildEmptyStateHint(),
             ],
             // Auto-computed readout
-            if (_result != null && _result!.isProjected) ...[
+            if (_result != null &&
+                _result!.isProjected &&
+                _hasCompleteCalculationReceipt(_result)) ...[
               const SizedBox(height: MintSpacing.sm),
               MintSurface(
                 tone: MintSurfaceTone.porcelaine,
@@ -1718,24 +1732,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     final renteVal = renteOption.trajectory[yearIndex].netPatrimony;
     final capitalVal = capitalOption.trajectory[yearIndex].netPatrimony;
-    final delta = capitalVal - renteVal;
-    final winner = delta > 0
-        ? S.of(context)!.renteVsCapitalCapitalLabel
-        : S.of(context)!.renteVsCapitalRenteLabel;
-    final winnerColor =
-        delta > 0 ? MintColors.retirementLpp : MintColors.retirementAvs;
+    final delta = (capitalVal - renteVal).abs();
+    const varianceColor = MintColors.ardoise;
 
     return Container(
       padding: const EdgeInsets.all(MintSpacing.sm),
       decoration: BoxDecoration(
-        color: winnerColor.withAlpha(10),
+        color: varianceColor.withAlpha(10),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Icon(
-            delta > 0 ? Icons.trending_up : Icons.trending_down,
-            color: winnerColor,
+          const Icon(
+            Icons.compare_arrows_rounded,
+            color: varianceColor,
             size: 20,
           ),
           const SizedBox(width: MintSpacing.sm),
@@ -1748,8 +1758,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
                 TextSpan(
-                  text: '$winner = +${formatChf(delta.abs())} ',
-                  style: MintTextStyles.bodySmall(color: winnerColor).copyWith(
+                  text: '${formatChf(delta)} ',
+                  style:
+                      MintTextStyles.bodySmall(color: varianceColor).copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -2053,9 +2064,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     // Filter out variables with negligible or zero swing — showing "+0" is
     // worse than not showing the row at all (misleads the user).
-    final top = variables.where((v) => v.swing > 50).take(4).toList();
-    if (top.isEmpty) return const SizedBox.shrink();
-    final maxSwing = top.first.swing;
+    final visibleVariables =
+        variables.where((v) => v.swing > 50).take(4).toList();
+    if (visibleVariables.isEmpty) return const SizedBox.shrink();
+    final maxSwing = visibleVariables.first.swing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2070,15 +2082,16 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: MintSpacing.sm),
-        for (int i = 0; i < top.length; i++) ...[
-          _impactCard(i + 1, top[i], maxSwing),
-          if (i < top.length - 1) const SizedBox(height: MintSpacing.sm),
+        for (int i = 0; i < visibleVariables.length; i++) ...[
+          _impactCard(visibleVariables[i], maxSwing),
+          if (i < visibleVariables.length - 1)
+            const SizedBox(height: MintSpacing.sm),
         ],
       ],
     );
   }
 
-  Widget _impactCard(int rank, ArbitrageTornadoVariable v, double maxSwing) {
+  Widget _impactCard(ArbitrageTornadoVariable v, double maxSwing) {
     final barFraction = maxSwing > 0 ? v.swing / maxSwing : 0.0;
     final lowDelta = v.lowValue - v.baseValue;
     final highDelta = v.highValue - v.baseValue;
@@ -2099,13 +2112,12 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   color: MintColors.primary.withAlpha(15),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Center(
-                  child: Text('#$rank',
-                      style: MintTextStyles.micro(color: MintColors.primary)
-                          .copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.normal,
-                      )),
+                child: const Center(
+                  child: Icon(
+                    Icons.tune_rounded,
+                    size: 14,
+                    color: MintColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(width: MintSpacing.sm),
@@ -2173,6 +2185,33 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
   //  RECEIPT GATE
   // ═══════════════════════════════════════════════════════════════
+
+  Widget _buildRouteProofAnchor(BuildContext context) {
+    if (!E2eRuntimeFlags.proofAnchors) return const SizedBox.shrink();
+
+    final route = GoRouterState.of(context).uri.path;
+    final label = 'route=$route';
+    if (!_routeProofLogged) {
+      _routeProofLogged = true;
+      debugPrint('[MINT_E2E_ROUTE_STATE] $label');
+    }
+
+    return Semantics(
+      key: const Key('rvc_route_state'),
+      identifier: 'rvc_route_state',
+      container: true,
+      label: label,
+      child: Text(
+        label,
+        maxLines: 1,
+        style: const TextStyle(
+          color: Color(0x01000000), // lint-ignore: prefer_mint_color_token
+          fontSize: 1, // lint-ignore: prefer_mint_text_style
+          height: 1,
+        ),
+      ),
+    );
+  }
 
   Widget _buildReceiptRequiredCard(ArbitrageCalculationReceipt? receipt) {
     final l = S.of(context)!;
@@ -2325,6 +2364,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       'rente_annuelle_proposee' =>
         l.renteVsCapitalReceiptMissingRenteAnnuelleProposee,
       'canton' => l.renteVsCapitalReceiptMissingCanton,
+      'current_age' => l.renteVsCapitalReceiptMissingCurrentAge,
       'horizon_years' => l.renteVsCapitalReceiptMissingHorizonYears,
       'safe_withdrawal_rate' =>
         l.renteVsCapitalReceiptMissingSafeWithdrawalRate,
@@ -2368,6 +2408,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       'inflation' => l.renteVsCapitalHypInflation,
       'horizon_years' => l.renteVsCapitalReceiptMissingHorizonYears,
       'canton' => l.renteVsCapitalReceiptMissingCanton,
+      'current_age' => l.renteVsCapitalReceiptMissingCurrentAge,
       'conversion_rate_obligatory' =>
         l.renteVsCapitalReceiptMissingConversionRateObligatory,
       'conversion_rate_surobligatory' =>

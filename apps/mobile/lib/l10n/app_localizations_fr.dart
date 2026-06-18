@@ -6162,7 +6162,7 @@ class SFr extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'd\'avance';
+  String get renteVsCapitalDeltaAdvance => 'd’écart simulé entre scénarios';
 
   @override
   String get renteVsCapitalEducationalTitle => 'Ce que ça change concrètement';
@@ -6269,12 +6269,11 @@ class SFr extends S {
   String get renteVsCapitalTornadoToggle => 'Voir le diagramme de sensibilité';
 
   @override
-  String get renteVsCapitalImpactTitle =>
-      'Qu\'est-ce qui change le plus le résultat ?';
+  String get renteVsCapitalImpactTitle => 'Paramètres à tester';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'Les paramètres les plus influents sur l\'écart entre tes options.';
+      'Variations possibles selon les hypothèses du calcul.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Hypothèses de cette simulation';
@@ -6352,6 +6351,9 @@ class SFr extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'âge actuel';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears =>
@@ -13075,14 +13077,13 @@ class SFr extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'Un équilibre à construire';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow => 'Si tu choisis la rente';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Scénario rente';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'Si tu choisis le capital';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Scénario capital';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow => 'Si tu choisis le mixte';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Scénario mixte';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21319,7 +21320,7 @@ class SFr extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Avec le capital, tu pourrais manquer d\'argent dès $age ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu\'une fois.';
+    return 'Avec le capital, tu pourrais manquer d\'argent dès $age ans. Avec la rente, tu reçois un montant fixe à vie. Cette décision est définitive.';
   }
 
   @override
@@ -21375,7 +21376,7 @@ class SFr extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.';
+      'À la retraite, la décision met en regard un revenu à vie et un capital disponible.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

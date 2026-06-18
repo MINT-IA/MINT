@@ -82,6 +82,7 @@ class ArbitrageCalculationReceipt {
     'canton',
     'conversion_rate_obligatory',
     'conversion_rate_surobligatory',
+    'current_age',
   };
 
   final String calculationOrigin;
@@ -151,6 +152,7 @@ class ArbitrageCalculationReceipt {
       'horizon_years' => value > 0,
       'conversion_rate_obligatory' => value > 0 && value <= 1,
       'conversion_rate_surobligatory' => value >= 0 && value <= 1,
+      'current_age' => value > 0 && value < 120,
       _ => true,
     };
   }

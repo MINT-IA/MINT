@@ -6120,7 +6120,8 @@ class SEn extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'ahead';
+  String get renteVsCapitalDeltaAdvance =>
+      'simulated difference between scenarios';
 
   @override
   String get renteVsCapitalEducationalTitle => 'What it actually changes';
@@ -6228,11 +6229,11 @@ class SEn extends S {
   String get renteVsCapitalTornadoToggle => 'View sensitivity diagram';
 
   @override
-  String get renteVsCapitalImpactTitle => 'What changes the result the most?';
+  String get renteVsCapitalImpactTitle => 'Parameters to test';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'The most influential parameters on the gap between your options.';
+      'Possible variations based on the calculation assumptions.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Assumptions for this simulation';
@@ -6310,6 +6311,9 @@ class SEn extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'current age';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears => 'comparison horizon';
@@ -13010,16 +13014,13 @@ class SEn extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'A balance to build';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow =>
-      'If you choose the annuity';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Annuity scenario';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'If you choose the lump sum';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Lump-sum scenario';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'If you choose the mixed option';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Mixed scenario';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21217,7 +21218,7 @@ class SEn extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'With the capital, you could run out of money by age $age. With the annuity, you receive a fixed amount for life. You can only choose once.';
+    return 'With the capital, you could run out of money by age $age. With the annuity, you receive a fixed amount for life. This decision is final.';
   }
 
   @override
@@ -21273,7 +21274,7 @@ class SEn extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'At retirement, you choose once and for all: a lifetime income or your capital in hand.';
+      'At retirement, the decision sets lifetime income alongside available capital.';
 
   @override
   String get renteVsCapitalMaxPrecision =>
