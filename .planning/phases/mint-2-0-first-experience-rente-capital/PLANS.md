@@ -25,8 +25,9 @@ Claude phase review status: `PASS_WITH_FIXES`, P1 fixes incorporated here.
 7. `05-dossier-navigation-and-account-handoff`
 8. `06-simulator-and-gates`
 
-Slice 2 is now proposed as a code-mapped plan. Product code still requires a
-separate implementation branch after this plan is accepted.
+Slice 2's first route-proof implementation landed via PR #705. Further product
+work still requires a separate implementation branch and a failing test or
+contract proof before code.
 
 Slice 2 precondition adds the proposed user-variable dictionary and progressive
 profile contract:
@@ -69,6 +70,13 @@ Implementation must be delegated in small tasks:
 4. simulator evidence is captured before any "ready" claim.
 
 No slice may close with only screenshots, only tests, or only a written rationale.
+
+## Implementation Update — 2026-06-18
+
+PR #705 landed the first runtime path and committed the executable Maestro flow
+`flow_mint2_first_experience_rente_capital_entry.yaml`. The route proof should
+not be reopened unless a regression is proven. Remaining slices should focus on
+dossier continuity/account handoff and reducing runtime interaction brittleness.
 
 ## Slice 2 Preconditions
 

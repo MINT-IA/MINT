@@ -223,5 +223,6 @@ python3 -m pytest tools/checks/tests/test_active_context_guard.py tools/checks/t
 `PLAN.md`, and `VERIFICATION.md`; this slice plan is registered through
 `PLANS.md` and `.planning/INDEX.md`.
 
-Product code remains blocked unless these planning checks pass and Julien gives
-GO for the implementation sequence.
+This plan's first route-proof implementation landed through PR #705. Further
+product code still needs a focused branch, failing test or contract evidence,
+fresh verification, and Julien GO for the implementation sequence.

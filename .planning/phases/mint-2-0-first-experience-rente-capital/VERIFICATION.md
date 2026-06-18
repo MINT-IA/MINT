@@ -27,7 +27,9 @@ if user-facing text changes, Maestro first-entry flow, negative signalétique
 tests.
 
 G2 runtime and viewport: iPhone 13 mini simulator screenshot or UI snapshot;
-real device remains required for Keychain/iCloud restore claims.
+real device remains required for Keychain/iCloud restore claims. PR #705
+captured the first iPhone 13 mini route proof; rerun the flow for any behavior
+change.
 
 G3 calculation boundary: canonical L1 or L2-L4 source named; no UI calculation
 copy; result receipt includes assumptions, sources, readiness, missing fields,
@@ -58,5 +60,7 @@ file before product code starts:
 
 ## Open Blockers
 
-No Mint 2.0 runtime flow exists yet; Keychain/iCloud restore cannot be closed by
-simulator alone; Slice 2 still needs a code-mapped plan before implementation.
+The first Mint 2.0 runtime flow exists and landed through PR #705. Remaining
+blockers: dossier revisit/account handoff is not closed; Keychain/iCloud
+restore cannot be closed by simulator alone; Maestro still uses some
+coordinate-tap interaction where iOS does not expose a stable semantic action.

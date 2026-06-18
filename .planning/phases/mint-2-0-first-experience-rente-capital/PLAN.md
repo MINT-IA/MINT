@@ -1,7 +1,8 @@
 # Mint 2.0 First Experience Rente/Capital — Active Plan
 
-Status: Active via router promotion. Slice 2 product code still requires a
-code-mapped plan before implementation.
+Status: Active via router promotion. Slice 2 route proof landed through PR #705.
+The remaining work is narrower: prove dossier/account continuity and harden the
+runtime proof where it is still brittle.
 
 ## Scope
 
@@ -10,8 +11,9 @@ Promotion scope:
 `.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/INDEX.md`, and the
 four canonical files in this directory.
 
-Forbidden before the Slice 2 code plan:
-`apps/`, `services/`, `tools/`, `docs/`, `rules.md`, `AGENTS.md`, `CLAUDE.md`.
+The original pre-code block is satisfied for the first runtime path. Future
+product work still needs a small branch, failing test or contract evidence, and
+fresh verification before any completion claim.
 
 ## Slice Order
 
@@ -30,8 +32,9 @@ precondition:
 `mint-2-0-first-experience-rente-capital-02a-data-dictionary-onboarding-profile-PLAN.md`.
 The existing variable coverage map for that precondition is:
 `mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md`.
-Product implementation remains blocked until that plan is reviewed and accepted
-for a separate implementation branch.
+The first implementation branch has landed. Do not reopen Slice 2A unless a
+regression is proven; use the remaining plan checks to drive the next smallest
+unclosed user journey.
 
 ## Slice 1 Tasks
 
@@ -74,5 +77,6 @@ Before mobile code, the Slice 2 plan must keep these binding gates:
 
 ## Active Decision
 
-Mint 2.0 first experience is the active planning context after router
-promotion. Product code remains blocked until the Slice 2 code-mapped plan.
+Mint 2.0 first experience is the active context after router promotion. The
+first route proof landed through PR #705; the phase remains open for dossier/account
+handoff, Keychain/iCloud restore evidence, and runtime hardening.
