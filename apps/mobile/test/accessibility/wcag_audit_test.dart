@@ -187,6 +187,16 @@ void main() {
       );
     });
 
+    test('mintForest on craie >= 4.5:1 (micro-label text)', () {
+      final ratio = contrastRatio(MintColors.mintForest, MintColors.craie);
+      expect(
+        ratio,
+        greaterThanOrEqualTo(4.5),
+        reason:
+            'mintForest on craie should have >= 4.5:1 for 12pt labels, got ${ratio.toStringAsFixed(2)}:1',
+      );
+    });
+
     // ── Large text pairs (>= 3.0:1) ──
 
     test('textMuted on white >= 3.0:1 (large text / hints)', () {

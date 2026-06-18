@@ -9,7 +9,7 @@ void main() {
     FeatureFlags.enableDecisionScaffold = true;
   });
 
-  testWidgets('arbitrage teasers frame fiscal figures as indicative',
+  testWidgets('arbitrage teasers stay non-numeric until destination receipt',
       (tester) async {
     final profile = CoachProfile(
       birthYear: 1976,
@@ -36,10 +36,17 @@ void main() {
     );
 
     expect(find.text('Pistes d’arbitrage'), findsOneWidget);
+    expect(
+      find.text('Pistes éducatives — appuie pour explorer en détail'),
+      findsOneWidget,
+    );
     expect(find.text('Rente vs Capital'), findsNothing);
     expect(find.text('Calendrier de retraits'), findsOneWidget);
     expect(find.text('Rachat LPP'), findsOneWidget);
-    expect(find.textContaining('impact fiscal indicatif'), findsWidgets);
+    expect(find.textContaining('avant tout chiffrage fiscal'), findsWidgets);
+    expect(find.textContaining('CHF'), findsNothing);
+    expect(find.textContaining('~'), findsNothing);
+    expect(find.textContaining('impact fiscal indicatif'), findsNothing);
     expect(find.textContaining('Écart de flux net simulé'), findsNothing);
     expect(find.textContaining('/mois'), findsNothing);
     expect(find.textContaining('L’option'), findsNothing);

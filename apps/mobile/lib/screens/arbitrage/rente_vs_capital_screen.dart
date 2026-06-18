@@ -556,6 +556,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         inflation: (_hypotheses['inflation'] ?? 2.0) / 100,
         horizon: horizon,
         isMarried: _isMarried,
+        currentAge: currentAge,
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
@@ -1015,7 +1016,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               _buildEmptyStateHint(),
             ],
             // Auto-computed readout
-            if (_result != null && _result!.isProjected) ...[
+            if (_result != null &&
+                _result!.isProjected &&
+                _hasCompleteCalculationReceipt(_result)) ...[
               const SizedBox(height: MintSpacing.sm),
               MintSurface(
                 tone: MintSurfaceTone.porcelaine,
@@ -1729,24 +1732,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
     final renteVal = renteOption.trajectory[yearIndex].netPatrimony;
     final capitalVal = capitalOption.trajectory[yearIndex].netPatrimony;
-    final delta = capitalVal - renteVal;
-    final winner = delta > 0
-        ? S.of(context)!.renteVsCapitalCapitalLabel
-        : S.of(context)!.renteVsCapitalRenteLabel;
-    final winnerColor =
-        delta > 0 ? MintColors.retirementLpp : MintColors.retirementAvs;
+    final delta = (capitalVal - renteVal).abs();
+    const varianceColor = MintColors.ardoise;
 
     return Container(
       padding: const EdgeInsets.all(MintSpacing.sm),
       decoration: BoxDecoration(
-        color: winnerColor.withAlpha(10),
+        color: varianceColor.withAlpha(10),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Icon(
-            delta > 0 ? Icons.trending_up : Icons.trending_down,
-            color: winnerColor,
+          const Icon(
+            Icons.compare_arrows_rounded,
+            color: varianceColor,
             size: 20,
           ),
           const SizedBox(width: MintSpacing.sm),
@@ -1759,8 +1758,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
                 TextSpan(
-                  text: '$winner = +${formatChf(delta.abs())} ',
-                  style: MintTextStyles.bodySmall(color: winnerColor).copyWith(
+                  text: '${formatChf(delta)} ',
+                  style:
+                      MintTextStyles.bodySmall(color: varianceColor).copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -2364,6 +2364,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       'rente_annuelle_proposee' =>
         l.renteVsCapitalReceiptMissingRenteAnnuelleProposee,
       'canton' => l.renteVsCapitalReceiptMissingCanton,
+      'current_age' => l.renteVsCapitalReceiptMissingCurrentAge,
       'horizon_years' => l.renteVsCapitalReceiptMissingHorizonYears,
       'safe_withdrawal_rate' =>
         l.renteVsCapitalReceiptMissingSafeWithdrawalRate,
@@ -2407,6 +2408,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       'inflation' => l.renteVsCapitalHypInflation,
       'horizon_years' => l.renteVsCapitalReceiptMissingHorizonYears,
       'canton' => l.renteVsCapitalReceiptMissingCanton,
+      'current_age' => l.renteVsCapitalReceiptMissingCurrentAge,
       'conversion_rate_obligatory' =>
         l.renteVsCapitalReceiptMissingConversionRateObligatory,
       'conversion_rate_surobligatory' =>

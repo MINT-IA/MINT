@@ -50,6 +50,7 @@ void main() {
     test('decision framing copy avoids prescriptive choice verbs', () {
       final checkedKeys = [
         'renteVsCapitalIntro',
+        'renteVsCapitalDeltaAdvance',
         'renteVsCapitalConsequenceRenteEyebrow',
         'renteVsCapitalConsequenceCapitalEyebrow',
         'renteVsCapitalConsequenceMixteEyebrow',
@@ -61,6 +62,8 @@ void main() {
             r'\b(chois(?:is|ir)|pre' r'nds|consei[l]|recommand[ée])\b',
             caseSensitive: false,
           ),
+          RegExp(r"\b(d['’]avance|gagnant|vainqueur|meill" r"eur)\b",
+              caseSensitive: false),
         ],
         'en': [
           RegExp(
@@ -73,6 +76,7 @@ void main() {
             r'mal)\b',
             caseSensitive: false,
           ),
+          RegExp(r'\b(ahead|winner|winning)\b', caseSensitive: false),
         ],
         'de': [
           RegExp(
@@ -82,6 +86,7 @@ void main() {
             r'mal)\b',
             caseSensitive: false,
           ),
+          RegExp(r'\b(Vorsprung|Gewinner)\b', caseSensitive: false),
         ],
         'es': [
           RegExp(
@@ -89,6 +94,7 @@ void main() {
             r'or|óptim)\b',
             caseSensitive: false,
           ),
+          RegExp(r'\b(ventaja|ganador)\b', caseSensitive: false),
         ],
         'it': [
           RegExp(
@@ -96,6 +102,7 @@ void main() {
             r'ior|ottim)\b',
             caseSensitive: false,
           ),
+          RegExp(r'\b(vantaggio|vincitore)\b', caseSensitive: false),
         ],
         'pt': [
           RegExp(
@@ -104,6 +111,7 @@ void main() {
             r'or|[óo]tim)\b',
             caseSensitive: false,
           ),
+          RegExp(r'\b(vantagem|vencedor)\b', caseSensitive: false),
         ],
       };
 

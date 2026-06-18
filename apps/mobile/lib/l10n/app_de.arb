@@ -2943,7 +2943,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "Vorsprung",
+  "renteVsCapitalDeltaAdvance": "simulierte Differenz zwischen Szenarien",
   "renteVsCapitalEducationalTitle": "Was sich konkret ändert",
   "renteVsCapitalFiscalTitle": "Besteuerung",
   "renteVsCapitalFiscalLeftSubtitle": "Jährlich besteuert",
@@ -3036,6 +3036,7 @@
   "renteVsCapitalReceiptMissingCapitalLppTotal": "gesamtes BVG-Kapital",
   "renteVsCapitalReceiptMissingRenteAnnuelleProposee": "vorgeschlagene Jahresrente",
   "renteVsCapitalReceiptMissingCanton": "Kanton",
+  "renteVsCapitalReceiptMissingCurrentAge": "aktuelles Alter",
   "renteVsCapitalReceiptMissingHorizonYears": "Vergleichshorizont",
   "renteVsCapitalReceiptMissingSafeWithdrawalRate": "Kapitalbezugsrate",
   "renteVsCapitalReceiptMissingConversionRateObligatory": "obligatorischer Umwandlungssatz",

@@ -6159,7 +6159,8 @@ class SEs extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'por delante';
+  String get renteVsCapitalDeltaAdvance =>
+      'de diferencia simulada entre escenarios';
 
   @override
   String get renteVsCapitalEducationalTitle => 'Lo que cambia en concreto';
@@ -6350,6 +6351,9 @@ class SEs extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'cantón';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'edad actual';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears =>

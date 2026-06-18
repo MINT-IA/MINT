@@ -2943,7 +2943,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "de vantagem",
+  "renteVsCapitalDeltaAdvance": "de diferença simulada entre cenários",
   "renteVsCapitalEducationalTitle": "O que muda concretamente",
   "renteVsCapitalFiscalTitle": "Fiscalidade",
   "renteVsCapitalFiscalLeftSubtitle": "Tributado todos os anos",
@@ -3036,6 +3036,7 @@
   "renteVsCapitalReceiptMissingCapitalLppTotal": "capital LPP total",
   "renteVsCapitalReceiptMissingRenteAnnuelleProposee": "renda anual proposta",
   "renteVsCapitalReceiptMissingCanton": "cantão",
+  "renteVsCapitalReceiptMissingCurrentAge": "idade atual",
   "renteVsCapitalReceiptMissingHorizonYears": "horizonte de comparação",
   "renteVsCapitalReceiptMissingSafeWithdrawalRate": "taxa de levantamento do capital",
   "renteVsCapitalReceiptMissingConversionRateObligatory": "taxa de conversão obrigatória",

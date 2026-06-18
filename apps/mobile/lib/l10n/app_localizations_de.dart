@@ -6173,7 +6173,8 @@ class SDe extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'Vorsprung';
+  String get renteVsCapitalDeltaAdvance =>
+      'simulierte Differenz zwischen Szenarien';
 
   @override
   String get renteVsCapitalEducationalTitle => 'Was sich konkret ändert';
@@ -6367,6 +6368,9 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'Kanton';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'aktuelles Alter';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears => 'Vergleichshorizont';

@@ -48,6 +48,7 @@ ArbitrageResult _completeRvcResult() {
     inflation: 0.02,
     horizon: 30,
     isMarried: true,
+    currentAge: 50,
   );
 }
 
@@ -71,6 +72,7 @@ Map<String, dynamic> _completeBackendReceiptMap({
           'inflation': 0.02,
           'horizon_years': 30,
           'canton': 'VD',
+          'current_age': 50,
           'conversion_rate_obligatory': 0.068,
           'conversion_rate_surobligatory': 0.05,
         },
@@ -126,6 +128,7 @@ void main() {
           'inflation',
           'horizon_years',
           'canton',
+          'current_age',
           'conversion_rate_obligatory',
           'conversion_rate_surobligatory',
         ]),
@@ -135,6 +138,7 @@ void main() {
       expect(assumptions['inflation'], 0.02);
       expect(assumptions['horizon_years'], 30);
       expect(assumptions['canton'], 'VD');
+      expect(assumptions['current_age'], 50);
       expect(assumptions['conversion_rate_obligatory'], 0.068);
       expect(assumptions['conversion_rate_surobligatory'], 0.05);
 
@@ -164,6 +168,7 @@ void main() {
           'capital_lpp_total',
           'rente_annuelle_proposee',
           'canton',
+          'current_age',
         ]),
       );
     });
@@ -178,6 +183,7 @@ void main() {
         tauxConversionObligatoire: 0.068,
         tauxConversionSurobligatoire: 0,
         canton: 'VD',
+        currentAge: 50,
       );
 
       final receipt = result.calculationReceipt;
@@ -240,6 +246,18 @@ void main() {
       expect(receipt!.isComplete, isFalse);
     });
 
+    test('backend receipt without current age assumption is incomplete', () {
+      final assumptions = Map<String, Object?>.from(
+        _completeBackendReceiptMap()['assumptions'] as Map,
+      )..remove('current_age');
+      final receipt = ArbitrageCalculationReceipt.fromMap(
+        _completeBackendReceiptMap(assumptions: assumptions),
+      );
+
+      expect(receipt, isNotNull);
+      expect(receipt!.isComplete, isFalse);
+    });
+
     test('backend receipt with malformed missing-inputs metadata is incomplete',
         () {
       final receipt = ArbitrageCalculationReceipt.fromMap(
@@ -270,6 +288,7 @@ void main() {
             'inflation': 0.02,
             'horizon_years': 30,
             'canton': 'VD',
+            'current_age': 50,
             'conversion_rate_obligatory': 0.068,
             'conversion_rate_surobligatory': 0.05,
           },
@@ -290,6 +309,7 @@ void main() {
             'inflation': 0.02,
             'horizon_years': 30,
             'canton': 'VD',
+            'current_age': 50,
             'conversion_rate_obligatory': 0.068,
             'conversion_rate_surobligatory': 0.05,
           },
@@ -311,6 +331,7 @@ void main() {
               'inflation': 0.02,
               'horizon_years': 30,
               'canton': 'VD',
+              'current_age': 50,
               'conversion_rate_obligatory': 0.068,
               'conversion_rate_surobligatory': 0.05,
             },
@@ -324,6 +345,21 @@ void main() {
               'inflation': 0.02,
               'horizon_years': 0,
               'canton': 'VD',
+              'current_age': 50,
+              'conversion_rate_obligatory': 0.068,
+              'conversion_rate_surobligatory': 0.05,
+            },
+          ),
+        ),
+        ArbitrageCalculationReceipt.fromMap(
+          _completeBackendReceiptMap(
+            assumptions: const <String, Object?>{
+              'safe_withdrawal_rate': 0.04,
+              'expected_return': 0.03,
+              'inflation': 0.02,
+              'horizon_years': 30,
+              'canton': 'VD',
+              'current_age': 0,
               'conversion_rate_obligatory': 0.068,
               'conversion_rate_surobligatory': 0.05,
             },

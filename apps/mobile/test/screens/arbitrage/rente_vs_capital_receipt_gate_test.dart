@@ -38,6 +38,24 @@ CoachProfile _profileWithLpp() {
   );
 }
 
+CoachProfile _profileWithLppNoAge() {
+  return CoachProfile(
+    firstName: 'Marc',
+    birthYear: 0,
+    canton: 'VD',
+    etatCivil: CoachCivilStatus.celibataire,
+    salaireBrutMensuel: 9000,
+    nombreDeMois: 12,
+    employmentStatus: 'salarie',
+    prevoyance: const PrevoyanceProfile(avoirLppTotal: 360000),
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2045),
+      label: 'Retraite',
+    ),
+  );
+}
+
 Widget _wrapWithProvider(CoachProfileProvider provider) {
   return ChangeNotifierProvider<CoachProfileProvider>.value(
     value: provider,
@@ -156,6 +174,7 @@ Map<String, Object?> _backendResultWithCompleteReceipt() {
         'inflation': 0.02,
         'horizon_years': 30,
         'canton': 'VD',
+        'current_age': 46,
         'conversion_rate_obligatory': 0.068,
         'conversion_rate_surobligatory': 0.05,
       },
@@ -222,6 +241,8 @@ void main() {
         MockClient((request) async {
           expect(
               request.url.path, endsWith('/api/v1/arbitrage/rente-vs-capital'));
+          final payload = jsonDecode(request.body) as Map<String, dynamic>;
+          expect(payload['current_age'], 46);
           return http.Response(
             jsonEncode(_backendResultWithCompleteReceipt()),
             200,
@@ -251,6 +272,41 @@ void main() {
 
     final context = tester.element(find.byType(RenteVsCapitalScreen));
     expect(find.text(S.of(context)!.renteVsCapitalPerMonth), findsWidgets);
+  });
+
+  testWidgets(
+      'LPP amount without current age keeps local fallback behind receipt-required gate',
+      (tester) async {
+    ApiService.setHttpClientForTesting(
+      MintHttpClient(
+        MockClient((request) async {
+          expect(
+              request.url.path, endsWith('/api/v1/arbitrage/rente-vs-capital'));
+          return http.Response('{"detail":"forced failure"}', 500);
+        }),
+      ),
+    );
+    final provider = CoachProfileProvider()
+      ..updateProfile(_profileWithLppNoAge());
+
+    await _pumpRvc(tester, provider: provider);
+
+    final receiptRequired =
+        find.byKey(const Key('rente_vs_capital_receipt_required'));
+    for (var i = 0; i < 6 && receiptRequired.evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -500));
+      await tester.pump();
+    }
+
+    final context = tester.element(find.byType(RenteVsCapitalScreen));
+    expect(receiptRequired, findsOneWidget);
+    expect(find.text(S.of(context)!.renteVsCapitalPerMonth), findsNothing);
+    expect(find.textContaining('Capital estimé à'), findsNothing);
+    expect(
+      find.textContaining(
+          S.of(context)!.renteVsCapitalReceiptMissingCurrentAge),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

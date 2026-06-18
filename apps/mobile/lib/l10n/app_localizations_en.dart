@@ -6120,7 +6120,8 @@ class SEn extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'ahead';
+  String get renteVsCapitalDeltaAdvance =>
+      'simulated difference between scenarios';
 
   @override
   String get renteVsCapitalEducationalTitle => 'What it actually changes';
@@ -6310,6 +6311,9 @@ class SEn extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'current age';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears => 'comparison horizon';

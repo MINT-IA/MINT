@@ -6162,7 +6162,7 @@ class SFr extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'd\'avance';
+  String get renteVsCapitalDeltaAdvance => 'd’écart simulé entre scénarios';
 
   @override
   String get renteVsCapitalEducationalTitle => 'Ce que ça change concrètement';
@@ -6351,6 +6351,9 @@ class SFr extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'âge actuel';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears =>

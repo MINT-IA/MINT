@@ -685,7 +685,7 @@ class _Mint2AxisCard extends StatelessWidget {
               Text(
                 status,
                 style: MintTextStyles.labelSupreme12Uppercase025LS(
-                  color: MintColors.terracotta,
+                  color: MintColors.mintForest,
                 ),
               ),
               if (savedSignalText != null) ...[
@@ -757,7 +757,7 @@ class _IntentCard extends StatelessWidget {
               Text(
                 eyebrow,
                 style: MintTextStyles.labelSupreme12Uppercase025LS(
-                  color: MintColors.terracotta,
+                  color: MintColors.mintForest,
                 ),
               ),
               const SizedBox(height: MintSpacing.sm),

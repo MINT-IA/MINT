@@ -11085,7 +11085,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalDeltaAdvance.
   ///
   /// In fr, this message translates to:
-  /// **'d\'avance'**
+  /// **'d’écart simulé entre scénarios'**
   String get renteVsCapitalDeltaAdvance;
 
   /// No description provided for @renteVsCapitalEducationalTitle.
@@ -11429,6 +11429,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'canton'**
   String get renteVsCapitalReceiptMissingCanton;
+
+  /// No description provided for @renteVsCapitalReceiptMissingCurrentAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'âge actuel'**
+  String get renteVsCapitalReceiptMissingCurrentAge;
 
   /// No description provided for @renteVsCapitalReceiptMissingHorizonYears.
   ///

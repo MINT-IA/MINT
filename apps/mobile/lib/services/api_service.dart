@@ -1126,8 +1126,9 @@ class ApiService {
     double inflation = 0.02,
     int horizon = 25,
     bool isMarried = false,
+    int? currentAge,
   }) async {
-    final response = await post('/arbitrage/rente-vs-capital', {
+    final payload = {
       'capital_lpp_total': capitalLppTotal,
       'capital_obligatoire': capitalObligatoire,
       'capital_surobligatoire': capitalSurobligatoire,
@@ -1141,7 +1142,9 @@ class ApiService {
       'inflation': inflation,
       'horizon': horizon,
       'is_married': isMarried,
-    });
+      if (currentAge != null) 'current_age': currentAge,
+    };
+    final response = await post('/arbitrage/rente-vs-capital', payload);
 
     final rawOptions = response['options'];
     final options = <TrajectoireOption>[];

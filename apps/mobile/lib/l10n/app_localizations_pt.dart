@@ -6155,7 +6155,8 @@ class SPt extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'de vantagem';
+  String get renteVsCapitalDeltaAdvance =>
+      'de diferença simulada entre cenários';
 
   @override
   String get renteVsCapitalEducationalTitle => 'O que muda concretamente';
@@ -6347,6 +6348,9 @@ class SPt extends S {
 
   @override
   String get renteVsCapitalReceiptMissingCanton => 'cantão';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'idade atual';
 
   @override
   String get renteVsCapitalReceiptMissingHorizonYears =>
