@@ -22,6 +22,8 @@
     "feature/mint2-rvc-proof-blockers",
     "feature/mint2-axis-dossier-persist",
     "feature/mint2-claim-axis-handoff",
+    "feature/S06-mint2-dossier-axis-continuity",
+    "feature/S06-mint2-dossier-axis-surface",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],
