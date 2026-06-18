@@ -436,6 +436,7 @@ def claim_local_data(
         },
         "miniOnboarding": body.mini_onboarding,
         "wizardAnswers": body.wizard_answers,
+        "mint2AxisHandoff": body.mint2_axis_handoff,
         "budgetSnapshot": body.budget_snapshot,
         "checkins": body.checkins,
     }

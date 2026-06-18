@@ -427,6 +427,12 @@ def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestCli
             "q_goal": "retire",
         },
         "wizard_answers": {"q_has_debt": False},
+        "mint2_axis_handoff": {
+            "onb_axis_v2": "lpp_rente_capital",
+            "onb_axis_schema_version": 2,
+            "legacy_onb_intent": "retraite",
+            "onb_signal_axes_v2": ["logement_signal", "fiscal_signal"],
+        },
         "budget_snapshot": {"income": 9200, "rent": 1900},
         "checkins": [{"month": "2026-02", "score": 78}],
     }
@@ -457,6 +463,22 @@ def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestCli
     assert second_body["status"] == "ok"
     assert second_body["created_profile"] is False
     assert second_body["profile_id"] == first_body["profile_id"]
+
+    from app.models.profile_model import ProfileModel
+    from tests.conftest import TestingSessionLocal
+
+    db = TestingSessionLocal()
+    try:
+        profile = (
+            db.query(ProfileModel).order_by(ProfileModel.updated_at.desc()).first()
+        )
+        assert profile is not None
+        claim = profile.data["localDataClaim"]
+        assert claim["wizardAnswers"] == {"q_has_debt": False}
+        assert "onb_axis_v2" not in claim["wizardAnswers"]
+        assert claim["mint2AxisHandoff"] == payload["mint2_axis_handoff"]
+    finally:
+        db.close()
 
 
 def test_claim_local_data_promotes_material_profile_facts(auth_client: TestClient):

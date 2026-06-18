@@ -990,7 +990,9 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: failure does not block auth, but keeps a retry flag.
         try {
           final answers = await ReportPersistenceService.loadAnswers();
-          if (answers.isNotEmpty) {
+          final mint2AxisHandoff =
+              await ReportPersistenceService.loadMint2AxisHandoff();
+          if (answers.isNotEmpty || mint2AxisHandoff.isNotEmpty) {
             var deviceId = prefs.getString('_mint_device_id');
             if (deviceId == null) {
               deviceId = const Uuid().v4();
@@ -1000,6 +1002,7 @@ class AuthProvider extends ChangeNotifier {
               localDataVersion: 1,
               deviceId: deviceId,
               wizardAnswers: answers,
+              mint2AxisHandoff: mint2AxisHandoff,
             );
           }
           await prefs.remove(pendingSyncKey);

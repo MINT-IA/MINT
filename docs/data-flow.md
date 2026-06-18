@@ -82,6 +82,9 @@ Mint 2 axis metadata (`onb_axis_v2`, `onb_axis_schema_version`,
 the live-axis entry or the terminal onboarding flush. This keeps account
 handoff context without turning axis metadata into a financial report input or
 round-tripping sealed wizard placeholders.
+When local data is claimed into a cloud account, the same metadata is sent as
+`mint2_axis_handoff` and stored in `localDataClaim.mint2AxisHandoff`, still
+separate from `localDataClaim.wizardAnswers`.
 When an anonymous diagnostic is moved aside during account hydration, the same
 handoff payload moves to `anonymous_mint2_axis_handoff_held_v1` and is cleared
 only with the held-anonymous diagnostic.
