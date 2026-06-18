@@ -38,6 +38,18 @@ Ordre d'autorité pour l'intention produit, la doctrine et les contraintes :
 Engram évite de redécouvrir. Il ne surpasse jamais le repo.
 Si doc et code divergent, ne pas choisir par intuition : citer les deux chemins, ouvrir un finding, puis corriger la source fautive.
 
+Accès skills : les agents ont l'autorisation explicite et autonome de lire et
+d'utiliser tous les skills nécessaires lorsque les chemins existent et sont
+lisibles : `.agents/skills`, `.claude/skills`, `.codex/skills`,
+`~/.codex/skills`, `~/.agents/skills`, et les caches de plugins exposés par la
+session. Ne pas redemander une permission par skill. Ne pas déclarer un repo de
+skills inaccessible sans avoir testé le chemin concret. Si un chemin est
+illisible, citer le chemin exact et utiliser le meilleur fallback local.
+
+Cette autorisation ne change pas l'autorité produit : un skill est méthode et
+outillage, jamais source produit supérieure au worktree approuvé, aux règles
+checked-in, au code courant, aux tests locaux et aux preuves runtime.
+
 Current phase pointer lives in `.planning/ACTIVE_CONTEXT.md`,
 `.planning/ACTIVE_CONTEXT.json`, and `.planning/STATE.md`. As of 2026-06-14,
 product code is frozen until `.planning/phases/mint-karpathy-rules-infra-20260614/`

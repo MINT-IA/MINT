@@ -82,6 +82,24 @@ rampart. After ship:
 - **Phase 30.7 MCP tools** → Swiss constants / banned-terms /
   ARB-parity as on-demand tools (stop bloating agent context with rules)
 
+## Skill repository authority
+
+Agents are explicitly authorized to read and use every skill repository needed
+for the current task when the path is present and readable: repo-local
+`.agents/skills`, `.claude/skills`, `.codex/skills`, user-level
+`~/.codex/skills`, `~/.agents/skills`, and installed plugin skill caches
+exposed by the session.
+
+This authorization is autonomous. Do not ask for per-skill permission, and do
+not claim a skill repository is inaccessible before checking the concrete path.
+If a skill path is unreadable, report the exact path and continue with the
+closest local fallback.
+
+Skill repositories are method/tooling authority only. They do not override
+MINT product truth: the approved worktree, checked-in governance, current code,
+local tests, and deterministic runtime evidence remain authoritative for
+product behavior.
+
 ## 🤝 Session handshake — run these in order, every time
 
 1. Read curator memory from `$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md`; if missing, stop instead of continuing blind.
