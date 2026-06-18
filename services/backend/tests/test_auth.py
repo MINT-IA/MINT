@@ -464,17 +464,32 @@ def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestCli
     assert second_body["created_profile"] is False
     assert second_body["profile_id"] == first_body["profile_id"]
 
+    later = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "local_data_version": 1,
+            "device_id": "ios-device-abc123",
+            "updated_at": "2099-01-02T00:00:00Z",
+            "wizard_answers": {"q_canton": "VD"},
+        },
+    )
+    assert later.status_code == 200
+
     from app.models.profile_model import ProfileModel
     from tests.conftest import TestingSessionLocal
 
     db = TestingSessionLocal()
     try:
         profile = (
-            db.query(ProfileModel).order_by(ProfileModel.updated_at.desc()).first()
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == register.json()["user_id"])
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
         )
         assert profile is not None
         claim = profile.data["localDataClaim"]
-        assert claim["wizardAnswers"] == {"q_has_debt": False}
+        assert claim["wizardAnswers"] == {"q_canton": "VD"}
         assert "onb_axis_v2" not in claim["wizardAnswers"]
         assert claim["mint2AxisHandoff"] == payload["mint2_axis_handoff"]
     finally:

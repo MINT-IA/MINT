@@ -131,9 +131,12 @@ class AuthProvider extends ChangeNotifier {
         ? Map<String, dynamic>.from(nestedData)
         : Map<String, dynamic>.from(profilePayload);
     if (data.isEmpty) return currentAnswers;
+    final claimAnswers = _localDataClaimWizardAnswers(data);
+    if (claimAnswers.isEmpty && _isBootstrapOnlyBackendProfileData(data)) {
+      return currentAnswers;
+    }
 
     final answers = Map<String, dynamic>.from(currentAnswers);
-    final claimAnswers = _localDataClaimWizardAnswers(data);
     for (final entry in claimAnswers.entries) {
       if (_isMissingAnswer(answers, entry.key)) {
         answers[entry.key] = entry.value;
@@ -348,6 +351,51 @@ class AuthProvider extends ChangeNotifier {
     final rawWizardAnswers = claim['wizardAnswers'];
     if (rawWizardAnswers is! Map) return const {};
     return Map<String, dynamic>.from(rawWizardAnswers);
+  }
+
+  static bool _isBootstrapOnlyBackendProfileData(Map<String, dynamic> data) {
+    for (final entry in data.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+      switch (entry.key) {
+        case 'id':
+        case 'createdAt':
+        case 'updatedAt':
+          continue;
+        case 'householdType':
+          if (value == 'single') continue;
+          return false;
+        case 'hasDebt':
+        case 'isChurchMember':
+          if (value == false) continue;
+          return false;
+        case 'goal':
+          if (value == 'other') continue;
+          return false;
+        case 'factfindCompletionIndex':
+          if (value is num && value == 0) continue;
+          return false;
+        case 'voiceCursorPreference':
+          if (value == 'direct') continue;
+          return false;
+        case 'n5IssuedThisWeek':
+          if (value is num && value == 0) continue;
+          return false;
+        case 'recentGravityEvents':
+          if (value is List && value.isEmpty) continue;
+          return false;
+        case 'localDataClaim':
+          final claim = value;
+          if (claim is Map) {
+            final wizardAnswers = claim['wizardAnswers'];
+            if (wizardAnswers is! Map || wizardAnswers.isEmpty) continue;
+          }
+          return false;
+        default:
+          return false;
+      }
+    }
+    return true;
   }
 
   static bool _isAnswered(dynamic value) {

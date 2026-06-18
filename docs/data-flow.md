@@ -85,6 +85,8 @@ round-tripping sealed wizard placeholders.
 When local data is claimed into a cloud account, the same metadata is sent as
 `mint2_axis_handoff` and stored in `localDataClaim.mint2AxisHandoff`, still
 separate from `localDataClaim.wizardAnswers`.
+Later wizard/profile syncs that do not carry Mint 2 axis metadata preserve the
+existing `localDataClaim.mint2AxisHandoff` instead of clearing it.
 When an anonymous diagnostic is moved aside during account hydration, the same
 handoff payload moves to `anonymous_mint2_axis_handoff_held_v1` and is cleared
 only with the held-anonymous diagnostic.

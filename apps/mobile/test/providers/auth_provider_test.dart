@@ -478,7 +478,16 @@ void main() {
           }
           if (request.url.path == '/api/v1/profiles/me') {
             return http.Response(
-              '{}',
+              jsonEncode({
+                'id': 'axis-profile',
+                'householdType': 'single',
+                'hasDebt': false,
+                'goal': 'other',
+                'factfindCompletionIndex': 0.0,
+                'voiceCursorPreference': 'direct',
+                'n5IssuedThisWeek': 0,
+                'recentGravityEvents': [],
+              }),
               200,
               headers: {'content-type': 'application/json'},
             );
@@ -530,6 +539,7 @@ void main() {
         expect(prefs.getString('local_data_owner'), 'axis-user');
         expect(prefs.getBool('local_data_migrated_axis-user'), isTrue);
         expect(prefs.getBool('local_data_sync_pending_axis-user'), isNull);
+        expect(await ReportPersistenceService.loadAnswers(), isEmpty);
       } finally {
         FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
         ConversationStore.setCurrentUserId(null);
