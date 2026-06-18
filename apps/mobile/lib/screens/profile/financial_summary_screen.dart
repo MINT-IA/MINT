@@ -12,6 +12,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -49,10 +51,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               child: CustomScrollView(
                 slivers: [
                   _buildAppBar(context),
-                  if (profile == null || !profile.hasMaterialData)
-                    _buildEmptyState(context)
-                  else
-                    _buildContent(context, profile),
+                  _buildBodySliver(context, profile),
                 ],
               ))),
     );
@@ -93,6 +92,30 @@ class FinancialSummaryScreen extends StatelessWidget {
         subtitle: '', // No subtitle in original
         ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
         onCta: () => context.go('/coach/chat'),
+      ),
+    );
+  }
+
+  Widget _buildBodySliver(BuildContext context, CoachProfile? profile) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: ReportPersistenceService.loadMint2AxisHandoff(),
+      builder: (context, snapshot) {
+        final mint2AxisHandoff = snapshot.data ?? const <String, dynamic>{};
+        final hasMint2AxisHandoff = _hasMint2LiveAxis(mint2AxisHandoff);
+        if (profile == null || !profile.hasMaterialData) {
+          if (!hasMint2AxisHandoff) return _buildEmptyState(context);
+          return _buildHandoffOnlyContent(context);
+        }
+        return _buildContent(context, profile);
+      },
+    );
+  }
+
+  Widget _buildHandoffOnlyContent(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        child: _buildMint2HandoffDossierSummary(context),
       ),
     );
   }
@@ -586,6 +609,200 @@ class FinancialSummaryScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMint2HandoffDossierSummary(BuildContext context) {
+    final s = S.of(context)!;
+    return MintEntrance(
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              identifier: 'profile_dossier_facts_summary',
+              container: true,
+              child: Container(
+                key: const ValueKey('profile_dossier_facts_summary'),
+                width: double.infinity,
+                color: MintColors.transparent,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.folder_shared_outlined,
+                      color: MintColors.textPrimary,
+                      size: 22,
+                    ),
+                    const SizedBox(width: MintSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            s.financialSummaryDossierTitle,
+                            style: MintTextStyles.titleMedium(
+                              color: MintColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            s.financialSummaryDossierSubtitle,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: MintColors.appleSurface,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '1 ${s.financialSummaryDossierFactCountLabel}',
+                        style: MintTextStyles.labelMedium(
+                          color: MintColors.textPrimary,
+                        ).copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Semantics(
+              identifier: 'profile_dossier_provenance_summary',
+              container: true,
+              child: Container(
+                key: const ValueKey('profile_dossier_provenance_summary'),
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.appleSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      s.financialSummaryDossierSourcesTitle,
+                      style: MintTextStyles.labelMedium(
+                        color: MintColors.textSecondary,
+                      ).copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    _sourcePill(
+                      label: s.sourceBadgeDeclared,
+                      count: 0,
+                      color: MintColors.success,
+                    ),
+                    _sourcePill(
+                      label: s.sourceBadgeEstimated,
+                      count: 0,
+                      color: MintColors.warning,
+                    ),
+                    _sourcePill(
+                      label: s.sourceBadgeCertified,
+                      count: 0,
+                      color: MintColors.info,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            _buildMint2AxisHandoffCard(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _hasMint2LiveAxis(Map<String, dynamic> handoff) {
+    return FeatureFlags.enableMint2FirstExperienceEntry &&
+        handoff['onb_axis_v2'] == 'lpp_rente_capital' &&
+        handoff['onb_axis_schema_version'] == 2;
+  }
+
+  Widget _buildMint2AxisHandoffCard(BuildContext context) {
+    final s = S.of(context)!;
+    return Semantics(
+      identifier: 'profile_dossier_axis_handoff',
+      container: true,
+      child: Container(
+        key: const ValueKey('profile_dossier_axis_handoff'),
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: MintColors.appleSurface,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.account_tree_outlined,
+              color: MintColors.textPrimary,
+              size: 20,
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s.mint2FirstExperienceLppLabel,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Wrap(
+                    spacing: MintSpacing.xs,
+                    runSpacing: MintSpacing.xs,
+                    children: [
+                      _axisStatePill(
+                        label: s
+                            .renteVsCapitalReceiptReadinessMissingRequiredInputs,
+                        color: MintColors.warning,
+                      ),
+                      _axisStatePill(
+                        label: s.renteVsCapitalReceiptReadinessMissing,
+                        color: MintColors.textSecondary,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _axisStatePill({
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: MintTextStyles.labelSmall(color: color)
+            .copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }

@@ -540,6 +540,11 @@ void main() {
         expect(prefs.getBool('local_data_migrated_axis-user'), isTrue);
         expect(prefs.getBool('local_data_sync_pending_axis-user'), isNull);
         expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+        expect(
+          (await ReportPersistenceService.loadMint2AxisHandoff())[
+              'onb_axis_v2'],
+          'lpp_rente_capital',
+        );
       } finally {
         FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
         ConversationStore.setCurrentUserId(null);

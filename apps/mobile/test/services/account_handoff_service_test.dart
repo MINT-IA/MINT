@@ -77,6 +77,10 @@ void main() {
       () async {
     await AccountHandoffService.saveChoice(AccountHandoffChoice.restartClean);
     await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+    });
     await ConversationStore().saveConversation('anonymous_restart', [
       ChatMessage(
         role: 'assistant',
@@ -94,6 +98,7 @@ void main() {
 
     expect(shouldMigrate, isFalse);
     expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+    expect(await ReportPersistenceService.loadMint2AxisHandoff(), isEmpty);
     expect(
       await ConversationStore().loadConversation('anonymous_restart'),
       isEmpty,
