@@ -227,6 +227,14 @@ Future<void> _selectExplicitDateOfBirth(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _tapCanton(WidgetTester tester, String code) async {
+  final cantonFinder = find.byKey(
+    ValueKey('onboarding-canton-${code.toLowerCase()}'),
+  );
+  await tester.tap(cantonFinder);
+  await tester.pumpAndSettle();
+}
+
 Future<void> _commonData(WidgetTester tester) async {
   // T3 date de naissance → T4 : choisir explicitement une date.
   await _selectExplicitDateOfBirth(tester);
@@ -234,10 +242,7 @@ Future<void> _commonData(WidgetTester tester) async {
   await tester.pumpAndSettle();
   expect(find.text('Où tu vis ?'), findsOneWidget);
 
-  // T4 canton → T5 : tap VD
-  expect(find.byKey(const ValueKey('onboarding-canton-vd')), findsOneWidget);
-  await tester.tap(find.text('VD'));
-  await tester.pumpAndSettle();
+  await _tapCanton(tester, 'AG');
   expect(find.text('Combien te tombe net par mois ?'), findsOneWidget);
 
   // T5 revenue fourchette par défaut (7000–7500) → T6
@@ -288,8 +293,7 @@ void main() {
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('VD'));
-      await tester.pumpAndSettle();
+      await _tapCanton(tester, 'AG');
       _expectSemanticsIdentifier(tester, 'onboarding-revenue-range-continue');
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
@@ -344,8 +348,7 @@ void main() {
     await _selectExplicitDateOfBirth(tester);
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('VD'));
-    await tester.pumpAndSettle();
+    await _tapCanton(tester, 'AG');
 
     expect(find.text('Combien te tombe net par mois ?'), findsOneWidget);
     expect(find.byType(Slider), findsNothing);
@@ -457,7 +460,7 @@ void main() {
 
     expect(find.text('Ce que Mint peut déjà situer'), findsOneWidget);
     expect(find.text('Repères captés'), findsOneWidget);
-    expect(find.text('Vaud · environ 7’250 CHF/mois net'), findsOneWidget);
+    expect(find.text('Argovie · environ 7’250 CHF/mois net'), findsOneWidget);
     expect(find.text('À préciser ensuite'), findsOneWidget);
     expect(find.text('SCENE · TA RETRAITE PROJETEE'), findsNothing);
   });
@@ -539,7 +542,7 @@ void main() {
     expect(merged['q_birth_year'], DateTime.now().year - 34);
     expect(merged['q_date_of_birth'],
         contains('${DateTime.now().year - 34}-07-15'));
-    expect(merged['q_canton'], 'VD');
+    expect(merged['q_canton'], 'AG');
     expect(merged.containsKey('q_email'), isFalse,
         reason: 'email-demain scene killed 2026-04-24, no email captured');
     expect(merged['q_net_income_confidence'], 'medium');
@@ -568,7 +571,7 @@ void main() {
     expect(find.text('Anonyme · conservé sur cet appareil'), findsOneWidget);
     expect(find.text('Ce que Mint a compris'), findsOneWidget);
     expect(find.text('Mes impôts'), findsWidgets);
-    expect(find.text('Vaud'), findsWidgets);
+    expect(find.text('Argovie'), findsWidgets);
     expect(find.text("7'000 – 7'500 CHF"), findsWidgets);
     expect(find.text('Ce qui manque'), findsOneWidget);
     expect(find.text('Certificat LPP'), findsOneWidget);
@@ -683,8 +686,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // T4 canton
-    await tester.tap(find.text('VD'));
-    await tester.pumpAndSettle();
+    await _tapCanton(tester, 'AG');
 
     // T5 bascule mode exact
     await tester.tap(find.text('Je sais le chiffre exact'));
@@ -804,7 +806,8 @@ void main() {
     expect(fake.mergedCalls, hasLength(1));
   });
 
-  testWidgets('T8 Continuer: flushes wantsDeeper=true + navigates to /coach/chat',
+  testWidgets(
+      'T8 Continuer: flushes wantsDeeper=true + navigates to /coach/chat',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
@@ -858,7 +861,8 @@ void main() {
     expect(fake.mergedCalls.single['q_wants_deeper'], isFalse);
   });
 
-  testWidgets('T8 Repartir de zéro resets local diagnostic without profile flush',
+  testWidgets(
+      'T8 Repartir de zéro resets local diagnostic without profile flush',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);

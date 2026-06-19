@@ -375,7 +375,7 @@ class _PrimaryButton extends StatelessWidget {
     final button = SizedBox(
       key: identifier == null ? buttonKey : null,
       width: double.infinity,
-      height: 52,
+      height: 56,
       child: FilledButton(
         // lint-ignore: prefer_mint_cta
         onPressed: onPressed,
@@ -907,32 +907,32 @@ class _AgeStepState extends State<_AgeStep> {
 // ────────────────────────────────────────────────────────────────────
 
 const _cantons = <(String, String)>[
-  ('VD', 'Vaud'),
-  ('GE', 'Genève'),
-  ('VS', 'Valais'),
-  ('FR', 'Fribourg'),
-  ('NE', 'Neuchâtel'),
-  ('JU', 'Jura'),
-  ('BE', 'Berne'),
-  ('ZH', 'Zurich'),
-  ('BS', 'Bâle-Ville'),
-  ('BL', 'Bâle-Campagne'),
-  ('SO', 'Soleure'),
   ('AG', 'Argovie'),
-  ('LU', 'Lucerne'),
-  ('ZG', 'Zoug'),
-  ('SZ', 'Schwytz'),
-  ('OW', 'Obwald'),
-  ('NW', 'Nidwald'),
-  ('UR', 'Uri'),
-  ('GL', 'Glaris'),
-  ('SH', 'Schaffhouse'),
-  ('AR', 'Appenzell RE'),
   ('AI', 'Appenzell RI'),
-  ('SG', 'Saint-Gall'),
+  ('AR', 'Appenzell RE'),
+  ('BE', 'Berne'),
+  ('BL', 'Bâle-Campagne'),
+  ('BS', 'Bâle-Ville'),
+  ('FR', 'Fribourg'),
+  ('GE', 'Genève'),
+  ('GL', 'Glaris'),
   ('GR', 'Grisons'),
+  ('JU', 'Jura'),
+  ('LU', 'Lucerne'),
+  ('NE', 'Neuchâtel'),
+  ('NW', 'Nidwald'),
+  ('OW', 'Obwald'),
+  ('SG', 'Saint-Gall'),
+  ('SH', 'Schaffhouse'),
+  ('SO', 'Soleure'),
+  ('SZ', 'Schwytz'),
   ('TG', 'Thurgovie'),
   ('TI', 'Tessin'),
+  ('UR', 'Uri'),
+  ('VD', 'Vaud'),
+  ('VS', 'Valais'),
+  ('ZG', 'Zoug'),
+  ('ZH', 'Zurich'),
 ];
 
 class _CantonStep extends StatelessWidget {
@@ -944,11 +944,12 @@ class _CantonStep extends StatelessWidget {
     return _StepScaffold(
       prompt: 'Où tu vis ?',
       child: GridView.builder(
+        padding: const EdgeInsets.only(bottom: 12),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 2.2,
+          childAspectRatio: 1.9,
         ),
         itemCount: _cantons.length,
         itemBuilder: (context, i) {
@@ -1573,7 +1574,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
         child: ExcludeSemantics(
           child: SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 56,
             child: OutlinedButton(
               // lint-ignore: prefer_mint_cta
               onPressed: onPressed,
@@ -1605,7 +1606,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Expanded(child: _TerminalDossierSummary()),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _PrimaryButton(
             key: const ValueKey('onboarding-bifurcation-continue'),
             semanticsIdentifier: 'onboarding-bifurcation-continue',

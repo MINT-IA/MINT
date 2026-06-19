@@ -1,3 +1,5 @@
+import 'package:mint_mobile/services/report_persistence_service.dart';
+
 String? resolvePostAuthRedirect(Uri uri) {
   final redirect = uri.queryParameters['redirect'];
   if (redirect == null || redirect.isEmpty) return null;
@@ -33,6 +35,14 @@ bool hasDossierIdentityAnswers(Map<String, dynamic> answers) {
   if (birthYear is String && int.tryParse(birthYear) != null) return true;
 
   return false;
+}
+
+Future<bool> hasPostAuthDossierIdentity({
+  required DateTime? localDateOfBirth,
+}) async {
+  if (localDateOfBirth != null) return true;
+  final answers = await ReportPersistenceService.loadAnswers();
+  return hasDossierIdentityAnswers(answers);
 }
 
 String resolvePostAuthDestination({

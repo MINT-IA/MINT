@@ -27,6 +27,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 
 /// Internal employment values matching `_parseEmploymentStatus` EXACTLY.
 /// `sans_activite` is parsed by the W2 extension to coach_profile.dart so
@@ -93,46 +94,53 @@ class MintSceneStatutEmploi extends StatelessWidget {
               ),
             ),
           ),
-          const Spacer(),
-          Semantics(
-            container: true,
-            label: l.onboardingEmploymentPrompt,
-            child: Column(
-              children: [
-                for (final (value, label, key, hint) in options) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: Semantics(
-                      inMutuallyExclusiveGroup: true,
-                      button: true,
-                      label: label,
-                      hint: hint,
-                      child: FilledButton.tonal(
-                        key: ValueKey(key),
-                        onPressed: () => _answer(context, value),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: MintColors.craie,
-                          foregroundColor: MintColors.textPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+          const SizedBox(height: MintSpacing.xl),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SingleChildScrollView(
+                child: Semantics(
+                  container: true,
+                  label: l.onboardingEmploymentPrompt,
+                  child: Column(
+                    children: [
+                      for (final (value, label, key, hint) in options) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: Semantics(
+                            inMutuallyExclusiveGroup: true,
+                            button: true,
+                            label: label,
+                            hint: hint,
+                            child: FilledButton.tonal(
+                              key: ValueKey(key),
+                              onPressed: () => _answer(context, value),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: MintColors.craie,
+                                foregroundColor: MintColors.textPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: Text(
+                                label,
+                                textAlign: TextAlign.center,
+                                style: MintTextStyles.labelLarge(
+                                  color: MintColors.textPrimary,
+                                ).copyWith(fontWeight: FontWeight.w600),
+                              ),
+                            ),
                           ),
                         ),
-                        child: Text(
-                          label,
-                          style: MintTextStyles.labelLarge(
-                            color: MintColors.textPrimary,
-                          ).copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
+                        const SizedBox(height: 12),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 12),
         ],
       ),
     );

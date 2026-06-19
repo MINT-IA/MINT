@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/screens/auth/auth_redirect.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues(const <String, Object>{}));
+
   test('resolvePostAuthRedirect prefers safe redirect query param', () {
     expect(
       resolvePostAuthRedirect(Uri.parse(
@@ -91,5 +94,13 @@ void main() {
     );
     expect(hasDossierIdentityAnswers({'q_birth_year': 1992}), isTrue);
     expect(hasDossierIdentityAnswers({'q_birth_year': '1992'}), isTrue);
+  });
+
+  test('post-auth identity falls back to the anonymous dossier', () async {
+    SharedPreferences.setMockInitialValues({
+      'wizard_answers_v2': '{"q_date_of_birth":"1977-07-12"}',
+    });
+
+    expect(await hasPostAuthDossierIdentity(localDateOfBirth: null), isTrue);
   });
 }
