@@ -120,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             GoRouterState.of(context).uri,
           ));
         } else {
-          _goAfterAccountCreated();
+          await _goAfterAccountCreated();
         }
       }
     } finally {
@@ -163,7 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       await _persistConsentPreferences();
       if (!mounted) return;
-      _goAfterAccountCreated();
+      await _goAfterAccountCreated();
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -186,8 +186,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await prefs.setString('cgu_accepted_at', DateTime.now().toIso8601String());
   }
 
-  void _goAfterAccountCreated() {
-    final hasDossierIdentity = _dateOfBirth != null;
+  Future<void> _goAfterAccountCreated() async {
+    final hasDossierIdentity = await hasPostAuthDossierIdentity(
+      localDateOfBirth: _dateOfBirth,
+    );
+    if (!mounted) return;
     context.go(resolvePostAuthDestination(
       currentUri: GoRouterState.of(context).uri,
       hasDossierIdentity: hasDossierIdentity,
