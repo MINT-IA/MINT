@@ -190,6 +190,101 @@
         "title": "ActionItemResponse",
         "type": "object"
       },
+      "AdminLocalDataClaimSummaryResponse": {
+        "description": "PII-free local-data claim summary for restricted admin observability.",
+        "properties": {
+          "calculation_version_present": {
+            "title": "Calculation Version Present",
+            "type": "boolean"
+          },
+          "generated_at_present": {
+            "title": "Generated At Present",
+            "type": "boolean"
+          },
+          "has_local_data_claim": {
+            "title": "Has Local Data Claim",
+            "type": "boolean"
+          },
+          "legacy_intent_present": {
+            "title": "Legacy Intent Present",
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/LocalDataClaimMetaSummary"
+          },
+          "mint2_axis_handoff_present": {
+            "title": "Mint2 Axis Handoff Present",
+            "type": "boolean"
+          },
+          "mint2_axis_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mint2 Axis Id"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "receipt_hash_present": {
+            "title": "Receipt Hash Present",
+            "type": "boolean"
+          },
+          "receipt_ref_present": {
+            "title": "Receipt Ref Present",
+            "type": "boolean"
+          },
+          "regulatory_constants_version_hash_present": {
+            "title": "Regulatory Constants Version Hash Present",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Version"
+          },
+          "source_engine_present": {
+            "title": "Source Engine Present",
+            "type": "boolean"
+          },
+          "wizard_answers_contains_axis": {
+            "title": "Wizard Answers Contains Axis",
+            "type": "boolean"
+          },
+          "wizard_answers_count": {
+            "title": "Wizard Answers Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "profile_id",
+          "has_local_data_claim",
+          "wizard_answers_count",
+          "wizard_answers_contains_axis",
+          "mint2_axis_handoff_present",
+          "legacy_intent_present",
+          "source_engine_present",
+          "receipt_hash_present",
+          "receipt_ref_present",
+          "generated_at_present",
+          "calculation_version_present",
+          "regulatory_constants_version_hash_present",
+          "meta"
+        ],
+        "title": "AdminLocalDataClaimSummaryResponse",
+        "type": "object"
+      },
       "AdminOverrideCooldownRequest": {
         "properties": {
           "reason": {
@@ -13373,6 +13468,41 @@
         "title": "LifeEventChecklistResponse",
         "type": "object"
       },
+      "LocalDataClaimMetaSummary": {
+        "description": "PII-free metadata summary for admin runtime proof.",
+        "properties": {
+          "claimed_at_present": {
+            "title": "Claimed At Present",
+            "type": "boolean"
+          },
+          "device_id_present": {
+            "title": "Device Id Present",
+            "type": "boolean"
+          },
+          "local_data_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Data Version"
+          },
+          "updated_at_present": {
+            "title": "Updated At Present",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "claimed_at_present",
+          "updated_at_present",
+          "device_id_present"
+        ],
+        "title": "LocalDataClaimMetaSummary",
+        "type": "object"
+      },
       "LocationVsProprieteRequest": {
         "description": "Requete pour la comparaison location vs achat immobilier.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` carries the\n`from_profile` marker so `_resolve_defaults` fills it from\n`_user.profile.canton` before the missing-check fires. W0 audit row 3\nsev-2 : the legacy `canton=\"VD\"` fallback produced wrong rent vs property\neconomic comparison for non-VD users.",
         "properties": {
@@ -24928,6 +25058,54 @@
           }
         },
         "summary": "Set Feature Flag",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/api/v1/admin/local-data-claim-summary/{profile_id}": {
+      "get": {
+        "description": "Return a PII-free summary of local-data claim state for admin proof.",
+        "operationId": "get_local_data_claim_summary_api_v1_admin_local_data_claim_summary__profile_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLocalDataClaimSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Local Data Claim Summary",
         "tags": [
           "Admin"
         ]

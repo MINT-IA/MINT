@@ -6,7 +6,7 @@ Gated by feature flag: enable_admin_screens.
 """
 
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -15,11 +15,27 @@ from app.core.auth import require_current_user
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.audit_event import AuditEventModel
+from app.models.profile_model import ProfileModel
 from app.models.user import User
 from app.schemas.audit import AuditEventResponse, PaginatedAuditResponse
+from app.schemas.sync import (
+    AdminLocalDataClaimSummaryResponse,
+    LocalDataClaimMetaSummary,
+)
 from app.services.feature_flags import FeatureFlags
 
 router = APIRouter()
+
+_ALLOWED_MINT2_AXIS_IDS = {"lpp_rente_capital"}
+
+_WIZARD_AXIS_KEYS = {
+    "mint2AxisHandoff",
+    "mint2_axis_handoff",
+    "onb_axis_v2",
+    "onb_axis_schema_version",
+    "legacy_onb_intent",
+    "onb_signal_axes_v2",
+}
 
 
 def _require_admin(current_user: User) -> None:
@@ -42,6 +58,19 @@ def _require_admin(current_user: User) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Role support_admin requis",
         )
+
+
+def _safe_mint2_axis_id(value: Any) -> Optional[str]:
+    if not isinstance(value, dict):
+        return None
+    axis_id = value.get("onb_axis_v2")
+    return axis_id if axis_id in _ALLOWED_MINT2_AXIS_IDS else None
+
+
+def _wizard_answers_contains_axis(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return any(key in value for key in _WIZARD_AXIS_KEYS)
 
 
 @router.get("/audit", response_model=PaginatedAuditResponse)
@@ -85,6 +114,85 @@ def list_audit_events(
         total=total,
         limit=limit,
         offset=offset,
+    )
+
+
+@router.get(
+    "/local-data-claim-summary/{profile_id}",
+    response_model=AdminLocalDataClaimSummaryResponse,
+)
+def get_local_data_claim_summary(
+    profile_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> AdminLocalDataClaimSummaryResponse:
+    """Return a PII-free summary of local-data claim state for admin proof."""
+    FeatureFlags.require_flag("enable_admin_screens")
+    _require_admin(current_user)
+
+    profile = db.query(ProfileModel).filter(ProfileModel.id == profile_id).first()
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found",
+        )
+
+    data = profile.data if isinstance(profile.data, dict) else {}
+    claim = data.get("localDataClaim")
+    if not isinstance(claim, dict):
+        return AdminLocalDataClaimSummaryResponse(
+            profile_id=profile_id,
+            has_local_data_claim=False,
+            wizard_answers_count=0,
+            wizard_answers_contains_axis=False,
+            mint2_axis_handoff_present=False,
+            mint2_axis_id=None,
+            schema_version=None,
+            legacy_intent_present=False,
+            source_engine_present=False,
+            receipt_hash_present=False,
+            receipt_ref_present=False,
+            generated_at_present=False,
+            calculation_version_present=False,
+            regulatory_constants_version_hash_present=False,
+            meta=LocalDataClaimMetaSummary(
+                claimed_at_present=False,
+                updated_at_present=False,
+                device_id_present=False,
+                local_data_version=None,
+            ),
+        )
+
+    wizard_answers = claim.get("wizardAnswers")
+    handoff = claim.get("mint2AxisHandoff")
+    handoff_dict = handoff if isinstance(handoff, dict) else {}
+    meta = claim.get("meta") if isinstance(claim.get("meta"), dict) else {}
+    version = meta.get("localDataVersion")
+    schema_version = handoff_dict.get("onb_axis_schema_version")
+
+    return AdminLocalDataClaimSummaryResponse(
+        profile_id=profile_id,
+        has_local_data_claim=True,
+        wizard_answers_count=len(wizard_answers) if isinstance(wizard_answers, dict) else 0,
+        wizard_answers_contains_axis=_wizard_answers_contains_axis(wizard_answers),
+        mint2_axis_handoff_present=bool(handoff_dict),
+        mint2_axis_id=_safe_mint2_axis_id(handoff_dict),
+        schema_version=schema_version if isinstance(schema_version, int) else None,
+        legacy_intent_present=bool(handoff_dict.get("legacy_onb_intent")),
+        source_engine_present=bool(handoff_dict.get("source_engine")),
+        receipt_hash_present=bool(handoff_dict.get("receipt_hash")),
+        receipt_ref_present=bool(handoff_dict.get("receipt_ref")),
+        generated_at_present=bool(handoff_dict.get("generated_at")),
+        calculation_version_present=bool(handoff_dict.get("calculation_version")),
+        regulatory_constants_version_hash_present=bool(
+            handoff_dict.get("regulatory_constants_version_hash")
+        ),
+        meta=LocalDataClaimMetaSummary(
+            claimed_at_present=bool(meta.get("claimedAt")),
+            updated_at_present=bool(meta.get("updatedAt")),
+            device_id_present=bool(meta.get("deviceId")),
+            local_data_version=version if isinstance(version, int) else None,
+        ),
     )
 
 
