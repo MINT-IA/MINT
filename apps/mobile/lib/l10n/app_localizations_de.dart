@@ -8085,6 +8085,14 @@ class SDe extends S {
       'Wähle vor der Anmeldung, damit du kontrollierst, was deinem Konto folgt.';
 
   @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Lege vor dem Öffnen dieses Links fest, ob Mint lokale Daten behält oder ohne sie neu startet.';
+
+  @override
+  String get authMagicLinkExpired =>
+      'Dieser Link ist ungültig oder abgelaufen.';
+
+  @override
   String get authRequiredConsents =>
       'Bestätige die Bedingungen und die Altersprüfung, bevor du dein Konto erstellst.';
 

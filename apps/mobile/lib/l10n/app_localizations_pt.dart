@@ -8058,6 +8058,13 @@ class SPt extends S {
       'Escolhe antes de iniciar sessão para controlar o que acompanha a tua conta.';
 
   @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Antes de abrir este link, indica se o Mint mantém os dados locais ou recomeça sem eles.';
+
+  @override
+  String get authMagicLinkExpired => 'Este link é inválido ou expirou.';
+
+  @override
   String get authRequiredConsents =>
       'Confirma os termos e a verificação de idade antes de criar a tua conta.';
 

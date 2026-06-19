@@ -3609,6 +3609,8 @@
   "authHandoffKeepHint": "Mint behält Diagnose und Chat auf diesem Gerät; Cloud-Sync bleibt standardmässig aus.",
   "authHandoffRestartHint": "Mint öffnet das Konto, ohne lokale Diagnose oder anonymen Chat zu übernehmen.",
   "authHandoffChooseHint": "Wähle vor der Anmeldung, damit du kontrollierst, was deinem Konto folgt.",
+  "authMagicLinkHandoffChoiceRequired": "Lege vor dem Öffnen dieses Links fest, ob Mint lokale Daten behält oder ohne sie neu startet.",
+  "authMagicLinkExpired": "Dieser Link ist ungültig oder abgelaufen.",
   "authRequiredConsents": "Bestätige die Bedingungen und die Altersprüfung, bevor du dein Konto erstellst.",
   "authBack": "Zurück",
   "budgetTaxProvisionNotProvided": "Steuerrückstellung (nicht angegeben)",

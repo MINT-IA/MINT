@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
+import 'package:mint_mobile/widgets/auth/account_handoff_choice_panel.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/router/archetype_route_gate.dart';
@@ -1740,6 +1741,10 @@ final _router = GoRouter(
 @visibleForTesting
 GoRouter get testOnlyRootRouter => _router;
 
+@visibleForTesting
+Widget testOnlyMagicLinkVerifyScreen({String? token}) =>
+    _MagicLinkVerifyScreen(token: token);
+
 /// Test-only accessor for the root GoRouter observers list. Used by
 /// `test/app_router_observers_test.dart` (Phase 31-01 OBS-05).
 @visibleForTesting
@@ -2164,113 +2169,168 @@ class _MagicLinkVerifyScreen extends StatefulWidget {
 
 class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
   bool _isVerifying = true;
+  bool _requiresHandoffChoice = false;
+  bool _didStartVerification = false;
+  bool _verificationInFlight = false;
   String? _errorMessage;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didStartVerification) return;
+    _didStartVerification = true;
     _verifyToken();
   }
 
   Future<void> _verifyToken() async {
-    if (widget.token == null || widget.token!.isEmpty) {
-      setState(() {
-        _isVerifying = false;
-        _errorMessage = 'Lien invalide';
-      });
-      return;
-    }
+    if (_verificationInFlight) return;
+    _verificationInFlight = true;
+    try {
+      final l10n = S.of(context)!;
+      if (!_isVerifying || _errorMessage != null || _requiresHandoffChoice) {
+        setState(() {
+          _isVerifying = true;
+          _requiresHandoffChoice = false;
+          _errorMessage = null;
+        });
+      }
 
-    final authProvider = context.read<AuthProvider>();
-
-    if (FeatureFlags.enableMvpWedgeOnboarding) {
-      final hasSessionProfile = context.read<CoachProfileProvider>().hasProfile;
-      final requiresChoice = await AccountHandoffService.requiresExplicitChoice(
-        handoffEnabled: true,
-        hasSessionProfile: hasSessionProfile,
-      );
-      if (requiresChoice) {
-        if (!mounted) return;
+      if (widget.token == null || widget.token!.isEmpty) {
         setState(() {
           _isVerifying = false;
-          _errorMessage =
-              'Sélectionne d’abord conserver ou repartir avant d’ouvrir ce lien.';
+          _requiresHandoffChoice = false;
+          _errorMessage = l10n.authMagicLinkExpired;
         });
         return;
       }
-    }
 
-    final success = await authProvider.verifyMagicLink(widget.token!);
+      final authProvider = context.read<AuthProvider>();
 
-    if (!mounted) return;
-
-    if (success) {
-      // Post-auth routing: check onboarding status
-      final completed =
-          await ReportPersistenceService.isMiniOnboardingCompleted();
-      if (!mounted) return;
-      if (completed) {
-        context.go('/coach/chat');
-      } else {
-        // NAV-AUDIT: welcome prompt triggers onboarding flow in coach
-        context.go('/coach/chat?topic=onboarding');
+      if (FeatureFlags.enableMvpWedgeOnboarding) {
+        final hasSessionProfile =
+            context.read<CoachProfileProvider>().hasProfile;
+        final requiresChoice =
+            await AccountHandoffService.requiresExplicitChoice(
+          handoffEnabled: true,
+          hasSessionProfile: hasSessionProfile,
+        );
+        if (requiresChoice) {
+          if (!mounted) return;
+          setState(() {
+            _isVerifying = false;
+            _requiresHandoffChoice = true;
+            _errorMessage = l10n.authMagicLinkHandoffChoiceRequired;
+          });
+          return;
+        }
       }
-    } else {
-      setState(() {
-        _isVerifying = false;
-        _errorMessage = 'Ce lien est invalide ou a expiré';
-      });
+
+      final success = await authProvider.verifyMagicLink(widget.token!);
+
+      if (!mounted) return;
+
+      if (success) {
+        // Post-auth routing: check onboarding status
+        final completed =
+            await ReportPersistenceService.isMiniOnboardingCompleted();
+        if (!mounted) return;
+        if (completed) {
+          context.go('/coach/chat');
+        } else {
+          // NAV-AUDIT: welcome prompt triggers onboarding flow in coach
+          context.go('/coach/chat?topic=onboarding');
+        }
+      } else {
+        setState(() {
+          _isVerifying = false;
+          _requiresHandoffChoice = false;
+          _errorMessage = l10n.authMagicLinkExpired;
+        });
+      }
+    } finally {
+      _verificationInFlight = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final body = _isVerifying
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 24),
+              Text(
+                'Vérification en cours...',
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+              ),
+            ],
+          )
+        : _requiresHandoffChoice
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.storage_outlined,
+                    size: 64,
+                    color: MintColors.primary,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    _errorMessage ?? l10n.authMagicLinkHandoffChoiceRequired,
+                    textAlign: TextAlign.center,
+                    style:
+                        MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+                  ),
+                  const SizedBox(height: 24),
+                  AccountHandoffChoicePanel(
+                    lockAfterChoice: true,
+                    onChoiceChanged: _verifyToken,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: () => context.go('/auth/login'),
+                    child: Text(l10n.authBack),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: MintColors.error,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    _errorMessage ?? l10n.authMagicLinkExpired,
+                    textAlign: TextAlign.center,
+                    style:
+                        MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: () => _verifyToken(),
+                    child: Text(l10n.commonRetry),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: () => context.go('/auth/login'),
+                    child: Text(l10n.authBack),
+                  ),
+                ],
+              );
     return Scaffold(
       backgroundColor: MintColors.background,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: _isVerifying
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Vérification en cours...',
-                      style: TextStyle(
-                          fontSize: MintTextStyles.bodyLarge().fontSize,
-                          color: Colors.black87),
-                    ),
-                  ],
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 64, color: MintColors.error),
-                    const SizedBox(height: 24),
-                    Text(
-                      _errorMessage ?? 'Erreur de vérification',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: MintTextStyles.bodyLarge().fontSize,
-                          color: Colors.black87),
-                    ),
-                    const SizedBox(height: 24),
-                    FilledButton(
-                      // lint-ignore: prefer_mint_cta
-                      onPressed: () => _verifyToken(),
-                      child: const Text('Réessayer'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      // lint-ignore: prefer_mint_cta
-                      onPressed: () => context.go('/auth/login'),
-                      child: const Text('Retour à la connexion'),
-                    ),
-                  ],
-                ),
+          child: body,
         ),
       ),
     );

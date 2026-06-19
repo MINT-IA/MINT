@@ -3609,6 +3609,8 @@
   "authHandoffKeepHint": "Mint mantém o diagnóstico e o chat neste dispositivo; a sincronização cloud fica desativada por defeito.",
   "authHandoffRestartHint": "Mint abre a conta sem retomar o diagnóstico local nem o chat anónimo.",
   "authHandoffChooseHint": "Escolhe antes de iniciar sessão para controlar o que acompanha a tua conta.",
+  "authMagicLinkHandoffChoiceRequired": "Antes de abrir este link, indica se o Mint mantém os dados locais ou recomeça sem eles.",
+  "authMagicLinkExpired": "Este link é inválido ou expirou.",
   "authRequiredConsents": "Confirma os termos e a verificação de idade antes de criar a tua conta.",
   "authBack": "Voltar",
   "budgetTaxProvisionNotProvided": "Provisão impostos (não indicado)",
