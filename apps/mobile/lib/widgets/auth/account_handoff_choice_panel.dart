@@ -9,7 +9,12 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:provider/provider.dart';
 
 class AccountHandoffChoicePanel extends StatefulWidget {
-  const AccountHandoffChoicePanel({super.key});
+  const AccountHandoffChoicePanel({
+    super.key,
+    this.onChoiceChanged,
+  });
+
+  final VoidCallback? onChoiceChanged;
 
   @override
   State<AccountHandoffChoicePanel> createState() =>
@@ -39,6 +44,8 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
   Future<void> _setChoice(AccountHandoffChoice choice) async {
     setState(() => _choice = choice);
     await AccountHandoffService.saveChoice(choice);
+    if (!mounted) return;
+    widget.onChoiceChanged?.call();
   }
 
   @override

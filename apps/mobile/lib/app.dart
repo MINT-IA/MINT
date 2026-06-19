@@ -24,6 +24,7 @@ import 'package:mint_mobile/services/debug_profile_bootstrap_service.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -2181,6 +2182,24 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
     }
 
     final authProvider = context.read<AuthProvider>();
+
+    if (FeatureFlags.enableMvpWedgeOnboarding) {
+      final hasSessionProfile = context.read<CoachProfileProvider>().hasProfile;
+      final requiresChoice = await AccountHandoffService.requiresExplicitChoice(
+        handoffEnabled: true,
+        hasSessionProfile: hasSessionProfile,
+      );
+      if (requiresChoice) {
+        if (!mounted) return;
+        setState(() {
+          _isVerifying = false;
+          _errorMessage =
+              'Sélectionne d’abord conserver ou repartir avant d’ouvrir ce lien.';
+        });
+        return;
+      }
+    }
+
     final success = await authProvider.verifyMagicLink(widget.token!);
 
     if (!mounted) return;
@@ -2239,12 +2258,14 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                           color: Colors.black87),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton( // lint-ignore: prefer_mint_cta
+                    FilledButton(
+                      // lint-ignore: prefer_mint_cta
                       onPressed: () => _verifyToken(),
                       child: const Text('Réessayer'),
                     ),
                     const SizedBox(height: 12),
-                    TextButton( // lint-ignore: prefer_mint_cta
+                    TextButton(
+                      // lint-ignore: prefer_mint_cta
                       onPressed: () => context.go('/auth/login'),
                       child: const Text('Retour à la connexion'),
                     ),

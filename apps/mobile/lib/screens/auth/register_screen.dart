@@ -7,8 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/auth/auth_platform.dart';
 import 'package:mint_mobile/screens/auth/auth_redirect.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/dob_age_calculator.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -43,6 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _showEmailForm = true;
   bool _appleSignInLoading = false;
   String? _appleSignInError;
+  bool _handoffChoiceRequired = false;
 
   /// P2-17: Guard to prevent concurrent SharedPreferences writes.
   bool _isWriting = false;
@@ -59,6 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<AuthProvider>().clearError();
+      _refreshHandoffChoiceRequired();
     });
   }
 
@@ -73,6 +77,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!await _canStartAccountAction()) return;
+    if (!mounted) return;
     // P2-17: Prevent concurrent writes
     if (_isWriting) return;
     _isWriting = true;
@@ -130,6 +136,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       return;
     }
+    if (!await _canStartAccountAction()) return;
+    if (!mounted) return;
 
     _isWriting = true;
     setState(() {
@@ -184,6 +192,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
       currentUri: GoRouterState.of(context).uri,
       hasDossierIdentity: hasDossierIdentity,
     ));
+  }
+
+  Future<bool> _refreshHandoffChoiceRequired() async {
+    if (!FeatureFlags.enableMvpWedgeOnboarding) {
+      if (mounted && _handoffChoiceRequired) {
+        setState(() => _handoffChoiceRequired = false);
+      }
+      return false;
+    }
+    final hasSessionProfile = context.read<CoachProfileProvider>().hasProfile;
+    final required = await AccountHandoffService.requiresExplicitChoice(
+      handoffEnabled: true,
+      hasSessionProfile: hasSessionProfile,
+    );
+    if (!mounted) return required;
+    if (_handoffChoiceRequired != required) {
+      setState(() => _handoffChoiceRequired = required);
+    }
+    return required;
+  }
+
+  Future<bool> _canStartAccountAction() async {
+    final required = await _refreshHandoffChoiceRequired();
+    return mounted && !required;
+  }
+
+  Widget _buildAppleSignInButton(S l10n, bool handoffBlocksAuth) {
+    final button = SignInWithAppleButton(
+      onPressed: _handleAppleSignIn,
+      text: l10n.authAppleSignIn,
+      style: SignInWithAppleButtonStyle.black,
+    );
+    if (!handoffBlocksAuth) return button;
+    return Semantics(
+      enabled: false,
+      child: IgnorePointer(child: button),
+    );
   }
 
   Widget _buildRequiredConsents(S l10n) {
@@ -259,6 +304,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = context.watch<AuthProvider>();
     final l10n = S.of(context)!;
     final accountActionBusy = authProvider.isLoading || _appleSignInLoading;
+    final handoffBlocksAuth =
+        FeatureFlags.enableMvpWedgeOnboarding && _handoffChoiceRequired;
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -344,7 +391,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             )),
                         if (FeatureFlags.enableMvpWedgeOnboarding) ...[
                           const SizedBox(height: MintSpacing.lg),
-                          const AccountHandoffChoicePanel(),
+                          AccountHandoffChoicePanel(
+                            onChoiceChanged: _refreshHandoffChoiceRequired,
+                          ),
                         ],
                         if (_showEmailForm || !canShowAppleSignIn) ...[
                           const SizedBox(height: MintSpacing.md),
@@ -399,10 +448,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           strokeWidth: 2),
                                     ),
                                   )
-                                : SignInWithAppleButton(
-                                    onPressed: _handleAppleSignIn,
-                                    text: l10n.authAppleSignIn,
-                                    style: SignInWithAppleButtonStyle.black,
+                                : _buildAppleSignInButton(
+                                    l10n,
+                                    handoffBlocksAuth,
                                   ),
                           ),
                           if (_appleSignInError != null) ...[
@@ -779,7 +827,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               // lint-ignore: prefer_mint_cta
                               onPressed: (_acceptedCgu &&
                                       _confirmed18Plus &&
-                                      !accountActionBusy)
+                                      !accountActionBusy &&
+                                      !handoffBlocksAuth)
                                   ? () {
                                       HapticFeedback.lightImpact();
                                       _handleRegister();
