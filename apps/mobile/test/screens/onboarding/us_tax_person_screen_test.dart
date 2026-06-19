@@ -21,6 +21,7 @@ Widget _wrap({
   required Widget child,
   Locale locale = const Locale('fr'),
   CoachProfileProvider? provider,
+  TextScaler textScaler = TextScaler.noScaling,
 }) {
   return MaterialApp(
     locale: locale,
@@ -28,9 +29,22 @@ Widget _wrap({
     supportedLocales: S.supportedLocales,
     home: ChangeNotifierProvider<CoachProfileProvider>.value(
       value: provider ?? CoachProfileProvider(),
-      child: Scaffold(body: child),
+      child: MediaQuery(
+        data: MediaQueryData(
+          size: const Size(375, 812),
+          textScaler: textScaler,
+        ),
+        child: Scaffold(body: child),
+      ),
     ),
   );
+}
+
+void _pinIPhone13Mini(WidgetTester tester) {
+  tester.view.physicalSize = const Size(375, 812);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
 }
 
 void main() {
@@ -74,6 +88,30 @@ void main() {
         find.text('Are you a US citizen or US tax resident?'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('iPhone 13 mini keeps Yes/No labels inside the buttons',
+        (tester) async {
+      _pinIPhone13Mini(tester);
+      await tester.pumpWidget(
+        _wrap(
+          textScaler: const TextScaler.linear(1.7),
+          child: UsTaxPersonScreen(onAnswered: (_) {}),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      for (final label in const ['Oui', 'Non']) {
+        final textRect = tester.getRect(find.text(label));
+        final buttonRect = tester.getRect(
+          find.ancestor(
+            of: find.text(label),
+            matching: find.byType(FilledButton),
+          ),
+        );
+        expect(textRect.top, greaterThanOrEqualTo(buttonRect.top + 8));
+        expect(textRect.bottom, lessThanOrEqualTo(buttonRect.bottom - 8));
+      }
     });
 
     testWidgets(

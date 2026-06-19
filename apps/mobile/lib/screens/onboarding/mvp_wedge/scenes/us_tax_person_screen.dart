@@ -20,6 +20,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Binary Yes/No US-tax-person question screen.
 ///
@@ -65,24 +66,19 @@ class UsTaxPersonScreen extends StatelessWidget {
           backgroundColor: MintColors.craieHandoff,
           content: Text(
             l.waitlistUsTaxPersonTooltip,
-            style: const TextStyle(
-              fontFamily: 'Supreme',
-              fontSize: 15,
+            style: MintTextStyles.labelLarge(
               color: MintColors.inkPrimary,
-              height: 1.4,
             ),
           ),
           actions: [
             TextButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(
                 MaterialLocalizations.of(ctx).okButtonLabel,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                style: MintTextStyles.bodyMedium(
                   color: MintColors.inkPrimary,
-                ),
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -110,12 +106,8 @@ class UsTaxPersonScreen extends StatelessWidget {
                       header: true,
                       child: Text(
                         l.waitlistUsTaxPersonQuestion,
-                        style: const TextStyle(
-                          fontFamily: 'Supreme',
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.headlineMedium(
                           color: MintColors.inkPrimary,
-                          height: 1.25,
                         ),
                       ),
                     ),
@@ -147,7 +139,7 @@ class UsTaxPersonScreen extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: double.infinity,
-                      height: 48,
+                      height: 56,
                       child: Semantics(
                         inMutuallyExclusiveGroup: true,
                         button: true,
@@ -156,13 +148,19 @@ class UsTaxPersonScreen extends StatelessWidget {
                         child: FilledButton.tonal(
                           key: const ValueKey('us-tax-person-yes'),
                           onPressed: () => _answer(context, true),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: MintColors.inkPrimary,
+                            foregroundColor: MintColors.craie,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
                           child: Text(
                             l.waitlistUsTaxPersonYes,
-                            style: const TextStyle(
-                              fontFamily: 'Supreme',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            textAlign: TextAlign.center,
+                            style: MintTextStyles.labelLarge(
+                              color: MintColors.craie,
+                            ).copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -170,7 +168,7 @@ class UsTaxPersonScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
-                      height: 48,
+                      height: 56,
                       child: Semantics(
                         inMutuallyExclusiveGroup: true,
                         button: true,
@@ -179,13 +177,19 @@ class UsTaxPersonScreen extends StatelessWidget {
                         child: FilledButton.tonal(
                           key: const ValueKey('us-tax-person-no'),
                           onPressed: () => _answer(context, false),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: MintColors.inkPrimary,
+                            foregroundColor: MintColors.craie,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
                           child: Text(
                             l.waitlistUsTaxPersonNo,
-                            style: const TextStyle(
-                              fontFamily: 'Supreme',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            textAlign: TextAlign.center,
+                            style: MintTextStyles.labelLarge(
+                              color: MintColors.craie,
+                            ).copyWith(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
