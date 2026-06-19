@@ -66,6 +66,24 @@ Future<void> _reachEmploymentStep(WidgetTester tester) async {
   }
 }
 
+void _expectLabelsInsideButtons(WidgetTester tester, Iterable<String> labels) {
+  for (final label in labels) {
+    final labelFinder = find.text(label)..evaluate().single;
+    final buttonFinder = find.ancestor(
+      of: labelFinder,
+      matching: find.byType(FilledButton),
+    )..evaluate().single;
+    final textRect = tester.getRect(labelFinder);
+    final buttonRect = tester.getRect(buttonFinder);
+    expect(
+      buttonRect.contains(textRect.topLeft) &&
+          buttonRect.contains(textRect.bottomRight),
+      isTrue,
+      reason: label,
+    );
+  }
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(const <String, Object>{});
@@ -130,5 +148,37 @@ void main() {
 
     expect((agTop - aiTop).abs() + (agTop - arTop).abs(), lessThan(2));
     expect(agTop, lessThan(beTop));
+  });
+
+  testWidgets(
+      'nationality, civil status, and AVS choices do not clip on iPhone 13 mini',
+      (tester) async {
+    _pinIPhone13Mini(tester);
+    FeatureFlags.enableMint2FirstExperienceEntry = false;
+
+    await tester.pumpWidget(
+      _wrap(textScaler: const TextScaler.linear(1.6)),
+    );
+    await tester.pumpAndSettle();
+    await _tapKey(tester, 'onboarding-entry-open');
+    await _tapKey(tester, 'onboarding-intent-impots');
+    await _tapKey(tester, 'us-tax-person-no');
+    final l = S.of(tester.element(find.byType(OnboardingShellScreen)))!;
+
+    _expectLabelsInsideButtons(tester, [l.nationalityEuAele]);
+
+    await _tapKey(tester, 'onboarding-nationality-ch');
+    await _tapKey(tester, 'onboarding-employment-salarie');
+
+    _expectLabelsInsideButtons(tester, [
+      l.onboardingCivilConcubinage,
+    ]);
+
+    await _tapKey(tester, 'onboarding-civil-marie');
+
+    _expectLabelsInsideButtons(tester, [
+      l.onboardingAvsLivedAbroad,
+      l.onboardingAvsArrivedLate,
+    ]);
   });
 }

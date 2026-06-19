@@ -29,6 +29,7 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_lacun
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_statut_emploi.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/widgets/onboarding_choice_button.dart';
 import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/profile_migration_service.dart';
@@ -215,46 +216,30 @@ class _NationalityStep extends StatelessWidget {
               ),
             ),
           ),
-          const Spacer(),
-          Semantics(
-            container: true,
-            label: l.nationalityPrompt,
-            child: Column(
-              children: [
-                for (final (group, label, key, hint) in options) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: Semantics(
-                      inMutuallyExclusiveGroup: true,
-                      button: true,
-                      label: label,
-                      hint: hint,
-                      child: FilledButton.tonal(
-                        key: ValueKey(key),
-                        onPressed: () => pick(group),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: MintColors.craie,
-                          foregroundColor: MintColors.textPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
+          const SizedBox(height: MintSpacing.xl),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SingleChildScrollView(
+                child: Semantics(
+                  container: true,
+                  label: l.nationalityPrompt,
+                  child: Column(
+                    children: [
+                      for (final (group, label, key, _) in options) ...[
+                        OnboardingChoiceButton(
+                          key: ValueKey(key),
+                          label: label,
+                          onPressed: () => pick(group),
                         ),
-                        child: Text(
-                          label,
-                          style: MintTextStyles.labelLarge(
-                            color: MintColors.textPrimary,
-                          ).copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
+                        const SizedBox(height: 12),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 12),
         ],
       ),
     );

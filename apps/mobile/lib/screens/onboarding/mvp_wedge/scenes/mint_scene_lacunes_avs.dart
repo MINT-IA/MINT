@@ -25,7 +25,9 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/widgets/onboarding_choice_button.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Internal AVS-lacunes values matching `fromWizardAnswers` EXACTLY.
@@ -150,46 +152,30 @@ class _MintSceneLacunesAvsState extends State<MintSceneLacunesAvs> {
               ),
             ),
           ),
-          const Spacer(),
-          Semantics(
-            container: true,
-            label: l.onboardingAvsPrompt,
-            child: Column(
-              children: [
-                for (final (value, label, key, hint) in options) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: Semantics(
-                      inMutuallyExclusiveGroup: true,
-                      button: true,
-                      label: label,
-                      hint: hint,
-                      child: FilledButton.tonal(
-                        key: ValueKey(key),
-                        onPressed: () => _pickStatus(value),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: MintColors.craie,
-                          foregroundColor: MintColors.textPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
+          const SizedBox(height: MintSpacing.xl),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SingleChildScrollView(
+                child: Semantics(
+                  container: true,
+                  label: l.onboardingAvsPrompt,
+                  child: Column(
+                    children: [
+                      for (final (value, label, key, _) in options) ...[
+                        OnboardingChoiceButton(
+                          key: ValueKey(key),
+                          label: label,
+                          onPressed: () => _pickStatus(value),
                         ),
-                        child: Text(
-                          label,
-                          style: MintTextStyles.labelLarge(
-                            color: MintColors.textPrimary,
-                          ).copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
+                        const SizedBox(height: 12),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 12),
         ],
       ),
     );

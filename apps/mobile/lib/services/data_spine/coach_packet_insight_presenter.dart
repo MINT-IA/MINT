@@ -72,10 +72,22 @@ abstract final class CoachPacketInsightPresenter {
       for (final item in facts) {
         if (item is! Map) continue;
         if (item['id'] != id) continue;
+        if (_isEstimatedFact(item)) continue;
         return _factText(id, item['value']);
       }
     }
     return null;
+  }
+
+  static bool _isEstimatedFact(Map item) {
+    final source = item['source']?.toString();
+    final confidence = item['confidence']?.toString();
+    final state = item['state']?.toString();
+    return source == 'estimated' ||
+        source == 'system_estimate' ||
+        source == 'systemEstimate' ||
+        confidence == 'estimated' ||
+        state == 'estimated';
   }
 
   static String? _factText(String id, Object? value) {

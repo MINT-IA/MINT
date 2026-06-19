@@ -873,7 +873,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // coach acknowledges the upload instead of opening silent. Factual,
     // not projected (anti-shame: fact of the world, not judgment of user).
     final avoirLpp = _profile!.prevoyance.avoirLppTotal;
-    if (avoirLpp != null && avoirLpp > 0) {
+    final avoirLppSource = _profile!.dataSources['prevoyance.avoirLppTotal'];
+    if (avoirLpp != null &&
+        avoirLpp > 0 &&
+        avoirLppSource != ProfileDataSource.estimated) {
       return (
         number: _formatChf(avoirLpp),
         headline: s.coachSilentOpenerLppAvoir,

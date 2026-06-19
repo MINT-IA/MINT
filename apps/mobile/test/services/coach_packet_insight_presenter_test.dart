@@ -100,6 +100,27 @@ void main() {
       expect(insight.nextText, 'Avoir LPP');
     });
 
+    test('does not present estimated LPP as already clear', () {
+      final insight = CoachPacketInsightPresenter.fromSafeMap({
+        'facts': [
+          {
+            'id': 'pillar.lpp.total_balance',
+            'value': 37600.0,
+            'source': 'estimated',
+          },
+          {'id': 'profile.canton', 'value': 'VS'},
+        ],
+        'missing_fields': [
+          {'field_path': 'pillars.lpp.totalBalance'},
+        ],
+      });
+
+      expect(insight, isNotNull);
+      expect(insight!.knownText, 'Canton: VS');
+      expect(insight.knownText, isNot(contains('37')));
+      expect(insight.nextText, 'Avoir LPP');
+    });
+
     test('returns null without a visible fact and follow-up', () {
       expect(
         CoachPacketInsightPresenter.fromSafeMap({
