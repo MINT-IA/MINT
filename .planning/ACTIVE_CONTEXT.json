@@ -27,6 +27,7 @@
     "feature/S06-mint2-dossier-axis-runtime",
     "feature/S06-mint2-account-runtime",
     "feature/S07-mint2-account-claim-product",
+    "feature/S08-mint2-magic-link-handoff",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],

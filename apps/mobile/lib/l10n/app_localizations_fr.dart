@@ -8061,6 +8061,13 @@ class SFr extends S {
       'Choisis avant de te connecter pour garder le contrôle sur ce qui suit ton compte.';
 
   @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Avant d’ouvrir ce lien, indique si Mint conserve les données locales ou repart sans elles.';
+
+  @override
+  String get authMagicLinkExpired => 'Ce lien est invalide ou a expiré.';
+
+  @override
   String get authRequiredConsents =>
       'Confirme les conditions et l\'âge avant de créer ton compte.';
 

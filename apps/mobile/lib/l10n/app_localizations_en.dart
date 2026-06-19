@@ -8012,6 +8012,13 @@ class SEn extends S {
       'Choose before signing in so you control what follows your account.';
 
   @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Before opening this link, choose whether Mint keeps local data or starts without it.';
+
+  @override
+  String get authMagicLinkExpired => 'This link is invalid or has expired.';
+
+  @override
   String get authRequiredConsents =>
       'Confirm the terms and age check before creating your account.';
 

@@ -8079,6 +8079,13 @@ class SIt extends S {
       'Scegli prima di accedere per controllare cosa segue il tuo account.';
 
   @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Prima di aprire questo link, indica se Mint conserva i dati locali o riparte senza di essi.';
+
+  @override
+  String get authMagicLinkExpired => 'Questo link non è valido o è scaduto.';
+
+  @override
   String get authRequiredConsents =>
       'Conferma le condizioni e la verifica dell\'età prima di creare il conto.';
 

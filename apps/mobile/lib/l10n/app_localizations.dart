@@ -14310,6 +14310,18 @@ abstract class S {
   /// **'Choisis avant de te connecter pour garder le contrôle sur ce qui suit ton compte.'**
   String get authHandoffChooseHint;
 
+  /// No description provided for @authMagicLinkHandoffChoiceRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant d’ouvrir ce lien, indique si Mint conserve les données locales ou repart sans elles.'**
+  String get authMagicLinkHandoffChoiceRequired;
+
+  /// No description provided for @authMagicLinkExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien est invalide ou a expiré.'**
+  String get authMagicLinkExpired;
+
   /// No description provided for @authRequiredConsents.
   ///
   /// In fr, this message translates to:

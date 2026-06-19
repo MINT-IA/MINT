@@ -4000,6 +4000,8 @@
   "authHandoffKeepHint": "Mint garde le diagnostic et la discussion sur cet appareil; la synchro cloud reste désactivée par défaut.",
   "authHandoffRestartHint": "Mint ouvre le compte sans reprendre le diagnostic local ni la discussion anonyme.",
   "authHandoffChooseHint": "Choisis avant de te connecter pour garder le contrôle sur ce qui suit ton compte.",
+  "authMagicLinkHandoffChoiceRequired": "Avant d’ouvrir ce lien, indique si Mint conserve les données locales ou repart sans elles.",
+  "authMagicLinkExpired": "Ce lien est invalide ou a expiré.",
   "authRequiredConsents": "Confirme les conditions et l'âge avant de créer ton compte.",
   "authBack": "Retour",
   "coachComplianceError": "Je préfère ne pas répondre à ça. Reformule ta question, ou utilise un simulateur pour un chiffre direct.",

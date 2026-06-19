@@ -8064,6 +8064,13 @@ class SEs extends S {
       'Elige antes de iniciar sesión para controlar qué acompaña a tu cuenta.';
 
   @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Antes de abrir este enlace, indica si Mint conserva los datos locales o empieza sin ellos.';
+
+  @override
+  String get authMagicLinkExpired => 'Este enlace no es válido o ha caducado.';
+
+  @override
   String get authRequiredConsents =>
       'Confirma las condiciones y la verificación de edad antes de crear tu cuenta.';
 

@@ -3609,6 +3609,8 @@
   "authHandoffKeepHint": "Mint keeps the diagnostic and chat on this device; cloud sync stays off by default.",
   "authHandoffRestartHint": "Mint opens the account without taking over the local diagnostic or anonymous chat.",
   "authHandoffChooseHint": "Choose before signing in so you control what follows your account.",
+  "authMagicLinkHandoffChoiceRequired": "Before opening this link, choose whether Mint keeps local data or starts without it.",
+  "authMagicLinkExpired": "This link is invalid or has expired.",
   "authRequiredConsents": "Confirm the terms and age check before creating your account.",
   "authBack": "Back",
   "budgetTaxProvisionNotProvided": "Tax provision (not provided)",
