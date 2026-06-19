@@ -28,6 +28,7 @@
     "feature/S06-mint2-account-runtime",
     "feature/S07-mint2-account-claim-product",
     "feature/S08-mint2-magic-link-handoff",
+    "feature/S06-mint2-admin-claim-readback",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],
