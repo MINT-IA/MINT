@@ -190,6 +190,101 @@
         "title": "ActionItemResponse",
         "type": "object"
       },
+      "AdminLocalDataClaimSummaryResponse": {
+        "description": "PII-free local-data claim summary for restricted admin observability.",
+        "properties": {
+          "calculation_version_present": {
+            "title": "Calculation Version Present",
+            "type": "boolean"
+          },
+          "generated_at_present": {
+            "title": "Generated At Present",
+            "type": "boolean"
+          },
+          "has_local_data_claim": {
+            "title": "Has Local Data Claim",
+            "type": "boolean"
+          },
+          "legacy_intent_present": {
+            "title": "Legacy Intent Present",
+            "type": "boolean"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/LocalDataClaimMetaSummary"
+          },
+          "mint2_axis_handoff_present": {
+            "title": "Mint2 Axis Handoff Present",
+            "type": "boolean"
+          },
+          "mint2_axis_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mint2 Axis Id"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "receipt_hash_present": {
+            "title": "Receipt Hash Present",
+            "type": "boolean"
+          },
+          "receipt_ref_present": {
+            "title": "Receipt Ref Present",
+            "type": "boolean"
+          },
+          "regulatory_constants_version_hash_present": {
+            "title": "Regulatory Constants Version Hash Present",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Version"
+          },
+          "source_engine_present": {
+            "title": "Source Engine Present",
+            "type": "boolean"
+          },
+          "wizard_answers_contains_axis": {
+            "title": "Wizard Answers Contains Axis",
+            "type": "boolean"
+          },
+          "wizard_answers_count": {
+            "title": "Wizard Answers Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "profile_id",
+          "has_local_data_claim",
+          "wizard_answers_count",
+          "wizard_answers_contains_axis",
+          "mint2_axis_handoff_present",
+          "legacy_intent_present",
+          "source_engine_present",
+          "receipt_hash_present",
+          "receipt_ref_present",
+          "generated_at_present",
+          "calculation_version_present",
+          "regulatory_constants_version_hash_present",
+          "meta"
+        ],
+        "title": "AdminLocalDataClaimSummaryResponse",
+        "type": "object"
+      },
       "AdminOverrideCooldownRequest": {
         "properties": {
           "reason": {
@@ -1556,6 +1651,76 @@
           "notificationType"
         ],
         "title": "AppleWebhookRequest",
+        "type": "object"
+      },
+      "ArbitrageCalculationReceiptSchema": {
+        "description": "Receipt proving the provenance required before rendering RvC figures.",
+        "properties": {
+          "assumptions": {
+            "additionalProperties": true,
+            "description": "Typed assumptions used by the RvC calculation",
+            "title": "Assumptions",
+            "type": "object"
+          },
+          "calculationOrigin": {
+            "description": "Origin of the calculation result",
+            "title": "Calculationorigin",
+            "type": "string"
+          },
+          "calculationVersion": {
+            "description": "Version identifier of the calculation contract",
+            "title": "Calculationversion",
+            "type": "string"
+          },
+          "confidenceScore": {
+            "description": "Confidence score propagated from the calculation",
+            "title": "Confidencescore",
+            "type": "number"
+          },
+          "missingRequiredInputs": {
+            "description": "Receipt-required inputs that are still missing",
+            "items": {
+              "type": "string"
+            },
+            "title": "Missingrequiredinputs",
+            "type": "array"
+          },
+          "readiness": {
+            "description": "ready when all receipt-required inputs are present",
+            "title": "Readiness",
+            "type": "string"
+          },
+          "regulatoryConstantsVersionHash": {
+            "description": "Hash of the regulatory constants snapshot used",
+            "title": "Regulatoryconstantsversionhash",
+            "type": "string"
+          },
+          "sources": {
+            "description": "Legal and regulatory sources backing the calculation",
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "unit": {
+            "description": "Display unit covered by this receipt",
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "calculationOrigin",
+          "calculationVersion",
+          "regulatoryConstantsVersionHash",
+          "unit",
+          "assumptions",
+          "sources",
+          "readiness",
+          "confidenceScore",
+          "missingRequiredInputs"
+        ],
+        "title": "ArbitrageCalculationReceiptSchema",
         "type": "object"
       },
       "AuditEventResponse": {
@@ -3892,6 +4057,11 @@
           "mini_onboarding": {
             "additionalProperties": true,
             "title": "Mini Onboarding",
+            "type": "object"
+          },
+          "mint2_axis_handoff": {
+            "additionalProperties": true,
+            "title": "Mint2 Axis Handoff",
             "type": "object"
           },
           "updated_at": {
@@ -13298,6 +13468,41 @@
         "title": "LifeEventChecklistResponse",
         "type": "object"
       },
+      "LocalDataClaimMetaSummary": {
+        "description": "PII-free metadata summary for admin runtime proof.",
+        "properties": {
+          "claimed_at_present": {
+            "title": "Claimed At Present",
+            "type": "boolean"
+          },
+          "device_id_present": {
+            "title": "Device Id Present",
+            "type": "boolean"
+          },
+          "local_data_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Data Version"
+          },
+          "updated_at_present": {
+            "title": "Updated At Present",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "claimed_at_present",
+          "updated_at_present",
+          "device_id_present"
+        ],
+        "title": "LocalDataClaimMetaSummary",
+        "type": "object"
+      },
       "LocationVsProprieteRequest": {
         "description": "Requete pour la comparaison location vs achat immobilier.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` carries the\n`from_profile` marker so `_resolve_defaults` fills it from\n`_user.profile.canton` before the missing-check fires. W0 audit row 3\nsev-2 : the legacy `canton=\"VD\"` fallback produced wrong rent vs property\neconomic comparison for non-VD users.",
         "properties": {
@@ -19592,6 +19797,20 @@
             "title": "Capitalsurobligatoire",
             "type": "number"
           },
+          "currentAge": {
+            "anyOf": [
+              {
+                "maximum": 119.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Age actuel, requis pour un receipt RvC complet",
+            "title": "Currentage"
+          },
           "horizon": {
             "anyOf": [
               {
@@ -19702,6 +19921,10 @@
             "title": "Breakevenyear",
             "type": "integer"
           },
+          "calculationReceipt": {
+            "$ref": "#/components/schemas/ArbitrageCalculationReceiptSchema",
+            "description": "Receipt required before mobile renders RvC figures"
+          },
           "confidenceScore": {
             "description": "Score de confiance (0-100%)",
             "title": "Confidencescore",
@@ -19764,7 +19987,8 @@
           "disclaimer",
           "sources",
           "confidenceScore",
-          "sensitivity"
+          "sensitivity",
+          "calculationReceipt"
         ],
         "title": "RenteVsCapitalResponse",
         "type": "object"
@@ -24839,6 +25063,54 @@
         ]
       }
     },
+    "/api/v1/admin/local-data-claim-summary/{profile_id}": {
+      "get": {
+        "description": "Return a PII-free summary of local-data claim state for admin proof.",
+        "operationId": "get_local_data_claim_summary_api_v1_admin_local_data_claim_summary__profile_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "profile_id",
+            "required": true,
+            "schema": {
+              "title": "Profile Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLocalDataClaimSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Local Data Claim Summary",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
     "/api/v1/analytics/events": {
       "post": {
         "description": "Batch analytics event ingestion endpoint.\n\nRequires authentication. The authenticated user's ID is used as user_id\nfor all events (V6-1 audit fix: prevents fake user_id injection).\n\nArgs:\n    batch: Batch of analytics events to store\n    current_user: Authenticated user from JWT token\n    db: Database session\n\nReturns:\n    AnalyticsEventBatchResponse with count of events stored",
@@ -25819,7 +26091,7 @@
     },
     "/api/v1/auth/apple/verify": {
       "post": {
-        "description": "Verify an Apple identity token and return a JWT access token.\n\nMVP verification: decode JWT payload and check issuer + audience.\nProduction: validate signature against Apple's public keys\n(https://appleid.apple.com/auth/keys).\n\nRate limited to 5 requests/minute per IP (T-01-11).",
+        "description": "Verify an Apple identity token and return a JWT access token.\n\nVerifies the token signature against Apple's JWKS, then enforces issuer,\naudience, expiry, and SHA-256 nonce binding.\n\nRate limited to 5 requests/minute per IP (T-01-11).",
         "operationId": "apple_verify_api_v1_auth_apple_verify_post",
         "requestBody": {
           "content": {

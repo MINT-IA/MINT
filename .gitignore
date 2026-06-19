@@ -111,6 +111,7 @@ tools/agent-drift/spikes/A7_headless_result.txt
 
 # Phase 31 walker.sh runtime output (timestamped screenshots, logs, sentry-event JSON dumps)
 .planning/walker/
+.planning/runtime-evidence/
 .cache/
 
 # Phase 83 walker_premier_eclairage.sh runtime output (SIMH-04, v2.11) —

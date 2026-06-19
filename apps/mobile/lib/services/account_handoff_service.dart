@@ -71,6 +71,9 @@ class AccountHandoffService {
     if (await ReportPersistenceService.isMiniOnboardingCompleted()) {
       return true;
     }
+    if ((await ReportPersistenceService.loadMint2AxisHandoff()).isNotEmpty) {
+      return true;
+    }
     final selectedIntent =
         await ReportPersistenceService.getSelectedOnboardingIntent();
     if (selectedIntent != null && selectedIntent.trim().isNotEmpty) {
@@ -86,6 +89,17 @@ class AccountHandoffService {
       return true;
     }
     return await AnonymousSessionService.getMessageCount() > 0;
+  }
+
+  static Future<bool> requiresExplicitChoice({
+    required bool handoffEnabled,
+    bool hasSessionProfile = false,
+    DateTime? now,
+  }) async {
+    if (!handoffEnabled) return false;
+    if (await loadChoice(now: now) != null) return false;
+    if (hasSessionProfile) return true;
+    return hasLocalData();
   }
 
   /// Returns whether anonymous/local data should be migrated to [userId].

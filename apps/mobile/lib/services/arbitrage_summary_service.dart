@@ -282,7 +282,7 @@ class ArbitrageSummaryService {
       capitalSurobligatoire: lppAvoir * 0.4,
       renteAnnuelleProposee: lppAvoir * convRate,
       tauxConversionObligatoire:
-          reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+          reg('lpp.conversion_rate', lppTauxConversionMinDecimal),
       tauxConversionSurobligatoire: convRate,
       canton: canton,
       isMarried: isMarried,
@@ -296,12 +296,12 @@ class ArbitrageSummaryService {
     final diff =
         (result.capitalRetraitMensuel - result.renteNetMensuelle).abs();
     if (diff < 10) return null;
+    if (result.calculationReceipt?.isComplete != true) return null;
 
     return ArbitrageSummaryItem(
       id: 'rente_vs_capital',
       title: 'Rente vs Capital',
-      verdict:
-          'Écart de flux net simulé : ${formatChfWithPrefix(diff)}/mois '
+      verdict: 'Écart de flux net simulé : ${formatChfWithPrefix(diff)}/mois '
           'entre rente viagère et retrait en capital',
       keyInsight:
           'Le taux de conversion de 6.8% sur la part obligatoire équivaut '
@@ -476,8 +476,7 @@ class ArbitrageSummaryService {
       title: 'Allocation annuelle',
       verdict:
           '${formatChfWithPrefix(reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))} a placer — 3a, rachat LPP ou libre, les trajectoires divergent',
-      keyInsight:
-          'Le 3e pilier combine déduction fiscale et horizon bloqué ; '
+      keyInsight: 'Le 3e pilier combine déduction fiscale et horizon bloqué ; '
           'le résultat dépend du taux marginal, du rendement et du besoin de liquidité.',
       monthlyImpactChf: impact3a,
       confidenceScore: result.confidenceScore,

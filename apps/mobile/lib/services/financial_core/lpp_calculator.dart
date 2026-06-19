@@ -120,8 +120,10 @@ class LppCalculator {
     final salaireBase = salaireAssureOverride ??
         (belowThreshold
             ? 0.0
-            : (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
-                .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax)));
+            : (grossAnnualSalary -
+                    reg('lpp.coordination_deduction', lppDeductionCoordination))
+                .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+                    reg('lpp.max_coordinated_salary', lppSalaireCoordMax)));
 
     double balance = currentBalance;
     double buybackDone = 0;
@@ -131,12 +133,10 @@ class LppCalculator {
       // LPP bonifications start at age 25 (LPP art. 7).
       // Before 25, only the return on existing capital applies.
       if (a < 25) continue;
-      final bonifRate =
-          bonificationRateOverride ?? getLppBonificationRate(a);
+      final bonifRate = bonificationRateOverride ?? getLppBonificationRate(a);
       balance += salaireBase * bonifRate;
       if (!belowThreshold && monthlyBuyback > 0 && buybackDone < buybackCap) {
-        final yearly =
-            (monthlyBuyback * 12).clamp(0, buybackCap - buybackDone);
+        final yearly = (monthlyBuyback * 12).clamp(0, buybackCap - buybackDone);
         balance += yearly;
         buybackDone += yearly;
       }
@@ -170,12 +170,15 @@ class LppCalculator {
     double newBalance = currentBalance * (1 + monthlyReturn);
     // LPP bonifications start at age 25 (LPP art. 7)
     if (age < 25) return newBalance < 0 ? 0 : newBalance;
-    if (salaireAssureOverride == null && grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
+    if (salaireAssureOverride == null &&
+        grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
       return newBalance;
     }
     final salaireBase = salaireAssureOverride ??
-        (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
-            .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
+        (grossAnnualSalary -
+                reg('lpp.coordination_deduction', lppDeductionCoordination))
+            .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+                reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     final bonifRate = bonificationRateOverride ?? getLppBonificationRate(age);
     final result = newBalance + salaireBase * bonifRate / 12;
     // P3-21: Floor balance at zero
@@ -199,7 +202,9 @@ class LppCalculator {
     if (lppCapitalPct <= 0 || annualRente <= 0) return annualRente / 12;
 
     // Back-calculate projected balance from annual rente
-    final effectiveRate = conversionRate > 0 ? conversionRate : reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+    final effectiveRate = conversionRate > 0
+        ? conversionRate
+        : reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
     final projectedBalance = annualRente / effectiveRate;
 
     // Rente portion
@@ -213,8 +218,8 @@ class LppCalculator {
     // VS 0.81, ...) au lieu du scalaire 0.85 uniforme.
     final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
     final effectiveBaseRate = baseRate * discount;
-    final tax = RetirementTaxCalculator.progressiveTax(
-        capitalBrut, effectiveBaseRate);
+    final tax =
+        RetirementTaxCalculator.progressiveTax(capitalBrut, effectiveBaseRate);
     final capitalNet = capitalBrut - tax;
     final swr = horizonYears != null
         ? adjustedSwr(
@@ -229,9 +234,13 @@ class LppCalculator {
 
   /// Compute salaire coordonne from gross annual salary (LPP art. 8).
   static double computeSalaireCoordonne(double grossAnnualSalary) {
-    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) return 0;
-    return (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
-        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
+    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
+      return 0;
+    }
+    return (grossAnnualSalary -
+            reg('lpp.coordination_deduction', lppDeductionCoordination))
+        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+            reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
   }
 
   /// Estimate the CURRENT accumulated LPP balance (avoir) from contributions
@@ -319,8 +328,7 @@ class LppCalculator {
     final hasChildren = numberOfChildren > 0;
     final meetsAgeAndDuration =
         (conjointAge ?? 45) >= 45 && (marriageDurationYears ?? 5) >= 5;
-    final conjointGetsRente =
-        isMarried && (hasChildren || meetsAgeAndDuration);
+    final conjointGetsRente = isMarried && (hasChildren || meetsAgeAndDuration);
 
     double conjointAnnual;
     double conjointLumpSum;
@@ -350,9 +358,8 @@ class LppCalculator {
     return (
       conjointMonthly: conjointAnnual * scaleFactor / 12,
       conjointLumpSum: conjointLumpSum,
-      orphanMonthlyPerChild: numberOfChildren > 0
-          ? orphanAnnualPerChild * scaleFactor / 12
-          : 0.0,
+      orphanMonthlyPerChild:
+          numberOfChildren > 0 ? orphanAnnualPerChild * scaleFactor / 12 : 0.0,
       orphanMonthlyTotal: orphanAnnualTotal * scaleFactor / 12,
       totalMonthly: totalAnnual / 12,
       conjointGetsRente: conjointGetsRente,

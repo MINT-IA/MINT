@@ -3,7 +3,8 @@
 > **Start here, every session.** This file tells any agent (human or LLM)
 > how to navigate MINT so the rules in `CLAUDE.md` apply to the right code.
 > Team structure + spawning recipes live further down.
-> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Sprint history: [`docs/SPRINT_TRACKER.md`](docs/SPRINT_TRACKER.md).
+> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Planning index: [`.planning/INDEX.md`](.planning/INDEX.md).
+> Agent/Codex/Claude/GSD workflow: [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
 
 ---
 
@@ -81,15 +82,57 @@ rampart. After ship:
 - **Phase 30.7 MCP tools** → Swiss constants / banned-terms /
   ARB-parity as on-demand tools (stop bloating agent context with rules)
 
+## Skill repository authority
+
+Agents are explicitly authorized to read and use every skill repository needed
+for the current task when the path is present and readable: repo-local
+`.agents/skills`, `.claude/skills`, `.codex/skills`, user-level
+`~/.codex/skills`, `~/.agents/skills`, and installed plugin skill caches
+exposed by the session.
+
+This authorization is autonomous. Do not ask for per-skill permission, and do
+not claim a skill repository is inaccessible before checking the concrete path.
+If a skill path is unreadable, report the exact path and continue with the
+closest local fallback.
+
+Skill repositories are method/tooling authority only. They do not override
+MINT product truth: the approved worktree, checked-in governance, current code,
+local tests, and deterministic runtime evidence remain authoritative for
+product behavior.
+
+## Tooling autonomy of good sense
+
+When the current objective is already authorized, agents may autonomously use
+the tools needed to finish it: Engram MCP memory, local skills, repo checks,
+GitHub read/PR commands, feature-branch pushes, specialist panels, Maestro,
+`simctl`, `idb`, and xcodebuildmcp / Build iOS Apps when available.
+
+This is not permission to bypass product gates. Ask first for protected-branch
+pushes, merges, destructive Git operations, real user data, legal/compliance
+claims, new regulated financial sources, or anything listed in `rules.md`
+`ASK FIRST`.
+
+Claude Max is advisory. Use it when the local CLI/session or a fresh artifact
+is actually available and the task benefits from it; otherwise continue with
+the local expert panel and say that Claude Max was not available. Never present
+a local panel as Claude Max.
+
 ## 🤝 Session handshake — run these in order, every time
 
-1. Read [`MEMORY.md`](memory/MEMORY.md) (auto-loaded).
+1. Read curator memory from `$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md` when present. If missing, report it, recover with Engram MCP (`mem_context` / `mem_search`) plus checked-in docs, and continue unless the task explicitly depends on that private memory.
 2. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
 3. Read this file.
-4. When the user names a subsystem, read the matching `docs/*.md` **before
+4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md) for the Claude/Codex/GSD/Engram workflow.
+5. Read [`.planning/ACTIVE_CONTEXT.md`](.planning/ACTIVE_CONTEXT.md) and [`.planning/ACTIVE_CONTEXT.json`](.planning/ACTIVE_CONTEXT.json); they are the current session router.
+6. Run `python3 tools/checks/active_context_guard.py`.
+7. Run `python3 tools/checks/phase_contract_guard.py`.
+8. Run `python3 tools/checks/mint_rules_guard.py`.
+9. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
+   `SPEC.md` has a `verify` block.
+10. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-5. Run the grep verification from the table.
-6. *Only then* propose code.
+11. Run the grep verification from the table.
+12. *Only then* propose code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.

@@ -18,6 +18,9 @@ class ReportPersistenceService {
       'anonymous_mini_onboarding_completed_held_v1';
   static const String _heldAnonymousSelectedIntentKey =
       'anonymous_selected_onboarding_intent_held_v1';
+  static const String _heldAnonymousMint2AxisHandoffKey =
+      'anonymous_mint2_axis_handoff_held_v1';
+  static const String _mint2AxisHandoffKey = 'mint2_axis_handoff_v1';
 
   /// Sauvegarde les réponses du wizard (incremental off).
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
@@ -82,6 +85,13 @@ class ReportPersistenceService {
     if (selectedIntent != null) {
       await prefs.setString(_heldAnonymousSelectedIntentKey, selectedIntent);
     }
+    final mint2AxisHandoff = prefs.getString(_mint2AxisHandoffKey);
+    if (mint2AxisHandoff != null && mint2AxisHandoff.isNotEmpty) {
+      await prefs.setString(
+        _heldAnonymousMint2AxisHandoffKey,
+        mint2AxisHandoff,
+      );
+    }
 
     await clearDiagnostic(includeHeldAnonymous: false);
   }
@@ -109,12 +119,27 @@ class ReportPersistenceService {
     }
   }
 
+  static Future<Map<String, dynamic>>
+      loadHeldAnonymousMint2AxisHandoff() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_heldAnonymousMint2AxisHandoffKey);
+    if (jsonString == null) return const <String, dynamic>{};
+    try {
+      final decoded = json.decode(jsonString);
+      if (decoded is! Map) return const <String, dynamic>{};
+      return _sanitizeMint2AxisHandoff(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return const <String, dynamic>{};
+    }
+  }
+
   static Future<bool> hasHeldAnonymousDiagnostic() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey(_heldAnonymousWizardKey) ||
         prefs.containsKey(_heldAnonymousCompletedKey) ||
         prefs.containsKey(_heldAnonymousMiniCompletedKey) ||
-        prefs.containsKey(_heldAnonymousSelectedIntentKey);
+        prefs.containsKey(_heldAnonymousSelectedIntentKey) ||
+        prefs.containsKey(_heldAnonymousMint2AxisHandoffKey);
   }
 
   static Future<bool> clearHeldAnonymousDiagnostic() async {
@@ -123,6 +148,7 @@ class ReportPersistenceService {
     await prefs.remove(_heldAnonymousCompletedKey);
     await prefs.remove(_heldAnonymousMiniCompletedKey);
     await prefs.remove(_heldAnonymousSelectedIntentKey);
+    await prefs.remove(_heldAnonymousMint2AxisHandoffKey);
     return SecureWizardStore.deleteHeldSensitiveValues();
   }
 
@@ -226,6 +252,65 @@ class ReportPersistenceService {
   static Future<String?> getSelectedOnboardingIntent() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_selectedIntentKey);
+  }
+
+  static Future<bool> saveMint2AxisHandoff(
+    Map<String, dynamic> handoff,
+  ) async {
+    final sanitized = _sanitizeMint2AxisHandoff(handoff);
+    if (sanitized.isEmpty) return false;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_mint2AxisHandoffKey, json.encode(sanitized));
+    final legacyIntent = sanitized['legacy_onb_intent'];
+    if (legacyIntent is String && legacyIntent.trim().isNotEmpty) {
+      await prefs.setString(_selectedIntentKey, legacyIntent);
+    }
+    return true;
+  }
+
+  static Future<Map<String, dynamic>> loadMint2AxisHandoff() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_mint2AxisHandoffKey);
+    if (jsonString == null) return const <String, dynamic>{};
+    try {
+      final decoded = json.decode(jsonString);
+      if (decoded is! Map) return const <String, dynamic>{};
+      return _sanitizeMint2AxisHandoff(Map<String, dynamic>.from(decoded));
+    } catch (_) {
+      return const <String, dynamic>{};
+    }
+  }
+
+  static Map<String, dynamic> _sanitizeMint2AxisHandoff(
+    Map<String, dynamic> handoff,
+  ) {
+    final axis = handoff['onb_axis_v2'];
+    final schemaVersion = handoff['onb_axis_schema_version'];
+    if (axis is! String || axis.trim().isEmpty || schemaVersion != 2) {
+      return const <String, dynamic>{};
+    }
+
+    final sanitized = <String, dynamic>{
+      'onb_axis_v2': axis.trim(),
+      'onb_axis_schema_version': schemaVersion,
+    };
+    final legacyIntent = handoff['legacy_onb_intent'];
+    if (legacyIntent is String && legacyIntent.trim().isNotEmpty) {
+      sanitized['legacy_onb_intent'] = legacyIntent.trim();
+    }
+    final signalAxes = handoff['onb_signal_axes_v2'];
+    if (signalAxes is Iterable) {
+      final ids = signalAxes
+          .whereType<String>()
+          .map((id) => id.trim())
+          .where((id) => id.isNotEmpty)
+          .toList(growable: false);
+      if (ids.isNotEmpty) {
+        sanitized['onb_signal_axes_v2'] = ids;
+      }
+    }
+    return sanitized;
   }
 
   /// Retourne une variante A/B persistente pour le mini-onboarding.
@@ -868,6 +953,7 @@ class ReportPersistenceService {
     await prefs.remove(_onboardingMetricsChallengeKey);
     await prefs.remove(_onboardingCohortMetricsKey);
     await prefs.remove(_selectedIntentKey);
+    await prefs.remove(_mint2AxisHandoffKey);
     await prefs.remove(_contributionsKey);
     await prefs.remove(_onboarding30PlanKey);
     await prefs.remove(_coachNarrativeModeKey);

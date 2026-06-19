@@ -19,6 +19,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 // constructable in unit tests. See OnboardingProvider.legacyReOnboarding
 // below.
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
@@ -129,6 +130,8 @@ class OnboardingProvider extends ChangeNotifier {
 
   // Captures — source of truth for the mapper au tour 9.
   OnboardingIntent? _intent;
+  OnboardingAxisV2? _axisV2;
+  final Set<OnboardingAxisV2> _signalAxesV2 = {};
   int? _ageYears;
   DateTime? _dateOfBirth;
 
@@ -157,6 +160,9 @@ class OnboardingProvider extends ChangeNotifier {
   // ── Read accessors ──────────────────────────────────────────────
   OnboardingStep get step => _step;
   OnboardingIntent? get intent => _intent;
+  OnboardingAxisV2? get axisV2 => _axisV2;
+  List<OnboardingAxisV2> get signalAxesV2 =>
+      List<OnboardingAxisV2>.unmodifiable(_signalAxesV2);
   int? get ageYears {
     final dob = _dateOfBirth;
     if (dob == null) return _ageYears;
@@ -202,6 +208,7 @@ class OnboardingProvider extends ChangeNotifier {
         return 0;
     }
   }
+
   String? get nationalityGroup => _nationalityGroup;
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;
@@ -242,9 +249,26 @@ class OnboardingProvider extends ChangeNotifier {
 
   void setIntent(OnboardingIntent intent, String humanLabel) {
     _intent = intent;
+    _axisV2 = onboardingAxisV2FromLegacyIntent(intent);
     _confidenceByField['intent'] = OnboardingConfidence.high;
     _setDossier('intent', 'Intention', humanLabel, 0);
     notifyListeners();
+  }
+
+  void setAxisV2(OnboardingAxisV2 axis, String humanLabel) {
+    _axisV2 = axis;
+    _intent = axis.legacyIntent;
+    if (_isSignalAxisV2(axis)) {
+      _signalAxesV2.add(axis);
+    }
+    _confidenceByField['selected_axis'] = OnboardingConfidence.high;
+    _setDossier('selected_axis', 'Axe', humanLabel, 0);
+    notifyListeners();
+  }
+
+  static bool _isSignalAxisV2(OnboardingAxisV2 axis) {
+    return axis == OnboardingAxisV2.logementSignal ||
+        axis == OnboardingAxisV2.fiscalSignal;
   }
 
   void setAge(int years) {
@@ -385,6 +409,8 @@ class OnboardingProvider extends ChangeNotifier {
     _step = OnboardingStep.entry;
     _dossier.clear();
     _intent = null;
+    _axisV2 = null;
+    _signalAxesV2.clear();
     _ageYears = null;
     _dateOfBirth = null;
     _nationalityGroup = null;
@@ -425,6 +451,7 @@ class OnboardingProvider extends ChangeNotifier {
     CoachProfileProvider coachProvider,
   ) async {
     final answers = <String, dynamic>{};
+    final axisAnswers = _mint2AxisAnswers();
     if (_intent != null) answers['onb_intent'] = _intent!.name;
     if (_dateOfBirth != null) {
       answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
@@ -436,6 +463,7 @@ class OnboardingProvider extends ChangeNotifier {
     if (_netMonthlyExact != null) {
       answers['q_net_income_period_chf'] = _netMonthlyExact;
       answers['q_net_income_confidence'] = 'high';
+      answers['q_net_income_period_source'] = 'onboarding_exact';
     } else if (_netMonthlyRange != null) {
       // Persiste le milieu de la fourchette en valeur effective, et
       // archive la fourchette brute pour les upgrades de confidence.
@@ -443,6 +471,7 @@ class OnboardingProvider extends ChangeNotifier {
       answers['q_net_income_range_low'] = _netMonthlyRange!.low;
       answers['q_net_income_range_high'] = _netMonthlyRange!.high;
       answers['q_net_income_confidence'] = 'medium';
+      answers['q_net_income_period_source'] = 'onboarding_range_midpoint';
     }
     // SALVAGE-01 (archetype-waitlist): derive q_nationality from the
     // captured group, mirroring updateFromSmartFlow's CH/EU/OTHER mapping.
@@ -498,6 +527,9 @@ class OnboardingProvider extends ChangeNotifier {
     answers['q_wants_deeper'] = _wantsDeeper;
 
     final sealed = await ReportPersistenceService.saveAnswers(answers);
+    if (axisAnswers.isNotEmpty) {
+      await ReportPersistenceService.saveMint2AxisHandoff(axisAnswers);
+    }
     if (!sealed) {
       coachProvider.updateFromAnswers(answers);
       if (!coachProvider.hasProfile) {
@@ -515,6 +547,41 @@ class OnboardingProvider extends ChangeNotifier {
     }
     _sealed = true;
     notifyListeners();
+  }
+
+  /// Persists only non-financial Mint 2 axis metadata before a live-axis route.
+  ///
+  /// The live LPP/RvC path intentionally bypasses the terminal T8 flush, so
+  /// this keeps dossier/account handoff context without adding CHF/%/age
+  /// calculation inputs or derived RvC values.
+  Future<bool> persistMint2AxisHandoff() async {
+    final axisAnswers = _mint2AxisAnswers();
+    if (axisAnswers.isEmpty) return true;
+
+    return ReportPersistenceService.saveMint2AxisHandoff(axisAnswers);
+  }
+
+  Map<String, dynamic> _mint2AxisAnswers() {
+    if (!FeatureFlags.enableMint2FirstExperienceEntry) {
+      return const <String, dynamic>{};
+    }
+    final axis = _axisV2 ??
+        (_intent == null ? null : onboardingAxisV2FromLegacyIntent(_intent!));
+    if (axis == null) return const <String, dynamic>{};
+
+    final answers = <String, dynamic>{
+      'onb_axis_v2': axis.id,
+      'onb_axis_schema_version': onbAxisSchemaVersion,
+    };
+    final legacyIntent = _intent ?? axis.legacyIntent;
+    if (legacyIntent != null) {
+      answers['legacy_onb_intent'] = legacyIntent.name;
+    }
+    if (_signalAxesV2.isNotEmpty) {
+      answers['onb_signal_axes_v2'] =
+          _signalAxesV2.map((axis) => axis.id).toList(growable: false);
+    }
+    return answers;
   }
 
   /// Format CHF suisse avec apostrophe comme séparateur de milliers.

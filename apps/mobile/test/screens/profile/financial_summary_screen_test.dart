@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -7,7 +8,10 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   _FakeCoachProfileProvider(this._profile);
@@ -55,6 +59,12 @@ Widget _pumpable(
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    FeatureFlags.enableMint2FirstExperienceEntry = false;
+  });
+
   testWidgets('empty material profile shows diagnostic state, not covered gap',
       (tester) async {
     await tester.pumpWidget(_pumpable(CoachProfile.fromWizardAnswers({})));
@@ -63,6 +73,55 @@ void main() {
     expect(find.text('Aucun profil renseigné'), findsOneWidget);
     expect(find.text('Commencer le diagnostic'), findsOneWidget);
     expect(find.text('Tu es bien couvert·e'), findsNothing);
+  });
+
+  testWidgets(
+      'Mint 2 live axis handoff appears in dossier before profile facts',
+      (tester) async {
+    FeatureFlags.enableMint2FirstExperienceEntry = true;
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+      'legacy_onb_intent': 'retraite',
+    });
+
+    await tester.pumpWidget(_pumpable(null));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2e pilier : rente ou capital'), findsOneWidget);
+    expect(find.text('Champs requis manquants'), findsOneWidget);
+    expect(find.text('Preuve absente'), findsOneWidget);
+    expect(find.text('Aucun profil renseigné'), findsNothing);
+  });
+
+  testWidgets('Mint 2 axis handoff stays hidden while entry flag is off',
+      (tester) async {
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+    });
+
+    await tester.pumpWidget(_pumpable(null));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2e pilier : rente ou capital'), findsNothing);
+    expect(find.text('Aucun profil renseigné'), findsOneWidget);
+  });
+
+  testWidgets('reset removes Mint 2 axis handoff from dossier surface',
+      (tester) async {
+    FeatureFlags.enableMint2FirstExperienceEntry = true;
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+    });
+    await ReportPersistenceService.clearDiagnostic();
+
+    await tester.pumpWidget(_pumpable(null));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2e pilier : rente ou capital'), findsNothing);
+    expect(find.text('Aucun profil renseigné'), findsOneWidget);
   });
 
   testWidgets('material profile leads with dossier facts before projection',

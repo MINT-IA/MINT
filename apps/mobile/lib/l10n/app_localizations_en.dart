@@ -6120,7 +6120,8 @@ class SEn extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'ahead';
+  String get renteVsCapitalDeltaAdvance =>
+      'simulated difference between scenarios';
 
   @override
   String get renteVsCapitalEducationalTitle => 'What it actually changes';
@@ -6228,11 +6229,11 @@ class SEn extends S {
   String get renteVsCapitalTornadoToggle => 'View sensitivity diagram';
 
   @override
-  String get renteVsCapitalImpactTitle => 'What changes the result the most?';
+  String get renteVsCapitalImpactTitle => 'Parameters to test';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'The most influential parameters on the gap between your options.';
+      'Possible variations based on the calculation assumptions.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Assumptions for this simulation';
@@ -6244,6 +6245,124 @@ class SEn extends S {
   String renteVsCapitalSources(String sources) {
     return 'Sources: $sources';
   }
+
+  @override
+  String get renteVsCapitalReceiptTitle => 'Calculation proof';
+
+  @override
+  String get renteVsCapitalReceiptRequiredTitle => 'Result hidden';
+
+  @override
+  String get renteVsCapitalReceiptRequiredBody =>
+      'Figures stay hidden because the calculation proof is incomplete.';
+
+  @override
+  String get renteVsCapitalReceiptOriginLabel => 'Origin';
+
+  @override
+  String get renteVsCapitalReceiptVersionLabel => 'Calculation version';
+
+  @override
+  String get renteVsCapitalReceiptConstantsLabel => 'Constants version';
+
+  @override
+  String get renteVsCapitalReceiptReadinessLabel => 'Proof status';
+
+  @override
+  String get renteVsCapitalReceiptUnitLabel => 'Units';
+
+  @override
+  String get renteVsCapitalReceiptConfidenceLabel => 'Confidence';
+
+  @override
+  String get renteVsCapitalReceiptAssumptionsLabel => 'Assumptions';
+
+  @override
+  String get renteVsCapitalReceiptSourcesLabel => 'Sources';
+
+  @override
+  String get renteVsCapitalReceiptMissingLabel => 'Missing inputs';
+
+  @override
+  String get renteVsCapitalReceiptMissingNone => 'No required input missing';
+
+  @override
+  String get renteVsCapitalReceiptReadinessReady => 'Ready';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
+      'Required fields missing';
+
+  @override
+  String get renteVsCapitalReceiptReadinessIncomplete => 'Incomplete proof';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissing => 'Missing proof';
+
+  @override
+  String get renteVsCapitalReceiptMissingFallback => 'calculation proof';
+
+  @override
+  String get renteVsCapitalReceiptMissingCapitalLppTotal => 'total LPP capital';
+
+  @override
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
+      'proposed annual pension';
+
+  @override
+  String get renteVsCapitalReceiptMissingCanton => 'canton';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'current age';
+
+  @override
+  String get renteVsCapitalReceiptMissingHorizonYears => 'comparison horizon';
+
+  @override
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
+      'capital withdrawal rate';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
+      'mandatory conversion rate';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
+      'extra-mandatory conversion rate';
+
+  @override
+  String get mint2FirstExperienceAxisPrompt =>
+      'Choose the topic you want to clarify first.';
+
+  @override
+  String get mint2FirstExperienceLiveStatus => 'Available';
+
+  @override
+  String get mint2FirstExperienceSignalStatus => 'Signal only';
+
+  @override
+  String get mint2FirstExperienceSignalSaved => 'Interest saved';
+
+  @override
+  String get mint2FirstExperienceLppLabel => '2nd pillar: pension or capital';
+
+  @override
+  String get mint2FirstExperienceLppBody =>
+      'We prepare the required fields before opening the defensible comparison.';
+
+  @override
+  String get mint2FirstExperienceHousingLabel => 'Housing: 2nd / 3rd pillar';
+
+  @override
+  String get mint2FirstExperienceHousingBody =>
+      'We save your interest and keep this door without simulation in this phase.';
+
+  @override
+  String get mint2FirstExperienceFiscalLabel => '3a and buybacks: tax impact';
+
+  @override
+  String get mint2FirstExperienceFiscalBody =>
+      'We save your tax interest without calculating an amount in this phase.';
 
   @override
   String get renteVsCapitalRachatLabel => 'Planned annual LPP buyback (CHF)';
@@ -7891,6 +8010,13 @@ class SEn extends S {
   @override
   String get authHandoffChooseHint =>
       'Choose before signing in so you control what follows your account.';
+
+  @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Before opening this link, choose whether Mint keeps local data or starts without it.';
+
+  @override
+  String get authMagicLinkExpired => 'This link is invalid or has expired.';
 
   @override
   String get authRequiredConsents =>
@@ -12895,16 +13021,13 @@ class SEn extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'A balance to build';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow =>
-      'If you choose the annuity';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Annuity scenario';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow =>
-      'If you choose the lump sum';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Lump-sum scenario';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'If you choose the mixed option';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Mixed scenario';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21102,7 +21225,7 @@ class SEn extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'With the capital, you could run out of money by age $age. With the annuity, you receive a fixed amount for life. You can only choose once.';
+    return 'With the capital, you could run out of money by age $age. With the annuity, you receive a fixed amount for life. This decision is final.';
   }
 
   @override
@@ -21158,7 +21281,7 @@ class SEn extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'At retirement, you choose once and for all: a lifetime income or your capital in hand.';
+      'At retirement, the decision sets lifetime income alongside available capital.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

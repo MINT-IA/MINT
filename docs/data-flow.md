@@ -58,6 +58,10 @@ flowchart LR
    `wizard_answers_v2` persistence fails, but readers may use it only when no
    material `CoachProfile` can supersede it. Any later successful profile
    hydration wins.
+6. `mint2_axis_handoff_v1` is non-financial route metadata for the Mint 2 live
+   axis handoff. It records the selected axis and schema version only. It must
+   not be read by `FinancialReportScreenV2`, `CoachProfile.fromWizardAnswers`,
+   or any calculator, and it must not unlock `/rapport`.
 
 ---
 
@@ -71,6 +75,30 @@ documented degradation path: if that canonical write leaves no material profile
 after reload, it may save direct `BudgetInputs` to `budget_inputs_v1` so the
 budget UI and Coach opener can preserve the user's typed budget until the
 canonical profile path is available again.
+
+Mint 2 axis metadata (`onb_axis_v2`, `onb_axis_schema_version`,
+`legacy_onb_intent`, and optional `onb_signal_axes_v2`) persists under
+`mint2_axis_handoff_v1`, not under `wizard_answers_v2`, whether it comes from
+the live-axis entry or the terminal onboarding flush. This keeps account
+handoff context without turning axis metadata into a financial report input or
+round-tripping sealed wizard placeholders.
+When local data is claimed into a cloud account, the same metadata is sent as
+`mint2_axis_handoff` and stored in `localDataClaim.mint2AxisHandoff`, still
+separate from `localDataClaim.wizardAnswers`.
+Later wizard/profile syncs that do not carry Mint 2 axis metadata preserve the
+existing `localDataClaim.mint2AxisHandoff` instead of clearing it.
+When an anonymous diagnostic is moved aside during account hydration, the same
+handoff payload moves to `anonymous_mint2_axis_handoff_held_v1` and is cleared
+only with the held-anonymous diagnostic.
+
+`SecureWizardStore` classifies mapped wizard outputs that are outside broad
+dynamic prefixes before the runtime dictionary exists. Financial/life-planning
+metadata such as `q_pay_frequency`, `q_net_income_period_source`,
+`q_employment_rate`, `q_target_retirement_age`, pension/debt booleans, and
+`q_self_employed_net_income_annual_chf` are sensitive and must be sealed.
+`q_canton` remains an explicit non-sensitive routing key, and `q_main_goal`
+remains a product preference. The 02c checker fails if a mapped wizard output
+is neither sealed nor explicitly classified.
 
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
@@ -107,12 +135,19 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   income for independent/no-LPP OPP3 art. 7 calculations; Coach `save_fact`
   also writes a derived monthly proxy `q_net_income_period_chf = annual/12`
   with `q_pay_frequency='monthly'` when no better cashflow is known, so
-  Budget/Rapport start coherent. Auth/backend hydration refreshes the annual
-  fact and only refreshes the monthly cashflow when it was missing or still
-  equal to the old annual-derived monthly value, preserving explicit Budget
-  entries. Budget Setup clears `q_net_income_period_source` when the user types
-  a monthly income so later annual corrections cannot overwrite an explicit
-  cashflow that happens to equal the old derived proxy. Budget read models
+  Budget/Rapport start coherent. Onboarding v2 also writes
+  `q_net_income_period_source` to distinguish an exact monthly value from a
+  range midpoint (`onboarding_exact` vs `onboarding_range_midpoint`) while
+  preserving `q_net_income_range_low`, `q_net_income_range_high`, and
+  `q_net_income_confidence`. Later coach `save_fact` writes for
+  `incomeNetMonthly` / `incomeNetYearly` replace that source with
+  `save_fact_monthly` / `save_fact_yearly` so provenance follows the current
+  amount instead of the old onboarding value. Auth/backend hydration refreshes
+  the annual fact and only refreshes the monthly cashflow when it was missing or
+  still equal to the old annual-derived monthly value, preserving explicit
+  Budget entries. Budget Setup clears `q_net_income_period_source` when the
+  user types a monthly income so later annual corrections cannot overwrite an
+  explicit cashflow that happens to equal the old derived proxy. Budget read models
   normalize non-monthly income to monthly and persist normalized Budget inputs
   back as `q_pay_frequency='monthly'` to avoid reload drift. Rapport uses the
   annual fact directly for the OPP3 art. 7 3a ceiling and uses the monthly key

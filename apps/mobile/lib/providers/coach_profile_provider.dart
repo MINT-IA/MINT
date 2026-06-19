@@ -189,10 +189,13 @@ class CoachProfileProvider extends ChangeNotifier {
         deviceId = const Uuid().v4();
         await prefs.setString('_mint_device_id', deviceId);
       }
+      final mint2AxisHandoff =
+          await ReportPersistenceService.loadMint2AxisHandoff();
       await ApiService.claimLocalData(
         localDataVersion: 1,
         deviceId: deviceId,
         wizardAnswers: answers,
+        mint2AxisHandoff: mint2AxisHandoff,
       );
     } catch (e, st) {
       // Non-fatal to local UX, but report so failures are not invisible.
@@ -984,7 +987,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Translates a `save_fact` canonical key + value into the corresponding
   /// wizard answer keys expected by `CoachProfile.fromWizardAnswers`.
-  /// Returns an empty map when the key is unknown.
+  /// Returns an empty map when the key is unknown or intentionally unsupported.
   Map<String, dynamic> _mapFactKeyToAnswers(String factKey, dynamic value) {
     if (value == null) return const {};
     switch (factKey) {
@@ -1020,11 +1023,13 @@ class CoachProfileProvider extends ChangeNotifier {
         return {
           'q_net_income_period_chf': value,
           'q_pay_frequency': 'monthly',
+          'q_net_income_period_source': 'save_fact_monthly',
         };
       case 'incomeNetYearly':
         return {
           'q_net_income_period_chf': value,
           'q_pay_frequency': 'yearly',
+          'q_net_income_period_source': 'save_fact_yearly',
         };
       case 'incomeGrossMonthly':
         final monthly = _asNum(value);
@@ -1078,6 +1083,10 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_savings_monthly': value};
       case 'totalSavings':
         return {'q_cash_total': value};
+      case 'wealthEstimate':
+        // Total wealth is not liquid cash; keep backend-only until a lossless
+        // local wizard key exists.
+        return const {};
       case 'hasDebt':
         return {'q_has_consumer_debt': value == true ? 'yes' : 'no'};
       case 'totalDebt':

@@ -18,7 +18,7 @@ changes that are irrelevant to code review.
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/pr-branch.md
+@./.claude/get-shit-done/workflows/pr-branch.md
 </execution_context>
 
 <process>

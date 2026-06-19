@@ -68,11 +68,12 @@ void main() {
       expect(certResult.impotRetraitCapital, greaterThan(0));
     });
 
-    test('impotRetraitCapital < impotCumulRente (capital is tax-efficient)', () {
+    test('impotRetraitCapital < impotCumulRente (capital is tax-efficient)',
+        () {
       // For a 650k capital, one-time tax should be much less than
       // 30 years of rente income tax.
-      expect(certResult.impotRetraitCapital,
-          lessThan(certResult.impotCumulRente));
+      expect(
+          certResult.impotRetraitCapital, lessThan(certResult.impotCumulRente));
     });
 
     test('renteReelleAn20 is less than nominal rente (inflation erodes)', () {
@@ -158,7 +159,8 @@ void main() {
       }
     });
 
-    test('slider at 95 with retraite 65 = horizon 30 produces data at year 30', () {
+    test('slider at 95 with retraite 65 = horizon 30 produces data at year 30',
+        () {
       final result = ArbitrageEngine.compareRenteVsCapital(
         capitalLppTotal: 500000,
         capitalObligatoire: 350000,
@@ -168,7 +170,8 @@ void main() {
         horizon: 30,
       );
 
-      final renteOption = result.options.firstWhere((o) => o.id == 'full_rente');
+      final renteOption =
+          result.options.firstWhere((o) => o.id == 'full_rente');
       // Year index 30 should exist (trajectory has 31 entries: years 0-30)
       expect(renteOption.trajectory.length, equals(31));
     });
@@ -183,7 +186,8 @@ void main() {
         horizon: 35,
       );
 
-      final renteOption = result.options.firstWhere((o) => o.id == 'full_rente');
+      final renteOption =
+          result.options.firstWhere((o) => o.id == 'full_rente');
       // Year index 35 should exist: trajectory covers ages 65-100
       expect(renteOption.trajectory.length, greaterThanOrEqualTo(36));
     });
@@ -194,8 +198,8 @@ void main() {
       expect(certResult.disclaimer, contains('LSFin'));
     });
 
-    test('disclaimer mentions outil educatif', () {
-      expect(certResult.disclaimer, contains('educatif'));
+    test('disclaimer mentions outil éducatif', () {
+      expect(certResult.disclaimer, contains('éducatif'));
     });
 
     test('sources include LPP art. 14', () {

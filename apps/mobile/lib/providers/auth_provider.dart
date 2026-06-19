@@ -131,9 +131,12 @@ class AuthProvider extends ChangeNotifier {
         ? Map<String, dynamic>.from(nestedData)
         : Map<String, dynamic>.from(profilePayload);
     if (data.isEmpty) return currentAnswers;
+    final claimAnswers = _localDataClaimWizardAnswers(data);
+    if (claimAnswers.isEmpty && _isBootstrapOnlyBackendProfileData(data)) {
+      return currentAnswers;
+    }
 
     final answers = Map<String, dynamic>.from(currentAnswers);
-    final claimAnswers = _localDataClaimWizardAnswers(data);
     for (final entry in claimAnswers.entries) {
       if (_isMissingAnswer(answers, entry.key)) {
         answers[entry.key] = entry.value;
@@ -348,6 +351,51 @@ class AuthProvider extends ChangeNotifier {
     final rawWizardAnswers = claim['wizardAnswers'];
     if (rawWizardAnswers is! Map) return const {};
     return Map<String, dynamic>.from(rawWizardAnswers);
+  }
+
+  static bool _isBootstrapOnlyBackendProfileData(Map<String, dynamic> data) {
+    for (final entry in data.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+      switch (entry.key) {
+        case 'id':
+        case 'createdAt':
+        case 'updatedAt':
+          continue;
+        case 'householdType':
+          if (value == 'single') continue;
+          return false;
+        case 'hasDebt':
+        case 'isChurchMember':
+          if (value == false) continue;
+          return false;
+        case 'goal':
+          if (value == 'other') continue;
+          return false;
+        case 'factfindCompletionIndex':
+          if (value is num && value == 0) continue;
+          return false;
+        case 'voiceCursorPreference':
+          if (value == 'direct') continue;
+          return false;
+        case 'n5IssuedThisWeek':
+          if (value is num && value == 0) continue;
+          return false;
+        case 'recentGravityEvents':
+          if (value is List && value.isEmpty) continue;
+          return false;
+        case 'localDataClaim':
+          final claim = value;
+          if (claim is Map) {
+            final wizardAnswers = claim['wizardAnswers'];
+            if (wizardAnswers is! Map || wizardAnswers.isEmpty) continue;
+          }
+          return false;
+        default:
+          return false;
+      }
+    }
+    return true;
   }
 
   static bool _isAnswered(dynamic value) {
@@ -657,6 +705,16 @@ class AuthProvider extends ChangeNotifier {
 
   /// Verify a magic link token and complete authentication.
   Future<bool> verifyMagicLink(String token) async {
+    if (FeatureFlags.enableMvpWedgeOnboarding &&
+        await AccountHandoffService.requiresExplicitChoice(
+          handoffEnabled: true,
+        )) {
+      _error = AuthError.invalidInput;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -990,7 +1048,9 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: failure does not block auth, but keeps a retry flag.
         try {
           final answers = await ReportPersistenceService.loadAnswers();
-          if (answers.isNotEmpty) {
+          final mint2AxisHandoff =
+              await ReportPersistenceService.loadMint2AxisHandoff();
+          if (answers.isNotEmpty || mint2AxisHandoff.isNotEmpty) {
             var deviceId = prefs.getString('_mint_device_id');
             if (deviceId == null) {
               deviceId = const Uuid().v4();
@@ -1000,6 +1060,7 @@ class AuthProvider extends ChangeNotifier {
               localDataVersion: 1,
               deviceId: deviceId,
               wizardAnswers: answers,
+              mint2AxisHandoff: mint2AxisHandoff,
             );
           }
           await prefs.remove(pendingSyncKey);

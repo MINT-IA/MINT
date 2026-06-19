@@ -1,83 +1,134 @@
-# Mint — rules.md (règles non négociables)
+# Mint Rules
 
-Objectif: coder vite (“vibe coding”) sans casser la cohérence.
+These rules are the highest repo-local operating contract. They are split by
+enforcement level so agents know what can run autonomously, what needs Julien's
+explicit confirmation, and what must be refused.
 
-## 0) Hiérarchie de vérité
-1. rules.md — Non-negotiable technical + ethical rules
-2. .claude/CLAUDE.md — Project context, constants, compliance, anti-patterns
-3. AGENTS.md — Team workflow, roles, sprint tracker
-4. .claude/skills/ — Agent-specific conventions and patterns
-5. LEGAL_RELEASE_CHECK.md — Wording compliance checklist
-6. visions/ — Product vision + limits
-7. docs/ (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
-8. decisions/ (ADR) — Architecture decisions
-9. SOT.md + OpenAPI — Data contracts
-10. Code — Implementation follows documents
+## Authority Order
 
-Si le code contredit 1–9: corriger le code OU écrire une ADR.
-docs/ evolution specs sit below visions/ but above ADRs.
+1. `rules.md`
+2. `CLAUDE.md`
+3. `AGENTS.md`
+4. `docs/MINT_AGENT_WORKFLOW.md`
+5. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`
+6. `.planning/STATE.md`
+7. Current phase `CONTEXT.md`, `SPEC.md`, `PLAN.md`, `VERIFICATION.md`
+8. Domain docs, code, tests, scripts, and generated contracts
+9. Engram project `mint` as memory, never as higher authority than repo files
 
-## 1) Commandes standards
+If sources disagree, stop product work, cite both paths, and fix the stale
+source instead of guessing.
 
-### Backend (FastAPI) — dans services/backend/
-- Run dev: uvicorn app.main:app --reload
-- Lint: ruff check .
-- Format: ruff format .
-- Tests: pytest -q
+## Autonomous Tooling Authority
 
-### Mobile (Flutter) — dans apps/mobile/
-- flutter pub get
-- flutter analyze
-- flutter test
-*(Note: Sur cet environnement Windows, utiliser `C:\flutter\bin\flutter.bat` si `flutter` n'est pas dans le PATH)*
+Agents may use the normal Mint toolchain without asking for per-tool
+permission when it materially advances the current authorized objective:
 
-## 2) Branch Flow (NON-NÉGOCIABLE)
+- read repo-local, user-level, and plugin skill repositories when paths are
+  present and readable;
+- use Engram MCP tools (`mem_context`, `mem_search`, `mem_save`,
+  `mem_session_summary`) for memory recovery and durable observations;
+- run local checks, tests, lints, route guards, banned-term/accent/i18n guards,
+  and read-only Git/GitHub inspection commands;
+- use Maestro, `simctl`, `idb`, xcodebuildmcp / Build iOS Apps, screenshots,
+  and runtime logs to produce simulator evidence;
+- spawn available specialist subagents or review panels when the user asks for
+  review, premerge, audit, or a task whose checked-in workflow requires a panel;
+- create feature branches, commits, pushes to feature branches, and PR updates
+  for the current authorized objective after diff review and required checks.
 
+Do not stop merely because a tool was not mentioned in the latest prompt. If a
+tool or skill is unavailable, cite the exact missing command/path/capability and
+use the closest deterministic fallback.
+
+Claude Max and external expert audits are advisory unless Julien explicitly
+makes them a gate for the current task. Use them when a local CLI/session or
+fresh audit artifact is available and the work is high-stakes; otherwise report
+that they were unavailable and rely on the local panel, tests, and runtime
+evidence. Never claim Claude Max, Maestro, Engram, or a panel was used unless
+there is an actual tool call, command output, or artifact path.
+
+## ALWAYS DO
+
+- Read `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json` before
+  product or code work.
+- Run `python3 tools/checks/active_context_guard.py` at session start.
+- Run `python3 tools/checks/phase_contract_guard.py` before executing a phase.
+- Run `python3 tools/checks/mint_rules_guard.py` before committing workflow
+  changes.
+- Write the active phase `SPEC.md` before implementation.
+- Use test-driven development for feature, bugfix, guard, and behavior changes.
+- Verify the diff, not the explanation: `git diff --stat`, `git diff --check`,
+  and focused tests before commit.
+- Save Engram via `mem_save` after durable decisions, discoveries,
+  conventions, and bug fixes.
+- Use simulator/runtime evidence before claiming mobile user flow quality.
+- Keep financial calculations in the canonical financial engine or backend
+  service named by the active phase.
+
+## ASK FIRST
+
+- Merge or push `dev`, `staging`, or `main`.
+- Promote `dev -> staging` or `staging -> main`.
+- Add a new financial formula, regulatory constant, or calculation source.
+- Add a new dependency with runtime, security, billing, or bundle-size impact.
+- Change auth, Keychain, secure storage, reset, account deletion, or Apple
+  entitlement behavior.
+- Archive historical planning directories.
+- Touch public legal, privacy, or compliance claims.
+- Use real staging data or any non-synthetic personal data in fixtures.
+
+## Branch Flow
+
+```text
+feature/* -> dev -> staging -> main
 ```
-feature/* ──PR──> dev ──PR──> staging ──PR──> main
+
+- Use `feature/S{XX}-<slug>` for normal feature branches from `dev`.
+- Use `hotfix/<description>` for hotfix branches from `dev`.
+- Merge `feature/* -> dev` with squash merge.
+- Merge `dev -> staging` and `staging -> main` with merge commits.
+- Never open a feature branch PR directly to `staging` or `main`.
+
+## NEVER DO
+
+- Show a financial number without provenance, assumptions, confidence/readiness,
+  missing fields, and calculation or constant version.
+- Recode financial calculations in UI code.
+- Ship an AI/LLM path without golden fixtures or evaluator evidence.
+- Use a silent fallback that hides drift.
+- Create a service, widget, route, or helper without a real caller.
+- Make an Apple-only auth path.
+- Claim simulator proof as device proof.
+- Promise financial, fiscal, legal, investment, or product outcomes.
+- Force-push, run `git reset --hard`, `git checkout --`, or `git clean` unless
+  Julien explicitly asks for that exact destructive operation.
+- Use `claude --dangerously-skip-permissions` in the real Mint repo.
+
+## Standard Commands
+
+Backend:
+
+```bash
+cd services/backend
+ruff check .
+pytest -q
 ```
 
-**Règles absolues :**
-- **JAMAIS** travailler directement sur `staging` ou `main`. Toujours utiliser une feature branch ou `dev`.
-- **JAMAIS** créer une PR depuis une feature branch vers `staging` ou `main` (toujours vers `dev`).
-- **JAMAIS** push directement sur `staging` ou `main` (toujours via PR).
-- **JAMAIS** force push (`git push --force` est BANNI).
-- Push direct sur `dev` : autorisé (mais feature branches préférées).
-- Feature branches : `feature/S{XX}-<slug>` (brancher depuis `dev`).
-- Hotfix : `hotfix/<description>` (brancher depuis `dev`).
-- Promotion `dev→staging` : uniquement quand l'utilisateur le demande explicitement.
-- Promotion `staging→main` : uniquement quand l'utilisateur le demande explicitement.
+Mobile:
 
-**Merge strategy :**
-- `feature→dev` : **squash merge** (1 commit propre par feature)
-- `dev→staging` : **merge commit** (préserve les SHAs, pas de resync)
-- `staging→main` : **merge commit** (idem)
+```bash
+cd apps/mobile
+flutter analyze
+flutter test
+```
 
-**Si Claude se trouve sur `staging` ou `main` au début d'une session :**
-→ NE PAS coder. Créer une feature branch depuis `dev` ou basculer sur `dev`.
+Planning guards:
 
-## 3) Workflow
-- Toujours proposer un plan avant de modifier beaucoup de fichiers.
-- Toujours lancer lint/analyze/tests après une série de changements.
-- Fix bug => ajouter un test.
-- Changement de contrat => mise à jour OpenAPI + SOT.md.
-- Décision structurante => ADR obligatoire.
-
-## 4) Fintech-grade (MVP)
-- Read-only by design: aucune feature ne doit permettre d'initier un virement/paiement.
-- Transparence: afficher hypothèses + limites + période (mensuel/annuel/unique) pour chaque chiffre.
-- Pas de dark patterns: pas d'upsell trompeur, pas de pub intrusive.
-- Arbitrage = comparaison, jamais classement. Montrer côte à côte avec hypothèses modifiables.
-- LLM = narrateur, jamais conseiller. Tout output LLM passe par ComplianceGuard.
-- Data = traçabilité source. Chaque champ financier tracé (document, manuel, estimé).
-
-## 5) UX
-- Progressive disclosure: on n'impose pas la connexion bancaire au début.
-- 1 écran = 1 intention.
-- Chaque recommandation se termine par 1–3 actions concrètes (next actions).
-- Onboarding minimal : intent + 3 inputs (âge, revenu, canton) avant le premier éclairage.
-- Précision progressive : demander les données au moment où elles comptent, pas pendant l'onboarding.
-- Score FRI : jamais "bon/mauvais", toujours "progression personnelle".
-
-## 6) Dépendances
-- Pas de dépendance lourde sans ADR.
+```bash
+python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/agent_reference_guard.py
+python3 tools/checks/claude_hooks_guard.py
+```

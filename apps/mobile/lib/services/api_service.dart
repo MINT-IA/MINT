@@ -1126,8 +1126,9 @@ class ApiService {
     double inflation = 0.02,
     int horizon = 25,
     bool isMarried = false,
+    int? currentAge,
   }) async {
-    final response = await post('/arbitrage/rente-vs-capital', {
+    final payload = {
       'capital_lpp_total': capitalLppTotal,
       'capital_obligatoire': capitalObligatoire,
       'capital_surobligatoire': capitalSurobligatoire,
@@ -1141,7 +1142,9 @@ class ApiService {
       'inflation': inflation,
       'horizon': horizon,
       'is_married': isMarried,
-    });
+      if (currentAge != null) 'current_age': currentAge,
+    };
+    final response = await post('/arbitrage/rente-vs-capital', payload);
 
     final rawOptions = response['options'];
     final options = <TrajectoireOption>[];
@@ -1166,6 +1169,7 @@ class ApiService {
       response,
       const ['breakevenYear', 'breakeven_year'],
     );
+    final calculationReceipt = _parseArbitrageCalculationReceipt(response);
 
     // ── Derive hero fields from trajectory data ──
     // full_rente (option A) year-1 cashflow = annual net rente
@@ -1241,7 +1245,26 @@ class ApiService {
       impotCumulRente: impotCumulRente,
       impotRetraitCapital: impotRetraitCapital,
       renteReelleAn20: renteReelleAn20,
+      calculationReceipt: calculationReceipt,
     );
+  }
+
+  static ArbitrageCalculationReceipt? _parseArbitrageCalculationReceipt(
+    Map<String, dynamic> response,
+  ) {
+    for (final key in const [
+      'calculationReceipt',
+      'calculation_receipt',
+      'receipt',
+    ]) {
+      final raw = response[key];
+      if (raw is Map) {
+        return ArbitrageCalculationReceipt.fromMap(
+          Map<String, dynamic>.from(raw),
+        );
+      }
+    }
+    return null;
   }
 
   static TrajectoireOption _parseTrajectoireOption(Map<String, dynamic> item) {
@@ -1377,6 +1400,7 @@ class ApiService {
     required int localDataVersion,
     required String deviceId,
     Map<String, dynamic> wizardAnswers = const {},
+    Map<String, dynamic> mint2AxisHandoff = const {},
     Map<String, dynamic> miniOnboarding = const {},
     Map<String, dynamic> budgetSnapshot = const {},
     List<Map<String, dynamic>> checkins = const [],
@@ -1390,6 +1414,7 @@ class ApiService {
         'device_id': deviceId,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
         'wizard_answers': wizardAnswers,
+        'mint2_axis_handoff': mint2AxisHandoff,
         'mini_onboarding': miniOnboarding,
         'budget_snapshot': budgetSnapshot,
         'checkins': checkins,

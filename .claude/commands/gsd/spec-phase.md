@@ -29,8 +29,8 @@ Clarify phase requirements through structured Socratic questioning with quantita
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/spec-phase.md
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/templates/spec.md
+@./.claude/get-shit-done/workflows/spec-phase.md
+@./.claude/get-shit-done/templates/spec.md
 </execution_context>
 
 <runtime_note>

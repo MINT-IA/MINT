@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
 
 /// Unit tests for UnemploymentService — Sprint S19 (Chomage / LACI)
@@ -14,6 +15,9 @@ import 'package:mint_mobile/services/unemployment_service.dart';
 ///
 /// Legal references: LACI art. 28-30
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   // ════════════════════════════════════════════════════════════
   //  ELIGIBILITY
   // ════════════════════════════════════════════════════════════
@@ -217,7 +221,8 @@ void main() {
       expect(result.nombreIndemnites, 520);
     });
 
-    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)', () {
+    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)',
+        () {
       // SECO rules: 55+ = senior = 520 days (LACI art. 27 al. 2)
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
@@ -268,6 +273,42 @@ void main() {
 
       expect(result.nombreIndemnites, 260);
     });
+
+    test('cache registry pilote plafond mensuel, seuil majore et durees', () {
+      RegulatorySyncService.setMockCache({
+        'ac.max_insured_salary': 60000.0,
+        'ac.enhanced_rate_threshold': 10000.0,
+        'ac.senior_age_threshold': 60.0,
+        'ac.senior_days': 600.0,
+        'ac.intermediate_days': 333.0,
+        'ac.min_days': 222.0,
+      });
+
+      final intermediate = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 9000,
+        age: 30,
+        moisCotisation: 18,
+      );
+
+      expect(intermediate.gainAssureRetenu, 5000.0);
+      expect(intermediate.tauxIndemnite, 0.80);
+      expect(intermediate.indemniteMensuelle, closeTo(4000.0, 0.01));
+      expect(intermediate.nombreIndemnites, 333);
+
+      final senior = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 9000,
+        age: 60,
+        moisCotisation: 22,
+      );
+      expect(senior.nombreIndemnites, 600);
+
+      final minimum = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 9000,
+        age: 24,
+        moisCotisation: 12,
+      );
+      expect(minimum.nombreIndemnites, 222);
+    });
   });
 
   // ════════════════════════════════════════════════════════════
@@ -315,7 +356,8 @@ void main() {
       );
 
       final urgences = result.timeline.map((e) => e.urgence).toSet();
-      expect(urgences, containsAll(['immediate', 'semaine1', 'mois1', 'mois3']));
+      expect(
+          urgences, containsAll(['immediate', 'semaine1', 'mois1', 'mois3']));
     });
 
     test('non eligible retourne quand meme une timeline', () {

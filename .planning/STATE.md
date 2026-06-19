@@ -1,64 +1,91 @@
 ---
 gsd_state_version: 1.0
-milestone: core-journey-truth
-milestone_name: Core Journey Truth / Prod Ready
-status: executing
-stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-06-11T23:47:36.639Z"
-last_activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (17/17, verification 20/21)
+milestone: mint-2-0-first-experience-rente-capital
+milestone_name: Mint 2.0 First Experience Rente/Capital
+status: runtime-proof-merged
+stopped_at: PR #705 proved the first Mint 2.0 runtime path to RvC; remaining phase work is dossier/account handoff and residual runtime hardening.
+last_updated: "2026-06-18T09:35:00.000Z"
+last_activity: 2026-06-18 -- PR #705 landed Mint 2.0 -> LPP/rente-capital -> /rente-vs-capital proof on dev; PR #706 added autonomous skill-access governance.
 progress:
-  total_phases: 15
+  scope: runtime_path_proof
+  total_phases: 2
   completed_phases: 2
-  total_plans: 75
-  completed_plans: 76
-  percent: 13
+  total_plans: 2
+  completed_plans: 2
+  percent: 100
 ---
 
-# GSD State: MINT Core Journey Truth / Prod Ready
+# GSD State: Mint 2.0 First Experience Rente/Capital
 
 ## Project Reference
 
 Active operating map:
-`.planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md`
-and `.planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md`.
+`.planning/ACTIVE_CONTEXT.md`,
+`.planning/ACTIVE_CONTEXT.json`,
+`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`,
+`.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
+and `.planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION.md`.
 
 The older GSD receipts below are retained as history. They are not the current
-router for production-readiness work.
+router for Mint 2.0 product planning.
 
-**Core value:** one narrow supported beta story with one user truth, coherent
-navigation, reduced duplicate surfaces, current/cited Coach claims, and
-Maestro-proofed journeys.
+**Core value:** Mint 2.0 first experience is a Swiss financial dossier and
+navigation flow. The first active door is rente/capital; logement and fiscal
+remain signalétique until their own implementation gates exist.
 
-**Current focus:** Phase mint-illogism-fixes — Illogism fixes (17 plans)
-gates before expanding scope.
+**Current focus:** close the residual phase gaps after the first runtime path:
+dossier/account handoff, Keychain/iCloud restore evidence, and less brittle
+runtime interaction proof.
 
 ## Strategic Frame
 
-- **Doctrine:** matrix first, tracker second, code third. A capability is not
-  considered proven because a route, widget, or unit test exists.
+- **Doctrine:** spec first, verifier second, implementation third. A product
+  surface is not active because an agent described it; it must have a phase
+  contract and fresh verification evidence.
 
-- **Source:** `.planning/phases/mint-prod-ready-core-journey-truth-20260601/`.
-- **Proof contract:** fresh command output, Maestro/runtime evidence when the
-  row is a human journey, and deterministic citation in the tracker.
+- **Source:** `.planning/phases/mint-2-0-first-experience-rente-capital/`.
 
-- **Anti-drift check:** `python3 tools/checks/cjt_context_guard.py`.
+- **Proof contract:** fresh command output, guard tests, Engram summary, and no
+  product claim without simulator/device evidence.
 
 ## Current Position
 
-Phase: mint-illogism-fixes (Illogism fixes (17 plans)) — EXECUTED, verification 20/21
-Plan: 17 of 17 complete
-Status: Phase executed 2026-06-12 — 17/17 plans + 4 Codex wave reviews (gap closures: 3 P1 + 7 P2 + 2 P3) + device gate (ILLOG01/02 GREEN, D10 re-fix device-PASS). Remaining: 1 human-verify item (D7 /retraite green capture on device — fix root-caused + widget-test-proven, blocked by onboarding-shell AX automation gap). Final suites: mobile 9446 passed / backend 7586 passed / analyze clean.
-Last activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (resumed post-quota from plan 06)
-guard added
+Phase: mint-2-0-first-experience-rente-capital — RUNTIME PATH PROOF LANDED
+Plan: first route proof is merged; continue with the remaining user-value gaps
+instead of re-proving the same path.
+Status: `dev` contains the Mint 2.0 first-entry route to the existing
+`/rente-vs-capital` surface with receipt gates and neutral compliance copy.
+Original dirty tree remains quarantine.
+Last activity: 2026-06-18 -- PR #705 squash-merged as `485b56ff9`; PR #706
+squash-merged as `7aee403d8`.
 
-**Known open gates:**
+Progress counters now measure the initial route/runtime proof. They do not close
+the full dossier/account handoff promise.
 
-- CJT-013 — backend production Phase 02 fact-current cutover.
-- CJT-015 — TestFlight / Universal Links / signed real-device proof.
-- CJT-018 is no longer an open gate after the 2026-06-04 current AX frame audit.
+**Promotion evidence:**
 
-**Next execution bias:** CJT-015 if signed/TestFlight access is available;
-otherwise CJT-013 or the next human-journey proof wave from the matrix.
+- `python3 tools/checks/active_context_guard.py`.
+- `python3 tools/checks/phase_contract_guard.py`.
+- `python3 tools/checks/verify_phase_acceptance.py`.
+- Guard pytest suite for active context, phase contract, rules, agent reference,
+  Claude hooks, and phase acceptance.
+- PR #705 CI gate and local runtime artifacts under
+  `.planning/runtime-evidence/20260617T212912Z`.
+- Design-system runtime check artifacts under
+  `.planning/runtime-evidence/20260618T055622Z-design-check-final`.
+
+**Remaining open items:**
+
+- Dossier revisit and account handoff are not closed by the route proof.
+- Keychain/iCloud restore remains outside simulator-only proof.
+- Maestro proof is valid but still partly coordinate-tap based because iOS did
+  not expose every desired element action semantically.
+- Runtime evidence artifacts are local and untracked; the executable Maestro
+  flow is committed under `tools/simulator/flows/maestro-perfect-set/`.
+
+**Next execution bias:** pick one remaining user-visible gap and prove it
+end-to-end, preferably dossier continuity/account handoff or semantic runtime
+actionability for the iPhone 13 mini flow.
 
 ## Historical Receipts
 

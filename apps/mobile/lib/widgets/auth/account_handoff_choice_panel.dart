@@ -9,7 +9,14 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:provider/provider.dart';
 
 class AccountHandoffChoicePanel extends StatefulWidget {
-  const AccountHandoffChoicePanel({super.key});
+  const AccountHandoffChoicePanel({
+    super.key,
+    this.onChoiceChanged,
+    this.lockAfterChoice = false,
+  });
+
+  final VoidCallback? onChoiceChanged;
+  final bool lockAfterChoice;
 
   @override
   State<AccountHandoffChoicePanel> createState() =>
@@ -19,6 +26,7 @@ class AccountHandoffChoicePanel extends StatefulWidget {
 class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
   AccountHandoffChoice? _choice;
   bool _hasLocalData = false;
+  bool _choiceLocked = false;
 
   @override
   void initState() {
@@ -37,8 +45,16 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
   }
 
   Future<void> _setChoice(AccountHandoffChoice choice) async {
-    setState(() => _choice = choice);
+    if (_choiceLocked) return;
+    setState(() {
+      _choice = choice;
+      if (widget.lockAfterChoice) {
+        _choiceLocked = true;
+      }
+    });
     await AccountHandoffService.saveChoice(choice);
+    if (!mounted) return;
+    widget.onChoiceChanged?.call();
   }
 
   @override
@@ -97,10 +113,12 @@ class _AccountHandoffChoicePanelState extends State<AccountHandoffChoicePanel> {
             emptySelectionAllowed: true,
             showSelectedIcon: false,
             selected: _choice == null ? {} : {_choice!},
-            onSelectionChanged: (values) {
-              if (values.isEmpty) return;
-              _setChoice(values.first);
-            },
+            onSelectionChanged: _choiceLocked
+                ? null
+                : (values) {
+                    if (values.isEmpty) return;
+                    _setChoice(values.first);
+                  },
             segments: [
               ButtonSegment(
                 value: AccountHandoffChoice.keepLocal,

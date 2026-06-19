@@ -2,8 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +17,8 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    AuthService.resetMemoryCacheForTest();
+    ApiService.setHttpClientForTesting(null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -28,11 +35,48 @@ void main() {
   });
 
   tearDown(() {
+    ApiService.setHttpClientForTesting(null);
+    AuthService.resetMemoryCacheForTest();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
       null,
     );
+  });
+
+  test('backend sync sends Mint2 axis handoff outside wizard answers',
+      () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auth_local_mode', false);
+    await AuthService.saveToken('sync-token', 'sync-user', 'sync@example.ch');
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+      'legacy_onb_intent': 'retraite',
+      'onb_signal_axes_v2': ['fiscal_signal'],
+    });
+
+    Map<String, dynamic>? claimBody;
+    ApiService.setHttpClientForTesting(MintHttpClient(
+      MockClient((request) async {
+        expect(request.url.path, '/api/v1/sync/claim-local-data');
+        claimBody = json.decode(request.body) as Map<String, dynamic>;
+        return http.Response('{"status":"ok"}', 200);
+      }),
+    ));
+
+    final provider = CoachProfileProvider();
+    provider.updateFromAnswers({
+      'q_canton': 'VD',
+      'q_employment_status': 'salarie',
+    });
+    await provider.triggerBackendSync();
+
+    expect(claimBody, isNotNull);
+    expect(claimBody!['wizard_answers'], contains('q_canton'));
+    expect(claimBody!['wizard_answers'], isNot(contains('onb_axis_v2')));
+    expect(
+        claimBody!['mint2_axis_handoff']['onb_axis_v2'], 'lpp_rente_capital');
   });
 
   test('mergeAnswers does not keep partial data after seal failure', () async {

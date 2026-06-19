@@ -24,24 +24,41 @@ class RetirementService {
   /// legacy callers. Prefer [avsMaxRenteAnnuelleForYear] or the 13m
   /// variant for retirement-year-aware projections (AVS13 effective
   /// from 2026).
-  static double get avsMaxRenteAnnuelle => reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
+  static double get avsMaxRenteAnnuelle =>
+      reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
 
   /// Year-aware AVS annual maximum — returns the 13-month figure
   /// (32'760) for years >= avs13emeRenteAnneeDebut (2026), otherwise
   /// the legacy 12-month cap (30'240). Use this for any projection
   /// that reports annual income at retirement.
   static double avsMaxRenteAnnuelleForYear(int year) {
-    final base = avsMaxAnnualRenteForYear(year);
-    // Respect backend overrides via the regulatory registry.
-    return reg('avs.max_annual_pension_${year >= avs13emeRenteAnneeDebut ? "13m" : "12m"}', base);
+    final active = reg(
+          'avs.13th_pension_active',
+          avs13emeRenteActive ? 1.0 : 0.0,
+        ) >=
+        0.5;
+    final startYear = reg(
+      'avs.13th_pension_start_year',
+      avs13emeRenteAnneeDebut.toDouble(),
+    ).toInt();
+    final factor = reg('avs.13th_pension_factor', avs13emeRenteFactor);
+    final annual12 = reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
+    return active && year >= startYear ? annual12 * factor : annual12;
   }
+
   static double get avsCoupleFactor => 1.50;
-  static int get avsRetirementAge => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-  static double get avsAnticipationPenaltyPerYear => reg('avs.early_retirement_reduction', avsReductionAnticipation);
-  static int get maxContributionYears => reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+  static int get avsRetirementAge =>
+      reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+  static double get avsAnticipationPenaltyPerYear =>
+      reg('avs.anticipation_reduction', avsReductionAnticipation);
+  static int get maxContributionYears =>
+      reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble())
+          .toInt();
+
   /// Minimum legal conversion rate — obligatoire part only (LPP art. 14).
   /// For full capital projections, use blended oblig/suroblig rates.
-  static double get lppConversionRate => reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+  static double get lppConversionRate =>
+      reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
   static Map<String, String> get cantonNames => cantonFullNames;
 
   /// Sorted canton codes (alphabetical). Delegates to social_insurance.dart.
@@ -118,9 +135,8 @@ class RetirementService {
     final totalRevenus =
         avsMensuel + lppMensuel + (capital3aNet / (20 * 12)) + autresRevenus;
     final solde = totalRevenus - depensesMensuelles;
-    final tauxRemplacement = revenuPreRetraite > 0
-        ? (totalRevenus / revenuPreRetraite * 100)
-        : 0.0;
+    final tauxRemplacement =
+        revenuPreRetraite > 0 ? (totalRevenus / revenuPreRetraite * 100) : 0.0;
 
     final pcSeuil = isCouple ? 4500.0 : 3000.0;
     final pcEligible = totalRevenus < pcSeuil;
@@ -131,8 +147,7 @@ class RetirementService {
 
     final alertes = <String>[];
     if (solde < 0) {
-      alertes.add(
-          'Deficit mensuel de ${formatChfWithPrefix(solde.abs())}');
+      alertes.add('Deficit mensuel de ${formatChfWithPrefix(solde.abs())}');
     }
     if (tauxRemplacement < 60) {
       alertes.add(

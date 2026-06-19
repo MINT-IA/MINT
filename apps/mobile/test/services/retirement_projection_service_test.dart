@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 
 /// Tests for RetirementProjectionService — unified household retirement projection.
@@ -9,6 +10,9 @@ import 'package:mint_mobile/services/retirement_projection_service.dart';
 /// Legal basis: LAVS art. 21-40, LPP art. 14-16, LIFD art. 38, OPC.
 /// Golden couple: Julien (1977, 122'207 CHF) + Lauren (1982, 67'000 CHF).
 void main() {
+  setUp(RegulatorySyncService.clearCache);
+  tearDown(RegulatorySyncService.clearCache);
+
   /// Minimal profile helper.
   CoachProfile buildProfile({
     String? firstName,
@@ -69,7 +73,7 @@ void main() {
       final result = RetirementProjectionService.project(
         profile: buildProfile(),
       );
-      expect(result.disclaimer, contains('educative'));
+      expect(result.disclaimer, contains('éducative'));
       expect(result.disclaimer, contains('conseil'));
       expect(result.disclaimer, contains('LSFin'));
     });
@@ -104,6 +108,22 @@ void main() {
           .firstWhere((s) => s.retirementAge == 63);
       expect(age63.adjustmentPct, lessThan(0),
           reason: 'AVS anticipation reduces rente by 6.8%/year');
+    });
+
+    test('early retirement adjustment reads registry anticipation reduction',
+        () {
+      RegulatorySyncService.setMockCache({
+        'avs.reference_age_men': 65.0,
+        'avs.anticipation_reduction': 0.10,
+      });
+
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(),
+      );
+      final age63 = result.earlyRetirementComparisons
+          .firstWhere((s) => s.retirementAge == 63);
+
+      expect(age63.adjustmentPct, closeTo(-20.0, 0.01));
     });
 
     test('deferred retirement (67) has positive adjustment — LAVS art. 39', () {

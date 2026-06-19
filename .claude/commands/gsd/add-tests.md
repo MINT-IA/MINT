@@ -26,7 +26,7 @@ Output: Test files committed with message `test(phase-{N}): add unit and E2E tes
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/add-tests.md
+@./.claude/get-shit-done/workflows/add-tests.md
 </execution_context>
 
 <context>

@@ -49,6 +49,7 @@ Run :
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from collections import Counter, defaultdict
@@ -57,6 +58,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 PLANNING_DIR = REPO_ROOT / ".planning"
 INDEX_PATH = PLANNING_DIR / "INDEX.md"
+ACTIVE_CONTEXT_PATH = PLANNING_DIR / "ACTIVE_CONTEXT.json"
 
 # Files / dirs to exclude from lint scans (archives, raw exports).
 EXCLUDE_DIRS = {"archive", "archives", "archive-2026-04-10", "archive-pre-2026-04-19"}
@@ -71,6 +73,10 @@ def _is_leaf(p: Path) -> bool:
     """Files in leaf dirs (reports, phases, walker, handoff) are
     end-states, not articles ; they don't need inbound refs."""
     return any(part in LEAF_DIRS for part in p.parts)
+
+
+def _planning_link_path(path_value: str) -> str:
+    return path_value.removeprefix(".planning/").removeprefix("./.planning/")
 
 
 def _read_frontmatter(text: str) -> dict[str, str]:
@@ -152,6 +158,30 @@ def cmd_index(args: argparse.Namespace) -> int:
         f"**Total** : {len(files)} pages across {len(grouped)} sections.",
         "",
     ]
+    if ACTIVE_CONTEXT_PATH.exists():
+        try:
+            active = json.loads(ACTIVE_CONTEXT_PATH.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            active = {}
+        active_phase = active.get("active_phase_context")
+        next_phase = active.get("next_product_phase_context")
+        if active_phase or next_phase:
+            out.extend(
+                [
+                    "## Active Context",
+                    "",
+                    "| Role | Page |",
+                    "|------|------|",
+                    "| Session router | [`ACTIVE_CONTEXT.md`](ACTIVE_CONTEXT.md) |",
+                ]
+            )
+            if active_phase:
+                active_rel = _planning_link_path(str(active_phase))
+                out.append(f"| Active phase | [`{active_rel}`]({active_rel}) |")
+            if next_phase:
+                next_rel = _planning_link_path(str(next_phase))
+                out.append(f"| Next product phase | [`{next_rel}`]({next_rel}) |")
+            out.append("")
     for section in sorted(grouped):
         if section == "_root":
             heading = "## Root"

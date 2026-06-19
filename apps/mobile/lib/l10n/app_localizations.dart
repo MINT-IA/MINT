@@ -11085,7 +11085,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalDeltaAdvance.
   ///
   /// In fr, this message translates to:
-  /// **'d\'avance'**
+  /// **'d’écart simulé entre scénarios'**
   String get renteVsCapitalDeltaAdvance;
 
   /// No description provided for @renteVsCapitalEducationalTitle.
@@ -11277,13 +11277,13 @@ abstract class S {
   /// No description provided for @renteVsCapitalImpactTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Qu\'est-ce qui change le plus le résultat ?'**
+  /// **'Paramètres à tester'**
   String get renteVsCapitalImpactTitle;
 
   /// No description provided for @renteVsCapitalImpactSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Les paramètres les plus influents sur l\'écart entre tes options.'**
+  /// **'Variations possibles selon les hypothèses du calcul.'**
   String get renteVsCapitalImpactSubtitle;
 
   /// No description provided for @renteVsCapitalHypothesesTitle.
@@ -11303,6 +11303,222 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sources : {sources}'**
   String renteVsCapitalSources(String sources);
+
+  /// No description provided for @renteVsCapitalReceiptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve du calcul'**
+  String get renteVsCapitalReceiptTitle;
+
+  /// No description provided for @renteVsCapitalReceiptRequiredTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat masqué'**
+  String get renteVsCapitalReceiptRequiredTitle;
+
+  /// No description provided for @renteVsCapitalReceiptRequiredBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les chiffres restent masqués car la preuve du calcul est incomplète.'**
+  String get renteVsCapitalReceiptRequiredBody;
+
+  /// No description provided for @renteVsCapitalReceiptOriginLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origine'**
+  String get renteVsCapitalReceiptOriginLabel;
+
+  /// No description provided for @renteVsCapitalReceiptVersionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version de calcul'**
+  String get renteVsCapitalReceiptVersionLabel;
+
+  /// No description provided for @renteVsCapitalReceiptConstantsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version des constantes'**
+  String get renteVsCapitalReceiptConstantsLabel;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'État de la preuve'**
+  String get renteVsCapitalReceiptReadinessLabel;
+
+  /// No description provided for @renteVsCapitalReceiptUnitLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Unités'**
+  String get renteVsCapitalReceiptUnitLabel;
+
+  /// No description provided for @renteVsCapitalReceiptConfidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance'**
+  String get renteVsCapitalReceiptConfidenceLabel;
+
+  /// No description provided for @renteVsCapitalReceiptAssumptionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses'**
+  String get renteVsCapitalReceiptAssumptionsLabel;
+
+  /// No description provided for @renteVsCapitalReceiptSourcesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources'**
+  String get renteVsCapitalReceiptSourcesLabel;
+
+  /// No description provided for @renteVsCapitalReceiptMissingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champs requis à compléter'**
+  String get renteVsCapitalReceiptMissingLabel;
+
+  /// No description provided for @renteVsCapitalReceiptMissingNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun champ requis manquant'**
+  String get renteVsCapitalReceiptMissingNone;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prête'**
+  String get renteVsCapitalReceiptReadinessReady;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessMissingRequiredInputs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Champs requis manquants'**
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve incomplète'**
+  String get renteVsCapitalReceiptReadinessIncomplete;
+
+  /// No description provided for @renteVsCapitalReceiptReadinessMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Preuve absente'**
+  String get renteVsCapitalReceiptReadinessMissing;
+
+  /// No description provided for @renteVsCapitalReceiptMissingFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'preuve du calcul'**
+  String get renteVsCapitalReceiptMissingFallback;
+
+  /// No description provided for @renteVsCapitalReceiptMissingCapitalLppTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'capital LPP total'**
+  String get renteVsCapitalReceiptMissingCapitalLppTotal;
+
+  /// No description provided for @renteVsCapitalReceiptMissingRenteAnnuelleProposee.
+  ///
+  /// In fr, this message translates to:
+  /// **'rente annuelle proposée'**
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee;
+
+  /// No description provided for @renteVsCapitalReceiptMissingCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'canton'**
+  String get renteVsCapitalReceiptMissingCanton;
+
+  /// No description provided for @renteVsCapitalReceiptMissingCurrentAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'âge actuel'**
+  String get renteVsCapitalReceiptMissingCurrentAge;
+
+  /// No description provided for @renteVsCapitalReceiptMissingHorizonYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'horizon de comparaison'**
+  String get renteVsCapitalReceiptMissingHorizonYears;
+
+  /// No description provided for @renteVsCapitalReceiptMissingSafeWithdrawalRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'taux de retrait du capital'**
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate;
+
+  /// No description provided for @renteVsCapitalReceiptMissingConversionRateObligatory.
+  ///
+  /// In fr, this message translates to:
+  /// **'taux de conversion obligatoire'**
+  String get renteVsCapitalReceiptMissingConversionRateObligatory;
+
+  /// No description provided for @renteVsCapitalReceiptMissingConversionRateSurobligatory.
+  ///
+  /// In fr, this message translates to:
+  /// **'taux de conversion surobligatoire'**
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory;
+
+  /// No description provided for @mint2FirstExperienceAxisPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis le sujet que tu veux éclairer d\'abord.'**
+  String get mint2FirstExperienceAxisPrompt;
+
+  /// No description provided for @mint2FirstExperienceLiveStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get mint2FirstExperienceLiveStatus;
+
+  /// No description provided for @mint2FirstExperienceSignalStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signalétique'**
+  String get mint2FirstExperienceSignalStatus;
+
+  /// No description provided for @mint2FirstExperienceSignalSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêt enregistré'**
+  String get mint2FirstExperienceSignalSaved;
+
+  /// No description provided for @mint2FirstExperienceLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier : rente ou capital'**
+  String get mint2FirstExperienceLppLabel;
+
+  /// No description provided for @mint2FirstExperienceLppBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On prépare les champs nécessaires avant d\'ouvrir le comparateur défendable.'**
+  String get mint2FirstExperienceLppBody;
+
+  /// No description provided for @mint2FirstExperienceHousingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement : 2e / 3e pilier'**
+  String get mint2FirstExperienceHousingLabel;
+
+  /// No description provided for @mint2FirstExperienceHousingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On note ton intérêt et on garde cette porte sans simulation pour cette phase.'**
+  String get mint2FirstExperienceHousingBody;
+
+  /// No description provided for @mint2FirstExperienceFiscalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a et rachats : impact fiscal'**
+  String get mint2FirstExperienceFiscalLabel;
+
+  /// No description provided for @mint2FirstExperienceFiscalBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'On note ton intérêt fiscal sans calculer de montant dans cette phase.'**
+  String get mint2FirstExperienceFiscalBody;
 
   /// No description provided for @renteVsCapitalRachatLabel.
   ///
@@ -14093,6 +14309,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Choisis avant de te connecter pour garder le contrôle sur ce qui suit ton compte.'**
   String get authHandoffChooseHint;
+
+  /// No description provided for @authMagicLinkHandoffChoiceRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant d’ouvrir ce lien, indique si Mint conserve les données locales ou repart sans elles.'**
+  String get authMagicLinkHandoffChoiceRequired;
+
+  /// No description provided for @authMagicLinkExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien est invalide ou a expiré.'**
+  String get authMagicLinkExpired;
 
   /// No description provided for @authRequiredConsents.
   ///
@@ -22912,19 +23140,19 @@ abstract class S {
   /// No description provided for @renteVsCapitalConsequenceRenteEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu choisis la rente'**
+  /// **'Scénario rente'**
   String get renteVsCapitalConsequenceRenteEyebrow;
 
   /// No description provided for @renteVsCapitalConsequenceCapitalEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu choisis le capital'**
+  /// **'Scénario capital'**
   String get renteVsCapitalConsequenceCapitalEyebrow;
 
   /// No description provided for @renteVsCapitalConsequenceMixteEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu choisis le mixte'**
+  /// **'Scénario mixte'**
   String get renteVsCapitalConsequenceMixteEyebrow;
 
   /// No description provided for @renteVsCapitalConsequenceRenteNarrative.
@@ -37213,7 +37441,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalAccrocheEpuise.
   ///
   /// In fr, this message translates to:
-  /// **'Avec le capital, tu pourrais manquer d\'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Tu ne peux choisir qu\'une fois.'**
+  /// **'Avec le capital, tu pourrais manquer d\'argent dès {age} ans. Avec la rente, tu reçois un montant fixe à vie. Cette décision est définitive.'**
   String renteVsCapitalAccrocheEpuise(int age);
 
   /// No description provided for @renteVsCapitalAccrocheTax.
@@ -37297,7 +37525,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalIntro.
   ///
   /// In fr, this message translates to:
-  /// **'À la retraite, tu choisis une fois pour toutes : un revenu à vie ou ton capital en main.'**
+  /// **'À la retraite, la décision met en regard un revenu à vie et un capital disponible.'**
   String get renteVsCapitalIntro;
 
   /// No description provided for @renteVsCapitalMaxPrecision.

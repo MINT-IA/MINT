@@ -183,7 +183,8 @@ void main() {
       expect(r.isProjected, isTrue);
     });
 
-    test('capitalProjecte > capitalOblig + capitalSurob (growth projected)', () {
+    test('capitalProjecte > capitalOblig + capitalSurob (growth projected)',
+        () {
       // After projecting from age 50 to 65, capital grows
       expect(r.capitalProjecte, greaterThan(210000 + 140000));
     });
@@ -227,7 +228,8 @@ void main() {
       }
     });
 
-    test('horizon=30 is minimum even when lifeExpectancy - ageRetraite < 30', () {
+    test('horizon=30 is minimum even when lifeExpectancy - ageRetraite < 30',
+        () {
       // e.g. lifeExpectancy=90, ageRetraite=65 → 25 → max(30,25)=30
       final effective = math.max(30, 90 - 65);
       expect(effective, equals(30));
@@ -245,7 +247,7 @@ void main() {
     test('disclaimer is non-empty and mentions LSFin', () {
       final r = certResult();
       expect(r.disclaimer, isNotEmpty);
-      expect(r.disclaimer.toLowerCase(), contains('educatif'));
+      expect(r.disclaimer.toLowerCase(), contains('éducatif'));
     });
 
     test('sources list includes LIFD art. 38', () {

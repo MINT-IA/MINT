@@ -6171,7 +6171,7 @@ class SIt extends S {
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'di vantaggio';
+  String get renteVsCapitalDeltaAdvance => 'di differenza simulata tra scenari';
 
   @override
   String get renteVsCapitalEducationalTitle => 'Cosa cambia concretamente';
@@ -6279,11 +6279,11 @@ class SIt extends S {
       'Visualizzare il diagramma di sensibilità';
 
   @override
-  String get renteVsCapitalImpactTitle => 'Cosa cambia di più il risultato?';
+  String get renteVsCapitalImpactTitle => 'Parametri da testare';
 
   @override
   String get renteVsCapitalImpactSubtitle =>
-      'I parametri più influenti sul divario tra le tue opzioni.';
+      'Variazioni possibili secondo le ipotesi di calcolo.';
 
   @override
   String get renteVsCapitalHypothesesTitle => 'Ipotesi di questa simulazione';
@@ -6295,6 +6295,129 @@ class SIt extends S {
   String renteVsCapitalSources(String sources) {
     return 'Fonti: $sources';
   }
+
+  @override
+  String get renteVsCapitalReceiptTitle => 'Prova del calcolo';
+
+  @override
+  String get renteVsCapitalReceiptRequiredTitle => 'Risultato nascosto';
+
+  @override
+  String get renteVsCapitalReceiptRequiredBody =>
+      'Le cifre restano nascoste perché la prova del calcolo è incompleta.';
+
+  @override
+  String get renteVsCapitalReceiptOriginLabel => 'Origine';
+
+  @override
+  String get renteVsCapitalReceiptVersionLabel => 'Versione di calcolo';
+
+  @override
+  String get renteVsCapitalReceiptConstantsLabel => 'Versione delle costanti';
+
+  @override
+  String get renteVsCapitalReceiptReadinessLabel => 'Stato della prova';
+
+  @override
+  String get renteVsCapitalReceiptUnitLabel => 'Unità';
+
+  @override
+  String get renteVsCapitalReceiptConfidenceLabel => 'Fiducia';
+
+  @override
+  String get renteVsCapitalReceiptAssumptionsLabel => 'Ipotesi';
+
+  @override
+  String get renteVsCapitalReceiptSourcesLabel => 'Fonti';
+
+  @override
+  String get renteVsCapitalReceiptMissingLabel =>
+      'Dati obbligatori da completare';
+
+  @override
+  String get renteVsCapitalReceiptMissingNone =>
+      'Nessun dato obbligatorio mancante';
+
+  @override
+  String get renteVsCapitalReceiptReadinessReady => 'Pronta';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissingRequiredInputs =>
+      'Campi obbligatori mancanti';
+
+  @override
+  String get renteVsCapitalReceiptReadinessIncomplete => 'Prova incompleta';
+
+  @override
+  String get renteVsCapitalReceiptReadinessMissing => 'Prova assente';
+
+  @override
+  String get renteVsCapitalReceiptMissingFallback => 'prova del calcolo';
+
+  @override
+  String get renteVsCapitalReceiptMissingCapitalLppTotal =>
+      'capitale LPP totale';
+
+  @override
+  String get renteVsCapitalReceiptMissingRenteAnnuelleProposee =>
+      'rendita annua proposta';
+
+  @override
+  String get renteVsCapitalReceiptMissingCanton => 'cantone';
+
+  @override
+  String get renteVsCapitalReceiptMissingCurrentAge => 'età attuale';
+
+  @override
+  String get renteVsCapitalReceiptMissingHorizonYears =>
+      'orizzonte di confronto';
+
+  @override
+  String get renteVsCapitalReceiptMissingSafeWithdrawalRate =>
+      'tasso di prelievo del capitale';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateObligatory =>
+      'tasso di conversione obbligatorio';
+
+  @override
+  String get renteVsCapitalReceiptMissingConversionRateSurobligatory =>
+      'tasso di conversione sovraobbligatorio';
+
+  @override
+  String get mint2FirstExperienceAxisPrompt =>
+      'Scegli prima il tema che vuoi chiarire.';
+
+  @override
+  String get mint2FirstExperienceLiveStatus => 'Disponibile';
+
+  @override
+  String get mint2FirstExperienceSignalStatus => 'Segnale';
+
+  @override
+  String get mint2FirstExperienceSignalSaved => 'Interesse salvato';
+
+  @override
+  String get mint2FirstExperienceLppLabel => '2o pilastro: rendita o capitale';
+
+  @override
+  String get mint2FirstExperienceLppBody =>
+      'Prepariamo i campi necessari prima di aprire il confronto difendibile.';
+
+  @override
+  String get mint2FirstExperienceHousingLabel => 'Abitazione: 2o / 3o pilastro';
+
+  @override
+  String get mint2FirstExperienceHousingBody =>
+      'Salviamo il tuo interesse e manteniamo questa porta senza simulazione in questa fase.';
+
+  @override
+  String get mint2FirstExperienceFiscalLabel =>
+      '3a e riscatti: impatto fiscale';
+
+  @override
+  String get mint2FirstExperienceFiscalBody =>
+      'Salviamo il tuo interesse fiscale senza calcolare un importo in questa fase.';
 
   @override
   String get renteVsCapitalRachatLabel => 'Riscatto LPP annuale previsto (CHF)';
@@ -7954,6 +8077,13 @@ class SIt extends S {
   @override
   String get authHandoffChooseHint =>
       'Scegli prima di accedere per controllare cosa segue il tuo account.';
+
+  @override
+  String get authMagicLinkHandoffChoiceRequired =>
+      'Prima di aprire questo link, indica se Mint conserva i dati locali o riparte senza di essi.';
+
+  @override
+  String get authMagicLinkExpired => 'Questo link non è valido o è scaduto.';
 
   @override
   String get authRequiredConsents =>
@@ -12983,14 +13113,13 @@ class SIt extends S {
   String get renteVsCapitalChoiceMixteSubtitle => 'Un equilibrio da costruire';
 
   @override
-  String get renteVsCapitalConsequenceRenteEyebrow => 'Se scegli la rendita';
+  String get renteVsCapitalConsequenceRenteEyebrow => 'Scenario rendita';
 
   @override
-  String get renteVsCapitalConsequenceCapitalEyebrow => 'Se scegli il capitale';
+  String get renteVsCapitalConsequenceCapitalEyebrow => 'Scenario capitale';
 
   @override
-  String get renteVsCapitalConsequenceMixteEyebrow =>
-      'Se scegli l’opzione mista';
+  String get renteVsCapitalConsequenceMixteEyebrow => 'Scenario misto';
 
   @override
   String get renteVsCapitalConsequenceRenteNarrative =>
@@ -21267,7 +21396,7 @@ class SIt extends S {
 
   @override
   String renteVsCapitalAccrocheEpuise(int age) {
-    return 'Con il capitale, potresti restare senza soldi dai $age anni. Con la rendita, ricevi un importo fisso a vita. Puoi scegliere solo una volta.';
+    return 'Con il capitale, potresti restare senza soldi dai $age anni. Con la rendita, ricevi un importo fisso a vita. Questa decisione è definitiva.';
   }
 
   @override
@@ -21323,7 +21452,7 @@ class SIt extends S {
 
   @override
   String get renteVsCapitalIntro =>
-      'Al pensionamento, scegli una volta per tutte: un reddito a vita o il tuo capitale in mano.';
+      'Al pensionamento, la decisione mette in parallelo un reddito a vita e capitale disponibile.';
 
   @override
   String get renteVsCapitalMaxPrecision =>

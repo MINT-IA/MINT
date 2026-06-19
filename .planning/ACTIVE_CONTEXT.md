@@ -1,0 +1,98 @@
+# MINT Active Context
+
+This file is the session router. If another document disagrees with it, this
+file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
+
+## Active Now
+
+- Active milestone: `mint-2-0-first-experience-rente-capital`
+- Active context: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
+- Active spec: `.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
+- Active integration branch: `dev`
+- Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
+  self-references the active context as a placeholder; no successor product
+  phase is queued yet.
+
+## Required Session Start
+
+Every Mint session must read these files before product or code work:
+
+1. `AGENTS.md`
+2. `CLAUDE.md`
+3. `docs/MINT_AGENT_WORKFLOW.md`
+4. `.planning/ACTIVE_CONTEXT.md`
+5. `.planning/STATE.md`
+
+Then run:
+
+```bash
+python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
+git status --short --branch
+```
+
+## Not Active
+
+These phase directories are historical receipts or quarantine references. They
+may be cited as evidence, but they are not active routing authority:
+
+- `mint-prod-ready-core-journey-truth-20260601`
+- `mint-illogism-fixes`
+- `mint-grounded-coach-m1`
+- `mint-onboarding-auth-reset-restore-integration`
+- `mint-diagnostic-onboarding-v1`
+- `mint-profile-clear-conversation-purge`
+- `mint-anonymous-chat-restore-control`
+- `mint-account-entry-apple-primary`
+- `mint-onboarding-lifecycle-reset`
+- `money-trust-contract-v1-03-onboarding-3a-number-gate`
+- `money-trust-contract-v1-33-3a-onboarding-tax-copy-guard`
+- `mint-karpathy-rules-infra-20260614`
+
+The original checkout `/Users/julienbattaglia/Desktop/MINT.nosync` is a dirty
+quarantine for this cleanup. It is not the authority for new Mint 2.0 work.
+
+## Archive Policy
+
+Do not move dozens of old phase directories in this foundation PR. That would
+create a large mechanical diff and break historical references without improving
+the user experience.
+
+Instead:
+
+- keep old phases visible as receipts;
+- forbid them from becoming active via `tools/checks/active_context_guard.py`;
+- archive later through a dedicated GSD cleanup dry-run, with a reviewable PR
+  and redirect/index updates.
+
+## Promotion Rule
+
+When the next successor phase is queued, update these files in the same commit:
+
+- `.planning/ACTIVE_CONTEXT.json`
+- `.planning/ACTIVE_CONTEXT.md`
+- `.planning/STATE.md`
+- `.planning/ROADMAP.md`
+
+Then run `python3 tools/checks/active_context_guard.py`.
+
+## Spec -> Verifier -> Environment
+
+Mint uses this operating model for AI-assisted work:
+
+- **Spec:** the active phase contract lives in `SPEC.md`.
+- **Verifier:** `VERIFICATION.md` lists exact commands and evidence before any
+  completion claim.
+- **Environment:** `rules.md`, `AGENTS.md`, `docs/MINT_AGENT_WORKFLOW.md`,
+  hooks, CI, and Engram define the workspace boundaries.
+
+Run these guards before phase execution:
+
+```bash
+python3 tools/checks/active_context_guard.py
+python3 tools/checks/phase_contract_guard.py
+python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/agent_reference_guard.py
+python3 tools/checks/claude_hooks_guard.py
+```

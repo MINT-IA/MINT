@@ -22,7 +22,7 @@ Sources:
     - FINMA Tragbarkeitsrechnung
 """
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -99,6 +99,38 @@ class ArbitrageResultSchema(ArbitrageBaseModel):
     )
 
 
+class ArbitrageCalculationReceiptSchema(ArbitrageBaseModel):
+    """Receipt proving the provenance required before rendering RvC figures."""
+
+    calculation_origin: str = Field(
+        ..., description="Origin of the calculation result"
+    )
+    calculation_version: str = Field(
+        ..., description="Version identifier of the calculation contract"
+    )
+    regulatory_constants_version_hash: str = Field(
+        ..., description="Hash of the regulatory constants snapshot used"
+    )
+    unit: str = Field(
+        ..., description="Display unit covered by this receipt"
+    )
+    assumptions: Dict[str, Any] = Field(
+        ..., description="Typed assumptions used by the RvC calculation"
+    )
+    sources: List[str] = Field(
+        ..., description="Legal and regulatory sources backing the calculation"
+    )
+    readiness: str = Field(
+        ..., description="ready when all receipt-required inputs are present"
+    )
+    confidence_score: float = Field(
+        ..., description="Confidence score propagated from the calculation"
+    )
+    missing_required_inputs: List[str] = Field(
+        ..., description="Receipt-required inputs that are still missing"
+    )
+
+
 # ===========================================================================
 # Rente vs Capital
 # ===========================================================================
@@ -162,6 +194,10 @@ class RenteVsCapitalRequest(ArbitrageBaseModel):
         default=None, ge=1, le=50,
         description="Horizon de simulation en annees (defaut: 25)",
     )
+    current_age: Optional[int] = Field(
+        default=None, ge=1, le=119,
+        description="Age actuel, requis pour un receipt RvC complet",
+    )
     is_married: Optional[bool] = Field(
         default=None,
         description="Marie·e (splitting fiscal, defaut: False)",
@@ -170,7 +206,10 @@ class RenteVsCapitalRequest(ArbitrageBaseModel):
 
 class RenteVsCapitalResponse(ArbitrageResultSchema):
     """Resultat de la comparaison rente vs capital LPP."""
-    pass
+
+    calculation_receipt: ArbitrageCalculationReceiptSchema = Field(
+        ..., description="Receipt required before mobile renders RvC figures"
+    )
 
 
 # ===========================================================================

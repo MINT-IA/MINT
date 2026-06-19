@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
@@ -103,6 +104,12 @@ class FeatureFlags {
   /// Kill-switch: backend set to false, no app redeploy needed.
   static bool enableMvpWedgeOnboarding = false;
 
+  /// Mint 2 first experience: three-axis T2 under `/onb`.
+  ///
+  /// Default-off until the Slice 2B/2C first-entry contract has runtime proof.
+  /// When false, `/onb` keeps the existing MVP wedge intent cards.
+  static bool enableMint2FirstExperienceEntry = false;
+
   /// Sub-phase 01.5 archetype HARD GATE kill switch (Codex R5 release-blocker).
   ///
   /// **Default: `true`** — gate is active. Non-supported archetypes
@@ -163,6 +170,14 @@ class FeatureFlags {
   static bool get isAdmin =>
       const bool.fromEnvironment('ENABLE_ADMIN', defaultValue: false);
 
+  /// Local simulator proof overrides. Release builds ignore these through
+  /// [E2eRuntimeFlags].
+  static void applyRuntimeOverrides() {
+    if (E2eRuntimeFlags.mint2FirstExperienceEntry) {
+      enableMint2FirstExperienceEntry = true;
+    }
+  }
+
   /// Apply flags from a backend response map.
   static void applyFromMap(Map<String, dynamic> data) {
     if (data.containsKey('enableCouplePlusTier')) {
@@ -195,6 +210,11 @@ class FeatureFlags {
     }
     if (data.containsKey('enableMvpWedgeOnboarding')) {
       enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
+    }
+    if (data.containsKey('enableMint2FirstExperienceEntry')) {
+      enableMint2FirstExperienceEntry =
+          data['enableMint2FirstExperienceEntry'] == true ||
+              E2eRuntimeFlags.mint2FirstExperienceEntry;
     }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
@@ -253,5 +273,6 @@ class FeatureFlags {
         errorCode: code,
       );
     }
+    applyRuntimeOverrides();
   }
 }

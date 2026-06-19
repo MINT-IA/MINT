@@ -30,9 +30,12 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_statut_emploi.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
 import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
   const OnboardingShellScreen({super.key});
@@ -104,7 +107,9 @@ class _OnboardingShellBody extends StatelessWidget {
       case OnboardingStep.entry:
         return const _EntryStep();
       case OnboardingStep.intents:
-        return const _IntentsStep();
+        return FeatureFlags.enableMint2FirstExperienceEntry
+            ? const _Mint2AxesStep()
+            : const _IntentsStep();
       case OnboardingStep.usTaxPerson:
         return const _UsTaxPersonStep();
       case OnboardingStep.nationality:
@@ -338,8 +343,8 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: MintTextStyles.headlineMedium(
-              color: MintColors.textPrimary,
+            style: MintTextStyles.editorialLarge(
+              color: MintColors.inkPrimary,
             ),
           ),
           const SizedBox(height: 32),
@@ -393,10 +398,7 @@ class _PrimaryButton extends StatelessWidget {
     return Semantics(
       key: buttonKey,
       identifier: identifier,
-      label: label,
-      button: true,
-      onTap: onPressed,
-      child: ExcludeSemantics(child: button),
+      child: button,
     );
   }
 }
@@ -429,17 +431,17 @@ class _EntryStep extends StatelessWidget {
                       child: Text(
                         l10n.diagnosticOnboardingEntryTitle,
                         textAlign: TextAlign.center,
-                        style: MintTextStyles.displaySmall(
-                          color: MintColors.textPrimary,
-                        ).copyWith(fontWeight: FontWeight.w600),
+                        style: MintTextStyles.displayGambarinoItalic40(
+                          color: MintColors.inkPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       l10n.diagnosticOnboardingEntryBody,
                       textAlign: TextAlign.center,
-                      style: MintTextStyles.bodyLarge(
-                        color: MintColors.textSecondary,
+                      style: MintTextStyles.bodySupreme15Regular(
+                        color: MintColors.textSecondaryAaa,
                       ),
                     ),
                   ],
@@ -534,6 +536,219 @@ class _IntentsStep extends StatelessWidget {
   }
 }
 
+class _Mint2AxesStep extends StatelessWidget {
+  const _Mint2AxesStep();
+
+  Future<void> _openLiveAxis(
+    BuildContext context,
+    OnboardingProvider provider,
+    String label,
+  ) async {
+    provider.setAxisV2(OnboardingAxisV2.lppRenteCapital, label);
+    final persisted = await provider.persistMint2AxisHandoff();
+    if (!context.mounted) return;
+    if (!persisted) {
+      dev.log(
+        'Mint 2 axis handoff persistence failed',
+        name: 'Onboarding',
+      );
+      final l10n = S.of(context)!;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: MintColors.textPrimary,
+          content: Text(
+            l10n.onboardingSealError,
+            style: MintTextStyles.bodyMedium(color: MintColors.background),
+          ),
+        ),
+      );
+      return;
+    }
+    context.go('/rente-vs-capital');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final provider = context.watch<OnboardingProvider>();
+    final showLiveContinuation =
+        provider.axisV2 != OnboardingAxisV2.lppRenteCapital &&
+            provider.signalAxesV2.isNotEmpty;
+    final items = <_Mint2AxisData>[
+      _Mint2AxisData(
+        axis: OnboardingAxisV2.lppRenteCapital,
+        label: l10n.mint2FirstExperienceLppLabel,
+        body: l10n.mint2FirstExperienceLppBody,
+        status: l10n.mint2FirstExperienceLiveStatus,
+      ),
+      _Mint2AxisData(
+        axis: OnboardingAxisV2.logementSignal,
+        label: l10n.mint2FirstExperienceHousingLabel,
+        body: l10n.mint2FirstExperienceHousingBody,
+        status: l10n.mint2FirstExperienceSignalStatus,
+      ),
+      _Mint2AxisData(
+        axis: OnboardingAxisV2.fiscalSignal,
+        label: l10n.mint2FirstExperienceFiscalLabel,
+        body: l10n.mint2FirstExperienceFiscalBody,
+        status: l10n.mint2FirstExperienceSignalStatus,
+      ),
+    ];
+
+    return _StepScaffold(
+      prompt: l10n.mint2FirstExperienceAxisPrompt,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, i) {
+                final item = items[i];
+                final selected = provider.axisV2 == item.axis;
+                final recorded =
+                    selected || provider.signalAxesV2.contains(item.axis);
+                return _Mint2AxisCard(
+                  key: ValueKey('mint2-axis-${item.axis.id}'),
+                  semanticsIdentifier: 'mint2-axis-${item.axis.id}',
+                  label: item.label,
+                  body: item.body,
+                  status: item.status,
+                  selected: selected,
+                  recorded: recorded,
+                  onTap: () {
+                    if (item.axis == OnboardingAxisV2.lppRenteCapital) {
+                      _openLiveAxis(context, provider, item.label);
+                      return;
+                    }
+                    provider.setAxisV2(item.axis, item.label);
+                  },
+                );
+              },
+            ),
+          ),
+          if (showLiveContinuation) ...[
+            const SizedBox(height: 16),
+            _PrimaryButton(
+              key: const ValueKey('mint2-axis-continue-live'),
+              semanticsIdentifier: 'mint2-axis-continue-live',
+              label: l10n.mint2FirstExperienceLppLabel,
+              onPressed: () {
+                _openLiveAxis(
+                  context,
+                  provider,
+                  l10n.mint2FirstExperienceLppLabel,
+                );
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Mint2AxisData {
+  const _Mint2AxisData({
+    required this.axis,
+    required this.label,
+    required this.body,
+    required this.status,
+  });
+
+  final OnboardingAxisV2 axis;
+  final String label;
+  final String body;
+  final String status;
+}
+
+class _Mint2AxisCard extends StatelessWidget {
+  const _Mint2AxisCard({
+    super.key,
+    required this.semanticsIdentifier,
+    required this.label,
+    required this.body,
+    required this.status,
+    required this.selected,
+    required this.recorded,
+    required this.onTap,
+  });
+
+  final String semanticsIdentifier;
+  final String label;
+  final String body;
+  final String status;
+  final bool selected;
+  final bool recorded;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final savedSignalText =
+        recorded && status == l10n.mint2FirstExperienceSignalStatus
+            ? l10n.mint2FirstExperienceSignalSaved
+            : null;
+    return Semantics(
+      identifier: semanticsIdentifier,
+      label: savedSignalText == null
+          ? '$label. $status. $body'
+          : '$label. $status. $savedSignalText. $body',
+      button: true,
+      selected: recorded,
+      onTap: onTap,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: MintSurface(
+          tone: recorded ? MintSurfaceTone.sauge : MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.md),
+          radius: 16,
+          elevated: recorded,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                status,
+                style: MintTextStyles.labelSupreme12Uppercase025LS(
+                  color: MintColors.mintForest,
+                ),
+              ),
+              if (savedSignalText != null) ...[
+                const SizedBox(height: MintSpacing.xs),
+                Text(
+                  savedSignalText,
+                  style: MintTextStyles.labelSupreme12Uppercase025LS(
+                    color: MintColors.mintForest,
+                  ),
+                ),
+              ],
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                label,
+                style: MintTextStyles.titleGambarino18Medium(
+                  color: MintColors.inkPrimary,
+                ),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                body,
+                style: MintTextStyles.bodySupreme15Regular(
+                  color: MintColors.textSecondaryAaa,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _IntentCard extends StatelessWidget {
   const _IntentCard({
     Key? key,
@@ -561,34 +776,26 @@ class _IntentCard extends StatelessWidget {
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          decoration: BoxDecoration(
-            color: MintColors.craie,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: MintColors.textPrimary.withValues(alpha: 0.08),
-            ),
-          ),
+        borderRadius: BorderRadius.circular(16),
+        child: MintSurface(
+          tone: MintSurfaceTone.craie,
+          padding: const EdgeInsets.all(MintSpacing.md),
+          radius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 eyebrow,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.corailDiscret,
-                ).copyWith(
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
+                style: MintTextStyles.labelSupreme12Uppercase025LS(
+                  color: MintColors.mintForest,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: MintSpacing.sm),
               Text(
                 phrase,
-                style: MintTextStyles.titleMedium(
-                  color: MintColors.textPrimary,
-                ).copyWith(fontWeight: FontWeight.w500),
+                style: MintTextStyles.titleGambarino18Medium(
+                  color: MintColors.inkPrimary,
+                ),
               ),
             ],
           ),

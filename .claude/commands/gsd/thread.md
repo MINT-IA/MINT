@@ -16,7 +16,7 @@ doesn't belong to any specific phase.
 </objective>
 
 <execution_context>
-@/Users/julienbattaglia/Desktop/MINT.nosync/.claude/get-shit-done/workflows/thread.md
+@./.claude/get-shit-done/workflows/thread.md
 </execution_context>
 
 <process>

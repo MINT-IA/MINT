@@ -10,6 +10,8 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _mint2AxisHandoffKey = 'mint2_axis_handoff_v1';
+
 /// Comprehensive unit tests for ReportPersistenceService
 ///
 /// Tests cover:
@@ -84,6 +86,43 @@ void main() {
       expect(loaded['q_canton'], 'VD');
       expect(loaded['q_birth_year'], 1990);
       expect(loaded['q_has_3a'], 'yes');
+    });
+
+    test('seals and restores PR5 classified wizard outputs', () async {
+      final answers = <String, dynamic>{
+        'q_canton': 'VD',
+        'q_main_goal': 'retirement',
+        'q_employment_rate': 80,
+        'q_has_3a': 'yes',
+        'q_has_consumer_debt': 'no',
+        'q_has_pension_fund': true,
+        'q_net_income_period_source': 'save_fact_monthly',
+        'q_pay_frequency': 'monthly',
+        'q_self_employed_net_income_annual_chf': 96000,
+        'q_target_retirement_age': 64,
+      };
+
+      await ReportPersistenceService.saveAnswers(answers);
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+          as Map<String, dynamic>;
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(raw['q_canton'], 'VD');
+      expect(raw['q_main_goal'], 'retirement');
+      for (final key in const {
+        'q_employment_rate',
+        'q_has_3a',
+        'q_has_consumer_debt',
+        'q_has_pension_fund',
+        'q_net_income_period_source',
+        'q_pay_frequency',
+        'q_self_employed_net_income_annual_chf',
+        'q_target_retirement_age',
+      }) {
+        expect(raw[key], '__secure__', reason: '$key must not stay raw');
+      }
+      expect(loaded, equals(answers));
     });
 
     test('drops unresolved secure placeholders on load', () async {
@@ -1003,6 +1042,20 @@ void main() {
       expect(planState, isEmpty);
     });
 
+    test('clearDiagnostic removes Mint 2 axis handoff metadata', () async {
+      SharedPreferences.setMockInitialValues({
+        _mint2AxisHandoffKey: json.encode({
+          'onb_axis_v2': 'lpp_rente_capital',
+          'onb_axis_schema_version': 2,
+        }),
+      });
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(_mint2AxisHandoffKey), isNull);
+    });
+
     test('clearDiagnostic removes sealed sensitive wizard values', () async {
       await ReportPersistenceService.saveAnswers({
         'q_canton': 'VD',
@@ -1037,6 +1090,31 @@ void main() {
         '7000',
       );
       expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('holdActiveDiagnosticForAnonymous preserves Mint 2 axis handoff',
+        () async {
+      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+      await ReportPersistenceService.saveMint2AxisHandoff({
+        'onb_axis_v2': 'lpp_rente_capital',
+        'onb_axis_schema_version': 2,
+        'legacy_onb_intent': 'retraite',
+        'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
+      });
+
+      await ReportPersistenceService.holdActiveDiagnosticForAnonymous();
+
+      expect(await ReportPersistenceService.loadMint2AxisHandoff(), isEmpty);
+      final held =
+          await ReportPersistenceService.loadHeldAnonymousMint2AxisHandoff();
+      expect(held['onb_axis_v2'], 'lpp_rente_capital');
+      expect(held['onb_axis_schema_version'], 2);
+      expect(held['legacy_onb_intent'], 'retraite');
+      expect(
+        held['onb_signal_axes_v2'],
+        <String>['logement_signal', 'fiscal_signal'],
+      );
+      expect(await ReportPersistenceService.hasHeldAnonymousDiagnostic(), true);
     });
 
     test('pending secure delete retries held anonymous secure values',

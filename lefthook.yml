@@ -41,6 +41,33 @@ pre-commit:
       # Core Journey Truth matrix + bug tracker, not stale GSD state.
       run: python3 tools/checks/cjt_context_guard.py
       tags: [wiki, planning, cjt]
+    active-context-guard:
+      # MINT foundation — exactly one current router for all agent sessions.
+      # Old phase directories stay as receipts, but cannot become active by
+      # accident.
+      run: python3 tools/checks/active_context_guard.py
+      tags: [wiki, planning, context]
+    phase-contract-guard:
+      # MINT Karpathy rules infra — active phase must have a concrete contract
+      # before implementation work can start.
+      run: python3 tools/checks/phase_contract_guard.py
+      tags: [wiki, planning, spec]
+    mint-rules-guard:
+      # MINT Karpathy rules infra — rules.md must stay structured as
+      # ALWAYS DO / ASK FIRST / NEVER DO, and Claude bootstrap must load the
+      # active context router.
+      run: python3 tools/checks/mint_rules_guard.py
+      tags: [agents, planning, rules]
+    agent-reference-guard:
+      # MINT Karpathy rules infra — active agent docs must not point at the
+      # quarantined original checkout.
+      run: python3 tools/checks/agent_reference_guard.py
+      tags: [agents, planning, context]
+    claude-hooks-guard:
+      # MINT Karpathy rules infra — Claude hook commands must be portable and
+      # deny high-risk operations.
+      run: python3 tools/checks/claude_hooks_guard.py
+      tags: [agents, hooks, safety]
     # ── Phase mint-data-architecture-v1-02 W0 Plan 02-01 HARD lints (D-20, D-24, iter-2 B4) ──
     alembic-boolean-default-lint:
       # D-20 — Refuses sa.Boolean + non-Boolean server_default combos

@@ -1,0 +1,60 @@
+name: AI Workflow Guards
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+  push:
+    branches: [dev, staging, main]
+
+concurrency:
+  group: ai-workflow-guards-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guards:
+    name: Active context and agent workflow guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install guard dependencies
+        run: |
+          python3 -m pip install pytest
+          python3 -m pip install -e services/backend
+      - name: Active context guard
+        run: python3 tools/checks/active_context_guard.py
+      - name: Phase contract guard
+        run: python3 tools/checks/phase_contract_guard.py
+      - name: Mint rules guard
+        run: python3 tools/checks/mint_rules_guard.py
+      - name: Agent reference guard
+        run: python3 tools/checks/agent_reference_guard.py
+      - name: Claude hooks guard
+        run: python3 tools/checks/claude_hooks_guard.py
+      - name: Phase acceptance verifier
+        run: |
+          ACTIVE_MILESTONE=$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path(".planning/ACTIVE_CONTEXT.json").read_text())
+          print(manifest.get("active_milestone", ""))
+          PY
+          )
+          if [ "$ACTIVE_MILESTONE" = "mint-karpathy-rules-infra-20260614" ]; then
+            python3 tools/checks/verify_phase_acceptance.py
+          else
+            echo "Skipping generic phase acceptance for ${ACTIVE_MILESTONE}; use the phase-specific toolchain job."
+          fi
+      - name: Guard tests
+        run: >
+          python3 -m pytest
+          tools/checks/tests/test_active_context_guard.py
+          tools/checks/tests/test_phase_contract_guard.py
+          tools/checks/tests/test_mint_rules_guard.py
+          tools/checks/tests/test_agent_reference_guard.py
+          tools/checks/tests/test_claude_hooks_guard.py
+          tools/checks/tests/test_verify_phase_acceptance.py
+          -q

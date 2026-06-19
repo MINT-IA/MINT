@@ -20,6 +20,8 @@ Sources:
     - FINMA Tragbarkeitsrechnung
 """
 
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import require_current_user
@@ -45,6 +47,7 @@ from app.schemas.arbitrage import (
     CalendrierRetraitsResponse,
     YearlySnapshotSchema,
     TrajectoireOptionSchema,
+    ArbitrageCalculationReceiptSchema,
 )
 from app.services.arbitrage import (
     compare_rente_vs_capital,
@@ -54,6 +57,7 @@ from app.services.arbitrage import (
     compare_calendrier_retraits,
     RetirementAsset,
 )
+from app.services.regulatory.registry import RegulatoryRegistry
 
 router = APIRouter()
 
@@ -77,7 +81,7 @@ def _option_to_schema(option) -> TrajectoireOptionSchema:
     )
 
 
-def _result_to_response(result, response_class):
+def _result_to_response(result, response_class, **extra):
     """Convert ArbitrageResult dataclass to a Pydantic response schema."""
     return response_class(
         options=[_option_to_schema(o) for o in result.options],
@@ -89,6 +93,77 @@ def _result_to_response(result, response_class):
         sources=result.sources,
         confidence_score=result.confidence_score,
         sensitivity=result.sensitivity,
+        **extra,
+    )
+
+
+def _rvc_calculation_receipt(
+    *,
+    resolved: dict,
+    result,
+) -> ArbitrageCalculationReceiptSchema:
+    """Build the receipt mobile requires before displaying RvC figures."""
+    current_age = resolved.get("current_age")
+    missing_inputs = []
+    if current_age is None:
+        missing_inputs.append("current_age")
+
+    taux_conversion_obligatoire = (
+        resolved["taux_conversion_obligatoire"]
+        if resolved["taux_conversion_obligatoire"] is not None
+        else 0.068
+    )
+    taux_conversion_surobligatoire = (
+        resolved["taux_conversion_surobligatoire"]
+        if resolved["taux_conversion_surobligatoire"] is not None
+        else 0.05
+    )
+    age_retraite = (
+        resolved["age_retraite"]
+        if resolved["age_retraite"] is not None
+        else 65
+    )
+    taux_retrait = (
+        resolved["taux_retrait"]
+        if resolved["taux_retrait"] is not None
+        else 0.04
+    )
+    rendement_capital = (
+        resolved["rendement_capital"]
+        if resolved["rendement_capital"] is not None
+        else 0.03
+    )
+    inflation = resolved["inflation"] if resolved["inflation"] is not None else 0.02
+    horizon = resolved["horizon"] if resolved["horizon"] is not None else 25
+    is_married = (
+        resolved["is_married"]
+        if resolved["is_married"] is not None
+        else False
+    )
+
+    return ArbitrageCalculationReceiptSchema(
+        calculation_origin="backend_l2_arbitrage_engine",
+        calculation_version="rvc_backend_v1",
+        regulatory_constants_version_hash=(
+            RegulatoryRegistry.instance().version_hash(date.today())
+        ),
+        unit="CHF/mois",
+        assumptions={
+            "safe_withdrawal_rate": taux_retrait,
+            "expected_return": rendement_capital,
+            "inflation": inflation,
+            "horizon_years": horizon,
+            "canton": str(resolved["canton"]).upper(),
+            "conversion_rate_obligatory": taux_conversion_obligatoire,
+            "conversion_rate_surobligatory": taux_conversion_surobligatoire,
+            "age_retirement": age_retraite,
+            "current_age": current_age,
+            "is_married": is_married,
+        },
+        sources=result.sources,
+        readiness="ready" if not missing_inputs else "missing_inputs",
+        confidence_score=result.confidence_score,
+        missing_required_inputs=missing_inputs,
     )
 
 
@@ -182,7 +257,14 @@ def arbitrage_rente_vs_capital(
             ),
         )
 
-        return _result_to_response(result, RenteVsCapitalResponse)
+        return _result_to_response(
+            result,
+            RenteVsCapitalResponse,
+            calculation_receipt=_rvc_calculation_receipt(
+                resolved=resolved,
+                result=result,
+            ),
+        )
 
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")

@@ -135,6 +135,42 @@ def test_guard_passes_for_coherent_cjt_context(tmp_path: Path) -> None:
     assert "OK cjt_context_guard" in proc.stderr
 
 
+def test_guard_skips_when_cjt_is_historical(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    (tmp_path / ".planning/STATE.md").write_text(
+        "\n".join(
+            [
+                "---",
+                "gsd_state_version: 1.0",
+                "milestone: mint-foundation-cleanup-20260614",
+                "status: executing",
+                "---",
+                "# GSD State: MINT Foundation Cleanup",
+                "Current focus: Phase mint-foundation-cleanup-20260614.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / ".planning/ROADMAP.md").write_text(
+        "\n".join(
+            [
+                "# Roadmap",
+                "## Active Pointer",
+                "Current operating phase is foundation cleanup.",
+                "Historical GSD: Core Journey Truth / Prod Ready",
+                "JOURNEY-TRUTH-MATRIX.md",
+                "BUG-TRACKER.md",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 0
+    assert "skipped" in proc.stderr
+
+
 def test_guard_fails_when_state_points_elsewhere(tmp_path: Path) -> None:
     _write_valid_fixture(tmp_path)
     (tmp_path / ".planning/STATE.md").write_text(

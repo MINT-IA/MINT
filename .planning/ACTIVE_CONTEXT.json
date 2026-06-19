@@ -1,0 +1,117 @@
+{
+  "schema_version": 2,
+  "updated": "2026-06-18",
+  "active_milestone": "mint-2-0-first-experience-rente-capital",
+  "active_phase_dir": ".planning/phases/mint-2-0-first-experience-rente-capital",
+  "active_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
+  "active_spec": ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md",
+  "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
+  "worktree_root": "/Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync",
+  "allowed_branches": [
+    "dev",
+    "codex/mint-dev-active-context-20260614",
+    "codex/mint-foundation-cleanup-20260614",
+    "codex/mint-karpathy-rules-infra-20260614",
+    "codex/mint-2-first-experience-contract-20260614",
+    "codex/mint-2-router-promotion-20260614",
+    "codex/mint-2-slice-2-code-map-plan-20260614",
+    "feature/mint2-slice-2a-calculator-boundary",
+    "feature/mint2-variable-contract-drift",
+    "feature/mint2-live-axis-bridge",
+    "feature/mint2-fix-cryptography-audit",
+    "feature/mint2-rvc-proof-blockers",
+    "feature/mint2-axis-dossier-persist",
+    "feature/mint2-claim-axis-handoff",
+    "feature/S06-mint2-dossier-axis-continuity",
+    "feature/S06-mint2-dossier-axis-surface",
+    "feature/S06-mint2-dossier-axis-runtime",
+    "feature/S06-mint2-account-runtime",
+    "feature/S07-mint2-account-claim-product",
+    "feature/S08-mint2-magic-link-handoff",
+    "feature/S06-mint2-admin-claim-readback",
+    "docs/agent-skill-authority",
+    "docs/mint2-rvc-runtime-closeout"
+  ],
+  "base_ref": "origin/dev",
+  "required_phase_files": [
+    "CONTEXT.md",
+    "SPEC.md",
+    "PLAN.md",
+    "VERIFICATION.md"
+  ],
+  "pre_verifier_report": ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md",
+  "post_verifier_report": ".planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION.md",
+  "environment_guard": "tools/checks/active_context_guard.py",
+  "phase_contract_guard": "tools/checks/phase_contract_guard.py",
+  "rules_guard": "tools/checks/mint_rules_guard.py",
+  "agent_reference_guard": "tools/checks/agent_reference_guard.py",
+  "claude_hooks_guard": "tools/checks/claude_hooks_guard.py",
+  "phase_acceptance_verifier": "tools/checks/verify_phase_acceptance.py",
+  "must_read_first": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/MINT_AGENT_WORKFLOW.md",
+    ".planning/ACTIVE_CONTEXT.md",
+    ".planning/STATE.md"
+  ],
+  "historical_not_active": [
+    "mint-karpathy-rules-infra-20260614",
+    "mint-prod-ready-core-journey-truth-20260601",
+    "mint-illogism-fixes",
+    "mint-grounded-coach-m1",
+    "mint-onboarding-auth-reset-restore-integration",
+    "mint-diagnostic-onboarding-v1",
+    "mint-profile-clear-conversation-purge",
+    "mint-anonymous-chat-restore-control",
+    "mint-account-entry-apple-primary",
+    "mint-onboarding-lifecycle-reset",
+    "money-trust-contract-v1-03-onboarding-3a-number-gate",
+    "money-trust-contract-v1-33-3a-onboarding-tax-copy-guard"
+  ],
+  "quarantine_paths": [
+    "/Users/julienbattaglia/Desktop/MINT.nosync"
+  ],
+  "forbidden_active_paths": [
+    "/Users/julienbattaglia/Desktop/MINT.nosync"
+  ],
+  "agent_routes": {
+    "environment": {
+      "agents": [
+        "context-manager",
+        "dx-optimizer"
+      ],
+      "scope": "workflow docs, hooks, guards",
+      "write_authority": "repo-local infrastructure only"
+    },
+    "spec": {
+      "agents": [
+        "product-manager",
+        "business-analyst",
+        "docs-architect"
+      ],
+      "scope": "phase contract and acceptance criteria",
+      "write_authority": "planning docs only"
+    },
+    "verification": {
+      "agents": [
+        "gsd-verifier",
+        "qa-expert",
+        "test-automator"
+      ],
+      "scope": "read-only verification unless explicitly assigned a guard test",
+      "write_authority": "verification reports and tests"
+    }
+  },
+  "memory_policy": {
+    "engram_project": "mint",
+    "repo_wins_over_memory": true,
+    "curator_memory": "pointer-only",
+    "topic_key_prefix": "workflow:mint-2-0-first-experience"
+  },
+  "rules": [
+    "Only .planning/ACTIVE_CONTEXT.md, .planning/ACTIVE_CONTEXT.json, and .planning/STATE.md can define the active phase.",
+    "Historical phase directories are receipts, not routing authority.",
+    "Use the clean worktree /Users/julienbattaglia/Desktop/MINT.foundation-clean.nosync for Mint 2.0 work.",
+    "Do not physically archive historical phase directories without a dry-run inventory and a dedicated reviewable PR."
+  ]
+}

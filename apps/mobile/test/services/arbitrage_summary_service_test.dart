@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/arbitrage_summary_service.dart';
 
@@ -32,6 +33,7 @@ CoachProfile _buildProfile({
   CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
   double? avoirLppTotal,
   double totalEpargne3a = 0,
+  double tauxConversion = lppTauxConversionMinDecimal,
   double? rachatMaximum,
   double loyer = 0,
   String? housingStatus,
@@ -60,6 +62,7 @@ CoachProfile _buildProfile({
     prevoyance: PrevoyanceProfile(
       avoirLppTotal: avoirLppTotal,
       totalEpargne3a: totalEpargne3a,
+      tauxConversion: tauxConversion,
       rachatMaximum: rachatMaximum,
     ),
     depenses: DepensesProfile(loyer: loyer),
@@ -92,6 +95,20 @@ void main() {
       // May or may not be present depending on whether diff > 10
       // But it should NOT be in locked
       final lockedIds = summary.lockedItems.map((l) => l.id).toSet();
+      expect(lockedIds, isNot(contains('rente_vs_capital')));
+    });
+
+    test('incomplete RvC receipt suppresses the summary item', () {
+      final profile = _buildProfile(
+        avoirLppTotal: 300000,
+        tauxConversion: 0,
+      );
+      final summary = ArbitrageSummaryService.compute(profile);
+
+      final itemIds = summary.items.map((i) => i.id).toSet();
+      final lockedIds = summary.lockedItems.map((l) => l.id).toSet();
+
+      expect(itemIds, isNot(contains('rente_vs_capital')));
       expect(lockedIds, isNot(contains('rente_vs_capital')));
     });
 
@@ -135,9 +152,8 @@ void main() {
       final profile = _buildProfile(salaireBrutMensuel: 8000);
       final summary = ArbitrageSummaryService.compute(profile);
 
-      final allocItem = summary.items
-          .where((i) => i.id == 'allocation_annuelle')
-          .toList();
+      final allocItem =
+          summary.items.where((i) => i.id == 'allocation_annuelle').toList();
       expect(allocItem, isNotEmpty);
       expect(allocItem.first.route, '/arbitrage/allocation-annuelle');
     });
@@ -185,7 +201,9 @@ void main() {
       expect(summary.items, isEmpty);
       expect(summary.lockedItems.map((i) => i.id), contains('canton'));
       expect(
-        summary.lockedItems.firstWhere((i) => i.id == 'canton').missingDataPrompt,
+        summary.lockedItems
+            .firstWhere((i) => i.id == 'canton')
+            .missingDataPrompt,
         contains('canton'),
       );
     });
@@ -350,12 +368,16 @@ void main() {
       final summary = ArbitrageSummaryService.compute(profile);
       final after = DateTime.now();
 
-      expect(summary.computedAt.isAfter(before.subtract(
-        const Duration(seconds: 1),
-      )), true);
-      expect(summary.computedAt.isBefore(after.add(
-        const Duration(seconds: 1),
-      )), true);
+      expect(
+          summary.computedAt.isAfter(before.subtract(
+            const Duration(seconds: 1),
+          )),
+          true);
+      expect(
+          summary.computedAt.isBefore(after.add(
+            const Duration(seconds: 1),
+          )),
+          true);
     });
 
     // ── Test 15: All items have valid routes ──────────────────
