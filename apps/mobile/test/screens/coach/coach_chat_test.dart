@@ -150,6 +150,17 @@ void main() {
     );
   }
 
+  CoachProfile profileFromAnswers(Map<String, dynamic> answers) {
+    final provider = CoachProfileProvider()..updateFromAnswers(answers);
+    return provider.profile!;
+  }
+
+  _MutableCoachProfileProvider buildMutableProfileProvider(
+    Map<String, dynamic> answers,
+  ) {
+    return _MutableCoachProfileProvider(profileFromAnswers(answers));
+  }
+
   Widget buildTestWidget({
     bool withProfile = false,
     MintUserState? mintState,
@@ -309,6 +320,42 @@ void main() {
 
       expect(find.text(formatPlainChf(expectedMonthlyFree)), findsOneWidget);
       expect(find.text("12'000"), findsNothing);
+    });
+
+    testWidgets('settled profile clear removes coach financial opener residue',
+        (tester) async {
+      usePhoneViewport(tester);
+      final provider = buildMutableProfileProvider({
+        'q_firstname': 'Julien',
+        'q_birth_year': 1990,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 9000,
+        'q_pay_frequency': 'monthly',
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+        'q_3a_total': 12000,
+        'q_3a_annual_contribution': 7056,
+      });
+      final profile = provider.profile!;
+      final previousMonthlyFree =
+          BudgetLivingEngine.compute(profile).present.monthlyFree;
+
+      await tester.pumpWidget(buildTestWidget(
+        profileProviderOverride: provider,
+        contextBuilder: emptyContextBuilder,
+      ));
+      await pumpUntilGreeting(tester);
+      expect(find.text(formatPlainChf(previousMonthlyFree)), findsOneWidget);
+
+      provider.setProfile(null);
+      await tester.pump();
+      await pumpUntilGreeting(tester);
+
+      expect(find.text(formatPlainChf(previousMonthlyFree)), findsNothing);
+      expect(find.textContaining('CHF'), findsNothing,
+          reason: 'Coach must not keep profile-derived amounts after reset');
+      expect(find.text("Salut. Moi c'est Mint."), findsOneWidget,
+          reason: 'Settled empty profile returns to neutral first-contact');
     });
 
     testWidgets(
@@ -1742,4 +1789,27 @@ void main() {
       );
     });
   });
+}
+
+class _MutableCoachProfileProvider extends CoachProfileProvider {
+  _MutableCoachProfileProvider(this._profileForTest);
+
+  CoachProfile? _profileForTest;
+
+  @override
+  CoachProfile? get profile => _profileForTest;
+
+  @override
+  bool get hasProfile => _profileForTest != null;
+
+  @override
+  bool get isLoading => false;
+
+  @override
+  bool get isHydrating => false;
+
+  void setProfile(CoachProfile? profile) {
+    _profileForTest = profile;
+    notifyListeners();
+  }
 }

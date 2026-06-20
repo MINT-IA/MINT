@@ -1896,6 +1896,8 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
               // Fire-and-forget; recompute is guarded against concurrent
               // calls and no-ops when the profile is unchanged.
               provider.recompute(profile);
+            } else {
+              provider.clearIfProfileUnavailable();
             }
             return provider;
           },

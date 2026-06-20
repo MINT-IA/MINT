@@ -41,6 +41,7 @@ class MintStateProvider extends ChangeNotifier {
   bool _isRecomputing = false;
   bool _pendingRecompute = false;
   CoachProfile? _pendingProfile;
+  int _generation = 0;
 
   /// Last profile used for a full recomputation.
   ///
@@ -56,6 +57,13 @@ class MintStateProvider extends ChangeNotifier {
 
   /// True when a state has been computed at least once.
   bool get hasState => _state != null;
+
+  bool get _hasProfileResidue =>
+      _state != null ||
+      _lastProfile != null ||
+      _pendingProfile != null ||
+      _pendingRecompute ||
+      _isRecomputing;
 
   /// Recompute state from [profile].
   ///
@@ -80,7 +88,6 @@ class MintStateProvider extends ChangeNotifier {
   }
 
   Future<void> _doRecompute(CoachProfile profile) async {
-
     if (_isRecomputing) {
       // Queue the latest profile — discard any previous pending call.
       _pendingRecompute = true;
@@ -89,12 +96,14 @@ class MintStateProvider extends ChangeNotifier {
     }
 
     _isRecomputing = true;
+    final generation = _generation;
     try {
       final prefs = await SharedPreferences.getInstance();
       final newState = await MintStateEngine.compute(
         profile: profile,
         prefs: prefs,
       );
+      if (generation != _generation) return;
       _state = newState;
       // Mark this profile as successfully computed AFTER state is set.
       // If _doRecompute throws, _lastProfile stays at its previous value,
@@ -131,6 +140,7 @@ class MintStateProvider extends ChangeNotifier {
 
   /// Force-clear the state (e.g. on sign-out or data reset).
   void clear() {
+    _generation++;
     _state = null;
     _pendingRecompute = false;
     _pendingProfile = null;
@@ -138,13 +148,25 @@ class MintStateProvider extends ChangeNotifier {
     // Clear pre-computed insight cache to avoid surfacing stale data after
     // sign-out or profile switch.
     unawaited(
-      SharedPreferences.getInstance().then(
+      SharedPreferences.getInstance()
+          .then(
         (prefs) => PrecomputedInsightsService.clear(prefs),
-      ).catchError((Object e) {
+      )
+          .catchError((Object e) {
         debugPrint('[MintStateProvider] Insight cache clear failed: $e');
       }),
     );
     notifyListeners();
+  }
+
+  /// Clear only when this provider still carries profile-derived residue.
+  ///
+  /// Used by app-level profile wiring: a fresh anonymous boot should not create
+  /// a notify loop, while a reset/logout after a computed state must purge the
+  /// state and cached opener insight immediately.
+  void clearIfProfileUnavailable() {
+    if (!_hasProfileResidue) return;
+    clear();
   }
 
   /// Inject a pre-built state for widget tests.

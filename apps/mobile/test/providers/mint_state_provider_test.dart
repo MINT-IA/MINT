@@ -88,6 +88,25 @@ void main() {
       provider.clear();
       expect(() => provider.clear(), returnsNormally);
     });
+
+    test('clearIfProfileUnavailable clears profile-derived state once',
+        () async {
+      final provider = MintStateProvider();
+      int notifyCount = 0;
+      provider.addListener(() => notifyCount++);
+
+      await provider.recompute(_profileA());
+      expect(provider.hasState, isTrue);
+      final countAfterRecompute = notifyCount;
+
+      provider.clearIfProfileUnavailable();
+      expect(provider.hasState, isFalse);
+      expect(notifyCount, equals(countAfterRecompute + 1));
+
+      provider.clearIfProfileUnavailable();
+      expect(notifyCount, equals(countAfterRecompute + 1),
+          reason: 'Fresh empty app wiring must not notify-loop');
+    });
   });
 
   group('MintStateProvider — profile identity guard (Bug 2)', () {
@@ -135,7 +154,8 @@ void main() {
       await provider.recompute(profile);
 
       expect(notifyCount, equals(countAfterFirst),
-          reason: 'recompute with the identical profile reference must be a no-op');
+          reason:
+              'recompute with the identical profile reference must be a no-op');
     });
 
     test('recompute with a different profile triggers a new computation',
@@ -158,7 +178,8 @@ void main() {
               'recompute with a different profile must trigger a new computation');
     });
 
-    test('clear resets the identity guard — same profile recomputes after clear',
+    test(
+        'clear resets the identity guard — same profile recomputes after clear',
         () async {
       final provider = MintStateProvider();
       int notifyCount = 0;
@@ -174,7 +195,8 @@ void main() {
 
       // Clear resets the guard.
       provider.clear();
-      final countAfterClear = notifyCount; // clear itself fires one notification.
+      final countAfterClear =
+          notifyCount; // clear itself fires one notification.
 
       // After clear, same profile value must trigger a fresh computation.
       await provider.recompute(_profileADuplicate());

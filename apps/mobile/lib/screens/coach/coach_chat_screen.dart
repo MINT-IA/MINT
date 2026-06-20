@@ -355,10 +355,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       setState(() {});
     }
     _scheduleBudgetHydrationForSilentOpener();
+    final coachProvider = Provider.of<CoachProfileProvider>(context);
+    _syncProfileFromProvider(coachProvider);
 
     if (!_profileInitialized) {
       _profileInitialized = true;
-      final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
         // Skip greeting when resuming an existing conversation.
@@ -1001,13 +1002,26 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return readiness is Map<String, dynamic> ? readiness : null;
   }
 
-  void _syncProfileFromProvider() {
-    final provider = context.read<CoachProfileProvider>();
+  void _syncProfileFromProvider([CoachProfileProvider? provider]) {
+    provider ??= context.read<CoachProfileProvider>();
     if (provider.hasProfile) {
       final freshProfile = provider.profile;
       if (freshProfile != null && !identical(freshProfile, _profile)) {
         _profile = freshProfile;
       }
+      return;
+    }
+
+    if (provider.isLoading || provider.isHydrating) {
+      return;
+    }
+
+    if (_profile != null) {
+      _profile = null;
+      _messages.clear();
+      _showSilentOpener = !_isResumingConversation;
+      _proactiveTriggerShownThisSession = false;
+      _intentOpenerText = null;
     }
   }
 
@@ -2316,9 +2330,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // saves / save_fact writes that happened while the user was on another
     // screen. Without this, a scanned LPP doesn't suppress the opener —
     // deep walkthrough crack #8 « rupture de confiance ».
-    final freshProfile = context.watch<CoachProfileProvider>().profile;
-    if (freshProfile != null && !identical(freshProfile, _profile)) {
-      _profile = freshProfile;
+    final coachProvider = context.watch<CoachProfileProvider>();
+    if (coachProvider.hasProfile) {
+      final freshProfile = coachProvider.profile;
+      if (freshProfile != null && !identical(freshProfile, _profile)) {
+        _profile = freshProfile;
+      }
     }
 
     final keyData = _computeKeyNumber();
