@@ -24,6 +24,7 @@
     "feature/mint2-claim-axis-handoff",
     "feature/S06-mint2-dossier-axis-continuity",
     "feature/S06-mint2-dossier-axis-surface",
+    "feature/S06-mint2-fresh-anon-financial-residue",
     "feature/S06-mint2-dossier-axis-runtime",
     "feature/S06-mint2-account-runtime",
     "feature/S07-mint2-account-claim-product",
