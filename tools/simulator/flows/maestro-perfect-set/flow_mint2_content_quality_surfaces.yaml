@@ -1,0 +1,79 @@
+# tools/simulator/flows/maestro-perfect-set/flow_mint2_content_quality_surfaces.yaml
+#
+# PURPOSE
+# Mint 2.0 content-quality proof for the current first-activation path.
+# Guards against stale unauthenticated financial residue after the Mint2 entry.
+
+appId: ch.mint.app
+tags:
+  - mint2
+  - content-quality
+  - financial-residue
+  - iphone13mini
+---
+
+- runFlow: flow_mint2_first_experience_rente_capital_entry.yaml
+
+- assertNotVisible:
+    text: "37'600"
+- assertNotVisible:
+    text: "6'640"
+- assertNotVisible:
+    text: "Avoir LPP"
+- assertNotVisible:
+    text: "Marge libre"
+- assertNotVisible:
+    text: "NaN"
+- assertNotVisible:
+    text: "Infinity"
+- assertNotVisible:
+    text: "A RenderFlex overflowed"
+- assertNotVisible:
+    text: "CHF/mois"
+- takeScreenshot: "01-rvc-no-stale-financial-residue"
+
+- openLink: "mintapp:///coach/chat"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- assertNotVisible:
+    text: "37'600"
+- assertNotVisible:
+    text: "6'640"
+- assertNotVisible:
+    text: "Avoir LPP"
+- assertNotVisible:
+    text: "Marge libre"
+- assertNotVisible:
+    text: "NaN"
+- assertNotVisible:
+    text: "Infinity"
+- assertNotVisible:
+    text: "A RenderFlex overflowed"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+- takeScreenshot: "02-coach-no-stale-financial-residue"
+
+- openLink: "mintapp:///profile/bilan"
+- extendedWaitUntil:
+    visible:
+      text: "MON PROFIL"
+    timeout: 12000
+- assertNotVisible:
+    text: "37'600"
+- assertNotVisible:
+    text: "6'640"
+- assertNotVisible:
+    text: "Avoir LPP"
+- assertNotVisible:
+    text: "Marge libre"
+- assertNotVisible:
+    text: "NaN"
+- assertNotVisible:
+    text: "Infinity"
+- assertNotVisible:
+    text: "A RenderFlex overflowed"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+- takeScreenshot: "03-profile-no-stale-financial-residue"
