@@ -78,5 +78,8 @@ Before mobile code, the Slice 2 plan must keep these binding gates:
 ## Active Decision
 
 Mint 2.0 first experience is the active context after router promotion. The
-first route proof landed through PR #705; the phase remains open for dossier/account
-handoff, Keychain/iCloud restore evidence, and runtime hardening.
+first route proof landed through PR #705. PRs #710-#721 closed the local
+dossier/account handoff path, fresh anonymous financial residue regression, and
+runtime quality gate. The phase remains open only for physical-device
+Keychain/iCloud restore evidence; simulator-only proof must not close that
+claim.

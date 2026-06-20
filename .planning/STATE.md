@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: mint-2-0-first-experience-rente-capital
 milestone_name: Mint 2.0 First Experience Rente/Capital
-status: runtime-proof-merged
-stopped_at: PR #705 proved the first Mint 2.0 runtime path to RvC; remaining phase work is dossier/account handoff and residual runtime hardening.
-last_updated: "2026-06-18T09:35:00.000Z"
-last_activity: 2026-06-18 -- PR #705 landed Mint 2.0 -> LPP/rente-capital -> /rente-vs-capital proof on dev; PR #706 added autonomous skill-access governance.
+status: local-quality-gate-merged-device-restore-blocked
+stopped_at: PRs #719-#721 closed fresh anonymous residue and local runtime quality gate; physical-device Keychain/iCloud restore proof is blocked by unavailable iPhone.
+last_updated: "2026-06-20T11:42:21.000Z"
+last_activity: 2026-06-20 -- PR #721 hardened the Mint 2.0 local quality gate on dev; S10 real-device restore preflight returned BLOCKED_NO_AVAILABLE_DEVICE for target Jul.
 progress:
   scope: runtime_path_proof
   total_phases: 2
@@ -33,9 +33,8 @@ router for Mint 2.0 product planning.
 navigation flow. The first active door is rente/capital; logement and fiscal
 remain signalétique until their own implementation gates exist.
 
-**Current focus:** close the residual phase gaps after the first runtime path:
-dossier/account handoff, Keychain/iCloud restore evidence, and less brittle
-runtime interaction proof.
+**Current focus:** close the only remaining non-simulator phase gap:
+physical-device/TestFlight Keychain/iCloud restore evidence.
 
 ## Strategic Frame
 
@@ -50,17 +49,20 @@ runtime interaction proof.
 
 ## Current Position
 
-Phase: mint-2-0-first-experience-rente-capital — RUNTIME PATH PROOF LANDED
-Plan: first route proof is merged; continue with the remaining user-value gaps
-instead of re-proving the same path.
+Phase: mint-2-0-first-experience-rente-capital — LOCAL QUALITY GATE LANDED,
+DEVICE RESTORE BLOCKED
+Plan: first route proof, local dossier/account handoff, fresh anonymous residue
+blocking, and local runtime quality gate are merged. Do not re-prove those paths
+unless a regression appears.
 Status: `dev` contains the Mint 2.0 first-entry route to the existing
-`/rente-vs-capital` surface with receipt gates and neutral compliance copy.
+`/rente-vs-capital` surface, dossier/account handoff coverage, fresh anonymous
+residue blocking, and `tools/simulator/mint2_quality_gate.sh`.
 Original dirty tree remains quarantine.
-Last activity: 2026-06-18 -- PR #705 squash-merged as `485b56ff9`; PR #706
-squash-merged as `7aee403d8`.
+Last activity: 2026-06-20 -- PR #721 merged as `e68272bcf`; S10 real-device
+restore preflight produced `BLOCKED_NO_AVAILABLE_DEVICE`.
 
-Progress counters now measure the initial route/runtime proof. They do not close
-the full dossier/account handoff promise.
+Progress counters now measure the initial route/runtime proof. The remaining
+open claim is physical-device/TestFlight restore evidence.
 
 **Promotion evidence:**
 
@@ -73,19 +75,24 @@ the full dossier/account handoff promise.
   `.planning/runtime-evidence/20260617T212912Z`.
 - Design-system runtime check artifacts under
   `.planning/runtime-evidence/20260618T055622Z-design-check-final`.
+- Local Mint 2.0 quality gate artifacts under
+  `.planning/runtime-evidence/mint2-quality-gate-20260620T111549Z`.
+- Real-device restore preflight artifacts under
+  `.planning/runtime-evidence/mint2-real-device-restore-gate-20260620T114221Z`.
 
 **Remaining open items:**
 
-- Dossier revisit and account handoff are not closed by the route proof.
-- Keychain/iCloud restore remains outside simulator-only proof.
-- Maestro proof is valid but still partly coordinate-tap based because iOS did
-  not expose every desired element action semantically.
+- Physical-device/TestFlight Keychain/iCloud restore remains outside
+  simulator-only proof.
+- Current real-device preflight evidence shows target `Jul` exists as iPhone 13
+  mini but is unavailable to CoreDevice.
 - Runtime evidence artifacts are local and untracked; the executable Maestro
   flow is committed under `tools/simulator/flows/maestro-perfect-set/`.
 
-**Next execution bias:** pick one remaining user-visible gap and prove it
-end-to-end, preferably dossier continuity/account handoff or semantic runtime
-actionability for the iPhone 13 mini flow.
+**Next execution bias:** reconnect the physical iPhone 13 mini and rerun
+`bash tools/simulator/mint2_real_device_restore_gate.sh`; only then proceed to a
+TestFlight/manual restore proof. Do not claim Keychain/iCloud closure while the
+gate is `BLOCKED_NO_AVAILABLE_DEVICE`.
 
 ## Historical Receipts
 

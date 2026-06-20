@@ -38,8 +38,15 @@ iPhone 13 mini artifacts captured locally under
 `.planning/runtime-evidence/20260617T212912Z`. The committed executable flow is
 `tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml`.
 
-This closes the first route proof, not the whole phase. Dossier/account handoff,
-Keychain/iCloud restore, and coordinate-tap brittleness remain open.
+PRs #710-#721 then closed the local dossier/account handoff path, fresh
+anonymous financial-residue regression, and local Mint 2.0 runtime quality gate.
+The current local gate is `tools/simulator/mint2_quality_gate.sh`, with passing
+evidence under `.planning/runtime-evidence/mint2-quality-gate-20260620T111549Z`.
+
+This closes the simulator-backed local Mint 2.0 path. Keychain/iCloud restore
+still requires a physical iPhone/TestFlight proof; simulator-only evidence must
+not close that claim. The current device preflight is
+`tools/simulator/mint2_real_device_restore_gate.sh`.
 
 ## Dossier Minimum
 
