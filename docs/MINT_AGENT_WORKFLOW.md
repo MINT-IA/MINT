@@ -42,10 +42,12 @@ Autorisation d'outillage : quand l'objectif courant est autorisé, les agents
 peuvent utiliser sans redemande les outils nécessaires à la preuve et à la
 livraison : Engram MCP, skills locales, checks repo, commandes GitHub de lecture
 ou de PR, pushes de branches feature, panels de spécialistes, Maestro, `simctl`,
-`idb`, xcodebuildmcp / Build iOS Apps si exposés. Les exceptions restent celles
-de `rules.md` : branches protégées, merge, opérations Git destructrices,
-données réelles, claims juridiques/compliance, nouvelles sources financières
-réglementées.
+`idb`, xcodebuildmcp / Build iOS Apps si exposés. Si l'objectif courant inclut
+la livraison, un agent peut merger une PR de façon autonome après CI verte,
+preuves locales/runtime requises, diff relu et worktree propre. Les exceptions
+restent celles de `rules.md` : push direct sur branche protégée, merge avec gate
+rouge ou manquante, opérations Git destructrices, données réelles, claims
+juridiques/compliance, nouvelles sources financières réglementées.
 
 Claude Max est advisory. L'utiliser si un CLI/session local ou un artefact
 d'audit frais est disponible et utile au risque du travail. Son absence ne

@@ -107,10 +107,12 @@ the tools needed to finish it: Engram MCP memory, local skills, repo checks,
 GitHub read/PR commands, feature-branch pushes, specialist panels, Maestro,
 `simctl`, `idb`, and xcodebuildmcp / Build iOS Apps when available.
 
-This is not permission to bypass product gates. Ask first for protected-branch
-pushes, merges, destructive Git operations, real user data, legal/compliance
-claims, new regulated financial sources, or anything listed in `rules.md`
-`ASK FIRST`.
+This is not permission to bypass product gates. When the current objective
+includes delivery, agents may merge a PR autonomously after fresh green CI,
+required local/runtime evidence, reviewed diff, and a clean worktree. Ask first
+for direct protected-branch pushes, merges with red or missing gates,
+destructive Git operations, real user data, legal/compliance claims, new
+regulated financial sources, or anything listed in `rules.md` `ASK FIRST`.
 
 Claude Max is advisory. Use it when the local CLI/session or a fresh artifact
 is actually available and the task benefits from it; otherwise continue with
