@@ -80,8 +80,10 @@ handoff appears after value.
 
 Current implementation evidence: PR #705 covers the three-axis entry to the
 existing RvC surface, route-state proof, receipt gating, neutral copy, and
-iPhone 13 mini runtime artifacts. Dossier revisit/account handoff and
-Keychain/iCloud restore remain open.
+iPhone 13 mini runtime artifacts. PRs #710-#721 cover local dossier/account
+handoff, fresh anonymous residue blocking, and the local Mint 2.0 quality gate.
+Keychain/iCloud restore remains open until a physical iPhone/TestFlight proof
+exists.
 
 ```verify
 # tier: deterministic

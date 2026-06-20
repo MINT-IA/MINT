@@ -37,7 +37,8 @@ and version.
 
 G4 dossier continuity: answer visible outside chat; reset/new discussion clears
 local draft and conversation state; account handoff preserves or discards local
-dossier only after explicit user choice.
+dossier only after explicit user choice. Local simulator coverage exists through
+the Mint 2.0 quality gate; physical-device restore remains separate.
 
 G5 language: no banned LSFin terms, no financial number without receipt, no tax
 promise, future user-facing strings through ARB/i18n, French accents checked for
@@ -60,7 +61,9 @@ file before product code starts:
 
 ## Open Blockers
 
-The first Mint 2.0 runtime flow exists and landed through PR #705. Remaining
-blockers: dossier revisit/account handoff is not closed; Keychain/iCloud
-restore cannot be closed by simulator alone; Maestro still uses some
-coordinate-tap interaction where iOS does not expose a stable semantic action.
+The first Mint 2.0 runtime flow exists and landed through PR #705. PRs #710-#721
+closed the local dossier/account handoff path, fresh anonymous financial residue
+regression, and local quality gate. Remaining blocker: Keychain/iCloud restore
+cannot be closed by simulator alone. Current physical-device preflight evidence:
+`.planning/runtime-evidence/mint2-real-device-restore-gate-20260620T114221Z`
+returned `BLOCKED_NO_AVAILABLE_DEVICE` for target `Jul`.

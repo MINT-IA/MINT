@@ -32,6 +32,7 @@
     "feature/S06-mint2-admin-claim-readback",
     "feature/S09-mint2-runtime-quality-gate",
     "feature/S09-mint2-quality-gate-xattr-fix",
+    "feature/S10-mint2-real-device-restore-gate",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],
