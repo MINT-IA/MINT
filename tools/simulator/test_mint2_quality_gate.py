@@ -49,6 +49,15 @@ def test_mint2_quality_gate_combines_layout_and_committed_maestro_flows():
         "maestro_with_watchdog.sh",
         "MINT_E2E_MINT2_FIRST_EXPERIENCE=true",
         "MINT_E2E_PROOF_ANCHORS=true",
+        "scrub_ios_build_xattrs",
+        "clear_extended_attributes",
+        "com.apple.provenance",
+        "Debug-iphonesimulator/App.framework",
+        "codesign --remove-signature",
+        "collect_flow_evidence",
+        "simctl-final-screen.png",
+        "ax-idb-describe-all.json",
+        "idb ui describe-all",
         ".planning/runtime-evidence/mint2-quality-gate-",
         "run-summary.txt",
     ]
@@ -73,6 +82,9 @@ def test_mint2_quality_gate_dry_run_lists_contract():
     assert "flow_mint2_content_quality_surfaces.yaml" in result.stdout
     assert "https://mint-staging.up.railway.app/api/v1" in result.stdout
     assert "keychain <UDID> reset" in result.stdout
+    assert "xattr -cr apps/mobile/build/ios" in result.stdout
+    assert "simctl-final-screen.png" in result.stdout
+    assert "ax-idb-describe-all.json" in result.stdout
 
 
 def test_mint2_content_quality_flow_blocks_stale_financial_residue():

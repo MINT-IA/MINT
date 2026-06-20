@@ -31,6 +31,7 @@
     "feature/S08-mint2-magic-link-handoff",
     "feature/S06-mint2-admin-claim-readback",
     "feature/S09-mint2-runtime-quality-gate",
+    "feature/S09-mint2-quality-gate-xattr-fix",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],

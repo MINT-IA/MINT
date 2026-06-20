@@ -38,6 +38,7 @@ Checks:
   - $FIRST_FLOW
   - $CLAIM_FLOW
   - $CONTENT_FLOW
+  - simctl screenshot + idb AX snapshot after each Maestro flow
 EOF
 }
 
@@ -57,6 +58,9 @@ if [ "$DRY_RUN" -eq 1 ]; then
   cat <<EOF
 
 Build:
+  xattr -cr apps/mobile/build/ios
+  rm -rf apps/mobile/build/ios/Debug-iphonesimulator/App.framework
+
   CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \\
     --dart-define=API_BASE_URL=$API_BASE_URL \\
     --dart-define=MINT_DISABLE_BETA_MODAL=true \\
@@ -68,6 +72,11 @@ Fresh-state:
   xcrun simctl boot <UDID for "$DEVICE_NAME">
   xcrun simctl keychain <UDID> reset
   xcrun simctl uninstall <UDID> $BUNDLE_ID
+
+Evidence per flow:
+  simctl-final-screen.png
+  ax-idb-describe-all.json
+  screenshots/*.png
 EOF
   exit 0
 fi
@@ -118,12 +127,77 @@ run_maestro_flow() {
   local label="$1"
   local flow="$2"
   local out_dir="$ARTIFACT_ROOT/$label"
+  local start_marker="$out_dir/.flow-start"
   mkdir -p "$out_dir"
+  touch "$start_marker"
 
   log "maestro $label: $flow"
   MINT_WALKER_ARTIFACTS="$out_dir" \
     MAESTRO_HARD_LIMIT="${MAESTRO_HARD_LIMIT:-1200}" \
     bash "$WATCHDOG" test "$flow"
+  collect_flow_evidence "$label" "$out_dir" "$start_marker"
+}
+
+collect_flow_evidence() {
+  local label="$1"
+  local out_dir="$2"
+  local start_marker="$3"
+  local screenshots_dir="$out_dir/screenshots"
+  mkdir -p "$screenshots_dir"
+
+  log "collecting runtime evidence for $label"
+  find "$REPO_ROOT" -maxdepth 1 -type f -name '*.png' -newer "$start_marker" \
+    -exec mv {} "$screenshots_dir/" \;
+  xcrun simctl io "$DEVICE_UDID" screenshot \
+    "$out_dir/simctl-final-screen.png" >/dev/null
+  if command -v idb >/dev/null 2>&1; then
+    idb ui describe-all --udid "$DEVICE_UDID" --json \
+      > "$out_dir/ax-idb-describe-all.json"
+  else
+    printf '{"status":"skipped","reason":"idb not installed"}\n' \
+      > "$out_dir/ax-idb-describe-all.json"
+  fi
+}
+
+clear_extended_attributes() {
+  local path="$1"
+  [ -e "$path" ] || return 0
+  command -v xattr >/dev/null 2>&1 || return 0
+
+  # xattr -cr can miss copied framework provenance. Remove the codesign
+  # blockers explicitly before the broad recursive cleanup.
+  xattr -dr com.apple.provenance "$path" 2>/dev/null || true
+  xattr -dr com.apple.FinderInfo "$path" 2>/dev/null || true
+  xattr -dr com.apple.ResourceFork "$path" 2>/dev/null || true
+  xattr -cr "$path" 2>/dev/null || true
+}
+
+scrub_ios_build_xattrs() {
+  local ios_build_dir="$REPO_ROOT/apps/mobile/build/ios"
+  local app_framework="$ios_build_dir/Debug-iphonesimulator/App.framework"
+  local flutter_root=""
+  local flutter_xcframework=""
+
+  if [ -d "$ios_build_dir" ]; then
+    log "scrubbing extended attributes from generated iOS build artifacts"
+    clear_extended_attributes "$ios_build_dir"
+  fi
+  if command -v xattr >/dev/null 2>&1; then
+    flutter_root="$(
+      cd "$REPO_ROOT/apps/mobile"
+      flutter --version --machine | python3 -c 'import json, sys; print(json.load(sys.stdin).get("flutterRoot", ""))'
+    )"
+    flutter_xcframework="$flutter_root/bin/cache/artifacts/engine/ios/Flutter.xcframework"
+    if [ -d "$flutter_xcframework" ]; then
+      log "scrubbing extended attributes from Flutter iOS engine cache"
+      clear_extended_attributes "$flutter_xcframework"
+    fi
+  fi
+  if [ -d "$app_framework" ]; then
+    log "removing stale generated App.framework before simulator build"
+    /usr/bin/codesign --remove-signature "$app_framework" 2>/dev/null || true
+    rm -rf "$app_framework"
+  fi
 }
 
 write_summary() {
@@ -179,6 +253,7 @@ log "resetting simulator keychain"
 xcrun simctl keychain "$DEVICE_UDID" reset
 
 log "building staging simulator app"
+scrub_ios_build_xattrs
 (
   cd apps/mobile
   CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \
