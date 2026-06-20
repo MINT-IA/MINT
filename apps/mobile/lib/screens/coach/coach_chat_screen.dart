@@ -460,6 +460,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Future<void> _hydrateBudgetForSilentOpener() async {
     if (!mounted) return;
+    if (_profile == null || !_profile!.hasMaterialData) return;
     final budgetProvider = _readBudgetProviderIfAvailable();
     if (budgetProvider == null || budgetProvider.hasFreshInputs) return;
     final restored = await budgetProvider.loadFromStorage();
@@ -841,11 +842,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final s = S.of(context)!;
     final budgetProvider = _watchBudgetProviderIfAvailable();
     final budgetPlan = budgetProvider?.plan;
-    final canUseStoredBudget =
-        budgetProvider?.source == BudgetDataSource.storage &&
-            (_profile == null || !_profile!.hasMaterialData);
     if (budgetProvider != null &&
-        (budgetProvider.hasFreshInputs || canUseStoredBudget) &&
+        budgetProvider.hasFreshInputs &&
         budgetPlan != null &&
         budgetPlan.available.isFinite) {
       return (

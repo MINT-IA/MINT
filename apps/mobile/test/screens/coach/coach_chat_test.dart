@@ -343,18 +343,18 @@ void main() {
     });
 
     testWidgets(
-        'silent opener hydrates stored direct budget inputs when provider starts empty',
+        'fresh anonymous silent opener ignores stored direct budget residue',
         (tester) async {
       usePhoneViewport(tester);
       await BudgetLocalStore().saveInputs(const BudgetInputs(
         payFrequency: PayFrequency.monthly,
-        netIncome: 7250,
-        housingCost: 2200,
+        netIncome: 8000,
+        housingCost: 1000,
         debtPayments: 0,
-        taxProvision: 1086.13625,
-        healthInsurance: 420,
+        taxProvision: 0,
+        healthInsurance: 360,
         otherFixedCosts: 0,
-        isTaxEstimated: true,
+        isTaxEstimated: false,
         isHealthEstimated: false,
         isHousingMissing: false,
         isHealthMissing: false,
@@ -369,8 +369,9 @@ void main() {
       );
       await pumpUntilGreeting(tester);
 
-      expect(budgetProvider.source, BudgetDataSource.storage);
-      expect(find.text("3'544"), findsOneWidget);
+      expect(budgetProvider.source, BudgetDataSource.none);
+      expect(find.text("6'640"), findsNothing);
+      expect(find.textContaining('Marge libre'), findsNothing);
     });
 
     testWidgets('first-contact opener does not show question label',

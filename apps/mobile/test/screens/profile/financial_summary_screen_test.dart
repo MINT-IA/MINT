@@ -58,6 +58,33 @@ Widget _pumpable(
   );
 }
 
+CoachProfile _defensibleJulienProfile() {
+  final profile = CoachProfile.fromWizardAnswers(
+    CoachProfileSeeds.registry['julien_swiss']!.toWizardAnswers(
+      now: DateTime(2026, 6, 4),
+    ),
+  );
+  return profile.copyWith(
+    dataSources: {
+      ...profile.dataSources,
+      'revenuBrutAnnuel': ProfileDataSource.userInput,
+      'salaireBrutMensuel': ProfileDataSource.userInput,
+      'depenses.loyer': ProfileDataSource.userInput,
+      'depenses.assuranceMaladie': ProfileDataSource.userInput,
+      'patrimoine.epargneLiquide': ProfileDataSource.userInput,
+      'patrimoine.investissements': ProfileDataSource.userInput,
+      'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
+      'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
+      'dettes.totalDettes': ProfileDataSource.userInput,
+      'dettes.hypotheque': ProfileDataSource.userInput,
+      'dettes.creditConsommation': ProfileDataSource.userInput,
+      'dettes.leasing': ProfileDataSource.userInput,
+      'dettes.autresDettes': ProfileDataSource.userInput,
+    },
+    userProvidedFields: {...profile.userProvidedFields, 'salary'},
+  );
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -124,6 +151,35 @@ void main() {
     expect(find.text('Aucun profil renseigné'), findsOneWidget);
   });
 
+  testWidgets(
+      'estimated LPP profile stays in incomplete dossier state, not projection',
+      (tester) async {
+    FeatureFlags.enableMint2FirstExperienceEntry = true;
+    await ReportPersistenceService.saveMint2AxisHandoff({
+      'onb_axis_v2': 'lpp_rente_capital',
+      'onb_axis_schema_version': 2,
+      'legacy_onb_intent': 'retraite',
+    });
+    final profile = CoachProfile.defaults().copyWith(
+      birthYear: 1988,
+      canton: 'VS',
+      salaireBrutMensuel: 7000,
+      prevoyance: const PrevoyanceProfile(avoirLppTotal: 37600),
+      dataSources: const {
+        'prevoyance.avoirLppTotal': ProfileDataSource.estimated,
+      },
+    );
+
+    await tester.pumpWidget(_pumpable(profile));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2e pilier : rente ou capital'), findsOneWidget);
+    expect(find.text('Champs requis manquants'), findsOneWidget);
+    expect(find.text('Preuve absente'), findsOneWidget);
+    expect(find.textContaining("37'600"), findsNothing);
+    expect(find.text('À la retraite, il te manquera'), findsNothing);
+  });
+
   testWidgets('material profile leads with dossier facts before projection',
       (tester) async {
     tester.view.physicalSize = const Size(368, 800);
@@ -133,11 +189,7 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    final profile = CoachProfile.fromWizardAnswers(
-      CoachProfileSeeds.registry['julien_swiss']!.toWizardAnswers(
-        now: DateTime(2026, 6, 4),
-      ),
-    );
+    final profile = _defensibleJulienProfile();
 
     await tester.pumpWidget(_pumpable(profile));
     await tester.pumpAndSettle();
@@ -173,11 +225,7 @@ void main() {
 
   testWidgets('dossier correction sheet covers income housing LAMal and debts',
       (tester) async {
-    final profile = CoachProfile.fromWizardAnswers(
-      CoachProfileSeeds.registry['julien_swiss']!.toWizardAnswers(
-        now: DateTime(2026, 6, 4),
-      ),
-    );
+    final profile = _defensibleJulienProfile();
 
     await tester.pumpWidget(_pumpable(profile));
     await tester.pumpAndSettle();
@@ -204,11 +252,7 @@ void main() {
 
   testWidgets('sync row uses account data state instead of raw cloud bool',
       (tester) async {
-    final profile = CoachProfile.fromWizardAnswers(
-      CoachProfileSeeds.registry['julien_swiss']!.toWizardAnswers(
-        now: DateTime(2026, 6, 4),
-      ),
-    );
+    final profile = _defensibleJulienProfile();
 
     await tester.pumpWidget(
       _pumpable(

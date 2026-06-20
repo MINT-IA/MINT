@@ -102,13 +102,27 @@ class FinancialSummaryScreen extends StatelessWidget {
       builder: (context, snapshot) {
         final mint2AxisHandoff = snapshot.data ?? const <String, dynamic>{};
         final hasMint2AxisHandoff = _hasMint2LiveAxis(mint2AxisHandoff);
-        if (profile == null || !profile.hasMaterialData) {
+        if (profile == null ||
+            !profile.hasMaterialData ||
+            !_hasDefensibleDossierForFinancialSummary(profile)) {
           if (!hasMint2AxisHandoff) return _buildEmptyState(context);
           return _buildHandoffOnlyContent(context);
         }
         return _buildContent(context, profile);
       },
     );
+  }
+
+  bool _hasDefensibleDossierForFinancialSummary(CoachProfile profile) {
+    final sourceCounts = _dossierSourceCounts(profile);
+    if ((sourceCounts[ProfileDataSource.estimated] ?? 0) > 0) {
+      return false;
+    }
+    return (sourceCounts[ProfileDataSource.userInput] ?? 0) +
+            (sourceCounts[ProfileDataSource.crossValidated] ?? 0) +
+            (sourceCounts[ProfileDataSource.certificate] ?? 0) +
+            (sourceCounts[ProfileDataSource.openBanking] ?? 0) >
+        0;
   }
 
   Widget _buildHandoffOnlyContent(BuildContext context) {
@@ -828,6 +842,14 @@ class FinancialSummaryScreen extends StatelessWidget {
 
   Map<ProfileDataSource, int> _dossierSourceCounts(CoachProfile profile) {
     ProfileDataSource sourceFor(String key) {
+      if (key == 'salaireBrutMensuel') {
+        final salarySource = profile.dataSources['salaireBrutMensuel'] ??
+            profile.dataSources['revenuBrutAnnuel'];
+        if (salarySource != null) return salarySource;
+        if (profile.userProvidedFields.contains('salary')) {
+          return ProfileDataSource.userInput;
+        }
+      }
       return profile.dataSources[key] ??
           (profile.userProvidedFields.contains(key)
               ? ProfileDataSource.userInput
