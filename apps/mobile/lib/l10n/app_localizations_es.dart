@@ -22684,6 +22684,27 @@ class SEs extends S {
   String get privacyControlEditSourceNote => 'Fuente: modificación manual';
 
   @override
+  String get privacyControlProfileDataSourceLocal =>
+      'Fuente: respuestas locales';
+
+  @override
+  String get privacyControlFinancialDataPresent => 'Ingresos indicados';
+
+  @override
+  String get privacyControlProfileDataResetCta => 'Borrar mis datos';
+
+  @override
+  String get privacyControlProfileDataResetTitle =>
+      '¿Borrar los datos locales?';
+
+  @override
+  String get privacyControlProfileDataResetBody =>
+      'MINT eliminará de este dispositivo la información de perfil mostrada aquí. Esta acción no elimina tu cuenta.';
+
+  @override
+  String get privacyControlProfileDataResetConfirm => 'Borrar';
+
+  @override
   String get drawerPrivacyControl => 'Lo que MINT sabe de ti';
 
   @override

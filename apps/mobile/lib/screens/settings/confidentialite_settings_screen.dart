@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
@@ -39,6 +40,18 @@ class ConfidentialiteSettingsScreen extends StatelessWidget {
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.adaptive.arrow_back),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () {
+            final navigator = Navigator.of(context);
+            if (navigator.canPop()) {
+              navigator.pop();
+            } else {
+              context.go('/profile/bilan');
+            }
+          },
+        ),
         title: Text(
           l.settingsPrivacyTitle,
           style: MintTextStyles.headlineMedium(),

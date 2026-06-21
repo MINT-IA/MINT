@@ -22739,6 +22739,25 @@ class SDe extends S {
   String get privacyControlEditSourceNote => 'Quelle: manuelle Änderung';
 
   @override
+  String get privacyControlProfileDataSourceLocal => 'Quelle: lokale Antworten';
+
+  @override
+  String get privacyControlFinancialDataPresent => 'Einkommen erfasst';
+
+  @override
+  String get privacyControlProfileDataResetCta => 'Meine Daten löschen';
+
+  @override
+  String get privacyControlProfileDataResetTitle => 'Lokale Daten löschen?';
+
+  @override
+  String get privacyControlProfileDataResetBody =>
+      'MINT löscht die hier angezeigten Profildaten von diesem Gerät. Dadurch wird dein Konto nicht gelöscht.';
+
+  @override
+  String get privacyControlProfileDataResetConfirm => 'Löschen';
+
+  @override
   String get drawerPrivacyControl => 'Was MINT über dich weiss';
 
   @override

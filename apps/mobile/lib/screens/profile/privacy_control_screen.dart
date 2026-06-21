@@ -101,10 +101,8 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
     // PROF-03: Users expect "Ce que MINT sait de toi" to show ALL
     // collected data, not just BiographyFacts from document scans.
     if (provider.facts.isEmpty) {
-      final coachProfile =
-          context.watch<CoachProfileProvider>().profile;
-      if (coachProfile == null ||
-          coachProfile.userProvidedFields.isEmpty) {
+      final coachProfile = context.watch<CoachProfileProvider>().profile;
+      if (coachProfile == null || coachProfile.userProvidedFields.isEmpty) {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(MintSpacing.lg),
@@ -145,9 +143,8 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
     // Data state
     final allFacts = provider.facts;
     final freshCount = provider.activeFreshFacts.length;
-    final percent = allFacts.isNotEmpty
-        ? (freshCount / allFacts.length * 100).round()
-        : 0;
+    final percent =
+        allFacts.isNotEmpty ? (freshCount / allFacts.length * 100).round() : 0;
     final grouped = provider.factsByCategory;
 
     return RefreshIndicator(
@@ -275,10 +272,12 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
         ),
         actions: [
           TextButton(
+            // lint-ignore: prefer_mint_cta
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(l.privacyControlDeleteCancel),
           ),
           TextButton(
+            // lint-ignore: prefer_mint_cta
             onPressed: () {
               Navigator.of(ctx).pop();
               provider.hardDeleteFact(fact.id);
@@ -300,6 +299,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
     CoachProfile profile,
   ) {
     final provided = profile.userProvidedFields;
+    final source = l.privacyControlProfileDataSourceLocal;
     final items = <_ProfileDataItem>[];
 
     if (provided.contains('firstName') && profile.firstName != null) {
@@ -307,6 +307,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
         icon: Icons.person_outline,
         label: l.drawerMyProfile,
         value: profile.firstName!,
+        source: source,
       ));
     }
     if (provided.contains('age') && profile.age > 0) {
@@ -314,6 +315,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
         icon: Icons.cake_outlined,
         label: l.ageYears(''),
         value: profile.age.toString(),
+        source: source,
       ));
     }
     if (provided.contains('canton')) {
@@ -321,14 +323,15 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
         icon: Icons.location_on_outlined,
         label: l.cantonLabel,
         value: profile.canton,
+        source: source,
       ));
     }
     if (provided.contains('salary')) {
       items.add(_ProfileDataItem(
         icon: Icons.payments_outlined,
         label: l.privacyControlSectionFinancial,
-        value:
-            '${(profile.salaireBrutMensuel * 12).round()} CHF/an',
+        value: l.privacyControlFinancialDataPresent,
+        source: source,
       ));
     }
     if (provided.contains('civilStatus')) {
@@ -336,6 +339,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
         icon: Icons.family_restroom_outlined,
         label: l.privacyControlSectionLifeEvents,
         value: profile.etatCivil.name,
+        source: source,
       ));
     }
 
@@ -376,19 +380,87 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
                         color: MintColors.textSecondary,
                       ),
                     ),
-                    subtitle: Text(
-                      item.value,
-                      style: MintTextStyles.bodyMedium(
-                        color: MintColors.textPrimary,
-                      ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.value,
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: MintSpacing.xs),
+                        Text(
+                          item.source,
+                          style: MintTextStyles.labelSmall(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: MintSpacing.lg),
+            OutlinedButton.icon(
+              onPressed: () => _showProfileDataResetDialog(context, l),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: MintColors.error,
+                side: const BorderSide(color: MintColors.error),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.lg,
+                  vertical: MintSpacing.md,
+                ),
+              ),
+              icon: const Icon(Icons.delete_outline),
+              label: Text(l.privacyControlProfileDataResetCta),
+            ),
             const SizedBox(height: MintSpacing.xxxl),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showProfileDataResetDialog(BuildContext context, S l) {
+    final coachProvider = context.read<CoachProfileProvider>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          l.privacyControlProfileDataResetTitle,
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+        ),
+        content: Text(
+          l.privacyControlProfileDataResetBody,
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l.privacyControlDeleteCancel),
+          ),
+          TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              try {
+                await coachProvider.clearAll();
+              } catch (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.privacyControlError)),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: MintColors.error),
+            child: Text(l.privacyControlProfileDataResetConfirm),
+          ),
+        ],
       ),
     );
   }
@@ -400,10 +472,12 @@ class _ProfileDataItem {
   final IconData icon;
   final String label;
   final String value;
+  final String source;
 
   const _ProfileDataItem({
     required this.icon,
     required this.label,
     required this.value,
+    required this.source,
   });
 }

@@ -11469,6 +11469,12 @@
   "privacyControlDeleteConfirm": "Supprimer",
   "privacyControlSave": "Enregistrer",
   "privacyControlEditSourceNote": "Source : modification manuelle",
+  "privacyControlProfileDataSourceLocal": "Source : réponses locales",
+  "privacyControlFinancialDataPresent": "Revenu renseigné",
+  "privacyControlProfileDataResetCta": "Effacer mes données",
+  "privacyControlProfileDataResetTitle": "Effacer les données locales ?",
+  "privacyControlProfileDataResetBody": "MINT supprimera les informations de profil affichées ici sur cet appareil. Cette action ne supprime pas ton compte.",
+  "privacyControlProfileDataResetConfirm": "Effacer",
   "drawerPrivacyControl": "Ce que MINT sait de toi",
   "anticipation3aDeadlineTitle": "Délai 3a : {days} jours restants",
   "@anticipation3aDeadlineTitle": {

@@ -22689,6 +22689,25 @@ class SPt extends S {
   String get privacyControlEditSourceNote => 'Fonte: modificação manual';
 
   @override
+  String get privacyControlProfileDataSourceLocal => 'Fonte: respostas locais';
+
+  @override
+  String get privacyControlFinancialDataPresent => 'Rendimento indicado';
+
+  @override
+  String get privacyControlProfileDataResetCta => 'Apagar os meus dados';
+
+  @override
+  String get privacyControlProfileDataResetTitle => 'Apagar os dados locais?';
+
+  @override
+  String get privacyControlProfileDataResetBody =>
+      'O MINT eliminará deste dispositivo as informações de perfil apresentadas aqui. Esta ação não elimina a tua conta.';
+
+  @override
+  String get privacyControlProfileDataResetConfirm => 'Apagar';
+
+  @override
   String get drawerPrivacyControl => 'O que o MINT sabe sobre ti';
 
   @override

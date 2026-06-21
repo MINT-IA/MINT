@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/biography/biography_repository.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PRIVACY CONTROL SCREEN TESTS — Phase 03 / Memoire Narrative
@@ -130,12 +134,15 @@ class _InMemoryDb implements BiographyDatabase {
 }
 
 /// Build test app with BiographyProvider, CoachProfileProvider, and localization.
-Widget _buildTestApp({required BiographyProvider provider}) {
+Widget _buildTestApp({
+  required BiographyProvider provider,
+  CoachProfileProvider? coachProfileProvider,
+}) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<BiographyProvider>.value(value: provider),
-      ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
+      ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: coachProfileProvider ?? CoachProfileProvider(),
       ),
     ],
     child: const MaterialApp(
@@ -200,6 +207,10 @@ Future<BiographyProvider> _createProvider(
 
 void main() {
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    AuthService.resetMemoryCacheForTest();
+    ConversationStore.setCurrentUserId(null);
     BiographyRepository.resetInstance();
   });
 
@@ -324,6 +335,37 @@ void main() {
       expect(find.textContaining('financi'), findsOneWidget);
       expect(find.textContaining('nements de vie'), findsOneWidget);
       expect(find.textContaining('cisions'), findsOneWidget);
+    });
+
+    testWidgets(
+        'profile fallback exposes a local data reset and hides derived CHF',
+        (tester) async {
+      final provider = await _createProvider();
+      final coachProfileProvider = CoachProfileProvider()
+        ..updateFromAnswers({
+          'q_birth_year': DateTime.now().year - 35,
+          'q_canton': 'VD',
+          'q_net_income_period_chf': 4650,
+          'q_pay_frequency': 'monthly',
+        });
+
+      await tester.pumpWidget(_buildTestApp(
+        provider: provider,
+        coachProfileProvider: coachProfileProvider,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('VD'), findsOneWidget);
+      expect(find.text('Effacer mes données'), findsOneWidget);
+      expect(find.textContaining('CHF/an'), findsNothing);
+
+      await tester.tap(find.text('Effacer mes données'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Effacer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('VD'), findsNothing);
+      expect(find.textContaining('Aucune donn'), findsOneWidget);
     });
   });
 }

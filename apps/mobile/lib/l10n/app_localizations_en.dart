@@ -22568,6 +22568,25 @@ class SEn extends S {
   String get privacyControlEditSourceNote => 'Source: manual edit';
 
   @override
+  String get privacyControlProfileDataSourceLocal => 'Source: local answers';
+
+  @override
+  String get privacyControlFinancialDataPresent => 'Income provided';
+
+  @override
+  String get privacyControlProfileDataResetCta => 'Erase my data';
+
+  @override
+  String get privacyControlProfileDataResetTitle => 'Erase local data?';
+
+  @override
+  String get privacyControlProfileDataResetBody =>
+      'MINT will delete the profile information shown here from this device. This action does not delete your account.';
+
+  @override
+  String get privacyControlProfileDataResetConfirm => 'Erase';
+
+  @override
   String get drawerPrivacyControl => 'What MINT knows about you';
 
   @override

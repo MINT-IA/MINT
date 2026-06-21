@@ -39718,6 +39718,42 @@ abstract class S {
   /// **'Source : modification manuelle'**
   String get privacyControlEditSourceNote;
 
+  /// No description provided for @privacyControlProfileDataSourceLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : réponses locales'**
+  String get privacyControlProfileDataSourceLocal;
+
+  /// No description provided for @privacyControlFinancialDataPresent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu renseigné'**
+  String get privacyControlFinancialDataPresent;
+
+  /// No description provided for @privacyControlProfileDataResetCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer mes données'**
+  String get privacyControlProfileDataResetCta;
+
+  /// No description provided for @privacyControlProfileDataResetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer les données locales ?'**
+  String get privacyControlProfileDataResetTitle;
+
+  /// No description provided for @privacyControlProfileDataResetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT supprimera les informations de profil affichées ici sur cet appareil. Cette action ne supprime pas ton compte.'**
+  String get privacyControlProfileDataResetBody;
+
+  /// No description provided for @privacyControlProfileDataResetConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer'**
+  String get privacyControlProfileDataResetConfirm;
+
   /// No description provided for @drawerPrivacyControl.
   ///
   /// In fr, this message translates to:

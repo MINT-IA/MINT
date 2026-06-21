@@ -22746,6 +22746,25 @@ class SIt extends S {
   String get privacyControlEditSourceNote => 'Fonte: modifica manuale';
 
   @override
+  String get privacyControlProfileDataSourceLocal => 'Fonte: risposte locali';
+
+  @override
+  String get privacyControlFinancialDataPresent => 'Reddito inserito';
+
+  @override
+  String get privacyControlProfileDataResetCta => 'Cancella i miei dati';
+
+  @override
+  String get privacyControlProfileDataResetTitle => 'Cancellare i dati locali?';
+
+  @override
+  String get privacyControlProfileDataResetBody =>
+      'MINT eliminerà da questo dispositivo le informazioni del profilo mostrate qui. Questa azione non elimina il tuo account.';
+
+  @override
+  String get privacyControlProfileDataResetConfirm => 'Cancella';
+
+  @override
   String get drawerPrivacyControl => 'Cosa MINT sa di te';
 
   @override

@@ -22679,6 +22679,27 @@ class SFr extends S {
   String get privacyControlEditSourceNote => 'Source : modification manuelle';
 
   @override
+  String get privacyControlProfileDataSourceLocal =>
+      'Source : réponses locales';
+
+  @override
+  String get privacyControlFinancialDataPresent => 'Revenu renseigné';
+
+  @override
+  String get privacyControlProfileDataResetCta => 'Effacer mes données';
+
+  @override
+  String get privacyControlProfileDataResetTitle =>
+      'Effacer les données locales ?';
+
+  @override
+  String get privacyControlProfileDataResetBody =>
+      'MINT supprimera les informations de profil affichées ici sur cet appareil. Cette action ne supprime pas ton compte.';
+
+  @override
+  String get privacyControlProfileDataResetConfirm => 'Effacer';
+
+  @override
   String get drawerPrivacyControl => 'Ce que MINT sait de toi';
 
   @override
