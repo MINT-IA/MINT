@@ -241,42 +241,87 @@ class FinancialSummaryCard extends StatelessWidget {
         bottom: 6,
         left: line.indent ? 16 : 0,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Indent prefix
-          if (line.indent)
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                line.isLast ? '\u2514 ' : '\u251C ',
-                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final indentPrefix = line.indent
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    line.isLast ? '\u2514 ' : '\u251C ',
+                    style:
+                        MintTextStyles.labelMedium(color: MintColors.textMuted),
+                  ),
+                )
+              : null;
+          final label = Text(
+            line.label,
+            style: MintTextStyles.bodyMedium(
+              color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+            ).copyWith(
+              fontSize: isBold ? 13 : 12,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
             ),
-          // Label
-          Expanded(
-            child: Text(
-              line.label,
-              style: MintTextStyles.bodyMedium(color: isBold ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: isBold ? 13 : 12, fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
-            ),
-          ),
-          // Value + source indicator
-          if (line.formattedValue.isNotEmpty)
-            Row(
-              mainAxisSize: MainAxisSize.min,
+          );
+          final value = line.formattedValue.isEmpty
+              ? null
+              : _buildValueWithSource(line, isBold: isBold);
+
+          if (constraints.maxWidth < 280 && value != null) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  line.formattedValue,
-                  style: MintTextStyles.bodyMedium(color: line.isDeduction ? MintColors.error : MintColors.textPrimary).copyWith(fontSize: isBold ? 14 : 13, fontWeight: isBold ? FontWeight.w700 : FontWeight.w600),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (indentPrefix != null) indentPrefix,
+                    Expanded(child: label),
+                  ],
                 ),
-                if (line.source != null) ...[
-                  const SizedBox(width: 6),
-                  _sourceIndicator(line.source!),
-                ],
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 2,
+                    left: line.indent ? 20 : 0,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: value,
+                  ),
+                ),
               ],
-            ),
-        ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (indentPrefix != null) indentPrefix,
+              Expanded(child: label),
+              if (value != null) value,
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildValueWithSource(FinancialLine line, {required bool isBold}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          line.formattedValue,
+          style: MintTextStyles.bodyMedium(
+            color: line.isDeduction ? MintColors.error : MintColors.textPrimary,
+          ).copyWith(
+            fontSize: isBold ? 14 : 13,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+          ),
+        ),
+        if (line.source != null) ...[
+          const SizedBox(width: 6),
+          _sourceIndicator(line.source!),
+        ],
+      ],
     );
   }
 
