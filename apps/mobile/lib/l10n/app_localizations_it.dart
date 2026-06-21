@@ -4617,6 +4617,10 @@ class SIt extends S {
   String get financialSummaryRestartDiagnostic => 'Ricominciare la diagnosi';
 
   @override
+  String get financialSummaryRestartDiagnosticError =>
+      'Non è stato possibile eliminare una parte dei dati locali. Riprova tra un momento.';
+
+  @override
   String get financialSummaryDefaultConjoint => 'Coniuge';
 
   @override

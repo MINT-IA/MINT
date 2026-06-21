@@ -2126,6 +2126,7 @@
   "financialSummaryNoProfile": "Nenhum perfil registado",
   "financialSummaryStartDiagnostic": "Iniciar o diagnóstico",
   "financialSummaryRestartDiagnostic": "Reiniciar o diagnóstico",
+  "financialSummaryRestartDiagnosticError": "Não foi possível apagar uma parte dos dados locais. Tenta novamente dentro de instantes.",
   "financialSummaryDefaultConjoint": "Cônjuge",
   "financialSummaryAvs1erPilier": "AVS (1.º pilar)",
   "financialSummaryAnneesCotisees": "Anos de contribuição",

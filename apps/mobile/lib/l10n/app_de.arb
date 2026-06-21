@@ -2126,6 +2126,7 @@
   "financialSummaryNoProfile": "Kein Profil erfasst",
   "financialSummaryStartDiagnostic": "Diagnose starten",
   "financialSummaryRestartDiagnostic": "Diagnose neu starten",
+  "financialSummaryRestartDiagnosticError": "Ein Teil der lokalen Daten konnte nicht gelöscht werden. Versuch es gleich noch einmal.",
   "financialSummaryDefaultConjoint": "Ehepartner·in",
   "financialSummaryAvs1erPilier": "AHV (1. Säule)",
   "financialSummaryAnneesCotisees": "Beitragsjahre",

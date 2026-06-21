@@ -2144,6 +2144,7 @@
   "financialSummaryNoProfile": "Aucun profil renseigné",
   "financialSummaryStartDiagnostic": "Commencer le diagnostic",
   "financialSummaryRestartDiagnostic": "Recommencer le diagnostic",
+  "financialSummaryRestartDiagnosticError": "Une partie des données locales n’a pas pu être effacée. Réessaie dans un instant.",
   "financialSummaryDefaultConjoint": "Conjoint·e",
   "financialSummaryAvs1erPilier": "AVS (1er pilier)",
   "financialSummaryAnneesCotisees": "Années cotisées",

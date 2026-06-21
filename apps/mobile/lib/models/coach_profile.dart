@@ -3382,6 +3382,11 @@ class CoachProfile {
       restoredDataSources['plannedContributions.3a'] =
           ProfileDataSource.userInput;
     }
+    if (coachAvoirLpp != null && coachAvoirLpp > 0) {
+      provided.add('avoirLpp');
+      restoredDataSources['prevoyance.avoirLppTotal'] =
+          ProfileDataSource.userInput;
+    }
     if (answers.containsKey('q_civil_status') ||
         answers.containsKey('q_civil_status_choice')) {
       provided.add('civilStatus');
