@@ -343,10 +343,8 @@ class FinancialSummaryCard extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 10,
+        style: MintTextStyles.micro(color: color).copyWith(
           fontWeight: FontWeight.w700,
-          color: color,
         ),
       ),
     );
