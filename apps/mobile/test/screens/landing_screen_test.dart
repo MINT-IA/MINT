@@ -171,6 +171,95 @@ void main() {
       }
     });
 
+    testWidgets('primary CTA exposes stable Maestro identifier',
+        (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(_wrap());
+        await tester.pumpAndSettle();
+
+        final cta = find.byKey(const Key('landing_talk_to_mint_cta'));
+        expect(cta, findsOneWidget);
+        expect(find.bySemanticsLabel('Parle à Mint'), findsOneWidget);
+        final node = tester.getSemantics(cta);
+        expect(node.identifier, 'landing_talk_to_mint_cta');
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+
+        RendererBinding.instance.performSemanticsAction(
+          ui.SemanticsActionEvent(
+            type: SemanticsAction.tap,
+            viewId: tester.view.viewId,
+            nodeId: node.id,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+        expect(find.text('ONB_STUB'), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
+    testWidgets('CTA actions are inert before reveal animation completes',
+        (tester) async {
+      Future<void> expectEarlyTapIgnored(
+        Finder target, {
+        required String unexpectedDestination,
+      }) async {
+        await tester.pumpWidget(_wrap());
+
+        await tester.tap(target, warnIfMissed: false);
+        await tester.pumpAndSettle();
+
+        expect(find.text(unexpectedDestination), findsNothing);
+        expect(find.text('Parle à Mint'), findsOneWidget);
+      }
+
+      await expectEarlyTapIgnored(
+        find.byType(FilledButton),
+        unexpectedDestination: 'ANONYMOUS_CHAT_STUB',
+      );
+      await expectEarlyTapIgnored(
+        find.text('Continuer sans compte'),
+        unexpectedDestination: 'ONB_STUB',
+      );
+    });
+
+    testWidgets('primary CTA hit area is isolated from /onb link',
+        (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pumpAndSettle();
+
+      final cta = find.byKey(const Key('landing_talk_to_mint_cta'));
+      final primaryRect = tester.getRect(cta);
+      final onbRect = tester.getRect(find.text('Continuer sans compte'));
+      final onbTapTargetRect = tester.getRect(
+        find.widgetWithText(GestureDetector, 'Continuer sans compte'),
+      );
+      expect(primaryRect.overlaps(onbRect), isFalse);
+      expect(primaryRect.overlaps(onbTapTargetRect), isFalse);
+
+      final tapPoints = <Offset>[
+        primaryRect.center,
+        primaryRect.centerLeft + const Offset(8, 0),
+        primaryRect.centerRight - const Offset(8, 0),
+        primaryRect.topCenter + const Offset(0, 8),
+        primaryRect.bottomCenter - const Offset(0, 8),
+      ];
+
+      for (final point in tapPoints) {
+        await tester.pumpWidget(_wrap());
+        await tester.pumpAndSettle();
+
+        await tester.tapAt(point);
+        await tester.pumpAndSettle();
+
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+        expect(find.text('ONB_STUB'), findsNothing);
+      }
+    });
+
     // S005 — anonymous local-mode link also delegates to /start so the router,
     // not LandingScreen, owns the first-run entry contract.
     testWidgets(
