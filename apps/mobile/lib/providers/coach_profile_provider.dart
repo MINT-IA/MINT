@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
@@ -3135,6 +3136,8 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
     // Durable reset: wait for persisted diagnostic and companion local stores
     // to clear before callers navigate or relaunch.
+    final conversationNamespacePurge =
+        ConversationStore.clearCurrentNamespace();
     String? conversationUserId;
     try {
       conversationUserId = await AuthService.getUserId();
@@ -3144,6 +3147,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.clear(
       conversationUserId: conversationUserId,
     );
+    await conversationNamespacePurge;
     final securePurged = await InstallLifecycleService.purgeMintSecureStorage(
       includeAuthSession: false,
     );

@@ -137,7 +137,9 @@ void main() {
           reason: 'expected all 4 categories used, got $used');
     });
 
-    test('owner ambiguity rule: /explore/retraite owner=explore (D-01 v4 first-segment)', () {
+    test(
+        'owner ambiguity rule: /explore/retraite owner=explore (D-01 v4 first-segment)',
+        () {
       final meta = kRouteRegistry['/explore/retraite'];
       expect(meta, isNotNull);
       expect(meta!.owner, RouteOwner.explore);
@@ -155,6 +157,17 @@ void main() {
       final meta = kRouteRegistry['/coach/chat'];
       expect(meta, isNotNull);
       expect(meta!.owner, RouteOwner.coach);
+    });
+
+    test('/anonymous/chat is a retired public alias', () {
+      final meta = kRouteRegistry['/anonymous/chat'];
+      expect(meta, isNotNull);
+      expect(meta!.category, RouteCategory.alias);
+      expect(meta.requiresAuth, isFalse);
+      expect(
+        meta.description,
+        contains('redirects to /onb'),
+      );
     });
 
     test('/ root owner=anonymous, requiresAuth=false', () {
@@ -179,7 +192,8 @@ void main() {
         expect(
           entry.value.requiresAuth,
           isFalse,
-          reason: '${entry.key} should be public (RouteScope.public in app.dart)',
+          reason:
+              '${entry.key} should be public (RouteScope.public in app.dart)',
         );
         expect(entry.value.owner, RouteOwner.auth);
       }

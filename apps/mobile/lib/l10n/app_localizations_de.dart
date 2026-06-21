@@ -4620,6 +4620,10 @@ class SDe extends S {
   String get financialSummaryRestartDiagnostic => 'Diagnose neu starten';
 
   @override
+  String get financialSummaryRestartDiagnosticError =>
+      'Ein Teil der lokalen Daten konnte nicht gelöscht werden. Versuch es gleich noch einmal.';
+
+  @override
   String get financialSummaryDefaultConjoint => 'Ehepartner·in';
 
   @override

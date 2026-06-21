@@ -4612,6 +4612,10 @@ class SFr extends S {
   String get financialSummaryRestartDiagnostic => 'Recommencer le diagnostic';
 
   @override
+  String get financialSummaryRestartDiagnosticError =>
+      'Une partie des données locales n’a pas pu être effacée. Réessaie dans un instant.';
+
+  @override
   String get financialSummaryDefaultConjoint => 'Conjoint·e';
 
   @override

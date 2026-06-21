@@ -1,0 +1,145 @@
+import 'package:flutter/foundation.dart';
+
+enum AuthLifecycleKind {
+  sessionRestoring,
+  freshVisitor,
+  guestEmpty,
+  guestHasLocalData,
+  migrationOffered,
+  migrationConflict,
+  signedInProfileLoading,
+  signedInProfileMissing,
+  signedInIncomplete,
+  signedInReady,
+  syncOffAccount,
+  cloudSyncOnAccount,
+  offlineSignedInStale,
+  sessionExpired,
+  credentialRevoked,
+  deletionConfirming,
+  deletionPending,
+  deletionFailed,
+  deletedLocalCleanup,
+  deletedSignedOut,
+}
+
+enum AuthAccessMode { visitor, guestLocal, account }
+
+enum AuthSyncMode { none, localOnly, cloudSyncOff, cloudSyncOn }
+
+enum AuthDataScopeKind { none, guest, user }
+
+@immutable
+class AuthDataScope {
+  const AuthDataScope._(this.kind, [this.ownerId]);
+
+  static const none = AuthDataScope._(AuthDataScopeKind.none);
+
+  factory AuthDataScope.guest(String installId) {
+    return AuthDataScope._(AuthDataScopeKind.guest, installId);
+  }
+
+  factory AuthDataScope.user(String userId) {
+    return AuthDataScope._(AuthDataScopeKind.user, userId);
+  }
+
+  final AuthDataScopeKind kind;
+  final String? ownerId;
+
+  @override
+  bool operator ==(Object other) {
+    return other is AuthDataScope &&
+        other.kind == kind &&
+        other.ownerId == ownerId;
+  }
+
+  @override
+  int get hashCode => Object.hash(kind, ownerId);
+
+  @override
+  String toString() {
+    final wireKind = kind.name;
+    if (ownerId == null) return wireKind;
+    return '$wireKind:$ownerId';
+  }
+}
+
+@immutable
+class AuthLifecycleState {
+  const AuthLifecycleState({
+    required this.state,
+    required this.accessMode,
+    required this.activeDataScope,
+    required this.syncMode,
+    this.userId,
+  });
+
+  factory AuthLifecycleState.sessionRestoring() {
+    return const AuthLifecycleState(
+      state: AuthLifecycleKind.sessionRestoring,
+      accessMode: AuthAccessMode.visitor,
+      activeDataScope: AuthDataScope.none,
+      syncMode: AuthSyncMode.none,
+    );
+  }
+
+  factory AuthLifecycleState.freshVisitor() {
+    return const AuthLifecycleState(
+      state: AuthLifecycleKind.freshVisitor,
+      accessMode: AuthAccessMode.visitor,
+      activeDataScope: AuthDataScope.none,
+      syncMode: AuthSyncMode.none,
+    );
+  }
+
+  factory AuthLifecycleState.guestEmpty({required String installId}) {
+    return AuthLifecycleState(
+      state: AuthLifecycleKind.guestEmpty,
+      accessMode: AuthAccessMode.guestLocal,
+      activeDataScope: AuthDataScope.guest(installId),
+      syncMode: AuthSyncMode.localOnly,
+    );
+  }
+
+  factory AuthLifecycleState.signedInProfileLoading({
+    required String userId,
+    required bool cloudSyncEnabled,
+  }) {
+    return AuthLifecycleState(
+      state: AuthLifecycleKind.signedInProfileLoading,
+      accessMode: AuthAccessMode.account,
+      activeDataScope: AuthDataScope.user(userId),
+      syncMode: cloudSyncEnabled
+          ? AuthSyncMode.cloudSyncOn
+          : AuthSyncMode.cloudSyncOff,
+      userId: userId,
+    );
+  }
+
+  factory AuthLifecycleState.sessionExpired() {
+    return const AuthLifecycleState(
+      state: AuthLifecycleKind.sessionExpired,
+      accessMode: AuthAccessMode.account,
+      activeDataScope: AuthDataScope.none,
+      syncMode: AuthSyncMode.none,
+    );
+  }
+
+  final AuthLifecycleKind state;
+  final AuthAccessMode accessMode;
+  final AuthDataScope activeDataScope;
+  final AuthSyncMode syncMode;
+  final String? userId;
+
+  bool get allowsMainNavigation {
+    return activeDataScope != AuthDataScope.none &&
+        (accessMode == AuthAccessMode.guestLocal ||
+            accessMode == AuthAccessMode.account);
+  }
+
+  bool get hasAccountSession {
+    return accessMode == AuthAccessMode.account &&
+        activeDataScope.kind == AuthDataScopeKind.user &&
+        userId != null;
+  }
+}

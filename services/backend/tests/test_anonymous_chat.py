@@ -230,6 +230,79 @@ def test_discovery_prompt_no_tool_references():
         assert banned not in prompt_lower, f"Discovery prompt must not contain '{banned}'"
 
 
+def test_discovery_prompt_forbids_state_confirmation_claims():
+    """Anonymous discovery must not confirm deletion/reset state from LLM text."""
+    from app.api.v1.endpoints.anonymous_chat import build_discovery_system_prompt
+
+    prompt = build_discovery_system_prompt(intent=None, language="fr")
+    prompt_lower = prompt.lower()
+    assert "suppression" in prompt_lower
+    assert "réinitialisation" in prompt_lower
+    assert "seule l'app peut le confirmer" in prompt_lower
+    assert "je repars de zéro" in prompt_lower
+    assert "sans trace" in prompt_lower
+
+
+def test_anonymous_state_claim_guard_rewrites_privacy_claims():
+    """Runtime guard rewrites unsafe deletion/privacy claims if the LLM ignores the prompt."""
+    from app.api.v1.endpoints.anonymous_chat import _guard_anonymous_state_claims
+
+    unsafe = (
+        "Oui, je repars vraiment de zéro. Je n'ai plus accès à aucune donnée. "
+        "Tu peux tester sans laisser de trace."
+    )
+    guarded = _guard_anonymous_state_claims(unsafe, language="fr")
+
+    assert guarded != unsafe
+    assert "Je ne peux pas confirmer" in guarded
+    guarded_lower = guarded.lower()
+    assert "repars" not in guarded_lower
+    assert "aucune donnée" not in guarded_lower
+    assert "sans laisser de trace" not in guarded_lower
+
+    blank_slate = "En gros, on repart d'une feuille blanche."
+    assert _guard_anonymous_state_claims(blank_slate, language="fr") != blank_slate
+
+    natural_claims = [
+        "Aucune donnée n'a été conservée.",
+        "Ton historique est effacé.",
+        "Tes informations locales ont été supprimées.",
+    ]
+    for claim in natural_claims:
+        assert _guard_anonymous_state_claims(claim, language="fr") != claim
+
+
+def test_anonymous_state_claim_guard_allows_legitimate_financial_caveats():
+    """Guard must not replace normal caveats or financial uses of similar words."""
+    from app.api.v1.endpoints.anonymous_chat import _guard_anonymous_state_claims
+
+    allowed = [
+        "Je n'ai aucune donnée sur ton salaire, peux-tu me le préciser ?",
+        "Il n'existe aucune donnée officielle sur ce taux.",
+        "La suppression d'une déduction LPP réduit ton assiette fiscale.",
+        "L'effacement de dettes peut être une procédure encadrée.",
+        "Ce virement a été effectué sans trace de commission dans les livres.",
+        "Je te propose de partir sur une feuille blanche pour ton plan d'épargne.",
+    ]
+
+    for text in allowed:
+        assert _guard_anonymous_state_claims(text, language="fr") == text
+
+
+def test_anonymous_state_claim_guard_rewrites_english_privacy_claims():
+    """English state claims are guarded too."""
+    from app.api.v1.endpoints.anonymous_chat import _guard_anonymous_state_claims
+
+    unsafe = "You are starting fresh with no data left and no trace remains."
+    guarded = _guard_anonymous_state_claims(unsafe, language="en")
+
+    assert guarded != unsafe
+    assert "I cannot confirm" in guarded
+    guarded_lower = guarded.lower()
+    assert "no data left" not in guarded_lower
+    assert "no trace remains" not in guarded_lower
+
+
 # ---------------------------------------------------------------------------
 # Test 9: Intent field is optional; when provided, included in prompt
 # ---------------------------------------------------------------------------

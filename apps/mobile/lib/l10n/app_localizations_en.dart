@@ -4586,6 +4586,10 @@ class SEn extends S {
   String get financialSummaryRestartDiagnostic => 'Restart the diagnostic';
 
   @override
+  String get financialSummaryRestartDiagnosticError =>
+      'Some local data could not be cleared. Try again in a moment.';
+
+  @override
   String get financialSummaryDefaultConjoint => 'Spouse';
 
   @override

@@ -164,10 +164,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await AppleSignInService.signIn();
       if (response != null && mounted) {
         // Single source of truth: AuthProvider owns the token persistence,
-        // state mutation, anonymous data migration, profile hydration, and
+        // state mutation, local claim policy, profile hydration, and
         // fresh-start scheduling. AppleSignInService does NOT touch state.
-        final ok =
-            await context.read<AuthProvider>().completeAppleSignIn(response);
+        final ok = await context.read<AuthProvider>().completeAppleSignIn(
+              response,
+              claimAnonymousConversations: false,
+            );
         if (!ok) {
           if (mounted) {
             setState(() {

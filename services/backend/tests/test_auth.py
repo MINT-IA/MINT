@@ -1323,11 +1323,13 @@ def _signed_apple_token(
     email: str = "apple-valid@example.com",
 ) -> str:
     nonce_hash = hashlib.sha256(raw_nonce.encode()).hexdigest()
+    issued_at = int(time.time())
     return jwt.encode(
         {
             "iss": "https://appleid.apple.com",
             "aud": audience,
-            "exp": int(time.time()) + 600,
+            "exp": issued_at + 600,
+            "iat": issued_at,
             "sub": f"apple-sub-{email}",
             "email": email,
             "nonce": nonce_hash,

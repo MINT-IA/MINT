@@ -3313,6 +3313,40 @@ class CoachProfile {
         restoredDataSources['fiscal.impots'] = ProfileDataSource.certificate;
       }
     }
+    if (answers['_coach_lpp_source'] == 'document_scan') {
+      if (coachAvoirLpp != null && coachAvoirLpp > 0) {
+        restoredDataSources['prevoyance.avoirLppTotal'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachAvoirLppOblig != null) {
+        restoredDataSources['prevoyance.avoirLppObligatoire'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachAvoirLppSuroblig != null) {
+        restoredDataSources['prevoyance.avoirLppSurobligatoire'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachTauxConversion != null) {
+        restoredDataSources['prevoyance.tauxConversion'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachTauxConvSuroblig != null) {
+        restoredDataSources['prevoyance.tauxConversionSuroblig'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachRachatMax != null) {
+        restoredDataSources['prevoyance.rachatMaximum'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachSalaireAssure != null) {
+        restoredDataSources['prevoyance.salaireAssure'] =
+            ProfileDataSource.certificate;
+      }
+      if (coachRendementCaisse != null) {
+        restoredDataSources['prevoyance.rendementCaisse'] =
+            ProfileDataSource.certificate;
+      }
+    }
 
     // S47: Build initial dataTimestamps for all populated fields.
     // Use persisted updatedAt as base (reflects when data was actually entered),
@@ -3381,6 +3415,13 @@ class CoachProfile {
     if (answers.containsKey('q_3a_annual_contribution') && contribution3a > 0) {
       restoredDataSources['plannedContributions.3a'] =
           ProfileDataSource.userInput;
+    }
+    if (coachAvoirLpp != null && coachAvoirLpp > 0) {
+      provided.add('avoirLpp');
+      restoredDataSources.putIfAbsent(
+        'prevoyance.avoirLppTotal',
+        () => ProfileDataSource.userInput,
+      );
     }
     if (answers.containsKey('q_civil_status') ||
         answers.containsKey('q_civil_status_choice')) {

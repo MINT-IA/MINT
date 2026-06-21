@@ -4,8 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -16,7 +18,9 @@ import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
@@ -86,6 +90,59 @@ String localizeAuthError(AuthError error, S l) {
   }
 }
 
+/// Translate an exception-like auth failure into localized UI copy.
+///
+/// Use this in UI `catch` blocks instead of displaying `error.toString()`.
+String localizeAuthException(Object error, S l) {
+  return localizeAuthError(_authErrorFromException(error), l);
+}
+
+AuthError _authErrorFromException(Object error) {
+  final raw = error.toString().replaceAll('Exception: ', '').trim();
+  final lower = raw.toLowerCase();
+
+  if (lower.contains('socketexception') ||
+      lower.contains('clientexception') ||
+      lower.contains('failed host lookup') ||
+      lower.contains('connection refused') ||
+      lower.contains('errno = 8') ||
+      lower.contains('errno = 61')) {
+    return AuthError.networkUnavailable;
+  }
+
+  if (lower.contains('existe déjà')) {
+    return AuthError.emailAlreadyUsed;
+  }
+
+  if (lower.contains('incorrect')) {
+    return AuthError.incorrectCredentials;
+  }
+
+  if (lower.contains('registration failed') ||
+      lower.contains('inscription impossible') ||
+      lower.contains('service indisponible')) {
+    return AuthError.registrationUnavailable;
+  }
+
+  if (lower.contains('authentication requise') ||
+      lower.contains('unauthorized') ||
+      lower.contains('forbidden')) {
+    return AuthError.serviceUnavailable;
+  }
+
+  if (lower.contains('invalid') || lower.contains('invalide')) {
+    return AuthError.invalidInput;
+  }
+  if (lower.contains('expir')) {
+    return AuthError.linkExpired;
+  }
+  if (lower.contains('non vérifié') || lower.contains('not verified')) {
+    return AuthError.emailNotVerified;
+  }
+
+  return AuthError.genericError;
+}
+
 /// Provider for managing authentication state
 /// Handles login, register, logout, and auth persistence
 class AuthProvider extends ChangeNotifier {
@@ -97,11 +154,16 @@ class AuthProvider extends ChangeNotifier {
   AuthError? _error;
   bool _requiresEmailVerification = false;
   bool _isDeletingAccount = false;
+  AuthLifecycleState _authLifecycle = AuthLifecycleState.sessionRestoring();
   // Local-mode default-on: the router's "authenticated" scope passes when
   // `isLoggedIn || isLocalMode`. Starting true keeps tab navigation alive
   // even if `checkAuth()` throws before the prefs block runs (e.g. on a
   // keychain failure). `register()`/`login()` explicitly flip this to false.
+  // Cloud sync defaults off; this legacy bool now means "cloud sync off" for
+  // accounts, not "the user deliberately entered guest mode".
   bool _isLocalMode = true;
+  static const _authLocalModeKey = 'auth_local_mode';
+  static const _mintInstallIdKey = '_mint_install_id';
 
   static String _localDataSyncPendingKey(String userId) =>
       'local_data_sync_pending_$userId';
@@ -113,6 +175,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   AuthError? get error => _error;
   bool get requiresEmailVerification => _requiresEmailVerification;
+  AuthLifecycleState get authLifecycle => _authLifecycle;
 
   @visibleForTesting
   static Map<String, dynamic> mergeBackendProfileDataForTest(
@@ -142,10 +205,12 @@ class AuthProvider extends ChangeNotifier {
         answers[entry.key] = entry.value;
       }
     }
-    final claimHasSelfEmployedAnnual =
-        claimAnswers.containsKey('q_self_employed_net_income_annual_chf');
-    final claimHasPillar3aAnnual =
-        claimAnswers.containsKey('q_3a_annual_contribution');
+    final claimHasSelfEmployedAnnual = claimAnswers.containsKey(
+      'q_self_employed_net_income_annual_chf',
+    );
+    final claimHasPillar3aAnnual = claimAnswers.containsKey(
+      'q_3a_annual_contribution',
+    );
     bool fillIfMissing(String key, dynamic value) {
       if (value == null) return false;
       if (!_isMissingAnswer(answers, key)) return false;
@@ -223,8 +288,9 @@ class AuthProvider extends ChangeNotifier {
     }
     if (data['selfEmployedNetIncome'] is num && !claimHasSelfEmployedAnnual) {
       final annual = (data['selfEmployedNetIncome'] as num).toDouble();
-      final previousAnnual =
-          numberAnswer('q_self_employed_net_income_annual_chf');
+      final previousAnnual = numberAnswer(
+        'q_self_employed_net_income_annual_chf',
+      );
       final previousMonthly = numberAnswer('q_net_income_period_chf');
       final previousMonthlySource = answers['q_net_income_period_source'];
       final previousEmployment = answers['q_employment_status'];
@@ -255,8 +321,10 @@ class AuthProvider extends ChangeNotifier {
       fillNumIfMissing('q_gross_salary_annual', data['incomeGrossYearly']);
     }
     if (data['incomeNetMonthly'] != null) {
-      final filledMonthlyIncome =
-          fillNumIfMissing('q_net_income_period_chf', data['incomeNetMonthly']);
+      final filledMonthlyIncome = fillNumIfMissing(
+        'q_net_income_period_chf',
+        data['incomeNetMonthly'],
+      );
       if (filledMonthlyIncome) {
         answers['q_pay_frequency'] = 'monthly';
       }
@@ -428,9 +496,13 @@ class AuthProvider extends ChangeNotifier {
   /// Check stored auth on app startup
   Future<void> checkAuth() async {
     _isLoading = true;
+    _authLifecycle = AuthLifecycleState.sessionRestoring();
     notifyListeners();
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final hasExplicitLocalMode = prefs.containsKey(_authLocalModeKey);
+      _isLocalMode = prefs.getBool(_authLocalModeKey) ?? true;
       final mayRestoreAuth =
           await InstallLifecycleService.prepareForAuthRestore();
       final isLoggedIn =
@@ -439,13 +511,29 @@ class AuthProvider extends ChangeNotifier {
         _userId = await AuthService.getUserId();
         _email = await AuthService.getUserEmail();
         _displayName = await AuthService.getDisplayName();
+        if (_userId == null || _userId!.isEmpty) {
+          await AuthService.logout();
+          _isLoggedIn = false;
+          _userId = null;
+          _email = null;
+          _displayName = null;
+          _authLifecycle = AuthLifecycleState.sessionExpired();
+          ConversationStore.setCurrentUserId(null);
+          _error = null;
+          return;
+        }
         _isLoggedIn = true;
+        _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+          userId: _userId!,
+          cloudSyncEnabled: isCloudSyncEnabled,
+        );
         // FIX-W11-7: Set user prefix for conversation isolation.
         ConversationStore.setCurrentUserId(_userId);
         _error = null;
-        // Full auth contract: migrate anonymous data, hydrate profile,
-        // schedule fresh-start notifications. Required for Apple Sign-In
-        // which only calls checkAuth() (not login/register).
+        // Full restored-session contract: hydrate profile and schedule
+        // fresh-start notifications. Do not claim anonymous conversations on
+        // silent restore; a signed account must not inherit guest chat state
+        // by accident.
         await _migrateLocalDataIfNeeded();
         await _hydrateProfileFromBackend();
         try {
@@ -453,25 +541,24 @@ class AuthProvider extends ChangeNotifier {
         } catch (e) {
           debugPrint('[Auth] best-effort failed: $e');
         }
+      } else {
+        _authLifecycle = _isLocalMode && hasExplicitLocalMode
+            ? AuthLifecycleState.guestEmpty(
+                installId: await _loadOrCreateInstallId(prefs),
+              )
+            : AuthLifecycleState.freshVisitor();
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
-      final prefs = await SharedPreferences.getInstance();
       _requiresEmailVerification =
           prefs.getBool('requires_email_verification') ?? false;
-      // Local-mode default: true on fresh install. Phase 52 (D-01):
-      // register / login no longer auto-flip this to false; cloud sync
-      // is opt-in via Settings › Confidentialité (`toggleCloudSync`).
-      // Existing users registered pre-Phase-52 retain whatever value
-      // was persisted — their `auth_local_mode = false` stays, no
-      // surprise switch in their sync state.
-      if (!prefs.containsKey('auth_local_mode')) {
-        await prefs.setBool('auth_local_mode', true);
-      }
-      _isLocalMode = prefs.getBool('auth_local_mode') ?? true;
+      // Missing `auth_local_mode` means no explicit guest choice yet. For
+      // accounts, the legacy value still means cloud sync is opt-in/off by
+      // default; for signed-out users it must not unlock main navigation.
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
       _isLoggedIn = false;
+      _authLifecycle = AuthLifecycleState.sessionExpired();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -511,6 +598,10 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: response['refresh_token'] as String?,
         );
         _isLoggedIn = true;
+        _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+          userId: userId,
+          cloudSyncEnabled: isCloudSyncEnabled,
+        );
         // Phase 52 (D-01): no longer auto-disable local mode on register.
         // Cloud sync is opt-in via Settings › Confidentialité.
         // FIX-W11-7: Set user prefix for conversation isolation.
@@ -533,7 +624,7 @@ class AuthProvider extends ChangeNotifier {
       }
 
       if (_isLoggedIn) {
-        await _migrateLocalDataIfNeeded();
+        await _migrateLocalDataIfNeeded(claimAnonymousConversations: true);
         await _hydrateProfileFromBackend();
         // Best-effort: schedule fresh-start notifications
         try {
@@ -580,6 +671,10 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
+      _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+        userId: userId,
+        cloudSyncEnabled: isCloudSyncEnabled,
+      );
       // Phase 52 (D-01): no longer auto-disable local mode on login.
       // Cloud sync is opt-in via Settings › Confidentialité.
       // FIX-W11-7: Set user prefix for conversation isolation.
@@ -614,7 +709,7 @@ class AuthProvider extends ChangeNotifier {
   ///   1. Saving the JWT via AuthService
   ///   2. Setting _isLoggedIn, _userId, _email, _displayName
   ///   3. Setting the ConversationStore user prefix
-  ///   4. Migrating local anonymous data
+  ///   4. Optionally claiming local anonymous conversations
   ///   5. Hydrating profile from backend
   ///   6. Scheduling fresh-start notifications
   ///
@@ -622,7 +717,10 @@ class AuthProvider extends ChangeNotifier {
   /// optional (backend may omit them on Apple's hidden email flow).
   ///
   /// Returns `true` on success, `false` on failure (error is set).
-  Future<bool> completeAppleSignIn(Map<String, dynamic> response) async {
+  Future<bool> completeAppleSignIn(
+    Map<String, dynamic> response, {
+    required bool claimAnonymousConversations,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -660,6 +758,10 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = displayName;
       _isLoggedIn = true;
+      _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+        userId: userId,
+        cloudSyncEnabled: isCloudSyncEnabled,
+      );
       // Phase 52 (D-01): no longer auto-disable local mode on Apple SSO.
       // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;
@@ -667,7 +769,9 @@ class AuthProvider extends ChangeNotifier {
       // FIX-W11-7: Set user prefix for conversation isolation.
       ConversationStore.setCurrentUserId(_userId);
 
-      await _migrateLocalDataIfNeeded();
+      await _migrateLocalDataIfNeeded(
+        claimAnonymousConversations: claimAnonymousConversations,
+      );
       await _hydrateProfileFromBackend();
       try {
         await FreshStartService().scheduleAllFreshStartNotifications();
@@ -747,6 +851,12 @@ class AuthProvider extends ChangeNotifier {
       }
 
       _isLoggedIn = true;
+      if (_userId != null && _userId!.isNotEmpty) {
+        _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+          userId: _userId!,
+          cloudSyncEnabled: isCloudSyncEnabled,
+        );
+      }
       // Phase 52 (D-01): no longer auto-disable local mode on magic link.
       // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;
@@ -787,8 +897,16 @@ class AuthProvider extends ChangeNotifier {
       _displayName = null;
       _requiresEmailVerification = false;
       _isLocalMode = false;
-      await (await SharedPreferences.getInstance())
-          .setBool('auth_local_mode', false);
+      _authLifecycle = const AuthLifecycleState(
+        state: AuthLifecycleKind.deletedSignedOut,
+        accessMode: AuthAccessMode.visitor,
+        activeDataScope: AuthDataScope.none,
+        syncMode: AuthSyncMode.none,
+      );
+      await (await SharedPreferences.getInstance()).setBool(
+        _authLocalModeKey,
+        false,
+      );
       _isDeletingAccount = false;
       _isLoading = false;
       notifyListeners();
@@ -881,10 +999,9 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     final accessToken = await AuthService.getToken();
     final refreshToken = await AuthService.getRefreshToken();
-    unawaited(ApiService.logout(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    ));
+    unawaited(
+      ApiService.logout(accessToken: accessToken, refreshToken: refreshToken),
+    );
     await AuthService.logout();
     // FIX-W11-7: Clear user prefix on logout.
     ConversationStore.setCurrentUserId(null);
@@ -895,11 +1012,14 @@ class AuthProvider extends ChangeNotifier {
     _displayName = null;
     _requiresEmailVerification = false;
     _isLocalMode = false;
+    _authLifecycle = AuthLifecycleState.freshVisitor();
     // Persist AFTER _purgeLocalData (which prefs.clear()s the store).
     // Logout = fully out; the user can re-enable local mode by tapping
     // "Continuer en mode local" on the register/login screens.
-    await (await SharedPreferences.getInstance())
-        .setBool('auth_local_mode', false);
+    await (await SharedPreferences.getInstance()).setBool(
+      _authLocalModeKey,
+      false,
+    );
     _error = null;
     notifyListeners();
   }
@@ -956,6 +1076,19 @@ class AuthProvider extends ChangeNotifier {
         ownedSecurePurged,
         prefs: prefs,
       );
+      await _bestEffortPurge('BYOK key', () => ByokProvider.clearStoredKey());
+      await _bestEffortPurge(
+        'partner estimate',
+        () => PartnerEstimateService.clear(),
+      );
+      await _bestEffortPurge(
+        'anonymous session',
+        () => AnonymousSessionService.clearSession(),
+      );
+      await _bestEffortPurge(
+        'biography key',
+        () => BiographyRepository.clearEncryptionKey(),
+      );
     } catch (e) {
       // Purge is best-effort — never block auth flow
       if (kDebugMode) {
@@ -964,16 +1097,32 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Migrate local anonymous data to the authenticated account.
+  Future<void> _bestEffortPurge(
+    String label,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local $label purge failed: $e');
+      }
+    }
+  }
+
+  /// Migrate eligible local data to the authenticated account.
   ///
-  /// Called after a successful login or register to ensure any data
-  /// created before authentication (wizard answers, preferences, etc.)
-  /// is associated with the new user account for future cloud sync.
+  /// Called after successful auth to associate eligible pre-auth data
+  /// (wizard answers, preferences, etc.) with the account for future cloud
+  /// sync. Anonymous conversations are claimed only when explicitly requested
+  /// by a creation/claim path.
   ///
   /// Safety: captures userId at call-time to avoid race conditions
   /// if the user logs out/in rapidly. Refuses to overwrite ownership
   /// if local data already belongs to a different account.
-  Future<void> _migrateLocalDataIfNeeded() async {
+  Future<void> _migrateLocalDataIfNeeded({
+    bool claimAnonymousConversations = false,
+  }) async {
     final currentUserId = _userId;
     if (currentUserId == null || currentUserId.isEmpty) return;
 
@@ -993,11 +1142,13 @@ class AuthProvider extends ChangeNotifier {
         await AccountHandoffService.clearChoice();
         shouldMigrate = await AccountHandoffService.hasLocalData();
       }
-      if (!shouldMigrate) return;
+      if (!shouldMigrate && !claimAnonymousConversations) return;
 
       final alreadyMigrated =
           prefs.getBool('local_data_migrated_$currentUserId') ?? false;
-      if (alreadyMigrated && !syncPending) return;
+      if (alreadyMigrated && !syncPending && !claimAnonymousConversations) {
+        return;
+      }
 
       // Check if local data already belongs to a different user.
       final existingOwner = prefs.getString('local_data_owner');
@@ -1018,16 +1169,18 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
-      if (!alreadyMigrated) {
-        // Migrate anonymous conversations to authenticated user namespace.
-        // Must happen before wizard data push so conversation history is preserved.
+      // Claim anonymous conversations only for explicit creation/claim flows.
+      // Restored sessions and existing-account logins keep guest conversations
+      // in the anonymous namespace so account chat never reuses them by accident.
+      if (claimAnonymousConversations) {
         try {
           await ConversationStore.migrateAnonymousToUser(currentUserId);
           await AnonymousSessionService.clearSession();
         } catch (e) {
           if (kDebugMode) {
             debugPrint(
-                '[AuthProvider] Anonymous conversation migration failed: $e');
+              '[AuthProvider] Anonymous conversation migration failed: $e',
+            );
           }
         }
       }
@@ -1040,8 +1193,8 @@ class AuthProvider extends ChangeNotifier {
       // → wizard answers stay on device. If the user later flips
       // sync ON in Settings › Confidentialité, the next save
       // naturally pushes via _syncToBackend (also gated by B-1).
-      // Conversation migration above is local→local within the
-      // device's ConversationStore namespace and is unaffected.
+      // Conversation claiming above is local→local within the device's
+      // ConversationStore namespace and is unaffected.
       final cloudSyncEnabled = !(prefs.getBool('auth_local_mode') ?? true);
       if (cloudSyncEnabled) {
         // Push local wizard data to backend via claimLocalData.
@@ -1130,7 +1283,10 @@ class AuthProvider extends ChangeNotifier {
   Future<void> enableLocalMode() async {
     _isLocalMode = true;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('auth_local_mode', true);
+    await prefs.setBool(_authLocalModeKey, true);
+    _authLifecycle = AuthLifecycleState.guestEmpty(
+      installId: await _loadOrCreateInstallId(prefs),
+    );
     notifyListeners();
   }
 
@@ -1141,53 +1297,25 @@ class AuthProvider extends ChangeNotifier {
   Future<void> toggleCloudSync(bool enabled) async {
     _isLocalMode = !enabled;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('auth_local_mode', _isLocalMode);
+    await prefs.setBool(_authLocalModeKey, _isLocalMode);
+    if (_isLoggedIn && _userId != null) {
+      _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+        userId: _userId!,
+        cloudSyncEnabled: enabled,
+      );
+    }
     notifyListeners();
   }
 
+  Future<String> _loadOrCreateInstallId(SharedPreferences prefs) async {
+    final existing = prefs.getString(_mintInstallIdKey);
+    if (existing != null && existing.isNotEmpty) return existing;
+    final generated = const Uuid().v4();
+    await prefs.setString(_mintInstallIdKey, generated);
+    return generated;
+  }
+
   AuthError _toUserFriendlyAuthError(Object error) {
-    final raw = error.toString().replaceAll('Exception: ', '').trim();
-    final lower = raw.toLowerCase();
-
-    if (lower.contains('socketexception') ||
-        lower.contains('clientexception') ||
-        lower.contains('failed host lookup') ||
-        lower.contains('connection refused') ||
-        lower.contains('errno = 8') ||
-        lower.contains('errno = 61')) {
-      return AuthError.networkUnavailable;
-    }
-
-    if (lower.contains('existe déjà')) {
-      return AuthError.emailAlreadyUsed;
-    }
-
-    if (lower.contains('incorrect')) {
-      return AuthError.incorrectCredentials;
-    }
-
-    if (lower.contains('registration failed') ||
-        lower.contains('inscription impossible') ||
-        lower.contains('service indisponible')) {
-      return AuthError.registrationUnavailable;
-    }
-
-    if (lower.contains('authentication requise') ||
-        lower.contains('unauthorized') ||
-        lower.contains('forbidden')) {
-      return AuthError.serviceUnavailable;
-    }
-
-    if (lower.contains('invalid') || lower.contains('invalide')) {
-      return AuthError.invalidInput;
-    }
-    if (lower.contains('expir')) {
-      return AuthError.linkExpired;
-    }
-    if (lower.contains('non vérifié') || lower.contains('not verified')) {
-      return AuthError.emailNotVerified;
-    }
-
-    return AuthError.genericError;
+    return _authErrorFromException(error);
   }
 }

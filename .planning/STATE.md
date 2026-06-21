@@ -88,6 +88,10 @@ open claim is physical-device/TestFlight restore evidence.
   mini but is unavailable to CoreDevice.
 - Runtime evidence artifacts are local and untracked; the executable Maestro
   flow is committed under `tools/simulator/flows/maestro-perfect-set/`.
+- PR #723 contributes cleanup handoff provenance under
+  `.planning/handoffs/mint-cleanup-2026-06-21/`; this integration keeps the
+  newer staging state above as the active router instead of reverting to the
+  earlier cleanup-only milestone.
 
 **Next execution bias:** reconnect the physical iPhone 13 mini and rerun
 `bash tools/simulator/mint2_real_device_restore_gate.sh`; only then proceed to a
@@ -96,8 +100,8 @@ gate is `BLOCKED_NO_AVAILABLE_DEVICE`.
 
 ## Historical Receipts
 
-The sections below pre-date the Core Journey Truth convergence phase. They stay
-available for provenance, but they are no longer the active routing state.
+The sections below pre-date the current cleanup/account lifecycle session. They
+stay available for provenance, but they are not the active routing state.
 
 ## Phase 01.1 Planning Receipt (walkthrough-first-grounding, 2026-05-21)
 

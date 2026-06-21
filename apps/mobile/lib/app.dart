@@ -14,8 +14,8 @@ import 'package:mint_mobile/widgets/mint_shell.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_budget_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_mint2_account_claim_screen.dart';
@@ -229,6 +229,56 @@ final List<NavigatorObserver> _routerObservers = [
   SentryNavigatorObserver(setRouteNameAsTransaction: true),
 ];
 
+@visibleForTesting
+String? accountLifecyclePublicEntryRedirect({
+  required AuthLifecycleState lifecycle,
+  required String path,
+}) {
+  if (!lifecycle.hasAccountSession) return null;
+  if (path == '/' || path == '/auth/login' || path == '/auth/register') {
+    return '/home';
+  }
+  return null;
+}
+
+@visibleForTesting
+String? accountLifecycleAuthenticatedRedirect({
+  required AuthLifecycleState lifecycle,
+  required String path,
+}) {
+  if (lifecycle.allowsMainNavigation) return null;
+  final encodedPath = Uri.encodeComponent(path);
+  if (lifecycle.state == AuthLifecycleKind.sessionExpired ||
+      lifecycle.state == AuthLifecycleKind.credentialRevoked) {
+    return '/auth/login?redirect=$encodedPath';
+  }
+  return '/auth/register?redirect=$encodedPath';
+}
+
+const Set<String> _publicRoutePathFallbacks = {
+  '/',
+  '/start',
+  '/onb',
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot-password',
+  '/auth/verify-email',
+  '/auth/verify',
+  '/anonymous/chat',
+  '/waitlist',
+  '/legal/terms',
+};
+
+@visibleForTesting
+RouteScope routeScopeForRedirect({
+  required String path,
+  required RouteBase? topRoute,
+}) {
+  if (topRoute is ScopedGoRoute) return topRoute.scope;
+  if (_publicRoutePathFallbacks.contains(path)) return RouteScope.public;
+  return RouteScope.authenticated;
+}
+
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   observers: _routerObservers,
@@ -241,7 +291,6 @@ final _router = GoRouter(
     // maintaining a manual prefix whitelist. Fail-closed: unknown
     // routes default to authenticated.
     final auth = context.read<AuthProvider>();
-    final isLoggedIn = auth.isLoggedIn;
     final path = state.uri.path;
 
     // Gate 0 #2 (splash gate): while checkAuth() is still resolving
@@ -295,14 +344,19 @@ final _router = GoRouter(
     }
 
     // Determine scope from matched route (fail-closed default)
-    final topRoute = state.topRoute;
-    final scope =
-        topRoute is ScopedGoRoute ? topRoute.scope : RouteScope.authenticated;
+    final scope = routeScopeForRedirect(
+      path: path,
+      topRoute: state.topRoute,
+    );
 
     switch (scope) {
       case RouteScope.public:
-        // Always allowed — no auth check
-        return null;
+        // A restored account must not see the signed-out landing/auth funnel
+        // on cold relaunch. Guest-local public entry remains allowed.
+        return accountLifecyclePublicEntryRedirect(
+          lifecycle: auth.authLifecycle,
+          path: path,
+        );
 
       case RouteScope.onboarding:
         // Onboarding routes are accessible without full auth;
@@ -311,11 +365,13 @@ final _router = GoRouter(
         return null;
 
       case RouteScope.authenticated:
-        // Require signed-in user OR opted-in anonymous local mode.
-        // Local mode is default-on for fresh installs per AuthProvider.checkAuth.
-        if (!isLoggedIn && !auth.isLocalMode) {
-          return '/auth/register?redirect=${Uri.encodeComponent(path)}';
-        }
+        final lifecycle = auth.authLifecycle;
+        // Require a deliberate guest dossier or a restored account lifecycle.
+        final authRedirect = accountLifecycleAuthenticatedRedirect(
+          lifecycle: lifecycle,
+          path: path,
+        );
+        if (authRedirect != null) return authRedirect;
         // ── GLOBAL archetype/FATCA gate (plan 08, oracle expat_us-1) ──
         // Before this branch the only FATCA gate lived at the coach entry,
         // so an expatUs profile reaching /home, /mon-argent, /profile/bilan
@@ -340,9 +396,9 @@ final _router = GoRouter(
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
     ),
-    // Landing CTA target. Keep LandingScreen state-free, but fail closed to
-    // the structured diagnostic path. The legacy anonymous chat remains a
-    // public route, never the first-run fallback.
+    // Landing CTA target: chat-first anonymous cold-open is retired.
+    // Keep /start as a public alias for old links, but route users into
+    // the explicit first-experience onboarding flow instead.
     ScopedGoRoute(
       path: '/start',
       scope: RouteScope.public,
@@ -384,16 +440,13 @@ final _router = GoRouter(
       ),
     ),
 
-    // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
-    // Phase 71a (2026-05-05) : /anonymous/intent route killed; the chat
-    // fallback carries the opener bubble + 3 chip suggestions inline.
+    // ── Retired anonymous chat entry (public alias) ─────────────
+    // The old cold-open chat prompt is no longer a product surface. Keep
+    // the path as a compatibility alias so deep links do not 404.
     ScopedGoRoute(
       path: '/anonymous/chat',
       scope: RouteScope.public,
-      builder: (context, state) {
-        final intent = state.uri.queryParameters['intent'];
-        return AnonymousChatScreen(intent: intent);
-      },
+      redirect: (_, __) => '/onb',
     ),
     // ── Sub-phase 01.5 W02-T03 — Hard-gate waitlist destination ──
     // Public scope: unauthenticated users coming through the onboarding
@@ -504,16 +557,10 @@ final _router = GoRouter(
                     ),
                   );
                 }
-                // Wave B-minimal B0 — Unblock tab Aujourd'hui for anonymous
-                // local-mode users. AuthProvider.dart:87 documents the
-                // intended gate as `isLoggedIn || isLocalMode`; the actual
-                // code shipped only `isLoggedIn`, making /home redirect to
-                // LandingScreen for every fresh-install user who hadn't
-                // explicitly signed in. Wave 0 walkthrough (iPhone 17 Pro
-                // sim, 2026-04-18) confirmed this empirically.
-                // Ref: `.planning/wave-0-walkthrough-verite/FINDINGS.md`,
-                // `.planning/wave-b-home-orchestrateur/PLAN.md` (B0).
-                return (auth.isLoggedIn || auth.isLocalMode)
+                // Account lifecycle is the product gate: fresh visitors stay
+                // on the landing/start flow, explicit guest mode and restored
+                // accounts can enter the tab shell.
+                return auth.authLifecycle.allowsMainNavigation
                     ? const AujourdhuiScreen()
                     : const LandingScreen();
               },
@@ -1229,8 +1276,7 @@ final _router = GoRouter(
         final result = state.extra as ExtractionResult?;
         if (result == null) {
           return Scaffold(
-            body: Center(
-                child: Text(S.of(context)!.documentNonDisponible)),
+            body: Center(child: Text(S.of(context)!.documentNonDisponible)),
           );
         }
         return ExtractionReviewScreen(result: result);
@@ -1245,8 +1291,7 @@ final _router = GoRouter(
             extra['result'] is! ExtractionResult ||
             extra['previousConfidence'] is! int) {
           return Scaffold(
-            body: Center(
-                child: Text(S.of(context)!.documentNonDisponible)),
+            body: Center(child: Text(S.of(context)!.documentNonDisponible)),
           );
         }
         return DocumentImpactScreen(

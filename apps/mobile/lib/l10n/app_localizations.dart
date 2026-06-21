@@ -8380,6 +8380,12 @@ abstract class S {
   /// **'Recommencer le diagnostic'**
   String get financialSummaryRestartDiagnostic;
 
+  /// No description provided for @financialSummaryRestartDiagnosticError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une partie des données locales n’a pas pu être effacée. Réessaie dans un instant.'**
+  String get financialSummaryRestartDiagnosticError;
+
   /// No description provided for @financialSummaryDefaultConjoint.
   ///
   /// In fr, this message translates to:
@@ -40024,7 +40030,7 @@ abstract class S {
   /// **'J’ai déjà un compte'**
   String get landingV2LoginLink;
 
-  /// Landing screen — anonymous local-mode entry point (S005, Phase 97 W7 iter#4). Sober text link below « J'ai déjà un compte ». Routes to /home (Aujourd'hui) ; the (isLoggedIn || isLocalMode) gate at app.dart:417 grants access since isLocalMode defaults true on fresh installs (auth_provider.dart:90, checkAuth() seeds it true line 142-145). Production-safe : exposes an existing anonymous-default path, no new bypass.
+  /// Landing screen — public onboarding entry point. Sober text link below « J'ai déjà un compte ». Routes through /start to /onb; retired anonymous chat entry points also resolve to onboarding.
   ///
   /// In fr, this message translates to:
   /// **'Continuer sans compte'**

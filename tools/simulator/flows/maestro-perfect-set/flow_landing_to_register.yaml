@@ -1,12 +1,12 @@
 # tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml
 #
 # ─── PURPOSE ───────────────────────────────────────────────────────────
-# Validates the anon-to-register happy-path funnel :
-#   landing → "Parle à Mint" → anonymous chat → "Créer un compte" →
-#   /auth/register screen visible.
+# Validates the first-experience entry funnel after the anonymous chat
+# cold-open retirement:
+#   landing → "Parle à Mint" → onboarding entry.
 #
-# This is the canonical conversion path. Any locator drift here breaks
-# the anon-funnel acquisition metric, so Maestro green is a release gate.
+# This is the canonical first screen path. The old anonymous chat opener
+# must not be visible here.
 #
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
 # Archetype-agnostic. Reads literal FR strings from app_fr.arb so it
@@ -14,8 +14,8 @@
 # éclairage kind pipeline (that's flows/julien_swiss.yaml).
 #
 # ─── EXPECTED DURATION ─────────────────────────────────────────────────
-# < 25s wall-clock on iPhone 17 Pro sim (cold launch + 4 taps + register
-# screen render + 4 screenshots).
+# < 15s wall-clock on iPhone 17 Pro sim (cold launch + tap + onboarding
+# entry render + screenshots).
 #
 # ─── PRE-CONDITION ─────────────────────────────────────────────────────
 # - App installed on booted iPhone 17 Pro sim with bundle id ch.mint.app
@@ -28,39 +28,27 @@
 # ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
 # Semantic locators ONLY :
 #   - landing hero    : `Voir clair, décider seul.` (l10n.landingV3Hero)
-#   - landing CTA     : `Parle à Mint` (l10n.landingV2CtaSober)
-#   - anon input hint : `Écris ce qui te trotte en tête…` (l10n.anonymousChatInputHint)
-#   - anon LSFin line : `Information générale, pas un conseil financier personnalisé.`
-#                       (l10n.anonymousChatLsfinDisclaimer)
-#   - register CTA    : `Créer un compte` (l10n.anonymousChatCreateAccount)
-#                       — visible AFTER auth-gate triggers (3 messages
-#                       sent OR _isAuthGateLocked=true). For pure happy-
-#                       path we exit via login link instead, see below.
-#   - register screen : `Créer ton compte` (l10n.authRegisterTitle)
-#                       OR `Adresse e-mail` (l10n.authEmail)
+#   - landing CTA     : `id: landing_talk_to_mint_cta`
+#   - onboarding title : `Un premier aperçu suisse.`
 #
-# IMPORTANT — `anon-chat-opener-bubble` / `anon-chat-input` /
-# `anon-chat-register-cta` ValueKeys referenced in flows/julien_swiss.yaml
-# DO NOT EXIST in the Flutter source (verified 2026-05-08 grep on
-# apps/mobile/lib/). This flow uses text-based locators that are present
-# in the codebase to avoid the same drift.
+# IMPORTANT — the retired anonymous chat opener text and input placeholder
+# are asserted absent so this gate catches accidental resurrection of that
+# screen.
 #
 # ─── OUTPUT ────────────────────────────────────────────────────────────
 # Screenshots written to maestro's --output-dir (set by harness, never
 # /tmp). Convention :
-#   .planning/walker/maestro-flows/landing-to-register/<run-id>/
+#   .planning/walker/maestro-flows/landing-to-onboarding/<run-id>/
 #     ├── 01-landing.png
-#     ├── 02-anon-chat-opener.png
-#     ├── 03-message-sent.png
-#     └── 04-register-screen.png
+#     └── 02-onboarding-entry.png
 
 appId: ch.mint.app
 tags:
   - acquisition
   - funnel
-  - anon
-  - register
-  - happy-path
+  - onboarding
+  - first-experience
+  - runtime-gate
 ---
 
 # 01 — cold launch landing visible
@@ -68,80 +56,22 @@ tags:
     clearState: false   # do NOT wipe state ; preserves dart-defines
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      id: "landing_talk_to_mint_cta"
     timeout: 8000
+- waitForAnimationToEnd
 - takeScreenshot: "01-landing"
 
-# 02 — tap landing CTA → anonymous chat opener
+# 02 — tap landing CTA → onboarding entry
 - tapOn:
-    text: "Parle à Mint"
+    id: "landing_talk_to_mint_cta"
 - extendedWaitUntil:
     visible:
-      text: "Écris ce qui te trotte en tête…"
+      text: "Un premier aperçu suisse."
     timeout: 6000
-# LSFin disclaimer must be visible per anonymous_chat_screen.dart §1.4
-- assertVisible:
+- assertNotVisible:
+    text: ".*Dis-moi ce qui te trotte.*"
+- assertNotVisible:
+    text: "Écris ce qui te trotte en tête…"
+- assertNotVisible:
     text: "Information générale, pas un conseil financier personnalisé."
-- takeScreenshot: "02-anon-chat-opener"
-
-# 03 — send 3 messages. The anonymous funnel opens the auth gate only
-# after the third coach response (`messagesRemaining == 0`), then shows
-# an AuthGateBottomSheet with the register CTA.
-- tapOn:
-    text: "Écris ce qui te trotte en tête…"
-- inputText: "J'aimerais comprendre comment optimiser mon 3e pilier"
-- pressKey: Enter
-- extendedWaitUntil:
-    visible:
-      text: "Écris ce qui te trotte en tête…"
-    timeout: 60000
-- tapOn:
-    text: "Écris ce qui te trotte en tête…"
-- inputText: "Et concrètement, combien je peux mettre cette année ?"
-- pressKey: Enter
-- extendedWaitUntil:
-    visible:
-      text: "Écris ce qui te trotte en tête…"
-    timeout: 60000
-- tapOn:
-    text: "Écris ce qui te trotte en tête…"
-- inputText: "Et si je change d'employeur ?"
-- pressKey: Enter
-- takeScreenshot: "03-message-sent"
-
-# 04 — auth gate bottom sheet visible.
-- extendedWaitUntil:
-    visible:
-      text: ".*(Je peux garder tout.*en mémoire|Je suis toujours là).*"
-    timeout: 30000
-- runFlow:
-    when:
-      visible:
-        text: ".*Je suis toujours là.*"
-    commands:
-      - assertVisible:
-          text: "Créer un compte"
-      - tapOn:
-          text: "Créer un compte"
-      - extendedWaitUntil:
-          visible:
-            text: ".*Je peux garder tout.*en mémoire.*"
-          timeout: 8000
-
-# 05 — tap register CTA → /auth/register
-- tapOn:
-    text: "Créer un compte"
-- runFlow:
-    when:
-      visible:
-        text: "Connexion"
-    commands:
-      - tapOn:
-          text: "Créer un compte"
-- extendedWaitUntil:
-    visible:
-      text: "Créer ton compte"
-    timeout: 6000
-- assertVisible:
-    text: "Adresse e-mail"
-- takeScreenshot: "04-register-screen"
+- takeScreenshot: "02-onboarding-entry"

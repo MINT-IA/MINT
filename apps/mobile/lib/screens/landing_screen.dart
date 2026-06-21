@@ -90,6 +90,27 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
+    void openOnboarding() => context.go('/onb');
+
+    Widget ctaReveal(Widget child) {
+      return AnimatedBuilder(
+        animation: _ctaOpacity,
+        child: child,
+        builder: (context, child) {
+          final isActive = _ctaOpacity.isCompleted;
+          return IgnorePointer(
+            ignoring: !isActive,
+            child: ExcludeSemantics(
+              excluding: !isActive,
+              child: FadeTransition(
+                opacity: _ctaOpacity,
+                child: child,
+              ),
+            ),
+          );
+        },
+      );
+    }
 
     return Scaffold(
       backgroundColor: MintColors.warmWhite,
@@ -155,12 +176,17 @@ class _LandingScreenState extends State<LandingScreen>
                   const Spacer(flex: 4),
                   // 5. CTA primaire — FilledButton, RoundedRectangleBorder(14)
                   // (PAS StadiumBorder), 54pt, ink/porcelaine.
-                  FadeTransition(
-                    opacity: _ctaOpacity,
-                    child: Semantics(
+                  ctaReveal(
+                    Semantics(
+                      key: const Key('landing_talk_to_mint_cta'),
+                      identifier: 'landing_talk_to_mint_cta',
+                      container: true,
+                      excludeSemantics: true,
                       button: true,
                       label: l10n.landingV2CtaSober,
+                      onTap: openOnboarding,
                       child: FilledButton(
+                        // lint-ignore: prefer_mint_cta
                         style: FilledButton.styleFrom(
                           backgroundColor: MintColors.inkPrimary,
                           foregroundColor: MintColors.porcelaineHero,
@@ -172,7 +198,7 @@ class _LandingScreenState extends State<LandingScreen>
                             color: MintColors.porcelaineHero,
                           ),
                         ),
-                        onPressed: () => context.go('/start'),
+                        onPressed: openOnboarding,
                         child: Text(l10n.landingV2CtaSober),
                       ),
                     ),
@@ -180,9 +206,8 @@ class _LandingScreenState extends State<LandingScreen>
                   // 6. SizedBox 16.
                   const SizedBox(height: 16),
                   // 7. Login link — bodySmall(textSecondaryAaa), no underline.
-                  FadeTransition(
-                    opacity: _ctaOpacity,
-                    child: Semantics(
+                  ctaReveal(
+                    Semantics(
                       button: true,
                       label: l10n.landingV2LoginLink,
                       child: GestureDetector(
@@ -201,9 +226,8 @@ class _LandingScreenState extends State<LandingScreen>
                   // 7-bis. SizedBox 12 + anonymous local-mode link. Keep this
                   // on /start so the router owns the first-run rollout switch.
                   const SizedBox(height: 12),
-                  FadeTransition(
-                    opacity: _ctaOpacity,
-                    child: Semantics(
+                  ctaReveal(
+                    Semantics(
                       button: true,
                       label: l10n.landingV3AnonymousHomeLink,
                       child: GestureDetector(
