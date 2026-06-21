@@ -7925,6 +7925,13 @@ class SDe extends S {
   String get authContinueLocal => 'Im lokalen Modus fortfahren';
 
   @override
+  String get authCreateWithEmail => 'Mit E-Mail erstellen';
+
+  @override
+  String get authRequiredConsents =>
+      'Bestätige die Bedingungen und die Altersangabe, bevor du dein Konto erstellst.';
+
+  @override
   String get authBack => 'Zurück';
 
   @override

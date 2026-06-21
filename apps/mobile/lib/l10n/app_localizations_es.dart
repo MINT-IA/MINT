@@ -7903,6 +7903,13 @@ class SEs extends S {
   String get authContinueLocal => 'Continuar en modo local';
 
   @override
+  String get authCreateWithEmail => 'Crear con correo electrónico';
+
+  @override
+  String get authRequiredConsents =>
+      'Confirma las condiciones y la edad antes de crear tu cuenta.';
+
+  @override
   String get authBack => 'Volver';
 
   @override

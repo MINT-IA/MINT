@@ -7904,6 +7904,13 @@ class SFr extends S {
   String get authContinueLocal => 'Continuer en mode local';
 
   @override
+  String get authCreateWithEmail => 'Créer avec e-mail';
+
+  @override
+  String get authRequiredConsents =>
+      'Confirme les conditions et l\'âge avant de créer ton compte.';
+
+  @override
   String get authBack => 'Retour';
 
   @override

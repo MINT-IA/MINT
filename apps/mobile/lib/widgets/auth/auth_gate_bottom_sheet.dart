@@ -39,124 +39,128 @@ class AuthGateBottomSheet extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle bar — warm hairline
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: MintColors.borderSubtle,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Coach avatar — sauge halo, forest icon (positive signal)
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: MintColors.craieHandoff,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: MintColors.sauge,
-                    width: 1.2,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar — warm hairline
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: MintColors.borderSubtle,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                child: const Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  color: MintColors.mintForest,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-              // Coach message — editorial italic (Fraunces) per Handoff 2.
-              Text(
-                l.authGateConversionMessage,
-                textAlign: TextAlign.center,
-                style: MintTextStyles.editorialBody(
-                  color: MintColors.inkPrimary,
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              // Primary CTA — warm near-black ink (Handoff 2 ink-primary).
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Cassure #6 (2026-05-13): capture the router BEFORE
-                    // pop, otherwise `context.push` runs against the
-                    // popped bottom-sheet context and silently falls
-                    // through to /auth/login instead of /auth/register.
-                    final router = GoRouter.of(context);
-                    Navigator.of(context).pop();
-                    router.push('/auth/register?redirect=/home');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MintColors.inkPrimary,
-                    foregroundColor: MintColors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                // Coach avatar — sauge halo, forest icon (positive signal)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: MintColors.craieHandoff,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: MintColors.sauge,
+                      width: 1.2,
                     ),
                   ),
-                  child: Text(
-                    l.anonymousChatCreateAccount,
-                    style: MintTextStyles.titleMedium(color: MintColors.white)
-                        .copyWith(fontWeight: FontWeight.w600),
+                  child: const Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    color: MintColors.mintForest,
+                    size: 28,
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 20),
 
-              // Secondary CTA — outlined, warm hairline.
-              SizedBox(
-                width: double.infinity,
-                child: TextButton( // lint-ignore: prefer_mint_cta
-                  onPressed: () {
-                    // Cassure #6 sibling: same capture-before-pop pattern.
-                    final router = GoRouter.of(context);
-                    Navigator.of(context).pop();
-                    router.push('/auth/login?redirect=/home');
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: MintColors.inkPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      side: const BorderSide(color: MintColors.borderSubtle),
+                // Coach message — editorial italic (Fraunces) per Handoff 2.
+                Text(
+                  l.authGateConversionMessage,
+                  textAlign: TextAlign.center,
+                  style: MintTextStyles.editorialBody(
+                    color: MintColors.inkPrimary,
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // Primary CTA — warm near-black ink (Handoff 2 ink-primary).
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Cassure #6 (2026-05-13): capture the router BEFORE
+                      // pop, otherwise `context.push` runs against the
+                      // popped bottom-sheet context and silently falls
+                      // through to /auth/login instead of /auth/register.
+                      final router = GoRouter.of(context);
+                      Navigator.of(context).pop();
+                      router.push('/auth/register?redirect=/home');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MintColors.inkPrimary,
+                      foregroundColor: MintColors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      l.anonymousChatCreateAccount,
+                      style: MintTextStyles.titleMedium(color: MintColors.white)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
-                  child: Text(
-                    l.authGateLogin,
-                    style:
-                        MintTextStyles.bodyMedium(color: MintColors.inkPrimary)
-                            .copyWith(fontWeight: FontWeight.w600),
-                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
-              // Dismiss — "Plus tard"
-              TextButton( // lint-ignore: prefer_mint_cta
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onDismissed?.call();
-                },
-                child: Text(
-                  l.authGateLater,
-                  style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondaryAaa,
+                // Secondary CTA — outlined, warm hairline.
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: () {
+                      // Cassure #6 sibling: same capture-before-pop pattern.
+                      final router = GoRouter.of(context);
+                      Navigator.of(context).pop();
+                      router.push('/auth/login?redirect=/home');
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: MintColors.inkPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: const BorderSide(color: MintColors.borderSubtle),
+                      ),
+                    ),
+                    child: Text(
+                      l.authGateLogin,
+                      style: MintTextStyles.bodyMedium(
+                              color: MintColors.inkPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+
+                // Dismiss — "Plus tard"
+                TextButton(
+                  // lint-ignore: prefer_mint_cta
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onDismissed?.call();
+                  },
+                  child: Text(
+                    l.authGateLater,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondaryAaa,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

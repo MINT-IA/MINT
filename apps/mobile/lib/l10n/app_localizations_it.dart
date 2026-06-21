@@ -7917,6 +7917,13 @@ class SIt extends S {
   String get authContinueLocal => 'Continua in modalità locale';
 
   @override
+  String get authCreateWithEmail => 'Crea con e-mail';
+
+  @override
+  String get authRequiredConsents =>
+      'Conferma le condizioni e l\'età prima di creare il tuo account.';
+
+  @override
   String get authBack => 'Indietro';
 
   @override

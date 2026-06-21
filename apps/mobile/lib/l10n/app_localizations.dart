@@ -14028,6 +14028,18 @@ abstract class S {
   /// **'Continuer en mode local'**
   String get authContinueLocal;
 
+  /// No description provided for @authCreateWithEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer avec e-mail'**
+  String get authCreateWithEmail;
+
+  /// No description provided for @authRequiredConsents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme les conditions et l\'âge avant de créer ton compte.'**
+  String get authRequiredConsents;
+
   /// No description provided for @authBack.
   ///
   /// In fr, this message translates to:

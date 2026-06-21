@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/screens/auth/auth_redirects.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -57,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
   /// Navigate after successful auth: new users -> onboarding, returning -> home.
   Future<void> _navigatePostAuth() async {
     if (!mounted) return;
-    final completed = await ReportPersistenceService.isMiniOnboardingCompleted();
+    final completed =
+        await ReportPersistenceService.isMiniOnboardingCompleted();
     if (!mounted) return;
     if (completed) {
       context.go('/coach/chat');
@@ -114,9 +116,11 @@ class _LoginScreenState extends State<LoginScreen> {
             await context.read<AuthProvider>().completeAppleSignIn(response);
         if (!ok) {
           if (mounted) {
+            final authError = context.read<AuthProvider>().error;
             setState(() {
-              _appleSignInError = context.read<AuthProvider>().error?.name ??
-                  'Apple Sign-In failed';
+              _appleSignInError = authError != null
+                  ? localizeAuthError(authError, S.of(context)!)
+                  : S.of(context)!.authErrorGeneric;
             });
           }
           return;
@@ -127,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _appleSignInError = e.toString().replaceAll('Exception: ', '');
+          _appleSignInError = localizeAuthException(e, S.of(context)!);
         });
       }
     } finally {
@@ -217,8 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 autofillHints: const [AutofillHints.email],
                                 decoration: InputDecoration(
                                   labelText: l10n.authEmail,
-                                  prefixIcon:
-                                      const Icon(Icons.email_outlined),
+                                  prefixIcon: const Icon(Icons.email_outlined),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -277,12 +280,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           Container(
                             padding: const EdgeInsets.all(MintSpacing.md),
                             decoration: BoxDecoration(
-                              color:
-                                  MintColors.success.withValues(alpha: 0.08),
+                              color: MintColors.success.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: MintColors.success
-                                    .withValues(alpha: 0.2),
+                                color:
+                                    MintColors.success.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Row(
@@ -382,12 +384,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           Container(
                             padding: const EdgeInsets.all(MintSpacing.md),
                             decoration: BoxDecoration(
-                              color:
-                                  MintColors.error.withValues(alpha: 0.06),
+                              color: MintColors.error.withValues(alpha: 0.06),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color:
-                                    MintColors.error.withValues(alpha: 0.15),
+                                color: MintColors.error.withValues(alpha: 0.15),
                               ),
                             ),
                             child: Row(
@@ -418,8 +418,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextButton(
                             onPressed: () {
                               setState(() {
-                                _showPasswordFallback =
-                                    !_showPasswordFallback;
+                                _showPasswordFallback = !_showPasswordFallback;
                               });
                             },
                             child: Text(
@@ -443,8 +442,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               autofillHints: const [AutofillHints.password],
                               decoration: InputDecoration(
                                 labelText: l10n.authPassword,
-                                prefixIcon:
-                                    const Icon(Icons.lock_outline),
+                                prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: Semantics(
                                   label: _obscurePassword
                                       ? l10n.authShowPassword
@@ -458,8 +456,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _obscurePassword =
-                                            !_obscurePassword;
+                                        _obscurePassword = !_obscurePassword;
                                       });
                                     },
                                   ),
@@ -516,7 +513,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     final redirect = GoRouterState.of(context)
                                         .uri
                                         .queryParameters['redirect'];
-                                    context.go(redirect ?? '/home');
+                                    context.go(authInternalRedirectOrFallback(
+                                      redirect,
+                                      fallback: '/home',
+                                    ));
                                   },
                             child: Text(l10n.authContinueLocal),
                           ),
@@ -526,8 +526,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextButton(
                             onPressed: authProvider.isLoading
                                 ? null
-                                : () =>
-                                    context.go('/auth/forgot-password'),
+                                : () => context.go('/auth/forgot-password'),
                             child: Text(
                               l10n.authForgotPasswordLink,
                               style: MintTextStyles.bodySmall(
@@ -541,8 +540,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextButton(
                             onPressed: authProvider.isLoading
                                 ? null
-                                : () =>
-                                    context.go('/auth/verify-email'),
+                                : () => context.go('/auth/verify-email'),
                             child: Text(
                               l10n.authVerifyEmailLink,
                               style: MintTextStyles.bodySmall(
