@@ -98,6 +98,31 @@ def test_verify_apple_identity_token_rejects_nonce_mismatch(monkeypatch):
     assert exc_info.value.status_code == 401
 
 
+def test_verify_apple_identity_token_accepts_configured_audience_list(monkeypatch):
+    _patch_valid_apple_header_and_key(monkeypatch)
+    captured = {}
+    expected_nonce = auth_endpoint.hashlib.sha256(b"plain-nonce").hexdigest()
+
+    monkeypatch.setenv("APPLE_SIGN_IN_AUDIENCE", "ch.mint.dev, ch.mint.app")
+
+    def fake_decode(*args, **kwargs):
+        captured["audience"] = kwargs["audience"]
+        return {
+            "sub": "001999.apple-sub",
+            "nonce": expected_nonce,
+        }
+
+    monkeypatch.setattr(auth_endpoint.jwt, "decode", fake_decode)
+
+    payload = auth_endpoint._verify_apple_identity_token(
+        "signed-token",
+        "plain-nonce",
+    )
+
+    assert payload["sub"] == "001999.apple-sub"
+    assert captured["audience"] == ["ch.mint.dev", "ch.mint.app"]
+
+
 def test_verify_apple_identity_token_rejects_wrong_audience(monkeypatch):
     _patch_valid_apple_header_and_key(monkeypatch)
 

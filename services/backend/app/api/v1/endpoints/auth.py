@@ -126,6 +126,17 @@ def _request_ip(request: Request) -> Optional[str]:
     return request.client.host if request.client else None
 
 
+def _apple_allowed_audiences() -> list[str]:
+    raw = os.getenv("APPLE_SIGN_IN_AUDIENCE", settings.APPLE_SIGN_IN_AUDIENCE)
+    audiences = [audience.strip() for audience in raw.split(",") if audience.strip()]
+    if not audiences:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Apple Sign-In audience not configured",
+        )
+    return audiences
+
+
 def _email_verification_required() -> bool:
     raw = os.getenv("AUTH_REQUIRE_EMAIL_VERIFICATION")
     if raw is not None:
@@ -1279,7 +1290,7 @@ def _verify_apple_identity_token(
             identity_token,
             signing_key.key,
             algorithms=["RS256"],
-            audience=settings.APPLE_SIGN_IN_AUDIENCE,
+            audience=_apple_allowed_audiences(),
             issuer="https://appleid.apple.com",
             options={"require": ["exp", "iat", "iss", "aud", "sub"]},
         )
