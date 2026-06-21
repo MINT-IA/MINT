@@ -1,69 +1,97 @@
 ---
 gsd_state_version: 1.0
-milestone: core-journey-truth
-milestone_name: Core Journey Truth / Prod Ready
-status: executing
-stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-06-11T23:47:36.639Z"
-last_activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (17/17, verification 20/21)
-progress:
+milestone: mint-2-account-lifecycle-cleanup
+milestone_name: Mint 2.0 Account Lifecycle / Planning Hygiene
+status: cleanup-inventory
+stopped_at: "2026-06-21 cleanup manifest created; Review Agent and targeted Claude review still required before commit."
+last_updated: "2026-06-21T08:51:19Z"
+last_activity: 2026-06-21 -- Cleanup manifest for planning/repo/review hygiene before resuming account lifecycle work.
+historical_state_before_cleanup:
+  milestone: core-journey-truth
   total_phases: 15
   completed_phases: 2
   total_plans: 75
   completed_plans: 76
-  percent: 13
+  note: "stale pre-cleanup counters preserved for provenance; completed_plans exceeded total_plans before this cleanup."
+progress_basis: cleanup_inventory_counts_not_product_completion
+progress:
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 1
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT Core Journey Truth / Prod Ready
+# GSD State: Mint 2.0 Account Lifecycle / Planning Hygiene
 
 ## Project Reference
 
 Active operating map:
-`.planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md`
-and `.planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md`.
+- `.planning/handoffs/mint-cleanup-2026-06-21/PROMPT.md`
+- `.planning/handoffs/mint-cleanup-2026-06-21/CLEANUP_MANIFEST.md`
 
-The older GSD receipts below are retained as history. They are not the current
-router for production-readiness work.
+The Core Journey Truth receipts below are retained as history. They are no
+longer the active router for the current account lifecycle / cleanup session.
 
-**Core value:** one narrow supported beta story with one user truth, coherent
-navigation, reduced duplicate surfaces, current/cited Coach claims, and
-Maestro-proofed journeys.
+**Current value target:** a user opens Mint, chooses a deliberate visitor,
+guest-local, or account-backed mode, and never sees personalized financial
+values unless source/readiness/provenance are defensible.
 
-**Current focus:** Phase mint-illogism-fixes — Illogism fixes (17 plans)
-gates before expanding scope.
+**Current focus:** classify and bound planning/repo/review hygiene before
+resuming account lifecycle implementation. No product code belongs to this
+cleanup pass.
 
 ## Strategic Frame
 
-- **Doctrine:** matrix first, tracker second, code third. A capability is not
-  considered proven because a route, widget, or unit test exists.
+- **Doctrine:** no new product matrix, no archive movement without evidence,
+  and no product code changes in cleanup.
 
-- **Source:** `.planning/phases/mint-prod-ready-core-journey-truth-20260601/`.
+- **Source:** `.planning/handoffs/mint-cleanup-2026-06-21/` plus
+  `.planning/phases/mint-first-experience-account-lifecycle/`.
 - **Proof contract:** fresh command output, Maestro/runtime evidence when the
-  row is a human journey, and deterministic citation in the tracker.
+  row is a human journey, and deterministic citation in the manifest.
 
-- **Anti-drift check:** `python3 tools/checks/cjt_context_guard.py`.
+- **Review contract:** Review Agent plus bounded `tools/claude_review.sh`
+  scope before any cleanup commit.
 
 ## Current Position
 
-Phase: mint-illogism-fixes (Illogism fixes (17 plans)) — EXECUTED, verification 20/21
-Plan: 17 of 17 complete
-Status: Phase executed 2026-06-12 — 17/17 plans + 4 Codex wave reviews (gap closures: 3 P1 + 7 P2 + 2 P3) + device gate (ILLOG01/02 GREEN, D10 re-fix device-PASS). Remaining: 1 human-verify item (D7 /retraite green capture on device — fix root-caused + widget-test-proven, blocked by onboarding-shell AX automation gap). Final suites: mobile 9446 passed / backend 7586 passed / analyze clean.
-Last activity: 2026-06-12 -- Phase mint-illogism-fixes execution complete (resumed post-quota from plan 06)
-guard added
+Phase: mint-cleanup-2026-06-21
+Plan: manifest + state hygiene only
+Status: manifest created; review and verification pending before any commit.
+Last activity: 2026-06-21 -- Preflight matched worktree/branch/HEAD, Engram
+loaded, manifest created.
 
 **Known open gates:**
 
+- Review Agent on `.planning/STATE.md` and cleanup handoff files.
+- Targeted Claude review via `tools/claude_review.sh` if available.
+- `git diff --check`.
+- `git status --short`.
+- Explicit user GO before any commit.
+
+**Historical CJT gates not handled by this cleanup:**
+
 - CJT-013 — backend production Phase 02 fact-current cutover.
 - CJT-015 — TestFlight / Universal Links / signed real-device proof.
-- CJT-018 is no longer an open gate after the 2026-06-04 current AX frame audit.
+- CJT-018 — historical state said this was no longer open after the
+  2026-06-04 AX frame audit; this cleanup does not re-verify that claim.
+- `python3 tools/checks/cjt_context_guard.py` remains the CJT-specific
+  anti-drift guard; this cleanup does not run or retire it.
+- Core Journey Truth guard provenance retained for `cjt_context_guard.py`:
+  `.planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md`
+  and
+  `.planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md`
+  remain the historical CJT context files.
 
-**Next execution bias:** CJT-015 if signed/TestFlight access is available;
-otherwise CJT-013 or the next human-journey proof wave from the matrix.
+**Next execution bias:** finish this cleanup/review gate, then resume
+`mint-first-experience-account-lifecycle` from the existing matrix. Do not
+open another product matrix.
 
 ## Historical Receipts
 
-The sections below pre-date the Core Journey Truth convergence phase. They stay
-available for provenance, but they are no longer the active routing state.
+The sections below pre-date the current cleanup/account lifecycle session. They
+stay available for provenance, but they are not the active routing state.
 
 ## Phase 01.1 Planning Receipt (walkthrough-first-grounding, 2026-05-21)
 
