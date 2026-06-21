@@ -90,7 +90,7 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    void openAnonymousChat() => context.go('/anonymous/chat');
+    void openOnboarding() => context.go('/onb');
 
     Widget ctaReveal(Widget child) {
       return AnimatedBuilder(
@@ -184,7 +184,7 @@ class _LandingScreenState extends State<LandingScreen>
                       excludeSemantics: true,
                       button: true,
                       label: l10n.landingV2CtaSober,
-                      onTap: openAnonymousChat,
+                      onTap: openOnboarding,
                       child: FilledButton(
                         style: FilledButton.styleFrom(
                           backgroundColor: MintColors.inkPrimary,
@@ -197,7 +197,7 @@ class _LandingScreenState extends State<LandingScreen>
                             color: MintColors.porcelaineHero,
                           ),
                         ),
-                        onPressed: openAnonymousChat,
+                        onPressed: openOnboarding,
                         child: Text(l10n.landingV2CtaSober),
                       ),
                     ),

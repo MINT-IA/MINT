@@ -124,7 +124,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.alias,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    description: 'Landing CTA redirect — always enters /onb',
+    description: 'Landing CTA compatibility redirect — redirects to /onb',
   ),
   '/onb': RouteMeta(
     path: '/onb',
@@ -139,7 +139,8 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     owner: RouteOwner.anonymous,
     requiresAuth: false,
     killFlag: 'enableCoachHardGate',
-    description: 'Sub-phase 01.5 FATCA hard-gate destination — non-calibrated archetypes (expat_us, frontalier, etc.) land here with UCA opt-in form',
+    description:
+        'Sub-phase 01.5 FATCA hard-gate destination — non-calibrated archetypes (expat_us, frontalier, etc.) land here with UCA opt-in form',
   ),
 
   // ── Auth flows (public) ────────────────────────────────────────
@@ -175,15 +176,15 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     description: 'Magic-link verification landing',
   ),
 
-  // ── Anonymous flow (public, outside shell) ─────────────────────
-  // Phase 71a (2026-05-05) : /anonymous/intent retired; /anonymous/chat
-  // remains the anonymous fallback with opener bubble + chip suggestions.
+  // ── Retired anonymous flow alias (public) ─────────────────────
+  // The old chat-first cold-open is no longer a product surface. Keep the
+  // route as a compatibility alias to /onb so old links do not 404.
   '/anonymous/chat': RouteMeta(
     path: '/anonymous/chat',
-    category: RouteCategory.destination,
+    category: RouteCategory.alias,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    killFlag: 'enableAnonymousFlow',
+    description: 'Retired anonymous chat cold-open — redirects to /onb',
   ),
 
   // ── Shell tabs ─────────────────────────────────────────────────
@@ -837,7 +838,8 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.alias,
     owner: RouteOwner.system,
     requiresAuth: true,
-    description: 'Exact-match redirect -> /profile/bilan (sub-routes pass through)',
+    description:
+        'Exact-match redirect -> /profile/bilan (sub-routes pass through)',
   ),
   // Nested profile children (composed paths per CONTEXT v4 D-04)
   '/profile/admin-observability': RouteMeta(
@@ -845,14 +847,16 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.tool,
     owner: RouteOwner.admin,
     requiresAuth: true,
-    description: 'Admin observability screen (FeatureFlags.enableAdminScreens gate)',
+    description:
+        'Admin observability screen (FeatureFlags.enableAdminScreens gate)',
   ),
   '/profile/admin-analytics': RouteMeta(
     path: '/profile/admin-analytics',
     category: RouteCategory.tool,
     owner: RouteOwner.admin,
     requiresAuth: true,
-    description: 'Admin analytics screen (FeatureFlags.enableAdminScreens gate)',
+    description:
+        'Admin analytics screen (FeatureFlags.enableAdminScreens gate)',
   ),
   '/profile/byok': RouteMeta(
     path: '/profile/byok',

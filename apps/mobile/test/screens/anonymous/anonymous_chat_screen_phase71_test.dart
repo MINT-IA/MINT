@@ -6,7 +6,7 @@
 //   3. Sending first message hides chips + opener stays in scroll-back
 //   4. `intent` query param still auto-sends (back-compat)
 //   5. Golden — anonymous_chat_cold_open.png (fr_CH)
-//   6. Routing back-compat : /anonymous/chat stays directly reachable
+//   6. Routing : legacy /start no longer reaches anonymous chat
 //   7. Unit : _coachTurnsCompleted increments only on coach response
 //
 // Tests intentionally use direct widget pumps; the `CoachChatApiService`
@@ -58,7 +58,8 @@ void main() {
   });
 
   group('Phase 71a — Anonymous chat cold-open layout', () {
-    testWidgets('Test 1 — cold open renders opener + 3 chips + disclaimer + input',
+    testWidgets(
+        'Test 1 — cold open renders opener + 3 chips + disclaimer + input',
         (tester) async {
       _setLargeSurface(tester);
       await tester.pumpWidget(_testApp());
@@ -93,7 +94,8 @@ void main() {
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
     });
 
-    testWidgets('Test 2 — chip tap pre-fills input, NOT auto-send', (tester) async {
+    testWidgets('Test 2 — chip tap pre-fills input, NOT auto-send',
+        (tester) async {
       _setLargeSurface(tester);
       await tester.pumpWidget(_testApp());
       await tester.pump();
@@ -166,7 +168,8 @@ void main() {
       expect(find.text('Mon test intent'), findsOneWidget);
     });
 
-    testWidgets('Test 7 — _coachTurnsCompleted increments only on coach response',
+    testWidgets(
+        'Test 7 — _coachTurnsCompleted increments only on coach response',
         (tester) async {
       // This is a structural / black-box test. We exercise:
       //   • cold-open : counter starts at 0 (opener bubble does NOT count)
@@ -208,23 +211,34 @@ void main() {
     });
   });
 
-  group('Phase 71a — Routing back-compat', () {
-    testWidgets('Test 6 — /anonymous/chat remains directly reachable',
+  group('Phase 71a — Routing tombstone', () {
+    testWidgets('Test 6 — legacy /start redirects to /onb, not anonymous chat',
         (tester) async {
       final router = GoRouter(
-        initialLocation: '/anonymous/chat',
+        initialLocation: '/start',
         routes: [
+          GoRoute(
+            path: '/start',
+            redirect: (_, __) => '/onb',
+          ),
           GoRoute(
             path: '/anonymous/chat',
             builder: (_, __) => const Scaffold(
               body: Center(child: Text('ANONYMOUS_CHAT_REACHED')),
             ),
           ),
+          GoRoute(
+            path: '/onb',
+            builder: (_, __) => const Scaffold(
+              body: Center(child: Text('ONB_REACHED')),
+            ),
+          ),
         ],
       );
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pumpAndSettle();
-      expect(find.text('ANONYMOUS_CHAT_REACHED'), findsOneWidget);
+      expect(find.text('ONB_REACHED'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_REACHED'), findsNothing);
     });
   });
 
@@ -250,6 +264,8 @@ void main() {
         find.byType(AnonymousChatScreen),
         matchesGoldenFile('goldens/anonymous_chat_cold_open.png'),
       );
-    }, skip: true /* Golden generation deferred — `flutter test --update-goldens` required on first run, font-rendering varies across hosts (CI vs local). Tracked as Phase 71b follow-up. */);
+    },
+        skip:
+            true /* Golden generation deferred — `flutter test --update-goldens` required on first run, font-rendering varies across hosts (CI vs local). Tracked as Phase 71b follow-up. */);
   });
 }

@@ -5,7 +5,7 @@
 // Asserts:
 //   • The text surfaces render (wordmark, hero, CTA, legal, login link).
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates to /anonymous/chat (Phase 71a: chat-first cold-open).
+//   • CTA navigates to /onb; the retired anonymous chat cold-open is not used.
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -20,7 +20,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 
 GoRouter _buildRouter() {
   return GoRouter(
@@ -30,7 +29,8 @@ GoRouter _buildRouter() {
         path: '/',
         builder: (_, __) => const LandingScreen(),
       ),
-      // Mirror production /start redirect while keeping landing state-free.
+      // Mirror production /start redirect: the chat-first anonymous cold-open
+      // is retired; first experience enters the explicit onboarding flow.
       GoRoute(
         path: '/start',
         redirect: (_, __) => '/onb',
@@ -79,14 +79,6 @@ Widget _wrap({MediaQueryData? mediaQuery}) {
 
 void main() {
   group('LandingScreen — Phase 73 v3 éditorial surface', () {
-    setUp(() {
-      FeatureFlags.enableMvpWedgeOnboarding = false;
-    });
-
-    tearDown(() {
-      FeatureFlags.enableMvpWedgeOnboarding = false;
-    });
-
     testWidgets('renders elements: wordmark + hero + CTA + login + legal',
         (tester) async {
       await tester.pumpWidget(_wrap());
@@ -134,7 +126,7 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /anonymous/chat (Phase 71a chat-first)',
+    testWidgets('CTA routes to /onb, not the retired anonymous chat',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -142,11 +134,11 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+      expect(find.text('ONB_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
     });
 
-    testWidgets('AX tap on primary CTA routes to anonymous chat',
-        (tester) async {
+    testWidgets('AX tap on primary CTA routes to onboarding', (tester) async {
       final semantics = tester.ensureSemantics();
       try {
         await tester.pumpWidget(_wrap());
@@ -164,7 +156,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+        expect(find.text('ONB_STUB'), findsOneWidget);
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
         expect(find.text('LOGIN_STUB'), findsNothing);
       } finally {
         semantics.dispose();
@@ -194,8 +187,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
-        expect(find.text('ONB_STUB'), findsNothing);
+        expect(find.text('ONB_STUB'), findsOneWidget);
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
       } finally {
         semantics.dispose();
       }
@@ -218,7 +211,7 @@ void main() {
 
       await expectEarlyTapIgnored(
         find.byType(FilledButton),
-        unexpectedDestination: 'ANONYMOUS_CHAT_STUB',
+        unexpectedDestination: 'ONB_STUB',
       );
       await expectEarlyTapIgnored(
         find.text('Continuer sans compte'),
@@ -255,15 +248,16 @@ void main() {
         await tester.tapAt(point);
         await tester.pumpAndSettle();
 
-        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
-        expect(find.text('ONB_STUB'), findsNothing);
+        expect(find.text('ONB_STUB'), findsOneWidget);
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
       }
     });
 
-    // S005 — anonymous local-mode link also delegates to /start so the router,
-    // not LandingScreen, owns the first-run entry contract.
+    // S005 (Phase 97 W7 iter#4 + fix 517774aa) — anonymous CTA routes to /onb
+    // (not /home) so FATCA Q (T2.5) fires before coach chat — otherwise
+    // archetype=unknown silently redirects to /waitlist on first message.
     testWidgets(
-        'S005 — « Continuer sans compte » routes to /onb when flag is off',
+        'S005 — « Continuer sans compte » link renders + routes to /onb',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -275,22 +269,6 @@ void main() {
 
       expect(find.text('ONB_STUB'), findsOneWidget);
       expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
-    });
-
-    testWidgets(
-        'S005 — « Continuer sans compte » routes to /onb when flag is on',
-        (tester) async {
-      FeatureFlags.enableMvpWedgeOnboarding = true;
-
-      await tester.pumpWidget(_wrap());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Continuer sans compte'), findsOneWidget);
-
-      await tester.tap(find.text('Continuer sans compte'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('ONB_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump',
