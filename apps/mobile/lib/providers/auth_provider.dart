@@ -851,6 +851,12 @@ class AuthProvider extends ChangeNotifier {
       }
 
       _isLoggedIn = true;
+      if (_userId != null && _userId!.isNotEmpty) {
+        _authLifecycle = AuthLifecycleState.signedInProfileLoading(
+          userId: _userId!,
+          cloudSyncEnabled: isCloudSyncEnabled,
+        );
+      }
       // Phase 52 (D-01): no longer auto-disable local mode on magic link.
       // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;

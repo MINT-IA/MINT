@@ -173,6 +173,17 @@ void main() {
         expect(seenPaths, contains('/api/v1/auth/me'));
         expect(provider.userId, 'magic-user');
         expect(provider.email, 'magic@example.ch');
+        expect(
+          provider.authLifecycle.state,
+          AuthLifecycleKind.signedInProfileLoading,
+        );
+        expect(provider.authLifecycle.accessMode, AuthAccessMode.account);
+        expect(
+          provider.authLifecycle.activeDataScope,
+          AuthDataScope.user('magic-user'),
+        );
+        expect(provider.authLifecycle.syncMode, AuthSyncMode.cloudSyncOff);
+        expect(provider.authLifecycle.allowsMainNavigation, isTrue);
         expect(await AuthService.getToken(), 'magic-token');
         expect(await AuthService.getUserId(), 'magic-user');
         expect(await AuthService.getUserEmail(), 'magic@example.ch');
