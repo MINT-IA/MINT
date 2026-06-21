@@ -54,14 +54,16 @@ class ConversationMeta {
     return ConversationMeta(
       id: json['id'] as String,
       title: json['title'] as String,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
-      lastMessageAt: DateTime.tryParse(json['lastMessageAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      lastMessageAt:
+          DateTime.tryParse(json['lastMessageAt'] as String? ?? '') ??
+              DateTime.now(),
       messageCount: json['messageCount'] as int? ?? 0,
       summary: json['summary'] as String?,
-      tags: (json['tags'] as List<dynamic>?)
-              ?.map((t) => t as String)
-              .toList() ??
-          const [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((t) => t as String).toList() ??
+              const [],
       lastMessagePreview: json['lastMessagePreview'] as String?,
     );
   }
@@ -126,8 +128,10 @@ class ConversationStore {
   /// Call on login (with userId) and on logout (with null).
   static void setCurrentUserId(String? userId) => _currentUserId = userId;
 
-  static String _userPrefix() =>
-      _currentUserId != null ? '${_currentUserId}_' : '';
+  static String _prefixForUser(String? userId) =>
+      userId != null ? '${userId}_' : '';
+
+  static String _userPrefix() => _prefixForUser(_currentUserId);
 
   // ── Migration ────────────────────────────────────────────
 
@@ -178,6 +182,33 @@ class ConversationStore {
 
     // Step 4: Remove old index LAST
     await prefs.remove(oldIndexKey);
+  }
+
+  /// Clear every conversation key in the currently active namespace.
+  static Future<void> clearCurrentNamespace() async {
+    await _clearNamespace(_userPrefix());
+  }
+
+  /// Clear every conversation key for a specific user namespace.
+  ///
+  /// Pass `null` to clear the anonymous namespace.
+  static Future<void> clearNamespaceForUser(String? userId) async {
+    await _clearNamespace(_prefixForUser(userId));
+  }
+
+  static Future<void> _clearNamespace(String prefix) async {
+    final prefs = await SharedPreferences.getInstance();
+    final keysToRemove = prefs
+        .getKeys()
+        .where(
+          (key) =>
+              key == '$prefix$_indexKey' ||
+              key.startsWith('$prefix$_messagesPrefix'),
+        )
+        .toList();
+    for (final key in keysToRemove) {
+      await prefs.remove(key);
+    }
   }
 
   // ── Public API ──────────────────────────────────────────
@@ -261,7 +292,8 @@ class ConversationStore {
           .map((e) => _messageFromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('[ConversationStore] Corrupted conversation $conversationId: $e');
+      debugPrint(
+          '[ConversationStore] Corrupted conversation $conversationId: $e');
       return [];
     }
   }
@@ -277,7 +309,9 @@ class ConversationStore {
   /// Delete a conversation (messages + metadata).
   Future<void> deleteConversation(String conversationId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('${_userPrefix()}$_messagesPrefix$conversationId');
+    final key = '${_userPrefix()}$_messagesPrefix$conversationId';
+    await prefs.remove(key);
+    await prefs.remove('${key}_tmp');
 
     final index = await _loadIndex(prefs);
     index.removeWhere((m) => m.id == conversationId);
@@ -313,23 +347,29 @@ class ConversationStore {
     RegExp(r"\b\d{4,}(?:\.\d{1,2})?\b"),
     // "mon salaire est de X" / "je gagne X" patterns
     // FIX: ReDoS — replaced [^.]{0,20} (backtracking) with \s+\S{0,20} (linear)
-    RegExp(r'(?:salaire|gagne|touche|revenu)\s+\S{0,20}\d{4,}', caseSensitive: false),
+    RegExp(r'(?:salaire|gagne|touche|revenu)\s+\S{0,20}\d{4,}',
+        caseSensitive: false),
     // Email addresses
     RegExp(r'\b[\w.+-]+@[\w-]+\.[\w.]+\b'),
     // Swiss phone numbers: +41..., 07x... (FIX-W12: stricter Swiss format)
-    RegExp(r'(?:\+41|0)[\s.-]?(?:76|77|78|79|[1-4]\d)[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}'),
+    RegExp(
+        r'(?:\+41|0)[\s.-]?(?:76|77|78|79|[1-4]\d)[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}'),
     // Swiss AHV/AVS numbers: 756.xxxx.xxxx.xx (FIX-W12)
     RegExp(r'\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b'),
     // Swiss NPA (4-digit postal codes before city names)
     RegExp(r'\b[1-9]\d{3}\s+[A-Z]', caseSensitive: false),
     // Employer patterns: "je travaille chez X", "mon employeur X"
-    RegExp(r'(travaille\s+chez|employeur\s+est|boîte|entreprise)\s+\S+', caseSensitive: false),
+    RegExp(r'(travaille\s+chez|employeur\s+est|boîte|entreprise)\s+\S+',
+        caseSensitive: false),
     // IBAN (CH + 19 digits, with optional spaces)
-    RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}', caseSensitive: false),
+    RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}',
+        caseSensitive: false),
     // IBAN compact format (no spaces)
     RegExp(r'CH\d{19}', caseSensitive: false),
     // Written-out amounts: "septante mille", "cent vingt mille"
-    RegExp(r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)', caseSensitive: false),
+    RegExp(
+        r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)',
+        caseSensitive: false),
   ];
 
   /// Strip zero-width and invisible Unicode characters that could bypass PII
@@ -386,8 +426,7 @@ class ConversationStore {
 
   /// Auto-tag by keywords found in message content.
   List<String> _inferTags(List<ChatMessage> messages) {
-    final allText =
-        messages.map((m) => m.content.toLowerCase()).join(' ');
+    final allText = messages.map((m) => m.content.toLowerCase()).join(' ');
     final tags = <String>{};
 
     const tagKeywords = {
@@ -396,7 +435,13 @@ class ConversationStore {
       '3a': ['3a', 'pilier 3a', 'troisième pilier', '3ème pilier'],
       'impôts': ['impôt', 'fiscal', 'déduction', 'tax', 'lifd'],
       'budget': ['budget', 'dépenses', 'épargne', 'économiser'],
-      'immobilier': ['hypothèque', 'immobilier', 'maison', 'appartement', 'epl'],
+      'immobilier': [
+        'hypothèque',
+        'immobilier',
+        'maison',
+        'appartement',
+        'epl'
+      ],
       'famille': ['mariage', 'divorce', 'enfant', 'concubinage', 'naissance'],
       'emploi': ['emploi', 'salaire', 'chômage', 'indépendant', 'travail'],
       'succession': ['succession', 'héritage', 'donation', 'décès'],
@@ -474,7 +519,8 @@ class ConversationStore {
     return ChatMessage(
       role: json['role'] as String,
       content: json['content'] as String,
-      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+          DateTime.now(),
       tier: tier,
       suggestedActions: (json['suggestedActions'] as List<dynamic>?)
           ?.map((e) => e as String)

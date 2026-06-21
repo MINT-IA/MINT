@@ -76,6 +76,65 @@ def _scrub_pii(text: str) -> str:
     return text
 
 
+_ANONYMOUS_STATE_CONFIRMATION_RE = re.compile(
+    r"("
+    r"\b(?:je|on)\s+repars?\b.{0,40}\bz[eé]ro\b|"
+    r"\brepart(?:ir|ons?|ez|ent)?\b.{0,40}\bz[eé]ro\b|"
+    r"\bplus\s+acc[èe]s\s+[àa]\s+aucune\b|"
+    r"\bsans\s+laisser\s+de\s+trace\b|"
+    r"\b(?:je|on)\s+repar(?:s|t)\b[^.\n!?]{0,40}\bfeuille\s+blanche\b|"
+    r"\b(?:aucun|aucune)\s+(?:donn[ée]es?|informations?|historique|trace)\b"
+    r"[^.\n!?]{0,80}\b(?:conserv[ée]e?s?|gard[ée]e?s?|stock[ée]e?s?|"
+    r"enregistr[ée]e?s?|rest(?:e|ent)?)\b|"
+    r"\b(?:ton|ta|tes|votre|vos|ce|cet|cette|ces|des|l['’]|la|le|les)?\s*"
+    r"(?:historique|conversation|donn[ée]es?|informations?)\b(?:\s+locales?)?"
+    r"[^.\n!?]{0,80}\b(?:effac[ée]e?s?|supprim[ée]e?s?|"
+    r"r[ée]initialis[ée]e?s?|purg[ée]e?s?|vid[ée]e?s?|nettoy[ée]e?s?)\b|"
+    r"\b(?:suppression|effacement|r[ée]initialisation)\b[^.\n!?]{0,40}"
+    r"\b(?:locale|donn[ée]es?|informations?|app|compte|conversation|historique)\b"
+    r"[^.\n!?]{0,80}\b(?:termin[ée]e?|faite?|confirm[ée]e?|r[ée]ussie?)\b|"
+    r"\b(?:start(?:ing)?|restart(?:ing)?|reset(?:ting)?)\b[^.\n!?]{0,40}"
+    r"\b(?:from zero|fresh|blank slate)\b|"
+    r"\bno\s+(?:data|trace)\s+(?:left|kept|stored|remain(?:s|ing)?)\b|"
+    r"\bwithout(?:\s+leaving)?\s+(?:a\s+)?trace\b|"
+    r"\b(?:local\s+)?(?:deletion|reset)\b[^.\n!?]{0,80}"
+    r"\b(?:complete|completed|confirmed|done|successful)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _guard_anonymous_state_claims(text: str, language: str = "fr") -> str:
+    """Prevent LLM text from confirming local deletion or persistence state."""
+    match = _ANONYMOUS_STATE_CONFIRMATION_RE.search(text)
+    if not match:
+        return text
+
+    logger.warning(
+        "Anonymous state-claim guard fired",
+        extra={
+            "matched": _scrub_pii(match.group(0)[:160]),
+            "language": language,
+        },
+    )
+
+    if language.lower().startswith("fr"):
+        return (
+            "Je ne peux pas confirmer depuis cette discussion qu'une suppression "
+            "locale est terminée. L'app doit l'indiquer explicitement dans "
+            "ses paramètres ou dans le diagnostic de redémarrage. "
+            "Pour cette réponse, je m'appuie sur ce que tu viens d'écrire : "
+            "quel sujet veux-tu explorer ?"
+        )
+
+    return (
+        "I cannot confirm from this chat that a local deletion has completed. "
+        "The app has to show that explicitly in its settings or in the restart "
+        "diagnostic. For this reply, I am using what you just wrote: what topic "
+        "do you want to explore?"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Discovery system prompt — written from scratch (T-13-05)
 # ---------------------------------------------------------------------------
@@ -102,7 +161,8 @@ def build_discovery_system_prompt(
         "Tu es MINT, un compagnon de lucidit\u00e9 financi\u00e8re suisse.",
         "",
         "Contexte : mode d\u00e9couverte. La personne n'a pas encore de compte.",
-        "Tu ne disposes d'aucune donn\u00e9e biographique pr\u00e9alable sur elle.",
+        "Tu ne disposes pas d'informations biographiques pr\u00e9alables sur elle.",
+        "Tu r\u00e9ponds \u00e0 partir du message re\u00e7u dans ce tour.",
         "",
     ]
 
@@ -126,6 +186,9 @@ def build_discovery_system_prompt(
         "- Si tu cites un chiffre suisse (taux, plafond, m\u00e9diane) qui ne provient ni du message ni d'une source l\u00e9gale cit\u00e9e (OPP3, LIFD, LPP, LAVS, LFLP), encadre-le explicitement comme \u00ab ordre de grandeur \u00bb et n'avance jamais une valeur exacte sans la qualifier.",
         "- Quand tu cites un plafond, taux ou bar\u00e8me suisse provenant d'une source l\u00e9gale (OPP3, LIFD, LPP, LAVS, LFLP), reproduis la valeur exactement et int\u00e8gre la r\u00e9f\u00e9rence l\u00e9gale verbatim (ex : \u00ab OPP3 art. 7 \u00bb, \u00ab LIFD art. 33 \u00bb) dans la m\u00eame phrase, juste apr\u00e8s le chiffre.",
         "- Ne reproduis jamais textuellement un IBAN, un num\u00e9ro AVS ou un montant exact que la personne aurait \u00e9crit \u2014 paraphrase-le.",
+        "- Ne conclus jamais qu'une suppression, une r\u00e9initialisation ou un nouveau d\u00e9part a eu lieu. Tu ne peux pas confirmer l'\u00e9tat local de l'app depuis cette conversation.",
+        "- Si la personne demande si des informations ont \u00e9t\u00e9 effac\u00e9es ou conserv\u00e9es, dis que seule l'app peut le confirmer, puis propose de continuer \u00e0 partir de ce qu'elle \u00e9crit maintenant.",
+        "- \u00c9vite ces formulations sur l'\u00e9tat local : \u00ab je repars de z\u00e9ro \u00bb, \u00ab aucune donn\u00e9e \u00bb, \u00ab sans trace \u00bb, \u00ab feuille blanche \u00bb.",
         "- Maximum 1 question de relance \u00e0 la fin.",
         "- Jamais de recommandation de produit sp\u00e9cifique.",
         "- Jamais de promesse de rendement ni de certitude sur les r\u00e9sultats.",
@@ -412,6 +475,7 @@ class _NoRagOrchestrator:
         # Compliance filter (banned-term sanitization, accent normalization,
         # disclaimer injection). Same gate as before but applied to the
         # grounded text from the tool-use loop.
+        final_text = _guard_anonymous_state_claims(final_text, language)
         filtered = guardrails.filter_response(final_text, language)
 
         tokens_used = tokens_total if tokens_total > 0 else len(question) // 4

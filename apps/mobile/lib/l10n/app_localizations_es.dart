@@ -22830,6 +22830,9 @@ class SEs extends S {
   String get anonymousChatBack => 'Volver';
 
   @override
+  String get anonymousChatNewConversation => 'Nueva conversación';
+
+  @override
   String get anonymousChatLocked => 'Sigo aquí cuando quieras continuar.';
 
   @override

@@ -10751,6 +10751,10 @@
   "@anonymousChatBack": {
     "description": "Anonymous chat — back button tooltip."
   },
+  "anonymousChatNewConversation": "New conversation",
+  "@anonymousChatNewConversation": {
+    "description": "Anonymous chat — top-bar action shown only when an anonymous conversation was restored from local storage."
+  },
   "anonymousChatLocked": "I’m still here whenever you want to continue.",
   "@anonymousChatLocked": {
     "description": "Anonymous chat — message shown when input is locked after dismissing auth gate."

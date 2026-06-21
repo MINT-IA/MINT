@@ -39946,6 +39946,12 @@ abstract class S {
   /// **'Retour'**
   String get anonymousChatBack;
 
+  /// Anonymous chat — top-bar action shown only when an anonymous conversation was restored from local storage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle discussion'**
+  String get anonymousChatNewConversation;
+
   /// Anonymous chat — message shown when input is locked after dismissing auth gate.
   ///
   /// In fr, this message translates to:

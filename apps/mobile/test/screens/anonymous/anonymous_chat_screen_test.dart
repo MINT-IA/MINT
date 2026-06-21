@@ -44,6 +44,23 @@ void main() {
       expect(find.byIcon(Icons.send_rounded), findsOneWidget);
     });
 
+    testWidgets('suggestion chips do not use a clipped horizontal rail',
+        (tester) async {
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ListView && widget.scrollDirection == Axis.horizontal,
+        ),
+        findsNothing,
+      );
+      expect(find.text("J'ai un projet d'achat"), findsOneWidget);
+      expect(find.text('Je change de boulot'), findsOneWidget);
+      expect(find.text('Je veux y voir clair'), findsOneWidget);
+    });
+
     testWidgets('send button is visible when not locked', (tester) async {
       await tester.pumpWidget(_testApp());
       await tester.pumpAndSettle();
@@ -104,6 +121,130 @@ void main() {
         matching: find.byType(FadeTransition),
       ));
       expect(fades.map((fade) => fade.opacity.value), everyElement(1.0));
+    });
+
+    testWidgets('restored conversation can be cleared into a new discussion',
+        (tester) async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_clear', [
+        ChatMessage(
+          role: 'user',
+          content: 'Ancienne question',
+          timestamp: DateTime(2026, 6, 1, 8, 0),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ancienne réponse',
+          timestamp: DateTime(2026, 6, 1, 8, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question'), findsOneWidget);
+      expect(find.text('Ancienne réponse'), findsOneWidget);
+      expect(find.text('Nouvelle discussion'), findsOneWidget);
+
+      await tester.tap(find.text('Nouvelle discussion'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question'), findsNothing);
+      expect(find.text('Ancienne réponse'), findsNothing);
+      expect(
+        find.text(
+          'Salut. Dis-moi ce qui te trotte en tête côté finances en ce moment — un projet, une question, un truc flou.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Nouvelle discussion'), findsNothing);
+      expect(await store.listConversations(), isEmpty);
+    });
+
+    testWidgets(
+        'restored conversation reset opens auth gate when quota is spent',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'anonfb_anonymous_message_count': '3',
+      });
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_quota_spent', [
+        ChatMessage(
+          role: 'user',
+          content: 'Ancienne question quota',
+          timestamp: DateTime(2026, 6, 1, 8, 0),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ancienne réponse quota',
+          timestamp: DateTime(2026, 6, 1, 8, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Nouvelle discussion'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ancienne question quota'), findsNothing);
+      expect(find.text('Ancienne réponse quota'), findsNothing);
+      expect(
+        find.text(
+          'Salut. Dis-moi ce qui te trotte en tête côté finances en ce moment — un projet, une question, un truc flou.',
+        ),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          'Je peux garder tout ça en mémoire pour toi — il te suffit de créer un compte.',
+        ),
+        findsOneWidget,
+      );
+      expect(await store.listConversations(), isEmpty);
+    });
+
+    testWidgets('quota-spent auth gate fits a short viewport', (tester) async {
+      tester.view.physicalSize = const Size(390, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      SharedPreferences.setMockInitialValues({
+        'anonfb_anonymous_message_count': '3',
+      });
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_short_viewport', [
+        ChatMessage(
+          role: 'user',
+          content: 'Ancienne question viewport',
+          timestamp: DateTime(2026, 6, 1, 8, 0),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Ancienne réponse viewport',
+          timestamp: DateTime(2026, 6, 1, 8, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Nouvelle discussion'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Je peux garder tout ça en mémoire pour toi — il te suffit de créer un compte.',
+        ),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.text('Plus tard'));
+      await tester.pumpAndSettle();
+      expect(find.text('Plus tard'), findsOneWidget);
     });
   });
 

@@ -6,6 +6,8 @@ import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -251,6 +253,87 @@ void main() {
       expect(provider.authLifecycle.allowsMainNavigation, isTrue);
       expect(provider.isLoggedIn, isTrue);
       expect(provider.userId, 'user-1');
+    });
+
+    test('checkAuth does not claim anonymous conversations on restored account',
+        () async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('guest-thread', [
+        ChatMessage(
+          role: 'user',
+          content: 'Question invitee',
+          timestamp: DateTime(2026, 6, 21, 9),
+        ),
+      ]);
+      await AuthService.saveToken(
+        'jwt',
+        'user-1',
+        'user@example.ch',
+        refreshToken: 'refresh',
+      );
+
+      await provider.checkAuth();
+
+      ConversationStore.setCurrentUserId('user-1');
+      expect(await store.listConversations(), isEmpty);
+
+      ConversationStore.setCurrentUserId(null);
+      final anonymousConversations = await store.listConversations();
+      expect(anonymousConversations, hasLength(1));
+      expect(anonymousConversations.single.id, 'guest-thread');
+    });
+
+    test(
+        'completeAppleSignIn leaves anonymous conversations unclaimed when not requested',
+        () async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('apple-guest-thread', [
+        ChatMessage(
+          role: 'user',
+          content: 'Question avant Apple',
+          timestamp: DateTime(2026, 6, 21, 10),
+        ),
+      ]);
+
+      final ok = await provider.completeAppleSignIn({
+        'accessToken': 'apple-jwt',
+        'userId': 'apple-user',
+        'email': 'apple@example.ch',
+      }, claimAnonymousConversations: false);
+
+      expect(ok, isTrue);
+      ConversationStore.setCurrentUserId('apple-user');
+      expect(await store.listConversations(), isEmpty);
+
+      ConversationStore.setCurrentUserId(null);
+      expect(await store.listConversations(), hasLength(1));
+    });
+
+    test('completeAppleSignIn claims anonymous conversations when requested',
+        () async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('apple-guest-thread', [
+        ChatMessage(
+          role: 'user',
+          content: 'Question avant Apple',
+          timestamp: DateTime(2026, 6, 21, 10),
+        ),
+      ]);
+
+      final claimed = await provider.completeAppleSignIn({
+        'accessToken': 'apple-jwt',
+        'userId': 'apple-user',
+        'email': 'apple@example.ch',
+      }, claimAnonymousConversations: true);
+
+      expect(claimed, isTrue);
+      ConversationStore.setCurrentUserId('apple-user');
+      final claimedConversations = await store.listConversations();
+      expect(claimedConversations, hasLength(1));
+      expect(claimedConversations.single.id, 'apple-guest-thread');
     });
 
     // ── requiresEmailVerification starts false ──

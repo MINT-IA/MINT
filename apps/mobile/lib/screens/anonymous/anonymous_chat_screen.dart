@@ -115,6 +115,11 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// persisted messages on cold-restore (see [_hydrateFromStoreOrShowOpener]).
   bool _eclairageDelivered = false;
 
+  /// Whether the visible thread came from persisted anonymous storage.
+  /// Restored threads need an explicit escape hatch so a returning anonymous
+  /// user can start fresh without creating an account first.
+  bool _restoredConversation = false;
+
   /// Number of completed coach responses in the current session. Increments
   /// only after `_messages.add(coach response)` — not on user-send, not
   /// on error.
@@ -185,6 +190,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           // otherwise the FIRST new turn after cold-restore would render a
           // second card.
           _eclairageDelivered = coachTurns >= 2;
+          _restoredConversation = true;
         });
         _scrollToBottom();
         return;
@@ -207,6 +213,32 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       _openerShown = true;
     });
     _openerFadeController.forward();
+  }
+
+  Future<void> _startNewConversation() async {
+    ConversationStore.setCurrentUserId(null);
+    await ConversationStore.clearCurrentNamespace();
+    final canSend = await AnonymousSessionService.canSendMessage();
+    if (!mounted) return;
+
+    _inputController.clear();
+    _openerFadeController.reset();
+    setState(() {
+      _messages.clear();
+      _isLoading = false;
+      _isAuthGateLocked = !canSend;
+      _queuedMessage = null;
+      _openerShown = false;
+      _eclairageDelivered = false;
+      _coachTurnsCompleted = 0;
+      _restoredConversation = false;
+    });
+    if (!canSend) {
+      _showAuthGate();
+      return;
+    }
+    _addOpenerIfNeeded();
+    _scrollToBottom();
   }
 
   @override
@@ -531,17 +563,30 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Top bar — back button only (panel §1.1)
+            // Top bar — back + restored-thread reset.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  color: MintColors.inkPrimary,
-                  onPressed: () => context.go('/'),
-                  tooltip: l.anonymousChatBack,
-                ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    color: MintColors.inkPrimary,
+                    onPressed: () => context.go('/'),
+                    tooltip: l.anonymousChatBack,
+                  ),
+                  const Spacer(),
+                  if (_restoredConversation)
+                    TextButton.icon(
+                      key: const ValueKey('anonymous_chat_new_conversation'),
+                      onPressed: _isLoading ? null : _startNewConversation,
+                      icon: const Icon(Icons.add_comment_outlined, size: 18),
+                      label: Text(l.anonymousChatNewConversation),
+                      style: TextButton.styleFrom(
+                        foregroundColor: MintColors.inkPrimary,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                    ),
+                ],
               ),
             ),
 
@@ -634,46 +679,53 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     );
   }
 
-  /// Chips row (panel §1.3) — 3 outlined chips horizontally scrollable.
+  /// Chips row (panel §1.3) — 3 outlined chips wrapped without clipping.
   Widget _buildChipsRow(S l) {
     final chips = [
       l.anonymousChatChip1,
       l.anonymousChatChip2,
       l.anonymousChatChip3
     ];
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        itemCount: chips.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          return Center(
-            child: Semantics(
-              label: chips[i],
-              button: true,
-              child: InkWell(
-                onTap: () => _onChipTap(chips[i]),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: MintColors.craieHandoff,
-                    border:
-                        Border.all(color: MintColors.borderSubtle, width: 1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    chips[i],
-                    style: MintTextStyles.bodyMedium(
-                      color: MintColors.inkPrimary,
-                    ).copyWith(fontWeight: FontWeight.w500),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final chip in chips)
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: Semantics(
+                    button: true,
+                    child: InkWell(
+                      onTap: () => _onChipTap(chip),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: MintColors.craieHandoff,
+                          border: Border.all(
+                            color: MintColors.borderSubtle,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          chip,
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.inkPrimary,
+                          ).copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+            ],
           );
         },
       ),

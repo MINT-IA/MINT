@@ -22836,6 +22836,9 @@ class SPt extends S {
   String get anonymousChatBack => 'Voltar';
 
   @override
+  String get anonymousChatNewConversation => 'Nova conversa';
+
+  @override
   String get anonymousChatLocked =>
       'Ainda estou aqui quando quiseres continuar.';
 

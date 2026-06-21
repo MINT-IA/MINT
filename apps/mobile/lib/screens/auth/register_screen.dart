@@ -150,7 +150,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final response = await AppleSignInService.signIn();
       if (response == null || !mounted) return;
 
-      final ok = await authProvider.completeAppleSignIn(response);
+      final ok = await authProvider.completeAppleSignIn(
+        response,
+        // Register is a creation path: claim the current guest conversation
+        // into the new local account namespace.
+        claimAnonymousConversations: true,
+      );
       if (!ok) {
         if (!mounted) return;
         setState(() {

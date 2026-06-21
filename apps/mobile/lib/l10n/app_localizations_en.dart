@@ -22719,6 +22719,9 @@ class SEn extends S {
   String get anonymousChatBack => 'Back';
 
   @override
+  String get anonymousChatNewConversation => 'New conversation';
+
+  @override
   String get anonymousChatLocked =>
       'I’m still here whenever you want to continue.';
 
