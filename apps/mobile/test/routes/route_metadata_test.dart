@@ -157,6 +157,17 @@ void main() {
       expect(meta!.owner, RouteOwner.coach);
     });
 
+    test('/anonymous/chat is a retired public alias', () {
+      final meta = kRouteRegistry['/anonymous/chat'];
+      expect(meta, isNotNull);
+      expect(meta!.category, RouteCategory.alias);
+      expect(meta.requiresAuth, isFalse);
+      expect(
+        meta.description,
+        contains('redirects to /onb'),
+      );
+    });
+
     test('/ root owner=anonymous, requiresAuth=false', () {
       final meta = kRouteRegistry['/'];
       expect(meta, isNotNull);

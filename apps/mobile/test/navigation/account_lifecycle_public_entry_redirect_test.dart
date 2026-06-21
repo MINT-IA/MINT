@@ -2,8 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart'
     show
         accountLifecycleAuthenticatedRedirect,
-        accountLifecyclePublicEntryRedirect;
+        accountLifecyclePublicEntryRedirect,
+        routeScopeForRedirect;
 import 'package:mint_mobile/models/auth_lifecycle_state.dart';
+import 'package:mint_mobile/router/route_scope.dart';
+import 'package:mint_mobile/router/scoped_go_route.dart';
 
 void main() {
   group('account lifecycle public entry redirect', () {
@@ -116,6 +119,39 @@ void main() {
           path: '/home',
         ),
         isNull,
+      );
+    });
+  });
+
+  group('route scope fallback for redirect-only routes', () {
+    test('keeps public redirect-only entry points public', () {
+      expect(
+        routeScopeForRedirect(path: '/start', topRoute: null),
+        RouteScope.public,
+      );
+      expect(
+        routeScopeForRedirect(path: '/anonymous/chat', topRoute: null),
+        RouteScope.public,
+      );
+    });
+
+    test('keeps unknown routes fail-closed', () {
+      expect(
+        routeScopeForRedirect(path: '/unregistered', topRoute: null),
+        RouteScope.authenticated,
+      );
+    });
+
+    test('uses explicit ScopedGoRoute scope when available', () {
+      final route = ScopedGoRoute(
+        path: '/scoped',
+        scope: RouteScope.onboarding,
+        builder: (_, __) => throw UnimplementedError(),
+      );
+
+      expect(
+        routeScopeForRedirect(path: '/scoped', topRoute: route),
+        RouteScope.onboarding,
       );
     });
   });

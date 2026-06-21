@@ -124,7 +124,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     category: RouteCategory.alias,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    description: 'Landing CTA redirect — flag-gated to /onb or /coach/chat',
+    description: 'Landing CTA compatibility redirect — redirects to /onb',
   ),
   '/onb': RouteMeta(
     path: '/onb',
@@ -176,15 +176,15 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     description: 'Magic-link verification landing',
   ),
 
-  // ── Anonymous flow (public, outside shell) ─────────────────────
-  // Phase 71a (2026-05-05) : /anonymous/intent retired; /anonymous/chat
-  // is now the chat-first cold-open with opener bubble + chip suggestions.
+  // ── Retired anonymous flow alias (public) ─────────────────────
+  // The old chat-first cold-open is no longer a product surface. Keep the
+  // route as a compatibility alias to /onb so old links do not 404.
   '/anonymous/chat': RouteMeta(
     path: '/anonymous/chat',
-    category: RouteCategory.destination,
+    category: RouteCategory.alias,
     owner: RouteOwner.anonymous,
     requiresAuth: false,
-    killFlag: 'enableAnonymousFlow',
+    description: 'Retired anonymous chat cold-open — redirects to /onb',
   ),
 
   // ── Shell tabs ─────────────────────────────────────────────────
