@@ -186,6 +186,7 @@ class _LandingScreenState extends State<LandingScreen>
                       label: l10n.landingV2CtaSober,
                       onTap: openOnboarding,
                       child: FilledButton(
+                        // lint-ignore: prefer_mint_cta
                         style: FilledButton.styleFrom(
                           backgroundColor: MintColors.inkPrimary,
                           foregroundColor: MintColors.porcelaineHero,
