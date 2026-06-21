@@ -137,6 +137,10 @@ def _apple_allowed_audiences() -> list[str]:
     return audiences
 
 
+def _apple_signing_key_for_token(identity_token: str):
+    return _APPLE_JWKS_CLIENT.get_signing_key_from_jwt(identity_token).key
+
+
 def _email_verification_required() -> bool:
     raw = os.getenv("AUTH_REQUIRE_EMAIL_VERIFICATION")
     if raw is not None:
@@ -1283,12 +1287,10 @@ def _verify_apple_identity_token(
         )
 
     try:
-        signing_key = _APPLE_JWKS_CLIENT.get_signing_key_from_jwt(
-            identity_token,
-        )
+        signing_key = _apple_signing_key_for_token(identity_token)
         payload = jwt.decode(
             identity_token,
-            signing_key.key,
+            signing_key,
             algorithms=["RS256"],
             audience=_apple_allowed_audiences(),
             issuer="https://appleid.apple.com",
