@@ -2126,6 +2126,7 @@
   "financialSummaryNoProfile": "No profile entered",
   "financialSummaryStartDiagnostic": "Start the diagnostic",
   "financialSummaryRestartDiagnostic": "Restart the diagnostic",
+  "financialSummaryRestartDiagnosticError": "Some local data could not be cleared. Try again in a moment.",
   "financialSummaryDefaultConjoint": "Spouse",
   "financialSummaryAvs1erPilier": "AVS (1st pillar)",
   "financialSummaryAnneesCotisees": "Years contributed",

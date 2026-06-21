@@ -8380,6 +8380,12 @@ abstract class S {
   /// **'Recommencer le diagnostic'**
   String get financialSummaryRestartDiagnostic;
 
+  /// No description provided for @financialSummaryRestartDiagnosticError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une partie des données locales n’a pas pu être effacée. Réessaie dans un instant.'**
+  String get financialSummaryRestartDiagnosticError;
+
   /// No description provided for @financialSummaryDefaultConjoint.
   ///
   /// In fr, this message translates to:

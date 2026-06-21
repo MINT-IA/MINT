@@ -4609,6 +4609,10 @@ class SEs extends S {
   String get financialSummaryRestartDiagnostic => 'Reiniciar el diagnóstico';
 
   @override
+  String get financialSummaryRestartDiagnosticError =>
+      'No se ha podido borrar una parte de los datos locales. Inténtalo de nuevo en un momento.';
+
+  @override
   String get financialSummaryDefaultConjoint => 'Cónyuge';
 
   @override

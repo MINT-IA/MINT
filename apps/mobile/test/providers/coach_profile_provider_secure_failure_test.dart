@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,6 +48,64 @@ void main() {
     final loaded = await ReportPersistenceService.loadAnswers();
     expect(loaded, isEmpty);
     expect(provider.profile, isNull);
+  });
+
+  test('clearAll purges active conversation namespace', () async {
+    ConversationStore.setCurrentUserId(null);
+    final store = ConversationStore();
+    await store.saveConversation('anonymous-profile-reset', [
+      ChatMessage(
+        role: 'user',
+        content: 'Ancienne conversation',
+        timestamp: DateTime(2026, 6, 13, 10),
+      ),
+      ChatMessage(
+        role: 'assistant',
+        content: 'Ancienne réponse',
+        timestamp: DateTime(2026, 6, 13, 10, 1),
+      ),
+    ]);
+
+    final provider = CoachProfileProvider();
+    provider.clearAll();
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(await store.listConversations(), isEmpty);
+  });
+
+  test('clearAll does not purge a namespace selected after the call', () async {
+    final oldStore = ConversationStore();
+    ConversationStore.setCurrentUserId('old-user');
+    await oldStore.saveConversation('old-conversation', [
+      ChatMessage(
+        role: 'user',
+        content: 'Ancien contexte',
+        timestamp: DateTime(2026, 6, 13, 10),
+      ),
+    ]);
+
+    final newStore = ConversationStore();
+    ConversationStore.setCurrentUserId('new-user');
+    await newStore.saveConversation('new-conversation', [
+      ChatMessage(
+        role: 'user',
+        content: 'Nouveau contexte',
+        timestamp: DateTime(2026, 6, 13, 11),
+      ),
+    ]);
+
+    final provider = CoachProfileProvider();
+    ConversationStore.setCurrentUserId('old-user');
+    provider.clearAll();
+    ConversationStore.setCurrentUserId('new-user');
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    ConversationStore.setCurrentUserId('old-user');
+    expect(await oldStore.listConversations(), isEmpty);
+    ConversationStore.setCurrentUserId('new-user');
+    expect(await newStore.listConversations(), hasLength(1));
   });
 
   test('dateOfBirth is not demoted to SharedPreferences on seal failure',

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -24,6 +28,7 @@ import 'package:mint_mobile/widgets/profile/futur_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/enrichment_cta.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // NOTE: This screen is a deep-dive view. Primary display is now in PulseScreen
 // via BudgetSnapshot. Keep for /profile/bilan deep link and ProfileScreen access.
@@ -35,12 +40,115 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 ///
 /// Accessible depuis /profile/bilan et depuis le ProfileScreen.
 class FinancialSummaryScreen extends StatelessWidget {
-  const FinancialSummaryScreen({super.key});
+  const FinancialSummaryScreen({
+    super.key,
+    @visibleForTesting this.restartDiagnosticResetOverride,
+  });
+
+  @visibleForTesting
+  final Future<List<Object>> Function()? restartDiagnosticResetOverride;
+
+  @visibleForTesting
+  static Future<List<Object>> runBestEffortResetForTest(
+    List<Future<void> Function()> operations,
+  ) {
+    return _runBestEffortReset(operations);
+  }
+
+  @visibleForTesting
+  static Future<List<Object>> runPersistentResetThenProfileClearForTest({
+    required List<Future<void> Function()> persistentOperations,
+    required Future<void> Function() profileClear,
+  }) {
+    return _runPersistentResetThenProfileClear(
+      persistentOperations: persistentOperations,
+      profileClear: profileClear,
+    );
+  }
+
+  static Future<List<Object>> _runBestEffortReset(
+    List<Future<void> Function()> operations,
+  ) async {
+    final failures = <Object>[];
+    for (final operation in operations) {
+      try {
+        await operation();
+      } catch (error, stackTrace) {
+        failures.add(error);
+        debugPrint(
+          '[FinancialSummary] restart diagnostic reset step failed: '
+          '$error\n$stackTrace',
+        );
+      }
+    }
+    return failures;
+  }
+
+  static Future<List<Object>> _runPersistentResetThenProfileClear({
+    required List<Future<void> Function()> persistentOperations,
+    required Future<void> Function() profileClear,
+  }) async {
+    final persistentFailures = await _runBestEffortReset(persistentOperations);
+    if (persistentFailures.isNotEmpty) return persistentFailures;
+    return _runBestEffortReset([profileClear]);
+  }
+
+  Future<List<Object>> _runRestartDiagnosticReset(
+    CoachProfileProvider coachProvider,
+  ) async {
+    return _runPersistentResetThenProfileClear(
+      persistentOperations: [
+        ReportPersistenceService.clear,
+        SmartOnboardingDraftService.clearDraft,
+        ConversationStore.clearCurrentNamespace,
+        () async {
+          final prefs = await SharedPreferences.getInstance();
+          await CoachMemoryService.clear(prefs: prefs);
+        },
+        CapMemoryStore.clear,
+        () async {
+          final prefs = await SharedPreferences.getInstance();
+          await PrecomputedInsightsService.clear(prefs);
+        },
+      ],
+      // CoachProfileProvider.clear() also fires report/conversation cleanup
+      // defensively. The awaited persistent purge above is the tracked path;
+      // keep profile clear last so partial failures do not make the UI look
+      // reset while stale local stores may still exist.
+      profileClear: () async => coachProvider.clear(),
+    );
+  }
+
+  Future<void> _handleRestartDiagnostic(BuildContext context) async {
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = S.of(context)!;
+    final coachProvider = context.read<CoachProfileProvider>();
+    final failures = restartDiagnosticResetOverride != null
+        ? await restartDiagnosticResetOverride!()
+        : await _runRestartDiagnosticReset(coachProvider);
+
+    if (!context.mounted) return;
+    if (failures.isEmpty) {
+      router.go('/coach/chat');
+      return;
+    }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          l10n.financialSummaryRestartDiagnosticError,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final coachProvider = context.watch<CoachProfileProvider>();
     final profile = coachProvider.profile;
+    final readiness =
+        profile == null ? null : _financialSummaryReadiness(profile);
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
@@ -52,8 +160,10 @@ class FinancialSummaryScreen extends StatelessWidget {
                   _buildAppBar(context),
                   if (profile == null || !profile.hasMaterialData)
                     _buildEmptyState(context)
+                  else if (readiness == null || !readiness.isReady)
+                    _buildIncompleteState(context)
                   else
-                    _buildContent(context, profile),
+                    _buildContent(context, profile, readiness),
                 ],
               ))),
     );
@@ -98,11 +208,28 @@ class FinancialSummaryScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildIncompleteState(BuildContext context) {
+    final s = S.of(context)!;
+    return SliverFillRemaining(
+      child: MintEmptyState(
+        icon: Icons.fact_check_outlined,
+        title: s.profileBilanSubtitleIncomplete,
+        subtitle: s.futurCompleterProfil,
+        ctaLabel: s.financialSummaryStartDiagnostic,
+        onCta: () => context.go('/coach/chat'),
+      ),
+    );
+  }
+
   // ══════════════════════════════════════════════════════════════
   //  MAIN CONTENT — Hero Gap + 3 Tiroirs + CTA + Disclaimer
   // ══════════════════════════════════════════════════════════════
 
-  Widget _buildContent(BuildContext context, CoachProfile profile) {
+  Widget _buildContent(
+    BuildContext context,
+    CoachProfile profile,
+    _FinancialSummaryReadiness readiness,
+  ) {
     final s = S.of(context)!;
     final prev = profile.prevoyance;
     final det = profile.dettes;
@@ -136,18 +263,8 @@ class FinancialSummaryScreen extends StatelessWidget {
     final projectedMonthly = renteAvs + renteLpp;
 
     // ── Confidence ──
-    final knownCount = [
-      profile.salaireBrutMensuel > 0,
-      profile.canton.isNotEmpty,
-      prev.avoirLppTotal != null && prev.avoirLppTotal! > 0,
-      prev.totalEpargne3a > 0,
-      pat.epargneLiquide > 0,
-      profile.depenses.loyer > 0 ||
-          (det.hypotheque != null && det.hypotheque! > 0),
-      profile.depenses.assuranceMaladie > 0,
-    ].where((b) => b).length;
-    final confidence = (knownCount / 7 * 100).clamp(0.0, 100.0);
-    final missingCount = 7 - knownCount;
+    final confidence = readiness.confidencePercent;
+    final missingCount = readiness.missingCount;
 
     // ── Patrimoine net (hero value for tiroir 1) ──
     final prevCapital = (prev.avoirLppTotal ?? 0) +
@@ -183,7 +300,6 @@ class FinancialSummaryScreen extends StatelessWidget {
                   heroValue: formatChfCompact(patrimoineNet),
                   icon: Icons.savings_outlined,
                   accentColor: MintColors.success,
-                  initiallyExpanded: true,
                   onEdit: () => _showEditSheet(
                     context,
                     title: s.financialSummaryModifierPatrimoine,
@@ -355,13 +471,9 @@ class FinancialSummaryScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
               child: OutlinedButton.icon(
+                key: const ValueKey('financial_summary_restart_diagnostic'),
                 onPressed: () async {
-                  context.read<CoachProfileProvider>().clear();
-                  await ReportPersistenceService.clear();
-                  await SmartOnboardingDraftService.clearDraft();
-                  if (context.mounted) {
-                    context.go('/coach/chat');
-                  }
+                  await _handleRestartDiagnostic(context);
                 },
                 icon: const Icon(Icons.refresh, size: 18),
                 label: Text(
@@ -678,6 +790,133 @@ class FinancialSummaryScreen extends StatelessWidget {
     return counts;
   }
 
+  _FinancialSummaryReadiness _financialSummaryReadiness(CoachProfile profile) {
+    final hasIncome = _hasIncomeFact(profile);
+    final hasCanton = _hasFieldEvidence(
+      profile,
+      valuePresent: profile.canton.isNotEmpty,
+      providedKeys: const {'canton'},
+      sourceKeys: const {'canton'},
+    );
+    final hasHousing = _hasFieldEvidence(
+      profile,
+      valuePresent: profile.depenses.loyer > 0,
+      providedKeys: const {'housingCost'},
+      sourceKeys: const {'depenses.loyer'},
+    );
+    final hasLamal = _hasFieldEvidence(
+      profile,
+      valuePresent: profile.depenses.assuranceMaladie > 0,
+      providedKeys: const {'lamalPremium'},
+      sourceKeys: const {'depenses.assuranceMaladie'},
+    );
+    final hasLpp = _hasFieldEvidence(
+      profile,
+      valuePresent: (profile.prevoyance.avoirLppTotal ?? 0) > 0,
+      providedKeys: const {'avoirLpp'},
+      sourceKeys: const {'prevoyance.avoirLppTotal'},
+    );
+    final hasAvs = _hasFieldEvidence(
+      profile,
+      valuePresent: (profile.prevoyance.renteAVSEstimeeMensuelle ?? 0) > 0,
+      providedKeys: const {'avsRente'},
+      sourceKeys: const {'prevoyance.renteAVSEstimeeMensuelle'},
+    );
+    final hasPatrimoine = _hasFieldEvidence(
+      profile,
+      valuePresent: profile.patrimoine.epargneLiquide > 0 ||
+          profile.patrimoine.investissements > 0,
+      providedKeys: const {'liquidSavings', 'investments'},
+      sourceKeys: const {
+        'patrimoine.epargneLiquide',
+        'patrimoine.investissements',
+      },
+    );
+    final hasDebt = _hasDebtFact(profile);
+
+    final knownCount = [
+      hasIncome,
+      hasCanton,
+      hasHousing,
+      hasLamal,
+      hasLpp,
+      hasAvs,
+      _hasFieldEvidence(
+        profile,
+        valuePresent: profile.prevoyance.totalEpargne3a > 0 ||
+            profile.plannedContributions.any((c) => c.category == '3a'),
+        providedKeys: const {'pillar3aBalance'},
+        sourceKeys: const {
+          'prevoyance.totalEpargne3a',
+          'plannedContributions.3a',
+        },
+      ),
+      hasPatrimoine,
+      hasDebt,
+    ].where((known) => known).length;
+
+    final hasRequiredFacts = hasIncome &&
+        hasCanton &&
+        hasHousing &&
+        hasLamal &&
+        hasLpp &&
+        hasAvs &&
+        hasPatrimoine &&
+        hasDebt;
+
+    return _FinancialSummaryReadiness(
+      knownCount: knownCount,
+      totalCount: 9,
+      isReady: profile.hasMaterialData && hasRequiredFacts,
+    );
+  }
+
+  bool _hasIncomeFact(CoachProfile profile) {
+    return _hasFieldEvidence(
+      profile,
+      valuePresent: profile.revenuBrutAnnuel > 0 ||
+          (profile.independentNetProfessionalIncomeAnnual ?? 0) > 0,
+      providedKeys: const {
+        'salary',
+        'independentNetProfessionalIncomeAnnual',
+      },
+      sourceKeys: const {
+        'revenuBrutAnnuel',
+        'salaireBrutMensuel',
+        'independentNetProfessionalIncomeAnnual',
+      },
+    );
+  }
+
+  bool _hasDebtFact(CoachProfile profile) {
+    const sourceKeys = {
+      'dettes.totalDettes',
+      'dettes.hypotheque',
+      'dettes.creditConsommation',
+      'dettes.leasing',
+      'dettes.autresDettes',
+    };
+    if (profile.userProvidedFields.contains('debt')) return true;
+    return sourceKeys.any((key) {
+      final source = profile.dataSources[key];
+      return source != null && source != ProfileDataSource.estimated;
+    });
+  }
+
+  bool _hasFieldEvidence(
+    CoachProfile profile, {
+    required bool valuePresent,
+    required Set<String> providedKeys,
+    required Set<String> sourceKeys,
+  }) {
+    if (!valuePresent) return false;
+    if (providedKeys.any(profile.userProvidedFields.contains)) return true;
+    return sourceKeys.any((key) {
+      final source = profile.dataSources[key];
+      return source != null && source != ProfileDataSource.estimated;
+    });
+  }
+
   // ══════════════════════════════════════════════════════════════
   //  DISCLAIMER
   // ══════════════════════════════════════════════════════════════
@@ -950,4 +1189,21 @@ class _EditField {
     this.initialValue,
     required this.key,
   });
+}
+
+class _FinancialSummaryReadiness {
+  const _FinancialSummaryReadiness({
+    required this.knownCount,
+    required this.totalCount,
+    required this.isReady,
+  });
+
+  final int knownCount;
+  final int totalCount;
+  final bool isReady;
+
+  int get missingCount => (totalCount - knownCount).clamp(0, totalCount);
+
+  double get confidencePercent =>
+      (knownCount / totalCount * 100).clamp(0.0, 100.0);
 }

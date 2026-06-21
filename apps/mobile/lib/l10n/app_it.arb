@@ -2126,6 +2126,7 @@
   "financialSummaryNoProfile": "Nessun profilo inserito",
   "financialSummaryStartDiagnostic": "Iniziare la diagnosi",
   "financialSummaryRestartDiagnostic": "Ricominciare la diagnosi",
+  "financialSummaryRestartDiagnosticError": "Non è stato possibile eliminare una parte dei dati locali. Riprova tra un momento.",
   "financialSummaryDefaultConjoint": "Coniuge",
   "financialSummaryAvs1erPilier": "AVS (1° pilastro)",
   "financialSummaryAnneesCotisees": "Anni di contribuzione",

@@ -18,6 +18,7 @@ import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
@@ -3124,7 +3125,8 @@ class CoachProfileProvider extends ChangeNotifier {
     _hasSessionOnlyProfile = false;
     // Fire-and-forget: clear persisted wizard answers + coach history
     // to prevent cross-account bleed. In-memory state is already reset above.
-    ReportPersistenceService.clear();
+    unawaited(ReportPersistenceService.clear());
+    unawaited(ConversationStore.clearCurrentNamespace());
     notifyListeners();
   }
 

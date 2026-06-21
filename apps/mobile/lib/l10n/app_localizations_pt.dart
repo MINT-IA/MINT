@@ -4606,6 +4606,10 @@ class SPt extends S {
   String get financialSummaryRestartDiagnostic => 'Reiniciar o diagnóstico';
 
   @override
+  String get financialSummaryRestartDiagnosticError =>
+      'Não foi possível apagar uma parte dos dados locais. Tenta novamente dentro de instantes.';
+
+  @override
   String get financialSummaryDefaultConjoint => 'Cônjuge';
 
   @override
