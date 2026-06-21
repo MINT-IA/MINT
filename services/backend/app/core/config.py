@@ -117,6 +117,7 @@ class Settings(BaseSettings):
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
     BILLING_ALLOW_CLIENT_APPLE_VERIFY: bool = False
     APPLE_WEBHOOK_SHARED_SECRET: str = ""
+    APPLE_SIGN_IN_AUDIENCE: str = "ch.mint.app"
 
     # Apple IAP Products (P6 multi-tier)
     APPLE_IAP_PRODUCT_STARTER_MONTHLY: str = "ch.mint.starter.monthly"

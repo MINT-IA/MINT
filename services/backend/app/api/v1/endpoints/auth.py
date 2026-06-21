@@ -5,14 +5,18 @@ Authentication endpoints - register, login, and user info.
 from uuid import uuid4
 from datetime import datetime, timezone, date, timedelta
 from typing import Optional
+import hashlib
 import os
 import logging
 import csv
 import io
+import jwt
+from jwt import PyJWKClient
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from fastapi import Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.auth import require_current_user
@@ -93,6 +97,9 @@ from app.services.auth_admin_service import (
     build_onboarding_quality_snapshot,
     build_onboarding_quality_cohorts,
 )
+
+APPLE_JWKS_URL = "https://appleid.apple.com/auth/keys"
+_APPLE_JWKS_CLIENT = PyJWKClient(APPLE_JWKS_URL)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -1240,6 +1247,68 @@ def magic_link_verify(
 # Apple Sign-In Authentication
 # ---------------------------------------------------------------------------
 
+def _verify_apple_identity_token(
+    identity_token: str,
+    nonce: Optional[str],
+) -> dict:
+    if nonce is None or not nonce.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apple identity token nonce required",
+        )
+
+    try:
+        header = jwt.get_unverified_header(identity_token)
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Apple identity token format",
+        )
+
+    if header.get("alg") != "RS256" or not header.get("kid"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple identity token signature",
+        )
+
+    try:
+        signing_key = _APPLE_JWKS_CLIENT.get_signing_key_from_jwt(
+            identity_token,
+        )
+        payload = jwt.decode(
+            identity_token,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=settings.APPLE_SIGN_IN_AUDIENCE,
+            issuer="https://appleid.apple.com",
+            options={"require": ["exp", "iat", "iss", "aud", "sub"]},
+        )
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Apple identity token expired",
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple identity token",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Apple identity verification unavailable",
+        )
+
+    expected_nonce = hashlib.sha256(nonce.encode("utf-8")).hexdigest()
+    if payload.get("nonce") != expected_nonce:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple identity token nonce",
+        )
+
+    return payload
+
+
 @router.post("/apple/verify", response_model=AppleVerifyResponse)
 @limiter.limit("5/minute")
 def apple_verify(
@@ -1250,57 +1319,9 @@ def apple_verify(
     """
     Verify an Apple identity token and return a JWT access token.
 
-    MVP verification: decode JWT payload and check issuer + audience.
-    Production: validate signature against Apple's public keys
-    (https://appleid.apple.com/auth/keys).
-
     Rate limited to 5 requests/minute per IP (T-01-11).
     """
-    import base64
-    import json as _json
-
-    # Decode Apple identity token (JWT) without signature verification (MVP).
-    # Production should verify against Apple's JWKS endpoint.
-    try:
-        # Apple identity tokens are standard JWTs (header.payload.signature)
-        parts = body.identity_token.split(".")
-        if len(parts) != 3:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid Apple identity token format",
-            )
-
-        # Decode payload (base64url)
-        payload_b64 = parts[1]
-        # Add padding if needed
-        padding = 4 - len(payload_b64) % 4
-        if padding != 4:
-            payload_b64 += "=" * padding
-        payload_bytes = base64.urlsafe_b64decode(payload_b64)
-        payload = _json.loads(payload_bytes)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to decode Apple identity token",
-        )
-
-    # T-01-11: Verify issuer
-    if payload.get("iss") != "https://appleid.apple.com":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Apple token issuer",
-        )
-
-    # T-01-12: Check token expiry
-    import time
-    token_exp = payload.get("exp", 0)
-    if token_exp < time.time():
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Apple identity token expired",
-        )
+    payload = _verify_apple_identity_token(body.identity_token, body.nonce)
 
     # Extract Apple user info
     apple_sub = payload.get("sub")  # Apple user ID (stable)
@@ -1312,16 +1333,25 @@ def apple_verify(
             detail="Apple identity token missing subject",
         )
 
-    # Find or create user by email (or Apple sub as fallback identifier)
-    user = None
-    if apple_email:
+    # Find by Apple's stable subject first. Relay email can change.
+    user = db.query(User).filter(User.apple_sub == apple_sub).first()
+    if user is None and apple_email:
         user = db.query(User).filter(User.email == apple_email).first()
+        if user is not None:
+            if user.apple_sub is None:
+                user.apple_sub = apple_sub
+            elif user.apple_sub != apple_sub:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Apple email is already linked to another account",
+                )
 
     if user is None:
         # Auto-create user (frictionless onboarding, same pattern as magic link)
         user = User(
             id=str(uuid4()),
             email=apple_email or f"apple_{apple_sub}@privaterelay.appleid.com",
+            apple_sub=apple_sub,
             hashed_password="",  # No password for Apple Sign-In users
             email_verified=True,  # Apple verifies email
             created_at=datetime.now(timezone.utc),
@@ -1331,9 +1361,6 @@ def apple_verify(
         # P0 FIX: same as /register — materialise an empty profile so the
         # user is not stuck with a 404 on /profiles/me post Apple Sign-In.
         _ensure_empty_profile(db, user.id)
-
-    # Create JWT
-    access_token = create_access_token(user.id, user.email)
 
     log_audit_event(
         db,
@@ -1345,7 +1372,31 @@ def apple_verify(
         ip_address=_request_ip(request),
         user_agent=request.headers.get("user-agent"),
     )
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        user = db.query(User).filter(User.apple_sub == apple_sub).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Apple account conflict",
+            )
+        log_audit_event(
+            db,
+            event_type="auth.apple_verify",
+            status="success",
+            source="api",
+            user_id=user.id,
+            actor_email=user.email,
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+        )
+        db.commit()
+
+    # Create JWT after commit so racing first-time Apple sign-ins reuse the
+    # persisted winner instead of returning a failed transient user.
+    access_token = create_access_token(user.id, user.email)
 
     return AppleVerifyResponse(
         access_token=access_token,
