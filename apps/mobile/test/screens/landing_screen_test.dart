@@ -5,13 +5,15 @@
 // Asserts:
 //   • The text surfaces render (wordmark, hero, CTA, legal, login link).
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates through /start into diagnostic onboarding even when
-//     backend feature flags are disabled or unavailable.
+//   • CTA navigates to /anonymous/chat (Phase 71a: chat-first cold-open).
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
 
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -132,7 +134,7 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /onb when diagnostic flag is off',
+    testWidgets('CTA routes to /anonymous/chat (Phase 71a chat-first)',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -140,8 +142,33 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ONB_STUB'), findsOneWidget);
-      expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+    });
+
+    testWidgets('AX tap on primary CTA routes to anonymous chat',
+        (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(_wrap());
+        await tester.pumpAndSettle();
+
+        final node = tester.getSemantics(find.byType(FilledButton));
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+
+        RendererBinding.instance.performSemanticsAction(
+          ui.SemanticsActionEvent(
+            type: SemanticsAction.tap,
+            viewId: tester.view.viewId,
+            nodeId: node.id,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+        expect(find.text('LOGIN_STUB'), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
     });
 
     // S005 — anonymous local-mode link also delegates to /start so the router,
