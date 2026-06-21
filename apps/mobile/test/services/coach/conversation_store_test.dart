@@ -209,6 +209,55 @@ void main() {
     });
   });
 
+  // ── Namespace clearing ─────────────────────────────────────────
+
+  group('namespace clearing', () {
+    test('clearCurrentNamespace removes only active user conversations',
+        () async {
+      ConversationStore.setCurrentUserId(null);
+      await store.saveConversation('anon-conv', [
+        msg('user', 'Anonymous context'),
+      ]);
+
+      ConversationStore.setCurrentUserId('user-42');
+      await store.saveConversation('user-conv', [
+        msg('user', 'User context'),
+      ]);
+
+      await ConversationStore.clearCurrentNamespace();
+
+      expect(await store.listConversations(), isEmpty);
+
+      ConversationStore.setCurrentUserId(null);
+      final anonymousConversations = await store.listConversations();
+      expect(anonymousConversations, hasLength(1));
+      expect(anonymousConversations.single.id, 'anon-conv');
+    });
+
+    test('clearNamespaceForUser removes a named namespace without switching',
+        () async {
+      ConversationStore.setCurrentUserId('user-42');
+      await store.saveConversation('user-42-conv', [
+        msg('user', 'User 42 context'),
+      ]);
+
+      ConversationStore.setCurrentUserId('user-77');
+      await store.saveConversation('user-77-conv', [
+        msg('user', 'User 77 context'),
+      ]);
+
+      await ConversationStore.clearNamespaceForUser('user-42');
+
+      expect(
+        (await store.listConversations()).map((m) => m.id),
+        contains('user-77-conv'),
+      );
+
+      ConversationStore.setCurrentUserId('user-42');
+      expect(await store.listConversations(), isEmpty);
+    });
+  });
+
   // ── renameConversation ──────────────────────────────────────────
 
   group('renameConversation', () {

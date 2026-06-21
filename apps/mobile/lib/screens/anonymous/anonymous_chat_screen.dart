@@ -15,7 +15,6 @@ import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 // ADR-20260223: financial_core via barrel only — no direct sub-imports.
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
-import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
@@ -114,6 +113,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// Set true the moment a card is attached to a coach message; restored from
   /// persisted messages on cold-restore (see [_hydrateFromStoreOrShowOpener]).
   bool _eclairageDelivered = false;
+
+  /// Whether the visible thread came from persisted anonymous storage.
+  /// Restored threads need an explicit escape hatch so a returning anonymous
+  /// user can start fresh without creating an account first.
   bool _restoredConversation = false;
 
   /// Number of completed coach responses in the current session. Increments
@@ -165,18 +168,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         _conversationId = latestId;
         _openerFadeController.value = 1.0;
         setState(() {
-          _messages.addAll(restored.map(
-            (m) => _ChatMessage(
-              text: m.content,
-              isUser: m.role == 'user',
-              timestamp: m.timestamp,
+          _messages.addAll(
+            restored.map(
+              (m) => _ChatMessage(
+                text: m.content,
+                isUser: m.role == 'user',
+                timestamp: m.timestamp,
+              ),
             ),
-          ));
+          );
           // Conversation already had user-coach exchanges; opener should
           // not re-appear. Mark openerShown so chips also stay hidden.
           _openerShown = true;
-          final coachTurns =
-              restored.where((m) => m.role == 'assistant').length;
+          final coachTurns = restored
+              .where((m) => m.role == 'assistant')
+              .length;
           _coachTurnsCompleted = coachTurns;
           // ECL-01 restore (hotfix 2026-06-12): the Premier Éclairage card is
           // emitted by the backend once the conversation reaches ≥2 coach
@@ -203,18 +209,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     if (_openerShown || _messages.isNotEmpty) return;
     final l = S.of(context)!;
     setState(() {
-      _messages.add(_ChatMessage(
-        text: l.anonymousChatOpener,
-        isUser: false,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        _ChatMessage(
+          text: l.anonymousChatOpener,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ),
+      );
       _openerShown = true;
     });
     _openerFadeController.forward();
   }
 
   Future<void> _startNewConversation() async {
-    await ReportPersistenceService.clearConversationNamespace(userId: null);
+    ConversationStore.setCurrentUserId(null);
+    await ConversationStore.clearCurrentNamespace();
     final canSend = await AnonymousSessionService.canSendMessage();
     if (!mounted) return;
 
@@ -231,7 +240,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       _coachTurnsCompleted = 0;
       _restoredConversation = false;
     });
-
     if (!canSend) {
       _showAuthGate();
       return;
@@ -271,11 +279,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     }
 
     setState(() {
-      _messages.add(_ChatMessage(
-        text: trimmed,
-        isUser: true,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        _ChatMessage(text: trimmed, isUser: true, timestamp: DateTime.now()),
+      );
       _isLoading = true;
       _inputController.clear();
     });
@@ -308,11 +314,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         _ => l.anonymousChatError,
       };
       setState(() {
-        _messages.add(_ChatMessage(
-          text: text,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
+        _messages.add(
+          _ChatMessage(text: text, isUser: false, timestamp: DateTime.now()),
+        );
         _isLoading = false;
       });
       _scrollToBottom();
@@ -328,12 +332,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     final eclairage = _resolveEclairageForTurn(response);
 
     setState(() {
-      _messages.add(_ChatMessage(
-        text: coachMessage,
-        isUser: false,
-        timestamp: DateTime.now(),
-        eclairage: eclairage,
-      ));
+      _messages.add(
+        _ChatMessage(
+          text: coachMessage,
+          isUser: false,
+          timestamp: DateTime.now(),
+          eclairage: eclairage,
+        ),
+      );
       _isLoading = false;
       // Phase 71a panel §4: increment ONLY after a real coach response.
       _coachTurnsCompleted += 1;
@@ -352,11 +358,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       if (!mounted) return;
       final l = S.of(context)!;
       setState(() {
-        _messages.add(_ChatMessage(
-          text: l.anonymousChatConversionPrompt,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
+        _messages.add(
+          _ChatMessage(
+            text: l.anonymousChatConversionPrompt,
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
       });
       _scrollToBottom();
 
@@ -488,7 +496,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       estimatedFields: const [
         'currentSavings',
         'existingLpp',
-        'nationalityGroup'
+        'nationalityGroup',
       ],
     );
   }
@@ -514,19 +522,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// Fire-and-forget — never blocks UI. Called after each coach response.
   void _persistToSharedPreferences() {
     final chatMessages = _messages
-        .map((m) => ChatMessage(
-              role: m.isUser ? 'user' : 'assistant',
-              content: m.text,
-              timestamp: m.timestamp,
-            ))
+        .map(
+          (m) => ChatMessage(
+            role: m.isUser ? 'user' : 'assistant',
+            content: m.text,
+            timestamp: m.timestamp,
+          ),
+        )
         .toList();
 
     ConversationStore.setCurrentUserId(null);
     ConversationStore()
         .saveConversation(_conversationId, chatMessages)
         .catchError((e) {
-      debugPrint('[AnonymousChat] Eager persist failed: $e');
-    });
+          debugPrint('[AnonymousChat] Eager persist failed: $e');
+        });
   }
 
   void _scrollToBottom() {
@@ -594,8 +604,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                                 key: const ValueKey(
                                   'anonymous_chat_new_conversation',
                                 ),
-                                onPressed:
-                                    _isLoading ? null : _startNewConversation,
+                                onPressed: _isLoading
+                                    ? null
+                                    : _startNewConversation,
                                 icon: const Icon(Icons.add_comment_outlined),
                                 color: MintColors.inkPrimary,
                                 tooltip: l.anonymousChatNewConversation,
@@ -605,8 +616,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                               key: const ValueKey(
                                 'anonymous_chat_new_conversation',
                               ),
-                              onPressed:
-                                  _isLoading ? null : _startNewConversation,
+                              onPressed: _isLoading
+                                  ? null
+                                  : _startNewConversation,
                               icon: const Icon(
                                 Icons.add_comment_outlined,
                                 size: 18,
@@ -635,8 +647,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 itemCount: _messages.length + (_isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == _messages.length) {
@@ -720,46 +734,53 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     );
   }
 
-  /// Chips row (panel §1.3) — 3 outlined chips horizontally scrollable.
+  /// Chips row (panel §1.3) — 3 outlined chips wrapped without clipping.
   Widget _buildChipsRow(S l) {
     final chips = [
       l.anonymousChatChip1,
       l.anonymousChatChip2,
-      l.anonymousChatChip3
+      l.anonymousChatChip3,
     ];
-    return SizedBox(
-      height: 44,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        itemCount: chips.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, i) {
-          return Center(
-            child: Semantics(
-              label: chips[i],
-              button: true,
-              child: InkWell(
-                onTap: () => _onChipTap(chips[i]),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: MintColors.craieHandoff,
-                    border:
-                        Border.all(color: MintColors.borderSubtle, width: 1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    chips[i],
-                    style: MintTextStyles.bodyMedium(
-                      color: MintColors.inkPrimary,
-                    ).copyWith(fontWeight: FontWeight.w500),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final chip in chips)
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: Semantics(
+                    button: true,
+                    child: InkWell(
+                      onTap: () => _onChipTap(chip),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: MintColors.craieHandoff,
+                          border: Border.all(
+                            color: MintColors.borderSubtle,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          chip,
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.inkPrimary,
+                          ).copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+            ],
           );
         },
       ),
@@ -786,9 +807,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           padding: const EdgeInsets.fromLTRB(16, 4, 8, 8),
           decoration: const BoxDecoration(
             color: MintColors.craieHandoff,
-            border: Border(
-              top: BorderSide(color: MintColors.borderSubtle),
-            ),
+            border: Border(top: BorderSide(color: MintColors.borderSubtle)),
           ),
           child: Row(
             children: [
@@ -810,9 +829,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
                   maxLength: 500,
                   inputFormatters: [LengthLimitingTextInputFormatter(500)],
-                  style: MintTextStyles.bodyLarge(
-                    color: MintColors.inkPrimary,
-                  ),
+                  style: MintTextStyles.bodyLarge(color: MintColors.inkPrimary),
                   decoration: InputDecoration(
                     hintText: l.anonymousChatInputHint,
                     hintStyle: MintTextStyles.bodyLarge(
@@ -820,7 +837,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     // Hide counter unless > 400 chars (panel §5 row 2).
                     counterText: '',
                   ),
@@ -886,24 +905,22 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   strong: MintTextStyles.labelLarge(
                     color: MintColors.inkPrimary,
                   ).copyWith(fontWeight: FontWeight.w700, height: 1.45),
-                  em: MintTextStyles.labelLarge(
-                    color: MintColors.inkPrimary,
-                  ).copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontStyle: FontStyle.italic,
-                    height: 1.45,
-                  ),
+                  em: MintTextStyles.labelLarge(color: MintColors.inkPrimary)
+                      .copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontStyle: FontStyle.italic,
+                        height: 1.45,
+                      ),
                   listBullet: MintTextStyles.labelLarge(
                     color: MintColors.inkPrimary,
                   ).copyWith(fontWeight: FontWeight.w400, height: 1.45),
-                  h3: MintTextStyles.labelLarge(
-                    color: MintColors.inkPrimary,
-                  ).copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize:
-                        15, // lint-ignore: prefer_mint_text_style — h3 markdown needs +1pt above labelLarge (14pt)
-                    height: 1.45,
-                  ),
+                  h3: MintTextStyles.labelLarge(color: MintColors.inkPrimary)
+                      .copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize:
+                            15, // lint-ignore: prefer_mint_text_style — h3 markdown needs +1pt above labelLarge (14pt)
+                        height: 1.45,
+                      ),
                 ),
                 shrinkWrap: true,
                 softLineBreak: false,
@@ -925,13 +942,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     final Key? assistantKey = isUser
         ? null
         : isOpener
-            ? const Key('anon-chat-opener-bubble')
-            : const Key('anon-chat-message-assistant');
+        ? const Key('anon-chat-opener-bubble')
+        : const Key('anon-chat-message-assistant');
     final renderedBubble = isOpener
-        ? FadeTransition(
-            opacity: _openerFadeController,
-            child: bubble,
-          )
+        ? FadeTransition(opacity: _openerFadeController, child: bubble)
         : bubble;
 
     if (message.eclairage == null) {
@@ -954,16 +968,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           // 72 EclairageCard widget (anon path). Phase 80's typed
           // eclairage_models.dart stays the canonical model ; we just
           // adapt at the render boundary.
-          EclairageCard(payload: <String, dynamic>{
-            'kind': message.eclairage!.kind.wireName,
-            'headline': message.eclairage!.headline,
-            'body': message.eclairage!.body,
-            'chf_range_low': message.eclairage!.chfRangeLow,
-            'chf_range_high': message.eclairage!.chfRangeHigh,
-            'chf_range_period': message.eclairage!.chfRangePeriod,
-            'soft_account_hint': message.eclairage!.softAccountHint,
-            'lsfin_disclaimer': message.eclairage!.lsfinDisclaimer,
-          }),
+          EclairageCard(
+            payload: <String, dynamic>{
+              'kind': message.eclairage!.kind.wireName,
+              'headline': message.eclairage!.headline,
+              'body': message.eclairage!.body,
+              'chf_range_low': message.eclairage!.chfRangeLow,
+              'chf_range_high': message.eclairage!.chfRangeHigh,
+              'chf_range_period': message.eclairage!.chfRangePeriod,
+              'soft_account_hint': message.eclairage!.softAccountHint,
+              'lsfin_disclaimer': message.eclairage!.lsfinDisclaimer,
+            },
+          ),
         ],
       ),
     );
@@ -1025,9 +1041,10 @@ class _TypingDotState extends State<_TypingDot>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _animation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     Future.delayed(Duration(milliseconds: widget.delay), () {
       if (mounted) _controller.repeat(reverse: true);
     });

@@ -41,29 +41,29 @@ void main() {
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(secureStorageChannel, (call) async {
-          final key = call.arguments['key'] as String?;
-          switch (call.method) {
-            case 'write':
-              final value = call.arguments['value'] as String?;
-              if (key != null && value != null) {
-                secureStorage[key] = value;
-              }
-              return null;
-            case 'read':
-              return key == null ? null : secureStorage[key];
-            case 'delete':
-              if (key != null) {
-                secureStorage.remove(key);
-              }
-              return null;
-            case 'deleteAll':
-              deleteAllCalls += 1;
-              secureStorage.clear();
-              return null;
-            default:
-              return null;
+      final key = call.arguments['key'] as String?;
+      switch (call.method) {
+        case 'write':
+          final value = call.arguments['value'] as String?;
+          if (key != null && value != null) {
+            secureStorage[key] = value;
           }
-        });
+          return null;
+        case 'read':
+          return key == null ? null : secureStorage[key];
+        case 'delete':
+          if (key != null) {
+            secureStorage.remove(key);
+          }
+          return null;
+        case 'deleteAll':
+          deleteAllCalls += 1;
+          secureStorage.clear();
+          return null;
+        default:
+          return null;
+      }
+    });
   });
 
   tearDown(() {
@@ -210,7 +210,8 @@ void main() {
           expect(seenPaths, isEmpty);
           expect(provider.isLoggedIn, isFalse);
           expect(
-            (await ReportPersistenceService.loadMint2AxisHandoff())['onb_axis_v2'],
+            (await ReportPersistenceService.loadMint2AxisHandoff())[
+                'onb_axis_v2'],
             'lpp_rente_capital',
           );
         } finally {
@@ -298,7 +299,8 @@ void main() {
       },
     );
 
-    test('existing account login clears active local dossier even when profile '
+    test(
+        'existing account login clears active local dossier even when profile '
         'hydration fails', () async {
       final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
       FeatureFlags.enableMvpWedgeOnboarding = true;
@@ -359,8 +361,8 @@ void main() {
       }
     });
 
-    test('flag-off legacy login still migrates anonymous dossier without '
-        'handoff UI choice', () async {
+    test('flag-off legacy login claims dossier without guest conversations',
+        () async {
       final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
       FeatureFlags.enableMvpWedgeOnboarding = false;
       final prefs = await SharedPreferences.getInstance();
@@ -417,6 +419,12 @@ void main() {
         expect(await ReportPersistenceService.loadAnswers(), {
           'q_canton': 'VD',
         });
+        ConversationStore.setCurrentUserId('legacy-user');
+        expect(
+          await ConversationStore().loadConversation('legacy-local-chat'),
+          isEmpty,
+        );
+        ConversationStore.setCurrentUserId(null);
         expect(
           await ConversationStore().loadConversation('legacy-local-chat'),
           isNotEmpty,
@@ -432,7 +440,7 @@ void main() {
     });
 
     test(
-      'failed local data claim keeps retryable account-local dossier',
+      'failed local data claim keeps retryable dossier without guest conversations',
       () async {
         final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
         FeatureFlags.enableMvpWedgeOnboarding = true;
@@ -487,6 +495,14 @@ void main() {
           expect(await ReportPersistenceService.loadAnswers(), {
             'q_canton': 'VD',
           });
+          ConversationStore.setCurrentUserId('claim-user');
+          expect(
+            await ConversationStore().loadConversation(
+              'local-before-claim-fails',
+            ),
+            isEmpty,
+          );
+          ConversationStore.setCurrentUserId(null);
           expect(
             await ConversationStore().loadConversation(
               'local-before-claim-fails',
@@ -592,7 +608,8 @@ void main() {
           expect(prefs.getBool('local_data_sync_pending_axis-user'), isNull);
           expect(await ReportPersistenceService.loadAnswers(), isEmpty);
           expect(
-            (await ReportPersistenceService.loadMint2AxisHandoff())['onb_axis_v2'],
+            (await ReportPersistenceService.loadMint2AxisHandoff())[
+                'onb_axis_v2'],
             'lpp_rente_capital',
           );
         } finally {
@@ -781,7 +798,8 @@ void main() {
       },
     );
 
-    test('missing install marker on an existing prefs store adopts marker '
+    test(
+        'missing install marker on an existing prefs store adopts marker '
         'without deleting current keychain session', () async {
       SharedPreferences.setMockInitialValues({'auth_local_mode': false});
       secureStorage.addAll({
@@ -801,7 +819,8 @@ void main() {
       expect(deleteAllCalls, 0);
     });
 
-    test('fresh install purge failure stays pending and blocks stale auth '
+    test(
+        'fresh install purge failure stays pending and blocks stale auth '
         'on the next launch', () async {
       var failJwtDelete = true;
       secureStorage.addAll({
@@ -812,32 +831,32 @@ void main() {
 
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(secureStorageChannel, (call) async {
-            final key = call.arguments['key'] as String?;
-            switch (call.method) {
-              case 'write':
-                final value = call.arguments['value'] as String?;
-                if (key != null && value != null) {
-                  secureStorage[key] = value;
-                }
-                return null;
-              case 'read':
-                return key == null ? null : secureStorage[key];
-              case 'delete':
-                if (key == 'jwt_token' && failJwtDelete) {
-                  throw PlatformException(code: '-34018');
-                }
-                if (key != null) {
-                  secureStorage.remove(key);
-                }
-                return null;
-              case 'deleteAll':
-                deleteAllCalls += 1;
-                secureStorage.clear();
-                return null;
-              default:
-                return null;
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) {
+              secureStorage[key] = value;
             }
-          });
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key == 'jwt_token' && failJwtDelete) {
+              throw PlatformException(code: '-34018');
+            }
+            if (key != null) {
+              secureStorage.remove(key);
+            }
+            return null;
+          case 'deleteAll':
+            deleteAllCalls += 1;
+            secureStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      });
 
       await provider.checkAuth();
       var prefs = await SharedPreferences.getInstance();
@@ -874,6 +893,8 @@ void main() {
     test(
       'checkAuth with token but missing user id expires the session',
       () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
         secureStorage['jwt_token'] = 'jwt-without-user-id';
         secureStorage['user_email'] = 'user@example.ch';
 
@@ -925,6 +946,8 @@ void main() {
     );
 
     test('checkAuth with stored token exposes account lifecycle', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
       await AuthService.saveToken(
         'jwt',
         'user-1',
@@ -948,6 +971,92 @@ void main() {
       expect(provider.isLoggedIn, isTrue);
       expect(provider.userId, 'user-1');
     });
+
+    test(
+      'checkAuth does not claim anonymous conversations on restored account',
+      () async {
+        ConversationStore.setCurrentUserId(null);
+        final store = ConversationStore();
+        await store.saveConversation('guest-thread', [
+          ChatMessage(
+            role: 'user',
+            content: 'Question invitee',
+            timestamp: DateTime(2026, 6, 21, 9),
+          ),
+        ]);
+        await AuthService.saveToken(
+          'jwt',
+          'user-1',
+          'user@example.ch',
+          refreshToken: 'refresh',
+        );
+
+        await provider.checkAuth();
+
+        ConversationStore.setCurrentUserId('user-1');
+        expect(await store.listConversations(), isEmpty);
+
+        ConversationStore.setCurrentUserId(null);
+        final anonymousConversations = await store.listConversations();
+        expect(anonymousConversations, hasLength(1));
+        expect(anonymousConversations.single.id, 'guest-thread');
+      },
+    );
+
+    test(
+      'completeAppleSignIn leaves anonymous conversations unclaimed when not requested',
+      () async {
+        ConversationStore.setCurrentUserId(null);
+        final store = ConversationStore();
+        await store.saveConversation('apple-guest-thread', [
+          ChatMessage(
+            role: 'user',
+            content: 'Question avant Apple',
+            timestamp: DateTime(2026, 6, 21, 10),
+          ),
+        ]);
+
+        final ok = await provider.completeAppleSignIn({
+          'accessToken': 'apple-jwt',
+          'userId': 'apple-user',
+          'email': 'apple@example.ch',
+        }, claimAnonymousConversations: false);
+
+        expect(ok, isTrue);
+        ConversationStore.setCurrentUserId('apple-user');
+        expect(await store.listConversations(), isEmpty);
+
+        ConversationStore.setCurrentUserId(null);
+        expect(await store.listConversations(), hasLength(1));
+      },
+    );
+
+    test(
+      'completeAppleSignIn claims anonymous conversations when requested',
+      () async {
+        ConversationStore.setCurrentUserId(null);
+        final store = ConversationStore();
+        await store.saveConversation('apple-guest-thread', [
+          ChatMessage(
+            role: 'user',
+            content: 'Question avant Apple',
+            timestamp: DateTime(2026, 6, 21, 10),
+          ),
+        ]);
+
+        final claimed = await provider.completeAppleSignIn({
+          'accessToken': 'apple-jwt',
+          'userId': 'apple-user',
+          'email': 'apple@example.ch',
+        }, claimAnonymousConversations: true);
+
+        expect(claimed, isTrue);
+        ConversationStore.setCurrentUserId('apple-user');
+        final claimedConversations = await store.listConversations();
+        expect(claimedConversations, hasLength(1));
+        expect(claimedConversations.single.id, 'apple-guest-thread');
+      },
+    );
 
     // ── requiresEmailVerification starts false ──
 
@@ -1194,26 +1303,26 @@ void main() {
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(secureStorageChannel, (call) async {
-              final key = call.arguments['key'] as String?;
-              switch (call.method) {
-                case 'read':
-                  return key == null ? null : secureStorage[key];
-                case 'delete':
-                  if (key == 'byok_api_key') {
-                    throw PlatformException(code: '-34018');
-                  }
-                  if (key != null) {
-                    secureStorage.remove(key);
-                  }
-                  return null;
-                case 'deleteAll':
-                  deleteAllCalls += 1;
-                  secureStorage.clear();
-                  return null;
-                default:
-                  return null;
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'byok_api_key') {
+                throw PlatformException(code: '-34018');
               }
-            });
+              if (key != null) {
+                secureStorage.remove(key);
+              }
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
 
         await provider.logout();
 
@@ -1271,26 +1380,26 @@ void main() {
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(secureStorageChannel, (call) async {
-              final key = call.arguments['key'] as String?;
-              switch (call.method) {
-                case 'read':
-                  return key == null ? null : secureStorage[key];
-                case 'delete':
-                  if (key == 'byok_api_key') {
-                    throw PlatformException(code: '-34018');
-                  }
-                  if (key != null) {
-                    secureStorage.remove(key);
-                  }
-                  return null;
-                case 'deleteAll':
-                  deleteAllCalls += 1;
-                  secureStorage.clear();
-                  return null;
-                default:
-                  return null;
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'byok_api_key') {
+                throw PlatformException(code: '-34018');
               }
-            });
+              if (key != null) {
+                secureStorage.remove(key);
+              }
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
 
         await CoachProfileProvider().clearAll();
 
@@ -1304,7 +1413,8 @@ void main() {
       },
     );
 
-    test('normal install retries pending owned secure purge without deleting '
+    test(
+        'normal install retries pending owned secure purge without deleting '
         'auth session', () async {
       secureStorage.addAll({
         'jwt_token': 'jwt',

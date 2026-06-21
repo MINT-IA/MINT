@@ -4,8 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -18,6 +20,7 @@ import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
@@ -293,12 +296,12 @@ class AuthProvider extends ChangeNotifier {
       final previousEmployment = answers['q_employment_status'];
       final monthlyWasDerivedFromPreviousAnnual =
           previousMonthlySource == 'derived_self_employed_annual_proxy' &&
-          previousAnnual != null &&
-          previousMonthly != null &&
-          closeToAmount(previousMonthly, previousAnnual / 12);
+              previousAnnual != null &&
+              previousMonthly != null &&
+              closeToAmount(previousMonthly, previousAnnual / 12);
       final shouldUseIndependentStatus =
           _isMissingAnswer(answers, 'q_employment_status') ||
-          _isIndependentEmployment(previousEmployment);
+              _isIndependentEmployment(previousEmployment);
 
       answers['q_self_employed_net_income_annual_chf'] = annual;
       if (shouldUseIndependentStatus) {
@@ -502,9 +505,8 @@ class AuthProvider extends ChangeNotifier {
       _isLocalMode = prefs.getBool(_authLocalModeKey) ?? true;
       final mayRestoreAuth =
           await InstallLifecycleService.prepareForAuthRestore();
-      final isLoggedIn = mayRestoreAuth
-          ? await AuthService.isLoggedIn()
-          : false;
+      final isLoggedIn =
+          mayRestoreAuth ? await AuthService.isLoggedIn() : false;
       if (isLoggedIn) {
         _userId = await AuthService.getUserId();
         _email = await AuthService.getUserEmail();
@@ -528,9 +530,10 @@ class AuthProvider extends ChangeNotifier {
         // FIX-W11-7: Set user prefix for conversation isolation.
         ConversationStore.setCurrentUserId(_userId);
         _error = null;
-        // Full auth contract: migrate anonymous data, hydrate profile,
-        // schedule fresh-start notifications. Required for Apple Sign-In
-        // which only calls checkAuth() (not login/register).
+        // Full restored-session contract: hydrate profile and schedule
+        // fresh-start notifications. Do not claim anonymous conversations on
+        // silent restore; a signed account must not inherit guest chat state
+        // by accident.
         await _migrateLocalDataIfNeeded();
         await _hydrateProfileFromBackend();
         try {
@@ -621,7 +624,7 @@ class AuthProvider extends ChangeNotifier {
       }
 
       if (_isLoggedIn) {
-        await _migrateLocalDataIfNeeded();
+        await _migrateLocalDataIfNeeded(claimAnonymousConversations: true);
         await _hydrateProfileFromBackend();
         // Best-effort: schedule fresh-start notifications
         try {
@@ -706,7 +709,7 @@ class AuthProvider extends ChangeNotifier {
   ///   1. Saving the JWT via AuthService
   ///   2. Setting _isLoggedIn, _userId, _email, _displayName
   ///   3. Setting the ConversationStore user prefix
-  ///   4. Migrating local anonymous data
+  ///   4. Optionally claiming local anonymous conversations
   ///   5. Hydrating profile from backend
   ///   6. Scheduling fresh-start notifications
   ///
@@ -714,7 +717,10 @@ class AuthProvider extends ChangeNotifier {
   /// optional (backend may omit them on Apple's hidden email flow).
   ///
   /// Returns `true` on success, `false` on failure (error is set).
-  Future<bool> completeAppleSignIn(Map<String, dynamic> response) async {
+  Future<bool> completeAppleSignIn(
+    Map<String, dynamic> response, {
+    required bool claimAnonymousConversations,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -763,7 +769,9 @@ class AuthProvider extends ChangeNotifier {
       // FIX-W11-7: Set user prefix for conversation isolation.
       ConversationStore.setCurrentUserId(_userId);
 
-      await _migrateLocalDataIfNeeded();
+      await _migrateLocalDataIfNeeded(
+        claimAnonymousConversations: claimAnonymousConversations,
+      );
       await _hydrateProfileFromBackend();
       try {
         await FreshStartService().scheduleAllFreshStartNotifications();
@@ -1056,11 +1064,24 @@ class AuthProvider extends ChangeNotifier {
       await ReportPersistenceService.clearDiagnostic();
       final ownedSecurePurged =
           await InstallLifecycleService.purgeMintSecureStorage(
-            includeAuthSession: false,
-          );
+        includeAuthSession: false,
+      );
       await InstallLifecycleService.recordOwnedSecurePurgeResult(
         ownedSecurePurged,
         prefs: prefs,
+      );
+      await _bestEffortPurge('BYOK key', () => ByokProvider.clearStoredKey());
+      await _bestEffortPurge(
+        'partner estimate',
+        () => PartnerEstimateService.clear(),
+      );
+      await _bestEffortPurge(
+        'anonymous session',
+        () => AnonymousSessionService.clearSession(),
+      );
+      await _bestEffortPurge(
+        'biography key',
+        () => BiographyRepository.clearEncryptionKey(),
       );
     } catch (e) {
       // Purge is best-effort — never block auth flow
@@ -1070,16 +1091,32 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Migrate local anonymous data to the authenticated account.
+  Future<void> _bestEffortPurge(
+    String label,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local $label purge failed: $e');
+      }
+    }
+  }
+
+  /// Migrate eligible local data to the authenticated account.
   ///
-  /// Called after a successful login or register to ensure any data
-  /// created before authentication (wizard answers, preferences, etc.)
-  /// is associated with the new user account for future cloud sync.
+  /// Called after successful auth to associate eligible pre-auth data
+  /// (wizard answers, preferences, etc.) with the account for future cloud
+  /// sync. Anonymous conversations are claimed only when explicitly requested
+  /// by a creation/claim path.
   ///
   /// Safety: captures userId at call-time to avoid race conditions
   /// if the user logs out/in rapidly. Refuses to overwrite ownership
   /// if local data already belongs to a different account.
-  Future<void> _migrateLocalDataIfNeeded() async {
+  Future<void> _migrateLocalDataIfNeeded({
+    bool claimAnonymousConversations = false,
+  }) async {
     final currentUserId = _userId;
     if (currentUserId == null || currentUserId.isEmpty) return;
 
@@ -1099,11 +1136,13 @@ class AuthProvider extends ChangeNotifier {
         await AccountHandoffService.clearChoice();
         shouldMigrate = await AccountHandoffService.hasLocalData();
       }
-      if (!shouldMigrate) return;
+      if (!shouldMigrate && !claimAnonymousConversations) return;
 
       final alreadyMigrated =
           prefs.getBool('local_data_migrated_$currentUserId') ?? false;
-      if (alreadyMigrated && !syncPending) return;
+      if (alreadyMigrated && !syncPending && !claimAnonymousConversations) {
+        return;
+      }
 
       // Check if local data already belongs to a different user.
       final existingOwner = prefs.getString('local_data_owner');
@@ -1124,9 +1163,10 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
-      if (!alreadyMigrated) {
-        // Migrate anonymous conversations to authenticated user namespace.
-        // Must happen before wizard data push so conversation history is preserved.
+      // Claim anonymous conversations only for explicit creation/claim flows.
+      // Restored sessions and existing-account logins keep guest conversations
+      // in the anonymous namespace so account chat never reuses them by accident.
+      if (claimAnonymousConversations) {
         try {
           await ConversationStore.migrateAnonymousToUser(currentUserId);
           await AnonymousSessionService.clearSession();
@@ -1147,8 +1187,8 @@ class AuthProvider extends ChangeNotifier {
       // → wizard answers stay on device. If the user later flips
       // sync ON in Settings › Confidentialité, the next save
       // naturally pushes via _syncToBackend (also gated by B-1).
-      // Conversation migration above is local→local within the
-      // device's ConversationStore namespace and is unaffected.
+      // Conversation claiming above is local→local within the device's
+      // ConversationStore namespace and is unaffected.
       final cloudSyncEnabled = !(prefs.getBool('auth_local_mode') ?? true);
       if (cloudSyncEnabled) {
         // Push local wizard data to backend via claimLocalData.
@@ -1197,8 +1237,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final currentUserId = _userId;
-      final accountOwnsLocalAnswers =
-          currentUserId != null &&
+      final accountOwnsLocalAnswers = currentUserId != null &&
           prefs.getString('local_data_owner') == currentUserId &&
           (prefs.getBool('local_data_migrated_$currentUserId') ?? false);
       var existingAnswers = await ReportPersistenceService.loadAnswers();
@@ -1208,9 +1247,8 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final profileData = await ApiService.get('/profiles/me');
-      final answers = accountOwnsLocalAnswers
-          ? existingAnswers
-          : <String, dynamic>{};
+      final answers =
+          accountOwnsLocalAnswers ? existingAnswers : <String, dynamic>{};
       final merged = _mergeBackendProfileData(answers, profileData);
 
       if (!accountOwnsLocalAnswers && profileData.isEmpty) {
