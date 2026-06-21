@@ -29,7 +29,7 @@
 # Semantic locators ONLY :
 #   - landing hero    : `Voir clair, décider seul.` (l10n.landingV3Hero)
 #   - landing CTA     : `id: landing_talk_to_mint_cta`
-#   - onboarding title : `Il est temps que tu comprennes.`
+#   - onboarding title : `Un premier aperçu suisse.`
 #
 # IMPORTANT — the retired anonymous chat opener text and input placeholder
 # are asserted absent so this gate catches accidental resurrection of that
@@ -66,7 +66,7 @@ tags:
     id: "landing_talk_to_mint_cta"
 - extendedWaitUntil:
     visible:
-      text: "Il est temps que tu comprennes."
+      text: "Un premier aperçu suisse."
     timeout: 6000
 - assertNotVisible:
     text: ".*Dis-moi ce qui te trotte.*"
