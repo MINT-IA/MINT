@@ -172,7 +172,7 @@ class _LandingScreenState extends State<LandingScreen>
                             color: MintColors.porcelaineHero,
                           ),
                         ),
-                        onPressed: () => context.go('/start'),
+                        onPressed: () => context.go('/anonymous/chat'),
                         child: Text(l10n.landingV2CtaSober),
                       ),
                     ),

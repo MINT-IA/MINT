@@ -10,7 +10,10 @@
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
 
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -134,10 +137,37 @@ void main() {
       expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
     });
 
+    testWidgets('AX tap on primary CTA routes to anonymous chat',
+        (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(_wrap());
+        await tester.pumpAndSettle();
+
+        final node = tester.getSemantics(find.byType(FilledButton));
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+
+        RendererBinding.instance.performSemanticsAction(
+          ui.SemanticsActionEvent(
+            type: SemanticsAction.tap,
+            viewId: tester.view.viewId,
+            nodeId: node.id,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+        expect(find.text('LOGIN_STUB'), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     // S005 (Phase 97 W7 iter#4 + fix 517774aa) — anonymous CTA routes to /onb
     // (not /home) so FATCA Q (T2.5) fires before coach chat — otherwise
     // archetype=unknown silently redirects to /waitlist on first message.
-    testWidgets('S005 — « Continuer sans compte » link renders + routes to /onb',
+    testWidgets(
+        'S005 — « Continuer sans compte » link renders + routes to /onb',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -150,7 +180,8 @@ void main() {
       expect(find.text('ONB_STUB'), findsOneWidget);
     });
 
-    testWidgets('reduced-motion: content visible on first pump', (tester) async {
+    testWidgets('reduced-motion: content visible on first pump',
+        (tester) async {
       final mq = MediaQueryData.fromView(tester.view).copyWith(
         disableAnimations: true,
       );
