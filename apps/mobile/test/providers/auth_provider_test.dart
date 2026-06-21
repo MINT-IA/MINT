@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -22,8 +25,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const secureStorageChannel =
-      MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  const secureStorageChannel = MethodChannel(
+    'plugins.it_nomads.com/flutter_secure_storage',
+  );
   final secureStorage = <String, String>{};
   var deleteAllCalls = 0;
 
@@ -36,33 +40,30 @@ void main() {
     deleteAllCalls = 0;
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      secureStorageChannel,
-      (call) async {
-        final key = call.arguments['key'] as String?;
-        switch (call.method) {
-          case 'write':
-            final value = call.arguments['value'] as String?;
-            if (key != null && value != null) {
-              secureStorage[key] = value;
-            }
-            return null;
-          case 'read':
-            return key == null ? null : secureStorage[key];
-          case 'delete':
-            if (key != null) {
-              secureStorage.remove(key);
-            }
-            return null;
-          case 'deleteAll':
-            deleteAllCalls += 1;
-            secureStorage.clear();
-            return null;
-          default:
-            return null;
-        }
-      },
-    );
+        .setMockMethodCallHandler(secureStorageChannel, (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'write':
+              final value = call.arguments['value'] as String?;
+              if (key != null && value != null) {
+                secureStorage[key] = value;
+              }
+              return null;
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key != null) {
+                secureStorage.remove(key);
+              }
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
   });
 
   tearDown(() {
@@ -130,167 +131,174 @@ void main() {
       expect(provider.error, isNull);
     });
 
-    test('magic-link verification fetches user info before saving session',
-        () async {
-      final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/magic-link/verify') {
-            return http.Response(
-              '{"accessToken":"magic-token","tokenType":"bearer"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/auth/me') {
-            expect(request.headers['Authorization'], 'Bearer magic-token');
-            return http.Response(
-              '{"id":"magic-user","email":"magic@example.ch","display_name":"Magic User"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              '{}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
-
-      final success = await provider.verifyMagicLink('magic-code');
-
-      expect(success, isTrue);
-      expect(seenPaths, contains('/api/v1/auth/magic-link/verify'));
-      expect(seenPaths, contains('/api/v1/auth/me'));
-      expect(provider.userId, 'magic-user');
-      expect(provider.email, 'magic@example.ch');
-      expect(await AuthService.getToken(), 'magic-token');
-      expect(await AuthService.getUserId(), 'magic-user');
-      expect(await AuthService.getUserEmail(), 'magic@example.ch');
-    });
-
     test(
-        'magic-link verification waits for explicit handoff choice when Mint2 axis exists',
-        () async {
-      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
-      FeatureFlags.enableMvpWedgeOnboarding = true;
-      final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          return http.Response(
-            '{"accessToken":"magic-token","tokenType":"bearer"}',
-            200,
-            headers: {'content-type': 'application/json'},
-          );
-        }),
-      ));
-      await ReportPersistenceService.saveMint2AxisHandoff({
-        'onb_axis_v2': 'lpp_rente_capital',
-        'onb_axis_schema_version': 2,
-      });
+      'magic-link verification fetches user info before saving session',
+      () async {
+        final seenPaths = <String>[];
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              if (request.url.path == '/api/v1/auth/magic-link/verify') {
+                return http.Response(
+                  '{"accessToken":"magic-token","tokenType":"bearer"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/auth/me') {
+                expect(request.headers['Authorization'], 'Bearer magic-token');
+                return http.Response(
+                  '{"id":"magic-user","email":"magic@example.ch","display_name":"Magic User"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/profiles/me') {
+                return http.Response(
+                  '{}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              return http.Response('{"detail":"not found"}', 404);
+            }),
+          ),
+        );
 
-      try {
-        final provider = AuthProvider();
         final success = await provider.verifyMagicLink('magic-code');
 
-        expect(success, isFalse);
-        expect(seenPaths, isEmpty);
-        expect(provider.isLoggedIn, isFalse);
-        expect(
-          (await ReportPersistenceService.loadMint2AxisHandoff())[
-              'onb_axis_v2'],
-          'lpp_rente_capital',
-        );
-      } finally {
-        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
-      }
-    });
-
-    test(
-        'existing account login keeps local dossier separate without explicit handoff choice',
-        () async {
-      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
-      FeatureFlags.enableMvpWedgeOnboarding = true;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('auth_local_mode', false);
-      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
-      await ConversationStore().saveConversation('local-before-login', [
-        ChatMessage(
-          role: 'user',
-          content: 'Je veux comprendre ma situation.',
-          timestamp: DateTime(2026, 6, 13, 12),
-        ),
-      ]);
-
-      final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/login') {
-            return http.Response(
-              '{"access_token":"existing-token","refresh_token":"existing-refresh","user_id":"existing-user","email":"existing@example.ch","display_name":"Existing User"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              '{}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/sync/claim-local-data') {
-            return http.Response(
-              '{"detail":"local dossier must not be claimed without choice"}',
-              500,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
-
-      try {
-        final success =
-            await provider.login('existing@example.ch', 'correct-password');
-
         expect(success, isTrue);
-        expect(provider.userId, 'existing-user');
-        expect(await ReportPersistenceService.loadAnswers(), isEmpty);
-        expect(await ReportPersistenceService.loadHeldAnonymousAnswers(), {
-          'q_canton': 'VD',
-        });
-        expect(
-          await ConversationStore().loadConversation('local-before-login'),
-          isEmpty,
-        );
-        expect(prefs.getString('local_data_owner'), isNull);
-        expect(prefs.getBool('local_data_migrated_existing-user'), isNull);
-
-        ConversationStore.setCurrentUserId(null);
-        expect(
-          await ConversationStore().loadConversation('local-before-login'),
-          isNotEmpty,
-        );
-        expect(
-          seenPaths,
-          isNot(contains('/api/v1/sync/claim-local-data')),
-        );
-      } finally {
-        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
-        ConversationStore.setCurrentUserId(null);
-      }
-    });
+        expect(seenPaths, contains('/api/v1/auth/magic-link/verify'));
+        expect(seenPaths, contains('/api/v1/auth/me'));
+        expect(provider.userId, 'magic-user');
+        expect(provider.email, 'magic@example.ch');
+        expect(await AuthService.getToken(), 'magic-token');
+        expect(await AuthService.getUserId(), 'magic-user');
+        expect(await AuthService.getUserEmail(), 'magic@example.ch');
+      },
+    );
 
     test(
-        'existing account login clears active local dossier even when profile '
+      'magic-link verification waits for explicit handoff choice when Mint2 axis exists',
+      () async {
+        final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+        FeatureFlags.enableMvpWedgeOnboarding = true;
+        final seenPaths = <String>[];
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              return http.Response(
+                '{"accessToken":"magic-token","tokenType":"bearer"}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }),
+          ),
+        );
+        await ReportPersistenceService.saveMint2AxisHandoff({
+          'onb_axis_v2': 'lpp_rente_capital',
+          'onb_axis_schema_version': 2,
+        });
+
+        try {
+          final provider = AuthProvider();
+          final success = await provider.verifyMagicLink('magic-code');
+
+          expect(success, isFalse);
+          expect(seenPaths, isEmpty);
+          expect(provider.isLoggedIn, isFalse);
+          expect(
+            (await ReportPersistenceService.loadMint2AxisHandoff())['onb_axis_v2'],
+            'lpp_rente_capital',
+          );
+        } finally {
+          FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+        }
+      },
+    );
+
+    test(
+      'existing account login keeps local dossier separate without explicit handoff choice',
+      () async {
+        final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+        FeatureFlags.enableMvpWedgeOnboarding = true;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('auth_local_mode', false);
+        await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+        await ConversationStore().saveConversation('local-before-login', [
+          ChatMessage(
+            role: 'user',
+            content: 'Je veux comprendre ma situation.',
+            timestamp: DateTime(2026, 6, 13, 12),
+          ),
+        ]);
+
+        final seenPaths = <String>[];
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              if (request.url.path == '/api/v1/auth/login') {
+                return http.Response(
+                  '{"access_token":"existing-token","refresh_token":"existing-refresh","user_id":"existing-user","email":"existing@example.ch","display_name":"Existing User"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/profiles/me') {
+                return http.Response(
+                  '{}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/sync/claim-local-data') {
+                return http.Response(
+                  '{"detail":"local dossier must not be claimed without choice"}',
+                  500,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              return http.Response('{"detail":"not found"}', 404);
+            }),
+          ),
+        );
+
+        try {
+          final success = await provider.login(
+            'existing@example.ch',
+            'correct-password',
+          );
+
+          expect(success, isTrue);
+          expect(provider.userId, 'existing-user');
+          expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+          expect(await ReportPersistenceService.loadHeldAnonymousAnswers(), {
+            'q_canton': 'VD',
+          });
+          expect(
+            await ConversationStore().loadConversation('local-before-login'),
+            isEmpty,
+          );
+          expect(prefs.getString('local_data_owner'), isNull);
+          expect(prefs.getBool('local_data_migrated_existing-user'), isNull);
+
+          ConversationStore.setCurrentUserId(null);
+          expect(
+            await ConversationStore().loadConversation('local-before-login'),
+            isNotEmpty,
+          );
+          expect(seenPaths, isNot(contains('/api/v1/sync/claim-local-data')));
+        } finally {
+          FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+          ConversationStore.setCurrentUserId(null);
+        }
+      },
+    );
+
+    test('existing account login clears active local dossier even when profile '
         'hydration fails', () async {
       final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
       FeatureFlags.enableMvpWedgeOnboarding = true;
@@ -299,37 +307,41 @@ void main() {
       await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
 
       final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/login') {
-            return http.Response(
-              '{"access_token":"existing-token","refresh_token":"existing-refresh","user_id":"existing-user","email":"existing@example.ch","display_name":"Existing User"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              '{"detail":"profile temporarily unavailable"}',
-              500,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/sync/claim-local-data') {
-            return http.Response(
-              '{"detail":"local dossier must not be claimed without choice"}',
-              500,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
+      ApiService.setHttpClientForTesting(
+        MintHttpClient(
+          MockClient((request) async {
+            seenPaths.add(request.url.path);
+            if (request.url.path == '/api/v1/auth/login') {
+              return http.Response(
+                '{"access_token":"existing-token","refresh_token":"existing-refresh","user_id":"existing-user","email":"existing@example.ch","display_name":"Existing User"}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            if (request.url.path == '/api/v1/profiles/me') {
+              return http.Response(
+                '{"detail":"profile temporarily unavailable"}',
+                500,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            if (request.url.path == '/api/v1/sync/claim-local-data') {
+              return http.Response(
+                '{"detail":"local dossier must not be claimed without choice"}',
+                500,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response('{"detail":"not found"}', 404);
+          }),
+        ),
+      );
 
       try {
-        final success =
-            await provider.login('existing@example.ch', 'correct-password');
+        final success = await provider.login(
+          'existing@example.ch',
+          'correct-password',
+        );
 
         expect(success, isTrue);
         expect(provider.userId, 'existing-user');
@@ -340,18 +352,14 @@ void main() {
         expect(prefs.getString('local_data_owner'), isNull);
         expect(prefs.getBool('local_data_migrated_existing-user'), isNull);
         expect(seenPaths, contains('/api/v1/profiles/me'));
-        expect(
-          seenPaths,
-          isNot(contains('/api/v1/sync/claim-local-data')),
-        );
+        expect(seenPaths, isNot(contains('/api/v1/sync/claim-local-data')));
       } finally {
         FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
         ConversationStore.setCurrentUserId(null);
       }
     });
 
-    test(
-        'flag-off legacy login still migrates anonymous dossier without '
+    test('flag-off legacy login still migrates anonymous dossier without '
         'handoff UI choice', () async {
       final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
       FeatureFlags.enableMvpWedgeOnboarding = false;
@@ -367,37 +375,41 @@ void main() {
       ]);
 
       final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/login') {
-            return http.Response(
-              '{"access_token":"legacy-token","refresh_token":"legacy-refresh","user_id":"legacy-user","email":"legacy@example.ch","display_name":"Legacy User"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              '{}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/sync/claim-local-data') {
-            return http.Response(
-              '{"status":"ok"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
+      ApiService.setHttpClientForTesting(
+        MintHttpClient(
+          MockClient((request) async {
+            seenPaths.add(request.url.path);
+            if (request.url.path == '/api/v1/auth/login') {
+              return http.Response(
+                '{"access_token":"legacy-token","refresh_token":"legacy-refresh","user_id":"legacy-user","email":"legacy@example.ch","display_name":"Legacy User"}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            if (request.url.path == '/api/v1/profiles/me') {
+              return http.Response(
+                '{}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            if (request.url.path == '/api/v1/sync/claim-local-data') {
+              return http.Response(
+                '{"status":"ok"}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response('{"detail":"not found"}', 404);
+          }),
+        ),
+      );
 
       try {
-        final success =
-            await provider.login('legacy@example.ch', 'correct-password');
+        final success = await provider.login(
+          'legacy@example.ch',
+          'correct-password',
+        );
 
         expect(success, isTrue);
         expect(provider.userId, 'legacy-user');
@@ -419,228 +431,246 @@ void main() {
       }
     });
 
-    test('failed local data claim keeps retryable account-local dossier',
-        () async {
-      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
-      FeatureFlags.enableMvpWedgeOnboarding = true;
-      await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('auth_local_mode', false);
-      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
-      await ConversationStore().saveConversation('local-before-claim-fails', [
-        ChatMessage(
-          role: 'user',
-          content: 'Je veux garder mon diagnostic.',
-          timestamp: DateTime(2026, 6, 13, 13),
-        ),
-      ]);
-
-      final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/login') {
-            return http.Response(
-              '{"access_token":"claim-token","refresh_token":"claim-refresh","user_id":"claim-user","email":"claim@example.ch","display_name":"Claim User"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              '{}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/sync/claim-local-data') {
-            return http.Response(
-              '{"detail":"staging unavailable"}',
-              503,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
-
-      try {
-        final success = await provider.login('claim@example.ch', 'password');
-
-        expect(success, isTrue);
-        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
-        expect(await ReportPersistenceService.loadAnswers(), {
-          'q_canton': 'VD',
-        });
-        expect(
-          await ConversationStore().loadConversation(
-            'local-before-claim-fails',
+    test(
+      'failed local data claim keeps retryable account-local dossier',
+      () async {
+        final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+        FeatureFlags.enableMvpWedgeOnboarding = true;
+        await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('auth_local_mode', false);
+        await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+        await ConversationStore().saveConversation('local-before-claim-fails', [
+          ChatMessage(
+            role: 'user',
+            content: 'Je veux garder mon diagnostic.',
+            timestamp: DateTime(2026, 6, 13, 13),
           ),
-          isNotEmpty,
-        );
-        expect(prefs.getString('local_data_owner'), 'claim-user');
-        expect(prefs.getBool('local_data_migrated_claim-user'), isTrue);
-        expect(prefs.getBool('local_data_sync_pending_claim-user'), isTrue);
-      } finally {
-        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
-        ConversationStore.setCurrentUserId(null);
-        await AccountHandoffService.clearChoice();
-      }
-    });
+        ]);
 
-    test('account claim sends Mint2 axis handoff without wizard pollution',
-        () async {
-      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
-      FeatureFlags.enableMvpWedgeOnboarding = true;
-      await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('auth_local_mode', false);
-      await ReportPersistenceService.saveMint2AxisHandoff({
-        'onb_axis_v2': 'lpp_rente_capital',
-        'onb_axis_schema_version': 2,
-        'legacy_onb_intent': 'retraite',
-        'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
-      });
+        final seenPaths = <String>[];
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              if (request.url.path == '/api/v1/auth/login') {
+                return http.Response(
+                  '{"access_token":"claim-token","refresh_token":"claim-refresh","user_id":"claim-user","email":"claim@example.ch","display_name":"Claim User"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/profiles/me') {
+                return http.Response(
+                  '{}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/sync/claim-local-data') {
+                return http.Response(
+                  '{"detail":"staging unavailable"}',
+                  503,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              return http.Response('{"detail":"not found"}', 404);
+            }),
+          ),
+        );
 
-      final seenPaths = <String>[];
-      Map<String, dynamic>? claimBody;
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/login') {
-            return http.Response(
-              '{"access_token":"axis-token","refresh_token":"axis-refresh","user_id":"axis-user","email":"axis@example.ch","display_name":"Axis User"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              jsonEncode({
-                'id': 'axis-profile',
-                'householdType': 'single',
-                'hasDebt': false,
-                'goal': 'other',
-                'factfindCompletionIndex': 0.0,
-                'voiceCursorPreference': 'direct',
-                'n5IssuedThisWeek': 0,
-                'recentGravityEvents': [],
-              }),
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/sync/claim-local-data') {
-            claimBody = json.decode(request.body) as Map<String, dynamic>;
-            return http.Response(
-              '{"status":"ok"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
+        try {
+          final success = await provider.login('claim@example.ch', 'password');
 
-      try {
-        final success = await provider.login('axis@example.ch', 'password');
+          expect(success, isTrue);
+          expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+          expect(await ReportPersistenceService.loadAnswers(), {
+            'q_canton': 'VD',
+          });
+          expect(
+            await ConversationStore().loadConversation(
+              'local-before-claim-fails',
+            ),
+            isNotEmpty,
+          );
+          expect(prefs.getString('local_data_owner'), 'claim-user');
+          expect(prefs.getBool('local_data_migrated_claim-user'), isTrue);
+          expect(prefs.getBool('local_data_sync_pending_claim-user'), isTrue);
+        } finally {
+          FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+          ConversationStore.setCurrentUserId(null);
+          await AccountHandoffService.clearChoice();
+        }
+      },
+    );
 
-        expect(success, isTrue);
-        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
-        expect(claimBody, isNotNull);
-        expect(claimBody!['wizard_answers'], isEmpty);
-        expect(
-          claimBody!['wizard_answers'],
-          isNot(contains('onb_axis_v2')),
+    test(
+      'account claim sends Mint2 axis handoff without wizard pollution',
+      () async {
+        final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+        FeatureFlags.enableMvpWedgeOnboarding = true;
+        await AccountHandoffService.saveChoice(AccountHandoffChoice.keepLocal);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('auth_local_mode', false);
+        await ReportPersistenceService.saveMint2AxisHandoff({
+          'onb_axis_v2': 'lpp_rente_capital',
+          'onb_axis_schema_version': 2,
+          'legacy_onb_intent': 'retraite',
+          'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
+        });
+
+        final seenPaths = <String>[];
+        Map<String, dynamic>? claimBody;
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              if (request.url.path == '/api/v1/auth/login') {
+                return http.Response(
+                  '{"access_token":"axis-token","refresh_token":"axis-refresh","user_id":"axis-user","email":"axis@example.ch","display_name":"Axis User"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/profiles/me') {
+                return http.Response(
+                  jsonEncode({
+                    'id': 'axis-profile',
+                    'householdType': 'single',
+                    'hasDebt': false,
+                    'goal': 'other',
+                    'factfindCompletionIndex': 0.0,
+                    'voiceCursorPreference': 'direct',
+                    'n5IssuedThisWeek': 0,
+                    'recentGravityEvents': [],
+                  }),
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/sync/claim-local-data') {
+                claimBody = json.decode(request.body) as Map<String, dynamic>;
+                return http.Response(
+                  '{"status":"ok"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              return http.Response('{"detail":"not found"}', 404);
+            }),
+          ),
         );
-        expect(
-          claimBody!['wizard_answers'],
-          isNot(contains('onb_axis_schema_version')),
-        );
-        expect(
-          claimBody!['wizard_answers'],
-          isNot(contains('legacy_onb_intent')),
-        );
-        expect(
-          claimBody!['wizard_answers'],
-          isNot(contains('onb_signal_axes_v2')),
-        );
-        expect(
-          claimBody!['mint2_axis_handoff'],
-          {
+
+        try {
+          final success = await provider.login('axis@example.ch', 'password');
+
+          expect(success, isTrue);
+          expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+          expect(claimBody, isNotNull);
+          expect(claimBody!['wizard_answers'], isEmpty);
+          expect(claimBody!['wizard_answers'], isNot(contains('onb_axis_v2')));
+          expect(
+            claimBody!['wizard_answers'],
+            isNot(contains('onb_axis_schema_version')),
+          );
+          expect(
+            claimBody!['wizard_answers'],
+            isNot(contains('legacy_onb_intent')),
+          );
+          expect(
+            claimBody!['wizard_answers'],
+            isNot(contains('onb_signal_axes_v2')),
+          );
+          expect(claimBody!['mint2_axis_handoff'], {
             'onb_axis_v2': 'lpp_rente_capital',
             'onb_axis_schema_version': 2,
             'legacy_onb_intent': 'retraite',
             'onb_signal_axes_v2': ['logement_signal', 'fiscal_signal'],
-          },
-        );
-        expect(prefs.getString('local_data_owner'), 'axis-user');
-        expect(prefs.getBool('local_data_migrated_axis-user'), isTrue);
-        expect(prefs.getBool('local_data_sync_pending_axis-user'), isNull);
-        expect(await ReportPersistenceService.loadAnswers(), isEmpty);
-        expect(
-          (await ReportPersistenceService.loadMint2AxisHandoff())[
-              'onb_axis_v2'],
-          'lpp_rente_capital',
-        );
-      } finally {
-        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
-        ConversationStore.setCurrentUserId(null);
-        await AccountHandoffService.clearChoice();
-      }
-    });
+          });
+          expect(prefs.getString('local_data_owner'), 'axis-user');
+          expect(prefs.getBool('local_data_migrated_axis-user'), isTrue);
+          expect(prefs.getBool('local_data_sync_pending_axis-user'), isNull);
+          expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+          expect(
+            (await ReportPersistenceService.loadMint2AxisHandoff())['onb_axis_v2'],
+            'lpp_rente_capital',
+          );
+        } finally {
+          FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+          ConversationStore.setCurrentUserId(null);
+          await AccountHandoffService.clearChoice();
+        }
+      },
+    );
 
-    test('pending local data claim retries on auth restore and clears flag',
-        () async {
-      final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
-      FeatureFlags.enableMvpWedgeOnboarding = true;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('mint_install_marker_v1', true);
-      await prefs.setBool('auth_local_mode', false);
-      await prefs.setString('local_data_owner', 'claim-user');
-      await prefs.setBool('local_data_migrated_claim-user', true);
-      await prefs.setBool('local_data_sync_pending_claim-user', true);
-      await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
-      await AuthService.saveToken(
-        'retry-token',
-        'claim-user',
-        'claim@example.ch',
+    test(
+      'pending local data claim retries on auth restore and clears flag',
+      () async {
+        final previousWedgeFlag = FeatureFlags.enableMvpWedgeOnboarding;
+        FeatureFlags.enableMvpWedgeOnboarding = true;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('mint_install_marker_v1', true);
+        await prefs.setBool('auth_local_mode', false);
+        await prefs.setString('local_data_owner', 'claim-user');
+        await prefs.setBool('local_data_migrated_claim-user', true);
+        await prefs.setBool('local_data_sync_pending_claim-user', true);
+        await ReportPersistenceService.saveAnswers({'q_canton': 'VD'});
+        await AuthService.saveToken(
+          'retry-token',
+          'claim-user',
+          'claim@example.ch',
+        );
+
+        final seenPaths = <String>[];
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              if (request.url.path == '/api/v1/sync/claim-local-data') {
+                return http.Response(
+                  '{"status":"ok"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/profiles/me') {
+                return http.Response(
+                  '{}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              return http.Response('{"detail":"not found"}', 404);
+            }),
+          ),
+        );
+
+        try {
+          await provider.checkAuth();
+
+          expect(provider.isLoggedIn, isTrue);
+          expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
+          expect(prefs.getBool('local_data_sync_pending_claim-user'), isNull);
+          expect(prefs.getBool('local_data_migrated_claim-user'), isTrue);
+          expect(prefs.getString('local_data_owner'), 'claim-user');
+        } finally {
+          FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
+          ConversationStore.setCurrentUserId(null);
+        }
+      },
+    );
+
+    test('localizeAuthException hides raw technical exception text', () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final message = localizeAuthException(
+        Exception('Apple Sign-In returned no identity token'),
+        l10n,
       );
 
-      final seenPaths = <String>[];
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/sync/claim-local-data') {
-            return http.Response(
-              '{"status":"ok"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/profiles/me') {
-            return http.Response(
-              '{}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
-
-      try {
-        await provider.checkAuth();
-
-        expect(provider.isLoggedIn, isTrue);
-        expect(seenPaths, contains('/api/v1/sync/claim-local-data'));
-        expect(prefs.getBool('local_data_sync_pending_claim-user'), isNull);
-        expect(prefs.getBool('local_data_migrated_claim-user'), isTrue);
-        expect(prefs.getString('local_data_owner'), 'claim-user');
-      } finally {
-        FeatureFlags.enableMvpWedgeOnboarding = previousWedgeFlag;
-        ConversationStore.setCurrentUserId(null);
-      }
+      expect(message, l10n.authErrorGeneric);
+      expect(message, isNot(contains('identity token')));
+      expect(message, isNot(contains('Apple Sign-In')));
     });
 
     // ── Listener notification pattern ──
@@ -683,72 +713,75 @@ void main() {
       expect(provider.isLoading, isFalse);
     });
 
-    test('account data state distinguishes anonymous, signed-out and sync',
-        () async {
-      expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
+    test(
+      'account data state distinguishes anonymous, signed-out and sync',
+      () async {
+        expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
 
-      await provider.logout();
-      expect(provider.accountDataState, MintAccountDataState.signedOut);
+        await provider.logout();
+        expect(provider.accountDataState, MintAccountDataState.signedOut);
 
-      await AuthService.saveToken('jwt', 'u1', 'u1@example.ch');
-      var prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('auth_local_mode', true);
-      await provider.checkAuth();
-      expect(provider.accountDataState, MintAccountDataState.accountSyncOff);
+        await AuthService.saveToken('jwt', 'u1', 'u1@example.ch');
+        var prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('auth_local_mode', true);
+        await provider.checkAuth();
+        expect(provider.accountDataState, MintAccountDataState.accountSyncOff);
 
-      await AuthService.logout();
-      AuthService.resetMemoryCacheForTest();
-      await AuthService.saveToken('jwt', 'u1', 'u1@example.ch');
-      prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('auth_local_mode', false);
-      await provider.checkAuth();
-      expect(provider.accountDataState, MintAccountDataState.cloudSyncOn);
-    });
+        await AuthService.logout();
+        AuthService.resetMemoryCacheForTest();
+        await AuthService.saveToken('jwt', 'u1', 'u1@example.ch');
+        prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('auth_local_mode', false);
+        await provider.checkAuth();
+        expect(provider.accountDataState, MintAccountDataState.cloudSyncOn);
+      },
+    );
 
     test(
-        'fresh install marker absence with empty prefs purges stale MINT keychain '
-        'before auth restore', () async {
-      secureStorage.addAll({
-        'jwt_token': 'old-jwt',
-        'refresh_token': 'old-refresh',
-        'user_id': 'old-user',
-        'user_email': 'old@example.ch',
-        'display_name': 'Old User',
-        'byok_provider': 'openai',
-        'byok_api_key': 'sk-old',
-        'mint_partner_estimate': '{"estimated_salary":100000}',
-        'anonymous_session_id': 'anon-old',
-        'anonymous_message_count': '2',
-        'mint_biography_key': 'bio-old',
-        '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
-        'q_net_income_period_chf': '8000',
-        'foreign_app_key': 'must-stay',
-      });
+      'fresh install marker absence with empty prefs purges stale MINT keychain '
+      'before auth restore',
+      () async {
+        secureStorage.addAll({
+          'jwt_token': 'old-jwt',
+          'refresh_token': 'old-refresh',
+          'user_id': 'old-user',
+          'user_email': 'old@example.ch',
+          'display_name': 'Old User',
+          'byok_provider': 'openai',
+          'byok_api_key': 'sk-old',
+          'mint_partner_estimate': '{"estimated_salary":100000}',
+          'anonymous_session_id': 'anon-old',
+          'anonymous_message_count': '2',
+          'mint_biography_key': 'bio-old',
+          '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+          'q_net_income_period_chf': '8000',
+          'foreign_app_key': 'must-stay',
+        });
 
-      await provider.checkAuth();
+        await provider.checkAuth();
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('mint_install_marker_v1'), isTrue);
-      expect(provider.isLoggedIn, isFalse);
-      expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
-      expect(deleteAllCalls, 0);
-      expect(secureStorage['foreign_app_key'], 'must-stay');
-      expect(secureStorage.containsKey('jwt_token'), isFalse);
-      expect(secureStorage.containsKey('refresh_token'), isFalse);
-      expect(secureStorage.containsKey('user_id'), isFalse);
-      expect(secureStorage.containsKey('user_email'), isFalse);
-      expect(secureStorage.containsKey('display_name'), isFalse);
-      expect(secureStorage.containsKey('byok_provider'), isFalse);
-      expect(secureStorage.containsKey('byok_api_key'), isFalse);
-      expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
-      expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
-      expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
-      expect(secureStorage.containsKey('mint_biography_key'), isFalse);
-      expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getBool('mint_install_marker_v1'), isTrue);
+        expect(provider.isLoggedIn, isFalse);
+        expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
+        expect(deleteAllCalls, 0);
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(secureStorage.containsKey('jwt_token'), isFalse);
+        expect(secureStorage.containsKey('refresh_token'), isFalse);
+        expect(secureStorage.containsKey('user_id'), isFalse);
+        expect(secureStorage.containsKey('user_email'), isFalse);
+        expect(secureStorage.containsKey('display_name'), isFalse);
+        expect(secureStorage.containsKey('byok_provider'), isFalse);
+        expect(secureStorage.containsKey('byok_api_key'), isFalse);
+        expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
+        expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+        expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+        expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+        expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+      },
+    );
 
-    test(
-        'missing install marker on an existing prefs store adopts marker '
+    test('missing install marker on an existing prefs store adopts marker '
         'without deleting current keychain session', () async {
       SharedPreferences.setMockInitialValues({'auth_local_mode': false});
       secureStorage.addAll({
@@ -768,8 +801,7 @@ void main() {
       expect(deleteAllCalls, 0);
     });
 
-    test(
-        'fresh install purge failure stays pending and blocks stale auth '
+    test('fresh install purge failure stays pending and blocks stale auth '
         'on the next launch', () async {
       var failJwtDelete = true;
       secureStorage.addAll({
@@ -779,36 +811,33 @@ void main() {
       });
 
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        secureStorageChannel,
-        (call) async {
-          final key = call.arguments['key'] as String?;
-          switch (call.method) {
-            case 'write':
-              final value = call.arguments['value'] as String?;
-              if (key != null && value != null) {
-                secureStorage[key] = value;
-              }
-              return null;
-            case 'read':
-              return key == null ? null : secureStorage[key];
-            case 'delete':
-              if (key == 'jwt_token' && failJwtDelete) {
-                throw PlatformException(code: '-34018');
-              }
-              if (key != null) {
-                secureStorage.remove(key);
-              }
-              return null;
-            case 'deleteAll':
-              deleteAllCalls += 1;
-              secureStorage.clear();
-              return null;
-            default:
-              return null;
-          }
-        },
-      );
+          .setMockMethodCallHandler(secureStorageChannel, (call) async {
+            final key = call.arguments['key'] as String?;
+            switch (call.method) {
+              case 'write':
+                final value = call.arguments['value'] as String?;
+                if (key != null && value != null) {
+                  secureStorage[key] = value;
+                }
+                return null;
+              case 'read':
+                return key == null ? null : secureStorage[key];
+              case 'delete':
+                if (key == 'jwt_token' && failJwtDelete) {
+                  throw PlatformException(code: '-34018');
+                }
+                if (key != null) {
+                  secureStorage.remove(key);
+                }
+                return null;
+              case 'deleteAll':
+                deleteAllCalls += 1;
+                secureStorage.clear();
+                return null;
+              default:
+                return null;
+            }
+          });
 
       await provider.checkAuth();
       var prefs = await SharedPreferences.getInstance();
@@ -829,6 +858,95 @@ void main() {
       expect(prefs.getBool('mint_install_secure_purge_pending_v1'), isNull);
       expect(secureStorage.containsKey('jwt_token'), isFalse);
       expect(deleteAllCalls, 0);
+    });
+
+    test('checkAuth without token exposes fresh visitor lifecycle', () async {
+      await provider.checkAuth();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.freshVisitor);
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.visitor);
+      expect(provider.authLifecycle.activeDataScope, AuthDataScope.none);
+      expect(provider.authLifecycle.allowsMainNavigation, isFalse);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.isLocalMode, isTrue);
+    });
+
+    test(
+      'checkAuth with token but missing user id expires the session',
+      () async {
+        secureStorage['jwt_token'] = 'jwt-without-user-id';
+        secureStorage['user_email'] = 'user@example.ch';
+
+        await provider.checkAuth();
+
+        expect(provider.authLifecycle.state, AuthLifecycleKind.sessionExpired);
+        expect(provider.authLifecycle.allowsMainNavigation, isFalse);
+        expect(provider.isLoggedIn, isFalse);
+        expect(provider.userId, isNull);
+        expect(secureStorage.containsKey('jwt_token'), isFalse);
+      },
+    );
+
+    test('enableLocalMode exposes explicit guest lifecycle', () async {
+      await provider.enableLocalMode();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.guestLocal);
+      expect(
+        provider.authLifecycle.activeDataScope.kind,
+        AuthDataScopeKind.guest,
+      );
+      expect(provider.authLifecycle.activeDataScope.ownerId, isNotEmpty);
+      expect(provider.authLifecycle.syncMode, AuthSyncMode.localOnly);
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.isLocalMode, isTrue);
+    });
+
+    test(
+      'checkAuth with persisted local mode restores explicit guest lifecycle',
+      () async {
+        SharedPreferences.setMockInitialValues({'auth_local_mode': true});
+        provider = AuthProvider();
+
+        await provider.checkAuth();
+
+        expect(provider.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+        expect(provider.authLifecycle.accessMode, AuthAccessMode.guestLocal);
+        expect(
+          provider.authLifecycle.activeDataScope.kind,
+          AuthDataScopeKind.guest,
+        );
+        expect(provider.authLifecycle.activeDataScope.ownerId, isNotEmpty);
+        expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+        expect(provider.isLoggedIn, isFalse);
+        expect(provider.isLocalMode, isTrue);
+      },
+    );
+
+    test('checkAuth with stored token exposes account lifecycle', () async {
+      await AuthService.saveToken(
+        'jwt',
+        'user-1',
+        'user@example.ch',
+        refreshToken: 'refresh',
+      );
+
+      await provider.checkAuth();
+
+      expect(
+        provider.authLifecycle.state,
+        AuthLifecycleKind.signedInProfileLoading,
+      );
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.account);
+      expect(
+        provider.authLifecycle.activeDataScope,
+        AuthDataScope.user('user-1'),
+      );
+      expect(provider.authLifecycle.syncMode, AuthSyncMode.cloudSyncOff);
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      expect(provider.isLoggedIn, isTrue);
+      expect(provider.userId, 'user-1');
     });
 
     // ── requiresEmailVerification starts false ──
@@ -882,21 +1000,23 @@ void main() {
       final seenPaths = <String>[];
       String? authHeader;
       Map<String, dynamic>? logoutBody;
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/logout') {
-            authHeader = request.headers['Authorization'];
-            logoutBody = jsonDecode(request.body) as Map<String, dynamic>;
-            return http.Response(
-              '{"status":"logged_out"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
+      ApiService.setHttpClientForTesting(
+        MintHttpClient(
+          MockClient((request) async {
+            seenPaths.add(request.url.path);
+            if (request.url.path == '/api/v1/auth/logout') {
+              authHeader = request.headers['Authorization'];
+              logoutBody = jsonDecode(request.body) as Map<String, dynamic>;
+              return http.Response(
+                '{"status":"logged_out"}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response('{"detail":"not found"}', 404);
+          }),
+        ),
+      );
 
       await provider.logout();
 
@@ -907,112 +1027,122 @@ void main() {
       expect(await AuthService.getRefreshToken(), isNull);
     });
 
-    test('logout retries backend revocation after captured refresh succeeds',
-        () async {
-      await AuthService.saveToken(
-        'expired-jwt',
-        'u1',
-        'u1@example.ch',
-        refreshToken: 'refresh-token',
-      );
+    test(
+      'logout retries backend revocation after captured refresh succeeds',
+      () async {
+        await AuthService.saveToken(
+          'expired-jwt',
+          'u1',
+          'u1@example.ch',
+          refreshToken: 'refresh-token',
+        );
 
-      var logoutCalls = 0;
-      final seenPaths = <String>[];
-      final secondLogoutSeen = Completer<void>();
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          seenPaths.add(request.url.path);
-          if (request.url.path == '/api/v1/auth/logout') {
-            logoutCalls += 1;
-            if (logoutCalls == 1) {
-              expect(request.headers['Authorization'], 'Bearer expired-jwt');
-              return http.Response(
-                '{"detail":"expired"}',
-                401,
-                headers: {'content-type': 'application/json'},
-              );
-            }
-            expect(request.headers['Authorization'], 'Bearer fresh-jwt');
-            expect(jsonDecode(request.body), {
-              'refresh_token': 'fresh-refresh',
-            });
-            if (!secondLogoutSeen.isCompleted) {
-              secondLogoutSeen.complete();
-            }
-            return http.Response(
-              '{"status":"logged_out"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          if (request.url.path == '/api/v1/auth/refresh') {
-            expect(jsonDecode(request.body), {
-              'refresh_token': 'refresh-token',
-            });
-            return http.Response(
-              '{"access_token":"fresh-jwt","refresh_token":"fresh-refresh","user_id":"u1","email":"u1@example.ch"}',
-              200,
-              headers: {'content-type': 'application/json'},
-            );
-          }
-          return http.Response('{"detail":"not found"}', 404);
-        }),
-      ));
+        var logoutCalls = 0;
+        final seenPaths = <String>[];
+        final secondLogoutSeen = Completer<void>();
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              seenPaths.add(request.url.path);
+              if (request.url.path == '/api/v1/auth/logout') {
+                logoutCalls += 1;
+                if (logoutCalls == 1) {
+                  expect(
+                    request.headers['Authorization'],
+                    'Bearer expired-jwt',
+                  );
+                  return http.Response(
+                    '{"detail":"expired"}',
+                    401,
+                    headers: {'content-type': 'application/json'},
+                  );
+                }
+                expect(request.headers['Authorization'], 'Bearer fresh-jwt');
+                expect(jsonDecode(request.body), {
+                  'refresh_token': 'fresh-refresh',
+                });
+                if (!secondLogoutSeen.isCompleted) {
+                  secondLogoutSeen.complete();
+                }
+                return http.Response(
+                  '{"status":"logged_out"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              if (request.url.path == '/api/v1/auth/refresh') {
+                expect(jsonDecode(request.body), {
+                  'refresh_token': 'refresh-token',
+                });
+                return http.Response(
+                  '{"access_token":"fresh-jwt","refresh_token":"fresh-refresh","user_id":"u1","email":"u1@example.ch"}',
+                  200,
+                  headers: {'content-type': 'application/json'},
+                );
+              }
+              return http.Response('{"detail":"not found"}', 404);
+            }),
+          ),
+        );
 
-      await provider.logout();
-      await secondLogoutSeen.future.timeout(const Duration(seconds: 1));
+        await provider.logout();
+        await secondLogoutSeen.future.timeout(const Duration(seconds: 1));
 
-      expect(seenPaths, [
-        '/api/v1/auth/logout',
-        '/api/v1/auth/refresh',
-        '/api/v1/auth/logout',
-      ]);
-      expect(await AuthService.getToken(), isNull);
-      expect(await AuthService.getRefreshToken(), isNull);
-    });
+        expect(seenPaths, [
+          '/api/v1/auth/logout',
+          '/api/v1/auth/refresh',
+          '/api/v1/auth/logout',
+        ]);
+        expect(await AuthService.getToken(), isNull);
+        expect(await AuthService.getRefreshToken(), isNull);
+      },
+    );
 
     test(
-        'logout clears local session before delayed backend revocation returns',
-        () async {
-      await AuthService.saveToken(
-        'jwt-token',
-        'u1',
-        'u1@example.ch',
-        refreshToken: 'refresh-token',
-      );
+      'logout clears local session before delayed backend revocation returns',
+      () async {
+        await AuthService.saveToken(
+          'jwt-token',
+          'u1',
+          'u1@example.ch',
+          refreshToken: 'refresh-token',
+        );
 
-      final requestSeen = Completer<void>();
-      final releaseResponse = Completer<void>();
-      final responseReturned = Completer<void>();
-      ApiService.setHttpClientForTesting(MintHttpClient(
-        MockClient((request) async {
-          if (request.url.path == '/api/v1/auth/logout' &&
-              !requestSeen.isCompleted) {
-            requestSeen.complete();
-          }
-          await releaseResponse.future;
-          if (!responseReturned.isCompleted) {
-            responseReturned.complete();
-          }
-          return http.Response(
-            '{"status":"logged_out"}',
-            200,
-            headers: {'content-type': 'application/json'},
-          );
-        }),
-      ));
+        final requestSeen = Completer<void>();
+        final releaseResponse = Completer<void>();
+        final responseReturned = Completer<void>();
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async {
+              if (request.url.path == '/api/v1/auth/logout' &&
+                  !requestSeen.isCompleted) {
+                requestSeen.complete();
+              }
+              await releaseResponse.future;
+              if (!responseReturned.isCompleted) {
+                responseReturned.complete();
+              }
+              return http.Response(
+                '{"status":"logged_out"}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }),
+          ),
+        );
 
-      final logoutFuture = provider.logout();
-      await requestSeen.future;
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+        final logoutFuture = provider.logout();
+        await requestSeen.future;
+        await Future<void>.delayed(const Duration(milliseconds: 10));
 
-      expect(await AuthService.getToken(), isNull);
-      expect(await AuthService.getRefreshToken(), isNull);
+        expect(await AuthService.getToken(), isNull);
+        expect(await AuthService.getRefreshToken(), isNull);
 
-      releaseResponse.complete();
-      await logoutFuture;
-      await responseReturned.future.timeout(const Duration(seconds: 1));
-    });
+        releaseResponse.complete();
+        await logoutFuture;
+        await responseReturned.future.timeout(const Duration(seconds: 1));
+      },
+    );
 
     test('logout purges only MINT-owned secure storage keys', () async {
       secureStorage.addAll({
@@ -1047,62 +1177,61 @@ void main() {
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
     });
 
-    test('logout continues scoped secure purges when one key delete fails',
-        () async {
-      secureStorage.addAll({
-        'byok_provider': 'openai',
-        'byok_api_key': 'sk-delete-fails',
-        'mint_partner_estimate': '{"estimated_salary":100000}',
-        'anonymous_session_id': 'anon-1',
-        'anonymous_message_count': '1',
-        'mint_biography_key': 'bio-key',
-        '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
-        'q_net_income_period_chf': '8000',
-        'foreign_app_key': 'must-stay',
-      });
+    test(
+      'logout continues scoped secure purges when one key delete fails',
+      () async {
+        secureStorage.addAll({
+          'byok_provider': 'openai',
+          'byok_api_key': 'sk-delete-fails',
+          'mint_partner_estimate': '{"estimated_salary":100000}',
+          'anonymous_session_id': 'anon-1',
+          'anonymous_message_count': '1',
+          'mint_biography_key': 'bio-key',
+          '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+          'q_net_income_period_chf': '8000',
+          'foreign_app_key': 'must-stay',
+        });
 
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        secureStorageChannel,
-        (call) async {
-          final key = call.arguments['key'] as String?;
-          switch (call.method) {
-            case 'read':
-              return key == null ? null : secureStorage[key];
-            case 'delete':
-              if (key == 'byok_api_key') {
-                throw PlatformException(code: '-34018');
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, (call) async {
+              final key = call.arguments['key'] as String?;
+              switch (call.method) {
+                case 'read':
+                  return key == null ? null : secureStorage[key];
+                case 'delete':
+                  if (key == 'byok_api_key') {
+                    throw PlatformException(code: '-34018');
+                  }
+                  if (key != null) {
+                    secureStorage.remove(key);
+                  }
+                  return null;
+                case 'deleteAll':
+                  deleteAllCalls += 1;
+                  secureStorage.clear();
+                  return null;
+                default:
+                  return null;
               }
-              if (key != null) {
-                secureStorage.remove(key);
-              }
-              return null;
-            case 'deleteAll':
-              deleteAllCalls += 1;
-              secureStorage.clear();
-              return null;
-            default:
-              return null;
-          }
-        },
-      );
+            });
 
-      await provider.logout();
+        await provider.logout();
 
-      expect(deleteAllCalls, 0);
-      expect(secureStorage['foreign_app_key'], 'must-stay');
-      expect(secureStorage['byok_api_key'], 'sk-delete-fails');
-      expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
-      expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
-      expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
-      expect(secureStorage.containsKey('mint_biography_key'), isFalse);
-      expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
-        isTrue,
-      );
-    });
+        expect(deleteAllCalls, 0);
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(secureStorage['byok_api_key'], 'sk-delete-fails');
+        expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
+        expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+        expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+        expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+        expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isTrue,
+        );
+      },
+    );
 
     test('profile clearAll purges owned secure feature keys', () async {
       secureStorage.addAll({
@@ -1130,54 +1259,52 @@ void main() {
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
     });
 
-    test('profile clearAll records pending secure purge on partial failure',
-        () async {
-      secureStorage.addAll({
-        'byok_provider': 'openai',
-        'byok_api_key': 'sk-profile-reset',
-        'mint_partner_estimate': '{"estimated_salary":100000}',
-        'foreign_app_key': 'must-stay',
-      });
-
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        secureStorageChannel,
-        (call) async {
-          final key = call.arguments['key'] as String?;
-          switch (call.method) {
-            case 'read':
-              return key == null ? null : secureStorage[key];
-            case 'delete':
-              if (key == 'byok_api_key') {
-                throw PlatformException(code: '-34018');
-              }
-              if (key != null) {
-                secureStorage.remove(key);
-              }
-              return null;
-            case 'deleteAll':
-              deleteAllCalls += 1;
-              secureStorage.clear();
-              return null;
-            default:
-              return null;
-          }
-        },
-      );
-
-      await CoachProfileProvider().clearAll();
-
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
-        isTrue,
-      );
-      expect(secureStorage['byok_api_key'], 'sk-profile-reset');
-      expect(secureStorage['foreign_app_key'], 'must-stay');
-    });
-
     test(
-        'normal install retries pending owned secure purge without deleting '
+      'profile clearAll records pending secure purge on partial failure',
+      () async {
+        secureStorage.addAll({
+          'byok_provider': 'openai',
+          'byok_api_key': 'sk-profile-reset',
+          'mint_partner_estimate': '{"estimated_salary":100000}',
+          'foreign_app_key': 'must-stay',
+        });
+
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, (call) async {
+              final key = call.arguments['key'] as String?;
+              switch (call.method) {
+                case 'read':
+                  return key == null ? null : secureStorage[key];
+                case 'delete':
+                  if (key == 'byok_api_key') {
+                    throw PlatformException(code: '-34018');
+                  }
+                  if (key != null) {
+                    secureStorage.remove(key);
+                  }
+                  return null;
+                case 'deleteAll':
+                  deleteAllCalls += 1;
+                  secureStorage.clear();
+                  return null;
+                default:
+                  return null;
+              }
+            });
+
+        await CoachProfileProvider().clearAll();
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isTrue,
+        );
+        expect(secureStorage['byok_api_key'], 'sk-profile-reset');
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+      },
+    );
+
+    test('normal install retries pending owned secure purge without deleting '
         'auth session', () async {
       secureStorage.addAll({
         'jwt_token': 'jwt',
@@ -1246,16 +1373,13 @@ void main() {
     });
 
     test('backend profile merge accepts legacy nested data payload', () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
-          'data': {
-            'birthYear': 1990,
-            'incomeGrossYearly': 90000,
-            'householdType': 'family',
-          },
+      final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+        'data': {
+          'birthYear': 1990,
+          'incomeGrossYearly': 90000,
+          'householdType': 'family',
         },
-      );
+      });
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['q_birth_year'], 1990);
@@ -1267,24 +1391,21 @@ void main() {
     });
 
     test('backend profile merge hydrates material planning fields', () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
-          'dateOfBirth': '1981-06-15',
-          'incomeGrossYearly': 120000,
-          'avoirLpp': 250000,
-          'lppInsuredSalary': 88000,
-          'lppBuybackMax': 42000,
-          'pillar3aBalance': 36000,
-          'pillar3aAnnual': 7056,
-          'savingsMonthly': 1500,
-          'totalSavings': 18000,
-          'hasDebt': true,
-          'totalDebt': 9000,
-          'avsContributionYears': 20,
-          'targetRetirementAge': 64,
-        },
-      );
+      final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+        'dateOfBirth': '1981-06-15',
+        'incomeGrossYearly': 120000,
+        'avoirLpp': 250000,
+        'lppInsuredSalary': 88000,
+        'lppBuybackMax': 42000,
+        'pillar3aBalance': 36000,
+        'pillar3aAnnual': 7056,
+        'savingsMonthly': 1500,
+        'totalSavings': 18000,
+        'hasDebt': true,
+        'totalDebt': 9000,
+        'avsContributionYears': 20,
+        'targetRetirementAge': 64,
+      });
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['_coach_avoir_lpp'], 250000.0);
@@ -1316,17 +1437,14 @@ void main() {
     });
 
     test('backend profile merge hydrates save_fact parity fields', () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
-          'householdType': 'couple',
-          'selfEmployedNetIncome': 96000,
-          'hasVoluntaryLpp': true,
-          'spouseBirthYear': 1982,
-          'spouseIncomeNetMonthly': 5000,
-          'spouseAvsContributionYears': 18,
-        },
-      );
+      final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+        'householdType': 'couple',
+        'selfEmployedNetIncome': 96000,
+        'hasVoluntaryLpp': true,
+        'spouseBirthYear': 1982,
+        'spouseIncomeNetMonthly': 5000,
+        'spouseAvsContributionYears': 18,
+      });
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['q_household_type'], 'couple');
@@ -1351,47 +1469,44 @@ void main() {
       expect(profile.conjoint!.prevoyance!.anneesContribuees, 18);
     });
 
-    test('backend profile merge preserves existing independent budget cashflow',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_employment_status': 'independant',
-          'q_self_employed_net_income_annual_chf': 86400,
-          'q_net_income_period_chf': 6900,
-          'q_pay_frequency': 'monthly',
-        },
-        {
-          'selfEmployedNetIncome': 96000,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+    test(
+      'backend profile merge preserves existing independent budget cashflow',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {
+            'q_employment_status': 'independant',
+            'q_self_employed_net_income_annual_chf': 86400,
+            'q_net_income_period_chf': 6900,
+            'q_pay_frequency': 'monthly',
+          },
+          {'selfEmployedNetIncome': 96000},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
-      expect(merged['q_net_income_period_chf'], 6900);
-      expect(merged['q_pay_frequency'], 'monthly');
-      expect(profile.independentNetProfessionalIncomeAnnual, 96000);
-      expect(profile.explicitMonthlyNetIncome, 6900);
-    });
+        expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+        expect(merged['q_net_income_period_chf'], 6900);
+        expect(merged['q_pay_frequency'], 'monthly');
+        expect(profile.independentNetProfessionalIncomeAnnual, 96000);
+        expect(profile.explicitMonthlyNetIncome, 6900);
+      },
+    );
 
     test('backend localDataClaim wizard answers beat stale flat income', () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
-          'data': {
-            'selfEmployedNetIncome': 86400,
-            'localDataClaim': {
-              'wizardAnswers': {
-                'q_employment_status': 'independant',
-                'q_self_employed_net_income_annual_chf': 90000,
-                'q_net_income_period_chf': 7500,
-                'q_pay_frequency': 'monthly',
-                'q_net_income_period_source':
-                    'derived_self_employed_annual_proxy',
-              },
+      final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+        'data': {
+          'selfEmployedNetIncome': 86400,
+          'localDataClaim': {
+            'wizardAnswers': {
+              'q_employment_status': 'independant',
+              'q_self_employed_net_income_annual_chf': 90000,
+              'q_net_income_period_chf': 7500,
+              'q_pay_frequency': 'monthly',
+              'q_net_income_period_source':
+                  'derived_self_employed_annual_proxy',
             },
           },
         },
-      );
+      });
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['q_self_employed_net_income_annual_chf'], 90000);
@@ -1402,20 +1517,14 @@ void main() {
     });
 
     test('backend localDataClaim zero 3a beats stale flat contribution', () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
-          'data': {
-            'pillar3aAnnual': 6000,
-            'localDataClaim': {
-              'wizardAnswers': {
-                'q_3a_annual_contribution': 0,
-                'q_has_3a': false,
-              },
-            },
+      final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+        'data': {
+          'pillar3aAnnual': 6000,
+          'localDataClaim': {
+            'wizardAnswers': {'q_3a_annual_contribution': 0, 'q_has_3a': false},
           },
         },
-      );
+      });
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['q_3a_annual_contribution'], 0);
@@ -1425,18 +1534,13 @@ void main() {
     });
 
     test('backend localDataClaim 3a annual derives missing has3a flag', () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
-          'data': {
-            'localDataClaim': {
-              'wizardAnswers': {
-                'q_3a_annual_contribution': 7056,
-              },
-            },
+      final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+        'data': {
+          'localDataClaim': {
+            'wizardAnswers': {'q_3a_annual_contribution': 7056},
           },
         },
-      );
+      });
       final profile = CoachProfile.fromWizardAnswers(merged);
 
       expect(merged['q_3a_annual_contribution'], 7056);
@@ -1446,94 +1550,88 @@ void main() {
     });
 
     test(
-        'backend profile merge refreshes monthly cashflow derived from old annual',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_employment_status': 'independant',
-          'q_self_employed_net_income_annual_chf': 86400,
-          'q_net_income_period_chf': 7200,
-          'q_pay_frequency': 'monthly',
-          'q_net_income_period_source': 'derived_self_employed_annual_proxy',
-        },
-        {
-          'selfEmployedNetIncome': 96000,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+      'backend profile merge refreshes monthly cashflow derived from old annual',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {
+            'q_employment_status': 'independant',
+            'q_self_employed_net_income_annual_chf': 86400,
+            'q_net_income_period_chf': 7200,
+            'q_pay_frequency': 'monthly',
+            'q_net_income_period_source': 'derived_self_employed_annual_proxy',
+          },
+          {'selfEmployedNetIncome': 96000},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
-      expect(merged['q_net_income_period_chf'], closeTo(8000, 0.01));
-      expect(merged['q_pay_frequency'], 'monthly');
-      expect(
-        merged['q_net_income_period_source'],
-        'derived_self_employed_annual_proxy',
-      );
-      expect(profile.independentNetProfessionalIncomeAnnual, 96000);
-      expect(profile.explicitMonthlyNetIncome, closeTo(8000, 0.01));
-    });
-
-    test('backend self-employed income preserves stale local employee status',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_employment_status': 'salarie',
-          'q_self_employed_net_income_annual_chf': 86400,
-          'q_net_income_period_chf': 7200,
-          'q_pay_frequency': 'monthly',
-        },
-        {
-          'selfEmployedNetIncome': 96000,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
-
-      expect(merged['q_employment_status'], 'salarie');
-      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
-      expect(merged['q_net_income_period_chf'], 7200);
-      expect(profile.employmentStatus, 'salarie');
-      expect(profile.independentNetProfessionalIncomeAnnual, 96000);
-    });
+        expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+        expect(merged['q_net_income_period_chf'], closeTo(8000, 0.01));
+        expect(merged['q_pay_frequency'], 'monthly');
+        expect(
+          merged['q_net_income_period_source'],
+          'derived_self_employed_annual_proxy',
+        );
+        expect(profile.independentNetProfessionalIncomeAnnual, 96000);
+        expect(profile.explicitMonthlyNetIncome, closeTo(8000, 0.01));
+      },
+    );
 
     test(
-        'backend self-employed income preserves explicit local employee status',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_employment_status': 'salarie',
-          'q_net_income_period_chf': 7600,
-          'q_pay_frequency': 'monthly',
-        },
-        {
-          'selfEmployedNetIncome': 96000,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+      'backend self-employed income preserves stale local employee status',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {
+            'q_employment_status': 'salarie',
+            'q_self_employed_net_income_annual_chf': 86400,
+            'q_net_income_period_chf': 7200,
+            'q_pay_frequency': 'monthly',
+          },
+          {'selfEmployedNetIncome': 96000},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_employment_status'], 'salarie');
-      expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
-      expect(merged['q_net_income_period_chf'], 7600);
-      expect(profile.employmentStatus, 'salarie');
-      expect(profile.explicitMonthlyNetIncome, 7600);
-    });
+        expect(merged['q_employment_status'], 'salarie');
+        expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+        expect(merged['q_net_income_period_chf'], 7200);
+        expect(profile.employmentStatus, 'salarie');
+        expect(profile.independentNetProfessionalIncomeAnnual, 96000);
+      },
+    );
 
-    test('backend profile merge fills null placeholders but preserves zero',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_net_income_period_chf': null,
-          'q_3a_total': 0,
-        },
-        {
-          'incomeNetMonthly': 7600,
-          'pillar3aBalance': 36000,
-        },
-      );
+    test(
+      'backend self-employed income preserves explicit local employee status',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {
+            'q_employment_status': 'salarie',
+            'q_net_income_period_chf': 7600,
+            'q_pay_frequency': 'monthly',
+          },
+          {'selfEmployedNetIncome': 96000},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_net_income_period_chf'], 7600.0);
-      expect(merged['q_pay_frequency'], 'monthly');
-      expect(merged['q_3a_total'], 0);
-    });
+        expect(merged['q_employment_status'], 'salarie');
+        expect(merged['q_self_employed_net_income_annual_chf'], 96000.0);
+        expect(merged['q_net_income_period_chf'], 7600);
+        expect(profile.employmentStatus, 'salarie');
+        expect(profile.explicitMonthlyNetIncome, 7600);
+      },
+    );
+
+    test(
+      'backend profile merge fills null placeholders but preserves zero',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {'q_net_income_period_chf': null, 'q_3a_total': 0},
+          {'incomeNetMonthly': 7600, 'pillar3aBalance': 36000},
+        );
+
+        expect(merged['q_net_income_period_chf'], 7600.0);
+        expect(merged['q_pay_frequency'], 'monthly');
+        expect(merged['q_3a_total'], 0);
+      },
+    );
 
     test('backend profile merge preserves local financial truth', () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
@@ -1572,56 +1670,52 @@ void main() {
       expect(merged['q_target_retirement_age'], 63);
     });
 
-    test('backend pillar3aAnnual correction to zero clears contribution signal',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_3a_annual_contribution': 6000,
-          'q_has_3a': true,
-        },
-        {
-          'pillar3aAnnual': 0,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+    test(
+      'backend pillar3aAnnual correction to zero clears contribution signal',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {'q_3a_annual_contribution': 6000, 'q_has_3a': true},
+          {'pillar3aAnnual': 0},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_3a_annual_contribution'], 0.0);
-      expect(merged['q_has_3a'], isFalse);
-      expect(profile.total3aMensuel, 0);
-      expect(profile.prevoyance.nombre3a, 0);
-    });
+        expect(merged['q_3a_annual_contribution'], 0.0);
+        expect(merged['q_has_3a'], isFalse);
+        expect(profile.total3aMensuel, 0);
+        expect(profile.prevoyance.nombre3a, 0);
+      },
+    );
 
-    test('backend pillar3aAnnual positive correction revives 3a contribution',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {
-          'q_3a_annual_contribution': 0,
-          'q_has_3a': false,
-        },
-        {
-          'pillar3aAnnual': 7056,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+    test(
+      'backend pillar3aAnnual positive correction revives 3a contribution',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {'q_3a_annual_contribution': 0, 'q_has_3a': false},
+          {'pillar3aAnnual': 7056},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_3a_annual_contribution'], 7056.0);
-      expect(merged['q_has_3a'], isTrue);
-      expect(profile.total3aMensuel, closeTo(588, 0.01));
-      expect(profile.prevoyance.nombre3a, 1);
-    });
+        expect(merged['q_3a_annual_contribution'], 7056.0);
+        expect(merged['q_has_3a'], isTrue);
+        expect(profile.total3aMensuel, closeTo(588, 0.01));
+        expect(profile.prevoyance.nombre3a, 1);
+      },
+    );
 
-    test('backend profile merge does not synthesize debt capital from boolean',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {'q_birth_year': 1981, 'q_gross_salary_annual': 120000},
-        {'hasDebt': true},
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+    test(
+      'backend profile merge does not synthesize debt capital from boolean',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest(
+          {'q_birth_year': 1981, 'q_gross_salary_annual': 120000},
+          {'hasDebt': true},
+        );
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged['q_has_consumer_debt'], 'yes');
-      expect(merged.containsKey('q_total_debt_balance_chf'), isFalse);
-      expect(profile.dettes.totalDettes, 0);
-    });
+        expect(merged['q_has_consumer_debt'], 'yes');
+        expect(merged.containsKey('q_total_debt_balance_chf'), isFalse);
+        expect(profile.dettes.totalDettes, 0);
+      },
+    );
 
     test('backend profile merge keeps net monthly income units coherent', () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
@@ -1634,25 +1728,24 @@ void main() {
       expect(merged.containsKey('q_gross_salary_annual'), isFalse);
     });
 
-    test('backend profile merge does not infer LPP balance from partial facts',
-        () {
-      final merged = AuthProvider.mergeBackendProfileDataForTest(
-        {},
-        {
+    test(
+      'backend profile merge does not infer LPP balance from partial facts',
+      () {
+        final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
           'dateOfBirth': '1981-06-15',
           'incomeGrossYearly': 120000,
           'lppInsuredSalary': 88000,
           'lppBuybackMax': 42000,
-        },
-      );
-      final profile = CoachProfile.fromWizardAnswers(merged);
+        });
+        final profile = CoachProfile.fromWizardAnswers(merged);
 
-      expect(merged.containsKey('q_has_pension_fund'), isFalse);
-      expect(merged.containsKey('_coach_avoir_lpp'), isFalse);
-      expect(profile.prevoyance.avoirLppTotal, 0);
-      expect(profile.prevoyance.salaireAssure, 88000);
-      expect(profile.prevoyance.rachatMaximum, 42000);
-    });
+        expect(merged.containsKey('q_has_pension_fund'), isFalse);
+        expect(merged.containsKey('_coach_avoir_lpp'), isFalse);
+        expect(profile.prevoyance.avoirLppTotal, 0);
+        expect(profile.prevoyance.salaireAssure, 88000);
+        expect(profile.prevoyance.rachatMaximum, 42000);
+      },
+    );
 
     test('backend profile merge preserves explicit local zero values', () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
