@@ -1,5 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -113,6 +116,19 @@ void main() {
       expect(provider.error, isNull);
     });
 
+    test('localizeAuthException hides raw technical exception text', () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final message = localizeAuthException(
+        Exception('Apple Sign-In returned no identity token'),
+        l10n,
+      );
+
+      expect(message, l10n.authErrorGeneric);
+      expect(message, isNot(contains('identity token')));
+      expect(message, isNot(contains('Apple Sign-In')));
+    });
+
     // ── Listener notification pattern ──
 
     test('multiple clearError calls each notify listeners', () {
@@ -151,6 +167,90 @@ void main() {
 
     test('isLoading is false before any operation', () {
       expect(provider.isLoading, isFalse);
+    });
+
+    test('checkAuth without token exposes fresh visitor lifecycle', () async {
+      await provider.checkAuth();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.freshVisitor);
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.visitor);
+      expect(provider.authLifecycle.activeDataScope, AuthDataScope.none);
+      expect(provider.authLifecycle.allowsMainNavigation, isFalse);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.isLocalMode, isTrue);
+    });
+
+    test('checkAuth with token but missing user id expires the session',
+        () async {
+      secureStorage['jwt_token'] = 'jwt-without-user-id';
+      secureStorage['user_email'] = 'user@example.ch';
+
+      await provider.checkAuth();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.sessionExpired);
+      expect(provider.authLifecycle.allowsMainNavigation, isFalse);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.userId, isNull);
+      expect(secureStorage.containsKey('jwt_token'), isFalse);
+    });
+
+    test('enableLocalMode exposes explicit guest lifecycle', () async {
+      await provider.enableLocalMode();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.guestLocal);
+      expect(
+        provider.authLifecycle.activeDataScope.kind,
+        AuthDataScopeKind.guest,
+      );
+      expect(provider.authLifecycle.activeDataScope.ownerId, isNotEmpty);
+      expect(provider.authLifecycle.syncMode, AuthSyncMode.localOnly);
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.isLocalMode, isTrue);
+    });
+
+    test(
+        'checkAuth with persisted local mode restores explicit guest lifecycle',
+        () async {
+      SharedPreferences.setMockInitialValues({'auth_local_mode': true});
+      provider = AuthProvider();
+
+      await provider.checkAuth();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.guestLocal);
+      expect(
+        provider.authLifecycle.activeDataScope.kind,
+        AuthDataScopeKind.guest,
+      );
+      expect(provider.authLifecycle.activeDataScope.ownerId, isNotEmpty);
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      expect(provider.isLoggedIn, isFalse);
+      expect(provider.isLocalMode, isTrue);
+    });
+
+    test('checkAuth with stored token exposes account lifecycle', () async {
+      await AuthService.saveToken(
+        'jwt',
+        'user-1',
+        'user@example.ch',
+        refreshToken: 'refresh',
+      );
+
+      await provider.checkAuth();
+
+      expect(
+        provider.authLifecycle.state,
+        AuthLifecycleKind.signedInProfileLoading,
+      );
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.account);
+      expect(
+          provider.authLifecycle.activeDataScope, AuthDataScope.user('user-1'));
+      expect(provider.authLifecycle.syncMode, AuthSyncMode.cloudSyncOff);
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      expect(provider.isLoggedIn, isTrue);
+      expect(provider.userId, 'user-1');
     });
 
     // ── requiresEmailVerification starts false ──
@@ -565,7 +665,8 @@ void main() {
       expect(profile.independentNetProfessionalIncomeAnnual, 96000);
     });
 
-    test('backend self-employed income preserves explicit local employee status',
+    test(
+        'backend self-employed income preserves explicit local employee status',
         () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
         {
