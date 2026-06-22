@@ -37,4 +37,17 @@ void main() {
     expect(restored.isOtherFixedMissing, isTrue);
     expect(restored.emergencyFundMonths, 3);
   });
+
+  test('hasAnyData and clear cover custom budget overrides', () async {
+    final store = BudgetLocalStore();
+
+    await store.saveOverride('custom', 0.42);
+
+    expect(await store.hasAnyData(), isTrue);
+
+    await store.clear();
+
+    expect(await store.hasAnyData(), isFalse);
+    expect(await store.getOverride('custom'), isNull);
+  });
 }

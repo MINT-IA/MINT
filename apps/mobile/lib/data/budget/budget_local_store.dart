@@ -64,8 +64,7 @@ class BudgetLocalStore {
 
   Future<bool> hasAnyData() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey('${_overridePrefix}future') ||
-        prefs.containsKey('${_overridePrefix}variables') ||
+    return prefs.getKeys().any((key) => key.startsWith(_overridePrefix)) ||
         prefs.containsKey(_inputsKey) ||
         prefs.containsKey(_inputsOriginKey);
   }
@@ -80,8 +79,13 @@ class BudgetLocalStore {
 
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('${_overridePrefix}future');
-    await prefs.remove('${_overridePrefix}variables');
+    final overrideKeys = prefs
+        .getKeys()
+        .where((key) => key.startsWith(_overridePrefix))
+        .toList(growable: false);
+    for (final key in overrideKeys) {
+      await prefs.remove(key);
+    }
     await prefs.remove(_inputsKey);
     await prefs.remove(_inputsOriginKey);
   }
