@@ -34,6 +34,9 @@ target 'Runner' do
   target 'RunnerTests' do
     inherit! :search_paths
   end
+  target 'RunnerUITests' do
+    inherit! :complete
+  end
 end
 
 post_install do |installer|
@@ -41,6 +44,10 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+
+      if target.name == 'patrol'
+        config.build_settings['ENABLE_TESTING_SEARCH_PATHS'] = 'YES'
+      end
 
       # macOS Sequoia/Tahoe propagates `com.apple.provenance` xattr to copied
       # framework sources, breaking ad-hoc codesign on simulator builds
@@ -61,8 +68,9 @@ post_install do |installer|
   # transitively via `s.library = 'c++'`; with that dep gone, inject -lc++ +
   # -lc++abi into the Pods-Runner aggregate xcconfig so the final link picks
   # them up. Safe on device and simulator; both ship with every iOS SDK.
+  # Patrol's RunnerUITests target also links Sentry through its Pods aggregate.
   require 'pathname'
-  Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner/*.xcconfig").each do |xcconfig|
+  Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner*/Pods-Runner*.xcconfig").each do |xcconfig|
     contents = xcconfig.read
     next unless contents =~ /^OTHER_LDFLAGS = (.+)$/
     existing = Regexp.last_match(1)
