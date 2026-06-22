@@ -9,6 +9,8 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MintDebugSpineSnapshot {
+  static const int schemaVersion = 1;
+
   final bool hasWizardAnswers;
   final bool hasCorruptWizardAnswers;
   final int wizardAnswerKeyCount;
@@ -65,6 +67,48 @@ class MintDebugSpineSnapshot {
         'install_secure_purge_pending: $installSecurePurgePending',
         'owned_secure_purge_pending: $ownedSecurePurgePending',
       ];
+
+  Map<String, Object?> toRedactedJson() => {
+        'schemaVersion': schemaVersion,
+        'residue': {
+          'wizardAnswers': {
+            'state': hasWizardAnswers ? 'present' : 'absent',
+            'keyCount': wizardAnswerKeyCount,
+            'corrupt': hasCorruptWizardAnswers,
+            'plainSensitiveKeyCount': plainSensitiveWizardKeyCount,
+          },
+          'budgetInputs': {
+            'state': hasBudgetInputs ? 'present' : 'absent',
+            'corrupt': hasCorruptBudgetInputs,
+          },
+          'budgetOverrides': {
+            'state': hasBudgetOverrides ? 'present' : 'absent',
+          },
+          'anonymousMessages': {
+            'count': anonymousMessageCount,
+          },
+          'anonymousConversations': {
+            'count': anonymousConversationCount,
+          },
+          'currentUserConversations': {
+            'count': currentUserConversationCount,
+          },
+          'ownedSecurePurge': {
+            'pending': ownedSecurePurgePending,
+          },
+          'installSecurePurge': {
+            'pending': installSecurePurgePending,
+          },
+          'keychain': {
+            'observable': false,
+            'status': 'not_observed_in_plan01',
+          },
+          'networkSummary': {
+            'status': 'not_recorded_in_plan01',
+            'forbiddenMatchCount': 0,
+          },
+        },
+      };
 }
 
 class MintDebugSpineService {
@@ -110,6 +154,11 @@ class MintDebugSpineService {
           ) ==
           true,
     );
+  }
+
+  static Future<Map<String, Object?>> loadRedactedJson() async {
+    final snapshot = await loadSnapshot();
+    return snapshot.toRedactedJson();
   }
 
   static Future<MintDebugSpineSnapshot> resetProfileStores(

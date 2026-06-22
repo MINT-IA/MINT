@@ -10,8 +10,7 @@ ubuntu runners.
 
 ```
 apps/mobile/test/patrol/
-  onboarding_patrol_test.dart   — Full onboarding flow (7 steps)
-  document_patrol_test.dart     — Document capture flow (7 steps, screenshots)
+  mint_runtime_debug_gate_test.dart — Debug Spine redacted JSON launch gate
 ```
 
 ## When to Run
@@ -30,25 +29,31 @@ Patrol tests are a **manual gate** required before promotion PRs:
 
 - macOS with Xcode 15+ (iOS 17 simulator)
 - Android Studio with API 34 emulator image
-- Flutter 3.27.4+ with patrol_cli installed
+- Flutter 3.41.4+ with `patrol_cli` installed
+- Pub global executables on PATH:
+
+```bash
+flutter pub global activate patrol_cli
+export PATH="$PATH:$HOME/.pub-cache/bin"
+dart pub global list | grep -q '^patrol_cli '
+command -v patrol
+```
 
 ### Commands
 
 ```bash
-cd apps/mobile
+cd <repo-root>
 
-# iOS (iPhone 15 simulator)
-flutter test test/patrol/ --device-id "iPhone 15"
-
-# Android (Pixel 7 API 34 emulator)
-flutter test test/patrol/ --device-id "emulator-5554"
+# iOS simulator debug-spine launch gate
+tools/checks/mint_runtime_debug_tooling_gate.sh
 ```
 
 ### Expected Results
 
-- All 7 onboarding steps complete without crash
-- All 7 document capture steps complete with screenshots captured
-- No unhandled exceptions in console output
+- The app launches in debug with Mint2 runtime flags.
+- The test asserts Debug Spine redacted JSON shape, not UI text.
+- No raw wizard answer, financial value, email, token, device id, or chat body
+  appears in the JSON evidence.
 
 ## Future: CI Integration
 
@@ -58,7 +63,7 @@ When GitHub Actions macOS runners with iOS simulator support are configured
 1. Create `.github/workflows/patrol.yml` with macOS runner
 2. Configure iOS 17 simulator boot
 3. Add Android API 34 emulator via `reactivecircus/android-emulator-runner`
-4. Move `test/patrol/` into the new workflow
+4. Run `test/patrol/` from the new workflow after installing `patrol_cli`
 5. Remove this manual gate policy document
 
 ## Why Not CI Today
