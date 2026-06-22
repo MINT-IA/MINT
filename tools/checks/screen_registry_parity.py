@@ -71,6 +71,7 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     "/anonymous/intent",
     "/anonymous/chat",
     # Admin / dev-only
+    "/admin/debug-spine",
     "/admin/routes",
     "/admin/observability",
     "/admin/analytics",

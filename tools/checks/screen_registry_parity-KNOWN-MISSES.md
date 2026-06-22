@@ -28,6 +28,7 @@ surfaces, or the chat itself (you don't route INTO the chat from the chat).
 | `/auth/verify` | Same |
 | `/anonymous/intent` | Anonymous wedge — pre-auth |
 | `/anonymous/chat` | Anonymous chat — different surface than authenticated coach chat |
+| `/admin/debug-spine` | Runtime-quality local-state inspector — dev/admin-only, not chat-routable |
 | `/admin/routes` | Phase 32 admin shell — dev-only, tree-shaken in prod (D-06 + D-10) |
 | `/admin/observability` | Phase 31 admin observability — dev-only |
 | `/admin/analytics` | Phase 32 admin analytics — dev-only |

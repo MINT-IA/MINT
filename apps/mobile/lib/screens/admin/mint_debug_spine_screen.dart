@@ -19,6 +19,7 @@ class MintDebugSpineScreen extends StatefulWidget {
 class _MintDebugSpineScreenState extends State<MintDebugSpineScreen> {
   late Future<MintDebugSpineSnapshot> _snapshot;
   bool _resetting = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -28,19 +29,35 @@ class _MintDebugSpineScreenState extends State<MintDebugSpineScreen> {
 
   Future<void> _refresh() async {
     setState(() {
+      _errorMessage = null;
       _snapshot = MintDebugSpineService.loadSnapshot();
     });
   }
 
   Future<void> _resetProfileStores() async {
-    setState(() => _resetting = true);
-    final provider = context.read<CoachProfileProvider>();
-    final next = await MintDebugSpineService.resetProfileStores(provider);
-    if (!mounted) return;
     setState(() {
-      _snapshot = Future.value(next);
-      _resetting = false;
+      _errorMessage = null;
+      _resetting = true;
     });
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final next = await MintDebugSpineService.resetProfileStores(provider);
+      if (!mounted) return;
+      setState(() {
+        _snapshot = Future.value(next);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Reset failed. No raw local data was rendered.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _resetting = false;
+        });
+      }
+    }
   }
 
   @override
@@ -58,11 +75,20 @@ class _MintDebugSpineScreenState extends State<MintDebugSpineScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Redacted local-state inspector. Counts and flags only; no raw profile values.',
+              'Redacted local-state inspector. Counts and flags only; no raw '
+              'profile values. Reset clears profile stores; secure-purge flags '
+              'remain visible until lifecycle purge succeeds.',
               style: MintTextStyles.bodyMedium(),
             ),
             const SizedBox(height: 16),
-            if (data == null)
+            if (snapshot.hasError)
+              Text(
+                'snapshot_error: ${snapshot.error.runtimeType}',
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.error,
+                ),
+              )
+            else if (data == null)
               const Center(child: CircularProgressIndicator())
             else
               Semantics(
@@ -76,6 +102,15 @@ class _MintDebugSpineScreenState extends State<MintDebugSpineScreen> {
                 ),
               ),
             const SizedBox(height: 16),
+            if (_errorMessage != null) ...[
+              Text(
+                _errorMessage!,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.error,
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             FilledButton(
               // lint-ignore: prefer_mint_cta
               key: const ValueKey('mint_debug_spine_reset'),

@@ -14,9 +14,12 @@ class MintDebugSpineSnapshot {
   final int wizardAnswerKeyCount;
   final int plainSensitiveWizardKeyCount;
   final bool hasBudgetInputs;
+  final bool hasCorruptBudgetInputs;
   final bool hasBudgetOverrides;
   final int anonymousMessageCount;
   final int conversationCount;
+  final int currentUserConversationCount;
+  final int anonymousConversationCount;
   final bool installSecurePurgePending;
   final bool ownedSecurePurgePending;
 
@@ -26,9 +29,12 @@ class MintDebugSpineSnapshot {
     required this.wizardAnswerKeyCount,
     required this.plainSensitiveWizardKeyCount,
     required this.hasBudgetInputs,
+    required this.hasCorruptBudgetInputs,
     required this.hasBudgetOverrides,
     required this.anonymousMessageCount,
     required this.conversationCount,
+    required this.currentUserConversationCount,
+    required this.anonymousConversationCount,
     required this.installSecurePurgePending,
     required this.ownedSecurePurgePending,
   });
@@ -37,6 +43,7 @@ class MintDebugSpineSnapshot {
       hasWizardAnswers ||
       hasCorruptWizardAnswers ||
       hasBudgetInputs ||
+      hasCorruptBudgetInputs ||
       hasBudgetOverrides ||
       anonymousMessageCount > 0 ||
       conversationCount > 0 ||
@@ -49,9 +56,12 @@ class MintDebugSpineSnapshot {
         'wizard_answers_corrupt: $hasCorruptWizardAnswers',
         'plain_sensitive_wizard_keys: $plainSensitiveWizardKeyCount',
         'budget_inputs: ${hasBudgetInputs ? "present" : "absent"}',
+        'budget_inputs_corrupt: $hasCorruptBudgetInputs',
         'budget_overrides: ${hasBudgetOverrides ? "present" : "absent"}',
         'anonymous_message_count: $anonymousMessageCount',
         'conversation_count: $conversationCount',
+        'current_user_conversation_count: $currentUserConversationCount',
+        'anonymous_conversation_count: $anonymousConversationCount',
         'install_secure_purge_pending: $installSecurePurgePending',
         'owned_secure_purge_pending: $ownedSecurePurgePending',
       ];
@@ -66,11 +76,20 @@ class MintDebugSpineService {
     final decodedWizard = _decodeMap(rawWizard);
     final wizard = decodedWizard.map;
     final budgetStore = BudgetLocalStore();
-    final hasBudgetInputs = await budgetStore.loadInputs() != null;
-    final hasBudgetOverrides = _hasBudgetOverrides(prefs);
+    final hasBudgetInputs = await budgetStore.hasInputResidue();
+    final hasCorruptBudgetInputs = await budgetStore.hasCorruptInputs();
+    final hasBudgetOverrides = await budgetStore.hasOverrideResidue();
     final anonymousMessageCount =
         await AnonymousSessionService.getMessageCount();
-    final conversations = await ConversationStore().listConversations();
+    final conversationStore = ConversationStore();
+    final currentUserId = ConversationStore.currentUserId;
+    final currentUserConversations = currentUserId == null
+        ? <ConversationMeta>[]
+        : await conversationStore.listConversationsForUser(currentUserId);
+    final anonymousConversations =
+        await conversationStore.listConversationsForUser(null);
+    final conversationCount =
+        currentUserConversations.length + anonymousConversations.length;
 
     return MintDebugSpineSnapshot(
       hasWizardAnswers: wizard.isNotEmpty,
@@ -78,9 +97,12 @@ class MintDebugSpineService {
       wizardAnswerKeyCount: wizard.length,
       plainSensitiveWizardKeyCount: _plainSensitiveWizardKeyCount(wizard),
       hasBudgetInputs: hasBudgetInputs,
+      hasCorruptBudgetInputs: hasCorruptBudgetInputs,
       hasBudgetOverrides: hasBudgetOverrides,
       anonymousMessageCount: anonymousMessageCount,
-      conversationCount: conversations.length,
+      conversationCount: conversationCount,
+      currentUserConversationCount: currentUserConversations.length,
+      anonymousConversationCount: anonymousConversations.length,
       installSecurePurgePending:
           prefs.getBool(InstallLifecycleService.securePurgePendingKey) == true,
       ownedSecurePurgePending: prefs.getBool(
@@ -94,6 +116,7 @@ class MintDebugSpineService {
     CoachProfileProvider coachProfileProvider,
   ) async {
     await coachProfileProvider.clearAll();
+    await ConversationStore.clearNamespaceForUser(null);
     return loadSnapshot();
   }
 
@@ -123,10 +146,6 @@ class MintDebugSpineService {
       count++;
     }
     return count;
-  }
-
-  static bool _hasBudgetOverrides(SharedPreferences prefs) {
-    return prefs.getKeys().any((key) => key.startsWith('budget_override_'));
   }
 }
 

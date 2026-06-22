@@ -3,11 +3,11 @@
 // Phase 34 no_hardcoded_fr.py MUST exempt lib/screens/admin/**
 // (TODO: add exemption when Phase 34 plan ships lint-config.yaml).
 
-/// Phase 32 D-03 + D-10 — AdminGate compile-time + runtime check.
+/// Phase 32 D-03 + D-10 — AdminGate local compile-time check.
 ///
 /// `/admin/*` routes are ONLY mounted when:
 ///   1. Compile-time: `flutter build ... --dart-define=ENABLE_ADMIN=1` (default 0 = prod).
-///   2. Runtime: `FeatureFlags.isAdmin` returns true.
+///   2. Local feature flag mirror: `FeatureFlags.isAdmin` returns true.
 ///
 /// Both gates are LOCAL — no backend `/admin/me` endpoint (D-10 v4).
 /// Phase 33 may add an admin backend endpoint if multi-user admin is needed.
@@ -27,7 +27,7 @@ class AdminGate {
   static const bool _compileTimeEnabled =
       _compileTimeValue == 'true' || _compileTimeValue == '1';
 
-  /// Both gates must be true. Runtime FeatureFlags.isAdmin is the
-  /// second line; compile-time is the tree-shake guarantee.
+  /// Both local checks must be true. Keeping the mirror preserves the
+  /// existing FeatureFlags call-site while compile-time controls tree-shaking.
   static bool get isAvailable => _compileTimeEnabled && FeatureFlags.isAdmin;
 }
