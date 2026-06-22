@@ -157,11 +157,15 @@ Alternatives considered and rejected:
 side only (they are never in the registry, so no symmetric registry-side
 subtraction is needed).
 
-Current occurrences (1 admin-conditional route at HEAD-b7a88cc8):
+Current occurrences (2 admin-conditional routes):
 
 - L1151 `ScopedGoRoute(path: '/admin/routes', ...)` inside
   `if (AdminGate.isAvailable) ...[` (Plan 32-03 Wave 3 ship).
-  Exempt via `_ADMIN_CONDITIONAL = {'/admin/routes'}` in the lint source.
+- `ScopedGoRoute(path: '/admin/debug-spine', ...)` inside
+  `if (MintDebugToolsGate.isAvailable) ...[` (runtime-quality debug spine).
+  This route also requires `ENABLE_DEBUG_TOOLS=true` in addition to admin gating.
+
+Both are exempted via `_ADMIN_CONDITIONAL` in the lint source.
 
 When a new `/admin/*` route lands (Phase 33 `/admin/flags`, etc.), the
 maintainer MUST add the path to `_ADMIN_CONDITIONAL` in the lint AND append a

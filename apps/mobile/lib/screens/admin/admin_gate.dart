@@ -20,8 +20,12 @@ class AdminGate {
 
   /// Compile-time branch — dead-code-eliminated when false.
   /// Visible to reviewers as `const`, enabling Dart's tree-shake.
+  static const String _compileTimeValue = String.fromEnvironment(
+    'ENABLE_ADMIN',
+    defaultValue: 'false',
+  );
   static const bool _compileTimeEnabled =
-      bool.fromEnvironment('ENABLE_ADMIN', defaultValue: false);
+      _compileTimeValue == 'true' || _compileTimeValue == '1';
 
   /// Both gates must be true. Runtime FeatureFlags.isAdmin is the
   /// second line; compile-time is the tree-shake guarantee.
