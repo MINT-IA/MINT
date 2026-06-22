@@ -34,6 +34,7 @@ jobs:
               - 'tools/openapi/**'
             flutter:
               - 'apps/mobile/**'
+              - 'tools/checks/mint_debug_spine_gate.sh'
 
   # ─── Contracts drift guard (VoiceCursorContract codegen) ─────
   # Regenerates Dart + Python contract consumers from tools/contracts/voice_cursor.json
@@ -464,6 +465,11 @@ jobs:
             exit 1
           fi
           echo "Analyze passed (0 errors, $warnings warnings, $infos infos)"
+
+      - name: Mint debug spine gate
+        if: matrix.shard == 'services'
+        shell: bash
+        run: ../../tools/checks/mint_debug_spine_gate.sh
 
       - name: Run tests (${{ matrix.shard }} shard)
         shell: bash
