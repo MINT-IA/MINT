@@ -44,6 +44,32 @@ class MintHttpClient extends http.BaseClient {
   static const String logCategory = 'ch.mint.http';
   static const String requestIdHeader = 'X-MINT-Req-Id';
   static const int _bodyLogCap = 2000;
+  static bool _runtimeDebugEvidenceEnabled =
+      const bool.fromEnvironment('MINT_RUNTIME_DEBUG_EVIDENCE');
+  static final _RuntimeNetworkRecorder _runtimeNetworkRecorder =
+      _RuntimeNetworkRecorder();
+
+  static void configureRuntimeDebugEvidence({required bool enabled}) {
+    _runtimeDebugEvidenceEnabled = enabled;
+    _runtimeNetworkRecorder.clear();
+  }
+
+  static Map<String, Object?> runtimeNetworkSummary() =>
+      _runtimeNetworkRecorder.toRedactedJson(
+        recording: _runtimeDebugEvidenceEnabled,
+      );
+
+  static void recordRuntimeNetworkEventForTesting({
+    required String method,
+    required String endpointPath,
+    required String statusClass,
+  }) {
+    _runtimeNetworkRecorder.record(
+      method: method,
+      endpointPath: endpointPath,
+      statusClass: statusClass,
+    );
+  }
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -97,11 +123,21 @@ class MintHttpClient extends http.BaseClient {
         error: e,
         stackTrace: s,
       );
+      _runtimeNetworkRecorder.record(
+        method: request.method,
+        endpointPath: request.url.path,
+        statusClass: 'error',
+      );
       rethrow;
     }
 
     final duration = DateTime.now().difference(start).inMilliseconds;
     final traceId = upstream.headers['x-trace-id'] ?? '-';
+    _runtimeNetworkRecorder.record(
+      method: request.method,
+      endpointPath: request.url.path,
+      statusClass: _statusClass(upstream.statusCode),
+    );
 
     if (!kDebugMode) {
       _log(
@@ -118,7 +154,8 @@ class MintHttpClient extends http.BaseClient {
     final bytes = await upstream.stream.toBytes();
     final raw = utf8.decode(bytes, allowMalformed: true);
     final preview = _truncate(raw, _bodyLogCap);
-    final keys = _extractTopLevelKeys(raw);
+    final keys =
+        _runtimeDebugEvidenceEnabled ? '[]' : _extractTopLevelKeys(raw);
 
     _log(
       'RES ${request.method} ${request.url.path} '
@@ -126,7 +163,9 @@ class MintHttpClient extends http.BaseClient {
       'status=${upstream.statusCode} ms=$duration '
       'bytes=${bytes.length} keys=$keys',
     );
-    _log('BODY req_id=$requestId body=$preview');
+    if (!_runtimeDebugEvidenceEnabled) {
+      _log('BODY req_id=$requestId body=$preview');
+    }
 
     return http.StreamedResponse(
       Stream.value(bytes),
@@ -175,4 +214,127 @@ class MintHttpClient extends http.BaseClient {
     }
     return '[]';
   }
+
+  static String _statusClass(int statusCode) {
+    if (statusCode < 100 || statusCode > 599) return 'unknown';
+    return '${statusCode ~/ 100}xx';
+  }
+}
+
+class _RuntimeNetworkRecorder {
+  final Map<_RuntimeNetworkKey, int> _counts = {};
+
+  void clear() {
+    _counts.clear();
+  }
+
+  void record({
+    required String method,
+    required String endpointPath,
+    required String statusClass,
+  }) {
+    final normalizedMethod = method.toUpperCase();
+    final rawPath = endpointPath.isEmpty ? '/' : endpointPath;
+    final normalizedPath = _redactEndpointPath(rawPath);
+    final key = _RuntimeNetworkKey(
+      method: normalizedMethod,
+      endpointPath: normalizedPath,
+      statusClass: statusClass,
+      forbiddenMatch: _hasForbiddenMatch(normalizedMethod, rawPath),
+    );
+    _counts[key] = (_counts[key] ?? 0) + 1;
+  }
+
+  Map<String, Object?> toRedactedJson({required bool recording}) {
+    final entries = _counts.entries.map((entry) {
+      final key = entry.key;
+      return <String, Object?>{
+        'method': key.method,
+        'endpoint_path': key.endpointPath,
+        'status_class': key.statusClass,
+        'count': entry.value,
+        'forbidden_match': key.forbiddenMatch,
+      };
+    }).toList(growable: false);
+
+    return {
+      'status': recording ? 'recording' : 'not_recording',
+      'forbiddenMatchCount':
+          entries.where((entry) => entry['forbidden_match'] == true).length,
+      'entries': entries,
+    };
+  }
+
+  static bool _hasForbiddenMatch(String method, String endpointPath) {
+    final lower = endpointPath.toLowerCase();
+    if (lower.contains('/sync/claim-local-data')) return true;
+    if (lower.contains('claimlocaldata')) return true;
+    if (lower.contains('/snapshot')) return true;
+    if (method != 'GET' && lower.contains('/profiles')) return true;
+    if (method != 'GET' && lower.contains('/profile')) return true;
+    if (method != 'GET' && lower.contains('/coach')) return true;
+    return false;
+  }
+
+  static String _redactEndpointPath(String endpointPath) {
+    final parts = endpointPath.split('/');
+    final redacted = parts.map((segment) {
+      if (segment.isEmpty) return segment;
+      return _isDynamicSegment(segment) ? ':id' : segment;
+    });
+    final normalized = redacted.join('/');
+    return normalized.isEmpty ? '/' : normalized;
+  }
+
+  static bool _isDynamicSegment(String segment) {
+    final decoded = Uri.decodeComponent(segment);
+    final value = decoded.isEmpty ? segment : decoded;
+    if (value.contains('@')) return true;
+    if (RegExp(
+      r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+      caseSensitive: false,
+    ).hasMatch(value)) {
+      return true;
+    }
+    if (RegExp(r'^\d+$').hasMatch(value)) return true;
+    if (RegExp(r'^[0-9a-f]{8,}$', caseSensitive: false).hasMatch(value)) {
+      return true;
+    }
+    if (RegExp(r'^[A-Za-z0-9_]{16,}$').hasMatch(value) &&
+        RegExp(r'[\d_]').hasMatch(value)) {
+      return true;
+    }
+    return false;
+  }
+}
+
+class _RuntimeNetworkKey {
+  final String method;
+  final String endpointPath;
+  final String statusClass;
+  final bool forbiddenMatch;
+
+  const _RuntimeNetworkKey({
+    required this.method,
+    required this.endpointPath,
+    required this.statusClass,
+    required this.forbiddenMatch,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    return other is _RuntimeNetworkKey &&
+        method == other.method &&
+        endpointPath == other.endpointPath &&
+        statusClass == other.statusClass &&
+        forbiddenMatch == other.forbiddenMatch;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        method,
+        endpointPath,
+        statusClass,
+        forbiddenMatch,
+      );
 }

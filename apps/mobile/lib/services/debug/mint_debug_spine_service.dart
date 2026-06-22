@@ -1,11 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MintDebugSpineSnapshot {
@@ -24,6 +29,13 @@ class MintDebugSpineSnapshot {
   final int anonymousConversationCount;
   final bool installSecurePurgePending;
   final bool ownedSecurePurgePending;
+  final bool hasHeldAnonymousDiagnostic;
+  final String accountHandoffChoice;
+  final bool hasLocalDataOwner;
+  final int localDataMigratedFlagCount;
+  final int localDataSyncPendingFlagCount;
+  final bool cloudSyncLocalMode;
+  final Map<String, Object?> networkSummary;
 
   const MintDebugSpineSnapshot({
     required this.hasWizardAnswers,
@@ -39,6 +51,13 @@ class MintDebugSpineSnapshot {
     required this.anonymousConversationCount,
     required this.installSecurePurgePending,
     required this.ownedSecurePurgePending,
+    required this.hasHeldAnonymousDiagnostic,
+    required this.accountHandoffChoice,
+    required this.hasLocalDataOwner,
+    required this.localDataMigratedFlagCount,
+    required this.localDataSyncPendingFlagCount,
+    required this.cloudSyncLocalMode,
+    required this.networkSummary,
   });
 
   bool get hasLocalResidue =>
@@ -50,7 +69,12 @@ class MintDebugSpineSnapshot {
       anonymousMessageCount > 0 ||
       conversationCount > 0 ||
       installSecurePurgePending ||
-      ownedSecurePurgePending;
+      ownedSecurePurgePending ||
+      hasHeldAnonymousDiagnostic ||
+      accountHandoffChoice != 'none' ||
+      hasLocalDataOwner ||
+      localDataMigratedFlagCount > 0 ||
+      localDataSyncPendingFlagCount > 0;
 
   List<String> get redactedRows => [
         'wizard_answers: ${hasWizardAnswers ? "present" : "absent"} '
@@ -66,6 +90,12 @@ class MintDebugSpineSnapshot {
         'anonymous_conversation_count: $anonymousConversationCount',
         'install_secure_purge_pending: $installSecurePurgePending',
         'owned_secure_purge_pending: $ownedSecurePurgePending',
+        'held_anonymous_diagnostic: $hasHeldAnonymousDiagnostic',
+        'account_handoff_choice: $accountHandoffChoice',
+        'local_data_owner: ${hasLocalDataOwner ? "present" : "absent"}',
+        'local_data_migrated_flags: $localDataMigratedFlagCount',
+        'local_data_sync_pending_flags: $localDataSyncPendingFlagCount',
+        'cloud_sync_local_mode: $cloudSyncLocalMode',
       ];
 
   Map<String, Object?> toRedactedJson() => {
@@ -99,14 +129,21 @@ class MintDebugSpineSnapshot {
           'installSecurePurge': {
             'pending': installSecurePurgePending,
           },
+          'heldAnonymousDiagnostic': {
+            'present': hasHeldAnonymousDiagnostic,
+          },
+          'accountHandoff': {
+            'choice': accountHandoffChoice,
+            'hasLocalDataOwner': hasLocalDataOwner,
+            'migratedFlagCount': localDataMigratedFlagCount,
+            'syncPendingFlagCount': localDataSyncPendingFlagCount,
+            'cloudSyncLocalMode': cloudSyncLocalMode,
+          },
           'keychain': {
             'observable': false,
-            'status': 'not_observed_in_plan01',
+            'status': 'keychain_reset_by_gate_when_true_fresh',
           },
-          'networkSummary': {
-            'status': 'not_recorded_in_plan01',
-            'forbiddenMatchCount': 0,
-          },
+          'networkSummary': networkSummary,
         },
       };
 }
@@ -134,6 +171,7 @@ class MintDebugSpineService {
         await conversationStore.listConversationsForUser(null);
     final conversationCount =
         currentUserConversations.length + anonymousConversations.length;
+    final keys = prefs.getKeys();
 
     return MintDebugSpineSnapshot(
       hasWizardAnswers: wizard.isNotEmpty,
@@ -153,6 +191,17 @@ class MintDebugSpineService {
             InstallLifecycleService.ownedSecurePurgePendingKey,
           ) ==
           true,
+      hasHeldAnonymousDiagnostic:
+          await ReportPersistenceService.hasHeldAnonymousDiagnostic(),
+      accountHandoffChoice: _accountHandoffChoice(prefs),
+      hasLocalDataOwner: prefs.containsKey('local_data_owner'),
+      localDataMigratedFlagCount:
+          keys.where((key) => key.startsWith('local_data_migrated_')).length,
+      localDataSyncPendingFlagCount: keys
+          .where((key) => key.startsWith('local_data_sync_pending_'))
+          .length,
+      cloudSyncLocalMode: prefs.getBool('auth_local_mode') == true,
+      networkSummary: MintHttpClient.runtimeNetworkSummary(),
     );
   }
 
@@ -161,12 +210,53 @@ class MintDebugSpineService {
     return snapshot.toRedactedJson();
   }
 
+  static Future<void> exportRedactedEvidence(String label) async {
+    await writeRedactedEvidence(label, await loadRedactedJson());
+  }
+
+  static Future<void> writeRedactedEvidence(
+    String label,
+    Map<String, Object?> redacted,
+  ) async {
+    final supportDir = await getApplicationSupportDirectory();
+    final evidenceDir = Directory(
+      '${supportDir.path}/mint-runtime-debug-evidence',
+    );
+    await evidenceDir.create(recursive: true);
+    final formatted = const JsonEncoder.withIndent('  ').convert(redacted);
+    await File('${evidenceDir.path}/debug-spine-$label.json')
+        .writeAsString('$formatted\n');
+  }
+
   static Future<MintDebugSpineSnapshot> resetProfileStores(
     CoachProfileProvider coachProfileProvider,
   ) async {
     await coachProfileProvider.clearAll();
+    await AccountHandoffService.clearChoice();
+    await _clearAccountLifecycleResidue();
     await ConversationStore.clearNamespaceForUser(null);
     return loadSnapshot();
+  }
+
+  static Future<void> _clearAccountLifecycleResidue() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where((key) {
+      return key == 'local_data_owner' ||
+          key == 'auth_local_mode' ||
+          key.startsWith('local_data_migrated_') ||
+          key.startsWith('local_data_sync_pending_');
+    }).toList(growable: false);
+    for (final key in keys) {
+      await prefs.remove(key);
+    }
+  }
+
+  static String _accountHandoffChoice(SharedPreferences prefs) {
+    final raw = prefs.getString(AccountHandoffService.choiceKey);
+    if (raw == 'keep_local') return 'keep_local';
+    if (raw == 'restart_clean') return 'restart_clean';
+    if (raw == null || raw.isEmpty) return 'none';
+    return 'unknown';
   }
 
   static _DecodedWizardMap _decodeMap(String? raw) {

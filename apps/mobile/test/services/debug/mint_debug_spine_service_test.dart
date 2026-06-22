@@ -6,11 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/debug/mint_debug_spine_service.dart';
 import 'package:mint_mobile/services/install_lifecycle_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -31,6 +33,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
     ConversationStore.setCurrentUserId(null);
+    MintHttpClient.configureRuntimeDebugEvidence(enabled: false);
   });
 
   test('snapshot exposes state shape without raw financial values', () async {
@@ -175,11 +178,11 @@ void main() {
     );
     expect(
       (residue['keychain']! as Map<String, Object?>)['status'],
-      'not_observed_in_plan01',
+      'keychain_reset_by_gate_when_true_fresh',
     );
     expect(
       (residue['networkSummary']! as Map<String, Object?>)['status'],
-      'not_recorded_in_plan01',
+      'not_recording',
     );
 
     for (final forbidden in [
@@ -382,5 +385,70 @@ void main() {
     expect(after.hasLocalResidue, isTrue);
     expect(after.redactedRows.join('\n'),
         contains('install_secure_purge_pending: true'));
+  });
+
+  test('redacted JSON includes network summary and account lifecycle shape',
+      () async {
+    final prefs = await SharedPreferences.getInstance();
+    await AccountHandoffService.saveChoice(
+      AccountHandoffChoice.keepLocal,
+      now: DateTime(2026, 6, 22, 15),
+    );
+    await prefs.setString('local_data_owner', 'raw-user-id');
+    await prefs.setBool('local_data_migrated_raw-user-id', true);
+    await prefs.setBool('local_data_sync_pending_raw-user-id', true);
+    MintHttpClient.configureRuntimeDebugEvidence(enabled: true);
+    MintHttpClient.recordRuntimeNetworkEventForTesting(
+      method: 'POST',
+      endpointPath: '/api/v1/sync/claim-local-data',
+      statusClass: '2xx',
+    );
+
+    final redacted = await MintDebugSpineService.loadRedactedJson();
+    final residue = redacted['residue']! as Map<String, Object?>;
+    final accountHandoff = residue['accountHandoff']! as Map<String, Object?>;
+    final networkSummary = residue['networkSummary']! as Map<String, Object?>;
+    final encoded = jsonEncode(redacted);
+
+    expect(accountHandoff['choice'], 'keep_local');
+    expect(accountHandoff['hasLocalDataOwner'], isTrue);
+    expect(accountHandoff['migratedFlagCount'], 1);
+    expect(accountHandoff['syncPendingFlagCount'], 1);
+    expect(networkSummary['entries'], [
+      {
+        'method': 'POST',
+        'endpoint_path': '/api/v1/sync/claim-local-data',
+        'status_class': '2xx',
+        'count': 1,
+        'forbidden_match': true,
+      },
+    ]);
+    expect(networkSummary['forbiddenMatchCount'], 1);
+    expect(encoded, isNot(contains('raw-user-id')));
+  });
+
+  test('reset clears account handoff and local migration residue', () async {
+    final prefs = await SharedPreferences.getInstance();
+    await AccountHandoffService.saveChoice(
+      AccountHandoffChoice.restartClean,
+      now: DateTime(2026, 6, 22, 16),
+    );
+    await prefs.setString('local_data_owner', 'raw-user-id');
+    await prefs.setBool('local_data_migrated_raw-user-id', true);
+    await prefs.setBool('local_data_sync_pending_raw-user-id', true);
+    await prefs.setBool('auth_local_mode', true);
+
+    final after = await MintDebugSpineService.resetProfileStores(
+      CoachProfileProvider(),
+    );
+    final redacted = after.toRedactedJson();
+    final accountHandoff = (redacted['residue']!
+        as Map<String, Object?>)['accountHandoff']! as Map<String, Object?>;
+
+    expect(accountHandoff['choice'], 'none');
+    expect(accountHandoff['hasLocalDataOwner'], isFalse);
+    expect(accountHandoff['migratedFlagCount'], 0);
+    expect(accountHandoff['syncPendingFlagCount'], 0);
+    expect(accountHandoff['cloudSyncLocalMode'], isFalse);
   });
 }

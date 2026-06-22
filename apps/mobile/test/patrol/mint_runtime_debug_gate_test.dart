@@ -2,9 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart';
+import 'package:mint_mobile/data/budget/budget_local_store.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/account_handoff_service.dart';
+import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/debug/mint_debug_spine_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:patrol/patrol.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _runningFromPatrolCli = bool.hasEnvironment('PATROL_APP_BUNDLE_ID') ||
     bool.hasEnvironment('PATROL_TEST_LABEL') ||
@@ -25,12 +34,26 @@ const _disableBetaModal = bool.fromEnvironment('MINT_DISABLE_BETA_MODAL');
 const _mint2FirstExperience =
     bool.fromEnvironment('MINT_E2E_MINT2_FIRST_EXPERIENCE');
 const _proofAnchors = bool.fromEnvironment('MINT_E2E_PROOF_ANCHORS');
+const _runtimeDebugEvidence =
+    bool.fromEnvironment('MINT_RUNTIME_DEBUG_EVIDENCE');
+const _runtimeDebugLeg = String.fromEnvironment(
+  'MINT_RUNTIME_DEBUG_LEG',
+  defaultValue: 'reset',
+);
+
+const _syntheticPublicAnswer = '__MINT_SYNTHETIC_PLAN02_PUBLIC__';
+const _syntheticSensitiveAnswer = '__MINT_SYNTHETIC_PLAN02_SENSITIVE__';
+const _syntheticChatBody = '__MINT_SYNTHETIC_PLAN02_CHAT_BODY__';
+const _syntheticContact = '__MINT_SYNTHETIC_PLAN02_CONTACT__';
+const _syntheticNetIncome = -920000001.0;
+const _syntheticHousingCost = -920000002.0;
+const _syntheticBudgetOverride = -0.920000003;
 
 void main() {
   patrolTest(
-    'launches Mint and exposes redacted Debug Spine JSON',
+    'proves fresh reset relaunch redacted Debug Spine evidence',
     skip: !_runningFromPatrolCli,
-    timeout: const Timeout(Duration(minutes: 2)),
+    timeout: const Timeout(Duration(minutes: 3)),
     ($) async {
       expect(_apiBaseUrl, isNotEmpty);
       expect(_disableBetaModal, isTrue);
@@ -38,26 +61,162 @@ void main() {
       expect(_proofAnchors, isTrue);
       expect(_adminEnabled, isTrue);
       expect(_debugToolsEnabled, isTrue);
+      expect(_runtimeDebugEvidence, isTrue);
+      expect(['reset', 'relaunch'], contains(_runtimeDebugLeg));
 
       FeatureFlags.applyRuntimeOverrides();
+      MintHttpClient.configureRuntimeDebugEvidence(enabled: true);
 
       // Patrol docs require pumping the app widget instead of calling main().
       // main() owns runApp/Sentry/error-boundary setup that hides test failures.
       await $.pumpWidgetAndSettle(const MintApp());
 
+      if (_runtimeDebugLeg == 'reset') {
+        await _seedSyntheticResidue();
+        final beforeSnapshot = await MintDebugSpineService.loadSnapshot();
+        final before = beforeSnapshot.toRedactedJson();
+        await _emitEvidence('before_reset', before);
+        _assertRedactedEvidence(before);
+        expect(beforeSnapshot.hasLocalResidue, isTrue);
+
+        final afterSnapshot = await MintDebugSpineService.resetProfileStores(
+          CoachProfileProvider(),
+        );
+        final after = afterSnapshot.toRedactedJson();
+        await _emitEvidence('after_reset', after);
+        _assertRedactedEvidence(after);
+        _assertCleanSnapshot(afterSnapshot);
+        return;
+      }
+
       final redacted = await MintDebugSpineService.loadRedactedJson();
-      final residue = redacted['residue']! as Map<String, Object?>;
-      final encoded = json.encode(redacted);
+      final relaunchSnapshot = await MintDebugSpineService.loadSnapshot();
+      await _emitEvidence('after_relaunch', redacted);
+      _assertRedactedEvidence(redacted);
 
       expect(redacted['schemaVersion'], MintDebugSpineSnapshot.schemaVersion);
+      final residue = redacted['residue']! as Map<String, Object?>;
       expect(residue.keys, contains('wizardAnswers'));
       expect(residue.keys, contains('budgetInputs'));
       expect(residue.keys, contains('networkSummary'));
-      expect(encoded, isNot(contains('q_net_income_period_chf')));
-      expect(encoded, isNot(contains('CHF')));
-      expect(encoded, isNot(contains('Authorization')));
-      expect(encoded, isNot(contains('token')));
-      expect(encoded, isNot(contains('@')));
+      _assertCleanSnapshot(relaunchSnapshot);
     },
   );
+}
+
+Future<void> _seedSyntheticResidue() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(
+    'wizard_answers_v2',
+    json.encode({
+      'q_public_debug_marker': _syntheticPublicAnswer,
+      'q_net_income_period_chf': _syntheticSensitiveAnswer,
+      'q_firstname': _syntheticContact,
+    }),
+  );
+  await BudgetLocalStore().saveInputs(
+    const BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: _syntheticNetIncome,
+      housingCost: _syntheticHousingCost,
+      debtPayments: 0,
+    ),
+  );
+  await BudgetLocalStore().saveOverride(
+    'plan02_runtime_debug',
+    _syntheticBudgetOverride,
+  );
+  await AnonymousSessionService.updateFromResponse(1);
+  ConversationStore.setCurrentUserId(null);
+  await ConversationStore().saveConversation('plan02-anon-conversation', [
+    ChatMessage(
+      role: 'user',
+      content: _syntheticChatBody,
+      timestamp: DateTime(2026, 6, 22, 17),
+    ),
+  ]);
+  ConversationStore.setCurrentUserId('plan02-runtime-user');
+  await ConversationStore().saveConversation('plan02-user-conversation', [
+    ChatMessage(
+      role: 'user',
+      content: _syntheticChatBody,
+      timestamp: DateTime(2026, 6, 22, 17, 1),
+    ),
+  ]);
+  await AccountHandoffService.saveChoice(
+    AccountHandoffChoice.keepLocal,
+    now: DateTime(2026, 6, 22, 17, 2),
+  );
+  expect(
+    (await MintDebugSpineService.loadSnapshot()).accountHandoffChoice,
+    'keep_local',
+  );
+  await AccountHandoffService.saveChoice(
+    AccountHandoffChoice.restartClean,
+    now: DateTime(2026, 6, 22, 17, 3),
+  );
+  await prefs.setString('local_data_owner', 'plan02-runtime-user');
+  await prefs.setBool('local_data_migrated_plan02-runtime-user', true);
+  await prefs.setBool('local_data_sync_pending_plan02-runtime-user', true);
+  await prefs.setBool('auth_local_mode', true);
+}
+
+Future<void> _emitEvidence(String label, Map<String, Object?> redacted) async {
+  await MintDebugSpineService.writeRedactedEvidence(label, redacted);
+}
+
+void _assertCleanSnapshot(MintDebugSpineSnapshot snapshot) {
+  expect(snapshot.hasWizardAnswers, isFalse);
+  expect(snapshot.hasCorruptWizardAnswers, isFalse);
+  expect(snapshot.wizardAnswerKeyCount, 0);
+  expect(snapshot.plainSensitiveWizardKeyCount, 0);
+  expect(snapshot.hasBudgetInputs, isFalse);
+  expect(snapshot.hasCorruptBudgetInputs, isFalse);
+  expect(snapshot.hasBudgetOverrides, isFalse);
+  expect(snapshot.anonymousMessageCount, 0);
+  expect(snapshot.conversationCount, 0);
+  expect(snapshot.anonymousConversationCount, 0);
+  expect(snapshot.currentUserConversationCount, 0);
+  expect(snapshot.hasHeldAnonymousDiagnostic, isFalse);
+  expect(snapshot.accountHandoffChoice, 'none');
+  expect(snapshot.hasLocalDataOwner, isFalse);
+  expect(snapshot.localDataMigratedFlagCount, 0);
+  expect(snapshot.localDataSyncPendingFlagCount, 0);
+  expect(snapshot.cloudSyncLocalMode, isFalse);
+  expect(snapshot.installSecurePurgePending, isA<bool>());
+  expect(snapshot.ownedSecurePurgePending, isA<bool>());
+  expect(snapshot.networkSummary['status'], 'recording');
+  expect(snapshot.networkSummary['forbiddenMatchCount'], 0);
+  expect(snapshot.networkSummary['entries'], isA<List<Object?>>());
+}
+
+void _assertRedactedEvidence(Map<String, Object?> redacted) {
+  final encoded = json.encode(redacted);
+  for (final forbidden in [
+    _syntheticPublicAnswer,
+    _syntheticSensitiveAnswer,
+    _syntheticChatBody,
+    _syntheticContact,
+    _syntheticNetIncome.toString(),
+    _syntheticHousingCost.toString(),
+    _syntheticBudgetOverride.toString(),
+    'q_public_debug_marker',
+    'q_net_income_period_chf',
+    'q_firstname',
+    'plan02-runtime-user',
+    'plan02-anon-conversation',
+    'plan02-user-conversation',
+    'Authorization',
+    'authorization',
+    'Bearer',
+    'bearer',
+    'token',
+    'access_token',
+    'refresh_token',
+    'id_token',
+    '@',
+    'CHF',
+  ]) {
+    expect(encoded, isNot(contains(forbidden)));
+  }
 }
