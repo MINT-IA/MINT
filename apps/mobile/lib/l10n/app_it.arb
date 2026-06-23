@@ -11419,6 +11419,7 @@
   "waitlistConsentFinePrint": "En soumettant ton email, tu acceptes d'être contacté·e uniquement pour cette notification. Pas de marketing.",
   "waitlistSuccessMessage": "Merci, on revient vers toi dès que ton profil est pris en charge.",
   "waitlistSuccessCta": "Revenir à l'accueil",
+  "waitlistCorrectProfileCta": "Corriger mon profil",
   "waitlistErrorNetwork": "Impossible d'envoyer ton email pour le moment. Réessaie dans un instant.",
   "waitlistErrorBadEmail": "Cette adresse email ne semble pas valide. Vérifie la syntaxe.",
   "waitlistUsTaxPersonQuestion": "Es-tu citoyen ou résident fiscal aux États-Unis ?",

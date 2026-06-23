@@ -1,10 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart'
     show
+        accountLifecycleAndArchetypeRedirect,
         accountLifecycleAuthenticatedRedirect,
         accountLifecyclePublicEntryRedirect,
         routeScopeForRedirect;
 import 'package:mint_mobile/models/auth_lifecycle_state.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 
@@ -158,6 +160,33 @@ void main() {
       expect(
         routeScopeForRedirect(path: '/scoped', topRoute: route),
         RouteScope.onboarding,
+      );
+    });
+  });
+
+  group('account lifecycle + archetype hard gate', () {
+    test('FATCA profile cannot enter a public-scoped app shell route', () {
+      final lifecycle = AuthLifecycleState.signedInProfileLoading(
+        userId: 'user-1',
+        cloudSyncEnabled: false,
+      );
+      final publicCoachRoute = ScopedGoRoute(
+        path: '/coach/chat',
+        scope: RouteScope.public,
+        builder: (_, __) => throw UnimplementedError(),
+      );
+
+      expect(
+        accountLifecycleAndArchetypeRedirect(
+          lifecycle: lifecycle,
+          location: '/coach/chat',
+          path: '/coach/chat',
+          topRoute: publicCoachRoute,
+          profile: CoachProfile.fromWizardAnswers({
+            'q_us_tax_person': true,
+          }),
+        ),
+        '/waitlist',
       );
     });
   });

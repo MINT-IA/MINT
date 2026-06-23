@@ -744,6 +744,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_employment_status',
       'q_nationality',
       'q_residence_permit',
+      'q_us_tax_person',
       'q_cash_total',
       'q_total_debt_balance_chf',
       'q_partner_birth_year',

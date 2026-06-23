@@ -11416,6 +11416,7 @@
   "waitlistConsentFinePrint": "Mit dem Absenden deiner E-Mail-Adresse stimmst du zu, ausschliesslich für diese Benachrichtigung kontaktiert zu werden. Kein Marketing.",
   "waitlistSuccessMessage": "Danke, wir melden uns, sobald dein Profil unterstützt wird.",
   "waitlistSuccessCta": "Zurück zur Startseite",
+  "waitlistCorrectProfileCta": "Profil korrigieren",
   "waitlistErrorNetwork": "Deine E-Mail konnte gerade nicht gesendet werden. Bitte versuche es gleich nochmals.",
   "waitlistErrorBadEmail": "Diese E-Mail-Adresse scheint nicht gültig zu sein. Bitte prüfe die Schreibweise.",
   "waitlistUsTaxPersonQuestion": "Bist du US-Staatsbürger·in oder in den USA steuerpflichtig?",

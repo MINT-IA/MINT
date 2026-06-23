@@ -23925,6 +23925,9 @@ class SPt extends S {
   String get waitlistSuccessCta => 'Revenir à l\'accueil';
 
   @override
+  String get waitlistCorrectProfileCta => 'Corriger mon profil';
+
+  @override
   String get waitlistErrorNetwork =>
       'Impossible d\'envoyer ton email pour le moment. Réessaie dans un instant.';
 

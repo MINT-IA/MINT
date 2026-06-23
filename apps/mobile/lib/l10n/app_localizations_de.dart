@@ -23975,6 +23975,9 @@ class SDe extends S {
   String get waitlistSuccessCta => 'Zurück zur Startseite';
 
   @override
+  String get waitlistCorrectProfileCta => 'Profil korrigieren';
+
+  @override
   String get waitlistErrorNetwork =>
       'Deine E-Mail konnte gerade nicht gesendet werden. Bitte versuche es gleich nochmals.';
 

@@ -34,6 +34,7 @@
     "feature/S09-mint2-quality-gate-xattr-fix",
     "feature/S10-mint2-real-device-restore-gate",
     "feature/S10-mint2-waitlist-eligibility-gate",
+    "feature/S10-mint2-account-lifecycle-fatca-lock",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],

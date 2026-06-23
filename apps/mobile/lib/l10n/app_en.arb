@@ -11436,6 +11436,7 @@
   "waitlistConsentFinePrint": "By submitting your email, you agree to be contacted only for this notification. No marketing.",
   "waitlistSuccessMessage": "Thanks, we'll come back to you as soon as your profile is supported.",
   "waitlistSuccessCta": "Back to home",
+  "waitlistCorrectProfileCta": "Correct my profile",
   "waitlistErrorNetwork": "We couldn't send your email right now. Please try again in a moment.",
   "waitlistErrorBadEmail": "This email address doesn't look valid. Please check the syntax.",
   "waitlistUsTaxPersonQuestion": "Are you a US citizen or US tax resident?",

@@ -41806,6 +41806,12 @@ abstract class S {
   /// **'Revenir à l\'accueil'**
   String get waitlistSuccessCta;
 
+  /// CTA allowing a user blocked on waitlist to clear the local profile and restart onboarding.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger mon profil'**
+  String get waitlistCorrectProfileCta;
+
   /// Phase 01.5 W02-T02 — Inline error for network failure (5xx / offline / timeout).
   ///
   /// In fr, this message translates to:
