@@ -655,7 +655,7 @@
   "profileBilanSubtitleIncomplete": "Complete your profile to see your numbers",
   "profileLanguageTitle": "Language",
   "profileAdminObservability": "Admin observability",
-  "profileDeleteCloudAccount": "Delete my cloud account",
+  "profileDeleteCloudAccount": "Delete my account",
   "dashboardGoalRetirement": "Retirement",
   "dashboardAppBarWithName": "Retirement · {firstName}",
   "@dashboardAppBarWithName": {
@@ -2416,7 +2416,7 @@
   "profileFamilySection": "Family",
   "profileAnalyticsBeta": "Analytics beta testers",
   "profileDeleteAccountTitle": "Delete account?",
-  "profileDeleteAccountContent": "This action deletes your cloud account and associated data. Your local data remains on this device.",
+  "profileDeleteAccountContent": "This will delete your MINT account and the associated data from our servers. Local data on this device will also be erased.",
   "profileDeleteCancel": "Cancel",
   "profileDeleteConfirm": "Delete",
   "consentAllRevoked": "All optional consents have been revoked.",

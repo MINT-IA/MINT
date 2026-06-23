@@ -655,7 +655,7 @@
   "profileBilanSubtitleIncomplete": "Vervollständige dein Profil, um deine Zahlen zu sehen",
   "profileLanguageTitle": "Sprache",
   "profileAdminObservability": "Admin Observability",
-  "profileDeleteCloudAccount": "Mein Cloud-Konto löschen",
+  "profileDeleteCloudAccount": "Mein Konto löschen",
   "dashboardGoalRetirement": "Pensionierung",
   "dashboardAppBarWithName": "Pensionierung · {firstName}",
   "@dashboardAppBarWithName": {
@@ -2416,7 +2416,7 @@
   "profileFamilySection": "Familie",
   "profileAnalyticsBeta": "Analytics Beta-Tester",
   "profileDeleteAccountTitle": "Konto löschen?",
-  "profileDeleteAccountContent": "Diese Aktion löscht dein Cloud-Konto und die zugehörigen Daten. Deine lokalen Daten bleiben auf diesem Gerät.",
+  "profileDeleteAccountContent": "Dadurch werden dein MINT-Konto und die zugehörigen Daten von unseren Servern gelöscht. Lokale Daten auf diesem Gerät werden ebenfalls gelöscht.",
   "profileDeleteCancel": "Abbrechen",
   "profileDeleteConfirm": "Löschen",
   "consentAllRevoked": "Alle optionalen Einwilligungen wurden widerrufen.",

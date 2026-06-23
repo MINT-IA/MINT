@@ -1598,7 +1598,7 @@ class SIt extends S {
   String get profileAdminObservability => 'Admin observability';
 
   @override
-  String get profileDeleteCloudAccount => 'Elimina il mio account cloud';
+  String get profileDeleteCloudAccount => 'Elimina il mio account';
 
   @override
   String get dashboardGoalRetirement => 'Pensionamento';
@@ -5157,7 +5157,7 @@ class SIt extends S {
 
   @override
   String get profileDeleteAccountContent =>
-      'Questa azione elimina il tuo account cloud e i dati associati. I tuoi dati locali restano su questo dispositivo.';
+      'Questa azione eliminerà il tuo account MINT e i dati associati dai nostri server. Anche i dati locali su questo dispositivo saranno eliminati.';
 
   @override
   String get profileDeleteCancel => 'Annulla';

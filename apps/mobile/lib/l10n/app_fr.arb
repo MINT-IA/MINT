@@ -655,7 +655,7 @@
   "profileBilanSubtitleIncomplete": "Complète ton profil pour voir tes chiffres",
   "profileLanguageTitle": "Langue",
   "profileAdminObservability": "Admin observability",
-  "profileDeleteCloudAccount": "Supprimer mon compte cloud",
+  "profileDeleteCloudAccount": "Supprimer mon compte",
   "dashboardGoalRetirement": "Retraite",
   "dashboardAppBarWithName": "Retraite · {firstName}",
   "@dashboardAppBarWithName": {
@@ -2434,7 +2434,7 @@
   "profileFamilySection": "Famille",
   "profileAnalyticsBeta": "Analytics beta testeurs",
   "profileDeleteAccountTitle": "Supprimer le compte ?",
-  "profileDeleteAccountContent": "Cette action supprime ton compte cloud et les données associées. Tes données locales restent sur cet appareil.",
+  "profileDeleteAccountContent": "Cette action supprime ton compte MINT et les données associées de nos serveurs. Les données locales de cet appareil seront aussi effacées.",
   "profileDeleteCancel": "Annuler",
   "profileDeleteConfirm": "Supprimer",
   "consentAllRevoked": "Tous les consentements optionnels ont été révoqués.",
