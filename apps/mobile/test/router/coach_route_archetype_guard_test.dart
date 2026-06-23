@@ -128,20 +128,40 @@ void main() {
     });
 
     test(
-        'fresh user with NO q_nationality → NOT swissNative → still gated '
-        '(no silent CH fallback — regression guard, closed 2026-05-22)', () {
+        'resident salaried LPP-eligible user with NO q_nationality → '
+        'not swissNative, but coach reachable', () {
       final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
         'q_birth_year': 1996,
-        'q_canton': 'VD',
+        'q_canton': 'VS',
         'q_employment_status': 'salarie',
-        'q_has_pension_fund': true,
+        'q_net_income_period_chf': 7500,
+        'q_pay_frequency': 'monthly',
       });
       expect(profile.nationality, isNull,
           reason: 'absent q_nationality must NOT coerce to CH');
       expect(profile.archetype, isNot(FinancialArchetype.swissNative));
       final verdict = evaluateCoachArchetypeGate(profile);
-      expect(verdict.shouldBlock, isTrue,
-          reason: 'null nationality stays gated, never silent swissNative');
+      expect(verdict.shouldBlock, isFalse,
+          reason:
+              'current calibration is resident in Switzerland + salaried + LPP-eligible, not nationality=CH');
+    });
+
+    test('resident salaried user with explicit no-LPP answer → still gated',
+        () {
+      final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_birth_year': 1996,
+        'q_canton': 'VS',
+        'q_employment_status': 'salarie',
+        'q_net_income_period_chf': 7500,
+        'q_pay_frequency': 'monthly',
+        'q_has_pension_fund': false,
+      });
+      expect(profile.userProvidedFields, contains('pensionFund'),
+          reason:
+              'the gate must distinguish missing LPP answer from explicit no-LPP');
+      expect(profile.userProvidedFields, contains('pensionFundNo'));
+      final verdict = evaluateCoachArchetypeGate(profile);
+      expect(verdict.shouldBlock, isTrue);
     });
   });
 }
