@@ -12823,6 +12823,10 @@
   "@waitlistSuccessCta": {
     "description": "Phase 01.5 W02-T02 — Back-to-home CTA shown alongside success message."
   },
+  "waitlistCorrectProfileCta": "Corriger mon profil",
+  "@waitlistCorrectProfileCta": {
+    "description": "CTA allowing a user blocked on waitlist to clear the local profile and restart onboarding."
+  },
   "waitlistErrorNetwork": "Impossible d'envoyer ton email pour le moment. Réessaie dans un instant.",
   "@waitlistErrorNetwork": {
     "description": "Phase 01.5 W02-T02 — Inline error for network failure (5xx / offline / timeout)."

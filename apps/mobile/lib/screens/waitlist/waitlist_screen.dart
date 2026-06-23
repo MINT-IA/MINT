@@ -15,9 +15,14 @@ import 'package:provider/provider.dart';
 /// plan 02-03 — this widget is the consumer of those args, not the
 /// registrar.
 class WaitlistScreen extends StatelessWidget {
-  const WaitlistScreen({super.key, this.args = const WaitlistArgs()});
+  const WaitlistScreen({
+    super.key,
+    this.args = const WaitlistArgs(),
+    this.onCorrectProfile,
+  });
 
   final WaitlistArgs args;
+  final VoidCallback? onCorrectProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +37,10 @@ class WaitlistScreen extends StatelessWidget {
               case WaitlistStatus.initial:
               case WaitlistStatus.submitting:
               case WaitlistStatus.error:
-                return WaitlistForm(args: args);
+                return WaitlistForm(
+                  args: args,
+                  onCorrectProfile: onCorrectProfile,
+                );
             }
           },
         ),

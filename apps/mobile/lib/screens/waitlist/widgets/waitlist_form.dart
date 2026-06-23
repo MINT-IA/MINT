@@ -17,9 +17,14 @@ final RegExp _kEmailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 /// error state. Owns the local field state (email controller + consent
 /// checkbox) and gates the CTA on both validity AND consent.
 class WaitlistForm extends StatefulWidget {
-  const WaitlistForm({super.key, required this.args});
+  const WaitlistForm({
+    super.key,
+    required this.args,
+    this.onCorrectProfile,
+  });
 
   final WaitlistArgs args;
+  final VoidCallback? onCorrectProfile;
 
   @override
   State<WaitlistForm> createState() => _WaitlistFormState();
@@ -106,6 +111,22 @@ class _WaitlistFormState extends State<WaitlistForm> {
             l.waitlistBodyPara3,
             style: MintTextStyles.bodyLarge(color: MintColors.inkPrimary),
           ),
+          if (widget.onCorrectProfile != null) ...[
+            const SizedBox(height: MintSpacing.lg),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton( // lint-ignore: prefer_mint_cta
+                key: const Key('waitlist-correct-profile-cta'),
+                onPressed: widget.onCorrectProfile,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: MintColors.inkPrimary,
+                  side: const BorderSide(color: MintColors.inkPrimary),
+                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                ),
+                child: Text(l.waitlistCorrectProfileCta),
+              ),
+            ),
+          ],
           const SizedBox(height: MintSpacing.xl),
           MintTextField(
             label: l.waitlistEmailLabel,
@@ -147,7 +168,7 @@ class _WaitlistFormState extends State<WaitlistForm> {
           const SizedBox(height: MintSpacing.lg),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
+            child: FilledButton( // lint-ignore: prefer_mint_cta
               key: const Key('waitlist-cta'),
               onPressed: canSubmit ? _onSubmit : null,
               style: FilledButton.styleFrom(

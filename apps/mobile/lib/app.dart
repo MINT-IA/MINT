@@ -15,6 +15,7 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/models/auth_lifecycle_state.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_budget_bootstrap_screen.dart';
@@ -281,6 +282,47 @@ RouteScope routeScopeForRedirect({
   return RouteScope.authenticated;
 }
 
+@visibleForTesting
+String? accountLifecycleAndArchetypeRedirect({
+  required AuthLifecycleState lifecycle,
+  required String location,
+  required String path,
+  required RouteBase? topRoute,
+  required CoachProfile? profile,
+}) {
+  final archetypeRedirect = archetypeRedirectTarget(
+    profile: profile,
+    path: path,
+  );
+  if (archetypeRedirect != null) return archetypeRedirect;
+
+  final scope = routeScopeForRedirect(
+    path: path,
+    topRoute: topRoute,
+  );
+
+  switch (scope) {
+    case RouteScope.public:
+      // A restored account must not see the signed-out landing/auth funnel
+      // on cold relaunch. Guest-local public entry remains allowed.
+      return accountLifecyclePublicEntryRedirect(
+        lifecycle: lifecycle,
+        path: path,
+      );
+
+    case RouteScope.onboarding:
+      // Onboarding routes are accessible without full auth; completion
+      // is handled by the individual screens.
+      return null;
+
+    case RouteScope.authenticated:
+      return accountLifecycleAuthenticatedRedirect(
+        lifecycle: lifecycle,
+        path: location,
+      );
+  }
+}
+
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   observers: _routerObservers,
@@ -345,51 +387,13 @@ final _router = GoRouter(
       // tab=0 or no tab → stay on /home (Aujourd'hui)
     }
 
-    // Determine scope from matched route (fail-closed default)
-    final scope = routeScopeForRedirect(
+    return accountLifecycleAndArchetypeRedirect(
+      lifecycle: auth.authLifecycle,
+      location: state.uri.toString(),
       path: path,
       topRoute: state.topRoute,
+      profile: context.read<CoachProfileProvider>().profile,
     );
-
-    switch (scope) {
-      case RouteScope.public:
-        // A restored account must not see the signed-out landing/auth funnel
-        // on cold relaunch. Guest-local public entry remains allowed.
-        return accountLifecyclePublicEntryRedirect(
-          lifecycle: auth.authLifecycle,
-          path: path,
-        );
-
-      case RouteScope.onboarding:
-        // Onboarding routes are accessible without full auth;
-        // no redirect needed here (onboarding completion check
-        // is handled by individual screens).
-        return null;
-
-      case RouteScope.authenticated:
-        final lifecycle = auth.authLifecycle;
-        // Require a deliberate guest dossier or a restored account lifecycle.
-        final authRedirect = accountLifecycleAuthenticatedRedirect(
-          lifecycle: lifecycle,
-          path: path,
-        );
-        if (authRedirect != null) return authRedirect;
-        // ── GLOBAL archetype/FATCA gate (plan 08, oracle expat_us-1) ──
-        // Before this branch the only FATCA gate lived at the coach entry,
-        // so an expatUs profile reaching /home, /mon-argent, /profile/bilan
-        // or /explore/* rendered prévoyance content it must never see
-        // (CLAUDE.md NEVER #7). The pure decision helper REUSES
-        // evaluateCoachArchetypeGate (no duplicated verdict) and the
-        // enableCoachHardGate kill switch. It only fires for a hydrated,
-        // positively-identified gated archetype — a null/unknown profile at
-        // boot is never gated (no flash-block of non-US users). The
-        // coach-entry point-defense gate is intentionally kept (T-ILF-08-01).
-        final profile = context.read<CoachProfileProvider>().profile;
-        final archetypeRedirect =
-            archetypeRedirectTarget(profile: profile, path: path);
-        if (archetypeRedirect != null) return archetypeRedirect;
-        return null;
-    }
   },
   routes: [
     // ── Landing + Auth (public — no auth required) ─────────────
@@ -474,7 +478,15 @@ final _router = GoRouter(
           create: (ctx) => WaitlistProvider(
             onGateSuccess: () => ctx.read<CoachProfileProvider>().clearAll(),
           ),
-          child: WaitlistScreen(args: args),
+          child: WaitlistScreen(
+            args: args,
+            onCorrectProfile: () {
+              final profileProvider = context.read<CoachProfileProvider>();
+              unawaited(profileProvider.clearAll().then((_) {
+                if (context.mounted) context.go('/onb');
+              }));
+            },
+          ),
         );
       },
     ),

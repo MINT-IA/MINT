@@ -23797,6 +23797,9 @@ class SEn extends S {
   String get waitlistSuccessCta => 'Back to home';
 
   @override
+  String get waitlistCorrectProfileCta => 'Correct my profile';
+
+  @override
   String get waitlistErrorNetwork =>
       'We couldn\'t send your email right now. Please try again in a moment.';
 

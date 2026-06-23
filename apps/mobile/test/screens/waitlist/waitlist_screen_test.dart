@@ -96,6 +96,26 @@ void main() {
       expect(find.byKey(const Key('waitlist-cta')), findsOneWidget);
     });
 
+    testWidgets('offers a profile correction exit before email submission',
+        (tester) async {
+      var correctionRequested = false;
+
+      await tester.pumpWidget(
+        _wrapWithApp(
+          child: WaitlistScreen(
+            args: const WaitlistArgs(archetype: 'expat_us'),
+            onCorrectProfile: () => correctionRequested = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('waitlist-correct-profile-cta')));
+      await tester.pumpAndSettle();
+
+      expect(correctionRequested, isTrue);
+    });
+
     testWidgets('CTA disabled until email valid AND consent checked',
         (tester) async {
       await tester.pumpWidget(
