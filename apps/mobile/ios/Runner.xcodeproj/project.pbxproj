@@ -259,9 +259,9 @@
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				E30884E87B8637E245C49191 /* Strip xattrs before codesign */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				6A100A9142CE6905C2652591 /* [CP] Copy Pods Resources */,
-				E30884E87B8637E245C49191 /* Strip xattrs before codesign */,
 			);
 			buildRules = (
 			);
@@ -468,7 +468,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n# Strip resource forks / Finder metadata before simulator codesign.\n# On macOS Tahoe under FileProvider-backed folders, xattr -cr leaves enough\n# detritus for ad-hoc simulator codesign to fail. A ditto --norsrc round-trip\n# rebuilds the bundle without AppleDouble/resource-fork metadata.\ncase \"${SDK_NAME:-}\" in\n  iphonesimulator*) ;;\n  *) exit 0 ;;\nesac\n\nseen_paths=\"\"\nfor path in \"${CODESIGNING_FOLDER_PATH}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"; do\n  if [ -n \"$path\" ] && [ -d \"$path\" ]; then\n    base_name=\"$(basename \"$path\")\"\n    [ \"$base_name\" = \"${WRAPPER_NAME}\" ] || exit 1\n    case \"$base_name\" in *.app) ;; *) exit 1 ;; esac\n\n    parent_dir=\"$(cd \"$(dirname \"$path\")\" && pwd -P)\"\n    resolved_path=\"$parent_dir/$base_name\"\n    case \" $seen_paths \" in\n      *\" $resolved_path \"*) continue ;;\n    esac\n    seen_paths=\"$seen_paths $resolved_path\"\n\n    /usr/bin/xattr -cr \"$path\" 2>/dev/null || true\n    tmp_app=\"$parent_dir/.${base_name}.norsrc.$$\"\n    backup_app=\"$parent_dir/.${base_name}.pre-xattr-strip.$$\"\n    rm -rf \"$tmp_app\" \"$backup_app\"\n    /usr/bin/ditto --norsrc \"$path\" \"$tmp_app\"\n    test -d \"$tmp_app\"\n    mv \"$path\" \"$backup_app\"\n    if mv \"$tmp_app\" \"$path\"; then\n      rm -rf \"$backup_app\"\n    else\n      rm -rf \"$path\"\n      mv \"$backup_app\" \"$path\"\n      rm -rf \"$tmp_app\"\n      exit 1\n    fi\n  fi\ndone\n";
+			shellScript = "/bin/sh \"${SRCROOT}/scripts/strip_xattrs_before_codesign.sh\"";
 		};
 		EBDAB82AEB75F5D06717D52A /* Embed Flutter framework for Patrol */ = {
 			isa = PBXShellScriptBuildPhase;

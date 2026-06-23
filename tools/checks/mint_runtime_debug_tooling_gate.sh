@@ -189,8 +189,16 @@ strip_flutter_engine_cache_xattrs() {
 
   local flutter_root
   flutter_root="$(cd "$(dirname "$flutter_bin")/.." && pwd -P)"
-  strip_norsrc_bundle \
-    "$flutter_root/bin/cache/artifacts/engine/ios/Flutter.xcframework/ios-arm64_x86_64-simulator/Flutter.framework"
+  local framework
+  while IFS= read -r framework; do
+    clear_extended_attributes "$framework"
+  done < <(
+    find "$flutter_root/bin/cache/artifacts/engine/ios" \
+      -maxdepth 5 \
+      -type d \
+      -path '*/Flutter.xcframework/*/Flutter.framework' \
+      -print 2>/dev/null
+  )
 }
 
 scrub_patrol_ios_build_xattrs() {
@@ -537,12 +545,12 @@ scan_release_artifact_paths() {
 
 scrub_release_ios_build_xattrs() {
   strip_flutter_engine_cache_xattrs
+  rm -rf \
+    "$ROOT/apps/mobile/build/ios/Release-iphoneos" \
+    "$ROOT/apps/mobile/build/ios/Profile-iphoneos" \
+    "$ROOT/apps/mobile/build/ios/iphoneos"
   clear_extended_attributes "$ROOT/apps/mobile/build/ios"
   clear_extended_attributes "$ROOT/apps/mobile/.dart_tool/flutter_build"
-  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Release-iphoneos/Flutter.framework"
-  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Release-iphoneos/App.framework"
-  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Profile-iphoneos/Flutter.framework"
-  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Profile-iphoneos/App.framework"
 }
 
 build_and_scan_ios_mode() {

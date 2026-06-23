@@ -15,6 +15,8 @@ and local no-codesign evidence.
 - Branch: `feature/S09-mint2-runtime-quality-gate`
 - Start HEAD: `04ac39382`
 - Plan: `.planning/phases/mint-runtime-debug-tooling-m1/03-ci-release-closeout-PLAN.md`
+- Push status at summary closeout: not pushed yet; open PR to `staging` only
+  after final sanity remains green.
 
 ## Implemented
 
@@ -36,9 +38,11 @@ and local no-codesign evidence.
   - the host captures `final-reset-state.png` with `xcrun simctl io screenshot`;
   - OCR and Debug Spine row text must contain a deterministic Mint Debug
     Spine anchor.
-- Hardened macOS Sequoia/Tahoe simulator build handling by removing existing
-  Flutter framework signatures before Patrol rebuilds, avoiding the known
-  `com.apple.provenance` ad-hoc codesign replacement failure path.
+- Hardened macOS Sequoia/Tahoe build handling: Patrol rebuilds remove stale
+  generated simulator frameworks, while release/profile rebuilds preserve the
+  signed Flutter engine cache and remove stale generated device outputs before
+  rebuilding. This avoids the known `com.apple.provenance` ad-hoc codesign
+  replacement failure path.
 
 ## Evidence
 
