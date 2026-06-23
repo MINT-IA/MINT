@@ -7,12 +7,18 @@ BUNDLE_ID="ch.mint.app"
 API_BASE_URL="${MINT_API_BASE_URL:-https://mint-staging.up.railway.app/api/v1}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 ARTIFACT_ROOT="${MINT_RUNTIME_DEBUG_ARTIFACTS:-$ROOT/.planning/runtime-evidence/mint-runtime-debug-tooling-$RUN_ID}"
+FOREGROUND_HOLD_SECONDS="${MINT_RUNTIME_DEBUG_FOREGROUND_HOLD_SECONDS:-20}"
+FOREGROUND_READY_TIMEOUT_SECONDS="${MINT_RUNTIME_DEBUG_FOREGROUND_READY_TIMEOUT_SECONDS:-240}"
 DRY_RUN=0
 SCAN_ONLY=""
+CI_STATIC_ONLY=0
+RELEASE_SCAN_ONLY=0
 
 usage() {
   cat <<EOF
 Usage: tools/checks/mint_runtime_debug_tooling_gate.sh [--dry-run]
+       tools/checks/mint_runtime_debug_tooling_gate.sh --ci-static-only
+       tools/checks/mint_runtime_debug_tooling_gate.sh --release-scan-only
        tools/checks/mint_runtime_debug_tooling_gate.sh --artifact-scan-only <evidence-dir>
 
 Runs the Mint Runtime Debug Tooling gate:
@@ -29,10 +35,22 @@ True-fresh preflight:
 Runtime proof:
   Patrol reset leg    -> before_reset.json + after_reset.json
   Patrol relaunch leg -> after_relaunch.json
-  simctl screenshot   -> final-reset-state.png
+  host foreground proof -> foreground-proof.txt
+  host foreground tree  -> host-ui-tree.json + host-ui-tree.txt
+  host screenshot       -> final-reset-state.png
   Vision OCR          -> final-reset-state.ocr.txt
-  idb ui describe-all -> ui-tree.json + ui-tree.txt
+  Debug Spine redacted rows -> ui-tree.json + ui-tree.txt
   artifact scan       -> artifact-scan.log
+
+CI-safe static proof:
+  --ci-static-only runs deterministic Flutter/debug contract tests, artifact
+  scanner self-tests, production workflow dart-define scans, and route/debug
+  flag source checks. It is NOT iOS runtime proof.
+
+Release/profile leakage proof:
+  --release-scan-only scans production workflows and either scans paths from
+  MINT_RELEASE_SCAN_PATHS or builds local iOS release/profile Runner.app
+  no-codesign artifacts with admin/debug flags disabled before scanning them.
 EOF
 }
 
@@ -49,6 +67,14 @@ while [ "$#" -gt 0 ]; do
         exit 2
       }
       shift 2
+      ;;
+    --ci-static-only)
+      CI_STATIC_ONLY=1
+      shift
+      ;;
+    --release-scan-only)
+      RELEASE_SCAN_ONLY=1
+      shift
       ;;
     --help|-h)
       usage
@@ -71,6 +97,16 @@ fail() {
 
 log() {
   printf '\n[runtime-debug-gate] %s\n' "$*"
+}
+
+check_single_mode() {
+  local count=0
+  [ -n "$SCAN_ONLY" ] && count=$((count + 1))
+  [ "$CI_STATIC_ONLY" -eq 1 ] && count=$((count + 1))
+  [ "$RELEASE_SCAN_ONLY" -eq 1 ] && count=$((count + 1))
+  if [ "$count" -gt 1 ]; then
+    fail "--ci-static-only, --release-scan-only, and --artifact-scan-only are mutually exclusive"
+  fi
 }
 
 require_patrol() {
@@ -104,11 +140,25 @@ clear_extended_attributes() {
   xattr -cr "$path" 2>/dev/null || true
 }
 
+remove_existing_signature() {
+  local path="$1"
+  [ -e "$path" ] || return 0
+
+  /usr/bin/codesign --remove-signature "$path" 2>/dev/null || true
+  if [ -d "$path" ]; then
+    local bundle_executable="$path/$(basename "$path" .framework)"
+    if [ -f "$bundle_executable" ]; then
+      /usr/bin/codesign --remove-signature "$bundle_executable" 2>/dev/null || true
+    fi
+  fi
+}
+
 strip_norsrc_bundle() {
   local path="$1"
   [ -d "$path" ] || return 0
 
   clear_extended_attributes "$path"
+  remove_existing_signature "$path"
   local parent_dir
   local base_name
   local tmp_path
@@ -123,6 +173,7 @@ strip_norsrc_bundle() {
   mv "$path" "$backup_path"
   if mv "$tmp_path" "$path"; then
     rm -rf "$backup_path"
+    remove_existing_signature "$path"
   else
     rm -rf "$path"
     mv "$backup_path" "$path"
@@ -147,13 +198,16 @@ scrub_patrol_ios_build_xattrs() {
   local ios_integ_dir="$ROOT/apps/mobile/build/ios_integ"
   local flutter_build_dir="$ROOT/apps/mobile/.dart_tool/flutter_build"
   local stale_frameworks=(
+    "$ios_build_dir/Debug-iphonesimulator/Flutter.framework"
     "$ios_build_dir/Debug-iphonesimulator/App.framework"
+    "$ios_integ_dir/Build/Products/Debug-iphonesimulator/Flutter.framework"
     "$ios_integ_dir/Build/Products/Debug-iphonesimulator/App.framework"
+    "$ios_integ_dir/Build/Products/Debug-iphonesimulator/Runner.app/Frameworks/Flutter.framework"
     "$ios_integ_dir/Build/Products/Debug-iphonesimulator/Runner.app/Frameworks/App.framework"
   )
 
   log "resetting generated Patrol iOS build state and scrubbing xattrs"
-  rm -rf "$ios_integ_dir" "$flutter_build_dir"
+  rm -rf "$ios_build_dir/Debug-iphonesimulator" "$ios_integ_dir" "$flutter_build_dir"
   strip_flutter_engine_cache_xattrs
   clear_extended_attributes "$ios_build_dir"
   clear_extended_attributes "$ios_integ_dir"
@@ -161,12 +215,14 @@ scrub_patrol_ios_build_xattrs() {
   if [ -d "$flutter_build_dir" ]; then
     while IFS= read -r framework; do
       /usr/bin/codesign --remove-signature "$framework" 2>/dev/null || true
+      remove_existing_signature "$framework"
       rm -rf "$framework"
     done < <(find "$flutter_build_dir" -mindepth 2 -maxdepth 2 -type d -name App.framework 2>/dev/null)
   fi
   for framework in "${stale_frameworks[@]}"; do
     if [ -d "$framework" ]; then
       /usr/bin/codesign --remove-signature "$framework" 2>/dev/null || true
+      remove_existing_signature "$framework"
       rm -rf "$framework"
     fi
   done
@@ -187,6 +243,69 @@ copy_container_evidence() {
     [ -f "$source" ] || fail "missing runtime evidence file in app container: debug-spine-$label.json"
     cp "$source" "$evidence_dir/debug-spine-$label.json"
   done
+}
+
+wait_for_foreground_ready() {
+  local udid="$1"
+  local run_id="$2"
+  local patrol_pid="$3"
+  local container
+  local attempt
+
+  log "waiting for Patrol foreground-ready marker"
+  for attempt in $(seq 1 "$FOREGROUND_READY_TIMEOUT_SECONDS"); do
+    if ! kill -0 "$patrol_pid" 2>/dev/null; then
+      fail "Patrol relaunch leg exited before foreground-ready marker for run_id $run_id"
+    fi
+    container="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data 2>/dev/null || true)"
+    if [ -n "$container" ]; then
+      local proof="$container/Library/Application Support/mint-runtime-debug-evidence/foreground-proof.txt"
+      if [ -f "$proof" ] && grep -Fq "run_id: $run_id" "$proof"; then
+        return 0
+      fi
+    fi
+    sleep 1
+  done
+  kill "$patrol_pid" 2>/dev/null || true
+  wait "$patrol_pid" 2>/dev/null || true
+  fail "timed out waiting for foreground-ready marker for run_id $run_id"
+}
+
+capture_host_foreground_artifacts() {
+  local evidence_dir="$1"
+  local udid="$2"
+  local run_id="$3"
+  local container
+  local source_dir
+
+  command -v idb >/dev/null 2>&1 || fail "idb is required for host native UI-tree foreground proof"
+
+  container="$(xcrun simctl get_app_container "$udid" "$BUNDLE_ID" data 2>/dev/null || true)"
+  [ -n "$container" ] || fail "could not resolve app data container for $BUNDLE_ID"
+  source_dir="$container/Library/Application Support/mint-runtime-debug-evidence"
+
+  log "capturing host native foreground tree before screenshot"
+  idb ui describe-all --udid "$udid" --json --nested > "$evidence_dir/host-ui-tree.json"
+  idb ui describe-all --udid "$udid" > "$evidence_dir/host-ui-tree.txt"
+
+  log "capturing host simulator screenshot"
+  xcrun simctl io "$udid" screenshot "$evidence_dir/final-reset-state.png" >/dev/null
+
+  log "copying Patrol Debug Spine redacted row evidence"
+  for file_name in ui-tree.json ui-tree.txt; do
+    [ -f "$source_dir/$file_name" ] || fail "missing Debug Spine redacted row evidence file in app container: $file_name"
+    cp "$source_dir/$file_name" "$evidence_dir/$file_name"
+  done
+
+  cat > "$evidence_dir/foreground-proof.txt" <<EOF
+run_id: $run_id
+foreground: $BUNDLE_ID
+os_native_foreground: proven_by_host_ui_tree_application_mint
+host_ui_tree_source: idb ui describe-all --json --nested
+flutter_ui_tree_source: patrol_debug_spine_redacted_rows
+screenshot_source: xcrun simctl io screenshot
+capture_sequence: ui_tree_before_screenshot
+EOF
 }
 
 resolve_device_udid() {
@@ -235,6 +354,9 @@ patterns = [
     )),
     ("query string", re.compile(r"[?&][A-Za-z0-9_.%-]+=")),
     ("email", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")),
+    ("raw uuid/device id", re.compile(
+        r"\b[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\b"
+    )),
     ("known financial sentinel", re.compile(
         r"37'600|37600|6'640|6640|Avoir LPP|Marge libre|"
         r"-?920000001(?:\.0)?|-?920000002(?:\.0)?|-?0\.920000003"
@@ -245,9 +367,24 @@ patterns = [
 if simulator_udid:
     patterns.append(("simulator udid", re.compile(re.escape(simulator_udid), re.IGNORECASE)))
 
+mint_foreground_anchor = re.compile(
+    r"Debug spine|mint_debug_spine_snapshot|Redacted local-state inspector|"
+    r"anonymousMessages|account handoff|wizardAnswers",
+    re.IGNORECASE,
+)
+springboard_anchor = re.compile(
+    r"\b(?:Fitness|Watch|Contacts|Files|Preview|Utilities|Safari|Messages|"
+    r"spotlight-pill|RunnerUITests-Runner|Page \d+ of \d+)\b",
+    re.IGNORECASE,
+)
+
 failures = []
 scanned = 0
 image_count = 0
+ui_tree_evidence_text = []
+ocr_evidence_text = []
+foreground_proof_text = []
+host_ui_tree_text = []
 for path in sorted(root.rglob("*")):
     if not path.is_file():
         continue
@@ -255,27 +392,199 @@ for path in sorted(root.rglob("*")):
         image_count += 1
         ocr_path = path.with_suffix(".ocr.txt")
         if not ocr_path.exists() or not ocr_path.read_text(encoding="utf-8", errors="ignore").strip():
-            failures.append((path, "image_ocr_extraction", "missing non-empty OCR text sidecar"))
+            failures.append((path, "image_ocr_extraction"))
         continue
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError as exc:
-        failures.append((path, "read_error", str(exc)))
+        failures.append((path, f"read_error:{exc.__class__.__name__}"))
         continue
     scanned += 1
+    if path.name == "ui-tree.txt":
+        ui_tree_evidence_text.append(text)
+    if path.name == "host-ui-tree.txt":
+        host_ui_tree_text.append(text)
+    if path.name.endswith(".ocr.txt"):
+        ocr_evidence_text.append(text)
+    if path.name == "foreground-proof.txt":
+        foreground_proof_text.append(text)
     for label, pattern in patterns:
         match = pattern.search(text)
         if match:
-            failures.append((path, label, match.group(0)[:120]))
+            failures.append((path, label))
+
+def check_mint_foreground_anchors(texts, missing_label, springboard_label):
+    if not texts:
+        return
+    combined_ui_text = "\n".join(texts)
+    has_mint_anchor = bool(mint_foreground_anchor.search(combined_ui_text))
+    if not has_mint_anchor:
+        failures.append((root / "ui-evidence", missing_label))
+    if springboard_anchor.search(combined_ui_text) and not has_mint_anchor:
+        failures.append((root / "ui-evidence", springboard_label))
+
+check_mint_foreground_anchors(
+    ui_tree_evidence_text,
+    "missing Mint debug reset-state UI-tree foreground anchor",
+    "SpringBoard/home-screen UI-tree evidence",
+)
+check_mint_foreground_anchors(
+    ocr_evidence_text,
+    "missing Mint debug reset-state screenshot OCR anchor",
+    "SpringBoard/home-screen screenshot OCR evidence",
+)
+
+if ui_tree_evidence_text or ocr_evidence_text or image_count:
+    if not foreground_proof_text:
+        failures.append((root / "foreground-proof.txt", "missing host foreground proof"))
+    else:
+        combined_proof = "\n".join(foreground_proof_text)
+        required = [
+            "foreground: ch.mint.app",
+            "os_native_foreground: proven_by_host_ui_tree_application_mint",
+            "capture_sequence: ui_tree_before_screenshot",
+        ]
+        for marker in required:
+            if marker not in combined_proof:
+                failures.append((root / "foreground-proof.txt", f"missing foreground proof marker: {marker}"))
+        if "os_native_foreground: not_proven" in combined_proof:
+            failures.append((root / "foreground-proof.txt", "foreground proof explicitly not proven"))
+    if not host_ui_tree_text:
+        failures.append((root / "host-ui-tree.txt", "missing host foreground UI tree"))
+    else:
+        combined_host_tree = "\n".join(host_ui_tree_text)
+        if "AXLabel\":\"MINT\"" not in combined_host_tree and "AXLabel\": \"MINT\"" not in combined_host_tree:
+            failures.append((root / "host-ui-tree.txt", "missing host foreground MINT application label"))
+        if springboard_anchor.search(combined_host_tree):
+            failures.append((root / "host-ui-tree.txt", "SpringBoard/home-screen host UI-tree evidence"))
 
 if failures:
     print("artifact scan failed")
-    for path, label, value in failures:
-        print(f"{path}: {label}: {value}")
+    for path, label in failures:
+        print(f"{path}: {label}: <redacted>")
     sys.exit(1)
 
 print(f"artifact scan passed: {scanned} text artifacts scanned, {image_count} image artifacts covered by OCR text")
 PY
+}
+
+run_artifact_scan_self_test() {
+  local tmp_dir
+  tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/mint-runtime-artifact-scan.XXXXXX")"
+
+  printf 'network summary only\nendpoint_path=/health\nstatus_class=2xx\n' \
+    > "$tmp_dir/safe.txt"
+  printf 'Debug spine\nmint_debug_spine_snapshot\nwizardAnswers: absent\n' \
+    > "$tmp_dir/ui-tree.txt"
+  printf '[{"AXLabel":"MINT","role":"AXApplication"}]\n' \
+    > "$tmp_dir/host-ui-tree.txt"
+  printf 'Debug spine\nmint_debug_spine_snapshot\nwizardAnswers: absent\n' \
+    > "$tmp_dir/final-reset-state.ocr.txt"
+  printf 'foreground: ch.mint.app\nos_native_foreground: proven_by_host_ui_tree_application_mint\ncapture_sequence: ui_tree_before_screenshot\n' \
+    > "$tmp_dir/foreground-proof.txt"
+  run_artifact_scan "$tmp_dir" >/dev/null
+
+  printf 'Authorization: bearer secret\nuser@example.com\n37600 CHF\n3D0534A9-8C3A-4663-9348-106D0599E9D6\n' > "$tmp_dir/unsafe.txt"
+  local unsafe_output="$tmp_dir/unsafe-output.txt"
+  if run_artifact_scan "$tmp_dir" >"$unsafe_output" 2>&1; then
+    rm -rf "$tmp_dir"
+    fail "artifact scan self-test did not reject unsafe token marker"
+  fi
+  if grep -Eq 'bearer|secret|Authorization|user@example\.com|37600|3D0534A9-8C3A-4663-9348-106D0599E9D6' "$unsafe_output"; then
+    rm -rf "$tmp_dir"
+    fail "artifact scan self-test leaked raw forbidden value in failure output"
+  fi
+
+  rm -rf "$tmp_dir"
+  log "artifact scan self-test passed"
+}
+
+run_release_workflow_scan() {
+  python3 "$ROOT/tools/checks/mint_runtime_debug_release_scan.py" \
+    --root "$ROOT" \
+    --workflows-only
+}
+
+check_debug_route_static_contract() {
+  grep -q "path: '/admin/debug-spine'" "$ROOT/apps/mobile/lib/app.dart" \
+    || fail "missing /admin/debug-spine route"
+  grep -q "MintDebugToolsGate" "$ROOT/apps/mobile/lib/app.dart" \
+    || fail "/admin/debug-spine route is not wrapped in MintDebugToolsGate"
+  grep -q "ENABLE_DEBUG_TOOLS" "$ROOT/apps/mobile/lib/screens/admin/mint_debug_tools_gate.dart" \
+    || fail "MintDebugToolsGate no longer checks ENABLE_DEBUG_TOOLS"
+  log "debug route static contract passed"
+}
+
+run_ci_static_only() {
+  log "CI static-only mode: deterministic checks only; this is NOT iOS runtime proof"
+  log "Local macOS iOS runtime proof command: tools/checks/mint_runtime_debug_tooling_gate.sh"
+  "$ROOT/tools/checks/mint_debug_spine_gate.sh"
+  (
+    cd "$ROOT/apps/mobile"
+    flutter test test/architecture/route_guard_snapshot_test.dart --reporter compact
+  )
+  run_artifact_scan_self_test
+  run_release_workflow_scan
+  check_debug_route_static_contract
+  log "PASS: CI static-only checks completed without claiming iOS runtime proof"
+}
+
+scan_release_artifact_paths() {
+  python3 "$ROOT/tools/checks/mint_runtime_debug_release_scan.py" \
+    --root "$ROOT" \
+    --artifacts "$@"
+}
+
+scrub_release_ios_build_xattrs() {
+  strip_flutter_engine_cache_xattrs
+  clear_extended_attributes "$ROOT/apps/mobile/build/ios"
+  clear_extended_attributes "$ROOT/apps/mobile/.dart_tool/flutter_build"
+  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Release-iphoneos/Flutter.framework"
+  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Release-iphoneos/App.framework"
+  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Profile-iphoneos/Flutter.framework"
+  strip_norsrc_bundle "$ROOT/apps/mobile/build/ios/Profile-iphoneos/App.framework"
+}
+
+build_and_scan_ios_mode() {
+  local mode="$1"
+  local app_path="$ROOT/apps/mobile/build/ios/iphoneos/Runner.app"
+  log "building local iOS $mode Runner.app artifact with admin/debug flags disabled"
+  scrub_release_ios_build_xattrs
+  (
+    cd "$ROOT/apps/mobile"
+    CODE_SIGNING_ALLOWED=NO flutter build ios "--$mode" --no-codesign \
+      --dart-define=API_BASE_URL="$API_BASE_URL" \
+      --dart-define=ENABLE_ADMIN=0 \
+      --dart-define=ENABLE_DEBUG_TOOLS=0
+  )
+  [ -d "$app_path" ] || fail "iOS $mode build did not produce $app_path"
+  scan_release_artifact_paths "$app_path"
+}
+
+run_release_scan_only() {
+  log "release/profile scan: production workflows plus local iOS no-codesign artifacts or supplied artifact paths"
+  run_release_workflow_scan
+
+  if [ -n "${MINT_RELEASE_SCAN_PATHS:-}" ]; then
+    # shellcheck disable=SC2086
+    scan_release_artifact_paths $MINT_RELEASE_SCAN_PATHS
+    log "PASS: release/profile scan completed using MINT_RELEASE_SCAN_PATHS"
+    return 0
+  fi
+
+  local modes="${MINT_RELEASE_SCAN_BUILD_MODES:-release profile}"
+  local mode
+  for mode in $modes; do
+    case "$mode" in
+      release|profile)
+        build_and_scan_ios_mode "$mode"
+        ;;
+      *)
+        fail "unsupported MINT_RELEASE_SCAN_BUILD_MODES entry: $mode"
+        ;;
+    esac
+  done
+  log "PASS: release/profile scan completed"
 }
 
 extract_screenshot_ocr_text() {
@@ -420,55 +729,11 @@ print("extracted evidence JSON: " + ", ".join(sorted(seen)))
 PY
 }
 
-extract_ui_tree_text() {
-  local evidence_dir="$1"
-  local udid="$2"
-  command -v idb >/dev/null 2>&1 || fail "idb is required for UI-tree text extraction"
-  idb ui describe-all --udid "$udid" --json > "$evidence_dir/ui-tree.json"
-  python3 - "$evidence_dir/ui-tree.json" "$evidence_dir/ui-tree.txt" <<'PY'
-from pathlib import Path
-import json
-import sys
-
-source = Path(sys.argv[1])
-target = Path(sys.argv[2])
-data = json.loads(source.read_text(encoding="utf-8"))
-values = []
-
-def walk(node):
-    if isinstance(node, dict):
-        for key in (
-            "AXLabel",
-            "AXValue",
-            "AXUniqueId",
-            "label",
-            "value",
-            "name",
-            "text",
-            "identifier",
-            "title",
-        ):
-            value = node.get(key)
-            if isinstance(value, str) and value.strip():
-                values.append(value.strip())
-        for value in node.values():
-            walk(value)
-    elif isinstance(node, list):
-        for value in node:
-            walk(value)
-
-walk(data)
-if not values:
-    print("UI-tree extraction returned no text", file=sys.stderr)
-    sys.exit(1)
-target.write_text("\n".join(values) + "\n", encoding="utf-8")
-print(f"ui tree text extracted: {len(values)} values")
-PY
-}
-
 run_patrol_leg() {
   local leg="$1"
   local log_file="$2"
+  local run_id="$3"
+  local hold_seconds="$4"
   local attempt
   for attempt in 1 2; do
     if (
@@ -486,7 +751,9 @@ run_patrol_leg() {
         --dart-define=ENABLE_ADMIN=1 \
         --dart-define=ENABLE_DEBUG_TOOLS=1 \
         --dart-define=MINT_RUNTIME_DEBUG_EVIDENCE=true \
-        --dart-define=MINT_RUNTIME_DEBUG_LEG="$leg"
+        --dart-define=MINT_RUNTIME_DEBUG_LEG="$leg" \
+        --dart-define=MINT_RUNTIME_DEBUG_RUN_ID="$run_id" \
+        --dart-define=MINT_RUNTIME_DEBUG_FOREGROUND_HOLD_SECONDS="$hold_seconds"
     ) 2>&1 | tee "$log_file"; then
       return 0
     fi
@@ -523,11 +790,25 @@ write_summary() {
     echo "  - patrol test --dart-define=MINT_RUNTIME_DEBUG_LEG=reset"
     echo "  - xcrun simctl terminate <redacted-udid> $BUNDLE_ID"
     echo "  - patrol test --dart-define=MINT_RUNTIME_DEBUG_LEG=relaunch"
+    echo "  - wait for Patrol foreground-ready marker"
+    echo "  - idb ui describe-all before screenshot"
+    echo "  - xcrun simctl io screenshot"
     echo "  - Vision OCR final-reset-state.png"
-    echo "  - idb ui describe-all --udid <redacted-udid> --json"
     echo "remaining_gap: physical iPhone/TestFlight/iCloud restore is not closed by this simulator gate"
   } > "$ARTIFACT_ROOT/run-summary.txt"
 }
+
+check_single_mode
+
+if [ "$CI_STATIC_ONLY" -eq 1 ]; then
+  run_ci_static_only
+  exit 0
+fi
+
+if [ "$RELEASE_SCAN_ONLY" -eq 1 ]; then
+  run_release_scan_only
+  exit 0
+fi
 
 if [ -n "$SCAN_ONLY" ]; then
   extract_evidence_json "$SCAN_ONLY"
@@ -563,7 +844,7 @@ RELAUNCH_LOG="$ARTIFACT_ROOT/patrol-relaunch.log"
 
 log "Patrol reset leg"
 scrub_patrol_ios_build_xattrs
-run_patrol_leg "reset" "$RESET_LOG"
+run_patrol_leg "reset" "$RESET_LOG" "$RUN_ID-reset" "0"
 copy_container_evidence "$ARTIFACT_ROOT" "$DEVICE_UDID" before_reset after_reset
 
 log "terminating app before cold relaunch leg"
@@ -571,21 +852,20 @@ xcrun simctl terminate "$DEVICE_UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
 
 log "Patrol relaunch leg"
 scrub_patrol_ios_build_xattrs
-run_patrol_leg "relaunch" "$RELAUNCH_LOG"
+run_patrol_leg "relaunch" "$RELAUNCH_LOG" "$RUN_ID-relaunch" "$FOREGROUND_HOLD_SECONDS" &
+RELAUNCH_PID=$!
+wait_for_foreground_ready "$DEVICE_UDID" "$RUN_ID-relaunch" "$RELAUNCH_PID"
+capture_host_foreground_artifacts "$ARTIFACT_ROOT" "$DEVICE_UDID" "$RUN_ID-relaunch"
+if ! wait "$RELAUNCH_PID"; then
+  fail "Patrol relaunch leg failed after foreground capture"
+fi
 copy_container_evidence "$ARTIFACT_ROOT" "$DEVICE_UDID" after_relaunch
 
 log "extracting Debug Spine JSON evidence"
 extract_evidence_json "$ARTIFACT_ROOT" "$RESET_LOG" "$RELAUNCH_LOG"
 
-log "capturing final reset-state screenshot"
-xcrun simctl io "$DEVICE_UDID" screenshot \
-  "$ARTIFACT_ROOT/final-reset-state.png" >/dev/null
-
 log "extracting screenshot OCR text"
 extract_screenshot_ocr_text "$ARTIFACT_ROOT"
-
-log "extracting UI-tree text"
-extract_ui_tree_text "$ARTIFACT_ROOT" "$DEVICE_UDID"
 
 log "scanning evidence artifacts"
 write_summary 0

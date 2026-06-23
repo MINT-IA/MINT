@@ -44,8 +44,16 @@ command -v patrol
 ```bash
 cd <repo-root>
 
+# Linux/CI-safe static subset. This does not prove iOS runtime behavior.
+tools/checks/mint_runtime_debug_tooling_gate.sh --ci-static-only
+
 # iOS simulator debug-spine launch gate
 tools/checks/mint_runtime_debug_tooling_gate.sh
+
+# Local release/profile leakage scan. By default this builds/scans local iOS
+# no-codesign Runner.app artifacts. Use MINT_RELEASE_SCAN_PATHS for signed
+# IPA/AAB/APK/expanded artifact paths.
+tools/checks/mint_runtime_debug_tooling_gate.sh --release-scan-only
 ```
 
 ### Expected Results
@@ -54,6 +62,13 @@ tools/checks/mint_runtime_debug_tooling_gate.sh
 - The test asserts Debug Spine redacted JSON shape, not UI text.
 - No raw wizard answer, financial value, email, token, device id, or chat body
   appears in the JSON evidence.
+- The CI-safe static subset prints the local macOS runtime command and states
+  that it is not runtime proof.
+- Production workflows do not pass `ENABLE_ADMIN=1|true` or
+  `ENABLE_DEBUG_TOOLS=1|true`, including through dart-define files.
+- The local iOS release/profile Runner.app artifacts, or signed archives passed
+  through `MINT_RELEASE_SCAN_PATHS`, do not contain `/admin/debug-spine`,
+  Debug Spine labels, debug snapshot identifiers, or debug-tool flags.
 
 ## Future: CI Integration
 

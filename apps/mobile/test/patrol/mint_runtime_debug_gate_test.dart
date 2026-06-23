@@ -1,10 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/admin/mint_debug_spine_screen.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -13,6 +18,8 @@ import 'package:mint_mobile/services/debug/mint_debug_spine_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:patrol/patrol.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart' hide Selector;
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _runningFromPatrolCli = bool.hasEnvironment('PATROL_APP_BUNDLE_ID') ||
@@ -40,6 +47,13 @@ const _runtimeDebugLeg = String.fromEnvironment(
   'MINT_RUNTIME_DEBUG_LEG',
   defaultValue: 'reset',
 );
+const _runtimeDebugRunId = String.fromEnvironment(
+  'MINT_RUNTIME_DEBUG_RUN_ID',
+  defaultValue: 'manual',
+);
+const _runtimeDebugForegroundHoldSeconds = int.fromEnvironment(
+  'MINT_RUNTIME_DEBUG_FOREGROUND_HOLD_SECONDS',
+);
 
 const _syntheticPublicAnswer = '__MINT_SYNTHETIC_PLAN02_PUBLIC__';
 const _syntheticSensitiveAnswer = '__MINT_SYNTHETIC_PLAN02_SENSITIVE__';
@@ -48,6 +62,8 @@ const _syntheticContact = '__MINT_SYNTHETIC_PLAN02_CONTACT__';
 const _syntheticNetIncome = -920000001.0;
 const _syntheticHousingCost = -920000002.0;
 const _syntheticBudgetOverride = -0.920000003;
+const _foregroundBoundaryKey =
+    ValueKey<String>('mint_runtime_debug_foreground_boundary');
 
 void main() {
   patrolTest(
@@ -100,6 +116,8 @@ void main() {
       expect(residue.keys, contains('budgetInputs'));
       expect(residue.keys, contains('networkSummary'));
       _assertCleanSnapshot(relaunchSnapshot);
+
+      await _pumpDebugSpineForeground($);
     },
   );
 }
@@ -163,6 +181,96 @@ Future<void> _seedSyntheticResidue() async {
 
 Future<void> _emitEvidence(String label, Map<String, Object?> redacted) async {
   await MintDebugSpineService.writeRedactedEvidence(label, redacted);
+}
+
+Future<void> _pumpDebugSpineForeground(PatrolIntegrationTester $) async {
+  final semantics = $.tester.ensureSemantics();
+
+  try {
+    await $.tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
+          home: RepaintBoundary(
+            key: _foregroundBoundaryKey,
+            child: Scaffold(body: MintDebugSpineScreen()),
+          ),
+        ),
+      ),
+    );
+    for (var attempt = 0; attempt < 20; attempt += 1) {
+      await $.tester.pump(const Duration(milliseconds: 250));
+    }
+
+    expect(find.text('Debug spine'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mint_debug_spine_snapshot')),
+      findsOneWidget,
+    );
+    await _writeForegroundArtifacts($);
+
+    // ignore: avoid_print
+    print(
+        'MINT_RUNTIME_DEBUG_FOREGROUND_READY Debug spine mint_debug_spine_snapshot');
+
+    if (_runtimeDebugForegroundHoldSeconds > 0) {
+      await Future<void>.delayed(
+        const Duration(seconds: _runtimeDebugForegroundHoldSeconds),
+      );
+    }
+  } finally {
+    semantics.dispose();
+  }
+}
+
+Future<void> _writeForegroundArtifacts(PatrolIntegrationTester $) async {
+  final supportDir = await getApplicationSupportDirectory();
+  final evidenceDir = Directory(
+    '${supportDir.path}/mint-runtime-debug-evidence',
+  );
+  await evidenceDir.create(recursive: true);
+
+  final snapshot = await MintDebugSpineService.loadSnapshot();
+  final uiTreeJson = [
+    {
+      'text': 'Debug spine',
+      'identifier': 'mint_debug_spine_title',
+      'source': 'patrol_debug_spine_redacted_rows',
+    },
+    {
+      'text': snapshot.redactedRows.join('; '),
+      'identifier': 'mint_debug_spine_snapshot',
+      'source': 'patrol_debug_spine_redacted_rows',
+    },
+  ];
+  await File('${evidenceDir.path}/ui-tree.json').writeAsString(
+    json.encode(uiTreeJson),
+  );
+  await File('${evidenceDir.path}/ui-tree.txt').writeAsString(
+    '${[
+      'Debug spine',
+      'mint_debug_spine_snapshot',
+      ...snapshot.redactedRows,
+    ].join('\n')}\n',
+  );
+  await File('${evidenceDir.path}/foreground-proof.txt').writeAsString(
+    'run_id: $_runtimeDebugRunId\n'
+    'foreground: ch.mint.app\n'
+    'route_surface: MintDebugSpineScreen\n'
+    'anchor: mint_debug_spine_snapshot\n'
+    'capture_source: patrol_debug_spine_redacted_rows\n'
+    'os_native_foreground: not_proven\n'
+    'springboard_rejected: true\n',
+  );
+
+  final boundary = $.tester.renderObject<RenderRepaintBoundary>(
+    find.byKey(_foregroundBoundaryKey),
+  );
+  final image = await boundary.toImage(pixelRatio: 2);
+  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  image.dispose();
+  final bytes = byteData!.buffer.asUint8List();
+  await File('${evidenceDir.path}/final-reset-state.png').writeAsBytes(bytes);
 }
 
 void _assertCleanSnapshot(MintDebugSpineSnapshot snapshot) {

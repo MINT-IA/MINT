@@ -34,7 +34,12 @@ jobs:
               - 'tools/openapi/**'
             flutter:
               - 'apps/mobile/**'
+              - '.github/workflows/ci.yml'
+              - '.github/workflows/patrol.md'
               - 'tools/checks/mint_debug_spine_gate.sh'
+              - 'tools/checks/mint_runtime_debug_tooling_gate.sh'
+              - 'tools/checks/mint_runtime_debug_release_scan.py'
+              - 'tools/checks/tests/test_mint_runtime_debug_release_scan.py'
 
   # ─── Contracts drift guard (VoiceCursorContract codegen) ─────
   # Regenerates Dart + Python contract consumers from tools/contracts/voice_cursor.json
@@ -466,10 +471,10 @@ jobs:
           fi
           echo "Analyze passed (0 errors, $warnings warnings, $infos infos)"
 
-      - name: Mint debug spine gate
+      - name: Mint runtime debug tooling static gate
         if: matrix.shard == 'services'
         shell: bash
-        run: ../../tools/checks/mint_debug_spine_gate.sh
+        run: ../../tools/checks/mint_runtime_debug_tooling_gate.sh --ci-static-only
 
       - name: Run tests (${{ matrix.shard }} shard)
         shell: bash
@@ -644,7 +649,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install release scanner test dependency
+        run: pip install pytest
+      - name: Release scanner unit tests
+        run: python3 -m pytest tools/checks/tests/test_mint_runtime_debug_release_scan.py -q --tb=short
       - name: Scan prod workflows for unsafe dart-defines
+        run: python3 tools/checks/mint_runtime_debug_release_scan.py --workflows-only
+      - name: Scan prod workflows for model credential defines
         run: |
           set -euo pipefail
           FOUND=0
@@ -653,10 +667,6 @@ jobs:
               echo "[info] $wf not present — skipping"
               continue
             fi
-            if grep -nE "dart-define=ENABLE_ADMIN=1" "$wf"; then
-              echo "::error file=$wf::ENABLE_ADMIN=1 detected in prod build workflow — D-03 tree-shake contract violated"
-              FOUND=1
-            fi
             if grep -nHE "HUGGINGFACE_TOKEN|SLM_MODEL_URL" "$wf" \
               | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'; then
               echo "::error file=$wf::SLM model URL/token detected in release workflow — do not embed model credentials in signed binaries"
@@ -664,7 +674,7 @@ jobs:
             fi
           done
           if [ "$FOUND" -ne 0 ]; then exit 1; fi
-          echo "[OK] no unsafe release dart-defines in prod build workflows"
+          echo "[OK] no model URL/token release dart-defines in prod build workflows"
       - name: Scan iOS Release Info.plist for debug keys
         run: python3 tools/checks/ios_release_info_plist_drift.py
 
