@@ -1599,7 +1599,7 @@ class SFr extends S {
   String get profileAdminObservability => 'Admin observability';
 
   @override
-  String get profileDeleteCloudAccount => 'Supprimer mon compte cloud';
+  String get profileDeleteCloudAccount => 'Supprimer mon compte';
 
   @override
   String get dashboardGoalRetirement => 'Retraite';
@@ -5149,7 +5149,7 @@ class SFr extends S {
 
   @override
   String get profileDeleteAccountContent =>
-      'Cette action supprime ton compte cloud et les données associées. Tes données locales restent sur cet appareil.';
+      'Cette action supprime ton compte MINT et les données associées de nos serveurs. Les données locales de cet appareil seront aussi effacées.';
 
   @override
   String get profileDeleteCancel => 'Annuler';

@@ -655,7 +655,7 @@
   "profileBilanSubtitleIncomplete": "Completa il tuo profilo per vedere i tuoi numeri",
   "profileLanguageTitle": "Lingua",
   "profileAdminObservability": "Admin observability",
-  "profileDeleteCloudAccount": "Elimina il mio account cloud",
+  "profileDeleteCloudAccount": "Elimina il mio account",
   "dashboardGoalRetirement": "Pensionamento",
   "dashboardAppBarWithName": "Pensionamento · {firstName}",
   "@dashboardAppBarWithName": {
@@ -2416,7 +2416,7 @@
   "profileFamilySection": "Famiglia",
   "profileAnalyticsBeta": "Analytics beta tester",
   "profileDeleteAccountTitle": "Eliminare l'account?",
-  "profileDeleteAccountContent": "Questa azione elimina il tuo account cloud e i dati associati. I tuoi dati locali restano su questo dispositivo.",
+  "profileDeleteAccountContent": "Questa azione eliminerà il tuo account MINT e i dati associati dai nostri server. Anche i dati locali su questo dispositivo saranno eliminati.",
   "profileDeleteCancel": "Annulla",
   "profileDeleteConfirm": "Elimina",
   "consentAllRevoked": "Tutti i consensi opzionali sono stati revocati.",

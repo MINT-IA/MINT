@@ -1590,7 +1590,7 @@ class SEn extends S {
   String get profileAdminObservability => 'Admin observability';
 
   @override
-  String get profileDeleteCloudAccount => 'Delete my cloud account';
+  String get profileDeleteCloudAccount => 'Delete my account';
 
   @override
   String get dashboardGoalRetirement => 'Retirement';
@@ -5115,7 +5115,7 @@ class SEn extends S {
 
   @override
   String get profileDeleteAccountContent =>
-      'This action deletes your cloud account and associated data. Your local data remains on this device.';
+      'This will delete your MINT account and the associated data from our servers. Local data on this device will also be erased.';
 
   @override
   String get profileDeleteCancel => 'Cancel';

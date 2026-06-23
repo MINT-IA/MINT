@@ -1593,7 +1593,7 @@ class SPt extends S {
   String get profileAdminObservability => 'Admin observability';
 
   @override
-  String get profileDeleteCloudAccount => 'Eliminar a minha conta cloud';
+  String get profileDeleteCloudAccount => 'Eliminar a minha conta';
 
   @override
   String get dashboardGoalRetirement => 'Reforma';
@@ -5145,7 +5145,7 @@ class SPt extends S {
 
   @override
   String get profileDeleteAccountContent =>
-      'Esta ação elimina a tua conta cloud e os dados associados. Os teus dados locais permanecem neste dispositivo.';
+      'Esta ação eliminará a tua conta MINT e os dados associados dos nossos servidores. Os dados locais neste dispositivo também serão eliminados.';
 
   @override
   String get profileDeleteCancel => 'Cancelar';

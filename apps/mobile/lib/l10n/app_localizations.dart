@@ -2994,7 +2994,7 @@ abstract class S {
   /// No description provided for @profileDeleteCloudAccount.
   ///
   /// In fr, this message translates to:
-  /// **'Supprimer mon compte cloud'**
+  /// **'Supprimer mon compte'**
   String get profileDeleteCloudAccount;
 
   /// No description provided for @dashboardGoalRetirement.
@@ -9319,7 +9319,7 @@ abstract class S {
   /// No description provided for @profileDeleteAccountContent.
   ///
   /// In fr, this message translates to:
-  /// **'Cette action supprime ton compte cloud et les données associées. Tes données locales restent sur cet appareil.'**
+  /// **'Cette action supprime ton compte MINT et les données associées de nos serveurs. Les données locales de cet appareil seront aussi effacées.'**
   String get profileDeleteAccountContent;
 
   /// No description provided for @profileDeleteCancel.
