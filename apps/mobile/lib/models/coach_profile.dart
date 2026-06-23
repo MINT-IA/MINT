@@ -2097,6 +2097,31 @@ class CoachProfile {
     return FinancialArchetype.expatNonEu;
   }
 
+  /// Current MINT coach calibration cohort.
+  ///
+  /// This is intentionally separate from [archetype]: a null nationality must
+  /// not be silently coerced to `CH`, while the product perimeter is residents
+  /// in Switzerland who are salaried and LPP-covered or salary-eligible.
+  bool get isCoachCalibrationEligible {
+    if (usTaxPerson == true || nationality == 'US') return false;
+    if (normalizeResidencePermit(residencePermit) == 'G') return false;
+
+    if (!resolveCanton(canton).isResolved) return false;
+
+    if (!userProvidedFields.contains('employmentStatus') ||
+        employmentStatus != 'salarie') {
+      return false;
+    }
+
+    final hasLppValue = (prevoyance.avoirLppTotal ?? 0) > 0;
+    final explicitlyNoLpp = userProvidedFields.contains('pensionFundNo');
+    if (explicitlyNoLpp) return false;
+
+    final aboveLppEntryThreshold = userProvidedFields.contains('salary') &&
+        revenuBrutAnnuel >= reg('lpp.entry_threshold', lppSeuilEntree);
+    return hasLppValue || aboveLppEntryThreshold;
+  }
+
   /// Whether the main user can contribute to pillar 3a.
   ///
   /// Returns false for US citizens/green card holders (FATCA — most 3a
@@ -3402,9 +3427,16 @@ class CoachProfile {
       provided.add('age');
     }
     if (answers.containsKey('q_canton')) provided.add('canton');
+    if (answers.containsKey('q_employment_status')) {
+      provided.add('employmentStatus');
+    }
     if (hasExplicitNetIncome || answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
       restoredDataSources['revenuBrutAnnuel'] = ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('q_has_pension_fund')) {
+      provided.add('pensionFund');
+      provided.add(hasPensionFund ? 'pensionFundYes' : 'pensionFundNo');
     }
     if (independentNetProfessionalIncomeAnnual != null &&
         independentNetProfessionalIncomeAnnual > 0) {

@@ -2,11 +2,14 @@
 ///
 /// Pure decision helper that the [_CoachChatScreenState] reads BEFORE
 /// constructing a [CoachContext]. Profiles whose archetype falls
-/// outside the route-accessible set are redirected to /waitlist. Calibrated
-/// profiles fall through to the normal coach build path; narrowly
+/// outside the route-accessible set are redirected to /waitlist. Current
+/// calibration is a product cohort, not a nationality fallback: resident in
+/// Switzerland, salaried, and LPP-covered or salary-eligible. Narrowly
 /// route-accessible profiles may still be hard-gated by the orchestrator.
 ///
-/// The calibrated set remains `{FinancialArchetype.swissNative}`.
+/// `FinancialArchetype.swissNative` stays route-accessible for legacy and
+/// explicit-CH profiles, but a null nationality no longer forces waitlist when
+/// the current calibration cohort is otherwise satisfied.
 /// `FinancialArchetype.independentNoLpp` is route-accessible only so the
 /// audited deterministic no-LPP/3a fallback can build a real CoachContext;
 /// generic questions and streaming remain blocked at the orchestrator.
@@ -54,8 +57,15 @@ class CoachArchetypeGateVerdict {
 CoachArchetypeGateVerdict evaluateCoachArchetypeGate(CoachProfile profile) {
   final archetype = profile.archetype;
 
-  // Calibrated set = {swissNative}. Couple status does NOT change the gate
-  // decision because the typed getter returns swissNative for nationality=CH.
+  if (profile.isCoachCalibrationEligible) {
+    return const CoachArchetypeGateVerdict(
+      shouldBlock: false,
+      archetypeSlug: null,
+    );
+  }
+
+  // Legacy explicit-CH route: couple status does NOT change the gate decision
+  // because the typed getter returns swissNative for nationality=CH.
   if (archetype == FinancialArchetype.swissNative) {
     return const CoachArchetypeGateVerdict(
       shouldBlock: false,
