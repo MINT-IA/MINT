@@ -13,6 +13,7 @@
 /__e2e/row23-independent-no-lpp-profile | public
 /about | public
 /achievements | authenticated
+/admin/debug-spine | authenticated
 /admin/routes | authenticated
 /advisor | authenticated
 /advisor/plan-30-days | authenticated

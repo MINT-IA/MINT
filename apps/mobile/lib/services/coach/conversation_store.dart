@@ -128,6 +128,8 @@ class ConversationStore {
   /// Call on login (with userId) and on logout (with null).
   static void setCurrentUserId(String? userId) => _currentUserId = userId;
 
+  static String? get currentUserId => _currentUserId;
+
   static String _prefixForUser(String? userId) =>
       userId != null ? '${userId}_' : '';
 
@@ -306,6 +308,18 @@ class ConversationStore {
     return index;
   }
 
+  /// List conversation metadata for a namespace without switching global state.
+  ///
+  /// Pass `null` for anonymous conversations.
+  Future<List<ConversationMeta>> listConversationsForUser(
+    String? userId,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final index = await _loadIndexForPrefix(prefs, _prefixForUser(userId));
+    index.sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
+    return index;
+  }
+
   /// Delete a conversation (messages + metadata).
   Future<void> deleteConversation(String conversationId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -459,7 +473,14 @@ class ConversationStore {
 
   /// Load the conversation index from SharedPreferences.
   Future<List<ConversationMeta>> _loadIndex(SharedPreferences prefs) async {
-    final raw = prefs.getString('${_userPrefix()}$_indexKey');
+    return _loadIndexForPrefix(prefs, _userPrefix());
+  }
+
+  Future<List<ConversationMeta>> _loadIndexForPrefix(
+    SharedPreferences prefs,
+    String prefix,
+  ) async {
+    final raw = prefs.getString('$prefix$_indexKey');
     if (raw == null) return [];
 
     try {

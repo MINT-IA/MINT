@@ -53,6 +53,7 @@ REGISTRY_DART = REPO_ROOT / "apps" / "mobile" / "lib" / "routes" / "route_metada
 # in prod builds per D-06 + D-10). Adding new admin-conditional routes requires
 # updating both this set AND KNOWN-MISSES.md Category 7.
 _ADMIN_CONDITIONAL: Set[str] = {
+    "/admin/debug-spine",
     "/admin/routes",
 }
 

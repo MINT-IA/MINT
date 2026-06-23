@@ -73,6 +73,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  patrol: ^4.6.1
   flutter_lints: ^3.0.0
   # Brand app icon generator — reads assets/branding/menthe/flat-1024.png
   # and produces all iOS sizes + Android mipmaps + web favicons in one shot.
@@ -125,6 +126,14 @@ flutter_launcher_icons:
     image_path: "assets/branding/menthe/flat-1024.png"
     background_color: "#9EE5C5"
     theme_color: "#9EE5C5"
+
+patrol:
+  app_name: Mint
+  test_directory: test/patrol
+  android:
+    package_name: ch.mint.coach
+  ios:
+    bundle_id: ch.mint.app
 
 flutter:
   generate: true

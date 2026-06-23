@@ -230,6 +230,34 @@ void main() {
       }
     });
 
+    test('admin debug spine requires the debug tools compile-time gate', () {
+      const route = '/admin/debug-spine';
+      final debugRouteIndex = appSource.indexOf("path: '$route'");
+      expect(debugRouteIndex, isNonNegative);
+
+      final scopedRouteIndex =
+          appSource.lastIndexOf('ScopedGoRoute(', debugRouteIndex);
+      expect(scopedRouteIndex, isNonNegative);
+
+      final previousNonEmptyLine = appSource
+          .substring(0, scopedRouteIndex)
+          .split('\n')
+          .reversed
+          .firstWhere((line) => line.trim().isNotEmpty)
+          .trim();
+      expect(
+        previousNonEmptyLine,
+        'if (MintDebugToolsGate.isAvailable) ...[',
+        reason: '$route must be immediately guarded by debug tools.',
+      );
+
+      final gateSource = File('lib/screens/admin/mint_debug_tools_gate.dart')
+          .readAsStringSync();
+      expect(gateSource, contains('ENABLE_DEBUG_TOOLS'));
+      expect(gateSource, contains('!kReleaseMode'));
+      expect(gateSource, contains('AdminGate.isAvailable'));
+    });
+
     test('onboarding routes are explicitly marked', () {
       final onboardingRoutes =
           routeScopes.where((e) => e.value == 'onboarding').toList();

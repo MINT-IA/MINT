@@ -167,8 +167,12 @@ class FeatureFlags {
   // Phase 32: equals compile-time flag (hardcoded true when ENABLE_ADMIN=1).
   // Phase 33 may refactor FeatureFlags to ChangeNotifier — `isAdmin`
   // would then become an instance-level getter.
+  static const String _adminCompileTimeValue = String.fromEnvironment(
+    'ENABLE_ADMIN',
+    defaultValue: 'false',
+  );
   static bool get isAdmin =>
-      const bool.fromEnvironment('ENABLE_ADMIN', defaultValue: false);
+      _adminCompileTimeValue == 'true' || _adminCompileTimeValue == '1';
 
   /// Local simulator proof overrides. Release builds ignore these through
   /// [E2eRuntimeFlags].

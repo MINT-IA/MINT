@@ -161,6 +161,8 @@ import 'package:mint_mobile/screens/explore/explore_hub_screen.dart';
 // Phase 32 MAP-02b — dev-only admin schema viewer (tree-shaken when ENABLE_ADMIN=0).
 import 'package:mint_mobile/screens/admin/admin_gate.dart';
 import 'package:mint_mobile/screens/admin/admin_shell.dart';
+import 'package:mint_mobile/screens/admin/mint_debug_spine_screen.dart';
+import 'package:mint_mobile/screens/admin/mint_debug_tools_gate.dart';
 import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 // Phase 32 MAP-05 — legacy redirect hit breadcrumb (wired at 43 call-sites below).
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
@@ -1572,6 +1574,15 @@ final _router = GoRouter(
         ),
       ),
       // Phase 33 adds /admin/flags here using the same AdminShell.
+    ],
+    if (MintDebugToolsGate.isAvailable) ...[
+      ScopedGoRoute(
+        path: '/admin/debug-spine',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminShell(
+          child: MintDebugSpineScreen(),
+        ),
+      ),
     ],
 
     // ── OUTILS & DIVERS ─────────────────────────────────────

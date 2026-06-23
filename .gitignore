@@ -28,6 +28,7 @@ services/backend/.venv/
 # Flutter generated
 apps/mobile/.flutter-plugins
 apps/mobile/.flutter-plugins-dependencies
+apps/mobile/test/patrol/test_bundle.dart
 
 # Fastlane artifacts
 apps/mobile/ios/fastlane/README.md
