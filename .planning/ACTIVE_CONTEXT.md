@@ -12,6 +12,8 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
   self-references the active context as a placeholder; no successor product
   phase is queued yet.
+- Temporary hotfix branch: `codex/account-lifecycle-gate-20260624` is
+  authorized only for the account lifecycle/onboarding gate hotfix.
 
 ## Required Session Start
 

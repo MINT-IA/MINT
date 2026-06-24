@@ -10,7 +10,8 @@
   "allowed_branches": [
     "dev",
     "staging",
-    "main"
+    "main",
+    "codex/account-lifecycle-gate-20260624"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [
