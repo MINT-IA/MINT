@@ -163,6 +163,60 @@ void main() {
   });
 
   group('CoachProfileSeed.toWizardAnswers — data spine sim contract', () {
+    test('cadre_salarie_lpp_suisse_ready hydrates rich salaried LPP data', () {
+      final seed = CoachProfileSeeds.registry['cadre_salarie_lpp_suisse_ready'];
+
+      expect(seed, isNotNull,
+          reason: 'The default runtime persona must be a rich salaried/LPP '
+              'profile, not a thin swiss_native fallback.');
+
+      final answers = seed!.toWizardAnswers(now: DateTime(2026));
+      expect(answers['q_employment_status'], 'employed');
+      expect(answers['q_canton'], 'VS');
+      expect(answers['q_net_income_period_chf'], 7500.0);
+      expect(answers['q_has_pension_fund'], isTrue);
+      expect(answers['_coach_avoir_lpp'], 94000.0);
+      expect(answers['_coach_avoir_lpp_oblig'], 76000.0);
+      expect(answers['_coach_avoir_lpp_suroblig'], 18000.0);
+      expect(answers['_coach_salaire_assure'], 86000.0);
+      expect(answers['_coach_rachat_maximum'], 42000.0);
+      expect(answers['_coach_lpp_source'], 'document_scan');
+      expect(answers['q_3a_total'], 22000.0);
+      expect(answers['q_housing_cost_period_chf'], 1850.0);
+      expect(answers['q_lamal_premium_monthly_chf'], 430.0);
+      expect(answers['q_cash_total'], 30000.0);
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.firstName, 'Alex');
+      expect(profile.age, 33);
+      expect(profile.canton, 'VS');
+      expect(profile.archetype, FinancialArchetype.swissNative);
+      expect(profile.employmentStatus, 'salarie');
+      expect(profile.explicitMonthlyNetIncome, 7500.0);
+      expect(profile.prevoyance.avoirLppTotal, 94000.0);
+      expect(profile.prevoyance.avoirLppObligatoire, 76000.0);
+      expect(profile.prevoyance.avoirLppSurobligatoire, 18000.0);
+      expect(profile.prevoyance.salaireAssure, 86000.0);
+      expect(profile.prevoyance.rachatMaximum, 42000.0);
+      expect(profile.prevoyance.totalEpargne3a, 22000.0);
+      expect(
+        profile.dataSources['prevoyance.avoirLppTotal'],
+        ProfileDataSource.certificate,
+      );
+
+      final packet = CoachContextPacketAdapter.fromProfile(profile);
+      final factIds = (packet['facts'] as List)
+          .whereType<Map>()
+          .map((fact) => fact['id'])
+          .toSet();
+
+      expect(factIds, contains('budget.monthly_capacity'));
+      expect(factIds, contains('pillar.lpp.total_balance'));
+      expect(factIds, contains('pillar.lpp.insured_salary'));
+      expect(factIds, contains('pillar.lpp.buyback_max'));
+      expect(factIds, contains('pillar.3a.total_balance'));
+    });
+
     test('julien_swiss seed hydrates a packet-visible coach profile', () {
       final seed = CoachProfileSeeds.registry['julien_swiss']!;
 

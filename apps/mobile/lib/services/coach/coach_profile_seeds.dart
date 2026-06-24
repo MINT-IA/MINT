@@ -5,10 +5,8 @@
 /// widget-test runs). Closes phantom contract C1: the v2.10 audit
 /// flagged this primitive as declared-but-never-called.
 ///
-/// Pinned to the 4 v2.10 walker archetypes (julien_swiss /
-/// couple_acheteurs_lausanne / jeune_diplome_zurich /
-/// cadre_40_55_lpp_rachat). New seeds require a coordinated bump of
-/// the walker fixture set + this file.
+/// Pinned runtime seeds for walker / widget-test archetypes. New seeds require
+/// a coordinated bump of the walker fixture set + this file.
 ///
 /// SECURITY (ECLW-04 spirit): the dart-define is a build-time constant.
 /// Release builds get an empty string and [activeSeed] returns null.
@@ -65,8 +63,57 @@ class CoachProfileSeed {
   /// Explicit annual 3a contribution in CHF.
   final double? annual3aContribution;
 
+  /// Explicit 3a balance in CHF.
+  final double? threeABalance;
+
   /// Explicit number of 3a accounts.
   final int? threeAAccountsCount;
+
+  /// Explicit civil status answer (`single`, `married`, ...).
+  final String? civilStatus;
+
+  /// Explicit housing status answer (`renter`, `owner`, ...).
+  final String? housingStatus;
+
+  /// Explicit monthly housing cost in CHF.
+  final double? housingCostMonthly;
+
+  /// Explicit monthly LAMal premium in CHF.
+  final double? lamalPremiumMonthly;
+
+  /// Explicit monthly tax provision in CHF.
+  final double? taxProvisionMonthly;
+
+  /// Explicit monthly fixed costs beyond housing/LAMal in CHF.
+  final double? otherFixedCostsMonthly;
+
+  /// Explicit planned monthly savings in CHF.
+  final double? savingsMonthly;
+
+  /// Explicit liquid cash/savings in CHF.
+  final double? cashTotal;
+
+  /// Explicit investments total in CHF.
+  final double? investmentsTotal;
+
+  /// Explicit LPP total balance in CHF.
+  final double? lppBalanceTotal;
+
+  /// Explicit LPP mandatory balance in CHF.
+  final double? lppMandatoryBalance;
+
+  /// Explicit LPP supplementary balance in CHF.
+  final double? lppSupplementaryBalance;
+
+  /// Explicit LPP insured salary in CHF.
+  final double? lppInsuredSalary;
+
+  /// Explicit LPP buyback room in CHF.
+  final double? lppBuybackMax;
+
+  /// Source marker for explicit LPP fields. Use `document_scan` when the seed
+  /// represents certificate-like data so the spine treats the figures as known.
+  final String? lppSource;
 
   /// FATCA short-circuit signal (sub-phase 01.5 Wave 02 plan 06).
   ///
@@ -98,7 +145,23 @@ class CoachProfileSeed {
     this.independentNetProfessionalIncomeAnnual,
     this.hasPensionFund,
     this.annual3aContribution,
+    this.threeABalance,
     this.threeAAccountsCount,
+    this.civilStatus,
+    this.housingStatus,
+    this.housingCostMonthly,
+    this.lamalPremiumMonthly,
+    this.taxProvisionMonthly,
+    this.otherFixedCostsMonthly,
+    this.savingsMonthly,
+    this.cashTotal,
+    this.investmentsTotal,
+    this.lppBalanceTotal,
+    this.lppMandatoryBalance,
+    this.lppSupplementaryBalance,
+    this.lppInsuredSalary,
+    this.lppBuybackMax,
+    this.lppSource,
     this.usTaxPerson,
     this.nationality,
   });
@@ -143,17 +206,25 @@ class CoachProfileSeed {
     final hasLpp = hasPensionFund ?? usTaxPerson != true;
     final annual3a = annual3aContribution ?? (hasLpp ? 7056.0 : 0.0);
     final threeAAccounts = threeAAccountsCount ?? (hasLpp ? 1 : 0);
-    final has3a = annual3a > 0 || threeAAccounts > 0;
+    final has3a = annual3a > 0 ||
+        threeAAccounts > 0 ||
+        (threeABalance != null && threeABalance! > 0);
     final savingsAllocation = <String>[
       if (annual3a > 0) '3a',
       'investissement',
       'epargne_libre',
     ];
+    final lppHasExplicitFacts = lppBalanceTotal != null ||
+        lppMandatoryBalance != null ||
+        lppSupplementaryBalance != null ||
+        lppInsuredSalary != null ||
+        lppBuybackMax != null;
 
     return <String, dynamic>{
       'q_firstname': firstName,
       'q_birth_year': birthYear,
       'q_canton': canton,
+      if (civilStatus != null) 'q_civil_status': civilStatus,
       'q_pay_frequency': 'monthly',
       'q_gross_salary_annual': grossMonthlySalary * 12,
       'q_net_income_period_chf': monthlyNetIncome,
@@ -162,20 +233,32 @@ class CoachProfileSeed {
             independentNetProfessionalIncomeAnnual,
       'q_employment_status': employmentStatus,
       'q_household_type': 'single',
-      'q_housing_cost_period_chf': (monthlyNetIncome * 0.26).roundToDouble(),
+      if (housingStatus != null) 'q_housing_status': housingStatus,
+      'q_housing_cost_period_chf':
+          housingCostMonthly ?? (monthlyNetIncome * 0.26).roundToDouble(),
       'q_tax_provision_monthly_chf':
-          (grossMonthlySalary * 0.15).roundToDouble(),
-      'q_lamal_premium_monthly_chf': 420.0,
-      'q_other_fixed_costs_monthly_chf': 850.0,
-      'q_savings_monthly': (monthlyNetIncome * 0.16).roundToDouble(),
+          taxProvisionMonthly ?? (grossMonthlySalary * 0.15).roundToDouble(),
+      'q_lamal_premium_monthly_chf': lamalPremiumMonthly ?? 420.0,
+      'q_other_fixed_costs_monthly_chf': otherFixedCostsMonthly ?? 850.0,
+      'q_savings_monthly':
+          savingsMonthly ?? (monthlyNetIncome * 0.16).roundToDouble(),
       'q_savings_allocation': savingsAllocation,
       'q_has_pension_fund': hasLpp,
       'q_has_3a': has3a,
       'q_3a_annual_contribution': annual3a,
+      if (threeABalance != null) 'q_3a_total': threeABalance,
       'q_3a_accounts_count': threeAAccounts,
       'q_has_investments': true,
-      'q_cash_total': monthlyNetIncome * 3,
-      'q_investments_total': monthlyNetIncome * 6,
+      'q_cash_total': cashTotal ?? monthlyNetIncome * 3,
+      'q_investments_total': investmentsTotal ?? monthlyNetIncome * 6,
+      if (lppBalanceTotal != null) '_coach_avoir_lpp': lppBalanceTotal,
+      if (lppMandatoryBalance != null)
+        '_coach_avoir_lpp_oblig': lppMandatoryBalance,
+      if (lppSupplementaryBalance != null)
+        '_coach_avoir_lpp_suroblig': lppSupplementaryBalance,
+      if (lppInsuredSalary != null) '_coach_salaire_assure': lppInsuredSalary,
+      if (lppBuybackMax != null) '_coach_rachat_maximum': lppBuybackMax,
+      if (lppHasExplicitFacts) '_coach_lpp_source': lppSource ?? 'manual_seed',
       'q_avs_lacunes_status': 'unknown',
       'q_has_consumer_debt': false,
       'q_nationality':
@@ -185,7 +268,7 @@ class CoachProfileSeed {
   }
 }
 
-/// Static registry of the 4 v2.10 walker archetype seeds.
+/// Static registry of walker/runtime archetype seeds.
 class CoachProfileSeeds {
   CoachProfileSeeds._();
 
@@ -230,6 +313,40 @@ class CoachProfileSeeds {
       canton: 'GE',
       archetype: 'swiss_native',
       grossMonthlySalary: 13500,
+    ),
+    // Canonical rich runtime persona for account/onboarding/profile gates.
+    // This is intentionally salaried, Swiss-resident, and materially LPP-ready
+    // so simulator proofs exercise the real Mint surfaces instead of a thin
+    // fallback profile or estimated pension values.
+    'cadre_salarie_lpp_suisse_ready': CoachProfileSeed(
+      slug: 'cadre_salarie_lpp_suisse_ready',
+      firstName: 'Alex',
+      age: 33,
+      canton: 'VS',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 9600,
+      employmentStatus: 'employed',
+      netMonthlyIncome: 7500,
+      hasPensionFund: true,
+      annual3aContribution: 7056,
+      threeABalance: 22000,
+      threeAAccountsCount: 2,
+      civilStatus: 'single',
+      housingStatus: 'renter',
+      housingCostMonthly: 1850,
+      lamalPremiumMonthly: 430,
+      taxProvisionMonthly: 1450,
+      otherFixedCostsMonthly: 1250,
+      savingsMonthly: 1200,
+      cashTotal: 30000,
+      investmentsTotal: 45000,
+      lppBalanceTotal: 94000,
+      lppMandatoryBalance: 76000,
+      lppSupplementaryBalance: 18000,
+      lppInsuredSalary: 86000,
+      lppBuybackMax: 42000,
+      lppSource: 'document_scan',
+      nationality: 'CH',
     ),
     // Sub-phase 01.5 Wave 02 plan 06 — walker seed for archetype HARD GATE
     // testing. Hydrates a profile that resolves to FinancialArchetype.expatUs

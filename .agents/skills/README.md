@@ -1,8 +1,19 @@
-# `.agents/skills/` — universal-agent skills
+# `.agents/skills/` — MINT canonical skills
 
-Imported skills that work across multiple agent CLIs (Claude Code, Cursor, Copilot, etc.).
+This is the canonical cross-tool skill source for Mint. Claude, Codex, and any
+other agent runner should prefer `.agents/skills/mint-*` over generated or
+vendor skill caches.
 
-Distinct from `.claude/skills/` which holds Claude-Code-specific skills (autoresearch-*, gsd-*, etc.) and from `.claude/agents/` which holds subagent specs (wshobson + VoltAgent catalogs).
+Mint canonical skills:
+
+| Skill | Purpose |
+|-------|---------|
+| [mint-operating-gates](mint-operating-gates/SKILL.md) | Runtime, auth, privacy, onboarding, and release gates |
+| [mint-flutter-dev](mint-flutter-dev/SKILL.md) | Flutter changes in `apps/mobile/` |
+| [mint-backend-dev](mint-backend-dev/SKILL.md) | Backend changes in `services/backend/` |
+| [mint-swiss-compliance](mint-swiss-compliance/SKILL.md) | Swiss finance and compliance review |
+
+Imported skills remain available on-demand. They are not default routing.
 
 ## Currently installed
 

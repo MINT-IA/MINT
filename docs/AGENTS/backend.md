@@ -2,7 +2,9 @@
 
 > Loaded on-demand quand l'agent travaille dans `services/backend/` et détecte un contexte FastAPI/Python.
 > Tier 2 (project-specific). Tier 1 = `rules.md`.
-> Subagents : `backend-architect`, `fastapi-pro`, `python-pro` (+ `backend-security-coder` / `threat-modeling-expert` pour security pass, cf. CLAUDE.md §3.5).
+> Subagents par défaut : `mint-backend` + `mint-quality-gate`.
+> Les spécialistes vendor backend/security restent on-demand seulement pour un
+> gap nommé par l'agent Mint responsable.
 
 ## 1. Architecture
 
@@ -154,7 +156,8 @@ Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
 
 - `SOT.md` — data contracts (Profile, SessionReport, EnhancedConfidence).
 - `tools/openapi/mint.openapi.canonical.json` — API contract canonique.
-- Subagents `backend-architect` / `fastapi-pro` / `python-pro` — délégation auto par description matching pour chantiers/patterns concrets.
+- Subagents : `mint-backend` + `mint-quality-gate` par défaut. Les spécialistes
+  vendor backend/security restent disponibles uniquement pour un gap nommé.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.
 
 ## 14. Staging promotion authority

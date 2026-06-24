@@ -1,0 +1,37 @@
+{
+  "slug": "cadre_salarie_lpp_suisse_ready",
+  "label": "Cadre salarie suisse avec donnees LPP completes",
+  "profile": {
+    "age": 33,
+    "canton": "VS",
+    "employment_status": "employed",
+    "salary_brut_year": 115200,
+    "salary_net_month": 7500,
+    "has_lpp": true,
+    "lpp_balance": 94000,
+    "lpp_mandatory_balance": 76000,
+    "lpp_supplementary_balance": 18000,
+    "lpp_insured_salary": 86000,
+    "lpp_buyback_max": 42000,
+    "has_3a": true,
+    "3a_balance": 22000,
+    "3a_annual_contribution": 7056,
+    "marital_status": "single",
+    "housing_status": "renter",
+    "housing_cost_month": 1850,
+    "lamal_premium_month": 430,
+    "cash_total": 30000,
+    "investments_total": 45000,
+    "owns_property": false
+  },
+  "expected_eclairage": {
+    "kind": "lpp_rachat_3a_nantissement",
+    "value_min": 10000,
+    "value_max": 42000
+  },
+  "deterministic_prompts": [
+    "Est-ce que mon rachat LPP a du sens cette annee ?",
+    "Quelle marge 3a me reste-t-il avec mon salaire ?",
+    "Montre-moi mon budget avant de parler retraite."
+  ]
+}
