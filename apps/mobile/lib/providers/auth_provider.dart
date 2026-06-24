@@ -535,7 +535,8 @@ class AuthProvider extends ChangeNotifier {
         // silent restore; a signed account must not inherit guest chat state
         // by accident.
         await _migrateLocalDataIfNeeded();
-        await _hydrateProfileFromBackend();
+        final hasProfile = await _hydrateProfileFromBackend();
+        _authLifecycle = _settledAccountLifecycle(hasProfile: hasProfile);
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
         } catch (e) {
@@ -625,7 +626,8 @@ class AuthProvider extends ChangeNotifier {
 
       if (_isLoggedIn) {
         await _migrateLocalDataIfNeeded(claimAnonymousConversations: true);
-        await _hydrateProfileFromBackend();
+        final hasProfile = await _hydrateProfileFromBackend();
+        _authLifecycle = _settledAccountLifecycle(hasProfile: hasProfile);
         // Best-effort: schedule fresh-start notifications
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
@@ -685,7 +687,8 @@ class AuthProvider extends ChangeNotifier {
 
       await _migrateLocalDataIfNeeded();
       // FIX-W11-5: Hydrate local state from backend on new device login
-      await _hydrateProfileFromBackend();
+      final hasProfile = await _hydrateProfileFromBackend();
+      _authLifecycle = _settledAccountLifecycle(hasProfile: hasProfile);
       // Schedule fresh-start notifications (best-effort)
       try {
         await FreshStartService().scheduleAllFreshStartNotifications();
@@ -772,7 +775,8 @@ class AuthProvider extends ChangeNotifier {
       await _migrateLocalDataIfNeeded(
         claimAnonymousConversations: claimAnonymousConversations,
       );
-      await _hydrateProfileFromBackend();
+      final hasProfile = await _hydrateProfileFromBackend();
+      _authLifecycle = _settledAccountLifecycle(hasProfile: hasProfile);
       try {
         await FreshStartService().scheduleAllFreshStartNotifications();
       } catch (_) {}
@@ -866,7 +870,8 @@ class AuthProvider extends ChangeNotifier {
       if (_userId != null) {
         ConversationStore.setCurrentUserId(_userId);
         await _migrateLocalDataIfNeeded();
-        await _hydrateProfileFromBackend();
+        final hasProfile = await _hydrateProfileFromBackend();
+        _authLifecycle = _settledAccountLifecycle(hasProfile: hasProfile);
       }
 
       notifyListeners();
@@ -1239,14 +1244,31 @@ class AuthProvider extends ChangeNotifier {
   /// On a new device the local SharedPreferences are empty. This fetches
   /// the cloud profile and seeds the most critical fields so screens
   /// don't show an empty state.
-  Future<void> _hydrateProfileFromBackend() async {
+  AuthLifecycleState _settledAccountLifecycle({required bool hasProfile}) {
+    final currentUserId = _userId;
+    if (currentUserId == null || currentUserId.isEmpty) {
+      return AuthLifecycleState.sessionExpired();
+    }
+    if (!hasProfile) {
+      return AuthLifecycleState.signedInProfileMissing(
+        userId: currentUserId,
+        cloudSyncEnabled: isCloudSyncEnabled,
+      );
+    }
+    return isCloudSyncEnabled
+        ? AuthLifecycleState.cloudSyncOnAccount(userId: currentUserId)
+        : AuthLifecycleState.syncOffAccount(userId: currentUserId);
+  }
+
+  Future<bool> _hydrateProfileFromBackend() async {
+    var existingAnswers = <String, dynamic>{};
     try {
       final prefs = await SharedPreferences.getInstance();
       final currentUserId = _userId;
       final accountOwnsLocalAnswers = currentUserId != null &&
           prefs.getString('local_data_owner') == currentUserId &&
           (prefs.getBool('local_data_migrated_$currentUserId') ?? false);
-      var existingAnswers = await ReportPersistenceService.loadAnswers();
+      existingAnswers = await ReportPersistenceService.loadAnswers();
       if (!accountOwnsLocalAnswers && existingAnswers.isNotEmpty) {
         await ReportPersistenceService.holdActiveDiagnosticForAnonymous();
         existingAnswers = const {};
@@ -1258,17 +1280,19 @@ class AuthProvider extends ChangeNotifier {
       final merged = _mergeBackendProfileData(answers, profileData);
 
       if (!accountOwnsLocalAnswers && profileData.isEmpty) {
-        return;
+        return false;
       }
 
       if (merged.isNotEmpty && !mapEquals(merged, existingAnswers)) {
         await ReportPersistenceService.saveAnswers(merged);
       }
+      return merged.isNotEmpty;
     } catch (e) {
       // Hydration is best-effort — never block login flow
       if (kDebugMode) {
         debugPrint('[AuthProvider] Profile hydration failed: $e');
       }
+      return existingAnswers.isNotEmpty;
     }
   }
 
@@ -1299,10 +1323,15 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_authLocalModeKey, _isLocalMode);
     if (_isLoggedIn && _userId != null) {
-      _authLifecycle = AuthLifecycleState.signedInProfileLoading(
-        userId: _userId!,
-        cloudSyncEnabled: enabled,
-      );
+      _authLifecycle =
+          _authLifecycle.state == AuthLifecycleKind.signedInProfileMissing
+              ? AuthLifecycleState.signedInProfileMissing(
+                  userId: _userId!,
+                  cloudSyncEnabled: enabled,
+                )
+              : _settledAccountLifecycle(
+                  hasProfile: _authLifecycle.allowsMainNavigation,
+                );
     }
     notifyListeners();
   }

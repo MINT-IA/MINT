@@ -35,6 +35,7 @@
     "feature/S10-mint2-real-device-restore-gate",
     "feature/S10-mint2-waitlist-eligibility-gate",
     "feature/S10-mint2-account-lifecycle-fatca-lock",
+    "feature/S10-mint2-reinstall-entry-gate",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],

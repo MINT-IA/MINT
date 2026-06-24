@@ -116,6 +116,41 @@ class AuthLifecycleState {
     );
   }
 
+  factory AuthLifecycleState.signedInProfileMissing({
+    required String userId,
+    required bool cloudSyncEnabled,
+  }) {
+    return AuthLifecycleState(
+      state: AuthLifecycleKind.signedInProfileMissing,
+      accessMode: AuthAccessMode.account,
+      activeDataScope: AuthDataScope.user(userId),
+      syncMode: cloudSyncEnabled
+          ? AuthSyncMode.cloudSyncOn
+          : AuthSyncMode.cloudSyncOff,
+      userId: userId,
+    );
+  }
+
+  factory AuthLifecycleState.syncOffAccount({required String userId}) {
+    return AuthLifecycleState(
+      state: AuthLifecycleKind.syncOffAccount,
+      accessMode: AuthAccessMode.account,
+      activeDataScope: AuthDataScope.user(userId),
+      syncMode: AuthSyncMode.cloudSyncOff,
+      userId: userId,
+    );
+  }
+
+  factory AuthLifecycleState.cloudSyncOnAccount({required String userId}) {
+    return AuthLifecycleState(
+      state: AuthLifecycleKind.cloudSyncOnAccount,
+      accessMode: AuthAccessMode.account,
+      activeDataScope: AuthDataScope.user(userId),
+      syncMode: AuthSyncMode.cloudSyncOn,
+      userId: userId,
+    );
+  }
+
   factory AuthLifecycleState.sessionExpired() {
     return const AuthLifecycleState(
       state: AuthLifecycleKind.sessionExpired,
@@ -132,9 +167,32 @@ class AuthLifecycleState {
   final String? userId;
 
   bool get allowsMainNavigation {
-    return activeDataScope != AuthDataScope.none &&
-        (accessMode == AuthAccessMode.guestLocal ||
-            accessMode == AuthAccessMode.account);
+    if (activeDataScope == AuthDataScope.none) return false;
+    switch (state) {
+      case AuthLifecycleKind.guestEmpty:
+      case AuthLifecycleKind.guestHasLocalData:
+      case AuthLifecycleKind.signedInReady:
+      case AuthLifecycleKind.syncOffAccount:
+      case AuthLifecycleKind.cloudSyncOnAccount:
+      case AuthLifecycleKind.offlineSignedInStale:
+        return accessMode == AuthAccessMode.guestLocal ||
+            accessMode == AuthAccessMode.account;
+      case AuthLifecycleKind.sessionRestoring:
+      case AuthLifecycleKind.freshVisitor:
+      case AuthLifecycleKind.migrationOffered:
+      case AuthLifecycleKind.migrationConflict:
+      case AuthLifecycleKind.signedInProfileLoading:
+      case AuthLifecycleKind.signedInProfileMissing:
+      case AuthLifecycleKind.signedInIncomplete:
+      case AuthLifecycleKind.sessionExpired:
+      case AuthLifecycleKind.credentialRevoked:
+      case AuthLifecycleKind.deletionConfirming:
+      case AuthLifecycleKind.deletionPending:
+      case AuthLifecycleKind.deletionFailed:
+      case AuthLifecycleKind.deletedLocalCleanup:
+      case AuthLifecycleKind.deletedSignedOut:
+        return false;
+    }
   }
 
   bool get hasAccountSession {

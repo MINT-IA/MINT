@@ -34,26 +34,28 @@ void main() {
       expect(state.activeDataScope, AuthDataScope.guest('install-1'));
     });
 
-    test(
-      'signed-in account enters main navigation regardless of sync mode',
-      () {
-        final syncOff = AuthLifecycleState.signedInProfileLoading(
-          userId: 'u1',
-          cloudSyncEnabled: false,
-        );
-        final syncOn = AuthLifecycleState.signedInProfileLoading(
-          userId: 'u1',
-          cloudSyncEnabled: true,
-        );
+    test('profile-ready account enters main navigation regardless of sync mode',
+        () {
+      final syncOff = AuthLifecycleState.syncOffAccount(userId: 'u1');
+      final syncOn = AuthLifecycleState.cloudSyncOnAccount(userId: 'u1');
 
-        expect(syncOff.allowsMainNavigation, isTrue);
-        expect(syncOn.allowsMainNavigation, isTrue);
-        expect(syncOff.hasAccountSession, isTrue);
-        expect(syncOn.hasAccountSession, isTrue);
-        expect(syncOff.accessMode, AuthAccessMode.account);
-        expect(syncOn.accessMode, AuthAccessMode.account);
-      },
-    );
+      expect(syncOff.allowsMainNavigation, isTrue);
+      expect(syncOn.allowsMainNavigation, isTrue);
+      expect(syncOff.hasAccountSession, isTrue);
+      expect(syncOn.hasAccountSession, isTrue);
+      expect(syncOff.accessMode, AuthAccessMode.account);
+      expect(syncOn.accessMode, AuthAccessMode.account);
+    });
+
+    test('profile-loading account cannot enter main navigation yet', () {
+      final state = AuthLifecycleState.signedInProfileLoading(
+        userId: 'u1',
+        cloudSyncEnabled: false,
+      );
+
+      expect(state.allowsMainNavigation, isFalse);
+      expect(state.hasAccountSession, isTrue);
+    });
 
     test(
       'guest mode is main-navigation capable but not an account session',
