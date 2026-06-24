@@ -199,6 +199,66 @@ def test_apple_verify_reuses_account_by_stable_sub_when_email_changes(
     assert second.json()["userId"] == first.json()["userId"]
 
 
+def test_apple_verify_after_account_delete_returns_recreate_required_without_token(
+    client: TestClient,
+    monkeypatch,
+):
+    """Deleted Apple subjects must not silently create a fresh authenticated session."""
+    app.dependency_overrides.pop(require_current_user, None)
+    app.dependency_overrides.pop(get_current_user, None)
+
+    payloads = {
+        "first-token": {
+            "sub": "001999.deleted-apple-sub",
+            "email": "deleted-apple@example.invalid",
+        },
+        "second-token": {
+            "sub": "001999.deleted-apple-sub",
+            "email": "deleted-apple@example.invalid",
+        },
+    }
+
+    def fake_verify(identity_token: str, nonce: str | None) -> dict[str, str]:
+        return payloads[identity_token]
+
+    monkeypatch.setattr(
+        auth_endpoint,
+        "_verify_apple_identity_token",
+        fake_verify,
+    )
+
+    first = client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identity_token": "first-token", "nonce": "nonce"},
+    )
+    assert first.status_code == 200
+    first_body = first.json()
+    access_token = first_body["accessToken"]
+
+    deleted = client.delete(
+        "/api/v1/auth/account",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert deleted.status_code == 200
+
+    stale_me = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert stale_me.status_code == 401
+
+    second = client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identity_token": "second-token", "nonce": "nonce"},
+    )
+
+    assert second.status_code == 409
+    second_body = second.json()
+    assert second_body["detail"] == "recreate_required"
+    assert "accessToken" not in second_body
+    assert "access_token" not in second_body
+
+
 def test_apple_verify_rejects_email_already_linked_to_different_sub(
     client: TestClient,
     monkeypatch,

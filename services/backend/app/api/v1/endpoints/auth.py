@@ -23,6 +23,7 @@ from app.core.auth import require_current_user
 from app.core.config import settings
 from app.core.rate_limit import limiter
 from app.models.analytics_event import AnalyticsEvent
+from app.models.audit_event import AuditEventModel
 from app.models.profile_model import ProfileModel
 from app.models.session_model import SessionModel
 from app.models.user import User
@@ -77,6 +78,7 @@ from app.services.auth_service import (
     is_jti_blacklisted,
 )
 from app.services.audit_service import log_audit_event as _raw_log_audit_event
+from app.services.audit.hmac_pepper import hmac_pii
 from app.services.auth_security_service import (
     get_login_block_seconds,
     record_failed_login,
@@ -182,6 +184,68 @@ def _ensure_empty_profile(db: Session, user_id: str) -> None:
     from app.services.profile_bootstrap import ensure_empty_profile
 
     ensure_empty_profile(db, user_id, commit=False)
+
+
+def _provider_subject_hash(provider: str, subject: Optional[str]) -> Optional[str]:
+    if subject is None or not subject.strip():
+        return None
+    return hmac_pii(f"{provider}:{subject.strip()}")
+
+
+def _deleted_provider_subject_hashes(user: User) -> dict[str, str]:
+    hashes: dict[str, str] = {}
+    apple_hash = _provider_subject_hash("apple", user.apple_sub)
+    if apple_hash is not None:
+        hashes["apple"] = apple_hash
+    return hashes
+
+
+def _has_deleted_provider_subject(
+    db: Session,
+    *,
+    provider: str,
+    subject: str,
+) -> bool:
+    subject_hash = _provider_subject_hash(provider, subject)
+    if subject_hash is None:
+        return False
+    return (
+        db.query(AuditEventModel.id)
+        .filter(
+            AuditEventModel.event_type == "auth.account_delete",
+            AuditEventModel.status == "success",
+            AuditEventModel.details_json.contains(subject_hash),
+        )
+        .first()
+        is not None
+    )
+
+
+def _recreate_required_for_deleted_provider_subject(
+    db: Session,
+    *,
+    provider: str,
+    subject: str,
+    request: Request,
+) -> None:
+    subject_hash = _provider_subject_hash(provider, subject)
+    log_audit_event(
+        db,
+        event_type="auth.apple_verify",
+        status="recreate_required",
+        source="api",
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        details={
+            "provider": provider,
+            "provider_subject_hash": subject_hash,
+        },
+    )
+    db.commit()
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail="recreate_required",
+    )
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
@@ -1028,6 +1092,7 @@ def delete_account(
     - Keep aggregate analytics rows by anonymizing user_id.
     """
     user_id = current_user.id
+    deleted_provider_subject_hashes = _deleted_provider_subject_hashes(current_user)
 
     # P0-3: Blacklist the current access token BEFORE deleting user data.
     # Prevents the token from being reused after account deletion.
@@ -1101,7 +1166,17 @@ def delete_account(
             db.query(SubscriptionModel).filter(
                 SubscriptionModel.id.in_(sub_ids)
             ).delete(synchronize_session=False)
-        log_audit_event(
+        audit_details = {
+            "deleted_profiles": deleted_profiles,
+            "deleted_sessions": deleted_sessions,
+            "anonymized_analytics_events": anonymized_analytics_events,
+        }
+        if deleted_provider_subject_hashes:
+            audit_details[
+                "deleted_provider_subject_hashes"
+            ] = deleted_provider_subject_hashes
+
+        _raw_log_audit_event(
             db,
             event_type="auth.account_delete",
             status="success",
@@ -1110,11 +1185,7 @@ def delete_account(
             actor_email=current_user.email,
             ip_address=_request_ip(request),
             user_agent=request.headers.get("user-agent"),
-            details={
-                "deleted_profiles": deleted_profiles,
-                "deleted_sessions": deleted_sessions,
-                "anonymized_analytics_events": anonymized_analytics_events,
-            },
+            details=audit_details,
         )
 
         # P0-2: Purge conversation memory — consents (including conversation_memory consent)
@@ -1347,6 +1418,14 @@ def apple_verify(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Apple identity token missing subject",
+        )
+
+    if _has_deleted_provider_subject(db, provider="apple", subject=apple_sub):
+        _recreate_required_for_deleted_provider_subject(
+            db,
+            provider="apple",
+            subject=apple_sub,
+            request=request,
         )
 
     # Find by Apple's stable subject first. Relay email can change.
