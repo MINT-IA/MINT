@@ -238,6 +238,7 @@ String? accountLifecyclePublicEntryRedirect({
   required String path,
 }) {
   if (!lifecycle.hasAccountSession) return null;
+  if (!lifecycle.allowsMainNavigation) return null;
   if (path == '/' || path == '/auth/login' || path == '/auth/register') {
     return '/home';
   }
@@ -250,12 +251,58 @@ String? accountLifecycleAuthenticatedRedirect({
   required String path,
 }) {
   if (lifecycle.allowsMainNavigation) return null;
+  if (lifecycle.state == AuthLifecycleKind.signedInProfileMissing ||
+      lifecycle.state == AuthLifecycleKind.signedInIncomplete) {
+    return '/onb';
+  }
   final encodedPath = Uri.encodeComponent(path);
   if (lifecycle.state == AuthLifecycleKind.sessionExpired ||
       lifecycle.state == AuthLifecycleKind.credentialRevoked) {
     return '/auth/login?redirect=$encodedPath';
   }
   return '/auth/register?redirect=$encodedPath';
+}
+
+bool _isMainShellPath(String path) {
+  return path == '/home' ||
+      path == '/mon-argent' ||
+      path == '/coach' ||
+      path.startsWith('/coach/') ||
+      path == '/explore' ||
+      path.startsWith('/explore/') ||
+      path == '/profile' ||
+      path.startsWith('/profile/');
+}
+
+bool _isProfileCorrectionPath(String path) {
+  return path == '/onb' ||
+      path.startsWith('/onb/') ||
+      path == '/waitlist' ||
+      path.startsWith('/waitlist/') ||
+      path == '/auth/login' ||
+      path == '/auth/register' ||
+      path.startsWith('/auth/');
+}
+
+String? _profileRequiredEntryRedirect({
+  required AuthLifecycleState lifecycle,
+  required String path,
+  required CoachProfile? profile,
+  required bool profileSettled,
+}) {
+  if (profile != null) return null;
+  if (_isProfileCorrectionPath(path)) return null;
+
+  final profileRequired = _isMainShellPath(path) ||
+      lifecycle.state == AuthLifecycleKind.signedInProfileMissing ||
+      lifecycle.state == AuthLifecycleKind.signedInIncomplete ||
+      (path == '/' &&
+          lifecycle.hasAccountSession &&
+          lifecycle.allowsMainNavigation);
+  if (!profileRequired) return null;
+
+  if (!profileSettled) return path == '/' ? null : '/';
+  return '/onb';
 }
 
 const Set<String> _publicRoutePathFallbacks = {
@@ -289,12 +336,21 @@ String? accountLifecycleAndArchetypeRedirect({
   required String path,
   required RouteBase? topRoute,
   required CoachProfile? profile,
+  bool profileSettled = true,
 }) {
   final archetypeRedirect = archetypeRedirectTarget(
     profile: profile,
     path: path,
   );
   if (archetypeRedirect != null) return archetypeRedirect;
+
+  final profileRedirect = _profileRequiredEntryRedirect(
+    lifecycle: lifecycle,
+    path: path,
+    profile: profile,
+    profileSettled: profileSettled,
+  );
+  if (profileRedirect != null) return profileRedirect;
 
   final scope = routeScopeForRedirect(
     path: path,
@@ -305,6 +361,7 @@ String? accountLifecycleAndArchetypeRedirect({
     case RouteScope.public:
       // A restored account must not see the signed-out landing/auth funnel
       // on cold relaunch. Guest-local public entry remains allowed.
+      if (profile == null) return null;
       return accountLifecyclePublicEntryRedirect(
         lifecycle: lifecycle,
         path: path,
@@ -387,12 +444,16 @@ final _router = GoRouter(
       // tab=0 or no tab → stay on /home (Aujourd'hui)
     }
 
+    final profileProvider = context.read<CoachProfileProvider>();
     return accountLifecycleAndArchetypeRedirect(
       lifecycle: auth.authLifecycle,
       location: state.uri.toString(),
       path: path,
       topRoute: state.topRoute,
-      profile: context.read<CoachProfileProvider>().profile,
+      profile: profileProvider.profile,
+      profileSettled: profileProvider.isLoaded &&
+          !profileProvider.isLoading &&
+          !profileProvider.isHydrating,
     );
   },
   routes: [

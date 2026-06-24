@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart' show RouteBase;
 import 'package:mint_mobile/app.dart'
     show
         accountLifecycleAndArchetypeRedirect,
@@ -10,48 +11,59 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 
+String? _redirect({
+  required AuthLifecycleState lifecycle,
+  required String path,
+  RouteBase? topRoute,
+  CoachProfile? profile,
+  bool profileSettled = true,
+}) {
+  return accountLifecycleAndArchetypeRedirect(
+    lifecycle: lifecycle,
+    location: path,
+    path: path,
+    topRoute: topRoute,
+    profile: profile,
+    profileSettled: profileSettled,
+  );
+}
+
+ScopedGoRoute _publicShellRoute(String path) {
+  return ScopedGoRoute(
+    path: path,
+    scope: RouteScope.public,
+    builder: (_, __) => throw UnimplementedError(),
+  );
+}
+
 void main() {
   group('account lifecycle public entry redirect', () {
     test('restored account skips landing and auth entry points', () {
-      final lifecycle = AuthLifecycleState.signedInProfileLoading(
-        userId: 'user-1',
-        cloudSyncEnabled: false,
-      );
+      final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
 
-      expect(
-        accountLifecyclePublicEntryRedirect(lifecycle: lifecycle, path: '/'),
-        '/home',
-      );
-      expect(
-        accountLifecyclePublicEntryRedirect(
-          lifecycle: lifecycle,
-          path: '/auth/login',
-        ),
-        '/home',
-      );
-      expect(
-        accountLifecyclePublicEntryRedirect(
-          lifecycle: lifecycle,
-          path: '/auth/register',
-        ),
-        '/home',
-      );
+      for (final path in ['/', '/auth/login', '/auth/register']) {
+        expect(
+          accountLifecyclePublicEntryRedirect(
+            lifecycle: lifecycle,
+            path: path,
+          ),
+          '/home',
+        );
+      }
     });
 
     test('guest local mode stays allowed on public entry points', () {
       final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
 
-      expect(
-        accountLifecyclePublicEntryRedirect(lifecycle: lifecycle, path: '/'),
-        isNull,
-      );
-      expect(
-        accountLifecyclePublicEntryRedirect(
-          lifecycle: lifecycle,
-          path: '/auth/login',
-        ),
-        isNull,
-      );
+      for (final path in ['/', '/auth/login']) {
+        expect(
+          accountLifecyclePublicEntryRedirect(
+            lifecycle: lifecycle,
+            path: path,
+          ),
+          isNull,
+        );
+      }
     });
 
     test('fresh visitor stays on public entry points', () {
@@ -119,10 +131,7 @@ void main() {
         );
         expect(
           accountLifecycleAuthenticatedRedirect(
-            lifecycle: AuthLifecycleState.signedInProfileLoading(
-              userId: 'user-1',
-              cloudSyncEnabled: false,
-            ),
+            lifecycle: AuthLifecycleState.syncOffAccount(userId: 'user-1'),
             path: '/home',
           ),
           isNull,
@@ -187,6 +196,47 @@ void main() {
           }),
         ),
         '/waitlist',
+      );
+    });
+
+    test('restored account without settled profile is sent to onboarding', () {
+      final lifecycle = AuthLifecycleState.signedInProfileMissing(
+        userId: 'user-1',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/coach/chat',
+          topRoute: _publicShellRoute('/coach/chat'),
+        ),
+        '/onb',
+      );
+    });
+
+    test('profile-ready account waits on landing during profile hydration', () {
+      final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/',
+          profileSettled: false,
+        ),
+        isNull,
+      );
+    });
+
+    test('explicit guest without local profile cannot enter shell', () {
+      final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/home',
+        ),
+        '/onb',
       );
     });
   });
