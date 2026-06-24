@@ -10,8 +10,7 @@
   "allowed_branches": [
     "dev",
     "staging",
-    "main",
-    "codex/mint-agent-catalog-prune-20260624"
+    "main"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [
