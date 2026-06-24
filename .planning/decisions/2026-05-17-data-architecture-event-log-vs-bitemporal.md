@@ -141,6 +141,13 @@ Every projection output stores `constants_version_hash` alongside its `scenario_
 **RESOLVED 2026-05-17** by Phase `mint-data-architecture-v1-01-calc-engine-canonical`. See the phase CONTEXT.md for the 16 D-XX decisions : split-with-arbiter L1 mobile-canonical + L2-L4 backend-canonical, `services/backend/app/models/lucidity/_payload.py` as discriminator boundary, D-CE-09 strangler-fig migration sequence (Monte Carlo + tornado sensitivity migrate FIRST per D-11), and codegen-based regulatory-constants sync (D-08, D-15, D-16). Plan 02 of that phase landed the doctrine PR carrying this status flip atomically — the D-04 atomicity gate at `tools/checks/doctrine_atomicity_gate.py` enforces that the 6 doctrine files (CLAUDE.md + docs/AGENTS/{backend,flutter}.md + 2 SKILL.md + this ADR) co-modify in the same diff range. The shape above is REFINED : the ADR's original « backend-canonical full-stack » assumption becomes « L2-L4 backend-canonical, L1 mobile-canonical », with mobile owning offline L1 chiffrer via codegen-baked constants snapshot.
 
 **Operational extension 2026-05-27** : the same 6-file doctrine set now also records guarded `staging` push authority. Agents may push to `staging` only via CLAUDE.md §4.1: clean worktree, fetch/divergence check, cited source verification, normal merge or fast-forward, and plain `git push origin staging`; never force-push or rewrite `staging`, `dev`, or `main`. If branch protection rejects direct push, use a PR into `staging`.
+
+**Operational extension 2026-06-24** : the same 6-file doctrine set now also
+records the Mint-specific operating roster and skill authority. Default routing
+uses `mint-lead`, `mint-quality-gate`, `mint-mobile`, `mint-backend`, and
+`mint-swiss-brain`; imported vendor agents are on-demand only for named gaps.
+Canonical cross-tool skills live in `.agents/skills/mint-*`; `.claude/skills`
+entries are compatibility mirrors.
 <!-- mint-data-architecture-v1-01-canonical:end -->
 
 The shape above assumes a **backend-canonical** calc engine: `financial_core/` calculators live in backend services; mobile becomes a thin renderer that fetches projections via versioned REST. The mobile-canonical alternative (delete backend calc layer, mobile owns calculators, backend syncs facts) is viable but requires a different sync target architecture. **This decision is upstream of every detail above and must be resolved first.**

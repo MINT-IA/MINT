@@ -67,6 +67,8 @@ apps/mobile/ios/DerivedData/
 # Codex Desktop / local agent tooling generated in this workspace.
 # Keep already tracked project skills versioned; ignore generated local copies.
 .agents/skills/*
+!.agents/skills/mint-*/
+!.agents/skills/mint-*/SKILL.md
 .codex/
 
 # Claude Code persistent agent memory (vibe-coding infra Phase 1, per design doc 2026-05-14)

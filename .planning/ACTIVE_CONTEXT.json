@@ -36,6 +36,7 @@
     "feature/S10-mint2-waitlist-eligibility-gate",
     "feature/S10-mint2-account-lifecycle-fatca-lock",
     "feature/S10-mint2-reinstall-entry-gate",
+    "codex/mint-operating-system-cleanup-20260624",
     "docs/agent-skill-authority",
     "docs/mint2-rvc-runtime-closeout"
   ],

@@ -8,6 +8,39 @@
 
 ---
 
+## Operating Mode — Stop The Bleeding
+
+MINT is in stabilization mode. Do not start new product work until the active
+runtime gate for the touched surface exists and can be run by an agent.
+
+Default rule: **one real user flow, one clean worktree, one short PR, one
+runtime proof**. No new planning matrix, no speculative roadmap file, no
+TestFlight-as-debugging.
+
+The default permanent roster is:
+
+| Agent | File | Owns |
+|---|---|---|
+| `mint-lead` | `.claude/agents/mint-lead.md` | Scope, sequencing, merge/no-merge |
+| `mint-quality-gate` | `.claude/agents/mint-quality-gate.md` | Auth/privacy/onboarding/runtime gates |
+| `mint-mobile` | `.claude/agents/mint-mobile.md` | Flutter app changes |
+| `mint-backend` | `.claude/agents/mint-backend.md` | FastAPI/backend/data changes |
+| `mint-swiss-brain` | `.claude/agents/mint-swiss-brain.md` | Swiss finance/compliance meaning |
+
+All other imported agents are vendor/on-demand. Do not route to them by default.
+
+Canonical skills live in `.agents/skills/mint-*`:
+
+| Skill | Use |
+|---|---|
+| `mint-operating-gates` | Mandatory before user-facing/auth/privacy/runtime work |
+| `mint-flutter-dev` | Flutter implementation in `apps/mobile/` |
+| `mint-backend-dev` | Backend implementation in `services/backend/` |
+| `mint-swiss-compliance` | Swiss regulatory/compliance review |
+
+`.claude/skills/mint-*` entries are thin compatibility mirrors. If mirror and
+canonical content diverge, `.agents/skills/mint-*` wins.
+
 ## 🗺 Before you edit X, read Y, grep Z
 
 Pre-flight for any code change. If the agent can't state which row applies
@@ -82,163 +115,45 @@ rampart. After ship:
 - **Phase 30.7 MCP tools** → Swiss constants / banned-terms /
   ARB-parity as on-demand tools (stop bloating agent context with rules)
 
-## Skill repository authority
-
-Agents are explicitly authorized to read and use every skill repository needed
-for the current task when the path is present and readable: repo-local
-`.agents/skills`, `.claude/skills`, `.codex/skills`, user-level
-`~/.codex/skills`, `~/.agents/skills`, and installed plugin skill caches
-exposed by the session.
-
-This authorization is autonomous. Do not ask for per-skill permission, and do
-not claim a skill repository is inaccessible before checking the concrete path.
-If a skill path is unreadable, report the exact path and continue with the
-closest local fallback.
-
-Skill repositories are method/tooling authority only. They do not override
-MINT product truth: the approved worktree, checked-in governance, current code,
-local tests, and deterministic runtime evidence remain authoritative for
-product behavior.
-
-## Tooling autonomy of good sense
-
-When the current objective is already authorized, agents may autonomously use
-the tools needed to finish it: Engram MCP memory, local skills, repo checks,
-GitHub read/PR commands, feature-branch pushes, specialist panels, Maestro,
-`simctl`, `idb`, and xcodebuildmcp / Build iOS Apps when available.
-
-This is not permission to bypass product gates. When the current objective
-includes delivery, agents may merge a PR autonomously after fresh green CI,
-required local/runtime evidence, reviewed diff, and a clean worktree. Ask first
-for direct protected-branch pushes, merges with red or missing gates,
-destructive Git operations, real user data, legal/compliance claims, new
-regulated financial sources, or anything listed in `rules.md` `ASK FIRST`.
-
-Claude Max is advisory. Use it when the local CLI/session or a fresh artifact
-is actually available and the task benefits from it; otherwise continue with
-the local expert panel and say that Claude Max was not available. Never present
-a local panel as Claude Max.
-
 ## 🤝 Session handshake — run these in order, every time
 
 1. Read curator memory from `$HOME/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/MEMORY.md` when present. If missing, report it, recover with Engram MCP (`mem_context` / `mem_search`) plus checked-in docs, and continue unless the task explicitly depends on that private memory.
 2. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
 3. Read this file.
-4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md) for the Claude/Codex/GSD/Engram workflow.
-5. Read [`.planning/ACTIVE_CONTEXT.md`](.planning/ACTIVE_CONTEXT.md) and [`.planning/ACTIVE_CONTEXT.json`](.planning/ACTIVE_CONTEXT.json); they are the current session router.
-6. Run `python3 tools/checks/active_context_guard.py`.
-7. Run `python3 tools/checks/phase_contract_guard.py`.
-8. Run `python3 tools/checks/mint_rules_guard.py`.
-9. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
+4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
+5. Read `.agents/skills/mint-operating-gates/SKILL.md`.
+6. Read [`.planning/ACTIVE_CONTEXT.md`](.planning/ACTIVE_CONTEXT.md) and [`.planning/ACTIVE_CONTEXT.json`](.planning/ACTIVE_CONTEXT.json) when present; they are the current session router.
+7. Run `python3 tools/checks/active_context_guard.py`.
+8. Run `python3 tools/checks/phase_contract_guard.py`.
+9. Run `python3 tools/checks/mint_rules_guard.py`.
+10. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
    `SPEC.md` has a `verify` block.
-10. When the user names a subsystem, read the matching `docs/*.md` **before
+11. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-11. Run the grep verification from the table.
-12. *Only then* propose code.
+12. Run the grep verification from the table.
+13. *Only then* change code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.
 
----
+## Routing
 
-## TEAM STRUCTURE
+Default sequence:
 
-```
-┌──────────────────────────────────────────────┐
-│              TEAM LEAD (Opus)                │
-│     Orchestrate, review, decide, merge       │
-│     Doesn't code directly (except urgency)   │
-└─────────┬──────────┬──────────┬──────────────┘
-          │          │          │
-    ┌─────▼──┐ ┌─────▼──┐ ┌────▼─────┐
-    │  DART  │ │ PYTHON │ │  SWISS   │
-    │ Agent  │ │ Agent  │ │  BRAIN   │
-    │Sonnet  │ │Sonnet  │ │  Opus    │
-    └────────┘ └────────┘ └──────────┘
-```
+`mint-lead` -> `mint-quality-gate` -> `mint-mobile` / `mint-backend` /
+`mint-swiss-brain` -> `mint-quality-gate`.
 
----
+Use imported vendor agents only for a named specialist gap. Do not start
+multiple agents unless tasks have disjoint files or disjoint read-only
+questions.
 
-## SPAWNING AGENTS
+## Worktree Limit
 
-### Flutter chantier (UI, widgets, screens)
-```
-Spawn "dart-agent" with model sonnet.
-Read: .claude/skills/mint-flutter-dev/SKILL.md, .claude/skills/mint-test-suite/SKILL.md, CLAUDE.md
-Scope: apps/mobile/ only. Never touch backend.
-Before changes: flutter analyze && flutter test.
-```
+Maximum normal state:
+- primary dirty checkout;
+- one clean staging/integration checkout;
+- one active feature checkout;
+- one urgent hotfix/QA checkout.
 
-### Backend chantier (FastAPI, services, tax)
-```
-Spawn "python-agent" with model sonnet.
-Read: .claude/skills/mint-backend-dev/SKILL.md, .claude/skills/mint-test-suite/SKILL.md, CLAUDE.md
-Scope: services/backend/ only. Never touch Flutter.
-Before changes: ruff check . && pytest -q.
-API change → update tools/openapi/ + SOT.md.
-```
-
-### Business/compliance chantier (fiscalité, LPP, compliance)
-```
-Spawn "swiss-brain" with model opus.
-Read: .claude/skills/mint-swiss-compliance/SKILL.md, CLAUDE.md, LEGAL_RELEASE_CHECK.md, visions/
-Scope: docs/, education/, decisions/, visions/. No code.
-Output: specs with legal sources, test cases, educational text, compliance alerts.
-```
-
----
-
-## WORKFLOW PROTOCOL
-
-### Rule 1: Team Lead doesn't code (except urgency)
-Orchestrate, review, merge. Create tasks, verify outputs, make decisions.
-
-### Rule 2: Swiss-Brain validates BEFORE devs implement
-```
-Swiss-Brain (spec + test cases)
-  → Python-Agent (backend implementation)
-    → Dart-Agent (UI/screen)
-      → Team Lead (review + merge)
-```
-
-### Rule 3: Cross-modification boundaries
-| Agent | Can modify | Cannot modify |
-|-------|-----------|---------------|
-| dart-agent | `apps/mobile/` | `services/backend/`, `tools/openapi/` |
-| python-agent | `services/backend/`, `tools/openapi/`, `SOT.md` | `apps/mobile/` |
-| swiss-brain | `docs/`, `education/`, `decisions/`, `visions/` | Code (`*.dart`, `*.py`) |
-
-### Rule 4: Token economy
-- Sonnet by default, Opus for complex reasoning
-- One agent at a time unless tasks are independent
-- Prefer well-defined short tasks over vague prompts
-
----
-
-## SKILLS INDEX
-
-| Skill | File | Agent |
-|-------|------|-------|
-| mint-flutter-dev | `.claude/skills/mint-flutter-dev/SKILL.md` | dart-agent |
-| mint-backend-dev | `.claude/skills/mint-backend-dev/SKILL.md` | python-agent |
-| mint-swiss-compliance | `.claude/skills/mint-swiss-compliance/SKILL.md` | swiss-brain |
-| mint-test-suite | `.claude/skills/mint-test-suite/SKILL.md` | all agents |
-| mint-commit | `.claude/skills/mint-commit/SKILL.md` | team-lead |
-
----
-
-## DREAM TEAM (extended agents)
-
-Launchable in parallel for specialized tasks:
-
-| Agent | Mission | When |
-|-------|---------|------|
-| QA Agent | Test coverage, edge case fuzzing | After each sprint |
-| i18n Agent | ARB file completion (6 languages) | Parallel to sprints |
-| Accessibility Agent | WCAG 2.1 AA audit | Before beta |
-| Compliance Guard Agent | ComplianceGuard + HallucinationDetector | S34 (completed) |
-| OCR Agent | Document parsing pipeline | S42-S45 (completed) |
-| ASO Agent | App Store/Play Store listings | 4 weeks before launch |
-| Legal Agent | nLPD/CGU/Privacy audit | Before launch |
-
-Each agent reads `CLAUDE.md` first. Team Lead reviews all output before merge.
+Everything else must be removed once clean and merged. Dirty worktrees are
+classified, not deleted.

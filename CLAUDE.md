@@ -32,78 +32,28 @@ cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 
 ## 3.5. TEAM AGENTS (subagents, `.claude/agents/`)
 
-You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Specialists in `.claude/agents/` accumulate per-agent memory via engram MCP. Delegate automatically via description matching, or explicitly via « Use the @<name> subagent ».
+Default roster is Mint-specific and small:
 
-### MINT specialist team (MINT-pur, auto-delegate by description match)
+| Agent | File | Use |
+|---|---|---|
+| `mint-lead` | `.claude/agents/mint-lead.md` | scope, sequencing, PR verdict |
+| `mint-quality-gate` | `.claude/agents/mint-quality-gate.md` | auth/privacy/onboarding/runtime gates |
+| `mint-mobile` | `.claude/agents/mint-mobile.md` | `apps/mobile/` implementation |
+| `mint-backend` | `.claude/agents/mint-backend.md` | `services/backend/` implementation |
+| `mint-swiss-brain` | `.claude/agents/mint-swiss-brain.md` | Swiss financial meaning/compliance |
 
-Vide pour le moment — les rôles MINT-pur sont couverts par le panel composite wshobson+VoltAgent (cf. routing rules). MINT-pur n'est ajouté que si un trou réel apparaît dans la couverture wshobson+VoltAgent.
+Default route:
 
-### wshobson specialist team (adopted 2026-05-14 via PR S99.2, MIT, fork of [wshobson/agents](https://github.com/wshobson/agents))
+`mint-lead` -> `mint-quality-gate` -> `mint-mobile` / `mint-backend` /
+`mint-swiss-brain` -> `mint-quality-gate`.
 
-36 specialists adoptés depuis le catalog (35K stars, MIT). Chaque agent : `memory: local` + bloc engram standard prepended au body (auto-mem_search before, mem_save after with `topic_key` + `prior_finding_refs`). Auto-dispatch par description matching (Anthropic Agent Teams, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`).
+The imported wshobson, VoltAgent, and GSD catalogs remain in `.claude/agents/`
+as vendor/on-demand specialists. Do not auto-route to them by description
+matching. Use them only for a named gap after a Mint agent asks for a specific
+specialist pass.
 
-| Domaine | Specialists |
-|---|---|
-| Code quality / review | `code-reviewer`, `architect-review`, `legacy-modernizer`, `dx-optimizer` |
-| Debugging / errors | `debugger`, `error-detective`, `incident-responder` |
-| Security | `security-auditor`, `backend-security-coder`, `frontend-security-coder`, `mobile-security-coder`, `threat-modeling-expert` |
-| Frontend / mobile | `frontend-developer`, `mobile-developer`, `ui-designer`, `ui-visual-validator`, `design-system-architect`, `accessibility-expert` |
-| Backend / API | `backend-architect`, `fastapi-pro`, `python-pro`, `api-documenter` |
-| Database | `database-architect`, `database-optimizer`, `sql-pro` |
-| Testing | `test-automator`, `tdd-orchestrator` |
-| Performance / observability | `performance-engineer`, `observability-engineer` |
-| Ops / DevOps | `devops-troubleshooter` |
-| AI / LLM (coach AI) | `ai-engineer`, `prompt-engineer` |
-| Data | `data-engineer` |
-| Orchestration / docs | `context-manager`, `docs-architect`, `tutorial-engineer` |
-
-### VoltAgent specialist team (adopted 2026-05-14 via PR S99.3, MIT, [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents))
-
-20 specialists cherry-picked depuis le catalog (144 total au upstream, 19.8K stars, MIT) après filtrage : duplicate-de-wshobson + off-stack + gate-overlap removed. Même contrat que wshobson : `memory: local` + bloc engram standard prepended (auto-`mem_search` before, `mem_save` after avec `topic_key` agent-agnostic + `prior_finding_refs`). Auto-dispatch par description matching.
-
-| Domaine | Specialists |
-|---|---|
-| Flutter framework depth | `flutter-expert` |
-| Quality / testing | `qa-expert`, `ui-ux-tester`, `ai-writing-auditor` (LLM output review pour coach AI) |
-| Coach AI / LLM / data | `llm-architect`, `nlp-engineer`, `postgres-pro` |
-| Developer experience | `mcp-developer` (engram + mint-tools), `git-workflow-manager` |
-| Open Banking (next year) | `payment-integration` |
-| Product / UX / docs | `product-manager`, `business-analyst`, `ux-researcher`, `technical-writer` |
-| Agent Teams orchestration | `agent-organizer`, `multi-agent-coordinator`, `knowledge-synthesizer` (engram findings synthesis) |
-| Research / competition | `competitive-analyst` (Cleo), `market-researcher`, `search-specialist` |
-
-**Candidats VoltAgent non-adoptés** (7 specialists, dispo upstream MIT) : `compliance-auditor`, `legal-advisor`, `fintech-engineer`, `quant-analyst`, `risk-manager`, `refactoring-specialist`, `accessibility-tester`. Non-adoptés car le panel wshobson+VoltAgent actuel couvre déjà LSFin/compliance via `security-auditor` + `business-analyst`, FINANCIAL_CORE via `architect-review` + `backend-architect` + `python-pro`, refactoring via `legacy-modernizer`, a11y via `accessibility-expert`. Adopter au cas-par-cas si un trou réel apparaît dans le panel.
-
-### GSD orchestration team (already installed via gstack, 21 subagents)
-
-`gsd-planner`, `gsd-executor`, `gsd-codebase-mapper`, `gsd-debugger`, `gsd-doc-writer`, `gsd-phase-researcher`, `gsd-ui-checker`, `gsd-verifier`, `gsd-security-auditor`, and 12 others. Spawned by `/gsd-*` skill commands.
-
-### Routing rules
-
-- **PR work / pre-merge review** → spawn en parallèle le panel composite (chaque agent a `memory: local` + engram, donc compounding observable per-specialist) :
-  - `code-reviewer` (wshobson) — bugs, security smells, production reliability (Pass 1)
-  - `architect-review` (wshobson) — financial_core reuse + anti-facade + service boundaries (Pass 6 + 8)
-  - `security-auditor` (wshobson) — LSFin compliance + banned-terms + PII (Pass 2 ; appui mécanique = `check_banned_terms()` MCP + `tools/checks/no_legal_admission_in_public_docs.py`)
-  - `qa-expert` (VoltAgent) + `test-automator` (wshobson) — regressions + test coverage (Pass 3 ; appui mécanique = pytest / flutter test)
-  - Selon PR : `flutter-expert` + `accessibility-expert` + `design-system-architect` pour Flutter UI (Pass 4 i18n + Pass 5 design system ; appui mécanique = `validate_arb_parity()` MCP + `accent_lint_fr.py`) ; `backend-architect` + `python-pro` pour backend (Pass 6) ; `business-analyst` + `ux-researcher` pour archetypes/FATCA/cross-border (Pass 7).
-
-  Verdict BLOCKED par 1+ agent = do NOT `/ship`. Pre-merge mechanical gates (lints + tests + `accent_lint_fr` + `banned_terms_python` + `validate_arb_parity`) sont obligatoires AVANT spawn du panel — le panel review le diff post-lints-green.
-- **Flutter screen create / revise** → `frontend-developer` + `mobile-developer` + `ui-designer` + `accessibility-expert` (cf. memory `feedback_design_panel_before_push`).
-- **Backend FastAPI work** → `backend-architect` + `fastapi-pro` + `python-pro` ; security pass via `backend-security-coder` + `threat-modeling-expert`.
-- **Database changes** → `database-architect` + `database-optimizer` + `sql-pro`.
-- **Performance / Sentry / observability** → `performance-engineer` + `observability-engineer`.
-- **Coach AI / LLM prompt change** → `ai-engineer` + `prompt-engineer`.
-- **Bug investigation** → `debugger` + `error-detective` + `incident-responder` (or `/gsd-debug` skill which spawns `gsd-debugger`).
-- **Phase planning** (multi-perimeter ≥3 PRs) → `/gsd-plan-phase <slug>` → spawns `gsd-planner` → `gsd-executor`.
-- **Codebase mapping** → `/gsd-map-codebase` → spawns `gsd-codebase-mapper` (4 parallel: tech/arch/quality/concerns).
-- **Architecture review (post-merge / cross-cutting)** → `architect-review` + `context-manager`.
-- **Engram memory contract (all wshobson agents)** : `mem_search` au début (cite `obs_id` via `prior_finding_refs` si pertinent), `mem_save` à la fin avec `topic_key: <area>:<sub-area>:<specific>` agent-agnostic. Project = `mint` (engram auto-detect from git_remote). Schema détaillé : [docs/AGENTS/VIBE-CODING-INFRA.md](docs/AGENTS/VIBE-CODING-INFRA.md).
-
-### Memory contract per agent
-
-Each subagent with `memory: local` writes to `.claude/agent-memory-local/<name>/MEMORY.md` (auto-injected first 200 lines on each invocation) AND can call engram MCP for structured findings (file:line + topic_key + prior_finding_refs). Findings backed by `~/.engram/engram.db`. Public-repo discipline : `agent-memory-local` is gitignored (PR #602 merged 2026-05-14).
-
-**Compounding observable** : if a subagent flagging finding X in PR-N references its own past finding Y from PR-(N-k) via `prior_finding_refs`, the team is learning. Mesuré per-specialist (chaque agent du panel composite a sa propre série), pas en agrégat.
+Engram MCP remains useful for prior root causes and decisions, but checked-in
+repo rules, current code, tests, CI, and runtime evidence are authoritative.
 
 ## 4. DEV RULES
 
