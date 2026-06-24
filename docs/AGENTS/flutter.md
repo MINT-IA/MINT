@@ -138,8 +138,8 @@ tester.view.devicePixelRatio = 2.0;
 - `docs/VOICE_SYSTEM.md` — 5 piliers, 50 avant/après, microcopy.
 - `docs/NAVIGATION_GRAAL_V10.md` — full IA.
 - `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` — UX 7 laws + 75 propositions.
-- Subagents : `mint-mobile` + `mint-quality-gate` par défaut. Les spécialistes
-  vendor Flutter/design/a11y restent disponibles uniquement pour un gap nommé.
+- Subagents : `mint-mobile` + `mint-quality-gate` par défaut. Expertise
+  externe uniquement pour un gap nommé.
 
 ## 11.1 Staging promotion authority
 

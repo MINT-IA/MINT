@@ -27,8 +27,8 @@ Permanent Mint agents:
 - `mint-backend`: FastAPI/backend only.
 - `mint-swiss-brain`: Swiss finance and compliance meaning.
 
-All other agents in `.claude/agents/` are vendor/on-demand. Use them only for a
-specific named gap.
+No vendor catalog is checked into `.claude/agents/`. External specialists are
+allowed only for a specific named gap after the Mint roster has scoped it.
 
 ## Canonical Skills
 

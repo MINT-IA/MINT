@@ -8,6 +8,6 @@ Permanent default agents:
 - `mint-backend`
 - `mint-swiss-brain`
 
-All other files in this directory are vendor/on-demand specialists. Do not route
-to them by default. Use them only for a named specialist gap after the Mint
-agent responsible for the surface asks for it.
+No vendor catalog is checked in here. External specialists may be used only when
+the user explicitly asks for one or a Mint agent names a concrete gap that the
+five permanent agents cannot cover.

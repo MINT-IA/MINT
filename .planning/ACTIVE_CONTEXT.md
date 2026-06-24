@@ -50,12 +50,13 @@ may be cited as evidence, but they are not active routing authority:
 - `money-trust-contract-v1-33-3a-onboarding-tax-copy-guard`
 - `mint-karpathy-rules-infra-20260614`
 
-The original checkout `/Users/julienbattaglia/Desktop/MINT.nosync` is a dirty
-quarantine for this cleanup. It is not the authority for new Mint 2.0 work.
+The canonical checkout is `/Users/julienbattaglia/Desktop/MINT.nosync` on
+`dev`. Historical local copies and deleted worktrees were moved into
+`/Users/julienbattaglia/Desktop/MINT-cleanup-archive-20260624T074611Z`.
 
 ## Archive Policy
 
-Do not move dozens of old phase directories in this foundation PR. That would
+Do not move dozens of old phase directories as part of feature work. That would
 create a large mechanical diff and break historical references without improving
 the user experience.
 
@@ -63,7 +64,7 @@ Instead:
 
 - keep old phases visible as receipts;
 - forbid them from becoming active via `tools/checks/active_context_guard.py`;
-- archive later through a dedicated GSD cleanup dry-run, with a reviewable PR
+- archive later only through a dedicated cleanup dry-run, with a reviewable PR
   and redirect/index updates.
 
 ## Promotion Rule
