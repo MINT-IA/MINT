@@ -2,7 +2,7 @@
 
 > Loaded on-demand pour compliance review, Swiss law references, archetype decisions, constants lookup.
 > Ce fichier owns la FULL banned terms list, la table archetype, les key constants 2025/2026, les compliance rules.
-> Tier 2 (project-specific). Tier 1 = `rules.md`. Compliance enforcement = panel composite `security-auditor` + `business-analyst` + `architect-review` (wshobson+VoltAgent) + lints mécaniques (`check_banned_terms()` MCP, `accent_lint_fr.py`, `banned_terms_python.py`). Routing dans `CLAUDE.md` §3.5.
+> Tier 2 (project-specific). Tier 1 = `rules.md`. Compliance enforcement = `mint-swiss-brain` + `mint-quality-gate` + lints mécaniques (`check_banned_terms()` MCP, `accent_lint_fr.py`, `banned_terms_python.py`). Routing dans `CLAUDE.md` §3.5.
 
 > **Pivot 2026-04-12 — lucidité, pas protection.** MINT = outil de lucidité (paix financière, contrôle, compréhension, zéro effort). PAS « protection-first » anxiogène. Voir MEMORY.md §VISION — LUCIDITE, PAS PROTECTION + `project_vision_post_audit_2026_04_12.md`. Compliance guardrails inchangés, messaging hiérarchie à revoir avec `MINT_IDENTITY.md` reconciliation (deferred v2.9+).
 
@@ -213,5 +213,5 @@ inférieur pour la part surobligatoire, selon votre caisse de pension. »
 - `rules.md` — tier 1, fintech-grade principles.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.
 - `docs/MINT_IDENTITY.md` — mission, 5 principes, 4-layer engine.
-- Panel composite PR-review (`CLAUDE.md` §3.5) — `code-reviewer` + `architect-review` + `security-auditor` + `qa-expert` (+ flutter/backend specialists selon PR). Pre-merge LSFin/banned-terms/accent compliance gate via panel + lints mécaniques.
+- Pre-merge compliance gate — `mint-swiss-brain` + `mint-quality-gate` + lints mécaniques LSFin/banned-terms/accent.
 - `visions/vision_compliance.md` — LSFin, FINMA, nLPD framework.

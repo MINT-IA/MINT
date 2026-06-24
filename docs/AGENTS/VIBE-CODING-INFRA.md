@@ -46,9 +46,10 @@ Default memory scope for new mint-* skills = `memory: local` (NOT `project`) so 
 
 ## Agents with persistent memory (subagents, `.claude/agents/`)
 
-PR review = panel composite wshobson+VoltAgent (cf. `CLAUDE.md` §3.5 routing rules). Chaque subagent du panel a `memory: local` + bloc engram standard (auto-`mem_search` before / `mem_save` after avec `topic_key` + `prior_finding_refs`). Le compounding observable est mesuré per-specialist, pas en agrégat.
-
-Pas de subagent MINT-pur installé actuellement — les rôles MINT-pur sont couverts par la combinaison wshobson `code-reviewer` + `architect-review` + `security-auditor` + VoltAgent `qa-expert` + `business-analyst` (+ flutter/backend selon PR). MINT-pur ajouté seulement si trou réel apparaît dans le panel.
+PR review = Mint roster first (`mint-lead`, `mint-quality-gate`, plus the
+surface owner). External specialists are not part of the checked-in catalog and
+are used only for an explicit named gap. Engram continuity is measured by cited
+`prior_finding_refs`, not by the size of an agent panel.
 
 ## Multi-machine (future, Phase 4)
 

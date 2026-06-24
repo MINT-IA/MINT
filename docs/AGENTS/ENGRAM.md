@@ -66,8 +66,8 @@ Non-obvious findings that future-you would want surfaced.
 
 ```yaml
 type: discovery
-title: "default GSD subagents have NO engram tools — orchestrator must wrap mem_save/mem_search around them"
-topic_key: vibe-coding:agents:gsd-engram-gap
+title: "Mint agents cite prior findings through Engram before changing runtime gates"
+topic_key: vibe-coding:agents:mint-engram-continuity
 ```
 
 ### 1.6 Conventions / patterns established
@@ -114,7 +114,7 @@ prior_finding_refs:
   - obs-8f8f4320fbb9a6f2  # plan-02 outcome
 ```
 
-**Compounding observable** : chaque subagent du panel composite (wshobson+VoltAgent, cf. `CLAUDE.md` §3.5) accumule sa propre série de findings ; on mesure per-specialist quand `prior_finding_refs` non-null cite des obs de PRs antérieures. Wave 1a panel reviews ont démontré la dynamique sur plans 00–03 (chaque panel citait 3+ obs de plans précédents).
+**Compounding observable** : chaque agent Mint permanent peut citer les observations Engram qu'il réutilise ; on mesure la continuité quand `prior_finding_refs` non-null cite des obs de PRs antérieures.
 
 ## 5. Conflicts — `mem_judge` heuristic
 
@@ -131,9 +131,8 @@ In practice, ~95% of conflict candidates this session were `related` (sibling pa
 
 ## 6. Per-agent memory — current state
 
-Each `wshobson` agent (36 specialists in `.claude/agents/`) has `memory: local` + an engram contract injected into the body (see `docs/AGENTS/VIBE-CODING-INFRA.md`). They auto-call `mem_search` at start and `mem_save` at end with a topic-key + prior_finding_refs.
-
-**GSD subagents (21 agents in `.claude/agents/gsd-*.md`) do NOT yet have engram tools**. The orchestrator wraps `mem_save` / `mem_search` around them externally. Retrofit planned post-Wave-1a — adds `mem_save, mem_search, mem_get_observation, mem_judge, mem_session_summary` to each `tools:` frontmatter list plus the standard engram body block.
+The checked-in Mint agents use Engram through the orchestrator or MCP tools. No
+vendor/GSD agent catalog is checked into `.claude/agents/`.
 
 ## 7. Lifecycle
 

@@ -47,10 +47,10 @@ Default route:
 `mint-lead` -> `mint-quality-gate` -> `mint-mobile` / `mint-backend` /
 `mint-swiss-brain` -> `mint-quality-gate`.
 
-The imported wshobson, VoltAgent, and GSD catalogs remain in `.claude/agents/`
-as vendor/on-demand specialists. Do not auto-route to them by description
-matching. Use them only for a named gap after a Mint agent asks for a specific
-specialist pass.
+No imported vendor catalog is checked into `.claude/agents/`. Do not auto-route
+to generic specialists by description matching. Use an external specialist only
+when the user explicitly asks for one or a Mint agent names a concrete gap that
+the permanent roster cannot cover.
 
 Engram MCP remains useful for prior root causes and decisions, but checked-in
 repo rules, current code, tests, CI, and runtime evidence are authoritative.

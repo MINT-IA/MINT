@@ -27,7 +27,8 @@ The default permanent roster is:
 | `mint-backend` | `.claude/agents/mint-backend.md` | FastAPI/backend/data changes |
 | `mint-swiss-brain` | `.claude/agents/mint-swiss-brain.md` | Swiss finance/compliance meaning |
 
-All other imported agents are vendor/on-demand. Do not route to them by default.
+No imported vendor agent catalog is active by default. External specialists may
+be used only for an explicit, named gap after the Mint roster has scoped it.
 
 Canonical skills live in `.agents/skills/mint-*`:
 
@@ -143,9 +144,8 @@ Default sequence:
 `mint-lead` -> `mint-quality-gate` -> `mint-mobile` / `mint-backend` /
 `mint-swiss-brain` -> `mint-quality-gate`.
 
-Use imported vendor agents only for a named specialist gap. Do not start
-multiple agents unless tasks have disjoint files or disjoint read-only
-questions.
+Use external specialists only for a named gap. Do not start multiple agents
+unless tasks have disjoint files or disjoint read-only questions.
 
 ## Worktree Limit
 
