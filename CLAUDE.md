@@ -54,6 +54,8 @@ the permanent roster cannot cover.
 
 Engram MCP remains useful for prior root causes and decisions, but checked-in
 repo rules, current code, tests, CI, and runtime evidence are authoritative.
+Compatibility skill mirrors in `.claude/skills/mint-*.md` must keep their
+generated doctrine blocks via `tools/checks/create_or_update_mint_skills.py`.
 
 ## 4. DEV RULES
 

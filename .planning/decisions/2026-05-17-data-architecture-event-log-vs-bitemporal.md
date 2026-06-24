@@ -147,7 +147,8 @@ records the Mint-specific operating roster and skill authority. Default routing
 uses `mint-lead`, `mint-quality-gate`, `mint-mobile`, `mint-backend`, and
 `mint-swiss-brain`; no vendor agent catalog is checked in. External specialists
 require an explicit named gap. Canonical cross-tool skills live in
-`.agents/skills/mint-*`; `.claude/skills` entries are compatibility mirrors.
+`.agents/skills/mint-*`; `.claude/skills` entries are compatibility mirrors
+whose doctrine blocks are restored by `tools/checks/create_or_update_mint_skills.py`.
 <!-- mint-data-architecture-v1-01-canonical:end -->
 
 The shape above assumes a **backend-canonical** calc engine: `financial_core/` calculators live in backend services; mobile becomes a thin renderer that fetches projections via versioned REST. The mobile-canonical alternative (delete backend calc layer, mobile owns calculators, backend syncs facts) is viable but requires a different sync target architecture. **This decision is upstream of every detail above and must be resolved first.**
