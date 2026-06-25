@@ -116,6 +116,39 @@ async def test_max_iterations_is_four():
 
 
 @pytest.mark.asyncio
+async def test_empty_end_turn_exhaustion_returns_degraded_fallback():
+    """Repeated empty end_turn must never ship as a 200 response with empty text."""
+    orchestrator = _MockOrchestrator([
+        {"answer": "", "sources": [], "disclaimers": [], "tokens_used": 25}
+        for _ in range(cc.MAX_AGENT_LOOP_ITERATIONS)
+    ])
+
+    result = await cc._run_agent_loop(
+        orchestrator=orchestrator,
+        question="Comment réduire mes impôts ?",
+        api_key="sk-test",
+        provider="claude",
+        model="claude-sonnet-4-5-20250929",
+        profile_context={"canton": "VD", "lpp_buyback_room_chf": 12000},
+        memory_block=None,
+        language="fr",
+        system_prompt="test-prompt",
+        user_id="user-3",
+        db=None,
+        conversation_history=None,
+    )
+
+    assert result["answer"].strip()
+    assert "réponse fiable" in result["answer"]
+    assert result["degraded"] is True
+    assert len(orchestrator.calls) == cc.MAX_AGENT_LOOP_ITERATIONS
+    assert all(
+        call["question"] == cc._REPROMPT_EMPTY_END_TURN
+        for call in orchestrator.calls[1:]
+    )
+
+
+@pytest.mark.asyncio
 async def test_reprompt_constants_are_module_level():
     """Re-prompt strings are constants, not magic inline strings."""
     assert cc._REPROMPT_EMPTY_NARRATION

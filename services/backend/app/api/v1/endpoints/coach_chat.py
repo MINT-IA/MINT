@@ -2561,6 +2561,12 @@ _REPROMPT_EMPTY_END_TURN = (
     "Tu n'as rien écrit pour l'utilisateur. Écris maintenant ta réponse "
     "en français, 1 à 3 phrases claires, sans préambule. Réponds à la question initiale."
 )
+_EMPTY_AGENT_LOOP_FALLBACK_FR = (
+    "Je n'ai pas pu générer une réponse fiable pour cette question. "
+    "Réessaie dans un instant ; pour une analyse fiscale suisse utile, prépare "
+    "ton canton et ta commune, ton revenu imposable, le 3a déjà versé, ta marge "
+    "de rachat LPP confirmée par ta caisse, tes liquidités et ton horizon."
+)
 
 
 # Phase 52.1 / 52.2 — WRITE-tier tool whitelist. Re-verified by direct
@@ -4519,7 +4525,14 @@ async def _run_agent_loop(
         logger.warning(
             "Agent loop reached max iterations (%d)", MAX_AGENT_LOOP_ITERATIONS
         )
-        final_answer = answer_text
+        if answer_text and answer_text.strip():
+            final_answer = answer_text
+        else:
+            logger.warning(
+                "Agent loop exhausted empty end_turn retries; returning degraded fallback"
+            )
+            final_answer = _EMPTY_AGENT_LOOP_FALLBACK_FR
+            degraded_any = True
 
     # Deduplicate sources by (file, section) key
     seen_sources: set = set()
