@@ -49,6 +49,11 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
   Widget build(BuildContext context) {
     final l = S.of(context)!;
     final provider = context.watch<BiographyProvider>();
+    final profile = context.watch<CoachProfileProvider>().profile;
+    final showProfileResetAction =
+        provider.facts.isEmpty &&
+        profile != null &&
+        profile.userProvidedFields.isNotEmpty;
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
@@ -60,6 +65,21 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
           l.privacyControlTitle,
           style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
         ),
+        actions: [
+          if (showProfileResetAction)
+            Semantics(
+              identifier: 'privacy_control_profile_reset_nav_cta',
+              label: l.privacyControlProfileDataResetCta,
+              button: true,
+              onTap: () => _showProfileDataResetDialog(context, l),
+              child: IconButton(
+                tooltip: l.privacyControlProfileDataResetCta,
+                icon: const Icon(Icons.delete_outline),
+                color: MintColors.error,
+                onPressed: () => _showProfileDataResetDialog(context, l),
+              ),
+            ),
+        ],
       ),
       body: _buildBody(context, l, provider),
     );
@@ -88,6 +108,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
               ),
               const SizedBox(height: MintSpacing.md),
               TextButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () => provider.loadFacts(),
                 child: Text(l.privacyControlDeleteCancel),
               ),
@@ -143,8 +164,9 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
     // Data state
     final allFacts = provider.facts;
     final freshCount = provider.activeFreshFacts.length;
-    final percent =
-        allFacts.isNotEmpty ? (freshCount / allFacts.length * 100).round() : 0;
+    final percent = allFacts.isNotEmpty
+        ? (freshCount / allFacts.length * 100).round()
+        : 0;
     final grouped = provider.factsByCategory;
 
     return RefreshIndicator(
@@ -211,9 +233,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
       children: [
         Text(
           title,
-          style: MintTextStyles.headlineSmall(
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.md),
         ...facts.map(
@@ -303,44 +323,54 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
     final items = <_ProfileDataItem>[];
 
     if (provided.contains('firstName') && profile.firstName != null) {
-      items.add(_ProfileDataItem(
-        icon: Icons.person_outline,
-        label: l.drawerMyProfile,
-        value: profile.firstName!,
-        source: source,
-      ));
+      items.add(
+        _ProfileDataItem(
+          icon: Icons.person_outline,
+          label: l.drawerMyProfile,
+          value: profile.firstName!,
+          source: source,
+        ),
+      );
     }
     if (provided.contains('age') && profile.age > 0) {
-      items.add(_ProfileDataItem(
-        icon: Icons.cake_outlined,
-        label: l.ageYears(''),
-        value: profile.age.toString(),
-        source: source,
-      ));
+      items.add(
+        _ProfileDataItem(
+          icon: Icons.cake_outlined,
+          label: l.ageYears(''),
+          value: profile.age.toString(),
+          source: source,
+        ),
+      );
     }
     if (provided.contains('canton')) {
-      items.add(_ProfileDataItem(
-        icon: Icons.location_on_outlined,
-        label: l.cantonLabel,
-        value: profile.canton,
-        source: source,
-      ));
+      items.add(
+        _ProfileDataItem(
+          icon: Icons.location_on_outlined,
+          label: l.cantonLabel,
+          value: profile.canton,
+          source: source,
+        ),
+      );
     }
     if (provided.contains('salary')) {
-      items.add(_ProfileDataItem(
-        icon: Icons.payments_outlined,
-        label: l.privacyControlSectionFinancial,
-        value: l.privacyControlFinancialDataPresent,
-        source: source,
-      ));
+      items.add(
+        _ProfileDataItem(
+          icon: Icons.payments_outlined,
+          label: l.privacyControlSectionFinancial,
+          value: l.privacyControlFinancialDataPresent,
+          source: source,
+        ),
+      );
     }
     if (provided.contains('civilStatus')) {
-      items.add(_ProfileDataItem(
-        icon: Icons.family_restroom_outlined,
-        label: l.privacyControlSectionLifeEvents,
-        value: profile.etatCivil.name,
-        source: source,
-      ));
+      items.add(
+        _ProfileDataItem(
+          icon: Icons.family_restroom_outlined,
+          label: l.privacyControlSectionLifeEvents,
+          value: profile.etatCivil.name,
+          source: source,
+        ),
+      );
     }
 
     return Center(
@@ -428,40 +458,52 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          l.privacyControlProfileDataResetTitle,
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
-        ),
-        content: Text(
-          l.privacyControlProfileDataResetBody,
-          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            // lint-ignore: prefer_mint_cta
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l.privacyControlDeleteCancel),
+      builder: (ctx) {
+        Future<void> confirmReset() async {
+          Navigator.of(ctx).pop();
+          try {
+            await coachProvider.clearAll();
+          } catch (_) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l.privacyControlError)));
+            }
+          }
+        }
+
+        return AlertDialog(
+          title: Text(
+            l.privacyControlProfileDataResetTitle,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
           ),
-          TextButton(
-            // lint-ignore: prefer_mint_cta
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              try {
-                await coachProvider.clearAll();
-              } catch (_) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l.privacyControlError)),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: MintColors.error),
-            child: Text(l.privacyControlProfileDataResetConfirm),
+          content: Text(
+            l.privacyControlProfileDataResetBody,
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              // lint-ignore: prefer_mint_cta
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(l.privacyControlDeleteCancel),
+            ),
+            Semantics(
+              key: const ValueKey('privacy_control_profile_reset_confirm'),
+              container: true,
+              identifier: 'privacy_control_profile_reset_confirm',
+              label: l.privacyControlProfileDataResetConfirm,
+              button: true,
+              onTap: confirmReset,
+              child: TextButton(
+                // lint-ignore: prefer_mint_cta
+                onPressed: confirmReset,
+                style: TextButton.styleFrom(foregroundColor: MintColors.error),
+                child: Text(l.privacyControlProfileDataResetConfirm),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
