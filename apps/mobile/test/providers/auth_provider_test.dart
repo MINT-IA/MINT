@@ -810,6 +810,38 @@ void main() {
     );
 
     test(
+      'fresh install marker absence ignores bootstrap prefs and purges stale '
+      'anonymous quota state',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'regulatory_cache', '{"pillar3a.max_with_lpp":7258}');
+        secureStorage.addAll({
+          'jwt_token': 'old-jwt',
+          'refresh_token': 'old-refresh',
+          'user_id': 'old-user',
+          'user_email': 'old@example.ch',
+          'anonymous_session_id': 'anon-old',
+          'anonymous_message_count': '3',
+          'foreign_app_key': 'must-stay',
+        });
+
+        await provider.checkAuth();
+
+        expect(prefs.getBool(InstallLifecycleService.installMarkerKey), isTrue);
+        expect(provider.isLoggedIn, isFalse);
+        expect(provider.accountDataState, MintAccountDataState.anonymousLocal);
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(secureStorage.containsKey('jwt_token'), isFalse);
+        expect(secureStorage.containsKey('refresh_token'), isFalse);
+        expect(secureStorage.containsKey('user_id'), isFalse);
+        expect(secureStorage.containsKey('user_email'), isFalse);
+        expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+        expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+      },
+    );
+
+    test(
         'missing install marker on an existing prefs store adopts marker '
         'without deleting current keychain session', () async {
       SharedPreferences.setMockInitialValues({'auth_local_mode': false});

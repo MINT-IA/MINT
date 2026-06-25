@@ -26,6 +26,10 @@ class InstallLifecycleService {
     'mint_biography_key',
   };
 
+  static const _freshInstallNeutralPrefs = {
+    'regulatory_cache',
+  };
+
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(
@@ -46,8 +50,13 @@ class InstallLifecycleService {
       return false;
     }
 
-    final hasExistingPrefs =
-        prefs.getKeys().any((key) => key != installMarkerKey);
+    final hasExistingPrefs = prefs.getKeys().any(
+          (key) =>
+              key != installMarkerKey &&
+              key != securePurgePendingKey &&
+              key != ownedSecurePurgePendingKey &&
+              !_freshInstallNeutralPrefs.contains(key),
+        );
     if (hasExistingPrefs) {
       await prefs.setBool(installMarkerKey, true);
       return true;

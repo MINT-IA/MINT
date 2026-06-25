@@ -506,7 +506,7 @@ class CoachOrchestrator {
     // 4. Fallback — local educational response for FR, honest unavailable
     // message for other languages until localized topic templates exist.
     debugPrint('[CoachChain] ALL TIERS FAILED — returning fallback');
-    return _chatFallback(language, userMessage: userMessage);
+    return _chatFallback(language, userMessage: userMessage, context: ctx);
   }
 
   /// Call the public `/anonymous/chat` endpoint (3 free messages, UUID-
@@ -1186,11 +1186,13 @@ class CoachOrchestrator {
   static CoachResponse _chatFallback(
     String languageCode, {
     String? userMessage,
+    CoachContext? context,
   }) {
     if (languageCode == 'fr' && (userMessage ?? '').trim().isNotEmpty) {
       return CoachResponse(
         message: LocalFallbackService.generateFallback(
           userMessage: userMessage!,
+          context: context,
         ),
         disclaimer: ComplianceGuard.standardDisclaimer,
         wasFiltered: false,

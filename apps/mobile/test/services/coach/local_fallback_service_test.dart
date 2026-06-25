@@ -351,9 +351,16 @@ void main() {
       final response = LocalFallbackService.generateFallback(
         userMessage: 'Comment reduire mes impôts ?',
       );
-      expect(response, contains('LIFD'));
-      expect(response, contains('déductions'));
-      expect(response, contains('impact indicatif'));
+      expect(response, contains('coach IA'));
+      expect(response, contains('canton'));
+      expect(response, contains('commune'));
+      expect(response, contains('3a'));
+      expect(response, contains('rachat LPP'));
+      expect(response, contains('liquidité'));
+      expect(response, isNot(contains('Les déductions courantes incluent')));
+      expect(response, isNot(contains('LIFD art. 33')));
+      expect(response, isNot(contains('SWR')));
+      expect(response, isNot(contains('simulateur fiscal')));
       expect(response, isNot(contains('économie d\'impôt')));
       expect(response, isNot(contains('économie fiscale')));
       expect(response, isNot(contains('avantage fiscal')));

@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/frame_timing_capture.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/services/observability/sentry_scrub.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -28,6 +29,11 @@ import 'package:mint_mobile/services/snapshot_service.dart';
 Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // iOS Keychain can survive uninstall. Run the fresh-install purge before any
+  // startup service writes SharedPreferences, otherwise cache writes can mask a
+  // true reinstall and preserve stale auth/anonymous quota keys.
+  await InstallLifecycleService.prepareForAuthRestore();
 
   // Phase 02 D-MOB side-finding fix — replace hardcoded ApiService._appVersion='1.0.0'
   // with real pubspec.yaml version (X-App-Version header + mobile L1 audit trail).
