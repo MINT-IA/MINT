@@ -23,6 +23,7 @@
     "GET /api/v1/privacy/delete-count"
   ],
   "issues": [
+    "JOS-001",
     "JOURNEY-TRUTH-MATRIX-005"
   ],
   "priority": {

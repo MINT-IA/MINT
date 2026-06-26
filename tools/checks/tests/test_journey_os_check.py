@@ -7,7 +7,9 @@ from tools.checks import journey_os_check, journey_os_generate
 def _root(tmp_path: Path) -> Path:
     (tmp_path / "apps/mobile/lib/routes").mkdir(parents=True)
     (tmp_path / ".planning/journeys/records").mkdir(parents=True)
+    (tmp_path / ".planning/journeys/issues").mkdir(parents=True)
     (tmp_path / ".planning/journeys/journey.schema.json").write_text("{}", encoding="utf-8")
+    (tmp_path / ".planning/journeys/issue.schema.json").write_text("{}", encoding="utf-8")
     (tmp_path / "artifacts").mkdir()
     (tmp_path / "artifacts/result.xml").write_text("<testsuite/>", encoding="utf-8")
     routes = ["/budget", "/mon-argent", "/rapport", "/coach/chat", "/profile/bilan"]
@@ -29,7 +31,7 @@ def _record(root: Path, **updates: object) -> None:
         "route_paths": ["/budget", "/mon-argent", "/rapport", "/coach/chat"],
         "surfaces": ["BudgetSnapshot", "DataSpineSnapshot"],
         "external_apis": [],
-        "issues": ["CJT-003"],
+        "issues": ["JOS-001"],
         "priority": {
             "trust_blast_radius": 5,
             "release_blocker_weight": 5,
@@ -47,26 +49,79 @@ def _record(root: Path, **updates: object) -> None:
     data.update(updates)
     (root / f".planning/journeys/records/{stem}.json").write_text(json.dumps(data), encoding="utf-8")
 
+def _issue(root: Path, **updates: object) -> None:
+    data: dict[str, object] = {
+        "schema_version": 1,
+        "id": "JOS-001",
+        "title": "Prove money truth spine",
+        "journey_id": "money_truth_spine",
+        "status": "triaged",
+        "owner": "mint-quality-gate",
+        "severity": "P0",
+        "evidence_status": "missing",
+        "next_action": "Create the next deterministic runtime proof for the highest-scoring journey.",
+        "source": "CJT-003",
+    }
+    data.update(updates)
+    (root / f".planning/journeys/issues/{data['id']}.json").write_text(json.dumps(data), encoding="utf-8")
+
 def _errors(root: Path, changed: list[str] | None = None) -> list[str]:
     return journey_os_check.check(root, changed or ["tools/checks/journey_os_check.py"])
 
 def test_valid_fixture_passes(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
+    _issue(root)
     journey_os_generate.write(root)
     assert _errors(root) == []
 
 def test_missing_baseline_fails_closed(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
+    _issue(root)
     journey_os_generate.write(root)
     assert any("origin/dev" in error or "baseline" in error for error in journey_os_check.check(root, []))
 
 def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
+    _issue(root)
     journey_os_generate.write(root)
     assert any("outside Journey OS whitelist" in error for error in _errors(root, ["apps/mobile/lib/app.dart"]))
+
+def test_jos_issue_refs_require_registry_files(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    journey_os_generate.write(root)
+    assert any("missing Journey OS issue" in error for error in _errors(root))
+
+def test_issue_registry_and_generated_board(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    assert _errors(root) == []
+    board = (root / ".planning/journeys/BOARD.md").read_text(encoding="utf-8")
+    assert "Next Journey OS Work" in board
+    assert "JOS-001" in board
+    assert "money_truth_spine" in board
+
+def test_issue_registry_shape_rules(tmp_path: Path) -> None:
+    cases = [
+        ({"journey_id": "missing_journey"}, "journey_id"),
+        ({"status": "new"}, "status"),
+        ({"owner": "vendor-agent"}, "owner"),
+        ({"severity": "S0"}, "severity"),
+        ({"evidence_status": "unknown"}, "evidence_status"),
+        ({"id": "BUG-1"}, "JOS-###"),
+        ({"next_action": "Too short"}, "next_action"),
+    ]
+    for update, expected in cases:
+        root = _root(tmp_path / expected)
+        _record(root)
+        _issue(root, **update)
+        journey_os_generate.write(root)
+        assert any(expected in error for error in _errors(root)), expected
 
 def test_route_owner_status_and_artifact_rules(tmp_path: Path) -> None:
     cases = [
@@ -80,6 +135,7 @@ def test_route_owner_status_and_artifact_rules(tmp_path: Path) -> None:
     for update, expected in cases:
         root = _root(tmp_path / expected.replace("/", "_"))
         _record(root, **update)
+        _issue(root)
         assert any(expected in error for error in _errors(root)), expected
 
 def test_shape_filename_and_generated_view_rules(tmp_path: Path) -> None:
@@ -95,9 +151,11 @@ def test_shape_filename_and_generated_view_rules(tmp_path: Path) -> None:
     for update, expected in cases:
         root = _root(tmp_path / expected.replace(" ", "_"))
         _record(root, **update)
+        _issue(root)
         assert any(expected in error for error in _errors(root)), expected
     root = _root(tmp_path / "mermaid")
     _record(root)
+    _issue(root)
     readme = root / ".planning/journeys/README.md"
     readme.write_text("```mermaid\ngraph TD\n```", encoding="utf-8")
     assert any("Mermaid" in error for error in _errors(root, [".planning/journeys/README.md"]))
@@ -105,6 +163,7 @@ def test_shape_filename_and_generated_view_rules(tmp_path: Path) -> None:
 def test_generated_views_are_required_and_current(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
+    _issue(root)
     assert any("missing generated" in error for error in _errors(root))
     journey_os_generate.write(root)
     (root / ".planning/journeys/JOURNEYS.md").write_text("stale\n", encoding="utf-8")

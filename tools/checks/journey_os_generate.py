@@ -8,12 +8,17 @@ from typing import Any
 
 JOURNEYS = Path(".planning/journeys")
 RECORDS = JOURNEYS / "records"
+ISSUES = JOURNEYS / "issues"
 SUMMARY = JOURNEYS / "JOURNEYS.md"
+BOARD = JOURNEYS / "BOARD.md"
 DIAGRAMS = JOURNEYS / "diagrams"
 PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
 
 def load_records(root: Path) -> list[dict[str, Any]]:
     return [json.loads(path.read_text(encoding="utf-8")) for path in sorted((root / RECORDS).glob("*.json"))]
+
+def load_issues(root: Path) -> list[dict[str, Any]]:
+    return [json.loads(path.read_text(encoding="utf-8")) for path in sorted((root / ISSUES).glob("*.json"))]
 
 def _cell(value: object) -> str:
     text = ", ".join(value) if isinstance(value, list) else str(value)
@@ -33,6 +38,40 @@ def markdown(records: list[dict[str, Any]]) -> str:
     for rec in records:
         statuses = sorted({str(e.get("status")) for e in rec.get("evidence", []) if isinstance(e, dict)})
         lines.append("| {id} | {tier} | {priority} | {status} | {promise} | {team} | {routes} | {evidence} |".format(id=_cell(rec.get("id", "")), tier=_cell(rec.get("tier", "")), priority=priority_score(rec), status=_cell(rec.get("status", "")), promise=_cell(rec.get("human_promise", "")), team=_cell(rec.get("accountable_team", "")), routes=_cell(rec.get("route_paths", [])), evidence=_cell(statuses)))
+    return "\n".join(lines) + "\n"
+
+def board(records: list[dict[str, Any]], issues: list[dict[str, Any]]) -> str:
+    by_id = {str(rec.get("id")): rec for rec in records}
+    severity_rank = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
+    ranked = sorted(
+        issues,
+        key=lambda issue: (
+            0 if issue.get("evidence_status") in {"missing", "red"} else 1,
+            severity_rank.get(str(issue.get("severity")), 9),
+            -int(priority_score(by_id.get(str(issue.get("journey_id")), {})) or 0),
+            str(issue.get("id", "")),
+        ),
+    )
+    lines = [
+        "# Next Journey OS Work",
+        "",
+        "Generated from `.planning/journeys/issues/*.json`. Do not edit directly.",
+        "",
+        "| Issue | Severity | Status | Journey | Journey priority | Owner | Evidence | Next action |",
+        "|---|---|---|---|---:|---|---|---|",
+    ]
+    for issue in ranked:
+        journey = by_id.get(str(issue.get("journey_id")), {})
+        lines.append("| {id} | {severity} | {status} | {journey} | {priority} | {owner} | {evidence} | {action} |".format(
+            id=_cell(issue.get("id", "")),
+            severity=_cell(issue.get("severity", "")),
+            status=_cell(issue.get("status", "")),
+            journey=_cell(issue.get("journey_id", "")),
+            priority=priority_score(journey),
+            owner=_cell(issue.get("owner", "")),
+            evidence=_cell(issue.get("evidence_status", "")),
+            action=_cell(issue.get("next_action", "")),
+        ))
     return "\n".join(lines) + "\n"
 
 def _node(value: str) -> str:
@@ -56,7 +95,8 @@ def mermaid(rec: dict[str, Any]) -> str:
 
 def expected(root: Path) -> dict[Path, str]:
     records = load_records(root)
-    out = {SUMMARY: markdown(records)}
+    issues = load_issues(root)
+    out = {SUMMARY: markdown(records), BOARD: board(records, issues)}
     out.update({DIAGRAMS / f"{rec['id']}.mmd": mermaid(rec) for rec in records})
     return out
 

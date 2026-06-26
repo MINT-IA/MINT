@@ -12,17 +12,23 @@ from tools.checks import journey_os_generate
 from tools.checks.route_registry_parity import extract_registry_keys
 JOURNEYS = Path(".planning/journeys")
 RECORDS = JOURNEYS / "records"
+ISSUES = JOURNEYS / "issues"
 SCHEMA = JOURNEYS / "journey.schema.json"
+ISSUE_SCHEMA = JOURNEYS / "issue.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
-ALLOW = {str(SCHEMA), str(JOURNEYS / "README.md"), str(JOURNEYS / "PRIORITY_RUBRIC.md"), str(journey_os_generate.SUMMARY), "tools/checks/journey_os_check.py", "tools/checks/journey_os_generate.py", "tools/checks/tests/test_journey_os_check.py"}
+ALLOW = {str(SCHEMA), str(ISSUE_SCHEMA), str(JOURNEYS / "README.md"), str(JOURNEYS / "PRIORITY_RUBRIC.md"), str(journey_os_generate.SUMMARY), str(journey_os_generate.BOARD), "tools/checks/journey_os_check.py", "tools/checks/journey_os_generate.py", "tools/checks/tests/test_journey_os_check.py"}
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
+ISSUE_STATUS = {"found", "triaged", "assigned", "fixing", "proof_needed", "verified", "merged", "regressed", "blocked"}
+SEVERITY = {"P0", "P1", "P2", "P3"}
 TIERS = {"T0", "T1", "T2", "T3"}
 KINDS = {"unit", "widget", "static_guard", "runtime", "manual", "external"}
 ESTATUS = {"green", "red", "missing", "baselined"}
 TOP = {"schema_version", "id", "title", "tier", "status", "human_promise", "accountable_team", "route_paths", "surfaces", "external_apis", "issues", "priority", "evidence"}
 REQ = TOP
 ARRAYS = {"route_paths", "surfaces", "external_apis", "issues"}
+ITOP = {"schema_version", "id", "title", "journey_id", "status", "owner", "severity", "evidence_status", "next_action", "source"}
+IREQ = ITOP
 EKEYS = {"kind", "status", "command", "artifact", "reason", "debt_ref", "verified_at", "verified_commit"}
 PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
 PRIORITY_KEYS = PRIORITY_POSITIVE | {"proof_cost", "rationale"}
@@ -40,8 +46,9 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
+        allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
-        if not (path in ALLOW or allowed_record or allowed_diagram):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
@@ -83,6 +90,23 @@ def _load_records(root: Path) -> tuple[list[tuple[Path, dict[str, Any]]], list[s
             continue
         records.append((path, data))
     return records, errors
+
+def _load_issues(root: Path) -> tuple[list[tuple[Path, dict[str, Any]]], list[str]]:
+    errors: list[str] = []
+    if not (root / ISSUE_SCHEMA).exists():
+        errors.append(f"missing {ISSUE_SCHEMA}")
+    issues: list[tuple[Path, dict[str, Any]]] = []
+    for path in sorted((root / ISSUES).glob("*.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{path.relative_to(root)} invalid JSON: {exc}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{path.relative_to(root)} root must be an object")
+            continue
+        issues.append((path, data))
+    return issues, errors
 
 def _artifact_ok(root: Path, value: Any) -> bool:
     if not isinstance(value, str) or not value or value.startswith("/tmp"):
@@ -182,12 +206,47 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
         errors.append(f"{rel} live_proven requires green runtime evidence with verified_at and verified_commit")
     return errors
 
+def _issue_errors(root: Path, path: Path, data: dict[str, Any], journey_ids: set[str]) -> list[str]:
+    rel = path.relative_to(root)
+    errors: list[str] = []
+    unknown = set(data) - ITOP
+    if unknown:
+        errors.append(f"{rel} unknown field(s): {', '.join(sorted(unknown))}")
+    for key in sorted(IREQ):
+        if key not in data:
+            errors.append(f"{rel} missing required field: {key}")
+    for key in ("id", "title", "next_action", "source"):
+        if not isinstance(data.get(key), str) or not str(data.get(key)).strip():
+            errors.append(f"{rel} {key} must be a non-empty string")
+    iid = data.get("id")
+    if not (isinstance(iid, str) and iid.startswith("JOS-") and len(iid) == 7 and iid[4:].isdigit()):
+        errors.append(f"{rel} id must match JOS-###")
+    if isinstance(data.get("next_action"), str) and len(str(data["next_action"]).strip()) < 20:
+        errors.append(f"{rel} next_action must explain the next step")
+    if data.get("schema_version") != 1:
+        errors.append(f"{rel} schema_version must be 1")
+    if path.stem != data.get("id"):
+        errors.append(f"{rel} filename stem must match id")
+    if data.get("journey_id") not in journey_ids:
+        errors.append(f"{rel} journey_id must reference a Journey OS record")
+    if data.get("status") not in ISSUE_STATUS:
+        errors.append(f"{rel} status has unknown enum: {data.get('status')}")
+    if data.get("owner") not in TEAMS:
+        errors.append(f"{rel} owner must be a Mint roster entry")
+    if data.get("severity") not in SEVERITY:
+        errors.append(f"{rel} severity has unknown enum: {data.get('severity')}")
+    if data.get("evidence_status") not in ESTATUS:
+        errors.append(f"{rel} evidence_status has unknown enum: {data.get('evidence_status')}")
+    return errors
+
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
     errors += _scope_errors(root, changed)
     records, load_errors = _load_records(root)
     errors += load_errors
+    issues, issue_load_errors = _load_issues(root)
+    errors += issue_load_errors
     try:
         routes = extract_registry_keys((root / ROUTES).read_text(encoding="utf-8"))
     except OSError as exc:
@@ -200,6 +259,19 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
         if isinstance(rid, str):
             seen.add(rid)
         errors += _record_errors(root, path, data, routes)
+    issue_ids: set[str] = set()
+    for path, data in issues:
+        iid = data.get("id")
+        if isinstance(iid, str) and iid in issue_ids:
+            errors.append(f"duplicate Journey OS issue id: {iid}")
+        if isinstance(iid, str):
+            issue_ids.add(iid)
+        errors += _issue_errors(root, path, data, seen)
+    for path, data in records:
+        rel = path.relative_to(root)
+        for issue in data.get("issues", []) if isinstance(data.get("issues"), list) else []:
+            if isinstance(issue, str) and issue.startswith("JOS-") and issue not in issue_ids:
+                errors.append(f"{rel} missing Journey OS issue: {issue}")
     errors += _generated_errors(root)
     return errors
 
