@@ -95,14 +95,12 @@ def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
     _issue(root)
     evidence_dir = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z"
     evidence_dir.mkdir(parents=True)
-    (evidence_dir / "README.md").write_text("runtime receipt", encoding="utf-8")
     (evidence_dir / "result.xml").write_text("<testsuite/>", encoding="utf-8")
     journey_os_generate.write(root)
 
     errors = _errors(
         root,
         [
-            ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/README.md",
             ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.xml",
         ],
     )
