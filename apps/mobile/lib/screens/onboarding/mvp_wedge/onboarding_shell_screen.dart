@@ -1480,6 +1480,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     if (_sealing) return;
     final provider = context.read<OnboardingProvider>();
     final coach = context.read<CoachProfileProvider>();
+    final auth = context.read<AuthProvider>();
     final messenger = ScaffoldMessenger.maybeOf(context);
     final l10n = S.of(context)!;
     final router = GoRouter.of(context);
@@ -1489,7 +1490,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     try {
       await provider.completeAndFlushToProfile(coach);
       if (coach.hasProfile) {
-        context.read<AuthProvider>().markAccountProfileAvailable();
+        auth.markAccountProfileAvailable();
       }
     } catch (e, stack) {
       dev.log(

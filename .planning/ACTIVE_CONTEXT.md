@@ -21,6 +21,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   authorized only for the PR-size-budget doctrine correction.
 - Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
   is authorized only for the Money truth spine Journey OS vertical.
+- Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
+  is authorized only for the JOS-002A onboarding persistence gate needed before
+  the downstream Money truth spine proof.
 
 ## Required Session Start
 
