@@ -17,6 +17,8 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary runtime-proof branch: `codex/jos001-seeded-auth-runtime-20260626`
   is authorized only for the JOS-001 account lifecycle seeded-auth runtime
   proof and any directly required gate fix.
+- Temporary workflow branch: `codex/dynamic-pr-size-rule-20260626` is
+  authorized only for the PR-size-budget doctrine correction.
 
 ## Required Session Start
 
