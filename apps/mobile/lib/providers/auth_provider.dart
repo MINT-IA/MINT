@@ -1302,6 +1302,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Called after local onboarding successfully creates a CoachProfile for an
+  /// already-authenticated account. Register/login can only inspect backend
+  /// profile hydration at auth time; this bridges the later local profile seal.
+  void markAccountProfileAvailable() {
+    if (!_isLoggedIn || _userId == null || _userId!.isEmpty) return;
+    _authLifecycle = _settledAccountLifecycle(hasProfile: true);
+    notifyListeners();
+  }
+
   /// Enable anonymous local mode so the router's auth guard lets users
   /// browse tabs without creating an account. Persisted across launches.
   Future<void> enableLocalMode() async {

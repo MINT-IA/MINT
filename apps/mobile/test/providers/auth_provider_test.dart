@@ -1030,6 +1030,47 @@ void main() {
       expect(provider.userId, 'user-1');
     });
 
+    test('markAccountProfileAvailable releases profile-missing account guard',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
+      await AuthService.saveToken(
+        'jwt',
+        'user-1',
+        'user@example.ch',
+        refreshToken: 'refresh',
+      );
+      ApiService.setHttpClientForTesting(
+        MintHttpClient(
+          MockClient((request) async {
+            if (request.url.path == '/api/v1/profiles/me') {
+              return http.Response(
+                '{}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response('{"detail":"not found"}', 404);
+          }),
+        ),
+      );
+
+      await provider.checkAuth();
+      expect(
+        provider.authLifecycle.state,
+        AuthLifecycleKind.signedInProfileMissing,
+      );
+
+      provider.markAccountProfileAvailable();
+
+      expect(provider.authLifecycle.state, AuthLifecycleKind.syncOffAccount);
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      expect(
+        provider.authLifecycle.activeDataScope,
+        AuthDataScope.user('user-1'),
+      );
+    });
+
     test(
       'checkAuth does not claim anonymous conversations on restored account',
       () async {

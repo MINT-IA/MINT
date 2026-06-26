@@ -11,7 +11,8 @@
     "dev",
     "staging",
     "main",
-    "codex/account-lifecycle-gate-20260624"
+    "codex/account-lifecycle-gate-20260624",
+    "codex/jos001-seeded-auth-runtime-20260626"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

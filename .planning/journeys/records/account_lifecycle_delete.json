@@ -3,7 +3,7 @@
   "id": "account_lifecycle_delete",
   "title": "Account lifecycle delete",
   "tier": "T0",
-  "status": "partial",
+  "status": "live_proven",
   "human_promise": "I can recover, delete, and control my account data.",
   "accountable_team": "mint-quality-gate",
   "route_paths": [
@@ -19,8 +19,8 @@
     "AccountDeletionFlow"
   ],
   "external_apis": [
-    "DELETE /auth/account",
-    "GET /api/v1/privacy/delete-count"
+    "POST /auth/register",
+    "DELETE /auth/account"
   ],
   "issues": [
     "JOS-001",
@@ -47,10 +47,12 @@
     },
     {
       "kind": "runtime",
-      "status": "missing",
-      "command": null,
-      "artifact": null,
-      "reason": "The privacy-center route smoke exists, but full account lifecycle closure still needs seeded-auth runtime proof for recovery entry, privacy controls, and actual account deletion with durable repo evidence."
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=360 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/jos001-account-lifecycle-20260626T200541Z bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/runtime-evidence/jos001-account-lifecycle-20260626T200541Z/result.xml --env MINT_E2E_EMAIL=<fresh disposable e2e email> --env MINT_E2E_PASSWORD=<redacted> tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
+      "artifact": ".planning/journeys/evidence/account_lifecycle_delete/20260626T200541Z/result.xml",
+      "reason": "Runtime proof drives recovery entry, real register, onboarding profile seal, privacy controls, privacy center delete confirmation, DELETE /auth/account, and post-delete signed-out recovery state.",
+      "verified_at": "2026-06-26T20:05:41Z",
+      "verified_commit": "c13e48a9cde379ffbe817f2abfb70f8b41255ff8"
     }
   ]
 }

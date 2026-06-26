@@ -14,6 +14,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   phase is queued yet.
 - Temporary hotfix branch: `codex/account-lifecycle-gate-20260624` is
   authorized only for the account lifecycle/onboarding gate hotfix.
+- Temporary runtime-proof branch: `codex/jos001-seeded-auth-runtime-20260626`
+  is authorized only for the JOS-001 account lifecycle seeded-auth runtime
+  proof and any directly required gate fix.
 
 ## Required Session Start
 
