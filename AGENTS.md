@@ -69,9 +69,15 @@ Revolut) from ones that turn in circles. Apply religiously.
 1. **TDD first.** Write the failing test (or contract shape) before the
    code. Agents fill specs well; they *design* them poorly. The failing
    test is the ground truth for « done ».
-2. **< 300 lines per PR.** Beyond that, you and the agent lose the plot.
-   Run `git diff --shortstat origin/dev...HEAD` before pushing. Split if
-   over.
+2. **Dynamic PR-size budget, not a hard cap.** Always run
+   `git diff --shortstat origin/dev...HEAD` before pushing. For routine
+   bugfix/doc/guard work, use ~300 changed lines as the default review budget.
+   For one coherent vertical, runtime proof, generated view, or evidence update,
+   exceeding that budget is allowed when splitting would make review, rollback,
+   or verification worse. In that case, isolate generated/evidence files and
+   write the reason in the PR body. If non-generated product changes span
+   multiple surfaces, split unless `mint-lead` or Julien explicitly accepts the
+   larger unit.
 3. **Atomic, revertable commits.** One concern per commit. If `git revert
    <sha>` would break something orthogonal, split.
 4. **Grep before assume.** If you name a symbol (method, var, tool, ARB

@@ -60,6 +60,11 @@ there is an actual tool call, command output, or artifact path.
 - Use test-driven development for feature, bugfix, guard, and behavior changes.
 - Verify the diff, not the explanation: `git diff --stat`, `git diff --check`,
   and focused tests before commit.
+- Treat PR size as a dynamic review budget, not a fixed line cap. Always run
+  `git diff --shortstat origin/dev...HEAD`; keep routine bugfix/doc/guard PRs
+  around the small-PR budget, and when a coherent vertical legitimately exceeds
+  it, isolate generated/evidence files and state in the PR why splitting would
+  make review or rollback worse.
 - Save Engram via `mem_save` after durable decisions, discoveries,
   conventions, and bug fixes.
 - Use simulator/runtime evidence before claiming mobile user flow quality.
