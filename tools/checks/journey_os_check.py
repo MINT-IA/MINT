@@ -16,7 +16,19 @@ ISSUES = JOURNEYS / "issues"
 SCHEMA = JOURNEYS / "journey.schema.json"
 ISSUE_SCHEMA = JOURNEYS / "issue.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
-ALLOW = {str(SCHEMA), str(ISSUE_SCHEMA), str(JOURNEYS / "README.md"), str(JOURNEYS / "PRIORITY_RUBRIC.md"), str(journey_os_generate.SUMMARY), str(journey_os_generate.BOARD), "tools/checks/journey_os_check.py", "tools/checks/journey_os_generate.py", "tools/checks/tests/test_journey_os_check.py"}
+ALLOW = {
+    str(SCHEMA),
+    str(ISSUE_SCHEMA),
+    str(JOURNEYS / "README.md"),
+    str(JOURNEYS / "PRIORITY_RUBRIC.md"),
+    str(journey_os_generate.SUMMARY),
+    str(journey_os_generate.BOARD),
+    ".planning/ACTIVE_CONTEXT.md",
+    ".planning/ACTIVE_CONTEXT.json",
+    "tools/checks/journey_os_check.py",
+    "tools/checks/journey_os_generate.py",
+    "tools/checks/tests/test_journey_os_check.py",
+}
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
 ISSUE_STATUS = {"found", "triaged", "assigned", "fixing", "proof_needed", "verified", "merged", "regressed", "blocked"}

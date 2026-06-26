@@ -89,6 +89,22 @@ def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
     journey_os_generate.write(root)
     assert any("outside Journey OS whitelist" in error for error in _errors(root, ["apps/mobile/lib/app.dart"]))
 
+def test_active_context_branch_authorization_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            ".planning/ACTIVE_CONTEXT.md",
+            ".planning/ACTIVE_CONTEXT.json",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
 def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
