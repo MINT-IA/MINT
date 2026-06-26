@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "money_truth_spine",
+  "title": "Money truth spine",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "My money numbers are consistent.",
+  "accountable_team": "mint-quality-gate",
+  "route_paths": [
+    "/budget",
+    "/mon-argent",
+    "/rapport",
+    "/coach/chat"
+  ],
+  "surfaces": [
+    "BudgetSnapshot",
+    "DataSpineSnapshot",
+    "CoachContextPacket"
+  ],
+  "external_apis": [],
+  "issues": [
+    "CJT-003",
+    "CJT-024"
+  ],
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=75 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449/result.xml",
+      "reason": "Historical durable runtime artifact seeded as baseline provenance; record remains partial, not live_proven."
+    }
+  ]
+}
