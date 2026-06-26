@@ -119,6 +119,14 @@ def test_workflow_escalation_step_naming() -> None:
     assert "7" in text and "14" in text and "28" in text
 
 
+def test_staging_up_hash_mismatch_warns_not_blocks() -> None:
+    """A PR that changes the local registry must not require staging to
+    already publish the new hash; the local --check remains the hard gate."""
+    text = _WORKFLOW.read_text(encoding="utf-8")
+    assert "::warning::Staging hash differs" in text
+    assert "::error::Staging hash differs" not in text
+
+
 # ── Test 7 (aging state file seeded with initial state) ──
 def test_aging_state_file_seeded() -> None:
     """`.planning/state/regulatory-codegen-aging.json` exists with initial state."""
