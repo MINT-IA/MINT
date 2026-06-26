@@ -19,6 +19,7 @@
   ],
   "external_apis": [],
   "issues": [
+    "JOS-002",
     "CJT-003",
     "CJT-024"
   ],
@@ -40,6 +41,13 @@
       "command": "MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=75 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
       "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449/result.xml",
       "reason": "Historical durable runtime artifact seeded as baseline provenance; record remains partial, not live_proven."
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/money-truth-spine-20260626T213202Z MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=150 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/debug --format junit --output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+      "artifact": ".planning/journeys/evidence/money_truth_spine/20260626T213202Z/result.xml",
+      "reason": "Fresh diagnostic rerun with temporary local Maestro harness alignment reached production onboarding, local-mode gate, Budget setup, app restart, and /budget budget_hero_formula. It failed on /mon-argent?section=month because simulator secure-storage seal left no persisted wizard_answers_v2 and no hydrated CoachProfile after restart, so the profile-required route redirected to /onb. This is not a Money value mismatch; land harness YAML changes in a separate runtime-proof PR."
     }
   ]
 }

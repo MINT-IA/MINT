@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-002",
+  "title": "Prove Money truth spine across Budget, Mon Argent, Rapport, and Coach",
+  "journey_id": "money_truth_spine",
+  "status": "proof_needed",
+  "owner": "mint-quality-gate",
+  "severity": "P0",
+  "evidence_status": "red",
+  "next_action": "Do not promote Money truth spine yet. Split the next proof into a production-onboarding persistence gate for the simulator secure-storage seal failure, plus a downstream Money Truth gate using the existing kReleaseMode-guarded runtime fixture only as non-production evidence.",
+  "source": "JOURNEY-TRUTH-MATRIX-008; CJT-003; CJT-024; Journey OS priority 28; latest CJT-024 Money Trust rerun 2026-06-04"
+}

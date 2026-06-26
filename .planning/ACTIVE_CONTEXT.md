@@ -19,6 +19,8 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   proof and any directly required gate fix.
 - Temporary workflow branch: `codex/dynamic-pr-size-rule-20260626` is
   authorized only for the PR-size-budget doctrine correction.
+- Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
+  is authorized only for the Money truth spine Journey OS vertical.
 
 ## Required Session Start
 
