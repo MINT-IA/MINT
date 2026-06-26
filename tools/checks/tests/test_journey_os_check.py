@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from tools.checks import journey_os_check
+from tools.checks import journey_os_check, journey_os_generate
 
 def _root(tmp_path: Path) -> Path:
     (tmp_path / "apps/mobile/lib/routes").mkdir(parents=True)
@@ -42,17 +42,20 @@ def _errors(root: Path, changed: list[str] | None = None) -> list[str]:
 def test_valid_fixture_passes(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
+    journey_os_generate.write(root)
     assert _errors(root) == []
 
 def test_missing_baseline_fails_closed(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
+    journey_os_generate.write(root)
     assert any("origin/dev" in error or "baseline" in error for error in journey_os_check.check(root, []))
 
 def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
-    assert any("outside PR1 whitelist" in error for error in _errors(root, ["apps/mobile/lib/app.dart"]))
+    journey_os_generate.write(root)
+    assert any("outside Journey OS whitelist" in error for error in _errors(root, ["apps/mobile/lib/app.dart"]))
 
 def test_route_owner_status_and_artifact_rules(tmp_path: Path) -> None:
     cases = [
@@ -85,3 +88,11 @@ def test_shape_filename_and_generated_view_rules(tmp_path: Path) -> None:
     readme = root / ".planning/journeys/README.md"
     readme.write_text("```mermaid\ngraph TD\n```", encoding="utf-8")
     assert any("Mermaid" in error for error in _errors(root, [".planning/journeys/README.md"]))
+
+def test_generated_views_are_required_and_current(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    assert any("missing generated" in error for error in _errors(root))
+    journey_os_generate.write(root)
+    (root / ".planning/journeys/JOURNEYS.md").write_text("stale\n", encoding="utf-8")
+    assert any("stale generated" in error for error in _errors(root))
