@@ -3,8 +3,11 @@
 //
 // v2.7 Phase 29 / PRIV-01.
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -66,6 +69,45 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
     }
   }
 
+  Future<void> _confirmDeleteAccount() async {
+    final l = S.of(context)!;
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l.profileDeleteAccountTitle),
+        content: Text(l.profileDeleteAccountContent),
+        actions: [
+          TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l.profileDeleteCancel),
+          ),
+          TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              l.profileDeleteConfirm,
+              style: const TextStyle(color: MintColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true || !mounted) return;
+
+    final deleted = await context.read<AuthProvider>().deleteAccount();
+    if (!mounted) return;
+
+    if (deleted) {
+      context.go('/');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.profileDeleteAccountError)),
+      );
+    }
+  }
+
   String _labelForPurpose(S l, ConsentPurpose p) {
     switch (p) {
       case ConsentPurpose.visionExtraction:
@@ -82,6 +124,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    final isLoggedIn = context.watch<AuthProvider>().isLoggedIn;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
@@ -130,11 +173,45 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                     grantedAt: r.consentTimestamp,
                     revokedAt: r.revokedAt,
                   ),
+                if (isLoggedIn) ...[
+                  const SizedBox(height: 24),
+                  const Divider(color: MintColors.lightBorder),
+                  _DeleteAccountRow(onTap: _confirmDeleteAccount),
+                ],
               ],
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class _DeleteAccountRow extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _DeleteAccountRow({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(
+        Icons.delete_outline,
+        color: MintColors.error,
+        size: 22,
+      ),
+      title: Text(
+        l.profileDeleteCloudAccount,
+        style: MintTextStyles.bodyMedium(color: MintColors.error),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: MintColors.error,
+        size: 20,
+      ),
+      onTap: onTap,
     );
   }
 }

@@ -1,0 +1,80 @@
+# tools/simulator/flows/maestro-perfect-set/flow_jos001_privacy_center_runtime.yaml
+#
+# PURPOSE
+# JOS-001 runtime smoke for the account lifecycle privacy hub:
+# a fresh simulator can deep-link into `/profile/privacy` from the shell and
+# render the privacy center without crashing the AuthProvider-backed screen.
+# Account deletion itself requires an authenticated account session; the
+# connected deletion branch is covered by a widget/provider contract until a
+# seeded-auth runtime fixture exists on dev.
+
+appId: ch.mint.app
+tags:
+  - jos-001
+  - account-lifecycle
+  - privacy-center
+  - runtime
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///explore"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continuer en mode local"
+    commands:
+      - tapOn: "Continuer en mode local"
+      - waitForAnimationToEnd
+      - openLink: "mintapp:///explore"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Explorer"
+    timeout: 12000
+
+- openLink: "mintapp:///profile/privacy"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Ma vie privée"
+    timeout: 12000
+- assertVisible:
+    text: "CONSENTEMENTS ACTIFS"
+- assertVisible:
+    text: "HISTORIQUE"
+- takeScreenshot: "jos001-privacy-center-runtime"
