@@ -32,6 +32,9 @@ jobs:
             backend:
               - 'services/backend/**'
               - 'tools/openapi/**'
+              - 'tools/checks/regulatory_freshness_monitor.py'
+              - 'tools/checks/tests/test_regulatory_freshness_monitor.py'
+              - '.github/workflows/regulatory-freshness-monitor.yml'
             flutter:
               - 'apps/mobile/**'
               - '.github/workflows/ci.yml'
@@ -156,6 +159,12 @@ jobs:
 
       - name: Install dependencies (app + dev/test)
         run: pip install ".[dev]" pytest-cov diff-cover
+
+      - name: Regulatory freshness monitor (warning-only)
+        working-directory: ${{ github.workspace }}
+        run: |
+          python3 -m pytest tools/checks/tests/test_regulatory_freshness_monitor.py -q
+          python3 tools/checks/regulatory_freshness_monitor.py
 
       - name: Security audit (pip-audit)
         run: |

@@ -1,0 +1,44 @@
+name: Regulatory freshness monitor
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  monitor:
+    name: Warn and open issue when review is due
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install backend dependencies
+        run: pip install ./services/backend
+      - name: Check regulatory review freshness
+        id: freshness
+        run: |
+          python3 tools/checks/regulatory_freshness_monitor.py \
+            --markdown-out /tmp/regulatory-freshness.md \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Open or update freshness issue
+        if: steps.freshness.outputs.stale_count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Regulatory constants review due"
+          existing="$(gh issue list \
+            --state open \
+            --search "$title in:title" \
+            --json number \
+            --jq '.[0].number // ""')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file /tmp/regulatory-freshness.md
+          else
+            gh issue create --title "$title" --body-file /tmp/regulatory-freshness.md
+          fi
