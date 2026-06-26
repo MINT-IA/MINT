@@ -30,6 +30,17 @@ def _record(root: Path, **updates: object) -> None:
         "surfaces": ["BudgetSnapshot", "DataSpineSnapshot"],
         "external_apis": [],
         "issues": ["CJT-003"],
+        "priority": {
+            "trust_blast_radius": 5,
+            "release_blocker_weight": 5,
+            "user_frequency": 5,
+            "evidence_gap": 2,
+            "route_centrality": 5,
+            "compliance_risk": 4,
+            "learning_value": 5,
+            "proof_cost": 3,
+            "rationale": "Money consistency is the central Mint trust promise.",
+        },
         "evidence": [{"kind": "runtime", "status": "green", "command": "maestro test flow.yaml", "artifact": "artifacts/result.xml"}],
     }
     stem = str(updates.pop("_stem", data["id"]))
@@ -78,6 +89,8 @@ def test_shape_filename_and_generated_view_rules(tmp_path: Path) -> None:
         ({"surfaces": ["Budget", 3]}, "surfaces"),
         ({"unknown": True}, "unknown field"),
         ({"_stem": "other_id"}, "filename stem"),
+        ({"priority": {"rationale": "too small"}}, "priority missing"),
+        ({"priority": {"trust_blast_radius": 1, "release_blocker_weight": 1, "user_frequency": 1, "evidence_gap": 1, "route_centrality": 1, "compliance_risk": 1, "learning_value": 1, "proof_cost": 5, "rationale": "This T0 score is intentionally below the threshold."}}, "T0 priority score"),
     ]
     for update, expected in cases:
         root = _root(tmp_path / expected.replace(" ", "_"))

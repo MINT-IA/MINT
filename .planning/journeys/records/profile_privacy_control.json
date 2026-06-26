@@ -23,6 +23,17 @@
   "issues": [
     "JOURNEY-TRUTH-MATRIX-024"
   ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 4,
+    "evidence_gap": 3,
+    "route_centrality": 4,
+    "compliance_risk": 5,
+    "learning_value": 4,
+    "proof_cost": 3,
+    "rationale": "Privacy control is a trust and compliance boundary; runtime proof exists but delete/export remains partial."
+  },
   "evidence": [
     {
       "kind": "runtime",

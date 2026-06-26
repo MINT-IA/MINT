@@ -22,6 +22,17 @@
     "CJT-003",
     "CJT-024"
   ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 5,
+    "evidence_gap": 2,
+    "route_centrality": 5,
+    "compliance_risk": 4,
+    "learning_value": 5,
+    "proof_cost": 3,
+    "rationale": "Money consistency is the central Mint promise and crosses Budget, Mon Argent, Rapport, and Coach."
+  },
   "evidence": [
     {
       "kind": "runtime",

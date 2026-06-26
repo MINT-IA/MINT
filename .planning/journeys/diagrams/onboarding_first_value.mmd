@@ -2,6 +2,8 @@
 flowchart TD
   promise["I get useful value before I commit more data."]
   team["mint-quality-gate"]
+  priority["priority score 24"]
+  priority --> promise
   route_onb["/onb"]
   promise --> route_onb
   route_onb --> team

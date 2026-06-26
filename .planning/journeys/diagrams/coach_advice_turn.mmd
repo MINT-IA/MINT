@@ -2,6 +2,8 @@
 flowchart TD
   promise["When Coach gives a number, it is current, cited, and bounded."]
   team["mint-swiss-brain"]
+  priority["priority score 27"]
+  priority --> promise
   route_coach_chat["/coach/chat"]
   promise --> route_coach_chat
   route_coach_chat --> team

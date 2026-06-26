@@ -21,6 +21,17 @@
     "CJT-011",
     "JOURNEY-TRUTH-MATRIX-014"
   ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 4,
+    "evidence_gap": 3,
+    "route_centrality": 4,
+    "compliance_risk": 5,
+    "learning_value": 5,
+    "proof_cost": 4,
+    "rationale": "Coach advice can damage financial trust fastest; cited-number quality remains broader than the existing 3a proof."
+  },
   "evidence": [
     {
       "kind": "runtime",
