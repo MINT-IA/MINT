@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-06-24",
+  "updated": "2026-06-27",
   "active_milestone": "mint-2-0-first-experience-rente-capital",
   "active_phase_dir": ".planning/phases/mint-2-0-first-experience-rente-capital",
   "active_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
@@ -14,7 +14,8 @@
     "codex/account-lifecycle-gate-20260624",
     "codex/jos001-seeded-auth-runtime-20260626",
     "codex/dynamic-pr-size-rule-20260626",
-    "codex/jos002-money-truth-spine-20260626"
+    "codex/jos002-money-truth-spine-20260626",
+    "codex/jos002a-onboarding-persistence-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [
