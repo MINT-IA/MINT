@@ -48,10 +48,15 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram):
+        allowed_evidence = (
+            path.startswith(str(JOURNEYS / "evidence") + "/")
+            and Path(path).suffix in {".md", ".txt", ".xml", ".json"}
+            and ".." not in Path(path).parts
+        )
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
-        if path.startswith(str(JOURNEYS) + "/") and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
+        if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
             errors.append(f"unsupported Journey OS generated view: {path}")
     readme = root / JOURNEYS / "README.md"
     if readme.exists() and "```mermaid" in readme.read_text(encoding="utf-8", errors="ignore").lower():

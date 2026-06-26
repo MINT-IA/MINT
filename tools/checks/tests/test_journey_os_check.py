@@ -89,6 +89,27 @@ def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
     journey_os_generate.write(root)
     assert any("outside Journey OS whitelist" in error for error in _errors(root, ["apps/mobile/lib/app.dart"]))
 
+def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    evidence_dir = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z"
+    evidence_dir.mkdir(parents=True)
+    (evidence_dir / "README.md").write_text("runtime receipt", encoding="utf-8")
+    (evidence_dir / "result.xml").write_text("<testsuite/>", encoding="utf-8")
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/README.md",
+            ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.xml",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+    assert not any("unsupported Journey OS generated view" in error for error in errors)
+
 def test_jos_issue_refs_require_registry_files(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
