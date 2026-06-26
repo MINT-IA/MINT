@@ -19,6 +19,7 @@
   ],
   "external_apis": [],
   "issues": [
+    "JOS-002",
     "CJT-003",
     "CJT-024"
   ],
