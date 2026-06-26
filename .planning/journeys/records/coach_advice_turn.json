@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "coach_advice_turn",
+  "title": "Coach advice turn",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "When Coach gives a number, it is current, cited, and bounded.",
+  "accountable_team": "mint-swiss-brain",
+  "route_paths": [
+    "/coach/chat"
+  ],
+  "surfaces": [
+    "CoachOrchestrator",
+    "CoachContextPacket",
+    "ComplianceGuard"
+  ],
+  "external_apis": [
+    "POST /api/v1/coach/chat"
+  ],
+  "issues": [
+    "CJT-011",
+    "JOURNEY-TRUTH-MATRIX-014"
+  ],
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658/result.xml tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658/result.xml",
+      "reason": "CJT-011 durable runtime proof shows the 3a answer path reached Coach and asserted current cited 3a values; broader advice quality remains partial."
+    }
+  ]
+}

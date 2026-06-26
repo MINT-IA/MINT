@@ -1,0 +1,25 @@
+%% Generated from .planning/journeys/records/account_lifecycle_delete.json
+flowchart TD
+  promise["I can recover, delete, and control my account data."]
+  team["mint-quality-gate"]
+  route_auth_login["/auth/login"]
+  promise --> route_auth_login
+  route_auth_login --> team
+  route_auth_register["/auth/register"]
+  promise --> route_auth_register
+  route_auth_register --> team
+  route_auth_forgot_password["/auth/forgot-password"]
+  promise --> route_auth_forgot_password
+  route_auth_forgot_password --> team
+  route_profile_privacy_control["/profile/privacy-control"]
+  promise --> route_profile_privacy_control
+  route_profile_privacy_control --> team
+  route_profile_privacy["/profile/privacy"]
+  promise --> route_profile_privacy
+  route_profile_privacy --> team
+  surface_AuthProvider["AuthProvider"]
+  promise -.-> surface_AuthProvider
+  surface_PrivacyControlScreen["PrivacyControlScreen"]
+  promise -.-> surface_PrivacyControlScreen
+  surface_AccountDeletionFlow["AccountDeletionFlow"]
+  promise -.-> surface_AccountDeletionFlow

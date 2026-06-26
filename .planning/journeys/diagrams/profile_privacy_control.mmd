@@ -1,0 +1,21 @@
+%% Generated from .planning/journeys/records/profile_privacy_control.json
+flowchart TD
+  promise["I can see and control what MINT knows about me."]
+  team["mint-quality-gate"]
+  route_profile_privacy_control["/profile/privacy-control"]
+  promise --> route_profile_privacy_control
+  route_profile_privacy_control --> team
+  route_profile_privacy["/profile/privacy"]
+  promise --> route_profile_privacy
+  route_profile_privacy --> team
+  route_settings_confidentialite["/settings/confidentialite"]
+  promise --> route_settings_confidentialite
+  route_settings_confidentialite --> team
+  surface_PrivacyControlScreen["PrivacyControlScreen"]
+  promise -.-> surface_PrivacyControlScreen
+  surface_ConsentSheet["ConsentSheet"]
+  promise -.-> surface_ConsentSheet
+  surface_ConsentReceiptService["ConsentReceiptService"]
+  promise -.-> surface_ConsentReceiptService
+  surface_PiiScrubber["PiiScrubber"]
+  promise -.-> surface_PiiScrubber

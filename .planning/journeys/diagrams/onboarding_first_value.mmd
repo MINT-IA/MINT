@@ -1,0 +1,19 @@
+%% Generated from .planning/journeys/records/onboarding_first_value.json
+flowchart TD
+  promise["I get useful value before I commit more data."]
+  team["mint-quality-gate"]
+  route_onb["/onb"]
+  promise --> route_onb
+  route_onb --> team
+  route_coach_chat["/coach/chat"]
+  promise --> route_coach_chat
+  route_coach_chat --> team
+  route_home["/home"]
+  promise --> route_home
+  route_home --> team
+  surface_OnboardingShellScreen["OnboardingShellScreen"]
+  promise -.-> surface_OnboardingShellScreen
+  surface_CoachProfileProvider["CoachProfileProvider"]
+  promise -.-> surface_CoachProfileProvider
+  surface_MintStateProvider["MintStateProvider"]
+  promise -.-> surface_MintStateProvider
