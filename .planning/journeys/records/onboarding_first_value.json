@@ -21,6 +21,17 @@
     "CJT-018",
     "JOURNEY-TRUTH-MATRIX-006"
   ],
+  "priority": {
+    "trust_blast_radius": 4,
+    "release_blocker_weight": 4,
+    "user_frequency": 5,
+    "evidence_gap": 2,
+    "route_centrality": 5,
+    "compliance_risk": 2,
+    "learning_value": 4,
+    "proof_cost": 2,
+    "rationale": "First value is the highest-frequency entry path; current proof exists but beta access still depends on it."
+  },
   "evidence": [
     {
       "kind": "runtime",

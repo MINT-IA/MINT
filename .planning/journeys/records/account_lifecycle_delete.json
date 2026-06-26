@@ -25,6 +25,17 @@
   "issues": [
     "JOURNEY-TRUTH-MATRIX-005"
   ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 3,
+    "evidence_gap": 5,
+    "route_centrality": 4,
+    "compliance_risk": 5,
+    "learning_value": 4,
+    "proof_cost": 4,
+    "rationale": "Only T0 seed with missing evidence; account recovery/delete/control is a trust and release boundary."
+  },
   "evidence": [
     {
       "kind": "manual",

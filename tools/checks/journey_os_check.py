@@ -14,16 +14,18 @@ JOURNEYS = Path(".planning/journeys")
 RECORDS = JOURNEYS / "records"
 SCHEMA = JOURNEYS / "journey.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
-ALLOW = {str(SCHEMA), str(JOURNEYS / "README.md"), str(journey_os_generate.SUMMARY), "tools/checks/journey_os_check.py", "tools/checks/journey_os_generate.py", "tools/checks/tests/test_journey_os_check.py"}
+ALLOW = {str(SCHEMA), str(JOURNEYS / "README.md"), str(JOURNEYS / "PRIORITY_RUBRIC.md"), str(journey_os_generate.SUMMARY), "tools/checks/journey_os_check.py", "tools/checks/journey_os_generate.py", "tools/checks/tests/test_journey_os_check.py"}
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
 TIERS = {"T0", "T1", "T2", "T3"}
 KINDS = {"unit", "widget", "static_guard", "runtime", "manual", "external"}
 ESTATUS = {"green", "red", "missing", "baselined"}
-TOP = {"schema_version", "id", "title", "tier", "status", "human_promise", "accountable_team", "route_paths", "surfaces", "external_apis", "issues", "evidence"}
+TOP = {"schema_version", "id", "title", "tier", "status", "human_promise", "accountable_team", "route_paths", "surfaces", "external_apis", "issues", "priority", "evidence"}
 REQ = TOP
 ARRAYS = {"route_paths", "surfaces", "external_apis", "issues"}
 EKEYS = {"kind", "status", "command", "artifact", "reason", "debt_ref", "verified_at", "verified_commit"}
+PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
+PRIORITY_KEYS = PRIORITY_POSITIVE | {"proof_cost", "rationale"}
 
 def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=root, text=True, capture_output=True)
@@ -90,6 +92,31 @@ def _artifact_ok(root: Path, value: Any) -> bool:
         return False
     return (root / path).exists()
 
+def _priority_score(priority: dict[str, Any]) -> int:
+    return sum(int(priority[key]) for key in PRIORITY_POSITIVE) - int(priority["proof_cost"])
+
+def _priority_errors(rel: Path, data: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    priority = data.get("priority")
+    if not isinstance(priority, dict):
+        return [f"{rel} priority must be an object"]
+    extra = set(priority) - PRIORITY_KEYS
+    if extra:
+        errors.append(f"{rel} priority unknown field(s): {', '.join(sorted(extra))}")
+    for key in sorted(PRIORITY_KEYS):
+        if key not in priority:
+            errors.append(f"{rel} priority missing field: {key}")
+    for key in sorted(PRIORITY_POSITIVE | {"proof_cost"}):
+        value = priority.get(key)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0 or value > 5:
+            errors.append(f"{rel} priority.{key} must be an integer from 0 to 5")
+    rationale = priority.get("rationale")
+    if not isinstance(rationale, str) or len(rationale.strip()) < 20:
+        errors.append(f"{rel} priority.rationale must explain the ranking")
+    if data.get("tier") == "T0" and not errors and _priority_score(priority) < 15:
+        errors.append(f"{rel} T0 priority score must be at least 15")
+    return errors
+
 def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str]) -> list[str]:
     rel = path.relative_to(root)
     errors: list[str] = []
@@ -116,6 +143,7 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
         value = data.get(key)
         if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
             errors.append(f"{rel} {key} must be an array of strings")
+    errors += _priority_errors(rel, data)
     for route in data.get("route_paths", []) if isinstance(data.get("route_paths"), list) else []:
         if not isinstance(route, str) or route not in routes:
             errors.append(f"{rel} route_path is not a registered route: {route}")

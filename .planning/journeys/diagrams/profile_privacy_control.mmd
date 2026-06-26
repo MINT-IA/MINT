@@ -2,6 +2,8 @@
 flowchart TD
   promise["I can see and control what MINT knows about me."]
   team["mint-quality-gate"]
+  priority["priority score 27"]
+  priority --> promise
   route_profile_privacy_control["/profile/privacy-control"]
   promise --> route_profile_privacy_control
   route_profile_privacy_control --> team

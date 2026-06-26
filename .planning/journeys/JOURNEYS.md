@@ -2,10 +2,10 @@
 
 Generated from `.planning/journeys/records/*.json`. Do not edit directly.
 
-| ID | Tier | Status | Promise | Accountable team | Routes | Evidence |
-|---|---|---|---|---|---|---|
-| account_lifecycle_delete | T0 | draft | I can recover, delete, and control my account data. | mint-quality-gate | /auth/login, /auth/register, /auth/forgot-password, /profile/privacy-control, /profile/privacy | missing |
-| coach_advice_turn | T0 | partial | When Coach gives a number, it is current, cited, and bounded. | mint-swiss-brain | /coach/chat | green |
-| money_truth_spine | T0 | partial | My money numbers are consistent. | mint-quality-gate | /budget, /mon-argent, /rapport, /coach/chat | green |
-| onboarding_first_value | T0 | partial | I get useful value before I commit more data. | mint-quality-gate | /onb, /coach/chat, /home | green |
-| profile_privacy_control | T0 | partial | I can see and control what MINT knows about me. | mint-quality-gate | /profile/privacy-control, /profile/privacy, /settings/confidentialite | green |
+| ID | Tier | Priority | Status | Promise | Accountable team | Routes | Evidence |
+|---|---:|---:|---|---|---|---|---|
+| account_lifecycle_delete | T0 | 27 | draft | I can recover, delete, and control my account data. | mint-quality-gate | /auth/login, /auth/register, /auth/forgot-password, /profile/privacy-control, /profile/privacy | missing |
+| coach_advice_turn | T0 | 27 | partial | When Coach gives a number, it is current, cited, and bounded. | mint-swiss-brain | /coach/chat | green |
+| money_truth_spine | T0 | 28 | partial | My money numbers are consistent. | mint-quality-gate | /budget, /mon-argent, /rapport, /coach/chat | green |
+| onboarding_first_value | T0 | 24 | partial | I get useful value before I commit more data. | mint-quality-gate | /onb, /coach/chat, /home | green |
+| profile_privacy_control | T0 | 27 | partial | I can see and control what MINT knows about me. | mint-quality-gate | /profile/privacy-control, /profile/privacy, /settings/confidentialite | green |
