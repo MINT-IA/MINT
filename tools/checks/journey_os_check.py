@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Mint Journey OS PR1 records and scope."""
+"""Validate Mint Journey OS records, scope, and generated views."""
 from __future__ import annotations
 
 import argparse, json, subprocess, sys
@@ -8,12 +8,13 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+from tools.checks import journey_os_generate
 from tools.checks.route_registry_parity import extract_registry_keys
 JOURNEYS = Path(".planning/journeys")
 RECORDS = JOURNEYS / "records"
 SCHEMA = JOURNEYS / "journey.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
-ALLOW = {str(SCHEMA), str(JOURNEYS / "README.md"), "tools/checks/journey_os_check.py", "tools/checks/tests/test_journey_os_check.py"}
+ALLOW = {str(SCHEMA), str(JOURNEYS / "README.md"), str(journey_os_generate.SUMMARY), "tools/checks/journey_os_check.py", "tools/checks/journey_os_generate.py", "tools/checks/tests/test_journey_os_check.py"}
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
 TIERS = {"T0", "T1", "T2", "T3"}
@@ -37,14 +38,31 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
-        if not (path in ALLOW or allowed_record):
-            errors.append(f"changed file outside PR1 whitelist: {path}")
+        allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
+        if not (path in ALLOW or allowed_record or allowed_diagram):
+            errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
-        if path.startswith(str(JOURNEYS) + "/") and (suffix in {".mmd", ".svg", ".html"} or (suffix == ".md" and path != str(JOURNEYS / "README.md"))):
-            errors.append(f"generated Journey OS view is forbidden in PR1: {path}")
+        if path.startswith(str(JOURNEYS) + "/") and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
+            errors.append(f"unsupported Journey OS generated view: {path}")
     readme = root / JOURNEYS / "README.md"
     if readme.exists() and "```mermaid" in readme.read_text(encoding="utf-8", errors="ignore").lower():
         errors.append("Mermaid fenced blocks are forbidden in .planning/journeys/README.md")
+    return errors
+
+def _generated_errors(root: Path) -> list[str]:
+    errors: list[str] = []
+    expected = journey_os_generate.expected(root)
+    for rel, content in expected.items():
+        path = root / rel
+        if not path.exists():
+            errors.append(f"missing generated Journey OS view: {rel}")
+        elif path.read_text(encoding="utf-8") != content:
+            errors.append(f"stale generated Journey OS view: {rel}")
+    expected_paths = {str(path) for path in expected}
+    for path in (root / journey_os_generate.DIAGRAMS).glob("*.mmd"):
+        rel = str(path.relative_to(root))
+        if rel not in expected_paths:
+            errors.append(f"orphan generated Journey OS diagram: {rel}")
     return errors
 
 def _load_records(root: Path) -> tuple[list[tuple[Path, dict[str, Any]]], list[str]]:
@@ -154,6 +172,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
         if isinstance(rid, str):
             seen.add(rid)
         errors += _record_errors(root, path, data, routes)
+    errors += _generated_errors(root)
     return errors
 
 def main(argv: list[str] | None = None) -> int:

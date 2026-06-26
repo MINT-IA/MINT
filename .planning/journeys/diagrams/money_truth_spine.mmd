@@ -1,0 +1,22 @@
+%% Generated from .planning/journeys/records/money_truth_spine.json
+flowchart TD
+  promise["My money numbers are consistent."]
+  team["mint-quality-gate"]
+  route_budget["/budget"]
+  promise --> route_budget
+  route_budget --> team
+  route_mon_argent["/mon-argent"]
+  promise --> route_mon_argent
+  route_mon_argent --> team
+  route_rapport["/rapport"]
+  promise --> route_rapport
+  route_rapport --> team
+  route_coach_chat["/coach/chat"]
+  promise --> route_coach_chat
+  route_coach_chat --> team
+  surface_BudgetSnapshot["BudgetSnapshot"]
+  promise -.-> surface_BudgetSnapshot
+  surface_DataSpineSnapshot["DataSpineSnapshot"]
+  promise -.-> surface_DataSpineSnapshot
+  surface_CoachContextPacket["CoachContextPacket"]
+  promise -.-> surface_CoachContextPacket
