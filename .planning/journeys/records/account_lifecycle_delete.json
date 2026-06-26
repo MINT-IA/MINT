@@ -3,7 +3,7 @@
   "id": "account_lifecycle_delete",
   "title": "Account lifecycle delete",
   "tier": "T0",
-  "status": "draft",
+  "status": "partial",
   "human_promise": "I can recover, delete, and control my account data.",
   "accountable_team": "mint-quality-gate",
   "route_paths": [
@@ -39,11 +39,18 @@
   },
   "evidence": [
     {
-      "kind": "manual",
+      "kind": "widget",
+      "status": "green",
+      "command": "cd apps/mobile && flutter test test/screens/profile/privacy_center_screen_test.dart",
+      "artifact": "apps/mobile/test/screens/profile/privacy_center_screen_test.dart",
+      "reason": "PR #740 proves the authenticated /profile/privacy deletion entry opens confirmation, calls AuthProvider.deleteAccount(), and redirects home on success."
+    },
+    {
+      "kind": "runtime",
       "status": "missing",
       "command": null,
       "artifact": null,
-      "reason": "Journey Truth Matrix row 5 says recovery/delete/control account data has routes but no current end-to-end proof."
+      "reason": "The privacy-center route smoke exists, but full account lifecycle closure still needs seeded-auth runtime proof for recovery entry, privacy controls, and actual account deletion with durable repo evidence."
     }
   ]
 }

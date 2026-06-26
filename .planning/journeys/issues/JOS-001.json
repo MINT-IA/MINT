@@ -3,10 +3,10 @@
   "id": "JOS-001",
   "title": "Prove account lifecycle delete and recovery",
   "journey_id": "account_lifecycle_delete",
-  "status": "triaged",
+  "status": "proof_needed",
   "owner": "mint-quality-gate",
   "severity": "P0",
-  "evidence_status": "missing",
-  "next_action": "Create the smallest deterministic runtime proof for recovery, privacy control, and account deletion.",
-  "source": "JOURNEY-TRUTH-MATRIX-005"
+  "evidence_status": "green",
+  "next_action": "Add seeded-auth runtime proof for recovery entry, privacy controls, and actual account deletion with durable repo evidence.",
+  "source": "JOURNEY-TRUTH-MATRIX-005; PR #740"
 }
