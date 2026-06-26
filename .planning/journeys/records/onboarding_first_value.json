@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "onboarding_first_value",
+  "title": "Onboarding first value",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "I get useful value before I commit more data.",
+  "accountable_team": "mint-quality-gate",
+  "route_paths": [
+    "/onb",
+    "/coach/chat",
+    "/home"
+  ],
+  "surfaces": [
+    "OnboardingShellScreen",
+    "CoachProfileProvider",
+    "MintStateProvider"
+  ],
+  "external_apis": [],
+  "issues": [
+    "CJT-018",
+    "JOURNEY-TRUTH-MATRIX-006"
+  ],
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml",
+      "reason": "S005 iPhone 16e regression proof supports the onboarding-to-home first-value path; signed-device and broader beta access remain outside this record."
+    }
+  ]
+}

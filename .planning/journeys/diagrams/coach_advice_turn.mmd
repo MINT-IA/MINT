@@ -1,0 +1,13 @@
+%% Generated from .planning/journeys/records/coach_advice_turn.json
+flowchart TD
+  promise["When Coach gives a number, it is current, cited, and bounded."]
+  team["mint-swiss-brain"]
+  route_coach_chat["/coach/chat"]
+  promise --> route_coach_chat
+  route_coach_chat --> team
+  surface_CoachOrchestrator["CoachOrchestrator"]
+  promise -.-> surface_CoachOrchestrator
+  surface_CoachContextPacket["CoachContextPacket"]
+  promise -.-> surface_CoachContextPacket
+  surface_ComplianceGuard["ComplianceGuard"]
+  promise -.-> surface_ComplianceGuard

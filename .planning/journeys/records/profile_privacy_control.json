@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "profile_privacy_control",
+  "title": "Profile privacy control",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "I can see and control what MINT knows about me.",
+  "accountable_team": "mint-quality-gate",
+  "route_paths": [
+    "/profile/privacy-control",
+    "/profile/privacy",
+    "/settings/confidentialite"
+  ],
+  "surfaces": [
+    "PrivacyControlScreen",
+    "ConsentSheet",
+    "ConsentReceiptService",
+    "PiiScrubber"
+  ],
+  "external_apis": [
+    "GET /api/v1/privacy/delete-count"
+  ],
+  "issues": [
+    "JOURNEY-TRUTH-MATRIX-024"
+  ],
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=240 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-24-privacy-control-runtime-20260604T182101 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-24-privacy-control-runtime-20260604T182101/result.xml tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-24-privacy-control-runtime-20260604T182101/result.xml",
+      "reason": "Row 24 runtime proof opens privacy-control and shows known-data controls; export/delete and production log sampling remain partial."
+    }
+  ]
+}

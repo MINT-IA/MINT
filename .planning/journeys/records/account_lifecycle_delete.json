@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "account_lifecycle_delete",
+  "title": "Account lifecycle delete",
+  "tier": "T0",
+  "status": "draft",
+  "human_promise": "I can recover, delete, and control my account data.",
+  "accountable_team": "mint-quality-gate",
+  "route_paths": [
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password",
+    "/profile/privacy-control",
+    "/profile/privacy"
+  ],
+  "surfaces": [
+    "AuthProvider",
+    "PrivacyControlScreen",
+    "AccountDeletionFlow"
+  ],
+  "external_apis": [
+    "DELETE /auth/account",
+    "GET /api/v1/privacy/delete-count"
+  ],
+  "issues": [
+    "JOURNEY-TRUTH-MATRIX-005"
+  ],
+  "evidence": [
+    {
+      "kind": "manual",
+      "status": "missing",
+      "command": null,
+      "artifact": null,
+      "reason": "Journey Truth Matrix row 5 says recovery/delete/control account data has routes but no current end-to-end proof."
+    }
+  ]
+}
