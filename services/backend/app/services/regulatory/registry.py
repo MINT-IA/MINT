@@ -10,7 +10,7 @@ Architecture:
     - Singleton pattern: one registry instance per process.
     - Constants are hardcoded in _PARAMETERS for now (DB migration planned P4).
     - Every constant from social_insurance.py is mirrored here with full metadata.
-    - Freshness tracking: reviewed_at must be within 90 days or flagged stale.
+    - Freshness tracking: reviewed_at powers runtime/scheduled stale reports.
 
 Sources:
     - CLAUDE.md §5 (Key Constants 2025/2026)
@@ -1368,11 +1368,16 @@ class RegulatoryRegistry:
             return [p for p in all_params if p.key.lower().startswith(prefix)]
         return all_params
 
-    def check_freshness(self, max_age_days: int = 90) -> list[RegulatoryParameter]:
+    def check_freshness(
+        self,
+        max_age_days: int = 90,
+        as_of: Optional[date] = None,
+    ) -> list[RegulatoryParameter]:
         """Return parameters that are stale (reviewed_at older than max_age_days).
 
         Args:
             max_age_days: Maximum number of days since last review.
+            as_of: Date to evaluate freshness against. Defaults to today.
 
         Returns:
             List of stale parameters needing review.
@@ -1380,7 +1385,7 @@ class RegulatoryRegistry:
         stale = []
         for params in self._params.values():
             for p in params:
-                if p.is_stale(max_age_days):
+                if p.is_stale(max_age_days, on_date=as_of):
                     stale.append(p)
         return stale
 
