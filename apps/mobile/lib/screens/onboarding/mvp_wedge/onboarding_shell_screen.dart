@@ -1488,6 +1488,9 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     setState(() => _sealing = true);
     try {
       await provider.completeAndFlushToProfile(coach);
+      if (coach.hasProfile) {
+        context.read<AuthProvider>().markAccountProfileAvailable();
+      }
     } catch (e, stack) {
       dev.log(
         'MVP wedge seal failed',

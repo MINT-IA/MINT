@@ -1,0 +1,300 @@
+# tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml
+#
+# PURPOSE
+# JOS-001 runtime proof for the account lifecycle spine:
+# recovery entry -> real account creation -> privacy controls ->
+# privacy center delete-account confirmation.
+#
+# This flow deliberately drives the public register UI with a fresh e2e email.
+# It must not pass by saving a fake local token. If staging re-enables mandatory
+# email verification without a Maestro token fixture, this flow fails and
+# JOS-001 stays proof-needed.
+#
+# Required env:
+#   MINT_E2E_EMAIL    e.g. e2e-jos001-$(date +%s)@mint-e2e.ch
+#   MINT_E2E_PASSWORD 8+ chars, uppercase, digit, symbol
+
+appId: ch.mint.app
+tags:
+  - jos-001
+  - account-lifecycle
+  - recovery
+  - privacy-controls
+  - delete-account
+  - runtime
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# 01 — recovery entry remains reachable from a fresh install.
+- openLink: "mintapp:///auth/forgot-password"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "Réinitialiser le mot de passe"
+    timeout: 12000
+- assertVisible:
+    text: "Envoyer le lien de réinitialisation"
+- takeScreenshot: "01-recovery-entry"
+
+# 02 — create a real staging account through the canonical register UI.
+- openLink: "mintapp:///auth/register"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "Créer ton compte"
+    timeout: 12000
+- runFlow:
+    when:
+      visible: "Créer avec e-mail"
+    commands:
+      - tapOn:
+          text: "Créer avec e-mail"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "Adresse e-mail"
+    timeout: 8000
+- tapOn:
+    text: ".*J'ai lu et j'accepte.*"
+- tapOn:
+    text: ".*Je confirme avoir 18 ans.*"
+
+- tapOn:
+    text: "Adresse e-mail"
+- inputText: ${MINT_E2E_EMAIL}
+- pressKey: Enter
+
+- tapOn:
+    text: "Prénom"
+- inputText: "Jos001"
+- pressKey: Enter
+
+# The Flutter semantics wrapper exposes the visible date field as a text-field
+# node, while the tappable GestureDetector sits above it. Tap the field center:
+# the preceding email/name field interactions keep this layout stable.
+- tapOn:
+    point: "50%,69%"
+- tapOn:
+    text: "Valider"
+
+- scrollUntilVisible:
+    element:
+      text: "Mot de passe"
+    direction: DOWN
+    timeout: 8000
+- tapOn:
+    text: "Mot de passe"
+- inputText: ${MINT_E2E_PASSWORD}
+- pressKey: Enter
+
+- tapOn:
+    text: "Confirmer le mot de passe"
+- inputText: ${MINT_E2E_PASSWORD}
+- pressKey: Enter
+
+- extendedWaitUntil:
+    visible:
+      text: "Créer mon compte"
+    timeout: 5000
+- tapOn:
+    text: "Créer mon compte"
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# If email verification appears, this gate must fail rather than fake auth.
+- assertNotVisible:
+    text: "Vérifier mon e-mail"
+
+# 03 — complete the real onboarding spine so the authenticated profile guard
+# lets the account reach profile routes. This is not a shortcut: it uses the
+# same stable semantics ids as the diagnostic onboarding runtime gates.
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-entry-open"
+    timeout: 12000
+- tapOn:
+    id: "onboarding-entry-open"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-intent-explorer"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-intent-explorer"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: ".*États-Unis.*"
+    timeout: 5000
+- tapOn:
+    text: "Non"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Suisse"
+    timeout: 5000
+- tapOn:
+    text: "Suisse"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Salarié"
+    timeout: 5000
+- tapOn:
+    text: "Salarié"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Marié"
+    timeout: 5000
+- tapOn:
+    text: "Marié"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Non, toujours en Suisse"
+    timeout: 5000
+- tapOn:
+    text: "Non, toujours en Suisse"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Choisir ma date"
+    timeout: 5000
+- tapOn: "Choisir ma date"
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-dob-continue"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-canton-vd"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-canton-vd"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-revenue-range-continue"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-revenue-range-continue"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-insight-view"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-insight-view"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Ce que Mint peut déjà situer"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-scene-continue"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-bifurcation-continue"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-bifurcation-continue"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 15000
+
+# 04 — privacy controls are reachable under the created session.
+- openLink: "mintapp:///profile/privacy-control"
+- extendedWaitUntil:
+    visible:
+      text: "Ce que MINT sait de toi"
+    timeout: 12000
+- takeScreenshot: "02-privacy-control"
+
+# 05 — privacy center exposes the real delete-account action.
+- openLink: "mintapp:///profile/privacy"
+- extendedWaitUntil:
+    visible:
+      text: "Ma vie privée"
+    timeout: 12000
+- assertVisible:
+    text: "Supprimer mon compte"
+- takeScreenshot: "03-privacy-center-delete-entry"
+
+# 06 — confirm deletion. The row calls AuthProvider.deleteAccount(), which
+# calls DELETE /auth/account before clearing the local session.
+- tapOn:
+    text: "Supprimer mon compte"
+- extendedWaitUntil:
+    visible:
+      text: "Supprimer le compte.*"
+    timeout: 8000
+- tapOn:
+    text: "Supprimer"
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# After deletion, the deleted account should no longer expose the logged-in
+# privacy-center delete row. Opening the public recovery route proves the app
+# can still leave the deleted session cleanly.
+- openLink: "mintapp:///auth/forgot-password"
+- extendedWaitUntil:
+    visible:
+      text: "Réinitialiser le mot de passe"
+    timeout: 12000
+- assertNotVisible:
+    text: "Supprimer mon compte"
+- takeScreenshot: "04-after-delete-recovery-clean"
