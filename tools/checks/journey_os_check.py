@@ -239,6 +239,30 @@ def _issue_errors(root: Path, path: Path, data: dict[str, Any], journey_ids: set
         errors.append(f"{rel} evidence_status has unknown enum: {data.get('evidence_status')}")
     return errors
 
+def _issue_progress_errors(root: Path, records: list[tuple[Path, dict[str, Any]]], issues: list[tuple[Path, dict[str, Any]]]) -> list[str]:
+    has_green_evidence: set[str] = set()
+    for _path, data in records:
+        if not isinstance(data.get("id"), str):
+            continue
+        evidence = data.get("evidence")
+        if not isinstance(evidence, list):
+            continue
+        if any(isinstance(item, dict) and item.get("status") == "green" and _artifact_ok(root, item.get("artifact")) for item in evidence):
+            has_green_evidence.add(str(data["id"]))
+    errors: list[str] = []
+    for path, data in issues:
+        has_green = data.get("journey_id") in has_green_evidence
+        rel = path.relative_to(root)
+        if data.get("evidence_status") == "green" and not has_green:
+            errors.append(f"{rel} cannot be green without durable green evidence on referenced journey")
+        if not has_green:
+            continue
+        if data.get("status") in {"found", "triaged"}:
+            errors.append(f"{rel} cannot stay {data.get('status')} after referenced journey has durable green evidence")
+        if data.get("evidence_status") == "missing":
+            errors.append(f"{rel} cannot stay missing after referenced journey has durable green evidence")
+    return errors
+
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
@@ -267,6 +291,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
         if isinstance(iid, str):
             issue_ids.add(iid)
         errors += _issue_errors(root, path, data, seen)
+    errors += _issue_progress_errors(root, records, issues)
     for path, data in records:
         rel = path.relative_to(root)
         for issue in data.get("issues", []) if isinstance(data.get("issues"), list) else []:

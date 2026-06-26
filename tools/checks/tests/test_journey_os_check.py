@@ -55,10 +55,10 @@ def _issue(root: Path, **updates: object) -> None:
         "id": "JOS-001",
         "title": "Prove money truth spine",
         "journey_id": "money_truth_spine",
-        "status": "triaged",
+        "status": "proof_needed",
         "owner": "mint-quality-gate",
         "severity": "P0",
-        "evidence_status": "missing",
+        "evidence_status": "green",
         "next_action": "Create the next deterministic runtime proof for the highest-scoring journey.",
         "source": "CJT-003",
     }
@@ -105,6 +105,20 @@ def test_issue_registry_and_generated_board(tmp_path: Path) -> None:
     assert "Next Journey OS Work" in board
     assert "JOS-001" in board
     assert "money_truth_spine" in board
+
+def test_issue_status_tracks_referenced_record_evidence(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root, status="triaged", evidence_status="missing")
+    journey_os_generate.write(root)
+    errors = _errors(root)
+    assert any("cannot stay triaged" in error for error in errors)
+    assert any("cannot stay missing" in error for error in errors)
+    root = _root(tmp_path / "overclaim")
+    _record(root, evidence=[{"kind": "runtime", "status": "missing", "command": None, "artifact": None}])
+    _issue(root, status="proof_needed", evidence_status="green")
+    journey_os_generate.write(root)
+    assert any("cannot be green" in error for error in _errors(root))
 
 def test_issue_registry_shape_rules(tmp_path: Path) -> None:
     cases = [
