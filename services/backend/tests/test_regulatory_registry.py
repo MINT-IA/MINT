@@ -214,6 +214,12 @@ class TestConstantsPresence:
         assert param is not None
         assert param.value == si.AVS_COTISATION_MIN_INDEPENDANT
 
+    def test_avs_independent_min_income_threshold(self, registry):
+        param = registry.get("avs.independent_min_income_threshold")
+        assert param is not None
+        assert param.value == 10_100.0
+        assert param.value == si.AVS_SEUIL_REVENU_MIN_INDEPENDANT
+
     def test_lamal_copay_rate(self, registry):
         param = registry.get("lamal.copay_rate")
         assert param is not None

@@ -68,10 +68,10 @@ jobs:
         env:
           DATABASE_URL: "sqlite:///:memory:"
         run: |
-          # --write against staging to refresh aging state (UP transition) ;
-          # then re-run --check (network-free) to verify the committed file
-          # still matches the local source. If staging differs from the
-          # committed file the contributor must regen.
+          # --write against staging to refresh aging state (UP transition).
+          # Staging can legitimately lag a PR that updates the local
+          # registry, so a staging mismatch is a warning. The hard gate is
+          # the network-free local --check below.
           python3 tools/codegen/regulatory_constants_to_dart.py \
             --source staging \
             --aging-state-file .planning/state/regulatory-codegen-aging.json \
@@ -84,8 +84,7 @@ jobs:
           echo "staging_hash=$STAGING_HASH"
           echo "committed_hash=$COMMITTED_HASH"
           if [ "$STAGING_HASH" != "$COMMITTED_HASH" ]; then
-            echo "::error::Staging hash differs from committed Dart file. Regen via: python3 tools/codegen/regulatory_constants_to_dart.py --source staging --write"
-            exit 1
+            echo "::warning::Staging hash differs from committed Dart file; this is expected before a registry PR reaches staging. Local --check remains the hard gate."
           fi
 
       - name: Update aging state (staging DOWN)

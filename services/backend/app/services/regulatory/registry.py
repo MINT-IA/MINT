@@ -35,9 +35,10 @@ logger = logging.getLogger(__name__)
 
 _OFAS_LPP_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html"
 _OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html"
+_OFAS_CONTRIBUTIONS_URL = "https://www.bsv.admin.ch/fr/cotisations-apercu"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
 _FINMA_URL = "https://www.finma.ch/fr/"
-_REVIEWED = date(2026, 3, 26)
+_REVIEWED = date(2026, 6, 26)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # All regulatory parameters — seeded from social_insurance.py
@@ -707,10 +708,10 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.independent_min_income_threshold",
-        value=9_800.0,
+        value=10_100.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
+        source_url=_OFAS_CONTRIBUTIONS_URL,
         source_title="LAVS art. 8",
         source_type="law",
         description="Seuil de revenu en dessous duquel la cotisation minimale s'applique.",
