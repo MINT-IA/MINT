@@ -3,7 +3,7 @@
   "id": "money_truth_spine",
   "title": "Money truth spine",
   "tier": "T0",
-  "status": "partial",
+  "status": "live_proven",
   "human_promise": "My money numbers are consistent.",
   "accountable_team": "mint-quality-gate",
   "route_paths": [
@@ -27,7 +27,7 @@
     "trust_blast_radius": 5,
     "release_blocker_weight": 5,
     "user_frequency": 5,
-    "evidence_gap": 2,
+    "evidence_gap": 0,
     "route_centrality": 5,
     "compliance_risk": 4,
     "learning_value": 5,
@@ -44,10 +44,20 @@
     },
     {
       "kind": "runtime",
-      "status": "red",
+      "status": "baselined",
       "command": "MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/money-truth-spine-20260626T213202Z MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=150 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/debug --format junit --output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
       "artifact": ".planning/journeys/evidence/money_truth_spine/20260626T213202Z/result.xml",
-      "reason": "Fresh diagnostic rerun with temporary local Maestro harness alignment reached production onboarding, local-mode gate, Budget setup, app restart, and /budget budget_hero_formula. It failed on /mon-argent?section=month because simulator secure-storage seal left no persisted wizard_answers_v2 and no hydrated CoachProfile after restart, so the profile-required route redirected to /onb. This is not a Money value mismatch; land harness YAML changes in a separate runtime-proof PR."
+      "reason": "Historical red diagnostic superseded by the JOS-002A onboarding persistence fix and JOS-002B Money Truth runtime proof on dev.",
+      "debt_ref": "Superseded by PR #745 and PR #746."
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --debug --no-codesign --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 --dart-define=MINT_DISABLE_BETA_MODAL=true --dart-define=MINT_E2E_PROOF_ANCHORS=true && MINT_WALKER_ARTIFACTS=.planning/journeys/evidence/money_truth_spine/20260627T003738Z MAESTRO_HARD_LIMIT=600 MAESTRO_STALL_THRESHOLD=150 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/journeys/evidence/money_truth_spine/20260627T003738Z/debug --format junit --output .planning/journeys/evidence/money_truth_spine/20260627T003738Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+      "artifact": ".planning/journeys/evidence/money_truth_spine/20260627T003738Z/result.xml",
+      "reason": "Fresh runtime proof from clean origin/dev after PR #746: Budget to Mon Argent to Rapport to Coach passed with Money Trust Chain anchors.",
+      "verified_at": "2026-06-27T00:38:40Z",
+      "verified_commit": "5d8b970cb04f346b8a00c63bf120aa35fa0c4616"
     }
   ]
 }
