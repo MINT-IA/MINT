@@ -14,6 +14,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   phase is queued yet.
 - Temporary hotfix branch: `codex/account-lifecycle-gate-20260624` is
   authorized only for the account lifecycle/onboarding gate hotfix.
+- Temporary staging deploy branch: `codex/jos004-staging-deploy-20260627` is
+  authorized only to promote the JOS-004 authenticated Coach 3a/LPP freshness
+  fix to `staging` for Railway runtime proof.
 
 ## Required Session Start
 

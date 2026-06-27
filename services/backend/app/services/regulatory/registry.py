@@ -37,7 +37,7 @@ _OFAS_LPP_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/don
 _OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
 _FINMA_URL = "https://www.finma.ch/fr/"
-_REVIEWED = date(2026, 3, 26)
+_REVIEWED = date(2026, 6, 26)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # All regulatory parameters — seeded from social_insurance.py
