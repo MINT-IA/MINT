@@ -53,6 +53,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   `codex/jos004-maestro-first-experience-proof-20260627` is authorized only
   for the JOS-004 Coach advice turn Maestro runtime proof harness update from
   clean `origin/dev`; no product code changes.
+- Temporary Journey OS branch: `codex/jos005-onboarding-first-value-20260627`
+  is authorized only for classifying and proving the Onboarding First Value
+  Journey OS vertical from clean `origin/dev`.
 
 ## Required Session Start
 

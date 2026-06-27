@@ -154,6 +154,17 @@ def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
     assert 'id: "e2e_profile_fixture_applied"' in flow
     assert flow.index(login) < flow.index(fixture) < flow.index(coach)
 
+def test_onboarding_first_value_tracks_mint2_route_and_issue() -> None:
+    record = json.loads(
+        (
+            journey_os_check.REPO_ROOT
+            / ".planning/journeys/records/onboarding_first_value.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert "/rente-vs-capital" in record["route_paths"]
+    assert "JOS-005" in record["issues"]
+
 def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
