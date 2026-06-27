@@ -36,6 +36,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary Journey OS branch: `codex/jos005-coach-advice-turn-20260627`
   is authorized only for the Coach Advice Turn Journey OS vertical from clean
   `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-coach-advice-fix-20260627` is
+  authorized only for the JOS-004 Coach advice turn regulatory freshness fix
+  from clean `origin/dev`.
 
 ## Required Session Start
 

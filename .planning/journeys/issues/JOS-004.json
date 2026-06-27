@@ -3,10 +3,10 @@
   "id": "JOS-004",
   "title": "Fix Coach 3a ceiling advice freshness fallback",
   "journey_id": "coach_advice_turn",
-  "status": "proof_needed",
+  "status": "fixing",
   "owner": "mint-backend",
   "severity": "P0",
   "evidence_status": "red",
-  "next_action": "Fix the Coach regulatory-value dispatch or freshness-gate interaction so the salaried-LPP 2026 3a ceiling returns 7'258 CHF with OPP3/LIFD provenance instead of the freshness fallback, then rerun the JOS-004 runtime proof.",
+  "next_action": "Deploy the authenticated Coach regulatory-constant force fix to staging, then rerun the JOS-004 runtime proof until the salaried-LPP 2026 3a ceiling returns 7'258 CHF with OPP3/LIFD provenance instead of the freshness fallback.",
   "source": "JOS-004 runtime proof 20260627T023232Z; mint-quality-gate and mint-swiss-brain roster audit"
 }
