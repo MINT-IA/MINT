@@ -5737,7 +5737,10 @@ async def coach_chat(
             _run_agent_loop(question=retry_message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
-        retry_raw_answer = retry_result["answer"]
+        retry_raw_answer = _normalize_closed_regulatory_citation_placeholders(
+            retry_result["answer"],
+            user_message=body.message,
+        )
         retry_gated = _citation_gate(
             response_text=retry_raw_answer,
             ctx=coach_ctx,
