@@ -1955,6 +1955,10 @@ _REGULATORY_CONSTANT_WITHOUT_LPP_TERMS: tuple[str, ...] = (
 )
 
 _PILLAR3A_2026_WITH_LPP_KEY = "pillar3a.historical_limits.2026"
+_PILLAR3A_2026_WITH_LPP_CITE = "{{cite:r3a_plafond_salarie_2026}}"
+_PILLAR3A_2026_WITH_LPP_AMOUNT_RE = re.compile(
+    r"\b(?:7['’ ]?258|7258)(?:[.,]0{1,2})?\s*(?:CHF|chf|fr\.?|francs?)\b"
+)
 
 
 def _normalise_intent_text(message: Optional[str]) -> str:
@@ -2039,6 +2043,46 @@ def _repair_regulatory_constant_input_for_question(
     repaired = dict(tool_input)
     repaired["key"] = _PILLAR3A_2026_WITH_LPP_KEY
     return repaired
+
+
+def _normalize_closed_regulatory_citation_placeholders(
+    answer_text: str,
+    *,
+    user_message: str,
+) -> str:
+    """Attach the closed 2026 3a/LPP cite when Claude wrote the prose source.
+
+    The runtime gate requires `{{cite:<key>}}` adjacency. For this closed
+    registry fact, the tool result already carries one exact cite key, but the
+    narrator may still write "OPP3 art. 7" in prose. Normalize only that narrow
+    shape before the gate, instead of broad auto-citing arbitrary numbers.
+    """
+    if (
+        not answer_text
+        or "{{cite:" in answer_text
+    ):
+        return answer_text
+
+    if not _PILLAR3A_2026_WITH_LPP_AMOUNT_RE.search(answer_text):
+        return answer_text
+
+    normalized_answer = _normalise_intent_text(answer_text)
+    normalized_question = _normalise_intent_text(user_message)
+    combined = f"{normalized_question}\n{normalized_answer}"
+    if any(term in combined for term in _REGULATORY_CONSTANT_WITHOUT_LPP_TERMS):
+        return answer_text
+    if "2026" not in combined or "3a" not in combined:
+        return answer_text
+    if not any(term in combined for term in _REGULATORY_CONSTANT_LPP_TERMS):
+        return answer_text
+    if "opp3" not in normalized_answer and "art. 7" not in answer_text.lower():
+        return answer_text
+
+    return _PILLAR3A_2026_WITH_LPP_AMOUNT_RE.sub(
+        lambda match: f"{match.group(0)} {_PILLAR3A_2026_WITH_LPP_CITE}",
+        answer_text,
+        count=1,
+    )
 
 
 # Wave 1c-A2 (2026-05-15) — gating set for the orchestration-layer RAG cut.
@@ -5497,6 +5541,11 @@ async def coach_chat(
         if not settings.COACH_CITATION_GATE_ENABLED:
             # D-20 byte-identical bypass.
             return loop_result
+
+        loop_result["answer"] = _normalize_closed_regulatory_citation_placeholders(
+            loop_result["answer"],
+            user_message=body.message,
+        )
 
         # Phase mint-calc-engine-v1 Plan 18 — D-CE-16(c) runtime banned-verb
         # gate. Runs BEFORE the Phase 94 citation parser (Q5 = before) on the

@@ -35,6 +35,7 @@ from app.api.v1.endpoints.coach_chat import (
     _execute_internal_tool,
     _gate_fact_card_against_registry,
     _guard_tool_payload_text_fields,
+    _normalize_closed_regulatory_citation_placeholders,
     _run_agent_loop,
     _TOOL_PAYLOAD_FALLBACK_FR,
 )
@@ -275,6 +276,64 @@ class TestForcedToolChoiceFirstCallOnly:
 
         assert "pillar3a.max_without_lpp = 36288.0 CHF" in result
         assert "pillar3a.historical_limits.2026" not in result
+
+    def test_3a_closed_citation_normalizer_refuses_without_lpp(self):
+        text = "Le plafond 3a 2026 est de 7'258 CHF selon l'OPP3 art. 7."
+
+        assert (
+            _normalize_closed_regulatory_citation_placeholders(
+                text,
+                user_message="Quel est le plafond 3a 2026 ?",
+            )
+            == text
+        )
+
+    def test_3a_closed_citation_normalizer_refuses_sans_lpp(self):
+        text = "Le plafond 3a 2026 sans LPP est de 7'258 CHF selon l'OPP3 art. 7."
+
+        assert (
+            _normalize_closed_regulatory_citation_placeholders(
+                text,
+                user_message="Quel est le plafond 3a 2026 sans LPP ?",
+            )
+            == text
+        )
+
+    def test_3a_closed_citation_normalizer_refuses_without_opp3_source(self):
+        text = "Le plafond 3a 2026 avec LPP est de 7'258 CHF."
+
+        assert (
+            _normalize_closed_regulatory_citation_placeholders(
+                text,
+                user_message="Quel est le plafond 3a 2026 avec LPP ?",
+            )
+            == text
+        )
+
+    def test_3a_closed_citation_normalizer_refuses_wrong_year(self):
+        text = "Le plafond 3a 2025 avec LPP est de 7'258 CHF selon l'OPP3 art. 7."
+
+        assert (
+            _normalize_closed_regulatory_citation_placeholders(
+                text,
+                user_message="Quel est le plafond 3a 2025 avec LPP ?",
+            )
+            == text
+        )
+
+    def test_3a_closed_citation_normalizer_does_not_duplicate_existing_cite(self):
+        text = (
+            "Le plafond 3a 2026 avec LPP est de 7'258 CHF "
+            "{{cite:r3a_plafond_salarie_2026}}."
+        )
+
+        assert (
+            _normalize_closed_regulatory_citation_placeholders(
+                text,
+                user_message="Quel est le plafond 3a 2026 avec LPP ?",
+            )
+            == text
+        )
 
     def test_3a_ceiling_forces_regulatory_constant_on_first_call_only(self):
         """JOS-004: current-year 3a/LPP ceiling must retrieve the registry.
