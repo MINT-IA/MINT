@@ -4337,6 +4337,7 @@ async def _run_agent_loop(
     # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
     _MAX_UNKNOWN_TOOL_CALLS = 2
     unknown_tool_count = 0
+    allow_completion_after_internal_tools = False
     # WS-B Plan 05 — set when the registry gate drops a show_fact_card so the
     # no-text path can substitute a calm fallback instead of an empty answer.
     _fact_card_blocked = False
@@ -4348,7 +4349,13 @@ async def _run_agent_loop(
 
     for iteration in range(MAX_AGENT_LOOP_ITERATIONS):
         # Check token budget BEFORE calling (except first iteration)
-        if iteration > 0 and total_tokens >= MAX_AGENT_LOOP_TOKENS:
+        budget_override_for_tool_completion = allow_completion_after_internal_tools
+        allow_completion_after_internal_tools = False
+        if (
+            iteration > 0
+            and total_tokens >= MAX_AGENT_LOOP_TOKENS
+            and not budget_override_for_tool_completion
+        ):
             logger.warning(
                 "Agent loop token budget exhausted (%d/%d) at iteration %d for user %s",
                 total_tokens,
@@ -4359,8 +4366,17 @@ async def _run_agent_loop(
             # Append a completion note to the last answer
             if answer_text:
                 answer_text += "\n\n_Note\u00a0: certaines informations n'ont pas pu être chargées. Repose ta question pour plus de détails._"
-            final_answer = answer_text
+                final_answer = answer_text
+            else:
+                final_answer = _EMPTY_AGENT_LOOP_FALLBACK_FR
+                degraded_any = True
             break
+        if iteration > 0 and total_tokens >= MAX_AGENT_LOOP_TOKENS:
+            logger.warning(
+                "Agent loop token budget exceeded after internal tool_use; "
+                "allowing one completion iteration for user %s",
+                user_id,
+            )
 
         try:
             # Only include conversation_history on the first iteration.
@@ -4477,11 +4493,6 @@ async def _run_agent_loop(
 
         answer_text = result.get("answer", "")
 
-        # FIX-W12: Per-request token budget guard
-        if request_tokens_used >= MAX_REQUEST_TOKENS:
-            logger.warning("Per-request token budget exceeded: %d", request_tokens_used)
-            final_answer = answer_text
-            break
         raw_tool_calls = result.get("tool_calls") or []
 
         # P0-5: Collect known tool names for unknown-call detection
@@ -4522,6 +4533,27 @@ async def _run_agent_loop(
                 )
                 final_answer = answer_text or "Désolé, une erreur interne est survenue."
                 break
+        # FIX-W12: Per-request token budget guard. Anthropic usage includes
+        # prompt/input tokens; forced tool-use turns can be high-token with
+        # empty text. Do not cut before executing internal tools, otherwise
+        # regulatory lookups return a 200 with message="".
+        has_answer_text = bool(answer_text and answer_text.strip())
+        if request_tokens_used >= MAX_REQUEST_TOKENS and (
+            not internal_calls or has_answer_text
+        ):
+            logger.warning("Per-request token budget exceeded: %d", request_tokens_used)
+            if has_answer_text:
+                final_answer = answer_text
+            else:
+                final_answer = _EMPTY_AGENT_LOOP_FALLBACK_FR
+                degraded_any = True
+            break
+        if request_tokens_used >= MAX_REQUEST_TOKENS:
+            logger.warning(
+                "Per-request token budget exceeded with internal tool_use; "
+                "deferring cap until tool result is narrated: %d",
+                request_tokens_used,
+            )
         # Sanitize PII from Flutter-bound tool inputs before returning
         for tc in external_calls:
             inp = tc.get("input", {})
@@ -4667,6 +4699,7 @@ async def _run_agent_loop(
             f"Utilise ces résultats pour compléter ta réponse à l'utilisateur. "
             f"Ne mentionne pas les outils internes dans ta réponse."
         )
+        allow_completion_after_internal_tools = not has_answer_text
     else:
         # for/else: max iterations reached without break
         logger.warning(
