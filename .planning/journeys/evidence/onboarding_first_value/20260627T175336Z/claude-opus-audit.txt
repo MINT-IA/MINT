@@ -1,0 +1,25 @@
+Command:
+timeout 600 claude --safe-mode --model opus --permission-mode plan -p "Audit the current uncommitted diff in this worktree as a hostile code reviewer. Scope: Mint Journey OS JOS-005 onboarding_first_value red proof/classification. Requirements: no product code changes, clean origin/dev worktree branch, evidence must be durable and repo-relative, JOS-005 status must not overclaim a fix, onboarding_first_value must remain partial, route_paths must match actual registered routes, generated Journey OS views must be consistent, no secrets or local-only absolute artifacts in committed records, tests/guards must be meaningful. Do not edit files. Use read-only inspection only. Return findings first with severity and file:line references; if no blocking findings, say so explicitly and list residual risks."
+
+Claude CLI:
+2.1.170 (Claude Code), safe-mode, model alias opus, permission-mode plan.
+
+Verdict:
+No blocking findings.
+
+Checklist:
+- No product code changes.
+- Branch is cleanly based on origin/dev and authorized in ACTIVE_CONTEXT.
+- Evidence artifact is repo-relative under .planning/journeys/evidence/onboarding_first_value/20260627T175336Z/.
+- JOS-005 records a red/regressed proof and does not claim a fix.
+- onboarding_first_value remains partial.
+- /rente-vs-capital is a registered route and now appears in the Journey OS record.
+- Generated Journey OS views are consistent with the JSON records.
+- No secrets are present in the diff.
+- The new guard test checks that onboarding_first_value tracks the current Mint2 route and JOS-005 issue.
+
+Residual risks noted by audit:
+- The committed Maestro evidence is a curated transcript, not the full raw runtime log.
+- The record command uses a /tmp artifact destination for the local run; the committed artifact path remains repo-relative.
+- The new static test prevents record drift but does not replace runtime proof.
+- The audit did not rerun the simulator gate; it reviewed the diff and local guard results.

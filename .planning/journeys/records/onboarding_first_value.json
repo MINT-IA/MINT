@@ -8,6 +8,7 @@
   "accountable_team": "mint-quality-gate",
   "route_paths": [
     "/onb",
+    "/rente-vs-capital",
     "/coach/chat",
     "/home"
   ],
@@ -19,7 +20,8 @@
   "external_apis": [],
   "issues": [
     "CJT-018",
-    "JOURNEY-TRUTH-MATRIX-006"
+    "JOURNEY-TRUTH-MATRIX-006",
+    "JOS-005"
   ],
   "priority": {
     "trust_blast_radius": 4,
@@ -39,6 +41,15 @@
       "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
       "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml",
       "reason": "S005 iPhone 16e regression proof supports the onboarding-to-home first-value path; signed-device and broader beta access remain outside this record."
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "MINT2_QUALITY_ARTIFACTS=/tmp/mint-jos005-onboarding-first-value-20260627T175336Z bash tools/simulator/mint2_quality_gate.sh",
+      "artifact": ".planning/journeys/evidence/onboarding_first_value/20260627T175336Z/maestro-red.txt",
+      "reason": "Fresh Mint2 iPhone 13 mini quality gate reaches the LPP/rente-capital first-value axis, but selecting it lands on the account-creation gate instead of /rente-vs-capital.",
+      "verified_at": "2026-06-27T17:55:32Z",
+      "verified_commit": "cc58ad2a0e5113679412118ae9631c52a328496d"
     }
   ]
 }
