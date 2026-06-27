@@ -2085,6 +2085,34 @@ def _normalize_closed_regulatory_citation_placeholders(
     )
 
 
+def _extract_closed_regulatory_floor_answer(
+    tool_result_text: str,
+    *,
+    user_message: Optional[str],
+    detected_intents: Optional[set[str]],
+) -> Optional[str]:
+    if not _should_default_to_3a_2026_with_lpp(
+        question=user_message,
+        detected_intents=detected_intents,
+    ):
+        return None
+    if _PILLAR3A_2026_WITH_LPP_CITE not in tool_result_text:
+        return None
+
+    prefix = "Formulation citable :"
+    for line in tool_result_text.splitlines():
+        candidate = line.strip()
+        if not candidate.startswith(prefix):
+            continue
+        answer = candidate[len(prefix) :].strip()
+        if (
+            _PILLAR3A_2026_WITH_LPP_CITE in answer
+            and _PILLAR3A_2026_WITH_LPP_AMOUNT_RE.search(answer)
+        ):
+            return answer
+    return None
+
+
 # Wave 1c-A2 (2026-05-15) — gating set for the orchestration-layer RAG cut.
 # When detected_intents intersects this set AND the agent-loop tools include
 # at least one entry from _TOOL_ELIGIBLE_TOOL_NAMES, n_results is set to 0
@@ -4368,6 +4396,7 @@ async def _run_agent_loop(
     total_tokens = 0
     request_tokens_used = 0
     final_answer = ""
+    closed_regulatory_floor_answer: Optional[str] = None
     current_question = question
     answer_text = ""  # initialized to prevent NameError in for/else
     # v2.7 STAB-02 Task 3: track degraded state across iterations.
@@ -4698,6 +4727,15 @@ async def _run_agent_loop(
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
                 background_tasks=background_tasks,
             )
+            if call.get("name") == "get_regulatory_constant":
+                closed_regulatory_floor_answer = (
+                    _extract_closed_regulatory_floor_answer(
+                        result_text,
+                        user_message=question,
+                        detected_intents=detected_intents,
+                    )
+                    or closed_regulatory_floor_answer
+                )
             # WS-D (mint-grounded-coach-m1 Plan 06) — echo a successful save_fact
             # back to the mobile so the chat-stated value reaches the local
             # CoachProfile the screens read (split-brain bridge, audit 04
@@ -4757,6 +4795,12 @@ async def _run_agent_loop(
             )
             final_answer = _EMPTY_AGENT_LOOP_FALLBACK_FR
             degraded_any = True
+
+    if (
+        closed_regulatory_floor_answer
+        and _PILLAR3A_2026_WITH_LPP_CITE not in final_answer
+    ):
+        final_answer = closed_regulatory_floor_answer
 
     # Deduplicate sources by (file, section) key
     seen_sources: set = set()

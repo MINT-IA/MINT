@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-06-24",
+  "updated": "2026-06-27",
   "active_milestone": "mint-2-0-first-experience-rente-capital",
   "active_phase_dir": ".planning/phases/mint-2-0-first-experience-rente-capital",
   "active_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
@@ -13,7 +13,18 @@
     "main",
     "codex/account-lifecycle-gate-20260624",
     "codex/jos004-staging-deploy-20260627",
-    "codex/staging-jos004-empty-answer-fix-20260627"
+    "codex/staging-jos004-empty-answer-fix-20260627",
+    "codex/jos001-seeded-auth-runtime-20260626",
+    "codex/dynamic-pr-size-rule-20260626",
+    "codex/jos002-money-truth-spine-20260626",
+    "codex/jos002a-onboarding-persistence-20260627",
+    "codex/jos002b-money-truth-runtime-20260627",
+    "codex/jos003-next-journey-vertical-20260627",
+    "codex/jos004-profile-privacy-control-20260627",
+    "codex/jos005-coach-advice-turn-20260627",
+    "codex/jos004-coach-advice-fix-20260627",
+    "codex/jos004-coach-empty-answer-fix-20260627",
+    "codex/jos004-regulatory-floor-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [
