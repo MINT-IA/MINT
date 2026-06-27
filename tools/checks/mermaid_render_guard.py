@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import subprocess
 import sys
@@ -13,10 +14,10 @@ DIAGRAMS = Path(".planning/journeys/diagrams")
 MERMAID_CLI = "@mermaid-js/mermaid-cli@11.4.2"
 
 
-def _render(root: Path, diagram: Path, out_dir: Path) -> str | None:
+def _render(root: Path, diagram: Path, out_dir: Path, puppeteer_config: Path) -> str | None:
     output = out_dir / f"{diagram.stem}.svg"
     proc = subprocess.run(
-        ["npx", "-y", MERMAID_CLI, "-i", str(diagram), "-o", str(output)],
+        ["npx", "-y", MERMAID_CLI, "-p", str(puppeteer_config), "-i", str(diagram), "-o", str(output)],
         cwd=root,
         text=True,
         capture_output=True,
@@ -43,8 +44,13 @@ def check(root: Path) -> list[str]:
     errors: list[str] = []
     with tempfile.TemporaryDirectory(prefix="mint-mermaid-render-") as tmp:
         out_dir = Path(tmp)
+        puppeteer_config = out_dir / "puppeteer-config.json"
+        puppeteer_config.write_text(
+            json.dumps({"args": ["--no-sandbox", "--disable-setuid-sandbox"]}),
+            encoding="utf-8",
+        )
         for diagram in diagrams:
-            error = _render(root, diagram, out_dir)
+            error = _render(root, diagram, out_dir, puppeteer_config)
             if error:
                 errors.append(error)
     return errors
