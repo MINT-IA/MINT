@@ -829,6 +829,54 @@ class TestCoachChatCitationGate:
         assert "Je n'ai pas cette donnée" not in payload["message"]
         assert "{{cite:" not in payload["message"]
 
+    def test_endpoint_normalizes_jos004_retry_prose_regulatory_citation(
+        self, client_with_auth, monkeypatch
+    ):
+        """JOS-004: D-08 retry prose citation is normalized before hard fallback."""
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)
+        first = {
+            "answer": "Le plafond 3a 2026 avec LPP est de 7'258 CHF.",
+            "tool_calls": None,
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 123,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        retry = {
+            "answer": (
+                "Le plafond 3a 2026 avec LPP est de 7'258 CHF selon "
+                "l'OPP3 art. 7 al. 1 let. a."
+            ),
+            "tool_calls": None,
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 456,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        loop = AsyncMock(side_effect=[first, retry])
+
+        body = {
+            **_VALID_BODY,
+            "message": "Quel est le plafond legal 3a 2026 avec LPP ?",
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert "7'258" in payload["message"]
+        assert "OPP3 art. 7" in payload["message"]
+        assert "Je n'ai pas cette donnée" not in payload["message"]
+        assert "{{cite:" not in payload["message"]
+        assert loop.await_count == 2
+
     def test_endpoint_falls_back_when_retry_cites_tool_without_tool_use(
         self, client_with_auth, monkeypatch
     ):
