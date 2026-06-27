@@ -1,0 +1,151 @@
+# tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml
+#
+# PURPOSE
+# Journey OS JOS-004 runtime proof for one Coach advice turn: the canonical
+# salaried-LPP Swiss persona asks a natural legal 3a ceiling question in /coach/chat,
+# and the visible answer must include the current 2026 salaried ceiling,
+# a legal citation, and no banned LSFin certainty terms.
+#
+# SCOPE LIMIT
+# This proves one high-risk Coach turn, not the whole Coach number universe.
+# Other Swiss financial numbers remain covered by backend/eval gates until
+# dedicated runtime flows exist.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     flutter build ios --simulator --debug --no-codesign \
+#       --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true \
+#       --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready
+# - A disposable staging user exists. Pass credentials with:
+#     --env MINT_E2E_EMAIL=<email> --env MINT_E2E_PASSWORD=<password>
+# - The E2E seed is kReleaseMode-guarded and only proves this Coach turn,
+#   not onboarding persistence.
+
+appId: ch.mint.app
+env:
+  MINT_E2E_ARCHETYPE: cadre_salarie_lpp_suisse_ready
+tags:
+  - journey-os
+  - jos-004
+  - coach-advice-turn
+  - pillar-3a
+  - opp3-art-7
+  - runtime-proof
+---
+
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///auth/login?redirect=%2Fcoach%2Fchat"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Connexion"
+    timeout: 15000
+- assertVisible: "Adresse e-mail"
+- tapOn: "Adresse e-mail"
+- inputText: ${MINT_E2E_EMAIL}
+- pressKey: Enter
+
+- tapOn: "Se connecter avec un mot de passe"
+- extendedWaitUntil:
+    visible: "Mot de passe"
+    timeout: 8000
+- tapOn: "Mot de passe"
+- inputText: ${MINT_E2E_PASSWORD}
+- pressKey: Enter
+- tapOn: "Se connecter"
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 15000
+- assertVisible:
+    id: "coach_input_field"
+- assertVisible:
+    id: "coach_send_button"
+- assertNotVisible: "Encore en chantier pour ton profil"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+
+- tapOn:
+    id: "coach_input_field"
+- inputText: "Quel est le plafond legal 3a 2026 avec LPP ?"
+- tapOn:
+    id: "coach_send_button"
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: "jos004-coach-advice-turn-after-send"
+
+# Confirm the prompt was sent, then wait for the assistant response to surface
+# a legal citation. The visible citation can be OPP3 art. 7 or LIFD art. 33/38
+# depending on the gated narrator wording; the required number stays fixed.
+- extendedWaitUntil:
+    visible:
+      text: ".*(3a|pilier).*"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*(OPP3|art\\.?\\s*7|art\\.?\\s*33|art\\.?\\s*38|LIFD).*"
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: "jos004-coach-advice-turn-response"
+
+# Current 2026 salaried 3a ceiling with LPP: CHF 7'258.
+- assertVisible:
+    text: ".*7['’\\s ]?258.*"
+- assertVisible:
+    text: ".*(OPP3|art\\.?\\s*7|art\\.?\\s*33|art\\.?\\s*38|LIFD).*"
+
+# The advice must stay bounded and non-promissory.
+- assertNotVisible: ".*\\{\\{cite:.*"
+- assertNotVisible: ".*source non affichée.*"
+- assertNotVisible: ".*Je n'ai pas cette donnée à jour.*"
+- assertNotVisible: ".*Encore en chantier pour ton profil.*"
+- assertNotVisible: ".*meilleur.*"
+- assertNotVisible: ".*Meilleur.*"
+- assertNotVisible: ".*optimal.*"
+- assertNotVisible: ".*Optimal.*"
+- assertNotVisible: ".*garanti.*"
+- assertNotVisible: ".*Garanti.*"
+- assertNotVisible: ".*sans risque.*"
+- assertNotVisible: ".*Sans risque.*"
+- assertNotVisible: ".*certain.*"
+- assertNotVisible: ".*Certain.*"
+- assertNotVisible: ".*assuré.*"
+- assertNotVisible: ".*Assuré.*"
+- assertNotVisible: ".*parfait.*"
+- assertNotVisible: ".*Parfait.*"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"

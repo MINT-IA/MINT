@@ -148,6 +148,7 @@ class TestAgentLoopTermination:
         result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
         # 3 calls: iter 0 (1500), iter 1 (3000), iter 2 (4500 >= 4000 → break)
         assert orch.query.call_count == 3
+        assert result["answer"] == "Iteration 2"
         assert result["tokens_used"] == 4500
 
 
