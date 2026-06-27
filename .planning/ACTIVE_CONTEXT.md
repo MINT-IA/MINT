@@ -13,6 +13,7 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   board, issue registry, evidence map, and priority queue for proving the next
   Mint vertical.
 - Journey OS guard: `python3 tools/checks/journey_os_check.py`.
+- Workflow contract guard: `python3 tools/checks/workflow_contract_guard.py`.
 - Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
   self-references the active context as a placeholder; no successor product
   phase is queued yet.
@@ -78,6 +79,7 @@ python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
 python3 tools/checks/journey_os_check.py
+python3 tools/checks/workflow_contract_guard.py
 git status --short --branch
 ```
 

@@ -5,14 +5,25 @@ import subprocess
 from pathlib import Path
 from tools.checks import journey_os_check, journey_os_generate
 
+GOOD_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="0" errors="0"><testcase name="ok"/></testsuite></testsuites>"""
+FAILING_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="1" errors="0"><testcase name="x"><failure>boom</failure></testcase></testsuite></testsuites>"""
+SHA_A = "a" * 40
+SHA_B = "b" * 40
+
 def _root(tmp_path: Path) -> Path:
     (tmp_path / "apps/mobile/lib/routes").mkdir(parents=True)
     (tmp_path / ".planning/journeys/records").mkdir(parents=True)
     (tmp_path / ".planning/journeys/issues").mkdir(parents=True)
-    (tmp_path / ".planning/journeys/journey.schema.json").write_text("{}", encoding="utf-8")
-    (tmp_path / ".planning/journeys/issue.schema.json").write_text("{}", encoding="utf-8")
+    (tmp_path / ".planning/journeys/journey.schema.json").write_text(
+        (journey_os_check.REPO_ROOT / ".planning/journeys/journey.schema.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (tmp_path / ".planning/journeys/issue.schema.json").write_text(
+        (journey_os_check.REPO_ROOT / ".planning/journeys/issue.schema.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
     (tmp_path / "artifacts").mkdir()
-    (tmp_path / "artifacts/result.xml").write_text("<testsuite/>", encoding="utf-8")
+    (tmp_path / "artifacts/result.xml").write_text(GOOD_XML, encoding="utf-8")
     routes = ["/budget", "/mon-argent", "/rapport", "/coach/chat", "/profile/bilan"]
     (tmp_path / "apps/mobile/lib/routes/route_metadata.dart").write_text(
         "\n".join(f"  '{route}': RouteMeta(path: '{route}')," for route in routes),
@@ -44,7 +55,16 @@ def _record(root: Path, **updates: object) -> None:
             "proof_cost": 3,
             "rationale": "Money consistency is the central Mint trust promise.",
         },
-        "evidence": [{"kind": "runtime", "status": "green", "command": "maestro test flow.yaml", "artifact": "artifacts/result.xml"}],
+        "evidence": [
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
     }
     stem = str(updates.pop("_stem", data["id"]))
     data.update(updates)
@@ -279,14 +299,91 @@ def test_jos_issue_refs_require_registry_files(tmp_path: Path) -> None:
 
 def test_issue_registry_and_generated_board(tmp_path: Path) -> None:
     root = _root(tmp_path)
-    _record(root)
+    _record(root, external_apis=["POST /api/v1/coach/chat"])
     _issue(root)
     journey_os_generate.write(root)
     assert _errors(root) == []
     board = (root / ".planning/journeys/BOARD.md").read_text(encoding="utf-8")
+    today = (root / ".planning/journeys/TODAY.md").read_text(encoding="utf-8")
+    system_map = (root / ".planning/journeys/diagrams/system_map.mmd").read_text(encoding="utf-8")
     assert "Next Journey OS Work" in board
+    assert "Latest proof" in board
     assert "JOS-001" in board
     assert "money_truth_spine" in board
+    assert "Journey OS Today" in today
+    assert "flowchart LR" in system_map
+    assert "route_coach_chat" in system_map
+    assert "api_POST_api_v1_coach_chat" in system_map
+    assert "classDef green" in system_map
+    assert "classDef api" in system_map
+    assert "\\n" not in system_map
+
+def test_today_does_not_promote_green_issue_when_no_actionable_work(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root, status="live_proven")
+    _issue(root, status="verified", evidence_status="green")
+    journey_os_generate.write(root)
+    today = (root / ".planning/journeys/TODAY.md").read_text(encoding="utf-8")
+
+    assert "No red, missing, or baselined Journey OS issue is currently queued." in today
+    assert "| JOS-001 |" not in today
+
+def test_today_routes_red_before_higher_priority_baselined_issue(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        id="coach_advice_turn",
+        title="Coach advice turn",
+        _stem="coach_advice_turn",
+        issues=["JOS-001"],
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "baselined",
+                "command": "maestro test coach.yaml",
+                "artifact": "artifacts/result.xml",
+                "debt_ref": "JOS-001",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, id="JOS-001", journey_id="coach_advice_turn", evidence_status="baselined")
+    (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        id="onboarding_first_value",
+        title="Onboarding first value",
+        _stem="onboarding_first_value",
+        issues=["JOS-002"],
+        priority={
+            "trust_blast_radius": 4,
+            "release_blocker_weight": 4,
+            "user_frequency": 4,
+            "evidence_gap": 2,
+            "route_centrality": 4,
+            "compliance_risk": 2,
+            "learning_value": 4,
+            "proof_cost": 3,
+            "rationale": "Lower priority red issue must still route before baselined work.",
+        },
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test onboarding.yaml",
+                "artifact": "artifacts/red.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_B,
+            }
+        ],
+    )
+    _issue(root, id="JOS-002", journey_id="onboarding_first_value", status="regressed", evidence_status="red")
+    journey_os_generate.write(root)
+    today = (root / ".planning/journeys/TODAY.md").read_text(encoding="utf-8")
+
+    assert "| JOS-002 | P0 | regressed | onboarding_first_value |" in today
+    assert "| JOS-001 |" not in today
 
 def test_issue_status_tracks_referenced_record_evidence(tmp_path: Path) -> None:
     root = _root(tmp_path)
@@ -364,3 +461,370 @@ def test_generated_views_are_required_and_current(tmp_path: Path) -> None:
     journey_os_generate.write(root)
     (root / ".planning/journeys/JOURNEYS.md").write_text("stale\n", encoding="utf-8")
     assert any("stale generated" in error for error in _errors(root))
+
+def test_generated_mermaid_views_are_required_and_current(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    (root / ".planning/journeys/diagrams/system_map.mmd").unlink()
+    assert any("missing generated" in error for error in _errors(root))
+
+    journey_os_generate.write(root)
+    (root / ".planning/journeys/diagrams/money_truth_spine.mmd").write_text("stale\n", encoding="utf-8")
+    assert any("stale generated" in error for error in _errors(root))
+
+    journey_os_generate.write(root)
+    (root / ".planning/journeys/diagrams/orphan.mmd").write_text("flowchart TD\n", encoding="utf-8")
+    assert any("orphan generated" in error for error in _errors(root))
+
+def test_schema_files_are_executed(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    schema_path = root / ".planning/journeys/journey.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    schema["required"].append("schema_only_field")
+    schema_path.write_text(json.dumps(schema), encoding="utf-8")
+
+    assert any("schema_only_field" in error for error in _errors(root))
+
+def test_green_runtime_xml_artifact_cannot_report_failures(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/result.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("green but JUnit artifact reports failures" in error for error in _errors(root))
+
+def test_green_runtime_xml_artifact_cannot_be_vacuous(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/result.xml").write_text("<testsuite/>", encoding="utf-8")
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("zero executed tests" in error for error in _errors(root))
+
+def test_baselined_runtime_xml_artifact_cannot_be_vacuous(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/result.xml").write_text("<testsuite/>", encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "baselined",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "debt_ref": "JOS-TEST",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, evidence_status="baselined")
+    journey_os_generate.write(root)
+
+    assert any("zero executed tests" in error for error in _errors(root))
+
+def test_runtime_evidence_requires_verified_provenance(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        evidence=[{"kind": "runtime", "status": "green", "command": "maestro test flow.yaml", "artifact": "artifacts/result.xml"}],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(root)
+    assert any("requires verified_at" in error for error in errors)
+    assert any("requires verified_commit" in error for error in errors)
+
+def test_runtime_evidence_requires_full_sha(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": "abc123",
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("full SHA" in error for error in _errors(root))
+
+def test_red_runtime_xml_artifact_requires_failure(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, evidence_status="red")
+    journey_os_generate.write(root)
+
+    assert any("red but JUnit artifact reports no failures" in error for error in _errors(root))
+
+def test_green_text_artifact_cannot_contain_failure_marker(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    artifact = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text("[Failed] Assertion is false\n", encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("text artifact contains failure markers" in error for error in _errors(root))
+
+def test_green_text_artifact_needs_success_marker(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    artifact = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text("Assert that id: money_screen is visible... COMPLETED\n", encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("needs an explicit success marker" in error for error in _errors(root))
+
+def test_runtime_evidence_rejects_arbitrary_artifact_type(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    source_artifact = root / "apps/mobile/lib/routes/route_metadata.dart"
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": str(source_artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("runtime evidence must use a parseable" in error for error in _errors(root))
+
+def test_red_text_artifact_requires_failure_marker(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    artifact = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text("No structured failure marker\n", encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test flow.yaml",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, evidence_status="red")
+    journey_os_generate.write(root)
+
+    assert any("text artifact has no failure marker" in error for error in _errors(root))
+
+def test_green_issue_rejects_latest_red_evidence(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/green.xml").write_text(GOOD_XML, encoding="utf-8")
+    (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/green.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            },
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/red.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_B,
+            },
+        ],
+    )
+    _issue(root, status="verified", evidence_status="green")
+    journey_os_generate.write(root)
+
+    assert any("latest evidence" in error for error in _errors(root))
+
+def test_green_issue_rejects_latest_baselined_evidence(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/green.xml").write_text(GOOD_XML, encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/green.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            },
+            {
+                "kind": "runtime",
+                "status": "baselined",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "debt_ref": "JOS-TEST",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_B,
+            },
+        ],
+    )
+    _issue(root, status="verified", evidence_status="green")
+    journey_os_generate.write(root)
+
+    assert any("latest evidence" in error and "baselined" in error for error in _errors(root))
+
+def test_live_proven_rejects_latest_red_runtime_evidence(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/green.xml").write_text(GOOD_XML, encoding="utf-8")
+    (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        status="live_proven",
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/green.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            },
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/red.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_B,
+            },
+        ],
+    )
+    _issue(root, evidence_status="red")
+    journey_os_generate.write(root)
+
+    assert any("latest runtime evidence" in error for error in _errors(root))
+
+def test_latest_evidence_tiebreak_uses_append_order(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/green.xml").write_text(GOOD_XML, encoding="utf-8")
+    (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/green.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_A,
+            },
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/red.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_B,
+            },
+        ],
+    )
+    _issue(root, status="regressed", evidence_status="red")
+    journey_os_generate.write(root)
+    board = (root / ".planning/journeys/BOARD.md").read_text(encoding="utf-8")
+
+    assert "red / runtime / 2026-06-27T00:00:00Z / bbbbbbbb" in board
+    assert not any("latest evidence" in error for error in _errors(root))
+
+def test_latest_evidence_append_order_beats_older_timestamp(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/green.xml").write_text(GOOD_XML, encoding="utf-8")
+    (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/green.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_A,
+            },
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/red.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_B,
+            },
+        ],
+    )
+    _issue(root, status="regressed", evidence_status="red")
+    journey_os_generate.write(root)
+    board = (root / ".planning/journeys/BOARD.md").read_text(encoding="utf-8")
+
+    assert "red / runtime / 2026-06-26T00:00:00Z / bbbbbbbb" in board
+    assert not any("latest evidence" in error for error in _errors(root))

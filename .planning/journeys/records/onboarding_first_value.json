@@ -40,7 +40,9 @@
       "status": "green",
       "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
       "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml",
-      "reason": "S005 iPhone 16e regression proof supports the onboarding-to-home first-value path; signed-device and broader beta access remain outside this record."
+      "reason": "S005 iPhone 16e regression proof supports the onboarding-to-home first-value path; signed-device and broader beta access remain outside this record.",
+      "verified_at": "2026-06-06T15:27:34Z",
+      "verified_commit": "b1e2567b06489c4d1159a29876ce806a1f7b68b2"
     },
     {
       "kind": "runtime",

@@ -2,14 +2,35 @@
 flowchart TD
   promise["When Coach gives a number, it is current, cited, and bounded."]
   team["mint-swiss-brain"]
+  latest["latest proof: baselined / runtime / 2026-06-27T17:28:41Z / 4cb5c173"]
+  promise --> latest
+  classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
+  classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
+  classDef amber fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;
+  classDef blocked fill:#eceff1,stroke:#455a64,color:#263238;
+  classDef neutral fill:#f5f5f5,stroke:#616161,color:#212121;
+  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
+  classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
+  classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
+  class latest amber
   priority["priority score 27"]
   priority --> promise
   route_coach_chat["/coach/chat"]
   promise --> route_coach_chat
   route_coach_chat --> team
+  class route_coach_chat route
   surface_CoachOrchestrator["CoachOrchestrator"]
   promise -.-> surface_CoachOrchestrator
+  class surface_CoachOrchestrator surface
   surface_CoachContextPacket["CoachContextPacket"]
   promise -.-> surface_CoachContextPacket
+  class surface_CoachContextPacket surface
   surface_ComplianceGuard["ComplianceGuard"]
   promise -.-> surface_ComplianceGuard
+  class surface_ComplianceGuard surface
+  api_POST_api_v1_coach_chat["POST /api/v1/coach/chat"]
+  promise -.-> api_POST_api_v1_coach_chat
+  class api_POST_api_v1_coach_chat api
+  issue_JOS_004["JOS-004 proof_needed/baselined"]
+  issue_JOS_004 --> promise
+  class issue_JOS_004 amber

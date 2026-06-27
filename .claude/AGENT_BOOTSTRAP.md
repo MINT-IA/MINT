@@ -22,6 +22,7 @@ python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
 python3 tools/checks/journey_os_check.py
+python3 tools/checks/workflow_contract_guard.py
 git status --short --branch
 
 Hard boundaries:
