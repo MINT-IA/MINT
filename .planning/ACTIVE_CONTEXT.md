@@ -27,6 +27,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary runtime-proof branch: `codex/jos002b-money-truth-runtime-20260627`
   is authorized only for the JOS-002B Money truth runtime proof harness and any
   directly required SEC-10-preserving simulator fixture fix.
+- Temporary Journey OS branch: `codex/jos003-next-journey-vertical-20260627`
+  is authorized only for selecting and executing the next scoped Journey OS
+  vertical from clean `origin/dev`.
 
 ## Required Session Start
 
