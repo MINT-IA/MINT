@@ -85,6 +85,22 @@ def test_handle_returns_formatted_param_on_hit():
     assert "2025-01-01" in result
 
 
+def test_handle_2026_3a_lpp_result_includes_closed_citation_hint():
+    """JOS-004: tool result must tell the narrator which closed cite key to use."""
+    from app.services.coach.citation_registry import CITATION_REGISTRY
+    from app.services.regulatory.tool_handler import handle_regulatory_constant
+
+    assert "r3a_plafond_salarie_2026" in CITATION_REGISTRY
+
+    result = handle_regulatory_constant({"key": "pillar3a.historical_limits.2026"})
+
+    assert "{{cite:r3a_plafond_salarie_2026}}" in result
+    assert "Formulation citable" in result
+    assert "pillar3a.historical_limits.2026 = 7258.0 CHF" in result
+    assert "7'258 CHF" in result
+    assert "OPP3 art. 7" in result
+
+
 def test_handle_miss_emits_sentry_breadcrumb_with_suggestions():
     """Code-reviewer FLAG #2 — registry miss must not be silent."""
     from app.services.regulatory.tool_handler import handle_regulatory_constant
