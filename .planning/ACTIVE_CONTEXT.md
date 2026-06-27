@@ -46,6 +46,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary hotfix branch: `codex/jos004-regulatory-floor-20260627` is
   authorized only for the JOS-004 closed regulatory 3a/LPP deterministic
   runtime floor and evidence from clean `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-regulatory-floor-close-loop-20260627`
+  is authorized only for closing the JOS-004 3a/LPP regulatory tool loop
+  deterministically before a fallback response can overwrite it.
 
 ## Required Session Start
 
