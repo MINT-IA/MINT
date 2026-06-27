@@ -25,6 +25,7 @@ ALLOW = {
     str(journey_os_generate.BOARD),
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
+    "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
     "tools/checks/tests/test_journey_os_check.py",

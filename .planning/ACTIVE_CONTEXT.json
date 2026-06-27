@@ -17,7 +17,8 @@
     "codex/jos002-money-truth-spine-20260626",
     "codex/jos002a-onboarding-persistence-20260627",
     "codex/jos002b-money-truth-runtime-20260627",
-    "codex/jos003-next-journey-vertical-20260627"
+    "codex/jos003-next-journey-vertical-20260627",
+    "codex/jos004-profile-privacy-control-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

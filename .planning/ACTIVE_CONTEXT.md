@@ -30,6 +30,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary Journey OS branch: `codex/jos003-next-journey-vertical-20260627`
   is authorized only for selecting and executing the next scoped Journey OS
   vertical from clean `origin/dev`.
+- Temporary Journey OS branch: `codex/jos004-profile-privacy-control-20260627`
+  is authorized only for the Profile Privacy Control Journey OS vertical from
+  clean `origin/dev`.
 
 ## Required Session Start
 
