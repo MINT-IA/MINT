@@ -13,6 +13,7 @@
     "main",
     "codex/account-lifecycle-gate-20260624",
     "codex/jos004-staging-deploy-20260627",
+    "codex/jos004-staging-close-loop-deploy-20260627",
     "codex/staging-jos004-empty-answer-fix-20260627",
     "codex/jos001-seeded-auth-runtime-20260626",
     "codex/dynamic-pr-size-rule-20260626",
@@ -24,7 +25,8 @@
     "codex/jos005-coach-advice-turn-20260627",
     "codex/jos004-coach-advice-fix-20260627",
     "codex/jos004-coach-empty-answer-fix-20260627",
-    "codex/jos004-regulatory-floor-20260627"
+    "codex/jos004-regulatory-floor-20260627",
+    "codex/jos004-regulatory-floor-close-loop-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

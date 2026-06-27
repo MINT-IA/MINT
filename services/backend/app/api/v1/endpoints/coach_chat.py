@@ -4771,6 +4771,16 @@ async def _run_agent_loop(
                 len(result_text),
             )
 
+        # The registry result is already a closed-world answer. A second LLM
+        # turn can overwrite it with the generic high-token fallback.
+        if closed_regulatory_floor_answer:
+            logger.info(
+                "Agent loop closed on deterministic regulatory floor for user %s",
+                user_id,
+            )
+            final_answer = closed_regulatory_floor_answer
+            break
+
         # Build augmented question for the next iteration.
         # V1: append tool results as text.  The LLM sees its own prior
         # answer + the tool results and can continue the conversation.
