@@ -58,6 +58,8 @@ there is an actual tool call, command output, or artifact path.
   changes.
 - Run `python3 tools/checks/journey_os_check.py` before Journey OS, vertical,
   issue-tracker, runtime-evidence, or workflow-guard changes.
+- Run `python3 tools/checks/workflow_contract_guard.py` before workflow,
+  agent-bootstrap, hook, or CI guard changes.
 - Write the active phase `SPEC.md` before implementation.
 - Use test-driven development for feature, bugfix, guard, and behavior changes.
 - Verify the diff, not the explanation: `git diff --stat`, `git diff --check`,
@@ -137,6 +139,7 @@ python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
 python3 tools/checks/journey_os_check.py
+python3 tools/checks/workflow_contract_guard.py
 python3 tools/checks/agent_reference_guard.py
 python3 tools/checks/claude_hooks_guard.py
 ```

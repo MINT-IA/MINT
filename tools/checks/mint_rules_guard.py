@@ -24,6 +24,7 @@ SECTION_PATTERNS = {
         (".planning/ACTIVE_CONTEXT.md", ".planning/ACTIVE_CONTEXT.json"),
         ("active_context_guard.py",),
         ("journey_os_check.py",),
+        ("workflow_contract_guard.py",),
         ("SPEC.md",),
         ("Engram", "mem_save"),
     ],
@@ -50,6 +51,7 @@ BOOTSTRAP_NEEDLES = (
     ".planning/ACTIVE_CONTEXT.json",
     "active_context_guard.py",
     "journey_os_check.py",
+    "workflow_contract_guard.py",
 )
 
 

@@ -39,7 +39,9 @@
       "status": "green",
       "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658/result.xml tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
       "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658/result.xml",
-      "reason": "CJT-011 durable runtime proof shows the 3a answer path reached Coach and asserted current cited 3a values; broader advice quality remains partial."
+      "reason": "CJT-011 durable runtime proof shows the 3a answer path reached Coach and asserted current cited 3a values; broader advice quality remains partial.",
+      "verified_at": "2026-06-02T07:56:58Z",
+      "verified_commit": "4c15b8a7ba10aceb790339200b617e854738759d"
     },
     {
       "kind": "runtime",
@@ -52,12 +54,13 @@
     },
     {
       "kind": "runtime",
-      "status": "green",
+      "status": "baselined",
       "command": "source /tmp/mint-jos004-staging-account.env && /Users/julienbattaglia/.maestro/bin/maestro test --env MINT_E2E_EMAIL=[REDACTED_EMAIL] --env MINT_E2E_PASSWORD=[REDACTED_PASSWORD] tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
       "artifact": ".planning/journeys/evidence/coach_advice_turn/20260627T172841Z/maestro.txt",
-      "reason": "Fresh Journey OS proof logs into staging, uses the existing debug-only profile route to complete first-experience state, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and sees 7'258 with OPP3/LIFD provenance while the fallback and bounded-advice banned terms stay absent.",
+      "reason": "Fresh Journey OS run logs into staging, uses the existing debug-only profile route to complete first-experience state, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and sees 7'258 with OPP3/LIFD provenance while the fallback and bounded-advice banned terms stay absent. The raw log lacks a flow-level [Passed]/Flow Passed marker, so Journey OS treats it as baselined, not green.",
       "verified_at": "2026-06-27T17:28:41Z",
-      "verified_commit": "4cb5c173b998868cd73f9bdf6aebc718bc4bffa6"
+      "verified_commit": "4cb5c173b998868cd73f9bdf6aebc718bc4bffa6",
+      "debt_ref": "JOS-004-flow-pass-marker-required"
     }
   ]
 }

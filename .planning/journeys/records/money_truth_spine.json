@@ -40,7 +40,9 @@
       "status": "green",
       "command": "MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=75 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
       "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449/result.xml",
-      "reason": "Historical durable runtime artifact seeded as baseline provenance; record remains partial, not live_proven."
+      "reason": "Historical durable runtime artifact seeded as baseline provenance; record remains partial, not live_proven.",
+      "verified_at": "2026-06-02T08:44:49Z",
+      "verified_commit": "7796477a6699ca139603f07a1fdeb7bcc54d3b60"
     },
     {
       "kind": "runtime",
@@ -48,7 +50,9 @@
       "command": "MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/money-truth-spine-20260626T213202Z MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=150 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/debug --format junit --output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
       "artifact": ".planning/journeys/evidence/money_truth_spine/20260626T213202Z/result.xml",
       "reason": "Historical red diagnostic superseded by the JOS-002A onboarding persistence fix and JOS-002B Money Truth runtime proof on dev.",
-      "debt_ref": "Superseded by PR #745 and PR #746."
+      "debt_ref": "Superseded by PR #745 and PR #746.",
+      "verified_at": "2026-06-26T21:32:02Z",
+      "verified_commit": "3a820336fa80b38ac5922ce5a5e97ee900e0a1ba"
     },
     {
       "kind": "runtime",

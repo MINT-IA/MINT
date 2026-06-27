@@ -21,9 +21,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Install guard dependencies
         run: |
-          python3 -m pip install pytest
+          python3 -m pip install pytest jsonschema pyyaml
           python3 -m pip install -e services/backend
       - name: Active context guard
         run: python3 tools/checks/active_context_guard.py
@@ -37,21 +40,12 @@ jobs:
         run: python3 tools/checks/claude_hooks_guard.py
       - name: Journey OS guard
         run: python3 tools/checks/journey_os_check.py
+      - name: Workflow contract guard
+        run: python3 tools/checks/workflow_contract_guard.py
+      - name: Mermaid render guard
+        run: python3 tools/checks/mermaid_render_guard.py
       - name: Phase acceptance verifier
-        run: |
-          ACTIVE_MILESTONE=$(python3 - <<'PY'
-          import json
-          from pathlib import Path
-
-          manifest = json.loads(Path(".planning/ACTIVE_CONTEXT.json").read_text())
-          print(manifest.get("active_milestone", ""))
-          PY
-          )
-          if [ "$ACTIVE_MILESTONE" = "mint-karpathy-rules-infra-20260614" ]; then
-            python3 tools/checks/verify_phase_acceptance.py
-          else
-            echo "Skipping generic phase acceptance for ${ACTIVE_MILESTONE}; use the phase-specific toolchain job."
-          fi
+        run: python3 tools/checks/verify_phase_acceptance.py
       - name: Guard tests
         run: >
           python3 -m pytest
@@ -61,5 +55,6 @@ jobs:
           tools/checks/tests/test_agent_reference_guard.py
           tools/checks/tests/test_claude_hooks_guard.py
           tools/checks/tests/test_journey_os_check.py
+          tools/checks/tests/test_workflow_contract_guard.py
           tools/checks/tests/test_verify_phase_acceptance.py
           -q

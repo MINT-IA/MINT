@@ -11,12 +11,28 @@ Order of truth:
 2. `CLAUDE.md`.
 3. `AGENTS.md`.
 4. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
-5. `.agents/skills/mint-*`.
-6. `.planning/journeys/` Journey OS records, issues, board, and evidence.
+5. `.planning/journeys/` Journey OS records, issues, generated views, and
+   evidence.
+6. `.agents/skills/mint-*`.
 7. Current code, tests, scripts, CI, runtime evidence.
 8. Engram MCP memories for prior root causes and decisions.
 
 Engram helps recall. It never outranks the repo.
+
+## Journey OS Views
+
+`.planning/journeys/` is the product operating overlay:
+
+- `TODAY.md` is the generated one-screen cockpit for the next vertical.
+- `BOARD.md` is the generated priority queue.
+- `JOURNEYS.md` is the generated portfolio map.
+- `diagrams/system_map.mmd` is the generated Mermaid map of journeys, shared
+  routes, surfaces, and issue state.
+- `records/*.json` and `issues/*.json` are the editable source of truth.
+
+Generated Journey OS views are never edited by hand. Update the JSON source,
+run `python3 tools/checks/journey_os_generate.py`, then verify with
+`python3 tools/checks/journey_os_check.py`.
 
 ## Default Roster
 
