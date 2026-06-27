@@ -18,6 +18,10 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   authorized only to promote the JOS-004 authenticated Coach 3a/LPP freshness
   fix to `staging` for Railway runtime proof.
 - Temporary staging deploy branch:
+  `codex/jos004-staging-close-loop-deploy-20260627` is authorized only to
+  promote the JOS-004 closed regulatory tool-loop fix to `staging` for Railway
+  runtime proof.
+- Temporary staging deploy branch:
   `codex/staging-jos004-empty-answer-fix-20260627` is authorized only to
   promote the JOS-004 authenticated Coach empty-answer fix and runtime-proof
   harness update to `staging` for Railway runtime proof.
@@ -53,6 +57,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary hotfix branch: `codex/jos004-regulatory-floor-20260627` is
   authorized only for the JOS-004 closed regulatory 3a/LPP deterministic
   runtime floor and evidence from clean `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-regulatory-floor-close-loop-20260627`
+  is authorized only for closing the JOS-004 3a/LPP regulatory tool loop
+  deterministically before a fallback response can overwrite it.
 
 ## Required Session Start
 

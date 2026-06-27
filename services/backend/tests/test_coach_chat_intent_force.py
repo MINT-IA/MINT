@@ -336,13 +336,13 @@ class TestForcedToolChoiceFirstCallOnly:
             == text
         )
 
-    def test_3a_ceiling_forces_regulatory_constant_on_first_call_only(self):
+    def test_3a_ceiling_forces_regulatory_constant_and_closes_on_tool_result(self):
         """JOS-004: current-year 3a/LPP ceiling must retrieve the registry.
 
-        The first LLM call is forced to `get_regulatory_constant` so the
-        answer cannot come from model weights or stale profile amounts. After
-        the tool result, the second call reverts to auto so the loop can emit
-        final text.
+        The LLM call is forced to `get_regulatory_constant` so the answer
+        cannot come from model weights or stale profile amounts. When the
+        tool returns the closed formulation, the loop must answer directly
+        instead of spending another high-token LLM turn that may fall back.
         """
         orch = _make_mock_orchestrator(
             _make_result(
@@ -354,12 +354,6 @@ class TestForcedToolChoiceFirstCallOnly:
                     }
                 ],
             ),
-            _make_result(
-                answer=(
-                    "Pour 2026, le plafond 3a avec LPP est de 7'258 CHF "
-                    "(OPP3 art. 7)."
-                ),
-            ),
         )
         result = _run(
             _run_agent_loop(
@@ -370,11 +364,10 @@ class TestForcedToolChoiceFirstCallOnly:
         )
 
         choices = _tool_choices(orch)
-        assert len(choices) == 2, f"expected 2 calls, got {len(choices)}"
+        assert len(choices) == 1, f"expected 1 call, got {len(choices)}"
         assert choices[0] == {"type": "tool", "name": "get_regulatory_constant"}
-        assert choices[1] is None
         assert orch.query.call_args_list[0].kwargs.get("n_results") == 0
-        assert "7'258" in result["answer"]
+        assert "7'258 CHF {{cite:r3a_plafond_salarie_2026}}" in result["answer"]
 
     def test_3a_closed_regulatory_tool_result_supplies_cited_floor(self):
         """JOS-004: a closed tool result beats uncited narrator prose."""
@@ -398,6 +391,40 @@ class TestForcedToolChoiceFirstCallOnly:
             )
         )
 
+        assert "7'258 CHF {{cite:r3a_plafond_salarie_2026}}" in result["answer"]
+        assert "Je n'ai pas cette donnée" not in result["answer"]
+
+    def test_3a_closed_regulatory_tool_result_skips_high_token_fallback_turn(self):
+        """JOS-004: staging-scale prompts must not re-ask the LLM after the tool."""
+        orch = _make_mock_orchestrator(
+            _make_result(
+                answer="",
+                tokens_used=49_000,
+                tool_calls=[
+                    {
+                        "name": "get_regulatory_constant",
+                        "input": {"key": "pillar3a.max_with_lpp"},
+                    }
+                ],
+            ),
+            _make_result(
+                answer=(
+                    "Je n'ai pas cette donnée pour l'instant. Pour avancer "
+                    "ensemble, dis-moi un peu plus sur ta situation."
+                ),
+                tokens_used=600,
+            ),  # Must never be consumed once the closed tool result exists.
+        )
+        result = _run(
+            _run_agent_loop(
+                orchestrator=orch,
+                tools=[{"name": "get_regulatory_constant"}],
+                **_base_kwargs(_JOS004_3A_CEILING_MSG, {"retirement"}),
+            )
+        )
+
+        assert len(_tool_choices(orch)) == 1
+        assert result["tokens_used"] == 49_000
         assert "7'258 CHF {{cite:r3a_plafond_salarie_2026}}" in result["answer"]
         assert "Je n'ai pas cette donnée" not in result["answer"]
 
