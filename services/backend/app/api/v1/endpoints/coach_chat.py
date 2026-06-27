@@ -1912,6 +1912,135 @@ def _classify_user_intent(message: Optional[str]) -> set[str]:
     return detected
 
 
+_REGULATORY_CONSTANT_SUBJECT_TERMS: tuple[str, ...] = (
+    "3a",
+    "3 a",
+    "pilier 3a",
+    "pilier3a",
+    "opp3",
+)
+
+_REGULATORY_CONSTANT_LOOKUP_TERMS: tuple[str, ...] = (
+    "plafond",
+    "maximum",
+    "limite",
+    "montant",
+    "bon montant",
+    "juste",
+    "correct",
+    "combien",
+    "verser",
+    "cotiser",
+    "deduction",
+    "deduire",
+)
+
+_REGULATORY_CONSTANT_LPP_TERMS: tuple[str, ...] = (
+    "lpp",
+    "salarie",
+    "salariee",
+    "employe",
+    "employee",
+)
+
+_REGULATORY_CONSTANT_WITHOUT_LPP_TERMS: tuple[str, ...] = (
+    "sans lpp",
+    "sans la lpp",
+    "sans 2e pilier",
+    "sans deuxieme pilier",
+    "sans second pilier",
+    "independant",
+    "independante",
+    "non affilie",
+)
+
+_PILLAR3A_2026_WITH_LPP_KEY = "pillar3a.historical_limits.2026"
+
+
+def _normalise_intent_text(message: Optional[str]) -> str:
+    if not message:
+        return ""
+    import unicodedata
+
+    return "".join(
+        c
+        for c in unicodedata.normalize("NFD", message.lower())
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def _should_force_regulatory_constant(
+    *,
+    question: Optional[str],
+    detected_intents: Optional[set[str]],
+    tools: list[dict],
+) -> bool:
+    if not any(t.get("name") == "get_regulatory_constant" for t in tools):
+        return False
+    if not ((detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS):
+        return False
+
+    return _looks_like_3a_regulatory_constant_lookup(
+        question=question,
+        detected_intents=detected_intents,
+    )
+
+
+def _looks_like_3a_regulatory_constant_lookup(
+    *,
+    question: Optional[str],
+    detected_intents: Optional[set[str]],
+) -> bool:
+    if not ((detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS):
+        return False
+    normalized = _normalise_intent_text(question)
+    if not normalized:
+        return False
+    has_subject = any(term in normalized for term in _REGULATORY_CONSTANT_SUBJECT_TERMS)
+    has_lookup = any(term in normalized for term in _REGULATORY_CONSTANT_LOOKUP_TERMS)
+    return has_subject and has_lookup
+
+
+def _should_default_to_3a_2026_with_lpp(
+    *,
+    question: Optional[str],
+    detected_intents: Optional[set[str]],
+) -> bool:
+    normalized = _normalise_intent_text(question)
+    if "2026" not in normalized:
+        return False
+    if any(term in normalized for term in _REGULATORY_CONSTANT_WITHOUT_LPP_TERMS):
+        return False
+    if not any(term in normalized for term in _REGULATORY_CONSTANT_LPP_TERMS):
+        return False
+    return _looks_like_3a_regulatory_constant_lookup(
+        question=question,
+        detected_intents=detected_intents,
+    )
+
+
+def _repair_regulatory_constant_input_for_question(
+    tool_input: dict,
+    *,
+    last_user_message: Optional[str],
+    detected_intents: Optional[set[str]],
+) -> dict:
+    if not _should_default_to_3a_2026_with_lpp(
+        question=last_user_message,
+        detected_intents=detected_intents,
+    ):
+        return tool_input
+
+    key = tool_input.get("key")
+    key_text = key.strip().lower() if isinstance(key, str) else ""
+    if key_text and key_text == _PILLAR3A_2026_WITH_LPP_KEY:
+        return tool_input
+
+    repaired = dict(tool_input)
+    repaired["key"] = _PILLAR3A_2026_WITH_LPP_KEY
+    return repaired
+
+
 # Wave 1c-A2 (2026-05-15) — gating set for the orchestration-layer RAG cut.
 # When detected_intents intersects this set AND the agent-loop tools include
 # at least one entry from _TOOL_ELIGIBLE_TOOL_NAMES, n_results is set to 0
@@ -1938,6 +2067,7 @@ _TOOL_ELIGIBLE_TOOL_NAMES: frozenset[str] = frozenset(
         "get_cross_pillar_analysis",
         "get_couple_optimization",
         "get_cap_status",
+        "get_regulatory_constant",
         # NOTE: retrieve_memories is NOT in this set — it's a Wave 1b memory
         # retrieval tool, not a financial calculation. Its presence in the
         # advertised tools should NOT trigger RAG suppression.
@@ -2739,6 +2869,11 @@ def _execute_internal_tool(
     # <<< dispatch: get_couple_optimization
 
     if name == "get_regulatory_constant":
+        tool_input = _repair_regulatory_constant_input_for_question(
+            tool_input,
+            last_user_message=last_user_message,
+            detected_intents=detected_intents,
+        )
         return _handle_regulatory_constant(tool_input)
 
     # WS-B Plan 05: explain_concept resolves the curated CONCEPT_REGISTRY page
@@ -4273,19 +4408,31 @@ async def _run_agent_loop(
             # anonymous_chat.py:204). Iterations 2..MAX revert to auto (None)
             # — otherwise every iteration re-forces the tool and the loop never
             # emits the final text answer (mirrors "force turn 1, answer turn 2").
-            _forced_tool_choice = (
-                {"type": "tool", "name": "explain_concept"}
-                if (
-                    iteration == 0
-                    and "definition_request" in (detected_intents or set())
-                    and any(
-                        (t.get("name") if isinstance(t, dict) else None)
-                        == "explain_concept"
-                        for t in (stripped_tools or [])
-                    )
+            _force_regulatory_constant = (
+                iteration == 0
+                and _should_force_regulatory_constant(
+                    question=question,
+                    detected_intents=detected_intents,
+                    tools=stripped_tools,
                 )
-                else None
             )
+            if _force_regulatory_constant:
+                _forced_tool_choice = {
+                    "type": "tool",
+                    "name": "get_regulatory_constant",
+                }
+            elif (
+                iteration == 0
+                and "definition_request" in (detected_intents or set())
+                and any(
+                    (t.get("name") if isinstance(t, dict) else None)
+                    == "explain_concept"
+                    for t in (stripped_tools or [])
+                )
+            ):
+                _forced_tool_choice = {"type": "tool", "name": "explain_concept"}
+            else:
+                _forced_tool_choice = None
 
             # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
             # _call_with_fallback has its own inner timeout; outer wait_for keeps

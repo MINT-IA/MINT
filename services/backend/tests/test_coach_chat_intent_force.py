@@ -32,6 +32,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 from app.api.v1.endpoints.coach_chat import (
     _classify_user_intent,
+    _execute_internal_tool,
     _gate_fact_card_against_registry,
     _guard_tool_payload_text_fields,
     _run_agent_loop,
@@ -76,6 +77,11 @@ def _tool_choices(orch: MagicMock) -> list:
 _DEFINITION_MSG = "c'est quoi un rachat LPP ?"
 _CHITCHAT_MSG = "salut, comment ça va aujourd'hui ?"
 _FACT_DECLARATION_MSG = "je gagne 8500 CHF par mois et j'ai 35 ans"
+_JOS004_3A_CEILING_MSG = "Quel est le plafond légal 3a 2026 avec LPP ?"
+_JOS004_3A_DEFINITION_COLLISION_MSG = "C'est quoi le plafond 3a 2026 avec LPP ?"
+_JOS004_3A_STALE_AMOUNT_MSG = (
+    "Est-ce que 7'056 CHF est le bon montant 3a 2026 avec LPP ?"
+)
 
 
 def _base_kwargs(question: str, detected_intents: set[str]) -> dict:
@@ -122,6 +128,10 @@ class TestDefinitionIntentClassifier:
 
     def test_chitchat_is_not_definition_request(self):
         assert "definition_request" not in _classify_user_intent(_CHITCHAT_MSG)
+
+    def test_jos004_3a_lpp_ceiling_is_financial_intent(self):
+        intents = _classify_user_intent(_JOS004_3A_CEILING_MSG)
+        assert "retirement" in intents
 
 
 class TestDefinitionIntentBroadenedInterrogatives:
@@ -171,6 +181,141 @@ class TestDefinitionIntentBroadenedInterrogatives:
 
 
 class TestForcedToolChoiceFirstCallOnly:
+    def test_3a_ceiling_definition_wording_prefers_regulatory_constant(self):
+        """A value lookup that starts with "c'est quoi" is not a definition card."""
+        intents = _classify_user_intent(_JOS004_3A_DEFINITION_COLLISION_MSG)
+        assert "definition_request" in intents
+        assert "retirement" in intents
+
+        orch = _make_mock_orchestrator(
+            _make_result(
+                answer="",
+                tool_calls=[
+                    {
+                        "name": "get_regulatory_constant",
+                        "input": {"key": "pillar3a.historical_limits.2026"},
+                    }
+                ],
+            ),
+            _make_result(answer="Le plafond 3a 2026 avec LPP est 7'258 CHF."),
+        )
+        _run(
+            _run_agent_loop(
+                orchestrator=orch,
+                tools=[
+                    {"name": "explain_concept"},
+                    {"name": "get_regulatory_constant"},
+                ],
+                **_base_kwargs(_JOS004_3A_DEFINITION_COLLISION_MSG, intents),
+            )
+        )
+
+        assert _tool_choices(orch)[0] == {
+            "type": "tool",
+            "name": "get_regulatory_constant",
+        }
+
+    def test_3a_stale_amount_check_forces_regulatory_constant(self):
+        """A user-supplied stale amount must not bypass the current registry."""
+        orch = _make_mock_orchestrator(
+            _make_result(
+                answer="",
+                tool_calls=[
+                    {
+                        "name": "get_regulatory_constant",
+                        "input": {"key": "pillar3a.historical_limits.2026"},
+                    }
+                ],
+            ),
+            _make_result(
+                answer="Non: 7'056 CHF est le plafond 2024; pour 2026 c'est 7'258 CHF."
+            ),
+        )
+        _run(
+            _run_agent_loop(
+                orchestrator=orch,
+                tools=[{"name": "get_regulatory_constant"}],
+                **_base_kwargs(
+                    _JOS004_3A_STALE_AMOUNT_MSG,
+                    _classify_user_intent(_JOS004_3A_STALE_AMOUNT_MSG),
+                ),
+            )
+        )
+
+        assert _tool_choices(orch)[0] == {
+            "type": "tool",
+            "name": "get_regulatory_constant",
+        }
+
+    def test_3a_2026_missing_tool_key_defaults_to_historical_registry_value(self):
+        """Forced 2026 3a lookups recover from an empty LLM tool input."""
+        result = _execute_internal_tool(
+            {"name": "get_regulatory_constant", "input": {}},
+            memory_block=None,
+            last_user_message=_JOS004_3A_CEILING_MSG,
+            detected_intents={"retirement"},
+            persistence_consent=True,
+        )
+
+        assert "pillar3a.historical_limits.2026 = 7258.0 CHF" in result
+        assert "OPP3 art. 7" in result
+
+    def test_3a_2026_without_lpp_does_not_repair_to_with_lpp_key(self):
+        """A sans-LPP prompt must not be coerced to the salaried-LPP ceiling."""
+        result = _execute_internal_tool(
+            {
+                "name": "get_regulatory_constant",
+                "input": {"key": "pillar3a.max_without_lpp"},
+            },
+            memory_block=None,
+            last_user_message="Quel est le plafond 3a 2026 sans LPP ?",
+            detected_intents={"retirement"},
+            persistence_consent=True,
+        )
+
+        assert "pillar3a.max_without_lpp = 36288.0 CHF" in result
+        assert "pillar3a.historical_limits.2026" not in result
+
+    def test_3a_ceiling_forces_regulatory_constant_on_first_call_only(self):
+        """JOS-004: current-year 3a/LPP ceiling must retrieve the registry.
+
+        The first LLM call is forced to `get_regulatory_constant` so the
+        answer cannot come from model weights or stale profile amounts. After
+        the tool result, the second call reverts to auto so the loop can emit
+        final text.
+        """
+        orch = _make_mock_orchestrator(
+            _make_result(
+                answer="",
+                tool_calls=[
+                    {
+                        "name": "get_regulatory_constant",
+                        "input": {"key": "pillar3a.max_with_lpp"},
+                    }
+                ],
+            ),
+            _make_result(
+                answer=(
+                    "Pour 2026, le plafond 3a avec LPP est de 7'258 CHF "
+                    "(OPP3 art. 7)."
+                ),
+            ),
+        )
+        result = _run(
+            _run_agent_loop(
+                orchestrator=orch,
+                tools=[{"name": "get_regulatory_constant"}],
+                **_base_kwargs(_JOS004_3A_CEILING_MSG, {"retirement"}),
+            )
+        )
+
+        choices = _tool_choices(orch)
+        assert len(choices) == 2, f"expected 2 calls, got {len(choices)}"
+        assert choices[0] == {"type": "tool", "name": "get_regulatory_constant"}
+        assert choices[1] is None
+        assert orch.query.call_args_list[0].kwargs.get("n_results") == 0
+        assert "7'258" in result["answer"]
+
     def test_definition_forces_explain_concept_on_first_call_only(self):
         """Force turn 1; the follow-up after the tool_result reverts to auto."""
         orch = _make_mock_orchestrator(
