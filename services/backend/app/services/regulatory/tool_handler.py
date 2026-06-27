@@ -12,6 +12,7 @@ Single source of truth for both anonymous and authenticated paths.
 from __future__ import annotations
 
 import logging
+from decimal import Decimal
 from typing import Any
 
 try:
@@ -20,6 +21,39 @@ except Exception:  # pragma: no cover — fail-open if SDK absent
     sentry_sdk = None  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+
+_CLOSED_CITATION_KEY_BY_REGULATORY_KEY: dict[str, str] = {
+    "pillar3a.historical_limits.2026": "r3a_plafond_salarie_2026",
+}
+
+
+def _format_tool_value(value: Any, unit: str) -> str:
+    """Format a registry value for narrator-facing tool text."""
+    if isinstance(value, (int, float, Decimal)) and float(value).is_integer():
+        formatted = f"{int(value):,}".replace(",", "'")
+    else:
+        formatted = str(value)
+    return f"{formatted} {unit}".strip()
+
+
+def _closed_citation_hint(param: Any) -> str:
+    """Return narrator guidance linking regulatory keys to closed cite keys."""
+    cite_key = _CLOSED_CITATION_KEY_BY_REGULATORY_KEY.get(getattr(param, "key", ""))
+    if not cite_key:
+        return ""
+
+    tax_year = getattr(param, "tax_year", None)
+    year_text = f" {tax_year}" if tax_year else ""
+    value_text = _format_tool_value(
+        getattr(param, "value", ""),
+        getattr(param, "unit", ""),
+    )
+    return (
+        f"\nCitation fermée à utiliser : {{{{cite:{cite_key}}}}}"
+        f"\nFormulation citable : Le plafond 3a{year_text} avec LPP est de "
+        f"{value_text} {{{{cite:{cite_key}}}}}."
+    )
 
 
 def handle_regulatory_constant(tool_input: dict[str, Any]) -> str:
@@ -90,6 +124,7 @@ def handle_regulatory_constant(tool_input: dict[str, Any]) -> str:
                     f"Source : {param.source_title}\n"
                     f"Description : {param.description}\n"
                     f"En vigueur depuis : {param.effective_from.isoformat()}"
+                    f"{_closed_citation_hint(param)}"
                 )
         jurisdiction = canton_upper
 
@@ -141,4 +176,5 @@ def handle_regulatory_constant(tool_input: dict[str, Any]) -> str:
         f"Source : {param.source_title}\n"
         f"Description : {param.description}\n"
         f"En vigueur depuis : {param.effective_from.isoformat()}"
+        f"{_closed_citation_hint(param)}"
     )
