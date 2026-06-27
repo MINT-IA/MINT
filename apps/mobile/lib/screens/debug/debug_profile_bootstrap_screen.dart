@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/debug_profile_bootstrap_service.dart';
+import 'package:provider/provider.dart';
 
 class DebugProfileBootstrapScreen extends StatefulWidget {
   final String slug;
@@ -27,12 +29,20 @@ class _DebugProfileBootstrapScreenState
   @override
   void initState() {
     super.initState();
-    _result = DebugProfileBootstrapService.persistFixture(
+    _result = _persistFixture();
+  }
+
+  Future<DebugProfileBootstrapResult> _persistFixture() async {
+    final result = await DebugProfileBootstrapService.persistFixture(
       slug: widget.slug,
       mode: widget.mode,
       selfEmployedNetIncomeAnnual: widget.selfEmployedNetIncomeAnnual,
       annual3aContribution: widget.annual3aContribution,
     );
+    if (result.ok && mounted) {
+      await context.read<AuthProvider>().enableLocalMode();
+    }
+    return result;
   }
 
   @override

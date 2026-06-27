@@ -15,7 +15,8 @@
     "codex/jos001-seeded-auth-runtime-20260626",
     "codex/dynamic-pr-size-rule-20260626",
     "codex/jos002-money-truth-spine-20260626",
-    "codex/jos002a-onboarding-persistence-20260627"
+    "codex/jos002a-onboarding-persistence-20260627",
+    "codex/jos002b-money-truth-runtime-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

@@ -979,6 +979,74 @@ void main() {
     expect(find.byKey(const Key('mon_argent_budget_summary')), findsOneWidget);
   });
 
+  testWidgets(
+      'month section keeps canonical snapshot over fresh profile inputs',
+      (tester) async {
+    final budgetProvider = BudgetProvider();
+    await budgetProvider.refreshFromProfile(
+      _profileWithBudget(housingCost: 1100, healthInsurance: 390),
+    );
+    final providerPresent = PresentBudgetBuilder.fromInputs(
+      inputs: budgetProvider.inputs!,
+      plan: budgetProvider.plan!,
+    );
+    final canonicalSnapshot = BudgetSnapshot(
+      present: PresentBudget(
+        monthlyNet: providerPresent.monthlyNet,
+        monthlyCharges: providerPresent.monthlyCharges,
+        monthlySavings: 700,
+        monthlyFree:
+            providerPresent.monthlyNet - providerPresent.monthlyCharges - 700,
+      ),
+      capImpacts: const [],
+      stage: BudgetStage.presentOnly,
+      confidenceScore: 64,
+    );
+    final mintState = MintStateProvider()
+      ..injectStateForTest(
+        _stateWithDataSpine(spine: _dataSpineWithBudget(canonicalSnapshot)),
+      );
+
+    expect(budgetProvider.source, BudgetDataSource.profile);
+    expect(budgetProvider.hasFreshInputs, isTrue);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'month'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text(_formatChf(providerPresent.monthlyFree)), findsNothing);
+    expect(find.text(_formatChf(canonicalSnapshot.present.monthlyFree)),
+        findsWidgets);
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_budget_summary')))
+          .label,
+      contains('Reste ${_formatChf(canonicalSnapshot.present.monthlyFree)}'),
+    );
+  });
+
   testWidgets('direct section aliases route to stable Mon Argent sections',
       (tester) async {
     Future<void> pumpSection(String? initialSection) async {
@@ -1087,6 +1155,30 @@ void main() {
       findsOneWidget,
     );
   });
+}
+
+CoachProfile _profileWithBudget({
+  required double housingCost,
+  required double healthInsurance,
+}) {
+  return CoachProfile(
+    birthYear: 1988,
+    canton: 'VD',
+    salaireBrutMensuel: 6000,
+    depenses: DepensesProfile(
+      loyer: housingCost,
+      assuranceMaladie: healthInsurance,
+    ),
+    dataSources: const {
+      'depenses.loyer': ProfileDataSource.userInput,
+      'depenses.assuranceMaladie': ProfileDataSource.userInput,
+    },
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2055),
+      label: 'Retraite',
+    ),
+  );
 }
 
 MintUserState _stateWithDataSpine({DataSpineSnapshot? spine}) {

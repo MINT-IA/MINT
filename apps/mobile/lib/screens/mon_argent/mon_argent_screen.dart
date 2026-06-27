@@ -119,9 +119,32 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
+    final providerPresentBudget =
+        budgetProvider.hasFreshInputs && budgetProvider.inputs != null
+            ? PresentBudgetBuilder.fromInputs(
+                inputs: budgetProvider.inputs!,
+                plan: budgetProvider.plan ??
+                    const BudgetPlan(
+                      available: 0,
+                      variables: 0,
+                      future: 0,
+                      stopRuleTriggered: false,
+                      emergencyFundMonths: 0,
+                    ),
+              )
+            : null;
     final preferProfileBudgetProvider =
         budgetProvider.source == BudgetDataSource.profile &&
-            budgetProvider.hasFreshInputs;
+            providerPresentBudget != null &&
+            (budgetSnapshot == null ||
+                !_hasSameMonthlyBudgetBase(
+                  budgetSnapshot.present,
+                  providerPresentBudget,
+                ) ||
+                _providerCarriesFutureOverride(
+                  budgetSnapshot.present,
+                  providerPresentBudget,
+                ));
     final budgetSnapshotForBudgetCard =
         preferProfileBudgetProvider ? null : budgetSnapshot;
     final budgetConfidenceScore = preferProfileBudgetProvider
@@ -257,6 +280,22 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       ),
     );
   }
+
+  bool _hasSameMonthlyBudgetBase(PresentBudget a, PresentBudget b) {
+    return _sameChf(a.monthlyNet, b.monthlyNet) &&
+        _sameChf(a.monthlyCharges, b.monthlyCharges);
+  }
+
+  bool _providerCarriesFutureOverride(
+    PresentBudget snapshot,
+    PresentBudget provider,
+  ) {
+    return provider.monthlySavings > 0 &&
+        !_sameChf(snapshot.monthlySavings, provider.monthlySavings);
+  }
+
+  bool _sameChf(double a, double b) =>
+      PresentBudgetBuilder.displayChf(a) == PresentBudgetBuilder.displayChf(b);
 }
 
 enum _MonArgentSection { today, month, wealth, pension, future }
