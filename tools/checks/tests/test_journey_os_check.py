@@ -135,6 +135,25 @@ def test_jos004_coach_advice_runtime_flow_is_in_scope(tmp_path: Path) -> None:
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
+def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
+    flow = (
+        journey_os_check.REPO_ROOT
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos004_coach_advice_turn_runtime.yaml"
+    ).read_text(encoding="utf-8")
+
+    login = "mintapp:///auth/login?redirect=%2Fcoach%2Fchat"
+    fixture = (
+        "mintapp:///__e2e/row23-independent-no-lpp-profile?"
+        "slug=cadre_salarie_lpp_suisse_ready"
+    )
+    coach = 'openLink: "mintapp:///coach/chat"'
+
+    assert login in flow
+    assert fixture in flow
+    assert 'id: "e2e_profile_fixture_applied"' in flow
+    assert flow.index(login) < flow.index(fixture) < flow.index(coach)
+
 def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)

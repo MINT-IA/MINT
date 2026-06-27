@@ -23,7 +23,8 @@
     "codex/jos004-coach-advice-fix-20260627",
     "codex/jos004-coach-empty-answer-fix-20260627",
     "codex/jos004-regulatory-floor-20260627",
-    "codex/jos004-regulatory-floor-close-loop-20260627"
+    "codex/jos004-regulatory-floor-close-loop-20260627",
+    "codex/jos004-maestro-first-experience-proof-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

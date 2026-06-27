@@ -49,6 +49,10 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary hotfix branch: `codex/jos004-regulatory-floor-close-loop-20260627`
   is authorized only for closing the JOS-004 3a/LPP regulatory tool loop
   deterministically before a fallback response can overwrite it.
+- Temporary runtime-proof branch:
+  `codex/jos004-maestro-first-experience-proof-20260627` is authorized only
+  for the JOS-004 Coach advice turn Maestro runtime proof harness update from
+  clean `origin/dev`; no product code changes.
 
 ## Required Session Start
 

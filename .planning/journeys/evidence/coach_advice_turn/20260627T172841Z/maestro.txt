@@ -1,0 +1,95 @@
+Command:
+bash -lc 'source /tmp/mint-jos004-staging-account.env; /Users/julienbattaglia/.maestro/bin/maestro test --env MINT_E2E_EMAIL=[REDACTED_EMAIL] --env MINT_E2E_PASSWORD=[REDACTED_PASSWORD] tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml'
+
+Runtime:
+iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+
+Base app/backend:
+- App bundle already installed on the booted simulator.
+- Mobile build was the debug staging build installed for the JOS-004 proof loop.
+- Backend staging active deployment was verified separately at commit 454084bdecf8a87f16191b8dbf64fd536f87f3fa after PR #763.
+
+Flow result:
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow flow_jos004_coach_advice_turn_runtime
+Launch app "ch.mint.app" with clear state (launch arguments: {MINT_E2E_ARCHETYPE=${MINT_E2E_ARCHETYPE}})... COMPLETED
+Wait for animation to end within 6000 ms... COMPLETED
+Run flow when "Je comprends, on y va" is visible...
+Run flow when "Je comprends, on y va" is visible... SKIPPED
+Open mintapp:///auth/login?redirect=%2Fcoach%2Fchat... COMPLETED
+Run flow when "Ouvrir" is visible...
+Run flow when "Ouvrir" is visible... SKIPPED
+Run flow when "Open" is visible...
+Run flow when "Open" is visible... SKIPPED
+Assert that "Connexion" is visible... COMPLETED
+Assert that "Adresse e-mail" is visible... COMPLETED
+Tap on "Adresse e-mail"... COMPLETED
+Input text ${MINT_E2E_EMAIL}... COMPLETED
+Press Enter key... COMPLETED
+Tap on "Se connecter avec un mot de passe"... COMPLETED
+Assert that "Mot de passe" is visible... COMPLETED
+Tap on "Mot de passe"... COMPLETED
+Input text ${MINT_E2E_PASSWORD}... COMPLETED
+Press Enter key... COMPLETED
+Tap on "Se connecter"... COMPLETED
+Wait for animation to end within 6000 ms... COMPLETED
+Open mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready... COMPLETED
+Run flow when "Ouvrir" is visible...
+Run flow when "Ouvrir" is visible... SKIPPED
+Run flow when "Open" is visible...
+Run flow when "Open" is visible... SKIPPED
+Assert that id: e2e_profile_fixture_applied is visible... COMPLETED
+Copy text from element with id: e2e_profile_fixture_applied... COMPLETED
+Run ${output.jos004_profile_bootstrap = maestro.copiedText}... COMPLETED
+Open mintapp:///coach/chat... COMPLETED
+Run flow when "Ouvrir" is visible...
+Run flow when "Ouvrir" is visible... SKIPPED
+Run flow when "Open" is visible...
+Run flow when "Open" is visible... SKIPPED
+Assert that id: coach_chat_screen is visible... COMPLETED
+Assert that id: coach_input_field is visible... COMPLETED
+Assert that id: coach_send_button is visible... COMPLETED
+Assert that "Encore en chantier pour ton profil" is not visible... COMPLETED
+Assert that "A RenderFlex overflowed" is not visible... COMPLETED
+Assert that "Exception caught" is not visible... COMPLETED
+Assert that "NoSuchMethodError" is not visible... COMPLETED
+Tap on id: coach_input_field... COMPLETED
+Input text Quel est le plafond legal 3a 2026 avec LPP ?... COMPLETED
+Tap on id: coach_send_button... COMPLETED
+Wait for animation to end within 6000 ms... COMPLETED
+Take screenshot jos004-coach-advice-turn-after-send... COMPLETED
+Assert that ".*(3a|pilier).*" is visible... COMPLETED
+Assert that ".*(OPP3|art\.?\s*7|art\.?\s*33|art\.?\s*38|LIFD).*" is visible... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Take screenshot jos004-coach-advice-turn-response... COMPLETED
+Assert that ".*7['’\s ]?258.*" is visible... COMPLETED
+Assert that ".*(OPP3|art\.?\s*7|art\.?\s*33|art\.?\s*38|LIFD).*" is visible... COMPLETED
+Assert that ".*\{\{cite:.*" is not visible... COMPLETED
+Assert that ".*source non affichée.*" is not visible... COMPLETED
+Assert that ".*Je n'ai pas cette donnée à jour.*" is not visible... COMPLETED
+Assert that ".*Encore en chantier pour ton profil.*" is not visible... COMPLETED
+Assert that ".*meilleur.*" is not visible... COMPLETED
+Assert that ".*Meilleur.*" is not visible... COMPLETED
+Assert that ".*optimal.*" is not visible... COMPLETED
+Assert that ".*Optimal.*" is not visible... COMPLETED
+Assert that ".*garanti.*" is not visible... COMPLETED
+Assert that ".*Garanti.*" is not visible... COMPLETED
+Assert that ".*sans risque.*" is not visible... COMPLETED
+Assert that ".*Sans risque.*" is not visible... COMPLETED
+Assert that ".*certain.*" is not visible... COMPLETED
+Assert that ".*Certain.*" is not visible... COMPLETED
+Assert that ".*assuré.*" is not visible... COMPLETED
+Assert that ".*Assuré.*" is not visible... COMPLETED
+Assert that ".*parfait.*" is not visible... COMPLETED
+Assert that ".*Parfait.*" is not visible... COMPLETED
+Assert that "NaN" is not visible... COMPLETED
+Assert that "Infinity" is not visible... COMPLETED
+Assert that "A RenderFlex overflowed" is not visible... COMPLETED
+Assert that "Exception caught" is not visible... COMPLETED
+Assert that "NoSuchMethodError" is not visible... COMPLETED
+
+Evidence interpretation:
+- The patched flow no longer stalls at Mint first-experience after login.
+- The existing debug-only E2E route persisted the salaried-LPP fixture and marked mini-onboarding complete before opening /coach/chat.
+- The visible Coach answer contained the 2026 salaried-LPP 3a ceiling 7'258 and a legal citation token accepted by the flow.
+- The visible answer did not contain the freshness fallback, unfinished-profile warning, NaN/Infinity, Flutter exception strings, or the listed bounded-advice banned terms.
