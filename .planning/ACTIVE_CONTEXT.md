@@ -33,6 +33,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary Journey OS branch: `codex/jos004-profile-privacy-control-20260627`
   is authorized only for the Profile Privacy Control Journey OS vertical from
   clean `origin/dev`.
+- Temporary Journey OS branch: `codex/jos005-coach-advice-turn-20260627`
+  is authorized only for the Coach Advice Turn Journey OS vertical from clean
+  `origin/dev`.
 
 ## Required Session Start
 
