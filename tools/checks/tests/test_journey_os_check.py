@@ -120,6 +120,21 @@ def test_row24_privacy_runtime_flow_is_in_scope(tmp_path: Path) -> None:
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
+def test_jos004_coach_advice_runtime_flow_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
 def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
