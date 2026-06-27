@@ -39,6 +39,10 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary hotfix branch: `codex/jos004-coach-advice-fix-20260627` is
   authorized only for the JOS-004 Coach advice turn regulatory freshness fix
   from clean `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-coach-empty-answer-fix-20260627` is
+  authorized only for the JOS-004 authenticated Coach empty-answer fix, the
+  directly required runtime-proof harness update, and evidence from clean
+  `origin/dev`.
 
 ## Required Session Start
 

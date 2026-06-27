@@ -149,6 +149,164 @@ async def test_empty_end_turn_exhaustion_returns_degraded_fallback():
 
 
 @pytest.mark.asyncio
+async def test_high_token_internal_tool_use_still_reaches_text_answer():
+    """High input-token tool_use turns must not be cut before tool execution."""
+    high_token_count = max(cc.MAX_REQUEST_TOKENS, cc.MAX_AGENT_LOOP_TOKENS) + 1
+    orchestrator = _MockOrchestrator([
+        {
+            "answer": "",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": high_token_count,
+            "tool_calls": [
+                {
+                    "name": "get_regulatory_constant",
+                    "input": {"key": "pillar3a.max_with_lpp"},
+                },
+            ],
+        },
+        {
+            "answer": "Le plafond 3a 2026 avec LPP est 7'258 CHF.",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 120,
+        },
+    ])
+
+    result = await cc._run_agent_loop(
+        orchestrator=orchestrator,
+        question="Quel est le plafond legal 3a 2026 avec LPP ?",
+        api_key="sk-test",
+        provider="claude",
+        model="claude-sonnet-4-5-20250929",
+        profile_context={"age": 33, "has_2nd_pillar": True},
+        memory_block=None,
+        language="fr",
+        system_prompt="test-prompt",
+        user_id="user-4",
+        db=None,
+        conversation_history=None,
+    )
+
+    assert result["answer"] == "Le plafond 3a 2026 avec LPP est 7'258 CHF."
+    assert len(orchestrator.calls) == 2
+    assert "Résultats outils internes" in orchestrator.calls[1]["question"]
+    assert "get_regulatory_constant" in orchestrator.calls[1]["question"]
+
+
+@pytest.mark.asyncio
+async def test_cumulative_token_budget_appends_note_to_partial_answer(monkeypatch):
+    """Cumulative cap preserves a partial answer instead of replacing it."""
+    monkeypatch.setattr(cc, "MAX_AGENT_LOOP_TOKENS", 100)
+    monkeypatch.setattr(cc, "MAX_REQUEST_TOKENS", 10_000)
+    orchestrator = _MockOrchestrator([
+        {
+            "answer": "Je vérifie ta mémoire.",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 60,
+            "tool_calls": [
+                {"name": "retrieve_memories", "input": {"topic": "3a"}},
+            ],
+        },
+        {
+            "answer": "Le plafond 3a dépend de ton affiliation LPP.",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 60,
+            "tool_calls": [
+                {"name": "retrieve_memories", "input": {"topic": "lpp"}},
+            ],
+        },
+    ])
+
+    result = await cc._run_agent_loop(
+        orchestrator=orchestrator,
+        question="Quel plafond 3a pour moi ?",
+        api_key="sk-test",
+        provider="claude",
+        model="claude-sonnet-4-5-20250929",
+        profile_context={"has_2nd_pillar": True},
+        memory_block="3a: plafond à vérifier",
+        language="fr",
+        system_prompt="test-prompt",
+        user_id="user-5",
+        db=None,
+        conversation_history=None,
+    )
+
+    assert len(orchestrator.calls) == 2
+    assert result["answer"].startswith("Le plafond 3a dépend")
+    assert "certaines informations" in result["answer"]
+
+
+@pytest.mark.asyncio
+async def test_cumulative_token_budget_empty_answer_returns_degraded_fallback(monkeypatch):
+    """Cumulative cap must not return message='' after empty end_turn retries."""
+    monkeypatch.setattr(cc, "MAX_AGENT_LOOP_TOKENS", 100)
+    monkeypatch.setattr(cc, "MAX_REQUEST_TOKENS", 10_000)
+    orchestrator = _MockOrchestrator([
+        {
+            "answer": "",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 120,
+        },
+    ])
+
+    result = await cc._run_agent_loop(
+        orchestrator=orchestrator,
+        question="Quel plafond 3a pour moi ?",
+        api_key="sk-test",
+        provider="claude",
+        model="claude-sonnet-4-5-20250929",
+        profile_context={"has_2nd_pillar": True},
+        memory_block=None,
+        language="fr",
+        system_prompt="test-prompt",
+        user_id="user-6",
+        db=None,
+        conversation_history=None,
+    )
+
+    assert len(orchestrator.calls) == 1
+    assert result["answer"] == cc._EMPTY_AGENT_LOOP_FALLBACK_FR
+    assert result["degraded"] is True
+
+
+@pytest.mark.asyncio
+async def test_request_token_budget_empty_no_tool_returns_degraded_fallback():
+    """Per-request cap also fails closed when Claude returns no text and no tool."""
+    orchestrator = _MockOrchestrator([
+        {
+            "answer": "",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": cc.MAX_REQUEST_TOKENS,
+        },
+    ])
+
+    result = await cc._run_agent_loop(
+        orchestrator=orchestrator,
+        question="Quel plafond 3a pour moi ?",
+        api_key="sk-test",
+        provider="claude",
+        model="claude-sonnet-4-5-20250929",
+        profile_context={"has_2nd_pillar": True},
+        memory_block=None,
+        language="fr",
+        system_prompt="test-prompt",
+        user_id="user-7",
+        db=None,
+        conversation_history=None,
+    )
+
+    assert len(orchestrator.calls) == 1
+    assert result["answer"] == cc._EMPTY_AGENT_LOOP_FALLBACK_FR
+    assert result["degraded"] is True
+
+
+@pytest.mark.asyncio
 async def test_reprompt_constants_are_module_level():
     """Re-prompt strings are constants, not magic inline strings."""
     assert cc._REPROMPT_EMPTY_NARRATION

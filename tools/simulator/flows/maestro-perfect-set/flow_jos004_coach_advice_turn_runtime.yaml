@@ -18,6 +18,8 @@
 #       --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
 #       --dart-define=MINT_DISABLE_BETA_MODAL=true \
 #       --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready
+# - A disposable staging user exists. Pass credentials with:
+#     --env MINT_E2E_EMAIL=<email> --env MINT_E2E_PASSWORD=<password>
 # - The E2E seed is kReleaseMode-guarded and only proves this Coach turn,
 #   not onboarding persistence.
 
@@ -47,7 +49,7 @@ tags:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
 
-- openLink: "mintapp:///coach/chat"
+- openLink: "mintapp:///auth/login?redirect=%2Fcoach%2Fchat"
 - runFlow:
     when:
       visible: "Ouvrir"
@@ -60,6 +62,25 @@ tags:
     commands:
       - tapOn: "Open"
       - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Connexion"
+    timeout: 15000
+- assertVisible: "Adresse e-mail"
+- tapOn: "Adresse e-mail"
+- inputText: ${MINT_E2E_EMAIL}
+- pressKey: Enter
+
+- tapOn: "Se connecter avec un mot de passe"
+- extendedWaitUntil:
+    visible: "Mot de passe"
+    timeout: 8000
+- tapOn: "Mot de passe"
+- inputText: ${MINT_E2E_PASSWORD}
+- pressKey: Enter
+- tapOn: "Se connecter"
+- waitForAnimationToEnd:
+    timeout: 6000
 
 - extendedWaitUntil:
     visible:
@@ -107,7 +128,7 @@ tags:
 # The advice must stay bounded and non-promissory.
 - assertNotVisible: ".*\\{\\{cite:.*"
 - assertNotVisible: ".*source non affichée.*"
-- assertNotVisible: ".*API Claude.*"
+- assertNotVisible: ".*Je n'ai pas cette donnée à jour.*"
 - assertNotVisible: ".*Encore en chantier pour ton profil.*"
 - assertNotVisible: ".*meilleur.*"
 - assertNotVisible: ".*Meilleur.*"
