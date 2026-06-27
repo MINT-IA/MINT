@@ -132,6 +132,77 @@ void main() {
     expect(provider.profile!.prevoyance.avoirLppTotal, 0);
   });
 
+  test('preserves rich salaried LPP fixture through the real store', () async {
+    final result = await DebugProfileBootstrapService.persistFixture(
+      slug: 'cadre_salarie_lpp_suisse_ready',
+    );
+
+    expect(result.ok, isTrue);
+    expect(result.slug, 'cadre_salarie_lpp_suisse_ready');
+    expect(result.storageMode, 'secureSeal');
+    expect(result.selfEmployedNetIncomeAnnual, isNull);
+    expect(result.monthlyNetIncome, 7500);
+    expect(result.annual3aContribution, 7056);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_firstname'], 'Alex');
+    expect(answers['q_employment_status'], 'employed');
+    expect(answers['q_has_pension_fund'], isTrue);
+    expect(
+      answers.containsKey('q_self_employed_net_income_annual_chf'),
+      isFalse,
+    );
+    expect(answers['q_3a_annual_contribution'], 7056);
+    expect(answers['q_3a_accounts_count'], 2);
+    expect(answers['_coach_avoir_lpp'], 94000);
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    expect(provider.profile, isNotNull);
+    expect(provider.isPartialProfile, isFalse);
+    expect(provider.profile!.firstName, 'Alex');
+    expect(provider.profile!.employmentStatus, 'salarie');
+    expect(provider.profile!.explicitMonthlyNetIncome, 7500);
+    expect(provider.profile!.prevoyance.avoirLppTotal, 94000);
+    expect(provider.profile!.prevoyance.salaireAssure, 86000);
+    expect(provider.profile!.prevoyance.rachatMaximum, 42000);
+    expect(provider.profile!.prevoyance.nombre3a, 2);
+  });
+
+  test('preserves rich salaried LPP fixture through simulator fallback',
+      () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_secureStorageChannel, (call) async {
+      if (call.method == 'write') {
+        throw PlatformException(
+          code: '-34018',
+          message: 'Missing iOS simulator keychain entitlement',
+        );
+      }
+      return null;
+    });
+
+    final result = await DebugProfileBootstrapService.persistFixture(
+      slug: 'cadre_salarie_lpp_suisse_ready',
+    );
+
+    expect(result.ok, isTrue);
+    expect(result.storageMode, 'debugPlainFallback');
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_employment_status'], 'employed');
+    expect(answers['q_has_pension_fund'], isTrue);
+    expect(answers['_coach_avoir_lpp'], 94000);
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    expect(provider.profile!.employmentStatus, 'salarie');
+    expect(provider.profile!.explicitMonthlyNetIncome, 7500);
+    expect(provider.profile!.prevoyance.avoirLppTotal, 94000);
+  });
+
   test('rejects unknown fixture slugs without writing profile state', () async {
     final result = await DebugProfileBootstrapService.persistFixture(
       slug: 'unknown_fixture',

@@ -2,18 +2,23 @@
 #
 # PURPOSE
 # Canonical runtime proof for the MINT money trust chain:
-# onboarding persists a supported Swiss-native profile, Budget setup exposes
-# deterministic monthly fixed-charge entry, Budget restores the persisted read
-# model after restart, Mon Argent and Coach expose the same money value, Rapport
-# shows only the executive summary (no Budget-screen duplicate), and no absurd
-# captured values leak into visible surfaces.
+# a debug-only route persists the rich `cadre_salarie_lpp_suisse_ready` persona
+# through the report store, Budget setup exposes deterministic monthly
+# fixed-charge entry, Budget restores the persisted read model after restart,
+# Mon Argent and Coach expose the same money value, Rapport shows only the
+# executive summary (no Budget-screen duplicate), and no absurd captured values
+# leak into visible surfaces.
+#
+# JOS-002A owns the production onboarding persistence proof. JOS-002B owns this
+# downstream runtime chain proof and uses a non-release E2E route so simulator
+# keychain failures do not make the Money Truth surface proof unreplayable.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
 # - Recommended build:
 #     --dart-define=MINT_DISABLE_BETA_MODAL=true
 # - Do not build this proof with `MINT_E2E_ARCHETYPE`. That seed is in-memory
-#   only and is not a persistence proof. CJT-023 documents the stale contract.
+#   only and is not this persisted-runtime proof.
 
 appId: ch.mint.app
 tags:
@@ -34,107 +39,17 @@ tags:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
 
-# Build the profile through the production onboarding writer, not a debug seed.
-- openLink: "mintapp:///onb"
+# Establish persisted Alex through the real report store, not via
+# MINT_E2E_ARCHETYPE. The route and simulator fallback are debug-only.
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
 - extendedWaitUntil:
     visible:
-      text: "Il est temps que tu comprennes."
+      id: "e2e_profile_fixture_applied"
     timeout: 10000
-- tapOn:
-    text: "Ouvrir"
-- extendedWaitUntil:
-    visible:
-      text: ".*Ce que je toucherai.*"
-    timeout: 5000
-- tapOn:
-    id: "onboarding-intent-retraite"
-- extendedWaitUntil:
-    visible:
-      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
-    timeout: 5000
-- tapOn:
-    text: "Non"
-- runFlow:
-    when:
-      visible: "Quelle est ta nationalité ?"
-    commands:
-      - tapOn:
-          text: "Suisse"
-- runFlow:
-    when:
-      visible: "Quel âge tu as ?"
-    commands:
-      - takeScreenshot: "money-trust-legacy-age-only-screen"
-      - tapOn:
-          text: "Continuer"
-- extendedWaitUntil:
-    visible:
-      text: "Choisir ma date"
-    timeout: 5000
-- tapOn: "Choisir ma date"
-- waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
-      text: "OK"
-    timeout: 5000
-- tapOn:
-    text: ".*15.*juillet.*1992.*"
-- tapOn: "OK"
-- extendedWaitUntil:
-    visible:
-      text: "15.07.1992"
-    timeout: 5000
-- tapOn:
-    text: "Continuer"
-- runFlow:
-    when:
-      visible: "Quelle est ta nationalité ?"
-    commands:
-      - tapOn:
-          text: "Suisse"
-- extendedWaitUntil:
-    visible:
-      text: "Où tu vis ?"
-    timeout: 5000
-- tapOn:
-    id: "onboarding-canton-vd"
-- extendedWaitUntil:
-    visible:
-      text: "Combien te tombe net par mois ?"
-    timeout: 5000
-- tapOn:
-    id: "onboarding-revenue-range-continue"
-- extendedWaitUntil:
-    visible:
-      text: "Avant de te montrer…"
-    timeout: 12000
-- tapOn:
-    id: "onboarding-insight-view"
-- extendedWaitUntil:
-    visible:
-      text: "Continuer"
-    timeout: 8000
-- tapOn:
-    id: "onboarding-scene-continue"
-- runFlow:
-    when:
-      visible:
-        text: "Continuer"
-    commands:
-      - tapOn:
-          id: "onboarding-scene-continue"
-- extendedWaitUntil:
-    visible:
-      text: "Creuser"
-    timeout: 5000
-- tapOn:
-    id: "onboarding-bifurcation-creuser"
-- extendedWaitUntil:
-    visible:
-      id: "coach_chat_screen"
-    timeout: 15000
-- assertVisible:
-    id: "coach_input_field"
+- copyTextFrom:
+    id: "e2e_profile_fixture_applied"
+- evalScript: ${output.money_trust_bootstrap = maestro.copiedText}
+- runScript: "money_trust_assert_profile_bootstrap.js"
 
 - openLink: "mintapp:///budget/setup"
 

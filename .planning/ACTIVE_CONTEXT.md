@@ -24,6 +24,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
   is authorized only for the JOS-002A onboarding persistence gate needed before
   the downstream Money truth spine proof.
+- Temporary runtime-proof branch: `codex/jos002b-money-truth-runtime-20260627`
+  is authorized only for the JOS-002B Money truth runtime proof harness and any
+  directly required SEC-10-preserving simulator fixture fix.
 
 ## Required Session Start
 

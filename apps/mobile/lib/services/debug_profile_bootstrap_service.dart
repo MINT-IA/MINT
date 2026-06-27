@@ -80,23 +80,38 @@ class DebugProfileBootstrapService {
       );
     }
 
-    final annualIncome = selfEmployedNetIncomeAnnual ??
-        seed.independentNetProfessionalIncomeAnnual;
-    final monthlyNetIncome = annualIncome != null ? annualIncome / 12 : null;
-    final annual3a = annual3aContribution ?? seed.annual3aContribution;
+    final appliesIndependentNoLppPatch = selfEmployedNetIncomeAnnual != null ||
+        seed.independentNetProfessionalIncomeAnnual != null ||
+        answers.containsKey('q_self_employed_net_income_annual_chf');
+    final annualIncome = appliesIndependentNoLppPatch
+        ? selfEmployedNetIncomeAnnual ??
+            _parseDouble(answers['q_self_employed_net_income_annual_chf']) ??
+            seed.independentNetProfessionalIncomeAnnual
+        : null;
 
-    answers['q_employment_status'] = 'independant';
-    answers['q_has_pension_fund'] = false;
-    answers['q_pay_frequency'] = 'monthly';
-    if (annualIncome != null) {
-      answers['q_self_employed_net_income_annual_chf'] = annualIncome;
-      answers['q_net_income_period_chf'] = monthlyNetIncome;
+    if (appliesIndependentNoLppPatch) {
+      answers['q_employment_status'] = 'independant';
+      answers['q_has_pension_fund'] = false;
+      answers['q_pay_frequency'] = 'monthly';
+      if (annualIncome != null) {
+        answers['q_self_employed_net_income_annual_chf'] = annualIncome;
+        answers['q_net_income_period_chf'] = annualIncome / 12;
+      }
     }
-    if (annual3a != null) {
+
+    final annual3a = annual3aContribution ??
+        _parseDouble(answers['q_3a_annual_contribution']) ??
+        seed.annual3aContribution;
+    if (annual3a != null &&
+        (annual3aContribution != null || appliesIndependentNoLppPatch)) {
       answers['q_3a_annual_contribution'] = annual3a;
       answers['q_has_3a'] = annual3a > 0;
-      answers['q_3a_accounts_count'] = annual3a > 0 ? 1 : 0;
+      if (appliesIndependentNoLppPatch) {
+        answers['q_3a_accounts_count'] = annual3a > 0 ? 1 : 0;
+      }
     }
+    final monthlyNetIncome = _parseDouble(answers['q_net_income_period_chf']) ??
+        (annualIncome == null ? null : annualIncome / 12);
 
     var storageMode = 'secureSeal';
     var sealed = await ReportPersistenceService.saveAnswers(answers);
@@ -142,5 +157,11 @@ class DebugProfileBootstrapService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('wizard_answers_v2', json.encode(answers));
     return true;
+  }
+
+  static double? _parseDouble(Object? value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 }
