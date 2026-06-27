@@ -21,6 +21,38 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   `codex/staging-jos004-empty-answer-fix-20260627` is authorized only to
   promote the JOS-004 authenticated Coach empty-answer fix and runtime-proof
   harness update to `staging` for Railway runtime proof.
+- Temporary runtime-proof branch: `codex/jos001-seeded-auth-runtime-20260626`
+  is authorized only for the JOS-001 account lifecycle seeded-auth runtime
+  proof and any directly required gate fix.
+- Temporary workflow branch: `codex/dynamic-pr-size-rule-20260626` is
+  authorized only for the PR-size-budget doctrine correction.
+- Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
+  is authorized only for the Money truth spine Journey OS vertical.
+- Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
+  is authorized only for the JOS-002A onboarding persistence gate needed before
+  the downstream Money truth spine proof.
+- Temporary runtime-proof branch: `codex/jos002b-money-truth-runtime-20260627`
+  is authorized only for the JOS-002B Money truth runtime proof harness and any
+  directly required SEC-10-preserving simulator fixture fix.
+- Temporary Journey OS branch: `codex/jos003-next-journey-vertical-20260627`
+  is authorized only for selecting and executing the next scoped Journey OS
+  vertical from clean `origin/dev`.
+- Temporary Journey OS branch: `codex/jos004-profile-privacy-control-20260627`
+  is authorized only for the Profile Privacy Control Journey OS vertical from
+  clean `origin/dev`.
+- Temporary Journey OS branch: `codex/jos005-coach-advice-turn-20260627`
+  is authorized only for the Coach Advice Turn Journey OS vertical from clean
+  `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-coach-advice-fix-20260627` is
+  authorized only for the JOS-004 Coach advice turn regulatory freshness fix
+  from clean `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-coach-empty-answer-fix-20260627` is
+  authorized only for the JOS-004 authenticated Coach empty-answer fix, the
+  directly required runtime-proof harness update, and evidence from clean
+  `origin/dev`.
+- Temporary hotfix branch: `codex/jos004-regulatory-floor-20260627` is
+  authorized only for the JOS-004 closed regulatory 3a/LPP deterministic
+  runtime floor and evidence from clean `origin/dev`.
 
 ## Required Session Start
 
