@@ -12,7 +12,8 @@
     "staging",
     "main",
     "codex/account-lifecycle-gate-20260624",
-    "codex/jos004-staging-deploy-20260627"
+    "codex/jos004-staging-deploy-20260627",
+    "codex/staging-jos004-empty-answer-fix-20260627"
   ],
   "base_ref": "origin/dev",
   "required_phase_files": [

@@ -17,6 +17,10 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary staging deploy branch: `codex/jos004-staging-deploy-20260627` is
   authorized only to promote the JOS-004 authenticated Coach 3a/LPP freshness
   fix to `staging` for Railway runtime proof.
+- Temporary staging deploy branch:
+  `codex/staging-jos004-empty-answer-fix-20260627` is authorized only to
+  promote the JOS-004 authenticated Coach empty-answer fix and runtime-proof
+  harness update to `staging` for Railway runtime proof.
 
 ## Required Session Start
 
