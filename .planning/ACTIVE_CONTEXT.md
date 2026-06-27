@@ -56,6 +56,10 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary Journey OS branch: `codex/jos005-onboarding-first-value-20260627`
   is authorized only for classifying and proving the Onboarding First Value
   Journey OS vertical from clean `origin/dev`.
+- Temporary hotfix branch: `codex/jos005-first-value-before-account-20260627`
+  is authorized only for the JOS-005 Mint 2.0 onboarding first-value fix so the
+  live LPP/rente-capital axis reaches `/rente-vs-capital` before account
+  creation, from clean `origin/dev`.
 
 ## Required Session Start
 

@@ -277,11 +277,31 @@ bool _isMainShellPath(String path) {
 bool _isProfileCorrectionPath(String path) {
   return path == '/onb' ||
       path.startsWith('/onb/') ||
+      path.startsWith('/__e2e/') ||
       path == '/waitlist' ||
       path.startsWith('/waitlist/') ||
       path == '/auth/login' ||
       path == '/auth/register' ||
       path.startsWith('/auth/');
+}
+
+bool _allowsProfilelessDossierSurface({
+  required AuthLifecycleState lifecycle,
+  required String path,
+}) {
+  if (path != '/profile/bilan') return false;
+  return (lifecycle.accessMode == AuthAccessMode.guestLocal &&
+          lifecycle.allowsMainNavigation) ||
+      lifecycle.state == AuthLifecycleKind.signedInProfileMissing;
+}
+
+bool _allowsProfilelessCoachSurface({
+  required AuthLifecycleState lifecycle,
+  required String path,
+}) {
+  if (path != '/coach/chat') return false;
+  return lifecycle.accessMode == AuthAccessMode.guestLocal &&
+      lifecycle.allowsMainNavigation;
 }
 
 String? _profileRequiredEntryRedirect({
@@ -292,6 +312,12 @@ String? _profileRequiredEntryRedirect({
 }) {
   if (profile != null) return null;
   if (_isProfileCorrectionPath(path)) return null;
+  if (_allowsProfilelessCoachSurface(lifecycle: lifecycle, path: path)) {
+    return null;
+  }
+  if (_allowsProfilelessDossierSurface(lifecycle: lifecycle, path: path)) {
+    return null;
+  }
 
   final profileRequired = _isMainShellPath(path) ||
       lifecycle.state == AuthLifecycleKind.signedInProfileMissing ||
@@ -373,6 +399,9 @@ String? accountLifecycleAndArchetypeRedirect({
       return null;
 
     case RouteScope.authenticated:
+      if (_allowsProfilelessDossierSurface(lifecycle: lifecycle, path: path)) {
+        return null;
+      }
       return accountLifecycleAuthenticatedRedirect(
         lifecycle: lifecycle,
         path: location,
@@ -949,23 +978,28 @@ final _router = GoRouter(
 
     ScopedGoRoute(
       path: '/rente-vs-capital',
+      scope: RouteScope.onboarding,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
     ScopedGoRoute(
-        path: '/arbitrage/rente-vs-capital',
-        redirect: (_, state) {
-          MintBreadcrumbs.legacyRedirectHit(
-              from: state.uri.path, to: '/rente-vs-capital');
-          return '/rente-vs-capital';
-        }),
+      path: '/arbitrage/rente-vs-capital',
+      scope: RouteScope.onboarding,
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/rente-vs-capital');
+        return '/rente-vs-capital';
+      },
+    ),
     ScopedGoRoute(
-        path: '/simulator/rente-capital',
-        redirect: (_, state) {
-          MintBreadcrumbs.legacyRedirectHit(
-              from: state.uri.path, to: '/rente-vs-capital');
-          return '/rente-vs-capital';
-        }),
+      path: '/simulator/rente-capital',
+      scope: RouteScope.onboarding,
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/rente-vs-capital');
+        return '/rente-vs-capital';
+      },
+    ),
 
     ScopedGoRoute(
       path: '/rachat-lpp',

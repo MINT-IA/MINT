@@ -529,6 +529,7 @@ class _Mint2AxesStep extends StatelessWidget {
     OnboardingProvider provider,
     String label,
   ) async {
+    final authProvider = context.read<AuthProvider>();
     provider.setAxisV2(OnboardingAxisV2.lppRenteCapital, label);
     final persisted = await provider.persistMint2AxisHandoff();
     if (!context.mounted) return;
@@ -550,6 +551,8 @@ class _Mint2AxesStep extends StatelessWidget {
       );
       return;
     }
+    await authProvider.enableLocalMode();
+    if (!context.mounted) return;
     context.go('/rente-vs-capital');
   }
 

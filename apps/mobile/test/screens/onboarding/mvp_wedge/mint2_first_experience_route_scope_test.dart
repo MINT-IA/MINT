@@ -8,25 +8,31 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:provider/provider.dart';
 
 const _mint2AxisHandoffKey = 'mint2_axis_handoff_v1';
 const _secureStorageChannel =
     MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
 
-Widget _wrap(GoRouter router) {
-  return MaterialApp.router(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: S.supportedLocales,
-    routerConfig: router,
+Widget _wrap(GoRouter router, {AuthProvider? authProvider}) {
+  return ChangeNotifierProvider<AuthProvider>.value(
+    value: authProvider ?? AuthProvider(),
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      routerConfig: router,
+    ),
   );
 }
 
@@ -50,8 +56,12 @@ GoRouter _router() {
   );
 }
 
-Future<void> _openAxes(WidgetTester tester, GoRouter router) async {
-  await tester.pumpWidget(_wrap(router));
+Future<void> _openAxes(
+  WidgetTester tester,
+  GoRouter router, {
+  AuthProvider? authProvider,
+}) async {
+  await tester.pumpWidget(_wrap(router, authProvider: authProvider));
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(const ValueKey('onboarding-entry-open')));
   await tester.pumpAndSettle();
@@ -73,8 +83,9 @@ void main() {
       'live Mint 2 axis routes directly to the RvC gate with dossier axis',
       (tester) async {
     final router = _router();
+    final authProvider = AuthProvider();
 
-    await _openAxes(tester, router);
+    await _openAxes(tester, router, authProvider: authProvider);
     await tester
         .tap(find.byKey(const ValueKey('mint2-axis-lpp_rente_capital')));
     await tester.pumpAndSettle();
@@ -83,6 +94,8 @@ void main() {
         '/rente-vs-capital');
     expect(find.byKey(const ValueKey('rvc-sentinel')), findsOneWidget);
     expect(find.byType(OnboardingShellScreen), findsNothing);
+    expect(authProvider.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+    expect(authProvider.authLifecycle.allowsMainNavigation, isTrue);
 
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, isEmpty);
