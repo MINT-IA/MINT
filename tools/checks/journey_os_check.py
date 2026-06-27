@@ -23,14 +23,30 @@ ALLOW = {
     str(JOURNEYS / "PRIORITY_RUBRIC.md"),
     str(journey_os_generate.SUMMARY),
     str(journey_os_generate.BOARD),
+    ".claude/AGENT_BOOTSTRAP.md",
+    ".github/pull_request_template.md",
+    ".github/workflows/ai-workflow-guards.yml",
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
+    ".planning/ROADMAP.md",
+    "AGENTS.md",
+    "docs/MINT_AGENT_WORKFLOW.md",
+    "lefthook.yml",
+    "rules.md",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+    "tools/claude_review.sh",
+    "tools/checks/active_context_guard.py",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
+    "tools/checks/mint_rules_guard.py",
+    "tools/checks/tests/test_active_context_guard.py",
     "tools/checks/tests/test_journey_os_check.py",
+    "tools/checks/tests/test_mint_rules_guard.py",
 }
+IGNORED_GENERATED_PREFIXES = (
+    "services/backend/mint_backend.egg-info/",
+)
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
 ISSUE_STATUS = {"found", "triaged", "assigned", "fixing", "proof_needed", "verified", "merged", "regressed", "blocked"}
@@ -47,14 +63,31 @@ EKEYS = {"kind", "status", "command", "artifact", "reason", "debt_ref", "verifie
 PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
 PRIORITY_KEYS = PRIORITY_POSITIVE | {"proof_cost", "rationale"}
 
+def _is_ignored_generated(path: str) -> bool:
+    return any(path.startswith(prefix) for prefix in IGNORED_GENERATED_PREFIXES)
+
 def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=root, text=True, capture_output=True)
     if proc.returncode:
         return [], [f"baseline {base} unavailable: {proc.stderr.strip() or proc.stdout.strip()}"]
-    extra = subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], cwd=root, text=True, capture_output=True)
-    if extra.returncode:
-        return [], [f"unable to resolve untracked files: {extra.stderr.strip() or extra.stdout.strip()}"]
-    return sorted({line for line in (proc.stdout + extra.stdout).splitlines() if line}), []
+    outputs = [proc.stdout]
+    for args, label in (
+        (["git", "diff", "--name-only"], "working tree changes"),
+        (["git", "diff", "--cached", "--name-only"], "staged changes"),
+        (["git", "ls-files", "--others", "--exclude-standard"], "untracked files"),
+    ):
+        extra = subprocess.run(args, cwd=root, text=True, capture_output=True)
+        if extra.returncode:
+            return [], [f"unable to resolve {label}: {extra.stderr.strip() or extra.stdout.strip()}"]
+        outputs.append(extra.stdout)
+    return sorted(
+        {
+            line
+            for output in outputs
+            for line in output.splitlines()
+            if line and not _is_ignored_generated(line)
+        }
+    ), []
 
 def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
@@ -285,6 +318,7 @@ def _issue_progress_errors(root: Path, records: list[tuple[Path, dict[str, Any]]
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
+    changed = [path for path in changed if not _is_ignored_generated(path)]
     errors += _scope_errors(root, changed)
     records, load_errors = _load_records(root)
     errors += load_errors

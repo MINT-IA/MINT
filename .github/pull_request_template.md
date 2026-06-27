@@ -66,9 +66,11 @@ $ flutter test test/...
 
 ### 5 — Size + revertability
 
-- [ ] `git diff --shortstat origin/dev...HEAD` is **under 300 lines** of
-      real code (excluding generated l10n + lockfiles). If over, I
-      justified why in the summary.
+- [ ] `git diff --shortstat origin/dev...HEAD` was reviewed against the
+      dynamic PR-size budget. Routine bugfix/doc/guard work stays around the
+      small-PR budget; coherent vertical/runtime/evidence updates may exceed it
+      only when the PR summary explains why splitting would make review or
+      rollback worse.
 - [ ] This PR is **atomically revertable**. `git revert <sha>` wouldn't
       break an orthogonal feature.
 

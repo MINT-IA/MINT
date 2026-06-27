@@ -23,6 +23,7 @@ SECTION_PATTERNS = {
     "ALWAYS DO": [
         (".planning/ACTIVE_CONTEXT.md", ".planning/ACTIVE_CONTEXT.json"),
         ("active_context_guard.py",),
+        ("journey_os_check.py",),
         ("SPEC.md",),
         ("Engram", "mem_save"),
     ],
@@ -48,6 +49,7 @@ BOOTSTRAP_NEEDLES = (
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
     "active_context_guard.py",
+    "journey_os_check.py",
 )
 
 

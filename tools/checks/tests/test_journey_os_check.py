@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from tools.checks import journey_os_check, journey_os_generate
 
@@ -105,6 +106,50 @@ def test_active_context_branch_authorization_is_in_scope(tmp_path: Path) -> None
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
+def test_journey_os_workflow_files_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            ".claude/AGENT_BOOTSTRAP.md",
+            ".github/pull_request_template.md",
+            ".github/workflows/ai-workflow-guards.yml",
+            ".planning/ROADMAP.md",
+            "AGENTS.md",
+            "docs/MINT_AGENT_WORKFLOW.md",
+            "lefthook.yml",
+            "rules.md",
+            "tools/claude_review.sh",
+            "tools/checks/active_context_guard.py",
+            "tools/checks/mint_rules_guard.py",
+            "tools/checks/tests/test_active_context_guard.py",
+            "tools/checks/tests/test_mint_rules_guard.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+def test_python_editable_install_egg_info_is_ignored(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "services/backend/mint_backend.egg-info/PKG-INFO",
+            "services/backend/mint_backend.egg-info/SOURCES.txt",
+            "services/backend/mint_backend.egg-info/requires.txt",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
 def test_row24_privacy_runtime_flow_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
@@ -183,6 +228,48 @@ def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
     assert not any("unsupported Journey OS generated view" in error for error in errors)
+
+def test_changed_includes_local_tracked_worktree_changes(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    (root / "rules.md").write_text("before\n", encoding="utf-8")
+
+    subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.invalid"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "baseline"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "update-ref", "refs/remotes/origin/dev", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+
+    (root / "rules.md").write_text("after\n", encoding="utf-8")
+
+    changed, errors = journey_os_check._changed(root, "origin/dev")
+
+    assert errors == []
+    assert "rules.md" in changed
+    assert journey_os_check.check(root, base_ref="origin/dev") == []
 
 def test_jos_issue_refs_require_registry_files(tmp_path: Path) -> None:
     root = _root(tmp_path)

@@ -8,6 +8,9 @@ receipts; they are not the active router for new product work.
 
 - Mint 2.0 active context: [`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/CONTEXT.md)
 - Mint 2.0 active spec: [`.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`](phases/mint-2-0-first-experience-rente-capital/SPEC.md)
+- Journey OS operating overlay: [`.planning/journeys/JOURNEYS.md`](journeys/JOURNEYS.md)
+  and [`.planning/journeys/BOARD.md`](journeys/BOARD.md), guarded by
+  `python3 tools/checks/journey_os_check.py`.
 - Next product phase: [`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/CONTEXT.md) — self-reference placeholder; no successor product phase is queued yet.
 
 ## Milestones

@@ -37,6 +37,7 @@ def _write_valid_fixture(root: Path) -> None:
         "active_spec": ".planning/phases/mint-foundation-cleanup-20260614/SPEC.md",
         "next_product_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md",
         "allowed_branches": ["dev", "codex/mint-foundation-cleanup-20260614"],
+        "allowed_branch_patterns": [],
         "base_ref": "origin/dev",
         "required_phase_files": [
             "CONTEXT.md",
@@ -215,6 +216,55 @@ def test_guard_fails_when_local_branch_is_not_allowed(tmp_path: Path) -> None:
 
     assert proc.returncode == 1
     assert "not in allowed_branches" in proc.stderr
+
+
+def test_guard_allows_local_branch_pattern(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    manifest = json.loads(
+        (tmp_path / ".planning/ACTIVE_CONTEXT.json").read_text(encoding="utf-8")
+    )
+    manifest["allowed_branch_patterns"] = ["codex/journey-os-*"]
+    (tmp_path / ".planning/ACTIVE_CONTEXT.json").write_text(
+        json.dumps(manifest),
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "checkout", "-b", "codex/journey-os-system-closeout-20260627"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 0
+    assert "OK active_context_guard" in proc.stderr
+
+
+def test_guard_reports_patterns_when_local_branch_matches_none(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    manifest = json.loads(
+        (tmp_path / ".planning/ACTIVE_CONTEXT.json").read_text(encoding="utf-8")
+    )
+    manifest["allowed_branch_patterns"] = ["codex/journey-os-*"]
+    (tmp_path / ".planning/ACTIVE_CONTEXT.json").write_text(
+        json.dumps(manifest),
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "checkout", "-b", "codex/unrelated"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "not in allowed_branches" in proc.stderr
+    assert "patterns: codex/journey-os-*" in proc.stderr
 
 
 def test_guard_allows_integration_branch_inside_ci(
