@@ -33,6 +33,7 @@ from unittest.mock import AsyncMock, MagicMock
 from app.api.v1.endpoints.coach_chat import (
     _classify_user_intent,
     _execute_internal_tool,
+    _extract_closed_regulatory_floor_answer,
     _gate_fact_card_against_registry,
     _guard_tool_payload_text_fields,
     _normalize_closed_regulatory_citation_placeholders,
@@ -374,6 +375,51 @@ class TestForcedToolChoiceFirstCallOnly:
         assert choices[1] is None
         assert orch.query.call_args_list[0].kwargs.get("n_results") == 0
         assert "7'258" in result["answer"]
+
+    def test_3a_closed_regulatory_tool_result_supplies_cited_floor(self):
+        """JOS-004: a closed tool result beats uncited narrator prose."""
+        orch = _make_mock_orchestrator(
+            _make_result(
+                answer="",
+                tool_calls=[
+                    {
+                        "name": "get_regulatory_constant",
+                        "input": {"key": "pillar3a.max_with_lpp"},
+                    }
+                ],
+            ),
+            _make_result(answer="Le plafond 3a 2026 avec LPP est de 7'258 CHF."),
+        )
+        result = _run(
+            _run_agent_loop(
+                orchestrator=orch,
+                tools=[{"name": "get_regulatory_constant"}],
+                **_base_kwargs(_JOS004_3A_CEILING_MSG, {"retirement"}),
+            )
+        )
+
+        assert "7'258 CHF {{cite:r3a_plafond_salarie_2026}}" in result["answer"]
+        assert "Je n'ai pas cette donnée" not in result["answer"]
+
+    def test_3a_closed_regulatory_floor_refuses_missing_cite(self):
+        assert (
+            _extract_closed_regulatory_floor_answer(
+                "Formulation citable : Le plafond 3a 2026 avec LPP est de 7'258 CHF.",
+                user_message=_JOS004_3A_CEILING_MSG,
+                detected_intents={"retirement"},
+            )
+            is None
+        )
+
+    def test_3a_closed_regulatory_floor_refuses_malformed_formulation(self):
+        assert (
+            _extract_closed_regulatory_floor_answer(
+                "Citation fermée à utiliser : {{cite:r3a_plafond_salarie_2026}}",
+                user_message=_JOS004_3A_CEILING_MSG,
+                detected_intents={"retirement"},
+            )
+            is None
+        )
 
     def test_definition_forces_explain_concept_on_first_call_only(self):
         """Force turn 1; the follow-up after the tool_result reverts to auto."""
