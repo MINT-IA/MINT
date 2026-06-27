@@ -14,6 +14,7 @@ VALID_RULES = """# Mint rules
 
 - Read `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
 - Run `python3 tools/checks/active_context_guard.py`.
+- Run `python3 tools/checks/journey_os_check.py`.
 - Write the phase `SPEC.md` before implementation.
 - Save Engram after decisions, discoveries, conventions, and bug fixes.
 
@@ -37,6 +38,7 @@ VALID_BOOTSTRAP = """# Bootstrap
 Read `AGENTS.md`, `CLAUDE.md`, `docs/MINT_AGENT_WORKFLOW.md`,
 `.planning/ACTIVE_CONTEXT.md`, and `.planning/ACTIVE_CONTEXT.json`.
 Run `python3 tools/checks/active_context_guard.py` before product work.
+Run `python3 tools/checks/journey_os_check.py` before Journey OS work.
 """
 
 VALID_DICTIONARY_LINT = """from __future__ import annotations

@@ -1,0 +1,30 @@
+Claude CLI Opus audit, text-only safe review
+Timestamp: 2026-06-27T21:58:58Z
+Command: claude -p --model opus --tools "" --disallowed-tools "Bash,Write,Edit,Read,Glob,Grep" --no-session-persistence --output-format json --permission-mode bypassPermissions --max-turns 1
+Scope: local diff wiring Journey OS into workflow guards, lefthook, bootstrap, rules, branch patterns, and PR template.
+
+Verdict:
+- Conditional blocking finding: the new wiring is unsafe only if tools/checks/journey_os_check.py, tools/checks/tests/test_journey_os_check.py, or .planning/journeys/ are absent.
+- Local disposition: all three already exist on origin/dev and were exercised by local guards/tests in this session.
+- Non-blocking note: lefthook runs journey_os_check.py unconditionally. This is intentional for Journey OS coherence; the guard is cheap and should fail if the board, issues, evidence, or generated views drift.
+- Non-blocking note: branch patterns are broader than one-off branch allowlisting. This is intentional to stop accumulating one temporary JOS branch per vertical in ACTIVE_CONTEXT.json.
+- Missing test accepted: add a negative test where allowed_branch_patterns exists but the current branch matches neither an explicit allowed branch nor a pattern.
+
+Follow-up applied in this PR:
+- tools/checks/tests/test_active_context_guard.py now covers the non-matching pattern error path and asserts the "patterns:" suffix is reported.
+- tools/checks/journey_os_check.py now includes local tracked/staged changes in
+  pre-commit scope detection and whitelists the workflow files that make Journey
+  OS mandatory.
+- .github/workflows/ai-workflow-guards.yml now checks out full history so the
+  CI runner has `origin/dev` for `journey_os_check.py`'s `origin/dev...HEAD`
+  diff.
+- GitHub Actions then exposed a second CI-only false positive:
+  `pip install -e services/backend` creates
+  `services/backend/mint_backend.egg-info/*` in the checkout, and the Journey OS
+  guard saw those generated untracked files as product-code changes. The guard
+  now ignores that exact generated packaging prefix and keeps the product-code
+  whitelist closed.
+- A second Opus text-only audit was launched on the final diff and left running
+  for more than 10 minutes; it produced no verdict and was interrupted with
+  exit 130. Local deterministic checks are the controlling evidence for the
+  post-audit follow-up changes.

@@ -27,6 +27,10 @@
     "codex/jos004-maestro-first-experience-proof-20260627",
     "codex/jos005-onboarding-first-value-20260627"
   ],
+  "allowed_branch_patterns": [
+    "codex/jos[0-9][0-9][0-9]*",
+    "codex/journey-os-*"
+  ],
   "base_ref": "origin/dev",
   "required_phase_files": [
     "CONTEXT.md",
@@ -42,6 +46,7 @@
   "agent_reference_guard": "tools/checks/agent_reference_guard.py",
   "claude_hooks_guard": "tools/checks/claude_hooks_guard.py",
   "phase_acceptance_verifier": "tools/checks/verify_phase_acceptance.py",
+  "journey_os_guard": "tools/checks/journey_os_check.py",
   "must_read_first": [
     "AGENTS.md",
     "CLAUDE.md",

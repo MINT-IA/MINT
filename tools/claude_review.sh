@@ -75,7 +75,11 @@ fi
 diff_file="$(mktemp -t mint-claude-review-diff.XXXXXX)"
 trap 'rm -f "$diff_file"' EXIT
 
-git diff "${diff_args[@]}" > "$diff_file"
+if ((${#diff_args[@]})); then
+  git diff "${diff_args[@]}" > "$diff_file"
+else
+  git diff > "$diff_file"
+fi
 if [[ ! -s "$diff_file" ]]; then
   echo "No diff to review." >&2
   exit 1

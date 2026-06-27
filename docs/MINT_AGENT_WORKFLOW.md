@@ -12,8 +12,9 @@ Order of truth:
 3. `AGENTS.md`.
 4. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
 5. `.agents/skills/mint-*`.
-6. Current code, tests, scripts, CI, runtime evidence.
-7. Engram MCP memories for prior root causes and decisions.
+6. `.planning/journeys/` Journey OS records, issues, board, and evidence.
+7. Current code, tests, scripts, CI, runtime evidence.
+8. Engram MCP memories for prior root causes and decisions.
 
 Engram helps recall. It never outranks the repo.
 
@@ -49,11 +50,14 @@ surface change:
 
 1. Name the concrete user flow.
 2. Name the seeded persona if needed.
-3. Run or create the smallest failing contract.
-4. Fix the root cause.
-5. Run the local tests.
-6. Run the simulator/runtime proof.
-7. Only then open or merge.
+3. Link or create the Journey OS issue/record when the surface is part of a
+   T0/T1 vertical.
+4. Run or create the smallest failing contract.
+5. Fix the root cause.
+6. Run the local tests.
+7. Run the simulator/runtime proof.
+8. Update the Journey OS evidence/status when the proof changes.
+9. Only then open or merge.
 
 TestFlight is distribution evidence, not a debugging harness.
 

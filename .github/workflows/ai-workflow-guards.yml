@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -33,6 +35,8 @@ jobs:
         run: python3 tools/checks/agent_reference_guard.py
       - name: Claude hooks guard
         run: python3 tools/checks/claude_hooks_guard.py
+      - name: Journey OS guard
+        run: python3 tools/checks/journey_os_check.py
       - name: Phase acceptance verifier
         run: |
           ACTIVE_MILESTONE=$(python3 - <<'PY'
@@ -56,5 +60,6 @@ jobs:
           tools/checks/tests/test_mint_rules_guard.py
           tools/checks/tests/test_agent_reference_guard.py
           tools/checks/tests/test_claude_hooks_guard.py
+          tools/checks/tests/test_journey_os_check.py
           tools/checks/tests/test_verify_phase_acceptance.py
           -q
