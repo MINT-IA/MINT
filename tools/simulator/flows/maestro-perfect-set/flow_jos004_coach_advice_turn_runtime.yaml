@@ -20,8 +20,10 @@
 #       --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready
 # - A disposable staging user exists. Pass credentials with:
 #     --env MINT_E2E_EMAIL=<email> --env MINT_E2E_PASSWORD=<password>
-# - The E2E seed is kReleaseMode-guarded and only proves this Coach turn,
-#   not onboarding persistence.
+# - After authenticated login, the flow uses the existing debug-only E2E
+#   profile route to persist the same salaried-LPP fixture and mark the
+#   mini-onboarding/first-experience gate complete. This proves this Coach
+#   turn, not onboarding persistence.
 
 appId: ch.mint.app
 env:
@@ -81,6 +83,44 @@ tags:
 - tapOn: "Se connecter"
 - waitForAnimationToEnd:
     timeout: 6000
+
+# Authenticated seeded accounts can be routed into Mint first-experience before
+# Coach. Use the existing kReleaseMode-guarded E2E profile route helper to
+# persist the fixture through ReportPersistenceService and mark the gate done.
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 10000
+- copyTextFrom:
+    id: "e2e_profile_fixture_applied"
+- evalScript: ${output.jos004_profile_bootstrap = maestro.copiedText}
+
+- openLink: "mintapp:///coach/chat"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 
 - extendedWaitUntil:
     visible:

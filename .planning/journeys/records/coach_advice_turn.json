@@ -49,6 +49,15 @@
       "reason": "Fresh Journey OS proof reaches Coach with the canonical salaried-LPP seed, asks the 2026 3a/LPP ceiling question, and receives the freshness fallback instead of a visible 7'258 CHF cited answer.",
       "verified_at": "2026-06-27T02:35:11Z",
       "verified_commit": "0ba2497df9e670fed74f88c8648a2bd03aa810ed"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "source /tmp/mint-jos004-staging-account.env && /Users/julienbattaglia/.maestro/bin/maestro test --env MINT_E2E_EMAIL=[REDACTED_EMAIL] --env MINT_E2E_PASSWORD=[REDACTED_PASSWORD] tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+      "artifact": ".planning/journeys/evidence/coach_advice_turn/20260627T172841Z/maestro.txt",
+      "reason": "Fresh Journey OS proof logs into staging, uses the existing debug-only profile route to complete first-experience state, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and sees 7'258 with OPP3/LIFD provenance while the fallback and bounded-advice banned terms stay absent.",
+      "verified_at": "2026-06-27T17:28:41Z",
+      "verified_commit": "4cb5c173b998868cd73f9bdf6aebc718bc4bffa6"
     }
   ]
 }
