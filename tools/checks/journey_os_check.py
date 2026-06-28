@@ -319,13 +319,21 @@ def _valid_verified_commit(root: Path, value: Any) -> bool:
     )
     if inside.returncode or inside.stdout.strip() != "true":
         return True
-    exists = subprocess.run(
+    commit_exists = subprocess.run(
         ["git", "cat-file", "-e", f"{value}^{{commit}}"],
         cwd=root,
         text=True,
         capture_output=True,
     )
-    return exists.returncode == 0
+    if commit_exists.returncode:
+        return False
+    reachable_from_head = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", value, "HEAD"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+    )
+    return reachable_from_head.returncode == 0
 
 def _blob_sha256_at_commit(root: Path, commit: Any, rel_path: Any) -> str | None:
     if not isinstance(commit, str) or not FULL_SHA_RE.fullmatch(commit):
@@ -622,7 +630,9 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
             if not _valid_verified_at(item.get("verified_at")):
                 errors.append(f"{label} durable runtime evidence requires verified_at as UTC ISO timestamp")
             if not _valid_verified_commit(root, item.get("verified_commit")):
-                errors.append(f"{label} durable runtime evidence requires verified_commit as a full SHA that exists in git history")
+                errors.append(
+                    f"{label} durable runtime evidence requires verified_commit as a full SHA that exists in git history and current HEAD history"
+                )
         if status == "baselined" and not item.get("debt_ref"):
             errors.append(f"{label} baselined evidence requires debt_ref")
         if status == "missing" and item.get("artifact") is not None:

@@ -957,6 +957,75 @@ def test_runtime_evidence_requires_existing_git_commit(tmp_path: Path) -> None:
 
     assert any("exists in git history" in error for error in _errors(root))
 
+def test_runtime_evidence_rejects_commit_outside_current_head_history(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.invalid"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "baseline"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    base_branch = subprocess.run(
+        ["git", "branch", "--show-current"],
+        cwd=root,
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout.strip()
+    subprocess.run(["git", "switch", "-c", "side-proof"], cwd=root, check=True, capture_output=True)
+    (root / "side-proof.txt").write_text("side only\n", encoding="utf-8")
+    subprocess.run(["git", "add", "side-proof.txt"], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "side proof"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    side_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout.strip()
+    subprocess.run(["git", "switch", base_branch], cwd=root, check=True, capture_output=True)
+
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": side_sha,
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("current HEAD history" in error for error in _errors(root))
+
 def test_red_runtime_xml_artifact_requires_failure(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(
