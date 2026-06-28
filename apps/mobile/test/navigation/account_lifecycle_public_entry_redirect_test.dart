@@ -317,6 +317,24 @@ void main() {
       );
     });
 
+    test('explicit guest can enter first-value RvC before profile facts', () {
+      final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
+      final route = ScopedGoRoute(
+        path: '/rente-vs-capital',
+        scope: RouteScope.onboarding,
+        builder: (_, __) => throw UnimplementedError(),
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/rente-vs-capital',
+          topRoute: route,
+        ),
+        isNull,
+      );
+    });
+
     test('claimed account can enter dev-only e2e public routes', () {
       final lifecycle = AuthLifecycleState.signedInProfileMissing(
         userId: 'claim-user',
