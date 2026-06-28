@@ -44,12 +44,12 @@ flowchart TD
   surface_AccountDeletionFlow["AccountDeletionFlow"]
   promise -.-> surface_AccountDeletionFlow
   class surface_AccountDeletionFlow surface
-  api_POST_auth_register["POST /auth/register"]
-  promise -.-> api_POST_auth_register
-  class api_POST_auth_register api
-  api_DELETE_auth_account["DELETE /auth/account"]
-  promise -.-> api_DELETE_auth_account
-  class api_DELETE_auth_account api
+  api_POST_api_v1_auth_register["POST /api/v1/auth/register"]
+  promise -.-> api_POST_api_v1_auth_register
+  class api_POST_api_v1_auth_register api
+  api_DELETE_api_v1_auth_account["DELETE /api/v1/auth/account"]
+  promise -.-> api_DELETE_api_v1_auth_account
+  class api_DELETE_api_v1_auth_account api
   issue_JOS_001["JOS-001 verified/green"]
   issue_JOS_001 --> promise
   class issue_JOS_001 green

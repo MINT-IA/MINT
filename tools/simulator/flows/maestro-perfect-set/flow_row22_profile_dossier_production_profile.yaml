@@ -35,13 +35,13 @@ tags:
 - openLink: "mintapp:///onb"
 - extendedWaitUntil:
     visible:
-      text: "Il est temps que tu comprennes."
+      id: "onboarding-entry-open"
     timeout: 10000
 - tapOn:
-    text: "Ouvrir"
+    id: "onboarding-entry-open"
 - extendedWaitUntil:
     visible:
-      text: ".*Ce que je toucherai.*"
+      id: "onboarding-intent-retraite"
     timeout: 5000
 - tapOn:
     id: "onboarding-intent-retraite"
@@ -121,10 +121,10 @@ tags:
           id: "onboarding-scene-continue"
 - extendedWaitUntil:
     visible:
-      text: "Creuser"
+      id: "onboarding-bifurcation-continue"
     timeout: 5000
 - tapOn:
-    id: "onboarding-bifurcation-creuser"
+    id: "onboarding-bifurcation-continue"
 - extendedWaitUntil:
     visible:
       id: "coach_chat_screen"

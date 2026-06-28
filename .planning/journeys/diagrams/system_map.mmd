@@ -34,12 +34,12 @@ flowchart LR
   surface_AccountDeletionFlow["AccountDeletionFlow"]
   journey_account_lifecycle_delete -.-> surface_AccountDeletionFlow
   class surface_AccountDeletionFlow surface
-  api_POST_auth_register["POST /auth/register"]
-  journey_account_lifecycle_delete -.-> api_POST_auth_register
-  class api_POST_auth_register api
-  api_DELETE_auth_account["DELETE /auth/account"]
-  journey_account_lifecycle_delete -.-> api_DELETE_auth_account
-  class api_DELETE_auth_account api
+  api_POST_api_v1_auth_register["POST /api/v1/auth/register"]
+  journey_account_lifecycle_delete -.-> api_POST_api_v1_auth_register
+  class api_POST_api_v1_auth_register api
+  api_DELETE_api_v1_auth_account["DELETE /api/v1/auth/account"]
+  journey_account_lifecycle_delete -.-> api_DELETE_api_v1_auth_account
+  class api_DELETE_api_v1_auth_account api
   issue_JOS_001["JOS-001<br/>verified/green"]
   issue_JOS_001 --> journey_account_lifecycle_delete
   class issue_JOS_001 green
@@ -109,7 +109,7 @@ flowchart LR
   issue_JOS_005["JOS-005<br/>regressed/red"]
   issue_JOS_005 --> journey_onboarding_first_value
   class issue_JOS_005 red
-  journey_profile_privacy_control["profile_privacy_control<br/>live_proven<br/>latest green"]
+  journey_profile_privacy_control["profile_privacy_control<br/>partial<br/>latest green"]
   class journey_profile_privacy_control green
   journey_profile_privacy_control --> route_profile_privacy_control
   journey_profile_privacy_control --> route_profile_privacy
@@ -126,9 +126,15 @@ flowchart LR
   surface_PiiScrubber["PiiScrubber"]
   journey_profile_privacy_control -.-> surface_PiiScrubber
   class surface_PiiScrubber surface
-  api_GET_api_v1_privacy_delete_count["GET /api/v1/privacy/delete-count"]
-  journey_profile_privacy_control -.-> api_GET_api_v1_privacy_delete_count
-  class api_GET_api_v1_privacy_delete_count api
+  api_GET_api_v1_privacy_consent_status["GET /api/v1/privacy/consent-status"]
+  journey_profile_privacy_control -.-> api_GET_api_v1_privacy_consent_status
+  class api_GET_api_v1_privacy_consent_status api
+  api_POST_api_v1_privacy_export["POST /api/v1/privacy/export"]
+  journey_profile_privacy_control -.-> api_POST_api_v1_privacy_export
+  class api_POST_api_v1_privacy_export api
+  api_POST_api_v1_privacy_delete["POST /api/v1/privacy/delete"]
+  journey_profile_privacy_control -.-> api_POST_api_v1_privacy_delete
+  class api_POST_api_v1_privacy_delete api
   issue_JOS_003["JOS-003<br/>verified/green"]
   issue_JOS_003 --> journey_profile_privacy_control
   class issue_JOS_003 green

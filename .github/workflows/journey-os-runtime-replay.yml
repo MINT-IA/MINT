@@ -1,0 +1,122 @@
+name: Journey OS Runtime Replay
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Validate replay wiring without launching simulator flows"
+        required: true
+        default: true
+        type: boolean
+      runtime_set:
+        description: "Journey OS runtime set to replay"
+        required: true
+        default: core
+        type: choice
+        options:
+          - core
+          - top
+          - authenticated
+          - account_lifecycle
+
+permissions:
+  contents: read
+
+concurrency:
+  group: journey-os-runtime-replay-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  MAESTRO_VERSION: "2.6.1"
+  MAESTRO_ZIP_SHA256: "3440825f514f537c6a96bcf5de995780c2a4a7f83a43208fdc95d4f1fecfad3b"
+
+jobs:
+  classify-runtime-set:
+    name: Classify Journey OS runtime set
+    runs-on: ubuntu-latest
+    outputs:
+      requires_auth: ${{ steps.classify.outputs.requires_auth }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - id: classify
+        run: |
+          requires_auth="$(bash tools/simulator/journey_os_runtime_replay.sh --requires-auth --set "${{ inputs.runtime_set }}")"
+          echo "requires_auth=${requires_auth}" >> "$GITHUB_OUTPUT"
+
+  replay-without-secrets:
+    name: Replay Journey OS public runtime set
+    needs: classify-runtime-set
+    if: ${{ inputs.dry_run == true || needs.classify-runtime-set.outputs.requires_auth == 'false' }}
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        if: ${{ inputs.dry_run == false }}
+        with:
+          channel: stable
+          cache: true
+      - name: Install pinned Maestro
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          curl -fsSL -o /tmp/maestro.zip "https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_ZIP_SHA256}  /tmp/maestro.zip" | shasum -a 256 -c -
+          rm -rf "$HOME/.maestro" "$HOME/maestro"
+          unzip -q /tmp/maestro.zip -d "$HOME"
+          mv "$HOME/maestro" "$HOME/.maestro"
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Dry-run Journey OS runtime set
+        if: ${{ inputs.dry_run == true }}
+        run: bash tools/simulator/journey_os_runtime_replay.sh --dry-run --set "${{ inputs.runtime_set }}"
+      - name: Replay Journey OS runtime set
+        if: ${{ inputs.dry_run == false }}
+        run: bash tools/simulator/journey_os_runtime_replay.sh --set "${{ inputs.runtime_set }}"
+      - name: Upload Journey OS runtime evidence
+        if: ${{ always() && inputs.dry_run == false }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: journey-os-runtime-replay-${{ inputs.runtime_set }}-${{ github.run_id }}
+          path: .planning/journeys/evidence/runtime_replay/**
+          if-no-files-found: ignore
+          retention-days: 14
+
+  replay-authenticated:
+    name: Replay Journey OS authenticated runtime set
+    needs: classify-runtime-set
+    if: ${{ inputs.dry_run == false && needs.classify-runtime-set.outputs.requires_auth == 'true' }}
+    runs-on: macos-latest
+    timeout-minutes: 60
+    environment: journey-os-staging-runtime
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install pinned Maestro
+        run: |
+          curl -fsSL -o /tmp/maestro.zip "https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_ZIP_SHA256}  /tmp/maestro.zip" | shasum -a 256 -c -
+          rm -rf "$HOME/.maestro" "$HOME/maestro"
+          unzip -q /tmp/maestro.zip -d "$HOME"
+          mv "$HOME/maestro" "$HOME/.maestro"
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Replay Journey OS authenticated runtime set
+        env:
+          MINT_E2E_EMAIL: ${{ secrets.MINT_E2E_EMAIL }}
+          MINT_E2E_PASSWORD: ${{ secrets.MINT_E2E_PASSWORD }}
+        run: bash tools/simulator/journey_os_runtime_replay.sh --set "${{ inputs.runtime_set }}"
+      - name: Upload Journey OS runtime evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: journey-os-runtime-replay-${{ inputs.runtime_set }}-${{ github.run_id }}
+          path: .planning/journeys/evidence/runtime_replay/**
+          if-no-files-found: ignore
+          retention-days: 14

@@ -6,6 +6,36 @@
   "status": "partial",
   "human_promise": "When Coach gives a number, it is current, cited, and bounded.",
   "accountable_team": "mint-swiss-brain",
+  "personas": [
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "entry_state": "Authenticated seeded Swiss salaried-LPP user opens Coach after the debug-only profile helper has persisted the same fixture.",
+  "account_state": "Authenticated staging account with first-experience gate completed by the E2E route helper.",
+  "success_state": "Coach answers the 2026 3a/LPP ceiling question with a visible current number, legal provenance, and no certainty-language regression.",
+  "negative_assertions": [
+    "Freshness fallback must not replace the cited 2026 answer.",
+    "Banned LSFin certainty terms must stay absent.",
+    "Coach must not render framework exceptions or overflow text."
+  ],
+  "source_spec_refs": [
+    "docs/coach-tool-routing.md",
+    "docs/MINT_AGENT_WORKFLOW.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-swiss-brain",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+    "sets": [
+      "authenticated"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready"
+    ],
+    "requires_auth": true,
+    "order": 10
+  },
   "route_paths": [
     "/coach/chat"
   ],

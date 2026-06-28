@@ -1,0 +1,17 @@
+%% Generated from .planning/journeys/records/profile_privacy_control.json
+sequenceDiagram
+  participant User
+  participant Journey
+  participant Routes
+  participant Surfaces
+  participant APIs
+  participant Evidence
+  User->>Journey: I can see and control what MINT knows about me.
+  Journey->>Routes: /profile/privacy-control, /profile/privacy, /settings/confidentialite
+  Routes->>Surfaces: PrivacyControlScreen, ConsentSheet, ConsentReceiptService, PiiScrubber
+  Surfaces->>APIs: GET /api/v1/privacy/consent-status, POST /api/v1/privacy/export, POST /api/v1/privacy/delete
+  APIs-->>Surfaces: canonical contract
+  Surfaces-->>Journey: Privacy control displays known stored facts and links to privacy center/settings, backend export/delete/consent replay remains a separate authenticated proof.
+  Journey->>Evidence: replay core / no-auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml
+  Journey->>Evidence: green / runtime / 2026-06-27T00:57:37Z / 104c92d1
+  Evidence-->>Journey: issues JOS-003

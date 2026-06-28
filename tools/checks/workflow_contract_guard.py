@@ -17,6 +17,10 @@ RULES = Path("rules.md")
 BOOTSTRAP = Path(".claude/AGENT_BOOTSTRAP.md")
 LEFTHOOK = Path("lefthook.yml")
 WORKFLOW = Path(".github/workflows/ai-workflow-guards.yml")
+RUNTIME_REPLAY_WORKFLOW = Path(".github/workflows/journey-os-runtime-replay.yml")
+RUNTIME_REPLAY_DRY_RUN = "bash tools/simulator/journey_os_runtime_replay.sh --dry-run"
+RUNTIME_REPLAY_TOP_DRY_RUN = "bash tools/simulator/journey_os_runtime_replay.sh --dry-run --set top"
+RUNTIME_REPLAY_RUN = "bash tools/simulator/journey_os_runtime_replay.sh"
 
 SESSION_COMMANDS = (
     "python3 tools/checks/active_context_guard.py",
@@ -30,6 +34,9 @@ CI_COMMANDS = SESSION_COMMANDS + (
     "python3 tools/checks/agent_reference_guard.py",
     "python3 tools/checks/claude_hooks_guard.py",
     "python3 tools/checks/mermaid_render_guard.py",
+    "python3 tools/checks/maestro_locator_audit.py",
+    RUNTIME_REPLAY_DRY_RUN,
+    RUNTIME_REPLAY_TOP_DRY_RUN,
     "python3 tools/checks/verify_phase_acceptance.py",
 )
 
@@ -40,6 +47,8 @@ CI_TESTS = (
     "tools/checks/tests/test_agent_reference_guard.py",
     "tools/checks/tests/test_claude_hooks_guard.py",
     "tools/checks/tests/test_journey_os_check.py",
+    "tools/checks/tests/test_journey_os_runtime_replay.py",
+    "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
     "tools/checks/tests/test_verify_phase_acceptance.py",
@@ -186,6 +195,82 @@ def _workflow_runs(errors: list[str], root: Path) -> list[str]:
     return runs
 
 
+def _runtime_replay_errors(root: Path) -> list[str]:
+    errors: list[str] = []
+    try:
+        text = _read(root, RUNTIME_REPLAY_WORKFLOW)
+    except OSError as exc:
+        return [f"unable to read {RUNTIME_REPLAY_WORKFLOW}: {exc}"]
+    if re.search(r"continue-on-error\s*:\s*true", text):
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must not use continue-on-error for Journey OS replay")
+    if "contents: read" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must set permissions.contents: read")
+    if "get.maestro.mobile.dev" in text or re.search(r"\|\s*bash\b", text):
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must not install Maestro through curl-to-bash")
+    if "flutter-action@v2" in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must pin subosito/flutter-action by SHA")
+    if "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must pin actions/upload-artifact and retain runtime replay evidence")
+    if ".planning/journeys/evidence/runtime_replay/**" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must upload Journey OS runtime replay evidence artifacts")
+    if "MAESTRO_ZIP_SHA256" not in text or "shasum -a 256 -c -" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must checksum the pinned Maestro zip")
+    data = _yaml_doc(errors, root, RUNTIME_REPLAY_WORKFLOW)
+    if not isinstance(data, dict):
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must be a YAML mapping")
+        return errors
+    trigger = data.get("on", data.get(True))
+    if not (
+        trigger == "workflow_dispatch"
+        or (isinstance(trigger, dict) and "workflow_dispatch" in trigger)
+    ):
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must expose workflow_dispatch")
+    if "top" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must expose the top Journey OS runtime set")
+    if "account_lifecycle" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must expose account_lifecycle separately from authenticated replay")
+    if "--requires-auth" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must classify runtime sets before secret routing")
+    if "requires_auth == 'false'" not in text or "requires_auth == 'true'" not in text:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must route public and authenticated runtime sets by classification")
+    jobs = data.get("jobs")
+    if not isinstance(jobs, dict) or not jobs:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must define jobs")
+        return errors
+    runs: list[str] = []
+    macos_job = False
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        runner = str(job.get("runs-on", ""))
+        if "macos" in runner:
+            macos_job = True
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step in steps:
+            if isinstance(step, dict) and isinstance(step.get("run"), str):
+                runs.append(step["run"])
+            if isinstance(step, dict) and isinstance(step.get("env"), dict):
+                env_text = "\n".join(str(value) for value in step["env"].values())
+                if "secrets." in env_text and not job.get("environment"):
+                    errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must protect secret-bearing replay jobs with a GitHub Environment")
+    if not macos_job:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must run on macOS for iOS simulator replay")
+    executable_lines = [
+        line
+        for run in runs
+        for line in _executable_lines(run)
+    ]
+    has_real_replay = any(
+        _invokes_command(line, RUNTIME_REPLAY_RUN) and "--dry-run" not in line and "--requires-auth" not in line
+        for line in executable_lines
+    )
+    if not has_real_replay:
+        errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must execute {RUNTIME_REPLAY_RUN}")
+    return errors
+
+
 def check(root: Path) -> list[str]:
     errors: list[str] = []
     for rel in (AGENTS, RULES, BOOTSTRAP):
@@ -195,6 +280,7 @@ def check(root: Path) -> list[str]:
     _require_executed_commands(errors, LEFTHOOK, lefthook_runs, SESSION_COMMANDS)
     _require_executed_commands(errors, WORKFLOW, workflow_runs, CI_COMMANDS)
     _require_pytest_targets(errors, WORKFLOW, workflow_runs, CI_TESTS)
+    errors += _runtime_replay_errors(root)
 
     try:
         workflow = _read(root, WORKFLOW)

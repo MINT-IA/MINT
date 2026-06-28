@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse, json, re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +13,11 @@ ISSUES = JOURNEYS / "issues"
 SUMMARY = JOURNEYS / "JOURNEYS.md"
 BOARD = JOURNEYS / "BOARD.md"
 TODAY = JOURNEYS / "TODAY.md"
+CARDS = JOURNEYS / "CARDS.md"
 DIAGRAMS = JOURNEYS / "diagrams"
 SYSTEM_MAP = DIAGRAMS / "system_map.mmd"
+ROUTE_TOPOLOGY = DIAGRAMS / "route_topology.mmd"
+JOURNEY_STATE = DIAGRAMS / "journey_state.mmd"
 PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
 EVIDENCE_STATUS_RANK = {"red": 0, "missing": 1, "baselined": 2, "green": 3}
 
@@ -48,7 +52,19 @@ def _latest_evidence(rec: dict[str, Any]) -> dict[str, Any]:
     items = [item for item in rec.get("evidence", []) if isinstance(item, dict)]
     if not items:
         return {}
-    return items[-1]
+    return max(enumerate(items), key=lambda pair: _evidence_sort_key(pair[1], pair[0]))[1]
+
+def _evidence_sort_key(item: dict[str, Any], index: int) -> tuple[int, float, int]:
+    value = item.get("verified_at")
+    if isinstance(value, str):
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return (0, 0.0, index)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return (1, parsed.timestamp(), index)
+    return (0, 0.0, index)
 
 def _short_commit(value: object) -> str:
     text = str(value or "")
@@ -127,6 +143,58 @@ def board(records: list[dict[str, Any]], issues: list[dict[str, Any]]) -> str:
         lines.append(_board_row(issue, journey))
     return "\n".join(lines) + "\n"
 
+def _list_cell(value: object) -> str:
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value) if value else "-"
+    text = str(value or "")
+    return text if text else "-"
+
+def _runtime_replay_cell(rec: dict[str, Any]) -> str:
+    replay = rec.get("runtime_replay")
+    if not isinstance(replay, dict):
+        return "-"
+    sets = _list_cell(replay.get("sets"))
+    flow = _list_cell(replay.get("flow"))
+    device = _list_cell(replay.get("device"))
+    auth = "auth" if replay.get("requires_auth") is True else "no-auth"
+    return f"{sets} / {auth} / {device} / {flow}"
+
+def cards(records: list[dict[str, Any]], issues: list[dict[str, Any]]) -> str:
+    grouped = _issues_for(records, issues)
+    lines = [
+        "# Journey OS Cards",
+        "",
+        "Generated from `.planning/journeys/records/*.json`. Do not edit directly.",
+    ]
+    for rec in records:
+        latest = _latest_evidence(rec)
+        issue_labels = [
+            f"{issue.get('id')}:{issue.get('status')}/{issue.get('evidence_status')}"
+            for issue in grouped.get(str(rec.get("id")), [])
+        ]
+        lines += [
+            "",
+            f"## {rec.get('id', '')}",
+            "",
+            f"- Title: {_list_cell(rec.get('title'))}",
+            f"- Tier: {_list_cell(rec.get('tier'))}",
+            f"- Status: {_list_cell(rec.get('status'))}",
+            f"- Persona: {_list_cell(rec.get('personas'))}",
+            f"- Entry state: {_list_cell(rec.get('entry_state'))}",
+            f"- Account state: {_list_cell(rec.get('account_state'))}",
+            f"- Success state: {_list_cell(rec.get('success_state'))}",
+            f"- Negative assertions: {_list_cell(rec.get('negative_assertions'))}",
+            f"- Routes: {_list_cell(rec.get('route_paths'))}",
+            f"- APIs: {_list_cell(rec.get('external_apis'))}",
+            f"- Runtime replay: {_runtime_replay_cell(rec)}",
+            f"- Issues: {_list_cell(issue_labels)}",
+            f"- Proof owner: {_list_cell(rec.get('proof_owner'))}",
+            f"- Fix owner: {_list_cell(rec.get('fix_owner'))}",
+            f"- Latest proof: {_list_cell(_latest_summary(rec))}",
+            f"- Latest artifact: {_list_cell(latest.get('artifact') if latest else '')}",
+        ]
+    return "\n".join(lines) + "\n"
+
 def today(records: list[dict[str, Any]], issues: list[dict[str, Any]]) -> str:
     by_id = {str(rec.get("id")): rec for rec in records}
     top_issue = next(
@@ -169,7 +237,7 @@ def _node(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9_]+", "_", value).strip("_") or "root"
 
 def _label(value: object) -> str:
-    return str(value).replace('"', "'").replace("\n", " ").replace("|", "/")
+    return str(value).replace('"', "'").replace("\n", " ").replace("|", "/").replace(";", ",")
 
 def _class_for(status: object) -> str:
     text = str(status or "")
@@ -194,6 +262,155 @@ def _class_defs() -> list[str]:
         "  classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;",
         "  classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;",
     ]
+
+def _route_metadata(root: Path) -> dict[str, dict[str, str]]:
+    path = root / "apps/mobile/lib/routes/route_metadata.dart"
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return {}
+    meta: dict[str, dict[str, str]] = {}
+    for index, line in enumerate(lines):
+        match = re.match(r"\s*'(?P<key>[^']+)':\s*RouteMeta\((?P<tail>.*)$", line)
+        if not match:
+            continue
+        route = match.group("key")
+        body_lines = [match.group("tail")]
+        if ")," not in match.group("tail"):
+            for next_line in lines[index + 1 :]:
+                body_lines.append(next_line)
+                if next_line.strip().startswith("),"):
+                    break
+        body = "\n".join(body_lines)
+        meta[route] = {
+            "path": _route_field(body, "path") or route,
+            "category": _route_field(body, "category") or "unknown",
+            "owner": _route_field(body, "owner") or "unknown",
+            "requiresAuth": _route_field(body, "requiresAuth") or "unknown",
+            "killFlag": _route_field(body, "killFlag") or "",
+            "description": _route_field(body, "description") or "",
+        }
+    return meta
+
+def _route_field(body: str, name: str) -> str:
+    quoted = re.search(rf"\b{name}:\s*'([^']*)'", body)
+    if quoted:
+        return quoted.group(1)
+    quoted = re.search(rf'\b{name}:\s*"([^"]*)"', body)
+    if quoted:
+        return quoted.group(1)
+    enum_or_bool = re.search(rf"\b{name}:\s*(Route(?:Category|Owner)\.[A-Za-z0-9_]+|true|false)", body)
+    if enum_or_bool:
+        return enum_or_bool.group(1).split(".")[-1]
+    return ""
+
+def _route_target(meta: dict[str, str]) -> str:
+    description = meta.get("description", "")
+    match = re.search(r"(?:redirects?\s+(?:to\s+)?|->\s*)(/[A-Za-z0-9_/:.-]+)", description, re.IGNORECASE)
+    return match.group(1).rstrip(".,;") if match else ""
+
+def route_topology(root: Path, records: list[dict[str, Any]]) -> str:
+    meta = _route_metadata(root)
+    included = {
+        str(route)
+        for rec in records
+        for route in rec.get("route_paths", [])
+        if isinstance(route, str)
+    }
+    for route, item in meta.items():
+        target = _route_target(item)
+        if item.get("category") == "alias" and target in included:
+            included.add(route)
+
+    lines = [
+        "%% Generated route topology for Journey OS routes",
+        "flowchart LR",
+        "  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;",
+        "  classDef alias fill:#f5f5f5,stroke:#616161,color:#212121,stroke-dasharray: 4 3;",
+        "  classDef auth fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;",
+        "  classDef public fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;",
+    ]
+    for route in sorted(included):
+        item = meta.get(route, {})
+        node = "route__" + _node(route)
+        category = item.get("category", "unknown")
+        owner = item.get("owner", "unknown")
+        auth = item.get("requiresAuth", "unknown")
+        flag = item.get("killFlag", "")
+        auth_label = "auth" if auth == "true" else "public" if auth == "false" else "auth unknown"
+        flag_label = f"<br/>flag {flag}" if flag else ""
+        lines += [
+            f'  {node}["{_label(route)}<br/>{_label(category)}/{_label(owner)}<br/>{auth_label}{flag_label}"]',
+            f"  class {node} {'alias' if category == 'alias' else 'route'}",
+            f"  class {node} {'auth' if auth == 'true' else 'public' if auth == 'false' else 'route'}",
+        ]
+    for route in sorted(included):
+        target = _route_target(meta.get(route, {}))
+        if target and target in included:
+            lines.append(f"  route__{_node(route)} -. redirects .-> route__{_node(target)}")
+    return "\n".join(dict.fromkeys(lines)) + "\n"
+
+def journey_state(records: list[dict[str, Any]], issues: list[dict[str, Any]]) -> str:
+    grouped = _issues_for(records, issues)
+    lines = [
+        "%% Generated Journey OS state ledger",
+        "stateDiagram-v2",
+    ]
+    for rec in records:
+        rid = str(rec.get("id", ""))
+        journey_node = "journey_" + _node(rid)
+        latest = _latest_evidence(rec)
+        latest_status = str(latest.get("status", "missing") if latest else "missing")
+        latest_kind = str(latest.get("kind", "missing") if latest else "missing")
+        evidence_node = "evidence_" + _node(rid)
+        lines += [
+            f'  state "{_label(rid)} {_label(rec.get("status", ""))}" as {journey_node}',
+            f'  state "latest {latest_kind} {latest_status}" as {evidence_node}',
+            f"  [*] --> {journey_node}",
+            f"  {journey_node} --> {evidence_node}: proof",
+        ]
+        for issue in grouped.get(rid, []):
+            issue_id = str(issue.get("id", ""))
+            issue_node = "issue_" + _node(issue_id)
+            issue_label = f"{issue_id} {issue.get('status')}/{issue.get('evidence_status')}"
+            lines += [
+                f'  state "{_label(issue_label)}" as {issue_node}',
+                f"  {journey_node} --> {issue_node}: issue",
+            ]
+    return "\n".join(lines) + "\n"
+
+def sequence(rec: dict[str, Any], issues: list[dict[str, Any]]) -> str:
+    rid = str(rec.get("id", ""))
+    latest = _latest_evidence(rec)
+    routes = _list_cell(rec.get("route_paths"))
+    surfaces = _list_cell(rec.get("surfaces"))
+    apis = _list_cell(rec.get("external_apis"))
+    replay = _runtime_replay_cell(rec)
+    latest_label = _latest_summary(rec) or "no durable proof"
+    issue_label = _list_cell([issue.get("id", "") for issue in issues])
+    lines = [
+        f"%% Generated from .planning/journeys/records/{rid}.json",
+        "sequenceDiagram",
+        "  participant User",
+        "  participant Journey",
+        "  participant Routes",
+        "  participant Surfaces",
+        "  participant APIs",
+        "  participant Evidence",
+        f"  User->>Journey: {_label(rec.get('human_promise', ''))}",
+        f"  Journey->>Routes: {_label(routes)}",
+        f"  Routes->>Surfaces: {_label(surfaces)}",
+    ]
+    if apis != "-":
+        lines.append(f"  Surfaces->>APIs: {_label(apis)}")
+        lines.append("  APIs-->>Surfaces: canonical contract")
+    lines += [
+        f"  Surfaces-->>Journey: {_label(rec.get('success_state', ''))}",
+        f"  Journey->>Evidence: replay {_label(replay)}",
+        f"  Journey->>Evidence: {_label(latest_label)}",
+        f"  Evidence-->>Journey: issues {_label(issue_label)}",
+    ]
+    return "\n".join(lines) + "\n"
 
 def mermaid(rec: dict[str, Any], issues: list[dict[str, Any]]) -> str:
     rid = str(rec["id"])
@@ -247,8 +464,17 @@ def expected(root: Path) -> dict[Path, str]:
     records = load_records(root)
     issues = load_issues(root)
     grouped = _issues_for(records, issues)
-    out = {SUMMARY: markdown(records, issues), BOARD: board(records, issues), TODAY: today(records, issues), SYSTEM_MAP: system_map(records, issues)}
+    out = {
+        SUMMARY: markdown(records, issues),
+        BOARD: board(records, issues),
+        TODAY: today(records, issues),
+        CARDS: cards(records, issues),
+        SYSTEM_MAP: system_map(records, issues),
+        ROUTE_TOPOLOGY: route_topology(root, records),
+        JOURNEY_STATE: journey_state(records, issues),
+    }
     out.update({DIAGRAMS / f"{rec['id']}.mmd": mermaid(rec, grouped.get(str(rec.get("id")), [])) for rec in records})
+    out.update({DIAGRAMS / f"{rec['id']}_sequence.mmd": sequence(rec, grouped.get(str(rec.get("id")), [])) for rec in records})
     return out
 
 def write(root: Path) -> None:

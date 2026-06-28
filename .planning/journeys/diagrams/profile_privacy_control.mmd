@@ -39,9 +39,15 @@ flowchart TD
   surface_PiiScrubber["PiiScrubber"]
   promise -.-> surface_PiiScrubber
   class surface_PiiScrubber surface
-  api_GET_api_v1_privacy_delete_count["GET /api/v1/privacy/delete-count"]
-  promise -.-> api_GET_api_v1_privacy_delete_count
-  class api_GET_api_v1_privacy_delete_count api
+  api_GET_api_v1_privacy_consent_status["GET /api/v1/privacy/consent-status"]
+  promise -.-> api_GET_api_v1_privacy_consent_status
+  class api_GET_api_v1_privacy_consent_status api
+  api_POST_api_v1_privacy_export["POST /api/v1/privacy/export"]
+  promise -.-> api_POST_api_v1_privacy_export
+  class api_POST_api_v1_privacy_export api
+  api_POST_api_v1_privacy_delete["POST /api/v1/privacy/delete"]
+  promise -.-> api_POST_api_v1_privacy_delete
+  class api_POST_api_v1_privacy_delete api
   issue_JOS_003["JOS-003 verified/green"]
   issue_JOS_003 --> promise
   class issue_JOS_003 green

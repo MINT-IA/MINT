@@ -3,9 +3,40 @@
   "id": "profile_privacy_control",
   "title": "Profile privacy control",
   "tier": "T0",
-  "status": "live_proven",
+  "status": "partial",
   "human_promise": "I can see and control what MINT knows about me.",
   "accountable_team": "mint-quality-gate",
+  "personas": [
+    "julien_swiss",
+    "local_mode_profile_user"
+  ],
+  "entry_state": "User opens profile privacy controls from local or authenticated profile surfaces with stored facts already present.",
+  "account_state": "Local mode or authenticated account can inspect stored profile data; destructive backend operations are separately contract-tested.",
+  "success_state": "Privacy control displays known stored facts and links to privacy center/settings; backend export/delete/consent replay remains a separate authenticated proof.",
+  "negative_assertions": [
+    "Known-data view must not collapse into the empty state when profile facts exist.",
+    "Privacy center must keep an account deletion entry.",
+    "Confidentiality settings must keep an in-app exit."
+  ],
+  "source_spec_refs": [
+    "docs/data-flow.md",
+    "docs/MINT_AGENT_WORKFLOW.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
+    "sets": [
+      "core"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_ARCHETYPE=julien_swiss"
+    ],
+    "requires_auth": false,
+    "order": 20
+  },
   "route_paths": [
     "/profile/privacy-control",
     "/profile/privacy",
@@ -18,7 +49,9 @@
     "PiiScrubber"
   ],
   "external_apis": [
-    "GET /api/v1/privacy/delete-count"
+    "GET /api/v1/privacy/consent-status",
+    "POST /api/v1/privacy/export",
+    "POST /api/v1/privacy/delete"
   ],
   "issues": [
     "JOS-003",
@@ -33,7 +66,7 @@
     "compliance_risk": 5,
     "learning_value": 4,
     "proof_cost": 3,
-    "rationale": "Privacy control is a trust and compliance boundary; current runtime proof covers known-data display while widgets and services cover delete/export contracts, leaving only backend E2E sampling residual."
+    "rationale": "Privacy control is a trust and compliance boundary; current runtime proof covers known-data display, but authenticated backend E2E for export/delete/consent remains residual."
   },
   "evidence": [
     {

@@ -24,6 +24,7 @@ ISSUES = JOURNEYS / "issues"
 SCHEMA = JOURNEYS / "journey.schema.json"
 ISSUE_SCHEMA = JOURNEYS / "issue.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
+OPENAPI = Path("tools/openapi/mint.openapi.canonical.json")
 ALLOW = {
     str(SCHEMA),
     str(ISSUE_SCHEMA),
@@ -32,9 +33,11 @@ ALLOW = {
     str(journey_os_generate.SUMMARY),
     str(journey_os_generate.BOARD),
     str(journey_os_generate.TODAY),
+    str(journey_os_generate.CARDS),
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
+    ".github/workflows/journey-os-runtime-replay.yml",
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
     ".planning/ROADMAP.md",
@@ -45,15 +48,26 @@ ALLOW = {
     "rules.md",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+    "tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row22_profile_dossier_production_profile.yaml",
+    "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
+    "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
+    "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
+    "tools/simulator/journey_os_runtime_replay.sh",
     "tools/claude_review.sh",
     "tools/checks/active_context_guard.py",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
+    "tools/checks/maestro_locator_audit.py",
     "tools/checks/mermaid_render_guard.py",
     "tools/checks/mint_rules_guard.py",
     "tools/checks/workflow_contract_guard.py",
     "tools/checks/tests/test_active_context_guard.py",
     "tools/checks/tests/test_journey_os_check.py",
+    "tools/checks/tests/test_journey_os_runtime_replay.py",
+    "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
@@ -68,17 +82,28 @@ SEVERITY = {"P0", "P1", "P2", "P3"}
 TIERS = {"T0", "T1", "T2", "T3"}
 KINDS = {"unit", "widget", "static_guard", "runtime", "manual", "external"}
 ESTATUS = {"green", "red", "missing", "baselined"}
-TOP = {"schema_version", "id", "title", "tier", "status", "human_promise", "accountable_team", "route_paths", "surfaces", "external_apis", "issues", "priority", "evidence"}
+CONTRACT_FIELDS = {"personas", "entry_state", "account_state", "success_state", "negative_assertions", "source_spec_refs", "proof_owner", "fix_owner", "runtime_replay"}
+TOP = {"schema_version", "id", "title", "tier", "status", "human_promise", "accountable_team", "route_paths", "surfaces", "external_apis", "issues", "priority", "evidence"} | CONTRACT_FIELDS
 REQ = TOP
-ARRAYS = {"route_paths", "surfaces", "external_apis", "issues"}
+ARRAYS = {"route_paths", "surfaces", "external_apis", "issues", "personas", "negative_assertions", "source_spec_refs"}
+NON_EMPTY_ARRAYS = {"personas", "negative_assertions", "source_spec_refs"}
 ITOP = {"schema_version", "id", "title", "journey_id", "status", "owner", "severity", "evidence_status", "next_action", "source"}
 IREQ = ITOP
 EKEYS = {"kind", "status", "command", "artifact", "reason", "debt_ref", "verified_at", "verified_commit"}
 PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
 PRIORITY_KEYS = PRIORITY_POSITIVE | {"proof_cost", "rationale"}
+REPLAY_SETS = {"core", "top", "authenticated", "account_lifecycle"}
+REPLAY_KEYS = {"flow", "sets", "device", "build_defines", "requires_auth", "order"}
 TEXT_FAILURE_MARKERS = ("[Failed]", "Flow Failed", "FAILED", "Assertion is false", "EXIT — maestro returned 1")
 TEXT_SUCCESS_MARKERS = ("[Passed]", "Flow Passed")
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+EVIDENCE_SECRET_PATTERNS = (
+    (re.compile(r"MINT_E2E_PASSWORD\s*="), "MINT_E2E_PASSWORD"),
+    (re.compile(r"Authorization:\s*Bearer\s+", re.IGNORECASE), "Authorization bearer token"),
+    (re.compile(r"\bBearer\s+[A-Za-z0-9._~+/\-]{20,}"), "bearer token"),
+    (re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"), "raw email address"),
+)
 
 def _is_ignored_generated(path: str) -> bool:
     return any(path.startswith(prefix) for prefix in IGNORED_GENERATED_PREFIXES)
@@ -112,10 +137,18 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
-        allowed_evidence = (
-            path.startswith(str(JOURNEYS / "evidence") + "/")
-            and Path(path).suffix in {".md", ".txt", ".xml", ".json"}
-            and ".." not in Path(path).parts
+        evidence_path = Path(path)
+        runtime_replay_evidence = path.startswith(str(JOURNEYS / "evidence" / "runtime_replay") + "/")
+        allowed_evidence = path.startswith(str(JOURNEYS / "evidence") + "/") and ".." not in evidence_path.parts and (
+            (
+                runtime_replay_evidence
+                and evidence_path.name in {"manifest.json", "result.xml"}
+                and evidence_path.suffix in {".json", ".xml"}
+            )
+            or (
+                not runtime_replay_evidence
+                and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
+            )
         )
         if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
@@ -125,6 +158,24 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     readme = root / JOURNEYS / "README.md"
     if readme.exists() and "```mermaid" in readme.read_text(encoding="utf-8", errors="ignore").lower():
         errors.append("Mermaid fenced blocks are forbidden in .planning/journeys/README.md")
+    return errors
+
+def _evidence_secret_errors(root: Path, changed: list[str]) -> list[str]:
+    errors: list[str] = []
+    evidence_prefix = str(JOURNEYS / "evidence") + "/"
+    for rel in changed:
+        if not rel.startswith(evidence_prefix):
+            continue
+        suffix = Path(rel).suffix
+        if suffix not in {".json", ".md", ".txt", ".xml"}:
+            continue
+        path = root / rel
+        if not path.exists() or path.stat().st_size > 2_000_000:
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for pattern, label in EVIDENCE_SECRET_PATTERNS:
+            if pattern.search(text):
+                errors.append(f"{rel} contains forbidden evidence secret/PII marker: {label}")
     return errors
 
 def _generated_errors(root: Path) -> list[str]:
@@ -202,6 +253,28 @@ def _load_issues(root: Path) -> tuple[list[tuple[Path, dict[str, Any]]], list[st
             continue
         issues.append((path, data))
     return issues, errors
+
+def _openapi_operations(root: Path) -> tuple[set[str], list[str]]:
+    path = root / OPENAPI
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        return set(), [f"unable to read canonical OpenAPI: {exc}"]
+    except json.JSONDecodeError as exc:
+        return set(), [f"{OPENAPI} invalid JSON: {exc}"]
+    paths = data.get("paths")
+    if not isinstance(paths, dict):
+        return set(), [f"{OPENAPI} must expose a paths object"]
+    operations: set[str] = set()
+    for route, methods in paths.items():
+        if not isinstance(route, str) or not isinstance(methods, dict):
+            continue
+        for method in ("get", "post", "put", "patch", "delete", "options", "head"):
+            if method in methods:
+                operations.add(f"{method.upper()} {route}")
+    if not operations:
+        return set(), [f"{OPENAPI} contains no executable operations"]
+    return operations, []
 
 def _artifact_ok(root: Path, value: Any) -> bool:
     if not isinstance(value, str) or not value or value.startswith("/tmp"):
@@ -288,6 +361,58 @@ def _artifact_status_errors(root: Path, label: str, item: dict[str, Any]) -> lis
             errors.append(f"{label} is red but text artifact has no failure marker")
         if status == "green" and not has_success:
             errors.append(f"{label} green text artifact needs an explicit success marker")
+    errors += _runtime_replay_manifest_errors(root, label, item)
+    return errors
+
+def _runtime_replay_manifest_errors(root: Path, label: str, item: dict[str, Any]) -> list[str]:
+    artifact = item.get("artifact")
+    if not isinstance(artifact, str):
+        return []
+    artifact_path = Path(artifact)
+    parts = artifact_path.parts
+    prefix = (".planning", "journeys", "evidence", "runtime_replay")
+    if len(parts) < len(prefix) + 2 or parts[: len(prefix)] != prefix:
+        return []
+    manifest_rel = Path(*parts[: len(prefix) + 1]) / "manifest.json"
+    manifest_path = root / manifest_rel
+    if not manifest_path.exists():
+        return [f"{label} runtime_replay evidence requires sibling manifest: {manifest_rel}"]
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"{label} runtime_replay manifest is unreadable: {exc}"]
+    errors: list[str] = []
+    verified_commit = item.get("verified_commit")
+    if manifest.get("git_head") != verified_commit:
+        errors.append(f"{label} runtime_replay manifest git_head must match verified_commit")
+    if manifest.get("git_dirty") is not False:
+        errors.append(f"{label} runtime_replay manifest must prove git_dirty=false")
+    if manifest.get("git_status_porcelain") != "":
+        errors.append(f"{label} runtime_replay manifest must have empty git_status_porcelain")
+    for key in ("git_diff_sha256", "git_status_sha256", "replay_script_sha256"):
+        if not isinstance(manifest.get(key), str) or not SHA256_RE.fullmatch(manifest[key]):
+            errors.append(f"{label} runtime_replay manifest missing {key}")
+    journeys = manifest.get("journeys")
+    if not isinstance(journeys, list):
+        errors.append(f"{label} runtime_replay manifest journeys must be an array")
+        return errors
+    journey_name = parts[len(prefix) + 1] if len(parts) > len(prefix) + 1 else ""
+    matching = [entry for entry in journeys if isinstance(entry, dict) and entry.get("journey") == journey_name]
+    if not matching:
+        errors.append(f"{label} runtime_replay manifest lacks journey result for {journey_name}")
+        return errors
+    entry = matching[0]
+    if not isinstance(entry.get("flow_sha256"), str) or not SHA256_RE.fullmatch(entry["flow_sha256"]):
+        errors.append(f"{label} runtime_replay manifest journey missing flow_sha256")
+    result = entry.get("result")
+    if not isinstance(result, dict):
+        errors.append(f"{label} runtime_replay manifest journey missing result")
+    elif item.get("status") in {"green", "red"}:
+        result_status = result.get("status")
+        if item.get("status") == "green" and result_status != "passed":
+            errors.append(f"{label} green runtime_replay evidence requires passed manifest result")
+        if item.get("status") == "red" and result_status != "failed":
+            errors.append(f"{label} red runtime_replay evidence requires failed manifest result")
     return errors
 
 def _latest_evidence(data: dict[str, Any]) -> dict[str, Any] | None:
@@ -302,7 +427,7 @@ def _latest_runtime_evidence(data: dict[str, Any]) -> dict[str, Any] | None:
     ]
     if not items:
         return None
-    return items[-1]
+    return journey_os_generate._latest_evidence({"evidence": items}) or None
 
 def _priority_score(priority: dict[str, Any]) -> int:
     return sum(int(priority[key]) for key in PRIORITY_POSITIVE) - int(priority["proof_cost"])
@@ -329,7 +454,68 @@ def _priority_errors(rel: Path, data: dict[str, Any]) -> list[str]:
         errors.append(f"{rel} T0 priority score must be at least 15")
     return errors
 
-def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str]) -> list[str]:
+def _runtime_replay_errors(root: Path, rel: Path, data: dict[str, Any]) -> list[str]:
+    replay = data.get("runtime_replay")
+    if not isinstance(replay, dict):
+        return [f"{rel} runtime_replay must be an object"]
+    errors: list[str] = []
+    extra = set(replay) - REPLAY_KEYS
+    if extra:
+        errors.append(f"{rel} runtime_replay unknown field(s): {', '.join(sorted(extra))}")
+    for key in sorted(REPLAY_KEYS):
+        if key not in replay:
+            errors.append(f"{rel} runtime_replay missing field: {key}")
+
+    flow = replay.get("flow")
+    if not isinstance(flow, str) or not flow.strip():
+        errors.append(f"{rel} runtime_replay.flow must be a non-empty string")
+    else:
+        flow_path = Path(flow)
+        if flow_path.is_absolute() or ".." in flow_path.parts:
+            errors.append(f"{rel} runtime_replay.flow must be repo-relative")
+        elif flow_path.suffix != ".yaml":
+            errors.append(f"{rel} runtime_replay.flow must point to a Maestro .yaml flow")
+        elif not str(flow).startswith("tools/simulator/flows/"):
+            errors.append(f"{rel} runtime_replay.flow must live under tools/simulator/flows/")
+        elif not (root / flow_path).exists():
+            errors.append(f"{rel} runtime_replay.flow does not exist: {flow}")
+
+    sets = replay.get("sets")
+    if not isinstance(sets, list) or not sets or any(not isinstance(item, str) for item in sets):
+        errors.append(f"{rel} runtime_replay.sets must be a non-empty string array")
+    else:
+        unknown_sets = sorted(set(sets) - REPLAY_SETS)
+        if unknown_sets:
+            errors.append(f"{rel} runtime_replay.sets unknown value(s): {', '.join(unknown_sets)}")
+
+    if not isinstance(replay.get("device"), str) or not str(replay.get("device")).strip():
+        errors.append(f"{rel} runtime_replay.device must be a non-empty string")
+    defines = replay.get("build_defines")
+    if not isinstance(defines, list) or any(not isinstance(item, str) or not item.strip() or "=" not in item for item in defines):
+        errors.append(f"{rel} runtime_replay.build_defines must be KEY=VALUE strings")
+    if not isinstance(replay.get("requires_auth"), bool):
+        errors.append(f"{rel} runtime_replay.requires_auth must be a boolean")
+    if isinstance(replay.get("requires_auth"), bool) and replay["requires_auth"]:
+        allowed_auth_sets = set(replay.get("sets") or [])
+        if not (allowed_auth_sets & {"authenticated", "account_lifecycle"}):
+            errors.append(f"{rel} authenticated runtime_replay must be in authenticated or account_lifecycle set")
+    order = replay.get("order")
+    if isinstance(order, bool) or not isinstance(order, int) or order < 0 or order > 100:
+        errors.append(f"{rel} runtime_replay.order must be an integer from 0 to 100")
+    return errors
+
+def _evidence_text(data: dict[str, Any]) -> str:
+    fragments: list[str] = []
+    for item in data.get("evidence", []) if isinstance(data.get("evidence"), list) else []:
+        if not isinstance(item, dict):
+            continue
+        for key in ("command", "reason"):
+            value = item.get(key)
+            if isinstance(value, str):
+                fragments.append(value)
+    return "\n".join(fragments)
+
+def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str], openapi_ops: set[str]) -> list[str]:
     rel = path.relative_to(root)
     errors: list[str] = []
     unknown = set(data) - TOP
@@ -338,7 +524,7 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
     for key in sorted(REQ):
         if key not in data:
             errors.append(f"{rel} missing required field: {key}")
-    for key in ("id", "title", "human_promise"):
+    for key in ("id", "title", "human_promise", "entry_state", "account_state", "success_state"):
         if not isinstance(data.get(key), str) or not str(data.get(key)).strip():
             errors.append(f"{rel} {key} must be a non-empty string")
     if data.get("schema_version") != 1:
@@ -349,16 +535,31 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
         errors.append(f"{rel} status has unknown enum: {data.get('status')}")
     if data.get("accountable_team") not in TEAMS:
         errors.append(f"{rel} accountable_team must be a Mint roster entry")
+    for key in ("proof_owner", "fix_owner"):
+        if data.get(key) not in TEAMS:
+            errors.append(f"{rel} {key} must be a Mint roster entry")
     if path.stem != data.get("id"):
         errors.append(f"{rel} filename stem must match id")
     for key in ARRAYS:
         value = data.get(key)
         if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
             errors.append(f"{rel} {key} must be an array of strings")
+        if key in NON_EMPTY_ARRAYS and (not isinstance(value, list) or not value or any(not str(item).strip() for item in value if isinstance(item, str))):
+            errors.append(f"{rel} {key} must be a non-empty array of non-empty strings")
     errors += _priority_errors(rel, data)
+    errors += _runtime_replay_errors(root, rel, data)
     for route in data.get("route_paths", []) if isinstance(data.get("route_paths"), list) else []:
         if not isinstance(route, str) or route not in routes:
             errors.append(f"{rel} route_path is not a registered route: {route}")
+    for api in data.get("external_apis", []) if isinstance(data.get("external_apis"), list) else []:
+        if not isinstance(api, str):
+            continue
+        if api and api not in openapi_ops:
+            errors.append(f"{rel} external_api is not in canonical OpenAPI: {api}")
+    for ref in data.get("source_spec_refs", []) if isinstance(data.get("source_spec_refs"), list) else []:
+        ref_path = Path(ref)
+        if ref_path.is_absolute() or ".." in ref_path.parts or not (root / ref_path).exists():
+            errors.append(f"{rel} source_spec_ref must be an existing repo-relative path: {ref}")
     evidence = data.get("evidence")
     if not isinstance(evidence, list) or not evidence:
         errors.append(f"{rel} evidence must be a non-empty array")
@@ -404,6 +605,10 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
             or not latest_runtime.get("verified_commit")
         ):
             errors.append(f"{rel} live_proven requires latest runtime evidence to be green with verified_at and verified_commit")
+        evidence_text = _evidence_text(data)
+        for api in data.get("external_apis", []) if isinstance(data.get("external_apis"), list) else []:
+            if isinstance(api, str) and api and api not in evidence_text:
+                errors.append(f"{rel} live_proven external_api lacks exact evidence text: {api}")
     return errors
 
 def _issue_errors(root: Path, path: Path, data: dict[str, Any], journey_ids: set[str]) -> list[str]:
@@ -472,11 +677,37 @@ def _issue_progress_errors(root: Path, records: list[tuple[Path, dict[str, Any]]
             errors.append(f"{rel} cannot stay missing after referenced journey has durable green evidence")
     return errors
 
+def _runtime_replay_coverage_errors(records: list[tuple[Path, dict[str, Any]]], issues: list[tuple[Path, dict[str, Any]]]) -> list[str]:
+    by_id = {str(data.get("id")): data for _path, data in records if isinstance(data.get("id"), str)}
+    ranked = journey_os_generate._ranked_issues(list(by_id.values()), [data for _path, data in issues])
+    # The `top` set is a moving diagnostic pointer: after the current red issue
+    # closes, the next red/missing/baselined issue must explicitly opt into it.
+    # The runtime workflow classifies whether that set needs staging secrets.
+    top_issue = next(
+        (
+            issue for issue in ranked
+            if issue.get("evidence_status") in {"missing", "red", "baselined"}
+            or issue.get("status") in {"proof_needed", "regressed", "blocked"}
+        ),
+        None,
+    )
+    if not top_issue:
+        return []
+    journey = by_id.get(str(top_issue.get("journey_id")))
+    if not isinstance(journey, dict):
+        return []
+    replay = journey.get("runtime_replay")
+    sets = replay.get("sets") if isinstance(replay, dict) else []
+    if not isinstance(sets, list) or "top" not in sets:
+        return [f"top Journey OS issue {top_issue.get('id')} must be replayable through runtime_replay.sets top"]
+    return []
+
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
     changed = [path for path in changed if not _is_ignored_generated(path)]
     errors += _scope_errors(root, changed)
+    errors += _evidence_secret_errors(root, changed)
     records, load_errors = _load_records(root)
     errors += load_errors
     issues, issue_load_errors = _load_issues(root)
@@ -486,6 +717,8 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
         routes = extract_registry_keys((root / ROUTES).read_text(encoding="utf-8"))
     except OSError as exc:
         return errors + [f"unable to read route registry: {exc}"]
+    openapi_ops, openapi_errors = _openapi_operations(root)
+    errors += openapi_errors
     seen: set[str] = set()
     for path, data in records:
         rid = data.get("id")
@@ -493,7 +726,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
             errors.append(f"duplicate journey id: {rid}")
         if isinstance(rid, str):
             seen.add(rid)
-        errors += _record_errors(root, path, data, routes)
+        errors += _record_errors(root, path, data, routes, openapi_ops)
     issue_ids: set[str] = set()
     for path, data in issues:
         iid = data.get("id")
@@ -508,6 +741,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
         for issue in data.get("issues", []) if isinstance(data.get("issues"), list) else []:
             if isinstance(issue, str) and issue.startswith("JOS-") and issue not in issue_ids:
                 errors.append(f"{rel} missing Journey OS issue: {issue}")
+    errors += _runtime_replay_coverage_errors(records, issues)
     errors += _generated_errors(root)
     return errors
 
