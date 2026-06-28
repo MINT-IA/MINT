@@ -1,10 +1,10 @@
 {
-  "completed_at": "2026-06-28T03:02:52Z",
-  "created_at": "20260628T030144Z",
+  "completed_at": "2026-06-28T04:06:22Z",
+  "created_at": "20260628T040435Z",
   "evidence_policy": "Commit manifest.json and per-journey result.xml only; raw Maestro debug artifacts stay outside .planning/journeys/evidence.",
   "git_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "git_dirty": false,
-  "git_head": "92a7b7b8115a65d9ba0f90bbc0c820e98beb0b16",
+  "git_head": "e8810d036affb7925cee71047672e1cddfbfe0b8",
   "git_status_porcelain": "",
   "git_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "journeys": [
@@ -25,7 +25,7 @@
       }
     }
   ],
-  "replay_script_sha256": "d3424eea0710c195f5d59f69e06d2efcf362dbac4bdd780604438bc9d017b575",
+  "replay_script_sha256": "425e7bf6f530bfb59095c2e92fcdedbd3b467ecd9de4de84d955c97f717e1d49",
   "runtime_set": "top",
   "schema_version": 1
 }

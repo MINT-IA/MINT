@@ -75,8 +75,8 @@ Generated from `.planning/journeys/records/*.json`. Do not edit directly.
 - Issues: JOS-005:regressed/red
 - Proof owner: mint-quality-gate
 - Fix owner: mint-mobile
-- Latest proof: red / runtime / 2026-06-28T03:19:17Z / c4ad4531
-- Latest artifact: .planning/journeys/evidence/runtime_replay/20260628T031810Z/onboarding_first_value/result.xml
+- Latest proof: red / runtime / 2026-06-28T04:06:22Z / e8810d03
+- Latest artifact: .planning/journeys/evidence/runtime_replay/20260628T040435Z/onboarding_first_value/result.xml
 
 ## profile_privacy_control
 
