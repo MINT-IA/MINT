@@ -25,17 +25,17 @@ def test_core_dry_run_lists_core_flows() -> None:
     assert "dry-run set=core" in proc.stdout
     assert "money_truth_spine" in proc.stdout
     assert "profile_privacy_control" in proc.stdout
-    assert "onboarding_first_value" not in proc.stdout
+    assert "onboarding_first_value" in proc.stdout
 
 
-def test_top_dry_run_lists_current_top_red_flow() -> None:
+def test_top_dry_run_lists_current_top_actionable_flow() -> None:
     proc = _run("--dry-run", "--set", "top")
 
     assert proc.returncode == 0
     assert "dry-run set=top" in proc.stdout
-    assert "onboarding_first_value" in proc.stdout
-    assert "flow_mint2_first_experience_rente_capital_entry.yaml" in proc.stdout
-    assert "MINT_E2E_MINT2_FIRST_EXPERIENCE=true" in proc.stdout
+    assert "coach_advice_turn" in proc.stdout
+    assert "flow_jos004_coach_advice_turn_runtime.yaml" in proc.stdout
+    assert "MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready" in proc.stdout
 
 
 def test_authenticated_dry_run_lists_authenticated_flows_without_secrets() -> None:
@@ -59,7 +59,8 @@ def test_account_lifecycle_dry_run_is_separate_from_authenticated_set() -> None:
 
 
 def test_requires_auth_classifier_reports_runtime_set_auth_need() -> None:
-    assert _run("--requires-auth", "--set", "top").stdout.strip() == "false"
+    assert _run("--requires-auth", "--set", "core").stdout.strip() == "false"
+    assert _run("--requires-auth", "--set", "top").stdout.strip() == "true"
     assert _run("--requires-auth", "--set", "authenticated").stdout.strip() == "true"
     assert _run("--requires-auth", "--set", "account_lifecycle").stdout.strip() == "true"
 
@@ -68,6 +69,15 @@ def test_authenticated_real_run_requires_credentials_before_build() -> None:
     env = {key: value for key, value in os.environ.items() if key not in {"MINT_E2E_EMAIL", "MINT_E2E_PASSWORD"}}
 
     proc = _run("--set", "authenticated", env=env)
+
+    assert proc.returncode == 1
+    assert "authenticated replay requires MINT_E2E_EMAIL" in proc.stderr
+
+
+def test_top_real_run_requires_credentials_when_top_is_authenticated() -> None:
+    env = {key: value for key, value in os.environ.items() if key not in {"MINT_E2E_EMAIL", "MINT_E2E_PASSWORD"}}
+
+    proc = _run("--set", "top", env=env)
 
     assert proc.returncode == 1
     assert "authenticated replay requires MINT_E2E_EMAIL" in proc.stderr
@@ -91,7 +101,7 @@ def test_real_replay_rejects_dirty_worktree_before_build() -> None:
     marker = ROOT / ".journey-os-runtime-dirty-test"
     marker.write_text("dirty\n", encoding="utf-8")
     try:
-        proc = _run("--set", "top")
+        proc = _run("--set", "core")
     finally:
         marker.unlink(missing_ok=True)
 

@@ -19,10 +19,10 @@ stateDiagram-v2
   state "JOS-002 verified/green" as issue_JOS_002
   journey_money_truth_spine --> issue_JOS_002: issue
   state "onboarding_first_value partial" as journey_onboarding_first_value
-  state "latest runtime red" as evidence_onboarding_first_value
+  state "latest runtime green" as evidence_onboarding_first_value
   [*] --> journey_onboarding_first_value
   journey_onboarding_first_value --> evidence_onboarding_first_value: proof
-  state "JOS-005 regressed/red" as issue_JOS_005
+  state "JOS-005 verified/green" as issue_JOS_005
   journey_onboarding_first_value --> issue_JOS_005: issue
   state "profile_privacy_control partial" as journey_profile_privacy_control
   state "latest runtime green" as evidence_profile_privacy_control

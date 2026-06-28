@@ -26,7 +26,8 @@
   "runtime_replay": {
     "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
     "sets": [
-      "authenticated"
+      "authenticated",
+      "top"
     ],
     "device": "MINT iPhone 13 mini RvC",
     "build_defines": [
