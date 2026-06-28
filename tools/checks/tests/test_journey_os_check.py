@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
+import pytest
 from tools.checks import journey_os_check, journey_os_generate
 
 GOOD_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="0" errors="0"><testcase name="ok"/></testsuite></testsuites>"""
@@ -319,13 +320,22 @@ def test_runtime_replay_raw_debug_artifacts_are_not_in_scope(tmp_path: Path) -> 
 
     assert any("outside Journey OS whitelist" in error for error in errors)
 
-def test_evidence_secret_lint_rejects_raw_email(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "secret_text",
+    [
+        "signed in as staging@example.com\n",
+        "MINT_E2E_PASSWORD=super-secret\n",
+        "Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456\n",
+        "Bearer abcdefghijklmnopqrstuvwxyz123456\n",
+    ],
+)
+def test_evidence_secret_lint_rejects_sensitive_patterns(tmp_path: Path, secret_text: str) -> None:
     root = _root(tmp_path)
     _record(root)
     _issue(root)
     evidence = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
     evidence.parent.mkdir(parents=True)
-    evidence.write_text("signed in as staging@example.com\n", encoding="utf-8")
+    evidence.write_text(secret_text, encoding="utf-8")
     journey_os_generate.write(root)
 
     errors = _errors(root, [str(evidence.relative_to(root))])
@@ -1004,8 +1014,8 @@ def test_runtime_replay_manifest_must_match_evidence_commit_and_result(tmp_path:
                 "git_head": SHA_A,
                 "git_dirty": False,
                 "git_status_porcelain": "",
-                "git_status_sha256": "0" * 64,
-                "git_diff_sha256": "1" * 64,
+                "git_status_sha256": journey_os_check.EMPTY_SHA256,
+                "git_diff_sha256": journey_os_check.EMPTY_SHA256,
                 "replay_script_sha256": "2" * 64,
                 "journeys": [
                     {
@@ -1036,6 +1046,99 @@ def test_runtime_replay_manifest_must_match_evidence_commit_and_result(tmp_path:
     journey_os_generate.write(root)
 
     assert not any("runtime_replay manifest" in error for error in _errors(root))
+
+def _runtime_replay_manifest_fixture(
+    root: Path,
+    *,
+    evidence_status: str = "red",
+    result_status: str = "failed",
+    manifest_updates: dict[str, object] | None = None,
+    journey_updates: dict[str, object] | None = None,
+) -> None:
+    artifact = root / ".planning/journeys/evidence/runtime_replay/20260626T120000Z/money_truth_spine/result.xml"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text(FAILING_XML if evidence_status == "red" else GOOD_XML, encoding="utf-8")
+    journey = {
+        "journey": "money_truth_spine",
+        "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+        "flow_sha256": "3" * 64,
+        "result": {"status": result_status, "exit_code": 1 if result_status == "failed" else 0},
+    }
+    if journey_updates:
+        journey.update(journey_updates)
+    manifest: dict[str, object] = {
+        "schema_version": 1,
+        "created_at": "20260626T120000Z",
+        "runtime_set": "core",
+        "git_head": SHA_A,
+        "git_dirty": False,
+        "git_status_porcelain": "",
+        "git_status_sha256": journey_os_check.EMPTY_SHA256,
+        "git_diff_sha256": journey_os_check.EMPTY_SHA256,
+        "replay_script_sha256": "2" * 64,
+        "journeys": [journey],
+    }
+    if manifest_updates:
+        manifest.update(manifest_updates)
+    (artifact.parents[1] / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": evidence_status,
+                "command": "bash tools/simulator/journey_os_runtime_replay.sh --set core",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(
+        root,
+        status="regressed" if evidence_status == "red" else "verified",
+        evidence_status=evidence_status,
+    )
+    journey_os_generate.write(root)
+
+@pytest.mark.parametrize(
+    ("manifest_updates", "expected"),
+    [
+        ({"git_head": SHA_B}, "manifest git_head must match verified_commit"),
+        ({"git_dirty": True}, "manifest must prove git_dirty=false"),
+        ({"git_status_porcelain": " M tools/simulator/journey_os_runtime_replay.sh"}, "empty git_status_porcelain"),
+        ({"git_status_sha256": "1" * 64}, "empty git_status_sha256"),
+        ({"git_diff_sha256": "1" * 64}, "empty git_diff_sha256"),
+        ({"replay_script_sha256": "not-a-sha"}, "missing replay_script_sha256"),
+    ],
+)
+def test_runtime_replay_manifest_negative_provenance_checks(
+    tmp_path: Path,
+    manifest_updates: dict[str, object],
+    expected: str,
+) -> None:
+    root = _root(tmp_path)
+    _runtime_replay_manifest_fixture(root, manifest_updates=manifest_updates)
+
+    assert any(expected in error for error in _errors(root))
+
+@pytest.mark.parametrize(
+    ("evidence_status", "result_status", "expected"),
+    [
+        ("red", "passed", "red runtime_replay evidence requires failed manifest result"),
+        ("green", "failed", "green runtime_replay evidence requires passed manifest result"),
+    ],
+)
+def test_runtime_replay_manifest_result_must_match_evidence_status(
+    tmp_path: Path,
+    evidence_status: str,
+    result_status: str,
+    expected: str,
+) -> None:
+    root = _root(tmp_path)
+    _runtime_replay_manifest_fixture(root, evidence_status=evidence_status, result_status=result_status)
+
+    assert any(expected in error for error in _errors(root))
 
 def test_green_text_artifact_cannot_contain_failure_marker(tmp_path: Path) -> None:
     root = _root(tmp_path)

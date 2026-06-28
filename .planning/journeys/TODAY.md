@@ -11,6 +11,7 @@ Generated from Journey OS records and issues. Do not edit directly.
 ## Operating Rule
 
 Pick the highest ranked red, missing, or baselined T0 issue unless the PR explicitly names the override.
+When the current top issue closes, move `runtime_replay.sets` `top` to the next actionable issue in the same PR; if that issue requires auth, the replay workflow must route through the authenticated job.
 
 ## Proof Discipline
 

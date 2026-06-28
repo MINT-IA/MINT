@@ -205,7 +205,7 @@ def _runtime_replay_errors(root: Path) -> list[str]:
         errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must not use continue-on-error for Journey OS replay")
     if "contents: read" not in text:
         errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must set permissions.contents: read")
-    if "get.maestro.mobile.dev" in text or re.search(r"\|\s*bash\b", text):
+    if "get.maestro.mobile.dev" in text or re.search(r"curl[^\n|]*\|\s*bash\b", text):
         errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must not install Maestro through curl-to-bash")
     if "flutter-action@v2" in text:
         errors.append(f"{RUNTIME_REPLAY_WORKFLOW} must pin subosito/flutter-action by SHA")

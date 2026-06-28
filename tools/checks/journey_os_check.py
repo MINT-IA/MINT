@@ -2,7 +2,7 @@
 """Validate Mint Journey OS records, scope, and generated views."""
 from __future__ import annotations
 
-import argparse, json, re, subprocess, sys
+import argparse, hashlib, json, re, subprocess, sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -98,6 +98,7 @@ TEXT_FAILURE_MARKERS = ("[Failed]", "Flow Failed", "FAILED", "Assertion is false
 TEXT_SUCCESS_MARKERS = ("[Passed]", "Flow Passed")
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+EMPTY_SHA256 = hashlib.sha256(b"").hexdigest()
 EVIDENCE_SECRET_PATTERNS = (
     (re.compile(r"MINT_E2E_PASSWORD\s*="), "MINT_E2E_PASSWORD"),
     (re.compile(r"Authorization:\s*Bearer\s+", re.IGNORECASE), "Authorization bearer token"),
@@ -326,6 +327,28 @@ def _valid_verified_commit(root: Path, value: Any) -> bool:
     )
     return exists.returncode == 0
 
+def _blob_sha256_at_commit(root: Path, commit: Any, rel_path: Any) -> str | None:
+    if not isinstance(commit, str) or not FULL_SHA_RE.fullmatch(commit):
+        return None
+    if not isinstance(rel_path, str) or not rel_path or Path(rel_path).is_absolute() or ".." in Path(rel_path).parts:
+        return None
+    inside = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+    )
+    if inside.returncode or inside.stdout.strip() != "true":
+        return None
+    proc = subprocess.run(
+        ["git", "show", f"{commit}:{rel_path}"],
+        cwd=root,
+        capture_output=True,
+    )
+    if proc.returncode:
+        return None
+    return hashlib.sha256(proc.stdout).hexdigest()
+
 def _artifact_status_errors(root: Path, label: str, item: dict[str, Any]) -> list[str]:
     status = item.get("status")
     artifact = item.get("artifact")
@@ -392,6 +415,14 @@ def _runtime_replay_manifest_errors(root: Path, label: str, item: dict[str, Any]
     for key in ("git_diff_sha256", "git_status_sha256", "replay_script_sha256"):
         if not isinstance(manifest.get(key), str) or not SHA256_RE.fullmatch(manifest[key]):
             errors.append(f"{label} runtime_replay manifest missing {key}")
+    if manifest.get("git_dirty") is False:
+        if manifest.get("git_status_sha256") != EMPTY_SHA256:
+            errors.append(f"{label} runtime_replay clean manifest must have empty git_status_sha256")
+        if manifest.get("git_diff_sha256") != EMPTY_SHA256:
+            errors.append(f"{label} runtime_replay clean manifest must have empty git_diff_sha256")
+    script_hash = _blob_sha256_at_commit(root, verified_commit, "tools/simulator/journey_os_runtime_replay.sh")
+    if script_hash is not None and manifest.get("replay_script_sha256") != script_hash:
+        errors.append(f"{label} runtime_replay manifest replay_script_sha256 does not match verified_commit")
     journeys = manifest.get("journeys")
     if not isinstance(journeys, list):
         errors.append(f"{label} runtime_replay manifest journeys must be an array")
@@ -404,6 +435,9 @@ def _runtime_replay_manifest_errors(root: Path, label: str, item: dict[str, Any]
     entry = matching[0]
     if not isinstance(entry.get("flow_sha256"), str) or not SHA256_RE.fullmatch(entry["flow_sha256"]):
         errors.append(f"{label} runtime_replay manifest journey missing flow_sha256")
+    flow_hash = _blob_sha256_at_commit(root, verified_commit, entry.get("flow"))
+    if flow_hash is not None and entry.get("flow_sha256") != flow_hash:
+        errors.append(f"{label} runtime_replay manifest flow_sha256 does not match verified_commit")
     result = entry.get("result")
     if not isinstance(result, dict):
         errors.append(f"{label} runtime_replay manifest journey missing result")

@@ -80,6 +80,26 @@ def test_unknown_runtime_set_fails_before_build() -> None:
     assert "unknown Journey OS runtime set" in proc.stderr
 
 
+def test_top_runtime_set_can_be_empty_after_all_actionable_issues_close() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+
+    assert 'if runtime_set == "top":' in text
+    assert "raise SystemExit(0)" in text
+
+
+def test_real_replay_rejects_dirty_worktree_before_build() -> None:
+    marker = ROOT / ".journey-os-runtime-dirty-test"
+    marker.write_text("dirty\n", encoding="utf-8")
+    try:
+        proc = _run("--set", "top")
+    finally:
+        marker.unlink(missing_ok=True)
+
+    assert proc.returncode == 1
+    assert "requires a clean git worktree" in proc.stderr
+    assert "flutter is required" not in proc.stderr
+
+
 def test_replay_script_boots_installs_and_launches_before_maestro() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
 

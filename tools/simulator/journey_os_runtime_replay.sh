@@ -68,6 +68,8 @@ for path in sorted((root / ".planning/journeys/records").glob("*.json")):
     )
 
 if not records:
+    if runtime_set == "top":
+        raise SystemExit(0)
     print(f"no Journey OS runtime_replay records for set: {runtime_set}", file=sys.stderr)
     raise SystemExit(1)
 
@@ -160,6 +162,20 @@ if [[ "$DRY_RUN" -eq 1 ]]; then
   exit 0
 fi
 
+capture_clean_git_state() {
+  GIT_STATUS_PORCELAIN="$(git -C "$ROOT" status --porcelain=v1 --untracked-files=all)"
+  if [[ -n "$GIT_STATUS_PORCELAIN" ]]; then
+    echo "Journey OS runtime replay requires a clean git worktree before writing durable evidence." >&2
+    printf '%s\n' "$GIT_STATUS_PORCELAIN" >&2
+    exit 1
+  fi
+  GIT_HEAD="$(git -C "$ROOT" rev-parse HEAD)"
+  GIT_STATUS_SHA256="$(printf '%s' "$GIT_STATUS_PORCELAIN" | shasum -a 256 | awk '{print $1}')"
+  GIT_DIFF_SHA256="$(git -C "$ROOT" diff --binary HEAD -- | shasum -a 256 | awk '{print $1}')"
+}
+
+capture_clean_git_state
+
 if ! command -v flutter >/dev/null 2>&1; then
   echo "flutter is required for Journey OS runtime replay" >&2
   exit 1
@@ -172,18 +188,6 @@ if [[ ! -x "$ROOT/tools/simulator/maestro_with_watchdog.sh" ]]; then
   echo "tools/simulator/maestro_with_watchdog.sh is required for replay" >&2
   exit 1
 fi
-
-capture_clean_git_state() {
-  GIT_STATUS_PORCELAIN="$(git -C "$ROOT" status --porcelain=v1 --untracked-files=all)"
-  if [[ -n "$GIT_STATUS_PORCELAIN" ]]; then
-    echo "Journey OS runtime replay requires a clean git worktree before writing durable evidence." >&2
-    printf '%s\n' "$GIT_STATUS_PORCELAIN" >&2
-    exit 1
-  fi
-  GIT_HEAD="$(git -C "$ROOT" rev-parse HEAD)"
-  GIT_STATUS_SHA256="$(printf '%s' "$GIT_STATUS_PORCELAIN" | shasum -a 256 | awk '{print $1}')"
-  GIT_DIFF_SHA256="$(git -C "$ROOT" diff --binary HEAD -- | shasum -a 256 | awk '{print $1}')"
-}
 
 clear_extended_attributes() {
   local path="$1"
@@ -298,7 +302,6 @@ build_app() {
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT_ROOT="$ROOT/.planning/journeys/evidence/runtime_replay/$STAMP"
 DEBUG_ROOT="${JOURNEY_OS_DEBUG_ROOT:-${TMPDIR:-/tmp}/mint-journey-os-runtime-debug/$STAMP}"
-capture_clean_git_state
 mkdir -p "$OUT_ROOT"
 mkdir -p "$DEBUG_ROOT"
 

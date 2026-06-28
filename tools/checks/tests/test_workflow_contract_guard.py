@@ -370,6 +370,25 @@ def test_workflow_contract_guard_rejects_runtime_replay_curl_to_bash(tmp_path: P
     assert "curl-to-bash" in proc.stderr
 
 
+def test_workflow_contract_guard_allows_bash_in_yaml_block_scalar(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    workflow = tmp_path / ".github/workflows/journey-os-runtime-replay.yml"
+    workflow.write_text(
+        workflow.read_text(encoding="utf-8")
+        + "\n  shell-block-smoke:\n"
+        + "    runs-on: ubuntu-latest\n"
+        + "    steps:\n"
+        + "      - name: bash block\n"
+        + "        run: |\n"
+        + "          bash tools/simulator/journey_os_runtime_replay.sh --dry-run --set top\n",
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 0
+
+
 def test_workflow_contract_guard_requires_environment_for_secret_replay(tmp_path: Path) -> None:
     _write_fixture(tmp_path)
     workflow = tmp_path / ".github/workflows/journey-os-runtime-replay.yml"
