@@ -92,6 +92,15 @@
       "verified_at": "2026-06-27T17:28:41Z",
       "verified_commit": "4cb5c173b998868cd73f9bdf6aebc718bc4bffa6",
       "debt_ref": "JOS-004-flow-pass-marker-required"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "authenticated local E2E env mapped into bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T234759Z/coach_advice_turn/result.xml",
+      "reason": "Fresh Journey OS top replay validates the PR #772 fix commit e8fbd58b3 as an ancestor of replay head 52935411, logs into staging, seeds the cadre_salarie_lpp_suisse_ready profile through the existing debug-only route helper, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and commits durable JUnit evidence with status SUCCESS.",
+      "verified_at": "2026-06-28T23:50:28Z",
+      "verified_commit": "52935411f36c693aad8dce1f18036f9e8e0bd772"
     }
   ]
 }

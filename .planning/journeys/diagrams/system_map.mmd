@@ -43,8 +43,8 @@ flowchart LR
   issue_JOS_001["JOS-001<br/>verified/green"]
   issue_JOS_001 --> journey_account_lifecycle_delete
   class issue_JOS_001 green
-  journey_coach_advice_turn["coach_advice_turn<br/>partial<br/>latest baselined"]
-  class journey_coach_advice_turn amber
+  journey_coach_advice_turn["coach_advice_turn<br/>partial<br/>latest green"]
+  class journey_coach_advice_turn green
   route_coach_chat["/coach/chat"]
   journey_coach_advice_turn --> route_coach_chat
   class route_coach_chat route
@@ -60,9 +60,9 @@ flowchart LR
   api_POST_api_v1_coach_chat["POST /api/v1/coach/chat"]
   journey_coach_advice_turn -.-> api_POST_api_v1_coach_chat
   class api_POST_api_v1_coach_chat api
-  issue_JOS_004["JOS-004<br/>proof_needed/baselined"]
+  issue_JOS_004["JOS-004<br/>verified/green"]
   issue_JOS_004 --> journey_coach_advice_turn
-  class issue_JOS_004 amber
+  class issue_JOS_004 green
   journey_money_truth_spine["money_truth_spine<br/>live_proven<br/>latest green"]
   class journey_money_truth_spine green
   route_budget["/budget"]
