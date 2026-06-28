@@ -7,6 +7,7 @@ from tools.checks import journey_os_check, journey_os_generate
 
 GOOD_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="0" errors="0"><testcase name="ok"/></testsuite></testsuites>"""
 FAILING_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="1" errors="0"><testcase name="x"><failure>boom</failure></testcase></testsuite></testsuites>"""
+SKIPPED_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="0" errors="0" skipped="1"><testcase name="skipped"><skipped/></testcase></testsuite></testsuites>"""
 SHA_A = "a" * 40
 SHA_B = "b" * 40
 
@@ -276,6 +277,25 @@ def test_changed_includes_local_tracked_worktree_changes(tmp_path: Path) -> None
         check=True,
         capture_output=True,
     )
+    sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout.strip()
+    record_path = root / ".planning/journeys/records/money_truth_spine.json"
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    record["evidence"][0]["verified_commit"] = sha
+    record_path.write_text(json.dumps(record), encoding="utf-8")
+    journey_os_generate.write(root)
+    subprocess.run(["git", "add", "."], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "valid provenance"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
     subprocess.run(
         ["git", "update-ref", "refs/remotes/origin/dev", "HEAD"],
         cwd=root,
@@ -509,6 +529,15 @@ def test_green_runtime_xml_artifact_cannot_be_vacuous(tmp_path: Path) -> None:
 
     assert any("zero executed tests" in error for error in _errors(root))
 
+def test_green_runtime_xml_artifact_cannot_be_all_skipped(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/result.xml").write_text(SKIPPED_XML, encoding="utf-8")
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("zero executed tests" in error for error in _errors(root))
+
 def test_baselined_runtime_xml_artifact_cannot_be_vacuous(tmp_path: Path) -> None:
     root = _root(tmp_path)
     (root / "artifacts/result.xml").write_text("<testsuite/>", encoding="utf-8")
@@ -544,6 +573,26 @@ def test_runtime_evidence_requires_verified_provenance(tmp_path: Path) -> None:
     assert any("requires verified_at" in error for error in errors)
     assert any("requires verified_commit" in error for error in errors)
 
+def test_runtime_evidence_rejects_future_verified_at(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2999-01-01T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("requires verified_at" in error for error in _errors(root))
+
 def test_runtime_evidence_requires_full_sha(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(
@@ -563,6 +612,47 @@ def test_runtime_evidence_requires_full_sha(tmp_path: Path) -> None:
     journey_os_generate.write(root)
 
     assert any("full SHA" in error for error in _errors(root))
+
+def test_runtime_evidence_requires_existing_git_commit(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": "f" * 40,
+            }
+        ],
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.invalid"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "baseline"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+
+    assert any("exists in git history" in error for error in _errors(root))
 
 def test_red_runtime_xml_artifact_requires_failure(tmp_path: Path) -> None:
     root = _root(tmp_path)
