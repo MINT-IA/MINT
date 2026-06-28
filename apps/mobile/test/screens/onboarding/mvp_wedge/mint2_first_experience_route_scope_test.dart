@@ -101,6 +101,7 @@ void main() {
     expect(answers, isEmpty);
 
     final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('auth_local_mode'), isTrue);
     expect(prefs.getString('wizard_answers_v2'), isNull);
     final handoff = json.decode(prefs.getString(_mint2AxisHandoffKey)!)
         as Map<String, dynamic>;
