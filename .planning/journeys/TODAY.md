@@ -6,7 +6,7 @@ Generated from Journey OS records and issues. Do not edit directly.
 
 | Issue | Severity | Status | Journey | Journey status | Journey priority | Owner | Evidence | Latest proof | Artifact | Next action |
 |---|---|---|---|---|---:|---|---|---|---|---|
-| JOS-005 | P0 | regressed | onboarding_first_value | partial | 24 | mint-mobile | red | red / runtime / 2026-06-27T17:55:32Z / cc58ad2a | .planning/journeys/evidence/onboarding_first_value/20260627T175336Z/maestro-red.txt | Fix the Mint2 LPP/rente-capital first-value path so selecting the live axis reaches /rente-vs-capital before account creation, then rerun the iPhone 13 mini Mint2 quality gate. |
+| JOS-005 | P0 | regressed | onboarding_first_value | partial | 24 | mint-mobile | red | red / runtime / 2026-06-28T03:02:52Z / 92a7b7b8 | .planning/journeys/evidence/runtime_replay/20260628T030144Z/onboarding_first_value/result.xml | Fix the Mint2 LPP/rente-capital first-value path so selecting the live axis reaches /rente-vs-capital before account creation, then rerun the iPhone 13 mini Mint2 quality gate. |
 
 ## Operating Rule
 
