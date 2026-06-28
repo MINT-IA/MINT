@@ -133,12 +133,16 @@ rampart. After ship:
 7. Run `python3 tools/checks/active_context_guard.py`.
 8. Run `python3 tools/checks/phase_contract_guard.py`.
 9. Run `python3 tools/checks/mint_rules_guard.py`.
-10. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
+10. Run `python3 tools/checks/journey_os_check.py`; `.planning/journeys/`
+   is the canonical Journey OS board, issue registry, evidence map, and
+   priority queue for vertical work.
+11. Run `python3 tools/checks/workflow_contract_guard.py`.
+12. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
    `SPEC.md` has a `verify` block.
-11. When the user names a subsystem, read the matching `docs/*.md` **before
+13. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-12. Run the grep verification from the table.
-13. *Only then* change code.
+14. Run the grep verification from the table.
+15. *Only then* change code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.

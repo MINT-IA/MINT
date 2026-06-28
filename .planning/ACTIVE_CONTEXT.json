@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-06-27",
+  "updated": "2026-06-28",
   "active_milestone": "mint-2-0-first-experience-rente-capital",
   "active_phase_dir": ".planning/phases/mint-2-0-first-experience-rente-capital",
   "active_phase_context": ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md",
@@ -28,6 +28,10 @@
     "codex/jos005-onboarding-first-value-20260627",
     "codex/jos005-first-value-before-account-20260627"
   ],
+  "allowed_branch_patterns": [
+    "codex/jos[0-9][0-9][0-9]*",
+    "codex/journey-os-*"
+  ],
   "base_ref": "origin/dev",
   "required_phase_files": [
     "CONTEXT.md",
@@ -43,6 +47,8 @@
   "agent_reference_guard": "tools/checks/agent_reference_guard.py",
   "claude_hooks_guard": "tools/checks/claude_hooks_guard.py",
   "phase_acceptance_verifier": "tools/checks/verify_phase_acceptance.py",
+  "journey_os_guard": "tools/checks/journey_os_check.py",
+  "workflow_contract_guard": "tools/checks/workflow_contract_guard.py",
   "must_read_first": [
     "AGENTS.md",
     "CLAUDE.md",

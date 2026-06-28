@@ -1,0 +1,17 @@
+%% Generated from .planning/journeys/records/account_lifecycle_delete.json
+sequenceDiagram
+  participant User
+  participant Journey
+  participant Routes
+  participant Surfaces
+  participant APIs
+  participant Evidence
+  User->>Journey: I can recover, delete, and control my account data.
+  Journey->>Routes: /auth/login, /auth/register, /auth/forgot-password, /profile/privacy-control, /profile/privacy
+  Routes->>Surfaces: AuthProvider, PrivacyControlScreen, AccountDeletionFlow
+  Surfaces->>APIs: POST /api/v1/auth/register, DELETE /api/v1/auth/account
+  APIs-->>Surfaces: canonical contract
+  Surfaces-->>Journey: Recovery entry, registration, profile seal, privacy control, account deletion, and post-delete signed-out state all replay in one runtime proof.
+  Journey->>Evidence: replay account_lifecycle / auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml
+  Journey->>Evidence: green / runtime / 2026-06-26T20:05:41Z / 63220e05
+  Evidence-->>Journey: issues JOS-001

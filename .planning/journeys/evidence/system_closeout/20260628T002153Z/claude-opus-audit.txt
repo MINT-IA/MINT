@@ -1,0 +1,70 @@
+Claude CLI Opus audit, read-only hostile review
+Timestamp: 2026-06-28T00:21:53Z
+Command: timeout 600 claude --safe-mode --model opus --permission-mode plan -p "<Journey OS hardening audit prompt>"
+Scope: Mint Journey OS operating layer only, not product app completeness.
+Audited hardening code commit: 9f7947421b2336fc73204aefd77220f4ee3ffd12
+
+Verdict:
+Score 10/10. No blockers.
+
+Opus summary:
+The four prior objective gaps are closed with non-vacuous, CI-wired tests, the
+hardened gate passes on the repo's own real data, all 11 verified_commit SHAs
+exist in history, all verified_at timestamps are in the past, and product-code
+drift is zero.
+
+Findings:
+1. verified_commit cross-check is closed.
+   tools/checks/journey_os_check.py verifies a full SHA and, inside a Git
+   worktree, runs git cat-file -e <sha>^{commit}. The test
+   test_runtime_evidence_requires_existing_git_commit proves a formatted but
+   missing SHA is rejected.
+
+2. verified_at future bound is closed.
+   tools/checks/journey_os_check.py now rejects future UTC timestamps. The test
+   test_runtime_evidence_rejects_future_verified_at proves the prior
+   format-only acceptance path is gone.
+
+3. Mermaid render guard coverage is closed.
+   tools/checks/tests/test_mermaid_render_guard.py covers sandbox Puppeteer
+   config emission, missing npx, render failures, and empty SVG output without
+   network/process calls. The test is wired into ai-workflow-guards.yml and
+   workflow_contract_guard.py CI_TESTS.
+
+4. All-skipped runtime JUnit is closed.
+   tools/checks/journey_os_check.py subtracts skipped tests and rejects runtime
+   XML where executed tests are zero. The test
+   test_green_runtime_xml_artifact_cannot_be_all_skipped proves this edge.
+
+5. Product-code drift is zero.
+   The hardening commit touches only .github workflow wiring, tools/checks, and
+   this Journey OS evidence receipt.
+
+Residual non-blocking risks recorded by Opus:
+- Mermaid rendering remains a runtime/network-dependent CI gate by design.
+- verified_commit existence is enforced only inside a Git worktree.
+- shallow clones can false-reject missing historical commit objects; CI uses
+  fetch-depth: 0 to avoid this.
+- verified_at rejects future timestamps but does not enforce a lower bound.
+- workflow_contract_guard.py and test_workflow_contract_guard.py duplicate the
+  CI target tuple.
+
+Deterministic verification on subject commit:
+- python3 tools/checks/active_context_guard.py -> OK.
+- python3 tools/checks/phase_contract_guard.py -> OK.
+- python3 tools/checks/mint_rules_guard.py -> OK.
+- python3 tools/checks/agent_reference_guard.py -> OK.
+- python3 tools/checks/claude_hooks_guard.py -> OK.
+- python3 tools/checks/journey_os_check.py -> OK.
+- python3 tools/checks/workflow_contract_guard.py -> OK.
+- python3 tools/checks/mermaid_render_guard.py -> OK.
+- python3 tools/checks/verify_phase_acceptance.py -> PASS table, all exits 0.
+- python3 -m pytest tools/checks/tests/test_active_context_guard.py
+  tools/checks/tests/test_phase_contract_guard.py
+  tools/checks/tests/test_mint_rules_guard.py
+  tools/checks/tests/test_agent_reference_guard.py
+  tools/checks/tests/test_claude_hooks_guard.py
+  tools/checks/tests/test_journey_os_check.py
+  tools/checks/tests/test_mermaid_render_guard.py
+  tools/checks/tests/test_workflow_contract_guard.py
+  tools/checks/tests/test_verify_phase_acceptance.py -q -> 79 passed in 3.02s.

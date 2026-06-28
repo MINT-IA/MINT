@@ -58,6 +58,16 @@ pre-commit:
       # active context router.
       run: python3 tools/checks/mint_rules_guard.py
       tags: [agents, planning, rules]
+    journey-os-guard:
+      # Journey OS — records, issues, generated board, durable evidence, and
+      # branch authorization stay mechanically coherent before commits.
+      run: python3 tools/checks/journey_os_check.py
+      tags: [agents, planning, journeys]
+    workflow-contract-guard:
+      # MINT operating system — AGENTS/rules/bootstrap/hooks/CI must keep the
+      # same mandatory guard contract.
+      run: python3 tools/checks/workflow_contract_guard.py
+      tags: [agents, planning, workflow]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.

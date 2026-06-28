@@ -119,10 +119,11 @@ tags:
       - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: ".*Je regarde d’abord.*"
+      visible:
+        id: "onboarding-intent-explorer"
     commands:
       - tapOn:
-          text: ".*Je regarde d’abord.*"
+          id: "onboarding-intent-explorer"
       - waitForAnimationToEnd
 - runFlow:
     when:

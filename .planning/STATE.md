@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: mint-2-0-first-experience-rente-capital
 milestone_name: Mint 2.0 First Experience Rente/Capital
-status: local-quality-gate-merged-device-restore-blocked
-stopped_at: PRs #719-#721 closed fresh anonymous residue and local runtime quality gate; physical-device Keychain/iCloud restore proof is blocked by unavailable iPhone.
-last_updated: "2026-06-20T11:42:21.000Z"
-last_activity: 2026-06-20 -- PR #721 hardened the Mint 2.0 local quality gate on dev; S10 real-device restore preflight returned BLOCKED_NO_AVAILABLE_DEVICE for target Jul.
+status: historical-receipt-superseded-by-journey-os
+stopped_at: Journey OS is now the active daily router; see .planning/journeys/TODAY.md and BOARD.md. Current top issue is JOS-005 onboarding_first_value red regression.
+last_updated: "2026-06-28T00:00:00.000Z"
+last_activity: 2026-06-28 -- PR #767 made Journey OS mandatory in guards; this file is retained as historical GSD receipt, not the current product router.
 progress:
   scope: runtime_path_proof
   total_phases: 2
@@ -16,6 +16,20 @@ progress:
 ---
 
 # GSD State: Mint 2.0 First Experience Rente/Capital
+
+## Current Router
+
+This file is historical. Current Mint product routing now lives in:
+
+- `.planning/journeys/TODAY.md`
+- `.planning/journeys/BOARD.md`
+- `.planning/journeys/JOURNEYS.md`
+- `.planning/ACTIVE_CONTEXT.md`
+- `.planning/ACTIVE_CONTEXT.json`
+
+As of 2026-06-28, the Journey OS top queue item is `JOS-005`: restore the
+Mint2 LPP/rente-capital first-value path before the account gate, then rerun
+the iPhone 13 mini Mint2 quality gate.
 
 ## Project Reference
 

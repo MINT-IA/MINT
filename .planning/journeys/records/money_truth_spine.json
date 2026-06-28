@@ -6,6 +6,36 @@
   "status": "live_proven",
   "human_promise": "My money numbers are consistent.",
   "accountable_team": "mint-quality-gate",
+  "personas": [
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "entry_state": "Seeded Swiss profile is persisted through the debug-only route helper before Budget setup edits fixed monthly charges.",
+  "account_state": "Local/debug runtime profile store is populated; the proof intentionally does not depend on account creation.",
+  "success_state": "Budget, Mon Argent, Rapport, and Coach expose the same persisted money truth snapshot after app restart.",
+  "negative_assertions": [
+    "Absurd captured values must not leak into visible money surfaces.",
+    "Rapport must not duplicate the full Budget screen.",
+    "Budget read model must survive restart before downstream checks."
+  ],
+  "source_spec_refs": [
+    "docs/data-flow.md",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+    "sets": [
+      "core"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_PROOF_ANCHORS=true"
+    ],
+    "requires_auth": false,
+    "order": 10
+  },
   "route_paths": [
     "/budget",
     "/mon-argent",
@@ -40,7 +70,9 @@
       "status": "green",
       "command": "MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449 MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=75 bash tools/simulator/maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
       "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/money-trust/maestro-money-trust-20260602T084449/result.xml",
-      "reason": "Historical durable runtime artifact seeded as baseline provenance; record remains partial, not live_proven."
+      "reason": "Historical durable runtime artifact seeded as baseline provenance; superseded by the newer live_proven Money Truth runtime proof.",
+      "verified_at": "2026-06-02T08:44:49Z",
+      "verified_commit": "7796477a6699ca139603f07a1fdeb7bcc54d3b60"
     },
     {
       "kind": "runtime",
@@ -48,7 +80,9 @@
       "command": "MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/money-truth-spine-20260626T213202Z MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=150 bash tools/simulator/maestro_with_watchdog.sh test --debug-output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/debug --format junit --output .planning/runtime-evidence/money-truth-spine-20260626T213202Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
       "artifact": ".planning/journeys/evidence/money_truth_spine/20260626T213202Z/result.xml",
       "reason": "Historical red diagnostic superseded by the JOS-002A onboarding persistence fix and JOS-002B Money Truth runtime proof on dev.",
-      "debt_ref": "Superseded by PR #745 and PR #746."
+      "debt_ref": "Superseded by PR #745 and PR #746.",
+      "verified_at": "2026-06-26T21:32:02Z",
+      "verified_commit": "3a820336fa80b38ac5922ce5a5e97ee900e0a1ba"
     },
     {
       "kind": "runtime",

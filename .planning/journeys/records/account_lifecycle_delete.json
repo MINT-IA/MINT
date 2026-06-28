@@ -6,6 +6,36 @@
   "status": "live_proven",
   "human_promise": "I can recover, delete, and control my account data.",
   "accountable_team": "mint-quality-gate",
+  "personas": [
+    "fresh_disposable_staging_user",
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "entry_state": "User starts signed out, can recover password, register with disposable credentials, and reach authenticated privacy controls.",
+  "account_state": "Signed out at recovery/register entry, authenticated before privacy control, signed out again after account deletion.",
+  "success_state": "Recovery entry, registration, profile seal, privacy control, account deletion, and post-delete signed-out state all replay in one runtime proof.",
+  "negative_assertions": [
+    "Deleted account cannot keep an authenticated privacy surface visible.",
+    "Email verification interstitial must not block the tested disposable staging account.",
+    "Privacy delete controls must not remain visible after deletion."
+  ],
+  "source_spec_refs": [
+    "docs/MINT_AGENT_WORKFLOW.md",
+    ".planning/ACTIVE_CONTEXT.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
+    "sets": [
+      "account_lifecycle"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true"
+    ],
+    "requires_auth": true,
+    "order": 90
+  },
   "route_paths": [
     "/auth/login",
     "/auth/register",
@@ -19,8 +49,8 @@
     "AccountDeletionFlow"
   ],
   "external_apis": [
-    "POST /auth/register",
-    "DELETE /auth/account"
+    "POST /api/v1/auth/register",
+    "DELETE /api/v1/auth/account"
   ],
   "issues": [
     "JOS-001",
@@ -50,9 +80,9 @@
       "status": "green",
       "command": "MAESTRO_HARD_LIMIT=360 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/jos001-account-lifecycle-20260626T200541Z bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/runtime-evidence/jos001-account-lifecycle-20260626T200541Z/result.xml --env MINT_E2E_EMAIL=<fresh disposable e2e email> --env MINT_E2E_PASSWORD=<redacted> tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
       "artifact": ".planning/journeys/evidence/account_lifecycle_delete/20260626T200541Z/result.xml",
-      "reason": "Runtime proof drives recovery entry, real register, onboarding profile seal, privacy controls, privacy center delete confirmation, DELETE /auth/account, and post-delete signed-out recovery state.",
+      "reason": "Runtime proof drives recovery entry, POST /api/v1/auth/register, onboarding profile seal, privacy controls, privacy center delete confirmation, DELETE /api/v1/auth/account, and post-delete signed-out recovery state.",
       "verified_at": "2026-06-26T20:05:41Z",
-      "verified_commit": "c13e48a9cde379ffbe817f2abfb70f8b41255ff8"
+      "verified_commit": "63220e05c5d0fda840186fd68c83fffbede73259"
     }
   ]
 }

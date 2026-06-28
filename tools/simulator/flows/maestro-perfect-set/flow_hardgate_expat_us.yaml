@@ -162,10 +162,10 @@ tags:
 # FATCA question (T2.5). The hard gate is independent of the intent.
 - extendedWaitUntil:
     visible:
-      text: ".*Je regarde d’abord.*"
+      id: "onboarding-intent-explorer"
     timeout: 10000
 - tapOn:
-    text: ".*Je regarde d’abord.*"
+    id: "onboarding-intent-explorer"
 - waitForAnimationToEnd
 
 # 04 — handle the US-tax-person Q (Plan 01.5-02-03 step T2.5) if it

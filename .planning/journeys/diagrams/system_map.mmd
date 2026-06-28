@@ -1,0 +1,140 @@
+%% Generated from .planning/journeys/records/*.json and issues/*.json
+flowchart LR
+  classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
+  classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
+  classDef amber fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;
+  classDef blocked fill:#eceff1,stroke:#455a64,color:#263238;
+  classDef neutral fill:#f5f5f5,stroke:#616161,color:#212121;
+  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
+  classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
+  classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
+  journey_account_lifecycle_delete["account_lifecycle_delete<br/>live_proven<br/>latest green"]
+  class journey_account_lifecycle_delete green
+  route_auth_login["/auth/login"]
+  journey_account_lifecycle_delete --> route_auth_login
+  class route_auth_login route
+  route_auth_register["/auth/register"]
+  journey_account_lifecycle_delete --> route_auth_register
+  class route_auth_register route
+  route_auth_forgot_password["/auth/forgot-password"]
+  journey_account_lifecycle_delete --> route_auth_forgot_password
+  class route_auth_forgot_password route
+  route_profile_privacy_control["/profile/privacy-control"]
+  journey_account_lifecycle_delete --> route_profile_privacy_control
+  class route_profile_privacy_control route
+  route_profile_privacy["/profile/privacy"]
+  journey_account_lifecycle_delete --> route_profile_privacy
+  class route_profile_privacy route
+  surface_AuthProvider["AuthProvider"]
+  journey_account_lifecycle_delete -.-> surface_AuthProvider
+  class surface_AuthProvider surface
+  surface_PrivacyControlScreen["PrivacyControlScreen"]
+  journey_account_lifecycle_delete -.-> surface_PrivacyControlScreen
+  class surface_PrivacyControlScreen surface
+  surface_AccountDeletionFlow["AccountDeletionFlow"]
+  journey_account_lifecycle_delete -.-> surface_AccountDeletionFlow
+  class surface_AccountDeletionFlow surface
+  api_POST_api_v1_auth_register["POST /api/v1/auth/register"]
+  journey_account_lifecycle_delete -.-> api_POST_api_v1_auth_register
+  class api_POST_api_v1_auth_register api
+  api_DELETE_api_v1_auth_account["DELETE /api/v1/auth/account"]
+  journey_account_lifecycle_delete -.-> api_DELETE_api_v1_auth_account
+  class api_DELETE_api_v1_auth_account api
+  issue_JOS_001["JOS-001<br/>verified/green"]
+  issue_JOS_001 --> journey_account_lifecycle_delete
+  class issue_JOS_001 green
+  journey_coach_advice_turn["coach_advice_turn<br/>partial<br/>latest baselined"]
+  class journey_coach_advice_turn amber
+  route_coach_chat["/coach/chat"]
+  journey_coach_advice_turn --> route_coach_chat
+  class route_coach_chat route
+  surface_CoachOrchestrator["CoachOrchestrator"]
+  journey_coach_advice_turn -.-> surface_CoachOrchestrator
+  class surface_CoachOrchestrator surface
+  surface_CoachContextPacket["CoachContextPacket"]
+  journey_coach_advice_turn -.-> surface_CoachContextPacket
+  class surface_CoachContextPacket surface
+  surface_ComplianceGuard["ComplianceGuard"]
+  journey_coach_advice_turn -.-> surface_ComplianceGuard
+  class surface_ComplianceGuard surface
+  api_POST_api_v1_coach_chat["POST /api/v1/coach/chat"]
+  journey_coach_advice_turn -.-> api_POST_api_v1_coach_chat
+  class api_POST_api_v1_coach_chat api
+  issue_JOS_004["JOS-004<br/>proof_needed/baselined"]
+  issue_JOS_004 --> journey_coach_advice_turn
+  class issue_JOS_004 amber
+  journey_money_truth_spine["money_truth_spine<br/>live_proven<br/>latest green"]
+  class journey_money_truth_spine green
+  route_budget["/budget"]
+  journey_money_truth_spine --> route_budget
+  class route_budget route
+  route_mon_argent["/mon-argent"]
+  journey_money_truth_spine --> route_mon_argent
+  class route_mon_argent route
+  route_rapport["/rapport"]
+  journey_money_truth_spine --> route_rapport
+  class route_rapport route
+  journey_money_truth_spine --> route_coach_chat
+  surface_BudgetSnapshot["BudgetSnapshot"]
+  journey_money_truth_spine -.-> surface_BudgetSnapshot
+  class surface_BudgetSnapshot surface
+  surface_DataSpineSnapshot["DataSpineSnapshot"]
+  journey_money_truth_spine -.-> surface_DataSpineSnapshot
+  class surface_DataSpineSnapshot surface
+  journey_money_truth_spine -.-> surface_CoachContextPacket
+  issue_JOS_002["JOS-002<br/>verified/green"]
+  issue_JOS_002 --> journey_money_truth_spine
+  class issue_JOS_002 green
+  journey_onboarding_first_value["onboarding_first_value<br/>partial<br/>latest red"]
+  class journey_onboarding_first_value red
+  route_onb["/onb"]
+  journey_onboarding_first_value --> route_onb
+  class route_onb route
+  route_rente_vs_capital["/rente-vs-capital"]
+  journey_onboarding_first_value --> route_rente_vs_capital
+  class route_rente_vs_capital route
+  journey_onboarding_first_value --> route_coach_chat
+  route_home["/home"]
+  journey_onboarding_first_value --> route_home
+  class route_home route
+  surface_OnboardingShellScreen["OnboardingShellScreen"]
+  journey_onboarding_first_value -.-> surface_OnboardingShellScreen
+  class surface_OnboardingShellScreen surface
+  surface_CoachProfileProvider["CoachProfileProvider"]
+  journey_onboarding_first_value -.-> surface_CoachProfileProvider
+  class surface_CoachProfileProvider surface
+  surface_MintStateProvider["MintStateProvider"]
+  journey_onboarding_first_value -.-> surface_MintStateProvider
+  class surface_MintStateProvider surface
+  issue_JOS_005["JOS-005<br/>regressed/red"]
+  issue_JOS_005 --> journey_onboarding_first_value
+  class issue_JOS_005 red
+  journey_profile_privacy_control["profile_privacy_control<br/>partial<br/>latest green"]
+  class journey_profile_privacy_control green
+  journey_profile_privacy_control --> route_profile_privacy_control
+  journey_profile_privacy_control --> route_profile_privacy
+  route_settings_confidentialite["/settings/confidentialite"]
+  journey_profile_privacy_control --> route_settings_confidentialite
+  class route_settings_confidentialite route
+  journey_profile_privacy_control -.-> surface_PrivacyControlScreen
+  surface_ConsentSheet["ConsentSheet"]
+  journey_profile_privacy_control -.-> surface_ConsentSheet
+  class surface_ConsentSheet surface
+  surface_ConsentReceiptService["ConsentReceiptService"]
+  journey_profile_privacy_control -.-> surface_ConsentReceiptService
+  class surface_ConsentReceiptService surface
+  surface_PiiScrubber["PiiScrubber"]
+  journey_profile_privacy_control -.-> surface_PiiScrubber
+  class surface_PiiScrubber surface
+  api_GET_api_v1_privacy_consent_status["GET /api/v1/privacy/consent-status"]
+  journey_profile_privacy_control -.-> api_GET_api_v1_privacy_consent_status
+  class api_GET_api_v1_privacy_consent_status api
+  api_POST_api_v1_privacy_export["POST /api/v1/privacy/export"]
+  journey_profile_privacy_control -.-> api_POST_api_v1_privacy_export
+  class api_POST_api_v1_privacy_export api
+  api_POST_api_v1_privacy_delete["POST /api/v1/privacy/delete"]
+  journey_profile_privacy_control -.-> api_POST_api_v1_privacy_delete
+  class api_POST_api_v1_privacy_delete api
+  issue_JOS_003["JOS-003<br/>verified/green"]
+  issue_JOS_003 --> journey_profile_privacy_control
+  class issue_JOS_003 green
