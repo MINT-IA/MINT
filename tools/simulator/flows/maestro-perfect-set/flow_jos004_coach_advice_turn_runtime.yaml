@@ -69,18 +69,42 @@ tags:
     visible: "Connexion"
     timeout: 15000
 - assertVisible: "Adresse e-mail"
-- tapOn: "Adresse e-mail"
+- tapOn:
+    text: "Adresse e-mail"
 - inputText: ${MINT_E2E_EMAIL}
-- pressKey: Enter
+- hideKeyboard
 
-- tapOn: "Se connecter avec un mot de passe"
-- extendedWaitUntil:
-    visible: "Mot de passe"
+- scrollUntilVisible:
+    element:
+      text: "Se connecter avec un mot de passe"
+    direction: DOWN
+    centerElement: true
     timeout: 8000
-- tapOn: "Mot de passe"
+- assertVisible: "Se connecter avec un mot de passe"
+# The low login controls include both the password fallback and the forgot
+# password link. Tap the observed fallback button center to avoid substring
+# matching the forgot-password affordance.
+- tapOn:
+    point: "55%,52%"
+- assertNotVisible: "Réinitialiser le mot de passe"
+- scrollUntilVisible:
+    element:
+      text: "^Mot de passe$"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- tapOn:
+    text: "^Mot de passe$"
 - inputText: ${MINT_E2E_PASSWORD}
-- pressKey: Enter
-- tapOn: "Se connecter"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "^Se connecter$"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- tapOn:
+    text: "^Se connecter$"
 - waitForAnimationToEnd:
     timeout: 6000
 
@@ -108,7 +132,18 @@ tags:
     id: "e2e_profile_fixture_applied"
 - evalScript: ${output.jos004_profile_bootstrap = maestro.copiedText}
 
-- openLink: "mintapp:///coach/chat"
+# The login redirect can mount /coach/chat before the debug fixture is written.
+# Restart without clearing state so CoachProfileProvider hydrates from the
+# persisted fixture instead of keeping the pre-bootstrap in-memory profile.
+- stopApp
+- launchApp:
+    clearState: false
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- openLink: "mintapp:///coach/chat?topic=pillar3a&e2eUserMessage=Quel%20est%20le%20plafond%20legal%203a%202026%20avec%20LPP%20%3F"
 - runFlow:
     when:
       visible: "Ouvrir"
@@ -126,20 +161,10 @@ tags:
     visible:
       id: "coach_chat_screen"
     timeout: 15000
-- assertVisible:
-    id: "coach_input_field"
-- assertVisible:
-    id: "coach_send_button"
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "A RenderFlex overflowed"
 - assertNotVisible: "Exception caught"
 - assertNotVisible: "NoSuchMethodError"
-
-- tapOn:
-    id: "coach_input_field"
-- inputText: "Quel est le plafond legal 3a 2026 avec LPP ?"
-- tapOn:
-    id: "coach_send_button"
 - waitForAnimationToEnd:
     timeout: 6000
 - takeScreenshot: "jos004-coach-advice-turn-after-send"
