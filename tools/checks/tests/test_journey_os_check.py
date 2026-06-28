@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
+import pytest
 from tools.checks import journey_os_check, journey_os_generate
 
 GOOD_XML = """<?xml version='1.0' encoding='UTF-8'?><testsuites><testsuite tests="1" failures="0" errors="0"><testcase name="ok"/></testsuite></testsuites>"""
@@ -13,6 +14,9 @@ SHA_B = "b" * 40
 
 def _root(tmp_path: Path) -> Path:
     (tmp_path / "apps/mobile/lib/routes").mkdir(parents=True)
+    (tmp_path / "tools/openapi").mkdir(parents=True)
+    (tmp_path / "tools/simulator/flows/maestro-perfect-set").mkdir(parents=True)
+    (tmp_path / ".planning/phases/mint-2-0-first-experience-rente-capital").mkdir(parents=True)
     (tmp_path / ".planning/journeys/records").mkdir(parents=True)
     (tmp_path / ".planning/journeys/issues").mkdir(parents=True)
     (tmp_path / ".planning/journeys/journey.schema.json").write_text(
@@ -25,9 +29,41 @@ def _root(tmp_path: Path) -> Path:
     )
     (tmp_path / "artifacts").mkdir()
     (tmp_path / "artifacts/result.xml").write_text(GOOD_XML, encoding="utf-8")
+    (tmp_path / "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml").write_text(
+        "appId: ch.mint.app\n---\n- launchApp\n",
+        encoding="utf-8",
+    )
+    (tmp_path / ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md").write_text(
+        "# Fixture SPEC\n",
+        encoding="utf-8",
+    )
     routes = ["/budget", "/mon-argent", "/rapport", "/coach/chat", "/profile/bilan"]
     (tmp_path / "apps/mobile/lib/routes/route_metadata.dart").write_text(
-        "\n".join(f"  '{route}': RouteMeta(path: '{route}')," for route in routes),
+        "\n".join(
+            [
+                "const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{",
+                *[
+                    "  '{route}': RouteMeta(path: '{route}', category: RouteCategory.destination, owner: RouteOwner.system, requiresAuth: true),".format(
+                        route=route
+                    )
+                    for route in routes
+                ],
+                "  '/legacy/budget': RouteMeta(path: '/legacy/budget', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: true, description: 'Legacy redirect -> /budget'),",
+                "};",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "tools/openapi/mint.openapi.canonical.json").write_text(
+        json.dumps(
+            {
+                "openapi": "3.1.0",
+                "paths": {
+                    "/api/v1/coach/chat": {"post": {}},
+                    "/api/v1/privacy/export": {"post": {}},
+                },
+            }
+        ),
         encoding="utf-8",
     )
     return tmp_path
@@ -41,6 +77,22 @@ def _record(root: Path, **updates: object) -> None:
         "status": "partial",
         "human_promise": "My money numbers are consistent.",
         "accountable_team": "mint-quality-gate",
+        "personas": ["cadre_salarie_lpp_suisse_ready"],
+        "entry_state": "Authenticated or local-mode user opens a money surface with seeded Swiss profile facts.",
+        "account_state": "Authenticated or local mode; no account creation prompt may replace the value path.",
+        "success_state": "Budget, Mon argent, Rapport, and Coach read the same money truth snapshot.",
+        "negative_assertions": ["No stale profile value can override the latest runtime proof."],
+        "source_spec_refs": [".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md"],
+        "proof_owner": "mint-quality-gate",
+        "fix_owner": "mint-mobile",
+        "runtime_replay": {
+            "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+            "sets": ["core"],
+            "device": "MINT iPhone 13 mini RvC",
+            "build_defines": ["MINT_DISABLE_BETA_MODAL=true"],
+            "requires_auth": False,
+            "order": 10,
+        },
         "route_paths": ["/budget", "/mon-argent", "/rapport", "/coach/chat"],
         "surfaces": ["BudgetSnapshot", "DataSpineSnapshot"],
         "external_apis": [],
@@ -77,7 +129,7 @@ def _issue(root: Path, **updates: object) -> None:
         "id": "JOS-001",
         "title": "Prove money truth spine",
         "journey_id": "money_truth_spine",
-        "status": "proof_needed",
+        "status": "verified",
         "owner": "mint-quality-gate",
         "severity": "P0",
         "evidence_status": "green",
@@ -250,6 +302,46 @@ def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
     assert not any("unsupported Journey OS generated view" in error for error in errors)
 
+def test_runtime_replay_raw_debug_artifacts_are_not_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    raw_log = root / ".planning/journeys/evidence/runtime_replay/20260626T120000Z/money_truth_spine/debug/maestro.log"
+    raw_log.parent.mkdir(parents=True)
+    raw_log.write_text("[Failed] Assertion is false\n", encoding="utf-8")
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            ".planning/journeys/evidence/runtime_replay/20260626T120000Z/money_truth_spine/debug/maestro.log",
+        ],
+    )
+
+    assert any("outside Journey OS whitelist" in error for error in errors)
+
+@pytest.mark.parametrize(
+    "secret_text",
+    [
+        "signed in as staging@example.com\n",
+        "MINT_E2E_PASSWORD=super-secret\n",
+        "Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456\n",
+        "Bearer abcdefghijklmnopqrstuvwxyz123456\n",
+    ],
+)
+def test_evidence_secret_lint_rejects_sensitive_patterns(tmp_path: Path, secret_text: str) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    evidence = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
+    evidence.parent.mkdir(parents=True)
+    evidence.write_text(secret_text, encoding="utf-8")
+    journey_os_generate.write(root)
+
+    errors = _errors(root, [str(evidence.relative_to(root))])
+
+    assert any("forbidden evidence secret/PII marker" in error for error in errors)
+
 def test_changed_includes_local_tracked_worktree_changes(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
@@ -337,6 +429,209 @@ def test_issue_registry_and_generated_board(tmp_path: Path) -> None:
     assert "classDef green" in system_map
     assert "classDef api" in system_map
     assert "\\n" not in system_map
+    cards = (root / ".planning/journeys/CARDS.md").read_text(encoding="utf-8")
+    state = (root / ".planning/journeys/diagrams/journey_state.mmd").read_text(encoding="utf-8")
+    route_topology = (root / ".planning/journeys/diagrams/route_topology.mmd").read_text(encoding="utf-8")
+    sequence = (root / ".planning/journeys/diagrams/money_truth_spine_sequence.mmd").read_text(encoding="utf-8")
+    assert "## money_truth_spine" in cards
+    assert "Persona" in cards
+    assert "Entry state" in cards
+    assert "Negative assertions" in cards
+    assert "stateDiagram-v2" in state
+    assert "sequenceDiagram" in sequence
+    assert "Surfaces->>APIs" in sequence
+    assert "APIs-->>Surfaces" in sequence
+    assert "flowchart LR" in route_topology
+    assert "route__budget" in route_topology
+    assert "route__legacy_budget" in route_topology
+    assert "route__legacy_budget -. redirects .-> route__budget" in route_topology
+
+def test_external_apis_must_match_canonical_openapi(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root, external_apis=["POST /auth/register"])
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("external_api is not in canonical OpenAPI" in error for error in _errors(root))
+
+def test_canonical_openapi_must_be_readable_json_with_operations(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "tools/openapi/mint.openapi.canonical.json").unlink()
+    _record(root, external_apis=["POST /api/v1/coach/chat"])
+    _issue(root)
+    journey_os_generate.write(root)
+    assert any("unable to read canonical OpenAPI" in error for error in _errors(root))
+
+    root = _root(tmp_path / "invalid")
+    (root / "tools/openapi/mint.openapi.canonical.json").write_text("{", encoding="utf-8")
+    _record(root, external_apis=["POST /api/v1/coach/chat"])
+    _issue(root)
+    journey_os_generate.write(root)
+    assert any("invalid JSON" in error for error in _errors(root))
+
+    root = _root(tmp_path / "empty")
+    (root / "tools/openapi/mint.openapi.canonical.json").write_text(
+        json.dumps({"paths": {"/ping": {}}}),
+        encoding="utf-8",
+    )
+    _record(root, external_apis=["POST /api/v1/coach/chat"])
+    _issue(root)
+    journey_os_generate.write(root)
+    assert any("contains no executable operations" in error for error in _errors(root))
+
+def test_external_apis_accept_parameterized_canonical_openapi_paths(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    openapi = json.loads((root / "tools/openapi/mint.openapi.canonical.json").read_text(encoding="utf-8"))
+    openapi["paths"]["/api/v1/privacy/exports/{export_id}"] = {"get": {}}
+    (root / "tools/openapi/mint.openapi.canonical.json").write_text(json.dumps(openapi), encoding="utf-8")
+    _record(root, external_apis=["GET /api/v1/privacy/exports/{export_id}"])
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert _errors(root) == []
+
+def test_journey_contract_fields_are_required(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    path = root / ".planning/journeys/records/money_truth_spine.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    del data["entry_state"]
+    data["negative_assertions"] = []
+    path.write_text(json.dumps(data), encoding="utf-8")
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(root)
+    assert any("entry_state" in error for error in errors)
+    assert any("negative_assertions" in error for error in errors)
+
+def test_source_spec_refs_must_be_existing_repo_relative_paths(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root, source_spec_refs=["/tmp/not-a-mint-spec.md", "../escape.md", "missing/SPEC.md"])
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(root)
+    assert sum("source_spec_ref must be an existing repo-relative path" in error for error in errors) == 3
+
+def test_proof_and_fix_owners_must_be_mint_roster_entries(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root, proof_owner="external-consultant", fix_owner="not-a-team")
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(root)
+    assert any("proof_owner must be a Mint roster entry" in error for error in errors)
+    assert any("fix_owner must be a Mint roster entry" in error for error in errors)
+
+def test_runtime_replay_contract_is_required_and_executable(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    path = root / ".planning/journeys/records/money_truth_spine.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    del data["runtime_replay"]
+    path.write_text(json.dumps(data), encoding="utf-8")
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("runtime_replay" in error for error in _errors(root))
+
+    root = _root(tmp_path / "missing_flow")
+    _record(
+        root,
+        runtime_replay={
+            "flow": "tools/simulator/flows/missing.yaml",
+            "sets": ["core"],
+            "device": "MINT iPhone 13 mini RvC",
+            "build_defines": ["MINT_DISABLE_BETA_MODAL=true"],
+            "requires_auth": False,
+            "order": 10,
+        },
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("runtime_replay.flow does not exist" in error for error in _errors(root))
+
+def test_authenticated_runtime_replay_cannot_live_in_secretless_set(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(
+        root,
+        runtime_replay={
+            "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+            "sets": ["core"],
+            "device": "MINT iPhone 13 mini RvC",
+            "build_defines": ["MINT_DISABLE_BETA_MODAL=true"],
+            "requires_auth": True,
+            "order": 10,
+        },
+    )
+    _issue(root)
+    journey_os_generate.write(root)
+
+    assert any("authenticated runtime_replay must be in authenticated or account_lifecycle set" in error for error in _errors(root))
+
+def test_top_journey_issue_requires_top_runtime_replay_set(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        id="onboarding_first_value",
+        title="Onboarding first value",
+        _stem="onboarding_first_value",
+        issues=["JOS-005"],
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "maestro test onboarding.yaml",
+                "artifact": "artifacts/red.xml",
+                "verified_at": "2026-06-27T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+        runtime_replay={
+            "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+            "sets": ["core"],
+            "device": "MINT iPhone 13 mini RvC",
+            "build_defines": ["MINT_DISABLE_BETA_MODAL=true"],
+            "requires_auth": False,
+            "order": 10,
+        },
+    )
+    _issue(root, id="JOS-005", journey_id="onboarding_first_value", status="regressed", evidence_status="red")
+    journey_os_generate.write(root)
+
+    assert any("runtime_replay.sets top" in error for error in _errors(root))
+
+def test_live_proven_external_apis_need_exact_evidence_text(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root, status="live_proven", external_apis=["POST /api/v1/coach/chat"])
+    _issue(root, status="verified", evidence_status="green")
+    journey_os_generate.write(root)
+
+    assert any("external_api lacks exact evidence text" in error for error in _errors(root))
+
+    root = _root(tmp_path / "with_exact_api")
+    _record(
+        root,
+        status="live_proven",
+        external_apis=["POST /api/v1/coach/chat"],
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "green",
+                "command": "maestro test flow.yaml && curl -X POST /api/v1/coach/chat",
+                "artifact": "artifacts/result.xml",
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, status="verified", evidence_status="green")
+    journey_os_generate.write(root)
+
+    assert _errors(root) == []
 
 def test_today_does_not_promote_green_issue_when_no_actionable_work(tmp_path: Path) -> None:
     root = _root(tmp_path)
@@ -386,6 +681,14 @@ def test_today_routes_red_before_higher_priority_baselined_issue(tmp_path: Path)
             "learning_value": 4,
             "proof_cost": 3,
             "rationale": "Lower priority red issue must still route before baselined work.",
+        },
+        runtime_replay={
+            "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+            "sets": ["top"],
+            "device": "MINT iPhone 13 mini RvC",
+            "build_defines": ["MINT_DISABLE_BETA_MODAL=true"],
+            "requires_auth": False,
+            "order": 10,
         },
         evidence=[
             {
@@ -674,6 +977,169 @@ def test_red_runtime_xml_artifact_requires_failure(tmp_path: Path) -> None:
 
     assert any("red but JUnit artifact reports no failures" in error for error in _errors(root))
 
+def test_runtime_replay_evidence_requires_clean_manifest(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    artifact = root / ".planning/journeys/evidence/runtime_replay/20260626T120000Z/money_truth_spine/result.xml"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text(FAILING_XML, encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "bash tools/simulator/journey_os_runtime_replay.sh --set core",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, status="regressed", evidence_status="red")
+    journey_os_generate.write(root)
+
+    assert any("runtime_replay evidence requires sibling manifest" in error for error in _errors(root))
+
+def test_runtime_replay_manifest_must_match_evidence_commit_and_result(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    artifact = root / ".planning/journeys/evidence/runtime_replay/20260626T120000Z/money_truth_spine/result.xml"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text(FAILING_XML, encoding="utf-8")
+    (artifact.parents[1] / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "created_at": "20260626T120000Z",
+                "runtime_set": "core",
+                "git_head": SHA_A,
+                "git_dirty": False,
+                "git_status_porcelain": "",
+                "git_status_sha256": journey_os_check.EMPTY_SHA256,
+                "git_diff_sha256": journey_os_check.EMPTY_SHA256,
+                "replay_script_sha256": "2" * 64,
+                "journeys": [
+                    {
+                        "journey": "money_truth_spine",
+                        "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+                        "flow_sha256": "3" * 64,
+                        "result": {"status": "failed", "exit_code": 1},
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": "red",
+                "command": "bash tools/simulator/journey_os_runtime_replay.sh --set core",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(root, status="regressed", evidence_status="red")
+    journey_os_generate.write(root)
+
+    assert not any("runtime_replay manifest" in error for error in _errors(root))
+
+def _runtime_replay_manifest_fixture(
+    root: Path,
+    *,
+    evidence_status: str = "red",
+    result_status: str = "failed",
+    manifest_updates: dict[str, object] | None = None,
+    journey_updates: dict[str, object] | None = None,
+) -> None:
+    artifact = root / ".planning/journeys/evidence/runtime_replay/20260626T120000Z/money_truth_spine/result.xml"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text(FAILING_XML if evidence_status == "red" else GOOD_XML, encoding="utf-8")
+    journey = {
+        "journey": "money_truth_spine",
+        "flow": "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+        "flow_sha256": "3" * 64,
+        "result": {"status": result_status, "exit_code": 1 if result_status == "failed" else 0},
+    }
+    if journey_updates:
+        journey.update(journey_updates)
+    manifest: dict[str, object] = {
+        "schema_version": 1,
+        "created_at": "20260626T120000Z",
+        "runtime_set": "core",
+        "git_head": SHA_A,
+        "git_dirty": False,
+        "git_status_porcelain": "",
+        "git_status_sha256": journey_os_check.EMPTY_SHA256,
+        "git_diff_sha256": journey_os_check.EMPTY_SHA256,
+        "replay_script_sha256": "2" * 64,
+        "journeys": [journey],
+    }
+    if manifest_updates:
+        manifest.update(manifest_updates)
+    (artifact.parents[1] / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    _record(
+        root,
+        evidence=[
+            {
+                "kind": "runtime",
+                "status": evidence_status,
+                "command": "bash tools/simulator/journey_os_runtime_replay.sh --set core",
+                "artifact": str(artifact.relative_to(root)),
+                "verified_at": "2026-06-26T00:00:00Z",
+                "verified_commit": SHA_A,
+            }
+        ],
+    )
+    _issue(
+        root,
+        status="regressed" if evidence_status == "red" else "verified",
+        evidence_status=evidence_status,
+    )
+    journey_os_generate.write(root)
+
+@pytest.mark.parametrize(
+    ("manifest_updates", "expected"),
+    [
+        ({"git_head": SHA_B}, "manifest git_head must match verified_commit"),
+        ({"git_dirty": True}, "manifest must prove git_dirty=false"),
+        ({"git_status_porcelain": " M tools/simulator/journey_os_runtime_replay.sh"}, "empty git_status_porcelain"),
+        ({"git_status_sha256": "1" * 64}, "empty git_status_sha256"),
+        ({"git_diff_sha256": "1" * 64}, "empty git_diff_sha256"),
+        ({"replay_script_sha256": "not-a-sha"}, "missing replay_script_sha256"),
+    ],
+)
+def test_runtime_replay_manifest_negative_provenance_checks(
+    tmp_path: Path,
+    manifest_updates: dict[str, object],
+    expected: str,
+) -> None:
+    root = _root(tmp_path)
+    _runtime_replay_manifest_fixture(root, manifest_updates=manifest_updates)
+
+    assert any(expected in error for error in _errors(root))
+
+@pytest.mark.parametrize(
+    ("evidence_status", "result_status", "expected"),
+    [
+        ("red", "passed", "red runtime_replay evidence requires failed manifest result"),
+        ("green", "failed", "green runtime_replay evidence requires passed manifest result"),
+    ],
+)
+def test_runtime_replay_manifest_result_must_match_evidence_status(
+    tmp_path: Path,
+    evidence_status: str,
+    result_status: str,
+    expected: str,
+) -> None:
+    root = _root(tmp_path)
+    _runtime_replay_manifest_fixture(root, evidence_status=evidence_status, result_status=result_status)
+
+    assert any(expected in error for error in _errors(root))
+
 def test_green_text_artifact_cannot_contain_failure_marker(tmp_path: Path) -> None:
     root = _root(tmp_path)
     artifact = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
@@ -887,7 +1353,7 @@ def test_latest_evidence_tiebreak_uses_append_order(tmp_path: Path) -> None:
     assert "red / runtime / 2026-06-27T00:00:00Z / bbbbbbbb" in board
     assert not any("latest evidence" in error for error in _errors(root))
 
-def test_latest_evidence_append_order_beats_older_timestamp(tmp_path: Path) -> None:
+def test_latest_evidence_timestamp_beats_append_order(tmp_path: Path) -> None:
     root = _root(tmp_path)
     (root / "artifacts/green.xml").write_text(GOOD_XML, encoding="utf-8")
     (root / "artifacts/red.xml").write_text(FAILING_XML, encoding="utf-8")
@@ -912,9 +1378,9 @@ def test_latest_evidence_append_order_beats_older_timestamp(tmp_path: Path) -> N
             },
         ],
     )
-    _issue(root, status="regressed", evidence_status="red")
+    _issue(root, status="verified", evidence_status="green")
     journey_os_generate.write(root)
     board = (root / ".planning/journeys/BOARD.md").read_text(encoding="utf-8")
 
-    assert "red / runtime / 2026-06-26T00:00:00Z / bbbbbbbb" in board
+    assert "green / runtime / 2026-06-27T00:00:00Z / aaaaaaaa" in board
     assert not any("latest evidence" in error for error in _errors(root))

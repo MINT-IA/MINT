@@ -6,6 +6,38 @@
   "status": "partial",
   "human_promise": "I get useful value before I commit more data.",
   "accountable_team": "mint-quality-gate",
+  "personas": [
+    "cadre_salarie_lpp_suisse_ready",
+    "fresh_anonymous_swiss_user"
+  ],
+  "entry_state": "Fresh anonymous user enters the MVP wedge, chooses the LPP rente-capital axis, and should reach first value before account creation.",
+  "account_state": "Anonymous local mode; account creation must remain after first value, not before the rente-vs-capital surface.",
+  "success_state": "Selecting the LPP rente-capital axis opens the first-value experience and can continue toward Coach or Home without a premature account gate.",
+  "negative_assertions": [
+    "Account-creation gate must not replace the first-value destination.",
+    "Beta modal must not block the onboarding axis proof.",
+    "The route helper must not rely on a release-only debug path."
+  ],
+  "source_spec_refs": [
+    ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md",
+    "docs/MINT_AGENT_WORKFLOW.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml",
+    "sets": [
+      "top"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_MINT2_FIRST_EXPERIENCE=true",
+      "MINT_E2E_PROOF_ANCHORS=true"
+    ],
+    "requires_auth": false,
+    "order": 10
+  },
   "route_paths": [
     "/onb",
     "/rente-vs-capital",
@@ -52,6 +84,24 @@
       "reason": "Fresh Mint2 iPhone 13 mini quality gate reaches the LPP/rente-capital first-value axis, but selecting it lands on the account-creation gate instead of /rente-vs-capital.",
       "verified_at": "2026-06-27T17:55:32Z",
       "verified_commit": "cc58ad2a0e5113679412118ae9631c52a328496d"
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T030144Z/onboarding_first_value/result.xml",
+      "reason": "Clean-tree Journey OS top replay built, booted, installed, and launched the iPhone 13 mini simulator app from commit 92a7b7b81, then caught the active JOS-005 failure because rente_vs_capital_screen was not visible.",
+      "verified_at": "2026-06-28T03:02:52Z",
+      "verified_commit": "92a7b7b8115a65d9ba0f90bbc0c820e98beb0b16"
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T031810Z/onboarding_first_value/result.xml",
+      "reason": "Clean-tree Journey OS top replay built, booted, installed, and launched the iPhone 13 mini simulator app from commit c4ad45319 after negative provenance guards landed, then caught the active JOS-005 failure because rente_vs_capital_screen was not visible.",
+      "verified_at": "2026-06-28T03:19:17Z",
+      "verified_commit": "c4ad453190c6a195b94aa8fb1b198f3f6591ad44"
     }
   ]
 }

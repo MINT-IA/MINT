@@ -55,28 +55,21 @@ appId: ch.mint.app
     text: "Parle à Mint"
 - extendedWaitUntil:
     visible:
-      text: "Il est temps que tu comprennes."
+      id: "onboarding-entry-open"
     timeout: 10000
 - tapOn:
-    text: "Ouvrir"
+    id: "onboarding-entry-open"
 
 # ─── T2 intents:RETRAITE ────────────────────────────────────────────────
-# The RETRAITE _IntentCard is a bare InkWell wrapping two Text widgets
-# (eyebrow "RETRAITE" + phrase "Ce que je toucherai, vraiment."). Unlike the
-# FilledButton CTAs elsewhere, this InkWell does NOT expose a single tappable
-# Semantics node carrying the label, so `tapOn: text:` (on either the eyebrow
-# or the phrase) cannot resolve a tappable element. We tap by relative point:
-# the RETRAITE card is the first of four, top of the list. The text assertion
-# below confirms we are on the right screen before the positional tap, so the
-# point is well-defined. (A Semantics(button,label) on _IntentCard would let
-# us go back to a pure text locator, but that is product code outside this
-# device-gate plan's scope.)
+# Current onboarding exposes stable semantics identifiers on intent cards.
+# Use the ID instead of old copy/point locators so the flow tracks route
+# wiring, not legacy wording.
 - extendedWaitUntil:
     visible:
-      text: ".*Ce que je toucherai.*"
+      id: "onboarding-intent-retraite"
     timeout: 5000
 - tapOn:
-    point: "50%,24%"
+    id: "onboarding-intent-retraite"
 
 # ─── T2.5 usTaxPerson:NO ────────────────────────────────────────────────
 # The NO button is a labelled FilledButton ("Non" = waitlistUsTaxPersonNo).
@@ -174,10 +167,10 @@ appId: ch.mint.app
 # /coach/chat.
 - extendedWaitUntil:
     visible:
-      text: "Creuser"
+      id: "onboarding-bifurcation-continue"
     timeout: 5000
 - tapOn:
-    id: "onboarding-bifurcation-creuser"
+    id: "onboarding-bifurcation-continue"
 
 # ─── SC-3: lands on /coach/chat, NOT /waitlist ──────────────────────────
 - extendedWaitUntil:

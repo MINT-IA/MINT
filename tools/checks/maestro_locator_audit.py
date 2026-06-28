@@ -75,6 +75,8 @@ ARB_DIR = REPO_ROOT / "apps" / "mobile" / "lib" / "l10n"
 TEXT_PAT = re.compile(r'^\s*-?\s*(?:tapOn|assertVisible):\s*[\'"]?([^\'"\n#][^\n#]*?)[\'"]?\s*$')
 TEXT_BLOCK_PAT = re.compile(r'^\s+text:\s*[\'"]([^\'"]+)[\'"]\s*$')
 ID_PAT = re.compile(r'^\s+id:\s*[\'"]([^\'"]+)[\'"]\s*$')
+INLINE_ID_PAT = re.compile(r'^\s*-?\s*(?:tapOn|assertVisible|visible):\s*\{\s*id:\s*[\'"]([^\'"]+)[\'"]\s*\}\s*$')
+INLINE_POINT_PAT = re.compile(r'^\s*-?\s*(?:tapOn|assertVisible|visible):\s*\{\s*point:\s*[\'"][^\'"]+[\'"]\s*\}\s*$')
 INPUT_TEXT_PAT = re.compile(r'^\s*-\s*inputText:\s*[\'"]([^\'"]+)[\'"]\s*$')
 # Match either `- assertNotVisible: "literal"` (shorthand, the literal is
 # captured to skip it from the positive set) or `- assertNotVisible:`
@@ -91,6 +93,8 @@ REGEX_INTENT_MARKERS = (
     ".?",
     "\\b",
     "\\d",
+    "\\(",
+    "\\)",
     "\\s",
     "\\w",
     "|",
@@ -179,8 +183,43 @@ def _candidate_text_sources() -> tuple[str, ...]:
 
 
 @lru_cache(maxsize=1)
+def _candidate_code_sources() -> tuple[str, ...]:
+    sources: list[str] = []
+    for path in MOBILE_LIB.rglob("*.dart"):
+        try:
+            sources.append(path.read_text(encoding="utf-8"))
+        except OSError:
+            continue
+    return tuple(sources)
+
+
+@lru_cache(maxsize=1)
+def _mint2_axis_ids() -> frozenset[str]:
+    path = MOBILE_LIB / "models" / "onboarding_intent.dart"
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError:
+        return frozenset()
+    match = re.search(r"String get id => switch \(this\) \{(?P<body>.*?)\n\s*\};", content, re.DOTALL)
+    if not match:
+        return frozenset()
+    return frozenset(re.findall(r"=>\s*'([a-z0-9_]+)'", match.group("body")))
+
+
+@lru_cache(maxsize=1)
 def _normalized_candidate_text_sources() -> tuple[str, ...]:
     return tuple(_normalize_search_text(source) for source in _candidate_text_sources())
+
+def _template_matches_text(template: str, text: str) -> bool:
+    if "{" not in template or "}" not in template:
+        return False
+    literal_remainder = re.sub(r"\{[A-Za-z_][A-Za-z0-9_]*\}", "", template)
+    literal_chars = re.findall(r"[A-Za-z0-9À-ÿ]", literal_remainder)
+    if len(literal_chars) < 4:
+        return False
+    pattern = re.escape(template)
+    pattern = re.sub(r"\\\{[A-Za-z_][A-Za-z0-9_]*\\\}", r".+?", pattern)
+    return re.fullmatch(pattern, text) is not None
 
 
 def _regex_literal_branches(pattern: str) -> list[list[str]]:
@@ -200,6 +239,8 @@ def _regex_literal_branches(pattern: str) -> list[list[str]]:
         literal = literal.replace(r"\?", "?")
         literal = literal.replace(r"\[", "[")
         literal = literal.replace(r"\]", "]")
+        literal = re.sub(r"\\+\(", "(", literal)
+        literal = re.sub(r"\\+\)", ")", literal)
         literal = literal.replace(r"\\b", "")
         literal = literal.replace(r"\b", "")
         literal = re.sub(r"\\\\[dDsSwW][+*?]?", ".*", literal)
@@ -209,6 +250,7 @@ def _regex_literal_branches(pattern: str) -> list[list[str]]:
         literal = literal.replace("+", " ")
         literal = literal.replace("^", " ")
         literal = literal.replace("$", " ")
+        literal = re.sub(r"\\+$", "", literal)
         literal = literal.strip("()")
         tokens = [
             _normalize_search_text(token)
@@ -268,6 +310,13 @@ def collect_locators(flow_path: Path) -> tuple[set[str], set[str]]:
             if m:
                 input_texts.add(m.group(1).strip())
                 continue
+            m = INLINE_ID_PAT.match(line)
+            if m:
+                if not in_negative_block:
+                    ids.add(m.group(1))
+                continue
+            if INLINE_POINT_PAT.match(line):
+                continue
 
             # Negative shorthand : skip the literal AND don't open a block.
             if NEG_SHORTHAND_PAT.match(line):
@@ -312,16 +361,41 @@ def codebase_has_text(text: str) -> bool:
     sources = _candidate_text_sources()
     normalized_sources = _normalized_candidate_text_sources()
     normalized_text = _normalize_search_text(text)
+    is_regex = _looks_like_regex(text)
     for source, normalized_source in zip(sources, normalized_sources):
         if text in source or normalized_text in normalized_source:
             return True
-    if _looks_like_regex(text) and _regex_literals_match_any_source(text, sources):
+        if not is_regex and _template_matches_text(normalized_source, normalized_text):
+            return True
+    if is_regex and _regex_literals_match_any_source(text, sources):
         return True
     return False
 
 
 def codebase_has_key(key_id: str) -> bool:
     """Does this id have a Flutter key or semantics identifier declaration ?"""
+    dynamic_patterns = []
+    if key_id.startswith("mint2-axis-"):
+        axis_id = key_id.removeprefix("mint2-axis-")
+        if axis_id in _mint2_axis_ids():
+            dynamic_patterns.append(("mint2-axis-${item.axis.id}", axis_id))
+    if key_id.startswith("e2e_mint2_axis_claim_"):
+        suffix = key_id.removeprefix("e2e_mint2_axis_claim_")
+        entry_key, _, entry_value = suffix.partition("_")
+        if entry_key == "axis" and entry_value in _mint2_axis_ids():
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+        elif entry_key == "axis" and entry_value == "absent":
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+        elif entry_key == "axisInWizardAnswers" and entry_value in {"true", "false"}:
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+        elif entry_key == "wizardAnswers" and entry_value.isdigit():
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+        elif entry_key == "claim" and entry_value in {"claimed", "restart_clean"}:
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+        elif entry_key == "owner" and entry_value in {"claimed", "absent"}:
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+        elif entry_key == "auth" and entry_value in {"present", "absent"}:
+            dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
     needles = [
         re.escape(f"Key('{key_id}')"),
         re.escape(f'Key("{key_id}")'),
@@ -330,17 +404,16 @@ def codebase_has_key(key_id: str) -> bool:
         re.escape(f"identifier: '{key_id}'"),
         re.escape(f'identifier: "{key_id}"'),
     ]
-    for path in MOBILE_LIB.rglob("*.dart"):
-        try:
-            content = path.read_text(encoding="utf-8")
-        except OSError:
-            continue
+    for content in _candidate_code_sources():
         if any(re.search(needle, content) for needle in needles):
             return True
         if key_id in content and "identifier:" in content:
             return True
         if key_id.startswith("coachCitationChip-") and "coachCitationChip-${chip.toolName}" in content:
             return True
+        for template, suffix in dynamic_patterns:
+            if template in content and suffix:
+                return True
     return False
 
 

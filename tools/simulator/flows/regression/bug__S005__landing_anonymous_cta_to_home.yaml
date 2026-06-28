@@ -111,10 +111,11 @@ tags:
       - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: ".*Je regarde d’abord.*"
+      visible:
+        id: "onboarding-intent-explorer"
     commands:
       - tapOn:
-          text: ".*Je regarde d’abord.*"
+          id: "onboarding-intent-explorer"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -183,12 +184,12 @@ tags:
       - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Plus tard"
+      visible:
+        id: "onboarding-bifurcation-exit"
     commands:
-      # Terminal anonymous path: Plus tard flushes the dossier and routes
-      # to /home.
+      # Terminal anonymous path: Sortir flushes the dossier and routes to /home.
       - tapOn:
-          id: "onboarding-bifurcation-plus-tard"
+          id: "onboarding-bifurcation-exit"
       - waitForAnimationToEnd
 - waitForAnimationToEnd:
     timeout: 6000

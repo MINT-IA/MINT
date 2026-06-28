@@ -86,16 +86,16 @@ tags:
 - openLink: "mintapp:///onb"
 - extendedWaitUntil:
     visible:
-      text: "Il est temps que tu comprennes."
+      id: "onboarding-entry-open"
     timeout: 10000
 - tapOn:
-    text: "Ouvrir"
+    id: "onboarding-entry-open"
 - takeScreenshot: "01.1-hero-01-onboarding-opened"
 
 # 02 — choose a supported Swiss-native intent.
 - extendedWaitUntil:
     visible:
-      text: ".*Ce que je toucherai.*"
+      id: "onboarding-intent-retraite"
     timeout: 5000
 - tapOn:
     id: "onboarding-intent-retraite"
@@ -189,10 +189,10 @@ tags:
           id: "onboarding-scene-continue"
 - extendedWaitUntil:
     visible:
-      text: "Creuser"
+      id: "onboarding-bifurcation-continue"
     timeout: 5000
 - tapOn:
-    id: "onboarding-bifurcation-creuser"
+    id: "onboarding-bifurcation-continue"
 - takeScreenshot: "01.1-hero-03-coach-route"
 
 # 05 — verify Coach composer on the supported path.
