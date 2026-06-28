@@ -19,9 +19,9 @@ flowchart LR
   route__anonymous_chat["/anonymous/chat<br/>alias/anonymous<br/>public"]
   class route__anonymous_chat alias
   class route__anonymous_chat public
-  route__arbitrage_rente_vs_capital["/arbitrage/rente-vs-capital<br/>alias/system<br/>auth"]
+  route__arbitrage_rente_vs_capital["/arbitrage/rente-vs-capital<br/>alias/system<br/>public"]
   class route__arbitrage_rente_vs_capital alias
-  class route__arbitrage_rente_vs_capital auth
+  class route__arbitrage_rente_vs_capital public
   route__ask_mint["/ask-mint<br/>alias/system<br/>auth"]
   class route__ask_mint alias
   class route__ask_mint auth
@@ -94,9 +94,9 @@ flowchart LR
   route__rapport["/rapport<br/>destination/system<br/>auth"]
   class route__rapport route
   class route__rapport auth
-  route__rente_vs_capital["/rente-vs-capital<br/>destination/retraite<br/>auth<br/>flag enableExplorerRetraite"]
+  route__rente_vs_capital["/rente-vs-capital<br/>destination/retraite<br/>public<br/>flag enableExplorerRetraite"]
   class route__rente_vs_capital route
-  class route__rente_vs_capital auth
+  class route__rente_vs_capital public
   route__report["/report<br/>alias/system<br/>auth"]
   class route__report alias
   class route__report auth
@@ -109,9 +109,9 @@ flowchart LR
   route__settings_confidentialite["/settings/confidentialite<br/>destination/system<br/>auth"]
   class route__settings_confidentialite route
   class route__settings_confidentialite auth
-  route__simulator_rente_capital["/simulator/rente-capital<br/>alias/system<br/>auth"]
+  route__simulator_rente_capital["/simulator/rente-capital<br/>alias/system<br/>public"]
   class route__simulator_rente_capital alias
-  class route__simulator_rente_capital auth
+  class route__simulator_rente_capital public
   route__start["/start<br/>alias/anonymous<br/>public"]
   class route__start alias
   class route__start public
