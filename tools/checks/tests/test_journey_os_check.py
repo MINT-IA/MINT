@@ -161,7 +161,10 @@ def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
     _record(root)
     _issue(root)
     journey_os_generate.write(root)
-    assert any("outside Journey OS whitelist" in error for error in _errors(root, ["apps/mobile/lib/app.dart"]))
+    assert any(
+        "outside Journey OS whitelist" in error
+        for error in _errors(root, ["apps/mobile/lib/unscoped_surface.dart"])
+    )
 
 def test_active_context_branch_authorization_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
@@ -252,6 +255,33 @@ def test_jos004_coach_advice_runtime_flow_is_in_scope(tmp_path: Path) -> None:
     )
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
+
+def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/app.dart",
+            "apps/mobile/lib/providers/auth_provider.dart",
+            "apps/mobile/lib/routes/route_metadata.dart",
+            "apps/mobile/lib/screens/debug/debug_mint2_account_claim_screen.dart",
+            "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart",
+            "apps/mobile/test/architecture/route_guard_snapshot.golden.txt",
+            "apps/mobile/test/architecture/route_guard_snapshot_test.dart",
+            "apps/mobile/test/navigation/account_lifecycle_public_entry_redirect_test.dart",
+            "apps/mobile/test/providers/auth_provider_test.dart",
+            "apps/mobile/test/screens/debug/debug_mint2_account_claim_screen_test.dart",
+            "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_route_scope_test.dart",
+            "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_signal_axes_test.dart",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
 
 def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
     flow = (

@@ -24,7 +24,7 @@
 /arbitrage/calendrier-retraits | authenticated
 /arbitrage/location-vs-propriete | authenticated
 /arbitrage/rachat-vs-marche | authenticated
-/arbitrage/rente-vs-capital | authenticated
+/arbitrage/rente-vs-capital | onboarding
 /ask-mint | authenticated
 /assurances/coverage | authenticated
 /assurances/lamal | authenticated
@@ -129,7 +129,7 @@
 /profile | authenticated
 /rachat-lpp | authenticated
 /rapport | authenticated
-/rente-vs-capital | authenticated
+/rente-vs-capital | onboarding
 /report | authenticated
 /report/v2 | authenticated
 /retirement | authenticated
@@ -151,7 +151,7 @@
 /simulator/disability-gap | authenticated
 /simulator/job-comparison | authenticated
 /simulator/leasing | authenticated
-/simulator/rente-capital | authenticated
+/simulator/rente-capital | onboarding
 /start | public
 /succession | authenticated
 /timeline | authenticated

@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,10 @@ class DebugMint2AccountClaimScreen extends StatefulWidget {
     super.key,
     required this.mode,
   });
+
+  @visibleForTesting
+  static Future<void> restoreSessionForTest() =>
+      _DebugMint2AccountClaimScreenState.restoreSessionForTest();
 
   @override
   State<DebugMint2AccountClaimScreen> createState() =>
@@ -116,8 +121,13 @@ class _DebugMint2AccountClaimScreenState
         answers.containsKey('onb_axis_schema_version');
   }
 
+  @visibleForTesting
+  static Future<void> restoreSessionForTest() => _restoreSession();
+
   static Future<void> _restoreSession() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
+    await prefs.remove(InstallLifecycleService.securePurgePendingKey);
     await prefs.setBool('auth_local_mode', false);
     ConversationStore.setCurrentUserId(_userId);
     await AuthService.saveToken(

@@ -7,20 +7,25 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:provider/provider.dart';
 
 Widget _wrap(GoRouter router) {
-  return MaterialApp.router(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: S.supportedLocales,
-    routerConfig: router,
+  return ChangeNotifierProvider<AuthProvider>(
+    create: (_) => AuthProvider(),
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      routerConfig: router,
+    ),
   );
 }
 
