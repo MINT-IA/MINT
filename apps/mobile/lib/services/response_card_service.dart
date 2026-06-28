@@ -89,9 +89,12 @@ class ResponseCardService {
     final cards = <ResponseCard>[];
     final suppressGeneric3aCapacityCards =
         _isIndependentNoLppCapacityQuestion(profile, lower);
+    final suppressStatutory3aCeilingCards =
+        _isSalariedLpp3aCeilingQuestion(lower);
 
     // ── Prevoyance & Retraite ────────────────────────────
     if (!suppressGeneric3aCapacityCards &&
+        !suppressStatutory3aCeilingCards &&
         (lower.contains('3a') || lower.contains('pilier'))) {
       final c = _tryPillar3a(profile, l);
       if (c != null) cards.add(c);
@@ -568,6 +571,26 @@ class ResponseCardService {
         lower.contains('montant');
 
     return mentionsNoLppContext || asksCapacity;
+  }
+
+  static bool _isSalariedLpp3aCeilingQuestion(String lower) {
+    final mentions3a = lower.contains('3a') ||
+        lower.contains('pilier 3a') ||
+        lower.contains('troisième pilier') ||
+        lower.contains('troisieme pilier') ||
+        lower.contains('3ème pilier');
+    final asksCeiling = lower.contains('plafond') ||
+        lower.contains('maximum') ||
+        lower.contains('limite') ||
+        lower.contains('déductible') ||
+        lower.contains('deductible');
+    final mentionsLpp = lower.contains('avec lpp') ||
+        lower.contains('avec une lpp') ||
+        lower.contains('caisse de pension') ||
+        lower.contains('salarié') ||
+        lower.contains('salarie');
+
+    return mentions3a && asksCeiling && mentionsLpp;
   }
 
   /// Suggested prompts personnalises selon le profil.

@@ -403,6 +403,31 @@ void main() {
     expect(message, isNot(contains('salarié')));
   });
 
+  test('14c. generateChat answers statutory 3a LPP ceiling locally', () async {
+    _resetFlags();
+    final ctx = _ctx();
+
+    final response = await CoachOrchestrator.generateChat(
+      userMessage: 'Quel est le plafond legal 3a 2026 avec LPP ?',
+      history: const [],
+      ctx: ctx,
+      isLoggedIn: true,
+    );
+
+    expect(response.message, contains('Plafond 3a avec LPP'));
+    expect(response.message, contains("7'258 CHF/an"));
+    expect(response.message, contains('OPP3 art. 7'));
+    expect(response.message, contains('LIFD art. 33'));
+    expect(
+        response.message, isNot(contains('réessaie dans quelques instants')));
+    expect(response.message, isNot(contains('Je n’ai pas cette donnée')));
+    expect(response.message, isNot(contains("Je n'ai pas cette donnée")));
+    expect(response.message, isNot(contains('montant à verser')));
+    expect(response.message, isNot(contains('meilleur')));
+    expect(response.message, isNot(contains('optimal')));
+    expect(response.message, isNot(contains('sans risque')));
+  });
+
   // ═══════════════════════════════════════════════════════════════
   //  15. Smoke test: tous les ComponentType fonctionnent
   // ═══════════════════════════════════════════════════════════════

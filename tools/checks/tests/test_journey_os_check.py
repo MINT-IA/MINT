@@ -295,7 +295,7 @@ def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
         "mintapp:///__e2e/row23-independent-no-lpp-profile?"
         "slug=cadre_salarie_lpp_suisse_ready"
     )
-    coach = 'openLink: "mintapp:///coach/chat"'
+    coach = 'openLink: "mintapp:///coach/chat?'
 
     assert login in flow
     assert fixture in flow

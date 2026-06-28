@@ -8,6 +8,7 @@ import 'package:mint_mobile/widgets/auth/account_handoff_choice_panel.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/router/archetype_route_gate.dart';
+import 'package:mint_mobile/routes/coach_chat_entry_payload.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
@@ -128,7 +129,6 @@ import 'package:mint_mobile/providers/waitlist_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
@@ -694,18 +694,13 @@ final _router = GoRouter(
               path: '/coach/chat',
               scope: RouteScope.public,
               builder: (context, state) {
-                final topic = state.uri.queryParameters['topic'];
                 final conversationId =
                     state.uri.queryParameters['conversationId'];
-                // Build a CoachEntryPayload from the topic query param.
-                // This replaces the old ?prompt= pattern with structured data.
-                final CoachEntryPayload? entryPayload = topic != null
-                    ? CoachEntryPayload(
-                        source: CoachEntrySource.direct,
-                        topic: topic,
-                      )
-                    : null;
+                final entryPayload = coachChatEntryPayloadFromQuery(
+                  state.uri.queryParameters,
+                );
                 return CoachChatScreen(
+                  key: ValueKey(state.uri.toString()),
                   entryPayload: entryPayload,
                   conversationId: conversationId,
                   isEmbeddedInTab: true,

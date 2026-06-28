@@ -71,6 +71,9 @@ class LocalFallbackService {
       if (!_specializedTopics.contains(topic)) continue;
       final template = _templateFor(topic, context);
       if (template != null) {
+        if (topic == 'salaried_lpp_3a_ceiling') {
+          return '$template\n\n_${ComplianceGuard.standardDisclaimer}_';
+        }
         return '$template\n\n$_retryMessage\n\n_${ComplianceGuard.standardDisclaimer}_';
       }
     }
@@ -96,6 +99,12 @@ class LocalFallbackService {
       matched.add('independent_no_lpp_3a');
     }
 
+    if (_mentions3a(lower) &&
+        _mentionsCeiling(lower) &&
+        (_mentionsLppAffiliation(lower) || _mentionsSalaried(lower))) {
+      matched.add('salaried_lpp_3a_ceiling');
+    }
+
     for (final entry in _topicKeywords.entries) {
       for (final keyword in entry.value) {
         if (lower.contains(keyword)) {
@@ -109,19 +118,31 @@ class LocalFallbackService {
   }
 
   static List<String> _prioritizeTopics(List<String> topics) {
-    if (!topics.contains('independent_no_lpp_3a')) {
-      return topics;
-    }
-
-    return [
+    const priority = [
       'independent_no_lpp_3a',
-      ...topics.where((topic) => topic != 'independent_no_lpp_3a'),
+      'salaried_lpp_3a_ceiling',
+    ];
+    return [
+      ...priority.where(topics.contains),
+      ...topics.where((topic) => !priority.contains(topic)),
     ];
   }
 
   static const Set<String> _specializedTopics = {
     'independent_no_lpp_3a',
+    'salaried_lpp_3a_ceiling',
   };
+
+  static bool detectsSalariedLpp3aCeiling({
+    required String userMessage,
+    CoachContext? context,
+  }) {
+    final topics = _prioritizeTopics(_detectTopics(
+      userMessage,
+      context: context,
+    ));
+    return topics.isNotEmpty && topics.first == 'salaried_lpp_3a_ceiling';
+  }
 
   static bool _mentionsIndependent(String lower) =>
       lower.contains('indépendant') ||
@@ -155,6 +176,19 @@ class LocalFallbackService {
       lower.contains('pilier 3a') ||
       lower.contains('troisième pilier') ||
       lower.contains('3ème pilier');
+
+  static bool _mentionsCeiling(String lower) =>
+      lower.contains('plafond') ||
+      lower.contains('maximum') ||
+      lower.contains('limite') ||
+      lower.contains('déductible') ||
+      lower.contains('deductible');
+
+  static bool _mentionsSalaried(String lower) =>
+      lower.contains('salarié') ||
+      lower.contains('salarie') ||
+      lower.contains('employé') ||
+      lower.contains('employe');
 
   /// Keywords for each supported generic topic.
   static const Map<String, List<String>> _topicKeywords = {
@@ -224,9 +258,23 @@ class LocalFallbackService {
   static String? _templateFor(String topic, CoachContext? context) {
     return switch (topic) {
       'independent_no_lpp_3a' => _independentNoLpp3aTemplate(context),
+      'salaried_lpp_3a_ceiling' => _salariedLpp3aCeilingTemplate(),
       '3a' => _pillar3aTemplate,
       _ => _templates[topic],
     };
+  }
+
+  static String _salariedLpp3aCeilingTemplate() {
+    final withLppMax = _formatChfSwissApostrophe(
+      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+    );
+
+    return 'Plafond 3a avec LPP\n\n'
+        'Pour 2026, si tu es affilié·e à une caisse de pension LPP, le '
+        'plafond légal 3a déductible est de $withLppMax/an. Ce plafond '
+        'n\'est pas une recommandation de versement; vérifie ta liquidité, '
+        'ton budget, tes impôts et les versements 3a déjà effectués.\n\n'
+        'Réf.\u00a0: OPP3 art. 7; LIFD art. 33 al. 1 let. e.';
   }
 
   static String _independentNoLpp3aTemplate(CoachContext? context) {
@@ -564,6 +612,15 @@ class LocalFallbackService {
       (_) => '\u00a0',
     );
     return '$grouped\u00a0CHF';
+  }
+
+  static String _formatChfSwissApostrophe(double amount) {
+    final digits = amount.round().toString();
+    final grouped = digits.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (_) => "'",
+    );
+    return '$grouped CHF';
   }
 
   static String _formatPercent(double rate) {

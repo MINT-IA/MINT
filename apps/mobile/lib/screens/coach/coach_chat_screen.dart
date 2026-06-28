@@ -27,6 +27,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/telemetry/gate_decision_telemetry.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/coach/local_fallback_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
@@ -1346,18 +1347,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         isLoggedIn: isLoggedIn,
       );
 
+      final deterministicLocalStatutory =
+          _isDeterministicLocalStatutoryResponse(
+        userMessage: text,
+        response: response,
+      );
       final hardGateLocalOrRefusal = FeatureFlags.enableCoachHardGate &&
           _profile?.archetype != FinancialArchetype.swissNative;
-      final tier = hardGateLocalOrRefusal || response.refused
+      final tier = deterministicLocalStatutory ||
+              hardGateLocalOrRefusal ||
+              response.refused
           ? ChatTier.none
           : config.hasApiKey
               ? ChatTier.byok
               : ChatTier.fallback;
 
       // Phase 1: generate inline response cards from user message context
-      final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text, l: l10n)
-          : <ResponseCard>[];
+      final cards = deterministicLocalStatutory
+          ? <ResponseCard>[]
+          : _profile != null
+              ? ResponseCardService.generateForChat(_profile!, text, l: l10n)
+              : <ResponseCard>[];
 
       // Wire Spec V2 §3.6: parse tool call markers from response.
       final parseResult = ToolCallParser.parse(response.message);
@@ -1562,6 +1572,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  bool _isDeterministicLocalStatutoryResponse({
+    required String userMessage,
+    required CoachResponse response,
+  }) {
+    if (_profile == null) return false;
+    if (!response.message.contains('Plafond 3a avec LPP')) return false;
+    if (!response.message.contains('OPP3 art. 7')) return false;
+
+    return LocalFallbackService.detectsSalariedLpp3aCeiling(
+      userMessage: userMessage,
+      context: _buildCoachContext(_profile!),
+    );
   }
 
   // ════════════════════════════════════════════════════════════

@@ -381,6 +381,15 @@ class CoachOrchestrator {
       );
     }
 
+    final deterministicLocal = _safeDeterministicLocalChat(
+      language: language,
+      userMessage: userMessage,
+      context: ctx,
+    );
+    if (deterministicLocal != null) {
+      return deterministicLocal;
+    }
+
     // Build system prompt with optional memory block injection (S58).
     // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
     // instead of bare baseSystemPrompt for chat interactions.
@@ -1203,6 +1212,32 @@ class CoachOrchestrator {
       languageCode,
       ComplianceGuard.standardDisclaimer,
     );
+    return CoachResponse(
+      message: message,
+      disclaimer: ComplianceGuard.standardDisclaimer,
+      wasFiltered: false,
+    );
+  }
+
+  static CoachResponse? _safeDeterministicLocalChat({
+    required String language,
+    required String userMessage,
+    required CoachContext context,
+  }) {
+    if (language != 'fr') return null;
+    if (!LocalFallbackService.detectsSalariedLpp3aCeiling(
+      userMessage: userMessage,
+      context: context,
+    )) {
+      return null;
+    }
+
+    final message = LocalFallbackService.generateSpecializedFallback(
+      userMessage: userMessage,
+      context: context,
+    );
+    if (message == null) return null;
+
     return CoachResponse(
       message: message,
       disclaimer: ComplianceGuard.standardDisclaimer,
