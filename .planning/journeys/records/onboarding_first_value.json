@@ -93,6 +93,15 @@
       "reason": "Clean-tree Journey OS top replay built, booted, installed, and launched the iPhone 13 mini simulator app from commit 92a7b7b81, then caught the active JOS-005 failure because rente_vs_capital_screen was not visible.",
       "verified_at": "2026-06-28T03:02:52Z",
       "verified_commit": "92a7b7b8115a65d9ba0f90bbc0c820e98beb0b16"
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T031810Z/onboarding_first_value/result.xml",
+      "reason": "Clean-tree Journey OS top replay built, booted, installed, and launched the iPhone 13 mini simulator app from commit c4ad45319 after negative provenance guards landed, then caught the active JOS-005 failure because rente_vs_capital_screen was not visible.",
+      "verified_at": "2026-06-28T03:19:17Z",
+      "verified_commit": "c4ad453190c6a195b94aa8fb1b198f3f6591ad44"
     }
   ]
 }
