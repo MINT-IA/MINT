@@ -52,7 +52,7 @@
       "artifact": ".planning/journeys/evidence/account_lifecycle_delete/20260626T200541Z/result.xml",
       "reason": "Runtime proof drives recovery entry, real register, onboarding profile seal, privacy controls, privacy center delete confirmation, DELETE /auth/account, and post-delete signed-out recovery state.",
       "verified_at": "2026-06-26T20:05:41Z",
-      "verified_commit": "c13e48a9cde379ffbe817f2abfb70f8b41255ff8"
+      "verified_commit": "63220e05c5d0fda840186fd68c83fffbede73259"
     }
   ]
 }

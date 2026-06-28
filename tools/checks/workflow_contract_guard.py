@@ -40,6 +40,7 @@ CI_TESTS = (
     "tools/checks/tests/test_agent_reference_guard.py",
     "tools/checks/tests/test_claude_hooks_guard.py",
     "tools/checks/tests/test_journey_os_check.py",
+    "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
     "tools/checks/tests/test_verify_phase_acceptance.py",
 )

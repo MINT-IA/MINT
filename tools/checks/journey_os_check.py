@@ -54,6 +54,7 @@ ALLOW = {
     "tools/checks/workflow_contract_guard.py",
     "tools/checks/tests/test_active_context_guard.py",
     "tools/checks/tests/test_journey_os_check.py",
+    "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
 }
@@ -210,7 +211,7 @@ def _artifact_ok(root: Path, value: Any) -> bool:
         return False
     return (root / path).exists()
 
-def _junit_counts(path: Path) -> tuple[int, int, int, int]:
+def _junit_counts(path: Path) -> tuple[int, int, int, int, int]:
     root = ElementTree.parse(path).getroot()
     declared_tests = sum(int(node.attrib.get("tests", "0") or 0) for node in root.iter() if node.tag.endswith("testsuite"))
     testcase_nodes = sum(1 for node in root.iter() if node.tag.endswith("testcase"))
@@ -218,7 +219,10 @@ def _junit_counts(path: Path) -> tuple[int, int, int, int]:
     failures = sum(int(node.attrib.get("failures", "0") or 0) for node in root.iter() if node.tag.endswith("testsuite"))
     errors = sum(int(node.attrib.get("errors", "0") or 0) for node in root.iter() if node.tag.endswith("testsuite"))
     failure_nodes = sum(1 for node in root.iter() if node.tag.endswith("failure") or node.tag.endswith("error"))
-    return tests, failures, errors, failure_nodes
+    declared_skipped = sum(int(node.attrib.get("skipped", "0") or 0) for node in root.iter() if node.tag.endswith("testsuite"))
+    skipped_nodes = sum(1 for node in root.iter() if node.tag.endswith("skipped"))
+    skipped = max(declared_skipped, skipped_nodes)
+    return tests, failures, errors, failure_nodes, skipped
 
 def _valid_verified_at(value: Any) -> bool:
     if not isinstance(value, str) or not value.endswith("Z"):
@@ -227,10 +231,27 @@ def _valid_verified_at(value: Any) -> bool:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
         return False
-    return parsed.tzinfo == timezone.utc
+    now = datetime.now(timezone.utc)
+    return parsed.tzinfo == timezone.utc and parsed <= now
 
-def _valid_verified_commit(value: Any) -> bool:
-    return isinstance(value, str) and bool(FULL_SHA_RE.fullmatch(value))
+def _valid_verified_commit(root: Path, value: Any) -> bool:
+    if not isinstance(value, str) or not FULL_SHA_RE.fullmatch(value):
+        return False
+    inside = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+    )
+    if inside.returncode or inside.stdout.strip() != "true":
+        return True
+    exists = subprocess.run(
+        ["git", "cat-file", "-e", f"{value}^{{commit}}"],
+        cwd=root,
+        text=True,
+        capture_output=True,
+    )
+    return exists.returncode == 0
 
 def _artifact_status_errors(root: Path, label: str, item: dict[str, Any]) -> list[str]:
     status = item.get("status")
@@ -246,11 +267,12 @@ def _artifact_status_errors(root: Path, label: str, item: dict[str, Any]) -> lis
         errors.append(f"{label} runtime text evidence must live under .planning/journeys/evidence/")
     if artifact_path.suffix == ".xml":
         try:
-            tests, failures, junit_errors, failure_nodes = _junit_counts(artifact_path)
+            tests, failures, junit_errors, failure_nodes, skipped = _junit_counts(artifact_path)
         except (OSError, ElementTree.ParseError, ValueError) as exc:
             return [f"{label} has unreadable JUnit artifact: {exc}"]
         failed = failures > 0 or junit_errors > 0 or failure_nodes > 0
-        if kind == "runtime" and tests == 0:
+        executed = max(tests - skipped, 0)
+        if kind == "runtime" and executed == 0:
             errors.append(f"{label} runtime JUnit artifact reports zero executed tests")
         if status == "green" and failed:
             errors.append(f"{label} is green but JUnit artifact reports failures/errors")
@@ -364,8 +386,8 @@ def _record_errors(root: Path, path: Path, data: dict[str, Any], routes: set[str
         if kind == "runtime" and status in {"green", "red", "baselined"} and has_artifact:
             if not _valid_verified_at(item.get("verified_at")):
                 errors.append(f"{label} durable runtime evidence requires verified_at as UTC ISO timestamp")
-            if not _valid_verified_commit(item.get("verified_commit")):
-                errors.append(f"{label} durable runtime evidence requires verified_commit as a full SHA")
+            if not _valid_verified_commit(root, item.get("verified_commit")):
+                errors.append(f"{label} durable runtime evidence requires verified_commit as a full SHA that exists in git history")
         if status == "baselined" and not item.get("debt_ref"):
             errors.append(f"{label} baselined evidence requires debt_ref")
         if status == "missing" and item.get("artifact") is not None:
