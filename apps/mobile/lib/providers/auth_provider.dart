@@ -1314,6 +1314,7 @@ class AuthProvider extends ChangeNotifier {
   /// Enable anonymous local mode so the router's auth guard lets users
   /// browse tabs without creating an account. Persisted across launches.
   Future<void> enableLocalMode() async {
+    if (_isLoggedIn && _userId != null && _userId!.isNotEmpty) return;
     _isLocalMode = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_authLocalModeKey, true);

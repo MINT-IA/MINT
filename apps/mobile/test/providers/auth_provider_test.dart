@@ -967,6 +967,46 @@ void main() {
       expect(provider.isLocalMode, isTrue);
     });
 
+    test('enableLocalMode does not downgrade an account session', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
+      await AuthService.saveToken(
+        'jwt',
+        'user-1',
+        'user@example.ch',
+        refreshToken: 'refresh',
+      );
+      ApiService.setHttpClientForTesting(
+        MintHttpClient(
+          MockClient((request) async {
+            if (request.url.path == '/api/v1/profiles/me') {
+              return http.Response(
+                '{}',
+                200,
+                headers: {'content-type': 'application/json'},
+              );
+            }
+            return http.Response('{"detail":"not found"}', 404);
+          }),
+        ),
+      );
+
+      await provider.checkAuth();
+      expect(provider.authLifecycle.state,
+          AuthLifecycleKind.signedInProfileMissing);
+
+      await provider.enableLocalMode();
+
+      expect(provider.authLifecycle.state,
+          AuthLifecycleKind.signedInProfileMissing);
+      expect(provider.authLifecycle.accessMode, AuthAccessMode.account);
+      expect(
+          provider.authLifecycle.activeDataScope, AuthDataScope.user('user-1'));
+      expect(provider.isLoggedIn, isTrue);
+      expect(provider.authLifecycle.allowsMainNavigation, isFalse);
+      expect(provider.authLifecycle.syncMode, AuthSyncMode.cloudSyncOff);
+    });
+
     test(
       'checkAuth with persisted local mode restores explicit guest lifecycle',
       () async {
