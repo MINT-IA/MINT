@@ -127,6 +127,29 @@ Forbidden:
 - direct product fix without a failing test or failing runtime contract;
 - large planning artifacts unless the user explicitly asks for one.
 
+## Claude Opus Reviews
+
+Use `tools/claude_review.sh` for external Claude/Opus diff review. Do not run
+raw `claude -p --model opus` for repo diffs: Opus can spend thousands of hidden
+thinking tokens before printing a normal result, which looks like a hang and can
+waste the review window.
+
+The wrapper is intentionally boring:
+
+- stream JSON by default, so thinking-token progress is visible;
+- `--safe-mode`, no Claude tools, no session persistence;
+- `permission-mode=dontAsk`, not permission bypass;
+- hard timeout and budget cap;
+- failure if Claude exits without answer text;
+- non-zero exit if Claude returns only a partial review after a CLI error.
+
+Typical usage:
+
+```bash
+MINT_CLAUDE_MODEL=opus tools/claude_review.sh --cached
+MINT_CLAUDE_MODEL=opus tools/claude_review.sh -- apps/mobile/lib/services/coach/
+```
+
 ## External Standards Baseline
 
 As of 2026-06, Mint mobile work uses:

@@ -199,10 +199,12 @@ def test_journey_os_workflow_files_are_in_scope(tmp_path: Path) -> None:
             "docs/MINT_AGENT_WORKFLOW.md",
             "lefthook.yml",
             "rules.md",
+            "tools/claude_review.py",
             "tools/claude_review.sh",
             "tools/checks/active_context_guard.py",
             "tools/checks/mint_rules_guard.py",
             "tools/checks/tests/test_active_context_guard.py",
+            "tools/checks/tests/test_claude_review.py",
             "tools/checks/tests/test_mint_rules_guard.py",
         ],
     )
