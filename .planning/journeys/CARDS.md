@@ -33,7 +33,7 @@ Generated from `.planning/journeys/records/*.json`. Do not edit directly.
 - Negative assertions: Freshness fallback must not replace the cited 2026 answer., Banned LSFin certainty terms must stay absent., Coach must not render framework exceptions or overflow text.
 - Routes: /coach/chat
 - APIs: POST /api/v1/coach/chat
-- Runtime replay: authenticated / auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml
+- Runtime replay: authenticated, top / auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml
 - Issues: JOS-004:proof_needed/baselined
 - Proof owner: mint-quality-gate
 - Fix owner: mint-swiss-brain
@@ -71,12 +71,12 @@ Generated from `.planning/journeys/records/*.json`. Do not edit directly.
 - Negative assertions: Account-creation gate must not replace the first-value destination., Beta modal must not block the onboarding axis proof., The route helper must not rely on a release-only debug path.
 - Routes: /onb, /rente-vs-capital, /coach/chat, /home
 - APIs: -
-- Runtime replay: top / no-auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml
-- Issues: JOS-005:regressed/red
+- Runtime replay: core / no-auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml
+- Issues: JOS-005:verified/green
 - Proof owner: mint-quality-gate
 - Fix owner: mint-mobile
-- Latest proof: red / runtime / 2026-06-28T04:06:22Z / e8810d03
-- Latest artifact: .planning/journeys/evidence/runtime_replay/20260628T040435Z/onboarding_first_value/result.xml
+- Latest proof: green / runtime / 2026-06-28T23:21:28Z / f7e92f87
+- Latest artifact: .planning/journeys/evidence/runtime_replay/20260628T231957Z/onboarding_first_value/result.xml
 
 ## profile_privacy_control
 

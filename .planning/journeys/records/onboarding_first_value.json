@@ -27,7 +27,7 @@
   "runtime_replay": {
     "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml",
     "sets": [
-      "top"
+      "core"
     ],
     "device": "MINT iPhone 13 mini RvC",
     "build_defines": [
@@ -93,6 +93,15 @@
       "reason": "Post-squash Journey OS top replay built, booted, installed, and launched the iPhone 13 mini simulator app from dev commit e8810d036, then caught the active JOS-005 failure because rente_vs_capital_screen was not visible.",
       "verified_at": "2026-06-28T04:06:22Z",
       "verified_commit": "e8810d036affb7925cee71047672e1cddfbfe0b8"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T231957Z/onboarding_first_value/result.xml",
+      "reason": "Fresh Journey OS replay from clean origin/dev after PR #766, PR #772, and PR #773: at run time the top set still pointed to onboarding_first_value, and the feature-flagged Mint2 first-experience entry reached the production /rente-vs-capital route before account creation on iPhone 13 mini. The E2E define enables this beta entry for proof; the route transition itself is the product path in OnboardingShellScreen. Release/non-E2E flag rollout remains separate, so the journey stays partial while JOS-005 is verified green. After recording this proof, onboarding_first_value moves to the core monitoring set and top moves to authenticated JOS-004.",
+      "verified_at": "2026-06-28T23:21:28Z",
+      "verified_commit": "f7e92f875ee4daee19ef43e6c40be0ffebb6a0bb"
     }
   ]
 }

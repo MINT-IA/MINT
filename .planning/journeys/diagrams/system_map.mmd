@@ -85,8 +85,8 @@ flowchart LR
   issue_JOS_002["JOS-002<br/>verified/green"]
   issue_JOS_002 --> journey_money_truth_spine
   class issue_JOS_002 green
-  journey_onboarding_first_value["onboarding_first_value<br/>partial<br/>latest red"]
-  class journey_onboarding_first_value red
+  journey_onboarding_first_value["onboarding_first_value<br/>partial<br/>latest green"]
+  class journey_onboarding_first_value green
   route_onb["/onb"]
   journey_onboarding_first_value --> route_onb
   class route_onb route
@@ -106,9 +106,9 @@ flowchart LR
   surface_MintStateProvider["MintStateProvider"]
   journey_onboarding_first_value -.-> surface_MintStateProvider
   class surface_MintStateProvider surface
-  issue_JOS_005["JOS-005<br/>regressed/red"]
+  issue_JOS_005["JOS-005<br/>verified/green"]
   issue_JOS_005 --> journey_onboarding_first_value
-  class issue_JOS_005 red
+  class issue_JOS_005 green
   journey_profile_privacy_control["profile_privacy_control<br/>partial<br/>latest green"]
   class journey_profile_privacy_control green
   journey_profile_privacy_control --> route_profile_privacy_control
