@@ -179,6 +179,8 @@ class _NoRagOrchestrator:
         system_prompt: Optional[str] = None,
         user_id: Optional[str] = None,
         conversation_history: list[dict] | None = None,
+        tool_choice: dict | None = None,
+        cursor_level: Optional[str] = None,
     ) -> dict:
         from app.services.rag.llm_client import LLMClient
         from app.services.rag.guardrails import ComplianceGuardrails
@@ -213,7 +215,11 @@ class _NoRagOrchestrator:
         # which would force the safe fallback. The agent loop continues and the
         # next iteration produces the user-facing text.
         if response_text and response_text.strip():
-            filtered = guardrails.filter_response(response_text, language)
+            filtered = guardrails.filter_response(
+                response_text,
+                language,
+                cursor_level=cursor_level,
+            )
             answer_text = filtered["text"]
             disclaimers_out = filtered["disclaimers_added"]
         else:
@@ -2677,6 +2683,7 @@ async def _call_with_fallback(
     conversation_history: Optional[list],
     n_results: int = 5,
     tool_choice: Optional[dict] = None,
+    cursor_level: Optional[str] = None,
 ) -> tuple[dict, dict]:
     """Call orchestrator.query() with Sonnet→Haiku graceful degradation.
 
@@ -2722,6 +2729,7 @@ async def _call_with_fallback(
             conversation_history=q_history,
             n_results=n_results,  # Wave 1c-A2 plumbing
             tool_choice=tool_choice,  # WS-B Plan 05 — forced explain_concept (first call)
+            cursor_level=cursor_level,
         )
 
     try:
@@ -4356,6 +4364,7 @@ async def _run_agent_loop(
     detected_intents: Optional[set[str]] = None,
     tools: Optional[list[dict]] = None,
     background_tasks: Optional[BackgroundTasks] = None,
+    cursor_level: Optional[str] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -4542,6 +4551,7 @@ async def _run_agent_loop(
                     conversation_history=iter_history,
                     n_results=_n_results_for_call,  # Wave 1c-A2
                     tool_choice=_forced_tool_choice,  # WS-B Plan 05 (first call only)
+                    cursor_level=cursor_level,
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
@@ -5503,6 +5513,9 @@ async def coach_chat(
         # handlers (pre_compute.precompute_after_fact_save site).
         background_tasks=background_tasks,
     )
+    # Legacy transport name: cash_level/cashLevel is the voice-intensity
+    # cursor (N1-N5), not a balance or cash-buffer tier.
+    _initial_loop_kwargs["cursor_level"] = f"N{body.cash_level}"
     # None → the gate uses the global CITATION_REGISTRY keys (the
     # bundle-compiler compile-time allowlist was removed in Plan 07).
     _gate_allowlist = None

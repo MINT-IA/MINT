@@ -137,6 +137,23 @@ class TestTokenize:
 # ── Non-French filter_response (multilingual disclaimer path) ──
 
 class TestNonFrenchFilterResponse:
+    def test_french_n4_cursor_blocks_high_register_drift(self, svc):
+        result = svc.filter_response(
+            "Ton voisin a deja bouge, toi tu es en retard.",
+            language="fr",
+            cursor_level="N4",
+        )
+        assert result["text"] == svc._SAFE_FALLBACK_FR
+        assert any("shame_vector" in warning for warning in result["warnings"])
+
+    def test_french_missing_cursor_benign_named_instrument_remains_non_blocking(self, svc):
+        result = svc.filter_response(
+            "MSCI World est cite ici comme exemple pedagogique, sans recommandation.",
+            language="fr",
+        )
+        assert result["text"] != svc._SAFE_FALLBACK_FR
+        assert result["warnings"] == []
+
     def test_german_disclaimers(self, svc):
         result = svc.filter_response(
             "Dein Lohn ist 7600 CHF. Steuerlich optimal.",

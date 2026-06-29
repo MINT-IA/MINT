@@ -477,3 +477,60 @@ class TestSocialComparisonPatterns:
     def test_catches_au_dessus_de_la_moyenne(self, guard):
         result = guard.validate("Ton score est au-dessus de la moyenne.")
         assert any("prescriptif" in v.lower() for v in result.violations)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Layer 2b: High-register cursor enforcement
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestHighRegisterCursorEnforcement:
+    """N4/N5 drift must be withheld, not merely reported."""
+
+    def test_n4_shame_vector_forces_fallback(self, guard):
+        result = guard.validate(
+            "Ton voisin a deja bouge, toi tu es en retard.",
+            cursor_level="N4",
+        )
+        assert result.use_fallback
+        assert any("shame_vector" in v for v in result.violations)
+
+    def test_n5_named_product_drift_forces_fallback(self, guard):
+        result = guard.validate(
+            "Si tu veux que ca pique vraiment, regarde UBS et MSCI World.",
+            cursor_level="N5",
+        )
+        assert result.use_fallback
+        assert any("prescription_drift" in v for v in result.violations)
+
+    def test_n4_voice_only_drift_forces_fallback(self, guard):
+        result = guard.validate(
+            "Arrete de regarder ce releve comme une sentence.",
+            cursor_level="N4",
+        )
+        assert result.use_fallback
+        assert any("imperative_no_hedge" in v for v in result.violations)
+
+    def test_n5_benign_high_register_reply_remains_non_blocking(self, guard):
+        result = guard.validate(
+            "3a 2025: 0 franc. Plafond: 7'258 francs. "
+            "Echeance: 31 decembre. On en reparle quand tu veux.",
+            cursor_level="N5",
+        )
+        assert not result.use_fallback
+        assert result.violations == []
+
+    def test_n3_voice_only_drift_remains_non_blocking(self, guard):
+        result = guard.validate(
+            "Arrete de regarder ce releve comme une sentence.",
+            cursor_level="N3",
+        )
+        assert not result.use_fallback
+        assert not any("imperative_no_hedge" in v for v in result.violations)
+
+    def test_missing_cursor_benign_named_instrument_remains_non_blocking(self, guard):
+        result = guard.validate(
+            "MSCI World est cite ici comme exemple pedagogique, sans recommandation."
+        )
+        assert not result.use_fallback
+        assert result.violations == []

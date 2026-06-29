@@ -48,6 +48,7 @@ class RAGOrchestrator:
         user_id: Optional[str] = None,
         conversation_history: list[dict] | None = None,
         tool_choice: dict | None = None,
+        cursor_level: Optional[str] = None,
     ) -> dict:
         """
         Execute the full RAG pipeline.
@@ -153,7 +154,11 @@ class RAGOrchestrator:
         # already in _NoRagOrchestrator (coach_chat.py L151-157, fix from
         # commit 3483f4e3 2026-04-14 that was never ported here).
         if response_text and response_text.strip():
-            filtered = self.guardrails.filter_response(response_text, language)
+            filtered = self.guardrails.filter_response(
+                response_text,
+                language,
+                cursor_level=cursor_level,
+            )
         else:
             filtered = {"text": "", "warnings": [], "disclaimers_added": []}
 

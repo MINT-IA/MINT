@@ -274,7 +274,12 @@ class ComplianceGuardrails:
         "pour des estimations chiffrées."
     )
 
-    def filter_response(self, response: str, language: str = "fr") -> dict:
+    def filter_response(
+        self,
+        response: str,
+        language: str = "fr",
+        cursor_level: Optional[str] = None,
+    ) -> dict:
         """
         Apply compliance filters to a generated response.
 
@@ -303,7 +308,7 @@ class ComplianceGuardrails:
                 from app.services.coach.compliance_guard import ComplianceGuard
 
                 guard = ComplianceGuard()
-                result = guard.validate(response)
+                result = guard.validate(response, cursor_level=cursor_level)
                 filter_warnings.extend(result.violations)
                 if result.use_fallback:
                     # CRIT #3 fix: when ComplianceGuard rejects (prescriptive,
