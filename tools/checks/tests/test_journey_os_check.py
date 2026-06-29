@@ -386,6 +386,22 @@ def test_jos006_coach_cta_stack_contract_scope_is_in_scope(tmp_path: Path) -> No
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_coach_chat_widget_regression_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/test/screens/coach/coach_chat_test.dart",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
     flow = (
         journey_os_check.REPO_ROOT

@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -39,6 +40,15 @@ import '../../semantics_test_helpers.dart';
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN TESTS — Phase 4 / BYOK + RAG wiring
 // ────────────────────────────────────────────────────────────
+
+class _LifecycleAuthProvider extends AuthProvider {
+  _LifecycleAuthProvider(this._lifecycle);
+
+  final AuthLifecycleState _lifecycle;
+
+  @override
+  AuthLifecycleState get authLifecycle => _lifecycle;
+}
 
 void main() {
   // FIX-P1-7: Register orchestrator (no longer auto-imported by coach_llm_service).
@@ -197,6 +207,72 @@ void main() {
           contextBuilder: contextBuilder,
           conversationId: conversationId,
         ),
+      ),
+    );
+  }
+
+  Widget buildRoutedCoachWidget({
+    required AuthProvider authProvider,
+    CoachProfileProvider? profileProviderOverride,
+    String initialLocation = '/coach/chat',
+  }) {
+    final router = GoRouter(
+      initialLocation: initialLocation,
+      routes: [
+        GoRoute(
+          path: '/source',
+          builder: (context, __) => Scaffold(
+            body: Column(
+              children: [
+                const Text('source route'),
+                TextButton(
+                  onPressed: () => context.push('/coach/chat'),
+                  child: const Text('open coach'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/coach/chat',
+          builder: (_, __) => CoachChatScreen(
+            contextBuilder: emptyContextBuilder,
+          ),
+        ),
+        GoRoute(
+          path: '/home',
+          builder: (_, __) => const Scaffold(
+            body: Text('home route'),
+          ),
+        ),
+        GoRoute(
+          path: '/onb',
+          builder: (_, __) => const Scaffold(
+            body: Text('onboarding route'),
+          ),
+        ),
+      ],
+    );
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: profileProviderOverride ?? CoachProfileProvider(),
+        ),
+        ChangeNotifierProvider(create: (_) => ByokProvider()),
+        ChangeNotifierProvider.value(value: MintStateProvider()),
+        ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+      ],
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
       ),
     );
   }
@@ -771,6 +847,73 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+    });
+
+    testWidgets('standalone back returns explicit guests to the shell',
+        (tester) async {
+      usePhoneViewport(tester);
+      final authProvider = _LifecycleAuthProvider(
+        AuthLifecycleState.guestEmpty(installId: 'install-1'),
+      );
+
+      await tester.pumpWidget(buildRoutedCoachWidget(
+        authProvider: authProvider,
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('home route'), findsOneWidget);
+      expect(find.text('onboarding route'), findsNothing);
+    });
+
+    testWidgets('standalone back returns fresh visitors to onboarding',
+        (tester) async {
+      usePhoneViewport(tester);
+      final authProvider = _LifecycleAuthProvider(
+        AuthLifecycleState.freshVisitor(),
+      );
+
+      await tester.pumpWidget(buildRoutedCoachWidget(
+        authProvider: authProvider,
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('onboarding route'), findsOneWidget);
+      expect(find.text('home route'), findsNothing);
+    });
+
+    testWidgets('standalone back pops existing stack before fallback',
+        (tester) async {
+      usePhoneViewport(tester);
+      final authProvider = _LifecycleAuthProvider(
+        AuthLifecycleState.freshVisitor(),
+      );
+
+      await tester.pumpWidget(buildRoutedCoachWidget(
+        authProvider: authProvider,
+        initialLocation: '/source',
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(find.text('open coach'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(CoachChatScreen), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('source route'), findsOneWidget);
+      expect(find.text('onboarding route'), findsNothing);
+      expect(find.text('home route'), findsNothing);
     });
 
     testWidgets('shows suggested action chips', (tester) async {
