@@ -126,6 +126,12 @@ AuthError _authErrorFromException(Object error) {
     return AuthError.registrationUnavailable;
   }
 
+  if (lower.contains('apple identity') ||
+      lower.contains('apple sign-in audience') ||
+      lower.contains('apple sign-in verification failed')) {
+    return AuthError.serviceUnavailable;
+  }
+
   final platformText = error is PlatformException
       ? [
           error.code,
