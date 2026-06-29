@@ -408,10 +408,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ],
                         const SizedBox(height: MintSpacing.lg),
-                        if (canShowAppleSignIn) ...[
-                          _buildRequiredConsents(l10n),
-                          const SizedBox(height: MintSpacing.lg),
-                        ],
                         if (_showEmailForm) ...[
                           // Email field
                           MintEntrance(
@@ -641,10 +637,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             password: _passwordController.text,
                           ),
                           const SizedBox(height: MintSpacing.lg),
-                          if (!canShowAppleSignIn) ...[
-                            _buildRequiredConsents(l10n),
-                            const SizedBox(height: MintSpacing.sm + 4),
-                          ],
+                          _buildRequiredConsents(l10n),
+                          const SizedBox(height: MintSpacing.sm + 4),
                           // "Consentements optionnels" divider
                           Row(
                             children: [

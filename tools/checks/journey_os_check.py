@@ -101,6 +101,7 @@ ALLOW = {
     "tools/contracts/regen_screen_registry_contract.py",
     "tools/contracts/screen_registry.json",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml",

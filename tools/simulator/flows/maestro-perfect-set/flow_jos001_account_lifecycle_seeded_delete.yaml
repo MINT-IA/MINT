@@ -55,8 +55,6 @@ tags:
 - extendedWaitUntil:
     visible: "Adresse e-mail"
     timeout: 8000
-- tapOn: ".*J'ai lu et j'accepte.*"
-- tapOn: ".*Je confirme avoir 18 ans.*"
 - tapOn: "Adresse e-mail"
 - inputText: ${MINT_E2E_EMAIL}
 - pressKey: Enter
@@ -75,9 +73,16 @@ tags:
 - tapOn: "Confirmer le mot de passe"
 - inputText: ${MINT_E2E_PASSWORD}
 - pressKey: Enter
-- extendedWaitUntil:
-    visible: "Créer mon compte"
-    timeout: 5000
+- scrollUntilVisible:
+    element: { text: ".*J'ai lu et j'accepte.*" }
+    direction: DOWN
+    timeout: 8000
+- tapOn: ".*J'ai lu et j'accepte.*"
+- tapOn: ".*Je confirme avoir 18 ans.*"
+- scrollUntilVisible:
+    element: { text: "Créer mon compte" }
+    direction: DOWN
+    timeout: 8000
 - tapOn: "Créer mon compte"
 - waitForAnimationToEnd:
     timeout: 20000

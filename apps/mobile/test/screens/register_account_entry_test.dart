@@ -77,6 +77,10 @@ void main() {
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
       expect(emailField, findsOneWidget);
       expect(tester.getTopLeft(emailField).dy, lessThan(844));
+      expect(
+        tester.getTopLeft(emailField).dy,
+        lessThan(tester.getTopLeft(find.byType(Checkbox).first).dy),
+      );
       expect(find.text('Créer avec e-mail'), findsNothing);
     } finally {
       debugDefaultTargetPlatformOverride = null;
