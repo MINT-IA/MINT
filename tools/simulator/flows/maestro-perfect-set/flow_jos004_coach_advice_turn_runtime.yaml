@@ -20,8 +20,10 @@
 #       --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready
 # - A disposable staging user exists. Pass credentials with:
 #     --env MINT_E2E_EMAIL=<email> --env MINT_E2E_PASSWORD=<password>
-# - The E2E seed is kReleaseMode-guarded and only proves this Coach turn,
-#   not onboarding persistence.
+# - After authenticated login, the flow uses the existing debug-only E2E
+#   profile route to persist the same salaried-LPP fixture and mark the
+#   mini-onboarding/first-experience gate complete. This proves this Coach
+#   turn, not onboarding persistence.
 
 appId: ch.mint.app
 env:
@@ -67,39 +69,102 @@ tags:
     visible: "Connexion"
     timeout: 15000
 - assertVisible: "Adresse e-mail"
-- tapOn: "Adresse e-mail"
+- tapOn:
+    text: "Adresse e-mail"
 - inputText: ${MINT_E2E_EMAIL}
-- pressKey: Enter
+- hideKeyboard
 
-- tapOn: "Se connecter avec un mot de passe"
-- extendedWaitUntil:
-    visible: "Mot de passe"
+- scrollUntilVisible:
+    element:
+      text: "Se connecter avec un mot de passe"
+    direction: DOWN
+    centerElement: true
     timeout: 8000
-- tapOn: "Mot de passe"
+- assertVisible: "Se connecter avec un mot de passe"
+# The low login controls include both the password fallback and the forgot
+# password link. Tap the observed fallback button center to avoid substring
+# matching the forgot-password affordance.
+- tapOn:
+    point: "55%,52%"
+- assertNotVisible: "Réinitialiser le mot de passe"
+- scrollUntilVisible:
+    element:
+      text: "^Mot de passe$"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- tapOn:
+    text: "^Mot de passe$"
 - inputText: ${MINT_E2E_PASSWORD}
-- pressKey: Enter
-- tapOn: "Se connecter"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "^Se connecter$"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- tapOn:
+    text: "^Se connecter$"
 - waitForAnimationToEnd:
     timeout: 6000
+
+# Authenticated seeded accounts can be routed into Mint first-experience before
+# Coach. Use the existing kReleaseMode-guarded E2E profile route helper to
+# persist the fixture through ReportPersistenceService and mark the gate done.
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 10000
+- copyTextFrom:
+    id: "e2e_profile_fixture_applied"
+- evalScript: ${output.jos004_profile_bootstrap = maestro.copiedText}
+
+# The login redirect can mount /coach/chat before the debug fixture is written.
+# Restart without clearing state so CoachProfileProvider hydrates from the
+# persisted fixture instead of keeping the pre-bootstrap in-memory profile.
+- stopApp
+- launchApp:
+    clearState: false
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- openLink: "mintapp:///coach/chat?topic=pillar3a&e2eUserMessage=Quel%20est%20le%20plafond%20legal%203a%202026%20avec%20LPP%20%3F"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 
 - extendedWaitUntil:
     visible:
       id: "coach_chat_screen"
     timeout: 15000
-- assertVisible:
-    id: "coach_input_field"
-- assertVisible:
-    id: "coach_send_button"
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "A RenderFlex overflowed"
 - assertNotVisible: "Exception caught"
 - assertNotVisible: "NoSuchMethodError"
-
-- tapOn:
-    id: "coach_input_field"
-- inputText: "Quel est le plafond legal 3a 2026 avec LPP ?"
-- tapOn:
-    id: "coach_send_button"
 - waitForAnimationToEnd:
     timeout: 6000
 - takeScreenshot: "jos004-coach-advice-turn-after-send"

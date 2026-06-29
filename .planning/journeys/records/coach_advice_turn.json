@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "coach_advice_turn",
+  "title": "Coach advice turn",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "When Coach gives a number, it is current, cited, and bounded.",
+  "accountable_team": "mint-swiss-brain",
+  "personas": [
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "entry_state": "Authenticated seeded Swiss salaried-LPP user opens Coach after the debug-only profile helper has persisted the same fixture.",
+  "account_state": "Authenticated staging account with first-experience gate completed by the E2E route helper.",
+  "success_state": "Coach answers the 2026 3a/LPP ceiling question with a visible current number, legal provenance, and no certainty-language regression.",
+  "negative_assertions": [
+    "Freshness fallback must not replace the cited 2026 answer.",
+    "Banned LSFin certainty terms must stay absent.",
+    "Coach must not render framework exceptions or overflow text."
+  ],
+  "source_spec_refs": [
+    "docs/coach-tool-routing.md",
+    "docs/MINT_AGENT_WORKFLOW.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-swiss-brain",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+    "sets": [
+      "authenticated",
+      "top"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready"
+    ],
+    "requires_auth": true,
+    "order": 10
+  },
+  "route_paths": [
+    "/coach/chat"
+  ],
+  "surfaces": [
+    "CoachOrchestrator",
+    "CoachContextPacket",
+    "ComplianceGuard"
+  ],
+  "external_apis": [
+    "POST /api/v1/coach/chat"
+  ],
+  "issues": [
+    "CJT-011",
+    "JOURNEY-TRUTH-MATRIX-014",
+    "JOS-004"
+  ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 4,
+    "evidence_gap": 3,
+    "route_centrality": 4,
+    "compliance_risk": 5,
+    "learning_value": 5,
+    "proof_cost": 4,
+    "rationale": "Coach advice can damage financial trust fastest; cited-number quality remains broader than the existing 3a proof."
+  },
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658/result.xml tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075658/result.xml",
+      "reason": "CJT-011 durable runtime proof shows the 3a answer path reached Coach and asserted current cited 3a values; broader advice quality remains partial.",
+      "verified_at": "2026-06-02T07:56:58Z",
+      "verified_commit": "4c15b8a7ba10aceb790339200b617e854738759d"
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --debug --no-codesign --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 --dart-define=MINT_DISABLE_BETA_MODAL=true --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready && cd ../.. && MINT_WALKER_ARTIFACTS=/tmp/mint-jos004-coach-advice-turn-20260627T023232Z MAESTRO_HARD_LIMIT=600 MAESTRO_STALL_THRESHOLD=150 bash tools/simulator/maestro_with_watchdog.sh test --debug-output /tmp/mint-jos004-coach-advice-turn-20260627T023232Z/debug --format junit --output .planning/journeys/evidence/coach_advice_turn/20260627T023232Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+      "artifact": ".planning/journeys/evidence/coach_advice_turn/20260627T023232Z/result.xml",
+      "reason": "Fresh Journey OS proof reaches Coach with the canonical salaried-LPP seed, asks the 2026 3a/LPP ceiling question, and receives the freshness fallback instead of a visible 7'258 CHF cited answer.",
+      "verified_at": "2026-06-27T02:35:11Z",
+      "verified_commit": "0ba2497df9e670fed74f88c8648a2bd03aa810ed"
+    },
+    {
+      "kind": "runtime",
+      "status": "baselined",
+      "command": "source /tmp/mint-jos004-staging-account.env && /Users/julienbattaglia/.maestro/bin/maestro test --env MINT_E2E_EMAIL=[REDACTED_EMAIL] --env MINT_E2E_PASSWORD=[REDACTED_PASSWORD] tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+      "artifact": ".planning/journeys/evidence/coach_advice_turn/20260627T172841Z/maestro.txt",
+      "reason": "Fresh Journey OS run logs into staging, uses the existing debug-only profile route to complete first-experience state, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and sees 7'258 with OPP3/LIFD provenance while the fallback and bounded-advice banned terms stay absent. The raw log lacks a flow-level [Passed]/Flow Passed marker, so Journey OS treats it as baselined, not green.",
+      "verified_at": "2026-06-27T17:28:41Z",
+      "verified_commit": "4cb5c173b998868cd73f9bdf6aebc718bc4bffa6",
+      "debt_ref": "JOS-004-flow-pass-marker-required"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "authenticated local E2E env mapped into bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T234759Z/coach_advice_turn/result.xml",
+      "reason": "Fresh Journey OS top replay validates the PR #772 fix commit e8fbd58b3 as an ancestor of replay head 52935411, logs into staging, seeds the cadre_salarie_lpp_suisse_ready profile through the existing debug-only route helper, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and commits durable JUnit evidence with status SUCCESS.",
+      "verified_at": "2026-06-28T23:50:28Z",
+      "verified_commit": "52935411f36c693aad8dce1f18036f9e8e0bd772"
+    }
+  ]
+}

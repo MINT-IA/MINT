@@ -1,0 +1,47 @@
+Command:
+MINT2_QUALITY_ARTIFACTS=/tmp/mint-jos005-onboarding-first-value-20260627T175336Z bash tools/simulator/mint2_quality_gate.sh
+
+Runtime:
+- Branch: codex/jos005-onboarding-first-value-20260627
+- Head: cc58ad2a0e5113679412118ae9631c52a328496d
+- Simulator: MINT iPhone 13 mini RvC
+- Device UDID: 3D0534A9-8C3A-4663-9348-106D0599E9D6
+- API base URL: https://mint-staging.up.railway.app/api/v1
+- Fresh state: simulator keychain reset; ch.mint.app uninstalled before run
+- Build defines: MINT_DISABLE_BETA_MODAL=true, MINT_E2E_MINT2_FIRST_EXPERIENCE=true, MINT_E2E_PROOF_ANCHORS=true
+
+Pre-runtime gate:
+apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_iphone13mini_layout_test.dart
+Result: 3 tests passed.
+
+Maestro flow:
+tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml
+
+Transcript excerpt:
+Running on MINT iPhone 13 mini RvC - iOS 26.2 - 3D0534A9-8C3A-4663-9348-106D0599E9D6
+ > Flow flow_mint2_first_experience_rente_capital_entry
+Launch app "ch.mint.app" with clear state... COMPLETED
+Assert that "Parle à Mint" is visible... COMPLETED
+Tap on "Parle à Mint"... COMPLETED
+Assert that "Un premier aperçu suisse." is visible... COMPLETED
+Tap on point (200, 620)... COMPLETED
+Assert that id: mint2-axis-lpp_rente_capital is visible... COMPLETED
+Assert that "CHF/mois" is not visible... COMPLETED
+Tap on point (200, 340)... COMPLETED
+Assert that id: rente_vs_capital_screen is visible... FAILED
+
+Failure:
+Assertion is false: id: rente_vs_capital_screen is visible.
+
+Current AX excerpt after failure:
+- text: Créer ton compte
+- text: Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l'activer depuis Réglages › Confidentialité.
+- switch: J'ai lu et j'accepte les Conditions Générales et la politique de confidentialité
+- switch: Je confirme avoir 18 ans révolus (CGU art. 4.1)
+- button: Continuer avec Apple
+- button: Créer avec e-mail
+- button: Continuer en mode local
+- button: Se connecter
+
+Evidence interpretation:
+The first-value path reaches the Mint2 LPP/rente-capital axis, but selecting it lands on the account-creation gate instead of the expected /rente-vs-capital screen. This contradicts the Journey OS promise "I get useful value before I commit more data." This PR records the failure and scopes JOS-005; it does not change product code.

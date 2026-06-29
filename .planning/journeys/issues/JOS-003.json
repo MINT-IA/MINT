@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-003",
+  "title": "Prove Profile Privacy Control known-data surface",
+  "journey_id": "profile_privacy_control",
+  "status": "verified",
+  "owner": "mint-quality-gate",
+  "severity": "P0",
+  "evidence_status": "green",
+  "next_action": "Keep the Profile Privacy Control runtime gate in Journey OS monitoring; add authenticated backend privacy E2E sampling when a stable seed exists.",
+  "source": "JOURNEY-TRUTH-MATRIX-024; Journey OS evidence 20260627T005708Z; JOS-001 account lifecycle delete proof"
+}

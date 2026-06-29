@@ -1,0 +1,17 @@
+%% Generated from .planning/journeys/records/coach_advice_turn.json
+sequenceDiagram
+  participant User
+  participant Journey
+  participant Routes
+  participant Surfaces
+  participant APIs
+  participant Evidence
+  User->>Journey: When Coach gives a number, it is current, cited, and bounded.
+  Journey->>Routes: /coach/chat
+  Routes->>Surfaces: CoachOrchestrator, CoachContextPacket, ComplianceGuard
+  Surfaces->>APIs: POST /api/v1/coach/chat
+  APIs-->>Surfaces: canonical contract
+  Surfaces-->>Journey: Coach answers the 2026 3a/LPP ceiling question with a visible current number, legal provenance, and no certainty-language regression.
+  Journey->>Evidence: replay authenticated, top / auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml
+  Journey->>Evidence: green / runtime / 2026-06-28T23:50:28Z / 52935411
+  Evidence-->>Journey: issues JOS-004

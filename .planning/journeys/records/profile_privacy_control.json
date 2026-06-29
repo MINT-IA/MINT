@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "profile_privacy_control",
+  "title": "Profile privacy control",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "I can see and control what MINT knows about me.",
+  "accountable_team": "mint-quality-gate",
+  "personas": [
+    "julien_swiss",
+    "local_mode_profile_user"
+  ],
+  "entry_state": "User opens profile privacy controls from local or authenticated profile surfaces with stored facts already present.",
+  "account_state": "Local mode or authenticated account can inspect stored profile data; destructive backend operations are separately contract-tested.",
+  "success_state": "Privacy control displays known stored facts and links to privacy center/settings; backend export/delete/consent replay remains a separate authenticated proof.",
+  "negative_assertions": [
+    "Known-data view must not collapse into the empty state when profile facts exist.",
+    "Privacy center must keep an account deletion entry.",
+    "Confidentiality settings must keep an in-app exit."
+  ],
+  "source_spec_refs": [
+    "docs/data-flow.md",
+    "docs/MINT_AGENT_WORKFLOW.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
+    "sets": [
+      "core"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_ARCHETYPE=julien_swiss"
+    ],
+    "requires_auth": false,
+    "order": 20
+  },
+  "route_paths": [
+    "/profile/privacy-control",
+    "/profile/privacy",
+    "/settings/confidentialite"
+  ],
+  "surfaces": [
+    "PrivacyControlScreen",
+    "ConsentSheet",
+    "ConsentReceiptService",
+    "PiiScrubber"
+  ],
+  "external_apis": [
+    "GET /api/v1/privacy/consent-status",
+    "POST /api/v1/privacy/export",
+    "POST /api/v1/privacy/delete"
+  ],
+  "issues": [
+    "JOS-003",
+    "JOURNEY-TRUTH-MATRIX-024"
+  ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 4,
+    "evidence_gap": 1,
+    "route_centrality": 4,
+    "compliance_risk": 5,
+    "learning_value": 4,
+    "proof_cost": 3,
+    "rationale": "Privacy control is a trust and compliance boundary; current runtime proof covers known-data display, but authenticated backend E2E for export/delete/consent remains residual."
+  },
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=240 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-24-privacy-control-runtime-20260604T182101 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-24-privacy-control-runtime-20260604T182101/result.xml tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-24-privacy-control-runtime-20260604T182101/result.xml",
+      "reason": "Historical Row 24 runtime proof opens privacy-control and shows known-data controls.",
+      "verified_at": "2026-06-04T18:21:01Z",
+      "verified_commit": "630a3c2692215cfa5a5eff85e777d336d6e57514"
+    },
+    {
+      "kind": "widget",
+      "status": "green",
+      "command": "cd apps/mobile && flutter test test/screens/profile/privacy_control_screen_test.dart",
+      "artifact": "apps/mobile/test/screens/profile/privacy_control_screen_test.dart",
+      "reason": "Privacy Control widget contract covers populated facts, empty state, edit/delete dialogs, deletion confirmation, stale warning, and grouped sections."
+    },
+    {
+      "kind": "widget",
+      "status": "green",
+      "command": "cd apps/mobile && flutter test test/screens/profile/privacy_center_screen_test.dart test/screens/settings/confidentialite_settings_screen_test.dart",
+      "artifact": "apps/mobile/test/screens/profile/privacy_center_screen_test.dart",
+      "reason": "Privacy Center exposes account deletion and the confidentiality settings route has an in-app exit."
+    },
+    {
+      "kind": "unit",
+      "status": "green",
+      "command": "cd apps/mobile && flutter test test/services/privacy_service_test.dart",
+      "artifact": "apps/mobile/test/services/privacy_service_test.dart",
+      "reason": "PrivacyService contract covers data categories, consent defaults, export summaries, retention lookup, and nLPD source/disclaimer text."
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --debug --no-codesign --dart-define=MINT_E2E_ARCHETYPE=julien_swiss --dart-define=MINT_DISABLE_BETA_MODAL=true && MINT_WALKER_ARTIFACTS=.planning/journeys/evidence/profile_privacy_control/20260627T005708Z MAESTRO_HARD_LIMIT=300 MAESTRO_STALL_THRESHOLD=90 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/journeys/evidence/profile_privacy_control/20260627T005708Z/result.xml tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
+      "artifact": ".planning/journeys/evidence/profile_privacy_control/20260627T005708Z/result.xml",
+      "reason": "Fresh runtime proof from clean origin/dev after JOS-002: anonymous local mode opens /profile/privacy-control and shows stored profile data, not the empty state.",
+      "verified_at": "2026-06-27T00:57:37Z",
+      "verified_commit": "104c92d125f6c2a0dcfcad9fb61a1d62aed11db1"
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mint Journey OS record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "tier",
+    "status",
+    "human_promise",
+    "accountable_team",
+    "personas",
+    "entry_state",
+    "account_state",
+    "success_state",
+    "negative_assertions",
+    "source_spec_refs",
+    "proof_owner",
+    "fix_owner",
+    "runtime_replay",
+    "route_paths",
+    "surfaces",
+    "external_apis",
+    "issues",
+    "priority",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tier": {
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ]
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "partial",
+        "live_proven",
+        "blocked",
+        "deferred",
+        "out_of_beta"
+      ]
+    },
+    "human_promise": {
+      "type": "string",
+      "minLength": 1
+    },
+    "accountable_team": {
+      "enum": [
+        "mint-lead",
+        "mint-quality-gate",
+        "mint-mobile",
+        "mint-backend",
+        "mint-swiss-brain"
+      ]
+    },
+    "personas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "entry_state": {
+      "type": "string",
+      "minLength": 1
+    },
+    "account_state": {
+      "type": "string",
+      "minLength": 1
+    },
+    "success_state": {
+      "type": "string",
+      "minLength": 1
+    },
+    "negative_assertions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_spec_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "proof_owner": {
+      "enum": [
+        "mint-lead",
+        "mint-quality-gate",
+        "mint-mobile",
+        "mint-backend",
+        "mint-swiss-brain"
+      ]
+    },
+    "fix_owner": {
+      "enum": [
+        "mint-lead",
+        "mint-quality-gate",
+        "mint-mobile",
+        "mint-backend",
+        "mint-swiss-brain"
+      ]
+    },
+    "runtime_replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "flow",
+        "sets",
+        "device",
+        "build_defines",
+        "requires_auth",
+        "order"
+      ],
+      "properties": {
+        "flow": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "core",
+              "top",
+              "authenticated",
+              "account_lifecycle"
+            ]
+          }
+        },
+        "device": {
+          "type": "string",
+          "minLength": 1
+        },
+        "build_defines": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "requires_auth": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "route_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "external_apis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "priority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trust_blast_radius",
+        "release_blocker_weight",
+        "user_frequency",
+        "evidence_gap",
+        "route_centrality",
+        "compliance_risk",
+        "learning_value",
+        "proof_cost",
+        "rationale"
+      ],
+      "properties": {
+        "trust_blast_radius": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "release_blocker_weight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "user_frequency": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "evidence_gap": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "route_centrality": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "compliance_risk": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "learning_value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "proof_cost": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "status",
+          "command",
+          "artifact"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "unit",
+              "widget",
+              "static_guard",
+              "runtime",
+              "manual",
+              "external"
+            ]
+          },
+          "status": {
+            "enum": [
+              "green",
+              "red",
+              "missing",
+              "baselined"
+            ]
+          },
+          "command": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "artifact": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "debt_ref": {
+            "type": "string"
+          },
+          "verified_at": {
+            "type": "string"
+          },
+          "verified_commit": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

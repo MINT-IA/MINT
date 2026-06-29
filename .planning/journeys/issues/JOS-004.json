@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-004",
+  "title": "Fix Coach 3a ceiling advice freshness fallback",
+  "journey_id": "coach_advice_turn",
+  "status": "verified",
+  "owner": "mint-quality-gate",
+  "severity": "P0",
+  "evidence_status": "green",
+  "next_action": "JOS-004 3a/LPP ceiling fallback fix is verified by Journey OS runtime replay; keep the broader coach advice turn journey partial until more advice classes have equivalent runtime coverage.",
+  "source": "JOS-004 runtime proofs 20260627T023232Z red, 20260627T172841Z baselined, and 20260628T234759Z green. The fix under proof landed in PR #772 at e8fbd58b3; the latest durable replay evidence is committed JUnit output with status SUCCESS at replay head 52935411."
+}

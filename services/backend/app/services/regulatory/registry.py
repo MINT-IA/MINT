@@ -10,7 +10,7 @@ Architecture:
     - Singleton pattern: one registry instance per process.
     - Constants are hardcoded in _PARAMETERS for now (DB migration planned P4).
     - Every constant from social_insurance.py is mirrored here with full metadata.
-    - Freshness tracking: reviewed_at must be within 90 days or flagged stale.
+    - Freshness tracking: reviewed_at powers runtime/scheduled stale reports.
 
 Sources:
     - CLAUDE.md §5 (Key Constants 2025/2026)
@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 _OFAS_LPP_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html"
 _OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html"
+_OFAS_CONTRIBUTIONS_URL = "https://www.bsv.admin.ch/fr/cotisations-apercu"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
 _FINMA_URL = "https://www.finma.ch/fr/"
 _REVIEWED = date(2026, 6, 26)
@@ -707,10 +708,10 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.independent_min_income_threshold",
-        value=9_800.0,
+        value=10_100.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
+        source_url=_OFAS_CONTRIBUTIONS_URL,
         source_title="LAVS art. 8",
         source_type="law",
         description="Seuil de revenu en dessous duquel la cotisation minimale s'applique.",
@@ -1367,11 +1368,16 @@ class RegulatoryRegistry:
             return [p for p in all_params if p.key.lower().startswith(prefix)]
         return all_params
 
-    def check_freshness(self, max_age_days: int = 90) -> list[RegulatoryParameter]:
+    def check_freshness(
+        self,
+        max_age_days: int = 90,
+        as_of: Optional[date] = None,
+    ) -> list[RegulatoryParameter]:
         """Return parameters that are stale (reviewed_at older than max_age_days).
 
         Args:
             max_age_days: Maximum number of days since last review.
+            as_of: Date to evaluate freshness against. Defaults to today.
 
         Returns:
             List of stale parameters needing review.
@@ -1379,7 +1385,7 @@ class RegulatoryRegistry:
         stale = []
         for params in self._params.values():
             for p in params:
-                if p.is_stale(max_age_days):
+                if p.is_stale(max_age_days, on_date=as_of):
                     stale.append(p)
         return stale
 

@@ -529,6 +529,7 @@ class _Mint2AxesStep extends StatelessWidget {
     OnboardingProvider provider,
     String label,
   ) async {
+    final authProvider = context.read<AuthProvider>();
     provider.setAxisV2(OnboardingAxisV2.lppRenteCapital, label);
     final persisted = await provider.persistMint2AxisHandoff();
     if (!context.mounted) return;
@@ -550,6 +551,8 @@ class _Mint2AxesStep extends StatelessWidget {
       );
       return;
     }
+    await authProvider.enableLocalMode();
+    if (!context.mounted) return;
     context.go('/rente-vs-capital');
   }
 
@@ -1480,6 +1483,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     if (_sealing) return;
     final provider = context.read<OnboardingProvider>();
     final coach = context.read<CoachProfileProvider>();
+    final auth = context.read<AuthProvider>();
     final messenger = ScaffoldMessenger.maybeOf(context);
     final l10n = S.of(context)!;
     final router = GoRouter.of(context);
@@ -1488,6 +1492,9 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     setState(() => _sealing = true);
     try {
       await provider.completeAndFlushToProfile(coach);
+      if (coach.hasProfile) {
+        auth.markAccountProfileAvailable();
+      }
     } catch (e, stack) {
       dev.log(
         'MVP wedge seal failed',

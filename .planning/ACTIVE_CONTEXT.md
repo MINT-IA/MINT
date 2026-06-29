@@ -9,22 +9,16 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Active context: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
 - Active spec: `.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
 - Active integration branch: `dev`
+- Active operating overlay: `.planning/journeys/` is the canonical Journey OS
+  board, issue registry, evidence map, and priority queue for proving the next
+  Mint vertical.
+- Journey OS guard: `python3 tools/checks/journey_os_check.py`.
+- Workflow contract guard: `python3 tools/checks/workflow_contract_guard.py`.
 - Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
   self-references the active context as a placeholder; no successor product
   phase is queued yet.
 - Temporary hotfix branch: `codex/account-lifecycle-gate-20260624` is
   authorized only for the account lifecycle/onboarding gate hotfix.
-- Temporary staging deploy branch: `codex/jos004-staging-deploy-20260627` is
-  authorized only to promote the JOS-004 authenticated Coach 3a/LPP freshness
-  fix to `staging` for Railway runtime proof.
-- Temporary staging deploy branch:
-  `codex/jos004-staging-close-loop-deploy-20260627` is authorized only to
-  promote the JOS-004 closed regulatory tool-loop fix to `staging` for Railway
-  runtime proof.
-- Temporary staging deploy branch:
-  `codex/staging-jos004-empty-answer-fix-20260627` is authorized only to
-  promote the JOS-004 authenticated Coach empty-answer fix and runtime-proof
-  harness update to `staging` for Railway runtime proof.
 - Temporary runtime-proof branch: `codex/jos001-seeded-auth-runtime-20260626`
   is authorized only for the JOS-001 account lifecycle seeded-auth runtime
   proof and any directly required gate fix.
@@ -60,6 +54,17 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary hotfix branch: `codex/jos004-regulatory-floor-close-loop-20260627`
   is authorized only for closing the JOS-004 3a/LPP regulatory tool loop
   deterministically before a fallback response can overwrite it.
+- Temporary runtime-proof branch:
+  `codex/jos004-maestro-first-experience-proof-20260627` is authorized only
+  for the JOS-004 Coach advice turn Maestro runtime proof harness update from
+  clean `origin/dev`; no product code changes.
+- Temporary Journey OS branch: `codex/jos005-onboarding-first-value-20260627`
+  is authorized only for classifying and proving the Onboarding First Value
+  Journey OS vertical from clean `origin/dev`.
+- Temporary hotfix branch: `codex/jos005-first-value-before-account-20260627`
+  is authorized only for the JOS-005 Mint 2.0 onboarding first-value fix so the
+  live LPP/rente-capital axis reaches `/rente-vs-capital` before account
+  creation, from clean `origin/dev`.
 
 ## Required Session Start
 
@@ -77,6 +82,8 @@ Then run:
 python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/journey_os_check.py
+python3 tools/checks/workflow_contract_guard.py
 git status --short --branch
 ```
 
@@ -142,6 +149,7 @@ Run these guards before phase execution:
 python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/journey_os_check.py
 python3 tools/checks/agent_reference_guard.py
 python3 tools/checks/claude_hooks_guard.py
 ```

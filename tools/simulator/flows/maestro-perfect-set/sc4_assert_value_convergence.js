@@ -3,7 +3,7 @@
 // The heart of SALVAGE-00 SC-4: prove the SAME "Disponible/mois"
 // (argent libre / present.monthlyFree) value renders IDENTICALLY across the
 // three money surfaces — Mon Argent, /budget, and the coach chat-open surface
-// — for the `cadre_3a_contributing` persona.
+// — for the active persisted runtime persona.
 //
 // Each surface formats the figure differently in layout/wording, so we extract
 // the relevant CHF numeric token (Swiss apostrophe thousands sep, e.g. 3'152):

@@ -21,6 +21,40 @@ void main() {
       expect(response, isNot(contains('En 2025')));
     });
 
+    test('answers salaried LPP 3a ceiling with statutory citation', () {
+      final response = LocalFallbackService.generateSpecializedFallback(
+        userMessage: 'Quel est le plafond legal 3a 2026 avec LPP ?',
+      )!;
+
+      expect(response, contains('Plafond 3a avec LPP'));
+      expect(response, contains("7'258 CHF/an"));
+      expect(response, contains('OPP3 art. 7'));
+      expect(response, contains('LIFD art. 33'));
+      expect(response, isNot(contains('réessaie dans quelques instants')));
+      expect(response, isNot(contains('Je n’ai pas cette donnée')));
+      expect(response, isNot(contains("Je n'ai pas cette donnée")));
+      expect(response, isNot(contains('montant à verser')));
+      expect(response, isNot(contains('meilleur')));
+      expect(response, isNot(contains('optimal')));
+      expect(response, isNot(contains('sans risque')));
+    });
+
+    test('reports salaried LPP 3a ceiling only when it wins priority', () {
+      expect(
+        LocalFallbackService.detectsSalariedLpp3aCeiling(
+          userMessage: 'Quel est le plafond legal 3a 2026 avec LPP ?',
+        ),
+        isTrue,
+      );
+      expect(
+        LocalFallbackService.detectsSalariedLpp3aCeiling(
+          userMessage:
+              'Je suis indépendant sans LPP et salarié, quel plafond 3a maximum ?',
+        ),
+        isFalse,
+      );
+    });
+
     test('scores independent no-LPP 3a question as expert guidance', () {
       final response = LocalFallbackService.generateFallback(
         userMessage: 'Je suis indépendant sans LPP, combien verser en 3a ?',

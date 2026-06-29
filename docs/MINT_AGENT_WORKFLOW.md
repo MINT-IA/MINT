@@ -11,11 +11,28 @@ Order of truth:
 2. `CLAUDE.md`.
 3. `AGENTS.md`.
 4. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
-5. `.agents/skills/mint-*`.
-6. Current code, tests, scripts, CI, runtime evidence.
-7. Engram MCP memories for prior root causes and decisions.
+5. `.planning/journeys/` Journey OS records, issues, generated views, and
+   evidence.
+6. `.agents/skills/mint-*`.
+7. Current code, tests, scripts, CI, runtime evidence.
+8. Engram MCP memories for prior root causes and decisions.
 
 Engram helps recall. It never outranks the repo.
+
+## Journey OS Views
+
+`.planning/journeys/` is the product operating overlay:
+
+- `TODAY.md` is the generated one-screen cockpit for the next vertical.
+- `BOARD.md` is the generated priority queue.
+- `JOURNEYS.md` is the generated portfolio map.
+- `diagrams/system_map.mmd` is the generated Mermaid map of journeys, shared
+  routes, surfaces, and issue state.
+- `records/*.json` and `issues/*.json` are the editable source of truth.
+
+Generated Journey OS views are never edited by hand. Update the JSON source,
+run `python3 tools/checks/journey_os_generate.py`, then verify with
+`python3 tools/checks/journey_os_check.py`.
 
 ## Default Roster
 
@@ -49,11 +66,14 @@ surface change:
 
 1. Name the concrete user flow.
 2. Name the seeded persona if needed.
-3. Run or create the smallest failing contract.
-4. Fix the root cause.
-5. Run the local tests.
-6. Run the simulator/runtime proof.
-7. Only then open or merge.
+3. Link or create the Journey OS issue/record when the surface is part of a
+   T0/T1 vertical.
+4. Run or create the smallest failing contract.
+5. Fix the root cause.
+6. Run the local tests.
+7. Run the simulator/runtime proof.
+8. Update the Journey OS evidence/status when the proof changes.
+9. Only then open or merge.
 
 TestFlight is distribution evidence, not a debugging harness.
 
@@ -106,6 +126,29 @@ Forbidden:
 - merge with missing/red gates;
 - direct product fix without a failing test or failing runtime contract;
 - large planning artifacts unless the user explicitly asks for one.
+
+## Claude Opus Reviews
+
+Use `tools/claude_review.sh` for external Claude/Opus diff review. Do not run
+raw `claude -p --model opus` for repo diffs: Opus can spend thousands of hidden
+thinking tokens before printing a normal result, which looks like a hang and can
+waste the review window.
+
+The wrapper is intentionally boring:
+
+- stream JSON by default, so thinking-token progress is visible;
+- `--safe-mode`, no Claude tools, no session persistence;
+- `permission-mode=dontAsk`, not permission bypass;
+- hard timeout and budget cap;
+- failure if Claude exits without answer text;
+- non-zero exit if Claude returns only a partial review after a CLI error.
+
+Typical usage:
+
+```bash
+MINT_CLAUDE_MODEL=opus tools/claude_review.sh --cached
+MINT_CLAUDE_MODEL=opus tools/claude_review.sh -- apps/mobile/lib/services/coach/
+```
 
 ## External Standards Baseline
 

@@ -64,11 +64,12 @@ class RegulatoryParameter:
             return False
         return True
 
-    def is_stale(self, max_age_days: int = 90) -> bool:
+    def is_stale(self, max_age_days: int = 90, on_date: Optional[date] = None) -> bool:
         """Check if the parameter needs review (reviewed_at older than max_age_days)."""
         if self.reviewed_at is None:
             return True
-        return (date.today() - self.reviewed_at).days > max_age_days
+        check_date = on_date or date.today()
+        return (check_date - self.reviewed_at).days > max_age_days
 
     def to_dict(self) -> dict:
         """Serialize to a JSON-compatible dict for API responses."""

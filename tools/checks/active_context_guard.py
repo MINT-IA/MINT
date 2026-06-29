@@ -8,6 +8,7 @@ history is not being treated as current authority.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
 import subprocess
@@ -92,6 +93,12 @@ def _is_ci_integration_branch(branch: str) -> bool:
     return os.environ.get("GITHUB_ACTIONS") == "true" or os.environ.get("CI") == "true"
 
 
+def _is_allowed_branch(branch: str, allowed: list[str], patterns: list[str]) -> bool:
+    return branch in allowed or any(
+        fnmatch.fnmatchcase(branch, pattern) for pattern in patterns
+    )
+
+
 def check(root: Path) -> list[str]:
     errors: list[str] = []
 
@@ -137,6 +144,9 @@ def check(root: Path) -> list[str]:
         str(item) for item in manifest.get("historical_not_active", [])
     ]
     allowed_branches = [str(item) for item in manifest.get("allowed_branches", [])]
+    allowed_branch_patterns = [
+        str(item) for item in manifest.get("allowed_branch_patterns", [])
+    ]
     required_phase_files = [
         str(item) for item in manifest.get("required_phase_files", [])
     ]
@@ -175,12 +185,15 @@ def check(root: Path) -> list[str]:
     if (
         branch
         and allowed_branches
-        and branch not in allowed_branches
+        and not _is_allowed_branch(branch, allowed_branches, allowed_branch_patterns)
         and not _is_ci_integration_branch(branch)
     ):
+        allowed_summary = ", ".join(allowed_branches)
+        if allowed_branch_patterns:
+            allowed_summary += " ; patterns: " + ", ".join(allowed_branch_patterns)
         errors.append(
             f"{MANIFEST} current branch {branch!r} not in allowed_branches: "
-            + ", ".join(allowed_branches)
+            + allowed_summary
         )
 
     resolved_root = str(root.resolve())

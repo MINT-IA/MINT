@@ -1,0 +1,32 @@
+%% Generated Journey OS state ledger
+stateDiagram-v2
+  state "account_lifecycle_delete live_proven" as journey_account_lifecycle_delete
+  state "latest runtime green" as evidence_account_lifecycle_delete
+  [*] --> journey_account_lifecycle_delete
+  journey_account_lifecycle_delete --> evidence_account_lifecycle_delete: proof
+  state "JOS-001 verified/green" as issue_JOS_001
+  journey_account_lifecycle_delete --> issue_JOS_001: issue
+  state "coach_advice_turn partial" as journey_coach_advice_turn
+  state "latest runtime green" as evidence_coach_advice_turn
+  [*] --> journey_coach_advice_turn
+  journey_coach_advice_turn --> evidence_coach_advice_turn: proof
+  state "JOS-004 verified/green" as issue_JOS_004
+  journey_coach_advice_turn --> issue_JOS_004: issue
+  state "money_truth_spine live_proven" as journey_money_truth_spine
+  state "latest runtime green" as evidence_money_truth_spine
+  [*] --> journey_money_truth_spine
+  journey_money_truth_spine --> evidence_money_truth_spine: proof
+  state "JOS-002 verified/green" as issue_JOS_002
+  journey_money_truth_spine --> issue_JOS_002: issue
+  state "onboarding_first_value partial" as journey_onboarding_first_value
+  state "latest runtime green" as evidence_onboarding_first_value
+  [*] --> journey_onboarding_first_value
+  journey_onboarding_first_value --> evidence_onboarding_first_value: proof
+  state "JOS-005 verified/green" as issue_JOS_005
+  journey_onboarding_first_value --> issue_JOS_005: issue
+  state "profile_privacy_control partial" as journey_profile_privacy_control
+  state "latest runtime green" as evidence_profile_privacy_control
+  [*] --> journey_profile_privacy_control
+  journey_profile_privacy_control --> evidence_profile_privacy_control: proof
+  state "JOS-003 verified/green" as issue_JOS_003
+  journey_profile_privacy_control --> issue_JOS_003: issue

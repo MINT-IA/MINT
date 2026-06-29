@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-005",
+  "title": "Restore onboarding first value before account gate",
+  "journey_id": "onboarding_first_value",
+  "status": "verified",
+  "owner": "mint-mobile",
+  "severity": "P0",
+  "evidence_status": "green",
+  "next_action": "Keep the Mint2 onboarding first-value proof in core Journey OS monitoring (`--set core`); production/non-E2E release enablement remains a separate flag rollout proof, and the top replay pointer now moves to authenticated JOS-004 Coach advice turn proof closure.",
+  "source": "Mint2 quality gate 20260627T175336Z; flow_mint2_first_experience_rente_capital_entry.yaml; Journey OS top replay 20260628T231957Z"
+}

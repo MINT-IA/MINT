@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "onboarding_first_value",
+  "title": "Onboarding first value",
+  "tier": "T0",
+  "status": "partial",
+  "human_promise": "I get useful value before I commit more data.",
+  "accountable_team": "mint-quality-gate",
+  "personas": [
+    "cadre_salarie_lpp_suisse_ready",
+    "fresh_anonymous_swiss_user"
+  ],
+  "entry_state": "Fresh anonymous user enters the MVP wedge, chooses the LPP rente-capital axis, and should reach first value before account creation.",
+  "account_state": "Anonymous local mode; account creation must remain after first value, not before the rente-vs-capital surface.",
+  "success_state": "Selecting the LPP rente-capital axis opens the first-value experience and can continue toward Coach or Home without a premature account gate.",
+  "negative_assertions": [
+    "Account-creation gate must not replace the first-value destination.",
+    "Beta modal must not block the onboarding axis proof.",
+    "The route helper must not rely on a release-only debug path."
+  ],
+  "source_spec_refs": [
+    ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md",
+    "docs/MINT_AGENT_WORKFLOW.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml",
+    "sets": [
+      "core"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_MINT2_FIRST_EXPERIENCE=true",
+      "MINT_E2E_PROOF_ANCHORS=true"
+    ],
+    "requires_auth": false,
+    "order": 10
+  },
+  "route_paths": [
+    "/onb",
+    "/rente-vs-capital",
+    "/coach/chat",
+    "/home"
+  ],
+  "surfaces": [
+    "OnboardingShellScreen",
+    "CoachProfileProvider",
+    "MintStateProvider"
+  ],
+  "external_apis": [],
+  "issues": [
+    "CJT-018",
+    "JOURNEY-TRUTH-MATRIX-006",
+    "JOS-005"
+  ],
+  "priority": {
+    "trust_blast_radius": 4,
+    "release_blocker_weight": 4,
+    "user_frequency": 5,
+    "evidence_gap": 2,
+    "route_centrality": 5,
+    "compliance_risk": 2,
+    "learning_value": 4,
+    "proof_cost": 2,
+    "rationale": "First value is the highest-frequency entry path; current proof exists but beta access still depends on it."
+  },
+  "evidence": [
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734 bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
+      "artifact": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-26-iphone16e-s005-regression-20260606T152734/result.xml",
+      "reason": "S005 iPhone 16e regression proof supports the onboarding-to-home first-value path; signed-device and broader beta access remain outside this record.",
+      "verified_at": "2026-06-06T15:27:34Z",
+      "verified_commit": "b1e2567b06489c4d1159a29876ce806a1f7b68b2"
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "MINT2_QUALITY_ARTIFACTS=/tmp/mint-jos005-onboarding-first-value-20260627T175336Z bash tools/simulator/mint2_quality_gate.sh",
+      "artifact": ".planning/journeys/evidence/onboarding_first_value/20260627T175336Z/maestro-red.txt",
+      "reason": "Fresh Mint2 iPhone 13 mini quality gate reaches the LPP/rente-capital first-value axis, but selecting it lands on the account-creation gate instead of /rente-vs-capital.",
+      "verified_at": "2026-06-27T17:55:32Z",
+      "verified_commit": "cc58ad2a0e5113679412118ae9631c52a328496d"
+    },
+    {
+      "kind": "runtime",
+      "status": "red",
+      "command": "bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T040435Z/onboarding_first_value/result.xml",
+      "reason": "Post-squash Journey OS top replay built, booted, installed, and launched the iPhone 13 mini simulator app from dev commit e8810d036, then caught the active JOS-005 failure because rente_vs_capital_screen was not visible.",
+      "verified_at": "2026-06-28T04:06:22Z",
+      "verified_commit": "e8810d036affb7925cee71047672e1cddfbfe0b8"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "bash tools/simulator/journey_os_runtime_replay.sh --set top",
+      "artifact": ".planning/journeys/evidence/runtime_replay/20260628T231957Z/onboarding_first_value/result.xml",
+      "reason": "Fresh Journey OS replay from clean origin/dev after PR #766, PR #772, and PR #773: at run time the top set still pointed to onboarding_first_value, and the feature-flagged Mint2 first-experience entry reached the production /rente-vs-capital route before account creation on iPhone 13 mini. The E2E define enables this beta entry for proof; the route transition itself is the product path in OnboardingShellScreen. Release/non-E2E flag rollout remains separate, so the journey stays partial while JOS-005 is verified green. After recording this proof, onboarding_first_value moves to the core monitoring set and top moves to authenticated JOS-004.",
+      "verified_at": "2026-06-28T23:21:28Z",
+      "verified_commit": "f7e92f875ee4daee19ef43e6c40be0ffebb6a0bb"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+%% Generated from .planning/journeys/records/onboarding_first_value.json
+flowchart TD
+  promise["I get useful value before I commit more data."]
+  team["mint-quality-gate"]
+  latest["latest proof: green / runtime / 2026-06-28T23:21:28Z / f7e92f87"]
+  promise --> latest
+  classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
+  classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
+  classDef amber fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;
+  classDef blocked fill:#eceff1,stroke:#455a64,color:#263238;
+  classDef neutral fill:#f5f5f5,stroke:#616161,color:#212121;
+  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
+  classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
+  classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
+  class latest green
+  priority["priority score 24"]
+  priority --> promise
+  route_onb["/onb"]
+  promise --> route_onb
+  route_onb --> team
+  class route_onb route
+  route_rente_vs_capital["/rente-vs-capital"]
+  promise --> route_rente_vs_capital
+  route_rente_vs_capital --> team
+  class route_rente_vs_capital route
+  route_coach_chat["/coach/chat"]
+  promise --> route_coach_chat
+  route_coach_chat --> team
+  class route_coach_chat route
+  route_home["/home"]
+  promise --> route_home
+  route_home --> team
+  class route_home route
+  surface_OnboardingShellScreen["OnboardingShellScreen"]
+  promise -.-> surface_OnboardingShellScreen
+  class surface_OnboardingShellScreen surface
+  surface_CoachProfileProvider["CoachProfileProvider"]
+  promise -.-> surface_CoachProfileProvider
+  class surface_CoachProfileProvider surface
+  surface_MintStateProvider["MintStateProvider"]
+  promise -.-> surface_MintStateProvider
+  class surface_MintStateProvider surface
+  issue_JOS_005["JOS-005 verified/green"]
+  issue_JOS_005 --> promise
+  class issue_JOS_005 green

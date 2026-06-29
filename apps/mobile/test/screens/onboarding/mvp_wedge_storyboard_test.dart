@@ -87,6 +87,16 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
   Future<void> loadFromWizard() async {}
 }
 
+class _TrackingAuthProvider extends AuthProvider {
+  int profileAvailableCalls = 0;
+
+  @override
+  void markAccountProfileAvailable() {
+    profileAvailableCalls += 1;
+    super.markAccountProfileAvailable();
+  }
+}
+
 const _secureStorageChannel =
     MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
 
@@ -103,10 +113,8 @@ void _mockSecureStorageUnavailableOnWrite() {
   });
 }
 
-Future<void> _pumpShell(
-  WidgetTester tester,
-  _FakeCoachProfileProvider fake,
-) async {
+Future<void> _pumpShell(WidgetTester tester, _FakeCoachProfileProvider fake,
+    {AuthProvider? authProvider}) async {
   final router = GoRouter(
     initialLocation: '/onb',
     routes: [
@@ -140,7 +148,9 @@ Future<void> _pumpShell(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<CoachProfileProvider>.value(value: fake),
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        ChangeNotifierProvider<AuthProvider>.value(
+          value: authProvider ?? AuthProvider(),
+        ),
       ],
       child: MaterialApp.router(
         routerConfig: router,
@@ -810,7 +820,8 @@ void main() {
       'T8 Continuer: flushes wantsDeeper=true + navigates to /coach/chat',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
-    await _pumpShell(tester, fake);
+    final auth = _TrackingAuthProvider();
+    await _pumpShell(tester, fake, authProvider: auth);
     await _commonEntry(
       tester,
       intentKey: const ValueKey('onboarding-intent-retraite'),
@@ -836,6 +847,7 @@ void main() {
 
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);
+    expect(auth.profileAvailableCalls, 1);
   });
 
   testWidgets('T8 Créer un compte: seals dossier then routes to register',

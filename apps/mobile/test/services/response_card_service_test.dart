@@ -522,6 +522,18 @@ void main() {
       expect(cardsLpp.length, lessThanOrEqualTo(2));
     });
 
+    test('statutory salaried LPP 3a ceiling chat does not show 3a card', () {
+      final profile = _makeProfile(salaire: 8000, canton: 'VD');
+
+      final cards = ResponseCardService.generateForChat(
+        profile,
+        'Quel est le plafond legal 3a 2026 avec LPP ?',
+        l: _l,
+      );
+
+      expect(cards.any((c) => c.type == ResponseCardType.pillar3a), isFalse);
+    });
+
     test('max 2 cards for chat', () {
       final profile = _makeProfile(
         salaire: 8000,
@@ -543,8 +555,7 @@ void main() {
       expect(cards, isEmpty);
     });
 
-    test('independent no-LPP capacity chat does not show generic 3a cards',
-        () {
+    test('independent no-LPP capacity chat does not show generic 3a cards', () {
       final profile = _makeProfile(
         salaire: 9000,
         canton: 'VD',

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="1" time="89.0">
+    <testcase id="flow_jos004_coach_advice_turn_runtime" name="flow_jos004_coach_advice_turn_runtime" classname="flow_jos004_coach_advice_turn_runtime" time="89.0" status="ERROR">
+      <properties>
+        <property name="tags" value="journey-os, jos-004, coach-advice-turn, pillar-3a, opp3-art-7, runtime-proof"/>
+      </properties>
+      <failure>Assertion is false: ".*(OPP3|art\.?\s*7|art\.?\s*33|art\.?\s*38|LIFD).*" is visible</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

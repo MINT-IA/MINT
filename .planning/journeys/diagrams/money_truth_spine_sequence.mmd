@@ -1,0 +1,15 @@
+%% Generated from .planning/journeys/records/money_truth_spine.json
+sequenceDiagram
+  participant User
+  participant Journey
+  participant Routes
+  participant Surfaces
+  participant APIs
+  participant Evidence
+  User->>Journey: My money numbers are consistent.
+  Journey->>Routes: /budget, /mon-argent, /rapport, /coach/chat
+  Routes->>Surfaces: BudgetSnapshot, DataSpineSnapshot, CoachContextPacket
+  Surfaces-->>Journey: Budget, Mon Argent, Rapport, and Coach expose the same persisted money truth snapshot after app restart.
+  Journey->>Evidence: replay core / no-auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml
+  Journey->>Evidence: green / runtime / 2026-06-27T00:38:40Z / 5d8b970c
+  Evidence-->>Journey: issues JOS-002

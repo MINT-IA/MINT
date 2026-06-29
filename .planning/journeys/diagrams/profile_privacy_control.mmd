@@ -1,0 +1,53 @@
+%% Generated from .planning/journeys/records/profile_privacy_control.json
+flowchart TD
+  promise["I can see and control what MINT knows about me."]
+  team["mint-quality-gate"]
+  latest["latest proof: green / runtime / 2026-06-27T00:57:37Z / 104c92d1"]
+  promise --> latest
+  classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
+  classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
+  classDef amber fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;
+  classDef blocked fill:#eceff1,stroke:#455a64,color:#263238;
+  classDef neutral fill:#f5f5f5,stroke:#616161,color:#212121;
+  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
+  classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
+  classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
+  class latest green
+  priority["priority score 25"]
+  priority --> promise
+  route_profile_privacy_control["/profile/privacy-control"]
+  promise --> route_profile_privacy_control
+  route_profile_privacy_control --> team
+  class route_profile_privacy_control route
+  route_profile_privacy["/profile/privacy"]
+  promise --> route_profile_privacy
+  route_profile_privacy --> team
+  class route_profile_privacy route
+  route_settings_confidentialite["/settings/confidentialite"]
+  promise --> route_settings_confidentialite
+  route_settings_confidentialite --> team
+  class route_settings_confidentialite route
+  surface_PrivacyControlScreen["PrivacyControlScreen"]
+  promise -.-> surface_PrivacyControlScreen
+  class surface_PrivacyControlScreen surface
+  surface_ConsentSheet["ConsentSheet"]
+  promise -.-> surface_ConsentSheet
+  class surface_ConsentSheet surface
+  surface_ConsentReceiptService["ConsentReceiptService"]
+  promise -.-> surface_ConsentReceiptService
+  class surface_ConsentReceiptService surface
+  surface_PiiScrubber["PiiScrubber"]
+  promise -.-> surface_PiiScrubber
+  class surface_PiiScrubber surface
+  api_GET_api_v1_privacy_consent_status["GET /api/v1/privacy/consent-status"]
+  promise -.-> api_GET_api_v1_privacy_consent_status
+  class api_GET_api_v1_privacy_consent_status api
+  api_POST_api_v1_privacy_export["POST /api/v1/privacy/export"]
+  promise -.-> api_POST_api_v1_privacy_export
+  class api_POST_api_v1_privacy_export api
+  api_POST_api_v1_privacy_delete["POST /api/v1/privacy/delete"]
+  promise -.-> api_POST_api_v1_privacy_delete
+  class api_POST_api_v1_privacy_delete api
+  issue_JOS_003["JOS-003 verified/green"]
+  issue_JOS_003 --> promise
+  class issue_JOS_003 green

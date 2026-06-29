@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "account_lifecycle_delete",
+  "title": "Account lifecycle delete",
+  "tier": "T0",
+  "status": "live_proven",
+  "human_promise": "I can recover, delete, and control my account data.",
+  "accountable_team": "mint-quality-gate",
+  "personas": [
+    "fresh_disposable_staging_user",
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "entry_state": "User starts signed out, can recover password, register with disposable credentials, and reach authenticated privacy controls.",
+  "account_state": "Signed out at recovery/register entry, authenticated before privacy control, signed out again after account deletion.",
+  "success_state": "Recovery entry, registration, profile seal, privacy control, account deletion, and post-delete signed-out state all replay in one runtime proof.",
+  "negative_assertions": [
+    "Deleted account cannot keep an authenticated privacy surface visible.",
+    "Email verification interstitial must not block the tested disposable staging account.",
+    "Privacy delete controls must not remain visible after deletion."
+  ],
+  "source_spec_refs": [
+    "docs/MINT_AGENT_WORKFLOW.md",
+    ".planning/ACTIVE_CONTEXT.md"
+  ],
+  "proof_owner": "mint-quality-gate",
+  "fix_owner": "mint-mobile",
+  "runtime_replay": {
+    "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
+    "sets": [
+      "account_lifecycle"
+    ],
+    "device": "MINT iPhone 13 mini RvC",
+    "build_defines": [
+      "MINT_DISABLE_BETA_MODAL=true"
+    ],
+    "requires_auth": true,
+    "order": 90
+  },
+  "route_paths": [
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password",
+    "/profile/privacy-control",
+    "/profile/privacy"
+  ],
+  "surfaces": [
+    "AuthProvider",
+    "PrivacyControlScreen",
+    "AccountDeletionFlow"
+  ],
+  "external_apis": [
+    "POST /api/v1/auth/register",
+    "DELETE /api/v1/auth/account"
+  ],
+  "issues": [
+    "JOS-001",
+    "JOURNEY-TRUTH-MATRIX-005"
+  ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 3,
+    "evidence_gap": 5,
+    "route_centrality": 4,
+    "compliance_risk": 5,
+    "learning_value": 4,
+    "proof_cost": 4,
+    "rationale": "Only T0 seed with missing evidence; account recovery/delete/control is a trust and release boundary."
+  },
+  "evidence": [
+    {
+      "kind": "widget",
+      "status": "green",
+      "command": "cd apps/mobile && flutter test test/screens/profile/privacy_center_screen_test.dart",
+      "artifact": "apps/mobile/test/screens/profile/privacy_center_screen_test.dart",
+      "reason": "PR #740 proves the authenticated /profile/privacy deletion entry opens confirmation, calls AuthProvider.deleteAccount(), and redirects home on success."
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MAESTRO_HARD_LIMIT=360 MAESTRO_STALL_THRESHOLD=90 MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/jos001-account-lifecycle-20260626T200541Z bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/runtime-evidence/jos001-account-lifecycle-20260626T200541Z/result.xml --env MINT_E2E_EMAIL=<fresh disposable e2e email> --env MINT_E2E_PASSWORD=<redacted> tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
+      "artifact": ".planning/journeys/evidence/account_lifecycle_delete/20260626T200541Z/result.xml",
+      "reason": "Runtime proof drives recovery entry, POST /api/v1/auth/register, onboarding profile seal, privacy controls, privacy center delete confirmation, DELETE /api/v1/auth/account, and post-delete signed-out recovery state.",
+      "verified_at": "2026-06-26T20:05:41Z",
+      "verified_commit": "63220e05c5d0fda840186fd68c83fffbede73259"
+    }
+  ]
+}

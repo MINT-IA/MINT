@@ -1,0 +1,145 @@
+%% Generated route topology for Journey OS routes
+flowchart LR
+  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
+  classDef alias fill:#f5f5f5,stroke:#616161,color:#212121,stroke-dasharray: 4 3;
+  classDef auth fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;
+  classDef public fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
+  route__achievements["/achievements<br/>alias/system<br/>auth"]
+  class route__achievements alias
+  class route__achievements auth
+  route__advisor["/advisor<br/>alias/system<br/>auth"]
+  class route__advisor alias
+  class route__advisor auth
+  route__advisor_plan_30_days["/advisor/plan-30-days<br/>alias/system<br/>auth"]
+  class route__advisor_plan_30_days alias
+  class route__advisor_plan_30_days auth
+  route__advisor_wizard["/advisor/wizard<br/>alias/system<br/>auth"]
+  class route__advisor_wizard alias
+  class route__advisor_wizard auth
+  route__anonymous_chat["/anonymous/chat<br/>alias/anonymous<br/>public"]
+  class route__anonymous_chat alias
+  class route__anonymous_chat public
+  route__arbitrage_rente_vs_capital["/arbitrage/rente-vs-capital<br/>alias/system<br/>public"]
+  class route__arbitrage_rente_vs_capital alias
+  class route__arbitrage_rente_vs_capital public
+  route__ask_mint["/ask-mint<br/>alias/system<br/>auth"]
+  class route__ask_mint alias
+  class route__ask_mint auth
+  route__auth_forgot_password["/auth/forgot-password<br/>flow/auth<br/>public"]
+  class route__auth_forgot_password route
+  class route__auth_forgot_password public
+  route__auth_login["/auth/login<br/>flow/auth<br/>public"]
+  class route__auth_login route
+  class route__auth_login public
+  route__auth_register["/auth/register<br/>flow/auth<br/>public"]
+  class route__auth_register route
+  class route__auth_register public
+  route__budget["/budget<br/>destination/budget<br/>auth<br/>flag enableBudget"]
+  class route__budget route
+  class route__budget auth
+  route__coach_agir["/coach/agir<br/>alias/coach<br/>auth"]
+  class route__coach_agir alias
+  class route__coach_agir auth
+  route__coach_chat["/coach/chat<br/>destination/coach<br/>public<br/>flag enableCoachChat"]
+  class route__coach_chat route
+  class route__coach_chat public
+  route__coach_checkin["/coach/checkin<br/>alias/coach<br/>auth"]
+  class route__coach_checkin alias
+  class route__coach_checkin auth
+  route__coach_refresh["/coach/refresh<br/>alias/coach<br/>auth"]
+  class route__coach_refresh alias
+  class route__coach_refresh auth
+  route__home["/home<br/>destination/system<br/>auth"]
+  class route__home route
+  class route__home auth
+  route__mon_argent["/mon-argent<br/>destination/system<br/>auth"]
+  class route__mon_argent route
+  class route__mon_argent auth
+  route__onb["/onb<br/>destination/anonymous<br/>public"]
+  class route__onb route
+  class route__onb public
+  route__onboarding_intent["/onboarding/intent<br/>alias/system<br/>public"]
+  class route__onboarding_intent alias
+  class route__onboarding_intent public
+  route__onboarding_minimal["/onboarding/minimal<br/>alias/system<br/>public"]
+  class route__onboarding_minimal alias
+  class route__onboarding_minimal public
+  route__onboarding_plan["/onboarding/plan<br/>alias/system<br/>public"]
+  class route__onboarding_plan alias
+  class route__onboarding_plan public
+  route__onboarding_premier_eclairage["/onboarding/premier-eclairage<br/>alias/system<br/>public"]
+  class route__onboarding_premier_eclairage alias
+  class route__onboarding_premier_eclairage public
+  route__onboarding_promise["/onboarding/promise<br/>alias/system<br/>public"]
+  class route__onboarding_promise alias
+  class route__onboarding_promise public
+  route__onboarding_quick["/onboarding/quick<br/>alias/system<br/>public"]
+  class route__onboarding_quick alias
+  class route__onboarding_quick public
+  route__onboarding_quick_start["/onboarding/quick-start<br/>alias/system<br/>public"]
+  class route__onboarding_quick_start alias
+  class route__onboarding_quick_start public
+  route__onboarding_smart["/onboarding/smart<br/>alias/system<br/>public"]
+  class route__onboarding_smart alias
+  class route__onboarding_smart public
+  route__portfolio["/portfolio<br/>alias/system<br/>auth"]
+  class route__portfolio alias
+  class route__portfolio auth
+  route__profile_privacy["/profile/privacy<br/>destination/system<br/>auth"]
+  class route__profile_privacy route
+  class route__profile_privacy auth
+  route__profile_privacy_control["/profile/privacy-control<br/>destination/system<br/>auth"]
+  class route__profile_privacy_control route
+  class route__profile_privacy_control auth
+  route__rapport["/rapport<br/>destination/system<br/>auth"]
+  class route__rapport route
+  class route__rapport auth
+  route__rente_vs_capital["/rente-vs-capital<br/>destination/retraite<br/>public<br/>flag enableExplorerRetraite"]
+  class route__rente_vs_capital route
+  class route__rente_vs_capital public
+  route__report["/report<br/>alias/system<br/>auth"]
+  class route__report alias
+  class route__report auth
+  route__report_v2["/report/v2<br/>alias/system<br/>auth"]
+  class route__report_v2 alias
+  class route__report_v2 auth
+  route__score_reveal["/score-reveal<br/>alias/system<br/>auth"]
+  class route__score_reveal alias
+  class route__score_reveal auth
+  route__settings_confidentialite["/settings/confidentialite<br/>destination/system<br/>auth"]
+  class route__settings_confidentialite route
+  class route__settings_confidentialite auth
+  route__simulator_rente_capital["/simulator/rente-capital<br/>alias/system<br/>public"]
+  class route__simulator_rente_capital alias
+  class route__simulator_rente_capital public
+  route__start["/start<br/>alias/anonymous<br/>public"]
+  class route__start alias
+  class route__start public
+  route__tools["/tools<br/>alias/system<br/>auth"]
+  class route__tools alias
+  class route__tools auth
+  route__achievements -. redirects .-> route__home
+  route__advisor -. redirects .-> route__coach_chat
+  route__advisor_plan_30_days -. redirects .-> route__coach_chat
+  route__advisor_wizard -. redirects .-> route__coach_chat
+  route__anonymous_chat -. redirects .-> route__onb
+  route__arbitrage_rente_vs_capital -. redirects .-> route__rente_vs_capital
+  route__ask_mint -. redirects .-> route__coach_chat
+  route__coach_agir -. redirects .-> route__coach_chat
+  route__coach_checkin -. redirects .-> route__coach_chat
+  route__coach_refresh -. redirects .-> route__home
+  route__onboarding_intent -. redirects .-> route__coach_chat
+  route__onboarding_minimal -. redirects .-> route__coach_chat
+  route__onboarding_plan -. redirects .-> route__coach_chat
+  route__onboarding_premier_eclairage -. redirects .-> route__coach_chat
+  route__onboarding_promise -. redirects .-> route__coach_chat
+  route__onboarding_quick -. redirects .-> route__coach_chat
+  route__onboarding_quick_start -. redirects .-> route__coach_chat
+  route__onboarding_smart -. redirects .-> route__coach_chat
+  route__portfolio -. redirects .-> route__home
+  route__report -. redirects .-> route__rapport
+  route__report_v2 -. redirects .-> route__rapport
+  route__score_reveal -. redirects .-> route__home
+  route__simulator_rente_capital -. redirects .-> route__rente_vs_capital
+  route__start -. redirects .-> route__onb
+  route__tools -. redirects .-> route__coach_chat

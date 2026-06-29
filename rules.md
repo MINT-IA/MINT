@@ -56,10 +56,19 @@ there is an actual tool call, command output, or artifact path.
 - Run `python3 tools/checks/phase_contract_guard.py` before executing a phase.
 - Run `python3 tools/checks/mint_rules_guard.py` before committing workflow
   changes.
+- Run `python3 tools/checks/journey_os_check.py` before Journey OS, vertical,
+  issue-tracker, runtime-evidence, or workflow-guard changes.
+- Run `python3 tools/checks/workflow_contract_guard.py` before workflow,
+  agent-bootstrap, hook, or CI guard changes.
 - Write the active phase `SPEC.md` before implementation.
 - Use test-driven development for feature, bugfix, guard, and behavior changes.
 - Verify the diff, not the explanation: `git diff --stat`, `git diff --check`,
   and focused tests before commit.
+- Treat PR size as a dynamic review budget, not a fixed line cap. Always run
+  `git diff --shortstat origin/dev...HEAD`; keep routine bugfix/doc/guard PRs
+  around the small-PR budget, and when a coherent vertical legitimately exceeds
+  it, isolate generated/evidence files and state in the PR why splitting would
+  make review or rollback worse.
 - Save Engram via `mem_save` after durable decisions, discoveries,
   conventions, and bug fixes.
 - Use simulator/runtime evidence before claiming mobile user flow quality.
@@ -129,6 +138,8 @@ Planning guards:
 python3 tools/checks/active_context_guard.py
 python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
+python3 tools/checks/journey_os_check.py
+python3 tools/checks/workflow_contract_guard.py
 python3 tools/checks/agent_reference_guard.py
 python3 tools/checks/claude_hooks_guard.py
 ```

@@ -239,5 +239,116 @@ void main() {
         '/onb',
       );
     });
+
+    test('explicit guest can enter profile dossier handoff surface', () {
+      final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/profile/bilan',
+        ),
+        isNull,
+      );
+    });
+
+    test('explicit guest can enter public coach before profile facts', () {
+      final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/coach/chat',
+          topRoute: _publicShellRoute('/coach/chat'),
+        ),
+        isNull,
+      );
+    });
+
+    test('claimed account can re-enter profile dossier handoff surface', () {
+      final lifecycle = AuthLifecycleState.signedInProfileMissing(
+        userId: 'claim-user',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/profile/bilan',
+        ),
+        isNull,
+      );
+    });
+
+    test('profile-loading account cannot bypass profile dossier gate', () {
+      final lifecycle = AuthLifecycleState.signedInProfileLoading(
+        userId: 'claim-user',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/profile/bilan',
+          profileSettled: false,
+        ),
+        '/',
+      );
+    });
+
+    test('profile-ready account can enter first-value RvC route', () {
+      final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
+      final route = ScopedGoRoute(
+        path: '/rente-vs-capital',
+        scope: RouteScope.onboarding,
+        builder: (_, __) => throw UnimplementedError(),
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/rente-vs-capital',
+          topRoute: route,
+          profile: CoachProfile.fromWizardAnswers({
+            'q_residence_country': 'CH',
+          }),
+        ),
+        isNull,
+      );
+    });
+
+    test('explicit guest can enter first-value RvC before profile facts', () {
+      final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
+      final route = ScopedGoRoute(
+        path: '/rente-vs-capital',
+        scope: RouteScope.onboarding,
+        builder: (_, __) => throw UnimplementedError(),
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/rente-vs-capital',
+          topRoute: route,
+        ),
+        isNull,
+      );
+    });
+
+    test('claimed account can enter dev-only e2e public routes', () {
+      final lifecycle = AuthLifecycleState.signedInProfileMissing(
+        userId: 'claim-user',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/__e2e/row23-independent-no-lpp-profile',
+          topRoute: _publicShellRoute('/__e2e/row23-independent-no-lpp-profile'),
+        ),
+        isNull,
+      );
+    });
   });
 }

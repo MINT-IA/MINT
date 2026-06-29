@@ -1,0 +1,11 @@
+# Next Journey OS Work
+
+Generated from `.planning/journeys/issues/*.json`. Do not edit directly.
+
+| Issue | Severity | Status | Journey | Journey status | Journey priority | Owner | Evidence | Latest proof | Artifact | Next action |
+|---|---|---|---|---|---:|---|---|---|---|---|
+| JOS-001 | P0 | verified | account_lifecycle_delete | live_proven | 27 | mint-quality-gate | green | green / runtime / 2026-06-26T20:05:41Z / 63220e05 | .planning/journeys/evidence/account_lifecycle_delete/20260626T200541Z/result.xml | Keep the seeded-auth runtime proof in CI/backlog monitoring and watch PR checks for regressions before merge. |
+| JOS-004 | P0 | verified | coach_advice_turn | partial | 27 | mint-quality-gate | green | green / runtime / 2026-06-28T23:50:28Z / 52935411 | .planning/journeys/evidence/runtime_replay/20260628T234759Z/coach_advice_turn/result.xml | JOS-004 3a/LPP ceiling fallback fix is verified by Journey OS runtime replay; keep the broader coach advice turn journey partial until more advice classes have equivalent runtime coverage. |
+| JOS-002 | P0 | verified | money_truth_spine | live_proven | 26 | mint-quality-gate | green | green / runtime / 2026-06-27T00:38:40Z / 5d8b970c | .planning/journeys/evidence/money_truth_spine/20260627T003738Z/result.xml | Keep the Money Truth Chain runtime gate in Journey OS monitoring and select the next highest-priority partial T0 vertical from the remaining journey records. |
+| JOS-003 | P0 | verified | profile_privacy_control | partial | 25 | mint-quality-gate | green | green / runtime / 2026-06-27T00:57:37Z / 104c92d1 | .planning/journeys/evidence/profile_privacy_control/20260627T005708Z/result.xml | Keep the Profile Privacy Control runtime gate in Journey OS monitoring; add authenticated backend privacy E2E sampling when a stable seed exists. |
+| JOS-005 | P0 | verified | onboarding_first_value | partial | 24 | mint-mobile | green | green / runtime / 2026-06-28T23:21:28Z / f7e92f87 | .planning/journeys/evidence/runtime_replay/20260628T231957Z/onboarding_first_value/result.xml | Keep the Mint2 onboarding first-value proof in core Journey OS monitoring (`--set core`); production/non-E2E release enablement remains a separate flag rollout proof, and the top replay pointer now moves to authenticated JOS-004 Coach advice turn proof closure. |
