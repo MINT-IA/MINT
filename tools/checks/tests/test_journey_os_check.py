@@ -326,6 +326,26 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_jos006_coach_cta_stack_contract_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            ".planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md",
+            "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
+            "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+            "apps/mobile/lib/widgets/aujourdhui/commitments_and_checkins_card.dart",
+            "apps/mobile/test/architecture/navigation_push_doctrine_test.dart",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
     flow = (
         journey_os_check.REPO_ROOT

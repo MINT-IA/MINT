@@ -3,7 +3,7 @@ name: MVP-B7-CASCADE-EMPTY-STATE-PUSH — perimeter STUB
 description: Audit finding 2026-05-08 (PR #533 P1 sweep) — 4 screens use context.go('/coach/chat') from empty-state CTAs. context.go REPLACES the navigation stack so the user lands on the coach without a back-button to the source screen ; if they hit back from coach they end up at the root, losing the screen they came from. Fix is mechanical : convert each empty-state CTA to context.push so the source screen stays underneath. Effort ~0.2 j.
 type: decision
 date: 2026-05-09
-status: STUB → IN_FLIGHT (this PR opens with the fix)
+status: SUPERSEDED_FOR_SHELL_TAB_SURFACES
 related:
   - .planning/decisions/2026-05-09-perimeter-fatca-calculator-gate/STUB.md
 sources:
@@ -12,6 +12,21 @@ sources:
 ---
 
 # MVP-B7-CASCADE-EMPTY-STATE-PUSH — STUB
+
+## 2026-06-29 supersession note
+
+This decision is no longer universal for `/coach/chat`.
+
+`/coach/chat` is a `StatefulShellRoute` branch. On top-level shell surfaces
+such as Aujourd'hui and Mon Argent, `context.push('/coach/chat')` can display
+Coach while leaving the source tab selected. Those surfaces must use
+`context.go('/coach/chat')` so the content and bottom navigation switch
+together.
+
+The original B7 rationale still applies to leaf/detail or mid-flow screens
+where preserving the source stack is more important until MINT has a
+root-owned Coach handoff route that can preserve both tab selection and return
+state.
 
 ## Goal
 

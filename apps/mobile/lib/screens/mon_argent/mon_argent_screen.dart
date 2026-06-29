@@ -225,7 +225,8 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         MintEntrance(
                           delay: const Duration(milliseconds: 200),
                           child: GestureDetector(
-                            onTap: () => context.go('/coach/chat?topic=budget'),
+                            onTap: () =>
+                                context.go('/coach/chat?topic=budget'),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: MintSpacing.sm,

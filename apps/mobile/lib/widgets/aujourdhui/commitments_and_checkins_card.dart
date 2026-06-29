@@ -226,7 +226,7 @@ class _CommitmentsAndCheckinsCardState
   }
 
   void _resumeConversation(BuildContext context) {
-    context.push('/coach/chat');
+    context.go('/coach/chat');
   }
 
   Future<void> _completeCommitment(String id) async {

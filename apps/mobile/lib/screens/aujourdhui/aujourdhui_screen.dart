@@ -134,19 +134,18 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
           FinancialPlanCard(
             plan: planProvider.currentPlan!,
             isStale: planProvider.isPlanStale,
-            // B7-cascade fix 2026-05-09 : push (not go) so the user can
-            // back-out of the coach without losing this screen. See
-            // .planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/.
-            onRecalculate: (_) => context.push('/coach/chat'),
+            // Coach is a shell tab: go switches the tab and keeps bottom
+            // navigation state coherent.
+            onRecalculate: (_) => context.go('/coach/chat'),
           ),
           const SizedBox(height: MintSpacing.md),
           ConfidenceScoreCard(
             score: confidence.combined,
             confidence: confidence,
             enrichmentPrompts: confidence.axisPrompts,
-            // B7-cascade fix 2026-05-09 : push (not go) so the user can
-            // back-out of the coach without losing this screen.
-            onEnrichmentTap: () => context.push('/coach/chat'),
+            // Coach is a shell tab: go switches the tab and keeps bottom
+            // navigation state coherent.
+            onEnrichmentTap: () => context.go('/coach/chat'),
           ),
         ],
       ),
@@ -199,10 +198,9 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: GestureDetector(
-                        // B7-cascade fix 2026-05-09 : push (not go) so the
-                        // user can back-out of the coach without resetting
-                        // the navigation stack on this screen.
-                        onTap: () => context.push('/coach/chat'),
+                        // Coach is a shell tab: go switches the tab and keeps
+                        // bottom navigation state coherent.
+                        onTap: () => context.go('/coach/chat'),
                         child: Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
