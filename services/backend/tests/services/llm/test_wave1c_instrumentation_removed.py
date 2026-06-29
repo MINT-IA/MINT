@@ -8,8 +8,12 @@ from pathlib import Path
 def test_wave1c_payload_logger_is_not_reintroduced():
     backend_root = Path(__file__).resolve().parents[3]
     checked_files = [
-        backend_root / "app/services/rag/llm_client.py",
-        backend_root / "app/services/llm/router.py",
+        path
+        for root in (
+            backend_root / "app/services/rag",
+            backend_root / "app/services/llm",
+        )
+        for path in root.rglob("*.py")
     ]
 
     for path in checked_files:
