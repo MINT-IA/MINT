@@ -280,6 +280,38 @@ void main() {
       );
     });
 
+    test('claimed account can enter privacy center before profile completion',
+        () {
+      final lifecycle = AuthLifecycleState.signedInProfileMissing(
+        userId: 'claim-user',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/profile/privacy',
+        ),
+        isNull,
+      );
+    });
+
+    test('claimed account can enter privacy controls before profile completion',
+        () {
+      final lifecycle = AuthLifecycleState.signedInProfileMissing(
+        userId: 'claim-user',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/profile/privacy-control',
+        ),
+        isNull,
+      );
+    });
+
     test('profile-loading account cannot bypass profile dossier gate', () {
       final lifecycle = AuthLifecycleState.signedInProfileLoading(
         userId: 'claim-user',
@@ -345,7 +377,8 @@ void main() {
         _redirect(
           lifecycle: lifecycle,
           path: '/__e2e/row23-independent-no-lpp-profile',
-          topRoute: _publicShellRoute('/__e2e/row23-independent-no-lpp-profile'),
+          topRoute:
+              _publicShellRoute('/__e2e/row23-independent-no-lpp-profile'),
         ),
         isNull,
       );

@@ -33,6 +33,21 @@ Widget _testApp({CoachProfileProvider? coachProfileProvider}) {
   );
 }
 
+Future<void> _acceptRequiredConsentsAndTapApple(WidgetTester tester) async {
+  await tester.ensureVisible(find.byType(Checkbox).at(0));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(Checkbox).at(0));
+  await tester.pump();
+  await tester.ensureVisible(find.byType(Checkbox).at(1));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(Checkbox).at(1));
+  await tester.pump();
+  await tester.ensureVisible(find.byType(SignInWithAppleButton));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(SignInWithAppleButton));
+  await tester.pump();
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -44,23 +59,29 @@ void main() {
     AppleSignInService.resetOverrides();
   });
 
-  testWidgets('iOS registration starts with Apple and keeps email as fallback',
+  testWidgets('iOS registration exposes Apple and email immediately',
       (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     try {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
+      final emailField = find.widgetWithText(TextFormField, 'Adresse e-mail');
       expect(find.byType(SignInWithAppleButton), findsOneWidget);
-      expect(find.text('Créer avec e-mail'), findsOneWidget);
-      expect(find.byIcon(Icons.email_outlined), findsNothing);
-
-      await tester.ensureVisible(find.text('Créer avec e-mail'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Créer avec e-mail'));
-      await tester.pump();
-
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(emailField, findsOneWidget);
+      expect(tester.getTopLeft(emailField).dy, lessThan(560));
+      expect(
+        tester.getTopLeft(emailField).dy,
+        lessThan(tester.getTopLeft(find.byType(Checkbox).first).dy),
+      );
+      expect(find.text('Créer avec e-mail'), findsNothing);
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
@@ -73,6 +94,8 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
+      await tester.ensureVisible(find.byType(SignInWithAppleButton));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(SignInWithAppleButton));
       await tester.pump();
 
@@ -81,6 +104,63 @@ void main() {
             "Confirme les conditions et l'âge avant de créer ton compte."),
         findsOneWidget,
       );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('legal consent labels toggle their checkboxes', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      final cguCheckbox = find.byKey(
+        const ValueKey('auth_register_accept_cgu'),
+      );
+      final cguLabel = find.byKey(
+        const ValueKey('auth_register_accept_cgu_label'),
+      );
+      final ageCheckbox = find.byKey(
+        const ValueKey('auth_register_confirm_18'),
+      );
+      final ageLabel = find.byKey(
+        const ValueKey('auth_register_confirm_18_label'),
+      );
+
+      await tester.ensureVisible(cguLabel);
+      await tester.pumpAndSettle();
+      await tester.tap(cguLabel);
+      await tester.pump();
+
+      await tester.ensureVisible(ageLabel);
+      await tester.pumpAndSettle();
+      await tester.tap(ageLabel);
+      await tester.pump();
+
+      expect(tester.widget<Checkbox>(cguCheckbox).value, isTrue);
+      expect(tester.widget<Checkbox>(ageCheckbox).value, isTrue);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('date of birth field opens the picker', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      final dobField = find.byKey(
+        const ValueKey('auth_register_dob_field'),
+      );
+
+      await tester.ensureVisible(dobField);
+      await tester.pumpAndSettle();
+      await tester.tap(dobField);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Valider'), findsOneWidget);
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
@@ -112,12 +192,7 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
-      await tester.tap(find.byType(Checkbox).at(0));
-      await tester.pump();
-      await tester.tap(find.byType(Checkbox).at(1));
-      await tester.pump();
-      await tester.tap(find.byType(SignInWithAppleButton));
-      await tester.pump();
+      await _acceptRequiredConsentsAndTapApple(tester);
 
       expect(
         find.text(
@@ -148,18 +223,80 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
-      await tester.tap(find.byType(Checkbox).at(0));
-      await tester.pump();
-      await tester.tap(find.byType(Checkbox).at(1));
-      await tester.pump();
-      await tester.tap(find.byType(SignInWithAppleButton));
-      await tester.pump();
+      await _acceptRequiredConsentsAndTapApple(tester);
 
       expect(
         find.text(
           'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
         ),
         findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('native Apple auth failure keeps email path visible',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw const SignInWithAppleAuthorizationException(
+        code: AuthorizationErrorCode.unknown,
+        message: 'Authorization failed',
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('Apple cancellation does not show service unavailable guidance',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw const SignInWithAppleAuthorizationException(
+        code: AuthorizationErrorCode.canceled,
+        message: 'User canceled Apple Sign-In',
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
       );
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
     } finally {

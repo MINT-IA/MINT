@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -53,7 +52,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    _showEmailForm = !canShowAppleSignIn;
+    // Account creation must not depend on Apple Sign-In availability or
+    // provisioning state. TestFlight users get the email path immediately.
+    _showEmailForm = true;
     _passwordController.addListener(() => setState(() {}));
     _confirmPasswordController.addListener(() => setState(() {}));
     // Clear any stale auth error that would otherwise surface a red "Action
@@ -171,6 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
       await _goAfterAccountCreated();
     } catch (e) {
+      if (AppleSignInService.isCancellation(e)) return;
       if (mounted) {
         setState(() {
           _appleSignInError = localizeAuthException(e, S.of(context)!);
@@ -202,6 +204,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
       currentUri: GoRouterState.of(context).uri,
       hasDossierIdentity: hasDossierIdentity,
     ));
+  }
+
+  String _formattedDateOfBirth() {
+    if (_dateOfBirth == null) return '';
+    return '${_dateOfBirth!.day.toString().padLeft(2, '0')}.'
+        '${_dateOfBirth!.month.toString().padLeft(2, '0')}.'
+        '${_dateOfBirth!.year}';
+  }
+
+  Future<DateTime?> _pickDateOfBirth() async {
+    final l10n = S.of(context)!;
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dateOfBirth ?? DateTime(now.year - 35, 1, 1),
+      firstDate: DateTime(now.year - 99),
+      lastDate: DateTime(now.year - 18, now.month, now.day),
+      locale: const Locale('fr'),
+      helpText: l10n.authDateOfBirthHelp,
+      cancelText: l10n.authDateOfBirthCancel,
+      confirmText: l10n.authDateOfBirthConfirm,
+    );
+    if (picked != null && mounted) {
+      setState(() => _dateOfBirth = picked);
+    }
+    return picked;
   }
 
   Future<bool> _refreshHandoffChoiceRequired() async {
@@ -242,68 +270,138 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildRequiredConsents(S l10n) {
+    final consentTextStyle = MintTextStyles.bodySmall(
+      color: MintColors.textSecondary,
+    );
+    final consentLinkStyle = MintTextStyles.bodySmall(
+      color: MintColors.primary,
+    ).copyWith(
+      fontWeight: FontWeight.w600,
+      decoration: TextDecoration.underline,
+    );
+
+    void setAcceptedCgu(bool value) {
+      setState(() {
+        _acceptedCgu = value;
+        _appleSignInError = null;
+      });
+    }
+
+    void setConfirmed18Plus(bool value) {
+      setState(() {
+        _confirmed18Plus = value;
+        _appleSignInError = null;
+      });
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CheckboxListTile(
-          value: _acceptedCgu,
-          onChanged: (v) => setState(() {
-            _acceptedCgu = v ?? false;
-            _appleSignInError = null;
-          }),
-          controlAffinity: ListTileControlAffinity.leading,
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          title: RichText(
-            text: TextSpan(
-              style: MintTextStyles.bodySmall(
-                color: MintColors.textSecondary,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              identifier: 'auth_register_accept_cgu',
+              checked: _acceptedCgu,
+              child: Checkbox(
+                key: const ValueKey('auth_register_accept_cgu'),
+                value: _acceptedCgu,
+                onChanged: (v) => setAcceptedCgu(v ?? false),
               ),
-              children: [
-                TextSpan(text: l10n.authCguAccept),
-                TextSpan(
-                  text: l10n.authCguLink,
-                  style: MintTextStyles.bodySmall(
-                    color: MintColors.primary,
-                  ).copyWith(
-                    fontWeight: FontWeight.w600,
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => context.push('/about'),
-                ),
-                TextSpan(text: l10n.authCguAndPrivacy),
-                TextSpan(
-                  text: l10n.authPrivacyPolicyText,
-                  style: MintTextStyles.bodySmall(
-                    color: MintColors.primary,
-                  ).copyWith(
-                    fontWeight: FontWeight.w600,
-                    decoration: TextDecoration.underline,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => context.push('/about'),
-                ),
-                const TextSpan(text: ' *'),
-              ],
             ),
-          ),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Semantics(
+                identifier: 'auth_register_accept_cgu_label',
+                checked: _acceptedCgu,
+                button: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: MintSpacing.sm),
+                  child: Wrap(
+                    children: [
+                      GestureDetector(
+                        key: const ValueKey('auth_register_accept_cgu_label'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => setAcceptedCgu(!_acceptedCgu),
+                        child: Text(
+                          l10n.authCguAccept,
+                          style: consentTextStyle,
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => context.push('/about'),
+                        child: Text(
+                          l10n.authCguLink,
+                          style: consentLinkStyle,
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => setAcceptedCgu(!_acceptedCgu),
+                        child: Text(
+                          l10n.authCguAndPrivacy,
+                          style: consentTextStyle,
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => context.push('/about'),
+                        child: Text(
+                          l10n.authPrivacyPolicyText,
+                          style: consentLinkStyle,
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => setAcceptedCgu(!_acceptedCgu),
+                        child: Text(
+                          ' *',
+                          style: consentTextStyle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        CheckboxListTile(
-          value: _confirmed18Plus,
-          onChanged: (v) => setState(() {
-            _confirmed18Plus = v ?? false;
-            _appleSignInError = null;
-          }),
-          controlAffinity: ListTileControlAffinity.leading,
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          title: Text(
-            l10n.authConfirm18,
-            style: MintTextStyles.bodySmall(
-              color: MintColors.textSecondary,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              identifier: 'auth_register_confirm_18',
+              checked: _confirmed18Plus,
+              child: Checkbox(
+                key: const ValueKey('auth_register_confirm_18'),
+                value: _confirmed18Plus,
+                onChanged: (v) => setConfirmed18Plus(v ?? false),
+              ),
             ),
-          ),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Semantics(
+                identifier: 'auth_register_confirm_18_label',
+                checked: _confirmed18Plus,
+                button: true,
+                child: InkWell(
+                  key: const ValueKey('auth_register_confirm_18_label'),
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => setConfirmed18Plus(!_confirmed18Plus),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: MintSpacing.sm),
+                    child: Text(
+                      l10n.authConfirm18,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -361,7 +459,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: MintSpacing.xl),
+                        const SizedBox(height: MintSpacing.sm),
                         // Brand mark — typographic, consistent with LandingScreen.
                         // Was a generic `Icons.token_rounded` in a soft surface; it
                         // read as a misplaced UI chip on an otherwise text-heavy
@@ -382,13 +480,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: MintSpacing.xl),
+                        const SizedBox(height: MintSpacing.md),
                         // Title
                         MintEntrance(
                             delay: const Duration(milliseconds: 100),
                             child: Text(
                               l10n.authRegisterTitle,
-                              style: MintTextStyles.headlineLarge(),
+                              style: MintTextStyles.headlineMedium(),
                               textAlign: TextAlign.center,
                             )),
                         const SizedBox(height: MintSpacing.sm),
@@ -396,7 +494,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             delay: const Duration(milliseconds: 200),
                             child: Text(
                               l10n.authRegisterSubtitle,
-                              style: MintTextStyles.bodyLarge(),
+                              style: MintTextStyles.bodyMedium(),
                               textAlign: TextAlign.center,
                             )),
                         if (FeatureFlags.enableMvpWedgeOnboarding) ...[
@@ -405,98 +503,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onChoiceChanged: _refreshHandoffChoiceRequired,
                           ),
                         ],
-                        if (_showEmailForm || !canShowAppleSignIn) ...[
-                          const SizedBox(height: MintSpacing.md),
-                          MintEntrance(
-                              delay: const Duration(milliseconds: 300),
-                              child: MintSurface(
-                                padding: const EdgeInsets.all(14),
-                                radius: 14,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.authWhyCreateAccount,
-                                      style: MintTextStyles.bodyMedium()
-                                          .copyWith(
-                                              fontWeight: FontWeight.w600),
-                                    ),
-                                    const SizedBox(height: MintSpacing.sm),
-                                    _RegisterBenefitRow(
-                                        text: l10n.authBenefitProjections),
-                                    _RegisterBenefitRow(
-                                        text: l10n.authBenefitCoach),
-                                    _RegisterBenefitRow(
-                                        text: l10n.authBenefitSync),
-                                  ],
-                                ),
-                              )),
-                          const SizedBox(height: MintSpacing.xxl),
-                        ] else
-                          const SizedBox(height: MintSpacing.lg),
-                        if (canShowAppleSignIn) ...[
-                          _buildRequiredConsents(l10n),
-                          const SizedBox(height: MintSpacing.lg),
-                        ],
-                        if (canShowAppleSignIn) ...[
-                          Text(
-                            l10n.authAppleDobNotice,
-                            style: MintTextStyles.bodySmall(
-                              color: MintColors.textSecondary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: MintSpacing.sm),
-                          SizedBox(
-                            height: 48,
-                            child: _appleSignInLoading
-                                ? const Center(
-                                    child: SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    ),
-                                  )
-                                : _buildAppleSignInButton(
-                                    l10n,
-                                    handoffBlocksAuth,
-                                  ),
-                          ),
-                          if (_appleSignInError != null) ...[
-                            const SizedBox(height: MintSpacing.sm),
-                            Text(
-                              _appleSignInError!,
-                              style: MintTextStyles.bodySmall(
-                                  color: MintColors.error),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                          const SizedBox(height: MintSpacing.sm + 4),
-                          if (!_showEmailForm) ...[
-                            OutlinedButton(
-                              // lint-ignore: prefer_mint_cta
-                              onPressed: accountActionBusy
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        _showEmailForm = true;
-                                        _appleSignInError = null;
-                                      });
-                                    },
-                              child: Text(l10n.authCreateWithEmail),
-                            ),
-                            const SizedBox(height: MintSpacing.lg),
-                          ],
-                        ],
+                        const SizedBox(height: MintSpacing.lg),
                         if (_showEmailForm) ...[
                           // Email field
                           MintEntrance(
                               delay: const Duration(milliseconds: 400),
                               child: Semantics(
+                                identifier: 'auth_register_email_field',
                                 label: l10n.authEmail,
                                 textField: true,
                                 child: TextFormField(
+                                  key: const ValueKey(
+                                      'auth_register_email_field'),
                                   controller: _emailController,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.email],
@@ -519,9 +537,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: MintSpacing.md),
                           // First name field (required for coach personalization)
                           Semantics(
+                            identifier: 'auth_register_first_name_field',
                             label: l10n.authFirstName,
                             textField: true,
                             child: TextFormField(
+                              key: const ValueKey(
+                                  'auth_register_first_name_field'),
                               controller: _displayNameController,
                               autofillHints: const [AutofillHints.givenName],
                               textCapitalization: TextCapitalization.words,
@@ -540,70 +561,77 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: MintSpacing.md),
                           // Date of birth picker (precise age for AVS/LPP calculations)
-                          Semantics(
-                            label: l10n.authDateOfBirth,
-                            button: true,
-                            child: GestureDetector(
-                              onTap: () async {
-                                final now = DateTime.now();
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _dateOfBirth ??
-                                      DateTime(now.year - 35, 1, 1),
-                                  firstDate: DateTime(now.year - 99),
-                                  lastDate: DateTime(
-                                      now.year - 18, now.month, now.day),
-                                  locale: const Locale('fr'),
-                                  helpText: l10n.authDateOfBirthHelp,
-                                  cancelText: l10n.authDateOfBirthCancel,
-                                  confirmText: l10n.authDateOfBirthConfirm,
-                                );
-                                if (picked != null) {
-                                  setState(() => _dateOfBirth = picked);
-                                }
-                              },
-                              child: AbsorbPointer(
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: l10n.authDateOfBirth,
-                                    prefixIcon: const Icon(Icons.cake_outlined),
-                                    hintText: l10n.authDateOfBirthHint,
-                                    suffixIcon: const Icon(
-                                        Icons.calendar_today_outlined),
+                          FormField<DateTime>(
+                            initialValue: _dateOfBirth,
+                            validator: (_) {
+                              if (_dateOfBirth == null) {
+                                return l10n.authDateOfBirthRequired;
+                              }
+                              if (yearsBetween(_dateOfBirth!, DateTime.now()) <
+                                  18) {
+                                return l10n.authDateOfBirthTooYoung;
+                              }
+                              return null;
+                            },
+                            builder: (field) {
+                              Future<void> pickAndSync() async {
+                                final picked = await _pickDateOfBirth();
+                                if (picked != null) field.didChange(picked);
+                              }
+
+                              return Semantics(
+                                identifier: 'auth_register_dob_field',
+                                label: l10n.authDateOfBirth,
+                                button: true,
+                                onTap: pickAndSync,
+                                child: InkWell(
+                                  key:
+                                      const ValueKey('auth_register_dob_field'),
+                                  borderRadius: BorderRadius.circular(4),
+                                  onTap: pickAndSync,
+                                  child: InputDecorator(
+                                    decoration: InputDecoration(
+                                      labelText: l10n.authDateOfBirth,
+                                      prefixIcon:
+                                          const Icon(Icons.cake_outlined),
+                                      hintText: l10n.authDateOfBirthHint,
+                                      suffixIcon: const Icon(
+                                          Icons.calendar_today_outlined),
+                                      errorText: field.errorText,
+                                    ),
+                                    isEmpty: _dateOfBirth == null,
+                                    child: Text(
+                                      _dateOfBirth == null
+                                          ? l10n.authDateOfBirthHint
+                                          : _formattedDateOfBirth(),
+                                      style: MintTextStyles.bodyMedium(
+                                        color: _dateOfBirth == null
+                                            ? MintColors.textMuted
+                                            : MintColors.textPrimary,
+                                      ),
+                                    ),
                                   ),
-                                  controller: TextEditingController(
-                                    text: _dateOfBirth != null
-                                        ? '${_dateOfBirth!.day.toString().padLeft(2, '0')}.'
-                                            '${_dateOfBirth!.month.toString().padLeft(2, '0')}.'
-                                            '${_dateOfBirth!.year}'
-                                        : '',
-                                  ),
-                                  validator: (_) {
-                                    if (_dateOfBirth == null) {
-                                      return l10n.authDateOfBirthRequired;
-                                    }
-                                    if (yearsBetween(
-                                            _dateOfBirth!, DateTime.now()) <
-                                        18) {
-                                      return l10n.authDateOfBirthTooYoung;
-                                    }
-                                    return null;
-                                  },
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                           const SizedBox(height: MintSpacing.md),
                           // Password field
                           Semantics(
+                            identifier: 'auth_register_password_field',
                             label: l10n.authPassword,
                             textField: true,
                             child: TextFormField(
+                              key: const ValueKey(
+                                  'auth_register_password_field'),
                               controller: _passwordController,
                               obscureText: _obscurePassword,
+                              textInputAction: TextInputAction.next,
                               autofillHints: const [AutofillHints.newPassword],
                               autovalidateMode:
                                   AutovalidateMode.onUserInteraction,
+                              onFieldSubmitted: (_) =>
+                                  FocusScope.of(context).nextFocus(),
                               decoration: InputDecoration(
                                 labelText: l10n.authPassword,
                                 prefixIcon: const Icon(Icons.lock_outline),
@@ -650,14 +678,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: MintSpacing.md),
                           // Confirm password field
                           Semantics(
+                            identifier: 'auth_register_confirm_password_field',
                             label: l10n.authConfirmPassword,
                             textField: true,
                             child: TextFormField(
+                              key: const ValueKey(
+                                  'auth_register_confirm_password_field'),
                               controller: _confirmPasswordController,
                               obscureText: _obscureConfirmPassword,
+                              textInputAction: TextInputAction.done,
                               autofillHints: const [AutofillHints.newPassword],
                               autovalidateMode:
                                   AutovalidateMode.onUserInteraction,
+                              onFieldSubmitted: (_) =>
+                                  FocusScope.of(context).unfocus(),
                               decoration: InputDecoration(
                                 labelText: l10n.authConfirmPassword,
                                 prefixIcon: const Icon(Icons.lock_outline),
@@ -718,10 +752,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             password: _passwordController.text,
                           ),
                           const SizedBox(height: MintSpacing.lg),
-                          if (!canShowAppleSignIn) ...[
-                            _buildRequiredConsents(l10n),
-                            const SizedBox(height: MintSpacing.sm + 4),
-                          ],
+                          _buildRequiredConsents(l10n),
+                          const SizedBox(height: MintSpacing.sm + 4),
                           // "Consentements optionnels" divider
                           Row(
                             children: [
@@ -831,10 +863,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: MintSpacing.lg),
                           // Register button
                           Semantics(
+                            identifier: 'auth_register_create_account',
                             label: l10n.authCreateAccount,
                             button: true,
                             child: FilledButton(
                               // lint-ignore: prefer_mint_cta
+                              key: const ValueKey(
+                                  'auth_register_create_account'),
                               onPressed: (_acceptedCgu &&
                                       _confirmed18Plus &&
                                       !accountActionBusy &&
@@ -860,6 +895,85 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: MintSpacing.sm + 4),
                         ],
+                        if (canShowAppleSignIn) ...[
+                          const SizedBox(height: MintSpacing.sm),
+                          Text(
+                            l10n.authAppleDobNotice,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
+                          SizedBox(
+                            height: 48,
+                            child: _appleSignInLoading
+                                ? const Center(
+                                    child: SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    ),
+                                  )
+                                : _buildAppleSignInButton(
+                                    l10n,
+                                    handoffBlocksAuth,
+                                  ),
+                          ),
+                          if (_appleSignInError != null) ...[
+                            const SizedBox(height: MintSpacing.sm),
+                            Text(
+                              _appleSignInError!,
+                              style: MintTextStyles.bodySmall(
+                                  color: MintColors.error),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                          const SizedBox(height: MintSpacing.lg),
+                          if (!_showEmailForm) ...[
+                            OutlinedButton(
+                              // lint-ignore: prefer_mint_cta
+                              onPressed: accountActionBusy
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _showEmailForm = true;
+                                        _appleSignInError = null;
+                                      });
+                                    },
+                              child: Text(l10n.authCreateWithEmail),
+                            ),
+                            const SizedBox(height: MintSpacing.lg),
+                          ],
+                        ],
+                        if (_showEmailForm || !canShowAppleSignIn) ...[
+                          MintEntrance(
+                              delay: const Duration(milliseconds: 300),
+                              child: MintSurface(
+                                padding: const EdgeInsets.all(14),
+                                radius: 14,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.authWhyCreateAccount,
+                                      style: MintTextStyles.bodyMedium()
+                                          .copyWith(
+                                              fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: MintSpacing.sm),
+                                    _RegisterBenefitRow(
+                                        text: l10n.authBenefitProjections),
+                                    _RegisterBenefitRow(
+                                        text: l10n.authBenefitCoach),
+                                    _RegisterBenefitRow(
+                                        text: l10n.authBenefitSync),
+                                  ],
+                                ),
+                              )),
+                          const SizedBox(height: MintSpacing.lg),
+                        ],
                         Semantics(
                           label: l10n.authContinueLocal,
                           button: true,
@@ -880,8 +994,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: MintSpacing.xl),
                         // Login link
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               l10n.authAlreadyAccount,

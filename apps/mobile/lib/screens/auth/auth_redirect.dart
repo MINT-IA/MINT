@@ -48,7 +48,7 @@ Future<bool> hasPostAuthDossierIdentity({
 String resolvePostAuthDestination({
   required Uri currentUri,
   required bool hasDossierIdentity,
-  String fallback = '/coach/chat',
+  String fallback = '/home',
 }) {
   final redirect = resolvePostAuthRedirect(currentUri);
   final destination = redirect ?? fallback;

@@ -125,6 +125,11 @@ AuthError _authErrorFromException(Object error) {
     return AuthError.registrationUnavailable;
   }
 
+  if (lower.contains('signinwithappleauthorizationexception') ||
+      lower.contains('authorizationerrorcode')) {
+    return AuthError.serviceUnavailable;
+  }
+
   if (lower.contains('authentication requise') ||
       lower.contains('unauthorized') ||
       lower.contains('forbidden')) {

@@ -82,7 +82,25 @@ void main() {
         currentUri: Uri.parse('/auth/register'),
         hasDossierIdentity: true,
       ),
-      '/coach/chat',
+      '/home',
+    );
+  });
+
+  test('post-auth fallback lands on Today when no explicit redirect exists',
+      () {
+    expect(
+      resolvePostAuthDestination(
+        currentUri: Uri.parse('/auth/register'),
+        hasDossierIdentity: true,
+      ),
+      '/home',
+    );
+    expect(
+      resolvePostAuthDestination(
+        currentUri: Uri.parse('/auth/login'),
+        hasDossierIdentity: false,
+      ),
+      '/onb',
     );
   });
 
