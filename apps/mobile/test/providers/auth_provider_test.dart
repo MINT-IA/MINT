@@ -701,7 +701,8 @@ void main() {
       expect(message, isNot(contains('Apple Sign-In')));
     });
 
-    test('localizeAuthException maps deleted Apple subject to register guidance',
+    test(
+        'localizeAuthException maps deleted Apple subject to register guidance',
         () async {
       final l10n = await S.delegate.load(const Locale('fr'));
 
@@ -712,6 +713,56 @@ void main() {
 
       expect(message, l10n.authErrorRegistration);
       expect(message, isNot(l10n.authErrorGeneric));
+    });
+
+    test('localizeAuthException maps native Apple platform failures', () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final message = localizeAuthException(
+        PlatformException(
+          code: 'authorization_error',
+          message:
+              'The operation couldn’t be completed. (com.apple.AuthenticationServices.AuthorizationError error 1000.)',
+        ),
+        l10n,
+      );
+
+      expect(message, l10n.authErrorService);
+      expect(message, isNot(l10n.authErrorGeneric));
+    });
+
+    test('localizeAuthException maps native Apple details failures', () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final message = localizeAuthException(
+        PlatformException(
+          code: 'authorization_error',
+          message: 'Authorization failed',
+          details:
+              'Underlying error: com.apple.AuthenticationServices.AuthorizationError error 1000.',
+        ),
+        l10n,
+      );
+
+      expect(message, l10n.authErrorService);
+      expect(message, isNot(l10n.authErrorGeneric));
+    });
+
+    test('localizeAuthException does not map native Apple cancellation service',
+        () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final message = localizeAuthException(
+        PlatformException(
+          code: 'authorization_error',
+          message:
+              'The operation couldn’t be completed. (com.apple.AuthenticationServices.AuthorizationError error 1001.)',
+        ),
+        l10n,
+      );
+
+      expect(message, l10n.authErrorGeneric);
+      expect(message, isNot(l10n.authErrorService));
     });
 
     // ── Listener notification pattern ──

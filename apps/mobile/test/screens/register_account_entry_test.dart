@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -270,6 +271,40 @@ void main() {
     }
   });
 
+  testWidgets('native Apple platform failure does not show generic auth copy',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw PlatformException(
+        code: 'authorization_error',
+        message:
+            'The operation couldn’t be completed. (com.apple.AuthenticationServices.AuthorizationError error 1000.)',
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
   testWidgets('Apple cancellation does not show service unavailable guidance',
       (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
@@ -277,6 +312,41 @@ void main() {
       throw const SignInWithAppleAuthorizationException(
         code: AuthorizationErrorCode.canceled,
         message: 'User canceled Apple Sign-In',
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('native Apple platform cancellation stays silent',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw PlatformException(
+        code: 'authorization_error',
+        message:
+            'The operation couldn’t be completed. (com.apple.AuthenticationServices.AuthorizationError error 1001.)',
       );
     };
     try {
