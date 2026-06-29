@@ -210,6 +210,12 @@ void main() {
       expect(scopes['/simulator/rente-capital'], 'onboarding');
     });
 
+    test('onboarding fallback route is registered in production router', () {
+      final scopes = Map<String, String>.fromEntries(routeScopes);
+
+      expect(scopes['/onb'], 'public');
+    });
+
     test('coach chat remains a public shell surface', () {
       final scopes = Map<String, String>.fromEntries(routeScopes);
 

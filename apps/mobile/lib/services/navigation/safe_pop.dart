@@ -6,6 +6,9 @@ import 'mint_nav.dart';
 ///
 /// This shim exists so the 40 existing call sites continue working.
 /// New code should use MintNav.back(context) directly.
-void safePop(BuildContext context) {
-  MintNav.back(context);
+void safePop(
+  BuildContext context, {
+  String fallbackRoute = MintNav.shellFallbackRoute,
+}) {
+  MintNav.back(context, fallbackRoute: fallbackRoute);
 }

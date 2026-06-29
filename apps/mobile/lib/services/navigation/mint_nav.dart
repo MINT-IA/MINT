@@ -4,19 +4,24 @@ import 'package:go_router/go_router.dart';
 /// Shell-aware navigation helper replacing safePop.
 ///
 /// MintNav.back() pops if the stack has depth, otherwise navigates
-/// to the shell root (/home). This prevents the infinite loop where
-/// safePop sent users to /coach/chat which was the same screen.
+/// to a caller-owned fallback route. Shell screens default to /home;
+/// onboarding/first-value screens can pass /onb to avoid crossing the
+/// auth/profile guards on an empty stack.
 class MintNav {
   MintNav._();
 
-  /// Navigate back. If stack is empty, go to shell root /home.
-  /// NEVER goes to /coach/chat as fallback (that was the old bug).
-  static void back(BuildContext context) {
+  static const shellFallbackRoute = '/home';
+  static const onboardingFallbackRoute = '/onb';
+
+  /// Navigate back. If stack is empty, go to the caller-owned [fallbackRoute].
+  static void back(
+    BuildContext context, {
+    String fallbackRoute = shellFallbackRoute,
+  }) {
     if (context.canPop()) {
       context.pop();
     } else {
-      // Shell root — user sees the Aujourd'hui tab
-      context.go('/home');
+      context.go(fallbackRoute);
     }
   }
 }

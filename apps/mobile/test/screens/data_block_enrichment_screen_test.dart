@@ -35,6 +35,10 @@ Widget _wrapRouter(Widget child) {
     routes: [
       GoRoute(path: '/', builder: (_, __) => child),
       GoRoute(
+        path: '/onb',
+        builder: (_, __) => const Scaffold(body: Text('onboarding')),
+      ),
+      GoRoute(
         path: '/coach/chat',
         builder: (_, __) => const Scaffold(body: Text('coach')),
       ),
@@ -135,6 +139,20 @@ void main() {
     expect(find.text('Ouvrir le diagnostic'), findsOneWidget);
   });
 
+  testWidgets('empty-stack back returns onboarding, not coach', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      _wrapRouter(const DataBlockEnrichmentScreen(blockType: 'situation')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    expect(find.text('onboarding'), findsOneWidget);
+    expect(find.text('coach'), findsNothing);
+  });
+
   testWidgets('situation block persists canonical wizard keys', (tester) async {
     SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(
@@ -175,6 +193,8 @@ void main() {
     expect(answers['q_cash_total'], 25000.0);
     expect(answers['q_has_consumer_debt'], 'yes');
     expect(answers['q_debt_payments_period_chf'], 350.0);
+    expect(find.text('onboarding'), findsOneWidget);
+    expect(find.text('coach'), findsNothing);
   });
 
   testWidgets('situation aliases render the same capture form', (tester) async {
