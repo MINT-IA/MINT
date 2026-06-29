@@ -813,14 +813,173 @@ class TestCoachChatRenteCapitalFallbackFloor:
         assert payload["disclaimers"]
         assert payload["sources"][0]["source_kind"] == "legal_reference"
 
-    def test_rente_capital_real_answer_is_not_recovered(self, client_with_auth):
-        answer = "Réponse déjà utile sans fallback."
-        loop = AsyncMock(return_value=self._loop_result(answer=answer))
+    def test_rente_capital_next_lever_short_circuits_before_llm(
+        self, client_with_auth
+    ):
+        loop = AsyncMock(
+            return_value=self._loop_result(answer="LLM should not be called")
+        )
 
         with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
             response = client_with_auth.post(
                 "/api/v1/coach/chat",
                 json=self._rente_capital_body(),
+            )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert loop.await_count == 0
+        assert payload["tokensUsed"] == 0
+        assert "94'000" in payload["message"]
+        assert payload["toolCalls"][0]["name"] == "route_to_screen"
+        assert payload["toolCalls"][0]["input"]["intent"] == "retirement_choice"
+        assert payload["sources"]
+        assert len(payload["sources"]) == 4
+        assert payload["sources"][0]["source_kind"] == "legal_reference"
+        assert payload["disclaimers"]
+        assert len(payload["disclaimers"]) == 1
+        assert payload["responseMeta"]["deterministic_reasoning"] is True
+        assert payload["responseMeta"]["reasoning_fact"] == "rente_capital_next_lever"
+        assert payload["responseMeta"]["model_used"] == "deterministic-rente-capital"
+
+    def test_rente_capital_without_lpp_keeps_llm_path(self, client_with_auth):
+        answer = "Il me manque ton avoir LPP pour comparer rente et capital."
+        loop = AsyncMock(return_value=self._loop_result(answer=answer))
+        body = {
+            **_VALID_BODY,
+            "message": (
+                "Je dois choisir rente ou capital pour ma LPP. "
+                "Quel est le prochain levier concret ?"
+            ),
+            "profileContext": {
+                "age": 49,
+                "canton": "VS",
+                "monthly_income": 7600,
+                "civil_status": "married",
+            },
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        assert loop.await_count == 1
+        assert response.json()["message"] == answer
+
+    def test_rente_capital_zero_lpp_keeps_llm_path(self, client_with_auth):
+        answer = "Il me manque un avoir LPP positif pour comparer rente et capital."
+        loop = AsyncMock(return_value=self._loop_result(answer=answer))
+        body = {
+            **_VALID_BODY,
+            "message": (
+                "Je dois choisir rente ou capital pour ma LPP. "
+                "Quel est le prochain levier concret ?"
+            ),
+            "profileContext": {
+                "age": 49,
+                "canton": "VS",
+                "lpp_capital": 0,
+                "monthly_income": 7600,
+                "civil_status": "married",
+            },
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        assert loop.await_count == 1
+        assert response.json()["message"] == answer
+
+    def test_rente_capital_followup_keeps_llm_path(self, client_with_auth):
+        answer = "Pour ce cas de suivi, je précise la fiscalité VS."
+        loop = AsyncMock(return_value=self._loop_result(answer=answer))
+        body = {
+            **self._rente_capital_body(),
+            "conversationHistory": [
+                {
+                    "role": "assistant",
+                    "content": "On a ouvert la comparaison rente vs capital.",
+                }
+            ],
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        assert loop.await_count == 1
+        assert response.json()["message"] == answer
+
+    def test_rente_capital_shortcut_requires_complete_trust_artifacts(self):
+        from app.api.v1.endpoints.coach_chat import (
+            _rente_capital_deterministic_loop_result,
+        )
+        from app.services.coach.citation_parser import FALLBACK_TEMPLATED_TEXT
+        from app.services.coach.structured_reasoning import ReasoningOutput
+
+        def output(*, lpp=94_000, sources=None, disclaimer="Disclaimer") -> ReasoningOutput:
+            return ReasoningOutput(
+                fact_tag="rente_capital_next_lever",
+                fact_label="Rente vs capital",
+                confidence=0.7,
+                suggested_action="Comparer rente et capital.",
+                intent_tag="retirement_choice",
+                reasoning_trace="test",
+                supporting_data={"avoir_lpp_actuel_CHF": lpp, "canton": "VS"},
+                sources=(
+                    ["LIFD art. 22", "LIFD art. 38"]
+                    if sources is None
+                    else sources
+                ),
+                disclaimer=disclaimer,
+            )
+
+        assert _rente_capital_deterministic_loop_result(output(lpp=0)) is None
+        assert _rente_capital_deterministic_loop_result(output(lpp=-1)) is None
+        assert _rente_capital_deterministic_loop_result(output(lpp=float("inf"))) is None
+        assert _rente_capital_deterministic_loop_result(output(lpp=float("nan"))) is None
+        assert _rente_capital_deterministic_loop_result(output(sources=[])) is None
+        assert (
+            _rente_capital_deterministic_loop_result(output(disclaimer="")) is None
+        )
+        with patch(
+            "app.api.v1.endpoints.coach_chat._recover_rente_capital_fallback",
+            return_value={
+                "answer": FALLBACK_TEMPLATED_TEXT,
+                "tool_calls": [{"name": "route_to_screen", "input": {}}],
+                "sources": [{"source_kind": "legal_reference"}],
+                "disclaimers": ["Disclaimer"],
+            },
+        ):
+            assert _rente_capital_deterministic_loop_result(output()) is None
+        with patch(
+            "app.api.v1.endpoints.coach_chat._recover_rente_capital_fallback",
+            return_value={
+                "answer": "Réponse déterministe complète.",
+                "tool_calls": [],
+                "sources": [{"source_kind": "legal_reference"}],
+                "disclaimers": ["Disclaimer"],
+            },
+        ):
+            assert _rente_capital_deterministic_loop_result(output()) is None
+
+    def test_non_rente_capital_real_answer_is_not_recovered(self, client_with_auth):
+        answer = "Réponse déjà utile sans fallback."
+        loop = AsyncMock(return_value=self._loop_result(answer=answer))
+        body = {
+            **_VALID_BODY,
+            "message": "Comment optimiser mon 3a ?",
+            "profileContext": {
+                "annual_3a_contribution": 1000,
+                "tax_saving_potential": 2000,
+            },
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post(
+                "/api/v1/coach/chat",
+                json=body,
             )
 
         assert response.status_code == 200

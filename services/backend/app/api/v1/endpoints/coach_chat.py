@@ -3448,6 +3448,52 @@ def _recover_rente_capital_fallback(
     return recovered
 
 
+def _rente_capital_deterministic_loop_result(
+    reasoning_output: ReasoningOutput | None,
+) -> dict | None:
+    """Return the vetted rente/capital answer without spending an LLM turn."""
+    if reasoning_output is None:
+        return None
+    if reasoning_output.fact_tag != "rente_capital_next_lever":
+        return None
+    lpp_amount = (reasoning_output.supporting_data or {}).get(
+        "avoir_lpp_actuel_CHF"
+    )
+    if lpp_amount is None:
+        return None
+    try:
+        numeric_lpp_amount = float(lpp_amount)
+        if not math.isfinite(numeric_lpp_amount) or numeric_lpp_amount <= 0:
+            return None
+    except (TypeError, ValueError):
+        return None
+    recovered = _recover_rente_capital_fallback(
+        {
+            "answer": FALLBACK_TEMPLATED_TEXT,
+            "tool_calls": [],
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 0,
+            "degraded": False,
+            "model_used": "deterministic-rente-capital",
+        },
+        reasoning_output,
+    )
+    recovered["tokens_used"] = 0
+    recovered["degraded"] = False
+    recovered["model_used"] = "deterministic-rente-capital"
+    if _is_generic_data_fallback(recovered.get("answer")):
+        return None
+    if not recovered.get("tool_calls"):
+        return None
+    if not recovered.get("sources"):
+        return None
+    if not recovered.get("disclaimers"):
+        return None
+    return recovered
+
+
 def _fmt_pct(value) -> str:
     """Format a ratio (0-1) or percentage (0-100) as %."""
     if value is None:
@@ -5558,6 +5604,13 @@ async def coach_chat(
             effective_model,
         )
 
+    deterministic_loop_result = (
+        None
+        if safe_history
+        else _rente_capital_deterministic_loop_result(reasoning_output)
+    )
+    deterministic_reasoning_used = deterministic_loop_result is not None
+
     # ------------------------------------------------------------------
     # Step 4: Agent loop — tool_use -> execute -> re-call LLM
     # Internal tools (retrieve_memories) are executed and their results
@@ -5996,37 +6049,48 @@ async def coach_chat(
         increment_and_get_previous(key)
         return await _run_narrator_with_gate(pack=pack)
 
-    try:
-        loop_result = await _run_narrator_with_gate_and_cap()
-    except asyncio.TimeoutError:
-        logger.warning(
-            "Agent loop total timeout (%ds) for user %s",
-            AGENT_LOOP_DEADLINE_SECONDS,
-            _user.id if _user else "anonymous",
+    if deterministic_loop_result is not None:
+        logger.info(
+            "coach_chat deterministic reasoning shortcut fact=%s user=%s",
+            reasoning_output.fact_tag,
+            (str(_user.id)[:8] + "...") if _user else "anonymous",
         )
-        loop_result = {
-            "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
-            "Repose ta question, je serai plus rapide.",
-            "tool_calls": [],
-            "citation_chips": None,
-            "sources": [],
-            "disclaimers": [],
-            "tokens_used": 0,
-            "degraded": True,
-            "model_used": PRIMARY_MODEL_DEFAULT,
-        }
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid request parameters")
-    except ImportError:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
-    except Exception as exc:
-        logger.error("Coach chat agent loop failed: %s", type(exc).__name__)
-        raise HTTPException(
-            status_code=502,
-            detail="LLM API call failed. Please verify your API key and try again.",
-        )
+        loop_result = deterministic_loop_result
+    else:
+        try:
+            loop_result = await _run_narrator_with_gate_and_cap()
+        except asyncio.TimeoutError:
+            logger.warning(
+                "Agent loop total timeout (%ds) for user %s",
+                AGENT_LOOP_DEADLINE_SECONDS,
+                _user.id if _user else "anonymous",
+            )
+            loop_result = {
+                "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
+                "Repose ta question, je serai plus rapide.",
+                "tool_calls": [],
+                "citation_chips": None,
+                "sources": [],
+                "disclaimers": [],
+                "tokens_used": 0,
+                "degraded": True,
+                "model_used": PRIMARY_MODEL_DEFAULT,
+            }
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid request parameters")
+        except ImportError:
+            raise HTTPException(
+                status_code=503, detail="Service temporarily unavailable"
+            )
+        except Exception as exc:
+            logger.error("Coach chat agent loop failed: %s", type(exc).__name__)
+            raise HTTPException(
+                status_code=502,
+                detail="LLM API call failed. Please verify your API key and try again.",
+            )
 
-    loop_result = _recover_rente_capital_fallback(loop_result, reasoning_output)
+    if not deterministic_reasoning_used:
+        loop_result = _recover_rente_capital_fallback(loop_result, reasoning_output)
 
     # ------------------------------------------------------------------
     # Step 5: Production monitoring
@@ -6091,6 +6155,10 @@ async def coach_chat(
         system_prompt_used=True,
         response_meta={
             "degraded": bool(loop_result.get("degraded", False)),
+            "deterministic_reasoning": deterministic_reasoning_used,
+            "reasoning_fact": (
+                reasoning_output.fact_tag if deterministic_reasoning_used else None
+            ),
             "model_used": loop_result.get("model_used", PRIMARY_MODEL_DEFAULT),
             "budget_tier": budget_tier,
         },
