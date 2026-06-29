@@ -13,10 +13,12 @@ narrator path drifts even by one whitespace char, the test fails.
 Capture procedure (one-shot, run once during Plan 93.5-01 Task 4) :
 
     cd services/backend
-    python3 -c "
+    COACH_CITATION_GATE_ENABLED=false python3 -c "
     from pathlib import Path
     from tests.fixtures.narrator_legacy_snapshots._load import FIXTURES, load_fixture, FIXTURE_DIR
+    from app.core.config import settings
     from app.services.coach.claude_coach_service import build_narrator_system_prompt
+    settings.COACH_CITATION_GATE_ENABLED = False
     for name in FIXTURES:
         ctx, language, cash_level = load_fixture(name)
         text = build_narrator_system_prompt(ctx, language, cash_level)

@@ -233,10 +233,12 @@ REGISTERED INTENT TAGS (route_to_screen only):
   - budget_setup
   - cantonal_comparison
   - cantonal_fiscal_comparator
+  - coach_chat
   - compound_interest_simulator
   - confidence_dashboard
   - consult_specialist
   - consumer_credit_simulator
+  - couple_accept_invitation
   - coverage_check
   - cross_border
   - debt_help_resources
