@@ -391,6 +391,30 @@ def test_jos006_coach_cta_stack_contract_scope_is_in_scope(tmp_path: Path) -> No
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_jos014_coach_zombie_alias_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+            "apps/mobile/lib/screens/coach/chat_as_verb_demo_screen.dart",
+            "apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart",
+            "apps/mobile/lib/widgets/aujourdhui/cap_du_jour_banner.dart",
+            "apps/mobile/lib/widgets/coach/early_retirement_comparison.dart",
+            "apps/mobile/lib/widgets/coach/explore_hub.dart",
+            "apps/mobile/lib/widgets/coach/smart_shortcuts.dart",
+            "apps/mobile/lib/widgets/coach/trajectory_card.dart",
+            "apps/mobile/test/architecture/navigation_push_doctrine_test.dart",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_coach_chat_widget_regression_scope_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)

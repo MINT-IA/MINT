@@ -29,8 +29,13 @@ final _commentPattern = RegExp(
   multiLine: true,
 );
 
-final _coachChatPushPattern = RegExp(
-  r'''context\s*\.\s*push\s*\(\s*['"]/coach/chat(?:\?[^'"]*)?['"]''',
+final _shellBranchRootPushPattern = RegExp(
+  r'''(?:context|router)\s*\.\s*push\s*\(\s*['"](?:/coach/chat|/home|/mon-argent|/explore)(?:\?[^'"]*)?['"]''',
+  multiLine: true,
+);
+
+final _zombieCoachAliasLiteralPattern = RegExp(
+  r'''['"]/(?:coach/cockpit|coach/checkin|coach/refresh)(?:\?[^'"]*)?['"]''',
   multiLine: true,
 );
 
@@ -155,7 +160,8 @@ Navigator.of(context).pop();
       final source = file.readAsStringSync();
       final searchableSource = _stripComments(source);
       final lines = source.split('\n');
-      for (final match in _coachChatPushPattern.allMatches(searchableSource)) {
+      for (final match
+          in _shellBranchRootPushPattern.allMatches(searchableSource)) {
         final lineNumber =
             '\n'.allMatches(searchableSource.substring(0, match.start)).length +
                 1;
@@ -177,7 +183,7 @@ Navigator.of(context).pop();
     );
   });
 
-  test('production code never pushes the Coach shell branch', () {
+  test('production code never pushes shell branch roots', () {
     final root = Directory.current;
     final targets = [
       Directory('${root.path}/lib'),
@@ -191,10 +197,12 @@ Navigator.of(context).pop();
         final source = entity.readAsStringSync();
         final searchableSource = _stripComments(source);
         final lines = source.split('\n');
-        for (final match in _coachChatPushPattern.allMatches(searchableSource)) {
-          final lineNumber =
-              '\n'.allMatches(searchableSource.substring(0, match.start)).length +
-                  1;
+        for (final match
+            in _shellBranchRootPushPattern.allMatches(searchableSource)) {
+          final lineNumber = '\n'
+                  .allMatches(searchableSource.substring(0, match.start))
+                  .length +
+              1;
           violations.add(
             '${entity.path.replaceFirst('${root.path}/', '')}:$lineNumber: '
             '${lines[lineNumber - 1].trim()}',
@@ -206,11 +214,54 @@ Navigator.of(context).pop();
     expect(
       violations,
       isEmpty,
-      reason: '/coach/chat is a StatefulShellRoute branch. Product code must '
-          'select it with context.go("/coach/chat...") so the Coach tab, URL, '
-          'and visible surface stay coherent. A future leaf-preserving flow '
+      reason: '/home, /mon-argent, /coach/chat, and /explore are '
+          'StatefulShellRoute branch roots. Product code must select them '
+          'with context.go(...) so the active tab, URL, and visible surface '
+          'stay coherent. A future leaf-preserving flow '
           'needs a dedicated root-owned handoff route instead of pushing the '
-          'shell branch.\n'
+          'shell branch root.\n'
+          '${violations.join('\n')}',
+    );
+  });
+
+  test('production screens and widgets never reference zombie Coach aliases',
+      () {
+    final root = Directory.current;
+    final targets = [
+      Directory('${root.path}/lib/screens'),
+      Directory('${root.path}/lib/widgets'),
+    ];
+    final violations = <String>[];
+
+    for (final target in targets) {
+      if (!target.existsSync()) continue;
+      for (final entity in target.listSync(recursive: true)) {
+        if (entity is! File || !entity.path.endsWith('.dart')) continue;
+        final source = entity.readAsStringSync();
+        final searchableSource = _stripComments(source);
+        final lines = source.split('\n');
+        for (final match in _zombieCoachAliasLiteralPattern.allMatches(
+          searchableSource,
+        )) {
+          final lineNumber = '\n'
+                  .allMatches(searchableSource.substring(0, match.start))
+                  .length +
+              1;
+          violations.add(
+            '${entity.path.replaceFirst('${root.path}/', '')}:$lineNumber: '
+            '${lines[lineNumber - 1].trim()}',
+          );
+        }
+      }
+    }
+
+    expect(
+      violations,
+      isEmpty,
+      reason: '/coach/cockpit, /coach/checkin, and /coach/refresh are zombie '
+          'redirect aliases kept only for legacy links. Product code must '
+          'navigate to the canonical destinations directly: /retraite, '
+          '/coach/chat, or /home.\n'
           '${violations.join('\n')}',
     );
   });

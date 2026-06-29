@@ -216,7 +216,7 @@ class EarlyRetirementComparison extends StatelessWidget {
             label: 'Simuler ta retraite anticipée',
             button: true,
             child: InkWell(
-              onTap: () => context.push('/coach/cockpit'),
+              onTap: () => context.push('/retraite'),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

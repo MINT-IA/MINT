@@ -45,7 +45,7 @@ class SmartShortcuts extends StatelessWidget {
           label: 'Voir ton bilan détaillé',
           button: true,
           child: GestureDetector(
-            onTap: () => context.push('/coach/cockpit'),
+            onTap: () => context.push('/retraite'),
             child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

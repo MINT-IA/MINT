@@ -144,7 +144,7 @@ class _DemoCardWithActionsState extends State<_DemoCardWithActions> {
               sourceCard: _buildSourceCard(),
               intent: 'explain',
             ),
-            onSimulate: () => context.push(
+            onSimulate: () => context.go(
               '/explore?simulate=${widget.cardId}',
             ),
             onReassure: () => MintChatOverlay.show(

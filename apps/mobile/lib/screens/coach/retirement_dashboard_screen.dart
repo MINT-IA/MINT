@@ -573,7 +573,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                               body: coachOneLiner,
                               tone: MintSurfaceTone.sauge,
                               ctaLabel: l.dashboardCockpitCta,
-                              onTap: () => context.push('/coach/cockpit'),
+                              onTap: () => context.push('/retraite'),
                             ),
                           ),
 
@@ -1236,7 +1236,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           title: l.dashboardCockpitTitle,
           subtitle: l.dashboardCockpitSubtitle,
           icon: Icons.dashboard_outlined,
-          child: _buildSectionCta(l.dashboardCockpitCta, '/coach/cockpit'),
+          child: _buildSectionCta(l.dashboardCockpitCta, '/retraite'),
         ),
         CollapsibleSection(
           title: l.dashboardRenteVsCapitalTitle,
