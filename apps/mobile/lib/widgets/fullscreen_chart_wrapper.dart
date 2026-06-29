@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -45,20 +44,22 @@ class FullscreenChartWrapper extends StatelessWidget {
     );
   }
 
-  // GoRouter: intentional overlay — Navigator.push is intentional here,
-  // fullscreen dialog overlay, not a navigable route.
   void _openFullscreen(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => _FullscreenChartPage(
+    showGeneralDialog<void>(
+      context: context,
+      useRootNavigator: false,
+      barrierDismissible: false,
+      barrierColor: MintColors.background,
+      transitionDuration: Duration.zero,
+      pageBuilder: (dialogContext, _, __) {
+        return _FullscreenChartPage(
           title: title,
           disclaimer: disclaimer,
           legend: legend,
           allowLandscape: allowLandscape,
           child: child,
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -73,21 +74,22 @@ class _ExpandButton extends StatelessWidget {
       label: 'interactive element',
       button: true,
       child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: MintColors.surface.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
-        child: const Icon(
-          Icons.fullscreen,
-          size: 20,
-          color: MintColors.textSecondary,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: MintColors.surface.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: MintColors.lightBorder),
+          ),
+          child: const Icon(
+            Icons.fullscreen,
+            size: 20,
+            color: MintColors.textSecondary,
+          ),
         ),
       ),
-    ),);
+    );
   }
 }
 
@@ -114,13 +116,13 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.allowLandscape) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      if (widget.allowLandscape) ...[
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
-      ]);
-    }
+      ],
+    ]);
   }
 
   @override
@@ -138,13 +140,13 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
       appBar: AppBar(
         title: Text(
           widget.title,
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         backgroundColor: MintColors.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
@@ -172,7 +174,8 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                 child: Text(
                   widget.disclaimer!,
-                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
+                  style: MintTextStyles.micro(color: MintColors.textMuted)
+                      .copyWith(height: 1.4),
                   textAlign: TextAlign.center,
                 ),
               ),
