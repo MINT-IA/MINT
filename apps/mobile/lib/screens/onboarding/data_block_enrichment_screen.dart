@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/mint_nav.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
@@ -113,7 +114,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => safePop(context),
+          onPressed: () => safePop(
+            context,
+            fallbackRoute: MintNav.onboardingFallbackRoute,
+          ),
         ),
         title: Text(
           meta.title,
@@ -206,7 +210,11 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                                   if (route != null) {
                                     context.push(route);
                                   } else {
-                                    safePop(context);
+                                    safePop(
+                                      context,
+                                      fallbackRoute:
+                                          MintNav.onboardingFallbackRoute,
+                                    );
                                   }
                                 },
                                 style: FilledButton.styleFrom(
@@ -372,11 +380,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     };
     await context.read<CoachProfileProvider>().mergeAnswers(answers);
     if (!mounted) return;
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/coach/chat');
-    }
+    safePop(context, fallbackRoute: MintNav.onboardingFallbackRoute);
   }
 
   int? _parseInt(String value) => int.tryParse(value.trim());
