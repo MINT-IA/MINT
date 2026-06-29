@@ -194,6 +194,32 @@ Navigator.of(context).pop();
     );
   });
 
+  test('standalone coach back uses lifecycle-aware fallback on empty stack',
+      () {
+    final source =
+        File('lib/screens/coach/coach_chat_screen.dart').readAsStringSync();
+    final backPattern = RegExp(
+      r'onBack:\s*\(\)\s*=>\s*safePop\(\s*context\s*,\s*'
+      r'fallbackRoute:\s*MintNav\.coachFallbackRouteFor\(\s*'
+      r'context\.read<AuthProvider>\(\)\.authLifecycle\s*,?\s*\)\s*,?\s*\)',
+      multiLine: true,
+    );
+
+    expect(
+      source,
+      contains(
+        "import 'package:mint_mobile/services/navigation/mint_nav.dart';",
+      ),
+    );
+    expect(
+      backPattern.hasMatch(_stripComments(source)),
+      isTrue,
+      reason: 'Standalone /coach/chat is shared by guests and accounts. '
+          'With an empty stack, back must use allowsMainNavigation: false '
+          'lifecycles go to /onb, true lifecycles preserve /home.',
+    );
+  });
+
   testWidgets('go to coach branch keeps shell selection coherent and query',
       (tester) async {
     String? capturedTopic;
