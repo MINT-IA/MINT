@@ -1,6 +1,6 @@
 ---
-name: MVP-B7-CASCADE-EMPTY-STATE-PUSH — perimeter STUB
-description: Audit finding 2026-05-08 (PR #533 P1 sweep) — 4 screens use context.go('/coach/chat') from empty-state CTAs. context.go REPLACES the navigation stack so the user lands on the coach without a back-button to the source screen ; if they hit back from coach they end up at the root, losing the screen they came from. Fix is mechanical : convert each empty-state CTA to context.push so the source screen stays underneath. Effort ~0.2 j.
+name: MVP-B7-CASCADE-EMPTY-STATE-COACH-BRANCH — perimeter STUB
+description: Superseded audit finding 2026-05-08. The old push recommendation is no longer valid for /coach/chat because Coach is a StatefulShellRoute branch. Until a root-owned Coach handoff route exists, product CTAs select Coach with context.go('/coach/chat...') so tab, URL, and visible surface stay coherent.
 type: decision
 date: 2026-05-09
 status: SUPERSEDED_FOR_SHELL_TAB_SURFACES
@@ -11,11 +11,11 @@ sources:
   - 4 grep hits in `apps/mobile/lib/screens/` matching empty-state CTAs
 ---
 
-# MVP-B7-CASCADE-EMPTY-STATE-PUSH — STUB
+# MVP-B7-CASCADE-EMPTY-STATE-COACH-BRANCH — STUB
 
 ## 2026-06-29 supersession note
 
-This decision is no longer universal for `/coach/chat`.
+This decision is superseded for `/coach/chat`.
 
 `/coach/chat` is a `StatefulShellRoute` branch. On top-level shell surfaces
 such as Aujourd'hui and Mon Argent, `context.push('/coach/chat')` can display
@@ -23,20 +23,24 @@ Coach while leaving the source tab selected. Those surfaces must use
 `context.go('/coach/chat')` so the content and bottom navigation switch
 together.
 
-The original B7 rationale still applies to leaf/detail or mid-flow screens
-where preserving the source stack is more important until MINT has a
-root-owned Coach handoff route that can preserve both tab selection and return
-state.
+The original B7 stack-preservation rationale does not safely apply to the
+Coach shell branch. Leaf/detail or mid-flow screens that need both a coherent
+Coach tab and return state must get a dedicated root-owned Coach handoff route.
+Until that route exists, product code must not `push('/coach/chat...')`.
 
 ## Goal
 
-**Convert 4 empty-state CTAs from `context.go('/coach/chat')` to `context.push('/coach/chat')`** so the user can back-out of the coach without losing the source screen.
+**Keep `/coach/chat` branch selection coherent**: product code uses
+`context.go('/coach/chat...')`, and `navigation_push_doctrine_test.dart`
+blocks `context.push('/coach/chat...')`.
 
 ## Background
 
 `context.go` is GoRouter's "navigate" semantics — it REPLACES the current top-of-stack with the destination. When the user hits the OS back button or the in-app back arrow, they land back on whatever was below the source screen, NOT on the source screen itself. This is correct for top-level tab transitions and for "post-login" redirects (login screen should not be reachable via back). It is WRONG for empty-state CTAs that say « parle au coach » because the user expects to come back to the empty-state screen if the coach didn't help.
 
-`context.push` keeps the source screen underneath ; the back button comes back to it.
+`context.push` keeps the source screen underneath for ordinary leaf routes, but
+it is wrong for `/coach/chat` while Coach is a shell branch: it can desync the
+selected bottom tab from the visible Coach surface.
 
 The 4 specific call sites identified by the audit :
 
@@ -60,7 +64,9 @@ The 4 specific call sites identified by the audit :
 
 ## Truth-in-claim
 
-- This perimeter contains the bleed at the 4 audited surfaces. It does NOT add a lint rule against `context.go('/coach/...')` from empty-state widgets, so the same anti-pattern can be reintroduced. A future perimeter MVP-NAVIGATION-LINTS could add a `prefer_push_for_empty_state_cta` lint based on widget-tree heuristic.
+- This perimeter contains the bleed for `/coach/chat` branch selection. It does
+  not create the future root-owned Coach handoff route, so source-screen return
+  state remains a separate design task.
 
 ## 5 gates mécaniques
 
@@ -69,27 +75,31 @@ The 4 specific call sites identified by the audit :
 | G1 | sim walker — open `/aujourd-hui` empty (cold profile), tap empty-state CTA, lands on coach, hits back → returns to `/aujourd-hui` (not root) | walker logs |
 | G2 | device by Julien — same flow on TestFlight v2.12.2+5 | TestFlight |
 | G3 | dev CI green — flutter analyze + flutter test | run green |
-| G4 | navigation regression test — widget test asserts back-stack depth after empty-state CTA = 2 (source + coach), not 1 (coach only) | new test exit 0 |
+| G4 | navigation regression test — architecture test asserts no product code pushes `/coach/chat...` | new test exit 0 |
 | G5 | LSFin/accent/ARB lint — no ARB changes ; lint clean | banned_terms_arb exit 0 |
 
 ## Tâches breakdown
 
 | # | Action | Effort | Dépendance |
 |---|---|---|---|
-| 1 | aujourdhui_screen.dart L137 — `context.go` → `context.push` (FinancialPlanCard.onRecalculate) | 0.02 j | None |
-| 2 | aujourdhui_screen.dart L144 — `context.go` → `context.push` (ConfidenceScoreCard.onEnrichmentTap) | 0.02 j | None |
-| 3 | aujourdhui_screen.dart L197 — `context.go` → `context.push` (cold-profile GestureDetector) | 0.02 j | None |
-| 4 | financial_report_screen_v2.dart L78 — `context.go` → `context.push` (MintEmptyState.onCta) | 0.02 j | None |
-| 5 | staggered_withdrawal_screen.dart L184 — `context.go` → `context.push` (MintEmptyState.onCta) | 0.02 j | None |
-| 6 | retroactive_3a_screen.dart L215 — `context.go` → `context.push` (MintEmptyState.onCta) | 0.02 j | None |
-| 7 | flutter analyze + flutter test for regression | 0.05 j | All |
+| 1 | Aujourdhui CTAs remain `context.go('/coach/chat...')` because they are shell branch transitions | 0.02 j | None |
+| 2 | `financial_report_screen_v2.dart` empty-state CTA uses `context.go('/coach/chat')` | 0.02 j | None |
+| 3 | `staggered_withdrawal_screen.dart` empty-state CTA uses `context.go('/coach/chat')` | 0.02 j | None |
+| 4 | `retroactive_3a_screen.dart` empty-state CTA uses `context.go('/coach/chat')` | 0.02 j | None |
+| 5 | `budget_setup_screen.dart` fallback CTA uses `context.go('/coach/chat?topic=budget')` | 0.02 j | None |
+| 6 | Architecture test blocks future `context.push('/coach/chat...')` product call sites | 0.08 j | 1-5 |
+| 7 | flutter analyze + targeted route/navigation tests | 0.05 j | All |
 
 **Total estimé** : ~0.2 j.
 
 ## Counter-arguments and data gaps
 
-- **Risk 1** : If a deep-link pre-loads `/aujourd-hui` and the user tapped through to coach via the empty-state CTA, then back-arrow returns to the deep-link source instead of the app root. Acceptable — that's the better UX (the user was IN the empty-state, and back should bring them back).
-- **Risk 2** : `context.push` to a route that already exists in the stack can create duplicates if the user repeatedly taps. Mitigation : the receiving route `coach_chat_screen` does its own state checks. If duplicates become a problem in observability logs, add a `pushReplacement` semantics behind a feature flag. Not needed for v1.
+- **Risk 1** : Users coming from a leaf screen lose source-screen return state
+  when the CTA switches to Coach with `go`. Accepted until a root-owned Coach
+  handoff route exists, because tab/URL/surface coherence is the current P0.
+- **Risk 2** : Reintroducing `push('/coach/chat')` will recreate stale Coach
+  tab state. Mitigation: `navigation_push_doctrine_test.dart` blocks product
+  call sites.
 - **Risk 3** : The test plan G4 requires a widget test for navigation depth, but `MintEmptyState` widget tests don't currently spin up a full GoRouter. Could write a minimal mock-router test or defer to manual G1 sim walker. For v1, sim walker is enough.
 - **Data gap** : No telemetry on how many users hit the empty-state CTA today (vs. the populated state). Mitigation : log empty-state-cta-tap event for 1 week post-deploy ; size impact based on actual frequency.
 

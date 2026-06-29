@@ -369,6 +369,11 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     Navigator.of(context).pop();
   }
 
+  void _openBudgetCoach() {
+    // Coach is a shell branch; select it with go, not push.
+    context.go('/coach/chat?topic=budget');
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
@@ -483,9 +488,12 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                   child: Semantics(
                     key: const Key('budget_setup_chat_fallback'),
                     identifier: 'budget_setup_chat_fallback',
+                    label: s.budgetSetupChatFallback,
                     button: true,
+                    onTap: _openBudgetCoach,
+                    excludeSemantics: true,
                     child: /* // lint-ignore: prefer_mint_cta */ TextButton(
-                      onPressed: () => context.push('/coach/chat?topic=budget'),
+                      onPressed: _openBudgetCoach,
                       child: Text(
                         s.budgetSetupChatFallback,
                         style: MintTextStyles.bodyMedium(

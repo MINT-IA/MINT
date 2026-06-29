@@ -305,6 +305,39 @@ void main() {
     }
   });
 
+  testWidgets('backend Apple verification failure does not show generic copy',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw const ApiException(
+        'Apple identity verification unavailable',
+        statusCode: 503,
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
   testWidgets('Apple cancellation does not show service unavailable guidance',
       (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;

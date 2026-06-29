@@ -177,6 +177,44 @@ Navigator.of(context).pop();
     );
   });
 
+  test('production code never pushes the Coach shell branch', () {
+    final root = Directory.current;
+    final targets = [
+      Directory('${root.path}/lib'),
+    ];
+    final violations = <String>[];
+
+    for (final target in targets) {
+      if (!target.existsSync()) continue;
+      for (final entity in target.listSync(recursive: true)) {
+        if (entity is! File || !entity.path.endsWith('.dart')) continue;
+        final source = entity.readAsStringSync();
+        final searchableSource = _stripComments(source);
+        final lines = source.split('\n');
+        for (final match in _coachChatPushPattern.allMatches(searchableSource)) {
+          final lineNumber =
+              '\n'.allMatches(searchableSource.substring(0, match.start)).length +
+                  1;
+          violations.add(
+            '${entity.path.replaceFirst('${root.path}/', '')}:$lineNumber: '
+            '${lines[lineNumber - 1].trim()}',
+          );
+        }
+      }
+    }
+
+    expect(
+      violations,
+      isEmpty,
+      reason: '/coach/chat is a StatefulShellRoute branch. Product code must '
+          'select it with context.go("/coach/chat...") so the Coach tab, URL, '
+          'and visible surface stay coherent. A future leaf-preserving flow '
+          'needs a dedicated root-owned handoff route instead of pushing the '
+          'shell branch.\n'
+          '${violations.join('\n')}',
+    );
+  });
+
   test('production router keeps coach chat in its own shell branch', () {
     final source = File('lib/app.dart').readAsStringSync();
     expect(source, contains('StatefulShellRoute.indexedStack'));

@@ -748,6 +748,31 @@ void main() {
       expect(message, isNot(l10n.authErrorGeneric));
     });
 
+    test('localizeAuthException maps backend Apple verification failures',
+        () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      for (final detail in [
+        'Apple identity verification unavailable',
+        'Apple Sign-In audience not configured',
+        'Invalid Apple identity token',
+        'Apple identity token expired',
+        'Invalid Apple identity token nonce',
+      ]) {
+        final message = localizeAuthException(
+          ApiException(detail, statusCode: 503),
+          l10n,
+        );
+
+        expect(
+          message,
+          l10n.authErrorService,
+          reason: detail,
+        );
+        expect(message, isNot(l10n.authErrorGeneric), reason: detail);
+      }
+    });
+
     test('localizeAuthException does not map native Apple cancellation service',
         () async {
       final l10n = await S.delegate.load(const Locale('fr'));
