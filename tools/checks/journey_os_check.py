@@ -86,6 +86,7 @@ ALLOW = {
     "apps/mobile/test/screens/register_account_entry_test.dart",
     "apps/mobile/test/screens/data_block_enrichment_screen_test.dart",
     "apps/mobile/test/screens/debug/debug_mint2_account_claim_screen_test.dart",
+    "apps/mobile/test/screens/coach/coach_chat_test.dart",
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_route_scope_test.dart",
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_signal_axes_test.dart",
     "apps/mobile/test/services/api_service_test.dart",

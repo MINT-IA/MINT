@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/services/navigation/mint_nav.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
@@ -104,6 +105,49 @@ GoRouter _safePopRouter() {
 }
 
 void main() {
+  group('coachFallbackRouteFor', () {
+    test('fresh or incomplete lifecycles return to onboarding', () {
+      expect(
+        MintNav.coachFallbackRouteFor(AuthLifecycleState.freshVisitor()),
+        MintNav.onboardingFallbackRoute,
+      );
+      expect(
+        MintNav.coachFallbackRouteFor(
+          AuthLifecycleState.signedInProfileMissing(
+            userId: 'user-1',
+            cloudSyncEnabled: false,
+          ),
+        ),
+        MintNav.onboardingFallbackRoute,
+      );
+      expect(
+        MintNav.coachFallbackRouteFor(AuthLifecycleState.sessionExpired()),
+        MintNav.onboardingFallbackRoute,
+      );
+    });
+
+    test('main-navigation lifecycles return to the shell', () {
+      expect(
+        MintNav.coachFallbackRouteFor(
+          AuthLifecycleState.guestEmpty(installId: 'install-1'),
+        ),
+        MintNav.shellFallbackRoute,
+      );
+      expect(
+        MintNav.coachFallbackRouteFor(
+          AuthLifecycleState.syncOffAccount(userId: 'user-1'),
+        ),
+        MintNav.shellFallbackRoute,
+      );
+      expect(
+        MintNav.coachFallbackRouteFor(
+          AuthLifecycleState.cloudSyncOnAccount(userId: 'user-1'),
+        ),
+        MintNav.shellFallbackRoute,
+      );
+    });
+  });
+
   testWidgets('empty stack defaults to shell fallback route', (tester) async {
     final router = _router(
       initialLocation: '/source',

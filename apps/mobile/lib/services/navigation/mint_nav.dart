@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 
 /// Shell-aware navigation helper replacing safePop.
 ///
@@ -12,6 +13,12 @@ class MintNav {
 
   static const shellFallbackRoute = '/home';
   static const onboardingFallbackRoute = '/onb';
+
+  static String coachFallbackRouteFor(AuthLifecycleState lifecycle) {
+    return lifecycle.allowsMainNavigation
+        ? shellFallbackRoute
+        : onboardingFallbackRoute;
+  }
 
   /// Navigate back. If stack is empty, go to the caller-owned [fallbackRoute].
   static void back(

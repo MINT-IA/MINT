@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:mint_mobile/services/navigation/mint_nav.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -2256,7 +2257,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               CoachAppBar(
                 isEmbeddedInTab: widget.isEmbeddedInTab,
                 hasUserMessages: _messages.any((m) => m.isUser),
-                onBack: () => safePop(context),
+                onBack: () => safePop(
+                  context,
+                  fallbackRoute: MintNav.coachFallbackRouteFor(
+                    context.read<AuthProvider>().authLifecycle,
+                  ),
+                ),
                 onHistory: () async {
                   final router = GoRouter.of(context);
                   await _autoSaveConversation();
