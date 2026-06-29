@@ -18,6 +18,7 @@ library;
 
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/services/notification_deeplinks.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -240,7 +241,7 @@ class NotificationSchedulerService {
           tier: NotificationTier.calendar,
           title: l?.notifCheckInTitle ?? 'Check-in mensuel',
           body: l?.notifCheckInBody ?? 'Ton check-in mensuel est disponible.',
-          deeplink: '/coach/checkin',
+          deeplink: NotificationDeeplinks.monthlyCheckIn,
           scheduledDate: first,
           personalNumber: monthName,
           timeReference: '1er $monthName',
@@ -256,7 +257,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: l?.notifCheckInTitle ?? 'Check-in mensuel',
         body: l?.notifCheckInBody ?? 'Ton check-in mensuel est disponible.',
-        deeplink: '/coach/checkin',
+        deeplink: NotificationDeeplinks.monthlyCheckIn,
         scheduledDate: jan1Next,
         personalNumber: 'janvier',
         timeReference: '1er janvier',
@@ -405,7 +406,7 @@ class NotificationSchedulerService {
         body: l?.notifOffTrackBody(adherence, total, impact) ??
             "Adh\u00e9rence \u00e0 $adherence% sur $total actions. "
                 "Indication lin\u00e9aire (hors rendement/fiscalit\u00e9)\u00a0: ~CHF $impact.",
-        deeplink: "/coach/checkin",
+        deeplink: NotificationDeeplinks.monthlyCheckIn,
         scheduledDate: now,
         personalNumber: "$adherence%",
         timeReference: "$actionsBehind actions en retard",

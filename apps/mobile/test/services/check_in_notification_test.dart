@@ -61,16 +61,16 @@ void main() {
   // ════════════════════════════════════════════════════════════════
 
   group('Monthly check-in notification payload', () {
-    test('monthly check-in payload contains intent=monthlyCheckIn', () {
+    test('monthly check-in payload targets the Coach screen semantically', () {
       // The payload is hardcoded in _scheduleMonthlyCheckin:
-      // payload: '/home?tab=1&intent=monthlyCheckIn'
-      const payload = '/home?tab=1&intent=monthlyCheckIn';
+      // payload: '/home?screen=coach&intent=monthlyCheckIn'
+      const payload = '/home?screen=coach&intent=monthlyCheckIn';
       expect(payload, contains('intent=monthlyCheckIn'));
-      expect(payload, contains('/home'));
+      expect(payload, contains('screen=coach'));
     });
 
     test('monthly payload is NOT the deprecated /coach/checkin route', () {
-      const payload = '/home?tab=1&intent=monthlyCheckIn';
+      const payload = '/home?screen=coach&intent=monthlyCheckIn';
       expect(payload, isNot(contains('/coach/checkin')));
     });
   });
@@ -96,7 +96,8 @@ void main() {
       final reminderDate = DateTime(now.year, now.month, 6, 10, 0);
 
       expect(now.isBefore(reminderDate), isFalse,
-          reason: 'On day 8, the 6th has passed — no reminder should be scheduled');
+          reason:
+              'On day 8, the 6th has passed — no reminder should be scheduled');
     });
 
     test('reminder is NOT scheduled when already on the 6th after 10:00', () {
@@ -124,7 +125,8 @@ void main() {
       );
     });
 
-    test('completes without throwing when hasCheckedInThisMonth is false', () async {
+    test('completes without throwing when hasCheckedInThisMonth is false',
+        () async {
       // When no check-in yet, the method attempts to schedule the reminder.
       // Plugin is null in test environment so it no-ops gracefully.
       final service = NotificationService();

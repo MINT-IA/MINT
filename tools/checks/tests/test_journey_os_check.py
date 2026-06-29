@@ -415,6 +415,32 @@ def test_jos014_coach_zombie_alias_hotfix_scope_is_in_scope(tmp_path: Path) -> N
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_jos015_notification_route_canonical_hotfix_scope_is_in_scope(
+    tmp_path: Path,
+) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/app.dart",
+            "apps/mobile/lib/services/notification_deeplinks.dart",
+            "apps/mobile/lib/services/notification_scheduler_service.dart",
+            "apps/mobile/lib/services/notification_service.dart",
+            "apps/mobile/test/services/check_in_notification_test.dart",
+            "apps/mobile/test/services/notification_scheduler_service_test.dart",
+            "apps/mobile/test/services/notification_service_test.dart",
+            "tools/checks/journey_os_check.py",
+            "tools/checks/tests/test_journey_os_check.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_coach_chat_widget_regression_scope_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)

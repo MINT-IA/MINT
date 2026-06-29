@@ -435,7 +435,7 @@ final _router = GoRouter(
     if (auth.isLoading) return null;
 
     // ── Parse /home?tab=N&intent=X&screen=S query params ────
-    // Notifications emit /home?tab=N&intent=monthlyCheckIn etc. The
+    // Notifications emit /home?screen=coach&intent=monthlyCheckIn etc. The
     // `screen=` param (new 2026-04-17) is the forward-compatible semantic
     // discriminator and always wins over `tab=`, so re-indexing the shell
     // won't silently misroute future links.
