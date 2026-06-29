@@ -20,6 +20,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/consent_manager.dart';
+import 'package:mint_mobile/services/notification_deeplinks.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NOTIFICATION STRINGS — i18n-ready, resolved at call site
@@ -443,7 +444,7 @@ class NotificationService {
         title: s.checkInReminderTitle,
         body: s.checkInReminderBody,
         scheduledDate: tzReminderDate,
-        payload: '/home?tab=1&intent=monthlyCheckIn',
+        payload: NotificationDeeplinks.monthlyCheckIn,
       );
     }
   }
@@ -485,7 +486,7 @@ class NotificationService {
         title: s.checkInNotificationTitle,
         body: s.checkInNotificationBody,
         scheduledDate: nextFirst,
-        payload: '/home?tab=1&intent=monthlyCheckIn',
+        payload: NotificationDeeplinks.monthlyCheckIn,
         matchDateComponents: DateTimeComponents.dayOfMonthAndTime,
       );
     }
@@ -554,7 +555,7 @@ class NotificationService {
           title: s.deadline3aTitle,
           body: d.body,
           scheduledDate: scheduledDate,
-          payload: '/pilier-3a',
+          payload: NotificationDeeplinks.threeADeadline,
         );
       }
     }
@@ -589,7 +590,7 @@ class NotificationService {
           title: s.taxDeadlineTitle,
           body: d.body,
           scheduledDate: scheduledDate,
-          payload: '/home',
+          payload: NotificationDeeplinks.taxDeadline,
         );
       }
     }
@@ -692,7 +693,7 @@ class NotificationService {
       title: title,
       body: body,
       scheduledDate: tzDate,
-      payload: '/home?tab=1&intent=commitmentReminder&id=$commitmentId',
+      payload: NotificationDeeplinks.commitmentReminder(commitmentId),
     );
   }
 
@@ -756,7 +757,7 @@ class NotificationService {
       title: title,
       body: body,
       scheduledDate: scheduledDate,
-      payload: '/home?tab=1&intent=freshStart&type=$landmarkType',
+      payload: NotificationDeeplinks.freshStart(landmarkType),
     );
   }
 
