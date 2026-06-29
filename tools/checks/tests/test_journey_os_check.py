@@ -211,6 +211,27 @@ def test_journey_os_workflow_files_are_in_scope(tmp_path: Path) -> None:
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
+
+def test_coach_advice_backend_files_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "services/backend/app/api/v1/endpoints/coach_chat.py",
+            "services/backend/app/services/coach/structured_reasoning.py",
+            "services/backend/tests/test_coach_chat_endpoint.py",
+            "services/backend/tests/test_e2e_coach_pipeline.py",
+            "services/backend/tests/test_structured_reasoning.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_python_editable_install_egg_info_is_ignored(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)

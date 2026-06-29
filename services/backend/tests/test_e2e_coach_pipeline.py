@@ -342,13 +342,12 @@ class TestQ2_RenteOuCapital:
         assert "retirement_choice" in prompt
 
     def test_reasoning_produces_relevant_fact(self):
-        """StructuredReasoningService detects rachat or gap for Julien's profile."""
+        """StructuredReasoningService keeps explicit rente/capital questions on topic."""
         safe = _safe_profile(_JULIEN_PROFILE)
         output = _reason_with_fixed_date(safe, "Rente ou capital ?")
-        # Julien: replacement_ratio=0.655 > 0.60 => no gap_warning
-        # lpp_buyback_max=539414 => rachat_opportunity
-        assert output.fact_tag == "rachat_opportunity"
-        assert "rachat_max_CHF" in output.supporting_data
+        assert output.fact_tag == "rente_capital_next_lever"
+        assert output.intent_tag == "retirement_choice"
+        assert "avoir_lpp_actuel_CHF" in output.supporting_data
 
 
 # ===========================================================================
