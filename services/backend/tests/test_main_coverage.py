@@ -6,6 +6,7 @@ These tests target lines flagged by diff-cover as uncovered.
 """
 
 import os
+import re
 from unittest.mock import patch, MagicMock
 
 import asyncio
@@ -383,6 +384,68 @@ class TestRetrieverUnit:
         retriever = MintRetriever(vector_store=mock_store)
         results = asyncio.run(retriever.retrieve("anything"))
         assert results == []
+
+    @pytest.mark.parametrize("n_results", [0, -1])
+    def test_retrieve_non_positive_n_results_skips_all_retrieval_backends(
+        self,
+        n_results,
+    ):
+        """Non-positive n_results is the coach signal to suppress RAG retrieval."""
+        from app.services.rag.retriever import MintRetriever
+
+        mock_store = MagicMock()
+        mock_hybrid = MagicMock()
+
+        retriever = MintRetriever(vector_store=mock_store, hybrid_search=mock_hybrid)
+        results = asyncio.run(
+            retriever.retrieve("rente ou capital", n_results=n_results)
+        )
+
+        assert results == []
+        mock_hybrid.search.assert_not_called()
+        mock_store.query.assert_not_called()
+
+
+class TestHybridSearchSql:
+    """Unit tests for pgvector SQL strings."""
+
+    def test_hybrid_search_sql_has_no_bare_percent_tokens(self):
+        """psycopg2 pyformat queries cannot mix named placeholders with bare %."""
+        from app.services.rag.hybrid_search_service import (
+            _HYBRID_SEARCH_SQL,
+            _KEYWORD_ONLY_SQL,
+        )
+
+        for sql in (_HYBRID_SEARCH_SQL, _KEYWORD_ONLY_SQL):
+            assert re.search(r"%(?!\(|%)", sql) is None
+
+    @pytest.mark.parametrize("n_results", [0, -1])
+    def test_hybrid_search_non_positive_n_results_skips_io(self, n_results):
+        """HybridSearchService must not embed or open DB connections for 0 results."""
+        from app.services.rag.hybrid_search_service import HybridSearchService
+
+        service = HybridSearchService(db_url="postgresql://unused")
+        service._embed_query = MagicMock(return_value="[0.1]")  # type: ignore[method-assign]
+        service._get_connection = MagicMock()  # type: ignore[method-assign]
+
+        results = asyncio.run(service.search("rente ou capital", n_results=n_results))
+
+        assert results == []
+        service._embed_query.assert_not_called()
+        service._get_connection.assert_not_called()
+
+    @pytest.mark.parametrize("n_results", [0, -1])
+    def test_vector_store_non_positive_n_results_skips_collection(self, n_results):
+        """MintVectorStore must not call ChromaDB with non-positive n_results."""
+        from app.services.rag.vector_store import MintVectorStore
+
+        store = object.__new__(MintVectorStore)
+        store._collection = MagicMock()
+
+        results = store.query("rente ou capital", n_results=n_results)
+
+        assert results == []
+        store._collection.query.assert_not_called()
 
 
 class TestVectorStoreUnit:
