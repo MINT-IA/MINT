@@ -64,6 +64,8 @@ _DISCLAIMER: str = (
     "Consulte un\u00b7e spécialiste pour une analyse adaptée à ta situation."
 )
 
+_RENTE_CAPITAL_FACT_TAG = "rente_capital_next_lever"
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Output dataclass
@@ -425,6 +427,88 @@ def _detect_rachat_opportunity(profile: dict) -> Optional[ReasoningOutput]:
     )
 
 
+def _profile_float(profile: dict, *keys: str) -> Optional[float]:
+    """Return the first numeric profile value for the given aliases."""
+    for key in keys:
+        value = profile.get(key)
+        if value is None or isinstance(value, bool):
+            continue
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _asks_rente_capital(user_message: str) -> bool:
+    """Detect an explicit LPP rente-vs-capital choice question."""
+    message = (user_message or "").casefold()
+    return "rente" in message and "capital" in message
+
+
+def _detect_rente_capital_next_lever(
+    profile: dict,
+    user_message: str,
+) -> Optional[ReasoningOutput]:
+    """Answer explicit rente/capital questions with a deterministic next lever."""
+    if not _asks_rente_capital(user_message):
+        return None
+
+    lpp_capital = _profile_float(
+        profile,
+        "lpp_capital",
+        "avoir_lpp",
+        "lpp_balance_total",
+        "capital_lpp",
+    )
+    if lpp_capital is None or lpp_capital <= 0:
+        return None
+
+    age = _profile_float(profile, "age")
+    monthly_income = _profile_float(profile, "monthly_income")
+    canton = profile.get("canton")
+    civil_status = profile.get("civil_status")
+
+    supporting: dict = {"avoir_lpp_actuel_CHF": round(lpp_capital, 0)}
+    if age is not None:
+        supporting["age"] = round(age, 0)
+    if monthly_income is not None:
+        supporting["revenu_mensuel_CHF"] = round(monthly_income, 0)
+    if canton:
+        supporting["canton"] = str(canton)
+    if civil_status:
+        supporting["situation_familiale"] = str(civil_status)
+
+    confidence = 0.75 if canton and civil_status else 0.65
+
+    return ReasoningOutput(
+        fact_tag=_RENTE_CAPITAL_FACT_TAG,
+        domain="retraite",
+        fact_label=(
+            "Choix rente vs capital LPP : prochain levier = certificat LPP "
+            "actuel, fiscalité du retrait et couverture survivants"
+        ),
+        confidence=confidence,
+        suggested_action=(
+            "Comparer le certificat LPP actuel sur trois points : taux de "
+            "conversion, part retirable en capital et couverture survivants, "
+            "puis simuler la fiscalité du retrait selon le canton."
+        ),
+        intent_tag="retirement_choice",
+        reasoning_trace=(
+            "Explicit rente/capital question with usable LPP capital; avoid "
+            "generic no-data fallback and route to the retirement choice surface."
+        ),
+        supporting_data=supporting,
+        sources=[
+            "LPP art. 14 (taux de conversion minimal sur la part obligatoire)",
+            "LPP art. 19-21 (couverture survivants)",
+            "LIFD art. 22 (rentes imposées comme revenu)",
+            "LIFD art. 38 (capital de prévoyance imposé séparément)",
+        ],
+    )
+
+
 def _detect_3a_not_maxed(profile: dict, today: Optional[datetime.date] = None) -> Optional[ReasoningOutput]:
     """Detect when 3a contributions are below the annual ceiling outside December.
 
@@ -526,9 +610,10 @@ class StructuredReasoningService:
         1. deficit — monthly budget deficit or liquidity below 3 months
         2. 3a_deadline — December year-end with unfilled 3a ceiling
         3. gap_warning — replacement rate below 60%
-        4. rachat_opportunity — LPP buyback ≥ 10'000 CHF available
-        5. 3a_not_maxed — 3a below ceiling (outside December)
-        6. None — insufficient data to surface a meaningful fact
+        4. rente_capital_next_lever — explicit rente/capital choice question
+        5. rachat_opportunity — LPP buyback ≥ 10'000 CHF available
+        6. 3a_not_maxed — 3a below ceiling (outside December)
+        7. None — insufficient data to surface a meaningful fact
 
     Usage:
         output = StructuredReasoningService.reason(
@@ -587,12 +672,17 @@ class StructuredReasoningService:
         if result is not None:
             return result
 
-        # Priority 4: LPP buyback opportunity
+        # Priority 4: Explicit rente/capital next lever
+        result = _detect_rente_capital_next_lever(profile, user_message)
+        if result is not None:
+            return result
+
+        # Priority 5: LPP buyback opportunity
         result = _detect_rachat_opportunity(profile)
         if result is not None:
             return result
 
-        # Priority 5: 3a not maxed (lower priority, outside December)
+        # Priority 6: 3a not maxed (lower priority, outside December)
         result = _detect_3a_not_maxed(profile, effective_today)
         if result is not None:
             return result
