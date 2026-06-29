@@ -71,9 +71,11 @@ void main() {
       // From Jan 15 → remaining months: Feb-Dec + Jan next year = 12
       expect(checkIns.length, 12);
 
-      // All check-ins should deeplink to coach/checkin
+      // All check-ins should deep-link to Coach through the canonical shell
+      // handoff. New notifications must not emit the zombie /coach/checkin
+      // alias; the route remains only as a compatibility redirect.
       for (final n in checkIns) {
-        expect(n.deeplink, '/coach/checkin');
+        expect(n.deeplink, '/home?screen=coach&intent=monthlyCheckIn');
         expect(n.tier, NotificationTier.calendar);
       }
     });
@@ -357,7 +359,10 @@ void main() {
       expect(offTrackNotifs.length, 1);
       expect(offTrackNotifs.first.body, contains('40%')); // 2/5 = 40%
       expect(offTrackNotifs.first.body, contains('5 actions'));
-      expect(offTrackNotifs.first.deeplink, '/coach/checkin');
+      expect(
+        offTrackNotifs.first.deeplink,
+        '/home?screen=coach&intent=monthlyCheckIn',
+      );
     });
 
     test('no notifications when no events', () {

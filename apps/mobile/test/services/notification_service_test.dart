@@ -104,12 +104,8 @@ void main() {
       // Replicate the _scheduleMonthlyCheckin date logic
       final nextFirst = tz.TZDateTime(
         tz.local,
-        now.day >= 1
-            ? (now.month == 12 ? now.year + 1 : now.year)
-            : now.year,
-        now.day >= 1
-            ? (now.month == 12 ? 1 : now.month + 1)
-            : now.month,
+        now.day >= 1 ? (now.month == 12 ? now.year + 1 : now.year) : now.year,
+        now.day >= 1 ? (now.month == 12 ? 1 : now.month + 1) : now.month,
         1,
         10,
         0,
@@ -136,25 +132,20 @@ void main() {
       final profile = buildProfile(checkIns: checkIns);
 
       // Replicate guard: hasCurrentMonthCheckin should be true
-      final hasCurrentMonthCheckin = profile.checkIns.any((ci) =>
-          ci.month.year == now.year && ci.month.month == now.month);
+      final hasCurrentMonthCheckin = profile.checkIns.any(
+          (ci) => ci.month.year == now.year && ci.month.month == now.month);
       expect(hasCurrentMonthCheckin, isTrue,
           reason: 'Should detect check-in for current month');
     });
 
-    test(
-        'check-in reminder at December computes next year January correctly',
+    test('check-in reminder at December computes next year January correctly',
         () {
       final now = tz.TZDateTime(tz.local, 2026, 12, 5, 9, 0);
 
       final nextFirst = tz.TZDateTime(
         tz.local,
-        now.day >= 1
-            ? (now.month == 12 ? now.year + 1 : now.year)
-            : now.year,
-        now.day >= 1
-            ? (now.month == 12 ? 1 : now.month + 1)
-            : now.month,
+        now.day >= 1 ? (now.month == 12 ? now.year + 1 : now.year) : now.year,
+        now.day >= 1 ? (now.month == 12 ? 1 : now.month + 1) : now.month,
         1,
         10,
         0,
@@ -182,7 +173,8 @@ void main() {
 
       for (final d in expectedDeadlines) {
         expect(d.month, inInclusiveRange(10, 12),
-            reason: '3a deadline at month ${d.month} must be in Oct-Dec window');
+            reason:
+                '3a deadline at month ${d.month} must be in Oct-Dec window');
       }
     });
 
@@ -203,13 +195,11 @@ void main() {
       //        ? now.year + 1 : now.year
       const dMonth = 11;
       const dDay = 15;
-      final year = now.month > dMonth ||
-              (now.month == dMonth && now.day > dDay)
+      final year = now.month > dMonth || (now.month == dMonth && now.day > dDay)
           ? now.year + 1
           : now.year;
 
-      expect(year, 2027,
-          reason: 'Past Nov 15 should schedule for next year');
+      expect(year, 2027, reason: 'Past Nov 15 should schedule for next year');
     });
 
     test('3a deadlines not scheduled when user has no 3a', () {
@@ -284,7 +274,8 @@ void main() {
 
       for (final d in expectedDeadlines) {
         expect(d.month, inInclusiveRange(2, 3),
-            reason: 'Tax deadline at month ${d.month} must be in Feb-Mar window');
+            reason:
+                'Tax deadline at month ${d.month} must be in Feb-Mar window');
       }
     });
 
@@ -294,12 +285,10 @@ void main() {
       // First tax deadline: Feb 15
       const dMonth = 2;
       const dDay = 15;
-      final year = now.month > dMonth ||
-              (now.month == dMonth && now.day > dDay)
+      final year = now.month > dMonth || (now.month == dMonth && now.day > dDay)
           ? now.year + 1
           : now.year;
-      final scheduledDate =
-          tz.TZDateTime(tz.local, year, dMonth, dDay, 10, 0);
+      final scheduledDate = tz.TZDateTime(tz.local, year, dMonth, dDay, 10, 0);
 
       expect(scheduledDate.isAfter(now), isTrue);
       expect(scheduledDate.year, 2026);
@@ -313,8 +302,7 @@ void main() {
       // All tax deadlines (Feb 15, Mar 15, Mar 25) are in the past
       const dMonth = 3;
       const dDay = 25;
-      final year = now.month > dMonth ||
-              (now.month == dMonth && now.day > dDay)
+      final year = now.month > dMonth || (now.month == dMonth && now.day > dDay)
           ? now.year + 1
           : now.year;
 
@@ -352,8 +340,7 @@ void main() {
       expect(scheduledDate.isAfter(now), isTrue);
     });
 
-    test(
-        'streak protection schedules next month if 25th already passed', () {
+    test('streak protection schedules next month if 25th already passed', () {
       final now = tz.TZDateTime(tz.local, 2026, 2, 26, 9, 0);
 
       var scheduledDate = tz.TZDateTime(
@@ -389,9 +376,7 @@ void main() {
       // Service guard: if (streak <= 0) return;
     });
 
-    test(
-        'streak protection not scheduled if current month has check-in',
-        () {
+    test('streak protection not scheduled if current month has check-in', () {
       final now = DateTime.now();
       final profile = buildProfile(
         checkIns: [
@@ -403,14 +388,13 @@ void main() {
         ],
       );
 
-      final hasCurrentMonthCheckin = profile.checkIns.any((ci) =>
-          ci.month.year == now.year && ci.month.month == now.month);
+      final hasCurrentMonthCheckin = profile.checkIns.any(
+          (ci) => ci.month.year == now.year && ci.month.month == now.month);
       expect(hasCurrentMonthCheckin, isTrue,
           reason: 'Current month check-in should disable streak protection');
     });
 
-    test(
-        'streak protection scheduled at December wraps to January next year',
+    test('streak protection scheduled at December wraps to January next year',
         () {
       final now = tz.TZDateTime(tz.local, 2026, 12, 26, 9, 0);
 
@@ -445,12 +429,12 @@ void main() {
   // ════════════════════════════════════════════════════════════════
 
   group('consumePendingRoute', () {
-    test('returns the pending route and clears it (one-time consumption)',
-        () {
-      NotificationService.pendingRoute = '/coach/checkin';
+    test('returns the pending route and clears it (one-time consumption)', () {
+      NotificationService.pendingRoute =
+          '/home?screen=coach&intent=monthlyCheckIn';
 
       final route = NotificationService.consumePendingRoute();
-      expect(route, '/coach/checkin');
+      expect(route, '/home?screen=coach&intent=monthlyCheckIn');
 
       // After consumption, pendingRoute should be null
       expect(NotificationService.pendingRoute, isNull);
@@ -463,8 +447,7 @@ void main() {
       expect(first, '/pilier-3a');
 
       final second = NotificationService.consumePendingRoute();
-      expect(second, isNull,
-          reason: 'Route should only be consumable once');
+      expect(second, isNull, reason: 'Route should only be consumable once');
     });
   });
 
@@ -500,7 +483,12 @@ void main() {
       const id3aDeadlineBase = 3000;
       const idTaxDeadlineBase = 4000;
 
-      final ids = {idCheckinMonthly, idStreakProtection, id3aDeadlineBase, idTaxDeadlineBase};
+      final ids = {
+        idCheckinMonthly,
+        idStreakProtection,
+        id3aDeadlineBase,
+        idTaxDeadlineBase
+      };
       expect(ids.length, 4,
           reason: 'All four notification type base IDs must be unique');
     });
@@ -595,8 +583,7 @@ void main() {
       // No exception means idempotent behavior
     });
 
-    test(
-        'scheduling with different profiles does not accumulate notifications',
+    test('scheduling with different profiles does not accumulate notifications',
         () async {
       final service = NotificationService();
       final profile1 = buildProfile(
@@ -618,12 +605,13 @@ void main() {
   // ════════════════════════════════════════════════════════════════
 
   group('deep link payload format', () {
-    test('check-in notification uses GoRouter path /coach/checkin', () {
-      // From source: payload: '/coach/checkin'
-      const payload = '/coach/checkin';
+    test('check-in notification uses semantic Coach handoff route', () {
+      // From source: payload: '/home?screen=coach&intent=monthlyCheckIn'
+      const payload = '/home?screen=coach&intent=monthlyCheckIn';
       expect(payload, startsWith('/'));
-      expect(payload, contains('coach'));
-      expect(payload, contains('checkin'));
+      expect(payload, contains('screen=coach'));
+      expect(payload, contains('intent=monthlyCheckIn'));
+      expect(payload, isNot(contains('/coach/checkin')));
     });
 
     test('3a deadline notification uses GoRouter path /pilier-3a', () {
@@ -640,16 +628,19 @@ void main() {
       expect(payload, startsWith('/'));
     });
 
-    test('streak protection uses GoRouter path /coach/checkin', () {
-      // From source: payload: '/coach/checkin'
-      const payload = '/coach/checkin';
+    test('streak protection uses semantic Coach handoff route', () {
+      // From source: payload: '/home?screen=coach&intent=monthlyCheckIn'
+      const payload = '/home?screen=coach&intent=monthlyCheckIn';
       expect(payload, startsWith('/'));
+      expect(payload, contains('screen=coach'));
+      expect(payload, isNot(contains('/coach/checkin')));
     });
 
     test('pendingRoute stores GoRouter-compatible path from notification tap',
         () {
       // Simulate a notification tap setting pendingRoute
-      NotificationService.pendingRoute = '/coach/checkin';
+      NotificationService.pendingRoute =
+          '/home?screen=coach&intent=monthlyCheckIn';
 
       final route = NotificationService.consumePendingRoute();
       expect(route, isNotNull);
@@ -658,10 +649,13 @@ void main() {
     });
 
     test('all known payloads are valid GoRouter paths', () {
-      final payloads = ['/coach/checkin', '/pilier-3a', '/home'];
+      final payloads = [
+        '/home?screen=coach&intent=monthlyCheckIn',
+        '/pilier-3a',
+        '/home',
+      ];
       for (final p in payloads) {
-        expect(p, startsWith('/'),
-            reason: 'Payload "$p" must start with /');
+        expect(p, startsWith('/'), reason: 'Payload "$p" must start with /');
         expect(p.contains(' '), isFalse,
             reason: 'Payload "$p" must not contain spaces');
       }
@@ -673,7 +667,8 @@ void main() {
   // ════════════════════════════════════════════════════════════════
 
   group('handles permission denied gracefully', () {
-    test('requestPermission returns false when plugin not initialized', () async {
+    test('requestPermission returns false when plugin not initialized',
+        () async {
       final service = NotificationService();
       // Plugin is null — simulates a scenario where init was not called
       // or platform doesn't support notifications.
