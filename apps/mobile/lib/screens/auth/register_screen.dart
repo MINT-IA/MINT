@@ -407,89 +407,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onChoiceChanged: _refreshHandoffChoiceRequired,
                           ),
                         ],
-                        if (_showEmailForm || !canShowAppleSignIn) ...[
-                          const SizedBox(height: MintSpacing.md),
-                          MintEntrance(
-                              delay: const Duration(milliseconds: 300),
-                              child: MintSurface(
-                                padding: const EdgeInsets.all(14),
-                                radius: 14,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.authWhyCreateAccount,
-                                      style: MintTextStyles.bodyMedium()
-                                          .copyWith(
-                                              fontWeight: FontWeight.w600),
-                                    ),
-                                    const SizedBox(height: MintSpacing.sm),
-                                    _RegisterBenefitRow(
-                                        text: l10n.authBenefitProjections),
-                                    _RegisterBenefitRow(
-                                        text: l10n.authBenefitCoach),
-                                    _RegisterBenefitRow(
-                                        text: l10n.authBenefitSync),
-                                  ],
-                                ),
-                              )),
-                          const SizedBox(height: MintSpacing.xxl),
-                        ] else
-                          const SizedBox(height: MintSpacing.lg),
+                        const SizedBox(height: MintSpacing.lg),
                         if (canShowAppleSignIn) ...[
                           _buildRequiredConsents(l10n),
                           const SizedBox(height: MintSpacing.lg),
-                        ],
-                        if (canShowAppleSignIn) ...[
-                          Text(
-                            l10n.authAppleDobNotice,
-                            style: MintTextStyles.bodySmall(
-                              color: MintColors.textSecondary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: MintSpacing.sm),
-                          SizedBox(
-                            height: 48,
-                            child: _appleSignInLoading
-                                ? const Center(
-                                    child: SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    ),
-                                  )
-                                : _buildAppleSignInButton(
-                                    l10n,
-                                    handoffBlocksAuth,
-                                  ),
-                          ),
-                          if (_appleSignInError != null) ...[
-                            const SizedBox(height: MintSpacing.sm),
-                            Text(
-                              _appleSignInError!,
-                              style: MintTextStyles.bodySmall(
-                                  color: MintColors.error),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                          const SizedBox(height: MintSpacing.sm + 4),
-                          if (!_showEmailForm) ...[
-                            OutlinedButton(
-                              // lint-ignore: prefer_mint_cta
-                              onPressed: accountActionBusy
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        _showEmailForm = true;
-                                        _appleSignInError = null;
-                                      });
-                                    },
-                              child: Text(l10n.authCreateWithEmail),
-                            ),
-                            const SizedBox(height: MintSpacing.lg),
-                          ],
                         ],
                         if (_showEmailForm) ...[
                           // Email field
@@ -862,6 +783,85 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: MintSpacing.sm + 4),
                         ],
+                        if (canShowAppleSignIn) ...[
+                          const SizedBox(height: MintSpacing.sm),
+                          Text(
+                            l10n.authAppleDobNotice,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: MintSpacing.sm),
+                          SizedBox(
+                            height: 48,
+                            child: _appleSignInLoading
+                                ? const Center(
+                                    child: SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    ),
+                                  )
+                                : _buildAppleSignInButton(
+                                    l10n,
+                                    handoffBlocksAuth,
+                                  ),
+                          ),
+                          if (_appleSignInError != null) ...[
+                            const SizedBox(height: MintSpacing.sm),
+                            Text(
+                              _appleSignInError!,
+                              style: MintTextStyles.bodySmall(
+                                  color: MintColors.error),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                          const SizedBox(height: MintSpacing.lg),
+                          if (!_showEmailForm) ...[
+                            OutlinedButton(
+                              // lint-ignore: prefer_mint_cta
+                              onPressed: accountActionBusy
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _showEmailForm = true;
+                                        _appleSignInError = null;
+                                      });
+                                    },
+                              child: Text(l10n.authCreateWithEmail),
+                            ),
+                            const SizedBox(height: MintSpacing.lg),
+                          ],
+                        ],
+                        if (_showEmailForm || !canShowAppleSignIn) ...[
+                          MintEntrance(
+                              delay: const Duration(milliseconds: 300),
+                              child: MintSurface(
+                                padding: const EdgeInsets.all(14),
+                                radius: 14,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.authWhyCreateAccount,
+                                      style: MintTextStyles.bodyMedium()
+                                          .copyWith(
+                                              fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: MintSpacing.sm),
+                                    _RegisterBenefitRow(
+                                        text: l10n.authBenefitProjections),
+                                    _RegisterBenefitRow(
+                                        text: l10n.authBenefitCoach),
+                                    _RegisterBenefitRow(
+                                        text: l10n.authBenefitSync),
+                                  ],
+                                ),
+                              )),
+                          const SizedBox(height: MintSpacing.lg),
+                        ],
                         Semantics(
                           label: l10n.authContinueLocal,
                           button: true,
@@ -882,8 +882,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: MintSpacing.xl),
                         // Login link
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               l10n.authAlreadyAccount,

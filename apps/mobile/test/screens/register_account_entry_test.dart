@@ -61,13 +61,22 @@ void main() {
 
   testWidgets('iOS registration exposes Apple and email immediately',
       (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     try {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
+      final emailField = find.widgetWithText(TextFormField, 'Adresse e-mail');
       expect(find.byType(SignInWithAppleButton), findsOneWidget);
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(emailField, findsOneWidget);
+      expect(tester.getTopLeft(emailField).dy, lessThan(844));
       expect(find.text('Créer avec e-mail'), findsNothing);
     } finally {
       debugDefaultTargetPlatformOverride = null;
