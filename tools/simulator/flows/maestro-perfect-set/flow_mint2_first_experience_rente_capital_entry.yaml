@@ -79,5 +79,7 @@ tags:
 - assertNotVisible:
     text: "NoSuchMethodError"
 - assertNotVisible:
+    text: "Créer ton compte"
+- assertNotVisible:
     text: "CHF/mois"
 - takeScreenshot: "04-rvc-route-state"
