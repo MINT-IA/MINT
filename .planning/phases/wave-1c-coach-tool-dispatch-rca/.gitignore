@@ -2,5 +2,8 @@
 .jwt.tmp
 .creds.tmp
 captured_staging_payload.json
+captured_staging_payload*.json
+probe-evidence/*payload*.jsonl
+probe-evidence/user_message_*.txt
 bisect_results.json
 bisect_output.log

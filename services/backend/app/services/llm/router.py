@@ -114,31 +114,6 @@ async def _call_anthropic(client: Any, req: LLMRequest) -> Any:
     if req.temperature is not None:
         kwargs["temperature"] = req.temperature
 
-    # Wave 1c instrumentation (engram obs id 74 + 2026-05-15 router-path
-    # follow-up): log the full Anthropic payload when WAVE1C_INSTRUMENT_ENABLED
-    # is true. Mirrors the gate in services/backend/app/services/rag/llm_client.py
-    # (PR #628). This is the narrator path that the coach_chat /chat endpoint
-    # actually hits when COACH_DUAL_LLM_ENABLED toggles the router branch;
-    # PR #628's instrumentation in the legacy llm_client path never fires
-    # for narrator-routed requests on staging.
-    if os.environ.get("WAVE1C_INSTRUMENT_ENABLED", "").lower() == "true":  # pragma: no cover
-        try:  # pragma: no cover
-            import json as _json
-            _payload = {
-                "model": kwargs.get("model"),
-                "system": kwargs.get("system"),
-                "tools": [t.get("name") for t in kwargs.get("tools", [])] if isinstance(kwargs.get("tools"), list) else None,
-                "tool_choice": kwargs.get("tool_choice"),
-                "messages": kwargs.get("messages"),
-                "purpose": req.purpose,
-            }
-            logger.info(
-                "WAVE1C_PAYLOAD %s",
-                _json.dumps(_payload, ensure_ascii=False, default=str)[:80000],
-            )
-        except Exception as _e:  # pragma: no cover (instrumentation only)
-            logger.warning("WAVE1C_PAYLOAD instrumentation failed: %s", _e)
-
     return await client.messages.create(**kwargs)
 
 
