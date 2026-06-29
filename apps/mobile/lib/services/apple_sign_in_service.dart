@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
@@ -25,8 +26,25 @@ class AppleSignInService {
   }
 
   static bool isCancellation(Object error) {
-    return error is SignInWithAppleAuthorizationException &&
-        error.code == AuthorizationErrorCode.canceled;
+    if (error is SignInWithAppleAuthorizationException) {
+      return error.code == AuthorizationErrorCode.canceled;
+    }
+    if (error is PlatformException) {
+      final raw = [
+        error.code,
+        error.message,
+        error.details,
+      ].whereType<Object>().join(' ').toLowerCase();
+      final isAppleAuthorizationFailure =
+          raw.contains('authenticationservices.authorizationerror') ||
+              raw.contains('asauthorizationerror') ||
+              raw.contains('com.apple.authenticationservices');
+      return isAppleAuthorizationFailure &&
+          (raw.contains('error 1001') ||
+              raw.contains('canceled') ||
+              raw.contains('cancelled'));
+    }
+    return false;
   }
 
   /// Check if Apple Sign-In is available on this device.

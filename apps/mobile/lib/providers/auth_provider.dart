@@ -1,6 +1,7 @@
 import 'dart:async' show unawaited;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -125,8 +126,31 @@ AuthError _authErrorFromException(Object error) {
     return AuthError.registrationUnavailable;
   }
 
+  final platformText = error is PlatformException
+      ? [
+          error.code,
+          error.message,
+          error.details,
+        ].whereType<Object>().join(' ').toLowerCase()
+      : lower;
+  final nativeAppleAuthorizationFailure =
+      platformText.contains('authenticationservices.authorizationerror') ||
+          platformText.contains('asauthorizationerror') ||
+          platformText.contains('com.apple.authenticationservices');
+  final nativeAppleCancellation = nativeAppleAuthorizationFailure &&
+      (platformText.contains('error 1001') ||
+          platformText.contains('canceled') ||
+          platformText.contains('cancelled'));
+
+  if (nativeAppleCancellation) {
+    return AuthError.genericError;
+  }
+
   if (lower.contains('signinwithappleauthorizationexception') ||
-      lower.contains('authorizationerrorcode')) {
+      lower.contains('authorizationerrorcode') ||
+      // Native iOS/TestFlight failures may arrive as a PlatformException from
+      // AuthenticationServices instead of the typed sign_in_with_apple error.
+      nativeAppleAuthorizationFailure) {
     return AuthError.serviceUnavailable;
   }
 
