@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 final _directNavigatorNavigationPattern = RegExp(
   r'Navigator\s*'
@@ -22,6 +24,16 @@ final _commentOrStringPattern = RegExp(
   r"'(?:\\.|[^'\\])*'",
 );
 
+final _commentPattern = RegExp(
+  r'//[^\n]*|/\*[\s\S]*?\*/',
+  multiLine: true,
+);
+
+final _coachChatPushPattern = RegExp(
+  r'''context\s*\.\s*push\s*\(\s*['"]/coach/chat(?:\?[^'"]*)?['"]''',
+  multiLine: true,
+);
+
 String _blankPreservingLines(String text) {
   return text.split('\n').map((line) => ' ' * line.length).join('\n');
 }
@@ -29,6 +41,13 @@ String _blankPreservingLines(String text) {
 String _stripCommentsAndStrings(String source) {
   return source.replaceAllMapped(
     _commentOrStringPattern,
+    (match) => _blankPreservingLines(match[0]!),
+  );
+}
+
+String _stripComments(String source) {
+  return source.replaceAllMapped(
+    _commentPattern,
     (match) => _blankPreservingLines(match[0]!),
   );
 }
@@ -115,5 +134,133 @@ Navigator.of(context).pop();
           'opaque.\n'
           '${violations.join('\n')}',
     );
+  });
+
+  test('top-level shell surfaces open Coach with branch switch semantics', () {
+    final root = Directory.current;
+    final auditedFiles = [
+      'lib/screens/aujourdhui/aujourdhui_screen.dart',
+      'lib/screens/mon_argent/mon_argent_screen.dart',
+      'lib/widgets/aujourdhui/commitments_and_checkins_card.dart',
+    ];
+    final violations = <String>[];
+
+    for (final relativePath in auditedFiles) {
+      final file = File('${root.path}/$relativePath');
+      if (!file.existsSync()) {
+        violations.add('$relativePath: missing audited file');
+        continue;
+      }
+
+      final source = file.readAsStringSync();
+      final searchableSource = _stripComments(source);
+      final lines = source.split('\n');
+      for (final match in _coachChatPushPattern.allMatches(searchableSource)) {
+        final lineNumber =
+            '\n'.allMatches(searchableSource.substring(0, match.start)).length +
+                1;
+        violations.add(
+          '$relativePath:$lineNumber: ${lines[lineNumber - 1].trim()}',
+        );
+      }
+    }
+
+    expect(
+      violations,
+      isEmpty,
+      reason: 'Coach is a StatefulShellRoute branch. Top-level shell surfaces '
+          'use context.go("/coach/chat...") so content and bottom navigation '
+          'select the Coach branch together. Leaf/detail and mid-flow screens '
+          'need a separate root-owned handoff route before they can preserve '
+          'both back-stack and tab selection.\n'
+          '${violations.join('\n')}',
+    );
+  });
+
+  test('production router keeps coach chat in its own shell branch', () {
+    final source = File('lib/app.dart').readAsStringSync();
+    expect(source, contains('StatefulShellRoute.indexedStack'));
+
+    final coachBranchPattern = RegExp(
+      r'''StatefulShellBranch\s*\(\s*navigatorKey:\s*_shellNavigatorKeyCoach,[\s\S]*?path:\s*['"]/coach/chat['"]''',
+      multiLine: true,
+    );
+    expect(
+      coachBranchPattern.hasMatch(source),
+      isTrue,
+      reason: '/coach/chat must remain owned by the Coach shell branch. '
+          'Top-level shell surfaces use context.go("/coach/chat...") because '
+          'it is a tab switch, not a leaf-route push.',
+    );
+  });
+
+  testWidgets('go to coach branch keeps shell selection coherent and query',
+      (tester) async {
+    String? capturedTopic;
+    final router = GoRouter(
+      initialLocation: '/mon-argent',
+      routes: [
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return Scaffold(
+              body: Column(
+                children: [
+                  Text('branch:${navigationShell.currentIndex}'),
+                  Expanded(child: navigationShell),
+                ],
+              ),
+            );
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/mon-argent',
+                  builder: (context, state) => Center(
+                    child: ElevatedButton(
+                      key: const Key('open_coach'),
+                      onPressed: () => context.go('/coach/chat?topic=budget'),
+                      child: const Text('Open Coach'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/coach/chat',
+                  builder: (context, state) {
+                    capturedTopic = state.uri.queryParameters['topic'];
+                    return Center(
+                      child: Text('Coach topic:${capturedTopic ?? ''}'),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+
+    expect(find.text('branch:0'), findsOneWidget);
+    expect(find.text('Open Coach'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('open_coach')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('branch:1'), findsOneWidget);
+    expect(find.text('Coach topic:budget'), findsOneWidget);
+    expect(capturedTopic, 'budget');
+    expect(router.canPop(), isFalse);
+
+    router.go('/mon-argent');
+    await tester.pumpAndSettle();
+
+    expect(find.text('branch:0'), findsOneWidget);
+    expect(find.text('Open Coach'), findsOneWidget);
   });
 }
