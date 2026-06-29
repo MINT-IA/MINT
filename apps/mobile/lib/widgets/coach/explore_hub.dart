@@ -51,7 +51,7 @@ class ExploreHub extends StatelessWidget {
             icon: Icons.chat_outlined,
             title: 'Coach & check-in',
             subtitle: 'Discussion et suivi mensuel',
-            route: '/coach/checkin',
+            route: '/coach/chat',
           ),
           const _ExploreRow(
             icon: Icons.document_scanner_outlined,
