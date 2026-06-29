@@ -5,7 +5,8 @@ import 'package:mint_mobile/services/rag_service.dart';
 
 void main() {
   group('ChatToolDispatcher.normalize', () {
-    test('converts ParsedToolCall SCREAMING_SNAKE to snake_case RagToolCall', () {
+    test('converts ParsedToolCall SCREAMING_SNAKE to snake_case RagToolCall',
+        () {
       final parsed = [
         const ParsedToolCall(
           toolName: 'SHOW_FACT_CARD',
@@ -142,6 +143,70 @@ void main() {
         expect(ToolCallParser.isValidRoute(result!.split('?').first), isTrue);
       },
     );
+
+    test('resolves legacy backend intent to canonical route', () {
+      final result = ChatToolDispatcher.resolveRoute({
+        'intent': 'retirement_overview',
+      });
+
+      expect(result, '/retraite');
+      expect(result, isNot('/retirement'));
+    });
+
+    test('preserves legacy household accept intent sub-flow', () {
+      final result = ChatToolDispatcher.resolveRoute({
+        'intent': 'household_accept_invite',
+      });
+
+      expect(result, '/couple/accept');
+      expect(result, isNot('/couple'));
+    });
+
+    test('resolves legacy profile enrichment intent to profile summary', () {
+      final result = ChatToolDispatcher.resolveRoute({
+        'intent': 'profile_enrichment',
+      });
+
+      expect(result, '/profile/bilan');
+      expect(result, isNot('/profile'));
+    });
+
+    test('resolves legacy ask_mint intent to canonical Coach chat route', () {
+      final result = ChatToolDispatcher.resolveRoute({
+        'intent': 'ask_mint',
+      });
+
+      expect(result, '/coach/chat');
+      expect(result, isNot('/advisor'));
+    });
+
+    test('high-traffic legacy intents never resolve to legacy alias routes',
+        () {
+      const expectedRoutes = <String, String>{
+        'withdrawal_calendar': '/decaissement',
+        'lpp_deep_rachat': '/rachat-lpp',
+        'lpp_deep_epl': '/epl',
+        'lpp_deep_libre_passage': '/libre-passage',
+        'financial_cockpit': '/retraite',
+        'portfolio_overview': '/profile/bilan',
+      };
+
+      for (final entry in expectedRoutes.entries) {
+        final result = ChatToolDispatcher.resolveRoute({
+          'intent': entry.key,
+        });
+
+        expect(result, entry.value, reason: entry.key);
+      }
+    });
+
+    test('drops non-routable intent that has no legacy alias', () {
+      final result = ChatToolDispatcher.resolveRoute({
+        'intent': 'data_block_enrichment',
+      });
+
+      expect(result, isNull);
+    });
 
     test('returns null for unknown intent', () {
       final result = ChatToolDispatcher.resolveRoute({

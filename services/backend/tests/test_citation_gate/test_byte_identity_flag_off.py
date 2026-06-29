@@ -35,9 +35,10 @@ def test_citation_gate_flag_off_does_not_alter_prompt(
     """Each captured snapshot is byte-identical to the live prompt build
     when `COACH_CITATION_GATE_ENABLED=False` (the rollback override).
     """
-    # Force the rollback override OFF on the module-level singleton, then
-    # confirm it. Activation (Plan 07) flips the DEFAULT to True, but the
-    # OFF path MUST remain byte-identical to the legacy snapshots.
+    # Force the rollback override OFF in both env and the module-level
+    # singleton, then confirm it. Activation (Plan 07) flips the DEFAULT to
+    # True, but the OFF path MUST remain byte-identical to the legacy snapshots.
+    monkeypatch.setenv("COACH_CITATION_GATE_ENABLED", "false")
     monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
     assert settings.COACH_CITATION_GATE_ENABLED is False, (
         "rollback invariant — explicit OFF override MUST restore the "
