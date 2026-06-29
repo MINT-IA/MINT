@@ -149,6 +149,9 @@ class MintVectorStore:
         Returns:
             List of result dicts with keys: id, text, metadata, distance.
         """
+        if n_results <= 0:
+            return []
+
         # Build the effective filter:
         # - If the caller passes an explicit where_filter, use it as-is.
         # - Otherwise fall back to a simple language equality filter.

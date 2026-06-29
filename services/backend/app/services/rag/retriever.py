@@ -67,6 +67,9 @@ class MintRetriever:
         Returns:
             List of result dicts with keys: id, text, metadata, distance, source.
         """
+        if n_results <= 0:
+            return []
+
         # Priority 1: HybridSearchService (pgvector — production)
         if self._hybrid:
             try:

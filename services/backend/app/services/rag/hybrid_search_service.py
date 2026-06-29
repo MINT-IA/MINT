@@ -56,7 +56,7 @@ class SearchResult:
 # SQL queries
 # ---------------------------------------------------------------------------
 
-_HYBRID_SEARCH_SQL = """
+_HYBRID_SEARCH_SQL = r"""
 WITH vector_results AS (
     SELECT doc_id, title, content, metadata, doc_type,
            1 - (embedding <=> %(query_embedding)s::vector) AS vector_score
@@ -89,7 +89,7 @@ SELECT COALESCE(v.doc_id, k.doc_id) AS doc_id,
                 AND COALESCE(v.metadata, k.metadata)::jsonb ? 'created_at'
                 AND COALESCE(v.metadata, k.metadata)::jsonb->>'created_at' ~ '^\d{4}-\d{2}-\d{2}'
                 AND (NOW() - (COALESCE(v.metadata, k.metadata)::jsonb->>'created_at')::timestamptz) < INTERVAL '30 days'
-           THEN 1.2  -- 20% freshness boost for recent memories
+           THEN 1.2  -- Freshness boost for recent memories
            ELSE 1.0
          END AS fused_score
 FROM vector_results v
@@ -235,7 +235,7 @@ class HybridSearchService:
         Returns:
             List of SearchResult ordered by fused_score descending.
         """
-        if not query or not query.strip():
+        if n_results <= 0 or not query or not query.strip():
             return []
 
         # Attempt to embed the query for vector search

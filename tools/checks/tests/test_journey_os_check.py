@@ -232,6 +232,25 @@ def test_coach_advice_backend_files_are_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_coach_rag_runtime_hotfix_files_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "services/backend/app/services/rag/hybrid_search_service.py",
+            "services/backend/app/services/rag/retriever.py",
+            "services/backend/app/services/rag/vector_store.py",
+            "services/backend/tests/test_main_coverage.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_python_editable_install_egg_info_is_ignored(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
