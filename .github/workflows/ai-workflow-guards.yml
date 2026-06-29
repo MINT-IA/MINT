@@ -40,6 +40,8 @@ jobs:
         run: python3 tools/checks/claude_hooks_guard.py
       - name: Journey OS guard
         run: python3 tools/checks/journey_os_check.py
+      - name: Mint 2 navigation spine guard
+        run: python3 tools/checks/mint2_navigation_spine_guard.py
       - name: Workflow contract guard
         run: python3 tools/checks/workflow_contract_guard.py
       - name: Mermaid render guard
@@ -62,6 +64,7 @@ jobs:
           tools/checks/tests/test_claude_hooks_guard.py
           tools/checks/tests/test_journey_os_check.py
           tools/checks/tests/test_journey_os_runtime_replay.py
+          tools/checks/tests/test_mint2_navigation_spine_guard.py
           tools/checks/tests/test_maestro_locator_audit.py
           tools/checks/tests/test_mermaid_render_guard.py
           tools/checks/tests/test_workflow_contract_guard.py

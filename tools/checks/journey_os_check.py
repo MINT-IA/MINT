@@ -121,6 +121,7 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_row22_profile_dossier_production_profile.yaml",
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
@@ -133,6 +134,7 @@ ALLOW = {
     "tools/checks/journey_os_generate.py",
     "tools/checks/maestro_locator_audit.py",
     "tools/checks/mermaid_render_guard.py",
+    "tools/checks/mint2_navigation_spine_guard.py",
     "tools/checks/mint_rules_guard.py",
     "tools/checks/workflow_contract_guard.py",
     "tools/checks/tests/test_active_context_guard.py",
@@ -141,6 +143,7 @@ ALLOW = {
     "tools/checks/tests/test_journey_os_runtime_replay.py",
     "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
+    "tools/checks/tests/test_mint2_navigation_spine_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
 }
