@@ -242,37 +242,6 @@ class LLMClient:
                         "disable_parallel_tool_use": False,
                     }
 
-            # Wave 1c instrumentation (engram obs id 74, 2026-05-15): when
-            # WAVE1C_INSTRUMENT_ENABLED=true is set on the staging env, log the
-            # full Anthropic API payload (system prompt, tool names + count,
-            # tool_choice, message stack) immediately before the create() call.
-            # Used to bisect which context layer suppresses tool_use disposition
-            # vs the local minimal-prompt experiment which DOES emit tool_use
-            # under tool_choice=auto. Default OFF -> no production log volume.
-            # Drop the env var to disable; this gate is intentionally not in
-            # Pydantic Settings to keep instrumentation hot-loadable.
-            import os as _os  # local import to keep instrumentation isolated
-            # pragma: no cover — debug-only instrumentation, env-gated default OFF.
-            # Coverage report does not exercise the WAVE1C_INSTRUMENT_ENABLED=true
-            # branch because tests do not flip the env var. The behavior is
-            # exercised manually post-deploy via railway logs (see PR description).
-            if _os.environ.get("WAVE1C_INSTRUMENT_ENABLED", "").lower() == "true":  # pragma: no cover
-                try:  # pragma: no cover
-                    import json as _json
-                    _payload = {
-                        "model": kwargs.get("model"),
-                        "system": kwargs.get("system"),
-                        "tools": [t.get("name") for t in kwargs.get("tools", [])],
-                        "tool_choice": kwargs.get("tool_choice"),
-                        "messages": kwargs.get("messages"),
-                    }
-                    logger.info(
-                        "WAVE1C_PAYLOAD %s",
-                        _json.dumps(_payload, ensure_ascii=False)[:80000],
-                    )
-                except Exception as _e:  # pragma: no cover (instrumentation only)
-                    logger.warning("WAVE1C_PAYLOAD instrumentation failed: %s", _e)
-
             # v2.7 STAB-02: retry transient upstream failures (429/5xx/529 +
             # connection/timeout). Wait: 0.5s, 1s, 2s (max 8s). Final failure
             # is wrapped into CoachUpstreamError so the orchestrator can
