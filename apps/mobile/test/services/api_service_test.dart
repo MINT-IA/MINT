@@ -159,6 +159,32 @@ void main() {
       expect(captured?.url.path, '/api/v1/auth/me');
       expect(captured?.headers['Authorization'], 'Bearer fresh-token');
     });
+
+    test('postAppleVerify preserves recreate_required detail on 409',
+        () async {
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          expect(request.url.path, '/api/v1/auth/apple/verify');
+          return http.Response(
+            '{"detail":"recreate_required"}',
+            409,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+
+      await expectLater(
+        ApiService.postAppleVerify(
+          identityToken: 'identity-token',
+          nonce: 'raw-nonce',
+        ),
+        throwsA(
+          isA<ApiException>()
+              .having((e) => e.message, 'message', 'recreate_required')
+              .having((e) => e.statusCode, 'statusCode', 409),
+        ),
+      );
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════

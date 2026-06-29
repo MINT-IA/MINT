@@ -120,6 +120,7 @@ AuthError _authErrorFromException(Object error) {
 
   if (lower.contains('registration failed') ||
       lower.contains('inscription impossible') ||
+      lower.contains('recreate_required') ||
       lower.contains('service indisponible')) {
     return AuthError.registrationUnavailable;
   }

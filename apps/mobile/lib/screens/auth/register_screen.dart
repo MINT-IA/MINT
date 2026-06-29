@@ -159,9 +159,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!ok) {
         if (!mounted) return;
         setState(() {
-          _appleSignInError = authProvider.error != null
-              ? localizeAuthError(authProvider.error!, S.of(context)!)
-              : S.of(context)!.authErrorGeneric;
+          _appleSignInError = authProvider.error == null
+              ? S.of(context)!.authErrorGeneric
+              : null;
+          _showEmailForm = true;
         });
         return;
       }
@@ -169,10 +170,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _persistConsentPreferences();
       if (!mounted) return;
       await _goAfterAccountCreated();
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
-          _appleSignInError = S.of(context)!.authErrorGeneric;
+          _appleSignInError = localizeAuthException(e, S.of(context)!);
+          _showEmailForm = true;
         });
       }
     } finally {
