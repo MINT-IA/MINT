@@ -113,7 +113,10 @@ from app.services.coach.turn_cap import (
 )
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
 from app.services.rules_engine import get_3a_ceiling
-from app.services.coach.structured_reasoning import StructuredReasoningService
+from app.services.coach.structured_reasoning import (
+    ReasoningOutput,
+    StructuredReasoningService,
+)
 from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
@@ -3353,6 +3356,98 @@ def _fmt_chf(value) -> str:
         return "non disponible"
 
 
+def _is_generic_data_fallback(answer: str | None) -> bool:
+    if not isinstance(answer, str):
+        return False
+    stripped = answer.strip()
+    return stripped == FALLBACK_TEMPLATED_TEXT or stripped.startswith(
+        "Je n'ai pas cette donnée"
+    )
+
+
+def _rente_capital_sources(reasoning_output: ReasoningOutput) -> list[dict]:
+    return [
+        {
+            "source_kind": "legal_reference",
+            "section": "rente_capital_next_lever",
+            "title": source,
+        }
+        for source in reasoning_output.sources
+    ]
+
+
+def _retirement_choice_route_call() -> dict:
+    return {
+        "name": "route_to_screen",
+        "input": {
+            "intent": "retirement_choice",
+            "confidence": 0.92,
+            "context_message": (
+                "Comparer rente et capital avec le certificat LPP actuel."
+            ),
+        },
+    }
+
+
+def _ensure_single_retirement_choice_route(tool_calls: list | None) -> list:
+    calls = list(tool_calls or [])
+    for index, call in enumerate(calls):
+        if not isinstance(call, dict) or call.get("name") != "route_to_screen":
+            continue
+        updated = dict(call)
+        updated_input = dict(updated.get("input") or {})
+        updated_input.update(_retirement_choice_route_call()["input"])
+        updated["input"] = updated_input
+        calls[index] = updated
+        return calls
+    calls.append(_retirement_choice_route_call())
+    return calls
+
+
+def _recover_rente_capital_fallback(
+    loop_result: dict,
+    reasoning_output: ReasoningOutput | None,
+) -> dict:
+    # This deterministic recovery runs after the generic citation fallback.
+    # Keep it narrow and pre-vetted: no LLM prose enters this path.
+    if reasoning_output is None:
+        return loop_result
+    if reasoning_output.fact_tag != "rente_capital_next_lever":
+        return loop_result
+    if not _is_generic_data_fallback(loop_result.get("answer")):
+        return loop_result
+
+    data = reasoning_output.supporting_data or {}
+    lpp_amount = data.get("avoir_lpp_actuel_CHF")
+    canton = data.get("canton") or "ton canton"
+    amount_text = _fmt_chf(lpp_amount)
+    message = (
+        "Pour ton choix rente/capital LPP, le prochain levier concret est le "
+        f"certificat de prévoyance actuel : avec {amount_text} d'avoir LPP, "
+        "compare le taux de conversion, la part retirable en capital et la "
+        "couverture survivants. La rente est imposée comme revenu (LIFD art. "
+        "22); le capital est imposé séparément au retrait (LIFD art. 38), donc "
+        f"{canton} et ta situation familiale changent le résultat. Je t'ouvre "
+        "la comparaison rente vs capital; garde la décision comme une hypothèse "
+        "tant que le certificat et la fiscalité de retrait ne sont pas confirmés."
+    )
+
+    recovered = dict(loop_result)
+    recovered["answer"] = message
+    recovered["sources"] = loop_result.get("sources") or _rente_capital_sources(
+        reasoning_output
+    )
+    disclaimers = list(loop_result.get("disclaimers") or [])
+    if reasoning_output.disclaimer and reasoning_output.disclaimer not in disclaimers:
+        disclaimers.append(reasoning_output.disclaimer)
+    recovered["disclaimers"] = disclaimers
+    recovered["tool_calls"] = _ensure_single_retirement_choice_route(
+        loop_result.get("tool_calls")
+    )
+    recovered["degraded"] = True
+    return recovered
+
+
 def _fmt_pct(value) -> str:
     """Format a ratio (0-1) or percentage (0-100) as %."""
     if value is None:
@@ -5930,6 +6025,8 @@ async def coach_chat(
             status_code=502,
             detail="LLM API call failed. Please verify your API key and try again.",
         )
+
+    loop_result = _recover_rente_capital_fallback(loop_result, reasoning_output)
 
     # ------------------------------------------------------------------
     # Step 5: Production monitoring

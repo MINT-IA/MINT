@@ -282,6 +282,61 @@ class TestRachatOpportunity:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Group 5b: Rente vs capital next lever
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestRenteCapitalNextLever:
+    """Rente/capital questions must not fall through to generic no-data output."""
+
+    @patch("app.services.coach.structured_reasoning.datetime")
+    def test_rente_capital_question_uses_lpp_context(self, mock_dt):
+        mock_dt.date.today.return_value = _JULY_DATE
+        mock_dt.date.side_effect = lambda *a, **kw: datetime.date(*a, **kw)
+
+        output = _reason(
+            {
+                "age": 49,
+                "canton": "VS",
+                "lpp_capital": 94_000.0,
+                "monthly_income": 7600.0,
+                "civil_status": "married",
+            },
+            "Je dois choisir rente ou capital pour ma LPP. Quel est le prochain levier concret ?",
+        )
+
+        assert output.fact_tag == "rente_capital_next_lever"
+        assert output.domain == "retraite"
+        assert output.intent_tag == "retirement_choice"
+        assert output.supporting_data["avoir_lpp_actuel_CHF"] == 94_000.0
+        sources = " ".join(output.sources)
+        assert "LIFD art. 22" in sources
+        assert "LIFD art. 38" in sources
+
+    @patch("app.services.coach.structured_reasoning.datetime")
+    def test_rente_capital_question_accepts_avoir_lpp_alias(self, mock_dt):
+        mock_dt.date.today.return_value = _JULY_DATE
+        mock_dt.date.side_effect = lambda *a, **kw: datetime.date(*a, **kw)
+
+        output = _reason(
+            {"age": 49, "canton": "VS", "avoir_lpp": 94_000.0},
+            "Rente ou capital ?",
+        )
+
+        assert output.fact_tag == "rente_capital_next_lever"
+        assert output.supporting_data["avoir_lpp_actuel_CHF"] == 94_000.0
+
+    @patch("app.services.coach.structured_reasoning.datetime")
+    def test_lpp_capital_without_question_does_not_fire(self, mock_dt):
+        mock_dt.date.today.return_value = _JULY_DATE
+        mock_dt.date.side_effect = lambda *a, **kw: datetime.date(*a, **kw)
+
+        output = _reason({"age": 49, "canton": "VS", "lpp_capital": 94_000.0})
+
+        assert output.fact_tag != "rente_capital_next_lever"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Group 6: Priority ordering
 # ─────────────────────────────────────────────────────────────────────────────
 

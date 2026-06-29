@@ -753,6 +753,133 @@ class TestCoachChatProfileContext:
         assert call_kwargs.get("profile_context") is not None or True
 
 
+class TestCoachChatRenteCapitalFallbackFloor:
+    """Rente/capital advice must not collapse to the generic citation fallback."""
+
+    def _rente_capital_body(self) -> dict:
+        return {
+            **_VALID_BODY,
+            "message": (
+                "Je dois choisir rente ou capital pour ma LPP. "
+                "Quel est le prochain levier concret ?"
+            ),
+            "profileContext": {
+                "age": 49,
+                "canton": "VS",
+                "lpp_capital": 94_000,
+                "monthly_income": 7600,
+                "civil_status": "married",
+                "employment_status": "employed",
+            },
+        }
+
+    def _loop_result(self, *, answer: str, tool_calls=None) -> dict:
+        return {
+            "answer": answer,
+            "tool_calls": tool_calls or [],
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 50_456,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+
+    def test_rente_capital_fallback_recovers_from_structured_reasoning(
+        self, client_with_auth
+    ):
+        from app.services.coach.citation_parser import FALLBACK_TEMPLATED_TEXT
+
+        loop = AsyncMock(
+            return_value=self._loop_result(answer=FALLBACK_TEMPLATED_TEXT)
+        )
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post(
+                "/api/v1/coach/chat",
+                json=self._rente_capital_body(),
+            )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["message"] != FALLBACK_TEMPLATED_TEXT
+        assert "rente" in payload["message"].lower()
+        assert "capital" in payload["message"].lower()
+        assert "94'000" in payload["message"]
+        assert "LIFD art. 22" in payload["message"]
+        assert "LIFD art. 38" in payload["message"]
+        assert payload["toolCalls"][0]["name"] == "route_to_screen"
+        assert payload["toolCalls"][0]["input"]["intent"] == "retirement_choice"
+        assert payload["disclaimers"]
+        assert payload["sources"][0]["source_kind"] == "legal_reference"
+
+    def test_rente_capital_real_answer_is_not_recovered(self, client_with_auth):
+        answer = "Réponse déjà utile sans fallback."
+        loop = AsyncMock(return_value=self._loop_result(answer=answer))
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post(
+                "/api/v1/coach/chat",
+                json=self._rente_capital_body(),
+            )
+
+        assert response.status_code == 200
+        assert response.json()["message"] == answer
+
+    def test_non_rente_capital_fallback_stays_generic(self, client_with_auth):
+        from app.services.coach.citation_parser import FALLBACK_TEMPLATED_TEXT
+
+        loop = AsyncMock(
+            return_value=self._loop_result(answer=FALLBACK_TEMPLATED_TEXT)
+        )
+        body = {
+            **_VALID_BODY,
+            "message": "Comment optimiser mon 3a ?",
+            "profileContext": {
+                "annual_3a_contribution": 1000,
+                "tax_saving_potential": 2000,
+            },
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        assert response.json()["message"] == FALLBACK_TEMPLATED_TEXT
+
+    def test_rente_capital_recovery_normalizes_existing_route(self, client_with_auth):
+        from app.services.coach.citation_parser import FALLBACK_TEMPLATED_TEXT
+
+        loop = AsyncMock(
+            return_value=self._loop_result(
+                answer=FALLBACK_TEMPLATED_TEXT,
+                tool_calls=[
+                    {
+                        "name": "route_to_screen",
+                        "input": {
+                            "intent": "tax_optimization_3a",
+                            "confidence": 0.5,
+                        },
+                    }
+                ],
+            )
+        )
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post(
+                "/api/v1/coach/chat",
+                json=self._rente_capital_body(),
+            )
+
+        assert response.status_code == 200
+        route_calls = [
+            call for call in response.json()["toolCalls"]
+            if call["name"] == "route_to_screen"
+        ]
+        assert len(route_calls) == 1
+        assert route_calls[0]["input"]["intent"] == "retirement_choice"
+
+
 class TestCoachChatCitationGate:
     """Verify endpoint-level citation gate behavior, not only parser units."""
 
