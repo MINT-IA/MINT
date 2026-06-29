@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="MINT iPhone 13 mini RvC - iOS 26.2 - 3D0534A9-8C3A-4663-9348-106D0599E9D6" tests="1" failures="0" time="79.0">
+    <testcase id="flow_jos004_coach_advice_turn_runtime" name="flow_jos004_coach_advice_turn_runtime" classname="flow_jos004_coach_advice_turn_runtime" time="79.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="journey-os, jos-004, coach-advice-turn, pillar-3a, opp3-art-7, runtime-proof"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
