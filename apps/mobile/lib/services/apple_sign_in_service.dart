@@ -24,6 +24,11 @@ class AppleSignInService {
     _signInOverride = null;
   }
 
+  static bool isCancellation(Object error) {
+    return error is SignInWithAppleAuthorizationException &&
+        error.code == AuthorizationErrorCode.canceled;
+  }
+
   /// Check if Apple Sign-In is available on this device.
   ///
   /// Returns `true` only on iOS/macOS where Apple Sign-In is supported.

@@ -47,126 +47,119 @@ tags:
 - extendedWaitUntil:
     visible: "Créer ton compte"
     timeout: 12000
+- waitForAnimationToEnd:
+    timeout: 3000
 - runFlow:
     when:
       visible: "Créer avec e-mail"
     commands:
       - tapOn: "Créer avec e-mail"
 - extendedWaitUntil:
-    visible: "Adresse e-mail"
+    visible: { id: "auth_register_email_field" }
     timeout: 8000
-- tapOn: "Adresse e-mail"
+- tapOn:
+    point: "185, 466"
 - inputText: ${MINT_E2E_EMAIL}
+- waitForAnimationToEnd:
+    timeout: 2000
 - pressKey: Enter
-- tapOn: "Prénom"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    point: "185, 474"
 - inputText: "Jos001"
+- waitForAnimationToEnd:
+    timeout: 1000
 - pressKey: Enter
-- tapOn: { point: "50%,69%" }
-- tapOn: "Valider"
-- scrollUntilVisible:
-    element: { text: "Mot de passe" }
-    direction: DOWN
-    timeout: 8000
-- tapOn: "Mot de passe"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    point: "185, 511"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    point: "303, 638"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    point: "185, 604"
 - inputText: ${MINT_E2E_PASSWORD}
+- waitForAnimationToEnd:
+    timeout: 2000
 - pressKey: Enter
-- tapOn: "Confirmer le mot de passe"
+- waitForAnimationToEnd:
+    timeout: 1000
 - inputText: ${MINT_E2E_PASSWORD}
+- waitForAnimationToEnd:
+    timeout: 2000
 - pressKey: Enter
-- scrollUntilVisible:
-    element: { text: ".*J'ai lu et j'accepte.*" }
-    direction: DOWN
-    timeout: 8000
-- tapOn: ".*J'ai lu et j'accepte.*"
-- tapOn: ".*Je confirme avoir 18 ans.*"
-- scrollUntilVisible:
-    element: { text: "Créer mon compte" }
-    direction: DOWN
-    timeout: 8000
-- tapOn: "Créer mon compte"
+- hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    point: "56, 509"
+- waitForAnimationToEnd:
+    timeout: 500
+- tapOn:
+    point: "56, 581"
+- waitForAnimationToEnd:
+    timeout: 500
+- swipe:
+    start: "50%,75%"
+    end: "50%,45%"
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    point: "185, 607"
 - waitForAnimationToEnd:
     timeout: 20000
 - assertNotVisible: "Vérifier mon e-mail"
 
 - extendedWaitUntil:
-    visible: { id: "onboarding-entry-open" }
+    visible: "Un premier aperçu suisse."
     timeout: 12000
-- tapOn: { id: "onboarding-entry-open" }
-- extendedWaitUntil:
-    visible: { id: "onboarding-intent-explorer" }
-    timeout: 5000
-- tapOn: { id: "onboarding-intent-explorer" }
-- extendedWaitUntil:
-    visible: ".*États-Unis.*"
-    timeout: 5000
-- tapOn: "Non"
-- extendedWaitUntil:
-    visible: "Suisse"
-    timeout: 5000
-- tapOn: "Suisse"
-- extendedWaitUntil:
-    visible: "Salarié"
-    timeout: 5000
-- tapOn: "Salarié"
-- extendedWaitUntil:
-    visible: "Marié"
-    timeout: 5000
-- tapOn: "Marié"
-- extendedWaitUntil:
-    visible: "Non, toujours en Suisse"
-    timeout: 5000
-- tapOn: "Non, toujours en Suisse"
-- extendedWaitUntil:
-    visible: "Choisir ma date"
-    timeout: 5000
-- tapOn: "Choisir ma date"
-- extendedWaitUntil:
-    visible: "OK"
-    timeout: 5000
-- tapOn: ".*15.*juillet.*1992.*"
-- tapOn: "OK"
-- extendedWaitUntil:
-    visible: "15.07.1992"
-    timeout: 5000
-- tapOn: { id: "onboarding-dob-continue" }
-- extendedWaitUntil:
-    visible: { id: "onboarding-canton-vd" }
-    timeout: 5000
-- tapOn: { id: "onboarding-canton-vd" }
-- extendedWaitUntil:
-    visible: { id: "onboarding-revenue-range-continue" }
-    timeout: 5000
-- tapOn: { id: "onboarding-revenue-range-continue" }
-- extendedWaitUntil:
-    visible: { id: "onboarding-insight-view" }
-    timeout: 8000
-- tapOn: { id: "onboarding-insight-view" }
-- extendedWaitUntil:
-    visible: "Ce que Mint peut déjà situer"
-    timeout: 8000
-- tapOn: { id: "onboarding-scene-continue" }
-- extendedWaitUntil:
-    visible: { id: "onboarding-bifurcation-continue" }
-    timeout: 8000
-- tapOn: { id: "onboarding-bifurcation-continue" }
-- extendedWaitUntil:
-    visible: { id: "coach_chat_screen" }
-    timeout: 15000
+- takeScreenshot: "jos001-first-value-after-register"
 
 - openLink: "mintapp:///profile/privacy-control"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible: "Ce que MINT sait de toi"
     timeout: 12000
 - openLink: "mintapp:///profile/privacy"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible: "Ma vie privée"
     timeout: 12000
 - assertVisible: "Supprimer mon compte"
-- tapOn: "Supprimer mon compte"
+- tapOn:
+    point: "185, 424"
 - extendedWaitUntil:
     visible: "Supprimer le compte.*"
     timeout: 8000
-- tapOn: "Supprimer"
+- tapOn:
+    point: "244, 537"
 - waitForAnimationToEnd:
     timeout: 20000
 - openLink: "mintapp:///auth/forgot-password"

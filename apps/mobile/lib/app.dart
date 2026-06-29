@@ -285,11 +285,14 @@ bool _isProfileCorrectionPath(String path) {
       path.startsWith('/auth/');
 }
 
-bool _allowsProfilelessDossierSurface({
+bool _allowsProfilelessProfileSurface({
   required AuthLifecycleState lifecycle,
   required String path,
 }) {
-  if (path != '/profile/bilan') return false;
+  final isAllowedProfileSurface = path == '/profile/bilan' ||
+      path == '/profile/privacy' ||
+      path == '/profile/privacy-control';
+  if (!isAllowedProfileSurface) return false;
   return (lifecycle.accessMode == AuthAccessMode.guestLocal &&
           lifecycle.allowsMainNavigation) ||
       lifecycle.state == AuthLifecycleKind.signedInProfileMissing;
@@ -315,7 +318,7 @@ String? _profileRequiredEntryRedirect({
   if (_allowsProfilelessCoachSurface(lifecycle: lifecycle, path: path)) {
     return null;
   }
-  if (_allowsProfilelessDossierSurface(lifecycle: lifecycle, path: path)) {
+  if (_allowsProfilelessProfileSurface(lifecycle: lifecycle, path: path)) {
     return null;
   }
 
@@ -399,7 +402,7 @@ String? accountLifecycleAndArchetypeRedirect({
       return null;
 
     case RouteScope.authenticated:
-      if (_allowsProfilelessDossierSurface(lifecycle: lifecycle, path: path)) {
+      if (_allowsProfilelessProfileSurface(lifecycle: lifecycle, path: path)) {
         return null;
       }
       return accountLifecycleAuthenticatedRedirect(
