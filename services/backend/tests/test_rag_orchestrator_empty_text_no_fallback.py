@@ -133,6 +133,51 @@ async def test_query_still_filters_response_when_text_is_present():
         )
 
     orchestrator.guardrails.filter_response.assert_called_once_with(
-        "Voici un point sur ta situation.", "fr"
+        "Voici un point sur ta situation.", "fr", cursor_level=None
     )
     assert result["answer"] == "Filtered reply"
+
+
+@pytest.mark.asyncio
+async def test_query_forwards_cursor_level_to_compliance_filter():
+    """RAG path must enforce the same N-level cursor as coach_chat wiring."""
+    vector_store = MagicMock()
+    orchestrator = RAGOrchestrator(vector_store=vector_store)
+    orchestrator.retriever = MagicMock()
+    orchestrator.retriever.retrieve = AsyncMock(
+        return_value=[{"text": "ctx", "source": {}}, {"text": "ctx2", "source": {}}]
+    )
+
+    orchestrator.guardrails = MagicMock()
+    orchestrator.guardrails.filter_response.return_value = {
+        "text": "Filtered N5 reply",
+        "warnings": [],
+        "disclaimers_added": [],
+    }
+    orchestrator.guardrails.build_system_prompt.return_value = "system"
+
+    fake_llm_response = {
+        "text": "Tu devrais absolument acheter ce produit bancaire.",
+        "tool_calls": None,
+        "usage_tokens": 50,
+    }
+
+    with patch(
+        "app.services.rag.orchestrator.LLMClient",
+        autospec=True,
+    ) as mock_llm_cls:
+        mock_llm = mock_llm_cls.return_value
+        mock_llm.generate = AsyncMock(return_value=fake_llm_response)
+
+        result = await orchestrator.query(
+            question="que dois-je faire?",
+            api_key="test-key",
+            provider="claude",
+            language="fr",
+            cursor_level="N5",
+        )
+
+    orchestrator.guardrails.filter_response.assert_called_once_with(
+        "Tu devrais absolument acheter ce produit bancaire.", "fr", cursor_level="N5"
+    )
+    assert result["answer"] == "Filtered N5 reply"

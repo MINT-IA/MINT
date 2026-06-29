@@ -164,6 +164,12 @@ class TestCoachChatHTTPContract:
             response = client_with_auth.post("/api/v1/coach/chat", json=body)
         assert response.status_code in (200, 400)
 
+    def test_invalid_cash_level_returns_422(self, client_with_auth):
+        """cashLevel is schema-bounded before it becomes a voice cursor."""
+        body = {**_VALID_BODY, "cashLevel": 6}
+        response = client_with_auth.post("/api/v1/coach/chat", json=body)
+        assert response.status_code == 422
+
     def test_unauthenticated_returns_401(self, client_no_auth):
         """POST without JWT returns HTTP 401."""
         with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
@@ -440,6 +446,83 @@ class TestCoachChatOrchestratorWiring:
 
         call_kwargs = mock_orch.query.call_args.kwargs
         assert call_kwargs["language"] == "fr"
+
+    def test_cash_level_forwarded_to_orchestrator(self, client_with_auth, monkeypatch):
+        """The runtime compliance filter needs the selected coach cursor level."""
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
+        mock_orch = MagicMock()
+        mock_orch.query = AsyncMock(return_value=_ORCHESTRATOR_OK_RESULT)
+
+        body = {**_VALID_BODY, "cashLevel": 5}
+
+        with patch(
+            "app.api.v1.endpoints.coach_chat._get_orchestrator",
+            return_value=mock_orch,
+        ):
+            client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        call_kwargs = mock_orch.query.call_args.kwargs
+        assert call_kwargs["cursor_level"] == "N5"
+
+    def test_call_with_fallback_forwards_cursor_level(self):
+        """The graceful model fallback helper must preserve the N-level cursor."""
+        import asyncio
+
+        from app.api.v1.endpoints.coach_chat import _call_with_fallback
+
+        mock_orch = MagicMock()
+        mock_orch.query = AsyncMock(return_value=_ORCHESTRATOR_OK_RESULT)
+
+        result, meta = asyncio.run(
+            _call_with_fallback(
+                mock_orch,
+                question="ok",
+                api_key="test-key",
+                provider="claude",
+                model="claude-haiku-4-5",
+                profile_context={},
+                language="fr",
+                tools=[],
+                system_prompt="system",
+                user_id="test-user-id",
+                conversation_history=[],
+                cursor_level="N4",
+            )
+        )
+
+        assert result == _ORCHESTRATOR_OK_RESULT
+        assert meta["degraded"] is False
+        assert mock_orch.query.call_args.kwargs["cursor_level"] == "N4"
+
+    def test_cash_level_5_drift_returns_safe_fallback(
+        self, client_with_auth, monkeypatch
+    ):
+        """Endpoint wiring and guardrails compose into a withheld N5 drift reply."""
+        from app.api.v1.endpoints import coach_chat as mod
+        from app.core.config import settings
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", False)
+        drift_text = "Ton voisin a deja bouge, toi tu es en retard."
+        no_rag = mod._NoRagOrchestrator()
+        body = {**_VALID_BODY, "cashLevel": 5}
+
+        with patch(
+            "app.api.v1.endpoints.coach_chat._get_orchestrator",
+            return_value=no_rag,
+        ), patch(
+            "app.services.rag.llm_client.LLMClient.generate",
+            new_callable=AsyncMock,
+            return_value={"text": drift_text, "tool_calls": None, "usage_tokens": 42},
+        ):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["message"] == ComplianceGuardrails._SAFE_FALLBACK_FR
+        assert drift_text not in data["message"]
 
 
 # ===========================================================================

@@ -536,24 +536,32 @@ class ComplianceGuard:
                 f"{[v.concept_key for v in claim_violations[:5]]})"
             )
 
-        # ── Layer 2b: High-register drift (N4/N5 only) ──
-        # NOTE: log-only. N4/N5 cursor not yet active in production today.
-        # Keeping the detector wired but non-blocking lets us observe drift
-        # in telemetry without killing responses. When N4/N5 is activated,
-        # re-enable the `use_fallback = True` branch after validating the
-        # patterns against real high-register generations.
-        if cursor_level in ("N4", "N5"):
-            drift_found = self._check_high_register_drift(text)
-            if drift_found:
-                logger.info(
-                    "ComplianceGuard L2b: drift %s level=%s component=%s user=%s "
-                    "(logged, not enforced)",
-                    drift_found, cursor_level, component_type, user_id or "anonymous",
-                )
-                violations.extend(
-                    [f"Drift {cat}: '{label}'" for (cat, label) in drift_found]
-                )
-                # use_fallback intentionally NOT set — log only.
+        # ── Layer 2b: High-register drift ──
+        # N4/N5 is a user-facing voice cursor, not a bypass channel. Outside
+        # N4/N5, these detector hits remain observable but non-blocking until
+        # a low-register precision corpus validates broader enforcement.
+        drift_found = self._check_high_register_drift(text)
+        blocking_drift = drift_found if cursor_level in ("N4", "N5") else []
+        non_blocking_drift = [hit for hit in drift_found if hit not in blocking_drift]
+        if blocking_drift:
+            logger.warning(
+                "ComplianceGuard L2b: use_fallback=True reason=high_register_drift "
+                "hits=%s level=%s component=%s user=%s",
+                blocking_drift, cursor_level, component_type, user_id or "anonymous",
+            )
+            violations.extend(
+                [f"Drift {cat}: '{label}'" for (cat, label) in blocking_drift]
+            )
+            use_fallback = True
+            fallback_reasons.append(
+                f"high_register_drift ({len(blocking_drift)}: {blocking_drift[:5]})"
+            )
+        if non_blocking_drift:
+            logger.info(
+                "ComplianceGuard L2b: non_blocking_drift hits=%s level=%s "
+                "component=%s user=%s",
+                non_blocking_drift, cursor_level, component_type, user_id or "anonymous",
+            )
 
         # ── Layer 3: Hallucination detection ──
         # Threshold-based: MAJOR deviations trigger fallback, MINOR are

@@ -258,6 +258,28 @@ def test_jos004_coach_advice_runtime_flow_is_in_scope(tmp_path: Path) -> None:
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
+def test_jos004_coach_level_runtime_gate_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "services/backend/app/api/v1/endpoints/coach_chat.py",
+            "services/backend/app/services/coach/compliance_guard.py",
+            "services/backend/app/services/rag/guardrails.py",
+            "services/backend/app/services/rag/orchestrator.py",
+            "services/backend/tests/test_coach_chat_endpoint.py",
+            "services/backend/tests/test_compliance_guard.py",
+            "services/backend/tests/test_guardrails_coverage.py",
+            "services/backend/tests/test_rag_orchestrator_empty_text_no_fallback.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
 def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
