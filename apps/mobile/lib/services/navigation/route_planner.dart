@@ -129,8 +129,7 @@ class RouteDecision {
 
   /// Whether a route will be opened (either directly or with a warning).
   bool get willNavigate =>
-      action == RouteAction.openScreen ||
-      action == RouteAction.openWithWarning;
+      action == RouteAction.openScreen || action == RouteAction.openWithWarning;
 
   @override
   String toString() => 'RouteDecision('
@@ -209,7 +208,7 @@ class RoutePlanner {
     }
 
     // Step 2: look up the intent in the registry
-    final entry = registry.findByIntent(intentTag);
+    final entry = registry.findChatEntryByIntent(intentTag);
     if (entry == null) {
       return const RouteDecision.conversationOnly();
     }
@@ -230,13 +229,11 @@ class RoutePlanner {
 
     switch (readiness.level) {
       case ReadinessLevel.ready:
-        final prefill =
-            entry.prefillFromProfile ? _buildPrefill(entry) : null;
+        final prefill = entry.prefillFromProfile ? _buildPrefill(entry) : null;
         return RouteDecision.openScreen(entry.route, prefill: prefill);
 
       case ReadinessLevel.partial:
-        final prefill =
-            entry.prefillFromProfile ? _buildPrefill(entry) : null;
+        final prefill = entry.prefillFromProfile ? _buildPrefill(entry) : null;
         return RouteDecision.openWithWarning(
           entry.route,
           missingFields: readiness.missingFields,

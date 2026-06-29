@@ -10,7 +10,7 @@ and emits three artifacts:
   2. `apps/mobile/lib/services/coach/_valid_routes_generated.dart` —
      generated Dart `const Set<String>` consumed by ToolCallParser
   3. `services/backend/app/services/coach/_route_intents_generated.py`
-     — generated Python set consumed by COACH_TOOLS
+     — generated Python sets consumed by COACH_TOOLS
 
 Reads the same regex patterns as `tools/checks/screen_registry_parity.py`
 for consistency. Stdlib-only Python 3.9-compatible.
@@ -42,6 +42,11 @@ _ENTRY_RE = re.compile(r"ScreenEntry\s*\(([^)]*?)\)", re.DOTALL)
 _INTENT_RE = re.compile(r"intentTag:\s*['\"]([^'\"]+)['\"]")
 _ROUTE_RE = re.compile(r"\broute:\s*['\"]([^'\"]+)['\"]")
 _PREFER_RE = re.compile(r"preferFromChat:\s*(true|false)")
+_ALIAS_MAP_RE = re.compile(
+    r"static const Map<String, String> _chatIntentAliases = \{(.*?)\};",
+    re.DOTALL,
+)
+_ALIAS_PAIR_RE = re.compile(r"['\"]([^'\"]+)['\"]\s*:\s*['\"]([^'\"]+)['\"]")
 
 
 def parse_registry(src: str) -> list[dict]:
@@ -67,7 +72,28 @@ def parse_registry(src: str) -> list[dict]:
     return out
 
 
-def render_json(entries: list[dict]) -> str:
+def parse_chat_intent_aliases(src: str) -> dict[str, str]:
+    """Parse MintScreenRegistry._chatIntentAliases."""
+    match = _ALIAS_MAP_RE.search(src)
+    if not match:
+        return {}
+    return {
+        legacy: canonical
+        for legacy, canonical in _ALIAS_PAIR_RE.findall(match.group(1))
+    }
+
+
+def chat_routable_aliases(entries: list[dict], aliases: dict[str, str]) -> dict[str, str]:
+    """Return aliases whose canonical target is a chat-routable entry."""
+    routable_intents = {e["intent"] for e in entries if e["preferFromChat"]}
+    return {
+        legacy: canonical
+        for legacy, canonical in aliases.items()
+        if canonical in routable_intents
+    }
+
+
+def render_json(entries: list[dict], aliases: dict[str, str]) -> str:
     """Stable JSON: sorted by route. Pretty-printed for diff-friendliness."""
     sorted_entries = sorted(entries, key=lambda e: (e["route"], e["intent"]))
     return json.dumps(
@@ -78,6 +104,7 @@ def render_json(entries: list[dict]) -> str:
                 "from MintScreenRegistry (single source of truth). DO NOT EDIT "
                 "BY HAND — modify screen_registry.dart and re-run the generator."
             ),
+            "chatIntentAliases": dict(sorted(aliases.items())),
             "entries": sorted_entries,
         },
         indent=2,
@@ -106,10 +133,12 @@ def render_dart(entries: list[dict]) -> str:
     )
 
 
-def render_python(entries: list[dict]) -> str:
+def render_python(entries: list[dict], aliases: dict[str, str]) -> str:
     """Generate the Python frozenset for chat-routable intent tags."""
-    routable = sorted({e["intent"] for e in entries if e["preferFromChat"]})
-    body = "\n".join(f"    {tag!r}," for tag in routable)
+    canonical = sorted({e["intent"] for e in entries if e["preferFromChat"]})
+    legacy = sorted(aliases)
+    canonical_body = "\n".join(f"    {tag!r}," for tag in canonical)
+    legacy_body = "\n".join(f"    {tag!r}," for tag in legacy)
     return (
         '"""GENERATED — do not edit by hand.\n'
         "Source: apps/mobile/lib/services/navigation/screen_registry.dart\n"
@@ -117,15 +146,30 @@ def render_python(entries: list[dict]) -> str:
         "Phase 53-04 — three-way intent contract parity gate.\n"
         "\n"
         "Frozen set of intent tags the LLM is allowed to suggest via the\n"
-        "route_to_screen tool. Derived from MintScreenRegistry entries with\n"
-        "preferFromChat: true.\n"
+        "route_to_screen tool. Canonical tags are derived from MintScreenRegistry\n"
+        "entries with preferFromChat: true. Legacy aliases stay accepted so old\n"
+        "backend prompts/snapshots can still reach Flutter, where they resolve to\n"
+        "canonical routes.\n"
         "\n"
         "Updating: edit screen_registry.dart, then run\n"
         "  python3 tools/contracts/regen_screen_registry_contract.py\n"
         '"""\n'
         "from __future__ import annotations\n"
         "\n"
-        f"GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS: frozenset[str] = frozenset({{\n{body}\n}})\n"
+        "GENERATED_ROUTE_TO_SCREEN_CANONICAL_INTENT_TAGS: frozenset[str] = "
+        "frozenset({\n"
+        f"{canonical_body}\n"
+        "})\n"
+        "\n"
+        "GENERATED_ROUTE_TO_SCREEN_LEGACY_INTENT_TAGS: frozenset[str] = "
+        "frozenset({\n"
+        f"{legacy_body}\n"
+        "})\n"
+        "\n"
+        "GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS: frozenset[str] = (\n"
+        "    GENERATED_ROUTE_TO_SCREEN_CANONICAL_INTENT_TAGS\n"
+        "    | GENERATED_ROUTE_TO_SCREEN_LEGACY_INTENT_TAGS\n"
+        ")\n"
     )
 
 
@@ -161,16 +205,19 @@ def main() -> int:
         )
         return 2
 
-    entries = parse_registry(REGISTRY_DART.read_text(encoding="utf-8"))
+    src = REGISTRY_DART.read_text(encoding="utf-8")
+    entries = parse_registry(src)
+    aliases = chat_routable_aliases(entries, parse_chat_intent_aliases(src))
     sys.stderr.write(
         f"[info] parsed {len(entries)} ScreenEntry literals; "
-        f"{sum(1 for e in entries if e['preferFromChat'])} chat-routable\n"
+        f"{sum(1 for e in entries if e['preferFromChat'])} chat-routable; "
+        f"{len(aliases)} legacy aliases\n"
     )
 
     drift = 0
-    drift += int(write_if_changed(JSON_OUT, render_json(entries), args.check))
+    drift += int(write_if_changed(JSON_OUT, render_json(entries, aliases), args.check))
     drift += int(write_if_changed(DART_OUT, render_dart(entries), args.check))
-    drift += int(write_if_changed(PY_OUT, render_python(entries), args.check))
+    drift += int(write_if_changed(PY_OUT, render_python(entries, aliases), args.check))
 
     if args.check and drift > 0:
         sys.stderr.write(

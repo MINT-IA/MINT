@@ -1,6 +1,6 @@
 # ROUTE POLICY
 
-> Dernière mise à jour : 2026-03-27
+> Dernière mise à jour : 2026-06-29
 > Statut : **AUTORITATIF** — Toute nouvelle route doit respecter ce document.
 > Non-négociable : aucune nouvelle route legacy sans validation explicite.
 
@@ -8,13 +8,13 @@
 
 ## 1. État actuel
 
-| Métrique | Valeur |
-|---|---|
-| Routes canoniques | **100** |
-| Redirects legacy | **26** |
-| Routes FR kebab-case | **67** (67%) |
-| Routes EN kebab-case | **16** (16%) |
-| Routes mixtes | **17** (17%) |
+L'inventaire chiffré vit dans le code, pas dans ce document. La source de
+vérité est `apps/mobile/lib/routes/route_metadata.dart`, et le contrôle local
+est :
+
+```bash
+./tools/mint-routes check
+```
 
 ---
 
@@ -56,60 +56,68 @@
 - Créer une route sous `/arbitrage/`, `/segments/`, `/3a-deep/`, `/lpp-deep/`, `/life-event/`, `/simulator/`
 - Créer une route en anglais quand un équivalent FR existe
 - Créer une route sans l'ajouter au `ScreenRegistry` si elle est routable par le coach
-- Créer un redirect sans le documenter dans ce fichier
+- Créer un redirect sans l'ajouter à `kRouteRegistry` avec `RouteCategory.alias`
+- Rendre un alias routable depuis le Coach (`preferFromChat: true`)
 
 ---
 
 ## 3. Routes legacy (freeze)
 
-Les routes legacy suivantes existent et redirigent vers les routes canoniques. **Aucune nouvelle redirect ne doit être ajoutée sans justification.**
+Les routes legacy existent uniquement pour compatibilité deep link, anciens
+CTA, anciennes notifications ou anciens intents. **Aucune nouvelle redirect ne
+doit être ajoutée sans justification.**
 
-### Redirects actifs (26)
+L'inventaire complet ne doit pas être dupliqué ici : il vit dans
+`apps/mobile/lib/routes/route_metadata.dart` avec `RouteCategory.alias`. Le
+contrôle local est `./tools/mint-routes check`.
 
-| Legacy | → Canonique | Catégorie |
-|---|---|---|
-| `/app/today` | `/home?tab=0` | Tab alias |
-| `/app/coach` | `/home?tab=1` | Tab alias |
-| `/app/explore` | `/home?tab=2` | Tab alias |
-| `/app/dossier` | `/home?tab=3` | Tab alias |
-| `/pulse` | `/home?tab=0` | Tab alias |
-| `/coach/dashboard` | `/retraite` | Retraite |
-| `/retirement` | `/retraite` | Retraite |
-| `/retirement/projection` | `/retraite` | Retraite |
-| `/arbitrage/rente-vs-capital` | `/rente-vs-capital` | Retraite |
-| `/simulator/rente-capital` | `/rente-vs-capital` | Retraite |
-| `/lpp-deep/rachat` | `/rachat-lpp` | Retraite |
-| `/arbitrage/rachat-vs-marche` | `/rachat-lpp` | Retraite |
-| `/lpp-deep/epl` | `/epl` | Retraite |
-| `/coach/decaissement` | `/decaissement` | Retraite |
-| `/arbitrage/calendrier-retraits` | `/decaissement` | Retraite |
-| `/simulator/3a` | `/pilier-3a` | Fiscalité |
-| `/mortgage/affordability` | `/hypotheque` | Logement |
-| `/life-event/divorce` | `/divorce` | Famille |
-| `/household` | `/couple` | Famille |
-| `/household/accept` | `/couple/accept` | Famille |
-| `/report` | `/rapport` | Patrimoine |
-| `/report/v2` | `/rapport` | Patrimoine |
-| `/disability/gap` | `/invalidite` | Santé |
-| `/simulator/disability-gap` | `/invalidite` | Santé |
-| `/document-scan` | `/scan` | Capture |
-| `/document-scan/avs-guide` | `/scan/avs-guide` | Capture |
-| `/advisor` | `/onboarding/quick` | Onboarding |
-| `/advisor/wizard` | `/onboarding/quick` | Onboarding |
-| `/onboarding/minimal` | `/onboarding/quick` | Onboarding |
-| `/onboarding/enrichment` | `/profile/bilan` | Onboarding |
-| `/ask-mint` | `/coach/chat` | Coach |
-| `/coach/agir` | `/home` | Coach |
-| `/weekly-recap` | `/coach/weekly-recap` | Coach |
-| `/lpp-deep/libre-passage` | `/libre-passage` | Retraite |
-| `/coach/succession` | `/succession` | Patrimoine |
-| `/life-event/succession` | `/succession` | Patrimoine |
+### Contrat Coach / RoutePlanner
+
+Un alias peut rester connu de `ScreenRegistry` pour résoudre un ancien
+`intentTag`, mais il ne doit jamais être une destination primaire ouverte par
+le Coach.
+
+Règle mécanique :
+
+- `RouteCategory.alias` dans `route_metadata.dart`.
+- `preferFromChat: false` dans `ScreenRegistry`.
+- Un ancien `intentTag` encore émis par le backend doit être mappé vers un
+  intent canonique via `MintScreenRegistry.chatIntentAliases`.
+- Le contrat backend `GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS` accepte les
+  intents canoniques + ces aliases legacy ; Flutter reste responsable de
+  résoudre l'alias vers la route canonique avant navigation.
+- L'ancien chemin peut continuer à rediriger dans `app.dart`.
+- Le Coach doit choisir une destination canonique ou rester en conversation.
+
+```mermaid
+flowchart LR
+  CoachIntent[Coach intent] --> RoutePlanner[RoutePlanner]
+  RoutePlanner --> ScreenRegistry[ScreenRegistry]
+  ScreenRegistry -->|ancien intent| IntentAlias[chatIntentAliases]
+  IntentAlias --> CanonicalIntent[Intent canonique]
+  CanonicalIntent --> ScreenRegistry
+  ScreenRegistry -->|preferFromChat=true| Canonical[Route canonique]
+  ScreenRegistry -. preferFromChat=false .-> Alias[Alias legacy]
+  Alias --> Redirect[GoRouter redirect]
+  Redirect --> Canonical
+  RouteMetadata[kRouteRegistry] -->|RouteCategory.alias| Alias
+```
+
+Test verrou :
+
+```bash
+cd apps/mobile
+flutter test test/services/navigation/screen_registry_test.dart --plain-name "chat-routable entries do not target legacy alias routes"
+cd ../..
+python3 tools/checks/screen_registry_three_way_parity.py
+```
 
 ### Politique de suppression
 
 Les redirects peuvent être supprimés en V2 (post-launch) si :
 1. Aucun deep link externe ne les référence (notifications, emails, QR codes)
-2. Le `ScreenRegistry` ne les utilise pas comme `intentTag` route
+2. Le `ScreenRegistry` ne les utilise pas comme `intentTag` route, ou l'entrée
+   est explicitement `preferFromChat: false`
 3. Aucun widget CTA ne les hardcode
 
 ---
@@ -137,6 +145,8 @@ Avant de créer une route :
 - [ ] Le nom est en français kebab-case
 - [ ] La route est ajoutée dans `app.dart` (GoRouter)
 - [ ] La route est ajoutée dans `ScreenRegistry` (si routable par le coach)
+- [ ] Si la route est un alias, `RouteCategory.alias` est utilisé et
+      `ScreenRegistry.preferFromChat` reste `false`
 - [ ] Les intent tags sont en snake_case anglais (convention interne)
 - [ ] Aucun namespace legacy n'est réutilisé (`/arbitrage/`, `/simulator/`, etc.)
 - [ ] Ce document est mis à jour si un nouveau préfixe est créé

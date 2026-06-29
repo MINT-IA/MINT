@@ -388,6 +388,19 @@ void main() {
       expect(decision.missingFields, contains('netIncome'));
     });
 
+    test('production legacy intent opens canonical route, not legacy alias',
+        () {
+      final planner = RoutePlanner(
+        registry: const MintScreenRegistry(),
+        profile: _julienProfile(),
+      );
+      final decision = planner.plan('retirement_overview', confidence: 0.9);
+
+      expect(decision.action, RouteAction.openScreen);
+      expect(decision.route, '/retraite');
+      expect(decision.route, isNot('/retirement'));
+    });
+
     test('askFirst decision has no route', () {
       final profile = _minimalProfile();
       final planner = RoutePlanner(registry: registry, profile: profile);

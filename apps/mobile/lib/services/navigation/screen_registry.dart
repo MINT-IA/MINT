@@ -128,6 +128,14 @@ abstract class ScreenRegistry {
   /// Returns null if the tag is not registered (unknown intent).
   ScreenEntry? findByIntent(String intentTag);
 
+  /// Look up the chat-openable entry for [intentTag].
+  ///
+  /// The default implementation is raw lookup for lightweight registries.
+  /// [MintScreenRegistry] overrides this to resolve legacy chat intent aliases
+  /// to canonical destinations.
+  ScreenEntry? findChatEntryByIntent(String intentTag) =>
+      findByIntent(intentTag);
+
   /// Look up a [ScreenEntry] by its canonical [route].
   ///
   /// Returns null if the route is not registered.
@@ -469,7 +477,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['avoirLpp', 'rachatMaximum'],
     fallbackRoute: '/scan',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
     customGate: gateRachatLppDeep,
   );
@@ -828,7 +836,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: [],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1015,7 +1023,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
@@ -1115,7 +1123,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: false,
+    preferFromChat: true,
     prefillFromProfile: false,
   );
 
@@ -1123,7 +1131,8 @@ class MintScreenRegistry extends ScreenRegistry {
     route: '/data-block/:type',
     intentTag: 'data_block_enrichment',
     behavior: ScreenBehavior.captureUtility,
-    preferFromChat: false, // Parameterized route — must not be opened from chat without :type resolution
+    preferFromChat:
+        false, // Parameterized route — must not be opened from chat without :type resolution
     requiredFields: [],
     optionalFields: [],
     prefillFromProfile: false,
@@ -1192,7 +1201,7 @@ class MintScreenRegistry extends ScreenRegistry {
     route: '/coach/chat',
     intentTag: 'coach_chat',
     behavior: ScreenBehavior.conversationPure,
-    preferFromChat: false,
+    preferFromChat: true,
   );
 
   static const ScreenEntry _achievements = ScreenEntry(
@@ -1360,7 +1369,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: [],
     optionalFields: ['salaireBrut', 'epargne'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
@@ -1400,7 +1409,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.conversationPure,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
@@ -1503,14 +1512,14 @@ class MintScreenRegistry extends ScreenRegistry {
   //  about them by intent but the RoutePlanner won't surface them from chat.
   // ════════════════════════════════════════════════════════════════
 
-  // ─── ROUTABLE — advisor / handoff ─────────────────────────────────
+  // ─── LEGACY ALIASES — known by intent, not opened from chat ───────
   static const ScreenEntry _advisor = ScreenEntry(
     route: '/advisor',
     intentTag: 'advisor_handoff',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: [],
     optionalFields: ['canton', 'age'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
@@ -1520,7 +1529,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: [],
     optionalFields: ['canton', 'age'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1530,11 +1539,10 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: ['canton', 'age', 'salaireBrut'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
-  // ─── ROUTABLE — arbitrage canvases ────────────────────────────────
   static const ScreenEntry _arbitrageCalendrierRetraits = ScreenEntry(
     route: '/arbitrage/calendrier-retraits',
     intentTag: 'withdrawal_calendar',
@@ -1542,7 +1550,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age', 'canton'],
     optionalFields: ['avoirLpp', 'pillar3aBalance'],
     fallbackRoute: '/coach/chat?topic=decaissement',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1553,7 +1561,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['rachatMaximum', 'avoirLpp'],
     fallbackRoute: '/coach/chat?topic=rachatLpp',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1564,7 +1572,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age', 'canton'],
     optionalFields: ['avoirLpp', 'salaireBrut'],
     fallbackRoute: '/coach/chat?topic=retraite',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1579,7 +1587,6 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  // ─── ROUTABLE — coach action surfaces ─────────────────────────────
   static const ScreenEntry _coachDecaissement = ScreenEntry(
     route: '/coach/decaissement',
     intentTag: 'decaissement_plan',
@@ -1587,7 +1594,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age', 'canton'],
     optionalFields: ['avoirLpp', 'pillar3aBalance', 'totalSavings'],
     fallbackRoute: '/coach/chat?topic=decaissement',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1597,22 +1604,20 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['age', 'canton'],
     optionalFields: ['householdType', 'totalSavings'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
-  // ─── ROUTABLE — disability ────────────────────────────────────────
   static const ScreenEntry _disabilityGap = ScreenEntry(
     route: '/disability/gap',
     intentTag: 'disability_gap_check',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['employmentStatus'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
-  // ─── ROUTABLE — document scan entries ─────────────────────────────
   // NOTE: _documentScan symbol at line 981 is for `/scan` (legacy intent
   // 'document_scan'); this new entry is for `/document-scan` (Phase 53-01
   // gap-fill). Different routes, different intent tags — symbol renamed
@@ -1623,7 +1628,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
@@ -1633,11 +1638,10 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: ['age', 'canton'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
-  // ─── ROUTABLE — household / couple ────────────────────────────────
   // NOTE: _household symbol at line 1021 is for `/couple` (legacy intent
   // 'household_couple'); this new entry is for `/household` (Phase 53-01
   // gap-fill). Different routes, different intent tags — symbol renamed
@@ -1648,7 +1652,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['householdType'],
     optionalFields: ['canton', 'spouseSalaryGrossAnnual'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1658,18 +1662,17 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 
-  // ─── ROUTABLE — life events ───────────────────────────────────────
   static const ScreenEntry _lifeEventDivorce = ScreenEntry(
     route: '/life-event/divorce',
     intentTag: 'life_event_divorce_v2',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['canton'],
     optionalFields: ['householdType', 'totalSavings', 'avoirLpp'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1679,11 +1682,10 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['canton'],
     optionalFields: ['householdType', 'totalSavings'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
-  // ─── ROUTABLE — LPP deep dives ────────────────────────────────────
   static const ScreenEntry _lppDeepEpl = ScreenEntry(
     route: '/lpp-deep/epl',
     intentTag: 'lpp_deep_epl',
@@ -1691,7 +1693,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: [],
     optionalFields: ['avoirLpp', 'salaireBrut'],
     fallbackRoute: '/coach/chat?topic=epl',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1701,18 +1703,17 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: [],
     optionalFields: ['avoirLpp'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
-  // ─── ROUTABLE — mortgage variant ──────────────────────────────────
   static const ScreenEntry _mortgageAffordability = ScreenEntry(
     route: '/mortgage/affordability',
     intentTag: 'mortgage_affordability_v2',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['totalSavings', 'spouseSalaryGrossAnnual'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1737,7 +1738,6 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  // ─── ROUTABLE — retirement variants ───────────────────────────────
   static const ScreenEntry _retirement = ScreenEntry(
     route: '/retirement',
     intentTag: 'retirement_overview',
@@ -1745,7 +1745,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut', 'avoirLpp', 'pillar3aBalance'],
     fallbackRoute: '/coach/chat?topic=retraite',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1756,11 +1756,10 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut', 'avoirLpp', 'pillar3aBalance'],
     fallbackRoute: '/coach/chat?topic=retraite',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
-  // ─── ROUTABLE — simulator variants ────────────────────────────────
   static const ScreenEntry _simulator3a = ScreenEntry(
     route: '/simulator/3a',
     intentTag: 'simulator_3a_v2',
@@ -1768,7 +1767,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut'],
     fallbackRoute: '/coach/chat?topic=3a',
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1778,7 +1777,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['employmentStatus'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: true,
   );
 
@@ -1999,6 +1998,39 @@ class MintScreenRegistry extends ScreenRegistry {
     _settingsLangue,
   ];
 
+  static const Map<String, String> _chatIntentAliases = {
+    'advisor_handoff': 'consult_specialist',
+    'advisor_30_day_plan': 'consult_specialist',
+    'advisor_wizard': 'consult_specialist',
+    'ask_mint': 'coach_chat',
+    'decaissement_plan': 'withdrawal_sequencing',
+    'disability_gap_check': 'disability_gap',
+    'document_scan_entry': 'document_scan',
+    'avs_extract_guide': 'avs_guide',
+    'financial_cockpit': 'retirement_projection',
+    'household_overview': 'household_couple',
+    'household_accept_invite': 'couple_accept_invitation',
+    'life_event_divorce_v2': 'life_event_divorce',
+    'life_event_succession': 'succession_patrimoine',
+    'lpp_buyback_vs_market': 'lpp_buyback',
+    'lpp_deep_epl': 'early_pension_withdrawal',
+    'lpp_deep_libre_passage': 'libre_passage',
+    'lpp_deep_rachat': 'lpp_buyback',
+    'mortgage_affordability_v2': 'housing_purchase',
+    'portfolio_overview': 'financial_summary',
+    'profile_enrichment': 'financial_summary',
+    'rente_vs_capital_arbitrage': 'retirement_choice',
+    'retirement_overview': 'retirement_projection',
+    'retirement_projection_v2': 'retirement_projection',
+    'simulator_3a_v2': 'simulator_3a',
+    'simulator_disability_gap': 'disability_gap',
+    'succession_planning': 'succession_patrimoine',
+    'withdrawal_calendar': 'withdrawal_sequencing',
+  };
+
+  static Map<String, String> get chatIntentAliases =>
+      Map.unmodifiable(_chatIntentAliases);
+
   // ════════════════════════════════════════════════════════════════
   //  INSTANCE METHODS (satisfy abstract ScreenRegistry contract)
   // ════════════════════════════════════════════════════════════════
@@ -2006,6 +2038,10 @@ class MintScreenRegistry extends ScreenRegistry {
   @override
   ScreenEntry? findByIntent(String intentTag) =>
       MintScreenRegistry.findByIntentStatic(intentTag);
+
+  @override
+  ScreenEntry? findChatEntryByIntent(String intentTag) =>
+      MintScreenRegistry.findChatEntryByIntentStatic(intentTag);
 
   @override
   ScreenEntry? findByRoute(String route) =>
@@ -2018,12 +2054,28 @@ class MintScreenRegistry extends ScreenRegistry {
   //  STATIC CONVENIENCE API
   // ════════════════════════════════════════════════════════════════
 
-  /// Returns the [ScreenEntry] with [intentTag], or null.
+  /// Returns the raw [ScreenEntry] with [intentTag], or null.
   static ScreenEntry? findByIntentStatic(String intentTag) {
     for (final e in entries) {
       if (e.intentTag == intentTag) return e;
     }
     return null;
+  }
+
+  /// Resolves a Coach-emitted intent to a primary chat-routable entry.
+  ///
+  /// Legacy intent tags remain accepted for compatibility with old backend
+  /// prompts, snapshots, and proactive openers, but they resolve to the
+  /// canonical surface instead of opening a legacy redirect path.
+  static ScreenEntry? findChatEntryByIntentStatic(String intentTag) {
+    final direct = findByIntentStatic(intentTag);
+    if (direct != null && direct.preferFromChat) return direct;
+
+    final canonicalIntent = _chatIntentAliases[intentTag];
+    if (canonicalIntent == null) return null;
+    final canonical = findByIntentStatic(canonicalIntent);
+    if (canonical == null || !canonical.preferFromChat) return null;
+    return canonical;
   }
 
   /// Returns the [ScreenEntry] with canonical [route], or null.

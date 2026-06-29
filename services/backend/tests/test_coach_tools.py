@@ -18,6 +18,11 @@ from app.services.coach.coach_tools import (
     COACH_TOOLS,
     ROUTE_TO_SCREEN_INTENT_TAGS,
 )
+from app.services.coach._route_intents_generated import (
+    GENERATED_ROUTE_TO_SCREEN_CANONICAL_INTENT_TAGS,
+    GENERATED_ROUTE_TO_SCREEN_LEGACY_INTENT_TAGS,
+    GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -225,6 +230,28 @@ class TestIntentTags:
 
     def test_intent_tags_are_unique(self):
         assert len(ROUTE_TO_SCREEN_INTENT_TAGS) == len(set(ROUTE_TO_SCREEN_INTENT_TAGS))
+
+    def test_generated_intent_tags_are_canonical_plus_legacy_aliases(self):
+        assert GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS == (
+            GENERATED_ROUTE_TO_SCREEN_CANONICAL_INTENT_TAGS
+            | GENERATED_ROUTE_TO_SCREEN_LEGACY_INTENT_TAGS
+        )
+        assert GENERATED_ROUTE_TO_SCREEN_CANONICAL_INTENT_TAGS.isdisjoint(
+            GENERATED_ROUTE_TO_SCREEN_LEGACY_INTENT_TAGS
+        )
+
+    def test_legacy_prompt_intents_remain_accepted_by_backend_schema(self):
+        legacy_tags = {
+            "ask_mint",
+            "retirement_overview",
+            "withdrawal_calendar",
+            "household_accept_invite",
+            "profile_enrichment",
+            "lpp_deep_rachat",
+        }
+
+        assert legacy_tags <= set(ROUTE_TO_SCREEN_INTENT_TAGS)
+        assert legacy_tags <= GENERATED_ROUTE_TO_SCREEN_LEGACY_INTENT_TAGS
 
     def test_intent_tags_no_spaces(self):
         """Tags use underscores, never spaces."""

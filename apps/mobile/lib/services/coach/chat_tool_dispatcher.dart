@@ -126,12 +126,14 @@ class ChatToolDispatcher {
 
     if (forced != null) {
       if (natural == null) {
-        debugPrint('[ChatToolDispatcher] forced eclairage kind=${forced.wireName} '
+        debugPrint(
+            '[ChatToolDispatcher] forced eclairage kind=${forced.wireName} '
             '(no backend payload — fabricated from template)');
         return EclairageCardData.fromForcedKind(forced);
       }
       if (natural.kind == forced) return natural;
-      debugPrint('[ChatToolDispatcher] forced eclairage kind=${forced.wireName} '
+      debugPrint(
+          '[ChatToolDispatcher] forced eclairage kind=${forced.wireName} '
           'overrides backend kind=${natural.kind.wireName}');
       return natural.withForcedKind(forced);
     }
@@ -151,7 +153,7 @@ class ChatToolDispatcher {
   /// security whitelist. Returns null otherwise (silently dropped upstream).
   static String? resolveRouteFromIntent(String intent) {
     if (intent.isEmpty) return null;
-    final entry = MintScreenRegistry.findByIntentStatic(intent);
+    final entry = MintScreenRegistry.findChatEntryByIntentStatic(intent);
     if (entry == null) return null;
     // Strip query string for whitelist check (e.g. '/retraite?mode=preretraite')
     final basePath = entry.route.split('?').first;

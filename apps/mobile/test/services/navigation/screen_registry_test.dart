@@ -8,6 +8,8 @@
 //   Lauren: birthYear=1982, salaireBrut=67000  CHF/an, canton=VS
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/routes/route_category.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 
 void main() {
@@ -66,6 +68,74 @@ void main() {
       expect(routes.length, uniqueRoutes.length,
           reason: 'Duplicate routes found: '
               '${routes.where((r) => routes.indexOf(r) != routes.lastIndexOf(r)).toSet()}');
+    });
+
+    test('chat-routable entries do not target legacy alias routes', () {
+      final violations = <String>[];
+
+      for (final entry in MintScreenRegistry.entries) {
+        if (!entry.preferFromChat || entry.route.isEmpty) continue;
+
+        final path = Uri.parse(entry.route).path;
+        final meta = kRouteRegistry[path];
+        if (meta == null) {
+          violations.add('${entry.intentTag} -> ${entry.route} (unregistered)');
+          continue;
+        }
+        if (meta.category == RouteCategory.alias) {
+          violations.add('${entry.intentTag} -> ${entry.route}');
+        }
+      }
+
+      expect(
+        violations,
+        isEmpty,
+        reason: 'Coach-routable ScreenRegistry entries must point to '
+            'canonical destinations/flows, not compatibility aliases.',
+      );
+    });
+
+    test('legacy chat intent aliases resolve to canonical routable routes', () {
+      final violations = <String>[];
+
+      for (final alias in MintScreenRegistry.chatIntentAliases.entries) {
+        final raw = MintScreenRegistry.findByIntentStatic(alias.key);
+        final canonical = MintScreenRegistry.findByIntentStatic(alias.value);
+        final resolved =
+            MintScreenRegistry.findChatEntryByIntentStatic(alias.key);
+
+        if (raw == null) {
+          violations.add('${alias.key} has no legacy registry entry');
+          continue;
+        }
+        if (canonical == null) {
+          violations.add('${alias.key} targets missing ${alias.value}');
+          continue;
+        }
+        if (!canonical.preferFromChat) {
+          violations.add('${alias.key} targets non-routable ${alias.value}');
+          continue;
+        }
+        if (resolved == null || resolved.intentTag != canonical.intentTag) {
+          violations.add('${alias.key} resolved to ${resolved?.intentTag}');
+          continue;
+        }
+
+        final path = Uri.parse(canonical.route).path;
+        final meta = kRouteRegistry[path];
+        if (meta == null) {
+          violations.add('${alias.value} -> ${canonical.route} unregistered');
+        } else if (meta.category == RouteCategory.alias) {
+          violations.add('${alias.value} -> ${canonical.route} is alias');
+        }
+      }
+
+      expect(
+        violations,
+        isEmpty,
+        reason: 'Every legacy Coach intent must resolve to a canonical '
+            'chat-routable route so backend snapshots cannot reopen aliases.',
+      );
     });
   });
 
@@ -282,10 +352,10 @@ void main() {
       expect(entry!.intentTag, equals('life_event_divorce'));
     });
 
-    test('/coach/chat → preferFromChat false', () {
+    test('/coach/chat → canonical chat route is chat-routable', () {
       final entry = MintScreenRegistry.findByRouteStatic('/coach/chat');
       expect(entry, isNotNull);
-      expect(entry!.preferFromChat, isFalse);
+      expect(entry!.preferFromChat, isTrue);
     });
 
     test('unknown route returns null', () {
@@ -428,7 +498,6 @@ void main() {
       expect(routeSet, isNot(contains('score_reveal')));
       expect(routeSet, isNot(contains('scan_review')));
       expect(routeSet, isNot(contains('scan_impact')));
-      expect(routeSet, isNot(contains('couple_accept_invitation')));
       expect(routeSet, isNot(contains('coach_history')));
       expect(routeSet, isNot(contains('coach_checkin')));
       expect(routeSet, isNot(contains('coach_weekly_recap')));
@@ -512,6 +581,21 @@ void main() {
       final entry = registry.findByIntent('retirement_choice');
       expect(entry, isNotNull);
       expect(entry!.intentTag, equals('retirement_choice'));
+    });
+
+    test('findByIntent returns raw legacy entry without chat alias rewrite',
+        () {
+      final raw = registry.findByIntent('retirement_overview');
+      final chat = registry.findChatEntryByIntent('retirement_overview');
+
+      expect(raw, isNotNull);
+      expect(raw!.intentTag, equals('retirement_overview'));
+      expect(raw.route, equals('/retirement'));
+      expect(raw.preferFromChat, isFalse);
+
+      expect(chat, isNotNull);
+      expect(chat!.intentTag, equals('retirement_projection'));
+      expect(chat.route, equals('/retraite'));
     });
 
     test('findByRoute delegates to static lookup', () {
