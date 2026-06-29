@@ -78,7 +78,7 @@ class CapDuJourBanner extends StatelessWidget {
               onSimulate: () async {
                 await _recordCapAcknowledgement(context, cap);
                 if (!context.mounted) return;
-                context.push('/explore?simulate=$_kCardId');
+                context.go('/explore?simulate=$_kCardId');
               },
               onReassure: () => MintChatOverlay.show(
                 context,
@@ -253,7 +253,7 @@ class _CapBannerCard extends StatelessWidget {
     return path == '/coach/chat' ||
         path == '/home' ||
         path == '/explore' ||
-        path == '/argent';
+        path == '/mon-argent';
   }
 }
 

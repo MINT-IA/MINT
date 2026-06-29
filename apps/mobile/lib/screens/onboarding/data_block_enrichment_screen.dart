@@ -585,7 +585,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       '3a': '/pilier-3a',
       'patrimoine': '/profile/bilan',
       'fiscalite': '/fiscal',
-      'objectifRetraite': '/coach/cockpit',
+      'objectifRetraite': '/retraite',
       'compositionMenage': '/couple',
     };
     return routes[type] ?? '/profile/bilan';
