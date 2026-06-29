@@ -701,6 +701,19 @@ void main() {
       expect(message, isNot(contains('Apple Sign-In')));
     });
 
+    test('localizeAuthException maps deleted Apple subject to register guidance',
+        () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final message = localizeAuthException(
+        const ApiException('recreate_required', statusCode: 409),
+        l10n,
+      );
+
+      expect(message, l10n.authErrorRegistration);
+      expect(message, isNot(l10n.authErrorGeneric));
+    });
+
     // ── Listener notification pattern ──
 
     test('multiple clearError calls each notify listeners', () {

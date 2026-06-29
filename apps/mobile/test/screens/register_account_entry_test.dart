@@ -10,6 +10,8 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
 Widget _testApp({CoachProfileProvider? coachProfileProvider}) {
@@ -39,6 +41,7 @@ void main() {
 
   tearDown(() {
     FeatureFlags.enableMvpWedgeOnboarding = false;
+    AppleSignInService.resetOverrides();
   });
 
   testWidgets('iOS registration starts with Apple and keeps email as fallback',
@@ -94,6 +97,71 @@ void main() {
         find.textContaining('Apple ne transmet pas ta date de naissance'),
         findsOneWidget,
       );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('Apple recreate-required opens email fallback with guidance',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw const ApiException('recreate_required', statusCode: 409);
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await tester.tap(find.byType(Checkbox).at(0));
+      await tester.pump();
+      await tester.tap(find.byType(Checkbox).at(1));
+      await tester.pump();
+      await tester.tap(find.byType(SignInWithAppleButton));
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('Apple provider failure also opens email fallback',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async => {
+          'accessToken': 'token-without-user',
+          'email': 'relay@example.invalid',
+        };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await tester.tap(find.byType(Checkbox).at(0));
+      await tester.pump();
+      await tester.tap(find.byType(Checkbox).at(1));
+      await tester.pump();
+      await tester.tap(find.byType(SignInWithAppleButton));
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }

@@ -2,15 +2,28 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
+
+typedef AppleSignInFn = Future<Map<String, dynamic>?> Function();
 
 /// Service for Apple Sign-In authentication (iOS only).
 ///
 /// Wraps the `sign_in_with_apple` package with proper nonce handling
 /// and backend verification via POST /api/v1/auth/apple/verify.
 class AppleSignInService {
+  static AppleSignInFn? _signInOverride;
+
+  @visibleForTesting
+  static set signInOverride(AppleSignInFn? fn) => _signInOverride = fn;
+
+  @visibleForTesting
+  static void resetOverrides() {
+    _signInOverride = null;
+  }
+
   /// Check if Apple Sign-In is available on this device.
   ///
   /// Returns `true` only on iOS/macOS where Apple Sign-In is supported.
@@ -36,6 +49,9 @@ class AppleSignInService {
   ///
   /// Throws on unexpected errors (network failure, backend error).
   static Future<Map<String, dynamic>?> signIn() async {
+    final override = _signInOverride;
+    if (override != null) return override();
+
     final available = await isAvailable();
     if (!available) return null;
 
