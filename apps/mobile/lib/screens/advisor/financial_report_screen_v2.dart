@@ -79,9 +79,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
           title: S.of(context)!.financialReportEmptyTitle,
           subtitle: S.of(context)!.financialReportEmptySubtitle,
           ctaLabel: S.of(context)!.financialReportEmptyCta,
-          // B7-cascade fix 2026-05-09 : push (not go) so the user can
-          // back-out of the coach without losing this empty-state screen.
-          onCta: () => context.push('/coach/chat'),
+          // Coach is a shell branch; select it with go, not push.
+          onCta: () => context.go('/coach/chat'),
         ),
       );
     }
