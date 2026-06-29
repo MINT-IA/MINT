@@ -33,6 +33,21 @@ Widget _testApp({CoachProfileProvider? coachProfileProvider}) {
   );
 }
 
+Future<void> _acceptRequiredConsentsAndTapApple(WidgetTester tester) async {
+  await tester.ensureVisible(find.byType(Checkbox).at(0));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(Checkbox).at(0));
+  await tester.pump();
+  await tester.ensureVisible(find.byType(Checkbox).at(1));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(Checkbox).at(1));
+  await tester.pump();
+  await tester.ensureVisible(find.byType(SignInWithAppleButton));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(SignInWithAppleButton));
+  await tester.pump();
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -44,7 +59,7 @@ void main() {
     AppleSignInService.resetOverrides();
   });
 
-  testWidgets('iOS registration starts with Apple and keeps email as fallback',
+  testWidgets('iOS registration exposes Apple and email immediately',
       (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     try {
@@ -52,15 +67,8 @@ void main() {
       await tester.pump();
 
       expect(find.byType(SignInWithAppleButton), findsOneWidget);
-      expect(find.text('Créer avec e-mail'), findsOneWidget);
-      expect(find.byIcon(Icons.email_outlined), findsNothing);
-
-      await tester.ensureVisible(find.text('Créer avec e-mail'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Créer avec e-mail'));
-      await tester.pump();
-
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(find.text('Créer avec e-mail'), findsNothing);
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
@@ -73,6 +81,8 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
+      await tester.ensureVisible(find.byType(SignInWithAppleButton));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(SignInWithAppleButton));
       await tester.pump();
 
@@ -112,12 +122,7 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
-      await tester.tap(find.byType(Checkbox).at(0));
-      await tester.pump();
-      await tester.tap(find.byType(Checkbox).at(1));
-      await tester.pump();
-      await tester.tap(find.byType(SignInWithAppleButton));
-      await tester.pump();
+      await _acceptRequiredConsentsAndTapApple(tester);
 
       expect(
         find.text(
@@ -148,12 +153,7 @@ void main() {
       await tester.pumpWidget(_testApp());
       await tester.pump();
 
-      await tester.tap(find.byType(Checkbox).at(0));
-      await tester.pump();
-      await tester.tap(find.byType(Checkbox).at(1));
-      await tester.pump();
-      await tester.tap(find.byType(SignInWithAppleButton));
-      await tester.pump();
+      await _acceptRequiredConsentsAndTapApple(tester);
 
       expect(
         find.text(
@@ -162,6 +162,39 @@ void main() {
         findsOneWidget,
       );
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('native Apple auth failure keeps email path visible',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw const SignInWithAppleAuthorizationException(
+        code: AuthorizationErrorCode.unknown,
+        message: 'Authorization failed',
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+
+      expect(
+        find.text(
+          'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }

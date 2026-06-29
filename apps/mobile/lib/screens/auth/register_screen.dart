@@ -53,7 +53,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    _showEmailForm = !canShowAppleSignIn;
+    // Account creation must not depend on Apple Sign-In availability or
+    // provisioning state. TestFlight users get the email path immediately.
+    _showEmailForm = true;
     _passwordController.addListener(() => setState(() {}));
     _confirmPasswordController.addListener(() => setState(() {}));
     // Clear any stale auth error that would otherwise surface a red "Action
