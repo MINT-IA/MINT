@@ -376,8 +376,13 @@ def test_jos006_coach_cta_stack_contract_scope_is_in_scope(tmp_path: Path) -> No
         root,
         [
             ".planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md",
+            "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
             "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
+            "apps/mobile/lib/screens/budget/budget_setup_screen.dart",
+            "apps/mobile/test/screens/budget_setup_screen_test.dart",
             "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+            "apps/mobile/lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
+            "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
             "apps/mobile/lib/widgets/aujourdhui/commitments_and_checkins_card.dart",
             "apps/mobile/test/architecture/navigation_push_doctrine_test.dart",
         ],

@@ -1,7 +1,10 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -589,5 +592,75 @@ void main() {
           .identifier,
       'budget_setup_chat_fallback',
     );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_setup_chat_fallback')))
+          .label,
+      'J\'en parle plutôt au coach',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_setup_chat_fallback')))
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isTrue,
+    );
+  });
+
+  testWidgets('chat fallback routes to Coach with budget topic',
+      (tester) async {
+    final router = GoRouter(
+      initialLocation: '/budget/setup',
+      routes: [
+        GoRoute(
+          path: '/budget/setup',
+          builder: (context, state) => const BudgetSetupScreen(),
+        ),
+        GoRoute(
+          path: '/coach/chat',
+          builder: (context, state) => Scaffold(
+            key: const Key('coachRouteHit'),
+            body: Text(state.uri.queryParameters['topic'] ?? ''),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.drag(
+      find.byType(SingleChildScrollView),
+      const Offset(0, -700),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('budget_setup_chat_fallback')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('coachRouteHit')), findsOneWidget);
+    expect(
+      router.routerDelegate.currentConfiguration.uri.toString(),
+      '/coach/chat?topic=budget',
+    );
+    expect(find.text('budget'), findsOneWidget);
   });
 }
