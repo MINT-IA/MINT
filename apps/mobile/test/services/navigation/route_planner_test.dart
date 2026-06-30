@@ -384,7 +384,7 @@ void main() {
       final decision = planner.plan('budget_overview', confidence: 0.9);
 
       expect(decision.action, RouteAction.openWithWarning);
-      expect(decision.route, '/onboarding/quick');
+      expect(decision.route, '/onb');
       expect(decision.missingFields, contains('netIncome'));
     });
 

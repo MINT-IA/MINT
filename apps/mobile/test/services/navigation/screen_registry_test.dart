@@ -161,7 +161,7 @@ void main() {
       expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
       expect(entry.preferFromChat, isTrue);
       expect(entry.requiredFields, contains('netIncome'));
-      expect(entry.fallbackRoute, equals('/onboarding/quick'));
+      expect(entry.fallbackRoute, equals('/onb'));
     });
 
     test('budget_overview fallback target is registered', () {
@@ -172,6 +172,12 @@ void main() {
 
       expect(fallback, isNotNull);
       expect(fallback!.intentTag, equals('onboarding_quick'));
+    });
+
+    test('debt_ratio fallback uses canonical onboarding entry', () {
+      final entry = MintScreenRegistry.findByIntentStatic('debt_ratio');
+      expect(entry, isNotNull);
+      expect(entry!.fallbackRoute, equals('/onb'));
     });
 
     test('disability_gap → /invalidite', () {
@@ -232,10 +238,10 @@ void main() {
       expect(entry.preferFromChat, isTrue);
     });
 
-    test('onboarding_quick → /onboarding/quick, preferFromChat false', () {
+    test('onboarding_quick → /onb, preferFromChat false', () {
       final entry = MintScreenRegistry.findByIntentStatic('onboarding_quick');
       expect(entry, isNotNull);
-      expect(entry!.route, equals('/onboarding/quick'));
+      expect(entry!.route, equals('/onb'));
       expect(entry.preferFromChat, isFalse);
     });
 
@@ -338,8 +344,7 @@ void main() {
     });
 
     test('legacy RVC alias is not a Coach-routable primary surface', () {
-      final entry =
-          MintScreenRegistry.findByRouteStatic('/rente-vs-capital');
+      final entry = MintScreenRegistry.findByRouteStatic('/rente-vs-capital');
       expect(entry, isNull);
     });
 

@@ -239,7 +239,19 @@ String? accountLifecyclePublicEntryRedirect({
 }) {
   if (!lifecycle.hasAccountSession) return null;
   if (!lifecycle.allowsMainNavigation) return null;
-  if (path == '/' || path == '/auth/login' || path == '/auth/register') {
+  if (path == '/' ||
+      path == '/start' ||
+      path == '/anonymous/chat' ||
+      path == '/onboarding/quick' ||
+      path == '/onboarding/quick-start' ||
+      path == '/onboarding/premier-eclairage' ||
+      path == '/onboarding/intent' ||
+      path == '/onboarding/promise' ||
+      path == '/onboarding/plan' ||
+      path == '/onboarding/smart' ||
+      path == '/onboarding/minimal' ||
+      path == '/auth/login' ||
+      path == '/auth/register') {
     return '/home';
   }
   return null;
@@ -1748,17 +1760,16 @@ final _router = GoRouter(
         }),
 
     // ── ONBOARDING ───────────────────────────────────────────
-    // P10-02b: legacy onboarding screens removed. Routes kept as redirect
-    // shims → /coach/chat so existing call sites keep working. The coach
-    // chat surface handles missing query params gracefully.
+    // P10-02b: legacy onboarding screens removed. Keep the routes as
+    // compatibility shims, but route them back to the canonical first-entry
+    // spine. A deleted onboarding deep link must not cold-open the Coach.
     ScopedGoRoute(
       path: '/onboarding/quick',
       scope:
           RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/coach/chat');
-        return '/coach/chat';
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+        return '/onb';
       },
     ),
     ScopedGoRoute(
@@ -1766,9 +1777,8 @@ final _router = GoRouter(
       scope:
           RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/coach/chat');
-        return '/coach/chat';
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+        return '/onb';
       },
     ),
     ScopedGoRoute(
@@ -1776,9 +1786,8 @@ final _router = GoRouter(
       scope:
           RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/coach/chat');
-        return '/coach/chat';
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+        return '/onb';
       },
     ),
     // KILL-01: intent_screen deleted. Redirect shim for deep links.
@@ -1786,9 +1795,8 @@ final _router = GoRouter(
       path: '/onboarding/intent',
       scope: RouteScope.onboarding,
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/coach/chat');
-        return '/coach/chat';
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+        return '/onb';
       },
     ),
     ScopedGoRoute(
@@ -1796,9 +1804,8 @@ final _router = GoRouter(
       scope:
           RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/coach/chat');
-        return '/coach/chat';
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+        return '/onb';
       },
     ),
     ScopedGoRoute(
@@ -1806,9 +1813,8 @@ final _router = GoRouter(
       scope:
           RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, state) {
-        MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/coach/chat');
-        return '/coach/chat';
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+        return '/onb';
       },
     ),
     ScopedGoRoute(
@@ -1881,17 +1887,15 @@ final _router = GoRouter(
         path: '/onboarding/smart',
         scope: RouteScope.onboarding,
         redirect: (_, state) {
-          MintBreadcrumbs.legacyRedirectHit(
-              from: state.uri.path, to: '/coach/chat');
-          return '/coach/chat';
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+          return '/onb';
         }),
     ScopedGoRoute(
         path: '/onboarding/minimal',
         scope: RouteScope.onboarding,
         redirect: (_, state) {
-          MintBreadcrumbs.legacyRedirectHit(
-              from: state.uri.path, to: '/coach/chat');
-          return '/coach/chat';
+          MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/onb');
+          return '/onb';
         }),
     ScopedGoRoute(
         path: '/onboarding/enrichment',

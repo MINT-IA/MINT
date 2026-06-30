@@ -15,6 +15,7 @@ from pathlib import Path
 
 ROUTE_METADATA = Path("apps/mobile/lib/routes/route_metadata.dart")
 APP = Path("apps/mobile/lib/app.dart")
+SCREEN_REGISTRY = Path("apps/mobile/lib/services/navigation/screen_registry.dart")
 MINT2_FLOW = Path(
     "tools/simulator/flows/maestro-perfect-set/"
     "flow_mint2_first_experience_rente_capital_entry.yaml"
@@ -68,14 +69,14 @@ RVC_ALIASES = {
 ONBOARDING_COMPAT_ALIASES = {
     "/start": "/onb",
     "/anonymous/chat": "/onb",
-    "/onboarding/quick": "/coach/chat",
-    "/onboarding/quick-start": "/coach/chat",
-    "/onboarding/premier-eclairage": "/coach/chat",
-    "/onboarding/intent": "/coach/chat",
-    "/onboarding/promise": "/coach/chat",
-    "/onboarding/plan": "/coach/chat",
-    "/onboarding/smart": "/coach/chat",
-    "/onboarding/minimal": "/coach/chat",
+    "/onboarding/quick": "/onb",
+    "/onboarding/quick-start": "/onb",
+    "/onboarding/premier-eclairage": "/onb",
+    "/onboarding/intent": "/onb",
+    "/onboarding/promise": "/onb",
+    "/onboarding/plan": "/onb",
+    "/onboarding/smart": "/onb",
+    "/onboarding/minimal": "/onb",
 }
 EXPECTED_JOURNEY_ROUTES = [
     "/onb",
@@ -223,6 +224,10 @@ def _check_route(
             if actual != value:
                 label = "not require auth" if field == "requiresAuth" and value == "false" else f"set {field}={value}"
                 errors.append(f"{route} must {label}; found {actual or '<missing>'}")
+    if expected.get("category") == "destination" and app.get("redirect"):
+        errors.append(
+            f"{route} must be a terminal destination, not redirect to {app['redirect']}"
+        )
 
 
 def _check_alias(
@@ -415,6 +420,43 @@ def _check_journey_os_contract(errors: list[str], root: Path) -> None:
                 )
 
 
+def _check_screen_registry_contract(errors: list[str], root: Path) -> None:
+    registry_path = root / SCREEN_REGISTRY
+    if not registry_path.exists():
+        errors.append(f"missing navigation screen registry: {SCREEN_REGISTRY}")
+        return
+    text = registry_path.read_text(encoding="utf-8", errors="ignore")
+    for stale_fallback in ("/onboarding/quick", "/onboarding/quick-start"):
+        if f"fallbackRoute: '{stale_fallback}'" in text:
+            errors.append(
+                f"{SCREEN_REGISTRY} must not use {stale_fallback} as a planner fallback; use /onb"
+            )
+
+    screen_entries = _find_call_blocks(text, "ScreenEntry")
+    onboarding_quick = next(
+        (
+            block
+            for block in screen_entries
+            if _route_field(block, "intentTag") == "onboarding_quick"
+        ),
+        None,
+    )
+    if onboarding_quick is None:
+        errors.append(f"{SCREEN_REGISTRY} must keep an onboarding_quick registry entry")
+        return
+    if _route_field(onboarding_quick, "route") != "/onb":
+        errors.append(
+            f"{SCREEN_REGISTRY} onboarding_quick must target /onb, not a deleted onboarding alias"
+        )
+    onb_routes = [
+        block for block in screen_entries if _route_field(block, "route") == "/onb"
+    ]
+    if len(onb_routes) != 1:
+        errors.append(
+            f"{SCREEN_REGISTRY} must have exactly one primary ScreenEntry route for /onb; found {len(onb_routes)}"
+        )
+
+
 def check(root: Path) -> list[str]:
     root = root.resolve()
     errors: list[str] = []
@@ -436,6 +478,7 @@ def check(root: Path) -> list[str]:
     _check_maestro_flow(errors, root)
     _check_account_wall_positive_control(errors, root)
     _check_journey_os_contract(errors, root)
+    _check_screen_registry_contract(errors, root)
     return errors
 
 
