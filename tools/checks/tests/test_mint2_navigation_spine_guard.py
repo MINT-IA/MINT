@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -21,6 +22,9 @@ def _run(root: Path) -> subprocess.CompletedProcess[str]:
 def _write_fixture(root: Path) -> None:
     (root / "apps/mobile/lib/routes").mkdir(parents=True)
     (root / "tools/simulator/flows/maestro-perfect-set").mkdir(parents=True)
+    (root / ".planning/journeys/records").mkdir(parents=True)
+    (root / ".planning/journeys/issues").mkdir(parents=True)
+    (root / ".planning/journeys/diagrams").mkdir(parents=True)
 
     (root / "apps/mobile/lib/routes/route_metadata.dart").write_text(
         """
@@ -107,6 +111,84 @@ appId: ch.mint.app
 """,
         encoding="utf-8",
     )
+    (root / ".planning/journeys/records/onboarding_first_value.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "id": "onboarding_first_value",
+                "title": "Onboarding first value",
+                "status": "partial",
+                "runtime_replay": {
+                    "flow": flow,
+                    "sets": ["core"],
+                    "requires_auth": False,
+                    "build_defines": [
+                        "MINT_DISABLE_BETA_MODAL=true",
+                        "MINT_E2E_MINT2_FIRST_EXPERIENCE=true",
+                        "MINT_E2E_PROOF_ANCHORS=true",
+                    ],
+                },
+                "route_paths": [
+                    "/onb",
+                    "/retraite/rente-vs-capital",
+                    "/coach/chat",
+                    "/home",
+                ],
+                "issues": ["JOS-005"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (root / ".planning/journeys/issues/JOS-005.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "id": "JOS-005",
+                "journey_id": "onboarding_first_value",
+                "status": "verified",
+                "evidence_status": "green",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (root / ".planning/journeys/diagrams/onboarding_first_value.mmd").write_text(
+        """
+%% Generated from .planning/journeys/records/onboarding_first_value.json
+flowchart TD
+  route_onb["/onb"]
+  route_retraite_rente_vs_capital["/retraite/rente-vs-capital"]
+  route_coach_chat["/coach/chat"]
+  route_home["/home"]
+  issue_JOS_005["JOS-005 verified/green"]
+""",
+        encoding="utf-8",
+    )
+    (
+        root / ".planning/journeys/diagrams/onboarding_first_value_sequence.mmd"
+    ).write_text(
+        f"""
+%% Generated from .planning/journeys/records/onboarding_first_value.json
+sequenceDiagram
+  Journey->>Routes: /onb, /retraite/rente-vs-capital, /coach/chat, /home
+  Journey->>Evidence: replay core / no-auth / MINT iPhone 13 mini RvC / {flow}
+  Evidence-->>Journey: issues JOS-005
+""",
+        encoding="utf-8",
+    )
+    (root / ".planning/journeys/diagrams/route_topology.mmd").write_text(
+        """
+flowchart LR
+  route__onb["/onb<br/>destination/anonymous<br/>public"]
+  route__retraite_rente_vs_capital["/retraite/rente-vs-capital<br/>destination/retraite<br/>public"]
+  route__rente_vs_capital["/rente-vs-capital<br/>alias/system<br/>public"]
+  route__arbitrage_rente_vs_capital["/arbitrage/rente-vs-capital<br/>alias/system<br/>public"]
+  route__simulator_rente_capital["/simulator/rente-capital<br/>alias/system<br/>public"]
+  route__rente_vs_capital -. redirects .-> route__retraite_rente_vs_capital
+  route__arbitrage_rente_vs_capital -. redirects .-> route__retraite_rente_vs_capital
+  route__simulator_rente_capital -. redirects .-> route__retraite_rente_vs_capital
+""",
+        encoding="utf-8",
+    )
 
 
 def test_navigation_spine_guard_passes_for_coherent_fixture(tmp_path: Path) -> None:
@@ -121,6 +203,171 @@ def test_navigation_spine_guard_passes_for_coherent_fixture(tmp_path: Path) -> N
 
 def test_navigation_spine_guard_passes_for_repo_flow() -> None:
     assert mint2_navigation_spine_guard.check(REPO_ROOT) == []
+
+
+def test_navigation_spine_guard_fails_when_journey_os_uses_legacy_rvc_alias(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    record = tmp_path / ".planning/journeys/records/onboarding_first_value.json"
+    data = json.loads(record.read_text(encoding="utf-8"))
+    data["route_paths"] = [
+        "/onb",
+        "/rente-vs-capital",
+        "/coach/chat",
+        "/home",
+    ]
+    record.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_first_value route_paths must be" in error for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_journey_os_points_to_wrong_flow(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    record = tmp_path / ".planning/journeys/records/onboarding_first_value.json"
+    data = json.loads(record.read_text(encoding="utf-8"))
+    data["runtime_replay"]["flow"] = (
+        "tools/simulator/flows/maestro-perfect-set/legacy_route.yaml"
+    )
+    record.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_first_value runtime_replay.flow must be" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_journey_os_requires_auth(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    record = tmp_path / ".planning/journeys/records/onboarding_first_value.json"
+    data = json.loads(record.read_text(encoding="utf-8"))
+    data["runtime_replay"]["requires_auth"] = True
+    record.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_first_value runtime_replay.requires_auth must be false"
+        in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_journey_os_loses_core_set(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    record = tmp_path / ".planning/journeys/records/onboarding_first_value.json"
+    data = json.loads(record.read_text(encoding="utf-8"))
+    data["runtime_replay"]["sets"] = ["top"]
+    record.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_first_value runtime_replay.sets must include core" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_journey_os_loses_e2e_defines(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    record = tmp_path / ".planning/journeys/records/onboarding_first_value.json"
+    data = json.loads(record.read_text(encoding="utf-8"))
+    data["runtime_replay"]["build_defines"] = ["MINT_DISABLE_BETA_MODAL=true"]
+    record.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_first_value runtime_replay.build_defines missing" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_allows_honest_jos005_regression_state(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    issue = tmp_path / ".planning/journeys/issues/JOS-005.json"
+    data = json.loads(issue.read_text(encoding="utf-8"))
+    data["status"] = "regressed"
+    data["evidence_status"] = "red"
+    issue.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert errors == []
+
+
+def test_navigation_spine_guard_fails_when_jos005_points_elsewhere(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    issue = tmp_path / ".planning/journeys/issues/JOS-005.json"
+    data = json.loads(issue.read_text(encoding="utf-8"))
+    data["journey_id"] = "another_journey"
+    issue.write_text(json.dumps(data), encoding="utf-8")
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "JOS-005.json must point to onboarding_first_value" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_journey_mermaid_omits_route(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    diagram = tmp_path / ".planning/journeys/diagrams/onboarding_first_value.mmd"
+    diagram.write_text(
+        diagram.read_text(encoding="utf-8").replace(
+            'route_retraite_rente_vs_capital["/retraite/rente-vs-capital"]',
+            "",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_first_value.mmd must include /retraite/rente-vs-capital"
+        in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_journey_mermaid_promotes_alias(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    diagram = tmp_path / ".planning/journeys/diagrams/onboarding_first_value.mmd"
+    diagram.write_text(
+        diagram.read_text(encoding="utf-8")
+        + '\n  route_legacy["/rente-vs-capital"]\n',
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must not promote legacy alias /rente-vs-capital" in error
+        for error in errors
+    )
 
 
 def test_navigation_spine_guard_fails_when_rvc_requires_auth(tmp_path: Path) -> None:
