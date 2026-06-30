@@ -46,6 +46,7 @@ surfaces, or the chat itself (you don't route INTO the chat from the chat).
 | `/onboarding/minimal` | Same |
 | `/onboarding/plan` | Same |
 | `/onboarding/promise` | Same |
+| `/onboarding/quick` | Legacy onboarding shim retained for deep-link compatibility; planner fallbacks must use canonical `/onb` |
 | `/onboarding/quick-start` | Same |
 | `/onboarding/smart` | Same |
 

@@ -96,6 +96,7 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     "/onboarding/minimal",
     "/onboarding/plan",
     "/onboarding/promise",
+    "/onboarding/quick",
     "/onboarding/quick-start",
     "/onboarding/smart",
 }

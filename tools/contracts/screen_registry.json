@@ -527,13 +527,13 @@
       "preferFromChat": true
     },
     {
-      "intent": "onboarding_premier_eclairage",
-      "route": "/onboarding/premier-eclairage",
+      "intent": "onboarding_quick",
+      "route": "/onb",
       "preferFromChat": false
     },
     {
-      "intent": "onboarding_quick",
-      "route": "/onboarding/quick",
+      "intent": "onboarding_premier_eclairage",
+      "route": "/onboarding/premier-eclairage",
       "preferFromChat": false
     },
     {

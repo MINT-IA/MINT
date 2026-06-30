@@ -115,6 +115,7 @@ ALLOW = {
     "apps/mobile/test/architecture/route_guard_snapshot_test.dart",
     "apps/mobile/test/architecture/navigation_push_doctrine_test.dart",
     "apps/mobile/test/navigation/account_lifecycle_public_entry_redirect_test.dart",
+    "apps/mobile/test/navigation/goroute_health_test.dart",
     "apps/mobile/test/providers/auth_provider_test.dart",
     "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/test/routes/coach_chat_entry_payload_test.dart",

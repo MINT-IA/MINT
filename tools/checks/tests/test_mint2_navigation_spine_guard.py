@@ -21,6 +21,7 @@ def _run(root: Path) -> subprocess.CompletedProcess[str]:
 
 def _write_fixture(root: Path) -> None:
     (root / "apps/mobile/lib/routes").mkdir(parents=True)
+    (root / "apps/mobile/lib/services/navigation").mkdir(parents=True)
     (root / "tools/simulator/flows/maestro-perfect-set").mkdir(parents=True)
     (root / ".planning/journeys/records").mkdir(parents=True)
     (root / ".planning/journeys/issues").mkdir(parents=True)
@@ -37,14 +38,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   '/coach/chat': RouteMeta(path: '/coach/chat', category: RouteCategory.destination, owner: RouteOwner.coach, requiresAuth: false),
   '/start': RouteMeta(path: '/start', category: RouteCategory.alias, owner: RouteOwner.anonymous, requiresAuth: false, description: 'Legacy redirect -> /onb'),
   '/anonymous/chat': RouteMeta(path: '/anonymous/chat', category: RouteCategory.alias, owner: RouteOwner.anonymous, requiresAuth: false, description: 'Legacy redirect -> /onb'),
-  '/onboarding/quick': RouteMeta(path: '/onboarding/quick', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/quick-start': RouteMeta(path: '/onboarding/quick-start', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/premier-eclairage': RouteMeta(path: '/onboarding/premier-eclairage', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/intent': RouteMeta(path: '/onboarding/intent', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/promise': RouteMeta(path: '/onboarding/promise', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/plan': RouteMeta(path: '/onboarding/plan', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/smart': RouteMeta(path: '/onboarding/smart', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
-  '/onboarding/minimal': RouteMeta(path: '/onboarding/minimal', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /coach/chat'),
+  '/onboarding/quick': RouteMeta(path: '/onboarding/quick', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/quick-start': RouteMeta(path: '/onboarding/quick-start', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/premier-eclairage': RouteMeta(path: '/onboarding/premier-eclairage', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/intent': RouteMeta(path: '/onboarding/intent', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/promise': RouteMeta(path: '/onboarding/promise', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/plan': RouteMeta(path: '/onboarding/plan', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/smart': RouteMeta(path: '/onboarding/smart', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
+  '/onboarding/minimal': RouteMeta(path: '/onboarding/minimal', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /onb'),
 };
 """,
         encoding="utf-8",
@@ -60,15 +61,31 @@ final router = [
   ScopedGoRoute(path: '/coach/chat', scope: RouteScope.public, builder: (_, __) => Screen()),
   ScopedGoRoute(path: '/start', scope: RouteScope.public, redirect: (_, __) => '/onb'),
   ScopedGoRoute(path: '/anonymous/chat', scope: RouteScope.public, redirect: (_, __) => '/onb'),
-  ScopedGoRoute(path: '/onboarding/quick', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/quick-start', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/premier-eclairage', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/intent', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/promise', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/plan', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-  ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
+  ScopedGoRoute(path: '/onboarding/quick', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/quick-start', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/premier-eclairage', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/intent', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/promise', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/plan', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
+  ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, __) => '/onb'),
 ];
+""",
+        encoding="utf-8",
+    )
+    (root / "apps/mobile/lib/services/navigation/screen_registry.dart").write_text(
+        """
+class MintScreenRegistry {
+  static const ScreenEntry _budgetOverview = ScreenEntry(
+    route: '/budget',
+    intentTag: 'budget_overview',
+    fallbackRoute: '/onb',
+  );
+  static const ScreenEntry _onboardingQuick = ScreenEntry(
+    route: '/onb',
+    intentTag: 'onboarding_quick',
+  );
+}
 """,
         encoding="utf-8",
     )
@@ -389,6 +406,59 @@ def test_navigation_spine_guard_fails_when_rvc_requires_auth(tmp_path: Path) -> 
     )
 
 
+def test_navigation_spine_guard_fails_when_onb_requires_auth(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    metadata = tmp_path / "apps/mobile/lib/routes/route_metadata.dart"
+    metadata.write_text(
+        metadata.read_text(encoding="utf-8").replace(
+            "'/onb', category: RouteCategory.destination, owner: RouteOwner.anonymous, requiresAuth: false",
+            "'/onb', category: RouteCategory.destination, owner: RouteOwner.anonymous, requiresAuth: true",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any("/onb must not require auth" in error for error in errors)
+
+
+def test_navigation_spine_guard_fails_when_onb_is_not_public(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    app = tmp_path / "apps/mobile/lib/app.dart"
+    app.write_text(
+        app.read_text(encoding="utf-8").replace(
+            "ScopedGoRoute(path: '/onb', scope: RouteScope.public, builder: (_, __) => Screen())",
+            "ScopedGoRoute(path: '/onb', scope: RouteScope.onboarding, builder: (_, __) => Screen())",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any("/onb must use RouteScope.public" in error for error in errors)
+
+
+def test_navigation_spine_guard_fails_when_onb_is_not_terminal_destination(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    app = tmp_path / "apps/mobile/lib/app.dart"
+    app.write_text(
+        app.read_text(encoding="utf-8").replace(
+            "ScopedGoRoute(path: '/onb', scope: RouteScope.public, builder: (_, __) => Screen())",
+            "ScopedGoRoute(path: '/onb', scope: RouteScope.public, redirect: (_, __) => '/coach/chat')",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "/onb must be a terminal destination, not redirect to /coach/chat" in error
+        for error in errors
+    )
+
+
 def test_navigation_spine_guard_fails_when_live_alias_targets_account_gate(
     tmp_path: Path,
 ) -> None:
@@ -407,6 +477,92 @@ def test_navigation_spine_guard_fails_when_live_alias_targets_account_gate(
     assert any(
         "/arbitrage/rente-vs-capital app redirect must target /retraite/rente-vs-capital"
         in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_onboarding_alias_targets_coach(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    app = tmp_path / "apps/mobile/lib/app.dart"
+    app.write_text(
+        app.read_text(encoding="utf-8").replace(
+            "ScopedGoRoute(path: '/onboarding/intent', scope: RouteScope.onboarding, redirect: (_, __) => '/onb')",
+            "ScopedGoRoute(path: '/onboarding/intent', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat')",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "/onboarding/intent app redirect must target /onb" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_registry_uses_stale_onboarding_fallback(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry = tmp_path / "apps/mobile/lib/services/navigation/screen_registry.dart"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace(
+            "fallbackRoute: '/onb'",
+            "fallbackRoute: '/onboarding/quick'",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must not use /onboarding/quick as a planner fallback" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_onboarding_quick_entry_uses_legacy_alias(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry = tmp_path / "apps/mobile/lib/services/navigation/screen_registry.dart"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace(
+            "route: '/onb',\n    intentTag: 'onboarding_quick'",
+            "route: '/onboarding/quick',\n    intentTag: 'onboarding_quick'",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "onboarding_quick must target /onb" in error for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_registry_duplicates_onb_route(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry = tmp_path / "apps/mobile/lib/services/navigation/screen_registry.dart"
+    registry.write_text(
+        registry.read_text(encoding="utf-8")
+        + """
+const ScreenEntry duplicateOnb = ScreenEntry(
+  route: '/onb',
+  intentTag: 'duplicate_onb',
+);
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "exactly one primary ScreenEntry route for /onb; found 2" in error
         for error in errors
     )
 
