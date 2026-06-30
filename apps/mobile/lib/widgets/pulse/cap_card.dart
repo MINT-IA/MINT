@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/navigation/mint_nav.dart';
 import 'package:mint_mobile/services/navigation_shell_state.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -133,8 +133,7 @@ class CapCard extends StatelessWidget {
               children: [
                 Text(
                   cap.ctaLabel,
-                  style: MintTextStyles.labelLarge(color: MintColors.white)
-                      ,
+                  style: MintTextStyles.labelLarge(color: MintColors.white),
                 ),
                 const SizedBox(width: 8),
                 const Icon(
@@ -157,7 +156,7 @@ class CapCard extends StatelessWidget {
     switch (cap.ctaMode) {
       case CtaMode.route:
         if (cap.ctaRoute != null) {
-          context.push<void>(cap.ctaRoute!).then((_) {
+          MintNav.open<void>(context, cap.ctaRoute!).then((_) {
             if (!context.mounted) return;
             _resolveCompletionOnReturn(context, profileBefore);
           });
@@ -174,7 +173,7 @@ class CapCard extends StatelessWidget {
           'profile' => '/onboarding/enrichment',
           _ => '/onboarding/enrichment',
         };
-        context.push<void>(route).then((_) {
+        MintNav.open<void>(context, route).then((_) {
           if (!context.mounted) return;
           _resolveCompletionOnReturn(context, profileBefore);
         });
@@ -190,10 +189,12 @@ class CapCard extends StatelessWidget {
     CapMemoryStore.load().then((mem) {
       if (profileChanged) {
         // User changed their profile data during the flow → cap completed
-        CapMemoryStore.markCompleted(mem, cap.id, headline: cap.headline, ctaLabel: cap.ctaLabel);
+        CapMemoryStore.markCompleted(mem, cap.id,
+            headline: cap.headline, ctaLabel: cap.ctaLabel);
       } else if (!mem.completedActions.contains(cap.id)) {
         // No profile change and not already completed → abandoned
-        CapMemoryStore.markAbandoned(mem, cap.id, frictionContext: 'user_returned');
+        CapMemoryStore.markAbandoned(mem, cap.id,
+            frictionContext: 'user_returned');
       }
     });
   }
@@ -201,19 +202,23 @@ class CapCard extends StatelessWidget {
   /// Quick hash of profile state to detect meaningful changes
   int _profileHash(BuildContext context) {
     try {
-      final provider = Provider.of<CoachProfileProvider>(context, listen: false);
+      final provider =
+          Provider.of<CoachProfileProvider>(context, listen: false);
       final p = provider.profile;
       if (p == null) return 0;
       return Object.hash(
-        p.salaireBrutMensuel, p.prevoyance.avoirLppTotal,
-        p.prevoyance.totalEpargne3a, p.canton, p.etatCivil,
-        p.employmentStatus, p.prevoyance.anneesContribuees,
+        p.salaireBrutMensuel,
+        p.prevoyance.avoirLppTotal,
+        p.prevoyance.totalEpargne3a,
+        p.canton,
+        p.etatCivil,
+        p.employmentStatus,
+        p.prevoyance.anneesContribuees,
       );
     } catch (_) {
       return 0;
     }
   }
-
 }
 
 /// Bridge for passing coach prompt from CapCard to CoachChatScreen.
