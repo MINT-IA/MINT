@@ -371,6 +371,7 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "apps/mobile/lib/app.dart",
             "apps/mobile/lib/providers/auth_provider.dart",
             "apps/mobile/lib/routes/route_metadata.dart",
+            "apps/mobile/lib/screens/landing_screen.dart",
             "apps/mobile/lib/screens/debug/debug_mint2_account_claim_screen.dart",
             "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart",
             "apps/mobile/lib/services/coach/_valid_routes_generated.dart",
