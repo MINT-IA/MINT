@@ -18,6 +18,7 @@ DIAGRAMS = JOURNEYS / "diagrams"
 SYSTEM_MAP = DIAGRAMS / "system_map.mmd"
 ROUTE_TOPOLOGY = DIAGRAMS / "route_topology.mmd"
 JOURNEY_STATE = DIAGRAMS / "journey_state.mmd"
+APP = Path("apps/mobile/lib/app.dart")
 PRIORITY_POSITIVE = {"trust_blast_radius", "release_blocker_weight", "user_frequency", "evidence_gap", "route_centrality", "compliance_risk", "learning_value"}
 EVIDENCE_STATUS_RANK = {"red": 0, "missing": 1, "baselined": 2, "green": 3}
 
@@ -310,8 +311,216 @@ def _route_target(meta: dict[str, str]) -> str:
     match = re.search(r"(?:redirects?\s+(?:to\s+)?|->\s*)(/[A-Za-z0-9_/:.-]+)", description, re.IGNORECASE)
     return match.group(1).rstrip(".,;") if match else ""
 
+def _strip_dart_comments(source: str) -> str:
+    cleaned: list[str] = []
+    index = 0
+    quote: str | None = None
+    escaped = False
+    while index < len(source):
+        char = source[index]
+        nxt = source[index + 1] if index + 1 < len(source) else ""
+        if quote:
+            cleaned.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            index += 1
+            continue
+        if char in {"'", '"'}:
+            quote = char
+            cleaned.append(char)
+            index += 1
+            continue
+        if char == "/" and nxt == "/":
+            cleaned.extend("  ")
+            index += 2
+            while index < len(source) and source[index] != "\n":
+                cleaned.append(" ")
+                index += 1
+            continue
+        if char == "/" and nxt == "*":
+            cleaned.extend("  ")
+            index += 2
+            while index < len(source):
+                if index + 1 < len(source) and source[index] == "*" and source[index + 1] == "/":
+                    cleaned.extend("  ")
+                    index += 2
+                    break
+                cleaned.append("\n" if source[index] == "\n" else " ")
+                index += 1
+            continue
+        cleaned.append(char)
+        index += 1
+    return "".join(cleaned)
+
+def _find_call_spans(source: str, call_name: str) -> list[tuple[int, int, str]]:
+    spans: list[tuple[int, int, str]] = []
+    index = 0
+    needle = f"{call_name}("
+    while True:
+        start = source.find(needle, index)
+        if start == -1:
+            return spans
+        pos = start + len(call_name)
+        depth = 0
+        quote: str | None = None
+        escaped = False
+        for cursor in range(pos, len(source)):
+            char = source[cursor]
+            if quote:
+                if escaped:
+                    escaped = False
+                elif char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+                continue
+            if char in {"'", '"'}:
+                quote = char
+                continue
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0:
+                    spans.append((start, cursor + 1, source[start : cursor + 1]))
+                    index = start + len(needle)
+                    break
+        else:
+            return spans
+
+def _join_route(parent: str, route: str) -> str:
+    if route.startswith("/"):
+        return route
+    if not parent:
+        return route
+    return f"{parent.rstrip('/')}/{route.lstrip('/')}"
+
+def _top_level_arg(block: str, name: str) -> str:
+    open_paren = block.find("(")
+    if open_paren == -1 or not block.endswith(")"):
+        return ""
+    body = block[open_paren + 1 : -1]
+    quote: str | None = None
+    escaped = False
+    depth = 0
+    index = 0
+    while index < len(body):
+        char = body[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            index += 1
+            continue
+        if char in {"'", '"'}:
+            quote = char
+            index += 1
+            continue
+        if char in "([{":
+            depth += 1
+            index += 1
+            continue
+        if char in ")]}":
+            depth = max(0, depth - 1)
+            index += 1
+            continue
+        if depth == 0:
+            match = re.match(rf"\b{re.escape(name)}\s*:\s*", body[index:])
+            if match:
+                value_start = index + match.end()
+                value_end = _top_level_value_end(body, value_start)
+                return body[value_start:value_end].strip()
+        index += 1
+    return ""
+
+def _top_level_value_end(body: str, start: int) -> int:
+    quote: str | None = None
+    escaped = False
+    depth = 0
+    for index in range(start, len(body)):
+        char = body[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = None
+            continue
+        if char in {"'", '"'}:
+            quote = char
+            continue
+        if char in "([{":
+            depth += 1
+            continue
+        if char in ")]}":
+            depth = max(0, depth - 1)
+            continue
+        if char == "," and depth == 0:
+            return index
+    return len(body)
+
+def _route_arg(block: str, name: str) -> str:
+    value = _top_level_arg(block, name)
+    if not value:
+        return ""
+    quoted = re.match(r"""(['"])(.*?)\1$""", value, re.DOTALL)
+    if quoted:
+        return quoted.group(2)
+    enum_or_bool = re.match(r"(Route(?:Scope|Category|Owner)\.[A-Za-z0-9_]+|true|false)\b", value)
+    if enum_or_bool:
+        return enum_or_bool.group(1).split(".")[-1]
+    return ""
+
+def _route_scopes(root: Path) -> dict[str, str]:
+    path = root / APP
+    try:
+        source = _strip_dart_comments(path.read_text(encoding="utf-8", errors="ignore"))
+    except OSError:
+        return {}
+    scopes: dict[str, str] = {}
+    resolved: list[tuple[int, int, str]] = []
+    for start, end, block in _find_call_spans(source, "ScopedGoRoute"):
+        route_arg = _route_arg(block, "path")
+        if not route_arg:
+            continue
+        parent = ""
+        for parent_start, parent_end, parent_route in reversed(resolved):
+            if parent_start < start and end <= parent_end:
+                parent = parent_route
+                break
+        route = _join_route(parent, route_arg)
+        scopes[route] = _route_arg(block, "scope") or "authenticated"
+        resolved.append((start, end, route))
+    return scopes
+
+def _route_access_label(meta: dict[str, str], scope: str) -> str:
+    if scope:
+        return scope
+    auth = meta.get("requiresAuth", "unknown")
+    if auth == "true":
+        return "authenticated"
+    if auth == "false":
+        return "public"
+    return "auth unknown"
+
+def _route_access_class(label: str) -> str:
+    if label == "authenticated":
+        return "auth"
+    if label in {"public", "onboarding"}:
+        return label
+    return "route"
+
 def route_topology(root: Path, records: list[dict[str, Any]]) -> str:
     meta = _route_metadata(root)
+    scopes = _route_scopes(root)
     included = {
         str(route)
         for rec in records
@@ -330,20 +539,20 @@ def route_topology(root: Path, records: list[dict[str, Any]]) -> str:
         "  classDef alias fill:#f5f5f5,stroke:#616161,color:#212121,stroke-dasharray: 4 3;",
         "  classDef auth fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;",
         "  classDef public fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;",
+        "  classDef onboarding fill:#ede7f6,stroke:#4527a0,color:#1a0f4f;",
     ]
     for route in sorted(included):
         item = meta.get(route, {})
         node = "route__" + _node(route)
         category = item.get("category", "unknown")
         owner = item.get("owner", "unknown")
-        auth = item.get("requiresAuth", "unknown")
+        access_label = _route_access_label(item, scopes.get(route, ""))
         flag = item.get("killFlag", "")
-        auth_label = "auth" if auth == "true" else "public" if auth == "false" else "auth unknown"
         flag_label = f"<br/>flag {flag}" if flag else ""
         lines += [
-            f'  {node}["{_label(route)}<br/>{_label(category)}/{_label(owner)}<br/>{auth_label}{flag_label}"]',
+            f'  {node}["{_label(route)}<br/>{_label(category)}/{_label(owner)}<br/>{_label(access_label)}{flag_label}"]',
             f"  class {node} {'alias' if category == 'alias' else 'route'}",
-            f"  class {node} {'auth' if auth == 'true' else 'public' if auth == 'false' else 'route'}",
+            f"  class {node} {_route_access_class(access_label)}",
         ]
     for route in sorted(included):
         target = _route_target(meta.get(route, {}))

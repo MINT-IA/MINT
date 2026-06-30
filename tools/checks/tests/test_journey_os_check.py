@@ -37,7 +37,7 @@ def _root(tmp_path: Path) -> Path:
         "# Fixture SPEC\n",
         encoding="utf-8",
     )
-    routes = ["/budget", "/mon-argent", "/rapport", "/coach/chat", "/profile/bilan"]
+    routes = ["/budget", "/mon-argent", "/rapport", "/coach/chat", "/profile", "/profile/bilan"]
     (tmp_path / "apps/mobile/lib/routes/route_metadata.dart").write_text(
         "\n".join(
             [
@@ -50,6 +50,29 @@ def _root(tmp_path: Path) -> Path:
                 ],
                 "  '/legacy/budget': RouteMeta(path: '/legacy/budget', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: true, description: 'Legacy redirect -> /budget'),",
                 "};",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "apps/mobile/lib/app.dart").write_text(
+        "\n".join(
+            [
+                "final routes = [",
+                "  ScopedGoRoute(path: '/budget', builder: (_, __) => Screen()),",
+                "  ScopedGoRoute(path: '/coach/chat', scope: RouteScope.public, builder: (_, __) => Screen()),",
+                "  ScopedGoRoute(path: '/legacy/budget', scope: RouteScope.onboarding, redirect: (_, __) => '/budget'),",
+                "  ScopedGoRoute(",
+                "    path: '/profile',",
+                "    routes: [",
+                "      ScopedGoRoute(",
+                "        path: 'bilan',",
+                "        // scope: RouteScope.authenticated must not override the runtime arg below.",
+                "        scope: RouteScope.public,",
+                "        builder: (_, __) => Screen(),",
+                "      ),",
+                "    ],",
+                "  ),",
+                "];",
             ]
         ),
         encoding="utf-8",
@@ -93,7 +116,7 @@ def _record(root: Path, **updates: object) -> None:
             "requires_auth": False,
             "order": 10,
         },
-        "route_paths": ["/budget", "/mon-argent", "/rapport", "/coach/chat"],
+        "route_paths": ["/budget", "/mon-argent", "/rapport", "/coach/chat", "/profile", "/profile/bilan"],
         "surfaces": ["BudgetSnapshot", "DataSpineSnapshot"],
         "external_apis": [],
         "issues": ["JOS-001"],
@@ -676,6 +699,16 @@ def test_issue_registry_and_generated_board(tmp_path: Path) -> None:
     assert "flowchart LR" in route_topology
     assert "route__budget" in route_topology
     assert "route__legacy_budget" in route_topology
+    assert 'route__coach_chat["/coach/chat<br/>destination/system<br/>public"]' in route_topology
+    assert 'route__mon_argent["/mon-argent<br/>destination/system<br/>authenticated"]' in route_topology
+    assert 'route__profile["/profile<br/>destination/system<br/>authenticated"]' in route_topology
+    assert 'route__profile_bilan["/profile/bilan<br/>destination/system<br/>public"]' in route_topology
+    assert 'route__legacy_budget["/legacy/budget<br/>alias/system<br/>onboarding"]' in route_topology
+    assert "class route__coach_chat public" in route_topology
+    assert "class route__mon_argent auth" in route_topology
+    assert "class route__profile auth" in route_topology
+    assert "class route__profile_bilan public" in route_topology
+    assert "class route__legacy_budget onboarding" in route_topology
     assert "route__legacy_budget -. redirects .-> route__budget" in route_topology
 
 def test_external_apis_must_match_canonical_openapi(tmp_path: Path) -> None:
