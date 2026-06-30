@@ -1,0 +1,34 @@
+{
+  "completed_at": "2026-06-30T12:23:57Z",
+  "created_at": "20260630T122230Z",
+  "evidence_policy": "Commit manifest.json and per-journey result.xml only; raw Maestro debug artifacts stay outside .planning/journeys/evidence.",
+  "git_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "git_dirty": false,
+  "git_head": "f9ded5d0cd8858e3dfeb2a7c0121c25c94fb2576",
+  "git_status_porcelain": "",
+  "git_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "journeys": [
+    {
+      "build_defines": [
+        "MINT_DISABLE_BETA_MODAL=true",
+        "MINT_E2E_REGISTER_DOB=1991-01-01",
+        "MINT_E2E_REGISTER_FIRST_NAME=Jos001",
+        "MINT_E2E_REGISTER_PASSWORD=M1nt-E2E-JOS001!",
+        "MINT_E2E_ACCEPT_REQUIRED_CONSENTS=true",
+        "MINT_E2E_AUTO_SUBMIT_REGISTER=true"
+      ],
+      "device": "MINT iPhone 13 mini RvC",
+      "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
+      "flow_sha256": "4b708d9ee4f87e3b4a221ce9aba16c4e4918acfa43f50b822bfdf4061b7ca6dc",
+      "journey": "account_lifecycle_delete",
+      "requires_auth": true,
+      "result": {
+        "exit_code": 0,
+        "status": "passed"
+      }
+    }
+  ],
+  "replay_script_sha256": "b17810e2381d04062ca24f3a3ae410e8c525902397b97edfb56b5d5db63f3b8a",
+  "runtime_set": "account_lifecycle",
+  "schema_version": 1
+}

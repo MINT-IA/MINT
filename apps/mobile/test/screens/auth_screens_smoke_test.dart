@@ -312,8 +312,16 @@ void main() {
           find.byType(SingleChildScrollView), const Offset(0, -200));
       await tester.pump();
 
-      expect(find.textContaining('er mon compte'), findsOneWidget);
-      expect(find.byType(FilledButton), findsOneWidget);
+      final createAccountCta =
+          find.byKey(const ValueKey('auth_register_create_account'));
+      expect(createAccountCta, findsOneWidget);
+      expect(
+        find.descendant(
+          of: createAccountCta,
+          matching: find.textContaining('er mon compte'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('shows continue in local mode button', (tester) async {
