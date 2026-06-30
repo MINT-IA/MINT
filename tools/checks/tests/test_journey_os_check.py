@@ -441,6 +441,31 @@ def test_jos015_notification_route_canonical_hotfix_scope_is_in_scope(
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_jos016_dynamic_navigation_sink_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/screens/coach/coach_chat_screen.dart",
+            "apps/mobile/lib/services/navigation/mint_nav.dart",
+            "apps/mobile/lib/widgets/coach/response_card_widget.dart",
+            "apps/mobile/lib/widgets/coach/route_suggestion_card.dart",
+            "apps/mobile/lib/widgets/coach/widget_renderer.dart",
+            "apps/mobile/lib/widgets/pulse/cap_card.dart",
+            "apps/mobile/test/architecture/navigation_push_doctrine_test.dart",
+            "apps/mobile/test/services/navigation/mint_nav_test.dart",
+            "tools/checks/journey_os_check.py",
+            "tools/checks/tests/test_journey_os_check.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_coach_chat_widget_regression_scope_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)

@@ -13,8 +13,8 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/navigation/mint_nav.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -44,7 +44,7 @@ class RouteSuggestionNavLock {
 
   /// Try to acquire the lock. Returns `true` exactly once per [window];
   /// any subsequent call within [window] returns `false` (the caller
-  /// must skip its `context.push`).
+  /// must skip navigation).
   static bool tryAcquire({DateTime? now}) {
     final reference = now ?? DateTime.now();
     final last = _lastFiredAt;
@@ -87,7 +87,7 @@ class RouteSuggestionCard extends StatelessWidget {
   /// push so the coach screen-return handler can subsequently dispatch
   /// through `handleRealtimeReturn` to advance the sequence.
   ///
-  /// When null, behavior is unchanged: a normal `context.push(route)`
+  /// When null, behavior is unchanged: a normal `MintNav.open(route)`.
   /// happens with no sequence side-effect.
   final String? intentTag;
 
@@ -181,7 +181,11 @@ class RouteSuggestionCard extends StatelessWidget {
                   unawaited(SequenceChatHandler.startSequence(intentTag!));
                 }
                 final pushedAt = DateTime.now();
-                await context.push(route, extra: _routeExtra());
+                await MintNav.open<void>(
+                  context,
+                  route,
+                  extra: _routeExtra(),
+                );
                 await Future<void>.delayed(const Duration(milliseconds: 16));
                 await ScreenCompletionTracker.replayLatestReturn(
                   route: route,

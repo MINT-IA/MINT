@@ -765,14 +765,18 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final accessToken = response['accessToken'] as String?;
+      final accessToken =
+          (response['accessToken'] ?? response['access_token']) as String?;
       if (accessToken == null || accessToken.isEmpty) {
         throw Exception('Missing access token in Apple Sign-In response');
       }
-      final userId = response['userId']?.toString() ?? '';
+      final userId =
+          (response['userId'] ?? response['user_id'])?.toString() ?? '';
       final userEmail = response['email']?.toString() ?? '';
-      final displayName = response['displayName'] as String?;
-      final refreshToken = response['refreshToken'] as String?;
+      final displayName =
+          (response['displayName'] ?? response['display_name']) as String?;
+      final refreshToken =
+          (response['refreshToken'] ?? response['refresh_token']) as String?;
 
       // Apple Sign-In with "Hide My Email" may return an empty userId
       // or email. saveToken now throws ArgumentError on empty values

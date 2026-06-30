@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/navigation/mint_nav.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -591,7 +591,7 @@ class ResponseCardWidget extends StatelessWidget {
     if (onCtaTap != null) {
       onCtaTap!();
     } else {
-      context.push(card.cta.route);
+      MintNav.open<void>(context, card.cta.route);
     }
   }
 

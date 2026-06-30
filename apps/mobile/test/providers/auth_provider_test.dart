@@ -12,6 +12,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
+import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -1285,6 +1286,42 @@ void main() {
         expect(claimedConversations.single.id, 'apple-guest-thread');
       },
     );
+
+    test(
+      'completeAppleSignIn accepts snake_case Apple verify response',
+      () async {
+        final ok = await provider.completeAppleSignIn({
+          'access_token': 'apple-jwt',
+          'refresh_token': 'apple-refresh',
+          'user_id': 'apple-user',
+          'email': 'apple@example.ch',
+          'display_name': 'Apple User',
+        }, claimAnonymousConversations: true);
+
+        expect(ok, isTrue);
+        expect(provider.userId, 'apple-user');
+        expect(provider.email, 'apple@example.ch');
+        expect(provider.displayName, 'Apple User');
+      },
+    );
+
+    test('Apple verify response normalizer accepts snake_case', () {
+      final normalized = AppleSignInService.normalizeVerifyResponseForTest({
+        'access_token': 'apple-jwt',
+        'token_type': 'bearer',
+        'user_id': 'apple-user',
+        'email': 'apple@example.ch',
+        'display_name': 'Apple User',
+        'refresh_token': 'apple-refresh',
+      });
+
+      expect(normalized['accessToken'], 'apple-jwt');
+      expect(normalized['tokenType'], 'bearer');
+      expect(normalized['userId'], 'apple-user');
+      expect(normalized['email'], 'apple@example.ch');
+      expect(normalized['displayName'], 'Apple User');
+      expect(normalized['refreshToken'], 'apple-refresh');
+    });
 
     // ── requiresEmailVerification starts false ──
 

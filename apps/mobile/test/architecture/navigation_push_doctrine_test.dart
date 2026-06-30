@@ -39,6 +39,11 @@ final _zombieCoachAliasLiteralPattern = RegExp(
   multiLine: true,
 );
 
+final _dynamicShellCarrierPushPattern = RegExp(
+  r'''context\s*\.\s*push(?:<[^>]+>)?\s*\(\s*(?:route|card\.cta\.route|cap\.ctaRoute!?|p\[['"][^'"]+['"]\])''',
+  multiLine: true,
+);
+
 String _blankPreservingLines(String text) {
   return text.split('\n').map((line) => ' ' * line.length).join('\n');
 }
@@ -220,6 +225,48 @@ Navigator.of(context).pop();
           'stay coherent. A future leaf-preserving flow '
           'needs a dedicated root-owned handoff route instead of pushing the '
           'shell branch root.\n'
+          '${violations.join('\n')}',
+    );
+  });
+
+  test('dynamic Coach and cap carriers route through MintNav.open', () {
+    final root = Directory.current;
+    final auditedFiles = [
+      'lib/screens/coach/coach_chat_screen.dart',
+      'lib/widgets/coach/response_card_widget.dart',
+      'lib/widgets/coach/route_suggestion_card.dart',
+      'lib/widgets/coach/widget_renderer.dart',
+      'lib/widgets/pulse/cap_card.dart',
+    ];
+    final violations = <String>[];
+
+    for (final relativePath in auditedFiles) {
+      final file = File('${root.path}/$relativePath');
+      if (!file.existsSync()) {
+        violations.add('$relativePath: missing audited file');
+        continue;
+      }
+
+      final source = file.readAsStringSync();
+      final searchableSource = _stripComments(source);
+      final lines = source.split('\n');
+      for (final match
+          in _dynamicShellCarrierPushPattern.allMatches(searchableSource)) {
+        final lineNumber =
+            '\n'.allMatches(searchableSource.substring(0, match.start)).length +
+                1;
+        violations.add(
+          '$relativePath:$lineNumber: ${lines[lineNumber - 1].trim()}',
+        );
+      }
+    }
+
+    expect(
+      violations,
+      isEmpty,
+      reason: 'These Coach/cap dynamic route carriers can receive shell branch '
+          'roots such as /coach/chat?topic=... . They must use MintNav.open '
+          'so shell roots use go semantics while leaf routes still push.\n'
           '${violations.join('\n')}',
     );
   });
