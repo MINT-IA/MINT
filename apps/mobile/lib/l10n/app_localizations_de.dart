@@ -13948,6 +13948,10 @@ class SDe extends S {
       'Registrierung derzeit nicht verfügbar. Nutze den lokalen Modus.';
 
   @override
+  String get authErrorAccountDeletedRecreate =>
+      'Dieses Apple-Konto wurde gelöscht. Erstelle dein Konto mit Apple erneut, um fortzufahren.';
+
+  @override
   String get authErrorService =>
       'Kontodienst in dieser Umgebung nicht verfügbar. Nutze den lokalen Modus.';
 

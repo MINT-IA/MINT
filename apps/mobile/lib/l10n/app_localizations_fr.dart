@@ -13910,6 +13910,10 @@ class SFr extends S {
       'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.';
 
   @override
+  String get authErrorAccountDeletedRecreate =>
+      'Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.';
+
+  @override
   String get authErrorService =>
       'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.';
 

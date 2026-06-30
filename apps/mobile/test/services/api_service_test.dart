@@ -162,12 +162,12 @@ void main() {
       expect(captured?.headers['Authorization'], 'Bearer fresh-token');
     });
 
-    test('postAppleVerify preserves recreate_required detail on 409', () async {
+    test('postAppleVerify preserves recreate_required code on 409', () async {
       ApiService.setHttpClientForTesting(MintHttpClient(
         MockClient((request) async {
           expect(request.url.path, '/api/v1/auth/apple/verify');
           return http.Response(
-            '{"detail":"recreate_required"}',
+            '{"detail":{"code":"recreate_required","message":"Compte Apple supprimé"}}',
             409,
             headers: {'content-type': 'application/json'},
           );
@@ -181,7 +181,8 @@ void main() {
         ),
         throwsA(
           isA<ApiException>()
-              .having((e) => e.message, 'message', 'recreate_required')
+              .having((e) => e.message, 'message', 'Compte Apple supprimé')
+              .having((e) => e.backendCode, 'backendCode', 'recreate_required')
               .having((e) => e.statusCode, 'statusCode', 409),
         ),
       );

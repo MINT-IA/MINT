@@ -718,12 +718,18 @@ void main() {
       final l10n = await S.delegate.load(const Locale('fr'));
 
       final message = localizeAuthException(
-        const ApiException('recreate_required', statusCode: 409),
+        const ApiException(
+          'Compte Apple supprimé',
+          statusCode: 409,
+          backendCode: 'recreate_required',
+        ),
         l10n,
+        appleContext: true,
       );
 
-      expect(message, l10n.authErrorRegistration);
+      expect(message, l10n.authErrorAccountDeletedRecreate);
       expect(message, isNot(l10n.authErrorGeneric));
+      expect(message, isNot(l10n.authErrorRegistration));
     });
 
     test('localizeAuthException maps Apple 409 conflicts to actionable copy',

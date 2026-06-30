@@ -244,7 +244,10 @@ def _recreate_required_for_deleted_provider_subject(
     db.commit()
     raise HTTPException(
         status_code=status.HTTP_409_CONFLICT,
-        detail="recreate_required",
+        detail={
+            "code": "recreate_required",
+            "message": "Apple account was deleted. Recreate it explicitly to continue.",
+        },
     )
 
 

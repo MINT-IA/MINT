@@ -409,6 +409,35 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_auth_l10n_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/providers/auth_provider.dart",
+            "apps/mobile/lib/l10n/app_de.arb",
+            "apps/mobile/lib/l10n/app_en.arb",
+            "apps/mobile/lib/l10n/app_es.arb",
+            "apps/mobile/lib/l10n/app_fr.arb",
+            "apps/mobile/lib/l10n/app_it.arb",
+            "apps/mobile/lib/l10n/app_pt.arb",
+            "apps/mobile/lib/l10n/app_localizations.dart",
+            "apps/mobile/lib/l10n/app_localizations_de.dart",
+            "apps/mobile/lib/l10n/app_localizations_en.dart",
+            "apps/mobile/lib/l10n/app_localizations_es.dart",
+            "apps/mobile/lib/l10n/app_localizations_fr.dart",
+            "apps/mobile/lib/l10n/app_localizations_it.dart",
+            "apps/mobile/lib/l10n/app_localizations_pt.dart",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_jos006_coach_cta_stack_contract_scope_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
