@@ -35,7 +35,8 @@ surfaces, or the chat itself (you don't route INTO the chat from the chat).
 | `/debug/chat-as-verb` | Phase 97 W7 S001 — `ChatAsVerbDemoScreen` Maestro G1 demo surface, public scope but never surfaced from chat |
 | `/__e2e/budget-direct-inputs` | Debug-only E2E bridge for seeded Budget runtime proof; never surfaced from Coach |
 | `/__e2e/row23-independent-no-lpp-profile` | Debug-only E2E profile seeding bridge for Row 23 proof; never surfaced from Coach |
-| `/simulator/rente-capital` | Legacy redirect alias retained by GoRouter/route metadata; Coach must surface canonical `/rente-vs-capital` instead |
+| `/rente-vs-capital` | Legacy redirect alias retained by GoRouter/route metadata; Coach must surface canonical `/retraite/rente-vs-capital` instead |
+| `/simulator/rente-capital` | Legacy redirect alias retained by GoRouter/route metadata; Coach must surface canonical `/retraite/rente-vs-capital` instead |
 | `/achievements` | Achievements grid — surfaced by tab bar; an entry exists in registry with `preferFromChat: false` |
 | `/coach` | Coach root — same redirect target as `/coach/chat` |
 | `/coach/chat` | The chat itself; coach can't route to itself |
