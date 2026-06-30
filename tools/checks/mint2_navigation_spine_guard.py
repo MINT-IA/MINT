@@ -8,6 +8,7 @@ route metadata, and the Maestro replay flow.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -21,6 +22,12 @@ MINT2_FLOW = Path(
 REGISTER_FLOW = Path(
     "tools/simulator/flows/maestro-perfect-set/"
     "flow_jos001_account_lifecycle_seeded_delete.yaml"
+)
+JOURNEY_RECORD = Path(".planning/journeys/records/onboarding_first_value.json")
+JOURNEY_ISSUE = Path(".planning/journeys/issues/JOS-005.json")
+JOURNEY_DIAGRAMS = (
+    Path(".planning/journeys/diagrams/onboarding_first_value.mmd"),
+    Path(".planning/journeys/diagrams/onboarding_first_value_sequence.mmd"),
 )
 ACCOUNT_WALL_TITLE = "Cr\u00e9er ton compte"
 EMAIL_FALLBACK_CTA = "Cr\u00e9er avec e-mail"
@@ -69,6 +76,17 @@ ONBOARDING_COMPAT_ALIASES = {
     "/onboarding/plan": "/coach/chat",
     "/onboarding/smart": "/coach/chat",
     "/onboarding/minimal": "/coach/chat",
+}
+EXPECTED_JOURNEY_ROUTES = [
+    "/onb",
+    "/retraite/rente-vs-capital",
+    "/coach/chat",
+    "/home",
+]
+EXPECTED_JOURNEY_BUILD_DEFINES = {
+    "MINT_DISABLE_BETA_MODAL=true",
+    "MINT_E2E_MINT2_FIRST_EXPERIENCE=true",
+    "MINT_E2E_PROOF_ANCHORS=true",
 }
 
 
@@ -300,6 +318,103 @@ def _check_account_wall_positive_control(errors: list[str], root: Path) -> None:
         )
 
 
+def _read_json(
+    errors: list[str],
+    root: Path,
+    rel: Path,
+) -> dict[str, object] | None:
+    path = root / rel
+    if not path.exists():
+        errors.append(f"missing Journey OS contract file: {rel}")
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        errors.append(f"{rel} must be valid JSON: {exc}")
+        return None
+    if not isinstance(data, dict):
+        errors.append(f"{rel} must contain a JSON object")
+        return None
+    return data
+
+
+def _check_journey_os_contract(errors: list[str], root: Path) -> None:
+    record = _read_json(errors, root, JOURNEY_RECORD)
+    issue = _read_json(errors, root, JOURNEY_ISSUE)
+    if record is None or issue is None:
+        return
+
+    if record.get("id") != "onboarding_first_value":
+        errors.append(
+            f"{JOURNEY_RECORD} must describe onboarding_first_value; "
+            f"found {record.get('id') or '<missing>'}"
+        )
+    routes = record.get("route_paths")
+    if routes != EXPECTED_JOURNEY_ROUTES:
+        errors.append(
+            "onboarding_first_value route_paths must be "
+            f"{EXPECTED_JOURNEY_ROUTES}; found {routes!r}"
+        )
+
+    runtime = record.get("runtime_replay")
+    if not isinstance(runtime, dict):
+        errors.append("onboarding_first_value runtime_replay must be an object")
+        runtime = {}
+    expected_flow = MINT2_FLOW.as_posix()
+    if runtime.get("flow") != expected_flow:
+        errors.append(
+            "onboarding_first_value runtime_replay.flow must be "
+            f"{expected_flow}; found {runtime.get('flow') or '<missing>'}"
+        )
+    if runtime.get("requires_auth") is not False:
+        errors.append(
+            "onboarding_first_value runtime_replay.requires_auth must be false"
+        )
+    sets = runtime.get("sets")
+    if not isinstance(sets, list) or "core" not in sets:
+        errors.append("onboarding_first_value runtime_replay.sets must include core")
+    build_defines = runtime.get("build_defines")
+    if not isinstance(build_defines, list):
+        errors.append("onboarding_first_value runtime_replay.build_defines must be a list")
+        build_defines_set: set[str] = set()
+    else:
+        build_defines_set = {str(item) for item in build_defines}
+    missing_defines = sorted(EXPECTED_JOURNEY_BUILD_DEFINES - build_defines_set)
+    if missing_defines:
+        errors.append(
+            "onboarding_first_value runtime_replay.build_defines missing "
+            f"{missing_defines}"
+        )
+
+    if "JOS-005" not in set(map(str, record.get("issues", []))):
+        errors.append("onboarding_first_value issues must include JOS-005")
+    if issue.get("journey_id") != "onboarding_first_value":
+        errors.append(
+            f"{JOURNEY_ISSUE} must point to onboarding_first_value; "
+            f"found {issue.get('journey_id') or '<missing>'}"
+        )
+
+    forbidden_aliases = set(RVC_ALIASES)
+    for rel in JOURNEY_DIAGRAMS:
+        path = root / rel
+        if not path.exists():
+            errors.append(f"missing Journey OS Mermaid diagram: {rel}")
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for route in EXPECTED_JOURNEY_ROUTES:
+            if route not in text:
+                errors.append(f"{rel.name} must include {route}")
+        for alias in sorted(forbidden_aliases):
+            alias_pattern = re.compile(
+                rf"(?<![A-Za-z0-9_-]){re.escape(alias)}(?![A-Za-z0-9_/-])"
+            )
+            if alias_pattern.search(text):
+                errors.append(
+                    f"{rel.name} must not promote legacy alias {alias}; "
+                    "use /retraite/rente-vs-capital in the Journey OS spine"
+                )
+
+
 def check(root: Path) -> list[str]:
     root = root.resolve()
     errors: list[str] = []
@@ -320,6 +435,7 @@ def check(root: Path) -> list[str]:
 
     _check_maestro_flow(errors, root)
     _check_account_wall_positive_control(errors, root)
+    _check_journey_os_contract(errors, root)
     return errors
 
 

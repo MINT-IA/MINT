@@ -178,6 +178,8 @@ ALLOW = {
     "services/backend/tests/test_rag_orchestrator_empty_text_no_fallback.py",
     "services/backend/tests/test_structured_reasoning.py",
     "tools/contracts/regen_screen_registry_contract.py",
+    "tools/simulator/mint2_quality_gate.sh",
+    "tools/simulator/test_mint2_quality_gate.py",
     "tools/contracts/screen_registry.json",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",

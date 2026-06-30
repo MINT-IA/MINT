@@ -360,6 +360,8 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "services/backend/tests/test_coach_tools.py",
             "tools/contracts/regen_screen_registry_contract.py",
             "tools/contracts/screen_registry.json",
+            "tools/simulator/mint2_quality_gate.sh",
+            "tools/simulator/test_mint2_quality_gate.py",
         ],
     )
 
