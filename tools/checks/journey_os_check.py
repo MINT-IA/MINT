@@ -62,6 +62,7 @@ ALLOW = {
     "apps/mobile/lib/routes/coach_chat_entry_payload.dart",
     "apps/mobile/lib/routes/route_metadata.dart",
     "apps/mobile/lib/screens/auth/register_screen.dart",
+    "apps/mobile/lib/screens/landing_screen.dart",
     "apps/mobile/lib/screens/profile/financial_summary_screen.dart",
     "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
     "apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart",
