@@ -24,7 +24,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
+import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
+import 'package:mint_mobile/screens/fiscal_comparator_screen.dart';
+import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
+import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
+import 'package:mint_mobile/screens/simulator_3a_screen.dart';
+import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
@@ -70,7 +79,7 @@ Widget _buildTestApp(Widget Function(BuildContext) builder) {
 class _TestCoachProfileProvider extends CoachProfileProvider {
   CoachProfile? _testProfile;
 
-  void setTestProfile(CoachProfile p) {
+  void setTestProfile(CoachProfile? p) {
     _testProfile = p;
     notifyListeners();
   }
@@ -82,7 +91,7 @@ class _TestCoachProfileProvider extends CoachProfileProvider {
 /// Wraps a widget with a [_TestCoachProfileProvider] pre-loaded with [profile].
 Widget _buildTestAppWithProfile(
   Widget Function(BuildContext) builder,
-  CoachProfile profile,
+  CoachProfile? profile,
 ) {
   final provider = _TestCoachProfileProvider()..setTestProfile(profile);
 
@@ -125,6 +134,396 @@ void main() {
 
   setUp(() {
     RouteSuggestionNavLock.resetForTest();
+  });
+
+  group('ChatDrawerHost route resolution', () {
+    test('/pilier-3a resolves to the 3a simulator', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/pilier-3a');
+      expect(widget, isA<Simulator3aScreen>());
+    });
+
+    test('/rachat-lpp resolves to the staged LPP buyback screen', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/rachat-lpp');
+      expect(widget, isA<RachatEchelonneScreen>());
+    });
+
+    test('/retraite resolves to the retirement dashboard', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/retraite');
+      expect(widget, isA<RetirementDashboardScreen>());
+    });
+
+    test('Rente vs Capital resolves to its own screen', () {
+      final widget =
+          ChatDrawerHost.resolveDrawerWidget('/retraite/rente-vs-capital');
+      expect(widget, isA<RenteVsCapitalScreen>());
+    });
+
+    test('/fiscal resolves to the fiscal comparator', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/fiscal');
+      expect(widget, isA<FiscalComparatorScreen>());
+    });
+
+    test('/hypotheque resolves to the affordability screen', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/hypotheque');
+      expect(widget, isA<AffordabilityScreen>());
+    });
+
+    test('confidence resolves through the active profile wrapper', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/confidence');
+      expect(widget, isA<ConfidenceDashboardDrawer>());
+    });
+
+    test('unknown route remains unsupported by the drawer', () {
+      final widget = ChatDrawerHost.resolveDrawerWidget('/unknown/route');
+      expect(widget, isNull);
+    });
+
+    test('confidence result uses the active profile instead of empty input',
+        () {
+      final updatedAt = DateTime.now().subtract(const Duration(days: 7));
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 45,
+        canton: 'VS',
+        salaireBrutMensuel: 7500,
+        explicitMonthlyNetIncome: 6100,
+        etatCivil: CoachCivilStatus.marie,
+        nombreEnfants: 2,
+        depenses: const DepensesProfile(
+          loyer: 1800,
+          assuranceMaladie: 420,
+        ),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70000,
+          avoirLppObligatoire: 45000,
+          avoirLppSurobligatoire: 25000,
+          salaireAssure: 72000,
+          rachatMaximum: 40000,
+          anneesContribuees: 20,
+          ramd: 84000,
+          totalEpargne3a: 32000,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 15000,
+          investissements: 22000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        dataSources: const {
+          'salaireBrutMensuel': ProfileDataSource.userInput,
+          'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
+          'prevoyance.avoirLppObligatoire': ProfileDataSource.certificate,
+          'prevoyance.avoirLppSurobligatoire': ProfileDataSource.certificate,
+          'prevoyance.salaireAssure': ProfileDataSource.certificate,
+          'prevoyance.rachatMaximum': ProfileDataSource.certificate,
+          'prevoyance.anneesContribuees': ProfileDataSource.certificate,
+          'prevoyance.ramd': ProfileDataSource.certificate,
+          'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
+          'patrimoine.epargneLiquide': ProfileDataSource.userInput,
+          'depenses.loyer': ProfileDataSource.userInput,
+          'depenses.assuranceMaladie': ProfileDataSource.userInput,
+        },
+        dataTimestamps: {
+          'salaireBrutMensuel': updatedAt,
+          'prevoyance.avoirLppTotal': updatedAt,
+          'prevoyance.avoirLppObligatoire': updatedAt,
+          'prevoyance.avoirLppSurobligatoire': updatedAt,
+          'prevoyance.salaireAssure': updatedAt,
+          'prevoyance.rachatMaximum': updatedAt,
+          'prevoyance.anneesContribuees': updatedAt,
+          'prevoyance.ramd': updatedAt,
+          'prevoyance.totalEpargne3a': updatedAt,
+          'patrimoine.epargneLiquide': updatedAt,
+          'depenses.loyer': updatedAt,
+          'depenses.assuranceMaladie': updatedAt,
+        },
+        userProvidedFields: const {
+          'age',
+          'canton',
+          'salary',
+          'civilStatus',
+          'pensionFund',
+        },
+      );
+
+      final empty = EnhancedConfidenceService.computeConfidence(
+        const <String, dynamic>{},
+        const <FieldSource>[],
+      );
+      final result = confidenceResultForCoachProfile(profile);
+
+      expect(result.breakdown.completeness,
+          greaterThan(empty.breakdown.completeness));
+      expect(result.breakdown.accuracy, greaterThan(empty.breakdown.accuracy));
+      expect(
+        result.enrichmentPrompts.map((prompt) => prompt.fieldName),
+        isNot(contains('salaire_brut')),
+      );
+    });
+
+    test('confidence preserves known zero profile values', () {
+      final base = CoachProfile(
+        birthYear: DateTime.now().year - 45,
+        canton: 'VS',
+        salaireBrutMensuel: 7500,
+        nombreEnfants: 0,
+        patrimoine: const PatrimoineProfile(
+          propertyMarketValue: 700000,
+          mortgageBalance: 0,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+      );
+      final unknownZero = confidenceResultForCoachProfile(base);
+      final knownZero = confidenceResultForCoachProfile(
+        base.copyWith(
+          dataSources: const {
+            'nombreEnfants': ProfileDataSource.userInput,
+            'patrimoine.mortgageBalance': ProfileDataSource.userInput,
+          },
+          dataTimestamps: {
+            'nombreEnfants': DateTime.now(),
+            'patrimoine.mortgageBalance': DateTime.now(),
+          },
+        ),
+      );
+
+      expect(knownZero.breakdown.completeness,
+          greaterThan(unknownZero.breakdown.completeness));
+    });
+
+    test('confidence fallback provenance does not imply document verification',
+        () {
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 45,
+        canton: 'VS',
+        salaireBrutMensuel: 7500,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(rachatMaximum: 40000),
+      );
+
+      final result = confidenceResultForCoachProfile(profile);
+
+      expect(result.breakdown.accuracy, lessThan(40));
+    });
+
+    test('confidence data source mapping preserves trust levels', () {
+      final updatedAt = DateTime.now().subtract(const Duration(days: 7));
+      final expectedAccuracy = <ProfileDataSource, double>{
+        ProfileDataSource.estimated: 25,
+        ProfileDataSource.userInput: 50,
+        ProfileDataSource.crossValidated: 70,
+        ProfileDataSource.certificate: 95,
+        ProfileDataSource.openBanking: 100,
+      };
+
+      for (final entry in expectedAccuracy.entries) {
+        final profile = CoachProfile(
+          birthYear: 0,
+          canton: '',
+          salaireBrutMensuel: 7500,
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2045),
+            label: 'Retraite',
+          ),
+          dataSources: {'salaireBrutMensuel': entry.key},
+          dataTimestamps: {'salaireBrutMensuel': updatedAt},
+        );
+
+        final result = confidenceResultForCoachProfile(profile);
+
+        expect(
+          result.breakdown.accuracy,
+          closeTo(entry.value, 0.001),
+          reason: 'ProfileDataSource.${entry.key.name}',
+        );
+      }
+    });
+
+    test('confidence user-provided fallback remains manual, not verified', () {
+      final profile = CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 7500,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        userProvidedFields: const {'salary'},
+      );
+
+      final result = confidenceResultForCoachProfile(profile);
+
+      expect(result.breakdown.accuracy, closeTo(50, 0.001));
+    });
+
+    test('confidence composite patrimoine uses weakest contributor source', () {
+      final profile = CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 0,
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 100000,
+          propertyMarketValue: 700000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        dataSources: const {
+          'patrimoine.epargneLiquide': ProfileDataSource.userInput,
+        },
+      );
+
+      final result = confidenceResultForCoachProfile(profile);
+
+      expect(result.breakdown.accuracy, closeTo(25, 0.001));
+    });
+
+    test(
+        'confidence composite monthly expenses uses weakest contributor source',
+        () {
+      final profile = CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 0,
+        depenses: const DepensesProfile(
+          loyer: 1800,
+          electricite: 120,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        dataSources: const {
+          'depenses.loyer': ProfileDataSource.certificate,
+        },
+      );
+
+      final result = confidenceResultForCoachProfile(profile);
+
+      expect(result.breakdown.accuracy, closeTo(25, 0.001));
+    });
+
+    test('confidence LPP total without source remains estimated', () {
+      final profile = CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 0,
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+      );
+
+      final result = confidenceResultForCoachProfile(profile);
+
+      expect(result.breakdown.accuracy, closeTo(25, 0.001));
+    });
+
+    test('confidence fallback values use the source path actually selected',
+        () {
+      final mortgageProfile = CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 0,
+        dettes: const DetteProfile(hypotheque: 300000),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        dataSources: const {
+          'patrimoine.mortgageBalance': ProfileDataSource.certificate,
+        },
+      );
+      final propertyProfile = CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 0,
+        patrimoine: const PatrimoineProfile(immobilier: 700000),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        dataSources: const {
+          'patrimoine.propertyMarketValue': ProfileDataSource.certificate,
+        },
+      );
+
+      expect(
+        confidenceResultForCoachProfile(mortgageProfile).breakdown.accuracy,
+        closeTo(25, 0.001),
+      );
+      expect(
+        confidenceResultForCoachProfile(propertyProfile).breakdown.accuracy,
+        closeTo(25, 0.001),
+      );
+    });
+
+    testWidgets('confidence drawer builds from CoachProfileProvider',
+        (tester) async {
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 45,
+        canton: 'VS',
+        salaireBrutMensuel: 7500,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2045),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
+      );
+
+      await tester.pumpWidget(
+        _buildTestAppWithProfile(
+          (_) => const ConfidenceDashboardDrawer(),
+          profile,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(ConfidenceDashboardScreen), findsOneWidget);
+    });
+
+    testWidgets('confidence drawer builds when provider profile is null',
+        (tester) async {
+      await tester.pumpWidget(
+        _buildTestAppWithProfile(
+          (_) => const ConfidenceDashboardDrawer(),
+          null,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(ConfidenceDashboardScreen), findsOneWidget);
+    });
+
+    testWidgets('confidence drawer also builds without CoachProfileProvider',
+        (tester) async {
+      await tester.pumpWidget(
+        _buildTestApp((_) => const ConfidenceDashboardDrawer()),
+      );
+      await tester.pump();
+
+      expect(find.byType(ConfidenceDashboardScreen), findsOneWidget);
+    });
   });
 
   group('WidgetRenderer.build — ask_user_input identity capture', () {
