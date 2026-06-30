@@ -103,12 +103,19 @@ def _route_field(body: str, name: str) -> str:
     if quoted:
         return quoted.group(1)
     enum_or_bool = re.search(
-        rf"\b{name}:\s*(Route(?:Category|Owner)\.[A-Za-z0-9_]+|true|false)",
+        rf"\b{name}:\s*([A-Za-z0-9_]+\.[A-Za-z0-9_]+|true|false)",
         body,
     )
     if enum_or_bool:
         return enum_or_bool.group(1).split(".")[-1]
     return ""
+
+
+def _list_field_items(body: str, name: str) -> list[str]:
+    match = re.search(rf"\b{name}:\s*\[([^\]]*)\]", body, re.DOTALL)
+    if match is None:
+        return []
+    return re.findall(r"['\"]([^'\"]+)['\"]", match.group(1))
 
 
 def _route_target_from_description(description: str) -> str:
@@ -460,6 +467,23 @@ def _check_screen_registry_contract(errors: list[str], root: Path) -> None:
         errors.append(
             f"{SCREEN_REGISTRY} must have exactly one primary ScreenEntry route for /onb; found {len(onb_routes)}"
         )
+    for block in screen_entries:
+        behavior = _route_field(block, "behavior")
+        fallback = _route_field(block, "fallbackRoute").split("?", 1)[0]
+        prefer_from_chat = _route_field(block, "preferFromChat")
+        required_fields = _list_field_items(block, "requiredFields")
+        if (
+            prefer_from_chat == "true"
+            and behavior in {"decisionCanvas", "roadmapFlow"}
+            and fallback == "/coach/chat"
+            and required_fields
+        ):
+            intent = _route_field(block, "intentTag") or "<missing-intent>"
+            route = _route_field(block, "route") or "<missing-route>"
+            errors.append(
+                f"{SCREEN_REGISTRY} {intent} ({route}) must not fallback to /coach/chat "
+                "when required fields are missing; use /onb or a scoped capture route"
+            )
 
 
 def check(root: Path) -> list[str]:

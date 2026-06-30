@@ -533,6 +533,24 @@ void main() {
           ]));
     });
 
+    test('chat-routable blocked decisions do not fallback to coach chat', () {
+      final violations = MintScreenRegistry.chatRoutable()
+          .where((entry) =>
+              (entry.behavior == ScreenBehavior.decisionCanvas ||
+                  entry.behavior == ScreenBehavior.roadmapFlow) &&
+              entry.requiredFields.isNotEmpty &&
+              (entry.fallbackRoute?.startsWith('/coach/chat') ?? false))
+          .map((entry) => '${entry.intentTag} -> ${entry.fallbackRoute}')
+          .toList();
+
+      expect(
+        violations,
+        isEmpty,
+        reason: 'A blocked decision must route to capture, not strand the user '
+            'in Coach with no next action.',
+      );
+    });
+
     test('all C surfaces are routable from chat', () {
       final roadmap =
           MintScreenRegistry.findByBehavior(ScreenBehavior.roadmapFlow);

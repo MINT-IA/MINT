@@ -395,7 +395,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age'],
     optionalFields: ['canton', 'avoirLpp', 'rachatMaximum'],
-    fallbackRoute: '/coach/chat?topic=retraite',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
     customGate: gateRenteVsCapital,
@@ -407,7 +407,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'rachatMaximum', 'civilStatus'],
-    fallbackRoute: '/coach/chat?topic=retraite',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -420,7 +420,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'rachatMaximum'],
-    fallbackRoute: '/coach/chat?topic=retraite',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -431,7 +431,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['age', 'employmentStatus'],
-    fallbackRoute: '/coach/chat?topic=3a',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -442,7 +442,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut'],
-    fallbackRoute: '/coach/chat?topic=3a',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -463,7 +463,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['rachatMaximum', 'avoirLpp'],
-    fallbackRoute: '/coach/chat?topic=rachatLpp',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -488,7 +488,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp'],
-    fallbackRoute: '/coach/chat?topic=epl',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -542,7 +542,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'epargne3a'],
-    fallbackRoute: '/coach/chat?topic=decaissement',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
