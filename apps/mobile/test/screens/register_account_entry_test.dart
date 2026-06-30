@@ -115,6 +115,38 @@ void main() {
     }
   });
 
+  testWidgets('registration create CTA is inert without required consents',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      final createAccountSemantics = find.byKey(
+        const ValueKey('auth_register_create_account_semantics'),
+      );
+      final createAccount = find.byKey(
+        const ValueKey('auth_register_create_account'),
+      );
+
+      await tester.ensureVisible(createAccountSemantics);
+      await tester.pumpAndSettle();
+
+      final data =
+          tester.getSemantics(createAccountSemantics).getSemanticsData();
+      expect(data.hasAction(SemanticsAction.tap), isFalse);
+
+      await tester.tap(createAccount);
+      await tester.pump();
+
+      expect(find.text('Adresse e-mail invalide'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+      semantics.dispose();
+    }
+  });
+
   testWidgets('registration form exposes runtime field anchors',
       (tester) async {
     final semantics = tester.ensureSemantics();

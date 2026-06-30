@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -31,21 +32,30 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  static const _e2eRegisterDob = String.fromEnvironment(
-    'MINT_E2E_REGISTER_DOB',
-  );
-  static const _e2eRegisterFirstName = String.fromEnvironment(
-    'MINT_E2E_REGISTER_FIRST_NAME',
-  );
-  static const _e2eRegisterPassword = String.fromEnvironment(
-    'MINT_E2E_REGISTER_PASSWORD',
-  );
+  static const _e2eRuntimeEnabled = !kReleaseMode;
+  static const _e2eRegisterDob = _e2eRuntimeEnabled
+      ? String.fromEnvironment(
+          'MINT_E2E_REGISTER_DOB',
+        )
+      : '';
+  static const _e2eRegisterFirstName = _e2eRuntimeEnabled
+      ? String.fromEnvironment(
+          'MINT_E2E_REGISTER_FIRST_NAME',
+        )
+      : '';
+  static const _e2eRegisterPassword = _e2eRuntimeEnabled
+      ? String.fromEnvironment(
+          'MINT_E2E_REGISTER_PASSWORD',
+        )
+      : '';
   static const _e2eAcceptRequiredConsents = bool.fromEnvironment(
-    'MINT_E2E_ACCEPT_REQUIRED_CONSENTS',
-  );
+        'MINT_E2E_ACCEPT_REQUIRED_CONSENTS',
+      ) &&
+      _e2eRuntimeEnabled;
   static const _e2eAutoSubmitRegister = bool.fromEnvironment(
-    'MINT_E2E_AUTO_SUBMIT_REGISTER',
-  );
+        'MINT_E2E_AUTO_SUBMIT_REGISTER',
+      ) &&
+      _e2eRuntimeEnabled;
 
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -168,6 +178,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final firstName = _displayNameController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
+    // Keep this readiness gate in sync with the real field validators below:
+    // if it is looser, E2E auto-submit schedules once and then silently stalls.
     final formReady = email.contains('@') &&
         firstName.isNotEmpty &&
         _dateOfBirth != null &&
