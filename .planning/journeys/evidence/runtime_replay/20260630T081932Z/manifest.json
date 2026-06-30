@@ -1,0 +1,30 @@
+{
+  "completed_at": "2026-06-30T08:22:12Z",
+  "created_at": "20260630T081932Z",
+  "evidence_policy": "Commit manifest.json and per-journey result.xml only; raw Maestro debug artifacts stay outside .planning/journeys/evidence.",
+  "git_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "git_dirty": false,
+  "git_head": "efc41d83a6b1bd742d2e8b03ff16237a0296e6f0",
+  "git_status_porcelain": "",
+  "git_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "journeys": [
+    {
+      "build_defines": [
+        "MINT_DISABLE_BETA_MODAL=true",
+        "MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready"
+      ],
+      "device": "MINT iPhone 13 mini RvC",
+      "flow": "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+      "flow_sha256": "5b9f6dca33bdd4fb3059bd5fff4503c0785cc54b217446dee2d4a2ef1f80d52d",
+      "journey": "coach_advice_turn",
+      "requires_auth": true,
+      "result": {
+        "exit_code": 0,
+        "status": "passed"
+      }
+    }
+  ],
+  "replay_script_sha256": "b17810e2381d04062ca24f3a3ae410e8c525902397b97edfb56b5d5db63f3b8a",
+  "runtime_set": "top",
+  "schema_version": 1
+}
