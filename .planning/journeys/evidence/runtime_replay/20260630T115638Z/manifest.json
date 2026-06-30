@@ -1,10 +1,10 @@
 {
-  "completed_at": "2026-06-30T11:48:23Z",
-  "created_at": "20260630T114652Z",
+  "completed_at": "2026-06-30T11:58:09Z",
+  "created_at": "20260630T115638Z",
   "evidence_policy": "Commit manifest.json and per-journey result.xml only; raw Maestro debug artifacts stay outside .planning/journeys/evidence.",
   "git_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "git_dirty": false,
-  "git_head": "b2873e9d899b787b2d8e2d9336eaae1af6b850d7",
+  "git_head": "9239e6c80d1ce34a14b213de3f7785a4c4f371d9",
   "git_status_porcelain": "",
   "git_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "journeys": [
