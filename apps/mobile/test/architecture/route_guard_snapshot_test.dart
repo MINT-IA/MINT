@@ -202,9 +202,11 @@ void main() {
       }
     });
 
-    test('Rente vs capital first-value routes stay before account creation', () {
+    test('Rente vs capital first-value routes stay before account creation',
+        () {
       final scopes = Map<String, String>.fromEntries(routeScopes);
 
+      expect(scopes['/retraite/rente-vs-capital'], 'onboarding');
       expect(scopes['/rente-vs-capital'], 'onboarding');
       expect(scopes['/arbitrage/rente-vs-capital'], 'onboarding');
       expect(scopes['/simulator/rente-capital'], 'onboarding');

@@ -100,6 +100,7 @@ ALLOW = {
     "apps/mobile/test/architecture/navigation_push_doctrine_test.dart",
     "apps/mobile/test/navigation/account_lifecycle_public_entry_redirect_test.dart",
     "apps/mobile/test/providers/auth_provider_test.dart",
+    "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/test/routes/coach_chat_entry_payload_test.dart",
     "apps/mobile/test/screens/login_redirect_resolver_test.dart",
     "apps/mobile/test/screens/register_account_entry_test.dart",

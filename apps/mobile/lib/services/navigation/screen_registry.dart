@@ -52,7 +52,7 @@ enum ScreenBehavior {
 /// Declares the route, semantic intent tag, behavior class, and the
 /// data requirements the ReadinessGate checks before opening.
 class ScreenEntry {
-  /// Canonical GoRouter route string. Example: '/rente-vs-capital'.
+  /// Canonical GoRouter route string. Example: '/retraite/rente-vs-capital'.
   final String route;
 
   /// Semantic tag used by the LLM's IntentResolver.
@@ -292,7 +292,7 @@ ReadinessResult gateBudgetSousTension(CoachProfile profile) {
   return const ReadinessResult.ready();
 }
 
-/// Gate: /rente-vs-capital — the most critical retirement decision.
+/// Gate: /retraite/rente-vs-capital — the most critical retirement decision.
 ///
 /// Hard minimum: [salaireBrut] + [age].
 /// Quality tiers:
@@ -390,7 +390,7 @@ class MintScreenRegistry extends ScreenRegistry {
   // customGate overrides generic field-check → must be static final
   // ignore: prefer_const_constructors
   static final ScreenEntry _renteVsCapital = ScreenEntry(
-    route: '/rente-vs-capital',
+    route: '/retraite/rente-vs-capital',
     intentTag: 'retirement_choice',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age'],

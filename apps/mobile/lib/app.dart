@@ -739,7 +739,7 @@ final _router = GoRouter(
           HubEntry(
               icon: Icons.compare_arrows,
               label: 'Rente vs Capital',
-              route: '/rente-vs-capital'),
+              route: '/retraite/rente-vs-capital'),
           HubEntry(
               icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
           HubEntry(
@@ -975,18 +975,27 @@ final _router = GoRouter(
         }),
 
     ScopedGoRoute(
-      path: '/rente-vs-capital',
+      path: '/retraite/rente-vs-capital',
       scope: RouteScope.onboarding,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/rente-vs-capital',
+      scope: RouteScope.onboarding,
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(
+            from: state.uri.path, to: '/retraite/rente-vs-capital');
+        return '/retraite/rente-vs-capital';
+      },
     ),
     ScopedGoRoute(
       path: '/arbitrage/rente-vs-capital',
       scope: RouteScope.onboarding,
       redirect: (_, state) {
         MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/rente-vs-capital');
-        return '/rente-vs-capital';
+            from: state.uri.path, to: '/retraite/rente-vs-capital');
+        return '/retraite/rente-vs-capital';
       },
     ),
     ScopedGoRoute(
@@ -994,8 +1003,8 @@ final _router = GoRouter(
       scope: RouteScope.onboarding,
       redirect: (_, state) {
         MintBreadcrumbs.legacyRedirectHit(
-            from: state.uri.path, to: '/rente-vs-capital');
-        return '/rente-vs-capital';
+            from: state.uri.path, to: '/retraite/rente-vs-capital');
+        return '/retraite/rente-vs-capital';
       },
     ),
 

@@ -1243,7 +1243,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           subtitle: l.dashboardRenteVsCapitalSubtitle,
           icon: Icons.balance,
           child: _buildSectionCta(
-              l.dashboardRenteVsCapitalCta, '/rente-vs-capital'),
+              l.dashboardRenteVsCapitalCta, '/retraite/rente-vs-capital'),
         ),
         CollapsibleSection(
           title: l.dashboardRachatLppTitle,

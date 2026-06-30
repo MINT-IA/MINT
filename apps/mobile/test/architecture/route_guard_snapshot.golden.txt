@@ -135,6 +135,7 @@
 /retirement | authenticated
 /retirement/projection | authenticated
 /retraite | authenticated
+/retraite/rente-vs-capital | onboarding
 /scan | authenticated
 /scan/avs-guide | authenticated
 /scan/impact | authenticated

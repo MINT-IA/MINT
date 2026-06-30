@@ -129,7 +129,7 @@ class ResponseCardService {
         id: 'rente_vs_capital',
         title: l.rcRenteVsCapitalTitle,
         subtitle: l.rcRenteVsCapitalSubtitle,
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         sources: ['LPP art. 37', 'LIFD art. 22/38'],
       ));
     }
@@ -835,7 +835,7 @@ class ResponseCardService {
       ),
       cta: CardCta(
         label: l.rcReplacementRateCtaLabel,
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         icon: 'trending_up',
       ),
       urgency: age >= 58 ? CardUrgency.high : CardUrgency.medium,

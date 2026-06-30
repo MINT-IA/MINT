@@ -1,9 +1,10 @@
 // Phase 32 MAP-01 — RouteMeta schema + enum integrity + kRouteRegistry.
 //
 // Baseline contract (from .planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md):
-// - kRouteRegistry.length == 152 (was 147 in Phase 32 ; 5 routes added since,
+// - kRouteRegistry.length == 153 (was 147 in Phase 32 ; 6 routes added since,
 //   count refreshed 2026-05-30 in SALVAGE-00 #682 — registered the existing
-//   debt_ratio_screen route '/debt/ratio')
+//   debt_ratio_screen route '/debt/ratio'; 2026-06-30 canonicalized
+//   '/retraite/rente-vs-capital')
 // - RouteOwner enum has 15 values (11 flag-groups + auth/admin/system/explore)
 // - RouteCategory enum has 4 values (destination, flow, tool, alias)
 // - Owner ambiguity rule (D-01 v4): /explore/retraite -> owner=explore (first-segment-wins)
@@ -103,11 +104,10 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 152 entries', () {
-      // 147 in Phase 32 ; 5 routes added since (SALVAGE-00 #682 registered the
-      // existing debt_ratio_screen route '/debt/ratio'). Refresh count when
-      // adding / removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 152);
+    test('has exactly 153 entries', () {
+      // 147 in Phase 32 ; 6 routes added since. Refresh count when adding /
+      // removing routes (intentional gate, not auto-updated).
+      expect(kRouteRegistry.length, 153);
     });
 
     test('every entry path matches its key', () {
@@ -151,6 +151,24 @@ void main() {
       final meta = kRouteRegistry['/retraite'];
       expect(meta, isNotNull);
       expect(meta!.owner, RouteOwner.retraite);
+    });
+
+    test('/retraite/rente-vs-capital is the canonical public RVC route', () {
+      final meta = kRouteRegistry['/retraite/rente-vs-capital'];
+      expect(meta, isNotNull);
+      expect(meta!.category, RouteCategory.destination);
+      expect(meta.owner, RouteOwner.retraite);
+      expect(meta.requiresAuth, isFalse);
+      expect(meta.killFlag, 'enableExplorerRetraite');
+    });
+
+    test('/rente-vs-capital is a legacy alias to canonical RVC route', () {
+      final meta = kRouteRegistry['/rente-vs-capital'];
+      expect(meta, isNotNull);
+      expect(meta!.category, RouteCategory.alias);
+      expect(meta.owner, RouteOwner.system);
+      expect(meta.requiresAuth, isFalse);
+      expect(meta.description, contains('/retraite/rente-vs-capital'));
     });
 
     test('/coach/chat owner=coach (first-segment rule)', () {
