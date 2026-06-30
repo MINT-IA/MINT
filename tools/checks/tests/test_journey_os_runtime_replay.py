@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -56,6 +57,36 @@ def test_account_lifecycle_dry_run_is_separate_from_authenticated_set() -> None:
     assert proc.returncode == 0
     assert "account_lifecycle_delete" in proc.stdout
     assert "coach_advice_turn" not in proc.stdout
+
+
+def test_account_lifecycle_register_gate_rejects_hidden_email_regression() -> None:
+    flow = (
+        ROOT
+        / "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    text = flow.read_text(encoding="utf-8")
+
+    email_field = re.search(
+        r"visible:\s*\{\s*id:\s*['\"]auth_register_email_field['\"]\s*\}",
+        text,
+    )
+    fallback_assert = re.search(
+        r"assertNotVisible:\s*['\"]Créer avec e-mail['\"]",
+        text,
+    )
+    fallback_when = re.search(r"visible:\s*['\"]Créer avec e-mail['\"]", text)
+    fallback_tap = re.search(r"tapOn:\s*['\"]Créer avec e-mail['\"]", text)
+    email_tap = re.search(
+        r"tapOn:\s*\n\s*id:\s*['\"]auth_register_email_field['\"]",
+        text,
+    )
+
+    assert email_field is not None
+    assert fallback_assert is not None
+    assert email_field.start() < fallback_assert.start()
+    assert email_tap is not None
+    assert fallback_when is None
+    assert fallback_tap is None
 
 
 def test_requires_auth_classifier_reports_runtime_set_auth_need() -> None:
