@@ -409,7 +409,7 @@ class CoachSourcesSection extends StatelessWidget {
         file.contains('pilier')) {
       context.push('/pilier-3a');
     } else if (file.contains('lpp') || file.contains('pension')) {
-      context.push('/rente-vs-capital');
+      context.push('/retraite/rente-vs-capital');
     } else if (file.contains('lifd') || file.contains('fiscal')) {
       context.push('/fiscal');
     } else if (file.contains('lavs') || file.contains('avs')) {

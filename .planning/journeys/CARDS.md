@@ -69,7 +69,7 @@ Generated from `.planning/journeys/records/*.json`. Do not edit directly.
 - Account state: Anonymous local mode; account creation must remain after first value, not before the rente-vs-capital surface.
 - Success state: Selecting the LPP rente-capital axis opens the first-value experience and can continue toward Coach or Home without a premature account gate.
 - Negative assertions: Account-creation gate must not replace the first-value destination., Beta modal must not block the onboarding axis proof., The route helper must not rely on a release-only debug path.
-- Routes: /onb, /rente-vs-capital, /coach/chat, /home
+- Routes: /onb, /retraite/rente-vs-capital, /coach/chat, /home
 - APIs: -
 - Runtime replay: core / no-auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml
 - Issues: JOS-005:verified/green

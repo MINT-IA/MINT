@@ -40,7 +40,7 @@
   },
   "route_paths": [
     "/onb",
-    "/rente-vs-capital",
+    "/retraite/rente-vs-capital",
     "/coach/chat",
     "/home"
   ],

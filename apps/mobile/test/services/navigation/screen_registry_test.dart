@@ -142,10 +142,10 @@ void main() {
   // ── findByIntent ──────────────────────────────────────────────
 
   group('findByIntentStatic', () {
-    test('retirement_choice → /rente-vs-capital', () {
+    test('retirement_choice → /retraite/rente-vs-capital', () {
       final entry = MintScreenRegistry.findByIntentStatic('retirement_choice');
       expect(entry, isNotNull);
-      expect(entry!.route, equals('/rente-vs-capital'));
+      expect(entry!.route, equals('/retraite/rente-vs-capital'));
     });
 
     test('life_event_divorce → /divorce', () {
@@ -329,10 +329,18 @@ void main() {
   // ── findByRouteStatic ─────────────────────────────────────────
 
   group('findByRouteStatic', () {
-    test('/rente-vs-capital → retirement_choice', () {
-      final entry = MintScreenRegistry.findByRouteStatic('/rente-vs-capital');
+    test('/retraite/rente-vs-capital → retirement_choice', () {
+      final entry = MintScreenRegistry.findByRouteStatic(
+        '/retraite/rente-vs-capital',
+      );
       expect(entry, isNotNull);
       expect(entry!.intentTag, equals('retirement_choice'));
+    });
+
+    test('legacy RVC alias is not a Coach-routable primary surface', () {
+      final entry =
+          MintScreenRegistry.findByRouteStatic('/rente-vs-capital');
+      expect(entry, isNull);
     });
 
     test('legacy simulator alias is not a Coach-routable primary surface', () {

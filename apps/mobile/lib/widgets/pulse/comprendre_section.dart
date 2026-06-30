@@ -16,7 +16,7 @@ class ComprendreSection extends StatelessWidget {
       title: l.pulseComprendreRenteCapital,
       subtitle: l.pulseComprendreRenteCapitalSub,
       icon: Icons.compare_arrows,
-      route: '/rente-vs-capital',
+      route: '/retraite/rente-vs-capital',
       color: MintColors.retirementLpp,
     ),
     _ComprendreItem(

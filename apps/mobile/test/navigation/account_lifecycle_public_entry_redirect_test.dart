@@ -331,7 +331,7 @@ void main() {
     test('profile-ready account can enter first-value RvC route', () {
       final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
       final route = ScopedGoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         scope: RouteScope.onboarding,
         builder: (_, __) => throw UnimplementedError(),
       );
@@ -339,7 +339,7 @@ void main() {
       expect(
         _redirect(
           lifecycle: lifecycle,
-          path: '/rente-vs-capital',
+          path: '/retraite/rente-vs-capital',
           topRoute: route,
           profile: CoachProfile.fromWizardAnswers({
             'q_residence_country': 'CH',
@@ -352,7 +352,7 @@ void main() {
     test('explicit guest can enter first-value RvC before profile facts', () {
       final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
       final route = ScopedGoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         scope: RouteScope.onboarding,
         builder: (_, __) => throw UnimplementedError(),
       );
@@ -360,7 +360,7 @@ void main() {
       expect(
         _redirect(
           lifecycle: lifecycle,
-          path: '/rente-vs-capital',
+          path: '/retraite/rente-vs-capital',
           topRoute: route,
         ),
         isNull,

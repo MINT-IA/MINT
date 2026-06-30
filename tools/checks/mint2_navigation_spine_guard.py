@@ -26,7 +26,7 @@ ACCOUNT_WALL_TITLE = "Cr\u00e9er ton compte"
 
 SPINE_DESTINATIONS = {
     "/onb": {"scope": "public", "category": "destination", "requiresAuth": "false"},
-    "/rente-vs-capital": {
+    "/retraite/rente-vs-capital": {
         "scope": "onboarding",
         "category": "destination",
         "requiresAuth": "false",
@@ -34,8 +34,9 @@ SPINE_DESTINATIONS = {
     "/coach/chat": {"scope": "public", "category": "destination", "requiresAuth": "false"},
 }
 RVC_ALIASES = {
-    "/arbitrage/rente-vs-capital": "/rente-vs-capital",
-    "/simulator/rente-capital": "/rente-vs-capital",
+    "/rente-vs-capital": "/retraite/rente-vs-capital",
+    "/arbitrage/rente-vs-capital": "/retraite/rente-vs-capital",
+    "/simulator/rente-capital": "/retraite/rente-vs-capital",
 }
 ONBOARDING_COMPAT_ALIASES = {
     "/start": "/onb",
@@ -203,7 +204,11 @@ def _check_alias(
         return
     if meta.get("category") != "alias":
         errors.append(f"{route} must be a route_metadata alias; found {meta.get('category') or '<missing>'}")
-    if meta.get("requiresAuth") != "false" and target in {"/onb", "/rente-vs-capital", "/coach/chat"}:
+    if meta.get("requiresAuth") != "false" and target in {
+        "/onb",
+        "/retraite/rente-vs-capital",
+        "/coach/chat",
+    }:
         errors.append(f"{route} must not require auth before reaching {target}")
     described_target = _route_target_from_description(meta.get("description", ""))
     if described_target != target:

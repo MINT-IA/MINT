@@ -2,7 +2,7 @@
 #
 # PURPOSE
 # Deterministic runtime proof for Mint 2.0 first experience:
-# landing -> Mint 2.0 axes -> LPP/rente-capital -> /rente-vs-capital.
+# landing -> Mint 2.0 axes -> LPP/rente-capital -> /retraite/rente-vs-capital.
 #
 # PRE-CONDITION
 # - Debug app ch.mint.app installed on the exact iPhone 13 mini simulator.
@@ -55,6 +55,10 @@ tags:
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
+      text: "Choisis le sujet que tu veux éclairer d'abord.*"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
       id: "mint2-axis-lpp_rente_capital"
     timeout: 8000
 - assertVisible:
@@ -64,10 +68,10 @@ tags:
 - takeScreenshot: "03-mint2-lpp-axis"
 
 # 03 — live LPP/rente-capital axis routes to the real RvC surface.
-# Maestro/iOS projects the LPP axis id tap too low on iPhone 13 mini; the
-# calibrated tap center is 200,340 in Maestro's screenshot tap grid.
+# Maestro/iOS projects the card resource-id/text bounds too low on iPhone 13
+# mini; the calibrated screenshot point targets the first card's visual center.
 - tapOn:
-    point: "200, 340"
+    point: "200, 292"
 - extendedWaitUntil:
     visible:
       id: "rente_vs_capital_screen"

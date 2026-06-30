@@ -38,16 +38,16 @@ Widget _wrapWithPrefill(
   Map<String, dynamic> prefill,
 ) {
   final router = GoRouter(
-    initialLocation: '/rente-vs-capital',
+    initialLocation: '/retraite/rente-vs-capital',
     routes: [
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const RenteVsCapitalScreen(),
       ),
     ],
   );
   // Seed the initial route's extra via redirect-free initialExtra.
-  router.go('/rente-vs-capital', extra: {'prefill': prefill});
+  router.go('/retraite/rente-vs-capital', extra: {'prefill': prefill});
 
   return ChangeNotifierProvider<CoachProfileProvider>.value(
     value: provider,

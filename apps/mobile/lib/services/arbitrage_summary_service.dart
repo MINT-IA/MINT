@@ -308,7 +308,7 @@ class ArbitrageSummaryService {
           'à un rendement implicite d\'environ 5%.',
       monthlyImpactChf: diff,
       confidenceScore: result.confidenceScore,
-      route: '/rente-vs-capital',
+      route: '/retraite/rente-vs-capital',
       fullResult: result,
     );
   }

@@ -38,7 +38,7 @@ GoRouter _router() {
         builder: (context, state) => const OnboardingShellScreen(),
       ),
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const Scaffold(
           body: Center(
             child: Text('RvC route sentinel', key: ValueKey('rvc-sentinel')),
@@ -144,7 +144,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.routerDelegate.currentConfiguration.uri.path,
-        '/rente-vs-capital');
+        '/retraite/rente-vs-capital');
     expect(find.byKey(const ValueKey('rvc-sentinel')), findsOneWidget);
     expect(
       find.text('Choisis le sujet que tu veux éclairer d\'abord.'),

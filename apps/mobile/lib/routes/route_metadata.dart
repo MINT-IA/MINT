@@ -300,26 +300,33 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     requiresAuth: true,
     description: 'Legacy redirect -> /retraite',
   ),
-  '/rente-vs-capital': RouteMeta(
-    path: '/rente-vs-capital',
+  '/retraite/rente-vs-capital': RouteMeta(
+    path: '/retraite/rente-vs-capital',
     category: RouteCategory.destination,
     owner: RouteOwner.retraite,
     requiresAuth: false,
     killFlag: 'enableExplorerRetraite',
+  ),
+  '/rente-vs-capital': RouteMeta(
+    path: '/rente-vs-capital',
+    category: RouteCategory.alias,
+    owner: RouteOwner.system,
+    requiresAuth: false,
+    description: 'Legacy redirect -> /retraite/rente-vs-capital',
   ),
   '/arbitrage/rente-vs-capital': RouteMeta(
     path: '/arbitrage/rente-vs-capital',
     category: RouteCategory.alias,
     owner: RouteOwner.system,
     requiresAuth: false,
-    description: 'Legacy redirect -> /rente-vs-capital',
+    description: 'Legacy redirect -> /retraite/rente-vs-capital',
   ),
   '/simulator/rente-capital': RouteMeta(
     path: '/simulator/rente-capital',
     category: RouteCategory.alias,
     owner: RouteOwner.system,
     requiresAuth: false,
-    description: 'Legacy redirect -> /rente-vs-capital',
+    description: 'Legacy redirect -> /retraite/rente-vs-capital',
   ),
   '/rachat-lpp': RouteMeta(
     path: '/rachat-lpp',

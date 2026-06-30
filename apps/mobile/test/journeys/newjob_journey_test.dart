@@ -97,12 +97,11 @@ void main() {
       expect(mapping.stressType, equals('stress_budget'));
     });
 
-    test('Step A — suggestedRoute points to /rente-vs-capital (plan entry)',
-        () {
+    test('Step A — suggestedRoute points to canonical RvC (plan entry)', () {
       final mapping = IntentRouter.forChipKey('intentChipNouvelEmploi');
 
       expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/rente-vs-capital'));
+      expect(mapping!.suggestedRoute, equals('/retraite/rente-vs-capital'));
     });
 
     test('Step B — CapSequence has exactly 5 steps', () {
@@ -191,7 +190,7 @@ void main() {
       expect(step3a.status, equals(CapStepStatus.completed));
     });
 
-    test('Step D — steps contain /rente-vs-capital route (compare)', () {
+    test('Step D — steps contain canonical RvC route (compare)', () {
       final seq = CapSequenceEngine.build(
         profile: _julienProfile(),
         memory: emptyMemory,
@@ -201,7 +200,7 @@ void main() {
 
       final routes =
           seq.steps.map((s) => s.intentTag).whereType<String>().toList();
-      expect(routes, contains('/rente-vs-capital'));
+      expect(routes, contains('/retraite/rente-vs-capital'));
     });
 
     test('Step D — steps contain /rachat-lpp route (LPP transfer)', () {

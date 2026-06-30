@@ -242,8 +242,7 @@ void main() {
 
   group('Field: age', () {
     test('birthYear set → age > 0 → present', () {
-      final result =
-          gate.evaluate(_entryRequiring(['age']), _partialProfile());
+      final result = gate.evaluate(_entryRequiring(['age']), _partialProfile());
       expect(result.level, equals(ReadinessLevel.ready));
     });
 
@@ -308,7 +307,7 @@ void main() {
     test('avoirLpp missing → partial (not blocked)', () {
       // partialProfile has no LPP data
       const entry = ScreenEntry(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         intentTag: 'retirement_choice',
         behavior: ScreenBehavior.decisionCanvas,
         requiredFields: ['avoirLpp'],
@@ -338,7 +337,7 @@ void main() {
     test('critical present, non-critical missing → partial', () {
       // partialProfile has salaireBrut + canton + age, but no avoirLpp
       const entry = ScreenEntry(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         intentTag: 'retirement_choice',
         behavior: ScreenBehavior.decisionCanvas,
         requiredFields: ['salaireBrut', 'avoirLpp'],
@@ -381,7 +380,7 @@ void main() {
 
     test('rente-vs-capital (salary + age) → blocked (no salary)', () {
       const entry = ScreenEntry(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         intentTag: 'retirement_choice',
         behavior: ScreenBehavior.decisionCanvas,
         requiredFields: ['salaireBrut', 'age'],
@@ -427,8 +426,7 @@ void main() {
     });
 
     test('housing_purchase (salaireBrut + canton) → ready', () {
-      final entry =
-          MintScreenRegistry.findByIntentStatic('housing_purchase')!;
+      final entry = MintScreenRegistry.findByIntentStatic('housing_purchase')!;
       final result = ReadinessGate.check(entry, _julienProfile());
       expect(result.level, equals(ReadinessLevel.ready));
     });
@@ -497,8 +495,7 @@ void main() {
     });
 
     test('housing_purchase → ready (salary + canton)', () {
-      final entry =
-          MintScreenRegistry.findByIntentStatic('housing_purchase')!;
+      final entry = MintScreenRegistry.findByIntentStatic('housing_purchase')!;
       final result = ReadinessGate.check(entry, _laurenProfile());
       expect(result.level, equals(ReadinessLevel.ready));
     });
@@ -523,14 +520,12 @@ void main() {
 
     test('lamal_franchise (no required fields) → ready even for empty profile',
         () {
-      final entry =
-          MintScreenRegistry.findByIntentStatic('lamal_franchise')!;
+      final entry = MintScreenRegistry.findByIntentStatic('lamal_franchise')!;
       final result = ReadinessGate.check(entry, emptyProfile);
       expect(result.level, equals(ReadinessLevel.ready));
     });
 
-    test(
-        'life_event_birth (salaireBrut + canton) → blocked for empty profile',
+    test('life_event_birth (salaireBrut + canton) → blocked for empty profile',
         () {
       final entry = MintScreenRegistry.findByIntentStatic('life_event_birth')!;
       final result = ReadinessGate.check(entry, emptyProfile);
