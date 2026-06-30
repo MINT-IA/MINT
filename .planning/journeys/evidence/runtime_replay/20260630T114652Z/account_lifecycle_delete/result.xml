@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="MINT iPhone 13 mini RvC - iOS 26.2 - 3D0534A9-8C3A-4663-9348-106D0599E9D6" tests="1" failures="0" time="46.0">
+    <testcase id="flow_jos001_account_lifecycle_seeded_delete" name="flow_jos001_account_lifecycle_seeded_delete" classname="flow_jos001_account_lifecycle_seeded_delete" time="46.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="jos-001, account-lifecycle, runtime"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
