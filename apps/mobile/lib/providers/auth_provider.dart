@@ -94,11 +94,21 @@ String localizeAuthError(AuthError error, S l) {
 /// Translate an exception-like auth failure into localized UI copy.
 ///
 /// Use this in UI `catch` blocks instead of displaying `error.toString()`.
-String localizeAuthException(Object error, S l) {
-  return localizeAuthError(_authErrorFromException(error), l);
+String localizeAuthException(
+  Object error,
+  S l, {
+  bool appleContext = false,
+}) {
+  return localizeAuthError(
+    _authErrorFromException(error, appleContext: appleContext),
+    l,
+  );
 }
 
-AuthError _authErrorFromException(Object error) {
+AuthError _authErrorFromException(
+  Object error, {
+  bool appleContext = false,
+}) {
   final raw = error.toString().replaceAll('Exception: ', '').trim();
   final lower = raw.toLowerCase();
 
@@ -176,7 +186,7 @@ AuthError _authErrorFromException(Object error) {
     return AuthError.emailNotVerified;
   }
 
-  return AuthError.genericError;
+  return appleContext ? AuthError.serviceUnavailable : AuthError.genericError;
 }
 
 /// Provider for managing authentication state
@@ -825,7 +835,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = _toUserFriendlyAuthError(e);
+      _error = _toUserFriendlyAuthError(e, appleContext: true);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -1394,7 +1404,10 @@ class AuthProvider extends ChangeNotifier {
     return generated;
   }
 
-  AuthError _toUserFriendlyAuthError(Object error) {
-    return _authErrorFromException(error);
+  AuthError _toUserFriendlyAuthError(
+    Object error, {
+    bool appleContext = false,
+  }) {
+    return _authErrorFromException(error, appleContext: appleContext);
   }
 }
