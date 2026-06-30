@@ -131,7 +131,7 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     if (!context.mounted) return;
     if (failures.isEmpty) {
-      router.go('/coach/chat');
+      router.go('/onb');
       return;
     }
 
@@ -197,7 +197,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         title: S.of(context)!.financialSummaryNoProfile,
         subtitle: '', // No subtitle in original
         ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
-        onCta: () => context.go('/coach/chat'),
+        onCta: () => context.go('/onb'),
       ),
     );
   }
@@ -252,7 +252,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         title: s.profileBilanSubtitleIncomplete,
         subtitle: s.futurCompleterProfil,
         ctaLabel: s.financialSummaryStartDiagnostic,
-        onCta: () => context.go('/coach/chat'),
+        onCta: () => context.go('/onb'),
       ),
     );
   }

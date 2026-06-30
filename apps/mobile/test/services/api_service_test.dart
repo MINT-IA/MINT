@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -160,8 +162,7 @@ void main() {
       expect(captured?.headers['Authorization'], 'Bearer fresh-token');
     });
 
-    test('postAppleVerify preserves recreate_required detail on 409',
-        () async {
+    test('postAppleVerify preserves recreate_required detail on 409', () async {
       ApiService.setHttpClientForTesting(MintHttpClient(
         MockClient((request) async {
           expect(request.url.path, '/api/v1/auth/apple/verify');
@@ -184,6 +185,100 @@ void main() {
               .having((e) => e.statusCode, 'statusCode', 409),
         ),
       );
+    });
+
+    test('postAppleVerify extracts stable backend code from detail object',
+        () async {
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          expect(request.url.path, '/api/v1/auth/apple/verify');
+          return http.Response(
+            '{"detail":{"code":"apple_email_already_linked","message":"Conflit Apple"}}',
+            409,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+
+      await expectLater(
+        ApiService.postAppleVerify(
+          identityToken: 'identity-token',
+          nonce: 'raw-nonce',
+        ),
+        throwsA(
+          isA<ApiException>()
+              .having((e) => e.message, 'message', 'Conflit Apple')
+              .having(
+                (e) => e.backendCode,
+                'backendCode',
+                'apple_email_already_linked',
+              )
+              .having((e) => e.statusCode, 'statusCode', 409),
+        ),
+      );
+    });
+
+    test(
+        'postAppleVerify keeps fallback message when detail object has no copy',
+        () async {
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          expect(request.url.path, '/api/v1/auth/apple/verify');
+          return http.Response(
+            '{"detail":{"code":"apple_account_conflict"}}',
+            409,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+
+      await expectLater(
+        ApiService.postAppleVerify(
+          identityToken: 'identity-token',
+          nonce: 'raw-nonce',
+        ),
+        throwsA(
+          isA<ApiException>()
+              .having(
+                (e) => e.message,
+                'message',
+                'Apple Sign-In verification failed',
+              )
+              .having(
+                (e) => e.backendCode,
+                'backendCode',
+                'apple_account_conflict',
+              ),
+        ),
+      );
+    });
+
+    test('postAppleVerify sends explicit recreate opt-in only when requested',
+        () async {
+      Map<String, dynamic>? body;
+      ApiService.setHttpClientForTesting(MintHttpClient(
+        MockClient((request) async {
+          expect(request.url.path, '/api/v1/auth/apple/verify');
+          body = jsonDecode(request.body) as Map<String, dynamic>;
+          return http.Response(
+            '{"accessToken":"apple-jwt","userId":"apple-user","email":"apple@example.ch"}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ));
+
+      await ApiService.postAppleVerify(
+        identityToken: 'identity-token',
+        nonce: 'raw-nonce',
+        allowRecreateAfterDelete: true,
+      );
+
+      expect(body, {
+        'identityToken': 'identity-token',
+        'nonce': 'raw-nonce',
+        'allowRecreateAfterDelete': true,
+      });
     });
   });
 

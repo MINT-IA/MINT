@@ -358,6 +358,54 @@ void main() {
     }
   });
 
+  testWidgets('registration reuses pre-account onboarding date of birth',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'wizard_answers_v2': '{"q_date_of_birth":"1981-06-15"}',
+    });
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+      await tester.pump();
+
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('auth_register_dob_field')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('15.06.1981'), findsOneWidget);
+      expect(find.text('JJ.MM.AAAA'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('registration ignores malformed pre-account date of birth',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'wizard_answers_v2': '{"q_date_of_birth":"15.06.1981"}',
+    });
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+      await tester.pump();
+
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('auth_register_dob_field')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('jj.mm.aaaa'), findsWidgets);
+      expect(find.text('15.06.1981'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
   testWidgets('Apple recreate-required opens email fallback with guidance',
       (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
@@ -370,6 +418,10 @@ void main() {
 
       await _acceptRequiredConsentsAndTapApple(tester);
 
+      expect(
+        AppleSignInService.debugLastAllowRecreateAfterDeleteForTest,
+        isTrue,
+      );
       expect(
         find.text(
           'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.',
@@ -498,6 +550,39 @@ void main() {
       expect(
         find.text(
           'Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.email_outlined), findsOneWidget);
+      expect(
+        find.text(
+          'Action impossible pour le moment. Réessaie dans quelques instants.',
+        ),
+        findsNothing,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('backend Apple 409 conflict opens email fallback with guidance',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    AppleSignInService.signInOverride = () async {
+      throw const ApiException(
+        'Apple email is already linked to another account',
+        statusCode: 409,
+      );
+    };
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      await _acceptRequiredConsentsAndTapApple(tester);
+
+      expect(
+        find.text(
+          'Cet e-mail est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.',
         ),
         findsOneWidget,
       );

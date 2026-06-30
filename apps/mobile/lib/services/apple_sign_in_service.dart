@@ -16,13 +16,19 @@ typedef AppleSignInFn = Future<Map<String, dynamic>?> Function();
 /// and backend verification via POST /api/v1/auth/apple/verify.
 class AppleSignInService {
   static AppleSignInFn? _signInOverride;
+  static bool? _debugLastAllowRecreateAfterDelete;
 
   @visibleForTesting
   static set signInOverride(AppleSignInFn? fn) => _signInOverride = fn;
 
   @visibleForTesting
+  static bool? get debugLastAllowRecreateAfterDeleteForTest =>
+      _debugLastAllowRecreateAfterDelete;
+
+  @visibleForTesting
   static void resetOverrides() {
     _signInOverride = null;
+    _debugLastAllowRecreateAfterDelete = null;
   }
 
   @visibleForTesting
@@ -96,7 +102,13 @@ class AppleSignInService {
   /// mutate any global state.
   ///
   /// Throws on unexpected errors (network failure, backend error).
-  static Future<Map<String, dynamic>?> signIn() async {
+  static Future<Map<String, dynamic>?> signIn({
+    bool allowRecreateAfterDelete = false,
+  }) async {
+    assert(() {
+      _debugLastAllowRecreateAfterDelete = allowRecreateAfterDelete;
+      return true;
+    }());
     final override = _signInOverride;
     if (override != null) return override();
 
@@ -131,6 +143,7 @@ class AppleSignInService {
     final response = await ApiService.postAppleVerify(
       identityToken: identityToken,
       nonce: rawNonce,
+      allowRecreateAfterDelete: allowRecreateAfterDelete,
     );
 
     final normalizedResponse = _normalizeVerifyResponse(response);
