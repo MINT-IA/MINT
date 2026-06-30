@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "journey_id": "profile_privacy_control",
+  "tier": "T0",
+  "human_question": "Puis-je voir et contrôler ce que Mint sait de moi ?",
+  "primary_routes": [
+    "/profile/privacy-control",
+    "/profile/privacy",
+    "/settings/confidentialite"
+  ],
+  "supporting_routes": [],
+  "legacy_alias_routes": [],
+  "owner_domains": [
+    "system"
+  ],
+  "route_domain": "privacy",
+  "route_role": "privacy_control",
+  "auth_scope": "authenticated",
+  "persona_scope": [
+    "julien_swiss",
+    "local_mode_profile_user"
+  ],
+  "required_inputs": [
+    {
+      "key": "profile_fact_store",
+      "blocks_value": true,
+      "reason": "The privacy control route must show known facts when they exist."
+    },
+    {
+      "key": "consent_state",
+      "blocks_value": true,
+      "reason": "Privacy controls must reflect the current consent boundary."
+    },
+    {
+      "key": "local_or_authenticated_session",
+      "blocks_value": true,
+      "reason": "The route must know whether destructive controls are local-only or backend-backed."
+    }
+  ],
+  "optional_inputs": [
+    {
+      "key": "backend_export_capability",
+      "blocks_value": false,
+      "reason": "Export/delete backend E2E is a separate authenticated proof."
+    }
+  ],
+  "missing_data_behavior": "Show a privacy empty state for absent facts, not a financial recommendation or a collapsed known-data view.",
+  "calculation_boundary": {
+    "level": "none",
+    "l1_source": "none",
+    "l2_l4_source": "none",
+    "may_emit_financial_number": false
+  },
+  "value_receipt_required": false,
+  "receipt_fields": [],
+  "signal_axis": false,
+  "compliance_invariants": [
+    "no_banned_lsfin_terms",
+    "no_financial_number_without_receipt",
+    "no_known_data_empty_state_regression",
+    "no_destructive_action_without_confirmation"
+  ],
+  "proof_pointer": ".planning/journeys/evidence/profile_privacy_control/20260627T005708Z/result.xml",
+  "source_refs": [
+    ".planning/journeys/records/profile_privacy_control.json",
+    "docs/data-flow.md",
+    "docs/ROUTE_POLICY.md"
+  ]
+}

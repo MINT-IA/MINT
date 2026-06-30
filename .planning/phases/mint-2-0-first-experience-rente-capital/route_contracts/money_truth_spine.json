@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "journey_id": "money_truth_spine",
+  "tier": "T0",
+  "human_question": "Mes chiffres d'argent sont-ils cohérents entre Budget, Mon argent, Rapport et Coach ?",
+  "primary_routes": [
+    "/budget",
+    "/mon-argent",
+    "/rapport"
+  ],
+  "supporting_routes": [
+    "/coach/chat"
+  ],
+  "legacy_alias_routes": [],
+  "owner_domains": [
+    "budget",
+    "system",
+    "coach"
+  ],
+  "route_domain": "money_truth",
+  "route_role": "truth_spine",
+  "auth_scope": "mixed",
+  "persona_scope": [
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "required_inputs": [
+    {
+      "key": "income_basis",
+      "blocks_value": true,
+      "reason": "Disposable margin and report numbers cannot be coherent without an income basis."
+    },
+    {
+      "key": "fixed_monthly_costs",
+      "blocks_value": true,
+      "reason": "Budget and Mon argent must share the same fixed-cost snapshot."
+    },
+    {
+      "key": "budget_snapshot",
+      "blocks_value": true,
+      "reason": "Downstream money surfaces must read the same persisted budget state."
+    },
+    {
+      "key": "profile_snapshot",
+      "blocks_value": true,
+      "reason": "Coach context must consume the same dossier facts as the visible money surfaces."
+    }
+  ],
+  "optional_inputs": [
+    {
+      "key": "documents_snapshot",
+      "blocks_value": false,
+      "reason": "Documents improve traceability but the core money truth proof can run from the seeded profile."
+    }
+  ],
+  "missing_data_behavior": "Show the incomplete data-readiness state and block cross-surface numeric claims until the shared snapshot exists.",
+  "calculation_boundary": {
+    "level": "L1",
+    "l1_source": "apps/mobile/lib/services/financial_core/",
+    "l2_l4_source": "none",
+    "may_emit_financial_number": true
+  },
+  "value_receipt_required": true,
+  "receipt_fields": [
+    "sources",
+    "assumptions",
+    "confidence",
+    "missing_fields",
+    "version"
+  ],
+  "signal_axis": false,
+  "compliance_invariants": [
+    "no_banned_lsfin_terms",
+    "no_financial_number_without_receipt",
+    "no_absurd_captured_value_leak",
+    "no_shadow_money_snapshot"
+  ],
+  "proof_pointer": ".planning/journeys/evidence/money_truth_spine/20260627T003738Z/result.xml",
+  "source_refs": [
+    ".planning/journeys/records/money_truth_spine.json",
+    "docs/data-flow.md",
+    "docs/ROUTE_POLICY.md"
+  ]
+}

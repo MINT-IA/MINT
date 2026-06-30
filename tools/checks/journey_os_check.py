@@ -25,6 +25,7 @@ SCHEMA = JOURNEYS / "journey.schema.json"
 ISSUE_SCHEMA = JOURNEYS / "issue.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
 OPENAPI = Path("tools/openapi/mint.openapi.canonical.json")
+ROUTE_CONTRACTS = Path(".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts")
 ALLOW = {
     str(SCHEMA),
     str(ISSUE_SCHEMA),
@@ -34,6 +35,7 @@ ALLOW = {
     str(journey_os_generate.BOARD),
     str(journey_os_generate.TODAY),
     str(journey_os_generate.CARDS),
+    str(OPENAPI),
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
@@ -46,6 +48,7 @@ ALLOW = {
     ".planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/payload-2026-05-15-A2-2219.jsonl",
     ".planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/probe-2026-05-15-1958-payload.jsonl",
     ".planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/user_message_a1_2105.txt",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/VZ_ROUTE_ARCHITECTURE.md",
     ".planning/ROADMAP.md",
     ".planning/STATE.md",
     "AGENTS.md",
@@ -59,6 +62,7 @@ ALLOW = {
     "apps/mobile/lib/routes/coach_chat_entry_payload.dart",
     "apps/mobile/lib/routes/route_metadata.dart",
     "apps/mobile/lib/screens/auth/register_screen.dart",
+    "apps/mobile/lib/screens/profile/financial_summary_screen.dart",
     "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
     "apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart",
     "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
@@ -74,6 +78,7 @@ ALLOW = {
     "apps/mobile/lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
     "apps/mobile/lib/services/apple_sign_in_service.dart",
+    "apps/mobile/lib/services/api_service.dart",
     "apps/mobile/lib/services/arbitrage_summary_service.dart",
     "apps/mobile/lib/services/cap_engine.dart",
     "apps/mobile/lib/services/cap_sequence_engine.dart",
@@ -117,11 +122,13 @@ ALLOW = {
     "apps/mobile/test/navigation/account_lifecycle_public_entry_redirect_test.dart",
     "apps/mobile/test/navigation/goroute_health_test.dart",
     "apps/mobile/test/providers/auth_provider_test.dart",
+    "apps/mobile/test/screens/login_apple_recreate_opt_in_test.dart",
     "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/test/routes/coach_chat_entry_payload_test.dart",
     "apps/mobile/test/screens/auth_screens_smoke_test.dart",
     "apps/mobile/test/screens/login_redirect_resolver_test.dart",
     "apps/mobile/test/screens/register_account_entry_test.dart",
+    "apps/mobile/test/screens/profile/financial_summary_screen_test.dart",
     "apps/mobile/test/screens/admin/routes_registry_screen_test.dart",
     "apps/mobile/test/screens/arbitrage/rente_vs_capital_receipt_gate_test.dart",
     "apps/mobile/test/screens/arbitrage/rente_vs_capital_route_state_anchor_test.dart",
@@ -153,6 +160,8 @@ ALLOW = {
     "apps/mobile/test/widgets/pulse/pulse_widgets_test.dart",
     "docs/ROUTE_POLICY.md",
     "services/backend/app/api/v1/endpoints/coach_chat.py",
+    "services/backend/app/api/v1/endpoints/auth.py",
+    "services/backend/app/schemas/auth.py",
     "services/backend/app/services/coach/compliance_guard.py",
     "services/backend/app/services/coach/structured_reasoning.py",
     "services/backend/app/services/coach/_route_intents_generated.py",
@@ -172,6 +181,7 @@ ALLOW = {
     "services/backend/tests/services/llm/test_wave1c_instrumentation_removed.py",
     "services/backend/tests/test_citation_gate/test_byte_identity_flag_off.py",
     "services/backend/tests/test_coach_chat_endpoint.py",
+    "services/backend/tests/test_auth_apple.py",
     "services/backend/tests/test_compliance_guard.py",
     "services/backend/tests/test_coach_tools.py",
     "services/backend/tests/test_e2e_coach_pipeline.py",
@@ -203,6 +213,7 @@ ALLOW = {
     "tools/checks/maestro_locator_audit.py",
     "tools/checks/mermaid_render_guard.py",
     "tools/checks/mint2_navigation_spine_guard.py",
+    "tools/checks/mint2_vz_route_contract_guard.py",
     "tools/checks/mint_rules_guard.py",
     "tools/checks/screen_registry_parity-KNOWN-MISSES.md",
     "tools/checks/screen_registry_parity.py",
@@ -215,6 +226,7 @@ ALLOW = {
     "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_mint2_navigation_spine_guard.py",
+    "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
 }
@@ -289,6 +301,7 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
+        allowed_route_contract = path.startswith(str(ROUTE_CONTRACTS) + "/") and path.endswith(".json") and "/" not in path[len(str(ROUTE_CONTRACTS)) + 1 :]
         evidence_path = Path(path)
         runtime_replay_evidence = path.startswith(str(JOURNEYS / "evidence" / "runtime_replay") + "/")
         allowed_evidence = path.startswith(str(JOURNEYS / "evidence") + "/") and ".." not in evidence_path.parts and (
@@ -302,7 +315,7 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
                 and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
             )
         )
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):

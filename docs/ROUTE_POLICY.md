@@ -16,6 +16,18 @@ est :
 ./tools/mint-routes check
 ```
 
+La doctrine produit associée aux routes Mint 2.0 vit dans
+`.planning/phases/mint-2-0-first-experience-rente-capital/VZ_ROUTE_ARCHITECTURE.md`.
+Ce document-ci décide comment nommer et gouverner les routes; l'architecture
+VZ décide quel problème financier suisse chaque route doit porter avant qu'un
+écran soit promu.
+
+Le contrat mécanique Mint 2.0/VZ se vérifie avec :
+
+```bash
+python3 tools/checks/mint2_vz_route_contract_guard.py
+```
+
 ---
 
 ## 2. Règles pour les nouvelles routes

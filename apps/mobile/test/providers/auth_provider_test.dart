@@ -726,6 +726,35 @@ void main() {
       expect(message, isNot(l10n.authErrorGeneric));
     });
 
+    test('localizeAuthException maps Apple 409 conflicts to actionable copy',
+        () async {
+      final l10n = await S.delegate.load(const Locale('fr'));
+
+      final linkedEmail = localizeAuthException(
+        const ApiException(
+          'Message backend modifiable',
+          statusCode: 409,
+          backendCode: 'apple_email_already_linked',
+        ),
+        l10n,
+        appleContext: true,
+      );
+      final genericConflict = localizeAuthException(
+        const ApiException(
+          'Message backend modifiable',
+          statusCode: 409,
+          backendCode: 'apple_account_conflict',
+        ),
+        l10n,
+        appleContext: true,
+      );
+
+      expect(linkedEmail, l10n.authErrorEmailUsed);
+      expect(genericConflict, l10n.authErrorRegistration);
+      expect(linkedEmail, isNot(l10n.authErrorGeneric));
+      expect(genericConflict, isNot(l10n.authErrorGeneric));
+    });
+
     test('localizeAuthException maps native Apple platform failures', () async {
       final l10n = await S.delegate.load(const Locale('fr'));
 

@@ -108,6 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
       context.read<AuthProvider>().clearError();
       _refreshHandoffChoiceRequired();
+      unawaited(_prefillDateOfBirthFromLocalAnswers());
     });
   }
 
@@ -199,6 +200,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  Future<void> _prefillDateOfBirthFromLocalAnswers() async {
+    if (_dateOfBirth != null) return;
+    try {
+      final answers = await ReportPersistenceService.loadAnswers();
+      final rawDateOfBirth = answers['q_date_of_birth'];
+      if (rawDateOfBirth is! String || rawDateOfBirth.trim().isEmpty) {
+        return;
+      }
+      final parsed = DateTime.tryParse(rawDateOfBirth);
+      if (parsed == null || !mounted || _dateOfBirth != null) return;
+      setState(() => _dateOfBirth = parsed);
+      _maybeScheduleE2eRegisterSubmit();
+    } catch (_) {
+      // Non-blocking prefill; validation still protects account creation.
+    }
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
     if (!await _canStartAccountAction()) return;
@@ -271,7 +289,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final authProvider = context.read<AuthProvider>();
     try {
-      final response = await AppleSignInService.signIn();
+      // Register is the explicit create intent after Apple has proven subject
+      // ownership; login keeps this false so deleted accounts cannot resurrect.
+      final response = await AppleSignInService.signIn(
+        allowRecreateAfterDelete: true,
+      );
       if (response == null || !mounted) return;
 
       final ok = await authProvider.completeAppleSignIn(

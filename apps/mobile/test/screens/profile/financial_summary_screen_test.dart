@@ -83,6 +83,12 @@ Widget _pumpableWithRouter(
           body: SizedBox(key: ValueKey('coach_route_after_reset')),
         ),
       ),
+      GoRoute(
+        path: '/onb',
+        builder: (_, __) => const Scaffold(
+          body: SizedBox(key: ValueKey('structured_onboarding_after_reset')),
+        ),
+      ),
     ],
   );
 
@@ -208,6 +214,23 @@ void main() {
     expect(find.text('Aucun profil renseigné'), findsOneWidget);
     expect(find.text('Commencer le diagnostic'), findsOneWidget);
     expect(find.text('Tu es bien couvert·e'), findsNothing);
+  });
+
+  testWidgets('empty material profile CTA opens structured diagnostic',
+      (tester) async {
+    await tester.pumpWidget(
+      _pumpableWithRouter(CoachProfile.fromWizardAnswers({})),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Commencer le diagnostic'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('structured_onboarding_after_reset')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('coach_route_after_reset')), findsNothing);
   });
 
   testWidgets(
@@ -419,7 +442,7 @@ void main() {
   });
 
   testWidgets(
-      'restart diagnostic clears active coach conversations before entering chat',
+      'restart diagnostic clears active coach conversations before onboarding',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     ConversationStore.setCurrentUserId('user-42');
@@ -456,7 +479,10 @@ void main() {
     ConversationStore.setCurrentUserId('user-42');
     expect(await store.listConversations(), isEmpty);
     expect(
-        find.byKey(const ValueKey('coach_route_after_reset')), findsOneWidget);
+      find.byKey(const ValueKey('structured_onboarding_after_reset')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('coach_route_after_reset')), findsNothing);
   });
 
   test('restart diagnostic reset keeps running after one operation fails',

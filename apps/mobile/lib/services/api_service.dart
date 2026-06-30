@@ -27,6 +27,7 @@ class ApiException implements Exception {
   final String message;
   final int? statusCode;
   final bool isOffline;
+  final String? backendCode;
 
   /// P2-18: Typed error code so the UI layer can map to i18n strings.
   final ApiErrorCode errorCode;
@@ -35,6 +36,7 @@ class ApiException implements Exception {
     this.message, {
     this.statusCode,
     this.isOffline = false,
+    this.backendCode,
     this.errorCode = ApiErrorCode.unknown,
   });
 
@@ -716,6 +718,7 @@ class ApiService {
   static Future<Map<String, dynamic>> postAppleVerify({
     required String identityToken,
     required String nonce,
+    bool allowRecreateAfterDelete = false,
   }) async {
     final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/apple/verify'),
@@ -723,6 +726,8 @@ class ApiService {
       body: jsonEncode({
         'identityToken': identityToken,
         'nonce': nonce,
+        if (allowRecreateAfterDelete)
+          'allowRecreateAfterDelete': allowRecreateAfterDelete,
       }),
     );
 
@@ -733,6 +738,7 @@ class ApiService {
       _extractErrorDetail(response.body,
           fallback: 'Apple Sign-In verification failed'),
       statusCode: response.statusCode,
+      backendCode: _extractErrorCode(response.body),
     );
   }
 
@@ -1473,10 +1479,31 @@ class ApiService {
       if (decoded is Map<String, dynamic>) {
         final detail = decoded['detail'];
         if (detail is String && detail.trim().isNotEmpty) return detail;
+        if (detail is Map<String, dynamic>) {
+          final message = detail['message'];
+          if (message is String && message.trim().isNotEmpty) return message;
+        }
       }
       return fallback;
     } catch (_) {
       return fallback;
+    }
+  }
+
+  static String? _extractErrorCode(String responseBody) {
+    try {
+      final decoded = jsonDecode(responseBody);
+      if (decoded is! Map<String, dynamic>) return null;
+      final detail = decoded['detail'];
+      if (detail is Map<String, dynamic>) {
+        final code = detail['code'];
+        if (code is String && code.trim().isNotEmpty) return code;
+      }
+      final code = decoded['code'];
+      if (code is String && code.trim().isNotEmpty) return code;
+      return null;
+    } catch (_) {
+      return null;
     }
   }
 

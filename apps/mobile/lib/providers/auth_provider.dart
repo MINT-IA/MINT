@@ -125,6 +125,22 @@ AuthError _authErrorFromException(
     return AuthError.emailAlreadyUsed;
   }
 
+  if (appleContext && error is ApiException && error.statusCode == 409) {
+    if (error.backendCode == 'apple_email_already_linked') {
+      return AuthError.emailAlreadyUsed;
+    }
+    if (error.backendCode == 'recreate_required' ||
+        error.backendCode == 'apple_account_conflict') {
+      return AuthError.registrationUnavailable;
+    }
+    if (lower.contains('already linked') ||
+        lower.contains('already used') ||
+        lower.contains('email is already')) {
+      return AuthError.emailAlreadyUsed;
+    }
+    return AuthError.registrationUnavailable;
+  }
+
   if (lower.contains('incorrect')) {
     return AuthError.incorrectCredentials;
   }
