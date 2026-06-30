@@ -193,6 +193,41 @@ def test_replay_script_does_not_expand_empty_auth_env_array() -> None:
     assert '"${maestro_env[@]}" \\' not in text
 
 
+def test_replay_script_does_not_delete_stale_app_framework() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+
+    assert 'rm -rf "$app_framework"' not in text
+    assert 'codesign --remove-signature "$app_framework"' not in text
+    assert 'local mobile_build_dir="$ROOT/apps/mobile/build"' in text
+    assert 'local ios_build_dir="$mobile_build_dir/ios"' in text
+    assert 'local stale_stamp="${STAMP:-$(date -u +%Y%m%dT%H%M%SZ)}"' in text
+    assert '[[ ! "$stale_stamp" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]' in text
+    assert 'local stale_dir="$mobile_build_dir/.mint-stale-app-frameworks/ios"' in text
+    assert 'local stale_dir="$ios_build_dir/.mint-stale-app-frameworks"' not in text
+    assert 'mkdir -p "$stale_dir"' in text
+    assert 'mktemp -d "$stale_dir/app-framework-$stale_stamp-XXXXXX"' in text
+    assert 'local stale_app_framework="$stale_parent/App.framework"' in text
+    assert 'stale_app_framework="$stale_dir/app-framework-$stale_stamp-$$"' not in text
+    assert "failed to create stale App.framework destination" in text
+    assert 'mv "$app_framework" "$stale_app_framework"' in text
+    assert "failed to move stale App.framework" in text
+
+
+def test_replay_stale_app_framework_directory_is_gitignored() -> None:
+    proc = subprocess.run(
+        [
+            "git",
+            "check-ignore",
+            "apps/mobile/build/.mint-stale-app-frameworks/ios/app-framework-20260630T000000Z-ABCDEF/App.framework",
+        ],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+
+
 def test_replay_script_requires_clean_worktree_for_real_evidence() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
 
