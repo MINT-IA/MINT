@@ -41,6 +41,9 @@ enum AuthError {
   /// Registration temporarily unavailable.
   registrationUnavailable,
 
+  /// Apple account was deleted and can be explicitly recreated.
+  accountDeletedRecreate,
+
   /// Auth service not available on this environment.
   serviceUnavailable,
 
@@ -78,6 +81,8 @@ String localizeAuthError(AuthError error, S l) {
       return l.authErrorIncorrect;
     case AuthError.registrationUnavailable:
       return l.authErrorRegistration;
+    case AuthError.accountDeletedRecreate:
+      return l.authErrorAccountDeletedRecreate;
     case AuthError.serviceUnavailable:
       return l.authErrorService;
     case AuthError.invalidInput:
@@ -129,8 +134,10 @@ AuthError _authErrorFromException(
     if (error.backendCode == 'apple_email_already_linked') {
       return AuthError.emailAlreadyUsed;
     }
-    if (error.backendCode == 'recreate_required' ||
-        error.backendCode == 'apple_account_conflict') {
+    if (error.backendCode == 'recreate_required') {
+      return AuthError.accountDeletedRecreate;
+    }
+    if (error.backendCode == 'apple_account_conflict') {
       return AuthError.registrationUnavailable;
     }
     if (lower.contains('already linked') ||
@@ -147,9 +154,12 @@ AuthError _authErrorFromException(
 
   if (lower.contains('registration failed') ||
       lower.contains('inscription impossible') ||
-      lower.contains('recreate_required') ||
       lower.contains('service indisponible')) {
     return AuthError.registrationUnavailable;
+  }
+
+  if (lower.contains('recreate_required')) {
+    return AuthError.accountDeletedRecreate;
   }
 
   if (lower.contains('apple identity') ||

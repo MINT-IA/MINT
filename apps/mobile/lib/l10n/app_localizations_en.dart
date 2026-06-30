@@ -13841,6 +13841,10 @@ class SEn extends S {
       'Registration unavailable. Use local mode and try again later.';
 
   @override
+  String get authErrorAccountDeletedRecreate =>
+      'This Apple account was deleted. Recreate your account with Apple to continue.';
+
+  @override
   String get authErrorService =>
       'Account service not available on this environment. Use local mode.';
 

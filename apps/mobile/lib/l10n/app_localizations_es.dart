@@ -13912,6 +13912,10 @@ class SEs extends S {
       'Registro no disponible. Usa el modo local e inténtalo más tarde.';
 
   @override
+  String get authErrorAccountDeletedRecreate =>
+      'Esta cuenta Apple fue eliminada. Vuelve a crear tu cuenta con Apple para continuar.';
+
+  @override
   String get authErrorService =>
       'Servicio de cuenta no disponible en este entorno. Usa el modo local.';
 

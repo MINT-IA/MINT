@@ -24611,6 +24611,12 @@ abstract class S {
   /// **'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.'**
   String get authErrorRegistration;
 
+  /// No description provided for @authErrorAccountDeletedRecreate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.'**
+  String get authErrorAccountDeletedRecreate;
+
   /// No description provided for @authErrorService.
   ///
   /// In fr, this message translates to:

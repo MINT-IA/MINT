@@ -8364,6 +8364,7 @@
   "authErrorNetwork": "Connexion au service indisponible. Vérifie ton réseau et réessaie.",
   "authErrorNotVerified": "Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.",
   "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.",
+  "authErrorAccountDeletedRecreate": "Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.",
   "authErrorService": "Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.",
   "authHidePassword": "Masquer le mot de passe",
   "authShowPassword": "Afficher le mot de passe",

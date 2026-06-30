@@ -7661,6 +7661,7 @@
   "authErrorNetwork": "Service unavailable. Check your network and try again.",
   "authErrorNotVerified": "Your email is not yet verified. Check your email and try again.",
   "authErrorRegistration": "Registration unavailable. Use local mode and try again later.",
+  "authErrorAccountDeletedRecreate": "This Apple account was deleted. Recreate your account with Apple to continue.",
   "authErrorService": "Account service not available on this environment. Use local mode.",
   "authHidePassword": "Hide password",
   "authShowPassword": "Show password",

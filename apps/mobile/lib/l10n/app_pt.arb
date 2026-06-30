@@ -7661,6 +7661,7 @@
   "authErrorNetwork": "Serviço indisponível. Verifica a tua rede e tenta novamente.",
   "authErrorNotVerified": "O teu e-mail ainda não foi verificado. Verifica o teu e-mail e tenta novamente.",
   "authErrorRegistration": "Registo indisponível. Usa o modo local e tenta mais tarde.",
+  "authErrorAccountDeletedRecreate": "Esta conta Apple foi eliminada. Recria a tua conta com Apple para continuar.",
   "authErrorService": "Serviço de conta indisponível neste ambiente. Usa o modo local.",
   "authHidePassword": "Ocultar palavra-passe",
   "authShowPassword": "Mostrar palavra-passe",

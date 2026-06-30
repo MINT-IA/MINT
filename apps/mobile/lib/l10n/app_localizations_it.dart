@@ -13944,6 +13944,10 @@ class SIt extends S {
       'Registrazione non disponibile. Usa la modalità locale e riprova più tardi.';
 
   @override
+  String get authErrorAccountDeletedRecreate =>
+      'Questo account Apple è stato eliminato. Ricrea il tuo account con Apple per continuare.';
+
+  @override
   String get authErrorService =>
       'Servizio account non disponibile in questo ambiente. Usa la modalità locale.';
 

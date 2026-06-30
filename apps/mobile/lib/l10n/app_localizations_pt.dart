@@ -13906,6 +13906,10 @@ class SPt extends S {
       'Registo indisponível. Usa o modo local e tenta mais tarde.';
 
   @override
+  String get authErrorAccountDeletedRecreate =>
+      'Esta conta Apple foi eliminada. Recria a tua conta com Apple para continuar.';
+
+  @override
   String get authErrorService =>
       'Serviço de conta indisponível neste ambiente. Usa o modo local.';
 
