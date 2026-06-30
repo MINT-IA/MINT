@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "journey_id": "onboarding_first_value",
+  "tier": "T0",
+  "human_question": "Rente ou capital pour mon 2e pilier, avant de créer un compte ?",
+  "primary_routes": [
+    "/retraite/rente-vs-capital"
+  ],
+  "supporting_routes": [
+    "/onb",
+    "/coach/chat",
+    "/home"
+  ],
+  "legacy_alias_routes": [
+    "/rente-vs-capital",
+    "/arbitrage/rente-vs-capital",
+    "/simulator/rente-capital"
+  ],
+  "owner_domains": [
+    "anonymous",
+    "retraite",
+    "coach",
+    "system"
+  ],
+  "route_domain": "retraite",
+  "route_role": "decision",
+  "auth_scope": "onboarding",
+  "persona_scope": [
+    "cadre_salarie_lpp_suisse_ready",
+    "fresh_anonymous_swiss_user"
+  ],
+  "required_inputs": [
+    {
+      "key": "age_or_birth_date",
+      "blocks_value": true,
+      "reason": "Retirement horizon and life-expectancy band cannot be bounded without age."
+    },
+    {
+      "key": "canton",
+      "blocks_value": true,
+      "reason": "Capital-withdrawal tax framing depends on canton."
+    },
+    {
+      "key": "civil_status",
+      "blocks_value": true,
+      "reason": "Household and survivor-benefit interpretation depend on civil status."
+    },
+    {
+      "key": "employment_or_retirement_status",
+      "blocks_value": true,
+      "reason": "LPP and AVS eligibility assumptions depend on status."
+    },
+    {
+      "key": "lpp_balance_or_certificate_range",
+      "blocks_value": true,
+      "reason": "Mint must never default a 2nd-pillar capital amount."
+    },
+    {
+      "key": "pension_fund_conversion_rate",
+      "blocks_value": true,
+      "reason": "High-confidence pension comparison requires fund-specific conversion terms."
+    }
+  ],
+  "optional_inputs": [
+    {
+      "key": "mandatory_supplementary_lpp_split",
+      "blocks_value": false,
+      "reason": "The split improves precision because mandatory and supplementary parts can use different rules."
+    },
+    {
+      "key": "survivor_pension_terms",
+      "blocks_value": false,
+      "reason": "Couple downside cannot be fully explained without survivor-benefit terms."
+    },
+    {
+      "key": "mortgage_debt_liquidity_need",
+      "blocks_value": false,
+      "reason": "Liquidity and housing plans can change the action plan after the first value."
+    },
+    {
+      "key": "investment_risk_capacity",
+      "blocks_value": false,
+      "reason": "The lump-sum path depends on market and behavior risk capacity."
+    }
+  ],
+  "missing_data_behavior": "Show education and the exact missing facts; save a readiness receipt and do not show a personalized rente/capital value.",
+  "calculation_boundary": {
+    "level": "L1-L4",
+    "l1_source": "apps/mobile/lib/services/financial_core/arbitrage_engine.dart",
+    "l2_l4_source": "services/backend/app/services/",
+    "may_emit_financial_number": true
+  },
+  "value_receipt_required": true,
+  "receipt_fields": [
+    "sources",
+    "assumptions",
+    "confidence",
+    "missing_fields",
+    "version"
+  ],
+  "signal_axis": false,
+  "compliance_invariants": [
+    "no_banned_lsfin_terms",
+    "no_financial_number_without_receipt",
+    "no_default_lpp_amount",
+    "no_tax_only_decision",
+    "no_high_confidence_without_fund_terms"
+  ],
+  "proof_pointer": ".planning/journeys/evidence/runtime_replay/20260628T231957Z/onboarding_first_value/result.xml",
+  "source_refs": [
+    ".planning/journeys/records/onboarding_first_value.json",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/VZ_ROUTE_ARCHITECTURE.md",
+    "docs/ROUTE_POLICY.md"
+  ]
+}

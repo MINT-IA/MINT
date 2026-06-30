@@ -25,6 +25,7 @@ SCHEMA = JOURNEYS / "journey.schema.json"
 ISSUE_SCHEMA = JOURNEYS / "issue.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
 OPENAPI = Path("tools/openapi/mint.openapi.canonical.json")
+ROUTE_CONTRACTS = Path(".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts")
 ALLOW = {
     str(SCHEMA),
     str(ISSUE_SCHEMA),
@@ -204,6 +205,7 @@ ALLOW = {
     "tools/checks/maestro_locator_audit.py",
     "tools/checks/mermaid_render_guard.py",
     "tools/checks/mint2_navigation_spine_guard.py",
+    "tools/checks/mint2_vz_route_contract_guard.py",
     "tools/checks/mint_rules_guard.py",
     "tools/checks/screen_registry_parity-KNOWN-MISSES.md",
     "tools/checks/screen_registry_parity.py",
@@ -216,6 +218,7 @@ ALLOW = {
     "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_mint2_navigation_spine_guard.py",
+    "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
 }
@@ -290,6 +293,7 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
+        allowed_route_contract = path.startswith(str(ROUTE_CONTRACTS) + "/") and path.endswith(".json") and "/" not in path[len(str(ROUTE_CONTRACTS)) + 1 :]
         evidence_path = Path(path)
         runtime_replay_evidence = path.startswith(str(JOURNEYS / "evidence" / "runtime_replay") + "/")
         allowed_evidence = path.startswith(str(JOURNEYS / "evidence") + "/") and ".." not in evidence_path.parts and (
@@ -303,7 +307,7 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
                 and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
             )
         )
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):

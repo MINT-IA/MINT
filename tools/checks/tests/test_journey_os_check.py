@@ -1557,6 +1557,27 @@ def test_runtime_evidence_rejects_arbitrary_artifact_type(tmp_path: Path) -> Non
 
     assert any("runtime evidence must use a parseable" in error for error in _errors(root))
 
+def test_scope_allows_mint2_route_contract_json(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    contract = (
+        root
+        / ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/money_truth_spine.json"
+    )
+    contract.parent.mkdir(parents=True)
+    contract.write_text("{}", encoding="utf-8")
+
+    errors = _errors(
+        root,
+        [
+            ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/money_truth_spine.json"
+        ],
+    )
+
+    assert not any("changed file outside Journey OS whitelist" in error for error in errors)
+
 def test_red_text_artifact_requires_failure_marker(tmp_path: Path) -> None:
     root = _root(tmp_path)
     artifact = root / ".planning/journeys/evidence/money_truth_spine/20260626T120000Z/result.txt"
