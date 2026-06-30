@@ -393,15 +393,15 @@ python3 tools/checks/mint_rules_guard.py
 python3 tools/checks/journey_os_check.py
 python3 tools/checks/workflow_contract_guard.py
 python3 tools/checks/mint2_navigation_spine_guard.py
+python3 tools/checks/mint2_vz_route_contract_guard.py
+python3 -m pytest tools/checks/tests/test_mint2_vz_route_contract_guard.py -q
 git diff --check -- docs .planning tools
 ```
 
-Future commands after the proposed gate files exist:
-
-```bash
-python3 tools/checks/mint2_vz_route_contract_guard.py
-python3 -m pytest tools/checks/tests/test_mint2_vz_route_contract_guard.py -q
-```
+The proposed gate files now exist. The route-contract guard is the mechanical
+boundary for route coverage, primary ownership, alias discipline, proof
+pointers, allowed compliance invariants, and value-receipt shape before adding
+or promoting Mint 2.0 decision routes.
 
 ## Non-Goals
 

@@ -145,6 +145,11 @@ def _route_metadata(root: Path) -> dict[str, dict[str, str]]:
     return meta
 
 
+def route_metadata(root: Path) -> dict[str, dict[str, str]]:
+    """Return parsed route metadata for other navigation guards."""
+    return _route_metadata(root)
+
+
 def _find_call_blocks(source: str, call_name: str) -> list[str]:
     blocks: list[str] = []
     index = 0

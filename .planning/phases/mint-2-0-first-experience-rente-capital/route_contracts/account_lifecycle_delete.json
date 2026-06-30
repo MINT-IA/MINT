@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "journey_id": "account_lifecycle_delete",
+  "tier": "T0",
+  "human_question": "Puis-je créer, récupérer et supprimer mon compte sans perdre le contrôle de mes données ?",
+  "primary_routes": [
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password"
+  ],
+  "supporting_routes": [
+    "/profile/privacy-control",
+    "/profile/privacy"
+  ],
+  "legacy_alias_routes": [],
+  "owner_domains": [
+    "auth",
+    "system"
+  ],
+  "route_domain": "auth_privacy",
+  "route_role": "account_lifecycle",
+  "auth_scope": "mixed",
+  "persona_scope": [
+    "fresh_disposable_staging_user",
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "required_inputs": [
+    {
+      "key": "email_or_recovery_identifier",
+      "blocks_value": true,
+      "reason": "The account lifecycle cannot prove recovery or registration without a unique identifier."
+    },
+    {
+      "key": "required_consent_state",
+      "blocks_value": true,
+      "reason": "Account creation must preserve the required consent boundary."
+    },
+    {
+      "key": "delete_confirmation",
+      "blocks_value": true,
+      "reason": "Deletion is destructive and must be explicit before the route can succeed."
+    }
+  ],
+  "optional_inputs": [
+    {
+      "key": "dob_for_regulated_profile",
+      "blocks_value": false,
+      "reason": "Date of birth improves downstream dossier readiness but is not needed to prove account deletion."
+    }
+  ],
+  "missing_data_behavior": "Block the lifecycle step that lacks credentials or consent, and show the exact missing account action without opening financial advice.",
+  "calculation_boundary": {
+    "level": "none",
+    "l1_source": "none",
+    "l2_l4_source": "none",
+    "may_emit_financial_number": false
+  },
+  "value_receipt_required": false,
+  "receipt_fields": [],
+  "signal_axis": false,
+  "compliance_invariants": [
+    "no_banned_lsfin_terms",
+    "no_financial_number_without_receipt",
+    "no_destructive_action_without_confirmation",
+    "no_post_delete_authenticated_surface",
+    "no_pii_leakage_after_delete"
+  ],
+  "proof_pointer": ".planning/journeys/evidence/account_lifecycle_delete/20260626T200541Z/result.xml",
+  "source_refs": [
+    ".planning/journeys/records/account_lifecycle_delete.json",
+    "docs/MINT_AGENT_WORKFLOW.md",
+    "docs/ROUTE_POLICY.md"
+  ]
+}

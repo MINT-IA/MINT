@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "journey_id": "coach_advice_turn",
+  "tier": "T0",
+  "human_question": "Le conseil chiffré du Coach est-il actuel, cité et borné pour ma situation suisse ?",
+  "primary_routes": [
+    "/coach/chat"
+  ],
+  "supporting_routes": [],
+  "legacy_alias_routes": [],
+  "owner_domains": [
+    "coach"
+  ],
+  "route_domain": "coach",
+  "route_role": "coach_advice",
+  "auth_scope": "public",
+  "persona_scope": [
+    "cadre_salarie_lpp_suisse_ready"
+  ],
+  "required_inputs": [
+    {
+      "key": "current_question",
+      "blocks_value": true,
+      "reason": "The Coach must bind every numeric answer to the user's current question."
+    },
+    {
+      "key": "tax_year",
+      "blocks_value": true,
+      "reason": "Swiss ceilings and cited amounts are year-sensitive."
+    },
+    {
+      "key": "canton",
+      "blocks_value": true,
+      "reason": "Tax and pension interpretation can depend on canton."
+    },
+    {
+      "key": "lpp_affiliation",
+      "blocks_value": true,
+      "reason": "The 3a/LPP ceiling answer changes depending on pension-fund affiliation."
+    },
+    {
+      "key": "profile_context_packet",
+      "blocks_value": true,
+      "reason": "Coach must use the persisted dossier context rather than inventing a shadow profile."
+    }
+  ],
+  "optional_inputs": [
+    {
+      "key": "cashflow_snapshot",
+      "blocks_value": false,
+      "reason": "Cashflow improves action priority but must not change statutory ceiling provenance."
+    }
+  ],
+  "missing_data_behavior": "Answer with education and exact missing context; do not emit a personalized financial number without provenance and confidence.",
+  "calculation_boundary": {
+    "level": "L2-L4",
+    "l1_source": "none",
+    "l2_l4_source": "services/backend/app/services/coach/",
+    "may_emit_financial_number": true
+  },
+  "value_receipt_required": true,
+  "receipt_fields": [
+    "sources",
+    "assumptions",
+    "confidence",
+    "missing_fields",
+    "version"
+  ],
+  "signal_axis": false,
+  "compliance_invariants": [
+    "no_banned_lsfin_terms",
+    "no_financial_number_without_receipt",
+    "no_certainty_language",
+    "no_uncited_statutory_amount"
+  ],
+  "proof_pointer": ".planning/journeys/evidence/runtime_replay/20260628T234759Z/coach_advice_turn/result.xml",
+  "source_refs": [
+    ".planning/journeys/records/coach_advice_turn.json",
+    "docs/coach-tool-routing.md",
+    "docs/ROUTE_POLICY.md"
+  ]
+}

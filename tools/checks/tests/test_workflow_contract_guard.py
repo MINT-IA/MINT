@@ -18,6 +18,7 @@ CI_EXTRA = (
     "python3 tools/checks/agent_reference_guard.py",
     "python3 tools/checks/claude_hooks_guard.py",
     "python3 tools/checks/mint2_navigation_spine_guard.py",
+    "python3 tools/checks/mint2_vz_route_contract_guard.py",
     "python3 tools/checks/mermaid_render_guard.py",
     "python3 tools/checks/maestro_locator_audit.py",
     "bash tools/simulator/journey_os_runtime_replay.sh --dry-run",
@@ -33,6 +34,7 @@ CI_TESTS = (
     "tools/checks/tests/test_journey_os_check.py",
     "tools/checks/tests/test_journey_os_runtime_replay.py",
     "tools/checks/tests/test_mint2_navigation_spine_guard.py",
+    "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
@@ -336,6 +338,25 @@ def test_workflow_contract_guard_requires_maestro_locator_audit_in_ci(tmp_path: 
 
     assert proc.returncode == 1
     assert "maestro_locator_audit.py" in proc.stderr
+
+
+def test_workflow_contract_guard_requires_vz_route_contract_guard_in_ci(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    workflow = tmp_path / ".github/workflows/ai-workflow-guards.yml"
+    workflow.write_text(
+        workflow.read_text(encoding="utf-8").replace(
+            "        run: python3 tools/checks/mint2_vz_route_contract_guard.py\n",
+            "        run: echo no route contract guard\n",
+        ),
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "mint2_vz_route_contract_guard.py" in proc.stderr
 
 
 def test_workflow_contract_guard_requires_top_replay_dry_run_in_ci(tmp_path: Path) -> None:
