@@ -235,6 +235,22 @@ def test_journey_os_workflow_files_are_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_mint2_vz_route_architecture_doc_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            ".planning/phases/mint-2-0-first-experience-rente-capital/VZ_ROUTE_ARCHITECTURE.md",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_coach_advice_backend_files_are_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
