@@ -33,7 +33,7 @@ tags:
     timeout: 12000
 - assertVisible: "Envoyer le lien de réinitialisation"
 
-- openLink: "mintapp:///auth/register"
+- openLink: "mintapp:///auth/register?e2e_email=${MINT_E2E_EMAIL}"
 - runFlow:
     when:
       visible: "Ouvrir"
@@ -44,69 +44,6 @@ tags:
       visible: "Open"
     commands:
       - tapOn: "Open"
-- extendedWaitUntil:
-    visible: "Créer ton compte"
-    timeout: 12000
-- waitForAnimationToEnd:
-    timeout: 3000
-- extendedWaitUntil:
-    visible: { id: "auth_register_email_field" }
-    timeout: 8000
-- assertNotVisible: "Créer avec e-mail"
-- tapOn:
-    id: "auth_register_email_field"
-- inputText: ${MINT_E2E_EMAIL}
-- waitForAnimationToEnd:
-    timeout: 2000
-- pressKey: Enter
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    point: "185, 474"
-- inputText: "Jos001"
-- waitForAnimationToEnd:
-    timeout: 1000
-- pressKey: Enter
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    point: "185, 511"
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    point: "303, 638"
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    point: "185, 604"
-- inputText: ${MINT_E2E_PASSWORD}
-- waitForAnimationToEnd:
-    timeout: 2000
-- pressKey: Enter
-- waitForAnimationToEnd:
-    timeout: 1000
-- inputText: ${MINT_E2E_PASSWORD}
-- waitForAnimationToEnd:
-    timeout: 2000
-- pressKey: Enter
-- hideKeyboard
-- waitForAnimationToEnd:
-    timeout: 3000
-- tapOn:
-    point: "56, 509"
-- waitForAnimationToEnd:
-    timeout: 500
-- tapOn:
-    point: "56, 581"
-- waitForAnimationToEnd:
-    timeout: 500
-- swipe:
-    start: "50%,75%"
-    end: "50%,45%"
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    point: "185, 607"
 - waitForAnimationToEnd:
     timeout: 20000
 - assertNotVisible: "Vérifier mon e-mail"

@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -29,22 +31,44 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  static const _e2eRegisterDob = String.fromEnvironment(
+    'MINT_E2E_REGISTER_DOB',
+  );
+  static const _e2eRegisterFirstName = String.fromEnvironment(
+    'MINT_E2E_REGISTER_FIRST_NAME',
+  );
+  static const _e2eRegisterPassword = String.fromEnvironment(
+    'MINT_E2E_REGISTER_PASSWORD',
+  );
+  static const _e2eAcceptRequiredConsents = bool.fromEnvironment(
+    'MINT_E2E_ACCEPT_REQUIRED_CONSENTS',
+  );
+  static const _e2eAutoSubmitRegister = bool.fromEnvironment(
+    'MINT_E2E_AUTO_SUBMIT_REGISTER',
+  );
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _displayNameController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _displayNameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _confirmPasswordFocusNode = FocusNode();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   DateTime? _dateOfBirth;
-  bool _acceptedCgu = false;
-  bool _confirmed18Plus = false;
+  bool _acceptedCgu = _e2eAcceptRequiredConsents;
+  bool _confirmed18Plus = _e2eAcceptRequiredConsents;
   bool _consentNotifications = false;
   bool _consentAnalytics = false;
   bool _showEmailForm = true;
   bool _appleSignInLoading = false;
   String? _appleSignInError;
   bool _handoffChoiceRequired = false;
+  bool _e2eRegisterAutoSubmitScheduled = false;
+  bool _e2eRegisterEmailApplied = false;
 
   /// P2-17: Guard to prevent concurrent SharedPreferences writes.
   bool _isWriting = false;
@@ -55,8 +79,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // Account creation must not depend on Apple Sign-In availability or
     // provisioning state. TestFlight users get the email path immediately.
     _showEmailForm = true;
-    _passwordController.addListener(() => setState(() {}));
-    _confirmPasswordController.addListener(() => setState(() {}));
+    _dateOfBirth = _e2eDateOfBirthOverride();
+    if (_e2eRegisterFirstName.isNotEmpty) {
+      _displayNameController.text = _e2eRegisterFirstName;
+    }
+    if (_e2eRegisterPassword.isNotEmpty) {
+      _passwordController.text = _e2eRegisterPassword;
+      _confirmPasswordController.text = _e2eRegisterPassword;
+    }
+    _emailController.addListener(_maybeScheduleE2eRegisterSubmit);
+    _displayNameController.addListener(_maybeScheduleE2eRegisterSubmit);
+    _passwordController.addListener(_onPasswordFieldChanged);
+    _confirmPasswordController.addListener(_onPasswordFieldChanged);
     // Clear any stale auth error that would otherwise surface a red "Action
     // impossible" banner the moment the screen mounts — killing conversion
     // before the user has done anything. Fresh arrival = fresh form.
@@ -73,7 +107,85 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _displayNameController.dispose();
+    _emailFocusNode.dispose();
+    _displayNameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_e2eAutoSubmitRegister || _e2eRegisterEmailApplied) return;
+
+    final email =
+        GoRouterState.of(context).uri.queryParameters['e2e_email']?.trim();
+    if (email == null || email.isEmpty) return;
+
+    _e2eRegisterEmailApplied = true;
+    _emailController.text = email;
+    _maybeScheduleE2eRegisterSubmit();
+  }
+
+  Widget _runtimeTextFieldAnchor({
+    required String identifier,
+    required String label,
+    required FocusNode focusNode,
+    required Widget child,
+  }) {
+    return Semantics(
+      key: ValueKey('${identifier}_semantics'),
+      identifier: identifier,
+      label: label,
+      textField: true,
+      container: true,
+      onTap: focusNode.requestFocus,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: focusNode.requestFocus,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  void _onPasswordFieldChanged() {
+    setState(() {});
+    _maybeScheduleE2eRegisterSubmit();
+  }
+
+  void _maybeScheduleE2eRegisterSubmit() {
+    if (!_e2eAutoSubmitRegister ||
+        _e2eRegisterAutoSubmitScheduled ||
+        _isWriting) {
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    final firstName = _displayNameController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+    final formReady = email.contains('@') &&
+        firstName.isNotEmpty &&
+        _dateOfBirth != null &&
+        _acceptedCgu &&
+        _confirmed18Plus &&
+        password.length >= 8 &&
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'[0-9]')) &&
+        password.contains(RegExp(r'[^A-Za-z0-9]')) &&
+        confirmPassword == password;
+
+    if (!formReady) return;
+
+    _e2eRegisterAutoSubmitScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(_handleRegister());
+    });
   }
 
   Future<void> _handleRegister() async {
@@ -215,6 +327,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<DateTime?> _pickDateOfBirth() async {
+    final e2eDateOfBirth = _e2eDateOfBirthOverride();
+    if (e2eDateOfBirth != null) {
+      setState(() => _dateOfBirth = e2eDateOfBirth);
+      return e2eDateOfBirth;
+    }
+
     final l10n = S.of(context)!;
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -231,6 +349,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _dateOfBirth = picked);
     }
     return picked;
+  }
+
+  DateTime? _e2eDateOfBirthOverride() {
+    if (_e2eRegisterDob.isEmpty) return null;
+    final parsed = DateTime.tryParse(_e2eRegisterDob);
+    assert(
+      parsed != null,
+      'MINT_E2E_REGISTER_DOB must use YYYY-MM-DD format.',
+    );
+    return parsed;
   }
 
   Future<bool> _refreshHandoffChoiceRequired() async {
@@ -301,26 +429,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Semantics(
-              identifier: 'auth_register_accept_cgu',
-              checked: _acceptedCgu,
-              child: Checkbox(
-                key: const ValueKey('auth_register_accept_cgu'),
-                value: _acceptedCgu,
-                onChanged: (v) => setAcceptedCgu(v ?? false),
-              ),
+            Checkbox(
+              key: const ValueKey('auth_register_accept_cgu'),
+              value: _acceptedCgu,
+              onChanged: (v) => setAcceptedCgu(v ?? false),
             ),
             const SizedBox(width: MintSpacing.sm),
             Expanded(
-              child: Semantics(
-                identifier: 'auth_register_accept_cgu_label',
-                checked: _acceptedCgu,
-                button: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: MintSpacing.sm),
-                  child: Wrap(
-                    children: [
-                      GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.only(top: MintSpacing.sm),
+                child: Wrap(
+                  children: [
+                    Semantics(
+                      key: const ValueKey(
+                        'auth_register_accept_cgu_semantics',
+                      ),
+                      identifier: 'auth_register_accept_cgu',
+                      label: l10n.authCguAccept,
+                      checked: _acceptedCgu,
+                      enabled: true,
+                      button: true,
+                      excludeSemantics: true,
+                      onTap: () => setAcceptedCgu(!_acceptedCgu),
+                      child: GestureDetector(
                         key: const ValueKey('auth_register_accept_cgu_label'),
                         behavior: HitTestBehavior.opaque,
                         onTap: () => setAcceptedCgu(!_acceptedCgu),
@@ -329,40 +460,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           style: consentTextStyle,
                         ),
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => context.push('/about'),
-                        child: Text(
-                          l10n.authCguLink,
-                          style: consentLinkStyle,
-                        ),
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => context.push('/about'),
+                      child: Text(
+                        l10n.authCguLink,
+                        style: consentLinkStyle,
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => setAcceptedCgu(!_acceptedCgu),
-                        child: Text(
-                          l10n.authCguAndPrivacy,
-                          style: consentTextStyle,
-                        ),
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setAcceptedCgu(!_acceptedCgu),
+                      child: Text(
+                        l10n.authCguAndPrivacy,
+                        style: consentTextStyle,
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => context.push('/about'),
-                        child: Text(
-                          l10n.authPrivacyPolicyText,
-                          style: consentLinkStyle,
-                        ),
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => context.push('/about'),
+                      child: Text(
+                        l10n.authPrivacyPolicyText,
+                        style: consentLinkStyle,
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => setAcceptedCgu(!_acceptedCgu),
-                        child: Text(
-                          ' *',
-                          style: consentTextStyle,
-                        ),
+                    ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setAcceptedCgu(!_acceptedCgu),
+                      child: Text(
+                        ' *',
+                        style: consentTextStyle,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -371,21 +502,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Semantics(
-              identifier: 'auth_register_confirm_18',
-              checked: _confirmed18Plus,
-              child: Checkbox(
-                key: const ValueKey('auth_register_confirm_18'),
-                value: _confirmed18Plus,
-                onChanged: (v) => setConfirmed18Plus(v ?? false),
-              ),
+            Checkbox(
+              key: const ValueKey('auth_register_confirm_18'),
+              value: _confirmed18Plus,
+              onChanged: (v) => setConfirmed18Plus(v ?? false),
             ),
             const SizedBox(width: MintSpacing.sm),
             Expanded(
               child: Semantics(
-                identifier: 'auth_register_confirm_18_label',
+                key: const ValueKey('auth_register_confirm_18_semantics'),
+                identifier: 'auth_register_confirm_18',
+                label: l10n.authConfirm18,
                 checked: _confirmed18Plus,
+                enabled: true,
                 button: true,
+                excludeSemantics: true,
+                onTap: () => setConfirmed18Plus(!_confirmed18Plus),
                 child: InkWell(
                   key: const ValueKey('auth_register_confirm_18_label'),
                   borderRadius: BorderRadius.circular(8),
@@ -415,6 +547,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final accountActionBusy = authProvider.isLoading || _appleSignInLoading;
     final handoffBlocksAuth =
         FeatureFlags.enableMvpWedgeOnboarding && _handoffChoiceRequired;
+    final canCreateAccount = _acceptedCgu &&
+        _confirmed18Plus &&
+        !accountActionBusy &&
+        !handoffBlocksAuth;
+    void submitCreateAccount() {
+      HapticFeedback.lightImpact();
+      _handleRegister();
+    }
+
+    final createAccountAction = canCreateAccount ? submitCreateAccount : null;
+    final createAccountActive = canCreateAccount || authProvider.isLoading;
+    final createAccountBackground = createAccountActive
+        ? MintColors.textPrimary
+        : MintColors.textMuted.withValues(alpha: 0.18);
+    final createAccountForeground =
+        createAccountActive ? MintColors.white : MintColors.textMuted;
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -508,44 +656,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (_showEmailForm) ...[
                           // Email field
                           MintEntrance(
-                              delay: const Duration(milliseconds: 400),
-                              child: Semantics(
-                                identifier: 'auth_register_email_field',
-                                label: l10n.authEmail,
-                                textField: true,
-                                child: TextFormField(
-                                  key: const ValueKey(
-                                      'auth_register_email_field'),
-                                  controller: _emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  autofillHints: const [AutofillHints.email],
-                                  decoration: InputDecoration(
-                                    labelText: l10n.authEmail,
-                                    prefixIcon:
-                                        const Icon(Icons.email_outlined),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.authEmailInvalid;
-                                    }
-                                    if (!value.contains('@')) {
-                                      return l10n.authEmailInvalid;
-                                    }
-                                    return null;
-                                  },
+                            delay: const Duration(milliseconds: 400),
+                            child: _runtimeTextFieldAnchor(
+                              identifier: 'auth_register_email_field',
+                              label: l10n.authEmail,
+                              focusNode: _emailFocusNode,
+                              child: TextFormField(
+                                key:
+                                    const ValueKey('auth_register_email_field'),
+                                focusNode: _emailFocusNode,
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                autofillHints: const [AutofillHints.email],
+                                decoration: InputDecoration(
+                                  labelText: l10n.authEmail,
+                                  prefixIcon: const Icon(Icons.email_outlined),
                                 ),
-                              )),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return l10n.authEmailInvalid;
+                                  }
+                                  if (!value.contains('@')) {
+                                    return l10n.authEmailInvalid;
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: MintSpacing.md),
                           // First name field (required for coach personalization)
-                          Semantics(
+                          _runtimeTextFieldAnchor(
                             identifier: 'auth_register_first_name_field',
                             label: l10n.authFirstName,
-                            textField: true,
+                            focusNode: _displayNameFocusNode,
                             child: TextFormField(
                               key: const ValueKey(
                                   'auth_register_first_name_field'),
+                              focusNode: _displayNameFocusNode,
                               controller: _displayNameController,
                               autofillHints: const [AutofillHints.givenName],
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) {
+                                if (_e2eDateOfBirthOverride() != null) {
+                                  _passwordFocusNode.requestFocus();
+                                  return;
+                                }
+                                FocusScope.of(context).unfocus();
+                              },
                               textCapitalization: TextCapitalization.words,
                               maxLength: 50, // FIX-079
                               decoration: InputDecoration(
@@ -618,13 +776,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: MintSpacing.md),
                           // Password field
-                          Semantics(
+                          _runtimeTextFieldAnchor(
                             identifier: 'auth_register_password_field',
                             label: l10n.authPassword,
-                            textField: true,
+                            focusNode: _passwordFocusNode,
                             child: TextFormField(
                               key: const ValueKey(
                                   'auth_register_password_field'),
+                              focusNode: _passwordFocusNode,
                               controller: _passwordController,
                               obscureText: _obscurePassword,
                               textInputAction: TextInputAction.next,
@@ -632,7 +791,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               autovalidateMode:
                                   AutovalidateMode.onUserInteraction,
                               onFieldSubmitted: (_) =>
-                                  FocusScope.of(context).nextFocus(),
+                                  _confirmPasswordFocusNode.requestFocus(),
                               decoration: InputDecoration(
                                 labelText: l10n.authPassword,
                                 prefixIcon: const Icon(Icons.lock_outline),
@@ -678,13 +837,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: MintSpacing.md),
                           // Confirm password field
-                          Semantics(
+                          _runtimeTextFieldAnchor(
                             identifier: 'auth_register_confirm_password_field',
                             label: l10n.authConfirmPassword,
-                            textField: true,
+                            focusNode: _confirmPasswordFocusNode,
                             child: TextFormField(
                               key: const ValueKey(
                                   'auth_register_confirm_password_field'),
+                              focusNode: _confirmPasswordFocusNode,
                               controller: _confirmPasswordController,
                               obscureText: _obscureConfirmPassword,
                               textInputAction: TextInputAction.done,
@@ -864,34 +1024,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: MintSpacing.lg),
                           // Register button
                           Semantics(
+                            key: const ValueKey(
+                                'auth_register_create_account_semantics'),
                             identifier: 'auth_register_create_account',
                             label: l10n.authCreateAccount,
                             button: true,
-                            child: FilledButton(
-                              // lint-ignore: prefer_mint_cta
+                            container: true,
+                            enabled: canCreateAccount,
+                            excludeSemantics: true,
+                            onTap: createAccountAction,
+                            child: InkWell(
                               key: const ValueKey(
                                   'auth_register_create_account'),
-                              onPressed: (_acceptedCgu &&
-                                      _confirmed18Plus &&
-                                      !accountActionBusy &&
-                                      !handoffBlocksAuth)
-                                  ? () {
-                                      HapticFeedback.lightImpact();
-                                      _handleRegister();
-                                    }
-                                  : null,
-                              child: authProvider.isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                MintColors.white),
-                                      ),
-                                    )
-                                  : Text(l10n.authCreateAccount),
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: createAccountAction,
+                              child: Ink(
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: createAccountBackground,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Center(
+                                  child: authProvider.isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    MintColors.white),
+                                          ),
+                                        )
+                                      : Text(
+                                          l10n.authCreateAccount,
+                                          style: MintTextStyles.labelLarge(
+                                            color: createAccountForeground,
+                                          ).copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: MintSpacing.sm + 4),
