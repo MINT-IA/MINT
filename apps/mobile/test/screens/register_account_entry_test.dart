@@ -93,6 +93,8 @@ void main() {
   testWidgets('registration create CTA exposes runtime semantics id',
       (tester) async {
     final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     try {
       await tester.pumpWidget(_testApp());
@@ -109,8 +111,11 @@ void main() {
       expect(node.identifier, 'auth_register_create_account');
       expect(node.label, 'Créer mon compte');
       expect(node.flagsCollection.isButton, isTrue);
+      expect(tester.getSize(createAccountSemantics).width, greaterThan(300));
     } finally {
       debugDefaultTargetPlatformOverride = null;
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
       semantics.dispose();
     }
   });
@@ -141,6 +146,55 @@ void main() {
       await tester.pump();
 
       expect(find.text('Adresse e-mail invalide'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('registration create CTA validates after required consents',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(_testApp());
+      await tester.pump();
+
+      final cguCheckbox = find.byKey(
+        const ValueKey('auth_register_accept_cgu'),
+      );
+      final ageCheckbox = find.byKey(
+        const ValueKey('auth_register_confirm_18'),
+      );
+
+      await tester.ensureVisible(cguCheckbox);
+      await tester.pumpAndSettle();
+      await tester.tap(cguCheckbox);
+      await tester.pump();
+      await tester.ensureVisible(ageCheckbox);
+      await tester.pumpAndSettle();
+      await tester.tap(ageCheckbox);
+      await tester.pump();
+
+      final createAccountSemantics = find.byKey(
+        const ValueKey('auth_register_create_account_semantics'),
+      );
+      final createAccount = find.byKey(
+        const ValueKey('auth_register_create_account'),
+      );
+
+      await tester.ensureVisible(createAccountSemantics);
+      await tester.pumpAndSettle();
+
+      final data =
+          tester.getSemantics(createAccountSemantics).getSemanticsData();
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
+
+      await tester.tap(createAccount);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.text('Adresse e-mail invalide'), findsOneWidget);
     } finally {
       debugDefaultTargetPlatformOverride = null;
       semantics.dispose();
