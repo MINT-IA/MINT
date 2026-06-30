@@ -370,7 +370,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['netIncome'],
     optionalFields: ['depenses'],
-    fallbackRoute: '/onboarding/quick',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -765,7 +765,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['netIncome'],
     optionalFields: ['salaireBrut'],
-    fallbackRoute: '/onboarding/quick',
+    fallbackRoute: '/onb',
     preferFromChat: true,
     prefillFromProfile: true,
     customGate: gateBudgetSousTension,
@@ -1384,7 +1384,7 @@ class MintScreenRegistry extends ScreenRegistry {
   );
 
   static const ScreenEntry _onboardingQuick = ScreenEntry(
-    route: '/onboarding/quick',
+    route: '/onb',
     intentTag: 'onboarding_quick',
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],

@@ -59,7 +59,8 @@ if [ "$DRY_RUN" -eq 1 ]; then
 
 Build:
   xattr -cr apps/mobile/build/ios
-  rm -rf apps/mobile/build/ios/Debug-iphonesimulator/App.framework
+  mv apps/mobile/build/ios/Debug-iphonesimulator/App.framework \
+    ${TMPDIR:-/tmp}/mint-stale-App.framework-<run-id>-<pid>
 
   CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \\
     --dart-define=API_BASE_URL=$API_BASE_URL \\
@@ -194,9 +195,10 @@ scrub_ios_build_xattrs() {
     fi
   fi
   if [ -d "$app_framework" ]; then
-    log "removing stale generated App.framework before simulator build"
+    local stale_app_framework="${TMPDIR:-/tmp}/mint-stale-App.framework-$RUN_ID-$$"
+    log "moving stale generated App.framework before simulator build"
     /usr/bin/codesign --remove-signature "$app_framework" 2>/dev/null || true
-    rm -rf "$app_framework"
+    mv "$app_framework" "$stale_app_framework"
   fi
 }
 
@@ -246,7 +248,7 @@ DEVICE_UDID="$(resolve_device_udid)"
 log "booting only $DEVICE_NAME ($DEVICE_UDID)"
 xcrun simctl shutdown all >/dev/null 2>&1 || true
 xcrun simctl boot "$DEVICE_UDID"
-open -a Simulator
+open -a Simulator || true
 xcrun simctl bootstatus "$DEVICE_UDID" -b
 
 log "resetting simulator keychain"

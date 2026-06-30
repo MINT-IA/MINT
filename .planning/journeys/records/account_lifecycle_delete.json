@@ -31,7 +31,12 @@
     ],
     "device": "MINT iPhone 13 mini RvC",
     "build_defines": [
-      "MINT_DISABLE_BETA_MODAL=true"
+      "MINT_DISABLE_BETA_MODAL=true",
+      "MINT_E2E_REGISTER_DOB=1991-01-01",
+      "MINT_E2E_REGISTER_FIRST_NAME=Jos001",
+      "MINT_E2E_REGISTER_PASSWORD=M1nt-E2E-JOS001!",
+      "MINT_E2E_ACCEPT_REQUIRED_CONSENTS=true",
+      "MINT_E2E_AUTO_SUBMIT_REGISTER=true"
     ],
     "requires_auth": true,
     "order": 90

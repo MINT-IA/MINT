@@ -200,7 +200,8 @@ clear_extended_attributes() {
 }
 
 scrub_ios_build_xattrs() {
-  local ios_build_dir="$ROOT/apps/mobile/build/ios"
+  local mobile_build_dir="$ROOT/apps/mobile/build"
+  local ios_build_dir="$mobile_build_dir/ios"
   local app_framework="$ios_build_dir/Debug-iphonesimulator/App.framework"
   local flutter_root=""
   local flutter_xcframework=""
@@ -212,8 +213,23 @@ scrub_ios_build_xattrs() {
   flutter_xcframework="$flutter_root/bin/cache/artifacts/engine/ios/Flutter.xcframework"
   clear_extended_attributes "$flutter_xcframework"
   if [[ -d "$app_framework" ]]; then
-    /usr/bin/codesign --remove-signature "$app_framework" 2>/dev/null || true
-    rm -rf "$app_framework"
+    local stale_stamp="${STAMP:-$(date -u +%Y%m%dT%H%M%SZ)}"
+    if [[ ! "$stale_stamp" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
+      echo "invalid stale App.framework stamp: $stale_stamp" >&2
+      exit 1
+    fi
+    local stale_dir="$mobile_build_dir/.mint-stale-app-frameworks/ios"
+    mkdir -p "$stale_dir"
+    local stale_parent=""
+    stale_parent="$(mktemp -d "$stale_dir/app-framework-$stale_stamp-XXXXXX")" || {
+      echo "failed to create stale App.framework destination under $stale_dir" >&2
+      exit 1
+    }
+    local stale_app_framework="$stale_parent/App.framework"
+    mv "$app_framework" "$stale_app_framework" || {
+      echo "failed to move stale App.framework to $stale_app_framework" >&2
+      exit 1
+    }
   fi
 }
 

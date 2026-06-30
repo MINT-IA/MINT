@@ -341,6 +341,7 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "apps/mobile/test/architecture/route_guard_snapshot.golden.txt",
             "apps/mobile/test/architecture/route_guard_snapshot_test.dart",
             "apps/mobile/test/navigation/account_lifecycle_public_entry_redirect_test.dart",
+            "apps/mobile/test/navigation/goroute_health_test.dart",
             "apps/mobile/test/providers/auth_provider_test.dart",
             "apps/mobile/test/screens/debug/debug_mint2_account_claim_screen_test.dart",
             "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_route_scope_test.dart",
@@ -360,6 +361,8 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "services/backend/tests/test_coach_tools.py",
             "tools/contracts/regen_screen_registry_contract.py",
             "tools/contracts/screen_registry.json",
+            "tools/simulator/mint2_quality_gate.sh",
+            "tools/simulator/test_mint2_quality_gate.py",
         ],
     )
 

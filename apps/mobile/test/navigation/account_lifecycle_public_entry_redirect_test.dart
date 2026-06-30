@@ -41,7 +41,21 @@ void main() {
     test('restored account skips landing and auth entry points', () {
       final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
 
-      for (final path in ['/', '/auth/login', '/auth/register']) {
+      for (final path in [
+        '/',
+        '/start',
+        '/anonymous/chat',
+        '/onboarding/quick',
+        '/onboarding/quick-start',
+        '/onboarding/premier-eclairage',
+        '/onboarding/intent',
+        '/onboarding/promise',
+        '/onboarding/plan',
+        '/onboarding/smart',
+        '/onboarding/minimal',
+        '/auth/login',
+        '/auth/register',
+      ]) {
         expect(
           accountLifecyclePublicEntryRedirect(
             lifecycle: lifecycle,
@@ -55,7 +69,14 @@ void main() {
     test('guest local mode stays allowed on public entry points', () {
       final lifecycle = AuthLifecycleState.guestEmpty(installId: 'install-1');
 
-      for (final path in ['/', '/auth/login']) {
+      for (final path in [
+        '/',
+        '/start',
+        '/anonymous/chat',
+        '/onb',
+        '/onboarding/quick',
+        '/auth/login',
+      ]) {
         expect(
           accountLifecyclePublicEntryRedirect(
             lifecycle: lifecycle,
@@ -82,6 +103,55 @@ void main() {
         accountLifecyclePublicEntryRedirect(
           lifecycle: lifecycle,
           path: '/auth/login',
+        ),
+        isNull,
+      );
+    });
+
+    test('profile-ready account skips stale onboarding alias', () {
+      final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/onboarding/quick',
+          topRoute: _publicShellRoute('/onboarding/quick'),
+          profile: CoachProfile.fromWizardAnswers({
+            'q_residence_country': 'CH',
+          }),
+        ),
+        '/home',
+      );
+    });
+
+    test('profile-ready account can enter planner fallback capture route', () {
+      final lifecycle = AuthLifecycleState.syncOffAccount(userId: 'user-1');
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/onb',
+          topRoute: _publicShellRoute('/onb'),
+          profile: CoachProfile.fromWizardAnswers({
+            'q_residence_country': 'CH',
+          }),
+        ),
+        isNull,
+      );
+    });
+
+    test('claimed account can remain on onboarding entry for profile recovery',
+        () {
+      final lifecycle = AuthLifecycleState.signedInProfileMissing(
+        userId: 'claim-user',
+        cloudSyncEnabled: false,
+      );
+
+      expect(
+        _redirect(
+          lifecycle: lifecycle,
+          path: '/onb',
+          topRoute: _publicShellRoute('/onb'),
         ),
         isNull,
       );

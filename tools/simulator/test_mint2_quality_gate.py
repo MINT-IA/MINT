@@ -65,6 +65,19 @@ def test_mint2_quality_gate_combines_layout_and_committed_maestro_flows():
         assert fragment in src, f"quality gate missing: {fragment}"
 
 
+def test_mint2_quality_gate_does_not_delete_stale_app_framework():
+    src = _read_gate()
+
+    assert "rm -rf apps/mobile/build/ios/Debug-iphonesimulator/App.framework" not in src
+    assert 'rm -rf "$app_framework"' not in src
+
+
+def test_mint2_quality_gate_simulator_app_open_is_non_blocking():
+    src = _read_gate()
+
+    assert "open -a Simulator || true" in src
+
+
 def test_mint2_quality_gate_dry_run_lists_contract():
     result = subprocess.run(
         ["bash", str(GATE), "--dry-run"],
