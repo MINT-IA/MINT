@@ -118,6 +118,7 @@ ALLOW = {
     "apps/mobile/test/providers/auth_provider_test.dart",
     "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/test/routes/coach_chat_entry_payload_test.dart",
+    "apps/mobile/test/screens/auth_screens_smoke_test.dart",
     "apps/mobile/test/screens/login_redirect_resolver_test.dart",
     "apps/mobile/test/screens/register_account_entry_test.dart",
     "apps/mobile/test/screens/admin/routes_registry_screen_test.dart",
