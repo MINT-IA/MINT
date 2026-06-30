@@ -161,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (!mounted) return;
         setState(() {
           _appleSignInError = authProvider.error == null
-              ? S.of(context)!.authErrorGeneric
+              ? S.of(context)!.authErrorService
               : null;
           _showEmailForm = true;
         });
@@ -175,7 +175,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (AppleSignInService.isCancellation(e)) return;
       if (mounted) {
         setState(() {
-          _appleSignInError = localizeAuthException(e, S.of(context)!);
+          _appleSignInError =
+              localizeAuthException(e, S.of(context)!, appleContext: true);
           _showEmailForm = true;
         });
       }
