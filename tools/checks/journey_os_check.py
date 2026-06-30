@@ -144,6 +144,7 @@ ALLOW = {
     "apps/mobile/test/services/response_card_service_test.dart",
     "apps/mobile/test/services/screen_completion_tracker_test.dart",
     "apps/mobile/test/widgets/coach/coach_message_bubble_test.dart",
+    "apps/mobile/test/widgets/coach/chat_drawer_summon_test.dart",
     "apps/mobile/test/widgets/coach/route_suggestion_card_test.dart",
     "apps/mobile/test/widgets/coach/widget_renderer_test.dart",
     "apps/mobile/test/widgets/fullscreen_chart_wrapper_test.dart",
@@ -213,6 +214,9 @@ ALLOW = {
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
 }
+DELETION_ALLOW = {
+    "apps/mobile/test/services/coach/chat_drawer_summon_test.dart",
+}
 IGNORED_GENERATED_PREFIXES = (
     "services/backend/mint_backend.egg-info/",
 )
@@ -276,6 +280,8 @@ def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
 def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
+        if path in DELETION_ALLOW and not (root / path).exists():
+            continue
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
