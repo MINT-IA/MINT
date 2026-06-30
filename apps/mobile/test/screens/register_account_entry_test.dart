@@ -168,9 +168,11 @@ void main() {
         await tester.pumpAndSettle();
 
         final node = tester.getSemantics(finder);
+        final data = node.getSemanticsData();
         expect(node.identifier, entry.key);
         expect(node.label, entry.value);
-        expect(node.flagsCollection.isTextField, isTrue);
+        expect(node.flagsCollection.isTextField, isFalse);
+        expect(data.hasAction(SemanticsAction.tap), isTrue);
       }
     } finally {
       debugDefaultTargetPlatformOverride = null;

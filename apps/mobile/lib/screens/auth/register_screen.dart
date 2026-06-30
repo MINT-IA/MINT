@@ -1,6 +1,6 @@
 import 'dart:async' show unawaited;
 
-import 'package:flutter/foundation.dart' show kReleaseMode;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -32,7 +32,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  static const _e2eRuntimeEnabled = !kReleaseMode;
+  static const _e2eRuntimeEnabled = kDebugMode;
   static const _e2eRegisterDob = _e2eRuntimeEnabled
       ? String.fromEnvironment(
           'MINT_E2E_REGISTER_DOB',
@@ -148,7 +148,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       key: ValueKey('${identifier}_semantics'),
       identifier: identifier,
       label: label,
-      textField: true,
       container: true,
       onTap: focusNode.requestFocus,
       child: GestureDetector(
