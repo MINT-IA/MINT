@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/navigation/mint_nav.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
@@ -181,7 +182,7 @@ class WidgetRenderer {
       value:
           p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
       description: p['description'] as String? ?? p['content'] as String? ?? '',
-      onTap: route != null ? () => context.push(route) : null,
+      onTap: route != null ? () => MintNav.open<void>(context, route) : null,
       confidenceState: _factConfidenceState(context, p),
     );
   }

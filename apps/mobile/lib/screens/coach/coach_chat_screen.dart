@@ -989,7 +989,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           } else {
             // NAV-03/WID-03: Routes without drawer support (e.g. /scan,
             // /profile/bilan) fall back to standard push navigation.
-            context.push(route);
+            MintNav.open<void>(context, route);
           }
         },
       ),
@@ -2227,7 +2227,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (drawerWidget != null) {
         showChatDrawer(context: context, child: drawerWidget);
       } else {
-        context.push(route);
+        MintNav.open<void>(context, route);
       }
     } else {
       _sendMessage(action);
