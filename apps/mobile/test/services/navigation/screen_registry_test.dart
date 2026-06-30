@@ -339,7 +339,7 @@ void main() {
 
     test('legacy RVC alias is not a Coach-routable primary surface', () {
       final entry =
-          MintScreenRegistry.findByRouteStatic('/retraite/rente-vs-capital');
+          MintScreenRegistry.findByRouteStatic('/rente-vs-capital');
       expect(entry, isNull);
     });
 
