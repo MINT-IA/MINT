@@ -248,6 +248,43 @@ def _recreate_required_for_deleted_provider_subject(
     )
 
 
+def _raise_apple_verify_conflict(
+    db: Session,
+    *,
+    request: Request,
+    status_value: str,
+    code: str,
+    message: str,
+    subject: str,
+    user: Optional[User] = None,
+    allow_recreate_after_delete: bool = False,
+) -> None:
+    log_audit_event(
+        db,
+        event_type="auth.apple_verify",
+        status=status_value,
+        source="api",
+        user_id=user.id if user is not None else None,
+        actor_email=user.email if user is not None else None,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        details={
+            "provider": "apple",
+            "provider_subject_hash": _provider_subject_hash("apple", subject),
+            "code": code,
+            "allow_recreate_after_delete": allow_recreate_after_delete,
+        },
+    )
+    db.commit()
+    raise HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": code,
+            "message": message,
+        },
+    )
+
+
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 def register_user(
@@ -438,7 +475,7 @@ def login_user(
         db.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou mot de passe incorrect"
+            detail="Email ou mot de passe incorrect",
         )
     if _email_verification_required() and not bool(user.email_verified):
         log_audit_event(
@@ -1420,25 +1457,52 @@ def apple_verify(
             detail="Apple identity token missing subject",
         )
 
-    if _has_deleted_provider_subject(db, provider="apple", subject=apple_sub):
-        _recreate_required_for_deleted_provider_subject(
-            db,
-            provider="apple",
-            subject=apple_sub,
-            request=request,
-        )
+    recreate_confirmed_subject_hash: Optional[str] = None
 
     # Find by Apple's stable subject first. Relay email can change.
     user = db.query(User).filter(User.apple_sub == apple_sub).first()
+    if user is None and _has_deleted_provider_subject(
+        db,
+        provider="apple",
+        subject=apple_sub,
+    ):
+        if not body.allow_recreate_after_delete:
+            _recreate_required_for_deleted_provider_subject(
+                db,
+                provider="apple",
+                subject=apple_sub,
+                request=request,
+            )
+        recreate_confirmed_subject_hash = _provider_subject_hash("apple", apple_sub)
+
     if user is None and apple_email:
         user = db.query(User).filter(User.email == apple_email).first()
         if user is not None:
             if user.apple_sub is None:
+                # Register intent must create a new Apple account or fail. It
+                # must not silently attach Apple to an existing email login.
+                if body.allow_recreate_after_delete:
+                    _raise_apple_verify_conflict(
+                        db,
+                        request=request,
+                        status_value="apple_email_already_linked",
+                        code="apple_email_already_linked",
+                        message="Apple email is already linked to another account",
+                        subject=apple_sub,
+                        user=user,
+                        allow_recreate_after_delete=body.allow_recreate_after_delete,
+                    )
                 user.apple_sub = apple_sub
             elif user.apple_sub != apple_sub:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail="Apple email is already linked to another account",
+                _raise_apple_verify_conflict(
+                    db,
+                    request=request,
+                    status_value="apple_email_already_linked",
+                    code="apple_email_already_linked",
+                    message="Apple email is already linked to another account",
+                    subject=apple_sub,
+                    user=user,
+                    allow_recreate_after_delete=body.allow_recreate_after_delete,
                 )
 
     if user is None:
@@ -1457,6 +1521,22 @@ def apple_verify(
         # user is not stuck with a 404 on /profiles/me post Apple Sign-In.
         _ensure_empty_profile(db, user.id)
 
+    if recreate_confirmed_subject_hash is not None:
+        log_audit_event(
+            db,
+            event_type="auth.apple_verify",
+            status="recreate_confirmed",
+            source="api",
+            user_id=user.id,
+            actor_email=user.email,
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={
+                "provider": "apple",
+                "provider_subject_hash": recreate_confirmed_subject_hash,
+            },
+        )
+
     log_audit_event(
         db,
         event_type="auth.apple_verify",
@@ -1473,9 +1553,14 @@ def apple_verify(
         db.rollback()
         user = db.query(User).filter(User.apple_sub == apple_sub).first()
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Apple account conflict",
+            _raise_apple_verify_conflict(
+                db,
+                request=request,
+                status_value="apple_account_conflict",
+                code="apple_account_conflict",
+                message="Apple account conflict",
+                subject=apple_sub,
+                allow_recreate_after_delete=body.allow_recreate_after_delete,
             )
         log_audit_event(
             db,

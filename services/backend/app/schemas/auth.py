@@ -231,6 +231,7 @@ class AppleVerifyRequest(BaseModel):
 
     identity_token: str
     nonce: Optional[str] = None
+    allow_recreate_after_delete: bool = False
 
 
 class AppleVerifyResponse(BaseModel):
