@@ -25,6 +25,31 @@ class AppleSignInService {
     _signInOverride = null;
   }
 
+  @visibleForTesting
+  static Map<String, dynamic> normalizeVerifyResponseForTest(
+    Map<String, dynamic> response,
+  ) =>
+      _normalizeVerifyResponse(response);
+
+  static Map<String, dynamic> _normalizeVerifyResponse(
+    Map<String, dynamic> response,
+  ) {
+    final accessToken = response['accessToken'] ?? response['access_token'];
+    final tokenType = response['tokenType'] ?? response['token_type'];
+    final userId = response['userId'] ?? response['user_id'];
+    final displayName = response['displayName'] ?? response['display_name'];
+    final refreshToken = response['refreshToken'] ?? response['refresh_token'];
+
+    return {
+      ...response,
+      if (accessToken != null) 'accessToken': accessToken,
+      if (tokenType != null) 'tokenType': tokenType,
+      if (userId != null) 'userId': userId,
+      if (displayName != null) 'displayName': displayName,
+      if (refreshToken != null) 'refreshToken': refreshToken,
+    };
+  }
+
   static bool isCancellation(Object error) {
     if (error is SignInWithAppleAuthorizationException) {
       return error.code == AuthorizationErrorCode.canceled;
@@ -108,14 +133,16 @@ class AppleSignInService {
       nonce: rawNonce,
     );
 
-    final accessToken = response['accessToken'] as String?;
+    final normalizedResponse = _normalizeVerifyResponse(response);
+    final accessToken = normalizedResponse['accessToken'] as String?;
     if (accessToken == null) {
       throw Exception('Backend returned no access token for Apple Sign-In');
     }
 
-    // Do NOT persist the token here — return the raw response so
-    // AuthProvider.completeAppleSignIn() owns the single state mutation.
-    return response;
+    // Do NOT persist the token here — return a response shape that
+    // AuthProvider.completeAppleSignIn() can consume as the single state
+    // mutation point.
+    return normalizedResponse;
   }
 
   /// Generate a cryptographically secure random nonce (32 characters).
