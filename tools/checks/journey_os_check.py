@@ -46,6 +46,7 @@ ALLOW = {
     ".planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/payload-2026-05-15-A2-2219.jsonl",
     ".planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/probe-2026-05-15-1958-payload.jsonl",
     ".planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/user_message_a1_2105.txt",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/VZ_ROUTE_ARCHITECTURE.md",
     ".planning/ROADMAP.md",
     ".planning/STATE.md",
     "AGENTS.md",
