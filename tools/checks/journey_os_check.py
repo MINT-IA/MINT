@@ -35,6 +35,7 @@ ALLOW = {
     str(journey_os_generate.BOARD),
     str(journey_os_generate.TODAY),
     str(journey_os_generate.CARDS),
+    str(OPENAPI),
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",

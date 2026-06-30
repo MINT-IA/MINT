@@ -1550,6 +1550,11 @@
       "AppleVerifyRequest": {
         "description": "Schema for verifying an Apple identity token.",
         "properties": {
+          "allowRecreateAfterDelete": {
+            "default": false,
+            "title": "Allowrecreateafterdelete",
+            "type": "boolean"
+          },
           "identityToken": {
             "title": "Identitytoken",
             "type": "string"
