@@ -689,17 +689,27 @@ void main() {
       },
     );
 
-    test('localizeAuthException hides raw technical exception text', () async {
+    test('localizeAuthException maps unknown Apple failures to service copy',
+        () async {
       final l10n = await S.delegate.load(const Locale('fr'));
 
-      final message = localizeAuthException(
+      for (final error in [
         Exception('Apple Sign-In returned no identity token'),
-        l10n,
-      );
+        Exception('Backend returned no access token for Apple Sign-In'),
+        const ApiException('Internal Server Error', statusCode: 500),
+      ]) {
+        final message = localizeAuthException(
+          error,
+          l10n,
+          appleContext: true,
+        );
 
-      expect(message, l10n.authErrorGeneric);
-      expect(message, isNot(contains('identity token')));
-      expect(message, isNot(contains('Apple Sign-In')));
+        expect(message, l10n.authErrorService, reason: error.toString());
+        expect(message, isNot(contains('identity token')));
+        expect(message, isNot(contains('access token')));
+        expect(message, isNot(contains('Apple Sign-In')));
+        expect(message, isNot(contains('Internal Server Error')));
+      }
     });
 
     test(
@@ -1302,6 +1312,20 @@ void main() {
         expect(provider.userId, 'apple-user');
         expect(provider.email, 'apple@example.ch');
         expect(provider.displayName, 'Apple User');
+      },
+    );
+
+    test(
+      'completeAppleSignIn maps malformed Apple response to service copy',
+      () async {
+        final ok = await provider.completeAppleSignIn({
+          'userId': 'apple-user',
+          'email': 'apple@example.ch',
+        }, claimAnonymousConversations: true);
+
+        expect(ok, isFalse);
+        expect(provider.error, AuthError.serviceUnavailable);
+        expect(provider.error, isNot(AuthError.genericError));
       },
     );
 

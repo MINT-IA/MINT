@@ -23,6 +23,26 @@ REGISTER_FLOW = Path(
     "flow_jos001_account_lifecycle_seeded_delete.yaml"
 )
 ACCOUNT_WALL_TITLE = "Cr\u00e9er ton compte"
+EMAIL_FALLBACK_CTA = "Cr\u00e9er avec e-mail"
+REGISTER_EMAIL_FIELD_RE = re.compile(
+    r"visible:\s*(?:\{\s*id:\s*['\"]auth_register_email_field['\"]\s*\}|"
+    r"id:\s*['\"]auth_register_email_field['\"])"
+)
+REGISTER_EMAIL_TAP_RE = re.compile(
+    r"tapOn:\s*(?:\{\s*id:\s*['\"]auth_register_email_field['\"]\s*\}|"
+    r"id:\s*['\"]auth_register_email_field['\"])"
+)
+EMAIL_FALLBACK_ASSERT_RE = re.compile(
+    rf"assertNotVisible:\s*(?:['\"]{re.escape(EMAIL_FALLBACK_CTA)}['\"]|"
+    rf"text:\s*['\"]{re.escape(EMAIL_FALLBACK_CTA)}['\"])"
+)
+EMAIL_FALLBACK_TAP_RE = re.compile(
+    rf"tapOn:\s*(?:['\"]{re.escape(EMAIL_FALLBACK_CTA)}['\"]|"
+    rf"text:\s*['\"]{re.escape(EMAIL_FALLBACK_CTA)}['\"])"
+)
+EMAIL_FALLBACK_VISIBLE_RE = re.compile(
+    rf"visible:\s*['\"]{re.escape(EMAIL_FALLBACK_CTA)}['\"]"
+)
 
 SPINE_DESTINATIONS = {
     "/onb": {"scope": "public", "category": "destination", "requiresAuth": "false"},
@@ -243,6 +263,40 @@ def _check_account_wall_positive_control(errors: list[str], root: Path) -> None:
     if ACCOUNT_WALL_TITLE not in text:
         errors.append(
             f"{REGISTER_FLOW} must positively assert {ACCOUNT_WALL_TITLE!r}"
+        )
+    email_field = REGISTER_EMAIL_FIELD_RE.search(text)
+    email_tap = REGISTER_EMAIL_TAP_RE.search(text)
+    fallback_assert = EMAIL_FALLBACK_ASSERT_RE.search(text)
+    if fallback_assert is None:
+        errors.append(
+            f"{REGISTER_FLOW} must reject the hidden email fallback CTA "
+            f"{EMAIL_FALLBACK_CTA!r}"
+        )
+    if email_field is None:
+        errors.append(
+            f"{REGISTER_FLOW} must assert direct register email field visibility"
+        )
+    if email_tap is None:
+        errors.append(
+            f"{REGISTER_FLOW} must tap the direct register email field by id"
+        )
+    if (
+        email_field is not None
+        and fallback_assert is not None
+        and email_field.start() > fallback_assert.start()
+    ):
+        errors.append(
+            f"{REGISTER_FLOW} must assert direct email field before rejecting the fallback CTA"
+        )
+    if EMAIL_FALLBACK_TAP_RE.search(text) is not None:
+        errors.append(
+            f"{REGISTER_FLOW} must not tap the hidden email fallback CTA "
+            f"{EMAIL_FALLBACK_CTA!r}"
+        )
+    if EMAIL_FALLBACK_VISIBLE_RE.search(text) is not None:
+        errors.append(
+            f"{REGISTER_FLOW} must not branch on hidden email fallback CTA "
+            f"{EMAIL_FALLBACK_CTA!r}"
         )
 
 
