@@ -12,7 +12,8 @@ import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 
 void main() {
   group('RoutesRegistryScreen (MAP-02b)', () {
-    testWidgets('renders 15 ExpansionTiles (one per RouteOwner)', (tester) async {
+    testWidgets('renders 15 ExpansionTiles (one per RouteOwner)',
+        (tester) async {
       // Tall viewport so ListView.builder materialises every owner tile
       // (default 600pt height shows only ~10 tiles in the lazy list).
       tester.view.physicalSize = const Size(800, 20000);
@@ -32,7 +33,7 @@ void main() {
       expect(RouteOwner.values.length, 15);
     });
 
-    testWidgets('sum of route rows across all buckets == 152', (tester) async {
+    testWidgets('sum of route rows across all buckets == 153', (tester) async {
       // Force a large viewport so every ExpansionTile is laid out simultaneously
       // (default test surface is 800x600 which clips tiles below fold, preventing
       // taps from reaching them reliably after each expansion relayout).
@@ -68,8 +69,9 @@ void main() {
       );
       expect(
         rows,
-        findsNWidgets(152),
-        reason: 'registry has 152 entries (151 + /waitlist added 2026-05-23 for sub-phase 01.5 FATCA destination); UI must render all',
+        findsNWidgets(153),
+        reason:
+            'registry has 153 entries (/retraite/rente-vs-capital canonicalized 2026-06-30 while legacy alias remains); UI must render all',
       );
     });
 

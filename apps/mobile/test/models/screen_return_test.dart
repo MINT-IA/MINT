@@ -10,25 +10,27 @@ void main() {
   group('ScreenOutcome', () {
     test('has exactly three values', () {
       expect(ScreenOutcome.values, hasLength(3));
-      expect(ScreenOutcome.values, containsAll([
-        ScreenOutcome.completed,
-        ScreenOutcome.abandoned,
-        ScreenOutcome.changedInputs,
-      ]));
+      expect(
+          ScreenOutcome.values,
+          containsAll([
+            ScreenOutcome.completed,
+            ScreenOutcome.abandoned,
+            ScreenOutcome.changedInputs,
+          ]));
     });
   });
 
   group('ScreenReturn — construction', () {
     test('completed outcome with all fields', () {
       const r = ScreenReturn(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         outcome: ScreenOutcome.completed,
         updatedFields: {'prevoyance.avoirLppTotal': 70377.0},
         confidenceDelta: 0.15,
         nextCapSuggestion: 'lpp_rachat',
       );
 
-      expect(r.route, '/rente-vs-capital');
+      expect(r.route, '/retraite/rente-vs-capital');
       expect(r.outcome, ScreenOutcome.completed);
       expect(r.updatedFields, {'prevoyance.avoirLppTotal': 70377.0});
       expect(r.confidenceDelta, 0.15);
@@ -102,7 +104,8 @@ void main() {
 
   group('ScreenReturn — computed properties', () {
     test('hasUpdates is false when updatedFields is null', () {
-      const r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
+      const r =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
       expect(r.hasUpdates, isFalse);
     });
 
@@ -125,7 +128,8 @@ void main() {
     });
 
     test('hasConfidenceDelta is false when confidenceDelta is null', () {
-      const r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
       expect(r.hasConfidenceDelta, isFalse);
     });
 
@@ -148,7 +152,8 @@ void main() {
     });
 
     test('hasNextCap is false when nextCapSuggestion is null', () {
-      const r = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
       expect(r.hasNextCap, isFalse);
     });
 
@@ -187,14 +192,18 @@ void main() {
     });
 
     test('different routes are not equal', () {
-      const r1 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
-      const r2 = ScreenReturn(route: '/fiscal', outcome: ScreenOutcome.completed);
+      const r1 =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r2 =
+          ScreenReturn(route: '/fiscal', outcome: ScreenOutcome.completed);
       expect(r1, isNot(equals(r2)));
     });
 
     test('different outcomes are not equal', () {
-      const r1 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
-      const r2 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
+      const r1 =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r2 =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.abandoned);
       expect(r1, isNot(equals(r2)));
     });
 
@@ -254,20 +263,22 @@ void main() {
     });
 
     test('both null updatedFields are equal', () {
-      const r1 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
-      const r2 = ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r1 =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
+      const r2 =
+          ScreenReturn(route: '/budget', outcome: ScreenOutcome.completed);
       expect(r1, equals(r2));
     });
 
     test('hashCode is consistent with equality for same updatedFields', () {
       const r1 = ScreenReturn(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         outcome: ScreenOutcome.completed,
         updatedFields: {'prevoyance.avoirLppTotal': 70377.0},
         confidenceDelta: 0.15,
       );
       const r2 = ScreenReturn(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         outcome: ScreenOutcome.completed,
         updatedFields: {'prevoyance.avoirLppTotal': 70377.0},
         confidenceDelta: 0.15,
@@ -295,10 +306,10 @@ void main() {
   group('ScreenReturn — toString', () {
     test('includes route and outcome', () {
       const r = ScreenReturn(
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         outcome: ScreenOutcome.completed,
       );
-      expect(r.toString(), contains('/rente-vs-capital'));
+      expect(r.toString(), contains('/retraite/rente-vs-capital'));
       expect(r.toString(), contains('completed'));
     });
 

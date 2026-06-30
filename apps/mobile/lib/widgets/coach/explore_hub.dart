@@ -26,7 +26,8 @@ class ExploreHub extends StatelessWidget {
         children: [
           Text(
             S.of(context)!.exploreHubTitle,
-            style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelLarge(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
@@ -45,7 +46,7 @@ class ExploreHub extends StatelessWidget {
               icon: Icons.balance,
               title: 'Rente vs capital',
               subtitle: 'Comparer les options de retrait LPP',
-              route: '/rente-vs-capital',
+              route: '/retraite/rente-vs-capital',
             ),
           const _ExploreRow(
             icon: Icons.chat_outlined,
@@ -90,40 +91,44 @@ class _ExploreRow extends StatelessWidget {
       label: 'interactive element',
       button: true,
       child: InkWell(
-      onTap: () => context.push(route),
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MintColors.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(10),
+        onTap: () => context.push(route),
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 20, color: MintColors.primary),
               ),
-              child: Icon(icon, size: 20, color: MintColors.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    subtitle,
-                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
-                  ),
-                ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: MintTextStyles.bodySmall(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      subtitle,
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.textSecondary),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: MintColors.textMuted),
-          ],
+              const Icon(Icons.chevron_right, color: MintColors.textMuted),
+            ],
+          ),
         ),
       ),
-    ),);
+    );
   }
 }

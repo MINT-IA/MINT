@@ -31,10 +31,10 @@ CoachProfile _profileWithLpp() {
 
 Widget _wrap(CoachProfileProvider provider) {
   final router = GoRouter(
-    initialLocation: '/rente-vs-capital',
+    initialLocation: '/retraite/rente-vs-capital',
     routes: [
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const RenteVsCapitalScreen(),
       ),
     ],
@@ -72,6 +72,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('rvc_route_state')), findsOneWidget);
-    expect(find.text('route=/rente-vs-capital'), findsOneWidget);
+    expect(find.text('route=/retraite/rente-vs-capital'), findsOneWidget);
   });
 }

@@ -25,7 +25,7 @@ InMemoryScreenRegistry _testRegistry() {
   return const InMemoryScreenRegistry([
     // B — Decision Canvas: requires salary + age
     ScreenEntry(
-      route: '/rente-vs-capital',
+      route: '/retraite/rente-vs-capital',
       intentTag: 'retirement_choice',
       behavior: ScreenBehavior.decisionCanvas,
       requiredFields: ['salaireBrut', 'age'],
@@ -258,14 +258,14 @@ void main() {
           RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.9);
       expect(decision.action, RouteAction.openScreen);
-      expect(decision.route, '/rente-vs-capital');
+      expect(decision.route, '/retraite/rente-vs-capital');
     });
 
     test('openScreen decision sets correct route', () {
       final planner =
           RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.85);
-      expect(decision.route, '/rente-vs-capital');
+      expect(decision.route, '/retraite/rente-vs-capital');
     });
 
     test('openScreen provides prefill data from profile', () {
@@ -350,7 +350,7 @@ void main() {
         decision.action,
         anyOf(RouteAction.openScreen, RouteAction.openWithWarning),
       );
-      expect(decision.route, '/rente-vs-capital');
+      expect(decision.route, '/retraite/rente-vs-capital');
     });
   });
 
@@ -430,10 +430,10 @@ void main() {
       );
     });
 
-    test('retirement_choice → openScreen /rente-vs-capital', () {
+    test('retirement_choice → openScreen /retraite/rente-vs-capital', () {
       final d = plannerJulien.plan('retirement_choice', confidence: 0.9);
       expect(d.action, RouteAction.openScreen);
-      expect(d.route, '/rente-vs-capital');
+      expect(d.route, '/retraite/rente-vs-capital');
     });
 
     test('cantonal_comparison → openScreen /fiscal', () {
@@ -512,7 +512,7 @@ void main() {
     test('all required fields present → ready', () {
       final result = gate.evaluate(
         const ScreenEntry(
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           intentTag: 'retirement_choice',
           behavior: ScreenBehavior.decisionCanvas,
           requiredFields: ['salaireBrut', 'age'],
@@ -525,7 +525,7 @@ void main() {
     test('critical field (salaireBrut) missing → blocked', () {
       final result = gate.evaluate(
         const ScreenEntry(
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           intentTag: 'retirement_choice',
           behavior: ScreenBehavior.decisionCanvas,
           requiredFields: ['salaireBrut', 'age'],
@@ -539,7 +539,7 @@ void main() {
     test('non-critical field (avoirLpp) missing → partial', () {
       final result = gate.evaluate(
         const ScreenEntry(
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           intentTag: 'retirement_choice',
           behavior: ScreenBehavior.decisionCanvas,
           requiredFields: ['salaireBrut', 'avoirLpp'],
@@ -611,7 +611,7 @@ void main() {
     test('findByIntent returns correct entry', () {
       final entry = registry.findByIntent('retirement_choice');
       expect(entry, isNotNull);
-      expect(entry!.route, '/rente-vs-capital');
+      expect(entry!.route, '/retraite/rente-vs-capital');
     });
 
     test('findByIntent returns null for unknown tag', () {
@@ -620,7 +620,7 @@ void main() {
     });
 
     test('findByRoute returns correct entry', () {
-      final entry = registry.findByRoute('/rente-vs-capital');
+      final entry = registry.findByRoute('/retraite/rente-vs-capital');
       expect(entry, isNotNull);
       expect(entry!.intentTag, 'retirement_choice');
     });

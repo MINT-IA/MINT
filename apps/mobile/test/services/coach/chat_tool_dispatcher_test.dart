@@ -106,9 +106,9 @@ void main() {
   group('ChatToolDispatcher.resolveRoute', () {
     test('returns valid route when in whitelist', () {
       final result = ChatToolDispatcher.resolveRoute({
-        'route': '/rente-vs-capital',
+        'route': '/retraite/rente-vs-capital',
       });
-      expect(result, '/rente-vs-capital');
+      expect(result, '/retraite/rente-vs-capital');
     });
 
     test('returns null for route not in whitelist', () {

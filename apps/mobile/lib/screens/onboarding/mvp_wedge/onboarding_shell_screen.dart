@@ -553,7 +553,7 @@ class _Mint2AxesStep extends StatelessWidget {
     }
     await authProvider.enableLocalMode();
     if (!context.mounted) return;
-    context.go('/rente-vs-capital');
+    context.go('/retraite/rente-vs-capital');
   }
 
   @override

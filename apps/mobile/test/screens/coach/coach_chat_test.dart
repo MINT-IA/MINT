@@ -1087,7 +1087,7 @@ void main() {
       final card = tester.widget<RouteSuggestionCard>(
         find.byType(RouteSuggestionCard),
       );
-      expect(card.route, '/rente-vs-capital');
+      expect(card.route, '/retraite/rente-vs-capital');
       expect(
         card.contextMessage,
         'Compare la rente et le capital avec tes donnees.',
@@ -1146,7 +1146,7 @@ void main() {
       await ScreenCompletionTracker.markCompletedWithReturn(
         'rente_vs_capital',
         const ScreenReturn.completed(
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           updatedFields: {'retirementMode': 'estimate'},
           confidenceDelta: 0.02,
         ),
@@ -1165,7 +1165,7 @@ void main() {
         capturedMemoryBlock,
         contains("L'utilisateur vient de terminer une simulation"),
       );
-      expect(capturedMemoryBlock, contains('/rente-vs-capital'));
+      expect(capturedMemoryBlock, contains('/retraite/rente-vs-capital'));
       expect(capturedMemoryBlock, contains('retirementMode: estimate'));
     });
 
@@ -1241,7 +1241,7 @@ void main() {
             ),
           ),
           GoRoute(
-            path: '/rente-vs-capital',
+            path: '/retraite/rente-vs-capital',
             builder: (context, state) => Scaffold(
               body: Center(
                 child: TextButton(
@@ -1250,7 +1250,7 @@ void main() {
                     await ScreenCompletionTracker.markCompletedWithReturn(
                       'rente_vs_capital',
                       const ScreenReturn.completed(
-                        route: '/rente-vs-capital',
+                        route: '/retraite/rente-vs-capital',
                         updatedFields: {'retirementMode': 'estimate'},
                         confidenceDelta: 0.02,
                       ),
@@ -1300,7 +1300,7 @@ void main() {
       final routeCard = tester.widget<RouteSuggestionCard>(
         find.byType(RouteSuggestionCard),
       );
-      expect(routeCard.route, '/rente-vs-capital');
+      expect(routeCard.route, '/retraite/rente-vs-capital');
       final routeButton = find.descendant(
         of: find.byType(RouteSuggestionCard),
         matching: find.byType(FilledButton),
@@ -1323,7 +1323,7 @@ void main() {
 
       expect(capturedMemoryBlock, isNotNull);
       expect(capturedMemoryBlock, contains('TEST CONTEXT'));
-      expect(capturedMemoryBlock, contains('/rente-vs-capital'));
+      expect(capturedMemoryBlock, contains('/retraite/rente-vs-capital'));
       expect(capturedMemoryBlock, contains('retirementMode: estimate'));
     });
 
@@ -1830,7 +1830,7 @@ void main() {
         decision.action,
         anyOf(RouteAction.openScreen, RouteAction.openWithWarning),
       );
-      expect(decision.route, '/rente-vs-capital');
+      expect(decision.route, '/retraite/rente-vs-capital');
     });
 
     test('RoutePlanner.plan returns conversationOnly for low confidence', () {

@@ -80,8 +80,9 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     # Debug-only E2E routes — seeded runtime proof bridges, never chat targets.
     "/__e2e/budget-direct-inputs",
     "/__e2e/row23-independent-no-lpp-profile",
-    # Legacy redirect alias kept in GoRouter for backward compatibility.
-    # Coach should surface canonical /rente-vs-capital instead.
+    # Legacy redirect aliases kept in GoRouter for backward compatibility.
+    # Coach should surface canonical /retraite/rente-vs-capital instead.
+    "/rente-vs-capital",
     "/simulator/rente-capital",
     # Achievements / progress
     "/achievements",

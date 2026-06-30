@@ -607,11 +607,6 @@
       "preferFromChat": false
     },
     {
-      "intent": "retirement_choice",
-      "route": "/rente-vs-capital",
-      "preferFromChat": true
-    },
-    {
       "intent": "report_overview",
       "route": "/report",
       "preferFromChat": false
@@ -639,6 +634,11 @@
     {
       "intent": "retirement_projection",
       "route": "/retraite",
+      "preferFromChat": true
+    },
+    {
+      "intent": "retirement_choice",
+      "route": "/retraite/rente-vs-capital",
       "preferFromChat": true
     },
     {

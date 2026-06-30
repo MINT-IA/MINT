@@ -449,14 +449,14 @@ void main() {
           builder: (context, state) => const SizedBox.shrink(),
         ),
         GoRoute(
-          path: '/rente-vs-capital',
+          path: '/retraite/rente-vs-capital',
           builder: (context, state) => const RenteVsCapitalScreen(),
         ),
       ],
     );
 
     await tester.pumpWidget(_wrapWithRouterProvider(provider, router));
-    unawaited(router.push('/rente-vs-capital', extra: const {
+    unawaited(router.push('/retraite/rente-vs-capital', extra: const {
       'runId': 'run-rvc',
       'stepId': 'step-rvc',
     }));

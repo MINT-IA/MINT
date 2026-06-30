@@ -106,15 +106,17 @@ def test_missing_token_returns_71(monkeypatch):
 # ---------- DRY_RUN health output ----------
 
 
-def test_health_dry_run_produces_152_json_lines():
+def test_health_dry_run_produces_153_json_lines():
     # Baseline bumped 151 → 152 on 2026-05-23 (added /waitlist RouteMeta
     # for sub-phase 01.5 FATCA hard-gate destination — see commit ce71460e).
+    # Baseline bumped 152 → 153 on 2026-06-30 (canonicalized
+    # /retraite/rente-vs-capital while keeping /rente-vs-capital as alias).
     # Prior 152 → 151 on 2026-05-06, 152 → 153 / 43 → 44 redirect counts
     # are documented in memory `feedback_audit_verification_logs.md`.
     r = _run(["health", "--json"], env_extra={"MINT_ROUTES_DRY_RUN": "1"})
     assert r.returncode == 0, r.stderr.decode()[:400]
     lines = [ln for ln in r.stdout.decode().splitlines() if ln.strip()]
-    assert len(lines) == 152, "expected 152 JSON lines, got {}".format(
+    assert len(lines) == 153, "expected 153 JSON lines, got {}".format(
         len(lines)
     )
 
@@ -126,7 +128,7 @@ def test_health_dry_run_owner_filter():
     )
     assert r.returncode == 0
     lines = [ln for ln in r.stdout.decode().splitlines() if ln.strip()]
-    assert 0 < len(lines) < 152
+    assert 0 < len(lines) < 153
 
 
 def test_no_color_env_var_suppresses_ansi():

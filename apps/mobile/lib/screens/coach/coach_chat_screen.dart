@@ -2070,7 +2070,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       s.coachSuggestSimulateLpp: '/rachat-lpp',
       s.coachSuggestUnderstandLpp: '/rachat-lpp',
       s.coachSuggestTrajectory: '/retraite',
-      s.coachSuggestScenarios: '/rente-vs-capital',
+      s.coachSuggestScenarios: '/retraite/rente-vs-capital',
       s.coachSuggestDeductions: '/fiscal',
       s.coachSuggestTaxImpact: '/fiscal',
       s.coachSuggestFitness: '/confidence',
@@ -2087,7 +2087,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       return '/retraite';
     }
     if (lower.contains('rente') || lower.contains('capital')) {
-      return '/rente-vs-capital';
+      return '/retraite/rente-vs-capital';
     }
     if (lower.contains('3a') || lower.contains('pilier')) {
       return '/pilier-3a';

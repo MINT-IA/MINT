@@ -33,7 +33,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 //
 //  ARCH NOTE — intentTag values in CapStep:
 //  The [CapStep.intentTag] field stores GoRouter route strings (e.g.
-//  '/pilier-3a', '/rente-vs-capital'), NOT ScreenRegistry intent tags
+//  '/pilier-3a', '/retraite/rente-vs-capital'), NOT ScreenRegistry intent tags
 //  (e.g. 'simulator_3a', 'retirement_choice'). This is intentional:
 //  CapSequenceCard uses `context.go(step.intentTag!)` for direct navigation,
 //  which requires the GoRouter route path. ScreenRegistry intent tags are used
@@ -107,8 +107,8 @@ class CapSequenceEngine {
         done.contains('rachat_sim');
     final hasRenteCapital = done.contains('rente_vs_capital') ||
         done.contains('rente_capital_visited');
-    final hasDecaissement = done.contains('decaissement') ||
-        done.contains('decaissement_visited');
+    final hasDecaissement =
+        done.contains('decaissement') || done.contains('decaissement_visited');
     final hasFiscal = done.contains('fiscal_cap') ||
         done.contains('fiscal_optimisation') ||
         done.contains('fiscal_completed');
@@ -152,7 +152,7 @@ class CapSequenceEngine {
             : (hasSalary && hasLpp)
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/rente-vs-capital',
+        intentTag: '/retraite/rente-vs-capital',
         impactEstimate: null,
       ),
       CapStep(
@@ -191,7 +191,7 @@ class CapSequenceEngine {
             : hasLpp
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/rente-vs-capital',
+        intentTag: '/retraite/rente-vs-capital',
         impactEstimate: null,
       ),
       CapStep(
@@ -246,7 +246,7 @@ class CapSequenceEngine {
     final hasIncome = profile.salaireBrutMensuel > 0;
     final hasCharges =
         BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile) > 0 ||
-        done.contains('charges_entered');
+            done.contains('charges_entered');
     final hasBudget = done.contains('budget') ||
         done.contains('budget_computed') ||
         done.contains('budget_overview');
@@ -460,7 +460,8 @@ class CapSequenceEngine {
 
     final hasSalary = profile.salaireBrutMensuel > 0;
     final hasSalaryXray = done.contains('first_job_salary');
-    final hasLpp = (prev.avoirLppTotal ?? 0) > 0 || done.contains('lpp_verified');
+    final hasLpp =
+        (prev.avoirLppTotal ?? 0) > 0 || done.contains('lpp_verified');
     final has3a = done.contains('pillar_3a') || (prev.totalEpargne3a) > 0;
 
     final steps = <CapStep>[
@@ -560,7 +561,7 @@ class CapSequenceEngine {
             : hasSalary
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/rente-vs-capital',
+        intentTag: '/retraite/rente-vs-capital',
         impactEstimate: null,
       ),
       CapStep(

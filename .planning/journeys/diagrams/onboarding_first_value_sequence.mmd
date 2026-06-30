@@ -7,7 +7,7 @@ sequenceDiagram
   participant APIs
   participant Evidence
   User->>Journey: I get useful value before I commit more data.
-  Journey->>Routes: /onb, /rente-vs-capital, /coach/chat, /home
+  Journey->>Routes: /onb, /retraite/rente-vs-capital, /coach/chat, /home
   Routes->>Surfaces: OnboardingShellScreen, CoachProfileProvider, MintStateProvider
   Surfaces-->>Journey: Selecting the LPP rente-capital axis opens the first-value experience and can continue toward Coach or Home without a premature account gate.
   Journey->>Evidence: replay core / no-auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml

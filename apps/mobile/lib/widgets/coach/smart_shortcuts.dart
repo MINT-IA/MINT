@@ -47,39 +47,42 @@ class SmartShortcuts extends StatelessWidget {
           child: GestureDetector(
             onTap: () => context.push('/retraite'),
             child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: MintColors.primary.withValues(alpha: 0.04),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: MintColors.primary.withValues(alpha: 0.12),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: MintColors.primary.withValues(alpha: 0.12),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.dashboard_outlined,
+                      size: 18, color: MintColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Voir ton bilan détaillé',
+                      style:
+                          MintTextStyles.bodyMedium(color: MintColors.primary)
+                              .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios,
+                      size: 14, color: MintColors.primary),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.dashboard_outlined,
-                    size: 18, color: MintColors.primary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Voir ton bilan détaillé',
-                    style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const Icon(Icons.arrow_forward_ios,
-                    size: 14, color: MintColors.primary),
-              ],
-            ),
           ),
-        ),
         ),
         const SizedBox(height: 10),
         // Shortcut chips (wrap flow)
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: shortcuts.take(4).map((s) => _buildChip(context, s)).toList(),
+          children:
+              shortcuts.take(4).map((s) => _buildChip(context, s)).toList(),
         ),
       ],
     );
@@ -93,31 +96,31 @@ class SmartShortcuts extends StatelessWidget {
         onTap: () => context.push(s.route),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: s.color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: s.color.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(s.icon, size: 14, color: s.color),
-            const SizedBox(width: 6),
-            Text(
-              s.label,
-              style: MintTextStyles.labelMedium(color: s.color).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
+          decoration: BoxDecoration(
+            color: s.color.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: s.color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(s.icon, size: 14, color: s.color),
+              const SizedBox(width: 6),
+              Text(
+                s.label,
+                style: MintTextStyles.labelMedium(color: s.color)
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
   List<_Shortcut> _computeShortcuts() {
     final age = profile.age;
-    final isExpat =
-        profile.nationality != null && profile.nationality != 'CH';
+    final isExpat = profile.nationality != null && profile.nationality != 'CH';
     final isIndependant = profile.employmentStatus == 'independant';
     final hasLowThreeA = profile.prevoyance.totalEpargne3a < 5000;
     final hasRachat = (profile.prevoyance.rachatMaximum ?? 0) > 0;
@@ -130,7 +133,7 @@ class SmartShortcuts extends StatelessWidget {
       shortcuts.add(const _Shortcut(
         label: 'Rente vs Capital',
         icon: Icons.compare_arrows_outlined,
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
         color: MintColors.purpleDark,
       ));
     }

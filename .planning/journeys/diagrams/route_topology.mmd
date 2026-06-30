@@ -94,8 +94,8 @@ flowchart LR
   route__rapport["/rapport<br/>destination/system<br/>auth"]
   class route__rapport route
   class route__rapport auth
-  route__rente_vs_capital["/rente-vs-capital<br/>destination/retraite<br/>public<br/>flag enableExplorerRetraite"]
-  class route__rente_vs_capital route
+  route__rente_vs_capital["/rente-vs-capital<br/>alias/system<br/>public"]
+  class route__rente_vs_capital alias
   class route__rente_vs_capital public
   route__report["/report<br/>alias/system<br/>auth"]
   class route__report alias
@@ -103,6 +103,9 @@ flowchart LR
   route__report_v2["/report/v2<br/>alias/system<br/>auth"]
   class route__report_v2 alias
   class route__report_v2 auth
+  route__retraite_rente_vs_capital["/retraite/rente-vs-capital<br/>destination/retraite<br/>public<br/>flag enableExplorerRetraite"]
+  class route__retraite_rente_vs_capital route
+  class route__retraite_rente_vs_capital public
   route__score_reveal["/score-reveal<br/>alias/system<br/>auth"]
   class route__score_reveal alias
   class route__score_reveal auth
@@ -123,7 +126,7 @@ flowchart LR
   route__advisor_plan_30_days -. redirects .-> route__coach_chat
   route__advisor_wizard -. redirects .-> route__coach_chat
   route__anonymous_chat -. redirects .-> route__onb
-  route__arbitrage_rente_vs_capital -. redirects .-> route__rente_vs_capital
+  route__arbitrage_rente_vs_capital -. redirects .-> route__retraite_rente_vs_capital
   route__ask_mint -. redirects .-> route__coach_chat
   route__coach_agir -. redirects .-> route__coach_chat
   route__coach_checkin -. redirects .-> route__coach_chat
@@ -137,9 +140,10 @@ flowchart LR
   route__onboarding_quick_start -. redirects .-> route__coach_chat
   route__onboarding_smart -. redirects .-> route__coach_chat
   route__portfolio -. redirects .-> route__home
+  route__rente_vs_capital -. redirects .-> route__retraite_rente_vs_capital
   route__report -. redirects .-> route__rapport
   route__report_v2 -. redirects .-> route__rapport
   route__score_reveal -. redirects .-> route__home
-  route__simulator_rente_capital -. redirects .-> route__rente_vs_capital
+  route__simulator_rente_capital -. redirects .-> route__retraite_rente_vs_capital
   route__start -. redirects .-> route__onb
   route__tools -. redirects .-> route__coach_chat
