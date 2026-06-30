@@ -98,6 +98,12 @@ appId: ch.mint.app
 - extendedWaitUntil:
     visible: "Cr\u00e9er ton compte"
     timeout: 12000
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+- assertNotVisible: "Cr\u00e9er avec e-mail"
+- tapOn:
+    id: "auth_register_email_field"
 """,
         encoding="utf-8",
     )
@@ -111,6 +117,10 @@ def test_navigation_spine_guard_passes_for_coherent_fixture(tmp_path: Path) -> N
 
     assert proc.returncode == 0
     assert "OK mint2_navigation_spine_guard" in proc.stdout
+
+
+def test_navigation_spine_guard_passes_for_repo_flow() -> None:
+    assert mint2_navigation_spine_guard.check(REPO_ROOT) == []
 
 
 def test_navigation_spine_guard_fails_when_rvc_requires_auth(tmp_path: Path) -> None:
@@ -184,3 +194,237 @@ def test_navigation_spine_guard_fails_without_account_wall_positive_control(
     errors = mint2_navigation_spine_guard.check(tmp_path)
 
     assert any("must positively assert" in error for error in errors)
+
+
+def test_navigation_spine_guard_fails_without_direct_email_entry_control(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- runFlow:
+    when:
+      visible: "Cr\u00e9er avec e-mail"
+    commands:
+      - tapOn: "Cr\u00e9er avec e-mail"
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must reject the hidden email fallback CTA" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_if_fallback_cta_is_tapped(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+- tapOn: "Cr\u00e9er avec e-mail"
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must not tap the hidden email fallback CTA" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_if_block_form_fallback_cta_is_tapped(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+- assertNotVisible: "Cr\u00e9er avec e-mail"
+- tapOn:
+    text: "Cr\u00e9er avec e-mail"
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must not tap the hidden email fallback CTA" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_if_fallback_cta_is_branch_condition(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- runFlow:
+    when:
+      visible: "Cr\u00e9er avec e-mail"
+    commands:
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+- assertNotVisible: "Cr\u00e9er avec e-mail"
+- tapOn:
+    id: "auth_register_email_field"
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must not branch on hidden email fallback CTA" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_without_direct_email_field_probe(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- assertNotVisible: "Cr\u00e9er avec e-mail"
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must assert direct register email field visibility" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_without_direct_email_field_tap(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+- assertNotVisible: "Cr\u00e9er avec e-mail"
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must tap the direct register email field by id" in error
+        for error in errors
+    )
+
+
+def test_navigation_spine_guard_fails_when_negative_assert_runs_too_early(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    register_flow = (
+        tmp_path
+        / "tools/simulator/flows/maestro-perfect-set/"
+        "flow_jos001_account_lifecycle_seeded_delete.yaml"
+    )
+    register_flow.write_text(
+        """
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible: "Cr\u00e9er ton compte"
+    timeout: 12000
+- assertNotVisible: "Cr\u00e9er avec e-mail"
+- extendedWaitUntil:
+    visible: { id: "auth_register_email_field" }
+    timeout: 8000
+""",
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "must assert direct email field before rejecting" in error
+        for error in errors
+    )

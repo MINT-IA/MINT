@@ -49,16 +49,12 @@ tags:
     timeout: 12000
 - waitForAnimationToEnd:
     timeout: 3000
-- runFlow:
-    when:
-      visible: "Créer avec e-mail"
-    commands:
-      - tapOn: "Créer avec e-mail"
 - extendedWaitUntil:
     visible: { id: "auth_register_email_field" }
     timeout: 8000
+- assertNotVisible: "Créer avec e-mail"
 - tapOn:
-    point: "185, 466"
+    id: "auth_register_email_field"
 - inputText: ${MINT_E2E_EMAIL}
 - waitForAnimationToEnd:
     timeout: 2000
