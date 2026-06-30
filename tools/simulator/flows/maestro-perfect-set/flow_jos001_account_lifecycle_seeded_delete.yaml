@@ -44,17 +44,18 @@ tags:
       visible: "Open"
     commands:
       - tapOn: "Open"
-- extendedWaitUntil:
-    visible: "Créer ton compte"
-    timeout: 12000
-- extendedWaitUntil:
-    visible: { id: "auth_register_email_field" }
-    timeout: 8000
-- tapOn:
-    id: "auth_register_email_field"
-- waitForAnimationToEnd:
-    timeout: 1000
-- assertNotVisible: "Créer avec e-mail"
+- runFlow:
+    when:
+      visible: "Créer ton compte"
+    commands:
+      - extendedWaitUntil:
+          visible: { id: "auth_register_email_field" }
+          timeout: 8000
+      - tapOn:
+          id: "auth_register_email_field"
+      - waitForAnimationToEnd:
+          timeout: 1000
+      - assertNotVisible: "Créer avec e-mail"
 - waitForAnimationToEnd:
     timeout: 20000
 - assertNotVisible: "Vérifier mon e-mail"
