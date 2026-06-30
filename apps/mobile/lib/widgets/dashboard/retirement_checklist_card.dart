@@ -270,7 +270,7 @@ class RetirementChecklistCard extends StatelessWidget {
         timeline: retirementYear == null
             ? 'Avant la retraite'
             : 'Avant ${retirementYear - 1}',
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
       ));
     }
 

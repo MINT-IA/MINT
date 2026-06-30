@@ -78,7 +78,7 @@ class IntentRouter {
     'intentChipNouvelEmploi': IntentMapping(
       goalIntentTag: 'new_job',
       stressType: 'stress_budget',
-      suggestedRoute: '/rente-vs-capital',
+      suggestedRoute: '/retraite/rente-vs-capital',
       lifeEventFamily: 'professionnel',
     ),
     'intentChipAutre': IntentMapping(

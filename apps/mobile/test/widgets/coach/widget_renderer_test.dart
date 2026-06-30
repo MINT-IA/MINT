@@ -42,7 +42,7 @@ Widget _buildTestApp(Widget Function(BuildContext) builder) {
         builder: (context, state) => Scaffold(body: builder(context)),
       ),
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const Scaffold(body: Text('Rente')),
       ),
       GoRoute(
@@ -93,7 +93,7 @@ Widget _buildTestAppWithProfile(
         builder: (context, state) => Scaffold(body: builder(context)),
       ),
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const Scaffold(body: Text('Rente')),
       ),
       GoRoute(
@@ -225,7 +225,7 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'route': '/retraite/rente-vs-capital',
               'context_message': 'Voici ton simulateur',
             },
           ),
@@ -302,7 +302,7 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'route': '/retraite/rente-vs-capital',
               'context_message': 'Message de contexte',
             },
           ),
@@ -339,7 +339,7 @@ void main() {
             },
           ),
           GoRoute(
-            path: '/rente-vs-capital',
+            path: '/retraite/rente-vs-capital',
             builder: (context, state) {
               final extra = state.extra as Map<String, dynamic>?;
               final prefill = extra?['prefill'] as Map<String, dynamic>?;
@@ -401,7 +401,7 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'route': '/retraite/rente-vs-capital',
               'narrative': 'Narration de secours',
             },
           ),
@@ -423,7 +423,7 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'route': '/retraite/rente-vs-capital',
               'is_partial': true,
             },
           ),
@@ -475,7 +475,7 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'route': '/retraite/rente-vs-capital',
               // No prefill key, no intent key
               'context_message': 'Test',
             },

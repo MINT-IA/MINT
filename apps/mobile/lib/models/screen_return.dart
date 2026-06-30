@@ -46,7 +46,7 @@ enum ScreenOutcome {
 ///   (e.g. 'lpp_rachat', 'objectif_3a') that the Coach should surface next.
 class ScreenReturn {
   /// The canonical GoRouter route of the screen that was navigated.
-  /// Example: '/rente-vs-capital', '/divorce', '/budget'.
+  /// Example: '/retraite/rente-vs-capital', '/divorce', '/budget'.
   final String route;
 
   /// How the user left the screen.
@@ -188,8 +188,10 @@ class ScreenReturn {
   /// Whether this return carries sequence identity (Tier A screen).
   /// Both runId and stepId must be non-null AND non-empty.
   bool get hasSequenceId =>
-      runId != null && runId!.isNotEmpty &&
-      stepId != null && stepId!.isNotEmpty;
+      runId != null &&
+      runId!.isNotEmpty &&
+      stepId != null &&
+      stepId!.isNotEmpty;
 
   /// Whether this return carries an idempotency event ID.
   bool get hasEventId => eventId != null && eventId!.isNotEmpty;
@@ -241,14 +243,12 @@ class ScreenReturn {
         updatedFields == null
             ? null
             : Object.hashAll(
-                updatedFields!.entries
-                    .map((e) => Object.hash(e.key, e.value)),
+                updatedFields!.entries.map((e) => Object.hash(e.key, e.value)),
               ),
         stepOutputs == null
             ? null
             : Object.hashAll(
-                stepOutputs!.entries
-                    .map((e) => Object.hash(e.key, e.value)),
+                stepOutputs!.entries.map((e) => Object.hash(e.key, e.value)),
               ),
       );
 }

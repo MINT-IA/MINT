@@ -509,7 +509,7 @@ def test_onboarding_first_value_tracks_mint2_route_and_issue() -> None:
         ).read_text(encoding="utf-8")
     )
 
-    assert "/rente-vs-capital" in record["route_paths"]
+    assert "/retraite/rente-vs-capital" in record["route_paths"]
     assert "JOS-005" in record["issues"]
 
 def test_journey_evidence_artifacts_are_in_scope(tmp_path: Path) -> None:

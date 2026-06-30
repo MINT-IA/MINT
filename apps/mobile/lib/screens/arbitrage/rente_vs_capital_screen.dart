@@ -172,7 +172,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       ScreenCompletionTracker.markCompletedWithReturn(
           'rente_vs_capital',
           ScreenReturn.abandoned(
-            route: '/rente-vs-capital',
+            route: '/retraite/rente-vs-capital',
             runId: _seqRunId,
             stepId: _seqStepId,
             eventId:
@@ -187,7 +187,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     ScreenCompletionTracker.markCompletedWithReturn(
         'rente_vs_capital',
         ScreenReturn.completed(
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           stepOutputs: {'decision_mixte': mode},
           runId: _seqRunId,
           stepId: _seqStepId,
@@ -606,7 +606,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final mode =
         _inputMode == _InputMode.certificate ? 'certificate' : 'estimate';
     final screenReturn = ScreenReturn.completed(
-      route: '/rente-vs-capital',
+      route: '/retraite/rente-vs-capital',
       updatedFields: {'retirementMode': mode},
       confidenceDelta: 0.02,
     );

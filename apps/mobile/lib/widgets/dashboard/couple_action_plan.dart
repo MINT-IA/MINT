@@ -357,7 +357,7 @@ class CoupleActionPlan extends StatelessWidget {
         subtitle: 'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
             'peut \u00eatre diff\u00e9rente pour chaque partenaire.',
         impactLabel: null,
-        route: '/rente-vs-capital',
+        route: '/retraite/rente-vs-capital',
       ));
     }
 

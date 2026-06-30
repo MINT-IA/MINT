@@ -38,7 +38,7 @@ Widget _buildTestApp(Widget child) {
         builder: (context, state) => Scaffold(body: child),
       ),
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const Scaffold(
           body: Center(child: Text('Rente vs Capital')),
         ),
@@ -91,7 +91,7 @@ void main() {
         const RouteSuggestionCard(
           contextMessage:
               'Voici le simulateur rente vs capital pour ton profil.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
         ),
       );
       expect(
@@ -106,7 +106,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: 'Ouvre le simulateur.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
         ),
       );
       // The CTA label is 'Ouvrir' in French (from routeSuggestionCta key)
@@ -118,7 +118,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: 'Ouvre le simulateur.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
         ),
       );
 
@@ -137,7 +137,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: 'Estimation disponible.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           isPartial: true,
         ),
       );
@@ -154,7 +154,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: 'Ton profil est complet.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           isPartial: false,
         ),
       );
@@ -172,12 +172,12 @@ void main() {
             builder: (context, state) => const Scaffold(
               body: RouteSuggestionCard(
                 contextMessage: 'Open the simulator.',
-                route: '/rente-vs-capital',
+                route: '/retraite/rente-vs-capital',
               ),
             ),
           ),
           GoRoute(
-            path: '/rente-vs-capital',
+            path: '/retraite/rente-vs-capital',
             builder: (context, state) => const Scaffold(body: Text('Target')),
           ),
         ],
@@ -215,7 +215,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: 'Données partielles.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
           isPartial: true,
         ),
       );
@@ -231,7 +231,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: 'Simulateur.',
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
         ),
       );
       // Verify the button is present and tappable (no exception)
@@ -249,7 +249,7 @@ void main() {
         tester,
         const RouteSuggestionCard(
           contextMessage: message,
-          route: '/rente-vs-capital',
+          route: '/retraite/rente-vs-capital',
         ),
       );
       expect(find.text(message), findsOneWidget);
@@ -308,12 +308,12 @@ void main() {
             builder: (_, __) => const Scaffold(
               body: RouteSuggestionCard(
                 contextMessage: 'Ouvre le simulateur.',
-                route: '/rente-vs-capital',
+                route: '/retraite/rente-vs-capital',
               ),
             ),
           ),
           GoRoute(
-            path: '/rente-vs-capital',
+            path: '/retraite/rente-vs-capital',
             redirect: (_, __) {
               pushCount += 1;
               return '/';

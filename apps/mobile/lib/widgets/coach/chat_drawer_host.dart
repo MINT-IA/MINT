@@ -73,8 +73,7 @@ class ChatDrawerHost extends StatelessWidget {
             // Optional title
             if (title != null)
               Padding(
-                padding:
-                    const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                 child: Text(
                   title!,
                   style: MintTextStyles.bodyMedium(
@@ -108,7 +107,7 @@ class ChatDrawerHost extends StatelessWidget {
       '/pilier-3a': () => _lazyScreen('simulator_3a'),
       '/rachat-lpp': () => _lazyScreen('rachat_echelonne'),
       '/retraite': () => _lazyScreen('retirement_dashboard'),
-      '/rente-vs-capital': () => _lazyScreen('retirement_dashboard'),
+      '/retraite/rente-vs-capital': () => _lazyScreen('retirement_dashboard'),
       '/fiscal': () => _lazyScreen('fiscal_comparator'),
       '/hypotheque': () => _lazyScreen('affordability'),
       '/confidence': () => _lazyScreen('score_reveal'),

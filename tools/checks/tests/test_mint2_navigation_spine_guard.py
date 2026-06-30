@@ -26,9 +26,10 @@ def _write_fixture(root: Path) -> None:
         """
 const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   '/onb': RouteMeta(path: '/onb', category: RouteCategory.destination, owner: RouteOwner.anonymous, requiresAuth: false),
-  '/rente-vs-capital': RouteMeta(path: '/rente-vs-capital', category: RouteCategory.destination, owner: RouteOwner.retraite, requiresAuth: false),
-  '/arbitrage/rente-vs-capital': RouteMeta(path: '/arbitrage/rente-vs-capital', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /rente-vs-capital'),
-  '/simulator/rente-capital': RouteMeta(path: '/simulator/rente-capital', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /rente-vs-capital'),
+  '/retraite/rente-vs-capital': RouteMeta(path: '/retraite/rente-vs-capital', category: RouteCategory.destination, owner: RouteOwner.retraite, requiresAuth: false),
+  '/rente-vs-capital': RouteMeta(path: '/rente-vs-capital', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /retraite/rente-vs-capital'),
+  '/arbitrage/rente-vs-capital': RouteMeta(path: '/arbitrage/rente-vs-capital', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /retraite/rente-vs-capital'),
+  '/simulator/rente-capital': RouteMeta(path: '/simulator/rente-capital', category: RouteCategory.alias, owner: RouteOwner.system, requiresAuth: false, description: 'Legacy redirect -> /retraite/rente-vs-capital'),
   '/coach/chat': RouteMeta(path: '/coach/chat', category: RouteCategory.destination, owner: RouteOwner.coach, requiresAuth: false),
   '/start': RouteMeta(path: '/start', category: RouteCategory.alias, owner: RouteOwner.anonymous, requiresAuth: false, description: 'Legacy redirect -> /onb'),
   '/anonymous/chat': RouteMeta(path: '/anonymous/chat', category: RouteCategory.alias, owner: RouteOwner.anonymous, requiresAuth: false, description: 'Legacy redirect -> /onb'),
@@ -48,9 +49,10 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
         """
 final router = [
   ScopedGoRoute(path: '/onb', scope: RouteScope.public, builder: (_, __) => Screen()),
-  ScopedGoRoute(path: '/rente-vs-capital', scope: RouteScope.onboarding, builder: (_, __) => Screen()),
-  ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/rente-vs-capital'),
-  ScopedGoRoute(path: '/simulator/rente-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/rente-vs-capital'),
+  ScopedGoRoute(path: '/retraite/rente-vs-capital', scope: RouteScope.onboarding, builder: (_, __) => Screen()),
+  ScopedGoRoute(path: '/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/retraite/rente-vs-capital'),
+  ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/retraite/rente-vs-capital'),
+  ScopedGoRoute(path: '/simulator/rente-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/retraite/rente-vs-capital'),
   ScopedGoRoute(path: '/coach/chat', scope: RouteScope.public, builder: (_, __) => Screen()),
   ScopedGoRoute(path: '/start', scope: RouteScope.public, redirect: (_, __) => '/onb'),
   ScopedGoRoute(path: '/anonymous/chat', scope: RouteScope.public, redirect: (_, __) => '/onb'),
@@ -116,15 +118,18 @@ def test_navigation_spine_guard_fails_when_rvc_requires_auth(tmp_path: Path) -> 
     metadata = tmp_path / "apps/mobile/lib/routes/route_metadata.dart"
     metadata.write_text(
         metadata.read_text(encoding="utf-8").replace(
-            "'/rente-vs-capital', category: RouteCategory.destination, owner: RouteOwner.retraite, requiresAuth: false",
-            "'/rente-vs-capital', category: RouteCategory.destination, owner: RouteOwner.retraite, requiresAuth: true",
+            "'/retraite/rente-vs-capital', category: RouteCategory.destination, owner: RouteOwner.retraite, requiresAuth: false",
+            "'/retraite/rente-vs-capital', category: RouteCategory.destination, owner: RouteOwner.retraite, requiresAuth: true",
         ),
         encoding="utf-8",
     )
 
     errors = mint2_navigation_spine_guard.check(tmp_path)
 
-    assert any("/rente-vs-capital must not require auth" in error for error in errors)
+    assert any(
+        "/retraite/rente-vs-capital must not require auth" in error
+        for error in errors
+    )
 
 
 def test_navigation_spine_guard_fails_when_live_alias_targets_account_gate(
@@ -134,7 +139,7 @@ def test_navigation_spine_guard_fails_when_live_alias_targets_account_gate(
     app = tmp_path / "apps/mobile/lib/app.dart"
     app.write_text(
         app.read_text(encoding="utf-8").replace(
-            "ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/rente-vs-capital')",
+            "ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/retraite/rente-vs-capital')",
             "ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, __) => '/auth/register')",
         ),
         encoding="utf-8",
@@ -143,7 +148,7 @@ def test_navigation_spine_guard_fails_when_live_alias_targets_account_gate(
     errors = mint2_navigation_spine_guard.check(tmp_path)
 
     assert any(
-        "/arbitrage/rente-vs-capital app redirect must target /rente-vs-capital"
+        "/arbitrage/rente-vs-capital app redirect must target /retraite/rente-vs-capital"
         in error
         for error in errors
     )

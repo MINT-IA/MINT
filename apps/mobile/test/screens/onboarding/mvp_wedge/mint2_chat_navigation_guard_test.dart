@@ -21,7 +21,7 @@ void main() {
         for (var i = 0; i < lines.length; i++) {
           final line = lines[i];
           final ref = '${entity.path}:${i + 1}';
-          if (line.contains('/rente-vs-capital') ||
+          if (line.contains('/retraite/rente-vs-capital') ||
               line.contains('rente_vs_capital')) {
             routeReferences.add(ref);
             if (line.contains('CHF') ||

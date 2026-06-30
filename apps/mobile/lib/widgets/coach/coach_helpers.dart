@@ -83,7 +83,7 @@ String tipRoute(CoachingTip tip) {
     case 'retraite':
       if (tip.id.contains('rente') || tip.id.contains('capital')) {
         if (!FeatureFlags.enableDecisionScaffold) return '/retraite';
-        return '/rente-vs-capital';
+        return '/retraite/rente-vs-capital';
       }
       if (tip.id.contains('projection')) {
         return '/retraite';

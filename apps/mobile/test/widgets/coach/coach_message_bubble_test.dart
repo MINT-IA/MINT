@@ -47,7 +47,7 @@ Widget _buildTestApp(Widget Function(BuildContext) builder) {
         builder: (context, state) => Scaffold(body: builder(context)),
       ),
       GoRoute(
-        path: '/rente-vs-capital',
+        path: '/retraite/rente-vs-capital',
         builder: (context, state) => const Scaffold(body: Text('Rente')),
       ),
       GoRoute(
@@ -103,7 +103,8 @@ void main() {
       expect(find.text('42'), findsOneWidget);
     });
 
-    testWidgets('empty richToolCalls produces no inline widgets', (tester) async {
+    testWidgets('empty richToolCalls produces no inline widgets',
+        (tester) async {
       // With empty richToolCalls, WidgetRenderer.build is never called.
       // Verify that calling build with an unknown tool returns null.
       late Widget? rendered;
@@ -129,7 +130,7 @@ void main() {
           const RagToolCall(
             name: 'route_to_screen',
             input: {
-              'route': '/rente-vs-capital',
+              'route': '/retraite/rente-vs-capital',
               'context_message': 'Voici le simulateur',
             },
           ),

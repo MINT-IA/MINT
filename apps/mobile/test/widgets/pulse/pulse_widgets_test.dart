@@ -315,9 +315,9 @@ void main() {
           ),
           // Catch-all routes for each ComprendreSection item
           GoRoute(
-            path: '/rente-vs-capital',
+            path: '/retraite/rente-vs-capital',
             builder: (_, __) {
-              lastPushedRoute = '/rente-vs-capital';
+              lastPushedRoute = '/retraite/rente-vs-capital';
               return const SizedBox();
             },
           ),
@@ -365,10 +365,10 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // Tap "Rente ou capital ?" → /rente-vs-capital
+      // Tap "Rente ou capital ?" → /retraite/rente-vs-capital
       await tester.tap(find.text('Rente ou capital\u00a0?'));
       await tester.pumpAndSettle();
-      expect(lastPushedRoute, '/rente-vs-capital');
+      expect(lastPushedRoute, '/retraite/rente-vs-capital');
 
       // Go back and tap next item
       router.go('/');

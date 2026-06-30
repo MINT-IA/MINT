@@ -51,7 +51,9 @@ Widget _wrap({
       GoRoute(path: '/', builder: (_, __) => Scaffold(body: child)),
       GoRoute(path: '/documents', builder: (_, __) => const Scaffold()),
       GoRoute(path: '/budget', builder: (_, __) => const Scaffold()),
-      GoRoute(path: '/rente-vs-capital', builder: (_, __) => const Scaffold()),
+      GoRoute(
+          path: '/retraite/rente-vs-capital',
+          builder: (_, __) => const Scaffold()),
       GoRoute(path: '/retraite', builder: (_, __) => const Scaffold()),
     ],
   );
@@ -139,8 +141,7 @@ void main() {
         expect(
           find.byType(RouteSuggestionCard),
           findsOneWidget,
-          reason:
-              'route_to_screen with intent=retirement_choice must resolve '
+          reason: 'route_to_screen with intent=retirement_choice must resolve '
               'to /rente-vs-capital via MintScreenRegistry and render a '
               'RouteSuggestionCard (not SizedBox.shrink). Facade audit STAB-01.',
         );
@@ -167,15 +168,13 @@ void main() {
         expect(
           find.text('Demande de rachat LPP'),
           findsOneWidget,
-          reason:
-              'generate_document must render the document type label '
+          reason: 'generate_document must render the document type label '
               '(facade audit STAB-02).',
         );
         expect(
           find.text('Pr\u00e9parer le document'),
           findsOneWidget,
-          reason:
-              'generate_document must expose a tappable CTA routing to '
+          reason: 'generate_document must expose a tappable CTA routing to '
               '/documents (facade audit STAB-02).',
         );
       },
@@ -201,8 +200,7 @@ void main() {
         expect(
           find.byType(PlanPreviewCard),
           findsOneWidget,
-          reason:
-              'generate_financial_plan must render a PlanPreviewCard '
+          reason: 'generate_financial_plan must render a PlanPreviewCard '
               '(facade audit STAB-03). Renderer case at widget_renderer.dart:70 '
               'exists — this test guards that the BYOK exposure (commit e782a437) '
               'keeps it reachable.',
@@ -235,8 +233,7 @@ void main() {
         expect(
           find.byType(CheckInSummaryCard),
           findsOneWidget,
-          reason:
-              'record_check_in must render a CheckInSummaryCard '
+          reason: 'record_check_in must render a CheckInSummaryCard '
               '(facade audit STAB-04). Renderer case at widget_renderer.dart:74 '
               'exists — this test guards that the BYOK exposure keeps it '
               'reachable.',

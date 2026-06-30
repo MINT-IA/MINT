@@ -190,7 +190,7 @@ final _shellNavigatorKeyExplorer =
 //  OpenBanking + Admin flags preserved (post-V1 / dev-only).
 //
 //  Route naming convention:
-//    /retraite, /rente-vs-capital, /rachat-lpp, /epl, /pilier-3a,
+//    /retraite, /retraite/rente-vs-capital, /rachat-lpp, /epl, /pilier-3a,
 //    /hypotheque, /decaissement, /scan, /couple, /rapport,
 //    /invalidite, /divorce, /succession
 // ════════════════════════════════════════════════════════════

@@ -49,11 +49,11 @@ void main() {
       expect(mapping.lifeEventFamily, equals('professionnel'));
     });
 
-    test('intent chip routes to /rente-vs-capital via suggestedRoute', () {
+    test('intent chip routes to canonical RvC via suggestedRoute', () {
       final mapping = IntentRouter.forChipKey(annaChipKey);
 
       expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/rente-vs-capital'));
+      expect(mapping!.suggestedRoute, equals('/retraite/rente-vs-capital'));
     });
 
     test('intent chip stressType is stress_budget', () {
