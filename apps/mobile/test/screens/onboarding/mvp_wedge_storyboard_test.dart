@@ -18,11 +18,13 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 
@@ -113,8 +115,12 @@ void _mockSecureStorageUnavailableOnWrite() {
   });
 }
 
-Future<void> _pumpShell(WidgetTester tester, _FakeCoachProfileProvider fake,
-    {AuthProvider? authProvider}) async {
+Future<void> _pumpShell(
+  WidgetTester tester,
+  _FakeCoachProfileProvider fake, {
+  AuthProvider? authProvider,
+  bool useRealRvcRoute = false,
+}) async {
   final router = GoRouter(
     initialLocation: '/onb',
     routes: [
@@ -128,7 +134,17 @@ Future<void> _pumpShell(WidgetTester tester, _FakeCoachProfileProvider fake,
       ),
       GoRoute(
         path: '/coach/chat',
-        builder: (_, __) => const Scaffold(body: Text('coach-chat-landed')),
+        builder: (_, state) => Scaffold(
+          body: Text(
+            'coach-chat-landed:${state.uri.queryParameters['topic'] ?? ''}',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/retraite/rente-vs-capital',
+        builder: (_, __) => useRealRvcRoute
+            ? const RenteVsCapitalScreen()
+            : const Scaffold(body: Text('rente-vs-capital-landed')),
       ),
       GoRoute(
         path: '/auth/register',
@@ -262,6 +278,17 @@ Future<void> _commonData(WidgetTester tester) async {
   );
   await tester.tap(find.text('Continuer'));
   await tester.pumpAndSettle();
+}
+
+int _expectedAgeForPickedOnboardingDob() {
+  final now = DateTime.now();
+  final dateOfBirth = DateTime(now.year - 34, 7, 15);
+  var age = now.year - dateOfBirth.year;
+  if (now.month < dateOfBirth.month ||
+      (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
+    age--;
+  }
+  return age;
 }
 
 void main() {
@@ -817,7 +844,7 @@ void main() {
   });
 
   testWidgets(
-      'T8 Continuer: flushes wantsDeeper=true + navigates to /coach/chat',
+      'T8 Continuer: retirement intent opens rente vs capital decision room',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     final auth = _TrackingAuthProvider();
@@ -842,12 +869,71 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    // Landed on /coach/chat (router stub shows 'coach-chat-landed').
-    expect(find.text('coach-chat-landed'), findsOneWidget);
+    // The live Mint 2 retirement axis must continue into the decision room,
+    // not strand the user in generic chat.
+    expect(find.text('rente-vs-capital-landed'), findsOneWidget);
+    expect(find.text('coach-chat-landed'), findsNothing);
 
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);
     expect(auth.profileAvailableCalls, 1);
+  });
+
+  testWidgets(
+      'T8 Continuer: retirement dossier lands on real RvC with real age',
+      (tester) async {
+    E2eRuntimeFlags.proofAnchorsOverride = true;
+    addTearDown(E2eRuntimeFlags.resetForTest);
+
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake, useRealRvcRoute: true);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('rente_vs_capital_screen')), findsOneWidget);
+    expect(find.byKey(const Key('rvc_age_state')), findsOneWidget);
+    expect(
+      find.text('rvc_age=${_expectedAgeForPickedOnboardingDob()}'),
+      findsOneWidget,
+    );
+    expect(find.text('rvc_age=2026'), findsNothing);
+  });
+
+  testWidgets('T8 Continuer: non-retirement intents keep focused chat topics',
+      (tester) async {
+    const cases = [
+      (ValueKey('onboarding-intent-achat'), 'coach-chat-landed:logement'),
+      (ValueKey('onboarding-intent-impots'), 'coach-chat-landed:fiscalite'),
+      (ValueKey('onboarding-intent-explorer'), 'coach-chat-landed:onboarding'),
+    ];
+
+    for (final (intentKey, expectedLanding) in cases) {
+      final fake = _FakeCoachProfileProvider();
+      await _pumpShell(tester, fake);
+      await _commonEntry(tester, intentKey: intentKey);
+      await _commonData(tester);
+
+      await tester.tap(find.text('Voir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(expectedLanding), findsOneWidget);
+      expect(find.text('rente-vs-capital-landed'), findsNothing);
+      expect(fake.mergedCalls.single['q_wants_deeper'], isTrue);
+    }
   });
 
   testWidgets('T8 Créer un compte: seals dossier then routes to register',

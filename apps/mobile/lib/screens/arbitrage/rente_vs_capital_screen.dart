@@ -680,7 +680,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: CustomScrollView(
                       slivers: [
                         SliverToBoxAdapter(
-                          child: _buildRouteProofAnchor(context),
+                          child: _buildRouteProofAnchors(context),
                         ),
                         // ── SliverAppBar (white standard — Simulator screen) ──
                         SliverAppBar(
@@ -1282,9 +1282,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // Maestro `assertVisible`) rather than being merged into one big blob
     // with every other label in the input section. The inner visual label
     // `Text` is `ExcludeSemantics`-wrapped to avoid duplicating the name.
+    final semanticsValue = controller.text.trim();
     return Semantics(
       container: true,
       label: label,
+      value: semanticsValue,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2186,19 +2188,43 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   //  RECEIPT GATE
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildRouteProofAnchor(BuildContext context) {
+  Widget _buildRouteProofAnchors(BuildContext context) {
     if (!E2eRuntimeFlags.proofAnchors) return const SizedBox.shrink();
 
     final route = GoRouterState.of(context).uri.path;
-    final label = 'route=$route';
+    final routeLabel = 'route=$route';
+    final ageProof = _ageCtrl.text.trim();
     if (!_routeProofLogged) {
       _routeProofLogged = true;
-      debugPrint('[MINT_E2E_ROUTE_STATE] $label');
+      debugPrint('[MINT_E2E_ROUTE_STATE] $routeLabel');
     }
 
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildProofAnchor(
+          key: const Key('rvc_route_state'),
+          identifier: 'rvc_route_state',
+          label: routeLabel,
+        ),
+        if (ageProof.isNotEmpty)
+          _buildProofAnchor(
+            key: const Key('rvc_age_state'),
+            identifier: 'rvc_age_state_$ageProof',
+            label: 'rvc_age=$ageProof',
+          ),
+      ],
+    );
+  }
+
+  Widget _buildProofAnchor({
+    required Key key,
+    required String identifier,
+    required String label,
+  }) {
     return Semantics(
-      key: const Key('rvc_route_state'),
-      identifier: 'rvc_route_state',
+      key: key,
+      identifier: identifier,
       container: true,
       label: label,
       child: Text(
