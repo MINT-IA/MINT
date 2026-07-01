@@ -216,6 +216,7 @@ def test_diagnostic_entry_files_are_in_scope(tmp_path: Path) -> None:
         [
             "apps/mobile/lib/screens/auth/login_screen.dart",
             "apps/mobile/lib/widgets/onboarding/premier_eclairage_card.dart",
+            "apps/mobile/test/screens/auth_magic_link_verify_handoff_test.dart",
             "apps/mobile/test/widgets/onboarding/premier_eclairage_card_test.dart",
             "tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml",
         ],

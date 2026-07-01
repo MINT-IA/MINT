@@ -143,6 +143,7 @@ ALLOW = {
     "apps/mobile/test/routes/coach_chat_entry_payload_test.dart",
     "apps/mobile/test/navigation/rvc_real_route_public_test.dart",
     "apps/mobile/test/screens/auth_screens_smoke_test.dart",
+    "apps/mobile/test/screens/auth_magic_link_verify_handoff_test.dart",
     "apps/mobile/test/screens/login_redirect_resolver_test.dart",
     "apps/mobile/test/screens/register_account_entry_test.dart",
     "apps/mobile/test/screens/profile/financial_summary_screen_test.dart",
