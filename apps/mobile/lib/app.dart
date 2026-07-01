@@ -1136,6 +1136,7 @@ final _router = GoRouter(
     // ── FISCALITE ────────────────────────────────────────────
     ScopedGoRoute(
       path: '/pilier-3a',
+      scope: RouteScope.onboarding,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Simulator3aScreen(),
     ),
@@ -1176,6 +1177,7 @@ final _router = GoRouter(
     // ── IMMOBILIER ───────────────────────────────────────────
     ScopedGoRoute(
       path: '/hypotheque',
+      scope: RouteScope.onboarding,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AffordabilityScreen(),
     ),

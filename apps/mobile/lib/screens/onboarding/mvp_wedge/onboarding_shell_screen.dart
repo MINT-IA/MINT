@@ -1481,9 +1481,9 @@ class _BifurcationStepState extends State<_BifurcationStep> {
 
   String _continueRouteFor(OnboardingIntent? intent) => switch (intent) {
         OnboardingIntent.retraite => '/retraite/rente-vs-capital',
-        OnboardingIntent.achat => '/coach/chat?topic=logement',
-        OnboardingIntent.impots => '/coach/chat?topic=fiscalite',
-        OnboardingIntent.explorer || null => '/coach/chat?topic=onboarding',
+        OnboardingIntent.achat => '/hypotheque',
+        OnboardingIntent.impots => '/pilier-3a',
+        OnboardingIntent.explorer || null => '/explore',
       };
 
   Future<void> _sealAndGo({
