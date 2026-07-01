@@ -22,7 +22,7 @@ The ledger is **not new infrastructure**. It is the formalisation of the spine t
 | Decay | `apps/mobile/lib/services/biography/freshness_decay_service.dart` | Two-tier freshness, 0.60 refresh threshold. API is `weight(BiographyFact fact, DateTime now)` — see §5. |
 | Confidence | `services/backend/app/services/confidence/enhanced_confidence_service.py` | 4-axis score; consumes source + freshness. |
 
-**`models/profile.dart` + `ProfileProvider` are DEAD** (backend-sync only, 0 screen consumers). They are NOT part of the ledger. Schedule for deletion; do not extend them.
+**`models/profile.dart` + `ProfileProvider` are NOT part of the ledger** and are slated for deletion — but they are **not a zero-consumer dead module on the frozen baseline**. `ProfileProvider` (`apps/mobile/lib/providers/profile_provider.dart:5`, importing `models/profile.dart:2`) still has **live screen/widget consumers**, all reading `profile?.hasDebt`: `simulator_3a_screen.dart:197` (`context.read<ProfileProvider>()`, legacy fallback path) and `:301` (`context.watch<ProfileProvider>().profile?.hasDebt` inside `build()`), plus 3 widgets — `widgets/simulators/buyback_widget.dart:39`, `widgets/recommendation_card.dart:17`, `widgets/comparators/pillar3a_comparator_widget.dart:29`. Deletion is a REQUIRED but **not-yet-safe** task: these 5 consumers MUST first be migrated to read `hasDebt` from `CoachProfileProvider`/`MintStateProvider` (e.g. `CoachProfile.hasDebt` / `MintUserState`), after which `ProfileProvider` + `models/profile.dart` become genuinely orphaned and can be removed. Do not extend them; do not delete them before the migration.
 
 ---
 
@@ -69,9 +69,10 @@ These weights are the accuracy-axis weights in `enhanced_confidence_service.py`.
 
 ### 2.2 Backend `DataSource` — the DIFFERENT backend enum, and the mandatory cross-walk
 
-The backend uses a **separate 7-member enum** `DataSource` with **different names and weights** (`services/backend/app/services/document_parser/document_models.py:39`, weights in `DATA_SOURCE_ACCURACY:57`):
+The backend uses a **separate 8-member enum** `DataSource` with **different names and weights** (`services/backend/app/services/document_parser/document_models.py:39`, weights in `DATA_SOURCE_ACCURACY:57`):
 
 ```
+user_estimate              0.25
 user_entry                 0.50
 user_entry_cross_validated 0.70
 document_scan              0.85
@@ -91,7 +92,7 @@ Mobile ↔ backend are NOT the same enum and their weights differ (mobile `userI
 | `certificate` | `document_scan_verified` | both .95 (a confirmed cert = verified scan) |
 | `openBanking` | `open_banking` | both 1.00 |
 
-Backend-only members `document_scan` (.85, unconfirmed OCR) and `institutional_api` (.95) have **no mobile pre-image** and are produced only by backend document/API pipelines; never emitted by the mobile→backend sync. This table is the single source of truth for the cross-walk; §6 references it, does not restate it.
+Backend-only members `document_scan` (.85, unconfirmed OCR), `institutional_api` (.95), and `user_estimate` (.25) have **no mobile pre-image**: `document_scan`/`institutional_api` are produced only by backend document/API pipelines, and `user_estimate` (a second .25 member alongside `system_estimate`) is a backend-internal estimate tag; the mobile→backend sync maps mobile `estimated` to `system_estimate` (per the table above), never to `user_estimate`. None of the three is ever emitted by the mobile→backend sync. This table is the single source of truth for the cross-walk; §6 references it, does not restate it.
 
 ---
 
