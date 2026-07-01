@@ -3,7 +3,11 @@ import 'dart:ui' show SemanticsAction;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -16,6 +20,7 @@ import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 Widget _testApp({CoachProfileProvider? coachProfileProvider}) {
   return MaterialApp(
@@ -36,6 +41,60 @@ Widget _testApp({CoachProfileProvider? coachProfileProvider}) {
   );
 }
 
+Widget _testRouterApp({required CoachProfileProvider coachProfileProvider}) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<AuthProvider>(
+        create: (_) => AuthProvider(),
+      ),
+      ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: coachProfileProvider,
+      ),
+    ],
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
+      routerConfig: GoRouter(
+        initialLocation: '/auth/register',
+        routes: [
+          GoRoute(
+            path: '/auth/register',
+            builder: (_, __) => const RegisterScreen(),
+          ),
+          GoRoute(
+            path: '/home',
+            builder: (_, __) => const Scaffold(body: Text('home-target')),
+          ),
+          GoRoute(
+            path: '/onb',
+            builder: (_, __) => const Scaffold(body: Text('onb-target')),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+void _installSuccessfulRegisterMock(List<String> paths) {
+  ApiService.setHttpClientForTesting(MintHttpClient(
+    MockClient((request) async {
+      paths.add(request.url.path);
+      final body = switch (request.url.path) {
+        '/api/v1/auth/register' =>
+          '{"access_token":"register-token","refresh_token":"refresh-token","user_id":"user-1","email":"julien@example.ch","display_name":"Julien","requires_email_verification":false}',
+        '/api/v1/profiles/me' => '{}',
+        _ => '{}',
+      };
+      return http.Response(
+        body,
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    }),
+  ));
+}
+
 Future<void> _acceptRequiredConsentsAndTapApple(WidgetTester tester) async {
   await tester.ensureVisible(find.byType(Checkbox).at(0));
   await tester.pumpAndSettle();
@@ -54,11 +113,14 @@ Future<void> _acceptRequiredConsentsAndTapApple(WidgetTester tester) async {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    ApiService.setHttpClientForTesting(null);
     FeatureFlags.enableMvpWedgeOnboarding = false;
   });
 
   tearDown(() {
     FeatureFlags.enableMvpWedgeOnboarding = false;
+    ApiService.setHttpClientForTesting(null);
     AppleSignInService.resetOverrides();
   });
 
@@ -746,6 +808,70 @@ void main() {
           tester.getTopLeft(find.textContaining('Je confirme avoir 18 ans')).dy;
 
       expect(emailTop, lessThan(consentTop));
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('email registration keeps pre-account date of birth in profile',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'wizard_answers_v2': '{"q_date_of_birth":"1981-06-15"}',
+    });
+    FlutterSecureStorage.setMockInitialValues({});
+    final paths = <String>[];
+    _installSuccessfulRegisterMock(paths);
+    final coachProfileProvider = CoachProfileProvider();
+
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(
+        _testRouterApp(coachProfileProvider: coachProfileProvider),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('auth_register_email_field')),
+        'julien@example.ch',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('auth_register_first_name_field')),
+        'Julien',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('auth_register_password_field')),
+        'Password123!',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('auth_register_confirm_password_field')),
+        'Password123!',
+      );
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('auth_register_accept_cgu')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('auth_register_accept_cgu')));
+      await tester.pump();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('auth_register_confirm_18')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('auth_register_confirm_18')));
+      await tester.pump();
+
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('auth_register_create_account')),
+      );
+      await tester.pumpAndSettle();
+      await tester
+          .tap(find.byKey(const ValueKey('auth_register_create_account')));
+      await tester.pumpAndSettle();
+
+      expect(paths, contains('/api/v1/auth/register'));
+      expect(find.text('home-target'), findsOneWidget);
+      expect(coachProfileProvider.profile?.dateOfBirth, DateTime(1981, 6, 15));
+      expect(coachProfileProvider.profile?.birthYear, 1981);
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
