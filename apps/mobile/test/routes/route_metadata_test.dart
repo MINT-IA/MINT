@@ -162,6 +162,21 @@ void main() {
       expect(meta.killFlag, 'enableExplorerRetraite');
     });
 
+    test('/hypotheque and /pilier-3a are onboarding first-value tools', () {
+      final hypotheque = kRouteRegistry['/hypotheque'];
+      final pilier3a = kRouteRegistry['/pilier-3a'];
+
+      expect(hypotheque, isNotNull);
+      expect(hypotheque!.category, RouteCategory.destination);
+      expect(hypotheque.owner, RouteOwner.logement);
+      expect(hypotheque.requiresAuth, isFalse);
+
+      expect(pilier3a, isNotNull);
+      expect(pilier3a!.category, RouteCategory.destination);
+      expect(pilier3a.owner, RouteOwner.fiscalite);
+      expect(pilier3a.requiresAuth, isFalse);
+    });
+
     test('/rente-vs-capital is a legacy alias to canonical RVC route', () {
       final meta = kRouteRegistry['/rente-vs-capital'];
       expect(meta, isNotNull);

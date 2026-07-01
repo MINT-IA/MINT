@@ -147,6 +147,18 @@ Future<void> _pumpShell(
             : const Scaffold(body: Text('rente-vs-capital-landed')),
       ),
       GoRoute(
+        path: '/hypotheque',
+        builder: (_, __) => const Scaffold(body: Text('hypotheque-landed')),
+      ),
+      GoRoute(
+        path: '/pilier-3a',
+        builder: (_, __) => const Scaffold(body: Text('pilier-3a-landed')),
+      ),
+      GoRoute(
+        path: '/explore',
+        builder: (_, __) => const Scaffold(body: Text('explore-landed')),
+      ),
+      GoRoute(
         path: '/auth/register',
         builder: (_, __) => const Scaffold(body: Text('register-landed')),
       ),
@@ -909,12 +921,12 @@ void main() {
     expect(find.text('rvc_age=2026'), findsNothing);
   });
 
-  testWidgets('T8 Continuer: non-retirement intents keep focused chat topics',
+  testWidgets('T8 Continuer: non-retirement intents open real tools',
       (tester) async {
     const cases = [
-      (ValueKey('onboarding-intent-achat'), 'coach-chat-landed:logement'),
-      (ValueKey('onboarding-intent-impots'), 'coach-chat-landed:fiscalite'),
-      (ValueKey('onboarding-intent-explorer'), 'coach-chat-landed:onboarding'),
+      (ValueKey('onboarding-intent-achat'), 'hypotheque-landed'),
+      (ValueKey('onboarding-intent-impots'), 'pilier-3a-landed'),
+      (ValueKey('onboarding-intent-explorer'), 'explore-landed'),
     ];
 
     for (final (intentKey, expectedLanding) in cases) {
@@ -931,6 +943,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(expectedLanding), findsOneWidget);
+      expect(find.textContaining('coach-chat-landed'), findsNothing);
       expect(find.text('rente-vs-capital-landed'), findsNothing);
       expect(fake.mergedCalls.single['q_wants_deeper'], isTrue);
     }

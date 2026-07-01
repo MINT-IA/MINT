@@ -87,7 +87,7 @@
 /fiscal | authenticated
 /household | authenticated
 /household/accept | authenticated
-/hypotheque | authenticated
+/hypotheque | onboarding
 /independants/3a | authenticated
 /independants/avs | authenticated
 /independants/dividende-salaire | authenticated
@@ -124,7 +124,7 @@
 /open-banking | authenticated
 /open-banking/consents | authenticated
 /open-banking/transactions | authenticated
-/pilier-3a | authenticated
+/pilier-3a | onboarding
 /portfolio | authenticated
 /profile | authenticated
 /rachat-lpp | authenticated

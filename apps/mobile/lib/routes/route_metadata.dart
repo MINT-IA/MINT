@@ -453,7 +453,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     path: '/pilier-3a',
     category: RouteCategory.destination,
     owner: RouteOwner.fiscalite,
-    requiresAuth: true,
+    requiresAuth: false,
     killFlag: 'enableExplorerFiscalite',
   ),
   '/simulator/3a': RouteMeta(
@@ -502,7 +502,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     path: '/hypotheque',
     category: RouteCategory.destination,
     owner: RouteOwner.logement,
-    requiresAuth: true,
+    requiresAuth: false,
     killFlag: 'enableExplorerLogement',
   ),
   '/mortgage/affordability': RouteMeta(
