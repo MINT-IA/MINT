@@ -58,6 +58,10 @@ void main() {
               builder: (_, __) =>
                   const Scaffold(body: Text('coach-chat-target')),
             ),
+            GoRoute(
+              path: '/onb',
+              builder: (_, __) => const Scaffold(body: Text('onb-target')),
+            ),
           ],
         ),
       ),
@@ -110,7 +114,7 @@ void main() {
 
     expect(paths, containsAll([_verifyPath, _mePath]));
     expect(paths, isNot(contains(_claimPath)));
-    expect(find.text('coach-chat-target'), findsOneWidget);
+    expect(find.text('onb-target'), findsOneWidget);
   });
 
   testWidgets('magic-link verifier honors start-over choice before auth',
@@ -124,6 +128,6 @@ void main() {
     expect(paths, containsAll([_verifyPath, _mePath]));
     expect(paths, isNot(contains(_claimPath)));
     expect(await ReportPersistenceService.loadMint2AxisHandoff(), isEmpty);
-    expect(find.text('coach-chat-target'), findsOneWidget);
+    expect(find.text('onb-target'), findsOneWidget);
   });
 }
