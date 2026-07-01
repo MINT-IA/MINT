@@ -134,9 +134,7 @@ class _PremierEclairageCardState extends State<PremierEclairageCard>
           const SizedBox(height: MintSpacing.md),
           _CtaButton(
             label: l10n.premierEclairageCardCtaPersonalize,
-            // P10-02b: quick-start screen removed → route directly to coach chat
-            // (source: premier_eclairage_intent).
-            onTap: () => widget.onNavigate('/coach/chat'),
+            onTap: () => widget.onNavigate('/onb'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _DisclaimerText(text: l10n.premierEclairageDisclaimer),
@@ -319,6 +317,7 @@ class _CtaButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
+        // lint-ignore: prefer_mint_cta
         onPressed: onTap,
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.accent,

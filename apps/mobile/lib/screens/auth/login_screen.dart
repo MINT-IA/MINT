@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
     context.go(resolvePostAuthDestination(
       currentUri: GoRouterState.of(context).uri,
       hasDossierIdentity: hasDossierIdentity,
-      fallback: completed ? '/coach/chat' : '/coach/chat?topic=onboarding',
+      fallback: completed ? '/coach/chat' : '/onb',
     ));
   }
 

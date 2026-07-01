@@ -23,6 +23,7 @@ import 'package:mint_mobile/screens/debug/debug_budget_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_mint2_account_claim_screen.dart';
 import 'package:mint_mobile/screens/debug/debug_profile_bootstrap_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
+import 'package:mint_mobile/screens/auth/auth_redirect.dart';
 import 'package:mint_mobile/services/debug_profile_bootstrap_service.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -2409,15 +2410,20 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
 
       if (success) {
         // Post-auth routing: check onboarding status
+        final localDateOfBirth =
+            context.read<CoachProfileProvider>().profile?.dateOfBirth;
+        final currentUri = GoRouterState.of(context).uri;
         final completed =
             await ReportPersistenceService.isMiniOnboardingCompleted();
+        final hasDossierIdentity = await hasPostAuthDossierIdentity(
+          localDateOfBirth: localDateOfBirth,
+        );
         if (!mounted) return;
-        if (completed) {
-          context.go('/coach/chat');
-        } else {
-          // NAV-AUDIT: welcome prompt triggers onboarding flow in coach
-          context.go('/coach/chat?topic=onboarding');
-        }
+        context.go(resolvePostAuthDestination(
+          currentUri: currentUri,
+          hasDossierIdentity: hasDossierIdentity,
+          fallback: completed ? '/coach/chat' : '/onb',
+        ));
       } else {
         setState(() {
           _isVerifying = false;
