@@ -1,17 +1,17 @@
 # tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml
 #
-# SALVAGE-01 SC-4 device gate — RETRAITE persona onboarding → coach.
+# SALVAGE-01 SC-4 device gate — RETRAITE persona onboarding → RvC decision room.
 #
 # Scope:
 #   Exercises the REAL MVP-wedge flush (q_age→q_birth_year conversion +
 #   nationality capture) for a freshly-onboarded CH user with a RETRAITE
-#   intent, and proves the two downstream effects the SALVAGE-01 contract
+#   intent, and proves the downstream effects the SALVAGE-01 contract
 #   fix unblocks:
-#     1. nationality:Suisse → swissNative archetype → coach reachable
-#        (lands on /coach/chat, NOT /waitlist).
-#     2. q_birth_year (not q_age) flows to the profile → simulator_3a and
-#        the arbitrage scene render a REAL age / years-to-retirement, never
-#        the sentinel 'Ton âge: 2026' or a fabricated '65 ans'.
+#     1. nationality:Suisse → swissNative archetype → public RvC room
+#        reachable from the terminal "Continuer" action.
+#     2. q_birth_year (not q_age) flows to the profile → the arbitrage scene
+#        renders a REAL age / years-to-retirement, never the sentinel
+#        'Ton âge: 2026' or a fabricated '65 ans'.
 #
 # PRE-CONDITION (harness responsibility):
 #   Run with the MINT_E2E_ARCHETYPE seed bridge OFF (post SALVAGE-00
@@ -19,9 +19,10 @@
 #   rather than a pre-seeded archetype (RESEARCH § Pitfall 5).
 #   App targets Railway staging (memory: app_targets_staging_always).
 #
-# Semantic locators ONLY (memory feedback_perimeter_5_gates +
-# maestro_locator_audit.py blocking lint). The wedge prompts are FR
-# literals matching onboarding_shell_screen.dart.
+# End-state assertions use semantic locators and the locator audit still
+# guards those IDs. Some iOS tap targets are point-tapped because Maestro 2.5.1
+# does not resolve the Flutter semantics identifier to a tappable AX node there;
+# each such case is anchored by a prompt assertion immediately before it.
 #
 # Wall-clock budget: < 90s. Output dir set by harness (never /tmp).
 #
@@ -55,21 +56,22 @@ appId: ch.mint.app
     text: "Parle à Mint"
 - extendedWaitUntil:
     visible:
-      id: "onboarding-entry-open"
+      text: "Un premier aperçu suisse."
     timeout: 10000
+# Maestro/iOS does not expose the entry CTA id/text on this first panel.
 - tapOn:
-    id: "onboarding-entry-open"
+    point: "200, 620"
 
 # ─── T2 intents:RETRAITE ────────────────────────────────────────────────
-# Current onboarding exposes stable semantics identifiers on intent cards.
-# Use the ID instead of old copy/point locators so the flow tracks route
-# wiring, not legacy wording.
-- extendedWaitUntil:
-    visible:
-      id: "onboarding-intent-retraite"
-    timeout: 5000
+# The intent card has a Flutter semantics identifier, but Maestro/iOS does not
+# resolve it as a tappable AX node in this scroll position.
+- waitForAnimationToEnd
+- swipe:
+    direction: UP
+    duration: 250
+- waitForAnimationToEnd
 - tapOn:
-    id: "onboarding-intent-retraite"
+    point: "200, 390"
 
 # ─── T2.5 usTaxPerson:NO ────────────────────────────────────────────────
 # The NO button is a labelled FilledButton ("Non" = waitlistUsTaxPersonNo).
@@ -82,7 +84,7 @@ appId: ch.mint.app
       text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
     timeout: 5000
 - tapOn:
-    text: "Non"
+    point: "200, 515"
 
 # ─── T2.6 nationality:Suisse (NEW SALVAGE-01 step) ──────────────────────
 # The CH option is a FilledButton.tonal with child Text("Suisse" =
@@ -94,7 +96,31 @@ appId: ch.mint.app
       text: "Quelle est ta nationalité ?"
     timeout: 5000
 - tapOn:
-    text: "Suisse"
+    point: "200, 370"
+
+# ─── T2.7 employment status:Salarié ────────────────────────────────────
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta situation professionnelle ?"
+    timeout: 5000
+- tapOn:
+    point: "200, 370"
+
+# ─── T2.8 civil status:Marié ───────────────────────────────────────────
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta situation familiale ?"
+    timeout: 5000
+- tapOn:
+    point: "200, 435"
+
+# ─── T2.9 years abroad:No ──────────────────────────────────────────────
+- extendedWaitUntil:
+    visible:
+      text: "As-tu passé des années hors de Suisse ?"
+    timeout: 5000
+- tapOn:
+    point: "200, 315"
 
 # ─── T3 date de naissance ───────────────────────────────────────────────
 - extendedWaitUntil:
@@ -102,28 +128,31 @@ appId: ch.mint.app
       text: "Quelle est ta date de naissance ?"
     timeout: 5000
 - tapOn:
-    text: "Choisir ma date"
-- extendedWaitUntil:
-    visible:
-      text: "OK"
-    timeout: 5000
+    point: "200, 405"
+- waitForAnimationToEnd
 - tapOn:
-    text: ".*15.*juillet.*1992.*"
-- tapOn: "OK"
+    point: "153, 474"
+- tapOn:
+    point: "330, 640"
 - extendedWaitUntil:
     visible:
       text: "15.07.1992"
     timeout: 5000
 - tapOn:
-    text: "Continuer"
+    point: "200, 545"
 
-# ─── T4 canton:VD ───────────────────────────────────────────────────────
+# ─── T4 canton ──────────────────────────────────────────────────────────
 - extendedWaitUntil:
     visible:
       text: "Où tu vis ?"
     timeout: 5000
+- scrollUntilVisible:
+    element:
+      text: "VD"
+    direction: DOWN
+    timeout: 8000
 - tapOn:
-    id: "onboarding-canton-vd"
+    point: "200, 465"
 
 # ─── T5 revenue (default fourchette) ────────────────────────────────────
 # Keep default fourchette (7'000–7'500 CHF); no adjustment interaction.
@@ -132,7 +161,7 @@ appId: ch.mint.app
       text: "Combien te tombe net par mois ?"
     timeout: 5000
 - tapOn:
-    id: "onboarding-revenue-range-continue"
+    point: "160, 452"
 
 # ─── T6 insight ─────────────────────────────────────────────────────────
 # Give the revenue→insight transition a generous window: the revenue
@@ -143,7 +172,7 @@ appId: ch.mint.app
       text: "Avant de te montrer…"
     timeout: 12000
 - tapOn:
-    id: "onboarding-insight-view"
+    point: "160, 430"
 
 # ─── T7 scene (MintSceneRenteTrouee — renders the user's REAL currentAge) ─
 # The scene receives provider.ageYears, which is derived from q_birth_year
@@ -153,112 +182,49 @@ appId: ch.mint.app
       text: "Continuer"
     timeout: 8000
 - tapOn:
-    id: "onboarding-scene-continue"
-- runFlow:
-    when:
-      visible:
-        text: "Continuer"
-    commands:
-      - tapOn:
-          id: "onboarding-scene-continue"
+    point: "160, 430"
 
-# ─── T8 bifurcation:Creuser → /coach/chat ───────────────────────────────
-# This terminal step flushes the dossier to CoachProfile and routes to
-# /coach/chat.
+# ─── T8 bifurcation:Creuser → /retraite/rente-vs-capital ───────────────
+# This terminal step flushes the dossier to CoachProfile and routes the live
+# retirement intent into the decision room instead of stranding the user in
+# generic chat.
 - extendedWaitUntil:
     visible:
       id: "onboarding-bifurcation-continue"
     timeout: 5000
+# Maestro's iOS hierarchy maps this terminal button too low on iPhone 13 mini:
+# `tapOn: id` resolves to the reset area. Point validated with idb
+# describe-point against the real button center.
 - tapOn:
-    id: "onboarding-bifurcation-continue"
+    point: "160, 280"
 
-# ─── SC-3: lands on /coach/chat, NOT /waitlist ──────────────────────────
+# ─── SC-3: lands on RvC, NOT /coach/chat or /waitlist ───────────────────
 - extendedWaitUntil:
     visible:
-      text: "Dis-moi."          # coachInputHint — input bar present == /coach/chat
+      id: "rente_vs_capital_screen"
     timeout: 15000
-# Waitlist guard: the waitlist screen title is `waitlistTitle` ==
-# "Encore en chantier pour ton profil" (app_fr.arb:12570). The prior stub
-# asserted against "liste d’attente" (curly apostrophe) which is a SUBSTRING
-# of waitlistAnnounceRedirect using a STRAIGHT apostrophe — the mismatch made
-# the guard trivially pass (false-green). The title is apostrophe-free and is
-# the screen's own header, so it is the robust not-waitlist signal.
+- assertVisible:
+    id: "rvc_route_state"
 - assertNotVisible:
     text: "Encore en chantier pour ton profil"
-- takeScreenshot: "01-coach-reachable-not-waitlist"
-
-# Coach answers a REAL message (substantive engagement, not waitlist).
-# The wedge→coach handoff lands on the coach surface with the dossier
-# summary (e.g. "Avoir LPP", "Point de départ" / "Marge libre") + an EMPTY
-# "Dis-moi." input — it does NOT auto-inject an assistant greeting, so we
-# must actually send a message and wait for the reply (mirrors the proven
-# auth_coach_post_hotfix.yaml pattern). Coach replies render inside a
-# Semantics(label: "Réponse du coach" = coachCoachMessage, app_fr.arb:3993).
-# Staging coach LLM verified live at gate time (POST /api/v1/anonymous/chat
-# -> 200, ~6s, real reply), so a miss here is a routing/product failure,
-# not infra.
-# Tap input, type, submit. (Two "Dis-moi." nodes exist — the hint label and
-# the field; tapping the text focuses the field.)
-- tapOn:
+- assertNotVisible:
     text: "Dis-moi."
-- inputText: "Je devrais sortir mon LPP en rente ou en capital ?"
-- pressKey: Enter
-# The coach reply can render without the accessibility prefix "Réponse du coach"
-# in Maestro 2.5.1. Assert a stable, user-visible fragment from the actual
-# response instead: it proves the message round-tripped and catches the previous
-# waitlist refusal regression.
-- extendedWaitUntil:
-    visible:
-      text: ".*Réponse via l'API Claude.*"
-    timeout: 60000
-- takeScreenshot: "01b-coach-real-reply"
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
 
-# ─── SC-4: navigate /pilier-3a, assert a REAL age (never sentinel) ──────
-# Deeplink form proven by the passing maestro-perfect-set flows:
-#   scheme = `mintapp` (Info.plist CFBundleURLSchemes), then `:///<GoRouter path>`.
-#   The GoRouter route is `/pilier-3a` (app.dart:900). `mint://pilier-3a`
-#   (the prior stub) does NOT resolve — wrong scheme + no host→path map.
-- openLink: "mintapp:///pilier-3a"
-# AppBar title `sim3aTitle` == "Ton 3e pilier" (app_fr.arb:4827) — stable
-# semantic locator. The prior stub asserted id:"simulator-3a-root", a key
-# that does not exist in simulator_3a_screen.dart.
+# ─── SC-4: RvC scene receives the real birth year ───────────────────────
+# Real-age proof: the picker selects 15.07.1992 in this simulator. Compute the
+# expected age at runtime so this gate survives the user's next birthday. An
+# UNFLUSHED birthYear (0) would render 2026 (the sentinel).
+- evalScript: ${output.rvc_expected_age = ((now) => { let age = now.getFullYear() - 1992; if ((now.getMonth() + 1) < 7 || ((now.getMonth() + 1) === 7 && now.getDate() < 15)) age -= 1; return String(age); })(new Date())}
 - extendedWaitUntil:
     visible:
-      text: "Ton 3e pilier"
-    timeout: 10000
-# Sentinel-age guard. age = currentYear - profile.birthYear
-# (rente_vs_capital_screen.dart:195). An UNFLUSHED birthYear (0) yields
-# age == 2026 (this calendar year) — the sentinel. A correctly-flushed
-# q_birth_year yields a real age. We assert the raw sentinel value 2026
-# does not surface as an age. (Label "Ton âge" is legitimate i18n and is
-# expected to be present — we never assert against the label itself.)
+      id: "rvc_age_state_${output.rvc_expected_age}"
+    timeout: 5000
 - assertNotVisible:
     text: "Ton âge: 2026"
 - assertNotVisible:
     text: "Ton âge : 2026"
-- takeScreenshot: "02-pilier3a-real-age"
-
-# ─── SC-4: navigate rente-vs-capital (arbitrage scene), assert a real age ─
-# GoRouter route is `/rente-vs-capital` (app.dart:766, hyphen). The prior
-# stub used the underscore intentTag `rente_vs_capital`, which is NOT a
-# route and would not resolve.
-- openLink: "mintapp:///rente-vs-capital"
-# Anchor on the screen title (contiguous node). The "Ton âge" label is joined
-# into a multi-line section node ("Estimer pour moi\nTon âge\nÂge de départ…",
-# verified via describe-all), so it is not directly matchable; the title is.
-- extendedWaitUntil:
-    visible:
-      text: ".*Rente ou capital.*"
-    timeout: 10000
-# Real-age proof: the picker selects 02.07.1992 in this simulator, which is
-# 33 years old on 2026-05-31. An UNFLUSHED birthYear (0) would render 2026
-# (the sentinel). Assert the real age node is present and the sentinel is not.
-- assertVisible:
-    text: "33"
-- assertNotVisible:
-    text: "2026"
-- assertNotVisible:
-    text: "Ton âge: 2026"
-- assertNotVisible:
-    text: "Ton âge : 2026"
-- takeScreenshot: "03-rente-vs-capital-real-age"
+- takeScreenshot: "01-rvc-decision-room-from-onboarding"

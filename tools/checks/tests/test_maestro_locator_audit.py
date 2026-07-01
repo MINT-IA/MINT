@@ -62,10 +62,13 @@ def test_dynamic_value_key_templates_cover_e2e_and_axis_ids():
     assert audit.codebase_has_key("e2e_mint2_axis_claim_claim_restart_clean")
     assert audit.codebase_has_key("e2e_mint2_axis_claim_owner_claimed")
     assert audit.codebase_has_key("e2e_mint2_axis_claim_auth_present")
+    assert audit.codebase_has_key("rvc_age_state_33")
+    assert audit.codebase_has_key("rvc_age_state_${output.rvc_expected_age}")
     assert not audit.codebase_has_key("mint2-axis-not_real_axis")
     assert not audit.codebase_has_key("e2e_mint2_axis_claim_axis_not_real_axis")
     assert not audit.codebase_has_key("e2e_mint2_axis_claim_wizardAnswers_not_numeric")
     assert not audit.codebase_has_key("e2e_mint2_axis_claim_auth_maybe")
+    assert not audit.codebase_has_key("rvc_age_state_not_numeric")
 
 
 def test_regex_locator_unescapes_parenthesized_labels():
