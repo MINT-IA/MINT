@@ -6,7 +6,7 @@
 %% MultiProvider tree) with line numbers. Companion: DATA_LEDGER.md,
 %% SCREEN_CONTRACTS.md (exhaustive per-route contracts). Conflict order:
 %% rules.md > CLAUDE.md > this file.
-%%
+%% .
 %% This file is a SINGLE valid Mermaid flowchart. The machine-checkable
 %% INVARIANTS are at the bottom as %% comments (I-1..I-9), each citing the real
 %% file a script/Codex must assert against.
@@ -21,7 +21,7 @@ flowchart TB
   %% ==========================================================================
   subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
     direction TB
-    CPP["CoachProfileProvider<br/>app.dart:1413<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
+    CPP["CoachProfileProvider<br/>app.dart:1428<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
     MSP["MintStateProvider<br/>app.dart:1466 (ProxyProvider)<br/>builds MintUserState (read-model)"]
     NWS["NotificationsWiringService<br/>app.dart:1504 (ProxyProvider)"]
     PERSIST[("SharedPreferences<br/>key: wizard_answers_v2<br/>report_persistence_service.dart")]
@@ -38,7 +38,7 @@ flowchart TB
     TIMELINE["TimelineProvider<br/>app.dart:1484 — ISLAND"]
     DOCS["DocumentProvider<br/>app.dart:1425 — ISLAND"]
     PLAN["FinancialPlanProvider<br/>app.dart:1479 — ISLAND"]
-    DEADP["ProfileProvider<br/>app.dart:1418 — DEAD (0 consumers, delete)"]
+    DEADP["ProfileProvider<br/>app.dart:1418 — LEGACY (4 hasDebt consumers, migrate then delete)"]
 
     BUDGET -. "MISSING bridge -> recompute" .-> MSP
     HOUSE  -. "MISSING sync -> CoachProfile.conjoint" .-> CPP
@@ -50,7 +50,8 @@ flowchart TB
   %% ==========================================================================
   %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
   %% Nodes = live screens (have a builder). Dashed edges = redirect routes
-  %% (legacy shims -> canonical). All nodes reachable; no orphan; no dead-end
+  %% (legacy shims -> canonical). Every node reachable from a shell tab, hub,
+  %% or an explicit deep-link/settings entry point; no orphan; no dead-end
   %% EXCEPT the flagged red traps, which this graph exists to eliminate.
   %% ==========================================================================
   subgraph NAV["NAVIGATION"]
@@ -120,7 +121,7 @@ flowchart TB
       RAPPORT["/rapport<br/>depends on extra (:974)"]:::trap
       CONF["/confidence"]
     end
-    subgraph MISC["misc / education / couple"]
+    subgraph MISC["misc / education / couple / settings (deep-link + settings entries)"]
       COUPLE["/couple"]; CACCEPT["/couple/accept"]; EHUB["/education/hub"]; ETHEME["/education/theme/:id"]
       SCOMP["/simulator/compound"]; SLEAS["/simulator/leasing"]; SCRED["/simulator/credit"]
       LANGUE["/settings/langue"]; ABOUT["/about"]; ADMINR["/admin/routes"]; TL["/timeline"]
@@ -161,8 +162,15 @@ flowchart TB
     RETR --> RVC & RACHAT & DECAI
     HOME --> TL
     ARGENT --> DOCLIST --> DOCID
-    COUPLE --> CACCEPT
-    EHUB --> ETHEME
+
+    %% ---- Reachability for MISC/couple/education/settings (I-7) ----
+    %% couple invite lands via family hub; education hub via coach; the three
+    %% standalone simulators via the money tab; settings/about/admin via home
+    %% (profile drawer). Each is entered from a shell tab or hub, not orphaned.
+    H_FAM --> COUPLE --> CACCEPT
+    COACH --> EHUB --> ETHEME
+    ARGENT --> SCOMP & SLEAS & SCRED
+    HOME --> LANGUE & ABOUT & ADMINR
 
     %% ---- Redirect resolution edges (no dangling shim) ----
     R_TOOLS -. redirect .-> COACH
@@ -216,15 +224,27 @@ flowchart TB
 %%     FinancialPlanProvider(:1479). FIX: convert each to
 %%     ChangeNotifierProxyProvider<CoachProfileProvider, _> OR emit a bridge
 %%     that calls MintStateProvider.recompute (pattern = app.dart:1466-1478).
-%% I-5 DEAD PROVIDER: ProfileProvider(:1418) has 0 screen consumers -> delete;
-%%     models/profile.dart is not part of the ledger.
+%% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1418) still
+%%     has 4 live consumers, all reading `hasDebt`:
+%%       - simulator_3a_screen.dart:197 (context.read<ProfileProvider>())
+%%       - simulator_3a_screen.dart:301 (context.watch<ProfileProvider>())
+%%       - widgets/comparators/pillar3a_comparator_widget.dart:29
+%%       - widgets/simulators/buyback_widget.dart:39
+%%       - widgets/recommendation_card.dart:17
+%%     FIX (ordered): migrate each `hasDebt` read to
+%%     CoachProfileProvider.profile?.hasDebt, THEN delete ProfileProvider +
+%%     models/profile.dart. models/profile.dart is not part of the ledger.
+%%     CHECK: grep `context.(read|watch)<ProfileProvider>` under apps/mobile/lib
+%%     expect 0 before the provider is removed.
 %% I-6 EVERY SCREEN NODE has emptyState + partialState + errorState declared in
 %%     SCREEN_CONTRACTS.md (1:1 with the live routes above). CHECK: every
 %%     `path:` builder in app.dart has a row; no row missing those 3 states.
-%% I-7 NO ORPHAN / NO DEAD-END: every NAV node is reachable from a shell tab
-%%     and has >=1 outgoing edge (or is a terminal leaf with a Back affordance
-%%     via MintNav.back() fallback to /home). Redirect shims must terminate at a
-%%     live node (edges R_* above).
+%% I-7 NO ORPHAN / NO DEAD-END: every NAV node is reachable from a shell tab,
+%%     a hub, or an explicit deep-link/settings entry point (COUPLE via H_FAM,
+%%     EHUB via COACH, SCOMP/SLEAS/SCRED via ARGENT, LANGUE/ABOUT/ADMINR via
+%%     HOME profile drawer) and has >=1 outgoing edge (or is a terminal leaf
+%%     with a Back affordance via MintNav.back() fallback to /home). Redirect
+%%     shims must terminate at a live node (edges R_* above).
 %% I-8 REDIRECTS PRESERVE CONTEXT: redirect routes must forward query params /
 %%     topic (fix D-4, D-5). CHECK: /tools and /portfolio redirects pass state.
 %% I-9 PROJECTIONS RANGED: any node that renders a projected number pairs it
