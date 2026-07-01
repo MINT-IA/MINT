@@ -1,5 +1,7 @@
 # MAESTRO_FLOWS.md — E2E flows that PROVE the wiring (Codex-executable)
 
+> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+
 > **Status:** normative. Grounded in the REAL code at commit `255373b`.
 > **Purpose:** every flow is a mechanical proof that the spine connects. **Green = wired.** A red flow names a real bug to fix (`WIRING_GRAPH.mmd` D-1..D-5).
 > **appId:** `ch.mint.coach` (`android/app/build.gradle:50`).

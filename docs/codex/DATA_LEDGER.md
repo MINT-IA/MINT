@@ -1,5 +1,7 @@
 # DATA_LEDGER.md — MINT Canonical Data Ledger
 
+> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+
 > **Status:** normative spec for the coding agent (Codex). Mechanical, testable, implementable.
 > **Frozen baseline:** commit `255373b` (2026-04-21).
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.

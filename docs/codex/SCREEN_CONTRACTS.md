@@ -1,17 +1,6 @@
-The ledger documents `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, but NOT `confidenceDetail`. Per the fix guidance for [5], I'll take the second option: change §8 reads to reference only documented fields. This keeps DATA_LEDGER.md unchanged (safer, since I'm the author of SCREEN_CONTRACTS.md, not the ledger).
-
-Now let me write out the corrected document. The changes needed:
-
-**Fix [2]:** Add `entryConditions` and `partialState` columns to the §1.5 table (7 rows).
-
-**Fix [5]:** Replace all `confidenceDetail` references in §8 (and §8.0, §8.1) with documented ledger fields. The §8 reads should reference `confidenceScore` plus provenance maps. §8.0 says it's a NEW field — I need to reconcile this: keep the engine-upgrade prose (setting `confidenceScore = result.overall`) but stop naming `confidenceDetail` as a ledger read. The dashboard needs the 4 axes/prompts; I'll express those as read from the provenance maps + `confidenceScore`, computed in the ledger recompute and exposed WITHOUT introducing an undocumented ledger name in `reads[]`.
-
-Let me construct the corrected document now. Note: the current document's §1 preamble already lists `confidenceScore` — good. I must remove `confidenceDetail` from the reads and the §8.0/§8.1 prose that treats it as a ledger field to be read by screens.
-
-Here is the FULL corrected document.
-
-```markdown
 # SCREEN_CONTRACTS.md — Per-Route Wiring Contracts (MINT)
+
+> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
 
 > Source of truth for route wiring. Verified against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `255373b`.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
@@ -656,4 +645,3 @@ Verified against `app.dart` at `255373b`. Redirect-only entries (category `alias
 | `/data-block/:type` (1271) | §6 | | |
 
 **Coverage assertion (`test/routing/contract_coverage_test.dart`):** enumerate every `ScopedGoRoute` in `app.dart` that has a `builder:` (LIVE). FAIL if any such path is absent from this §12 table. Redirect-only entries are exempt (they have no `builder:`).
-```
