@@ -13,11 +13,11 @@ When any surface needs data it does not have, MINT asks **only the missing or st
 | Capability | Real artefact (verified) |
 |---|---|
 | Typed collection block | `/data-block/:type` → `screens/onboarding/data_block_enrichment_screen.dart` (renders confidence bar + ranked enrichment prompts + cross-validation; dual mode form / `coach/chat?topic=`) |
-| Impact-ranked prompts | `ConfidenceScorer.score(CoachProfile) → ProjectionConfidence{ completeness, List<EnrichmentPrompt> prompts }` (`financial_core/confidence_scorer.dart:138`); backend mirror `enhanced_confidence_service.py` (`rank_enrichment_prompts`) |
+| Impact-ranked prompts | `ConfidenceScorer.score(CoachProfile) → ProjectionConfidence{ double score, String level, List<EnrichmentPrompt> prompts, List<String> assumptions }` (`financial_core/confidence_scorer.dart:138`, class at `:43`); backend mirror `enhanced_confidence_service.py` (`rank_enrichment_prompts`) |
 | Per-block score | `ConfidenceScorer` → `BlockScore` (`confidence_scorer.dart:63`) |
 | Staleness | `FreshnessDecayService.needsRefresh(BiographyFact, DateTime) → bool` (weight < `0.60`); `weight()` = annual (full 12mo→floor 36mo) / volatile (full 3mo→floor 12mo) (`biography/freshness_decay_service.dart:64,91`) |
-| Fact store | `BiographyRepository` (encrypted SQLite) — `BiographyFact{ fieldPath, value, source, sourceDate, updatedAt, freshnessCategory }` |
-| Write path | `CoachProfileProvider.mergeAnswers()` / `applySaveFact()` / `updateProfile()` — the ONLY mutators |
+| Fact store | `BiographyRepository` (encrypted SQLite) — immutable `BiographyFact{ fieldPath, value, source, sourceDate, updatedAt, freshnessCategory }`; read via `getLatestFactForField(fieldPath)`, write via `insertFact(fact)` / `recordFact(fact)` (`biography_repository.dart:163,263,276`) |
+| Write path | `CoachProfileProvider.mergeAnswers()` (`:502`) / `applySaveFact()` (`:542`) / `updateProfile()` (`:969`) — the ONLY mutators |
 | Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (35 keys, `coach_chat.py:924`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:557`) |
 | Field→screen mapping | `ScreenRegistry` + `ReadinessGate` (behaviors A–E) + `routes/route_metadata.dart` |
 | Freshness i18n | keys already present: `freshnessConfirm`, `freshnessStale`, `freshnessPrefix` (`confidence_scorer.dart:747-749`) |
@@ -40,15 +40,15 @@ List<Ask> planQuest(DataQuest q, CoachProfile profile, DateTime now):
   missing   = []
   stale     = []
   for key in q.requiredFields:
-     if !profile.has(key):                         // value absent
+     if !profile.has(key):                                    // value absent
         missing.add(key)
      else:
-        fact = BiographyRepository.factFor(key)     // provenance record
+        fact = BiographyRepository.getLatestFactForField(key) // provenance record (or null)
         if fact != null && FreshnessDecayService.needsRefresh(fact, now):
-           stale.add(key)                           // present but weight < 0.60
+           stale.add(key)                                     // present but weight < 0.60
   // ONLY the delta is ever surfaced. Fields already fresh are never re-asked.
   delta = missing ++ stale
-  if delta.isEmpty: return []                       // quest satisfied → render now
+  if delta.isEmpty: return []                                 // quest satisfied → render now
 
   // Rank by impact, then goal-awareness. Reuse the existing ranker.
   prompts = ConfidenceScorer.score(profile).prompts          // impact-ranked
@@ -112,8 +112,11 @@ onAnswer(key, value, source):
        CoachProfileProvider.applySaveFact(key, value)   // maps via _mapFactKeyToAnswers
    else:
        CoachProfileProvider.mergeAnswers({ wizardKeyFor(key): value })
-   // record provenance (the missing-30%, §7):
-   BiographyRepository.upsert(key, value, source, sourceDate: now, updatedAt: now)
+   // record provenance (the missing-30%, §7) — append an immutable fact:
+   BiographyRepository.recordFact(BiographyFact(
+       fieldPath: key, value: value, source: source,
+       sourceDate: now, updatedAt: now,
+   ))                                              // recordFact delegates to insertFact
    // recompute is automatic via ChangeNotifierProxyProvider (app.dart:1466)
 ```
 No screen writes SharedPreferences / `ProfileModel.data` directly.

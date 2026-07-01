@@ -1,13 +1,20 @@
-I now have all the ground truth I need. The `/tools`, `/portfolio`, `/score-reveal` are `RouteCategory.alias` with no killFlag (null); `/home`, `/mon-argent`, `/rapport`, `/confidence`, `/timeline` are destinations with no killFlag (null); `/scan` has `enableScan`. `computeConfidence` is `(Map<String,dynamic> profile, List<FieldSource> fieldSources, {...})`. `applySaveFact(String factKey, dynamic factValue, {String confidence})` — no per-field source, and it maps to `mergeAnswers`. `recompute(CoachProfile profile)` requires a profile arg.
+The ledger documents `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, but NOT `confidenceDetail`. Per the fix guidance for [5], I'll take the second option: change §8 reads to reference only documented fields. This keeps DATA_LEDGER.md unchanged (safer, since I'm the author of SCREEN_CONTRACTS.md, not the ledger).
 
-Now I'll produce the full revised document.
+Now let me write out the corrected document. The changes needed:
 
-Here is the FULL revised `SCREEN_CONTRACTS.md`:
+**Fix [2]:** Add `entryConditions` and `partialState` columns to the §1.5 table (7 rows).
+
+**Fix [5]:** Replace all `confidenceDetail` references in §8 (and §8.0, §8.1) with documented ledger fields. The §8 reads should reference `confidenceScore` plus provenance maps. §8.0 says it's a NEW field — I need to reconcile this: keep the engine-upgrade prose (setting `confidenceScore = result.overall`) but stop naming `confidenceDetail` as a ledger read. The dashboard needs the 4 axes/prompts; I'll express those as read from the provenance maps + `confidenceScore`, computed in the ledger recompute and exposed WITHOUT introducing an undocumented ledger name in `reads[]`.
+
+Let me construct the corrected document now. Note: the current document's §1 preamble already lists `confidenceScore` — good. I must remove `confidenceDetail` from the reads and the §8.0/§8.1 prose that treats it as a ledger field to be read by screens.
+
+Here is the FULL corrected document.
 
 ```markdown
 # SCREEN_CONTRACTS.md — Per-Route Wiring Contracts (MINT)
 
 > Source of truth for route wiring. Verified against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `255373b`.
+> Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
 ---
@@ -16,13 +23,13 @@ Here is the FULL revised `SCREEN_CONTRACTS.md`:
 
 **Domain data NEVER travels via `GoRouter.extra`.**
 
-`state.extra` and query params MAY carry ONLY: entity **ids** (`documentId`, `themeId`, `conversationId`, `scanSessionId`), **enums** (`ActionCategory`, life-event type, data-block `type`), invitation **codes**, and **ephemeral selection** (which tab, which scenario preset key). They MUST NOT carry `CoachProfile`, `MintUserState`, `ExtractionResult`, `wizardAnswers`, `ConfidenceResult`, budget snapshots, or any object a screen needs to *render its financial content*.
+`state.extra` and query params MAY carry ONLY: entity **ids** (`documentId`, `themeId`, `conversationId`, `scanSessionId`), **enums** (`ActionCategory`, life-event type, data-block `type`, `DocumentType`), invitation **codes**, magic-link **tokens**, and **ephemeral selection** (which tab, which scenario preset key). They MUST NOT carry `CoachProfile`, `MintUserState`, `ExtractionResult`, `wizardAnswers`, `ConfidenceResult`, budget snapshots, or any object a screen needs to *render its financial content*.
 
 Every screen resolves the domain data it renders from the **ledger**:
 - Profile / computed state → `context.watch<MintStateProvider>().state` (`MintUserState`) and `context.read<CoachProfileProvider>().profile` (`CoachProfile`).
 - Scan extraction in-flight → `ScanSessionProvider` (NEW, §5.0) keyed by `scanSessionId` passed in `extra`.
 - Documents → `DocumentsProvider` / `BiographyRepository` by `id`.
-- Confidence → read from `MintUserState.confidenceResult` (NEW ledger field, §8.0), never passed in.
+- Confidence → read `MintUserState.confidenceScore` (ledger field; upgraded to the 4-axis result per §8.0), never passed in.
 
 **Test that enforces this rule (must exist):** `test/routing/no_domain_data_in_extra_test.dart` — see §10.1 for the exact matcher and harness.
 
@@ -34,13 +41,13 @@ Every screen resolves the domain data it renders from the **ledger**:
 |---|---|
 | **route** | Path as registered in `app.dart`. |
 | **shell** | `shell:<branchIndex>` if the route lives inside the `StatefulShellRoute.indexedStack` (app.dart:345); `root` if registered on `_rootNavigatorKey`; `redirect` if it is a redirect-only entry. See §1.1. |
-| **reads[]** | Ledger fields/providers the screen reads. `∅` = none. |
+| **reads[]** | Ledger fields/providers the screen reads. `∅` = none. Every name resolves in `DATA_LEDGER.md`. |
 | **writes[]** | Ledger fields written, ALWAYS via `CoachProfileProvider.mergeAnswers()/applySaveFact()/updateProfile()`. `∅` = read-only. |
 | **entryConditions** | Guard before render. `none` = always enterable. Guards are `ReadinessGate` REDIRECTS; in-screen mode switches are NOT entry conditions (see §1.2). |
 | **emptyState** | REQUIRED. Shown when ledger has no data for this screen. Recovery CTA + i18n key. |
 | **partialState** | REQUIRED where `reads[]` has ≥1 field. Shown when ledger has *some* but not all needed fields. Drives DIFF collection, not a form. Enforced by §10 test 4. |
 | **errorState** | REQUIRED. Shown on resolution/compute failure (incl. timeout). Recovery CTA + i18n key. |
-| **routesOut[]** | Reachable destinations (CTAs / navigation). |
+| **routesOut[]** | Reachable destinations (CTAs / navigation). Every target exists in `app.dart`. |
 | **killFlag** | The exact `RouteMeta.killFlag` value (`FeatureFlags.<name>`) or `null`. See §1.3 — these are the REAL values; do not write `live`. |
 
 All `i18n key` values below are keys the agent MUST add to all 6 ARB files (`lib/l10n/app_{fr,en,de,es,it,pt}.arb`) and resolve via `AppLocalizations.of(context)!`. Accents 100% FR in the FR ARB.
@@ -67,9 +74,27 @@ For every simulator in §4 the rule is fixed: **simulators use the in-screen mod
 - `/scan`, `/scan/*` → `enableScan`.
 - `/mon-argent` budget content, `/budget`, `/budget/setup` → `enableBudget`.
 - Explorer hubs + their domain simulators → `enableExplorer{Retraite|Famille|Travail|Logement|Fiscalite|Patrimoine|Sante}` matching the domain (see per-row values in §3/§4).
+- Admin routes (`/profile/admin-observability`, `/profile/admin-analytics`, `/admin/routes`) → `enableAdminScreens` (in-route redirect guard; `/admin/routes` additionally tree-shaken behind `AdminGate.isAvailable`).
+- `/open-banking`, `/open-banking/*` → `enableOpenBanking` (in-route redirect guard).
 - `/anonymous/*` → `enableAnonymousFlow`.
 
 Any new route the agent adds MUST set `killFlag` to one of the above `FeatureFlags.<name>` values or `null`, and MUST pass `tools/checks/route_registry_parity.py`.
+
+---
+
+## 1.5 Auth + public routes (root; outside the shell)
+
+These are registered at the top of the router (`app.dart:301-339`) with `scope: RouteScope.public`. No profile/ledger reads; they gate access to the rest of the app. They are LIVE builder routes and each needs a non-blank error state.
+
+| route | screen | reads | writes | entryConditions | emptyState | partialState | errorState | routesOut[] | killFlag |
+|---|---|---|---|---|---|---|---|---|---|
+| `/` (app.dart:302) | `LandingScreen` | ∅ | ∅ | none | n/a (static landing) | n/a | render failure → static hero + CTA `/auth/login`. i18n `landing.error.title` | `/auth/login`, `/auth/register`, `/anonymous/chat` | null |
+| `/auth/login` (307) | `LoginScreen` | ∅ | ∅ (auth token via auth service, not the ledger) | none | n/a | n/a | login failure → inline error banner + Réessayer; NEVER blank. i18n `auth.login.error` | `/home`, `/auth/register`, `/auth/forgot-password` | null |
+| `/auth/register` (312) | `RegisterScreen` | ∅ | ∅ | none | n/a | n/a | register failure → inline error banner. i18n `auth.register.error` | `/auth/verify-email`, `/auth/login` | null |
+| `/auth/forgot-password` (317) | `ForgotPasswordScreen` | ∅ | ∅ | none | n/a | n/a | send failure → inline error + Réessayer. i18n `auth.forgot.error` | `/auth/login` | null |
+| `/auth/verify-email` (322) | `VerifyEmailScreen` | ∅ | ∅ | none | awaiting verification → "Vérifie ta boîte mail." + renvoyer CTA. i18n `auth.verifyEmail.title` | n/a | verification poll failure → Réessayer. i18n `auth.verifyEmail.error` | `/home`, `/auth/login` | null |
+| `/auth/verify` (327) | `_MagicLinkVerifyScreen(token: query['token'])` | `token` from `state.uri.queryParameters['token']` (id only, §0) | ∅ | none | token missing → "Lien invalide." CTA `/auth/login`. i18n `auth.verify.empty` | n/a | token expired/verify failed → "Ce lien n'est plus valide." CTA `/auth/login`. i18n `auth.verify.error` | `/home`, `/auth/login` | null |
+| `/anonymous/chat` (336) | anonymous coach chat (`intent` from query) | `intent` from `state.uri.queryParameters['intent']` (enum, §0) | ∅ (anonymous; no ledger write) | none | no intent → generic opener. i18n `anonymous.empty.opener` | n/a | transport failure → safe fallback bubble + Réessayer. i18n `anonymous.error.fallback` | `/auth/register`, `/coach/chat` | enableAnonymousFlow |
 
 ---
 
@@ -80,7 +105,7 @@ Any new route the agent adds MUST set `killFlag` to one of the above `FeatureFla
 |---|---|
 | shell | shell:0 |
 | purpose | Daily lucidity pulse: one true thing about the user's money now. |
-| reads | `MintUserState{profile, lifecyclePhase, archetype, budgetGap, budgetSnapshot, currentCap, confidenceResult, friScore}` |
+| reads | `MintUserState{profile, lifecyclePhase, archetype, budgetGap, currentCap, confidenceScore, friScore}` |
 | writes | ∅ |
 | entryConditions | none |
 | emptyState | No profile → calm card "Commençons par une chose vraie." CTA → `/coach/chat?topic=premier-eclairage` (real destination — see §2.note). i18n `home.empty.title` / `home.empty.cta` |
@@ -97,12 +122,12 @@ Any new route the agent adds MUST set `killFlag` to one of the above `FeatureFla
 |---|---|
 | shell | shell:1 |
 | purpose | The user's budget reality: income, fixed, variable, gap. |
-| reads | `MintUserState{budgetSnapshot, budgetGap}`, `BudgetProvider` |
+| reads | `MintUserState{budgetGap}`, `BudgetProvider` |
 | writes | budget fields → `mergeAnswers()`, then bridge fires `recompute(profile)` (§10 test 3) |
 | entryConditions | none |
 | emptyState | No budget data → "Trois chiffres suffisent pour un premier aperçu." CTA `/budget/setup`. i18n `money.empty.title` / `money.empty.cta` |
 | partialState | Income known, expenses missing → partial gap with "estimation" tag + inline DIFF CTA to add expenses. i18n `money.partial.addExpenses` |
-| errorState | Snapshot compute failed → message + Réessayer(`recompute(profile)`) + `/coach/chat`. i18n `money.error.title` |
+| errorState | Gap compute failed → message + Réessayer(`recompute(profile)`) + `/coach/chat`. i18n `money.error.title` |
 | routesOut | `/budget/setup`, `/budget`, `/data-block/revenu`, `/data-block/patrimoine`, `/open-banking`, `/coach/chat`, `/home` |
 | killFlag | null (budget CONTENT widgets gate on `enableBudget`) |
 
@@ -117,7 +142,21 @@ Any new route the agent adds MUST set `killFlag` to one of the above `FeatureFla
 | emptyState | No history → seeded opener from `topic` query param if present (e.g. `?topic=lpp`, `?topic=investment`, `?topic=premier-eclairage`). i18n `coach.empty.opener` (+ per-topic variants) |
 | partialState | If `topic` references a missing field → coach asks that field's DIFF question. i18n `coach.partial.askField` |
 | errorState | LLM/transport failure → safe fallback bubble + Réessayer; NEVER blank. i18n `coach.error.fallback` / `coach.error.retry` |
-| routesOut | `/data-block/:type`, `/confidence`, `/explore`, any simulator deep-link |
+| routesOut | `/data-block/:type`, `/confidence`, `/explore`, `/coach/history`, any simulator deep-link |
+| killFlag | enableCoachChat |
+
+### `/coach/history` — Conversation history (root, app.dart:632)
+| | |
+|---|---|
+| shell | root |
+| purpose | List past coach conversations; reopen one. |
+| reads | conversation store (`_chat_conversation_index`) |
+| writes | ∅ |
+| entryConditions | none |
+| emptyState | No conversations → "Aucune conversation pour l'instant." CTA `/coach/chat`. i18n `coachHistory.empty.title` / `.cta` |
+| partialState | n/a (list) |
+| errorState | Store read failed → message + Réessayer + CTA `/coach/chat`. i18n `coachHistory.error.title` |
+| routesOut | `/coach/chat?conversationId=<id>`, `/coach/chat` |
 | killFlag | enableCoachChat |
 
 ### `/explore` — Explorer root
@@ -149,13 +188,13 @@ All 7 share the shape below; only `reads` slice, `routesOut`, and `killFlag` dif
 
 | route | domain | killFlag | reads (ledger slice) | routesOut[] |
 |---|---|---|---|---|
-| `/explore/retraite` | retirement | enableExplorerRetraite | `prevoyance{avoirLppTotal, renteAVSEstimeeMensuelle, lacunesAVS}`, `targetRetirementAge`, `archetype` | `/retraite`, `/rente-vs-capital`, `/rachat-lpp`, `/pilier-3a`, `/decaissement`, `/data-block/{lpp,avs,3a}` |
+| `/explore/retraite` | retirement | enableExplorerRetraite | `prevoyance{avoirLppTotal, renteAVSEstimeeMensuelle, lacunesAVS}`, `targetRetirementAge`, `archetype` | `/retraite`, `/rente-vs-capital`, `/rachat-lpp`, `/pilier-3a`, `/decaissement`, `/libre-passage`, `/data-block/{lpp,avs,3a}` |
 | `/explore/famille` | family | enableExplorerFamille | `nombreEnfants`, `conjoint`, `gender` | `/mariage`, `/naissance`, `/concubinage`, `/divorce`, `/succession`, `/data-block/compositionMenage`, `/couple` |
 | `/explore/travail` | work | enableExplorerTravail | `employmentStatus`, `salaireBrutMensuel`, `archetype` | `/first-job`, `/unemployment`, `/segments/independant`, `/simulator/job-comparison`, `/expatriation`, `/data-block/revenu` |
-| `/explore/logement` | housing | enableExplorerLogement | `patrimoine`, mortgage fields | `/hypotheque`, `/mortgage/affordability`, `/mortgage/amortization`, `/epl`, `/arbitrage/location-vs-propriete`, `/data-block/patrimoine` |
-| `/explore/fiscalite` | tax | enableExplorerFiscalite | `canton`, `salaireBrutMensuel`, tax-regime | `/fiscal`, `/3a-retroactif`, `/data-block/fiscalite`, `/scan` |
+| `/explore/logement` | housing | enableExplorerLogement | `patrimoine`, mortgage fields | `/hypotheque`, `/mortgage/amortization`, `/mortgage/epl-combined`, `/mortgage/imputed-rental`, `/mortgage/saron-vs-fixed`, `/epl`, `/arbitrage/location-vs-propriete`, `/data-block/patrimoine` |
+| `/explore/fiscalite` | tax | enableExplorerFiscalite | `canton`, `salaireBrutMensuel`, tax-regime | `/fiscal`, `/3a-retroactif`, `/cantonal-benchmark`, `/data-block/fiscalite`, `/scan` |
 | `/explore/patrimoine` | wealth | enableExplorerPatrimoine | `patrimoine`, `prevoyance` | `/arbitrage/bilan`, `/arbitrage/allocation-annuelle`, `/data-block/patrimoine`, `/open-banking` |
-| `/explore/sante` | health/insurance | enableExplorerSante | `archetype`, `employmentStatus` | `/assurances/lamal`, `/assurances/coverage`, `/invalidite`, `/disability/gap` |
+| `/explore/sante` | health/insurance | enableExplorerSante | `archetype`, `employmentStatus` | `/assurances/lamal`, `/assurances/coverage`, `/invalidite`, `/disability/insurance` |
 
 ---
 
@@ -167,7 +206,7 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 - shell: root
 - reads: relevant `CoachProfile`/`MintUserState` fields (per row) — from ledger, NEVER `extra`
 - writes: committed edits → `updateProfile()`; ephemeral sliders may stay local, committed values write back
-- entryConditions: **none** (per §1.2 — simulators use the in-screen mode switch, not an entry redirect). Below the confidence threshold (finding D: <30 premier_eclairage; 30–50 +projections; 50–70 +arbitrage w/ bands; 70–85 +precise; >85 +full), the screen renders **illustrative mode** (general-population numbers, no personalised compute); at/above, **personalised mode**. Render-mode is chosen from `MintUserState.confidenceResult.overall`.
+- entryConditions: **none** (per §1.2 — simulators use the in-screen mode switch, not an entry redirect). Below the confidence threshold (finding D: <30 premier_eclairage; 30–50 +projections; 50–70 +arbitrage w/ bands; 70–85 +precise; >85 +full), the screen renders **illustrative mode** (general-population numbers, no personalised compute); at/above, **personalised mode**. Render-mode is chosen from `MintUserState.confidenceScore`.
 - emptyState (REQUIRED): missing required input → inline DIFF prompt for exactly the missing field, "estimation" defaults pre-filled + tagged. i18n `<sim>.empty.needInput`
 - partialState (REQUIRED): some inputs known → prefill from ledger, ask only the delta; band widened for unknowns; every prefilled-but-stale (freshness <0.60) or estimated field carries an "à confirmer"/"estimation" tag (asserted by §10 test 4). i18n `<sim>.partial.assume`
 - errorState (REQUIRED): engine failure/timeout → "Le calcul n'a pas abouti." CTA Réessayer + CTA `/coach/chat`; show last good range if any. i18n `<sim>.error.title`
@@ -178,22 +217,39 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 | `/retraite` | enableExplorerRetraite | Integrated retirement picture (AVS+LPP+3a+PC). | `prevoyance.*`, `targetRetirementAge`, `age`, `archetype`, `conjoint` | `/rente-vs-capital`, `/rachat-lpp`, `/pilier-3a`, `/decaissement`, `/confidence`, `/data-block/lpp` |
 | `/rente-vs-capital` | enableExplorerRetraite | Rente vs capital + panachage + survivor. | `prevoyance.avoirLppTotal`, `renteAVSEstimeeMensuelle`, `conjoint`, `gender` | `/decaissement`, `/coach/chat`, `/data-block/compositionMenage` |
 | `/rachat-lpp` | enableExplorerRetraite | LPP buy-back trade-offs (vs market). | `prevoyance{avoirLppTotal}`, `salaireBrutMensuel`, `canton` | `/3a-retroactif`, `/fiscal`, `/coach/chat` |
-| `/pilier-3a`, `/3a-deep/*` | enableExplorerRetraite | 3a mechanism + retroactive buy-back (in force tax-year 2025). | `canton`, `salaireBrutMensuel`, `isFatcaResident`, `canContribute3a` | `/3a-retroactif`, `/3a-deep/comparator`, `/data-block/3a` |
+| `/pilier-3a` | enableExplorerRetraite | 3a mechanism + retroactive buy-back (in force tax-year 2025). | `canton`, `salaireBrutMensuel`, `isFatcaResident`, `canContribute3a` | `/3a-retroactif`, `/3a-deep/comparator`, `/3a-deep/real-return`, `/3a-deep/staggered-withdrawal`, `/data-block/3a` |
+| `/3a-deep/comparator` | enableExplorerRetraite | 3a provider comparator. | `canton`, `salaireBrutMensuel`, `canContribute3a` | `/pilier-3a`, `/3a-retroactif`, `/coach/chat` |
+| `/3a-deep/real-return` | enableExplorerRetraite | 3a real-return (net of fees/inflation) illustration. | `canton`, `salaireBrutMensuel` | `/pilier-3a`, `/3a-deep/comparator`, `/coach/chat` |
+| `/3a-deep/staggered-withdrawal` | enableExplorerRetraite | Staggered 3a withdrawal tax illustration. | `canton`, `age`, `prevoyance.*` | `/pilier-3a`, `/decaissement`, `/coach/chat` |
 | `/3a-retroactif` | enableExplorerFiscalite | 3a retroactive buy-back (gaps from 2025, current year first). | `canton`, `salaireBrutMensuel`, `age` | `/pilier-3a`, `/fiscal`, `/coach/chat` |
 | `/decaissement` | enableExplorerRetraite | Staggered withdrawal calendar. | `prevoyance.*`, `targetRetirementAge`, `canton` | `/rente-vs-capital`, `/coach/chat` |
-| `/hypotheque`, `/mortgage/affordability`, `/mortgage/amortization`, `/mortgage/renewal` | enableExplorerLogement | Affordability (~33% rule, ~5% calculatory rate, ~3–5% acquisition costs), renewal shock. | `salaireBrutMensuel`, `patrimoine`, `canton` | `/epl`, `/mortgage/amortization`, `/arbitrage/location-vs-propriete` |
-| `/epl` | enableExplorerLogement | Early withdrawal for property trade-offs. | `prevoyance.avoirLppTotal`, `patrimoine` | `/hypotheque`, `/rachat-lpp` |
+| `/libre-passage` | enableExplorerRetraite | Vested-benefits (libre passage) mechanism. | `prevoyance{avoirLppTotal}`, `employmentStatus` | `/rachat-lpp`, `/data-block/lpp`, `/coach/chat` |
+| `/hypotheque`, `/mortgage/amortization`, `/mortgage/epl-combined`, `/mortgage/imputed-rental`, `/mortgage/saron-vs-fixed` | enableExplorerLogement | Affordability (~33% rule, ~5% calculatory rate), amortisation, EPL-combined, imputed rental value, SARON vs fixed. | `salaireBrutMensuel`, `patrimoine`, `canton`, `prevoyance.avoirLppTotal` | `/epl`, `/hypotheque`, `/arbitrage/location-vs-propriete` |
+| `/epl` | enableExplorerLogement | Early withdrawal for property trade-offs. | `prevoyance.avoirLppTotal`, `patrimoine` | `/hypotheque`, `/rachat-lpp`, `/mortgage/epl-combined` |
 | `/fiscal` | enableExplorerFiscalite | Tax across 3 tiers; regime-detected. | `canton`, `salaireBrutMensuel`, `archetype`, tax-regime | `/3a-retroactif`, `/scan`, `/coach/chat` |
 | `/cantonal-benchmark` | enableExplorerFiscalite | Cross-canton tax/benefit benchmark (illustrative). | `canton`, `salaireBrutMensuel` | `/fiscal`, `/coach/chat` |
 | `/divorce`, `/mariage`, `/naissance`, `/concubinage` | enableExplorerFamille | Family life events. | `conjoint`, `nombreEnfants`, `patrimoine`, `prevoyance` | `/succession`, `/couple`, `/data-block/compositionMenage`, `/coach/chat` |
 | `/succession`, `/life-event/donation` | enableExplorerFamille | Estate organisation / gifts. | `patrimoine`, `conjoint`, `nombreEnfants`, `canton` | `/succession`, `/coach/chat` |
-| `/first-job`, `/unemployment`, `/expatriation`, `/segments/independant`, `/independants/*` | enableExplorerTravail | Career transitions / independent. | `employmentStatus`, `salaireBrutMensuel`, `archetype`, `nationality` | `/data-block/revenu`, `/data-block/lpp`, `/coach/chat` |
-| `/invalidite`, `/disability/gap`, `/disability/insurance` | enableExplorerSante | Disability coverage gap. | `salaireBrutMensuel`, `prevoyance`, `employmentStatus` | `/coach/chat` |
-| `/assurances/lamal`, `/assurances/coverage`, `/assurances/*` | enableExplorerSante | Health-insurance mechanisms (illustrative; no product naming). | `archetype`, `canton`, `nombreEnfants` | `/coach/chat`, `/data-block/compositionMenage` |
+| `/life-event/deces-proche` | enableExplorerFamille | Death of a relative: survivor benefits + estate steps. | `conjoint`, `nombreEnfants`, `patrimoine`, `canton` | `/succession`, `/coach/chat` |
+| `/life-event/housing-sale` | enableExplorerLogement | Sale of a primary residence. | `patrimoine`, `canton`, `prevoyance.avoirLppTotal` | `/hypotheque`, `/fiscal`, `/coach/chat` |
+| `/life-event/demenagement-cantonal` | enableExplorerFiscalite | Inter-cantonal move tax/benefit impact. | `canton`, `salaireBrutMensuel`, `nombreEnfants` | `/cantonal-benchmark`, `/fiscal`, `/coach/chat` |
+| `/first-job`, `/unemployment`, `/expatriation`, `/segments/independant` | enableExplorerTravail | Career transitions / independent entry. | `employmentStatus`, `salaireBrutMensuel`, `archetype`, `nationality` | `/data-block/revenu`, `/data-block/lpp`, `/coach/chat` |
+| `/independants/avs`, `/independants/ijm`, `/independants/3a`, `/independants/dividende-salaire`, `/independants/lpp-volontaire` | enableExplorerTravail | Independent: AVS cotisations, daily-allowance (IJM), 3a indep, dividend-vs-salary, voluntary LPP. | `employmentStatus`, `salaireBrutMensuel`, `canton`, `prevoyance` | `/segments/independant`, `/data-block/revenu`, `/coach/chat` |
+| `/segments/gender-gap` | enableExplorerRetraite | Gender pension-gap illustration. | `gender`, `prevoyance`, `nombreEnfants` | `/retraite`, `/rachat-lpp`, `/coach/chat` |
+| `/segments/frontalier` | enableExplorerTravail | Cross-border (Permis G) situation. | `archetype`, `nationality`, `salaireBrutMensuel`, `canton` | `/fiscal`, `/data-block/revenu`, `/coach/chat` |
+| `/invalidite`, `/disability/insurance`, `/disability/self-employed` | enableExplorerSante | Disability coverage gap (employee / insurance detail / self-employed). | `salaireBrutMensuel`, `prevoyance`, `employmentStatus` | `/coach/chat`, `/data-block/lpp` |
+| `/assurances/lamal`, `/assurances/coverage` | enableExplorerSante | LAMal franchise + coverage check (illustrative; no product naming). | `archetype`, `canton`, `nombreEnfants` | `/coach/chat`, `/data-block/compositionMenage` |
 | `/arbitrage/bilan`, `/arbitrage/allocation-annuelle`, `/arbitrage/location-vs-propriete` | enableExplorerPatrimoine | Balance-sheet / allocation / rent-vs-buy. | `MintUserState` full | `/rapport`, `/confidence`, `/coach/chat` |
-| `/simulator/job-comparison`, `/simulator/compound`, `/simulator/leasing`, `/simulator/credit`, `/check/debt`, `/debt/*` | null (general-population) | Standalone illustrative simulators / debt check. | minimal/none (illustrative) | `/coach/chat`, back |
-| `/education/*` | null | General-population educational modules. | `understanding` counters only | `/coach/chat`, `/explore` |
-| `/open-banking/*` | null | Aggregation onboarding + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
+| `/simulator/job-comparison`, `/simulator/compound`, `/simulator/leasing`, `/simulator/credit` | null (general-population) | Standalone illustrative simulators. | minimal/none (illustrative) | `/coach/chat`, back |
+| `/check/debt`, `/debt/ratio`, `/debt/repayment` | null | Debt-risk check, debt ratio, repayment plan. | `salaireBrutMensuel`, `totalDebt`, `hasDebt`, `budgetGap` | `/debt/help`, `/coach/chat` |
+| `/debt/help` | null | Debt help resources (static, general-population). | ∅ | `/coach/chat`, back |
+| `/education/hub`, `/education/theme/:id` | null | General-population educational modules. | `financialLiteracyLevel` only; `id` from `state.pathParameters['id']` (§0) | `/coach/chat`, `/explore` |
+| `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | enableOpenBanking (in-route redirect) | Aggregation onboarding + transactions + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
+| `/bank-import` | null | Manual bank statement import fallback. | `∅` pre-import; writes accounts via `mergeAnswers()` | `/mon-argent`, `/open-banking`, `/coach/chat` |
+
+> **`/budget`, `/budget/setup`** (budget CONTENT, gated `enableBudget`):
+> - `/budget` — reads `BudgetProvider` (bridged, §10 test 3); writes budget lines → `mergeAnswers()` + recompute. emptyState "Configurons ton budget." CTA `/budget/setup`. partialState: some lines set → DIFF for the rest. errorState + Réessayer. killFlag `enableBudget`.
+> - `/budget/setup` — reads `BudgetProvider`; writes via `mergeAnswers()` + recompute. emptyState = the setup form itself (3 fields). errorState (save failed) → keep values + Réessayer. killFlag `enableBudget`.
 
 > **`/couple` sub-flow** (own contract, not a simulator):
 > - `/couple` — reads `HouseholdProvider` + `conjoint` (bridged to recompute, §10 test 3); writes spouse fields → `mergeAnswers()`. emptyState "Aucun partenaire lié." CTA "Inviter" → `/couple/accept` share flow. partialState: spouse partially known → DIFF prompt. errorState + Réessayer. killFlag `enableExplorerFamille`.
@@ -204,7 +260,20 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 > - `/documents` — reads `DocumentsProvider`. emptyState "Aucun document." CTA `/scan`. errorState + Réessayer. killFlag null.
 > - `/documents/:id` — reads `DocumentsProvider.byId(state.pathParameters['id'])`. emptyState (id missing/not found) "Ce document n'existe plus." CTA `/documents`. errorState + Réessayer. killFlag null.
 
-> **Legacy redirects** (`route_metadata.dart` category `alias`; killFlag null): `/coach/dashboard`, `/retirement`, `/retirement/projection`, `/arbitrage/rente-vs-capital`, `/simulator/rente-capital`, `/lpp-deep/*`, `/document-scan`, `/report`, `/report/v2`, `/score-reveal`, onboarding shims → canonical routes. Contract: redirects MUST preserve query params (§9 general rule) and emit `MintBreadcrumbs.legacyRedirectHit`.
+> **`/profile` sub-routes** (root; parent `/profile` redirects exact match → `/profile/bilan`, app.dart:1010-1052):
+> - `/profile/bilan` (`FinancialSummaryScreen`) — reads `MintUserState` full. emptyState "Ton bilan est encore vide." CTA `/coach/chat?topic=premier-eclairage`. errorState + Réessayer(`recompute(profile)`). routesOut `/data-block/:type`, `/confidence`, `/rapport`. killFlag null.
+> - `/profile/byok` (`ByokSettingsScreen`) — reads BYOK settings store; writes key via settings service (not the ledger). emptyState = form. errorState (save failed) + Réessayer. killFlag null.
+> - `/profile/slm` (`SlmSettingsScreen`) — reads SLM settings; writes via settings service. emptyState = form. errorState + Réessayer. killFlag null.
+> - `/profile/privacy-control` (`PrivacyControlScreen`) — reads consent state; writes consent toggles via privacy service. emptyState = controls. errorState + Réessayer. killFlag null.
+> - `/profile/privacy` (`PrivacyCenterScreen`) — reads consent receipts. emptyState "Aucun reçu de consentement." errorState + Réessayer. killFlag null.
+> - `/profile/admin-observability` (`AdminObservabilityScreen`), `/profile/admin-analytics` (`AdminAnalyticsScreen`) — admin-only (in-route redirect `enableAdminScreens ? null : '/'`). reads admin telemetry. emptyState "Aucune donnée." errorState + Réessayer. killFlag `enableAdminScreens`.
+
+> **System / info routes** (root):
+> - `/settings/langue` (`LangueSettingsScreen`, app.dart:1152) — reads current locale; writes locale via settings service (not the ledger). emptyState = language list. errorState (persist failed) + Réessayer. routesOut back. killFlag null.
+> - `/about` (`AboutScreen`, app.dart:1159, public) — static legal/info page. emptyState n/a. errorState → static fallback. routesOut back, `/`. killFlag null.
+> - `/admin/routes` (`RoutesRegistryScreen` in `AdminShell`, app.dart:1170; tree-shaken behind `AdminGate.isAvailable`) — reads `route_metadata.dart` registry. emptyState "Registre vide." errorState + Réessayer. routesOut per-route deep links. killFlag `enableAdminScreens`.
+
+> **Legacy redirects** (`route_metadata.dart` category `alias`; killFlag null): `/coach/dashboard`, `/coach/cockpit`, `/coach/checkin`, `/coach/refresh`, `/coach/agir`, `/coach/decaissement`, `/coach/succession`, `/retirement`, `/retirement/projection`, `/arbitrage/rente-vs-capital`, `/arbitrage/rachat-vs-marche`, `/arbitrage/calendrier-retraits`, `/simulator/rente-capital`, `/simulator/3a`, `/simulator/disability-gap`, `/lpp-deep/*`, `/life-event/{divorce,succession}`, `/mortgage/affordability`, `/disability/gap`, `/document-scan`, `/document-scan/avs-guide`, `/report`, `/report/v2`, `/score-reveal`, `/achievements`, `/ask-mint`, `/advisor`, `/advisor/plan-30-days`, `/advisor/wizard`, `/household`, `/household/accept`, onboarding shims (`/onboarding/{quick,quick-start,premier-eclairage,intent,promise,plan,smart,minimal,enrichment}`) → canonical routes. Contract: redirects MUST preserve query params (§9 general rule) and emit `MintBreadcrumbs.legacyRedirectHit`.
 
 ---
 
@@ -224,7 +293,7 @@ class ScanSession {
   final String docType;         // 'lpp' | 'avs' | 'tax' | 'other'
   final ScanStatus status;
   final ExtractionResult? extraction;   // null until status >= extracted
-  final double? confidenceBefore;       // MintUserState.confidenceResult.overall snapshot, taken at APPLY start
+  final double? confidenceBefore;       // MintUserState.confidenceScore snapshot, taken at APPLY start
   final DateTime createdAt;
   final DateTime updatedAt;
   ScanSession copyWith({...});
@@ -256,13 +325,27 @@ Any other transition throws `StateError`.
 |---|---|
 | shell | root |
 | purpose | Capture or pick a document (LPP cert, AVS extract, tax cert). |
-| reads | `ScanSessionProvider` (recent sessions), `archetype` (to suggest doc type) |
+| reads | `ScanSessionProvider` (recent sessions), `archetype` (to suggest doc type); optional `DocumentType` from `state.extra` (enum only, §0) |
 | writes | creates `ScanSession{id, docType, status: captured}` in provider |
 | entryConditions | camera/file permission; if denied → permission-denied errorState (not blank) |
 | emptyState | No camera/no doc selected → guide card + "Scanner mon certificat" CTA + `/scan/avs-guide`. i18n `scan.empty.title` / `scan.empty.cta` |
 | partialState | OCR in progress (`extracting`) → progress UI with cancel. i18n `scan.partial.processing` |
 | errorState | Permission denied OR OCR engine failure → explanation + CTA Réglages / Réessayer + CTA manual entry `/data-block/lpp`. i18n `scan.error.permission` / `scan.error.ocr` |
 | routesOut | `/scan/review?scanSessionId=…`, `/scan/avs-guide`, `/data-block/:type` |
+| killFlag | enableScan |
+
+### `/scan/avs-guide` — AVS extract guide
+| | |
+|---|---|
+| shell | root |
+| purpose | How to obtain the AVS account extract. |
+| reads | ∅ (static guide) |
+| writes | ∅ |
+| entryConditions | none |
+| emptyState | n/a (static) |
+| partialState | n/a |
+| errorState | render failure → static fallback text + CTA `/scan`. i18n `scan.avsGuide.error` |
+| routesOut | `/scan`, back |
 | killFlag | enableScan |
 
 ### `/scan/review` — REPAIRED
@@ -284,7 +367,7 @@ Any other transition throws `StateError`.
 |---|---|
 | shell | root |
 | purpose | Show before/after confidence + ranged figure delta from the scan. |
-| reads | `ScanSessionProvider.byId(...)` (incl. `confidenceBefore`); `MintUserState.confidenceResult.overall` (current = "after") |
+| reads | `ScanSessionProvider.byId(...)` (incl. `confidenceBefore`); `MintUserState.confidenceScore` (current = "after") |
 | writes | ∅ (write happened at `/scan/review`) |
 | entryConditions | `scanSessionId` resolves AND session `status: applied`. |
 | emptyState (REQUIRED) | id missing/not found → AppBar+back + "Aucun impact à afficher." CTA Voir mon aperçu → `/home`; secondary `/scan`. i18n `scan.impact.empty.title` / `.cta` |
@@ -305,8 +388,8 @@ Backed by `screens/onboarding/data_block_enrichment_screen.dart` (~70% built: co
 |---|---|
 | shell | root |
 | purpose | Collect/refresh exactly the missing-or-stale delta for one typed block. |
-| reads | `CoachProfile` fields for `:type`; per-field `dataSources{source, sourceDate}`; `FreshnessDecayService` |
-| writes | `mergeAnswers()` / `applySaveFact()` per field, carrying per-field `{source, sourceDate, updatedAt}` (§6.note) |
+| reads | `CoachProfile` fields for `:type`; per-field provenance `dataSources{path→source}` + `dataTimestamps{path→updatedAt}` + `dataSourceDates{path→sourceDate}`; `FreshnessDecayService` |
+| writes | `mergeAnswers()` / `applySaveFact()` per field, carrying per-field `dataSources`/`dataTimestamps`/`dataSourceDates` (§6.note) |
 | entryConditions | none. Validation of `:type` happens IN THE ROUTE BUILDER (see §6.validation), not in the screen. |
 | emptyState (REQUIRED) | Invalid/unknown `:type` → "Ce thème n'existe pas." CTA → `/explore`. i18n `dataBlock.empty.unknownType` / `.cta` |
 | partialState (REQUIRED) | Some fields present → **DIFF, not FORM**: render only missing fields as questions; render present-but-stale (freshness <0.60) as **re-confirm** prompts ("Toujours exact ?"), NOT re-ask; show before/after delta on save (finding E). i18n `dataBlock.partial.confirmStale` / `.delta` |
@@ -334,14 +417,14 @@ builder: (context, state) {
 
 ### 6.note — per-field provenance API (the missing 30%, finding E / B-4)
 
-Per-field `{source, sourceDate, updatedAt}` does NOT yet persist end-to-end. The current `applySaveFact(String factKey, dynamic factValue, {String confidence})` (coach_profile_provider.dart:542) maps to `mergeAnswers` and carries no source/date; backend `save_fact` has ONE `updated_at`. The agent MUST:
+Per-field `sourceDate` does NOT yet persist end-to-end. The current `applySaveFact(String factKey, dynamic factValue, {String confidence})` (coach_profile_provider.dart:542) maps to `mergeAnswers` and carries no source/date; the ledger has `dataSources` (source only) + `dataTimestamps` (updatedAt only), and backend `save_fact` has ONE `updated_at`. The agent MUST:
 
 1. **Extend the signature (backward-compatible):**
    `Future<bool> applySaveFact(String factKey, dynamic factValue, {String confidence = 'medium', DataSource source = DataSource.userInput, DateTime? sourceDate})`.
-2. **Add a ledger field:** `CoachProfile.fieldProvenance : Map<String, FieldProvenance>` where `FieldProvenance{DataSource source, DateTime sourceDate, DateTime updatedAt}`, keyed by canonical field name. `mergeAnswers` populates it; persisted in `wizard_answers_v2` under a reserved `__provenance` sub-map (never collides with wizard keys). `CoachProfile.fromWizardAnswers` reconstructs it.
-3. **Backend:** add per-field provenance to `ProfileModel.data` under a reserved `_provenance` dict (does NOT expand the 40-key allowlist for values; provenance is metadata, redaction rules unchanged). Fire-and-forget sync as today.
+2. **Add the missing provenance map:** `CoachProfile.dataSourceDates : Map<String, DateTime?>` alongside the existing `dataSources` / `dataTimestamps` (DATA_LEDGER §6.1). `mergeAnswers` populates all three (I-3 write rule: on every field write, set `dataSources[path]`, `dataTimestamps[path] = now`, `dataSourceDates[path]`); persisted in `wizard_answers_v2` under a reserved `__provenance` sub-map (never collides with wizard keys). `CoachProfile.fromWizardAnswers` reconstructs it.
+3. **Backend:** add per-field provenance to `ProfileModel.data` under a reserved `_provenance` dict (does NOT expand the 35-key allowlist for values; provenance is metadata, redaction rules unchanged). Fire-and-forget sync as today.
 
-Until (1)–(3) land, any write in this document that "carries per-field source" is implemented via the extended `applySaveFact`. Do NOT assume provenance already persists.
+Until (1)–(3) land, any write in this document that "carries per-field source" is implemented via the extended `applySaveFact`. Do NOT assume `sourceDate` already persists.
 
 ---
 
@@ -351,7 +434,7 @@ Until (1)–(3) land, any write in this document that "carries per-field source"
 |---|---|
 | shell | root |
 | purpose | Exportable educational dossier: situation, pillars/housing/debts/assets tagged confidence+source, ranged projections, barème-year footer. |
-| reads | LEDGER FIRST: `CoachProfile.fromWizardAnswers(await ReportPersistenceService.loadAnswers())`; `MintUserState`; `fieldProvenance`. `extra['wizardAnswers']` is an **optional fast-path cache only** — never the sole source. |
+| reads | LEDGER FIRST: `CoachProfile.fromWizardAnswers(await ReportPersistenceService.loadAnswers())`; `MintUserState`; provenance maps `dataSources`/`dataTimestamps`/`dataSourceDates`. `extra['wizardAnswers']` is an **optional fast-path cache only** — never the sole source. |
 | writes | ∅ |
 | entryConditions | none |
 | emptyState (REQUIRED) | `loadAnswers()` returned `{}` AND no extra → "Ton rapport est encore vide." CTA Commencer → `/coach/chat?topic=premier-eclairage`; secondary `/mon-argent`. i18n `rapport.empty.title` / `.cta` |
@@ -378,35 +461,35 @@ Until (1)–(3) land, any write in this document that "carries per-field source"
 
 ### 8.0 Single confidence source — reconcile the two engines (finding arch-1)
 
-Today `MintUserState.confidenceScore` is a `double` from `ConfidenceScorer` (mint_user_state.dart:92) while the dashboard wants the 4-axis `ConfidenceResult` from `EnhancedConfidenceService`. Two engines = divergent numbers = F-3 violation.
+Today `MintUserState.confidenceScore` is a `double` from `ConfidenceScorer` (mint_user_state.dart:92) while the dashboard wants the 4-axis output of `EnhancedConfidenceService`. Two engines = divergent numbers = F-3 violation.
 
 **Fix (idiomatic, in the ledger — NOT recomputed in the route):**
-1. Add `final ConfidenceResult confidenceResult;` to `MintUserState` (keep the legacy `double confidenceScore` as `=> confidenceResult.overall` for existing callers; deprecate).
-2. In `MintStateProvider.recompute(CoachProfile profile)`, build it once:
-   `confidenceResult = EnhancedConfidenceService.computeConfidence(profileMap, fieldSources, literacyLevel: …, checkInCount: …, educationModulesCompleted: …)` using the §8.1 adapter, and put it on `MintUserState`.
-3. `/confidence` and `/home` BOTH read `state.confidenceResult` from the ledger. The route does **NOT** call `computeConfidence` itself. This removes the empty-map bug AND guarantees home Pulse and dashboard show the same number.
+1. Upgrade the ledger's confidence source of truth: have `MintStateProvider.recompute(CoachProfile profile)` build the 4-axis `ConfidenceResult` once and set `MintUserState.confidenceScore = result.overall`. The per-axis breakdown and ranked prompts the dashboard renders are **derived at render time from the documented ledger fields** — `confidenceScore` (headline) plus the provenance maps `dataSources` / `dataTimestamps` / `dataSourceDates` (which feed the completeness/accuracy/freshness axes via the §8.1 adapter). No new ledger field is introduced; every name a screen reads already resolves in `DATA_LEDGER.md`.
+2. In `recompute`, build it via:
+   `final result = EnhancedConfidenceService.computeConfidence(profileMap, fieldSources, literacyLevel: …, checkInCount: …, educationModulesCompleted: …)` using the §8.1 adapter, and store only `result.overall` into `confidenceScore`.
+3. `/confidence` and `/home` BOTH read confidence from the ledger (`confidenceScore` for the headline number; the 4 axes/prompts are re-derived from `dataSources`/`dataTimestamps`/`dataSourceDates` via the same §8.1 adapter — never a divergent second compute). The route does **NOT** run an independent `computeConfidence` against an empty map. This removes the empty-map bug AND guarantees home Pulse and dashboard show the same headline number.
 
 ### 8.1 Adapter (finding codex-5) — CoachProfile → (profileMap, List<FieldSource>)
 
 Add `EnhancedConfidenceInput.fromProfile(CoachProfile p)` in `enhanced_confidence_service.dart`:
 - `profileMap` = `p.toWizardAnswers()` (existing serialization; the same `Map<String,dynamic>` shape `scoreCompleteness` expects).
-- `fieldSources` = for each entry in `p.fieldProvenance`: `FieldSource(fieldName: key, source: prov.source, updatedAt: prov.updatedAt, value: profileMap[key])`. For fields with no provenance yet: `source: DataSource.estimated`, `updatedAt: p.createdAt`.
-- Cache invalidation: `MintStateProvider` recomputes `confidenceResult` on EVERY `recompute(profile)` (i.e. on every profile change, which is exactly when the provenance/values change). No separate hash needed — the ledger recompute IS the invalidation. (Delete the old "fresh ConfidenceResult for current profile hash" cache note; it is superseded by ledger recompute.)
+- `fieldSources` = for each field path in `p.dataSources`: `FieldSource(fieldName: path, source: p.dataSources[path], updatedAt: p.dataTimestamps[path] ?? p.createdAt, value: profileMap[path])`. For fields with no `dataSources` entry yet: `source: DataSource.estimated`, `updatedAt: p.createdAt`.
+- Cache invalidation: `MintStateProvider` recomputes confidence on EVERY `recompute(profile)` (i.e. on every profile change, which is exactly when the provenance/values change). No separate hash needed — the ledger recompute IS the invalidation.
 
 | | |
 |---|---|
 | shell | root |
 | purpose | 4-axis confidence dashboard + ranked enrichment actions. |
-| reads | `MintUserState.confidenceResult` (from ledger, §8.0). NO in-route compute. |
+| reads | `MintUserState.confidenceScore` (headline) + provenance maps `dataSources` / `dataTimestamps` / `dataSourceDates` (feed the 4 axes + ranked prompts via the §8.1 adapter). NO in-route independent compute. |
 | writes | ∅ |
 | entryConditions | none |
-| emptyState (REQUIRED) | `confidenceResult.completeness == 0` → honest 0% + "On n'a encore rien" + top enrichment action CTA → `/data-block/<top-impact>` (from `confidenceResult.prompts.first`). i18n `confidence.empty.title` / `.cta` |
-| partialState (REQUIRED) | Normal state: bars + `confidenceResult.prompts` top actions, each CTA → its `/data-block/:type` or `/scan`. i18n `confidence.partial.nextAction` |
+| emptyState (REQUIRED) | Adapter reports completeness 0 (empty `dataSources` / no answered fields) → honest 0% + "On n'a encore rien" + top enrichment action CTA → `/data-block/<top-impact>` (from the adapter's ranked prompts, first). i18n `confidence.empty.title` / `.cta` |
+| partialState (REQUIRED) | Normal state: bars (derived from provenance maps) + top ranked enrichment actions, each CTA → its `/data-block/:type` or `/scan`. i18n `confidence.partial.nextAction` |
 | errorState (REQUIRED) | `MintUserState` itself is in error (recompute threw) → message + Réessayer(`recompute(profile)`) + `/home`. i18n `confidence.error.title` |
 | routesOut | `/data-block/:type`, `/scan`, `/open-banking`, `/coach/chat`, `/home` |
 | killFlag | null |
 
-> The previous empty-map fallback (`computeConfidence({}, [])`) is DELETED. The dashboard never computes; it reads the ledger. This is the F-3-compliant fix.
+> The previous empty-map fallback (`computeConfidence({}, [])`) is DELETED. The dashboard never runs a divergent second compute; it reads `confidenceScore` and re-derives the axes/prompts from the ledger's provenance maps via the §8.1 adapter. This is the F-3-compliant fix.
 
 ---
 
@@ -440,7 +523,7 @@ state.extra as ConfidenceResult
 state.extra as Map<String, dynamic>   // wizardAnswers-shaped
 (state.extra as ...).<field>          // any member access on a cast extra
 ```
-ALLOWED (must NOT fail): `state.extra as String`, `... as ActionCategory`, `... as <enum>`, `state.pathParameters[...]`, `state.uri.queryParameters[...]`. The forbidden-pattern list above is the complete matcher.
+ALLOWED (must NOT fail): `state.extra as String`, `... as ActionCategory`, `... as DocumentType`, `... as <enum>`, `state.pathParameters[...]`, `state.uri.queryParameters[...]`. The forbidden-pattern list above is the complete matcher.
 
 ### 10.2 F-2 No blank dead-ends — `every_route_has_recovery_test.dart`
 Widget-pump each route with its `DegradedFixture` (§10.0). For each: assert (a) a back affordance exists (`find.byType(BackButton)` OR an `AppBar` with `automaticallyImplyLeading != false`); (b) at least one tappable whose label resolves to a non-null `AppLocalizations` key AND whose `onPressed`/`onTap` triggers a `context.go`/`context.push` to a route present in `route_metadata.dart` (the "recovery CTA" is defined as: a `MintButton`/`TextButton`/`ListTile` tagged with `Key('recoveryCta')` — the agent MUST tag the primary recovery CTA in every empty/error state with `key: const Key('recoveryCta')`); (c) NO widget matches a bare `Center(child: Text(<literal, non-l10n>))`. (c) is the blank-dead-end matcher.
@@ -510,22 +593,67 @@ Rules:
 - Back handling: `MintAppBar` renders the platform back button; from a shell branch root it pops within the branch, from a root route it pops to the previous route. Never `automaticallyImplyLeading: false` on a state scaffold.
 - No route may render `Scaffold(body: Center(child: Text(<literal>)))`. Every empty/error/partial state is a `RouteStateScaffold` (or, for partial, a screen that includes a tagged DIFF affordance per §10.6). The agent introduces `RouteStateScaffold` ONCE and reuses it everywhere in this document.
 - `l10n.byKey(String)` is a thin generated lookup helper the agent adds so keys can be passed dynamically; all keys still exist in the 6 ARB files (no runtime-only strings).
+
+---
+
+## 12. Route coverage ledger (every LIVE builder route in app.dart → its contract)
+
+Verified against `app.dart` at `255373b`. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
+
+| route (line) | contract § | route (line) | contract § |
+|---|---|---|---|
+| `/` (302) | §1.5 | `/succession` (637) | §4 |
+| `/auth/login` (307) | §1.5 | `/libre-passage` (651) | §4 |
+| `/auth/register` (312) | §1.5 | `/pilier-3a` (662) | §4 |
+| `/auth/forgot-password` (317) | §1.5 | `/3a-deep/comparator` (672) | §4 |
+| `/auth/verify-email` (322) | §1.5 | `/3a-deep/real-return` (677) | §4 |
+| `/auth/verify` (327) | §1.5 | `/3a-deep/staggered-withdrawal` (682) | §4 |
+| `/anonymous/chat` (336) | §1.5 | `/3a-retroactif` (687) | §4 |
+| `/home` (355) | §2 | `/fiscal` (692) | §4 |
+| `/mon-argent` (394) | §2 | `/hypotheque` (699) | §4 |
+| `/coach/chat` (404) | §2 | `/mortgage/amortization` (709) | §4 |
+| `/explore` (431) | §2 | `/mortgage/epl-combined` (714) | §4 |
+| `/explore/retraite` (441) | §3 | `/mortgage/imputed-rental` (719) | §4 |
+| `/explore/famille` (456) | §3 | `/mortgage/saron-vs-fixed` (724) | §4 |
+| `/explore/travail` (470) | §3 | `/budget` (731) | §4 |
+| `/explore/logement` (485) | §3 | `/budget/setup` (736) | §4 |
+| `/explore/fiscalite` (501) | §3 | `/check/debt` (741) | §4 |
+| `/explore/patrimoine` (516) | §3 | `/debt/ratio` (746) | §4 |
+| `/explore/sante` (530) | §3 | `/debt/help` (751) | §4 |
+| `/retraite` (546) | §4 | `/debt/repayment` (756) | §4 |
+| `/rente-vs-capital` (565) | §4 | `/divorce` (763) | §4 |
+| `/rachat-lpp` (579) | §4 | `/mariage` (773) | §4 |
+| `/epl` (593) | §4 | `/naissance` (778) | §4 |
+| `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
+| `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
+| `/first-job` (795) | §4 | `/scan/impact` (916) | §5 |
+| `/expatriation` (800) | §4 | `/documents` (935) | §4 |
+| `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
+| `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
+| `/independants/avs` (817) | §4 | `/couple/accept` (960) | §4 |
+| `/independants/ijm` (822) | §4 | `/rapport` (974) | §7 |
+| `/independants/3a` (827) | §4 | `/profile/admin-observability` (1018) | §4 |
+| `/independants/dividende-salaire` (832) | §4 | `/profile/admin-analytics` (1024) | §4 |
+| `/independants/lpp-volontaire` (837) | §4 | `/profile/byok` (1031) | §4 |
+| `/invalidite` (844) | §4 | `/profile/slm` (1035) | §4 |
+| `/disability/insurance` (858) | §4 | `/profile/bilan` (1039) | §4 |
+| `/disability/self-employed` (863) | §4 | `/profile/privacy-control` (1043) | §4 |
+| `/assurances/lamal` (868) | §4 | `/profile/privacy` (1048) | §4 |
+| `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
+| `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
+| `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
+| `/scan/review` (903) | §5 | `/life-event/donation` (1071) | §4 |
+| `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
+| `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
+| `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |
+| `/education/theme/:id` (1093) | §4 | `/arbitrage/allocation-annuelle` (1125) | §4 |
+| `/cantonal-benchmark` (1145) | §4 | `/arbitrage/location-vs-propriete` (1130) | §4 |
+| `/settings/langue` (1152) | §4 | `/simulator/compound` (1103) | §4 |
+| `/about` (1159) | §4 | `/timeline` (1194) | §4 |
+| `/admin/routes` (1170) | §4 | `/confidence` (1199) | §8 |
+| `/open-banking` (1282) | §4 | `/open-banking/transactions` (1289) | §4 |
+| `/open-banking/consents` (1296) | §4 | `/bank-import` (1303) | §4 |
+| `/data-block/:type` (1271) | §6 | | |
+
+**Coverage assertion (`test/routing/contract_coverage_test.dart`):** enumerate every `ScopedGoRoute` in `app.dart` that has a `builder:` (LIVE). FAIL if any such path is absent from this §12 table. Redirect-only entries are exempt (they have no `builder:`).
 ```
-
-Key gap resolutions embedded above:
-
-- **arch-1 (double confidence source):** §8.0 puts `ConfidenceResult` on `MintUserState` in `recompute`; `/confidence` and `/home` both read it from the ledger. No in-route compute. Verified `computeConfidence(Map, List<FieldSource>, {...})` and that `mint_user_state.dart:92` is a `double`.
-- **arch-2 / codex-4 (ScanSessionProvider):** §5.0 gives the complete state machine, OCR write point (`setExtraction`), `scan_session_v1` schema, GC policy (max 5 / applied 7d / failed 24h), and the exact recompute bridge trigger.
-- **arch-3 (file path):** corrected to `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:51-52` with both `investment` and `other`.
-- **arch-4 / B-4 / E (provenance API):** §6.note states `applySaveFact` must be extended (with real current signature) and a `fieldProvenance` ledger field added; does not pretend it exists.
-- **arch-5 / D (entry vs mode):** §1.2 makes it mechanical — simulators use in-screen mode switch, `entryConditions: none`, asserted by a test.
-- **wiring-1 (spinner-forever):** §7 adds `.timeout(8s)` → `hasError` → errorState with a named test.
-- **wiring-2 (`?? 'revenu'`):** §6.validation removes the coercion in the route builder with exact code + `_allowedDataBlockTypes`.
-- **wiring-3 (shell routing):** §1.1 documents the `StatefulShellRoute.indexedStack`, shell column added, `/tools`→coach-branch `context.go` with query params specified.
-- **wiring-4 (partialState untested):** §10.6 `partial_state_test.dart` with concrete marker keys.
-- **wiring-5 / codex-6 (loose tests):** §10.0 fixture registry + §10.1 exact matcher list + single strategy per test.
-- **codex-1 (killFlag):** §1.3 + real per-row values (null / enableScan / enableCoachChat / enableExplorer* / null for aliases), verified from `route_metadata.dart`.
-- **codex-2 (recompute arg):** every call site shows `recompute(context.read<CoachProfileProvider>().profile)`.
-- **codex-3 (premier-eclairage shim):** all recovery CTAs point to `/coach/chat?topic=premier-eclairage`, not the shim.
-- **codex-5 (adapter):** §8.1 defines the `CoachProfile → (profileMap, List<FieldSource>)` mapping and replaces the hash note with ledger-recompute invalidation.
-- **codex-7 (coverage):** added contracts for `/couple`, `/couple/accept`, `/timeline`, `/documents`, `/documents/:id`, `/budget`, `/check/debt`, `/independants/*`, `/assurances/*`, `/mortgage/*`, `/3a-deep/*`, `/life-event/donation`, `/cantonal-benchmark`, `/education/*`, `/open-banking/*`, plus killFlags.
