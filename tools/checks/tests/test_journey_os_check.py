@@ -254,6 +254,30 @@ def test_journey_os_workflow_files_are_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_codex_executable_specs_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "docs/codex/DATA_LEDGER.md",
+            "docs/codex/SCREEN_CONTRACTS.md",
+            "docs/codex/WIRING_GRAPH.mmd",
+            "docs/codex/DATA_QUEST.md",
+            "docs/codex/MAESTRO_FLOWS.md",
+            "docs/codex/P0_CASE_VARIABLE_REGISTRY.json",
+            "docs/codex/dossier_stubs/dossier_transmit_property.schema.json",
+            "docs/codex/dossier_stubs/dossier_first_salary_tax.schema.json",
+            "docs/codex/dossier_stubs/dossier_buy_property.schema.json",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_mint2_vz_route_architecture_doc_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
