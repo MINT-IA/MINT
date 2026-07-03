@@ -1635,6 +1635,120 @@ abstract class S {
   /// **'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.'**
   String get successionDisclaimer;
 
+  /// No description provided for @dataQuestProofTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données nécessaires'**
+  String get dataQuestProofTitle;
+
+  /// No description provided for @dataQuestProofSatisfied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données nécessaires sont présentes.'**
+  String get dataQuestProofSatisfied;
+
+  /// No description provided for @dataQuestProofNextCollect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine donnée à collecter'**
+  String get dataQuestProofNextCollect;
+
+  /// No description provided for @dataQuestProofNextReconfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée à confirmer'**
+  String get dataQuestProofNextReconfirm;
+
+  /// No description provided for @dataQuestProofNextScenarioAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse de scénario'**
+  String get dataQuestProofNextScenarioAssumption;
+
+  /// No description provided for @dataQuestProofStageGuard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indispensable avant calcul'**
+  String get dataQuestProofStageGuard;
+
+  /// No description provided for @dataQuestProofStageRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nécessaire pour le scénario'**
+  String get dataQuestProofStageRequired;
+
+  /// No description provided for @dataQuestProofStageUseful.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utile pour affiner'**
+  String get dataQuestProofStageUseful;
+
+  /// No description provided for @dataQuestProofCaseTransmitProperty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmission du logement'**
+  String get dataQuestProofCaseTransmitProperty;
+
+  /// No description provided for @dataQuestFieldPropertyMarketValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur vénale du logement'**
+  String get dataQuestFieldPropertyMarketValue;
+
+  /// No description provided for @dataQuestFieldTargetRetirementAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge de retraite visé'**
+  String get dataQuestFieldTargetRetirementAge;
+
+  /// No description provided for @dataQuestFieldAvoirLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get dataQuestFieldAvoirLpp;
+
+  /// No description provided for @dataQuestFieldPillar3aBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde 3a'**
+  String get dataQuestFieldPillar3aBalance;
+
+  /// No description provided for @dataQuestFieldParentLiquidAssets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liquidités disponibles'**
+  String get dataQuestFieldParentLiquidAssets;
+
+  /// No description provided for @dataQuestFieldParentAnnualRetirementIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu annuel à la retraite'**
+  String get dataQuestFieldParentAnnualRetirementIncome;
+
+  /// No description provided for @dataQuestFieldParentAnnualLivingCosts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget annuel après transmission'**
+  String get dataQuestFieldParentAnnualLivingCosts;
+
+  /// No description provided for @dataQuestFieldMortgageBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde hypothécaire'**
+  String get dataQuestFieldMortgageBalance;
+
+  /// No description provided for @dataQuestFieldHeirsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get dataQuestFieldHeirsCount;
+
+  /// No description provided for @dataQuestFieldFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée manquante'**
+  String get dataQuestFieldFallback;
+
   /// No description provided for @coachingAge25Title.
   ///
   /// In fr, this message translates to:

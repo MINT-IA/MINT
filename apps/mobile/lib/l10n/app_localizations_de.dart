@@ -831,6 +831,65 @@ class SDe extends S {
       'Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).';
 
   @override
+  String get dataQuestProofTitle => 'Benötigte Daten';
+
+  @override
+  String get dataQuestProofSatisfied => 'Die benötigten Daten sind vorhanden.';
+
+  @override
+  String get dataQuestProofNextCollect => 'Nächste Angabe erfassen';
+
+  @override
+  String get dataQuestProofNextReconfirm => 'Angabe bestätigen';
+
+  @override
+  String get dataQuestProofNextScenarioAssumption => 'Szenarioannahme';
+
+  @override
+  String get dataQuestProofStageGuard => 'Vor der Berechnung erforderlich';
+
+  @override
+  String get dataQuestProofStageRequired => 'Für das Szenario erforderlich';
+
+  @override
+  String get dataQuestProofStageUseful => 'Nützlich zur Verfeinerung';
+
+  @override
+  String get dataQuestProofCaseTransmitProperty => 'Wohnung übertragen';
+
+  @override
+  String get dataQuestFieldPropertyMarketValue => 'Verkehrswert der Wohnung';
+
+  @override
+  String get dataQuestFieldTargetRetirementAge => 'Gewünschtes Rentenalter';
+
+  @override
+  String get dataQuestFieldAvoirLpp => 'BVG-Guthaben';
+
+  @override
+  String get dataQuestFieldPillar3aBalance => 'Säule-3a-Saldo';
+
+  @override
+  String get dataQuestFieldParentLiquidAssets => 'Verfügbare Liquidität';
+
+  @override
+  String get dataQuestFieldParentAnnualRetirementIncome =>
+      'Jährliches Renteneinkommen';
+
+  @override
+  String get dataQuestFieldParentAnnualLivingCosts =>
+      'Jahresbudget nach Übertragung';
+
+  @override
+  String get dataQuestFieldMortgageBalance => 'Hypothekarsaldo';
+
+  @override
+  String get dataQuestFieldHeirsCount => 'Anzahl Kinder';
+
+  @override
+  String get dataQuestFieldFallback => 'Fehlende Angabe';
+
+  @override
   String get coachingAge25Title => '25 Jahre: Säule 3a eröffnen';
 
   @override

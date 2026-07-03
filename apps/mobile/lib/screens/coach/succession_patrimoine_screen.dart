@@ -9,6 +9,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -16,8 +18,10 @@ import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
 import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
+import 'package:mint_mobile/widgets/data_quest/data_quest_proof_strip.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:provider/provider.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -25,6 +29,13 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    final coachProvider = context.watch<CoachProfileProvider?>();
+    final answers = coachProvider?.wizardAnswersSnapshot ?? const {};
+    final dataQuestPlan = DataQuestService.planCase(
+      caseId: 'transmit_property',
+      answers: answers,
+      now: DateTime.now().toUtc(),
+    );
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -56,6 +67,12 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                   title: l.successionAlertTitle,
                   body: l.successionAlertBody,
                   color: MintColors.urgentOrange,
+                ),
+                const SizedBox(height: MintSpacing.lg),
+
+                DataQuestProofStrip(
+                  plan: dataQuestPlan,
+                  keyPrefix: 'succession_data_quest',
                 ),
                 const SizedBox(height: MintSpacing.lg),
 
@@ -298,7 +315,7 @@ class _ConceptCard extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     color: color.withAlpha(20),
-                    borderRadius: BorderRadius.circular(9),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color, size: 18),
                 ),

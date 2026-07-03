@@ -825,6 +825,66 @@ class SPt extends S {
       'Informação educativa, não aconselhamento jurídico (LSFin/CC).';
 
   @override
+  String get dataQuestProofTitle => 'Dados necessários';
+
+  @override
+  String get dataQuestProofSatisfied => 'Os dados necessários estão presentes.';
+
+  @override
+  String get dataQuestProofNextCollect => 'Próximo dado a recolher';
+
+  @override
+  String get dataQuestProofNextReconfirm => 'Dado a confirmar';
+
+  @override
+  String get dataQuestProofNextScenarioAssumption => 'Hipótese de cenário';
+
+  @override
+  String get dataQuestProofStageGuard => 'Indispensável antes do cálculo';
+
+  @override
+  String get dataQuestProofStageRequired => 'Necessário para o cenário';
+
+  @override
+  String get dataQuestProofStageUseful => 'Útil para refinar';
+
+  @override
+  String get dataQuestProofCaseTransmitProperty => 'Transmissão da habitação';
+
+  @override
+  String get dataQuestFieldPropertyMarketValue =>
+      'Valor de mercado da habitação';
+
+  @override
+  String get dataQuestFieldTargetRetirementAge => 'Idade de reforma pretendida';
+
+  @override
+  String get dataQuestFieldAvoirLpp => 'Capital LPP';
+
+  @override
+  String get dataQuestFieldPillar3aBalance => 'Saldo 3a';
+
+  @override
+  String get dataQuestFieldParentLiquidAssets => 'Liquidez disponível';
+
+  @override
+  String get dataQuestFieldParentAnnualRetirementIncome =>
+      'Rendimento anual na reforma';
+
+  @override
+  String get dataQuestFieldParentAnnualLivingCosts =>
+      'Orçamento anual após transmissão';
+
+  @override
+  String get dataQuestFieldMortgageBalance => 'Saldo hipotecário';
+
+  @override
+  String get dataQuestFieldHeirsCount => 'Número de filhos';
+
+  @override
+  String get dataQuestFieldFallback => 'Dado em falta';
+
+  @override
   String get coachingAge25Title => '25 anos: abrir o 3º pilar';
 
   @override

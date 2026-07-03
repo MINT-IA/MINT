@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/age_band_policy.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -29,6 +31,13 @@ Widget _wrap(Widget child) {
     ],
     supportedLocales: S.supportedLocales,
     routerConfig: router,
+  );
+}
+
+Widget _wrapWithCoach(Widget child, CoachProfileProvider provider) {
+  return ChangeNotifierProvider<CoachProfileProvider>.value(
+    value: provider,
+    child: _wrap(child),
   );
 }
 
@@ -216,6 +225,35 @@ void main() {
       await tester.pump();
       // "spécialiste" should appear in the CTA
       expect(find.textContaining('spécialiste'), findsWidgets);
+    });
+
+    testWidgets('shows DataQuest proof strip from provider answers',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 16000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers({
+          'q_property_market_value': 950000,
+          'q_children': 3,
+        });
+
+      await tester.pumpWidget(
+        _wrapWithCoach(const SuccessionPatrimoineScreen(), provider),
+      );
+      await tester.pump();
+
+      expect(find.byKey(const Key('succession_data_quest_contract')),
+          findsOneWidget);
+      expect(find.byKey(const Key('succession_data_quest_mode_reconfirm')),
+          findsOneWidget);
+      expect(find.text('Donnée à confirmer'), findsOneWidget);
+      expect(find.text('Valeur vénale du logement'), findsOneWidget);
+      expect(find.text('950000'), findsOneWidget);
+      expect(find.textContaining("CHF\u00a0950'000"), findsNothing);
+      expect(find.textContaining("CHF\u00a095'000"), findsNothing);
+      expect(find.textContaining("CHF\u00a0500'000"), findsWidgets);
+      expect(find.textContaining("CHF\u00a050'000"), findsWidgets);
     });
   });
 }

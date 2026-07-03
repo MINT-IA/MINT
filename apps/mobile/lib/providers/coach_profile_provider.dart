@@ -63,6 +63,12 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
 
+  /// Read-only view of the canonical wizard-answer snapshot currently backing
+  /// [profile]. UI planners may read it, but writes must still go through
+  /// mergeAnswers/updateFrom* so persistence and profile rebuild stay in sync.
+  Map<String, dynamic> get wizardAnswersSnapshot =>
+      Map<String, dynamic>.unmodifiable(_lastAnswers);
+
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
   static Map<String, DateTime> _stampTimestamps(
@@ -800,8 +806,9 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Utilise apres la completion du wizard pour eviter un rechargement async.
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
-    _lastAnswers = answers;
-    _profile = CoachProfile.fromWizardAnswers(answers);
+    final snapshot = Map<String, dynamic>.from(answers);
+    _lastAnswers = snapshot;
+    _profile = CoachProfile.fromWizardAnswers(snapshot);
     _isPartialProfile = false;
     _hasSessionOnlyProfile = true;
     _isLoaded = true;
@@ -1153,8 +1160,9 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Cree un profil partiel immediatement utilisable par le dashboard.
   void updateFromMiniOnboarding(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
-    _lastAnswers = answers;
-    _profile = CoachProfile.fromWizardAnswers(answers);
+    final snapshot = Map<String, dynamic>.from(answers);
+    _lastAnswers = snapshot;
+    _profile = CoachProfile.fromWizardAnswers(snapshot);
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;

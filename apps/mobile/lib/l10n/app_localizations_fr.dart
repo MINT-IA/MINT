@@ -826,6 +826,66 @@ class SFr extends S {
       'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.';
 
   @override
+  String get dataQuestProofTitle => 'Données nécessaires';
+
+  @override
+  String get dataQuestProofSatisfied =>
+      'Les données nécessaires sont présentes.';
+
+  @override
+  String get dataQuestProofNextCollect => 'Prochaine donnée à collecter';
+
+  @override
+  String get dataQuestProofNextReconfirm => 'Donnée à confirmer';
+
+  @override
+  String get dataQuestProofNextScenarioAssumption => 'Hypothèse de scénario';
+
+  @override
+  String get dataQuestProofStageGuard => 'Indispensable avant calcul';
+
+  @override
+  String get dataQuestProofStageRequired => 'Nécessaire pour le scénario';
+
+  @override
+  String get dataQuestProofStageUseful => 'Utile pour affiner';
+
+  @override
+  String get dataQuestProofCaseTransmitProperty => 'Transmission du logement';
+
+  @override
+  String get dataQuestFieldPropertyMarketValue => 'Valeur vénale du logement';
+
+  @override
+  String get dataQuestFieldTargetRetirementAge => 'Âge de retraite visé';
+
+  @override
+  String get dataQuestFieldAvoirLpp => 'Avoir LPP';
+
+  @override
+  String get dataQuestFieldPillar3aBalance => 'Solde 3a';
+
+  @override
+  String get dataQuestFieldParentLiquidAssets => 'Liquidités disponibles';
+
+  @override
+  String get dataQuestFieldParentAnnualRetirementIncome =>
+      'Revenu annuel à la retraite';
+
+  @override
+  String get dataQuestFieldParentAnnualLivingCosts =>
+      'Budget annuel après transmission';
+
+  @override
+  String get dataQuestFieldMortgageBalance => 'Solde hypothécaire';
+
+  @override
+  String get dataQuestFieldHeirsCount => 'Nombre d\'enfants';
+
+  @override
+  String get dataQuestFieldFallback => 'Donnée manquante';
+
+  @override
   String get coachingAge25Title => '25 ans : démarrer son 3e pilier';
 
   @override

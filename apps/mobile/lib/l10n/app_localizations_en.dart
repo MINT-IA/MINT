@@ -824,6 +824,65 @@ class SEn extends S {
       'Educational information, not legal advice (FinSA/CC). Consult a specialist for your situation.';
 
   @override
+  String get dataQuestProofTitle => 'Data needed';
+
+  @override
+  String get dataQuestProofSatisfied => 'The required data is present.';
+
+  @override
+  String get dataQuestProofNextCollect => 'Next data to collect';
+
+  @override
+  String get dataQuestProofNextReconfirm => 'Data to confirm';
+
+  @override
+  String get dataQuestProofNextScenarioAssumption => 'Scenario assumption';
+
+  @override
+  String get dataQuestProofStageGuard => 'Required before calculation';
+
+  @override
+  String get dataQuestProofStageRequired => 'Required for the scenario';
+
+  @override
+  String get dataQuestProofStageUseful => 'Useful to refine';
+
+  @override
+  String get dataQuestProofCaseTransmitProperty => 'Home transmission';
+
+  @override
+  String get dataQuestFieldPropertyMarketValue => 'Home market value';
+
+  @override
+  String get dataQuestFieldTargetRetirementAge => 'Target retirement age';
+
+  @override
+  String get dataQuestFieldAvoirLpp => 'Pension fund assets';
+
+  @override
+  String get dataQuestFieldPillar3aBalance => 'Pillar 3a balance';
+
+  @override
+  String get dataQuestFieldParentLiquidAssets => 'Available liquidity';
+
+  @override
+  String get dataQuestFieldParentAnnualRetirementIncome =>
+      'Annual retirement income';
+
+  @override
+  String get dataQuestFieldParentAnnualLivingCosts =>
+      'Annual budget after transmission';
+
+  @override
+  String get dataQuestFieldMortgageBalance => 'Mortgage balance';
+
+  @override
+  String get dataQuestFieldHeirsCount => 'Number of children';
+
+  @override
+  String get dataQuestFieldFallback => 'Missing data';
+
+  @override
   String get coachingAge25Title => '25: Start your pillar 3a';
 
   @override

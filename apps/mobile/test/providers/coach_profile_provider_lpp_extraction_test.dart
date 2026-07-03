@@ -49,8 +49,7 @@ void main() {
     );
   });
 
-  test(
-      'LPP scan confirmation survives reload into Data Spine and coach packet',
+  test('LPP scan confirmation survives reload into Data Spine and coach packet',
       () async {
     final provider = CoachProfileProvider();
 
@@ -144,5 +143,26 @@ void main() {
     expect(lppFact.source, 'certificate');
     expect(lppFact.confidence, 'known');
     expect(packet.toSafeMap().containsKey('wizard_answers'), isFalse);
+  });
+
+  test('wizardAnswersSnapshot is immutable and detached from caller maps',
+      () async {
+    final provider = CoachProfileProvider();
+    final source = <String, dynamic>{
+      'q_canton': 'VD',
+      'q_property_market_value': 950000,
+    };
+
+    provider.updateFromAnswers(source);
+    source['q_canton'] = 'GE';
+
+    final snapshot = provider.wizardAnswersSnapshot;
+    expect(snapshot['q_canton'], 'VD');
+    expect(snapshot['q_property_market_value'], 950000);
+    expect(
+      () => snapshot['q_canton'] = 'ZH',
+      throwsUnsupportedError,
+    );
+    expect(provider.wizardAnswersSnapshot['q_canton'], 'VD');
   });
 }

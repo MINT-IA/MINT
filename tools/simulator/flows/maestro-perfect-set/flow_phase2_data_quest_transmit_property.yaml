@@ -1,0 +1,96 @@
+# tools/simulator/flows/maestro-perfect-set/flow_phase2_data_quest_transmit_property.yaml
+#
+# PURPOSE
+# Runtime proof for the first DataQuest UI contract on /succession:
+# the screen must consume the canonical wizard-answer snapshot and expose the
+# next missing property-transmission datum before showing educational widgets.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     flutter build ios --simulator --debug --no-codesign \
+#       --dart-define=MINT_DISABLE_BETA_MODAL=true \
+#       --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+# - The flow first uses the existing debug-only E2E profile route to enter
+#   anonymous local mode before opening /succession. Opening /succession from a
+#   fresh install proves only the auth redirect.
+
+appId: ch.mint.app
+env:
+  MINT_E2E_ARCHETYPE: julien_swiss
+tags:
+  - data-quest
+  - succession
+  - property-transmission
+  - runtime-proof
+---
+
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=julien_swiss"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 12000
+
+- openLink: "mintapp:///succession"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- scrollUntilVisible:
+    element:
+      text: ".*Données nécessaires.*"
+    direction: DOWN
+    visibilityPercentage: 50
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Données nécessaires.*"
+    timeout: 12000
+- assertNotVisible: "Créer ton compte"
+- assertVisible:
+    text: ".*Données nécessaires.*"
+- assertVisible:
+    text: ".*Prochaine donnée à collecter.*"
+- assertVisible:
+    text: ".*Indispensable avant calcul.*"
+- assertVisible:
+    text: ".*Valeur vénale du logement.*"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- takeScreenshot: "phase2-data-quest-transmit-property"
