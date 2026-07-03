@@ -300,6 +300,24 @@ def test_property_transmission_calculator_files_are_in_scope(
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_data_quest_service_files_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/services/data_quest/case_registry.dart",
+            "apps/mobile/lib/services/data_quest/data_quest_service.dart",
+            "apps/mobile/test/services/data_quest/data_quest_service_test.dart",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_mint2_vz_route_architecture_doc_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
