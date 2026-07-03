@@ -1,0 +1,299 @@
+%% ============================================================================
+%% WIRING_GRAPH.mmd — MINT navigation + data-flow graph (Codex-executable)
+%% ----------------------------------------------------------------------------
+%% Integration note (2026-07-03): this graph was ported onto the origin/dev
+%% Journey OS base from the old Codex/DataQuest branch. Treat it as an
+%% executable target contract, not as current proof. Every file:line, route,
+%% API key, and runtime claim must be re-verified on the current integration
+%% branch before it can be marked accepted.
+%% Status: candidate normative graph. Current-branch verification is pending.
+%% Every node/edge below is transcribed from apps/mobile/lib/app.dart (router +
+%% MultiProvider tree) with line numbers. Companion: DATA_LEDGER.md,
+%% SCREEN_CONTRACTS.md (exhaustive per-route contracts). Conflict order:
+%% rules.md > CLAUDE.md > this file.
+%% .
+%% This file is a SINGLE valid Mermaid flowchart. The machine-checkable
+%% INVARIANTS are at the bottom as %% comments (I-1..I-9), each citing the real
+%% file a script/Codex must assert against.
+%% ============================================================================
+
+flowchart TB
+
+  %% ==========================================================================
+  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:2035-2165)
+  %% The spine + the islands. Solid arrow = live listen/recompute edge that
+  %% EXISTS in code. Dashed arrow = REQUIRED bridge that is MISSING today.
+  %% ==========================================================================
+  subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
+    direction TB
+    CPP["CoachProfileProvider<br/>app.dart:2050<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
+    MSP["MintStateProvider<br/>app.dart:2114 (ProxyProvider)<br/>builds MintUserState (read-model)"]
+    NWS["NotificationsWiringService<br/>app.dart:2161 (ProxyProvider, lazy:false)"]
+    PERSIST[("SharedPreferences<br/>key: wizard_answers_v2<br/>report_persistence_service.dart")]
+    BACKEND[("backend ProfileModel.data<br/>save_fact 40-key allowlist<br/>coach_chat.py:_SAVE_FACT_ALLOWED_KEYS")]
+    PTC["PropertyTransmissionCalculator<br/>financial_core/property_transmission_calculator.dart<br/>local deterministic succession triage"]
+    DQ["DataQuestService<br/>services/data_quest/data_quest_service.dart<br/>P0 missing/stale ask planner"]
+    DOSS["DossierPayloadService<br/>services/dossier/dossier_payload_service.dart<br/>schema-backed P0 dossier payload"]
+    PDF["PdfService<br/>services/pdf_service.dart<br/>generic report PDF + typed dossier PDF"]
+
+    CPP -- "notifies (ProxyProvider.update)" --> MSP
+    CPP -- "notifies (ProxyProvider.update)" --> NWS
+    CPP <-- "load/persist" --> PERSIST
+    CPP -. "fire-and-forget sync" .-> BACKEND
+    CPP -- "succession local scenario inputs" --> PTC
+    CPP -- "raw answers + provenance maps" --> DQ
+    DQ -- "next_questions + case spec" --> DOSS
+    PTC -- "transmit_property outputs" --> DOSS
+    DOSS -- "buildDossierPayloadPdfBytes" --> PDF
+
+    %% Budget/household/plan have live CoachProfile bridges. Timeline/documents
+    %% are reference stores: they keep ids/activity/raw results, not financial
+    %% ledger values. Confirmed extracted facts enter through CoachProfileProvider.
+    BUDGET["BudgetProvider<br/>app.dart:2063 — BRIDGED from CoachProfileProvider"]
+    HOUSE["HouseholdProvider<br/>app.dart:2055 — BRIDGED relation status only"]
+    TIMELINE["TimelineProvider<br/>app.dart:2140 — ACTIVITY/REFERENCE STORE"]
+    DOCS["DocumentProvider<br/>app.dart:2048 — RAW DOCUMENT STORE"]
+    PLAN["FinancialPlanProvider<br/>app.dart:2127 — BRIDGED to CoachProfileProvider staleness"]
+    LEGACY_PROFILE["ProfileProvider + models/profile.dart<br/>legacy module, NOT mounted in app.dart<br/>no prod screen/widget consumer"]
+
+    CPP -- "refreshFromProfile -> depenses inputs" --> BUDGET
+    BUDGET -- "reads synced profile-derived budget" --> MSP
+    HOUSE -- "active/pending partner -> etatCivil + conjoint.invitationLevel only" --> CPP
+    TIMELINE -. "read-only refs: conversations/docs/landmarks" .-> PERSIST
+    DOCS -. "upload/list/delete ids and raw extraction results only" .-> BACKEND
+    CPP -- "attachProfileProvider -> plan stale on profile hash change" --> PLAN
+  end
+
+  %% ==========================================================================
+  %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1875)
+  %% Nodes = live screens (have a builder). Dashed edges = redirect routes
+  %% (legacy shims -> canonical). Every node reachable from a shell tab, hub,
+  %% or an explicit deep-link/settings entry point; no orphan; no dead-end
+  %% EXCEPT the flagged red traps, which this graph exists to eliminate.
+  %% ==========================================================================
+  subgraph NAV["NAVIGATION"]
+    direction TB
+
+    %% ---- Entry / auth (RouteScope public) ----
+    LAND["/ landing"]
+    subgraph AUTH["auth"]
+      LOGIN["/auth/login"]; REG["/auth/register"]; FORGOT["/auth/forgot-password"]
+      VEMAIL["/auth/verify-email"]; VERIFY["/auth/verify"]
+    end
+    ANON["/anonymous/chat (3 free msgs)"]
+
+    %% ---- Persistent 4-tab shell (StatefulShellRoute) ----
+    subgraph SHELL["4-tab shell (StatefulShellRoute.indexedStack)"]
+      HOME["/home (Aujourd'hui)"]; ARGENT["/mon-argent"]
+      COACH["/coach/chat"]; EXPLORE["/explore"]
+    end
+
+    %% ---- Explorer hubs ----
+    subgraph HUBS["/explore hubs"]
+      H_RET["/explore/retraite"]; H_FAM["/explore/famille"]; H_TRA["/explore/travail"]
+      H_LOG["/explore/logement"]; H_FIS["/explore/fiscalite"]; H_PAT["/explore/patrimoine"]
+      H_SAN["/explore/sante"]
+    end
+
+    %% ---- Leaf screens by domain (live builders) ----
+    subgraph RET["retraite / prevoyance"]
+      RETR["/retraite"]; RVC["/rente-vs-capital"]; RACHAT["/rachat-lpp"]; EPL["/epl"]
+      DECAI["/decaissement"]; LIBRE["/libre-passage"]; SUCC["/succession"]; CHIST["/coach/history"]
+    end
+    subgraph FIS["fiscalite"]
+      P3A["/pilier-3a"]; C3A["/3a-deep/comparator"]; RR3A["/3a-deep/real-return"]
+      SW3A["/3a-deep/staggered-withdrawal"]; RETRO3A["/3a-retroactif"]; FISCAL["/fiscal"]
+    end
+    subgraph IMMO["logement"]
+      HYPO["/hypotheque"]; AMORT["/mortgage/amortization"]; EPLC["/mortgage/epl-combined"]
+      IMPR["/mortgage/imputed-rental"]; SARON["/mortgage/saron-vs-fixed"]; HSALE["/life-event/housing-sale"]
+      LVP["/arbitrage/location-vs-propriete"]
+    end
+    subgraph FAM["famille"]
+      DIV["/divorce"]; MAR["/mariage"]; NAI["/naissance"]; CONC["/concubinage"]
+      DON["/life-event/donation"]; DECES["/life-event/deces-proche"]
+    end
+    subgraph TRA["travail / independants"]
+      UNEMP["/unemployment"]; FJOB["/first-job"]; EXPAT["/expatriation"]; JOBC["/simulator/job-comparison"]
+      INDEP["/segments/independant"]; IAVS["/independants/avs"]; IIJM["/independants/ijm"]
+      I3A["/independants/3a"]; IDIV["/independants/dividende-salaire"]; ILPP["/independants/lpp-volontaire"]
+      FRONT["/segments/frontalier"]; GGAP["/segments/gender-gap"]
+    end
+    subgraph SAN["sante"]
+      INVAL["/invalidite"]; DINS["/disability/insurance"]; DSELF["/disability/self-employed"]
+      LAMAL["/assurances/lamal"]; COV["/assurances/coverage"]
+    end
+    subgraph PAT["patrimoine / budget / dette"]
+      BUD["/budget"]; BSET["/budget/setup"]; CDEBT["/check/debt"]; DRATIO["/debt/ratio"]
+      DHELP["/debt/help"]; DREPAY["/debt/repayment"]; ABILAN["/arbitrage/bilan"]
+      AALLOC["/arbitrage/allocation-annuelle"]; DCANT["/life-event/demenagement-cantonal"]
+      CBENCH["/cantonal-benchmark"]
+    end
+    subgraph DATA["collection / documents / report"]
+      SCAN["/scan"]; SCANAVS["/scan/avs-guide"]
+      SREVIEW["/scan/review<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1401)"]
+      SIMPACT["/scan/impact<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1423)"]
+      DBLOCK["/data-block/:type<br/>DataBlockEnrichmentScreen"]
+      DOCLIST["/documents"]; DOCID["/documents/:id"]; BANKIMP["/bank-import"]
+      RAPPORT["/rapport<br/>ReportRouteScreen<br/>loadAnswers timeout/retry (:1490)"]
+      CONF["/confidence<br/>ConfidenceRouteScreen<br/>profile-first loadResult timeout/retry (:1711)"]
+    end
+    subgraph MISC["misc / education / couple / settings (deep-link + settings entries)"]
+      COUPLE["/couple"]; CACCEPT["/couple/accept"]; EHUB["/education/hub"]; ETHEME["/education/theme/:id"]
+      SCOMP["/simulator/compound"]; SLEAS["/simulator/leasing"]; SCRED["/simulator/credit"]
+      LANGUE["/settings/langue"]; ABOUT["/about"]; ADMINR["/admin/routes"]; TL["/timeline"]; PBILAN["/profile/bilan"]
+    end
+
+    %% ---- Redirect shims (legacy -> canonical). Dashed = redirect. ----
+    R_TOOLS["/tools (redirect :1693)"]:::redir
+    R_PORT["/portfolio (redirect :1700)"]:::redir
+    R_ASK["/ask-mint (:1685)"]:::redir
+    R_ADVIS["/advisor* (:1831-1845)"]:::redir
+    R_ONB["/onboarding/* (:1728-1875)"]:::redir
+    R_OB["/open-banking* (:1804-1819)<br/>feature-flag redirect to / when disabled"]:::redir
+    R_LEGACY["legacy redirects<br/>canonical targets vary:<br/>/retirement /lpp-deep/* /score-reveal /achievements"]:::redir
+    R_HOUSE["/household* (:1466-1486)"]:::redir
+    R_REPORT["/report* (:1495-1507)"]:::redir
+    R_PROFILE["/profile exact (:1512-1517)"]:::redir
+
+    %% ---- Real navigation edges ----
+    LAND --> REG --> VEMAIL --> COACH
+    LAND --> ANON
+    LAND --> LOGIN --> HOME
+    FORGOT --> LOGIN
+    VERIFY --> HOME
+
+    HOME --- ARGENT --- COACH --- EXPLORE
+    EXPLORE --> H_RET & H_FAM & H_TRA & H_LOG & H_FIS & H_PAT & H_SAN
+    H_RET --> RETR & RVC & RACHAT & EPL & DECAI & LIBRE & SUCC
+    H_FIS --> P3A & C3A & RR3A & SW3A & RETRO3A & FISCAL
+    H_LOG --> HYPO & AMORT & EPLC & IMPR & SARON & HSALE & LVP
+    H_FAM --> MAR & DIV & NAI & CONC & DON & DECES & SUCC
+    H_TRA --> FJOB & JOBC & INDEP & UNEMP & EXPAT & FRONT & GGAP
+    H_TRA --> IAVS & IIJM & I3A & IDIV & ILPP
+    H_SAN --> INVAL & DINS & DSELF & LAMAL & COV
+    H_PAT --> ABILAN & AALLOC & DON & DECES & DCANT & CBENCH
+    ARGENT --> BUD --> BSET
+    ARGENT --> CDEBT --> DRATIO & DHELP & DREPAY
+    COACH --> DBLOCK
+    COACH --> SCAN --> SCANAVS
+    COACH --> CHIST
+    SCAN --> SREVIEW --> SIMPACT
+    COACH --> RAPPORT
+    COACH -. explicit deep-link / runtime proof .-> CONF
+    RETR --> RVC & RACHAT & DECAI
+    HOME --> TL
+    ARGENT --> DOCLIST --> DOCID
+    DOCLIST --> BANKIMP
+
+    %% ---- Reachability for MISC/couple/education/settings (I-7) ----
+    %% couple invite lands via family hub; education hub via coach; the three
+    %% standalone simulators via the money tab; settings/about/admin via home
+    %% (profile drawer). Each is entered from a shell tab or hub, not orphaned.
+    H_FAM --> COUPLE --> CACCEPT
+    COACH --> EHUB --> ETHEME
+    ARGENT --> SCOMP & SLEAS & SCRED
+    HOME --> LANGUE & ABOUT & ADMINR & PBILAN
+
+    %% ---- Redirect resolution edges (no dangling shim) ----
+    R_TOOLS -. redirect .-> COACH
+    R_PORT -. redirect .-> HOME
+    R_ASK -. redirect .-> COACH
+    R_ADVIS -. redirect .-> COACH
+    R_ONB -. redirect .-> COACH
+    R_OB -. enabled route / disabled redirect .-> ARGENT
+    R_OB -. disabled redirect .-> LAND
+    R_HOUSE -. redirect .-> COUPLE
+    R_REPORT -. redirect .-> RAPPORT
+    R_PROFILE -. redirect .-> PBILAN
+    R_LEGACY -. redirect .-> HOME
+
+  end
+
+  PTC -- "retirementAffordability + familyEqualization" --> SUCC
+  PDF -- "export/share dossier bytes" --> RAPPORT
+
+  classDef trap fill:#5a1111,stroke:#ff5555,color:#fff,stroke-width:2px;
+  classDef redir fill:#333,stroke:#888,color:#ccc,stroke-dasharray:4 3;
+
+%% ============================================================================
+%% DEAD-ROADS / REPAIRS (verified — SCREEN_CONTRACTS.md specifies contracts)
+%% ----------------------------------------------------------------------------
+%% D-1 /scan/review  FIXED at HEAD. app.dart:1401-1420 resolves only
+%%     scanSessionId (query first, extra string fallback via app.dart:261-265)
+%%     and reads ScanSessionProvider via context.watch so persisted
+%%     scan_session_v1 restore can complete before the recovery branch.
+%% D-2 /scan/impact  FIXED at HEAD. app.dart:1423-1442 resolves only
+%%     scanSessionId and waits for ScanSessionProvider restore before showing
+%%     _MissingScanSessionScreen with scan_impact_recovery_cta after a true miss.
+%% D-3 /rapport      FIXED at HEAD for I-2/no-extra and spinner-forever.
+%%     app.dart:1490-1492 delegates to ReportRouteScreen; report_route_screen.dart:37-85
+%%     reads ReportPersistenceService.loadAnswers(), applies an 8s timeout, and
+%%     renders financialReportLoadErrorTitle/commonRetry on failure. The visible
+%%     screen now builds the three P0 DossierPayloadService cases and exposes
+%%     report_dossier_<case>_export_cta buttons wired to
+%%     PdfService.generateDossierPayloadPdf. Main narrative sections still use
+%%     the existing FinancialReport adapter.
+%% D-4 /tools/report actions FIXED at HEAD for the current report source.
+%%     /tools redirect preserves query params (app.dart:1693-1698), and
+%%     financial_report_screen_v2.dart:55-66 maps investment/other directly to
+%%     /coach/chat?topic=... instead of bare /tools. R-3 verifies a seeded
+%%     report action reaches /pilier-3a via report_action_pillar3a_cta.
+%% D-5 /portfolio    FIXED at HEAD. app.dart:1700-1704 redirects -> /home
+%%     through _redirectWithQuery, preserving query params/state.
+%% ============================================================================
+
+%% ============================================================================
+%% MACHINE-CHECKABLE INVARIANTS (Codex/CI must assert each; cite = where)
+%% ----------------------------------------------------------------------------
+%% I-1 SINGLE SOURCE: no GoRoute `builder:` in app.dart reads domain financial
+%%     data from `state.extra`. Allowed in extra: ids, enums, ephemeral UI.
+%%     CHECK: grep builders for `state.extra` casts to domain models; expect 0.
+%% I-2 EXTRA IS EPHEMERAL: /scan/review and /scan/impact may consume only a
+%%     scanSessionId string (query preferred, extra fallback), never
+%%     ExtractionResult. /rapport must not consume wizardAnswers or dossier
+%%     payloads via extra; it must rebuild from persisted answers/ledger.
+%%     Each route must render a recovery CTA + i18n text when data is absent.
+%% I-3 SINGLE WRITE PATH: no screen/service writes wizard_answers_v2 or backend
+%%     ProfileModel.data except via CoachProfileProvider.mergeAnswers /
+%%     applySaveFact / updateProfile. CHECK: grep report_persistence_service
+%%     writers outside coach_profile_provider.dart; expect 0.
+%% I-4 NO FINANCIAL-DATA ISLANDS: every provider that holds authoritative
+%%     financial/profile state must feed the recompute. BudgetProvider is now
+%%     bridged at app.dart:2063-2079.
+%%     HouseholdProvider is now bridged at app.dart:2055-2062 for relation
+%%     status only (etatCivil + conjoint.invitationLevel); spouse financial
+%%     fields remain Data Quest inputs. FinancialPlanProvider is now bridged at
+%%     app.dart:2127-2134 for plan-staleness detection. TimelineProvider(:2140),
+%%     DocumentProvider(:2048), ConversationStore and raw document stores are
+%%     reference/activity stores: they must NOT write financial ledger values.
+%%     Their extracted/confirmed facts enter through CoachProfileProvider
+%%     write APIs at scan or coach confirmation time.
+%%     CHECK: apps/mobile/test/architecture/raw_reference_stores_contract_test.dart
+%% I-5 LEGACY PROVIDER (screen migration done): ProfileProvider is no longer
+%%     registered in app.dart and has no production screen/widget consumer.
+%%     `hasDebt` gates now use lookupSafeModeFlag(context), which resolves from
+%%     the CoachProfileProvider/Mint ledger spine. ProfileProvider +
+%%     models/profile.dart remain legacy compatibility modules only while
+%%     services/api_service.dart, wizard_service.dart and tests still depend on
+%%     Profile. Do not extend them. Next deletion step requires a dedicated
+%%     migration/guard for non-screen services.
+%%     CHECK: apps/mobile/test/architecture/no_legacy_profile_provider_consumers_test.dart
+%%     plus grep `context.(read|watch)<ProfileProvider>` under apps/mobile/lib
+%%     expect 0.
+%% I-6 EVERY SCREEN NODE has emptyState + partialState + errorState declared in
+%%     SCREEN_CONTRACTS.md (1:1 with the live routes above). CHECK: every
+%%     `path:` builder in app.dart has a row; no row missing those 3 states.
+%% I-7 NO ORPHAN / NO DEAD-END: every NAV node is reachable from a shell tab,
+%%     a hub, or an explicit deep-link/settings entry point (COUPLE via H_FAM,
+%%     EHUB via COACH, SCOMP/SLEAS/SCRED via ARGENT, LANGUE/ABOUT/ADMINR via
+%%     HOME profile drawer) and has >=1 outgoing edge (or is a terminal leaf
+%%     with a Back affordance via MintNav.back() fallback to /home). Redirect
+%%     shims must terminate at a live node (edges R_* above).
+%% I-8 REDIRECTS PRESERVE CONTEXT: redirect routes must forward query params /
+%%     topic (fix D-4, D-5). CHECK: /tools and /portfolio redirects pass state.
+%% I-9 PROJECTIONS RANGED: any node that renders a projected number pairs it
+%%     with EnhancedConfidence + range (DATA_LEDGER I-5 / CLAUDE.md §5). P0
+%%     dossier payload tests must prove source/confidence metadata and PDF
+%%     export manifest coverage for the dossier.
+%% ============================================================================
