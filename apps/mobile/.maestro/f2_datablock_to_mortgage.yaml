@@ -1,0 +1,26 @@
+appId: ch.mint.app
+---
+# F-2: annual salary + canton in the canonical ledger must complete
+# /data-block/revenu and feed /hypotheque through CoachProfile.
+- stopApp
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_REVENUE_ANNUAL: "96000"
+      MINT_TEST_CANTON: "GE"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///data-block/revenu"
+- assertVisible:
+    text: "Revenu"
+- assertVisible:
+    text: "12 / 12 pts"
+- assertVisible:
+    text: "Complet"
+- openLink: "mint:///hypotheque"
+- assertVisible:
+    id: "mortgage_afford_result"
+- assertVisible:
+    text: "Revenu brut annuel: CHF.*96'000; Canton: GE"

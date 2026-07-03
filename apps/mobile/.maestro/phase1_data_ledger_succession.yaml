@@ -1,0 +1,87 @@
+appId: ch.mint.app
+---
+# MINT_TEST_INITIAL_ROUTE is debug-only and accepts only internal /... paths.
+# Non-debug QA builds must set --dart-define=MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true.
+# data_ledger: P0 transmit_property CASE exposes durable metadata via Semantics IDs.
+# local scenario: PropertyTransmissionCalculator renders retirementAffordability and familyEqualization without a non-auth backend demo endpoint.
+# profile_owner_id: local_demo_<profile-createdAt-ms>
+# scenario_id: transmit_property
+# source: property value is estimated in this article-based local runtime proof.
+# confidence: property value maps to medium confidence; canonical fixture parity is checked end-to-end.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/succession"
+      MINT_TEST_TRANSMIT_PROPERTY_FIXTURE: "raiffeisen_status"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Succession et transmission"
+- assertVisible:
+    id: "succession_ledger_property_value"
+- assertVisible:
+    text: "Base ledger: CHF 1'200'000"
+- assertVisible:
+    id: "succession_ledger_data_key"
+- assertVisible:
+    id: "succession_ledger_profile_owner_id"
+- assertVisible:
+    id: "succession_ledger_scenario_id"
+- assertVisible:
+    id: "succession_ledger_source"
+- assertVisible:
+    text: "source: estimated"
+- assertVisible:
+    id: "succession_ledger_confidence"
+- assertVisible:
+    text: "confidence: medium"
+- assertVisible:
+    id: "succession_runtime_scenario_statuses"
+- assertVisible:
+    text: "scenario_statuses: needs_review | CHF -8'000 | at_risk | CHF 195'000"
+- scrollUntilVisible:
+    element:
+      id: "succession_runtime_scenario_confidence"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_runtime_scenario_confidence"
+- assertVisible:
+    text: "scenario_confidence: medium"
+- scrollUntilVisible:
+    element:
+      id: "succession_runtime_scenario_model_scope"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_runtime_scenario_model_scope"
+- assertVisible:
+    text: "classification=educational_triage;not_legal_partition=true;requires_specialist_review=true"
+- scrollUntilVisible:
+    element:
+      id: "succession_runtime_scenario_cantonal_tax"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_runtime_scenario_cantonal_tax"
+- assertVisible:
+    text: "canton=VD;requires_cantonal_review=true"
+- scrollUntilVisible:
+    element:
+      id: "succession_runtime_scenario_assumption"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_runtime_scenario_assumption"
+- assertVisible:
+    text: "Hypothèse locale : versement, reprise hypothécaire et droit d'habitation saisis."

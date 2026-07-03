@@ -1,0 +1,46 @@
+appId: ch.mint.app
+---
+# F-5: transmitting property — user-entered property value must surface the
+# parents' retirement-affordability CASE note before gift/transmission results.
+# iOS 26.2/Maestro accepts inputText without mutating this Flutter TextField, so
+# runtime uses the same deterministic mergeAnswers seed as the Data Quest proof.
+# Widget tests cover real user text entry into property_value_input.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/succession"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_PROPERTY_VALUE: "1200000"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Succession et transmission"
+- assertVisible:
+    id: "succession_parents_note"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_next_ask"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_next_ask"
+- assertVisible:
+    text: "Prochaine donnée à confirmer"
+- scrollUntilVisible:
+    element:
+      id: "succession_scenario_preview"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_scenario_preview"
+- assertVisible:
+    id: "succession_scenario_retirement_status"
+- assertVisible:
+    id: "succession_scenario_equalization_status"
+- assertVisible:
+    id: "succession_scenario_confidence"

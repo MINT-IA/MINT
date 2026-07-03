@@ -1,0 +1,15 @@
+appId: ch.mint.app
+---
+# Regression D-1: /scan/review with no session must recover to /scan.
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///scan/review"
+- assertVisible:
+    text: "Aucun document"
+- tapOn:
+    point: "50%,90%"
+- assertVisible:
+    id: "document_scan_header"

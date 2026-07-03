@@ -52,6 +52,11 @@ from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import build_system_prompt
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES, get_llm_tools
+from app.services.confidence.enhanced_confidence_models import FieldSource
+from app.services.confidence.enhanced_confidence_service import (
+    rank_enrichment_prompts,
+)
+from app.services.document_parser.document_models import DataSource
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
 from app.services.rules_engine import get_3a_ceiling
 from app.services.coach.structured_reasoning import StructuredReasoningService
@@ -843,6 +848,164 @@ def _handle_retrieve_memories(
 # Agent loop — tool_use -> execute -> re-call LLM
 # ---------------------------------------------------------------------------
 
+_CONFIDENCE_FIELD_ALIASES: dict[str, str] = {
+    "incomeGrossYearly": "salaire_brut",
+    "incomeGrossMonthly": "salaire_brut",
+    "salaireBrutAnnuel": "salaire_brut",
+    "salaireBrutMensuel": "salaire_brut",
+    "incomeNetMonthly": "salaire_net",
+    "incomeNetYearly": "salaire_net",
+    "avoirLpp": "lpp_total",
+    "avoirLppTotal": "lpp_total",
+    "lppTotal": "lpp_total",
+    "avoirLppObligatoire": "lpp_obligatoire",
+    "lppObligatoire": "lpp_obligatoire",
+    "avoirLppSurobligatoire": "lpp_surobligatoire",
+    "lppSurobligatoire": "lpp_surobligatoire",
+    "lppInsuredSalary": "lpp_insured_salary",
+    "tauxConversionOblig": "conversion_rate_oblig",
+    "tauxConversionSuroblig": "conversion_rate_suroblig",
+    "lppBuybackMax": "buyback_potential",
+    "buybackPotential": "buyback_potential",
+    "pillar3aBalance": "pillar_3a_balance",
+    "pillar3aAnnual": "pillar_3a_balance",
+    "patrimoine.mortgageBalance": "mortgage_remaining",
+    "mortgageBalance": "mortgage_remaining",
+    "patrimoine.mortgageRate": "mortgage_rate",
+    "mortgageRate": "mortgage_rate",
+    "patrimoine.propertyMarketValue": "property_value",
+    "propertyMarketValue": "property_value",
+    "monthlyExpenses": "monthly_expenses",
+    "depenses.totalMensuel": "monthly_expenses",
+    "budget.monthly_expenses": "monthly_expenses",
+    "taxableIncome": "taxable_income",
+    "taxableWealth": "taxable_wealth",
+    "tauxMarginal": "taux_marginal",
+    "avsContributionYears": "avs_contribution_years",
+    "avsRamd": "avs_ramd",
+    "nombreEnfants": "nb_children",
+    "nbChildren": "nb_children",
+    "householdType": "is_married",
+}
+
+_SOURCE_VALUE_ALIASES: dict[str, str] = {
+    "userInput": "user_entry",
+    "userEntry": "user_entry",
+    "manual": "user_entry",
+    "manualEntry": "user_entry",
+    "userEstimate": "user_estimate",
+    "estimated": "system_estimate",
+    "systemEstimate": "system_estimate",
+    "crossValidated": "user_entry_cross_validated",
+    "certificate": "document_scan_verified",
+    "documentScan": "document_scan",
+    "documentScanVerified": "document_scan_verified",
+    "openBanking": "open_banking",
+    "institutionalApi": "institutional_api",
+}
+
+
+def _profile_path_value(data: dict, path: str):
+    current = data
+    for part in path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            return None
+        current = current[part]
+    return current
+
+
+def _normalize_confidence_value(source_key: str, value):
+    if source_key == "householdType":
+        return str(value).lower() in {"couple", "married", "family", "familial"}
+    return value
+
+
+def _confidence_profile_from_data(data: dict) -> dict:
+    profile: dict = {}
+    for source_key, confidence_key in _CONFIDENCE_FIELD_ALIASES.items():
+        value = _profile_path_value(data, source_key)
+        if value is None or value == "":
+            continue
+        profile[confidence_key] = _normalize_confidence_value(source_key, value)
+    return profile
+
+
+def _source_metadata(data: dict) -> tuple[dict, dict]:
+    provenance = data.get("_provenance")
+    provenance_sources: dict = {}
+    provenance_dates: dict = {}
+    if isinstance(provenance, dict):
+        raw_sources = provenance.get("sources")
+        raw_dates = provenance.get("updated")
+        provenance_sources = raw_sources if isinstance(raw_sources, dict) else {}
+        provenance_dates = raw_dates if isinstance(raw_dates, dict) else {}
+
+    legacy_sources = (
+        data.get("dataSources")
+        or data.get("data_sources")
+        or data.get("fieldSources")
+        or {}
+    )
+    legacy_dates = (
+        data.get("dataTimestamps")
+        or data.get("dataSourceDates")
+        or data.get("data_source_dates")
+        or {}
+    )
+    legacy_sources = legacy_sources if isinstance(legacy_sources, dict) else {}
+    legacy_dates = legacy_dates if isinstance(legacy_dates, dict) else {}
+
+    return (
+        {**legacy_sources, **provenance_sources},
+        {**legacy_dates, **provenance_dates},
+    )
+
+
+def _data_source_from_raw(raw_source) -> DataSource:
+    value = str(raw_source or "").strip()
+    value = _SOURCE_VALUE_ALIASES.get(value, value)
+    try:
+        return DataSource(value)
+    except ValueError:
+        return DataSource.system_estimate
+
+
+def _confidence_sources_from_data(
+    data: dict,
+    confidence_profile: dict,
+) -> list[FieldSource]:
+    sources, dates = _source_metadata(data)
+    field_sources: list[FieldSource] = []
+    fallback_date = datetime.now(timezone.utc).isoformat()
+
+    for source_key, raw_source in sources.items():
+        confidence_key = _CONFIDENCE_FIELD_ALIASES.get(source_key, source_key)
+        value = confidence_profile.get(confidence_key)
+        if value is None:
+            value = _profile_path_value(data, str(source_key))
+        if value is None:
+            continue
+
+        raw_date = dates.get(source_key) or dates.get(confidence_key) or fallback_date
+        field_sources.append(
+            FieldSource(
+                field_name=confidence_key,
+                source=_data_source_from_raw(raw_source),
+                updated_at=str(raw_date),
+                value=value,
+            )
+        )
+    return field_sources
+
+
+def _action_type_for_prompt(method: str) -> str:
+    if method in {"document_scan", "avs_request", "open_banking"}:
+        return "upload"
+    if method == "manual_entry":
+        return "question"
+    return "question"
+
+
 def _compute_suggested_actions(
     user_id: Optional[str],
     db: Optional[Session],
@@ -879,35 +1042,19 @@ def _compute_suggested_actions(
     if not data.get("incomeNetMonthly") and not data.get("incomeGrossYearly"):
         actions.append({"label": "Quel est ton salaire net mensuel ?", "type": "question"})
 
-    if len(actions) >= 3:
+    if actions:
         return actions[:3]
 
-    # Document gaps → upload chips
-    if not data.get("avoirLpp"):
-        actions.append({"label": "Upload ton certificat LPP", "type": "upload"})
-
-    if len(actions) >= 3:
-        return actions[:3]
-
-    # Budget gap
-    budget = data.get("budget") or {}
-    if not budget.get("fixed_lines"):
-        actions.append({"label": "Configure ton budget mensuel", "type": "budget"})
-
-    if len(actions) >= 3:
-        return actions[:3]
-
-    # Simulation suggestions based on available data
-    if data.get("avoirLpp") and data.get("lppBuybackMax"):
-        actions.append({"label": "Simule un plan de rachat LPP", "type": "simulate"})
-    elif data.get("avoirLpp"):
-        actions.append({"label": "Compare rente vs capital à 65 ans", "type": "simulate"})
-
-    if data.get("incomeNetMonthly") and not data.get("pillar3aAnnual"):
-        actions.append({"label": "Combien verses-tu en 3a par an ?", "type": "question"})
-
-    if data.get("hasDebt") is True and not data.get("totalDebt"):
-        actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+    confidence_profile = _confidence_profile_from_data(data)
+    field_sources = _confidence_sources_from_data(data, confidence_profile)
+    ranked_prompts = rank_enrichment_prompts(confidence_profile, field_sources)
+    actions.extend(
+        {
+            "label": prompt.action,
+            "type": _action_type_for_prompt(prompt.method),
+        }
+        for prompt in ranked_prompts[:3]
+    )
 
     if not actions:
         actions.append({"label": "Pose-moi une question sur ta situation", "type": "question"})
@@ -925,7 +1072,7 @@ _SAVE_FACT_ALLOWED_KEYS: set[str] = {
     # Identity / location
     "birthYear", "dateOfBirth", "canton", "commune",
     "householdType", "employmentStatus", "has2ndPillar",
-    "goal", "targetRetirementAge", "gender",
+    "goal", "targetRetirementAge", "gender", "nationality",
     # Income
     "incomeNetMonthly", "incomeGrossMonthly",
     "incomeNetYearly", "incomeGrossYearly",
@@ -937,7 +1084,8 @@ _SAVE_FACT_ALLOWED_KEYS: set[str] = {
     "pillar3aAnnual", "pillar3aBalance",
     # Savings / wealth / debt
     "savingsMonthly", "totalSavings", "wealthEstimate",
-    "hasDebt", "totalDebt",
+    "targetPropertyValue", "mortgageBalance", "mortgageRate",
+    "hasDebt", "totalDebt", "parentAnnualLivingCosts",
     # Spouse
     "spouseBirthYear", "spouseIncomeNetMonthly",
     "spouseAvsContributionYears",
@@ -952,7 +1100,9 @@ _SAVE_FACT_NUMERIC_KEYS: set[str] = {
     "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
     "avoirLppSurobligatoire", "lppBuybackMax",
     "pillar3aAnnual", "pillar3aBalance", "savingsMonthly",
-    "totalSavings", "wealthEstimate", "totalDebt",
+    "totalSavings", "wealthEstimate", "targetPropertyValue",
+    "mortgageBalance", "mortgageRate", "totalDebt",
+    "parentAnnualLivingCosts",
     "spouseBirthYear", "spouseIncomeNetMonthly",
     "spouseAvsContributionYears", "avsContributionYears",
 }
@@ -1032,6 +1182,11 @@ def _coerce_fact_value(key: str, value):
         stripped = value.strip()
         if not stripped:
             return None
+        if key == "nationality":
+            upper = stripped.upper()
+            if not re.fullmatch(r"[A-Z]{2}", upper):
+                return None
+            return upper
         valid = _SAVE_FACT_ENUM_VALUES.get(key)
         if valid is not None and stripped not in valid:
             return None
@@ -1375,6 +1530,26 @@ def _execute_internal_tool(
                         f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
                     )
                 data[fact_key] = coerced
+                provenance = dict(data.get("_provenance") or {})
+                provenance_sources = dict(provenance.get("sources") or {})
+                provenance_updated = dict(provenance.get("updated") or {})
+                provenance_source_dt = dict(provenance.get("source_dt") or {})
+
+                from app.services.confidence.source_crosswalk import (
+                    mobile_source_to_backend,
+                )
+
+                backend_source = mobile_source_to_backend(
+                    tool_input.get("source", "userInput")
+                )
+                provenance_sources[fact_key] = backend_source.value
+                provenance_updated[fact_key] = datetime.now(timezone.utc).isoformat()
+                provenance_source_dt[fact_key] = tool_input.get("source_date")
+                data["_provenance"] = {
+                    "sources": provenance_sources,
+                    "updated": provenance_updated,
+                    "source_dt": provenance_source_dt,
+                }
                 profile.data = data
                 profile.updated_at = datetime.now(timezone.utc)
                 db.add(profile)

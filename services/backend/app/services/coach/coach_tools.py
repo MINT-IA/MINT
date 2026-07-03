@@ -549,6 +549,7 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "goal",
                         "targetRetirementAge",
                         "gender",
+                        "nationality",
                         # Income
                         "incomeNetMonthly",
                         "incomeGrossMonthly",
@@ -571,8 +572,12 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "savingsMonthly",
                         "totalSavings",
                         "wealthEstimate",
+                        "targetPropertyValue",
+                        "mortgageBalance",
+                        "mortgageRate",
                         "hasDebt",
                         "totalDebt",
+                        "parentAnnualLivingCosts",
                         # Spouse (couple)
                         "spouseBirthYear",
                         "spouseIncomeNetMonthly",
@@ -590,7 +595,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
                     "description": (
                         "The value to store. Numeric for amounts (in CHF), "
                         "boolean for flags, string for canton/commune/goal/"
-                        "householdType/employmentStatus enums."
+                        "householdType/employmentStatus enums and ISO-2 "
+                        "nationality."
                     ),
                 },
                 "confidence": {

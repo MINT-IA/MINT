@@ -1,6 +1,6 @@
 from pydantic import BaseModel, UUID4, ConfigDict, Field
 from enum import Enum
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 
@@ -20,15 +20,24 @@ class ScenarioKind(str, Enum):
 
 
 class ScenarioCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     profileId: UUID4
     kind: ScenarioKind
     inputs: Dict[str, Any]
+    inputProvenance: Dict[str, Any] = Field(default_factory=dict)
+    scenarioId: Optional[str] = None
+    profileOwnerId: Optional[str] = None
 
 
 class Scenario(ScenarioCreate):
     id: UUID4
     outputs: Dict[str, Any]
     createdAt: datetime
+    confidenceMode: str = "educational"
+    enhancedConfidence: Dict[str, Any] = Field(default_factory=dict)
+    disclaimer: str = ""
+    sources: List[str] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
 

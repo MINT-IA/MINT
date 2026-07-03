@@ -1,0 +1,15 @@
+appId: ch.mint.app
+---
+# Regression D-2b: /scan/impact with an orphan scanSessionId must recover to /scan.
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///scan/impact?scanSessionId=orphan-session-r2b"
+- assertVisible:
+    text: "Aucun document"
+- tapOn:
+    point: "50%,90%"
+- assertVisible:
+    id: "document_scan_header"

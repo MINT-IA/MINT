@@ -1,0 +1,72 @@
+appId: ch.mint.app
+---
+# Phase 2 Data Quest runtime proof.
+# It verifies that the succession case asks only the current delta:
+# first the property anchor with an empty profile, then the retirement guard
+# after the property value is seeded through the same runtime mergeAnswers path.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/succession"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Succession et transmission"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_next_ask"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_contract"
+- assertVisible:
+    id: "succession_data_quest_next_ask"
+- assertVisible:
+    text: "Prochaine donnée à confirmer"
+- assertVisible:
+    id: "succession_data_quest_mode"
+- assertVisible:
+    text: "Donnée manquante à collecter"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_stage"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_stage"
+- assertVisible:
+    text: "Indispensable avant le calcul"
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/succession"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_PROPERTY_VALUE: "1200000"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_next_ask"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_next_ask"
+- assertVisible:
+    text: "Prochaine donnée à confirmer"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_stage"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_stage"
+- assertVisible:
+    text: "Indispensable avant le calcul"

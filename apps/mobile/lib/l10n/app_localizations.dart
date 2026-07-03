@@ -10554,6 +10554,61 @@ abstract class S {
   /// **'Ce bloc est complet.'**
   String get dataBlockComplete;
 
+  /// No description provided for @dataBlockRevenueGrossAnnualLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu brut annuel'**
+  String get dataBlockRevenueGrossAnnualLabel;
+
+  /// No description provided for @dataBlockRevenueSaveIdle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get dataBlockRevenueSaveIdle;
+
+  /// No description provided for @dataBlockRevenueSaveSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement...'**
+  String get dataBlockRevenueSaveSaving;
+
+  /// No description provided for @dataBlockRevenueInvalidAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant invalide'**
+  String get dataBlockRevenueInvalidAmount;
+
+  /// No description provided for @dataBlockRevenueSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu enregistré'**
+  String get dataBlockRevenueSaved;
+
+  /// No description provided for @freshnessReconfirmPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'On avait noté {label} à {prior} ({sourceDate}). Toujours d\'accord ?'**
+  String freshnessReconfirmPrompt(
+      String label, String prior, String sourceDate);
+
+  /// No description provided for @freshnessReconfirmYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, toujours'**
+  String get freshnessReconfirmYes;
+
+  /// No description provided for @freshnessReconfirmUpdate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour'**
+  String get freshnessReconfirmUpdate;
+
+  /// No description provided for @freshnessReconfirmRescan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rescanner'**
+  String get freshnessReconfirmRescan;
+
   /// No description provided for @dataBlockModeForm.
   ///
   /// In fr, this message translates to:
@@ -15796,7 +15851,7 @@ abstract class S {
   /// No description provided for @successionDonationBody.
   ///
   /// In fr, this message translates to:
-  /// **'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral.'**
+  /// **'Transmettre de ton vivant peut modifier la charge fiscale selon le canton, le lien familial et la structure choisie. À confirmer avec un spécialiste.'**
   String get successionDonationBody;
 
   /// No description provided for @successionBeneficiairesTitle.
@@ -15852,6 +15907,452 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Informer tes proches de l\'emplacement de ton testament'**
   String get successionCheck5;
+
+  /// No description provided for @successionGuardMissingState.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulation successorale suspendue : complète d\'abord l\'âge de retraite cible, l\'avoir LPP, le solde 3a, les liquidités et la valeur du logement.'**
+  String get successionGuardMissingState;
+
+  /// No description provided for @successionParentsNoteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'abord la retraite des parents'**
+  String get successionParentsNoteTitle;
+
+  /// No description provided for @successionParentsNoteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de modéliser une donation ou une vente familiale, Mint vérifie la liquidité, les coûts de vie et la marge de retraite des parents.'**
+  String get successionParentsNoteBody;
+
+  /// No description provided for @successionParentsNoteSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : saisie utilisateur, à confirmer par document ou validation croisée.'**
+  String get successionParentsNoteSource;
+
+  /// No description provided for @successionUrgencyTimeframeImmediate.
+  ///
+  /// In fr, this message translates to:
+  /// **'J+1 à J+7'**
+  String get successionUrgencyTimeframeImmediate;
+
+  /// No description provided for @successionUrgencyTimeframeFormalities.
+  ///
+  /// In fr, this message translates to:
+  /// **'J+8 à J+30'**
+  String get successionUrgencyTimeframeFormalities;
+
+  /// No description provided for @successionUrgencyTimeframeSettlement.
+  ///
+  /// In fr, this message translates to:
+  /// **'J+31 à J+365'**
+  String get successionUrgencyTimeframeSettlement;
+
+  /// No description provided for @successionLedgerMissingPropertyValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée ledger manquante : valeur du logement à confirmer.'**
+  String get successionLedgerMissingPropertyValue;
+
+  /// No description provided for @successionScenarioPreviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier tri Mint sur la transmission'**
+  String get successionScenarioPreviewTitle;
+
+  /// No description provided for @successionScenarioRetirementStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite des parents'**
+  String get successionScenarioRetirementStatus;
+
+  /// No description provided for @successionScenarioEqualizationStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équité entre héritiers'**
+  String get successionScenarioEqualizationStatus;
+
+  /// No description provided for @successionScenarioConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance du scénario'**
+  String get successionScenarioConfidence;
+
+  /// No description provided for @successionScenarioStatusMissingData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données à compléter'**
+  String get successionScenarioStatusMissingData;
+
+  /// No description provided for @successionScenarioStatusNeedsReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'À clarifier'**
+  String get successionScenarioStatusNeedsReview;
+
+  /// No description provided for @successionScenarioStatusAtRisk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Risque à analyser'**
+  String get successionScenarioStatusAtRisk;
+
+  /// No description provided for @successionScenarioStatusOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base à confirmer'**
+  String get successionScenarioStatusOk;
+
+  /// No description provided for @successionScenarioStatusNotApplicable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non applicable'**
+  String get successionScenarioStatusNotApplicable;
+
+  /// No description provided for @successionScenarioScopeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cadre du scénario'**
+  String get successionScenarioScopeLabel;
+
+  /// No description provided for @successionScenarioScopeEducational.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tri éducatif, revue spécialiste requise'**
+  String get successionScenarioScopeEducational;
+
+  /// No description provided for @successionScenarioCantonalTaxStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité cantonale'**
+  String get successionScenarioCantonalTaxStatus;
+
+  /// No description provided for @successionScenarioCantonalTaxReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification cantonale requise'**
+  String get successionScenarioCantonalTaxReview;
+
+  /// No description provided for @successionScenarioRetirementIncomeSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu de retraite estimé d\'après les données de prévoyance, à confirmer.'**
+  String get successionScenarioRetirementIncomeSource;
+
+  /// No description provided for @successionScenarioConservativeAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse locale : versement et reprise hypothécaire non saisis.'**
+  String get successionScenarioConservativeAssumption;
+
+  /// No description provided for @successionScenarioTransactionAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse locale : versement, reprise hypothécaire et droit d\'habitation saisis.'**
+  String get successionScenarioTransactionAssumption;
+
+  /// No description provided for @successionScenarioConfidenceNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée exploitable'**
+  String get successionScenarioConfidenceNone;
+
+  /// No description provided for @successionScenarioConfidenceMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne'**
+  String get successionScenarioConfidenceMedium;
+
+  /// No description provided for @successionPropertyTransmissionArticleThesis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmettre un logement n\'est pas seulement un geste familial : cela touche la retraite des parents, l\'équité entre héritiers, la fiscalité cantonale et les formalités immobilières.'**
+  String get successionPropertyTransmissionArticleThesis;
+
+  /// No description provided for @successionPropertyTransmissionConfidenceLimitLegal.
+  ///
+  /// In fr, this message translates to:
+  /// **'La confiance du scénario n\'est pas une décision juridique.'**
+  String get successionPropertyTransmissionConfidenceLimitLegal;
+
+  /// No description provided for @successionPropertyTransmissionConfidenceLimitAccuracy.
+  ///
+  /// In fr, this message translates to:
+  /// **'La précision dépend des documents et d\'une revue spécialiste.'**
+  String get successionPropertyTransmissionConfidenceLimitAccuracy;
+
+  /// No description provided for @successionPropertyTransmissionConfidenceLimitFreshness.
+  ///
+  /// In fr, this message translates to:
+  /// **'La fraîcheur dépend des dates de source et des valeurs hypothécaires ou de prévoyance mises à jour.'**
+  String get successionPropertyTransmissionConfidenceLimitFreshness;
+
+  /// No description provided for @successionPropertyTransmissionConfidenceLimitLiquidityBufferAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le seuil de trois ans de liquidités est un garde-fou pédagogique MINT, pas une règle légale suisse.'**
+  String
+      get successionPropertyTransmissionConfidenceLimitLiquidityBufferAssumption;
+
+  /// No description provided for @successionPropertyTransmissionConfidenceLimitLppCapitalTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout retrait en capital LPP ou 3a doit être vérifié séparément selon LIFD art. 38 et les barèmes cantonaux.'**
+  String get successionPropertyTransmissionConfidenceLimitLppCapitalTax;
+
+  /// No description provided for @successionPropertyTransmissionScopeSpousePartner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut du conjoint ou partenaire enregistré'**
+  String get successionPropertyTransmissionScopeSpousePartner;
+
+  /// No description provided for @successionPropertyTransmissionScopeMatrimonialRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régime matrimonial et liquidation préalable'**
+  String get successionPropertyTransmissionScopeMatrimonialRegime;
+
+  /// No description provided for @successionPropertyTransmissionScopeLegalShares.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parts légales et réserves héréditaires de chaque héritier'**
+  String get successionPropertyTransmissionScopeLegalShares;
+
+  /// No description provided for @successionPropertyTransmissionScopeEstateInstrument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Testament, pacte successoral ou dispense de rapport'**
+  String get successionPropertyTransmissionScopeEstateInstrument;
+
+  /// No description provided for @successionPropertyTransmissionScopeEstateComposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur et composition de l\'ensemble de la succession'**
+  String get successionPropertyTransmissionScopeEstateComposition;
+
+  /// No description provided for @successionPropertyTransmissionScopeCantonalRelationship.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien de parenté exact et règles fiscales cantonales applicables'**
+  String get successionPropertyTransmissionScopeCantonalRelationship;
+
+  /// No description provided for @successionPropertyTransmissionMissingRequiredInputs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données requises manquantes avant modélisation.'**
+  String get successionPropertyTransmissionMissingRequiredInputs;
+
+  /// No description provided for @successionPropertyTransmissionCantonalTaxNoFederalDonationTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il n\'existe pas d\'impôt fédéral sur les donations ; les règles sont cantonales.'**
+  String get successionPropertyTransmissionCantonalTaxNoFederalDonationTax;
+
+  /// No description provided for @successionPropertyTransmissionCantonalTaxBeneficiaryPays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le bénéficiaire paie en principe l\'impôt sur les donations.'**
+  String get successionPropertyTransmissionCantonalTaxBeneficiaryPays;
+
+  /// No description provided for @successionPropertyTransmissionCantonalTaxImmovableLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour un immeuble, le canton de situation du bien et la commune doivent être vérifiés.'**
+  String get successionPropertyTransmissionCantonalTaxImmovableLocation;
+
+  /// No description provided for @successionPropertyTransmissionCantonalTaxDescendantOftenExempt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les descendants sont souvent exonérés ou faiblement imposés, avec des exceptions cantonales.'**
+  String get successionPropertyTransmissionCantonalTaxDescendantOftenExempt;
+
+  /// No description provided for @successionPropertyTransmissionCantonalTaxRetainedRightCanChangeTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un droit d\'habitation ou un usufruit peut modifier la valeur fiscale et les personnes imposées.'**
+  String get successionPropertyTransmissionCantonalTaxRetainedRightCanChangeTax;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightHabitationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droit d\'habitation'**
+  String get successionPropertyTransmissionRetainedRightHabitationLabel;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightUsufructLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Usufruit'**
+  String get successionPropertyTransmissionRetainedRightUsufructLabel;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightNoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun droit réservé'**
+  String get successionPropertyTransmissionRetainedRightNoneLabel;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightHabitationStay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le droit d\'habitation permet aux parents de rester dans le logement.'**
+  String get successionPropertyTransmissionRetainedRightHabitationStay;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightHabitationPersonal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il est personnel : il ne se transmet pas et ne permet en principe pas de louer le bien.'**
+  String get successionPropertyTransmissionRetainedRightHabitationPersonal;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightHabitationTaxCharges.
+  ///
+  /// In fr, this message translates to:
+  /// **'La charge fiscale et les frais doivent être vérifiés selon le canton et l\'acte.'**
+  String get successionPropertyTransmissionRetainedRightHabitationTaxCharges;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightUsufructUseOrRent.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'usufruit permet d\'habiter le logement ou de percevoir le revenu locatif.'**
+  String get successionPropertyTransmissionRetainedRightUsufructUseOrRent;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightUsufructCharges.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'usufruitier supporte typiquement davantage de charges courantes que le titulaire d\'un simple droit d\'habitation.'**
+  String get successionPropertyTransmissionRetainedRightUsufructCharges;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightUsufructValueAgeCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'La valeur fiscale de l\'usufruit dépend notamment de l\'âge et du canton.'**
+  String get successionPropertyTransmissionRetainedRightUsufructValueAgeCanton;
+
+  /// No description provided for @successionPropertyTransmissionRetainedRightNoneHousingCosts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans droit réservé, les parents doivent clarifier leur futur logement et leurs coûts de vie.'**
+  String get successionPropertyTransmissionRetainedRightNoneHousingCosts;
+
+  /// No description provided for @successionPropertyTransmissionVariantMarketSaleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vente au prix de marché'**
+  String get successionPropertyTransmissionVariantMarketSaleLabel;
+
+  /// No description provided for @successionPropertyTransmissionVariantMarketSaleTradeoff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liquidité parentale plus claire, fiscalité immobilière souvent plus visible.'**
+  String get successionPropertyTransmissionVariantMarketSaleTradeoff;
+
+  /// No description provided for @successionPropertyTransmissionVariantAdvanceInheritanceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancement d\'hoirie'**
+  String get successionPropertyTransmissionVariantAdvanceInheritanceLabel;
+
+  /// No description provided for @successionPropertyTransmissionVariantAdvanceInheritanceTradeoff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmission familiale anticipée, avec rapport successoral à documenter.'**
+  String get successionPropertyTransmissionVariantAdvanceInheritanceTradeoff;
+
+  /// No description provided for @successionPropertyTransmissionVariantMixedDonationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donation mixte'**
+  String get successionPropertyTransmissionVariantMixedDonationLabel;
+
+  /// No description provided for @successionPropertyTransmissionVariantMixedDonationTradeoff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix réduit pour l\'enfant, avec égalité entre héritiers à clarifier.'**
+  String get successionPropertyTransmissionVariantMixedDonationTradeoff;
+
+  /// No description provided for @successionPropertyTransmissionVariantRetainedRightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droit d\'habitation ou usufruit'**
+  String get successionPropertyTransmissionVariantRetainedRightLabel;
+
+  /// No description provided for @successionPropertyTransmissionVariantRetainedRightTradeoff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintien possible dans le logement, avec effets fiscaux et charges à modéliser.'**
+  String get successionPropertyTransmissionVariantRetainedRightTradeoff;
+
+  /// No description provided for @successionPropertyTransmissionFormalityEstimateValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire estimer la valeur du bien par une base documentée.'**
+  String get successionPropertyTransmissionFormalityEstimateValue;
+
+  /// No description provided for @successionPropertyTransmissionFormalityMortgageLiquidity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chiffrer l\'hypothèque reprise et les flux de liquidité.'**
+  String get successionPropertyTransmissionFormalityMortgageLiquidity;
+
+  /// No description provided for @successionPropertyTransmissionFormalityRetirementCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier la capacité de retraite des parents avant l\'effet fiscal.'**
+  String get successionPropertyTransmissionFormalityRetirementCapacity;
+
+  /// No description provided for @successionPropertyTransmissionFormalityDocumentAdvanceInheritance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documenter l\'avancement d\'hoirie ou la dispense de rapport.'**
+  String get successionPropertyTransmissionFormalityDocumentAdvanceInheritance;
+
+  /// No description provided for @successionPropertyTransmissionFormalityNotary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer par un notaire pour l\'acte immobilier.'**
+  String get successionPropertyTransmissionFormalityNotary;
+
+  /// No description provided for @successionPropertyTransmissionFormalityLandRegistry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscrire le transfert et les droits réels au registre foncier.'**
+  String get successionPropertyTransmissionFormalityLandRegistry;
+
+  /// No description provided for @successionPropertyTransmissionRetirementReasonNegativeMargin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les coûts annuels dépassent le revenu de retraite indiqué.'**
+  String get successionPropertyTransmissionRetirementReasonNegativeMargin;
+
+  /// No description provided for @successionPropertyTransmissionRetirementReasonLiquidityCoverageBelowThreeYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve liquide après transfert couvre moins de trois ans de coûts.'**
+  String
+      get successionPropertyTransmissionRetirementReasonLiquidityCoverageBelowThreeYears;
+
+  /// No description provided for @successionPropertyTransmissionFamilyEqualizationNoOtherHeir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun autre héritier indiqué : le risque d\'égalisation familiale n\'est pas chiffré ici.'**
+  String get successionPropertyTransmissionFamilyEqualizationNoOtherHeir;
+
+  /// No description provided for @successionPropertyTransmissionFamilyEqualizationAdvanceInheritance.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'avancement d\'hoirie doit être documenté pour le partage successoral futur.'**
+  String get successionPropertyTransmissionFamilyEqualizationAdvanceInheritance;
+
+  /// No description provided for @successionPropertyTransmissionFamilyEqualizationDispense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une dispense de rapport doit être explicite et reste limitée par les réserves.'**
+  String get successionPropertyTransmissionFamilyEqualizationDispense;
+
+  /// No description provided for @successionPropertyTransmissionFamilyEqualizationOtherHeirsEquity.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'enjeu pratique est de savoir si les autres héritiers peuvent être traités de façon équitable.'**
+  String get successionPropertyTransmissionFamilyEqualizationOtherHeirsEquity;
 
   /// No description provided for @successionSpecialisteTitle.
   ///
@@ -16686,6 +17187,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Estimation éducative. Les économies réelles dépendent de ton lieu de résidence et de ta situation familiale. Ne constitue pas un conseil financier (LSFin).'**
   String get sim3aDisclaimer;
+
+  /// No description provided for @sim3aNonContributableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a à confirmer avec un spécialiste'**
+  String get sim3aNonContributableTitle;
+
+  /// No description provided for @sim3aNonContributableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le profil indique une situation US/FATCA. Mint garde les données 3a comme information patrimoniale, mais n\'affiche pas de plafond de versement sans revue fiscale spécialisée.'**
+  String get sim3aNonContributableBody;
 
   /// No description provided for @sim3aDebtLockedTitle.
   ///
@@ -28740,6 +29253,24 @@ abstract class S {
   /// **'Ton bilan financier'**
   String get financialReportEmptyTitle;
 
+  /// No description provided for @financialReportExportError.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'export PDF n\'a pas abouti. Réessaie dans un instant.'**
+  String get financialReportExportError;
+
+  /// No description provided for @financialReportLoadErrorSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessaie dans un instant. Tes données restent conservées dans ton profil.'**
+  String get financialReportLoadErrorSubtitle;
+
+  /// No description provided for @financialReportLoadErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'On n\'a pas pu charger ton rapport.'**
+  String get financialReportLoadErrorTitle;
+
   /// No description provided for @firstJobBudgetAlimentation.
   ///
   /// In fr, this message translates to:
@@ -37743,6 +38274,18 @@ abstract class S {
   /// **'Confiance : {before} % → {after} % (+{delta} points)'**
   String scanInsightConfidenceDelta(String before, String after, String delta);
 
+  /// No description provided for @scanImpactComparisonUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison indisponible'**
+  String get scanImpactComparisonUnavailable;
+
+  /// No description provided for @scanImpactComparisonUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le document est enregistré, mais Mint n\'a pas de score précédent fiable pour afficher un avant/après.'**
+  String get scanImpactComparisonUnavailableBody;
+
   /// No description provided for @scanInsightCta.
   ///
   /// In fr, this message translates to:
@@ -38348,6 +38891,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Impossible de calculer la précision. Réessaie dans un instant.'**
   String get confidenceLoadError;
+
+  /// No description provided for @confidenceLoadErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'On n\'a pas pu charger ta précision.'**
+  String get confidenceLoadErrorTitle;
 
   /// No description provided for @confidenceLoadErrorRetry.
   ///
@@ -40334,6 +40883,156 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
   String get safeModeFormalDesendettementNote;
+
+  /// No description provided for @dataQuestProofCaseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collecte ciblée'**
+  String get dataQuestProofCaseLabel;
+
+  /// No description provided for @dataQuestProofPdfSectionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier de décision'**
+  String get dataQuestProofPdfSectionLabel;
+
+  /// No description provided for @dataQuestProofNextSatisfied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données nécessaires à jour'**
+  String get dataQuestProofNextSatisfied;
+
+  /// No description provided for @dataQuestProofNextAsk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine donnée à confirmer'**
+  String get dataQuestProofNextAsk;
+
+  /// No description provided for @dataQuestProofModeCollect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée manquante à collecter'**
+  String get dataQuestProofModeCollect;
+
+  /// No description provided for @dataQuestProofModeReconfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur existante à confirmer'**
+  String get dataQuestProofModeReconfirm;
+
+  /// No description provided for @dataQuestProofModeScenarioAssumption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse de scénario à préciser'**
+  String get dataQuestProofModeScenarioAssumption;
+
+  /// No description provided for @dataQuestProofStageGuard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indispensable avant le calcul'**
+  String get dataQuestProofStageGuard;
+
+  /// No description provided for @dataQuestProofStageRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nécessaire pour fiabiliser'**
+  String get dataQuestProofStageRequired;
+
+  /// No description provided for @dataQuestProofStageUseful.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utile pour préparer le dossier'**
+  String get dataQuestProofStageUseful;
+
+  /// No description provided for @dataQuestProofComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collecte terminée'**
+  String get dataQuestProofComplete;
+
+  /// No description provided for @dataQuestNextQuestionCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qu\'il manque pour ce scénario'**
+  String get dataQuestNextQuestionCardTitle;
+
+  /// No description provided for @dataQuestNextQuestionCardReadyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données prêtes pour ce scénario'**
+  String get dataQuestNextQuestionCardReadyTitle;
+
+  /// No description provided for @dataQuestNextQuestionCardBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT te demandera cette donnée avant de fiabiliser le calcul.'**
+  String get dataQuestNextQuestionCardBody;
+
+  /// No description provided for @dataQuestNextQuestionCardReadyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données nécessaires sont à jour pour ce parcours.'**
+  String get dataQuestNextQuestionCardReadyBody;
+
+  /// No description provided for @dataQuestFieldTargetRetirementAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge de retraite visé'**
+  String get dataQuestFieldTargetRetirementAge;
+
+  /// No description provided for @dataQuestFieldParentAnnualRetirementIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu annuel de retraite'**
+  String get dataQuestFieldParentAnnualRetirementIncome;
+
+  /// No description provided for @dataQuestFieldParentAnnualLivingCosts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coûts de vie annuels'**
+  String get dataQuestFieldParentAnnualLivingCosts;
+
+  /// No description provided for @dataQuestFieldMortgageBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde hypothécaire'**
+  String get dataQuestFieldMortgageBalance;
+
+  /// No description provided for @dataQuestFieldCashPaidByRecipient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement de l\'enfant repreneur'**
+  String get dataQuestFieldCashPaidByRecipient;
+
+  /// No description provided for @dataQuestFieldMortgageAssumedByRecipient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèque reprise par l\'enfant'**
+  String get dataQuestFieldMortgageAssumedByRecipient;
+
+  /// No description provided for @dataQuestFieldRecipientRelationship.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien avec le bénéficiaire'**
+  String get dataQuestFieldRecipientRelationship;
+
+  /// No description provided for @dataQuestFieldRetainedRight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Droit réservé dans le logement'**
+  String get dataQuestFieldRetainedRight;
+
+  /// No description provided for @dataQuestFieldAvancementHoirie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancement d\'hoirie'**
+  String get dataQuestFieldAvancementHoirie;
+
+  /// No description provided for @dataQuestFieldFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnée du scénario'**
+  String get dataQuestFieldFallback;
 
   /// Persistent event summary when an LPP certificate is scanned.
   ///

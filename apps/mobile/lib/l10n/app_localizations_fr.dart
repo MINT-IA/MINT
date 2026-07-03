@@ -5861,6 +5861,36 @@ class SFr extends S {
   String get dataBlockComplete => 'Ce bloc est complet.';
 
   @override
+  String get dataBlockRevenueGrossAnnualLabel => 'Revenu brut annuel';
+
+  @override
+  String get dataBlockRevenueSaveIdle => 'Enregistrer';
+
+  @override
+  String get dataBlockRevenueSaveSaving => 'Enregistrement...';
+
+  @override
+  String get dataBlockRevenueInvalidAmount => 'Montant invalide';
+
+  @override
+  String get dataBlockRevenueSaved => 'Revenu enregistré';
+
+  @override
+  String freshnessReconfirmPrompt(
+      String label, String prior, String sourceDate) {
+    return 'On avait noté $label à $prior ($sourceDate). Toujours d\'accord ?';
+  }
+
+  @override
+  String get freshnessReconfirmYes => 'Oui, toujours';
+
+  @override
+  String get freshnessReconfirmUpdate => 'Mettre à jour';
+
+  @override
+  String get freshnessReconfirmRescan => 'Rescanner';
+
+  @override
   String get dataBlockModeForm => 'Formulaire';
 
   @override
@@ -8892,7 +8922,7 @@ class SFr extends S {
 
   @override
   String get successionDonationBody =>
-      'Transmettre de ton vivant permet d\'anticiper la succession et de réduire potentiellement l\'impôt successoral.';
+      'Transmettre de ton vivant peut modifier la charge fiscale selon le canton, le lien familial et la structure choisie. À confirmer avec un spécialiste.';
 
   @override
   String get successionBeneficiairesTitle => 'Bénéficiaires LPP et 3a';
@@ -8925,6 +8955,287 @@ class SFr extends S {
   @override
   String get successionCheck5 =>
       'Informer tes proches de l\'emplacement de ton testament';
+
+  @override
+  String get successionGuardMissingState =>
+      'Simulation successorale suspendue : complète d\'abord l\'âge de retraite cible, l\'avoir LPP, le solde 3a, les liquidités et la valeur du logement.';
+
+  @override
+  String get successionParentsNoteTitle => 'D\'abord la retraite des parents';
+
+  @override
+  String get successionParentsNoteBody =>
+      'Avant de modéliser une donation ou une vente familiale, Mint vérifie la liquidité, les coûts de vie et la marge de retraite des parents.';
+
+  @override
+  String get successionParentsNoteSource =>
+      'Source : saisie utilisateur, à confirmer par document ou validation croisée.';
+
+  @override
+  String get successionUrgencyTimeframeImmediate => 'J+1 à J+7';
+
+  @override
+  String get successionUrgencyTimeframeFormalities => 'J+8 à J+30';
+
+  @override
+  String get successionUrgencyTimeframeSettlement => 'J+31 à J+365';
+
+  @override
+  String get successionLedgerMissingPropertyValue =>
+      'Donnée ledger manquante : valeur du logement à confirmer.';
+
+  @override
+  String get successionScenarioPreviewTitle =>
+      'Premier tri Mint sur la transmission';
+
+  @override
+  String get successionScenarioRetirementStatus => 'Retraite des parents';
+
+  @override
+  String get successionScenarioEqualizationStatus => 'Équité entre héritiers';
+
+  @override
+  String get successionScenarioConfidence => 'Confiance du scénario';
+
+  @override
+  String get successionScenarioStatusMissingData => 'Données à compléter';
+
+  @override
+  String get successionScenarioStatusNeedsReview => 'À clarifier';
+
+  @override
+  String get successionScenarioStatusAtRisk => 'Risque à analyser';
+
+  @override
+  String get successionScenarioStatusOk => 'Base à confirmer';
+
+  @override
+  String get successionScenarioStatusNotApplicable => 'Non applicable';
+
+  @override
+  String get successionScenarioScopeLabel => 'Cadre du scénario';
+
+  @override
+  String get successionScenarioScopeEducational =>
+      'Tri éducatif, revue spécialiste requise';
+
+  @override
+  String get successionScenarioCantonalTaxStatus => 'Fiscalité cantonale';
+
+  @override
+  String get successionScenarioCantonalTaxReview =>
+      'Vérification cantonale requise';
+
+  @override
+  String get successionScenarioRetirementIncomeSource =>
+      'Revenu de retraite estimé d\'après les données de prévoyance, à confirmer.';
+
+  @override
+  String get successionScenarioConservativeAssumption =>
+      'Hypothèse locale : versement et reprise hypothécaire non saisis.';
+
+  @override
+  String get successionScenarioTransactionAssumption =>
+      'Hypothèse locale : versement, reprise hypothécaire et droit d\'habitation saisis.';
+
+  @override
+  String get successionScenarioConfidenceNone => 'Aucune donnée exploitable';
+
+  @override
+  String get successionScenarioConfidenceMedium => 'Moyenne';
+
+  @override
+  String get successionPropertyTransmissionArticleThesis =>
+      'Transmettre un logement n\'est pas seulement un geste familial : cela touche la retraite des parents, l\'équité entre héritiers, la fiscalité cantonale et les formalités immobilières.';
+
+  @override
+  String get successionPropertyTransmissionConfidenceLimitLegal =>
+      'La confiance du scénario n\'est pas une décision juridique.';
+
+  @override
+  String get successionPropertyTransmissionConfidenceLimitAccuracy =>
+      'La précision dépend des documents et d\'une revue spécialiste.';
+
+  @override
+  String get successionPropertyTransmissionConfidenceLimitFreshness =>
+      'La fraîcheur dépend des dates de source et des valeurs hypothécaires ou de prévoyance mises à jour.';
+
+  @override
+  String get successionPropertyTransmissionConfidenceLimitLiquidityBufferAssumption =>
+      'Le seuil de trois ans de liquidités est un garde-fou pédagogique MINT, pas une règle légale suisse.';
+
+  @override
+  String get successionPropertyTransmissionConfidenceLimitLppCapitalTax =>
+      'Tout retrait en capital LPP ou 3a doit être vérifié séparément selon LIFD art. 38 et les barèmes cantonaux.';
+
+  @override
+  String get successionPropertyTransmissionScopeSpousePartner =>
+      'Statut du conjoint ou partenaire enregistré';
+
+  @override
+  String get successionPropertyTransmissionScopeMatrimonialRegime =>
+      'Régime matrimonial et liquidation préalable';
+
+  @override
+  String get successionPropertyTransmissionScopeLegalShares =>
+      'Parts légales et réserves héréditaires de chaque héritier';
+
+  @override
+  String get successionPropertyTransmissionScopeEstateInstrument =>
+      'Testament, pacte successoral ou dispense de rapport';
+
+  @override
+  String get successionPropertyTransmissionScopeEstateComposition =>
+      'Valeur et composition de l\'ensemble de la succession';
+
+  @override
+  String get successionPropertyTransmissionScopeCantonalRelationship =>
+      'Lien de parenté exact et règles fiscales cantonales applicables';
+
+  @override
+  String get successionPropertyTransmissionMissingRequiredInputs =>
+      'Données requises manquantes avant modélisation.';
+
+  @override
+  String get successionPropertyTransmissionCantonalTaxNoFederalDonationTax =>
+      'Il n\'existe pas d\'impôt fédéral sur les donations ; les règles sont cantonales.';
+
+  @override
+  String get successionPropertyTransmissionCantonalTaxBeneficiaryPays =>
+      'Le bénéficiaire paie en principe l\'impôt sur les donations.';
+
+  @override
+  String get successionPropertyTransmissionCantonalTaxImmovableLocation =>
+      'Pour un immeuble, le canton de situation du bien et la commune doivent être vérifiés.';
+
+  @override
+  String get successionPropertyTransmissionCantonalTaxDescendantOftenExempt =>
+      'Les descendants sont souvent exonérés ou faiblement imposés, avec des exceptions cantonales.';
+
+  @override
+  String get successionPropertyTransmissionCantonalTaxRetainedRightCanChangeTax =>
+      'Un droit d\'habitation ou un usufruit peut modifier la valeur fiscale et les personnes imposées.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightHabitationLabel =>
+      'Droit d\'habitation';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightUsufructLabel =>
+      'Usufruit';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightNoneLabel =>
+      'Aucun droit réservé';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightHabitationStay =>
+      'Le droit d\'habitation permet aux parents de rester dans le logement.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightHabitationPersonal =>
+      'Il est personnel : il ne se transmet pas et ne permet en principe pas de louer le bien.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightHabitationTaxCharges =>
+      'La charge fiscale et les frais doivent être vérifiés selon le canton et l\'acte.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightUsufructUseOrRent =>
+      'L\'usufruit permet d\'habiter le logement ou de percevoir le revenu locatif.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightUsufructCharges =>
+      'L\'usufruitier supporte typiquement davantage de charges courantes que le titulaire d\'un simple droit d\'habitation.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightUsufructValueAgeCanton =>
+      'La valeur fiscale de l\'usufruit dépend notamment de l\'âge et du canton.';
+
+  @override
+  String get successionPropertyTransmissionRetainedRightNoneHousingCosts =>
+      'Sans droit réservé, les parents doivent clarifier leur futur logement et leurs coûts de vie.';
+
+  @override
+  String get successionPropertyTransmissionVariantMarketSaleLabel =>
+      'Vente au prix de marché';
+
+  @override
+  String get successionPropertyTransmissionVariantMarketSaleTradeoff =>
+      'Liquidité parentale plus claire, fiscalité immobilière souvent plus visible.';
+
+  @override
+  String get successionPropertyTransmissionVariantAdvanceInheritanceLabel =>
+      'Avancement d\'hoirie';
+
+  @override
+  String get successionPropertyTransmissionVariantAdvanceInheritanceTradeoff =>
+      'Transmission familiale anticipée, avec rapport successoral à documenter.';
+
+  @override
+  String get successionPropertyTransmissionVariantMixedDonationLabel =>
+      'Donation mixte';
+
+  @override
+  String get successionPropertyTransmissionVariantMixedDonationTradeoff =>
+      'Prix réduit pour l\'enfant, avec égalité entre héritiers à clarifier.';
+
+  @override
+  String get successionPropertyTransmissionVariantRetainedRightLabel =>
+      'Droit d\'habitation ou usufruit';
+
+  @override
+  String get successionPropertyTransmissionVariantRetainedRightTradeoff =>
+      'Maintien possible dans le logement, avec effets fiscaux et charges à modéliser.';
+
+  @override
+  String get successionPropertyTransmissionFormalityEstimateValue =>
+      'Faire estimer la valeur du bien par une base documentée.';
+
+  @override
+  String get successionPropertyTransmissionFormalityMortgageLiquidity =>
+      'Chiffrer l\'hypothèque reprise et les flux de liquidité.';
+
+  @override
+  String get successionPropertyTransmissionFormalityRetirementCapacity =>
+      'Vérifier la capacité de retraite des parents avant l\'effet fiscal.';
+
+  @override
+  String
+      get successionPropertyTransmissionFormalityDocumentAdvanceInheritance =>
+          'Documenter l\'avancement d\'hoirie ou la dispense de rapport.';
+
+  @override
+  String get successionPropertyTransmissionFormalityNotary =>
+      'Passer par un notaire pour l\'acte immobilier.';
+
+  @override
+  String get successionPropertyTransmissionFormalityLandRegistry =>
+      'Inscrire le transfert et les droits réels au registre foncier.';
+
+  @override
+  String get successionPropertyTransmissionRetirementReasonNegativeMargin =>
+      'Les coûts annuels dépassent le revenu de retraite indiqué.';
+
+  @override
+  String get successionPropertyTransmissionRetirementReasonLiquidityCoverageBelowThreeYears =>
+      'La réserve liquide après transfert couvre moins de trois ans de coûts.';
+
+  @override
+  String get successionPropertyTransmissionFamilyEqualizationNoOtherHeir =>
+      'Aucun autre héritier indiqué : le risque d\'égalisation familiale n\'est pas chiffré ici.';
+
+  @override
+  String get successionPropertyTransmissionFamilyEqualizationAdvanceInheritance =>
+      'L\'avancement d\'hoirie doit être documenté pour le partage successoral futur.';
+
+  @override
+  String get successionPropertyTransmissionFamilyEqualizationDispense =>
+      'Une dispense de rapport doit être explicite et reste limitée par les réserves.';
+
+  @override
+  String get successionPropertyTransmissionFamilyEqualizationOtherHeirsEquity =>
+      'L\'enjeu pratique est de savoir si les autres héritiers peuvent être traités de façon équitable.';
 
   @override
   String get successionSpecialisteTitle =>
@@ -9413,6 +9724,13 @@ class SFr extends S {
   @override
   String get sim3aDisclaimer =>
       'Estimation éducative. Les économies réelles dépendent de ton lieu de résidence et de ta situation familiale. Ne constitue pas un conseil financier (LSFin).';
+
+  @override
+  String get sim3aNonContributableTitle => '3a à confirmer avec un spécialiste';
+
+  @override
+  String get sim3aNonContributableBody =>
+      'Le profil indique une situation US/FATCA. Mint garde les données 3a comme information patrimoniale, mais n\'affiche pas de plafond de versement sans revue fiscale spécialisée.';
 
   @override
   String get sim3aDebtLockedTitle => 'Priorité au désendettement';
@@ -16265,6 +16583,18 @@ class SFr extends S {
   String get financialReportEmptyTitle => 'Ton bilan financier';
 
   @override
+  String get financialReportExportError =>
+      'L\'export PDF n\'a pas abouti. Réessaie dans un instant.';
+
+  @override
+  String get financialReportLoadErrorSubtitle =>
+      'Réessaie dans un instant. Tes données restent conservées dans ton profil.';
+
+  @override
+  String get financialReportLoadErrorTitle =>
+      'On n\'a pas pu charger ton rapport.';
+
+  @override
   String get firstJobBudgetAlimentation => 'Alimentation';
 
   @override
@@ -21482,6 +21812,13 @@ class SFr extends S {
   }
 
   @override
+  String get scanImpactComparisonUnavailable => 'Comparaison indisponible';
+
+  @override
+  String get scanImpactComparisonUnavailableBody =>
+      'Le document est enregistré, mais Mint n\'a pas de score précédent fiable pour afficher un avant/après.';
+
+  @override
   String get scanInsightCta => 'On regarde ce que ça change ?';
 
   @override
@@ -21837,6 +22174,9 @@ class SFr extends S {
   @override
   String get confidenceLoadError =>
       'Impossible de calculer la précision. Réessaie dans un instant.';
+
+  @override
+  String get confidenceLoadErrorTitle => 'On n\'a pas pu charger ta précision.';
 
   @override
   String get confidenceLoadErrorRetry => 'Réessayer';
@@ -22988,6 +23328,89 @@ class SFr extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.';
+
+  @override
+  String get dataQuestProofCaseLabel => 'Collecte ciblée';
+
+  @override
+  String get dataQuestProofPdfSectionLabel => 'Dossier de décision';
+
+  @override
+  String get dataQuestProofNextSatisfied => 'Données nécessaires à jour';
+
+  @override
+  String get dataQuestProofNextAsk => 'Prochaine donnée à confirmer';
+
+  @override
+  String get dataQuestProofModeCollect => 'Donnée manquante à collecter';
+
+  @override
+  String get dataQuestProofModeReconfirm => 'Valeur existante à confirmer';
+
+  @override
+  String get dataQuestProofModeScenarioAssumption =>
+      'Hypothèse de scénario à préciser';
+
+  @override
+  String get dataQuestProofStageGuard => 'Indispensable avant le calcul';
+
+  @override
+  String get dataQuestProofStageRequired => 'Nécessaire pour fiabiliser';
+
+  @override
+  String get dataQuestProofStageUseful => 'Utile pour préparer le dossier';
+
+  @override
+  String get dataQuestProofComplete => 'Collecte terminée';
+
+  @override
+  String get dataQuestNextQuestionCardTitle =>
+      'Ce qu\'il manque pour ce scénario';
+
+  @override
+  String get dataQuestNextQuestionCardReadyTitle =>
+      'Données prêtes pour ce scénario';
+
+  @override
+  String get dataQuestNextQuestionCardBody =>
+      'MINT te demandera cette donnée avant de fiabiliser le calcul.';
+
+  @override
+  String get dataQuestNextQuestionCardReadyBody =>
+      'Les données nécessaires sont à jour pour ce parcours.';
+
+  @override
+  String get dataQuestFieldTargetRetirementAge => 'Âge de retraite visé';
+
+  @override
+  String get dataQuestFieldParentAnnualRetirementIncome =>
+      'Revenu annuel de retraite';
+
+  @override
+  String get dataQuestFieldParentAnnualLivingCosts => 'Coûts de vie annuels';
+
+  @override
+  String get dataQuestFieldMortgageBalance => 'Solde hypothécaire';
+
+  @override
+  String get dataQuestFieldCashPaidByRecipient =>
+      'Versement de l\'enfant repreneur';
+
+  @override
+  String get dataQuestFieldMortgageAssumedByRecipient =>
+      'Hypothèque reprise par l\'enfant';
+
+  @override
+  String get dataQuestFieldRecipientRelationship => 'Lien avec le bénéficiaire';
+
+  @override
+  String get dataQuestFieldRetainedRight => 'Droit réservé dans le logement';
+
+  @override
+  String get dataQuestFieldAvancementHoirie => 'Avancement d\'hoirie';
+
+  @override
+  String get dataQuestFieldFallback => 'Donnée du scénario';
 
   @override
   String get scanSummaryLppCertificate => 'Certificat LPP scanné';

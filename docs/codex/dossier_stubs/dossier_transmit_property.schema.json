@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MINT dossier payload: transmit_property",
+  "type": "object",
+  "additionalProperties": false,
+  "x-mint-owner": "mint-lucidity-pdf",
+  "x-mint-case-id": "transmit_property",
+  "x-mint-pdf-section-id": "dossier_transmit_property",
+  "required": [
+    "case_id",
+    "pdf_section_id",
+    "profile_owner_id",
+    "scenario_id",
+    "generated_at",
+    "inputs",
+    "outputs",
+    "assumptions",
+    "warnings",
+    "next_questions"
+  ],
+  "properties": {
+    "case_id": {
+      "const": "transmit_property"
+    },
+    "pdf_section_id": {
+      "const": "dossier_transmit_property"
+    },
+    "profile_owner_id": {
+      "type": "string"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inputs": {
+      "type": "object",
+      "required": [
+        "targetRetirementAge",
+        "avoirLpp",
+        "pillar3aBalance",
+        "patrimoine.epargneLiquide",
+        "patrimoine.propertyMarketValue",
+        "mortgageBalance",
+        "heirsCount"
+      ],
+      "additionalProperties": true
+    },
+    "outputs": {
+      "type": "object",
+      "required": [
+        "retirement_affordability",
+        "family_equalization",
+        "cantonal_review"
+      ],
+      "additionalProperties": true
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input_key",
+          "value",
+          "source",
+          "confidence",
+          "source_required",
+          "confidence_required"
+        ],
+        "properties": {
+          "input_key": {
+            "type": "string",
+            "enum": [
+              "cashPaidByRecipient",
+              "mortgageAssumedByRecipient",
+              "recipientRelationship",
+              "retainedRight",
+              "avancementHoirie"
+            ]
+          },
+          "value": {},
+          "source": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "source_required": {
+            "const": true
+          },
+          "confidence_required": {
+            "const": true
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

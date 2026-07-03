@@ -1,0 +1,51 @@
+#!/bin/sh
+set -u
+
+# Flutter signs copied engine frameworks inside xcode_backend.sh. On local
+# FileProvider/.nosync worktrees, copied frameworks can receive FinderInfo or
+# fileprovider xattrs after the earlier build phase has run. Strip removable
+# attributes at the exact codesign boundary, then delegate to the system tool.
+target_path=""
+sign_identity=""
+next_is_sign_identity=0
+for arg in "$@"; do
+  if [ "$next_is_sign_identity" -eq 1 ]; then
+    sign_identity="$arg"
+    next_is_sign_identity=0
+  fi
+
+  case "$arg" in
+    --sign|-s)
+      next_is_sign_identity=1
+      ;;
+  esac
+
+  case "$arg" in
+    -*)
+      continue
+      ;;
+  esac
+
+  if [ -e "$arg" ]; then
+    target_path="$arg"
+    parent=$(dirname "$arg")
+    if [ -n "$parent" ] && [ -e "$parent" ]; then
+      /usr/bin/xattr -cr "$parent" 2>/dev/null || true
+    fi
+    /usr/bin/xattr -cr "$arg" 2>/dev/null || true
+  fi
+done
+
+case "$target_path" in
+  *Debug-iphonesimulator*/App.framework/App|*Debug-iphonesimulator*/Flutter.framework/Flutter)
+    if [ "$sign_identity" = "-" ]; then
+      # Repo-local equivalent of the Flutter SDK workaround previously needed
+      # on this workstation: debug simulator runtime does not need these
+      # internal Flutter framework binaries ad-hoc signed, and macOS
+      # FileProvider/provenance xattrs can make that signing unreproducible.
+      exit 0
+    fi
+    ;;
+esac
+
+exec /usr/bin/codesign "$@"

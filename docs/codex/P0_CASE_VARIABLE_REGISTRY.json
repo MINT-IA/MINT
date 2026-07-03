@@ -1,0 +1,674 @@
+{
+  "version": 1,
+  "owner": "mint-data-ledger-architect",
+  "swiss_meaning_owner": "mint-swiss-brain",
+  "acceptance_status_legend": {
+    "declared_not_accepted": "Contract declared only; no runtime or planner acceptance claim.",
+    "phase2_planner_accepted": "Registry and pure DataQuest planner are tested, but no screen or Maestro runtime proof is accepted yet.",
+    "phase1_runtime_accepted": "At least one executable runtime proof exists for the current accepted scope; check target screen plus patrol_flow_id and/or maestro_flow_id before expanding scope."
+  },
+  "cases": {
+    "first_salary_tax": {
+      "route": "/pilier-3a",
+      "kind": "pillar3a",
+      "acceptance_status": "phase1_runtime_accepted",
+      "purpose": "Explain first-salary Swiss tax and 3a levers with the minimum durable profile facts.",
+      "target_screen": "/pilier-3a",
+      "pdf_section_id": "dossier_first_salary_tax",
+      "dossier_contract": "docs/codex/dossier_stubs/dossier_first_salary_tax.schema.json",
+      "maestro_flow_id": "pending",
+      "patrol_flow_id": "first_salary_tax_datablock_to_3a_patrol_test",
+      "runtime_input_gate": "mobile-first-salary-patrol",
+      "runtime_proof_kind": "patrol_real_input_local_route",
+      "minimum_variables": [
+        "birthYear",
+        "canton",
+        "incomeGrossYearly",
+        "has2ndPillar"
+      ],
+      "useful_variables": [
+        "pillar3aAnnual"
+      ],
+      "blocking_guard_questions": [
+        {
+          "question_id": "ask_income_gross_yearly",
+          "ledger_key": "incomeGrossYearly",
+          "ask_mode": "collect",
+          "rank": 100
+        },
+        {
+          "question_id": "ask_canton",
+          "ledger_key": "canton",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 90
+        },
+        {
+          "question_id": "ask_birth_year",
+          "ledger_key": "birthYear",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 80
+        },
+        {
+          "question_id": "ask_has_second_pillar",
+          "ledger_key": "has2ndPillar",
+          "ask_mode": "collect",
+          "rank": 70
+        }
+      ],
+      "required_questions": [],
+      "enrichment_questions": [
+        {
+          "question_id": "ask_pillar3a_annual",
+          "ledger_key": "pillar3aAnnual",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 50
+        }
+      ],
+      "guard_quests": [
+        {
+          "quest_id": "salary_canton_before_tax_levers",
+          "must_run_before": "tax_3a_result",
+          "required_ledger_keys": [
+            "birthYear",
+            "canton",
+            "incomeGrossYearly",
+            "has2ndPillar"
+          ],
+          "mobile_field_paths": {
+            "birthYear": "birthYear",
+            "canton": "canton",
+            "incomeGrossYearly": "salaireBrutMensuel",
+            "has2ndPillar": "prevoyance.avoirLppTotal"
+          },
+          "required_scenario_inputs": [
+            "taxYear"
+          ],
+          "missing_value_behavior": "ask_next_useful_question_before_tax_3a_result"
+        }
+      ],
+      "variables": [
+        {
+          "input_key": "birthYear",
+          "role": "ledger",
+          "ledger_key": "birthYear",
+          "field_path": "birthYear",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Age gates 3a eligibility, planning horizon and education tone.",
+          "missing_value_behavior": "ask_birth_year_before_projection"
+        },
+        {
+          "input_key": "canton",
+          "role": "ledger",
+          "ledger_key": "canton",
+          "field_path": "canton",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Swiss income-tax levers are canton-sensitive.",
+          "missing_value_behavior": "show_cantonal_tax_unknown"
+        },
+        {
+          "input_key": "incomeGrossYearly",
+          "role": "ledger",
+          "ledger_key": "incomeGrossYearly",
+          "field_path": "incomeGrossYearly",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Gross annual salary is the base for first salary, tax and 3a explanation.",
+          "missing_value_behavior": "ask_salary_before_tax_range"
+        },
+        {
+          "input_key": "has2ndPillar",
+          "role": "ledger",
+          "ledger_key": "has2ndPillar",
+          "field_path": "has2ndPillar",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "The 3a ceiling differs depending on second-pillar affiliation.",
+          "missing_value_behavior": "show_3a_ceiling_unknown"
+        },
+        {
+          "input_key": "pillar3aAnnual",
+          "role": "ledger",
+          "ledger_key": "pillar3aAnnual",
+          "field_path": "pillar3aAnnual",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Current 3a contribution determines the next useful optimization question.",
+          "missing_value_behavior": "show_no_current_3a_contribution"
+        },
+        {
+          "input_key": "taxYear",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Tax constants and 3a limits are year-specific.",
+          "missing_value_behavior": "use_current_registry_year_and_label_assumption"
+        }
+      ]
+    },
+    "buy_property": {
+      "route": "/hypotheque",
+      "kind": "mortgage",
+      "acceptance_status": "phase1_runtime_accepted",
+      "purpose": "Explain Swiss property affordability and missing mortgage data without pretending a bank approval.",
+      "target_screen": "/hypotheque",
+      "pdf_section_id": "dossier_buy_property",
+      "dossier_contract": "docs/codex/dossier_stubs/dossier_buy_property.schema.json",
+      "maestro_flow_id": "pending",
+      "patrol_flow_id": "f2_datablock_to_mortgage_patrol_test",
+      "runtime_input_gate": "mobile-f2-patrol",
+      "runtime_proof_kind": "patrol_real_input_local_route",
+      "minimum_variables": [
+        "householdType",
+        "incomeGrossYearly",
+        "patrimoine.epargneLiquide",
+        "targetPropertyValue"
+      ],
+      "useful_variables": [],
+      "blocking_guard_questions": [
+        {
+          "question_id": "ask_income_gross_yearly",
+          "ledger_key": "incomeGrossYearly",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 100
+        },
+        {
+          "question_id": "ask_liquid_assets",
+          "ledger_key": "patrimoine.epargneLiquide",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 95
+        },
+        {
+          "question_id": "ask_target_property_value",
+          "ledger_key": "targetPropertyValue",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 90
+        },
+        {
+          "question_id": "ask_household_type",
+          "ledger_key": "householdType",
+          "ask_mode": "collect",
+          "rank": 80
+        }
+      ],
+      "required_questions": [
+        {
+          "question_id": "ask_canton",
+          "ledger_key": "canton",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 70
+        },
+        {
+          "question_id": "ask_mortgage_rate",
+          "ledger_key": "patrimoine.mortgageRate",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 50
+        }
+      ],
+      "enrichment_questions": [],
+      "guard_quests": [
+        {
+          "quest_id": "household_income_equity_before_affordability",
+          "must_run_before": "mortgage_capacity_result",
+          "required_ledger_keys": [
+            "householdType",
+            "incomeGrossYearly",
+            "patrimoine.epargneLiquide",
+            "targetPropertyValue"
+          ],
+          "mobile_field_paths": {
+            "householdType": "etatCivil",
+            "incomeGrossYearly": "salaireBrutMensuel",
+            "patrimoine.epargneLiquide": "patrimoine.epargneLiquide",
+            "targetPropertyValue": "patrimoine.targetPropertyValue"
+          },
+          "required_scenario_inputs": [
+            "stressInterestRate"
+          ],
+          "missing_value_behavior": "render_affordability_missing_data_state"
+        }
+      ],
+      "variables": [
+        {
+          "input_key": "householdType",
+          "role": "ledger",
+          "ledger_key": "householdType",
+          "field_path": "householdType",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Household composition changes sustainable affordability and risk explanation.",
+          "missing_value_behavior": "ask_household_before_affordability"
+        },
+        {
+          "input_key": "canton",
+          "role": "ledger",
+          "ledger_key": "canton",
+          "field_path": "canton",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Property purchase taxes, imputed rent and context are cantonal.",
+          "missing_value_behavior": "show_cantonal_housing_unknown"
+        },
+        {
+          "input_key": "incomeGrossYearly",
+          "role": "ledger",
+          "ledger_key": "incomeGrossYearly",
+          "field_path": "incomeGrossYearly",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Gross income is the primary affordability denominator.",
+          "missing_value_behavior": "ask_income_before_capacity"
+        },
+        {
+          "input_key": "patrimoine.epargneLiquide",
+          "role": "ledger",
+          "ledger_key": "patrimoine.epargneLiquide",
+          "field_path": "patrimoine.epargneLiquide",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Available equity determines down payment and liquidity after purchase.",
+          "missing_value_behavior": "ask_liquid_assets_before_purchase_range"
+        },
+        {
+          "input_key": "targetPropertyValue",
+          "role": "ledger",
+          "ledger_key": "targetPropertyValue",
+          "field_path": "patrimoine.targetPropertyValue",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Target property value drives mortgage size and affordability checks.",
+          "missing_value_behavior": "ask_target_property_value"
+        },
+        {
+          "input_key": "patrimoine.mortgageRate",
+          "role": "ledger",
+          "ledger_key": "patrimoine.mortgageRate",
+          "field_path": "patrimoine.mortgageRate",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Existing or expected rate helps compare actual and stress affordability.",
+          "missing_value_behavior": "use_stress_rate_only_and_label_missing_actual_rate"
+        },
+        {
+          "input_key": "stressInterestRate",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "regulatory_source_key": "mortgage.theoretical_rate",
+          "regulatory_source_category": "mortgage",
+          "regulatory_source_registry": "services/backend/app/services/regulatory/registry.py",
+          "unit": "ratio",
+          "effective_from": "2025-01-01",
+          "reason": "Swiss affordability uses a conservative stress-rate assumption.",
+          "missing_value_behavior": "use_current_mint_stress_assumption_and_label"
+        }
+      ]
+    },
+    "transmit_property": {
+      "route": "/succession",
+      "kind": "succession",
+      "acceptance_status": "phase1_runtime_accepted",
+      "purpose": "Model a Swiss educational property-transmission case without hiding retirement, equalization, tax, or formal-act assumptions.",
+      "target_screen": "/succession",
+      "pdf_section_id": "dossier_transmit_property",
+      "dossier_contract": "docs/codex/dossier_stubs/dossier_transmit_property.schema.json",
+      "maestro_flow_id": "phase2_data_quest_transmit_property",
+      "patrol_flow_id": "transmit_property_patrol_test",
+      "runtime_input_gate": "mobile-transmit-property-patrol",
+      "runtime_proof_kind": "patrol_real_input_screen_route",
+      "minimum_variables": [
+        "targetRetirementAge",
+        "avoirLpp",
+        "pillar3aBalance",
+        "patrimoine.epargneLiquide",
+        "parentAnnualRetirementIncome",
+        "patrimoine.propertyMarketValue",
+        "mortgageBalance",
+        "heirsCount"
+      ],
+      "useful_variables": [
+        "cashPaidByRecipient",
+        "mortgageAssumedByRecipient",
+        "recipientRelationship",
+        "retainedRight",
+        "avancementHoirie",
+        "canton"
+      ],
+      "blocking_guard_questions": [
+        {
+          "question_id": "ask_property_market_value",
+          "ledger_key": "patrimoine.propertyMarketValue",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 105
+        },
+        {
+          "question_id": "ask_target_retirement_age",
+          "ledger_key": "targetRetirementAge",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 100
+        },
+        {
+          "question_id": "ask_lpp_assets",
+          "ledger_key": "avoirLpp",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 95
+        },
+        {
+          "question_id": "ask_pillar3a_balance",
+          "ledger_key": "pillar3aBalance",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 90
+        },
+        {
+          "question_id": "ask_parent_liquid_assets",
+          "ledger_key": "patrimoine.epargneLiquide",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 85
+        },
+        {
+          "question_id": "ask_parent_annual_retirement_income",
+          "ledger_key": "parentAnnualRetirementIncome",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 80
+        },
+        {
+          "question_id": "ask_parent_annual_living_costs",
+          "ledger_key": "parentAnnualLivingCosts",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 75
+        }
+      ],
+      "required_questions": [
+        {
+          "question_id": "ask_mortgage_balance",
+          "ledger_key": "patrimoine.mortgageBalance",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 70
+        },
+        {
+          "question_id": "ask_heirs_count",
+          "ledger_key": "nombreEnfants",
+          "ask_mode": "collect",
+          "rank": 60
+        }
+      ],
+      "enrichment_questions": [
+        {
+          "question_id": "ask_cash_paid_by_recipient",
+          "ledger_key": null,
+          "input_key": "cashPaidByRecipient",
+          "ask_mode": "scenario_assumption",
+          "rank": 50
+        },
+        {
+          "question_id": "ask_mortgage_assumed_by_recipient",
+          "ledger_key": null,
+          "input_key": "mortgageAssumedByRecipient",
+          "ask_mode": "scenario_assumption",
+          "rank": 45
+        },
+        {
+          "question_id": "ask_recipient_relationship",
+          "ledger_key": null,
+          "input_key": "recipientRelationship",
+          "ask_mode": "scenario_assumption",
+          "rank": 40
+        },
+        {
+          "question_id": "ask_retained_right",
+          "ledger_key": null,
+          "input_key": "retainedRight",
+          "ask_mode": "scenario_assumption",
+          "rank": 35
+        },
+        {
+          "question_id": "ask_avancement_hoirie",
+          "ledger_key": null,
+          "input_key": "avancementHoirie",
+          "ask_mode": "scenario_assumption",
+          "rank": 30
+        },
+        {
+          "question_id": "ask_canton",
+          "ledger_key": "canton",
+          "ask_mode": "collect_or_reconfirm",
+          "rank": 25
+        }
+      ],
+      "mobile_runtime_calculator": "apps/mobile/lib/services/financial_core/property_transmission_calculator.dart",
+      "backend_fixture_authority": "services/backend/tests/fixtures/scenarios/property_transmission_raiffeisen.json",
+      "guard_quests": [
+        {
+          "quest_id": "retirement_affordability_before_gift",
+          "must_run_before": "gift_result",
+          "required_ledger_keys": [
+            "targetRetirementAge",
+            "avoirLpp",
+            "pillar3aBalance",
+            "patrimoine.epargneLiquide",
+            "parentAnnualRetirementIncome",
+            "parentAnnualLivingCosts",
+            "patrimoine.propertyMarketValue"
+          ],
+          "mobile_field_paths": {
+            "targetRetirementAge": "targetRetirementAge",
+            "avoirLpp": "prevoyance.avoirLppTotal",
+            "pillar3aBalance": "prevoyance.totalEpargne3a",
+            "patrimoine.epargneLiquide": "patrimoine.epargneLiquide",
+            "parentAnnualRetirementIncome": "parentAnnualRetirementIncome",
+            "parentAnnualLivingCosts": "parentAnnualLivingCosts",
+            "patrimoine.propertyMarketValue": "patrimoine.propertyMarketValue"
+          },
+          "required_scenario_inputs": [
+            "parentAnnualRetirementIncome",
+            "parentAnnualLivingCosts",
+            "parentLiquidAssets"
+          ],
+          "missing_value_behavior": "render_needs_review_range_before_any_gift_result"
+        }
+      ],
+      "variables": [
+        {
+          "input_key": "scenarioKey",
+          "role": "system",
+          "ledger_key": null,
+          "source_required": false,
+          "confidence_required": false,
+          "reason": "Stable scenario template identifier.",
+          "missing_value_behavior": "use_default_scenario_key"
+        },
+        {
+          "input_key": "canton",
+          "role": "ledger",
+          "ledger_key": "canton",
+          "field_path": "canton",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Gift, succession, real-estate formalities and tax checks are cantonal.",
+          "missing_value_behavior": "show_cantonal_review_unknown"
+        },
+        {
+          "input_key": "targetRetirementAge",
+          "role": "ledger",
+          "ledger_key": "targetRetirementAge",
+          "field_path": "targetRetirementAge",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "The parent retirement-affordability guard needs the intended retirement age before any transfer result.",
+          "missing_value_behavior": "ask_retirement_age_before_gift_result"
+        },
+        {
+          "input_key": "avoirLpp",
+          "role": "ledger",
+          "ledger_key": "avoirLpp",
+          "field_path": "prevoyance.avoirLppTotal",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Second-pillar assets are part of the parent retirement-affordability guard.",
+          "missing_value_behavior": "force_retirement_guard_needs_review"
+        },
+        {
+          "input_key": "pillar3aBalance",
+          "role": "ledger",
+          "ledger_key": "pillar3aBalance",
+          "field_path": "prevoyance.totalEpargne3a",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Third-pillar assets are part of the parent retirement-affordability guard.",
+          "missing_value_behavior": "force_retirement_guard_needs_review"
+        },
+        {
+          "input_key": "propertyMarketValue",
+          "role": "ledger",
+          "ledger_key": "patrimoine.propertyMarketValue",
+          "field_path": "patrimoine.propertyMarketValue",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Base value for equity, donation-mix and equalization ranges.",
+          "missing_value_behavior": "ask_for_documented_property_value"
+        },
+        {
+          "input_key": "mortgageBalance",
+          "role": "ledger",
+          "ledger_key": "patrimoine.mortgageBalance",
+          "field_path": "patrimoine.mortgageBalance",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Outstanding debt changes equity and recipient takeover burden.",
+          "missing_value_behavior": "render_range_with_unknown_debt_warning"
+        },
+        {
+          "input_key": "parentLiquidAssets",
+          "role": "ledger",
+          "ledger_key": "patrimoine.epargneLiquide",
+          "field_path": "patrimoine.epargneLiquide",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Liquidity after transfer is the first retirement-affordability guard.",
+          "missing_value_behavior": "force_retirement_guard_needs_review"
+        },
+        {
+          "input_key": "heirsCount",
+          "role": "ledger",
+          "ledger_key": "nombreEnfants",
+          "field_path": "nombreEnfants",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Equalization pressure depends on how many heirs must be considered.",
+          "state_note": "null means missing and must ask; 0 means explicitly no other heirs and equalization is not_applicable.",
+          "missing_value_behavior": "do_not_quantify_equalization_gap"
+        },
+        {
+          "input_key": "parentAnnualRetirementIncome",
+          "role": "composed_input",
+          "ledger_key": "parentAnnualRetirementIncome",
+          "field_path": "parentAnnualRetirementIncome",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "The succession scenario needs an annual retirement-income aggregate; cold-start Data Quest may collect the scenario-specific aggregate directly, while document-rich profiles compose it from AVS and LPP ledger facts instead of storing a silent standalone profile fact.",
+          "composition": {
+            "direct_answer_keys": [
+              "q_parent_annual_retirement_income",
+              "_transmit_property_parent_annual_retirement_income"
+            ],
+            "formula": "(prevoyance.renteAVSEstimeeMensuelle * 12) + prevoyance.projectedRenteLpp",
+            "ledger_source_keys": [
+              "prevoyance.renteAVSEstimeeMensuelle",
+              "prevoyance.projectedRenteLpp"
+            ],
+            "mobile_runtime_sources": [
+              "userInput",
+              "estimated"
+            ],
+            "backend_fixture_source": "estimated",
+            "mobile_contract": "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
+            "calculator_contract": "apps/mobile/lib/services/financial_core/property_transmission_calculator.dart",
+            "test_contract": "apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart"
+          },
+          "missing_value_behavior": "force_retirement_guard_needs_review"
+        },
+        {
+          "input_key": "parentAnnualLivingCosts",
+          "role": "composed_input",
+          "ledger_key": "parentAnnualLivingCosts",
+          "field_path": "parentAnnualLivingCosts",
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "The succession scenario needs an annual living-cost aggregate; Phase 1 accepts the explicit guard value or composes it from dated monthly expense ledger facts when budget data exists.",
+          "composition": {
+            "formula": "explicit parentAnnualLivingCosts OR sum(monthly living-cost components) * 12",
+            "ledger_source_keys": [
+              "depenses.loyer",
+              "depenses.assuranceMaladie",
+              "depenses.electricite",
+              "depenses.transport",
+              "depenses.telecom",
+              "depenses.fraisMedicaux",
+              "depenses.autresDepensesFixes"
+            ],
+            "mobile_runtime_sources": [
+              "userInput",
+              "openBanking"
+            ],
+            "backend_fixture_sources": [
+              "userInput",
+              "openBanking"
+            ],
+            "mobile_contract": "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
+            "calculator_contract": "apps/mobile/lib/services/financial_core/property_transmission_calculator.dart",
+            "test_contract": "apps/mobile/test/services/dossier/dossier_payload_service_test.dart"
+          },
+          "missing_value_behavior": "force_retirement_guard_needs_review"
+        },
+        {
+          "input_key": "cashPaidByRecipient",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Recipient cash payment is transaction-specific, not a durable profile fact.",
+          "missing_value_behavior": "assume_zero_and_label_low_confidence"
+        },
+        {
+          "input_key": "mortgageAssumedByRecipient",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Mortgage takeover depends on bank approval and deed structure.",
+          "missing_value_behavior": "assume_zero_and_label_low_confidence"
+        },
+        {
+          "input_key": "recipientRelationship",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Cantonal gift tax and succession analysis depend on the recipient relationship.",
+          "missing_value_behavior": "show_cantonal_review_unknown"
+        },
+        {
+          "input_key": "retainedRight",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "Habitation right or usufruct changes value, tax and parent housing security.",
+          "missing_value_behavior": "show_no_retained_right_warning"
+        },
+        {
+          "input_key": "avancementHoirie",
+          "role": "scenario_assumption",
+          "ledger_key": null,
+          "source_required": true,
+          "confidence_required": true,
+          "reason": "The deed must state whether the transfer is reportable at succession.",
+          "missing_value_behavior": "show_reportability_unknown_warning"
+        }
+      ]
+    }
+  }
+}

@@ -156,6 +156,71 @@ def test_save_fact_coerces_swiss_format_string(client: TestClient):
     assert _profile_data(user_id).get("incomeGrossYearly") == 122206.80
 
 
+def test_save_fact_writes_mortgage_balance_and_rate(client: TestClient):
+    email, _ = _register(client, "mortgage")
+    user_id = _user_id_by_email(email)
+
+    msg_balance = _invoke(
+        {"key": "mortgageBalance", "value": "420'000", "confidence": "high"},
+        user_id,
+    )
+    msg_rate = _invoke(
+        {"key": "mortgageRate", "value": "1.75", "confidence": "high"},
+        user_id,
+    )
+
+    assert "Fait enregistré" in msg_balance
+    assert "Fait enregistré" in msg_rate
+    data = _profile_data(user_id)
+    assert data["mortgageBalance"] == 420000.0
+    assert data["mortgageRate"] == 1.75
+
+
+def test_save_fact_writes_parent_annual_living_costs(client: TestClient):
+    email, _ = _register(client, "parent-living-costs")
+    user_id = _user_id_by_email(email)
+
+    msg = _invoke(
+        {
+            "key": "parentAnnualLivingCosts",
+            "value": "84'000",
+            "confidence": "high",
+        },
+        user_id,
+    )
+
+    assert "Fait enregistré" in msg
+    assert _profile_data(user_id)["parentAnnualLivingCosts"] == 84000.0
+
+
+def test_save_fact_accepts_iso2_nationality_without_fatca_duplicate(
+    client: TestClient,
+):
+    email, _ = _register(client, "nationality")
+    user_id = _user_id_by_email(email)
+
+    msg = _invoke(
+        {"key": "nationality", "value": "us", "confidence": "high"},
+        user_id,
+    )
+    assert "Fait enregistré" in msg
+    data = _profile_data(user_id)
+    assert data["nationality"] == "US"
+    assert "isFatcaResident" not in data
+
+
+def test_save_fact_rejects_non_iso2_nationality(client: TestClient):
+    email, _ = _register(client, "nationality-invalid")
+    user_id = _user_id_by_email(email)
+
+    msg = _invoke(
+        {"key": "nationality", "value": "american", "confidence": "high"},
+        user_id,
+    )
+    assert "invalide" in msg or "ÉCHEC" in msg
+    assert _profile_data(user_id).get("nationality") is None
+
+
 
 def test_save_fact_rejects_garbage_for_numeric_key(client: TestClient):
     email, _ = _register(client, "garbage")

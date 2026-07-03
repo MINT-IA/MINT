@@ -1,0 +1,45 @@
+appId: ch.mint.app
+---
+# Phase 2 Data Quest stale-data runtime proof.
+# It verifies that a known-but-stale succession property value is reconfirmed,
+# not re-asked as a blank collection prompt.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/succession"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_PROPERTY_VALUE: "1200000"
+      MINT_TEST_PROPERTY_STALE: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Succession et transmission"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_next_ask"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_contract"
+- assertVisible:
+    id: "succession_data_quest_next_ask"
+- assertVisible:
+    text: "Prochaine donnée à confirmer"
+- assertVisible:
+    id: "succession_data_quest_mode"
+- assertVisible:
+    text: "Valeur existante à confirmer"
+- scrollUntilVisible:
+    element:
+      id: "succession_data_quest_stage"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: false
+- assertVisible:
+    id: "succession_data_quest_stage"
+- assertVisible:
+    text: "Indispensable avant le calcul"

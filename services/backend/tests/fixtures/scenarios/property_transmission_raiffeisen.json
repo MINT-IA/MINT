@@ -1,0 +1,172 @@
+{
+  "fixture_id": "p0_transmit_property_raiffeisen_vd_001",
+  "case_id": "transmit_property",
+  "profile_owner_id": "fixture-owner-parent-vd",
+  "scenario_id": "fixture-scenario-property-transmission-vd",
+  "scenarioKey": "article_raiffeisen_transmission_logement",
+  "title": "Transmission d'un logement familial a la generation suivante",
+  "source": "Article partenaire Raiffeisen: transmettre son logement, repercussions patrimoine/prevoyance/succession",
+  "inputs": {
+    "scenarioKey": "article_raiffeisen_transmission_logement",
+    "canton": "VD",
+    "propertyMarketValue": 1200000,
+    "mortgageBalance": 420000,
+    "cashPaidByRecipient": 50000,
+    "mortgageAssumedByRecipient": 420000,
+    "parentLiquidAssets": 120000,
+    "parentAnnualRetirementIncome": 76000,
+    "parentAnnualLivingCosts": 84000,
+    "heirsCount": 2,
+    "recipientRelationship": "descendant",
+    "retainedRight": "habitation",
+    "avancementHoirie": true
+  },
+  "input_provenance": {
+    "scenarioKey": {
+      "source": "system",
+      "confidence": "none",
+      "source_date": null
+    },
+    "canton": {
+      "source": "userInput",
+      "confidence": "high",
+      "source_date": null
+    },
+    "propertyMarketValue": {
+      "source": "estimated",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "mortgageBalance": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "cashPaidByRecipient": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "mortgageAssumedByRecipient": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "parentLiquidAssets": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "parentAnnualRetirementIncome": {
+      "source": "estimated",
+      "confidence": "medium",
+      "source_date": null,
+      "derived_from": [
+        "prevoyance.renteAVSEstimeeMensuelle",
+        "prevoyance.projectedRenteLpp"
+      ],
+      "formula": "(prevoyance.renteAVSEstimeeMensuelle * 12) + prevoyance.projectedRenteLpp"
+    },
+    "parentAnnualLivingCosts": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null,
+      "derived_from": [
+        "depenses.loyer",
+        "depenses.assuranceMaladie",
+        "depenses.electricite",
+        "depenses.transport",
+        "depenses.telecom",
+        "depenses.fraisMedicaux",
+        "depenses.autresDepensesFixes"
+      ],
+      "formula": "depenses.totalMensuel * 12"
+    },
+    "heirsCount": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "recipientRelationship": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "retainedRight": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    },
+    "avancementHoirie": {
+      "source": "userInput",
+      "confidence": "medium",
+      "source_date": null
+    }
+  },
+  "expected": {
+    "scenarioKey": {
+      "value": "article_raiffeisen_transmission_logement",
+      "unit": "enum",
+      "tolerance": 0
+    },
+    "computed.propertyEquity": {
+      "value": 780000,
+      "unit": "CHF",
+      "tolerance": 0
+    },
+    "computed.economicTransferValue": {
+      "value": 730000,
+      "unit": "CHF",
+      "tolerance": 0
+    },
+    "computed.parentLiquidityAfterTransfer": {
+      "value": 170000,
+      "unit": "CHF",
+      "tolerance": 0
+    },
+    "computed.annualRetirementMargin": {
+      "value": -8000,
+      "unit": "CHF_per_year",
+      "tolerance": 0
+    },
+    "familyEqualization.immediateEqualizationNeedPerOtherHeir": {
+      "value": 365000,
+      "unit": "CHF",
+      "tolerance": 0
+    },
+    "familyEqualization.immediateEqualizationGap": {
+      "value": 195000,
+      "unit": "CHF",
+      "tolerance": 0
+    },
+    "retirementAffordability.status": {
+      "value": "needs_review",
+      "unit": "enum",
+      "tolerance": 0
+    },
+    "familyEqualization.status": {
+      "value": "at_risk",
+      "unit": "enum",
+      "tolerance": 0
+    }
+  },
+  "authority": {
+    "agent": "mint-swiss-brain",
+    "source_refs": [
+      "docs/codex/DATA_LEDGER.md",
+      "docs/codex/DATA_QUEST.md",
+      "docs/codex/P0_CASE_VARIABLE_REGISTRY.json",
+      "services/backend/app/services/succession_property_transmission.py"
+    ],
+    "rationale": "Canonical educational fixture for the Raiffeisen-style Swiss property transmission case. Values are deterministic guardrail calculations, not a legal succession decision.",
+    "calculation_notes": {
+      "familyEqualization.immediateEqualizationNeedPerOtherHeir": "Phase 1 API-compatible name. The value is the equal economic share per heir: economicTransferValue / heirsCount. It is not a legal amount owed to each non-recipient heir without specialist partition review."
+    }
+  },
+  "stack_paths": {
+    "backend": "services/backend/app/services/succession_property_transmission.py",
+    "backend_test": "services/backend/tests/test_property_transmission_scenario.py",
+    "mobile": "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
+    "registry": "docs/codex/P0_CASE_VARIABLE_REGISTRY.json"
+  }
+}

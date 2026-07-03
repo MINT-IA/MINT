@@ -1,3 +1,4 @@
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -51,6 +52,110 @@ class FreshnessDecayService {
   /// Months at which volatile-category facts hit the floor.
   static const _volatileFloorMonths = 12.0;
 
+  /// Ledger field freshness categories used when no immutable BiographyFact is
+  /// available and the profile provenance maps are the freshest source.
+  static const Map<String, String> kFieldFreshnessCategory = {
+    // Identity and life-shape fields change by explicit life event, not decay.
+    'birthYear': 'static',
+    'dateOfBirth': 'static',
+    'householdType': 'static',
+    'employmentStatus': 'static',
+    'goal': 'static',
+    'targetRetirementAge': 'static',
+    'gender': 'static',
+    'arrivalAge': 'static',
+    'residencePermit': 'static',
+    'nationality': 'static',
+    'has2ndPillar': 'static',
+    'hasVoluntaryLpp': 'static',
+    'nombreEnfants': 'static',
+    'financialLiteracyLevel': 'static',
+    'primaryFocus': 'static',
+    'conjoint.invitationLevel': 'static',
+
+    // Income / tax / pension values are generally refreshed annually.
+    'canton': 'annual',
+    'commune': 'annual',
+    'incomeNetMonthly': 'annual',
+    'incomeNetYearly': 'annual',
+    'incomeGrossMonthly': 'annual',
+    'incomeGrossYearly': 'annual',
+    'selfEmployedNetIncome': 'annual',
+    'employmentRate': 'annual',
+    'annualBonus': 'annual',
+    'salaireBrutMensuel': 'annual',
+    'prevoyance.avoirLppTotal': 'annual',
+    'prevoyance.avoirLppObligatoire': 'annual',
+    'prevoyance.avoirLppSurobligatoire': 'annual',
+    'prevoyance.salaireAssure': 'annual',
+    'prevoyance.rachatMaximum': 'annual',
+    'prevoyance.renteAVSEstimeeMensuelle': 'annual',
+    'prevoyance.projectedRenteLpp': 'annual',
+    'parentAnnualRetirementIncome': 'annual',
+    'parentAnnualLivingCosts': 'volatile',
+    'prevoyance.dateRachats': 'static',
+    'avoirLpp': 'annual',
+    'avoirLppObligatoire': 'annual',
+    'avoirLppSurobligatoire': 'annual',
+    'lppInsuredSalary': 'annual',
+    'lppBuybackMax': 'annual',
+    'pillar3aAnnual': 'annual',
+    'pillar3aBalance': 'annual',
+    'savingsMonthly': 'annual',
+    'patrimoine.epargneLiquide': 'annual',
+    'patrimoine.investissements': 'annual',
+    'patrimoine.deviseInvestissements': 'static',
+    'patrimoine.propertyMarketValue': 'annual',
+    'patrimoine.monthlyRent': 'volatile',
+    'patrimoine.mortgageCapacity': 'volatile',
+    'patrimoine.estimatedMonthlyPayment': 'volatile',
+    'totalSavings': 'annual',
+    'wealthEstimate': 'annual',
+    'spouseBirthYear': 'static',
+    'spouseIncomeNetMonthly': 'annual',
+    'spouseAvsContributionYears': 'annual',
+    'hasAvsGaps': 'annual',
+    'avsContributionYears': 'annual',
+
+    // Debt and mortgage balances/rates can become stale faster.
+    'hasDebt': 'volatile',
+    'totalDebt': 'volatile',
+    'dettes.totalDettes': 'volatile',
+    'dettes.creditConsommation': 'volatile',
+    'dettes.leasing': 'volatile',
+    'dettes.hypotheque': 'volatile',
+    'dettes.autresDettes': 'volatile',
+    'dettes.tauxHypotheque': 'volatile',
+    'dettes.tauxCreditConso': 'volatile',
+    'dettes.tauxLeasing': 'volatile',
+    'dettes.mensualiteHypotheque': 'volatile',
+    'dettes.mensualiteCreditConso': 'volatile',
+    'dettes.mensualiteLeasing': 'volatile',
+    'dettes.echeanceHypotheque': 'static',
+    'dettes.echeanceCreditConso': 'static',
+    'dettes.echeanceLeasing': 'static',
+    'dettes.rangHypotheque': 'static',
+    'dettes.amortissementIndirect': 'static',
+    'patrimoine.mortgageBalance': 'volatile',
+    'patrimoine.mortgageRate': 'volatile',
+    'depenses.loyer': 'volatile',
+    'depenses.assuranceMaladie': 'annual',
+    'depenses.electricite': 'volatile',
+    'depenses.transport': 'volatile',
+    'depenses.telecom': 'volatile',
+    'depenses.fraisMedicaux': 'volatile',
+    'depenses.autresDepensesFixes': 'volatile',
+    'conjoint.nationality': 'static',
+    'conjoint.isFatcaResident': 'static',
+    'conjoint.canContribute3a': 'static',
+    'conjoint.arrivalAge': 'static',
+    'goalA': 'static',
+    'goalsB': 'static',
+    'goalsB[]': 'static',
+    'plannedContributions': 'volatile',
+    'plannedContributions[]': 'volatile',
+  };
+
   /// Calculate the freshness weight for a biography fact.
   ///
   /// Returns a value between [_floor] (0.3) and 1.0.
@@ -70,6 +175,68 @@ class FreshnessDecayService {
 
     // Default: annual tier
     return _decay(monthsOld, _annualFullMonths, _annualFloorMonths);
+  }
+
+  /// Freshness for a CoachProfile ledger field path.
+  ///
+  /// This is the synchronous adapter for runtime surfaces that already have a
+  /// hydrated CoachProfile but not an async BiographyRepository lookup.
+  static double weightForField(
+    String fieldPath,
+    CoachProfile profile,
+    DateTime now,
+  ) {
+    final category = kFieldFreshnessCategory[fieldPath] ?? 'annual';
+    if (category == 'static') return 1.0;
+
+    final updatedAt = profile.dataTimestamps[fieldPath];
+    if (updatedAt == null) return _floor;
+
+    return weight(
+      BiographyFact(
+        id: 'profile:$fieldPath',
+        factType: _factTypeForFieldPath(fieldPath),
+        fieldPath: fieldPath,
+        value: '',
+        source: _factSourceFromProfile(profile.dataSources[fieldPath]),
+        sourceDate: profile.dataSourceDates[fieldPath],
+        createdAt: updatedAt,
+        updatedAt: updatedAt,
+        freshnessCategory: category,
+      ),
+      now,
+    );
+  }
+
+  static FactType _factTypeForFieldPath(String fieldPath) {
+    if (fieldPath.contains('mortgage')) return FactType.mortgageDebt;
+    if (fieldPath.contains('avoirLpp') ||
+        fieldPath.contains('lpp') ||
+        fieldPath.contains('Lpp')) {
+      return FactType.lppCapital;
+    }
+    if (fieldPath.contains('3a')) return FactType.threeACapital;
+    if (fieldPath.contains('avs') || fieldPath.contains('Avs')) {
+      return FactType.avsContributionYears;
+    }
+    if (fieldPath == 'canton' || fieldPath == 'commune') {
+      return FactType.canton;
+    }
+    if (fieldPath.contains('employment')) return FactType.employmentStatus;
+    if (fieldPath.contains('household') || fieldPath.contains('conjoint')) {
+      return FactType.civilStatus;
+    }
+    return FactType.salary;
+  }
+
+  static FactSource _factSourceFromProfile(ProfileDataSource? source) {
+    return switch (source) {
+      ProfileDataSource.certificate => FactSource.document,
+      ProfileDataSource.openBanking => FactSource.document,
+      ProfileDataSource.crossValidated => FactSource.userEdit,
+      ProfileDataSource.userInput => FactSource.userInput,
+      ProfileDataSource.estimated || null => FactSource.coach,
+    };
   }
 
   /// Linear decay from 1.0 to [_floor] between [fullMonths] and [floorMonths].

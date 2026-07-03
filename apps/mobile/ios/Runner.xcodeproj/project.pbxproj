@@ -8,7 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
-		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
+		311DF87E1C414BBDD0297E8D /* Pods_Runner_RunnerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F778C4ABD81C9B2ACA5F21 /* Pods_Runner_RunnerUITests.framework */; };
+		331C808B294A63AB00263BE5 /* RunnerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerUITests.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		4C9E4D82AC42C46CD18016F6 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8036909F1F536355E2727D0 /* Pods_Runner.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
@@ -16,7 +17,6 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A1B2C3D52026041700000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42026041700000001 /* PrivacyInfo.xcprivacy */; };
-		BE98948DA999046A5479723F /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B243E1BD520090C147F014E /* Pods_RunnerTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,14 +45,16 @@
 /* Begin PBXFileReference section */
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
+		1E22A326A104A057A7605FFE /* Pods-Runner-RunnerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner-RunnerUITests.release.xcconfig"; path = "Target Support Files/Pods-Runner-RunnerUITests/Pods-Runner-RunnerUITests.release.xcconfig"; sourceTree = "<group>"; };
 		1E94BD3134DADB9F43C2D4A3 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
-		28BFA3573856A7723583E256 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
-		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
-		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		28BFA3573856A7723583E256 /* Pods-RunnerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerUITests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerUITests/Pods-RunnerUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		2FC5CA0099798F4B34F5A087 /* Pods-Runner-RunnerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner-RunnerUITests.debug.xcconfig"; path = "Target Support Files/Pods-Runner-RunnerUITests/Pods-Runner-RunnerUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		331C807B294A618700263BE5 /* RunnerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RunnerUITests.m; sourceTree = "<group>"; };
+		331C8081294A63A400263BE5 /* RunnerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		5897EDE0707519B0D285ECCC /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
-		5B243E1BD520090C147F014E /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		691053B0EBC5FAB22792A7DE /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		65F778C4ABD81C9B2ACA5F21 /* Pods_Runner_RunnerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner_RunnerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		691053B0EBC5FAB22792A7DE /* Pods-RunnerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerUITests.release.xcconfig"; path = "Target Support Files/Pods-RunnerUITests/Pods-RunnerUITests.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -63,8 +65,9 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9B3A2E98D394D1EB52BBD1B8 /* Pods-Runner-RunnerUITests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner-RunnerUITests.profile.xcconfig"; path = "Target Support Files/Pods-Runner-RunnerUITests/Pods-Runner-RunnerUITests.profile.xcconfig"; sourceTree = "<group>"; };
 		A1B2C3D42026041700000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		C5CFCE119F126781A87C3738 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
+		C5CFCE119F126781A87C3738 /* Pods-RunnerUITests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerUITests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerUITests/Pods-RunnerUITests.profile.xcconfig"; sourceTree = "<group>"; };
 		CDBFEA38689144B08F0EF469 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		D8036909F1F536355E2727D0 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -74,7 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE98948DA999046A5479723F /* Pods_RunnerTests.framework in Frameworks */,
+				311DF87E1C414BBDD0297E8D /* Pods_Runner_RunnerUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,26 +98,29 @@
 				CDBFEA38689144B08F0EF469 /* Pods-Runner.debug.xcconfig */,
 				5897EDE0707519B0D285ECCC /* Pods-Runner.release.xcconfig */,
 				1E94BD3134DADB9F43C2D4A3 /* Pods-Runner.profile.xcconfig */,
-				28BFA3573856A7723583E256 /* Pods-RunnerTests.debug.xcconfig */,
-				691053B0EBC5FAB22792A7DE /* Pods-RunnerTests.release.xcconfig */,
-				C5CFCE119F126781A87C3738 /* Pods-RunnerTests.profile.xcconfig */,
+				28BFA3573856A7723583E256 /* Pods-RunnerUITests.debug.xcconfig */,
+				691053B0EBC5FAB22792A7DE /* Pods-RunnerUITests.release.xcconfig */,
+				C5CFCE119F126781A87C3738 /* Pods-RunnerUITests.profile.xcconfig */,
+				2FC5CA0099798F4B34F5A087 /* Pods-Runner-RunnerUITests.debug.xcconfig */,
+				1E22A326A104A057A7605FFE /* Pods-Runner-RunnerUITests.release.xcconfig */,
+				9B3A2E98D394D1EB52BBD1B8 /* Pods-Runner-RunnerUITests.profile.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		331C8082294A63A400263BE5 /* RunnerTests */ = {
+		331C8082294A63A400263BE5 /* RunnerUITests */ = {
 			isa = PBXGroup;
 			children = (
-				331C807B294A618700263BE5 /* RunnerTests.swift */,
+					331C807B294A618700263BE5 /* RunnerUITests.m */,
 			);
-			path = RunnerTests;
+			path = RunnerUITests;
 			sourceTree = "<group>";
 		};
 		7B4C3703B08A851998214BE2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				D8036909F1F536355E2727D0 /* Pods_Runner.framework */,
-				5B243E1BD520090C147F014E /* Pods_RunnerTests.framework */,
+				65F778C4ABD81C9B2ACA5F21 /* Pods_Runner_RunnerUITests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -136,7 +142,7 @@
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
-				331C8082294A63A400263BE5 /* RunnerTests */,
+				331C8082294A63A400263BE5 /* RunnerUITests */,
 				0F5776853A7B1AB9F954316B /* Pods */,
 				7B4C3703B08A851998214BE2 /* Frameworks */,
 			);
@@ -146,7 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
-				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
+				331C8081294A63A400263BE5 /* RunnerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -170,24 +176,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		331C8080294A63A400263BE5 /* RunnerTests */ = {
+		331C8080294A63A400263BE5 /* RunnerUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */;
-			buildPhases = (
-				64FB8373260587645BA1A59E /* [CP] Check Pods Manifest.lock */,
-				331C807D294A63A400263BE5 /* Sources */,
-				331C807F294A63A400263BE5 /* Resources */,
-				03D193FB2ECE94E739F22C35 /* Frameworks */,
-			);
+			buildConfigurationList = 331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerUITests" */;
+				buildPhases = (
+					64FB8373260587645BA1A59E /* [CP] Check Pods Manifest.lock */,
+					331C807D294A63A400263BE5 /* Sources */,
+					331C807F294A63A400263BE5 /* Resources */,
+					03D193FB2ECE94E739F22C35 /* Frameworks */,
+					9EF31A63B58CE74B6C507C8D /* [CP] Copy Pods Resources */,
+					E30884E87B8637E245C49192 /* Strip test xattrs before codesign */,
+				);
 			buildRules = (
 			);
 			dependencies = (
 				331C8086294A63A400263BE5 /* PBXTargetDependency */,
 			);
-			name = RunnerTests;
-			productName = RunnerTests;
-			productReference = 331C8081294A63A400263BE5 /* RunnerTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
+			name = RunnerUITests;
+			productName = RunnerUITests;
+			productReference = 331C8081294A63A400263BE5 /* RunnerUITests.xctest */;
+				productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		97C146ED1CF9000F007C117D /* Runner */ = {
 			isa = PBXNativeTarget;
@@ -246,7 +254,7 @@
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
-				331C8080294A63A400263BE5 /* RunnerTests */,
+				331C8080294A63A400263BE5 /* RunnerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -327,7 +335,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-RunnerTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Runner-RunnerUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -364,12 +372,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "sanitize_flutter_engine_artifact() {\n  path=\"$1\"\n  if [ -z \"$path\" ] || [ ! -e \"$path\" ]; then\n    return 0\n  fi\n\n  tmp=\"${path}.noattrs\"\n  rm -rf \"$tmp\"\n  COPYFILE_DISABLE=1 /usr/bin/ditto --noextattr --noqtn \"$path\" \"$tmp\" 2>/dev/null || true\n  if [ -e \"$tmp\" ]; then\n    rm -rf \"$path\"\n    mv \"$tmp\" \"$path\"\n  fi\n  /usr/bin/xattr -cr \"$path\" 2>/dev/null || true\n}\n\nif [ -n \"$FLUTTER_ROOT\" ]; then\n  sanitize_flutter_engine_artifact \"$FLUTTER_ROOT/bin/cache/artifacts/engine/ios/Flutter.xcframework\"\n  sanitize_flutter_engine_artifact \"$FLUTTER_ROOT/bin/cache/artifacts/engine/ios-profile/Flutter.xcframework\"\n  sanitize_flutter_engine_artifact \"$FLUTTER_ROOT/bin/cache/artifacts/engine/ios-release/Flutter.xcframework\"\nfi\nif [ -x \"$PROJECT_DIR/mint_xcode_tools/codesign\" ]; then\n  export PATH=\"$PROJECT_DIR/mint_xcode_tools:$PATH\"\nfi\n/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
 		};
-		E30884E87B8637E245C49191 /* Strip xattrs before codesign */ = {
+		9EF31A63B58CE74B6C507C8D /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner-RunnerUITests/Pods-Runner-RunnerUITests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner-RunnerUITests/Pods-Runner-RunnerUITests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner-RunnerUITests/Pods-Runner-RunnerUITests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+			E30884E87B8637E245C49191 /* Strip xattrs before codesign */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
@@ -382,17 +407,36 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Strip xattrs from the app bundle at both possible codesign locations.\n# On macOS Sequoia/Tahoe, com.apple.provenance xattr propagates from\n# flutter engine cache to embedded frameworks and breaks ad-hoc codesign.\nfor path in \"${CODESIGNING_FOLDER_PATH}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"; do\n  if [ -n \"$path\" ] && [ -e \"$path\" ]; then\n    /usr/bin/xattr -cr \"$path\" 2>/dev/null || true\n  fi\ndone\n";
-		};
-/* End PBXShellScriptBuildPhase section */
+				shellPath = /bin/sh;
+				shellScript = "# Strip xattrs from the app bundle before simulator codesign.\n# On macOS Sequoia/Tahoe, com.apple.provenance can survive xattr -d on\n# .nosync/FileProvider-backed paths, so rebuild the bundle without extattrs.\nfor path in \"${CODESIGNING_FOLDER_PATH}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"; do\n  if [ -n \"$path\" ] && [ -e \"$path\" ]; then\n    tmp=\"${path}.noattrs\"\n    rm -rf \"$tmp\"\n    COPYFILE_DISABLE=1 /usr/bin/ditto --noextattr --noqtn \"$path\" \"$tmp\" 2>/dev/null || true\n    if [ -e \"$tmp\" ]; then\n      rm -rf \"$path\"\n      mv \"$tmp\" \"$path\"\n    fi\n    /usr/bin/xattr -cr \"$path\" 2>/dev/null || true\n  fi\ndone\n";
+			};
+			E30884E87B8637E245C49192 /* Strip test xattrs before codesign */ = {
+				isa = PBXShellScriptBuildPhase;
+				alwaysOutOfDate = 1;
+				buildActionMask = 2147483647;
+				files = (
+				);
+				inputFileListPaths = (
+				);
+				inputPaths = (
+				);
+				name = "Strip test xattrs before codesign";
+				outputFileListPaths = (
+				);
+				outputPaths = (
+				);
+				runOnlyForDeploymentPostprocessing = 0;
+				shellPath = /bin/sh;
+				shellScript = "# Strip xattrs from XCTest bundles before simulator codesign.\nfor path in \"${CODESIGNING_FOLDER_PATH}\" \"${BUILT_PRODUCTS_DIR}/${WRAPPER_NAME}\" \"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\" \"${BUILT_PRODUCTS_DIR}/${TARGET_NAME}-Runner.app\" \"${TARGET_BUILD_DIR}/${TARGET_NAME}-Runner.app\"; do\n  if [ -n \"$path\" ] && [ -e \"$path\" ]; then\n    tmp=\"${path}.noattrs\"\n    rm -rf \"$tmp\"\n    COPYFILE_DISABLE=1 /usr/bin/ditto --noextattr --noqtn \"$path\" \"$tmp\" 2>/dev/null || true\n    if [ -e \"$tmp\" ]; then\n      rm -rf \"$path\"\n      mv \"$tmp\" \"$path\"\n    fi\n    /usr/bin/xattr -cr \"$path\" 2>/dev/null || true\n  fi\ndone\n";
+			};
+	/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		331C807D294A63A400263BE5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */,
+					331C808B294A63AB00263BE5 /* RunnerUITests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -512,52 +556,49 @@
 		};
 		331C8088294A63A400263BE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 28BFA3573856A7723583E256 /* Pods-RunnerTests.debug.xcconfig */;
+			baseConfigurationReference = 2FC5CA0099798F4B34F5A087 /* Pods-Runner-RunnerUITests.debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.mint.app.RunnerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
-			};
+					CODE_SIGN_STYLE = Automatic;
+					CURRENT_PROJECT_VERSION = 1;
+					GENERATE_INFOPLIST_FILE = YES;
+					MARKETING_VERSION = 1.0;
+					PRODUCT_BUNDLE_IDENTIFIER = ch.mint.app.RunnerUITests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = 5.0;
+					TEST_TARGET_NAME = Runner;
+				};
 			name = Debug;
 		};
 		331C8089294A63A400263BE5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 691053B0EBC5FAB22792A7DE /* Pods-RunnerTests.release.xcconfig */;
+			baseConfigurationReference = 1E22A326A104A057A7605FFE /* Pods-Runner-RunnerUITests.release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.mint.app.RunnerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
-			};
+					CODE_SIGN_STYLE = Automatic;
+					CURRENT_PROJECT_VERSION = 1;
+					GENERATE_INFOPLIST_FILE = YES;
+					MARKETING_VERSION = 1.0;
+					PRODUCT_BUNDLE_IDENTIFIER = ch.mint.app.RunnerUITests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SWIFT_VERSION = 5.0;
+					TEST_TARGET_NAME = Runner;
+				};
 			name = Release;
 		};
 		331C808A294A63A400263BE5 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C5CFCE119F126781A87C3738 /* Pods-RunnerTests.profile.xcconfig */;
+			baseConfigurationReference = 9B3A2E98D394D1EB52BBD1B8 /* Pods-Runner-RunnerUITests.profile.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.mint.app.RunnerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
-			};
+					CODE_SIGN_STYLE = Automatic;
+					CURRENT_PROJECT_VERSION = 1;
+					GENERATE_INFOPLIST_FILE = YES;
+					MARKETING_VERSION = 1.0;
+					PRODUCT_BUNDLE_IDENTIFIER = ch.mint.app.RunnerUITests;
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SWIFT_VERSION = 5.0;
+					TEST_TARGET_NAME = Runner;
+				};
 			name = Profile;
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
@@ -723,7 +764,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */ = {
+		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				331C8088294A63A400263BE5 /* Debug */,

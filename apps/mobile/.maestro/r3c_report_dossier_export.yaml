@@ -1,0 +1,32 @@
+appId: ch.mint.app
+---
+# Regression R-3c: /rapport renders typed P0 dossier cards and the
+# transmit_property dossier export CTA is tappable from a seeded report.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/rapport"
+      MINT_TEST_REPORT_FIXTURE: "first_salary_tax_vd"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Ton Plan Mint"
+- scrollUntilVisible:
+    element:
+      id: "report_dossier_transmit_property_export_cta"
+    direction: DOWN
+    speed: 80
+    timeout: 60000
+    visibilityPercentage: 10
+    centerElement: false
+- assertVisible:
+    id: "report_dossier_transmit_property_card"
+- assertVisible:
+    id: "report_dossier_transmit_property_export_cta"
+- tapOn:
+    id: "report_dossier_transmit_property_export_cta"
+- tapOn:
+    text: "Cancel"
+    optional: true

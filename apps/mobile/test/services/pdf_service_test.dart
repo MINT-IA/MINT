@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/goal_template.dart';
+import 'package:mint_mobile/services/dossier/dossier_payload_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 
 /// PdfService is entirely I/O-bound (uses the `pdf` and `printing` packages
@@ -17,6 +20,8 @@ import 'package:mint_mobile/services/pdf_service.dart';
 ///    between the models and PdfService remains intact.
 /// 3. SessionReport.fromJson (the primary input model) works correctly.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   // ──────────────────────────────────────────────────────────
   // PdfService — structural verification
   // ──────────────────────────────────────────────────────────
@@ -35,6 +40,135 @@ void main() {
 
     test('PdfService has generateFinancialReportPdf static method', () {
       expect(PdfService.generateFinancialReportPdf, isA<Function>());
+    });
+
+    test('buildFinancialReportPdfBytes generates a real PDF document',
+        () async {
+      final bytes = await PdfService.buildFinancialReportPdfBytes(
+        _sampleFinancialReport(),
+        compress: false,
+      );
+
+      expect(ascii.decode(bytes.take(5).toList()), '%PDF-');
+      expect(bytes.length, greaterThan(1000));
+      expect(latin1.decode(bytes, allowInvalid: true), contains('%%EOF'));
+    });
+
+    test('financial report PDF audit manifest locks dossier sections', () {
+      final manifest = PdfService.buildFinancialReportPdfAuditManifest(
+        _sampleFinancialReport(),
+      );
+
+      expect(manifest.title, 'Ton Plan Mint — Rapport Financier');
+      expect(
+        manifest.educationalDisclaimer,
+        contains('ne constitue pas un conseil financier'),
+      );
+      expect(
+        manifest.sections,
+        containsAll([
+          'Indicateurs Clés',
+          'Top 3 — Pistes à examiner',
+          'Simulation Fiscale',
+          'Cadre éducatif et limites',
+          'Disclaimers Légaux',
+          'Sources Juridiques',
+        ]),
+      );
+      const adviceDocumentLabel = 'Statement of ' 'Advice';
+      const recommendedPlanLabel = 'Plan annuel ' 'recommandé';
+      expect(
+        manifest.sections.join('\n'),
+        isNot(contains(adviceDocumentLabel)),
+      );
+      expect(
+        manifest.sections.join('\n'),
+        isNot(contains(recommendedPlanLabel)),
+      );
+      expect(manifest.actionCount, 1);
+      expect(manifest.disclaimerCount, 2);
+      expect(manifest.sourceCount, 2);
+    });
+
+    test('buildDossierPayloadPdfBytes generates a real scenario dossier PDF',
+        () async {
+      final dossier = _sampleTransmitPropertyDossier();
+      final bytes = await PdfService.buildDossierPayloadPdfBytes(
+        dossier,
+        compress: false,
+      );
+
+      expect(ascii.decode(bytes.take(5).toList()), '%PDF-');
+      expect(bytes.length, greaterThan(1000));
+      expect(latin1.decode(bytes, allowInvalid: true), contains('%%EOF'));
+    });
+
+    test('dossier payload PDF audit manifest locks P0 dossier sections', () {
+      final manifest = PdfService.buildDossierPayloadPdfAuditManifest(
+        _sampleTransmitPropertyDossier(),
+      );
+
+      expect(manifest.caseId, 'transmit_property');
+      expect(manifest.pdfSectionId, 'dossier_transmit_property');
+      expect(manifest.title, contains('Transmission immobilière'));
+      expect(
+        manifest.educationalDisclaimer,
+        contains('ne constitue pas un conseil financier'),
+      );
+      expect(
+        manifest.sections,
+        containsAll([
+          'Variables de dossier',
+          'Résultats éducatifs',
+          'Hypothèses de scénario',
+          'Données à confirmer',
+          'Questions spécialiste',
+        ]),
+      );
+      expect(manifest.inputCount, greaterThanOrEqualTo(9));
+      expect(manifest.outputCount, 5);
+      expect(manifest.assumptionCount, 5);
+      expect(manifest.warningCount, greaterThanOrEqualTo(1));
+    });
+
+    test('dossier manifest exposes remaining data section when useful', () {
+      final dossier = _incompleteTransmitPropertyDossier();
+      final manifest = PdfService.buildDossierPayloadPdfAuditManifest(dossier);
+
+      expect(manifest.nextQuestionCount, greaterThan(0));
+      expect(manifest.sections, contains('Données encore utiles'));
+    });
+
+    test('dossier PDF labels remaining questions for humans', () {
+      final labels = PdfService.dossierNextQuestionLabelsForTesting(
+        _incompleteTransmitPropertyDossier(),
+      );
+
+      expect(labels, contains('Confirmer l’âge de retraite visé.'));
+      expect(
+        labels,
+        contains('Confirmer les coûts de vie annuels des parents.'),
+      );
+      expect(labels.any((label) => label.startsWith('ask_')), isFalse);
+    });
+
+    test('dossier PDF formats years and CHF fields by semantic key', () {
+      expect(
+        PdfService.formatDossierFieldValueForTesting('birthYear', 1980),
+        '1980',
+      );
+      expect(
+        PdfService.formatDossierFieldValueForTesting(
+            'tax_context.tax_year', 2026),
+        '2026',
+      );
+      expect(
+        PdfService.formatDossierFieldValueForTesting(
+          'patrimoine.propertyMarketValue',
+          1200000,
+        ),
+        contains('CHF'),
+      );
     });
   });
 
@@ -65,8 +199,7 @@ void main() {
             ConflictOfInterest(
               partner: 'VIAC',
               type: 'affiliation',
-              disclosure:
-                  'Commission de recommandation si ouverture de compte',
+              disclosure: 'Commission de recommandation si ouverture de compte',
             ),
           ],
         ),
@@ -316,24 +449,17 @@ void main() {
 
     test('ActionPriority enum has 4 levels', () {
       expect(ActionPriority.values, hasLength(4));
-      expect(ActionPriority.values,
-          contains(ActionPriority.critical));
-      expect(ActionPriority.values,
-          contains(ActionPriority.high));
-      expect(ActionPriority.values,
-          contains(ActionPriority.medium));
-      expect(ActionPriority.values,
-          contains(ActionPriority.low));
+      expect(ActionPriority.values, contains(ActionPriority.critical));
+      expect(ActionPriority.values, contains(ActionPriority.high));
+      expect(ActionPriority.values, contains(ActionPriority.medium));
+      expect(ActionPriority.values, contains(ActionPriority.low));
     });
 
     test('ActionCategory enum has 8 categories', () {
       expect(ActionCategory.values, hasLength(8));
-      expect(ActionCategory.values,
-          contains(ActionCategory.pillar3a));
-      expect(ActionCategory.values,
-          contains(ActionCategory.lpp));
-      expect(ActionCategory.values,
-          contains(ActionCategory.tax));
+      expect(ActionCategory.values, contains(ActionCategory.pillar3a));
+      expect(ActionCategory.values, contains(ActionCategory.lpp));
+      expect(ActionCategory.values, contains(ActionCategory.tax));
     });
   });
 
@@ -443,4 +569,117 @@ void main() {
   // - The input model contracts (SessionReport, FinancialReport)
   // - JSON deserialization of the primary input model
   // - Computed properties used by the PDF template (precisionScore threshold)
+}
+
+FinancialReport _sampleFinancialReport() {
+  const dummyCircle = CircleScore(
+    circleName: 'Test',
+    circleNumber: 1,
+    percentage: 72.0,
+    level: ScoreLevel.good,
+    items: [],
+    recommendations: [],
+  );
+
+  return FinancialReport(
+    profile: const UserProfile(
+      firstName: 'Marc',
+      birthYear: 1990,
+      canton: 'VD',
+      civilStatus: 'single',
+      childrenCount: 0,
+      employmentStatus: 'employee',
+      monthlyNetIncome: 6500.0,
+    ),
+    healthScore: const FinancialHealthScore(
+      circle1Protection: dummyCircle,
+      circle2Prevoyance: dummyCircle,
+      circle3Croissance: dummyCircle,
+      circle4Optimisation: dummyCircle,
+      overallScore: 72.0,
+      topPriorities: ['Ajouter une attestation 3a'],
+    ),
+    taxSimulation: const TaxSimulation(
+      taxableIncome: 78000.0,
+      deductions: {'3a': 7258.0},
+      cantonalTax: 12500.0,
+      federalTax: 3200.0,
+      totalTax: 15700.0,
+      effectiveRate: 0.201,
+    ),
+    priorityActions: const [
+      ActionItem(
+        title: 'Compléter le 3a',
+        description: 'Comparer le montant versé au plafond annuel.',
+        priority: ActionPriority.high,
+        category: ActionCategory.pillar3a,
+        potentialGainChf: 1200.0,
+        steps: ['Ajouter l’attestation 3a', 'Revoir la projection fiscale'],
+      ),
+    ],
+    personalizedRoadmap: const Roadmap(
+      phases: [
+        RoadmapPhase(
+          title: 'À confirmer',
+          timeframe: '0-1 mois',
+          actions: [],
+        ),
+      ],
+    ),
+    disclaimers: const [
+      'Outil éducatif, ne constitue pas un conseil financier.',
+      'Les montants restent indicatifs et sont à confirmer.',
+    ],
+    sources: const [
+      'LIFD art. 33',
+      'LPP art. 79b',
+    ],
+    generatedAt: DateTime(2026, 7, 2, 10, 15),
+  );
+}
+
+DossierPayload _sampleTransmitPropertyDossier() {
+  return DossierPayloadService.buildP0Case(
+    caseId: 'transmit_property',
+    answers: {
+      '_coach_profile_owner_id': 'local_demo_fixture_owner',
+      'q_canton': 'VD',
+      'q_target_retirement_age': 64,
+      '_coach_avoir_lpp': 650000,
+      'q_3a_total': 180000,
+      'q_cash_total': 120000,
+      'q_property_market_value': 1200000,
+      'q_mortgage_balance': 420000,
+      'q_children': 2,
+      '_transmit_property_parent_annual_retirement_income': 76000,
+      'q_housing_cost_period_chf': 6600,
+      'q_lamal_premium_monthly_chf': 400,
+      '_transmit_property_cash_paid_by_recipient': 50000,
+      '_transmit_property_mortgage_assumed_by_recipient': 420000,
+      '_transmit_property_recipient_relationship': 'descendant',
+      '_transmit_property_retained_right': 'habitation',
+      '_transmit_property_avancement_hoirie': true,
+      '_coach_data_sources': {
+        'patrimoine.propertyMarketValue': 'estimated',
+        'patrimoine.mortgageBalance': 'userInput',
+        'patrimoine.epargneLiquide': 'userInput',
+        'prevoyance.renteAVSEstimeeMensuelle': 'estimated',
+      },
+      '_coach_data_source_dates': {
+        'patrimoine.mortgageBalance': '2026-05-31T00:00:00.000Z',
+      },
+    },
+    generatedAt: DateTime.utc(2026, 7, 2, 10, 30),
+  );
+}
+
+DossierPayload _incompleteTransmitPropertyDossier() {
+  return DossierPayloadService.buildP0Case(
+    caseId: 'transmit_property',
+    answers: const {
+      '_coach_profile_owner_id': 'local_demo_fixture_owner',
+      'q_property_market_value': 1200000,
+    },
+    generatedAt: DateTime.utc(2026, 7, 2, 10, 30),
+  );
 }

@@ -30,13 +30,24 @@ target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  target 'RunnerTests' do
-    inherit! :search_paths
+  target 'RunnerUITests' do
+    inherit! :complete
   end
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|
+  def append_build_setting(config, key, value)
+    existing = config.build_settings[key]
+    values = existing.is_a?(Array) ? existing : existing.to_s.split(/\s+/)
+    values.unshift('$(inherited)') unless values.include?('$(inherited)')
+    return if values.include?(value)
+
+    values << value
+    config.build_settings[key] = values.reject(&:empty?)
+  end
+
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
@@ -53,6 +64,24 @@ post_install do |installer|
         config.build_settings['CODE_SIGN_IDENTITY'] = ''
         config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''
       end
+
+      if target.name == 'patrol'
+        append_build_setting(
+          config,
+          'FRAMEWORK_SEARCH_PATHS',
+          '$(PLATFORM_DIR)/Developer/Library/Frameworks',
+        )
+        append_build_setting(
+          config,
+          'LIBRARY_SEARCH_PATHS',
+          '$(PLATFORM_DIR)/Developer/usr/lib',
+        )
+        append_build_setting(
+          config,
+          'SWIFT_INCLUDE_PATHS',
+          '$(PLATFORM_DIR)/Developer/usr/lib',
+        )
+      end
     end
   end
 
@@ -62,7 +91,7 @@ post_install do |installer|
   # -lc++abi into the Pods-Runner aggregate xcconfig so the final link picks
   # them up. Safe on device and simulator; both ship with every iOS SDK.
   require 'pathname'
-  Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner/*.xcconfig").each do |xcconfig|
+  Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner*/*.xcconfig").each do |xcconfig|
     contents = xcconfig.read
     next unless contents =~ /^OTHER_LDFLAGS = (.+)$/
     existing = Regexp.last_match(1)

@@ -1,9 +1,10 @@
 %% ============================================================================
 %% WIRING_GRAPH.mmd — MINT navigation + data-flow graph (Codex-executable)
 %% ----------------------------------------------------------------------------
-%% Baseline note: file:line refs target apps/mobile & services/backend at 255373b,
-%% which are UNCHANGED on this branch (only docs/codex/ added since) -> valid at HEAD.
-%% Status: normative. Hand-grounded against the REAL code at commit 255373b.
+%% Baseline note: file:line refs were originally audited against apps/mobile &
+%% services/backend at 255373b, then corrected on this branch. Treat refs as
+%% HEAD contracts and re-verify after code movement.
+%% Status: normative. Hand-grounded against the REAL code.
 %% Every node/edge below is transcribed from apps/mobile/lib/app.dart (router +
 %% MultiProvider tree) with line numbers. Companion: DATA_LEDGER.md,
 %% SCREEN_CONTRACTS.md (exhaustive per-route contracts). Conflict order:
@@ -17,40 +18,52 @@
 flowchart TB
 
   %% ==========================================================================
-  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:1411-1531)
+  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:2035-2165)
   %% The spine + the islands. Solid arrow = live listen/recompute edge that
   %% EXISTS in code. Dashed arrow = REQUIRED bridge that is MISSING today.
   %% ==========================================================================
   subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
     direction TB
-    CPP["CoachProfileProvider<br/>app.dart:1428<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
-    MSP["MintStateProvider<br/>app.dart:1466 (ProxyProvider)<br/>builds MintUserState (read-model)"]
-    NWS["NotificationsWiringService<br/>app.dart:1504 (ProxyProvider)"]
+    CPP["CoachProfileProvider<br/>app.dart:2050<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
+    MSP["MintStateProvider<br/>app.dart:2114 (ProxyProvider)<br/>builds MintUserState (read-model)"]
+    NWS["NotificationsWiringService<br/>app.dart:2161 (ProxyProvider, lazy:false)"]
     PERSIST[("SharedPreferences<br/>key: wizard_answers_v2<br/>report_persistence_service.dart")]
-    BACKEND[("backend ProfileModel.data<br/>save_fact 35-key allowlist<br/>coach_chat.py:924")]
+    BACKEND[("backend ProfileModel.data<br/>save_fact 40-key allowlist<br/>coach_chat.py:_SAVE_FACT_ALLOWED_KEYS")]
+    PTC["PropertyTransmissionCalculator<br/>financial_core/property_transmission_calculator.dart<br/>local deterministic succession triage"]
+    DQ["DataQuestService<br/>services/data_quest/data_quest_service.dart<br/>P0 missing/stale ask planner"]
+    DOSS["DossierPayloadService<br/>services/dossier/dossier_payload_service.dart<br/>schema-backed P0 dossier payload"]
+    PDF["PdfService<br/>services/pdf_service.dart<br/>generic report PDF + typed dossier PDF"]
 
     CPP -- "notifies (ProxyProvider.update)" --> MSP
     CPP -- "notifies (ProxyProvider.update)" --> NWS
     CPP <-- "load/persist" --> PERSIST
     CPP -. "fire-and-forget sync" .-> BACKEND
+    CPP -- "succession local scenario inputs" --> PTC
+    CPP -- "raw answers + provenance maps" --> DQ
+    DQ -- "next_questions + case spec" --> DOSS
+    PTC -- "transmit_property outputs" --> DOSS
+    DOSS -- "buildDossierPayloadPdfBytes" --> PDF
 
-    %% Islands: plain ChangeNotifierProvider, NOT bridged to the recompute.
-    BUDGET["BudgetProvider<br/>app.dart:1419 — ISLAND"]
-    HOUSE["HouseholdProvider<br/>app.dart:1427 — ISLAND"]
-    TIMELINE["TimelineProvider<br/>app.dart:1484 — ISLAND"]
-    DOCS["DocumentProvider<br/>app.dart:1425 — ISLAND"]
-    PLAN["FinancialPlanProvider<br/>app.dart:1479 — ISLAND"]
-    DEADP["ProfileProvider<br/>app.dart:1418 — LEGACY (4 hasDebt consumers, migrate then delete)"]
+    %% Budget/household/plan have live CoachProfile bridges. Timeline/documents
+    %% are reference stores: they keep ids/activity/raw results, not financial
+    %% ledger values. Confirmed extracted facts enter through CoachProfileProvider.
+    BUDGET["BudgetProvider<br/>app.dart:2063 — BRIDGED from CoachProfileProvider"]
+    HOUSE["HouseholdProvider<br/>app.dart:2055 — BRIDGED relation status only"]
+    TIMELINE["TimelineProvider<br/>app.dart:2140 — ACTIVITY/REFERENCE STORE"]
+    DOCS["DocumentProvider<br/>app.dart:2048 — RAW DOCUMENT STORE"]
+    PLAN["FinancialPlanProvider<br/>app.dart:2127 — BRIDGED to CoachProfileProvider staleness"]
+    LEGACY_PROFILE["ProfileProvider + models/profile.dart<br/>legacy module, NOT mounted in app.dart<br/>no prod screen/widget consumer"]
 
-    BUDGET -. "MISSING bridge -> recompute" .-> MSP
-    HOUSE  -. "MISSING sync -> CoachProfile.conjoint" .-> CPP
-    TIMELINE -. "MISSING bridge (re-fetches 4 services)" .-> MSP
-    DOCS   -. "MISSING merge into ledger" .-> CPP
-    PLAN   -. "MISSING bridge -> recompute" .-> MSP
+    CPP -- "refreshFromProfile -> depenses inputs" --> BUDGET
+    BUDGET -- "reads synced profile-derived budget" --> MSP
+    HOUSE -- "active/pending partner -> etatCivil + conjoint.invitationLevel only" --> CPP
+    TIMELINE -. "read-only refs: conversations/docs/landmarks" .-> PERSIST
+    DOCS -. "upload/list/delete ids and raw extraction results only" .-> BACKEND
+    CPP -- "attachProfileProvider -> plan stale on profile hash change" --> PLAN
   end
 
   %% ==========================================================================
-  %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1340)
+  %% PART B — NAVIGATION GRAPH (apps/mobile/lib/app.dart:301-1875)
   %% Nodes = live screens (have a builder). Dashed edges = redirect routes
   %% (legacy shims -> canonical). Every node reachable from a shell tab, hub,
   %% or an explicit deep-link/settings entry point; no orphan; no dead-end
@@ -116,27 +129,30 @@ flowchart TB
     end
     subgraph DATA["collection / documents / report"]
       SCAN["/scan"]; SCANAVS["/scan/avs-guide"]
-      SREVIEW["/scan/review<br/>builds from extra (:903)"]:::trap
-      SIMPACT["/scan/impact<br/>builds from extra (:916)"]:::trap
+      SREVIEW["/scan/review<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1401)"]
+      SIMPACT["/scan/impact<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1423)"]
       DBLOCK["/data-block/:type<br/>DataBlockEnrichmentScreen"]
       DOCLIST["/documents"]; DOCID["/documents/:id"]; BANKIMP["/bank-import"]
-      RAPPORT["/rapport<br/>depends on extra (:974)"]:::trap
-      CONF["/confidence"]
+      RAPPORT["/rapport<br/>ReportRouteScreen<br/>loadAnswers timeout/retry (:1490)"]
+      CONF["/confidence<br/>ConfidenceRouteScreen<br/>profile-first loadResult timeout/retry (:1711)"]
     end
     subgraph MISC["misc / education / couple / settings (deep-link + settings entries)"]
       COUPLE["/couple"]; CACCEPT["/couple/accept"]; EHUB["/education/hub"]; ETHEME["/education/theme/:id"]
       SCOMP["/simulator/compound"]; SLEAS["/simulator/leasing"]; SCRED["/simulator/credit"]
-      LANGUE["/settings/langue"]; ABOUT["/about"]; ADMINR["/admin/routes"]; TL["/timeline"]
+      LANGUE["/settings/langue"]; ABOUT["/about"]; ADMINR["/admin/routes"]; TL["/timeline"]; PBILAN["/profile/bilan"]
     end
 
     %% ---- Redirect shims (legacy -> canonical). Dashed = redirect. ----
-    R_TOOLS["/tools (redirect :1185)"]:::redir
-    R_PORT["/portfolio (redirect :1189)"]:::redir
-    R_ASK["/ask-mint (:1180)"]:::redir
-    R_ADVIS["/advisor* (:1311-1319)"]:::redir
-    R_ONB["/onboarding/* (:1222-1336)"]:::redir
-    R_OB["/open-banking* (:1282-1298)"]:::redir
-    R_LEGACY["25+ legacy redirects<br/>/retirement /coach/* /lpp-deep/* /household*<br/>/report* /score-reveal /achievements /profile"]:::redir
+    R_TOOLS["/tools (redirect :1693)"]:::redir
+    R_PORT["/portfolio (redirect :1700)"]:::redir
+    R_ASK["/ask-mint (:1685)"]:::redir
+    R_ADVIS["/advisor* (:1831-1845)"]:::redir
+    R_ONB["/onboarding/* (:1728-1875)"]:::redir
+    R_OB["/open-banking* (:1804-1819)<br/>feature-flag redirect to / when disabled"]:::redir
+    R_LEGACY["legacy redirects<br/>canonical targets vary:<br/>/retirement /lpp-deep/* /score-reveal /achievements"]:::redir
+    R_HOUSE["/household* (:1466-1486)"]:::redir
+    R_REPORT["/report* (:1495-1507)"]:::redir
+    R_PROFILE["/profile exact (:1512-1517)"]:::redir
 
     %% ---- Real navigation edges ----
     LAND --> REG --> VEMAIL --> COACH
@@ -159,11 +175,14 @@ flowchart TB
     ARGENT --> CDEBT --> DRATIO & DHELP & DREPAY
     COACH --> DBLOCK
     COACH --> SCAN --> SCANAVS
+    COACH --> CHIST
     SCAN --> SREVIEW --> SIMPACT
-    COACH --> RAPPORT --> CONF
+    COACH --> RAPPORT
+    COACH -. explicit deep-link / runtime proof .-> CONF
     RETR --> RVC & RACHAT & DECAI
     HOME --> TL
     ARGENT --> DOCLIST --> DOCID
+    DOCLIST --> BANKIMP
 
     %% ---- Reachability for MISC/couple/education/settings (I-7) ----
     %% couple invite lands via family hub; education hub via coach; the three
@@ -172,7 +191,7 @@ flowchart TB
     H_FAM --> COUPLE --> CACCEPT
     COACH --> EHUB --> ETHEME
     ARGENT --> SCOMP & SLEAS & SCRED
-    HOME --> LANGUE & ABOUT & ADMINR
+    HOME --> LANGUE & ABOUT & ADMINR & PBILAN
 
     %% ---- Redirect resolution edges (no dangling shim) ----
     R_TOOLS -. redirect .-> COACH
@@ -180,30 +199,46 @@ flowchart TB
     R_ASK -. redirect .-> COACH
     R_ADVIS -. redirect .-> COACH
     R_ONB -. redirect .-> COACH
-    R_OB -. redirect .-> ARGENT
+    R_OB -. enabled route / disabled redirect .-> ARGENT
+    R_OB -. disabled redirect .-> LAND
+    R_HOUSE -. redirect .-> COUPLE
+    R_REPORT -. redirect .-> RAPPORT
+    R_PROFILE -. redirect .-> PBILAN
     R_LEGACY -. redirect .-> HOME
+
   end
+
+  PTC -- "retirementAffordability + familyEqualization" --> SUCC
+  PDF -- "export/share dossier bytes" --> RAPPORT
 
   classDef trap fill:#5a1111,stroke:#ff5555,color:#fff,stroke-width:2px;
   classDef redir fill:#333,stroke:#888,color:#ccc,stroke-dasharray:4 3;
 
 %% ============================================================================
-%% DEAD-ROADS TO ELIMINATE (verified — SCREEN_CONTRACTS.md specifies the fix)
+%% DEAD-ROADS / REPAIRS (verified — SCREEN_CONTRACTS.md specifies contracts)
 %% ----------------------------------------------------------------------------
-%% D-1 /scan/review  (app.dart:903)  builds Scaffold(Text('Document non
-%%     disponible')) when state.extra is null. No AppBar, no back, no CTA, not
-%%     i18n. FIX: resolve doc from ledger by id; render errorState with recovery
-%%     CTA -> /scan. (Violates I-1, I-2, I-6.)
-%% D-2 /scan/impact  (app.dart:916)  same trap. Same fix.
-%% D-3 /rapport      (app.dart:974)  depends on extra: wizardAnswers; blank if
-%%     ReportPersistenceService slow/fails. FIX: read from ledger; loading +
-%%     errorState. (Violates I-1, I-2.)
-%% D-4 /tools        (app.dart:1185) redirect -> /coach/chat loses context; the
-%%     financial-report investment cards (financial_report_screen_v2.dart:51
-%%     ActionCategory.investment/.other -> '/tools') dead-end. FIX: route to a
-%%     real actionable destination or an education screen with the topic param.
-%% D-5 /portfolio    (app.dart:1189) redirect -> /home drops query params.
-%%     FIX: pass-through params, or map to /mon-argent preserving state.
+%% D-1 /scan/review  FIXED at HEAD. app.dart:1401-1420 resolves only
+%%     scanSessionId (query first, extra string fallback via app.dart:261-265)
+%%     and reads ScanSessionProvider via context.watch so persisted
+%%     scan_session_v1 restore can complete before the recovery branch.
+%% D-2 /scan/impact  FIXED at HEAD. app.dart:1423-1442 resolves only
+%%     scanSessionId and waits for ScanSessionProvider restore before showing
+%%     _MissingScanSessionScreen with scan_impact_recovery_cta after a true miss.
+%% D-3 /rapport      FIXED at HEAD for I-2/no-extra and spinner-forever.
+%%     app.dart:1490-1492 delegates to ReportRouteScreen; report_route_screen.dart:37-85
+%%     reads ReportPersistenceService.loadAnswers(), applies an 8s timeout, and
+%%     renders financialReportLoadErrorTitle/commonRetry on failure. The visible
+%%     screen now builds the three P0 DossierPayloadService cases and exposes
+%%     report_dossier_<case>_export_cta buttons wired to
+%%     PdfService.generateDossierPayloadPdf. Main narrative sections still use
+%%     the existing FinancialReport adapter.
+%% D-4 /tools/report actions FIXED at HEAD for the current report source.
+%%     /tools redirect preserves query params (app.dart:1693-1698), and
+%%     financial_report_screen_v2.dart:55-66 maps investment/other directly to
+%%     /coach/chat?topic=... instead of bare /tools. R-3 verifies a seeded
+%%     report action reaches /pilier-3a via report_action_pillar3a_cta.
+%% D-5 /portfolio    FIXED at HEAD. app.dart:1700-1704 redirects -> /home
+%%     through _redirectWithQuery, preserving query params/state.
 %% ============================================================================
 
 %% ============================================================================
@@ -212,32 +247,38 @@ flowchart TB
 %% I-1 SINGLE SOURCE: no GoRoute `builder:` in app.dart reads domain financial
 %%     data from `state.extra`. Allowed in extra: ids, enums, ephemeral UI.
 %%     CHECK: grep builders for `state.extra` casts to domain models; expect 0.
-%% I-2 EXTRA IS EPHEMERAL: every route whose builder currently consumes extra
-%%     (/scan/review :903, /scan/impact :916, /rapport :974) must resolve its
-%%     data from CoachProfileProvider/MintStateProvider by id and render an
-%%     errorState (recovery CTA + i18n key) when the id is absent.
+%% I-2 EXTRA IS EPHEMERAL: /scan/review and /scan/impact may consume only a
+%%     scanSessionId string (query preferred, extra fallback), never
+%%     ExtractionResult. /rapport must not consume wizardAnswers or dossier
+%%     payloads via extra; it must rebuild from persisted answers/ledger.
+%%     Each route must render a recovery CTA + i18n text when data is absent.
 %% I-3 SINGLE WRITE PATH: no screen/service writes wizard_answers_v2 or backend
 %%     ProfileModel.data except via CoachProfileProvider.mergeAnswers /
 %%     applySaveFact / updateProfile. CHECK: grep report_persistence_service
 %%     writers outside coach_profile_provider.dart; expect 0.
-%% I-4 NO ISLANDS: every provider that holds user-derived state must feed the
-%%     recompute. Today MISSING for BudgetProvider(:1419), HouseholdProvider
-%%     (:1427), TimelineProvider(:1484), DocumentProvider(:1425),
-%%     FinancialPlanProvider(:1479). FIX: convert each to
-%%     ChangeNotifierProxyProvider<CoachProfileProvider, _> OR emit a bridge
-%%     that calls MintStateProvider.recompute (pattern = app.dart:1466-1478).
-%% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1418) still
-%%     has 4 live consumers, all reading `hasDebt`:
-%%       - simulator_3a_screen.dart:197 (context.read<ProfileProvider>())
-%%       - simulator_3a_screen.dart:301 (context.watch<ProfileProvider>())
-%%       - widgets/comparators/pillar3a_comparator_widget.dart:29
-%%       - widgets/simulators/buyback_widget.dart:39
-%%       - widgets/recommendation_card.dart:17
-%%     FIX (ordered): migrate each `hasDebt` read to
-%%     CoachProfileProvider.profile?.hasDebt, THEN delete ProfileProvider +
-%%     models/profile.dart. models/profile.dart is not part of the ledger.
-%%     CHECK: grep `context.(read|watch)<ProfileProvider>` under apps/mobile/lib
-%%     expect 0 before the provider is removed.
+%% I-4 NO FINANCIAL-DATA ISLANDS: every provider that holds authoritative
+%%     financial/profile state must feed the recompute. BudgetProvider is now
+%%     bridged at app.dart:2063-2079.
+%%     HouseholdProvider is now bridged at app.dart:2055-2062 for relation
+%%     status only (etatCivil + conjoint.invitationLevel); spouse financial
+%%     fields remain Data Quest inputs. FinancialPlanProvider is now bridged at
+%%     app.dart:2127-2134 for plan-staleness detection. TimelineProvider(:2140),
+%%     DocumentProvider(:2048), ConversationStore and raw document stores are
+%%     reference/activity stores: they must NOT write financial ledger values.
+%%     Their extracted/confirmed facts enter through CoachProfileProvider
+%%     write APIs at scan or coach confirmation time.
+%%     CHECK: apps/mobile/test/architecture/raw_reference_stores_contract_test.dart
+%% I-5 LEGACY PROVIDER (screen migration done): ProfileProvider is no longer
+%%     registered in app.dart and has no production screen/widget consumer.
+%%     `hasDebt` gates now use lookupSafeModeFlag(context), which resolves from
+%%     the CoachProfileProvider/Mint ledger spine. ProfileProvider +
+%%     models/profile.dart remain legacy compatibility modules only while
+%%     services/api_service.dart, wizard_service.dart and tests still depend on
+%%     Profile. Do not extend them. Next deletion step requires a dedicated
+%%     migration/guard for non-screen services.
+%%     CHECK: apps/mobile/test/architecture/no_legacy_profile_provider_consumers_test.dart
+%%     plus grep `context.(read|watch)<ProfileProvider>` under apps/mobile/lib
+%%     expect 0.
 %% I-6 EVERY SCREEN NODE has emptyState + partialState + errorState declared in
 %%     SCREEN_CONTRACTS.md (1:1 with the live routes above). CHECK: every
 %%     `path:` builder in app.dart has a row; no row missing those 3 states.
@@ -250,5 +291,7 @@ flowchart TB
 %% I-8 REDIRECTS PRESERVE CONTEXT: redirect routes must forward query params /
 %%     topic (fix D-4, D-5). CHECK: /tools and /portfolio redirects pass state.
 %% I-9 PROJECTIONS RANGED: any node that renders a projected number pairs it
-%%     with EnhancedConfidence + range (DATA_LEDGER I-5 / CLAUDE.md §5).
+%%     with EnhancedConfidence + range (DATA_LEDGER I-5 / CLAUDE.md §5). P0
+%%     dossier payload tests must prove source/confidence metadata and PDF
+%%     export manifest coverage for the dossier.
 %% ============================================================================

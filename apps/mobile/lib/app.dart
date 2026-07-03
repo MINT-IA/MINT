@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +56,7 @@ import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/notifications_wiring_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
+import 'package:mint_mobile/services/startup_route_override.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/independant_screen.dart';
@@ -109,6 +112,7 @@ import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
@@ -1369,6 +1373,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AnalyticsService().init();
+    _consumeMintDebugInitialRoute();
     NotificationService().init().then((_) => _consumeNotificationRoute());
   }
 
@@ -1390,6 +1395,100 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         _router.go(route);
       });
     }
+  }
+
+  void _consumeMintDebugInitialRoute() {
+    readMintDebugInitialRoute().then((route) async {
+      if (!mounted || route == null || route.isEmpty) return;
+      await _seedMintDebugReportFixture();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _router.go(route);
+      });
+    });
+  }
+
+  Future<void> _seedMintDebugReportFixture() async {
+    final fixture = await readMintDebugReportFixtureSeed();
+    if (fixture != 'first_salary_tax_vd') return;
+    await ReportPersistenceService.saveAnswers(
+      const {
+        'q_firstname': 'TestUser',
+        'q_birth_year': 1990,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_children': '0',
+        'q_employment_status': 'employee',
+        'q_net_income_period_chf': 6000.0,
+        'q_pay_frequency': 'monthly',
+        'q_emergency_fund': 'yes_3months',
+        'q_has_consumer_debt': 'no',
+        'q_housing_status': 'renter',
+        'q_housing_cost_period_chf': 1500.0,
+        'q_has_pension_fund': 'yes',
+        'q_3a_accounts_count': 1,
+        'q_3a_providers': ['bank'],
+        'q_3a_annual_contribution': 7258.0,
+        'q_lpp_buyback_available': 0.0,
+        'q_has_investments': 'no',
+      },
+    );
+  }
+
+  Future<void> _loadCoachProfileWithDebugSeed(
+    CoachProfileProvider provider,
+  ) async {
+    await provider.loadFromWizard();
+    final proofSourceDate = DateTime.now().toUtc();
+    final fixture = await readMintDebugTransmitPropertyFixtureSeed();
+    if (fixture == 'raiffeisen_status') {
+      await provider.mergeAnswers(
+        const {
+          'q_canton': 'VD',
+          'q_birth_year': 1960,
+          'q_children': 2,
+          'fp:patrimoine.mortgageBalance': 420000,
+          'fp:patrimoine.epargneLiquide': 120000,
+          '_coach_avs_rente_estimee': 6333.333333333333,
+          'q_housing_cost_period_chf': 6600,
+          'q_lamal_premium_monthly_chf': 400,
+          '_transmit_property_cash_paid_by_recipient': 50000,
+          '_transmit_property_mortgage_assumed_by_recipient': 420000,
+          '_transmit_property_recipient_relationship': 'descendant',
+          '_transmit_property_retained_right': 'habitation',
+          '_transmit_property_avancement_hoirie': true,
+        },
+        source: ProfileDataSource.userInput,
+        sourceDate: proofSourceDate,
+      );
+      await provider.mergeAnswers(
+        const {'fp:patrimoine.propertyMarketValue': 1200000},
+        source: ProfileDataSource.estimated,
+        sourceDate: proofSourceDate,
+      );
+    }
+    final revenueAnnual = await readMintDebugRevenueAnnualSeed();
+    final canton = await readMintDebugCantonSeed();
+    final revenueSeed = <String, dynamic>{
+      if (revenueAnnual != null) 'q_gross_salary_annual': revenueAnnual,
+      if (canton != null) 'q_canton': canton,
+    };
+    if (revenueSeed.isNotEmpty) {
+      await provider.mergeAnswers(
+        revenueSeed,
+        source: ProfileDataSource.userInput,
+        sourceDate: proofSourceDate,
+      );
+    }
+    final propertyValue = await readMintDebugPropertyValueSeed();
+    if (propertyValue == null || fixture == 'raiffeisen_status') return;
+    final propertyValueStale = await readMintDebugPropertyValueStaleSeed();
+    await provider.mergeAnswers(
+      {'fp:patrimoine.propertyMarketValue': propertyValue},
+      source: ProfileDataSource.userInput,
+      sourceDate:
+          propertyValueStale ? DateTime.utc(2024, 1, 1) : proofSourceDate,
+    );
   }
 
   @override
@@ -1427,7 +1526,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = CoachProfileProvider();
-          provider.loadFromWizard();
+          unawaited(_loadCoachProfileWithDebugSeed(provider));
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {

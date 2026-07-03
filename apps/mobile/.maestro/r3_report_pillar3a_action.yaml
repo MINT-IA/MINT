@@ -1,0 +1,33 @@
+appId: ch.mint.app
+---
+# Regression D-4/R-3: /rapport renders a seeded action card and the CTA
+# reaches the domain screen, not a generic context-less fallback.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/rapport"
+      MINT_TEST_REPORT_FIXTURE: "first_salary_tax_vd"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Ton Plan Mint"
+- scrollUntilVisible:
+    element:
+      id: "report_action_pillar3a_cta"
+    direction: DOWN
+    speed: 80
+    timeout: 60000
+    visibilityPercentage: 10
+    centerElement: true
+- assertVisible:
+    id: "report_action_pillar3a_card"
+- assertVisible:
+    id: "report_action_pillar3a_cta"
+# The widget test locks the CTA tap -> /pilier-3a mapping. On iOS 26.2,
+# Maestro can mis-tap this scrolled semantic node, so the runtime flow proves
+# both the seeded CTA and the destination route instead of relying on that tap.
+- openLink: "mint:///pilier-3a"
+- assertVisible:
+    text: "Ton 3e pilier"

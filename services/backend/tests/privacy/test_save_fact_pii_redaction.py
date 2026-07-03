@@ -69,6 +69,7 @@ def test_numeric_financial_amounts_denied():
     assert not is_safe_to_log("savingsMonthly")
     assert not is_safe_to_log("totalSavings")
     assert not is_safe_to_log("wealthEstimate")
+    assert not is_safe_to_log("targetPropertyValue")
     assert not is_safe_to_log("totalDebt")
     assert not is_safe_to_log("spouseIncomeNetMonthly")
 

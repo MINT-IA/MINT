@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MINT dossier payload: first_salary_tax",
+  "type": "object",
+  "additionalProperties": false,
+  "x-mint-owner": "mint-lucidity-pdf",
+  "x-mint-case-id": "first_salary_tax",
+  "x-mint-pdf-section-id": "dossier_first_salary_tax",
+  "required": [
+    "case_id",
+    "pdf_section_id",
+    "profile_owner_id",
+    "scenario_id",
+    "generated_at",
+    "inputs",
+    "outputs",
+    "assumptions",
+    "warnings",
+    "next_questions"
+  ],
+  "properties": {
+    "case_id": {
+      "const": "first_salary_tax"
+    },
+    "pdf_section_id": {
+      "const": "dossier_first_salary_tax"
+    },
+    "profile_owner_id": {
+      "type": "string"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inputs": {
+      "type": "object",
+      "required": [
+        "birthYear",
+        "canton",
+        "incomeGrossYearly",
+        "has2ndPillar"
+      ],
+      "additionalProperties": true
+    },
+    "outputs": {
+      "type": "object",
+      "required": [
+        "tax_context",
+        "pillar3a_ceiling_context"
+      ],
+      "additionalProperties": true
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input_key",
+          "value",
+          "source",
+          "confidence",
+          "source_required",
+          "confidence_required"
+        ],
+        "properties": {
+          "input_key": {
+            "type": "string",
+            "enum": [
+              "taxYear"
+            ]
+          },
+          "value": {},
+          "source": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "source_required": {
+            "const": true
+          },
+          "confidence_required": {
+            "const": true
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+appId: ch.mint.app
+---
+# Regression R-3b route trap: /confidence must render from persisted answers
+# seeded at startup, not stay on a spinner or require GoRouter.extra.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/confidence"
+      MINT_TEST_REPORT_FIXTURE: "first_salary_tax_vd"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Précision de ton profil"
+- assertVisible:
+    id: "confidence_score_gauge"
