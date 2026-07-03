@@ -278,6 +278,28 @@ def test_codex_executable_specs_are_in_scope(tmp_path: Path) -> None:
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
 
+def test_property_transmission_calculator_files_are_in_scope(
+    tmp_path: Path,
+) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/services/financial_core/property_transmission_calculator.dart",
+            "apps/mobile/test/fixtures/scenarios/property_transmission_raiffeisen.json",
+            "apps/mobile/test/fixtures/scenarios/property_transmission_raiffeisen_source_dates.json",
+            "apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart",
+            "docs/calculator-graph.md",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
 def test_mint2_vz_route_architecture_doc_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
