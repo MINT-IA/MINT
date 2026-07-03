@@ -112,6 +112,44 @@ Normal maximum:
 Clean merged worktrees should be removed immediately. Dirty worktrees are
 classified and preserved until reviewed.
 
+## Branch Inventory Checkpoint - 2026-07-03
+
+`origin/dev` is the current integration base for Mint product work.
+
+Audit evidence from 2026-07-03:
+
+- Remote refs after `git fetch --all --prune`: `origin/dev`,
+  `origin/staging`, `origin/main`, `origin/claude/mint-swiss-coach-eu33i7`,
+  and `origin/codex/mint-dataquest-transmit-property-clean`.
+- `origin/dev` at `4d040cef1` contains the tracked operating system:
+  this workflow doc, `.planning/ACTIVE_CONTEXT.*`, Mint agents, Mint skills,
+  and active context / phase / rules guards.
+- `origin/claude/mint-swiss-coach-eu33i7` at `b11052b61` contains the 5 Codex
+  specs but not the tracked operating system. It is `1562` commits behind
+  `origin/dev` and `9` ahead.
+- `codex/mint-dataquest-transmit-property-clean` at `bc53aedc3` contains a
+  DataQuest/property-transmission slice, but it is also based on the old spec
+  branch. It is `1562` commits behind `origin/dev` and `10` ahead.
+- GitHub had no open PRs, and no PR for either the spec branch or the DataQuest
+  branch.
+- The main checkout on `claude/mint-swiss-coach-eu33i7` is quarantine material:
+  it had `98` unstaged files, `59` staged files, and `2521` untracked files.
+- `/private/tmp/mint-dataquest-clean` is clean except `.hypothesis/` and is a
+  source for selective porting, not a merge base.
+- The clean worktree formerly named `feature-SXX-ui-test-batch` is the safe
+  `origin/dev`-based integration surface.
+- Dirty worktrees `dev-preflight-20260701` and `mint-journey-os-20260625`
+  contain uncommitted deltas and must be audited before any salvage.
+
+Consolidation rule:
+
+- Do not merge old-base branches directly.
+- Port useful deltas onto a fresh `origin/dev` branch in small commits.
+- Import only Mint-specific local additions after review. Do not import the
+  whole untracked vendor skill catalog from `.agents/skills`.
+- Treat local dirty checkouts as reference/quarantine until each delta is
+  committed, ported, or explicitly dropped.
+
 ## Merge Discipline
 
 Allowed:
