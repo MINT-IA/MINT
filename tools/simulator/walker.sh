@@ -33,6 +33,7 @@
 #
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEVICE="${MINT_WALKER_DEVICE:-iPhone 17 Pro}"
 BUNDLE="com.mint.mintMobile"
 MODE="${1:---quick-screenshot}"
@@ -113,6 +114,7 @@ else
   # -------------------------------------------------------------------------
   : "${SENTRY_DSN_STAGING:?SENTRY_DSN_STAGING required for simulator build}"
 
+  export PATH="$ROOT/apps/mobile/ios/mint_xcode_tools:$PATH"
   log "build: flutter build ios --simulator (staging dart-defines)"
   (cd apps/mobile && flutter build ios --simulator \
     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
@@ -176,6 +178,7 @@ case "$MODE" in
       mkdir -p "$ADMIN_OUT"
       log "admin-routes: output dir ${ADMIN_OUT}"
 
+      export PATH="$ROOT/apps/mobile/ios/mint_xcode_tools:$PATH"
       log "admin-routes: flutter build ios --simulator with ENABLE_ADMIN=1"
       (cd apps/mobile && flutter build ios --simulator \
         --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \

@@ -46,12 +46,17 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "ch.mint.coach"
         minSdk = 24
         targetSdk = 34
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        buildConfigField "boolean", "ENABLE_RUNTIME_ARGS_CHANNEL", "false"
     }
 
     signingConfigs {
@@ -66,7 +71,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "boolean", "ENABLE_RUNTIME_ARGS_CHANNEL", "true"
+        }
         release {
+            buildConfigField "boolean", "ENABLE_RUNTIME_ARGS_CHANNEL", "false"
             signingConfig = keystorePropertiesFile.exists()
                 ? signingConfigs.release
                 : signingConfigs.debug

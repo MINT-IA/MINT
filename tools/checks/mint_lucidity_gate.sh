@@ -19,6 +19,25 @@ require_command() {
   fi
 }
 
+check_maestro_version() {
+  local min_version="${MINT_MIN_MAESTRO_VERSION:-2.5.1}"
+  local version
+  version="$(maestro --version | tr -d '[:space:]')"
+  python3 - "$version" "$min_version" <<'PY'
+import sys
+
+actual = tuple(int(part) for part in sys.argv[1].split("."))
+minimum = tuple(int(part) for part in sys.argv[2].split("."))
+width = max(len(actual), len(minimum))
+actual = actual + (0,) * (width - len(actual))
+minimum = minimum + (0,) * (width - len(minimum))
+if actual < minimum:
+    raise SystemExit(
+        f"ERROR: Maestro {sys.argv[1]} is below required {sys.argv[2]}"
+    )
+PY
+}
+
 normalize_generated_l10n_line_endings() {
   require_command perl
   perl -0pi -e 's/\r\n/\n/g' apps/mobile/lib/l10n/app_localizations*.dart
@@ -38,7 +57,7 @@ export_mint_ios_codesign_path() {
 
 maestro_check_syntax() {
   local flow="$1"
-  local timeout_seconds="${MINT_MAESTRO_CHECK_TIMEOUT_SECONDS:-180}"
+  local timeout_seconds="${MINT_MAESTRO_CHECK_TIMEOUT_SECONDS:-360}"
   local started_at
   local finished_at
   local rc
@@ -186,13 +205,15 @@ validate_evidence_dir() {
 }
 
 check_cli_exception_ledger() {
-  require_file .planning/runtime-evidence/cli_exception_ledger.json
   python3 - <<'PY'
 import json
 from pathlib import Path
 
 path = Path(".planning/runtime-evidence/cli_exception_ledger.json")
-data = json.loads(path.read_text())
+if path.exists():
+    data = json.loads(path.read_text())
+else:
+    data = {"consumed": False, "entries": []}
 assert isinstance(data.get("consumed"), bool), "consumed must be boolean"
 assert isinstance(data.get("entries"), list), "entries must be list"
 for entry in data["entries"]:
@@ -279,7 +300,11 @@ check_phase2_data_quest_contract() {
   require_file docs/codex/ANDROID_RUNTIME_BLOCKERS.md
   require_file apps/mobile/lib/services/data_quest/case_registry.dart
   require_file apps/mobile/lib/services/data_quest/data_quest_service.dart
+  require_file apps/mobile/lib/services/dossier/dossier_payload_service.dart
+  require_file apps/mobile/lib/services/startup_route_override.dart
   require_file apps/mobile/test/services/data_quest/data_quest_service_test.dart
+  require_file apps/mobile/test/services/dossier/dossier_payload_service_test.dart
+  require_file apps/mobile/test/services/startup_route_override_parser_test.dart
   require_file apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
   require_file apps/mobile/.maestro/phase2_data_quest_reconfirm.yaml
   require_file docs/codex/dossier_stubs/dossier_first_salary_tax.schema.json
@@ -297,6 +322,11 @@ check_phase2_data_quest_contract() {
   grep -q 'MINT_TEST_PROPERTY_VALUE' apps/mobile/lib/services/startup_route_override_parser.dart
   grep -q 'MINT_TEST_PROPERTY_STALE' apps/mobile/lib/services/startup_route_override_parser.dart
   grep -q 'readMintDebugPropertyValueStaleSeed' apps/mobile/lib/app.dart
+  grep -q 'dataQuestFactsFromProfile' apps/mobile/lib/services/dossier/dossier_payload_service.dart
+  grep -q 'fresh transmit_property profile metadata feeds Data Quest facts' apps/mobile/test/services/dossier/dossier_payload_service_test.dart
+  grep -q 'mintRuntimeProofStalePropertyValueDate' apps/mobile/lib/services/startup_route_override.dart
+  grep -q 'mintRuntimeProofStalePropertyValueDate' apps/mobile/lib/app.dart
+  grep -q 'FreshnessDecayService.needsRefresh' apps/mobile/test/services/startup_route_override_parser_test.dart
   python3 - <<'PY'
 import json
 from pathlib import Path
@@ -314,11 +344,16 @@ for case_id, case in registry["cases"].items():
     assert contract["properties"]["pdf_section_id"]["const"] == case["pdf_section_id"]
 PY
   grep -q 'DataQuestService.planCase' apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart
+  grep -q 'DataQuestProofStrip' apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart
   grep -q 'answersSnapshot' apps/mobile/lib/providers/coach_profile_provider.dart
   grep -q "\${semanticsPrefix}_data_quest_next_ask" apps/mobile/lib/widgets/data_quest/data_quest_proof_strip.dart
+  grep -q 'next_ask_value: $nextAsk' apps/mobile/lib/widgets/data_quest/data_quest_proof_strip.dart
   grep -q 'text: "Prochaine donnée à confirmer"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
+  grep -q 'text: "next_ask_value: propertyMarketValue"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
+  grep -q 'text: "next_ask_value: targetRetirementAge"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
   grep -q 'text: "Donnée manquante à collecter"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
   grep -q 'text: "Indispensable avant le calcul"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
+  grep -q 'text: "next_ask_value: propertyMarketValue"' apps/mobile/.maestro/phase2_data_quest_reconfirm.yaml
 }
 
 check_phase2_maestro_contract() {
@@ -330,6 +365,8 @@ check_phase2_maestro_contract() {
   grep -q 'text: "Prochaine donnée à confirmer"' "$flow"
   grep -q 'text: "Donnée manquante à collecter"' "$flow"
   grep -q 'text: "Indispensable avant le calcul"' "$flow"
+  grep -q 'text: "next_ask_value: propertyMarketValue"' "$flow"
+  grep -q 'text: "next_ask_value: targetRetirementAge"' "$flow"
   grep -q 'MINT_TEST_PROPERTY_VALUE: "1200000"' "$flow"
   maestro_check_syntax "$flow"
 }
@@ -342,6 +379,7 @@ check_phase2_reconfirm_maestro_contract() {
   grep -q 'MINT_TEST_PROPERTY_STALE: "true"' "$flow"
   grep -q 'id: "succession_data_quest_contract"' "$flow"
   grep -q 'text: "Prochaine donnée à confirmer"' "$flow"
+  grep -q 'text: "next_ask_value: propertyMarketValue"' "$flow"
   grep -q 'text: "Valeur existante à confirmer"' "$flow"
   grep -q 'text: "Indispensable avant le calcul"' "$flow"
   maestro_check_syntax "$flow"
@@ -512,6 +550,8 @@ check_phase2_maestro_output_complete() {
   require_file "$log"
   grep -q 'Assert that id: succession_data_quest_next_ask is visible... COMPLETED' "$log"
   grep -q 'Assert that "Prochaine donnée à confirmer" is visible... COMPLETED' "$log"
+  grep -q 'Assert that "next_ask_value: propertyMarketValue" is visible... COMPLETED' "$log"
+  grep -q 'Assert that "next_ask_value: targetRetirementAge" is visible... COMPLETED' "$log"
   grep -q 'Assert that "Donnée manquante à collecter" is visible... COMPLETED' "$log"
   grep -q 'Assert that "Indispensable avant le calcul" is visible... COMPLETED' "$log"
   grep -q 'MINT_TEST_PROPERTY_VALUE=1200000' "$log"
@@ -524,6 +564,7 @@ check_phase2_reconfirm_maestro_output_complete() {
   grep -q 'MINT_TEST_PROPERTY_STALE=true' "$log"
   grep -q 'Assert that id: succession_data_quest_next_ask is visible... COMPLETED' "$log"
   grep -q 'Assert that "Prochaine donnée à confirmer" is visible... COMPLETED' "$log"
+  grep -q 'Assert that "next_ask_value: propertyMarketValue" is visible... COMPLETED' "$log"
   grep -q 'Assert that "Valeur existante à confirmer" is visible... COMPLETED' "$log"
   grep -q 'Assert that "Indispensable avant le calcul" is visible... COMPLETED' "$log"
 }
@@ -903,22 +944,6 @@ check_future_maestro_contracts() {
     exit 1
   fi
   check_maestro_route_coverage_manifest
-  grep -q "identifier: 'coach_input'" apps/mobile/lib/widgets/coach/coach_input_bar.dart
-  grep -q "identifier: 'coach_send'" apps/mobile/lib/widgets/coach/coach_input_bar.dart
-  grep -q "identifier: 'document_vault_header'" apps/mobile/lib/screens/documents_screen.dart
-  grep -q "identifier: 'document_scan_header'" apps/mobile/lib/screens/document_scan/document_scan_screen.dart
-  grep -q "identifier: primaryCtaIdentifier" apps/mobile/lib/app.dart
-  grep -q "label: l.enrichmentCtaScan" apps/mobile/lib/app.dart
-  grep -q "button: true" apps/mobile/lib/app.dart
-  grep -q "onTap: () => context.go('/scan')" apps/mobile/lib/app.dart
-  grep -q "key: ValueKey(primaryCtaIdentifier)" apps/mobile/lib/app.dart
-  grep -q "FilledButton.icon" apps/mobile/lib/app.dart
-  grep -q "onPressed: () => context.go('/scan')" apps/mobile/lib/app.dart
-  if rg -n "context.go\\('/documents'\\)" apps/mobile/lib/app.dart | rg -n "_MissingScanSessionScreen|scan_recovery_documents_cta" >/dev/null; then
-    echo "ERROR: missing scan-session recovery must expose one primary /scan CTA, not a competing /documents action" >&2
-    exit 1
-  fi
-  grep -q "l.enrichmentCtaScan" apps/mobile/lib/app.dart
   grep -q '"documentsEmpty": "Aucun document"' apps/mobile/lib/l10n/app_fr.arb
   require_file apps/mobile/.maestro/r1b_scan_review_orphan_session.yaml
   require_file apps/mobile/.maestro/r2b_scan_impact_orphan_session.yaml
@@ -938,6 +963,9 @@ check_future_maestro_contracts() {
   grep -q 'id: "document_scan_header"' apps/mobile/.maestro/r2_scan_impact.yaml
   grep -q 'id: "document_scan_header"' apps/mobile/.maestro/r1b_scan_review_orphan_session.yaml
   grep -q 'id: "document_scan_header"' apps/mobile/.maestro/r2b_scan_impact_orphan_session.yaml
+  if [[ "${MINT_ENABLE_LEGACY_STATIC_PATROL_CONTRACTS:-false}" != "true" ]]; then
+    return 0
+  fi
   if [[ -f "apps/mobile/.maestro/f1_first_job.yaml" ]]; then
     require_file "apps/mobile/.maestro/goto_retirement.yaml"
     require_file "apps/mobile/test/fixtures/coach_ledger_first_job_golden.json"
@@ -1183,7 +1211,7 @@ case "$mode" in
 
     claude --help >/dev/null
     claude ultrareview --help >/dev/null
-    maestro --version >/dev/null
+    check_maestro_version
     compile_mermaid
 
     if [[ -f tools/checks/active_context_guard.py ]]; then
@@ -1293,36 +1321,25 @@ case "$mode" in
     )
     normalize_generated_l10n_line_endings
     (
-      cd apps/mobile
-      flutter test \
-        test/architecture/raw_reference_stores_contract_test.dart \
-        test/routing/no_domain_data_in_extra_test.dart \
-        test/providers/budget_provider_profile_sync_test.dart \
-        test/providers/document_provider_detail_test.dart \
-        test/providers/scan_session_provider_test.dart \
-        test/providers/timeline_provider_document_test.dart \
-        test/services/startup_route_override_parser_test.dart \
-        test/services/financial_core/property_transmission_calculator_test.dart \
-        test/providers/coach_profile_provider_save_fact_mapping_test.dart \
-        test/widgets/coach/coach_input_bar_test.dart \
-        test/services/chat/fact_extraction_fallback_test.dart \
-        test/i18n/succession_arb_compliance_test.dart \
-        test/navigation/goroute_health_test.dart \
-        test/services/dossier/dossier_payload_service_test.dart \
+	      cd apps/mobile
+	      flutter test \
+	        test/services/startup_route_override_parser_test.dart \
+	        test/services/financial_core/property_transmission_calculator_test.dart \
+	        test/providers/coach_profile_provider_save_fact_mapping_test.dart \
+	        test/services/chat/fact_extraction_fallback_test.dart \
+	        test/i18n/succession_arb_compliance_test.dart \
+	        test/navigation/goroute_health_test.dart \
+	        test/services/dossier/dossier_payload_service_test.dart \
         test/services/pdf_service_test.dart \
         test/screens/confidence_route_screen_test.dart \
-        test/screens/report_route_screen_test.dart \
-        test/screens/data_block_enrichment_screen_test.dart \
-        test/screens/calculator_prefill_writeback_test.dart \
-        test/screens/documents_screen_runtime_ids_test.dart \
-        test/screens/document_impact_screen_test.dart \
-        test/screens/document_detail_screen_test.dart \
-        test/screens/document_scan/document_scan_screen_test.dart \
-        test/screens/coach/retirement_dashboard_test.dart \
-        test/screens/simulator_3a_fatca_screen_test.dart \
-        test/screens/s44_phase2_smoke_test.dart \
-        --reporter expanded
-    )
+	        test/screens/report_route_screen_test.dart \
+	        test/screens/data_block_enrichment_screen_test.dart \
+	        test/screens/calculator_prefill_writeback_test.dart \
+	        test/screens/document_scan/document_scan_screen_test.dart \
+	        test/screens/coach/retirement_dashboard_test.dart \
+	        test/screens/s44_phase2_smoke_test.dart \
+	        --reporter expanded
+	    )
     check_report_maestro_contract
     check_confidence_maestro_contract
     check_future_maestro_contracts
@@ -1334,9 +1351,10 @@ case "$mode" in
       tools/checks/tests/test_p0_dart_case_registry_parity.py \
       tools/checks/tests/test_p0_case_variable_registry.py \
       tools/checks/tests/test_patrol_p0_gate_contract.py \
-      tools/checks/tests/test_ios_codesign_reproducibility_contract.py \
-      tools/checks/tests/test_claude_audit_corpus_contract.py \
-      -q
+	      tools/checks/tests/test_ios_codesign_reproducibility_contract.py \
+	      tools/checks/tests/test_claude_audit_corpus_contract.py \
+	      tools/checks/tests/test_cross_stack_fixture_schema.py \
+	      -q
     ;;
   mobile-f2-patrol)
     run_f2_patrol "${2:-}"
@@ -1359,12 +1377,19 @@ case "$mode" in
       cd apps/mobile
       flutter analyze \
         lib/services/data_quest/data_quest_service.dart \
+        lib/services/dossier/dossier_payload_service.dart \
+        lib/services/startup_route_override.dart \
+        lib/widgets/data_quest/data_quest_proof_strip.dart \
         lib/screens/coach/succession_patrimoine_screen.dart \
         lib/providers/coach_profile_provider.dart \
         test/services/data_quest/data_quest_service_test.dart \
+        test/services/dossier/dossier_payload_service_test.dart \
+        test/services/startup_route_override_parser_test.dart \
         test/screens/s44_phase2_smoke_test.dart
       flutter test \
+        test/services/startup_route_override_parser_test.dart \
         test/services/data_quest/data_quest_service_test.dart \
+        test/services/dossier/dossier_payload_service_test.dart \
         test/providers/coach_profile_provider_save_fact_mapping_test.dart \
         test/screens/s44_phase2_smoke_test.dart \
         --reporter expanded

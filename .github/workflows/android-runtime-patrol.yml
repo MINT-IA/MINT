@@ -1,0 +1,61 @@
+name: Android Runtime Patrol
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "tools/checks/mint_lucidity_gate.sh"
+      - ".github/workflows/android-runtime-patrol.yml"
+  push:
+    branches:
+      - claude/mint-swiss-coach-eu33i7
+    paths:
+      - "apps/mobile/**"
+      - "tools/checks/mint_lucidity_gate.sh"
+      - ".github/workflows/android-runtime-patrol.yml"
+  workflow_dispatch:
+
+jobs:
+  android-p0-patrol:
+    name: Android P0 Patrol runtime proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.6"
+          channel: stable
+          cache: true
+
+      - name: Install Patrol CLI
+        run: dart pub global activate patrol_cli
+
+      - name: Flutter dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Android debug build
+        working-directory: apps/mobile
+        run: flutter build apk --debug --dart-define=MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true
+
+      - name: Android P0 Patrol suite
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            export PATH="$PATH:$HOME/.pub-cache/bin"
+            flutter doctor -v
+            ./tools/checks/mint_lucidity_gate.sh mobile-p0-patrol emulator-5554
