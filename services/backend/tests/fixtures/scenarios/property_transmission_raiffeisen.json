@@ -80,7 +80,7 @@
         "depenses.fraisMedicaux",
         "depenses.autresDepensesFixes"
       ],
-      "formula": "depenses.totalMensuel * 12"
+      "formula": "explicit parentAnnualLivingCosts OR sum(monthly living-cost components) * 12"
     },
     "heirsCount": {
       "source": "userInput",

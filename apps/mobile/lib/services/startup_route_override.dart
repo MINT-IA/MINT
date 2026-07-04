@@ -41,6 +41,10 @@ Future<bool> readMintDebugPropertyValueStaleSeed() async {
   return platform.readMintTestPropertyStale();
 }
 
+DateTime mintRuntimeProofStalePropertyValueDate(DateTime now) {
+  return now.toUtc().subtract(const Duration(days: 30 * 30));
+}
+
 Future<String?> readMintDebugTransmitPropertyFixtureSeed() async {
   if (!await _mintRuntimeProofInputsEnabled()) return null;
   return platform.readMintTestTransmitPropertyFixture();

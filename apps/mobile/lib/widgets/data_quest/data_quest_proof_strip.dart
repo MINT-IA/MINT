@@ -211,6 +211,10 @@ class DataQuestProofStrip extends StatelessWidget {
                     .copyWith(fontWeight: FontWeight.w700),
               ),
             ),
+            Text(
+              'next_ask_value: $nextAsk',
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+            ),
             Semantics(
               identifier: '${semanticsPrefix}_data_quest_mode',
               value: mode,

@@ -151,6 +151,19 @@ void main() {
     });
   });
 
+  group('Static freshness', () {
+    test('does not decay or request refresh for old static facts', () {
+      final fact = _factAt(
+        updatedAt: DateTime(2022, 4, 6),
+        freshnessCategory: 'static',
+        factType: FactType.lifeEvent,
+      );
+
+      expect(FreshnessDecayService.weight(fact, now), 1.0);
+      expect(FreshnessDecayService.needsRefresh(fact, now), isFalse);
+    });
+  });
+
   // ── categoryFor Tests ──────────────────────────────────────
 
   group('categoryFor', () {
@@ -159,23 +172,21 @@ void main() {
     });
 
     test('lppCapital returns annual', () {
-      expect(
-          FreshnessDecayService.categoryFor(FactType.lppCapital), 'annual');
+      expect(FreshnessDecayService.categoryFor(FactType.lppCapital), 'annual');
     });
 
     test('threeACapital returns annual', () {
-      expect(FreshnessDecayService.categoryFor(FactType.threeACapital),
-          'annual');
+      expect(
+          FreshnessDecayService.categoryFor(FactType.threeACapital), 'annual');
     });
 
     test('mortgageDebt returns volatile', () {
-      expect(FreshnessDecayService.categoryFor(FactType.mortgageDebt),
-          'volatile');
+      expect(
+          FreshnessDecayService.categoryFor(FactType.mortgageDebt), 'volatile');
     });
 
     test('lifeEvent returns annual (default)', () {
-      expect(
-          FreshnessDecayService.categoryFor(FactType.lifeEvent), 'annual');
+      expect(FreshnessDecayService.categoryFor(FactType.lifeEvent), 'annual');
     });
   });
 }

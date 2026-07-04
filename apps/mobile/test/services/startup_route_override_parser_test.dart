@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/biography/biography_fact.dart';
+import 'package:mint_mobile/services/biography/freshness_decay_service.dart';
 import 'package:mint_mobile/services/startup_route_override.dart';
 import 'package:mint_mobile/services/startup_route_override_parser.dart';
 
@@ -215,6 +217,33 @@ void main() {
         ),
         isFalse,
       );
+    });
+  });
+
+  group('mintRuntimeProofStalePropertyValueDate', () {
+    test('makes propertyMarketValue stale enough to require refresh', () {
+      final now = DateTime.utc(2026, 7, 4);
+      final staleDate = mintRuntimeProofStalePropertyValueDate(now);
+      final category = FreshnessDecayService
+          .kFieldFreshnessCategory['patrimoine.propertyMarketValue'];
+      final fact = BiographyFact(
+        id: 'runtime-proof:propertyMarketValue',
+        factType: FactType.salary,
+        fieldPath: 'patrimoine.propertyMarketValue',
+        value: '1200000',
+        source: FactSource.userInput,
+        sourceDate: staleDate,
+        createdAt: staleDate,
+        updatedAt: staleDate,
+        freshnessCategory: category!,
+      );
+
+      expect(category, 'annual');
+      expect(staleDate.isBefore(now.subtract(const Duration(days: 13 * 30))),
+          isTrue);
+      expect(fact.fieldPath, 'patrimoine.propertyMarketValue');
+      expect(fact.sourceDate, staleDate);
+      expect(FreshnessDecayService.needsRefresh(fact, now), isTrue);
     });
   });
 

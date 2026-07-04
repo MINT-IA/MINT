@@ -325,6 +325,7 @@
         "pillar3aBalance",
         "patrimoine.epargneLiquide",
         "parentAnnualRetirementIncome",
+        "parentAnnualLivingCosts",
         "patrimoine.propertyMarketValue",
         "mortgageBalance",
         "heirsCount"

@@ -29,6 +29,8 @@ appId: ch.mint.app
 - assertVisible:
     text: "Prochaine donnée à confirmer"
 - assertVisible:
+    text: "next_ask_value: propertyMarketValue"
+- assertVisible:
     id: "succession_data_quest_mode"
 - assertVisible:
     text: "Valeur existante à confirmer"

@@ -380,7 +380,8 @@ void main() {
           plan.asks.every((ask) => ask.stage == DataQuestStage.useful), isTrue);
     });
 
-    test('transmit_property reconfirms legacy property without provenance', () {
+    test('transmit_property treats legacy property as known until migration',
+        () {
       final before = DataQuestService.planCase(
         caseId: 'transmit_property',
         answers: const {},
@@ -393,9 +394,9 @@ void main() {
       );
 
       expect(before.asks.first.inputKey, 'propertyMarketValue');
-      expect(after.asks.first.inputKey, 'propertyMarketValue');
-      expect(after.asks.first.mode, DataQuestAskMode.reconfirm);
-      expect(after.asks.first.priorValue, 1200000);
+      expect(after.asks.first.inputKey, 'targetRetirementAge');
+      expect(after.asks.map((ask) => ask.inputKey),
+          isNot(contains('propertyMarketValue')));
     });
 
     test('transmit_property reuses fresh property fact without duplicate ask',
@@ -479,6 +480,67 @@ void main() {
           <String>['parentAnnualLivingCosts']);
       expect(plan.asks.single.mode, DataQuestAskMode.collect);
       expect(plan.asks.single.stage, DataQuestStage.guard);
+      expect(
+        plan.asks.map((ask) => ask.inputKey),
+        isNot(contains('mortgageBalance')),
+      );
+    });
+
+    test(
+        'transmit_property keeps partial living-cost period answer on the living-cost ask',
+        () {
+      final plan = DataQuestService.planCase(
+        caseId: 'transmit_property',
+        answers: const {
+          'q_property_market_value': 1200000,
+          'q_target_retirement_age': 64,
+          '_coach_avoir_lpp': 650000,
+          'q_3a_total': 180000,
+          'q_cash_total': 120000,
+          '_transmit_property_parent_annual_retirement_income': 76000,
+          'q_housing_cost_period_chf': 6600,
+        },
+        factsByLedgerKey: {
+          'patrimoine.propertyMarketValue': _fact(
+            id: 'property-fresh',
+            fieldPath: 'patrimoine.propertyMarketValue',
+            value: '1200000',
+          ),
+          'targetRetirementAge': _fact(
+            id: 'retirement-age-fresh',
+            fieldPath: 'targetRetirementAge',
+            value: '64',
+          ),
+          'avoirLpp': _fact(
+            id: 'lpp-fresh',
+            fieldPath: 'prevoyance.avoirLppTotal',
+            value: '650000',
+            type: FactType.lppCapital,
+          ),
+          'pillar3aBalance': _fact(
+            id: '3a-fresh',
+            fieldPath: 'prevoyance.totalEpargne3a',
+            value: '180000',
+            type: FactType.threeACapital,
+          ),
+          'patrimoine.epargneLiquide': _fact(
+            id: 'liquidity-fresh',
+            fieldPath: 'patrimoine.epargneLiquide',
+            value: '120000',
+          ),
+          'parentAnnualRetirementIncome': _fact(
+            id: 'parent-income-fresh',
+            fieldPath: 'parentAnnualRetirementIncome',
+            value: '76000',
+            type: FactType.salary,
+          ),
+        },
+        now: now,
+      );
+
+      expect(plan.asks.first.questionId, 'ask_parent_annual_living_costs');
+      expect(plan.asks.first.inputKey, 'parentAnnualLivingCosts');
+      expect(plan.asks.first.mode, DataQuestAskMode.reconfirm);
       expect(
         plan.asks.map((ask) => ask.inputKey),
         isNot(contains('mortgageBalance')),

@@ -484,6 +484,33 @@ void main() {
       );
     });
 
+    test(
+        'fresh transmit_property profile metadata feeds Data Quest facts without duplicate property reconfirm',
+        () {
+      final payload = DossierPayloadService.buildP0Case(
+        caseId: 'transmit_property',
+        answers: _withFreshMetadata(
+          const {
+            '_coach_profile_owner_id': ownerId,
+            'q_property_market_value': 1200000,
+          },
+          const ['patrimoine.propertyMarketValue'],
+        ),
+        generatedAt: generatedAt,
+      ).toJson();
+
+      expect(_schemaErrors('transmit_property', payload), isEmpty);
+      expect(
+        payload['next_questions'],
+        isNot(contains('ask_property_market_value')),
+      );
+      expect(payload['next_questions'], contains('ask_target_retirement_age'));
+      expect(
+        (payload['inputs'] as Map)['patrimoine.propertyMarketValue']['source'],
+        'userInput',
+      );
+    });
+
     test('composes parent annual retirement income from AVS and LPP facts', () {
       final payload = DossierPayloadService.buildP0Case(
         caseId: 'transmit_property',

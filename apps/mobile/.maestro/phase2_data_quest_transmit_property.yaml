@@ -28,6 +28,8 @@ appId: ch.mint.app
 - assertVisible:
     text: "Prochaine donnée à confirmer"
 - assertVisible:
+    text: "next_ask_value: propertyMarketValue"
+- assertVisible:
     id: "succession_data_quest_mode"
 - assertVisible:
     text: "Donnée manquante à collecter"
@@ -59,6 +61,8 @@ appId: ch.mint.app
     id: "succession_data_quest_next_ask"
 - assertVisible:
     text: "Prochaine donnée à confirmer"
+- assertVisible:
+    text: "next_ask_value: targetRetirementAge"
 - scrollUntilVisible:
     element:
       id: "succession_data_quest_stage"

@@ -14,6 +14,7 @@ class DataQuestFieldSpec {
   final String questionId;
   final int priority;
   final bool allowZero;
+  final bool requiresCompleteFact;
 
   const DataQuestFieldSpec({
     required this.inputKey,
@@ -22,6 +23,7 @@ class DataQuestFieldSpec {
     required this.questionId,
     required this.priority,
     this.allowZero = false,
+    this.requiresCompleteFact = false,
   });
 }
 
@@ -267,6 +269,7 @@ class DataQuestCaseRegistry {
           ],
           questionId: 'ask_parent_annual_living_costs',
           priority: 75,
+          requiresCompleteFact: true,
         ),
       ],
       requiredFields: [
@@ -449,13 +452,13 @@ class DataQuestService {
             priorValue: hasAnswer ? prior : factPrior,
           ),
         );
-      } else if (spec.heavyEvent &&
+      } else if (field.requiresCompleteFact &&
           field.ledgerKey != null &&
           hasAnswer &&
           !hasFact) {
-        // Heavy life events need dated/provenanced facts. Legacy answer-map
-        // values remain useful as priors, but must be reconfirmed before a
-        // transmission/succession scenario treats them as decision-grade.
+        // Aggregate fields can have partial answer-map evidence. Keep that
+        // prior visible, but reconfirm until the dossier bridge has produced
+        // a complete dated fact.
         asks.add(
           _ask(
             spec,

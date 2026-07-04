@@ -210,6 +210,34 @@ appId: ch.mint.coach
 ```
 **Today: FAILS** — `financial_report_screen_v2.dart:51` maps `ActionCategory.investment`/`.other` → `/tools`, which redirects to `/coach/chat` context-less (`app.dart:1185-1188`).
 
+### R-3c financial-report dossier export CTA is reachable (PDF handoff smoke)
+File: `apps/mobile/.maestro/r3c_report_dossier_export.yaml`
+```yaml
+appId: ch.mint.app
+---
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/rapport"
+      MINT_TEST_REPORT_FIXTURE: "first_salary_tax_vd"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- scrollUntilVisible:
+    element:
+      id: "report_dossier_transmit_property_export_cta"
+    direction: DOWN
+    speed: 80
+    timeout: 60000
+    visibilityPercentage: 10
+    centerElement: false
+- assertVisible:
+    id: "report_dossier_transmit_property_export_cta"
+```
+**Today: syntax-gated as `apps/mobile/.maestro/r3c_report_dossier_export.yaml`.**
+Keep `centerElement: false` for this `scrollUntilVisible` block: Maestro 2.5.1
+on iOS 26.2 can hang during syntax checking when this long scrolled report CTA
+is centered. This flow proves the typed dossier export CTA path; PDF bytes and
+audit-manifest sections remain covered by unit/widget tests.
+
 ### R-4 kill + restart mid-flow keeps data (spine persistence)
 File: `apps/mobile/.maestro/r4_persistence.yaml`
 ```yaml

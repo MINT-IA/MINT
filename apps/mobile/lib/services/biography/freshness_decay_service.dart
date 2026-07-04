@@ -167,6 +167,10 @@ class FreshnessDecayService {
   /// - After window: linear decay from 1.0 to [_floor]
   /// - Beyond floor point: capped at [_floor]
   static double weight(BiographyFact fact, DateTime now) {
+    if (fact.freshnessCategory == 'static') {
+      return 1.0;
+    }
+
     final monthsOld = now.difference(fact.updatedAt).inDays / 30.44;
 
     if (fact.freshnessCategory == 'volatile') {
