@@ -8,6 +8,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/document_service.dart';
@@ -29,8 +30,13 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ExtractionReviewScreen extends StatefulWidget {
   final ExtractionResult result;
+  final String? scanSessionId;
 
-  const ExtractionReviewScreen({super.key, required this.result});
+  const ExtractionReviewScreen({
+    super.key,
+    required this.result,
+    this.scanSessionId,
+  });
 
   @override
   State<ExtractionReviewScreen> createState() => _ExtractionReviewScreenState();
@@ -742,10 +748,27 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
     if (!mounted) return;
 
-    context.push('/scan/impact', extra: {
-      'result': confirmedResult,
-      'previousConfidence': previousConfidence,
-    });
+    ScanSessionProvider? scanProvider;
+    try {
+      scanProvider = context.read<ScanSessionProvider>();
+    } on ProviderNotFoundException {
+      scanProvider = null;
+    }
+
+    final sessionId = widget.scanSessionId ??
+        scanProvider?.createReviewSession(widget.result);
+    if (scanProvider != null && sessionId != null) {
+      scanProvider.confirm(
+        id: sessionId,
+        result: confirmedResult,
+        previousConfidence: previousConfidence,
+      );
+      context.push(
+        '/scan/impact?scanSessionId=${Uri.encodeComponent(sessionId)}',
+      );
+    } else {
+      context.go('/scan');
+    }
   }
 
   /// Send scan confirmation with 3 retries + exponential backoff.

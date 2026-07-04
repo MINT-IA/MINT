@@ -6,8 +6,6 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
@@ -150,13 +148,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   void _initializeFromProfile() {
-    // Try CoachProfileProvider first (richer data), fall back to ProfileProvider.
-    bool filled = false;
+    // CoachProfileProvider is the single production profile spine.
     try {
       final coachProvider = context.read<CoachProfileProvider>();
       final coachProfile = coachProvider.profile;
       if (coachProfile != null) {
-        filled = true;
         _isPreFilled = true;
 
         // Age + years to retirement
@@ -188,43 +184,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         }
       }
     } catch (_) {
-      // CoachProfileProvider not in tree — fall back below.
-    }
-
-    if (!filled) {
-      // Legacy fallback: ProfileProvider.
-      try {
-        final profileProvider = context.read<ProfileProvider>();
-        if (profileProvider.hasProfile) {
-          final profile = profileProvider.profile!;
-          if (profile.birthYear != null) {
-            final age = DateTime.now().year - profile.birthYear!;
-            _years = (avsAgeReferenceHomme - age).clamp(5, 45);
-          }
-
-          if (profile.employmentStatus == EmploymentStatus.selfEmployed &&
-              profile.has2ndPillar != true) {
-            _isIndepSansLpp = true;
-            _plafond3a = pilier3aPlafondSansLpp;
-            _annualContribution = pilier3aPlafondSansLpp;
-          }
-
-          if (profile.incomeNetMonthly != null) {
-            final annualIncome = profile.incomeNetMonthly! * 12;
-            if (annualIncome > 150000) {
-              _marginalTaxRate = 0.35;
-            } else if (annualIncome > 100000) {
-              _marginalTaxRate = 0.30;
-            } else if (annualIncome > 60000) {
-              _marginalTaxRate = 0.25;
-            } else {
-              _marginalTaxRate = 0.20;
-            }
-          }
-        }
-      } catch (_) {
-        // No profile provider available.
-      }
+      // CoachProfileProvider not in tree — keep simulator defaults.
     }
   }
 
@@ -298,7 +258,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+    final hasDebt = lookupSafeModeFlag(context);
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {

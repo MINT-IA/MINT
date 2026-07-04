@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -482,7 +484,9 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     setState(() => _isProcessing = false);
 
     if (!mounted) return;
-    context.push('/scan/review', extra: result);
+    final sessionId =
+        context.read<ScanSessionProvider>().createReviewSession(result);
+    context.push('/scan/review?scanSessionId=${Uri.encodeComponent(sessionId)}');
   }
 }
 

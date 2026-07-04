@@ -4,8 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class RecommendationCard extends StatelessWidget {
@@ -14,7 +12,7 @@ class RecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+    final hasDebt = lookupSafeModeFlag(context);
 
     // Gate the entire recommendation card when debt is active
     // except for debt-related recommendations themselves

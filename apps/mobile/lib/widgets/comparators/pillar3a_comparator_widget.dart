@@ -7,8 +7,6 @@ import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
 import 'package:mint_mobile/data/financial_explanations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Widget comparatif des fournisseurs 3a avec projection
@@ -26,7 +24,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
+    final hasDebt = lookupSafeModeFlag(context);
     final maxAnnual = hasPensionFund ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
     // Projections à 65 ans (rendements historiques moyens)
     final capitalBank =

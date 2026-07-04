@@ -17,6 +17,7 @@ import 'package:mint_mobile/services/local_image_classifier.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -632,7 +633,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // Vision understands Swiss document context, OCR only reads text.
       final visionResult = await _tryVisionExtraction(file);
       if (visionResult != null && mounted) {
-        await context.push('/scan/review', extra: visionResult);
+        await _pushScanReview(visionResult);
         return;
       }
 
@@ -644,7 +645,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // slice, which blocked iterating on Apple Silicon simulators). Backend
       // Claude Vision is the single source of OCR — it already ran above;
       // if it produced nothing, the user sees the OCR recovery sheet.
-      final String extractedText = '';
+      const String extractedText = '';
 
       if (extractedText.trim().length < 12) {
         if (!mounted) return;
@@ -852,7 +853,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       }
 
       if (!mounted) return;
-      await context.push('/scan/review', extra: result);
+      await _pushScanReview(result);
     } catch (e) {
       debugPrint('[DocumentScan] Parsing error: $e');
       if (!mounted) return;
@@ -965,7 +966,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!parse.success && !parse.requiresAuthentication) {
         final visionResult = await _tryVisionExtractionFromPdf(localPath);
         if (visionResult != null && mounted) {
-          await context.push('/scan/review', extra: visionResult);
+          await _pushScanReview(visionResult);
           return;
         }
       }
@@ -1386,7 +1387,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         );
       }
       if (!mounted) return const _PdfParseResult(success: true);
-      await context.push('/scan/review', extra: extraction);
+      await _pushScanReview(extraction);
       return const _PdfParseResult(success: true);
     } on DocumentServiceException catch (e) {
       final lower = e.message.toLowerCase();
@@ -1606,7 +1607,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         sources: const ['Extraction Vision IA (BYOK)'],
       );
 
-      await context.push('/scan/review', extra: result);
+      await _pushScanReview(result);
     } on RagApiException catch (e) {
       _showErrorSnack(e.message);
     } catch (e) {
@@ -1625,6 +1626,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         content: Text(message, style: MintTextStyles.bodySmall()),
         backgroundColor: MintColors.error,
       ),
+    );
+  }
+
+  Future<void> _pushScanReview(ExtractionResult result) async {
+    if (!mounted) return;
+    final sessionId =
+        context.read<ScanSessionProvider>().createReviewSession(result);
+    await context.push(
+      '/scan/review?scanSessionId=${Uri.encodeComponent(sessionId)}',
     );
   }
 }

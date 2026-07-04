@@ -8,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
-import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
@@ -80,7 +79,7 @@ import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
-import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+import 'package:mint_mobile/screens/advisor/report_route_screen.dart';
 // score_reveal_screen.dart DELETED (deep-audit 2026-04-17) — route /score-reveal redirects to /home
 // coach_profile.dart — unused after score-reveal zombie (Plan 11-02)
 // financial_fitness_service.dart — unused after score-reveal zombie (Plan 11-02)
@@ -111,6 +110,7 @@ import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 // annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
@@ -151,6 +151,7 @@ import 'package:mint_mobile/screens/admin/admin_shell.dart';
 import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 // Phase 32 MAP-05 — legacy redirect hit breadcrumb (wired at 43 call-sites below).
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKeyHome =
@@ -212,6 +213,14 @@ final List<NavigatorObserver> _routerObservers = [
   AnalyticsRouteObserver(),
   SentryNavigatorObserver(setRouteNameAsTransaction: true),
 ];
+
+String? _scanSessionIdFrom(GoRouterState state) =>
+    state.uri.queryParameters['scanSessionId'];
+
+String _redirectPreservingQuery(GoRouterState state, String target) {
+  final query = state.uri.hasQuery ? '?${state.uri.query}' : '';
+  return '$target$query';
+}
 
 confidence.ConfidenceResult _confidenceResultFromAnswers(
   Map<String, dynamic> answers,
@@ -416,6 +425,62 @@ List<String> _confidenceFieldPaths(String confidenceField) {
     'is_independant' => const ['employmentStatus'],
     _ => const [],
   };
+}
+
+class _ScanReviewRoute extends StatelessWidget {
+  final String? scanSessionId;
+
+  const _ScanReviewRoute({required this.scanSessionId});
+
+  @override
+  Widget build(BuildContext context) {
+    final session =
+        context.watch<ScanSessionProvider>().sessionFor(scanSessionId);
+    if (session == null) {
+      return const _ScanSessionUnavailable();
+    }
+    return ExtractionReviewScreen(
+      result: session.reviewResult,
+      scanSessionId: session.id,
+    );
+  }
+}
+
+class _ScanImpactRoute extends StatelessWidget {
+  final String? scanSessionId;
+
+  const _ScanImpactRoute({required this.scanSessionId});
+
+  @override
+  Widget build(BuildContext context) {
+    final session =
+        context.watch<ScanSessionProvider>().sessionFor(scanSessionId);
+    if (session == null) {
+      return const _ScanSessionUnavailable();
+    }
+    return DocumentImpactScreen(
+      result: session.confirmedResult ?? session.reviewResult,
+      previousConfidence: session.previousConfidence ?? 42,
+    );
+  }
+}
+
+class _ScanSessionUnavailable extends StatelessWidget {
+  const _ScanSessionUnavailable();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: MintColors.background,
+      body: MintEmptyState(
+        icon: Icons.description_outlined,
+        title: 'Document non disponible',
+        subtitle: 'Relance le scan pour confirmer les donnees extraites.',
+        ctaLabel: 'Scanner un document',
+        onCta: () => context.go('/scan'),
+      ),
+    );
+  }
 }
 
 final _router = GoRouter(
@@ -984,7 +1049,7 @@ final _router = GoRouter(
         redirect: (_, state) {
           MintBreadcrumbs.legacyRedirectHit(
               from: state.uri.path, to: '/coach/chat');
-          return '/coach/chat';
+          return _redirectPreservingQuery(state, '/coach/chat');
         }),
     ScopedGoRoute(
         path: '/coach/refresh',
@@ -1296,33 +1361,14 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final result = state.extra as ExtractionResult?;
-        if (result == null) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
-          );
-        }
-        return ExtractionReviewScreen(result: result);
-      },
+      builder: (context, state) =>
+          _ScanReviewRoute(scanSessionId: _scanSessionIdFrom(state)),
     ),
     ScopedGoRoute(
       path: '/scan/impact',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        if (extra == null ||
-            extra['result'] is! ExtractionResult ||
-            extra['previousConfidence'] is! int) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
-          );
-        }
-        return DocumentImpactScreen(
-          result: extra['result'] as ExtractionResult,
-          previousConfidence: extra['previousConfidence'] as int,
-        );
-      },
+      builder: (context, state) =>
+          _ScanImpactRoute(scanSessionId: _scanSessionIdFrom(state)),
     ),
 
     ScopedGoRoute(
@@ -1372,27 +1418,7 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>? ?? {};
-        if (extra.isNotEmpty) {
-          return FinancialReportScreenV2(wizardAnswers: extra);
-        }
-        // Fallback: load persisted wizard answers when navigating
-        // back to /rapport without state.extra (e.g. deep link, back nav).
-        return FutureBuilder<Map<String, dynamic>>(
-          future: ReportPersistenceService.loadAnswers(),
-          builder: (ctx, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-            return FinancialReportScreenV2(
-              wizardAnswers: snapshot.data ?? {},
-            );
-          },
-        );
-      },
+      builder: (context, state) => const ReportRouteScreen(),
     ),
     ScopedGoRoute(
         path: '/report',
@@ -1589,7 +1615,7 @@ final _router = GoRouter(
         redirect: (_, state) {
           MintBreadcrumbs.legacyRedirectHit(
               from: state.uri.path, to: '/coach/chat');
-          return '/coach/chat';
+          return _redirectPreservingQuery(state, '/coach/chat');
         }),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
     ScopedGoRoute(
@@ -1597,13 +1623,13 @@ final _router = GoRouter(
         redirect: (_, state) {
           MintBreadcrumbs.legacyRedirectHit(
               from: state.uri.path, to: '/coach/chat');
-          return '/coach/chat';
+          return _redirectPreservingQuery(state, '/coach/chat');
         }),
     ScopedGoRoute(
         path: '/portfolio',
         redirect: (_, state) {
           MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-          return '/home';
+          return _redirectPreservingQuery(state, '/home');
         }),
     ScopedGoRoute(
       path: '/timeline',
@@ -1620,7 +1646,7 @@ final _router = GoRouter(
         path: '/score-reveal',
         redirect: (_, state) {
           MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-          return '/home';
+          return _redirectPreservingQuery(state, '/home');
         }),
 
     // ── ONBOARDING ───────────────────────────────────────────
@@ -1951,7 +1977,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           auth.checkAuth(); // AUTH-03: Restore JWT from SecureStorage on cold start
           return auth;
         }),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
@@ -1966,6 +1991,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           unawaited(_loadCoachProfileWithDebugSeed(provider));
           return provider;
         }),
+        ChangeNotifierProvider(create: (_) => ScanSessionProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();
