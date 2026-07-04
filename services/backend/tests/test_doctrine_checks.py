@@ -6,7 +6,6 @@ amended rule. Pure unit tests, no fixtures.
 
 from __future__ import annotations
 
-import pytest
 
 from app.services.coach.doctrine_checks import (
     QuestionMeta,

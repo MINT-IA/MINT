@@ -1,0 +1,60 @@
+name: AI Workflow Guards
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+  push:
+    branches: [dev, staging, main]
+
+concurrency:
+  group: ai-workflow-guards-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guards:
+    name: Active context and agent workflow guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install guard dependencies
+        run: |
+          python3 -m pip install pytest jsonschema pyyaml
+          python3 -m pip install -e services/backend
+      - name: Active context guard
+        run: python3 tools/checks/active_context_guard.py
+      - name: Phase contract guard
+        run: python3 tools/checks/phase_contract_guard.py
+      - name: Mint rules guard
+        run: python3 tools/checks/mint_rules_guard.py
+      - name: Agent reference guard
+        run: python3 tools/checks/agent_reference_guard.py
+      - name: Claude hooks guard
+        run: python3 tools/checks/claude_hooks_guard.py
+      - name: Journey OS guard
+        run: python3 tools/checks/journey_os_check.py
+      - name: Workflow contract guard
+        run: python3 tools/checks/workflow_contract_guard.py
+      - name: Mermaid render guard
+        run: python3 tools/checks/mermaid_render_guard.py
+      - name: Phase acceptance verifier
+        run: python3 tools/checks/verify_phase_acceptance.py
+      - name: Guard tests
+        run: >
+          python3 -m pytest
+          tools/checks/tests/test_active_context_guard.py
+          tools/checks/tests/test_phase_contract_guard.py
+          tools/checks/tests/test_mint_rules_guard.py
+          tools/checks/tests/test_agent_reference_guard.py
+          tools/checks/tests/test_claude_hooks_guard.py
+          tools/checks/tests/test_journey_os_check.py
+          tools/checks/tests/test_workflow_contract_guard.py
+          tools/checks/tests/test_verify_phase_acceptance.py
+          -q

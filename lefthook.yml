@@ -1,7 +1,9 @@
-# lefthook.yml — Skeleton version (Phase 30.5 CTX-01, D-04)
-# Scope: STRICTLY MEMORY retention gate only.
-# Phase 34 GUARD-01 will ADD bare_catch, hardcoded_fr, accent_lint, arb_parity
-# ON TOP of this scaffold. Rails posés, lints NON-ACTIVÉS (D-04).
+# lefthook.yml — Phase 34 GUARD-01 partial (banned_terms_arb + arb_parity active)
+# Phase 30.5 CTX-01 D-04 originally scoped this skeleton to memory_retention only.
+# 2026-05-10: replay on last 50 commits of `dev` measured 0/50 commits blocked by
+# banned_terms_arb and 0/50 by arb_parity → activated as HARD gates.
+# Remaining GUARD-* lints (accent_lint_fr 26/50, no_hardcoded_fr 23/50, no_bare_catch
+# script absent) deferred until --diff/baseline mode lands — see ROADMAP_V2 Phase 34.
 
 min_version: 2.1.5
 
@@ -24,6 +26,369 @@ pre-commit:
       run: python3 tools/checks/map_freshness_hint.py {staged_files}
       glob: "*.{dart,py}"
       tags: [map, agents]
+    wiki-lint:
+      # Karpathy Wiki Pattern (practice 7) — lint pass for `.planning/`.
+      # Currently HARD on decision-artifact bias-check (every ADR must
+      # have a « Counter-arguments and data gaps » section). SOFT on
+      # orphan pages + new-article candidates (warnings only). Runs only
+      # when commit touches `.planning/**/*.md` so it doesn't bloat
+      # ordinary code commits.
+      run: python3 tools/checks/wiki_lint.py
+      glob: ".planning/**/*.md"
+      tags: [wiki, planning]
+    cjt-context-guard:
+      # CJT-OPS-00 — active production-readiness routing must point to the
+      # Core Journey Truth matrix + bug tracker, not stale GSD state.
+      run: python3 tools/checks/cjt_context_guard.py
+      tags: [wiki, planning, cjt]
+    active-context-guard:
+      # MINT foundation — exactly one current router for all agent sessions.
+      # Old phase directories stay as receipts, but cannot become active by
+      # accident.
+      run: python3 tools/checks/active_context_guard.py
+      tags: [wiki, planning, context]
+    phase-contract-guard:
+      # MINT Karpathy rules infra — active phase must have a concrete contract
+      # before implementation work can start.
+      run: python3 tools/checks/phase_contract_guard.py
+      tags: [wiki, planning, spec]
+    mint-rules-guard:
+      # MINT Karpathy rules infra — rules.md must stay structured as
+      # ALWAYS DO / ASK FIRST / NEVER DO, and Claude bootstrap must load the
+      # active context router.
+      run: python3 tools/checks/mint_rules_guard.py
+      tags: [agents, planning, rules]
+    journey-os-guard:
+      # Journey OS — records, issues, generated board, durable evidence, and
+      # branch authorization stay mechanically coherent before commits.
+      run: python3 tools/checks/journey_os_check.py
+      tags: [agents, planning, journeys]
+    workflow-contract-guard:
+      # MINT operating system — AGENTS/rules/bootstrap/hooks/CI must keep the
+      # same mandatory guard contract.
+      run: python3 tools/checks/workflow_contract_guard.py
+      tags: [agents, planning, workflow]
+    agent-reference-guard:
+      # MINT Karpathy rules infra — active agent docs must not point at the
+      # quarantined original checkout.
+      run: python3 tools/checks/agent_reference_guard.py
+      tags: [agents, planning, context]
+    claude-hooks-guard:
+      # MINT Karpathy rules infra — Claude hook commands must be portable and
+      # deny high-risk operations.
+      run: python3 tools/checks/claude_hooks_guard.py
+      tags: [agents, hooks, safety]
+    # ── Phase mint-data-architecture-v1-02 W0 Plan 02-01 HARD lints (D-20, D-24, iter-2 B4) ──
+    alembic-boolean-default-lint:
+      # D-20 — Refuses sa.Boolean + non-Boolean server_default combos
+      # (Hotfix B regression class: sa.text("0"/"1"/"true"/"false") on a
+      # Boolean column crashes Postgres with DatatypeMismatch at upgrade time).
+      # iter-2 Tier-A A7 catches 5+ bypass shapes. Self-test :
+      # `python3 tools/checks/alembic_boolean_default_lint.py --self-test`.
+      # NO LEFTHOOK_BYPASS exception (CONTEXT D-20).
+      run: python3 tools/checks/alembic_boolean_default_lint.py {staged_files}
+      glob: "services/backend/alembic/versions/*.py"
+      tags: [migration, postgres, phase-02-d-20]
+      fail_text: "Postgres BOOLEAN DEFAULT bug — use sa.false()/sa.true() not sa.text(\"0\"/\"1\"/\"true\"/\"false\"). CLAUDE.md Hotfix B regression class."
+    hmac-pepper-audit:
+      # D-24 — Refuses bare hashlib.sha256(user_id|actor_email|ip_address|user_agent)
+      # outside the canonical entry app/services/audit/hmac_pepper.py.
+      # Audit-PII hashes are rainbow-table-reversible without a pepper
+      # (security-auditor obs #175). Baselined sites in
+      # tools/checks/_baseline_hmac_sites_at_p112.txt — Plan 02-02 W1 D-14/D-15
+      # progressively shrinks this baseline ; Plan 02-02 close requires it empty.
+      # NO LEFTHOOK_BYPASS exception (CONTEXT D-24).
+      run: python3 tools/checks/hmac_pepper_audit.py {staged_files} --baseline tools/checks/_baseline_hmac_sites_at_p112.txt
+      glob: "services/backend/app/**/*.py"
+      tags: [security, audit, phase-02-d-24]
+      fail_text: "Audit-PII hash must route through app.services.audit.hmac_pepper.hmac_user_id() — bare hashlib.sha256(user_id) is rainbow-table-reversible (security-auditor obs #175). Pre-existing sites baselined in tools/checks/_baseline_hmac_sites_at_p112.txt ; NEW sites outside the baseline are HARD-rejected."
+    s23-class-name-lint:
+      # iter-2 Tier-B B4 (D-09) — Refuses re-introduction of `class FrontalierService:`
+      # outside the S12 façade allowlist `app/services/frontalier_service.py`.
+      # The S23 (expat) class is `FrontalierSegmentService` since Phase 02 D-09 ;
+      # alias `FrontalierService = FrontalierSegmentService` removed in Plan 02-04 PR-2.
+      run: python3 tools/checks/s23_class_name_lint.py {staged_files}
+      glob: "services/backend/**/*.py"
+      tags: [refactor, phase-02-d-09, post-rename-protection]
+      fail_text: "Do not re-introduce `class FrontalierService:` outside the S12 façade `app/services/frontalier_service.py`. The S23 class is `FrontalierSegmentService` since Phase 02 D-09."
+    # ── Phase 34 GUARD-01 partial (HARD gates, 0/50 historical block rate) ──
+    banned-terms-arb-gate:
+      # LSFin Rule #1 (CLAUDE.md TOP rule #1) — refuses any ARB containing the
+      # « garanti / guaranteed / garantiert / garantizado / garantito / garantido »
+      # family in a positive (non-negated) context. Replay measure 2026-05-10:
+      # 0/50 commits on `dev` would have been blocked. Bypass via LEFTHOOK_BYPASS=1
+      # is grep-able per CLAUDE.md §5 dev rules.
+      run: python3 tools/checks/banned_terms_arb.py
+      glob: "apps/mobile/lib/l10n/*.arb"
+      tags: [compliance, lsfin, phase-34-guard-01]
+      fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    no-3a-ceiling-as-tax-saving-gate:
+      # Trust rule: CHF 7'258 / CHF 36'288 are 3a deductible contribution
+      # ceilings, not the user's tax saving. Tax impact requires a separate
+      # estimate with household/canton/marginal-rate context.
+      run: python3 tools/checks/no_3a_ceiling_as_tax_saving.py
+      glob: "apps/mobile/lib/l10n/*.arb"
+      tags: [compliance, 3a, financial-semantics, phase-43]
+      fail_text: "3a ceiling copy cannot label CHF 7'258 / CHF 36'288 as tax savings. Use deductible-room wording plus a separate estimate."
+    arb-parity-gate:
+      # CLAUDE.md TOP rule #5 — 6 ARB files (fr/en/de/es/it/pt) must share the
+      # same key set. Reference locale = fr. Replay measure 2026-05-10: 0/50
+      # commits on `dev` would have been blocked. MCP shim
+      # (tools/mcp/mint-tools/tools/arb_parity.py) wraps this same script and
+      # returns ArbParityResult to agents.
+      run: python3 tools/checks/arb_parity.py
+      glob: "apps/mobile/lib/l10n/*.arb"
+      tags: [compliance, i18n, phase-34-guard-05]
+      fail_text: "ARB parity drift. Run `flutter gen-l10n` after syncing keys, or update FR reference and propagate to en/de/es/it/pt."
+    # ── Phase MVP-DESIGN-LINTS-V1 (chat-as-verb milestone, 2026-05-09) ──
+    # 5 design-system lints. SOFT-warn at pre-commit (`fail_text` only
+    # printed; exit-0 suffices because each script gracefully no-ops on
+    # missing baseline / out-of-scope file). HARD-fail at CI via
+    # .github/workflows/design-lints.yml. Devs see violations during
+    # `git commit`; CI is the merge-blocker.
+    #
+    # `--file {staged_files}` substitution: lefthook splits staged paths
+    # by space and substitutes inline. Each lint declares
+    # `--file action='append'` so multiple paths populate correctly.
+    prefer-mint-color-token:
+      run: python3 tools/checks/prefer_mint_color_token.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_color_token)"
+    prefer-mint-text-style:
+      run: python3 tools/checks/prefer_mint_text_style.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_text_style)"
+    prefer-mint-fonts:
+      run: python3 tools/checks/prefer_mint_fonts.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_fonts)"
+    prefer-mint-radius:
+      run: python3 tools/checks/prefer_mint_radius.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_radius)"
+    prefer-mint-cta:
+      run: python3 tools/checks/prefer_mint_cta.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_cta)"
+    # ── Phase 93.5 BUNDLE-01 (skill-bundle compiler, banned-terms Python lint) ──
+    banned-terms-python-bundles:
+      # LSFin Rule #1 (CLAUDE.md TOP rule #1) — refuses any bundle .py that
+      # contains the banned-term family in non-exempted code. The
+      # compliance-narrator bundle's prompt_fragment IS allowed to LIST the
+      # terms verbatim so the narrator LLM sees them and refuses them ;
+      # those blocks are marked with a `# llm-doctrine-fragment-banned-list`
+      # comment that the lint honors. Per CONTEXT 93.5 D-09 + RESEARCH §Pitfall 4.
+      run: python3 tools/checks/banned_terms_python.py {staged_files}
+      glob: "services/backend/app/services/coach/bundles/*.py"
+      tags: [compliance, lsfin, phase-93.5-bundle-01]
+      fail_text: "LSFin banned terms detected in bundle .py outside exempted blocks. If the block intentionally lists banned terms (doctrine fragment), add a `# llm-doctrine-fragment-banned-list` comment immediately above the triple-quoted string."
+    # ── Phase 92.5 CALC-03 (calc-rigor foundations, ESTV oracle pin) ──
+    estv-oracle-freshness:
+      # WARN-only freshness lint per CONTEXT 92.5 D-13. Triggers when the
+      # ESTV oracle JSONL fixture is staged ; emits stderr WARN lines for
+      # any vector older than 14 months but exits 0 by default. Annual
+      # capture cadence + occasional ESTV downtime should not block CI.
+      # Strict mode (--strict) reserved for a future opt-in.
+      run: python3 tools/checks/estv_oracle_freshness.py
+      glob: "services/backend/tests/fixtures/estv_oracle_2025.jsonl"
+      tags: [calc-rigor, phase-92.5, estv-oracle]
+    # ── Phase 95 DAG-INVALIDATION (PII fixture scan, D-14) ──
+    pii_fixture_scan:
+      # CLAUDE.md TOP rule #6 (0-trust) + nLPD — refuses any JSONL fixture
+      # containing AHV13 (756.XXXX.XXXX.XX) or Swiss phone (+41 ...) patterns.
+      # Phase 95 tests/fixtures/hash_parity_50.jsonl is the first consumer ;
+      # all future fixture packs must pass. HARD gate, exits 1 on any match.
+      glob: "services/backend/tests/fixtures/*.jsonl"
+      run: python3 tools/checks/pii_fixture_scan.py {staged_files}
+      tags: [compliance, nlpd, phase-95-dag-invalidation]
+      fail_text: "PII pattern detected in JSONL fixture (AHV13 or Swiss phone). Replace with synthetic deterministic values — no real personal data in committed fixtures."
+    # ── Phase 95 DAG-INVALIDATION W2 (LSFin annotation, D-12) ──
+    lsfin_annotation_phase_95:
+      # CLAUDE.md TOP rule #1 (LSFin) — when a Phase 95 W2 module emits
+      # credible_low/credible_high in user-facing narrative, the verbatim
+      # FR annotation « selon le modèle simplifié actuel » MUST appear
+      # somewhere in the same file (or its docstring). The 4 Phase 95 W2
+      # compute modules are the only files that emit credible intervals
+      # today ; Phase 96 narrator templates will extend the scope.
+      glob: "services/backend/app/services/coach/{bootstrap_ci,grounding_pack,sensitivity,pareto}.py"
+      run: python3 tools/checks/banned_terms_python.py --lsfin-annotation {staged_files}
+      tags: [compliance, lsfin, phase-95-dag-invalidation]
+      fail_text: "LSFin D-12 violation : credible_low/credible_high emitted without verbatim « selon le modèle simplifié actuel » annotation. Add the FR phrase to the module docstring or output template (CLAUDE.md §1)."
+    # ── Incident 2026-05-12 — alembic revision id too long (LINT-ALEMBIC-01) ──
+    alembic_revision_length:
+      # HARD gate. Block any alembic migration whose `revision` identifier
+      # exceeds 32 chars. PostgreSQL `alembic_version.version_num` is
+      # `VARCHAR(32)` — a longer id triggers `psycopg2.errors.
+      # StringDataRightTruncation`, the UPDATE fails, the migration rolls
+      # back, alembic_version stays at the previous revision, the container
+      # fails to start, Railway healthcheck retries exhaust, and prod
+      # serves 502.
+      #
+      # 2026-05-12T11:14Z incident : revision_id
+      # `p97_snapshots_fk_and_server_defaults` (36 chars) overflowed the
+      # column. Staging served 502 for ~35 minutes. SQLite tolerates the
+      # overflow at pytest-time, so this defect only surfaces in production.
+      # Fix : PR #575 shortened to `p97_snapshots_fk_defaults` (25 chars).
+      # This lint is the mechanical guard that prevents recurrence.
+      glob: "services/backend/alembic/versions/*.py"
+      run: python3 tools/checks/alembic_revision_length.py --file {staged_files}
+      tags: [backend, alembic, release, incident-2026-05-12]
+      fail_text: "alembic revision id > 32 chars — PostgreSQL alembic_version.version_num VARCHAR(32) overflow. Shorten the `revision` string in the affected file."
+    # ── S98 Phase 4 — Cassure classifier heuristic self-test ──
+    cassure_classifier_self_test:
+      # HARD gate. Runs when either the cassure classifier OR its self-
+      # test is staged. Replays cassure #4 (anonymous counter) + 4 other
+      # bug-class scenarios as synthetic inputs and asserts the primary
+      # hypothesis matches. Without this, a careless edit to a heuristic
+      # regex or threshold would silently degrade the operator's
+      # cassure-debug velocity until the next live failure exposed it.
+      glob: "tools/debug/cassure-classifier{,_test}.sh"
+      run: tools/debug/cassure-classifier_test.sh
+      tags: [walker, debug-infra]
+      fail_text: "Cassure classifier regressed. See test output above."
+    # ── S98 Phase 3 — Maestro stall-detector watchdog self-test ──
+    maestro_watchdog_self_test:
+      # HARD gate. Runs when either the Maestro stall-detector watchdog
+      # OR its own test is staged. Spawns three synthetic Maestro
+      # scenarios (fast clean exit, deliberate stall, hard-limit
+      # overrun) and asserts the watchdog exits with the right codes
+      # (0 / 124 / 137) and writes the expected artifacts.
+      #
+      # Without this self-test, a careless edit to the stall threshold,
+      # PID handling, or kill cascade would go undetected until the
+      # next live-sim Maestro hang silently buried the failure mode the
+      # watchdog exists to prevent.
+      glob: "tools/simulator/maestro_with_watchdog{,_test}.sh"
+      run: tools/simulator/maestro_with_watchdog_test.sh
+      tags: [walker, maestro, debug-infra]
+      fail_text: "Maestro stall-detector watchdog regressed. See test output above."
+    # ── Incident 2026-05-11 — iOS release capability drift (LINT-IOS-RELEASE-01) ──
+    ios_release_capability_drift:
+      # HARD gate. Runs when `apps/mobile/ios/Runner/Runner.entitlements`
+      # is staged. Scans the file for `com.apple.developer.*` keys and
+      # fails if any key is NOT in the script's `_PROVISIONED_CAPABILITIES`
+      # allowlist. The allowlist enumerates capabilities currently covered
+      # by the App Store provisioning profile in the `mint-certificates`
+      # repo (managed by fastlane match).
+      #
+      # Why : W7 iter#6 commit 009149c7 added
+      # `com.apple.developer.associated-domains` without updating the match
+      # profile. testflight.yml failed at the xcodebuild archive step. Cost
+      # = 2 emergency PRs (#567 + #568). This lint mechanically prevents
+      # recurrence — adding a new capability now requires updating the
+      # allowlist in the same commit, which is the explicit ack that the
+      # match profile has been refreshed.
+      #
+      # Memory : `feedback_ios_entitlements_block_testflight.md` (2026-05-12).
+      glob: "apps/mobile/ios/Runner/Runner.entitlements"
+      run: python3 tools/checks/ios_release_capability_drift.py
+      tags: [ios, release, testflight, incident-2026-05-11]
+      fail_text: "iOS capability drift — Runner.entitlements declares a key not in the provisioning profile allowlist. See stderr above for the 3-step unblock guide."
+    # ── Phase mint-calc-engine-v1 Plan 19 W4 (Concern C parity lint) ──
+    profile_safe_fields_parity:
+      # SOFT-WARN gate (exits 0 via `|| true`). Surface drift between server
+      # canonical `_PROFILE_SAFE_FIELDS` at coach_chat.py and the Flutter
+      # profileContext call-sites at coach_orchestrator.dart /
+      # coach_chat_api_service.dart / coach_narrative_service.dart /
+      # coaching_service.dart. Concern C from phase mint-calc-engine-v1
+      # CONTEXT.md §Data gaps.
+      #
+      # Baseline 2026-05-17 measured 40 server-only fields + 5 Flutter-only
+      # fields (drift documented in Plan 19 SUMMARY). Until Flutter catches
+      # up via a dedicated follow-up PR, the hook stays SOFT to avoid
+      # blocking unrelated commits. Promote to HARD (drop `|| true`) once
+      # baseline diff is closed.
+      #
+      # Memory: feedback_ci_path_filter_blind_spots — pre-commit lint lives
+      # on the file glob, not (only) in CI workflows.
+      glob: "{services/backend/app/api/v1/endpoints/coach_chat.py,apps/mobile/lib/services/coach/coach_orchestrator.dart,apps/mobile/lib/services/coach/coach_chat_api_service.dart,apps/mobile/lib/services/coach_narrative_service.dart,apps/mobile/lib/services/coaching_service.dart}"
+      run: python3 tools/checks/profile_safe_fields_parity.py || true
+      tags: [compliance, grounding, phase-mint-calc-engine-v1-w4]
+      fail_text: "Concern C parity lint surfaced drift between server _PROFILE_SAFE_FIELDS and Flutter profileContext call-sites. See stdout for missing-in-Flutter / missing-in-server diff. SOFT mode for now ; promote to HARD once baseline closed."
+    # ── Phase mint-data-architecture-v1-01 Plan 04 (D-16 codegen --check) ──
+    regulatory-codegen-check:
+      # HARD gate (D-16 + codex HIGH #3 mitigated by aging policy in CI).
+      # Re-runs codegen against the in-process RegulatoryRegistry and fails
+      # the commit if the committed Dart file's baked version_hash OR
+      # _payloadIntegrityHash diverges from a freshly-computed snapshot.
+      # Local-only mode — network-free per Karpathy #2 simplicity. The
+      # CI workflow .github/workflows/regulatory-codegen.yml runs the
+      # SOFT-WARN staging variant with the 7/14/28-day aging policy.
+      #
+      # Complementary to plan-05 regulatory_constants_drift (which is the
+      # D-12 parity lint reading the baked hash) : this hook catches
+      # « committed Dart was hand-edited or codegen forgotten » while the
+      # plan-05 hook catches « registry drifted from baked hash ».
+      glob: "{services/backend/app/services/regulatory/**,apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart,tools/codegen/regulatory_constants_to_dart.py}"
+      run: python3 tools/codegen/regulatory_constants_to_dart.py --check --source local
+      tags: [codegen, mint-data-architecture-v1-01, d-16]
+      fail_text: "D-16 codegen --check FAIL : the committed regulatory_constants.g.dart drifted from the in-process registry OR was hand-edited. Re-run: python3 tools/codegen/regulatory_constants_to_dart.py --source local --write"
+    # ── Phase mint-data-architecture-v1-01 Plan 05 (D-12 constants-drift) ──
+    regulatory_constants_drift:
+      # D-12 SOFT-WARN gate. Reads the baked Dart version_hash from
+      # apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart
+      # (Plan 04 artifact ; missing-file = graceful exit 0) and diffs against
+      # RegulatoryRegistry.instance().version_hash(date.today()). Exit 0
+      # on drift in Phase 01 ; Phase 02 first-migration PR (Monte Carlo per
+      # D-11) promotes to HARD by adding --hard to this invocation + the
+      # matching CI workflow.
+      #
+      # Narrow glob (3 file pointers : backend registry, generated Dart,
+      # the lint script itself) keeps the SOFT-WARN noise floor low —
+      # codex LOW #2 mitigation. ImportError is LOUD (exit 2 status
+      # IMPORT-FAILURE) per codex MEDIUM #2 ; sys.path hacks never
+      # silently degrade to warn-only.
+      #
+      # --json-status emits one machine-readable line per mode invoked so
+      # CI can surface the status in a PR summary even though the exit
+      # code is 0 in SOFT mode.
+      glob: "{services/backend/app/services/regulatory/**,apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart,tools/checks/profile_safe_fields_parity.py}"
+      run: python3 tools/checks/profile_safe_fields_parity.py --mode constants-drift --json-status
+      tags: [parity, mint-data-architecture-v1-01, soft-warn, d-12]
+      fail_text: "D-12 constants-drift SOFT-WARN surfaced. Re-run codegen : python3 tools/codegen/regulatory_constants_to_dart.py --source local --write. Phase 02 will promote this gate to HARD."
+    # ── Phase 96 D-17 (metaphor parity + value-poisoning lint) ──
+    metaphor_parity:
+      # Phase 96 D-17 — `apps/mobile/assets/metaphors.toml` and
+      # `services/backend/app/data/metaphors.toml` MUST be byte-equal
+      # (sha256 match). `--scan-values` additionally walks every metaphor
+      # string for LSFin banned terms + PII patterns. HARD gate ; exits 1
+      # on any parity drift OR poisoned value. Symlinks were rejected
+      # because they don't survive cross-platform deployments — parity is
+      # enforced by lint instead.
+      glob: "{apps/mobile/assets/metaphors.toml,services/backend/app/data/metaphors.toml}"
+      run: python3 tools/checks/metaphor_parity.py --scan-values
+      tags: [compliance, lsfin, phase-96-mvp-chat-as-verb]
+      fail_text: "Phase 96 D-17 violation : mobile + backend metaphors.toml diverged OR a metaphor contains an LSFin banned term / PII pattern. Re-copy mobile → backend (cp + shasum -a 256 compare), or rewrite the offending metaphor (CLAUDE.md §1)."
+
+# ── Phase mint-data-architecture-v1-01 Plan 02 Task 4 (D-04 atomicity gate) ──
+# Pre-push because the 6-file doctrine set may legitimately span multiple
+# commits within the same branch ; the gate evaluates the FULL diff range
+# `upstream..HEAD` at push time, not commit-by-commit. Codex HIGH #1 closed.
+pre-push:
+  # parallel: false per existing lefthook convention (race conditions on
+  # .git/index.lock if multiple Python subprocesses fight over staged state).
+  parallel: false
+  commands:
+    doctrine-atomicity:
+      # D-04 « same PR » atomicity gate — fails push unless the 6 doctrine
+      # files (CLAUDE.md + docs/AGENTS/{backend,flutter}.md + 2 SKILL.md + the
+      # ADR) appear in the diff range, OR none of them do (unrelated push).
+      # Partial co-modification = exit 1.
+      run: python3 tools/checks/doctrine_atomicity_gate.py --base "@{u}" --head HEAD
+      tags: [doctrine, mint-data-architecture-v1-01, phase-02-task-4]
+      fail_text: "D-04 atomicity violated — partial doctrine co-modification. See stderr above for missing files + fix command."
+    doctrine-consistency:
+      # Greps the 6 doctrine files for forbidden legacy phrases (the original
+      # backend.md:39 conflict, the unqualified « financial_core/ est SOURCE OF
+      # TRUTH. », the legacy CLAUDE.md §1 phrasing). Exits 1 on any hit.
+      run: python3 tools/checks/doctrine_consistency_check.py
+      tags: [doctrine, mint-data-architecture-v1-01, phase-02-task-4]
+      fail_text: "Doctrine consistency violated — a legacy phrase reappeared. See stderr above for the file + suggested rewrite."
 
 skip:
   - merge

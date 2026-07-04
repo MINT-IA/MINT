@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-002",
+  "title": "Prove Money truth spine across Budget, Mon Argent, Rapport, and Coach",
+  "journey_id": "money_truth_spine",
+  "status": "verified",
+  "owner": "mint-quality-gate",
+  "severity": "P0",
+  "evidence_status": "green",
+  "next_action": "Keep the Money Truth Chain runtime gate in Journey OS monitoring and select the next highest-priority partial T0 vertical from the remaining journey records.",
+  "source": "JOURNEY-TRUTH-MATRIX-008; CJT-003; CJT-024; PR #745; PR #746; Journey OS evidence 20260627T003738Z"
+}

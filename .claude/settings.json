@@ -31,6 +31,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/gsd-read-injection-scanner.js",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -78,6 +88,16 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/gsd-validate-commit.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/gsd-workflow-guard.js",
             "timeout": 5
           }
         ]
@@ -169,12 +189,32 @@
       "Task",
       "Skill",
       "WebFetch",
-      "WebSearch"
+      "WebSearch",
+      "mcp__plugin_engram_engram__mem_save",
+      "mcp__plugin_engram_engram__mem_search",
+      "mcp__plugin_engram_engram__mem_context",
+      "mcp__plugin_engram_engram__mem_session_summary",
+      "mcp__plugin_engram_engram__mem_get_observation",
+      "mcp__plugin_engram_engram__mem_save_prompt",
+      "mcp__plugin_engram_engram__mem_current_project",
+      "mcp__plugin_engram_engram__mem_judge",
+      "mcp__plugin_engram_engram__mem_update",
+      "mcp__plugin_engram_engram__mem_suggest_topic_key",
+      "mcp__plugin_engram_engram__mem_session_start",
+      "mcp__plugin_engram_engram__mem_session_end",
+      "mcp__plugin_engram_engram__mem_compare",
+      "mcp__plugin_engram_engram__mem_doctor",
+      "mcp__plugin_engram_engram__mem_capture_passive"
     ],
     "deny": [
       "Bash(rm -rf /:*)",
+      "Bash(rm -rf:*)",
       "Bash(git push --force:*)",
-      "Bash(git reset --hard:*)"
+      "Bash(git reset --hard:*)",
+      "Bash(git checkout --:*)",
+      "Bash(git clean:*)",
+      "Bash(claude --bare:*)",
+      "Bash(claude --dangerously-skip-permissions:*)"
     ]
   },
   "statusLine": {

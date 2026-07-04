@@ -1,0 +1,55 @@
+name: Doctrine atomicity (D-04 mint-data-architecture-v1-01)
+
+# Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 02 Task 4.
+# Codex HIGH #1 closed — D-04 « same PR » atomicity is no longer process-only.
+#
+# Two-step gate :
+#   1. doctrine_atomicity_gate.py — fails unless the 6-file doctrine set is
+#      either fully touched (atomic doctrine PR) or fully untouched (unrelated
+#      PR). Partial co-modification is the failure mode this PR exists to prevent.
+#   2. doctrine_consistency_check.py — greps the 6 doctrine files for forbidden
+#      legacy phrases (the original backend.md:39 conflict, the unqualified
+#      « financial_core/ est SOURCE OF TRUTH. », etc.).
+#
+# Path filter scopes the workflow to PRs that actually touch the doctrine
+# surface OR the gate scripts themselves. The path-filter is a TRIGGER, not the
+# atomicity verdict — the gate logic decides actual atomicity.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'CLAUDE.md'
+      - 'docs/AGENTS/backend.md'
+      - 'docs/AGENTS/flutter.md'
+      - '.claude/skills/mint-flutter-dev/**'
+      - '.claude/skills/mint-backend-dev/**'
+      - '.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md'
+      - 'tools/checks/doctrine_atomicity_gate.py'
+      - 'tools/checks/doctrine_consistency_check.py'
+      - '.github/workflows/doctrine-atomicity.yml'
+
+jobs:
+  atomicity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history required so `git diff origin/<base>..HEAD` works
+          # without merge-base ambiguity.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Doctrine atomicity gate (D-04 — 6-file set must co-modify)
+        run: |
+          python3 tools/checks/doctrine_atomicity_gate.py \
+            --base origin/${{ github.base_ref }} \
+            --head HEAD \
+            --json
+
+      - name: Doctrine consistency check (no legacy phrases)
+        run: |
+          python3 tools/checks/doctrine_consistency_check.py

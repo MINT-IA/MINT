@@ -1,5 +1,16 @@
 # Roadmap: MINT
 
+## Active Pointer
+
+Current active context:
+
+- `.planning/phases/mint-lucidity-dataquest-clean/CONTEXT.md`
+- `.planning/phases/mint-lucidity-dataquest-clean/SPEC.md`
+- `.planning/phases/mint-lucidity-dataquest-clean/VERIFICATION.md`
+
+This pointer is the active router for the clean Mint Lucidity/Data Quest branch.
+Historical milestones below are retained as receipts and roadmap context.
+
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-8 (shipped 2026-03-20)

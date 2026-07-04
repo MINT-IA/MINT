@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-004",
+  "title": "Fix Coach 3a ceiling advice freshness fallback",
+  "journey_id": "coach_advice_turn",
+  "status": "proof_needed",
+  "owner": "mint-quality-gate",
+  "severity": "P0",
+  "evidence_status": "baselined",
+  "next_action": "Rerun the JOS-004 Coach advice Maestro proof with JUnit output or a captured flow-level [Passed]/Flow Passed marker before marking the issue verified.",
+  "source": "JOS-004 runtime proofs 20260627T023232Z red and 20260627T172841Z baselined; the latest raw step log lacks a flow-level pass marker even though the step assertions completed."
+}
