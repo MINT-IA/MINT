@@ -41075,6 +41075,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Certificat de salaire scanné'**
   String get scanSummarySalaryCertificate;
+
+  /// Deterministic coach answer for Pillar 3a annual ceiling with LPP affiliation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plafond 3a {year} avec LPP est de CHF {amount}/an (OPP3 art. 7 al. 1 let. a). C’est une limite réglementaire, pas une recommandation de versement.'**
+  String coachRegulatory3aCeilingWithLpp(String amount, String year);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

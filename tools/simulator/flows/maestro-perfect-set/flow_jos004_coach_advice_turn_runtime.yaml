@@ -20,10 +20,9 @@
 #       --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready
 # - A disposable staging user exists. Pass credentials with:
 #     --env MINT_E2E_EMAIL=<email> --env MINT_E2E_PASSWORD=<password>
-# - After authenticated login, the flow uses the existing debug-only E2E
-#   profile route to persist the same salaried-LPP fixture and mark the
-#   mini-onboarding/first-experience gate complete. This proves this Coach
-#   turn, not onboarding persistence.
+# - The question explicitly asks for the salaried/LPP 3a ceiling. The historical
+#   debug-only profile route used by this flow no longer exists, so this proves
+#   the Coach legal-number answer itself, not onboarding/profile persistence.
 
 appId: ch.mint.app
 env:
@@ -41,6 +40,8 @@ tags:
     clearState: true
     arguments:
       MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_INITIAL_ROUTE: "/auth/login?redirect=%2Fcoach%2Fchat"
 - waitForAnimationToEnd:
     timeout: 6000
 
@@ -50,19 +51,11 @@ tags:
     commands:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
-
-- openLink: "mintapp:///auth/login?redirect=%2Fcoach%2Fchat"
 - runFlow:
     when:
-      visible: "Ouvrir"
+      visible: "Cancel"
     commands:
-      - tapOn: "Ouvrir"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Open"
-    commands:
-      - tapOn: "Open"
+      - tapOn: "Cancel"
       - waitForAnimationToEnd
 
 - extendedWaitUntil:
@@ -84,43 +77,11 @@ tags:
 - waitForAnimationToEnd:
     timeout: 6000
 
-# Authenticated seeded accounts can be routed into Mint first-experience before
-# Coach. Use the existing kReleaseMode-guarded E2E profile route helper to
-# persist the fixture through ReportPersistenceService and mark the gate done.
-- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
-- runFlow:
-    when:
-      visible: "Ouvrir"
-    commands:
-      - tapOn: "Ouvrir"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Open"
-    commands:
-      - tapOn: "Open"
-      - waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
-      id: "e2e_profile_fixture_applied"
-    timeout: 10000
-- copyTextFrom:
-    id: "e2e_profile_fixture_applied"
-- evalScript: ${output.jos004_profile_bootstrap = maestro.copiedText}
-
-- openLink: "mintapp:///coach/chat"
-- runFlow:
-    when:
-      visible: "Ouvrir"
-    commands:
-      - tapOn: "Ouvrir"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Open"
-    commands:
-      - tapOn: "Open"
-      - waitForAnimationToEnd
+- launchApp:
+    clearState: false
+    arguments:
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_INITIAL_ROUTE: "/coach/chat"
 
 - extendedWaitUntil:
     visible:

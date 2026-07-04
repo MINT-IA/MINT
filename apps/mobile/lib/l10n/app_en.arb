@@ -11215,5 +11215,13 @@
   "scanSummaryTaxDeclaration": "Tax declaration scanned",
   "scanSummaryAvsExtract": "AVS extract scanned",
   "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
-  "scanSummarySalaryCertificate": "Salary certificate scanned"
+  "scanSummarySalaryCertificate": "Salary certificate scanned",
+  "coachRegulatory3aCeilingWithLpp": "The {year} Pillar 3a ceiling with LPP is CHF {amount}/year (OPP3 art. 7 para. 1 let. a). This is a regulatory limit, not a contribution recommendation.",
+  "@coachRegulatory3aCeilingWithLpp": {
+    "description": "Deterministic coach answer for Pillar 3a annual ceiling with LPP affiliation.",
+    "placeholders": {
+      "amount": { "type": "String" },
+      "year": { "type": "String" }
+    }
+  }
 }

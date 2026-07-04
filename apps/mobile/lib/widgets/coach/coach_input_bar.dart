@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -6,6 +7,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 // ────────────────────────────────────────────────────────────
 //  COACH INPUT BAR — extracted from coach_chat_screen.dart
 // ────────────────────────────────────────────────────────────
+
+const bool _runtimeProofSemanticsEnabled =
+    kDebugMode || bool.fromEnvironment('MINT_ENABLE_RUNTIME_PROOF_SEMANTICS');
 
 /// Chat input bar with lightning menu trigger, text field, and send button.
 class CoachInputBar extends StatelessWidget {
@@ -64,6 +68,10 @@ class CoachInputBar extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Semantics(
+                  identifier: _runtimeProofSemanticsEnabled
+                      ? 'coach_input_field'
+                      : null,
+                  container: _runtimeProofSemanticsEnabled,
                   textField: true,
                   label: s.coachInputHint,
                   child: TextField(
@@ -105,6 +113,9 @@ class CoachInputBar extends StatelessWidget {
               const SizedBox(width: 10),
               // Send button
               Semantics(
+                identifier:
+                    _runtimeProofSemanticsEnabled ? 'coach_send_button' : null,
+                container: _runtimeProofSemanticsEnabled,
                 button: true,
                 label: s.coachSendButton,
                 child: GestureDetector(

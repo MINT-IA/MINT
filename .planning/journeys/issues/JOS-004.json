@@ -7,6 +7,6 @@
   "owner": "mint-quality-gate",
   "severity": "P0",
   "evidence_status": "baselined",
-  "next_action": "Rerun the JOS-004 Coach advice Maestro proof with JUnit output or a captured flow-level [Passed]/Flow Passed marker before marking the issue verified.",
-  "source": "JOS-004 runtime proofs 20260627T023232Z red and 20260627T172841Z baselined; the latest raw step log lacks a flow-level pass marker even though the step assertions completed."
+  "next_action": "Rerun the JOS-004 Coach advice Maestro proof once the local Maestro CLI responds again; require JUnit output or a captured flow-level [Passed]/Flow Passed marker before marking the issue verified.",
+  "source": "JOS-004 runtime proofs 20260627T023232Z red and 20260627T172841Z baselined. On 20260704T163543Z, native iOS UI evidence on iPhone 17 Pro showed the fixed 7'258 CHF / OPP3 art. 7 answer and no stale fallback, but Maestro CLI stalled before running the JOS-004 flow, so the issue remains proof_needed."
 }

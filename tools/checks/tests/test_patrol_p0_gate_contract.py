@@ -252,7 +252,7 @@ def test_phase2_gate_splits_runtime_from_external_audit_artifacts() -> None:
     assert "run_phase2_runtime_gate" not in artifacts_case
 
 
-def test_canonical_ios_runtime_device_excludes_iphone13_mini() -> None:
+def test_canonical_ios_runtime_device_uses_modern_iphone_target() -> None:
     agents = (ROOT / "AGENTS.md").read_text()
     workflow = (ROOT / "docs/MINT_AGENT_WORKFLOW.md").read_text()
     readme = (ROOT / "tools/simulator/README.md").read_text()
@@ -266,7 +266,8 @@ def test_canonical_ios_runtime_device_excludes_iphone13_mini() -> None:
     assert "MINT_WALKER_DEVICE:-iPhone 17 Pro" in pii
 
     active_text = "\n".join([agents, workflow, readme, walker, pii])
-    assert active_text.count("iPhone 13 mini") == 3
-    assert "Never use iPhone 13 mini" in agents
-    assert "Do not use iPhone 13 mini" in workflow
-    assert "Do not use iPhone 13 mini" in readme
+    assert "iPhone 15/14-class fallback" in active_text
+    assert "Compact legacy iPhone targets" in agents
+    assert "Compact legacy iPhone targets" in workflow
+    assert "Compact legacy iPhone targets" in readme
+    assert "iPhone 13 mini" not in active_text

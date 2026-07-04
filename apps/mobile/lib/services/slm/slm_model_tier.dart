@@ -4,7 +4,7 @@
 /// E4B = premium (better quality, more RAM), E2B = accessible (lighter).
 enum SlmModelTier {
   /// Gemma 3n E4B — ~4B effective params, ~4.4 GB, needs ~3 GB RAM.
-  /// Best quality. iPhone 13 Pro+ / Android 8GB+.
+  /// Best quality. iPhone 14 Pro+ / Android 8GB+.
   e4b,
 
   /// Gemma 3n E2B — ~2B effective params, ~3.0 GB, needs ~2 GB RAM.
@@ -54,7 +54,7 @@ class SlmTierConfig {
     expectedSizeBytes: 4400000000,
     minRamGb: 6,
     minCores: 6,
-    compatibilityHint: 'iPhone 13 Pro+ / Pixel 7+ / 8\u00a0Go RAM',
+    compatibilityHint: 'iPhone 14 Pro+ / Pixel 7+ / 8\u00a0Go RAM',
   );
 
   static const e2b = SlmTierConfig(
@@ -65,7 +65,7 @@ class SlmTierConfig {
     expectedSizeBytes: 3000000000,
     minRamGb: 4,
     minCores: 4,
-    compatibilityHint: 'iPhone 11+ / Pixel 6+ / 4\u00a0Go RAM',
+    compatibilityHint: 'iPhone 14+ / Pixel 6+ / 4\u00a0Go RAM',
   );
 
   static const allTiers = [e4b, e2b];

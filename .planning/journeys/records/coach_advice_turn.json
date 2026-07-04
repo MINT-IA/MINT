@@ -61,6 +61,16 @@
       "verified_at": "2026-06-27T17:28:41Z",
       "verified_commit": "4cb5c173b998868cd73f9bdf6aebc718bc4bffa6",
       "debt_ref": "JOS-004-flow-pass-marker-required"
+    },
+    {
+      "kind": "runtime",
+      "status": "baselined",
+      "command": "flutter build ios --simulator --debug --no-codesign --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 --dart-define=MINT_DISABLE_BETA_MODAL=true --dart-define=MINT_E2E_ARCHETYPE=cadre_salarie_lpp_suisse_ready --dart-define=MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true; xcodebuildmcp UI automation on iPhone 17 Pro B03E429D-0422-4357-B754-536637D979F9 typed the JOS-004 3a/LPP ceiling question and captured the visible response",
+      "artifact": ".planning/journeys/evidence/coach_advice_turn/20260704T163543Z-xcode-ui/summary.txt",
+      "reason": "Native iOS UI proof shows the Coach answer includes 7'258 CHF and OPP3 art. 7, while the stale freshness fallback and false BYOK footer are absent. The local Maestro CLI stalled before running JOS-004, so this is supplementary evidence and not Journey OS acceptance.",
+      "verified_at": "2026-07-04T16:35:43Z",
+      "verified_commit": "pending",
+      "debt_ref": "JOS-004-maestro-cli-stall-20260704"
     }
   ]
 }

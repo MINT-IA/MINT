@@ -104,10 +104,10 @@ This persona must be rich enough for `Aujourd'hui`, `Mon argent`, `Coach`, and
 
 Canonical iOS runtime proof runs on the local Mac Mini **iPhone 17 Pro**
 simulator. If the 17 Pro simulator is unavailable, use an iPhone 15/14-class
-fallback and cite that fallback in the evidence. Do not use iPhone 13 mini for
-canonical Mint runtime evidence; keep it out of Maestro, Patrol, walker, and
-Journey OS acceptance paths. Android remains compatibility coverage unless the
-active issue explicitly targets Android.
+fallback and cite that fallback in the evidence. Compact legacy iPhone targets
+are not accepted in Maestro, Patrol, walker, or Journey OS acceptance paths.
+Android remains compatibility coverage unless the active issue explicitly
+targets Android.
 
 ## Worktree Discipline
 

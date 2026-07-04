@@ -157,6 +157,36 @@ void main() {
       expect(find.textContaining('Dis-moi'), findsWidgets);
     });
 
+    testWidgets('exposes runtime proof semantics for Maestro', (tester) async {
+      usePhoneViewport(tester);
+      await tester.pumpWidget(buildTestWidget(withProfile: true));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.bySemanticsIdentifier('coach_chat_screen'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('coach_input_field'), findsOneWidget);
+      expect(find.bySemanticsIdentifier('coach_send_button'), findsOneWidget);
+    });
+
+    testWidgets('answers 3a ceiling with LPP from local regulatory constant',
+        (tester) async {
+      usePhoneViewport(tester);
+      await tester.pumpWidget(buildTestWidget(withProfile: true));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.enterText(
+        find.byType(TextField),
+        'Quel est le plafond legal 3a 2026 avec LPP ?',
+      );
+      await tester.pump();
+      await tester.tap(find.bySemanticsIdentifier('coach_send_button'));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.textContaining("7'258"), findsOneWidget);
+      expect(find.textContaining('OPP3 art. 7'), findsOneWidget);
+      expect(find.textContaining('Je n’ai pas cette donnée'), findsNothing);
+      expect(find.textContaining('Réponse via ton API Claude'), findsNothing);
+    });
+
     testWidgets('shows send button', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));

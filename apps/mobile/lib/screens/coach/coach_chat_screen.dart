@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/coach/regulatory_constant_answer.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -105,6 +107,9 @@ class CoachChatScreen extends StatefulWidget {
   @override
   State<CoachChatScreen> createState() => _CoachChatScreenState();
 }
+
+const bool _runtimeProofSemanticsEnabled =
+    kDebugMode || bool.fromEnvironment('MINT_ENABLE_RUNTIME_PROOF_SEMANTICS');
 
 class _CoachChatScreenState extends State<CoachChatScreen> {
   final TextEditingController _controller = TextEditingController();
@@ -762,6 +767,25 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     });
     _controller.clear();
     _scrollToBottom();
+
+    final regulatoryAnswer = CoachRegulatoryConstantAnswer.resolve(
+      text.trim(),
+      S.of(context)!,
+    );
+    if (regulatoryAnswer != null) {
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: regulatoryAnswer.text,
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+        _isLoading = false;
+        _trimMessages();
+      });
+      _scrollToBottom();
+      return;
+    }
 
     // Build enriched context for AI memory injection (S58).
     String? memoryBlock;
@@ -1680,47 +1704,50 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Widget build(BuildContext context) {
     // CoachEmptyState deleted (KILL-02). Chat always renders — coach speaks first.
 
-    return Scaffold(
-      backgroundColor: MintColors.craie,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            CoachAppBar(
-              isEmbeddedInTab: widget.isEmbeddedInTab,
-              hasUserMessages: _messages.any((m) => m.isUser),
-              onBack: () => safePop(context),
-              onHistory: () async {
-                final router = GoRouter.of(context);
-                await _autoSaveConversation();
-                if (mounted) router.push('/coach/history');
-              },
-              onExport: _exportConversation,
-              onSettings: () => context.push('/profile/byok'),
-            ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: _showSilentOpener
-                    ? _buildSilentOpenerWithTone()
-                    : _buildMessageList(),
+    return Semantics(
+      identifier: _runtimeProofSemanticsEnabled ? 'coach_chat_screen' : null,
+      child: Scaffold(
+        backgroundColor: MintColors.craie,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              CoachAppBar(
+                isEmbeddedInTab: widget.isEmbeddedInTab,
+                hasUserMessages: _messages.any((m) => m.isUser),
+                onBack: () => safePop(context),
+                onHistory: () async {
+                  final router = GoRouter.of(context);
+                  await _autoSaveConversation();
+                  if (mounted) router.push('/coach/history');
+                },
+                onExport: _exportConversation,
+                onSettings: () => context.push('/profile/byok'),
               ),
-            ),
-            if (_isLoading) const CoachLoadingIndicator(),
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewPadding.bottom,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: _showSilentOpener
+                      ? _buildSilentOpenerWithTone()
+                      : _buildMessageList(),
+                ),
               ),
-              child: CoachInputBar(
-                controller: _controller,
-                focusNode: _focusNode,
-                isStreaming: _isStreaming,
-                onSend: () => _sendMessage(_controller.text),
-                onLightningMenu: _showLightningMenu,
+              if (_isLoading) const CoachLoadingIndicator(),
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewPadding.bottom,
+                ),
+                child: CoachInputBar(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  isStreaming: _isStreaming,
+                  onSend: () => _sendMessage(_controller.text),
+                  onLightningMenu: _showLightningMenu,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2017,7 +2044,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             !(_isStreaming && msg == _messages.last);
 
         // Show transparency badge under the first assistant response in session.
+        final bool showsTransparencyFooter =
+            msg.tier == ChatTier.slm || msg.tier == ChatTier.byok;
         final bool isFirstAssistantInSession = msg.isAssistant &&
+            showsTransparencyFooter &&
             !(_isStreaming && msg == _messages.last) &&
             index == _messages.indexWhere((m) => m.isAssistant);
 

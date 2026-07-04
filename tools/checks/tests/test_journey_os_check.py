@@ -200,24 +200,22 @@ def test_jos004_coach_advice_runtime_flow_is_in_scope(tmp_path: Path) -> None:
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
-def test_jos004_runtime_flow_completes_first_experience_before_coach() -> None:
+def test_jos004_runtime_flow_routes_to_coach_without_dead_fixture_link() -> None:
     flow = (
         journey_os_check.REPO_ROOT
         / "tools/simulator/flows/maestro-perfect-set/"
         "flow_jos004_coach_advice_turn_runtime.yaml"
     ).read_text(encoding="utf-8")
 
-    login = "mintapp:///auth/login?redirect=%2Fcoach%2Fchat"
-    fixture = (
-        "mintapp:///__e2e/row23-independent-no-lpp-profile?"
-        "slug=cadre_salarie_lpp_suisse_ready"
-    )
-    coach = 'openLink: "mintapp:///coach/chat"'
+    login = 'MINT_TEST_INITIAL_ROUTE: "/auth/login?redirect=%2Fcoach%2Fchat"'
+    coach = 'MINT_TEST_INITIAL_ROUTE: "/coach/chat"'
 
     assert login in flow
-    assert fixture in flow
-    assert 'id: "e2e_profile_fixture_applied"' in flow
-    assert flow.index(login) < flow.index(fixture) < flow.index(coach)
+    assert "mintapp:///" not in flow
+    assert "__e2e/row23-independent-no-lpp-profile" not in flow
+    assert "openLink:" not in flow
+    assert 'MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"' in flow
+    assert flow.index(login) < flow.index(coach)
 
 def test_onboarding_first_value_tracks_mint2_route_and_issue() -> None:
     record = json.loads(

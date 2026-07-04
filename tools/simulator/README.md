@@ -63,9 +63,8 @@ these scripts MUST actually run end-to-end — they are not documentation.
 
 Use the local Mac Mini **iPhone 17 Pro** simulator for canonical iOS runtime
 proofs. If it is unavailable, use an iPhone 15/14-class fallback and record the
-reason in the evidence. Do not use iPhone 13 mini for canonical Mint runtime
-proofs; it is not an acceptance target for Maestro, Patrol, walker, or Journey
-OS.
+reason in the evidence. Compact legacy iPhone targets are not acceptance
+targets for Maestro, Patrol, walker, or Journey OS.
 
 ## Quick usage
 

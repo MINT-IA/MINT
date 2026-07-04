@@ -19,10 +19,9 @@ TestFlight-as-debugging.
 
 Canonical iOS runtime proof device: **iPhone 17 Pro** on the local Mac Mini
 simulator stack. If that simulator is unavailable, use an iPhone 15/14-class
-fallback and record the reason in the evidence. **Never use iPhone 13 mini**
-for canonical Mint runtime evidence; it is too small and flaky for the current
-product gate. Android runtime stays a compatibility gate, not the active iOS
-product proof.
+fallback and record the reason in the evidence. Compact legacy iPhone targets
+are not accepted for canonical Mint runtime evidence. Android runtime stays a
+compatibility gate, not the active iOS product proof.
 
 The default permanent roster is:
 

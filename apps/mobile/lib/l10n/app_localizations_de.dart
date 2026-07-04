@@ -23490,4 +23490,9 @@ class SDe extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+
+  @override
+  String coachRegulatory3aCeilingWithLpp(String amount, String year) {
+    return 'Die Säule-3a-Obergrenze $year mit LPP/BVG beträgt CHF $amount/Jahr (OPP3 Art. 7 Abs. 1 Bst. a). Das ist eine regulatorische Limite, keine Einzahlungsempfehlung.';
+  }
 }

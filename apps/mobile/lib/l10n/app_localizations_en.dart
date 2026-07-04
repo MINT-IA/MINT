@@ -23320,4 +23320,9 @@ class SEn extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+
+  @override
+  String coachRegulatory3aCeilingWithLpp(String amount, String year) {
+    return 'The $year Pillar 3a ceiling with LPP is CHF $amount/year (OPP3 art. 7 para. 1 let. a). This is a regulatory limit, not a contribution recommendation.';
+  }
 }

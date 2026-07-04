@@ -1,0 +1,6 @@
+Device: iPhone 17 Pro B03E429D-0422-4357-B754-536637D979F9, iOS 26.2
+Runtime: xcodebuildmcp UI automation after Flutter iOS debug build/install
+Input: Quel est le plafond légal 3a 2026 avec LPP ?
+Observed visible answer: Le plafond 3a 2026 avec LPP est de CHF 7'258/an (OPP3 art. 7 al. 1 let. a). C’est une limite réglementaire, pas une recommandation de versement.
+Negative observed: stale fallback "Je n’ai pas cette donnée à jour" not visible; false BYOK footer "Réponse via ton API Claude" not visible.
+Caveat: Maestro CLI was unavailable/stalled before running JOS-004; this is supplementary native iOS UI evidence, not Journey OS Maestro acceptance.

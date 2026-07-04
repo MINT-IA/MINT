@@ -23432,4 +23432,9 @@ class SEs extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificado de salario escaneado';
+
+  @override
+  String coachRegulatory3aCeilingWithLpp(String amount, String year) {
+    return 'El límite 3a $year con LPP es de CHF $amount/año (OPP3 art. 7 ap. 1 let. a). Es un límite reglamentario, no una recomendación de aportación.';
+  }
 }

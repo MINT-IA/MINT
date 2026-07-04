@@ -12004,5 +12004,13 @@
   "scanSummaryMortgageAttestation": "Attestation hypothèque scannée",
   "@scanSummaryMortgageAttestation": { "description": "Persistent event summary when a mortgage attestation is scanned." },
   "scanSummarySalaryCertificate": "Certificat de salaire scanné",
-  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." }
+  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." },
+  "coachRegulatory3aCeilingWithLpp": "Le plafond 3a {year} avec LPP est de CHF {amount}/an (OPP3 art. 7 al. 1 let. a). C’est une limite réglementaire, pas une recommandation de versement.",
+  "@coachRegulatory3aCeilingWithLpp": {
+    "description": "Deterministic coach answer for Pillar 3a annual ceiling with LPP affiliation.",
+    "placeholders": {
+      "amount": { "type": "String" },
+      "year": { "type": "String" }
+    }
+  }
 }
