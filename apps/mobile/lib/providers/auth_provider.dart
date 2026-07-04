@@ -120,7 +120,9 @@ class AuthProvider extends ChangeNotifier {
         await _hydrateProfileFromBackend();
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
+        } catch (e) {
+          debugPrint('[Auth] best-effort failed: $e');
+        }
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -204,7 +206,9 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: schedule fresh-start notifications
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
+        } catch (e) {
+          debugPrint('[Auth] best-effort failed: $e');
+        }
       }
 
       notifyListeners();
@@ -379,7 +383,8 @@ class AuthProvider extends ChangeNotifier {
       final response = await ApiService.verifyMagicLink(token);
 
       // Backend returns camelCase: { accessToken, tokenType }
-      final accessToken = (response['accessToken'] ?? response['access_token']) as String;
+      final accessToken =
+          (response['accessToken'] ?? response['access_token']) as String;
 
       // Get user info from the JWT to populate auth state.
       // For now, store the token and fetch user info separately.
@@ -659,7 +664,8 @@ class AuthProvider extends ChangeNotifier {
         await AnonymousSessionService.clearSession();
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('[AuthProvider] Anonymous conversation migration failed: $e');
+          debugPrint(
+              '[AuthProvider] Anonymous conversation migration failed: $e');
         }
       }
 
@@ -689,7 +695,9 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
-      if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local data migration failed: $e');
+      }
     }
   }
 
@@ -701,34 +709,40 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _hydrateProfileFromBackend() async {
     try {
       final profileData = await ApiService.get('/profiles/me');
-      if (profileData.isEmpty) return;
+      if (profileData.isEmpty) {
+        return;
+      }
       final data = profileData['data'] as Map<String, dynamic>?;
-      if (data == null) return;
+      if (data == null) {
+        return;
+      }
 
-      final prefs = await SharedPreferences.getInstance();
+      final answers = await ReportPersistenceService.loadAnswers();
+      var changed = false;
       if (data['birthYear'] != null) {
-        await prefs.setInt('q_birth_year', data['birthYear'] as int);
+        answers['q_birth_year'] = data['birthYear'] as int;
+        changed = true;
       }
       if (data['canton'] != null) {
-        await prefs.setString('q_canton', data['canton'] as String);
+        answers['q_canton'] = data['canton'] as String;
+        changed = true;
       }
       if (data['incomeGrossYearly'] != null) {
-        await prefs.setDouble(
-          'q_gross_salary',
-          (data['incomeGrossYearly'] as num).toDouble() / 12,
-        );
+        answers['q_gross_salary_annual'] =
+            (data['incomeGrossYearly'] as num).toDouble();
+        changed = true;
       }
       if (data['incomeNetMonthly'] != null) {
-        await prefs.setDouble(
-          'q_net_income_period_chf',
-          (data['incomeNetMonthly'] as num).toDouble(),
-        );
+        answers['q_net_income_period_chf'] =
+            (data['incomeNetMonthly'] as num).toDouble();
+        changed = true;
       }
       if (data['householdType'] != null) {
-        await prefs.setString(
-          'q_household_type',
-          data['householdType'] as String,
-        );
+        answers['q_household_type'] = data['householdType'] as String;
+        changed = true;
+      }
+      if (changed) {
+        await ReportPersistenceService.saveAnswers(answers);
       }
     } catch (e) {
       // Hydration is best-effort — never block login flow

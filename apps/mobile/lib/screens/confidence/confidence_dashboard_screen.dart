@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -103,31 +104,43 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 24),
-                MintEntrance(child: _buildOverallGauge()),
-                const SizedBox(height: 32),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBreakdownSection()),
-                const SizedBox(height: 32),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildFeatureGatesSection()),
-                const SizedBox(height: 32),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildEnrichmentPromptsSection()),
-                const SizedBox(height: 32),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
-                const SizedBox(height: 16),
-                _buildSourcesFooter(),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(context),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                        MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 24),
+                        MintEntrance(child: _buildOverallGauge()),
+                        const SizedBox(height: 32),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 100),
+                            child: _buildBreakdownSection()),
+                        const SizedBox(height: 32),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 200),
+                            child: _buildFeatureGatesSection()),
+                        const SizedBox(height: 32),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 300),
+                            child: _buildEnrichmentPromptsSection()),
+                        const SizedBox(height: 32),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 400),
+                            child: _buildDisclaimer()),
+                        const SizedBox(height: 16),
+                        _buildSourcesFooter(),
+                        const SizedBox(height: 100),
+                      ]),
+                    ),
+                  ),
+                ],
+              ))),
     );
   }
 
@@ -164,61 +177,67 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
     return AnimatedBuilder(
       animation: _gaugeAnimation,
       builder: (context, _) {
-        final displayScore =
-            (overall * _gaugeAnimation.value).round();
+        final displayScore = (overall * _gaugeAnimation.value).round();
 
-        return Column(
-          children: [
-            SizedBox(
-              width: 200,
-              height: 200,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Circular gauge
-                  CustomPaint(
-                    painter: _ConfidenceGaugePainter(
-                      score: overall,
-                      progress: _gaugeAnimation.value,
-                      scoreColor: scoreColor,
+        return Semantics(
+          identifier: 'confidence_score_gauge',
+          container: true,
+          explicitChildNodes: true,
+          child: Column(
+            children: [
+              SizedBox(
+                width: 200,
+                height: 200,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Circular gauge
+                    CustomPaint(
+                      painter: _ConfidenceGaugePainter(
+                        score: overall,
+                        progress: _gaugeAnimation.value,
+                        scoreColor: scoreColor,
+                      ),
+                      size: const Size(200, 200),
                     ),
-                    size: const Size(200, 200),
-                  ),
-                  // Center content
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$displayScore',
-                        style: MintTextStyles.displayLarge(),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '/100',
-                        style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Level badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: scoreColor.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: scoreColor.withValues(alpha: 0.30),
+                    // Center content
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$displayScore',
+                          style: MintTextStyles.displayLarge(),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '/100',
+                          style: MintTextStyles.bodyMedium(
+                              color: MintColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              child: Text(
-                _levelLabel(overall),
-                style: MintTextStyles.bodySmall(color: scoreColor),
+              const SizedBox(height: 12),
+              // Level badge
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: scoreColor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: scoreColor.withValues(alpha: 0.30),
+                  ),
+                ),
+                child: Text(
+                  _levelLabel(overall),
+                  style: MintTextStyles.bodySmall(color: scoreColor),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -282,9 +301,7 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
             child: Icon(
               gate.unlocked ? Icons.check_circle : Icons.lock_outline,
               size: 18,
-              color: gate.unlocked
-                  ? MintColors.success
-                  : MintColors.textMuted,
+              color: gate.unlocked ? MintColors.success : MintColors.textMuted,
             ),
           ),
           const SizedBox(width: 12),
@@ -293,7 +310,9 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
             child: Text(
               gate.gateName,
               style: MintTextStyles.bodyMedium(
-                color: gate.unlocked ? MintColors.textPrimary : MintColors.textMuted,
+                color: gate.unlocked
+                    ? MintColors.textPrimary
+                    : MintColors.textMuted,
               ),
             ),
           ),
@@ -306,7 +325,8 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                S.of(context)!.confidenceDashboardRequired(gate.minConfidence.round().toString()),
+                S.of(context)!.confidenceDashboardRequired(
+                    gate.minConfidence.round().toString()),
                 style: MintTextStyles.labelSmall(),
               ),
             ),
@@ -342,64 +362,136 @@ class _ConfidenceDashboardScreenState extends State<ConfidenceDashboardScreen>
         label: prompt.action,
         button: true,
         child: Material(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
+          color: MintColors.card,
           borderRadius: BorderRadius.circular(14),
-          onTap: () {
-            // Navigation will be wired per method in a future sprint.
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: MintColors.lightBorder),
-            ),
-            child: Row(
-              children: [
-                // Icon
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: MintColors.info.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => _openEnrichmentPrompt(prompt),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: MintColors.lightBorder),
+              ),
+              child: Row(
+                children: [
+                  // Icon
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: MintColors.info.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      _iconForMethod(prompt.method),
+                      size: 20,
+                      color: MintColors.info,
+                    ),
                   ),
-                  child: Icon(
-                    _iconForMethod(prompt.method),
-                    size: 20,
-                    color: MintColors.info,
+                  const SizedBox(width: 14),
+                  // Action text
+                  Expanded(
+                    child: Text(
+                      prompt.action,
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 14),
-                // Action text
-                Expanded(
-                  child: Text(
-                    prompt.action,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  const SizedBox(width: 10),
+                  // Impact badge
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: MintColors.success.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '+${prompt.impactPoints} pts',
+                      style:
+                          MintTextStyles.labelSmall(color: MintColors.success),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // Impact badge
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: MintColors.success.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '+${prompt.impactPoints} pts',
-                    style: MintTextStyles.labelSmall(color: MintColors.success),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-      ),
     );
+  }
+
+  void _openEnrichmentPrompt(EnrichmentPrompt prompt) {
+    context.push(_routeForPrompt(prompt));
+  }
+
+  String _routeForPrompt(EnrichmentPrompt prompt) {
+    switch (prompt.method) {
+      case 'documentScan':
+      case 'documentScanVerified':
+        final type = _scanTypeForField(prompt.fieldName);
+        if (type == null) return '/scan';
+        return '/scan?type=${Uri.encodeComponent(type)}';
+      case 'openBanking':
+        return '/open-banking';
+      case 'manualEntry':
+      default:
+        return '/data-block/${Uri.encodeComponent(_dataBlockForField(prompt.fieldName))}';
+    }
+  }
+
+  String? _scanTypeForField(String fieldName) {
+    return switch (fieldName) {
+      'lpp_obligatoire' ||
+      'lpp_total' ||
+      'lpp_surobligatoire' ||
+      'lpp_insured_salary' ||
+      'conversion_rate_oblig' ||
+      'conversion_rate_suroblig' ||
+      'buyback_potential' ||
+      'employee_lpp_contribution' =>
+        'lpp_certificate',
+      'avs_contribution_years' || 'avs_ramd' => 'avs_extract',
+      'taxable_income' ||
+      'taxable_wealth' ||
+      'taux_marginal' ||
+      'tax_deductions' =>
+        'tax_declaration',
+      'mortgage_remaining' ||
+      'mortgage_rate' ||
+      'property_value' =>
+        'mortgage_statement',
+      _ => null,
+    };
+  }
+
+  String _dataBlockForField(String fieldName) {
+    return switch (fieldName) {
+      'lpp_obligatoire' ||
+      'lpp_total' ||
+      'lpp_surobligatoire' ||
+      'lpp_insured_salary' ||
+      'conversion_rate_oblig' ||
+      'conversion_rate_suroblig' ||
+      'buyback_potential' ||
+      'employee_lpp_contribution' =>
+        'lpp',
+      'avs_contribution_years' || 'avs_ramd' => 'avs',
+      'taxable_income' ||
+      'taxable_wealth' ||
+      'taux_marginal' ||
+      'tax_deductions' =>
+        'fiscalite',
+      'mortgage_remaining' ||
+      'mortgage_rate' ||
+      'property_value' =>
+        'patrimoine',
+      'pillar_3a_balance' || 'pillar_3a_contributions' => '3a',
+      'monthly_expenses' => 'budget',
+      'nb_children' || 'is_married' => 'famille',
+      _ => 'revenu',
+    };
   }
 
   // ════════════════════════════════════════════════════════════

@@ -6,6 +6,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/services/dossier/dossier_payload_service.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
@@ -28,15 +29,27 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
+typedef FinancialReportPdfExporter = Future<void> Function(
+  FinancialReport report,
+);
+
+typedef DossierPayloadPdfExporter = Future<void> Function(
+  DossierPayload dossier,
+);
+
 /// Ecran d'affichage du rapport financier exhaustif V2
 /// Refonte : cartes thématiques (Budget, Protection, Retraite, Impôts)
 /// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
+  final FinancialReportPdfExporter? exportPdf;
+  final DossierPayloadPdfExporter? exportDossierPdf;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
+    this.exportPdf,
+    this.exportDossierPdf,
   });
 
   // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
@@ -48,9 +61,49 @@ class FinancialReportScreenV2 extends StatelessWidget {
       ActionCategory.avs => '/retraite',
       ActionCategory.tax => '/fiscal',
       ActionCategory.insurance => '/assurances/lamal',
-      ActionCategory.investment => '/tools',
-      ActionCategory.other => '/tools',
+      ActionCategory.investment => '/coach/chat?topic=investment',
+      ActionCategory.other => '/coach/chat?topic=other',
     };
+  }
+
+  String _actionCardIdentifier(ActionCategory category) =>
+      'report_action_${category.name}_card';
+
+  String _actionCtaIdentifier(ActionCategory category) =>
+      'report_action_${category.name}_cta';
+
+  Future<void> _exportReport(
+    BuildContext context,
+    FinancialReport report,
+  ) async {
+    try {
+      await (exportPdf ?? PdfService.generateFinancialReportPdf)(report);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context)!.financialReportExportError),
+        ),
+      );
+    }
+  }
+
+  Future<void> _exportDossier(
+    BuildContext context,
+    DossierPayload dossier,
+  ) async {
+    try {
+      await (exportDossierPdf ?? PdfService.generateDossierPayloadPdf)(
+        dossier,
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context)!.financialReportExportError),
+        ),
+      );
+    }
   }
 
   @override
@@ -60,8 +113,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         backgroundColor: MintColors.surface,
         appBar: AppBar(
           title: Text(S.of(context)!.reportTonPlanMint,
-              style: MintTextStyles.titleMedium(
-                  color: MintColors.textPrimary)),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
           backgroundColor: MintColors.white,
           foregroundColor: MintColors.textPrimary,
           elevation: 0,
@@ -81,13 +133,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
+    final dossiers = _buildP0Dossiers(wizardAnswers);
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(context, wizardAnswers);
 
     return Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
-        title: Text(S.of(context)!.reportTonPlanMint, style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
+        title: Text(S.of(context)!.reportTonPlanMint,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
@@ -96,136 +150,165 @@ class FinancialReportScreenV2 extends StatelessWidget {
           onPressed: () => context.go('/coach/chat'),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              PdfService.generateFinancialReportPdf(report);
-            },
+          Semantics(
+            identifier: 'report_export_pdf_cta',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.share),
+              tooltip: S.of(context)!.coachTooltipExport,
+              onPressed: () async => _exportReport(context, report),
+            ),
           ),
         ],
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header personnalisé (greeting + status summary)
-            MintEntrance(child: _buildHeader(context, report.profile, report.healthScore)),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header personnalisé (greeting + status summary)
+                    MintEntrance(
+                        child: _buildHeader(
+                            context, report.profile, report.healthScore)),
 
-            const SizedBox(height: MintSpacing.lg),
+                    const SizedBox(height: MintSpacing.lg),
 
-            // Wave E-PRIME (2026-04-18): Debt alert block removed.
-            // The screen is already wrapped by SafeModeGate at the caller
-            // level (widgets/common/safe_mode_gate.dart, imported L20), which
-            // handles toxic-debt state globally. The redundant inline alert
-            // relied on MintAlertObject (widgets/alert/, deleted in Phase 2c
-            // cascade with AnticipationProvider Panel A P0-3).
+                    // Wave E-PRIME (2026-04-18): Debt alert block removed.
+                    // The screen is already wrapped by SafeModeGate at the caller
+                    // level (widgets/common/safe_mode_gate.dart, imported L20), which
+                    // handles toxic-debt state globally. The redundant inline alert
+                    // relied on MintAlertObject (widgets/alert/, deleted in Phase 2c
+                    // cascade with AnticipationProvider Panel A P0-3).
 
-            // ── Budget thematic card ──
-            MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-              child: _buildBudgetSection(context, wizardAnswers),
-            )),
+                    // ── Budget thematic card ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 100),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: MintSpacing.md),
+                          child: _buildBudgetSection(context, wizardAnswers),
+                        )),
 
-            // ── Protection thematic card ──
-            MintEntrance(delay: const Duration(milliseconds: 200), child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-              child: _buildProtectionSection(
-                  context, wizardAnswers, report.healthScore),
-            )),
+                    // ── Protection thematic card ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 200),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: MintSpacing.md),
+                          child: _buildProtectionSection(
+                              context, wizardAnswers, report.healthScore),
+                        )),
 
-            // ── Retirement thematic card ──
-            if (report.retirementProjection != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: _buildRetirementThematicSection(
-                    context, report, wizardAnswers),
-              ),
+                    // ── Retirement thematic card ──
+                    if (report.retirementProjection != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md),
+                        child: _buildRetirementThematicSection(
+                            context, report, wizardAnswers),
+                      ),
 
-            // ── Tax thematic card ──
-            MintEntrance(delay: const Duration(milliseconds: 300), child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-              child: _buildTaxThematicSection(context, report),
-            )),
+                    // ── Tax thematic card ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: MintSpacing.md),
+                          child: _buildTaxThematicSection(context, report),
+                        )),
 
-            const SizedBox(height: MintSpacing.lg),
+                    const SizedBox(height: MintSpacing.lg),
 
-            // ── Top 3 Priorities ──
-            MintEntrance(delay: const Duration(milliseconds: 400), child: SafeModeGate(
-              hasDebt: hasDebt,
-              lockedTitle: S.of(context)!.reportSafeModePriority,
-              lockedMessage: S.of(context)!.reportSafeModeActions,
-              reasons: safeModeReasons,
-              child: _buildTopPriorities(context, report.priorityActions),
-            )),
+                    // ── Top 3 Priorities ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 400),
+                        child: SafeModeGate(
+                          hasDebt: hasDebt,
+                          lockedTitle: S.of(context)!.reportSafeModePriority,
+                          lockedMessage: S.of(context)!.reportSafeModeActions,
+                          reasons: safeModeReasons,
+                          child: _buildTopPriorities(
+                              context, report.priorityActions),
+                        )),
 
-            const SizedBox(height: MintSpacing.lg),
+                    const SizedBox(height: MintSpacing.lg),
 
-            // ── Comparateur 3a (si applicable) ──
-            if (report.pillar3aAnalysis != null) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: Text(
-                  S.of(context)!.reportOptimise3a,
-                  style: MintTextStyles.headlineMedium(),
+                    // ── Comparateur 3a (si applicable) ──
+                    if (report.pillar3aAnalysis != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md),
+                        child: Text(
+                          S.of(context)!.reportOptimise3a,
+                          style: MintTextStyles.headlineMedium(),
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.md),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md),
+                        child: SafeModeGate(
+                          hasDebt: hasDebt,
+                          lockedTitle: S.of(context)!.reportSafeModePriority,
+                          lockedMessage: S.of(context)!.reportSafeMode3a,
+                          reasons: safeModeReasons,
+                          child: Pillar3aComparatorWidget(
+                            monthlyIncome: report.profile.monthlyNetIncome,
+                            yearsUntilRetirement:
+                                report.profile.yearsToRetirement,
+                            hasPensionFund: report.profile.isSalaried,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+                    ],
+
+                    // ── Strat\u00e9gie rachat LPP ──
+                    if (report.lppBuybackStrategy != null)
+                      SafeModeGate(
+                        hasDebt: hasDebt,
+                        lockedTitle: S.of(context)!.reportSafeModeLpp,
+                        lockedMessage: S.of(context)!.reportSafeModeLppMessage,
+                        reasons: safeModeReasons,
+                        child: _buildLppBuybackSection(context,
+                            report.lppBuybackStrategy!, report.profile),
+                      ),
+
+                    const SizedBox(height: MintSpacing.lg),
+
+                    // ── Life event suggestions based on profile ──
+                    LifeEventSuggestionsSection(
+                      suggestions: buildLifeEventSuggestions(
+                        age: report.profile.age,
+                        civilStatus: report.profile.civilStatus,
+                        childrenCount: report.profile.childrenCount,
+                        employmentStatus: report.profile.employmentStatus,
+                        monthlyNetIncome: report.profile.monthlyNetIncome,
+                        canton: report.profile.canton,
+                        s: S.of(context)!,
+                      ),
+                    ),
+
+                    const SizedBox(height: MintSpacing.lg),
+
+                    _buildDossierSection(context, dossiers),
+
+                    const SizedBox(height: MintSpacing.xl),
+
+                    // ── SoA Compliance Section ──
+                    _buildSoaComplianceSection(context, report),
+
+                    const SizedBox(height: MintSpacing.lg),
+
+                    // ── Disclaimer Footer ──
+                    _buildDisclaimerFooter(context),
+
+                    const SizedBox(height: MintSpacing.xxl),
+                  ],
                 ),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: SafeModeGate(
-                  hasDebt: hasDebt,
-                  lockedTitle: S.of(context)!.reportSafeModePriority,
-                  lockedMessage: S.of(context)!.reportSafeMode3a,
-                  reasons: safeModeReasons,
-                  child: Pillar3aComparatorWidget(
-                    monthlyIncome: report.profile.monthlyNetIncome,
-                    yearsUntilRetirement: report.profile.yearsToRetirement,
-                    hasPensionFund: report.profile.isSalaried,
-                  ),
-                ),
-              ),
-              const SizedBox(height: MintSpacing.lg),
-            ],
-
-            // ── Strat\u00e9gie rachat LPP ──
-            if (report.lppBuybackStrategy != null)
-              SafeModeGate(
-                hasDebt: hasDebt,
-                lockedTitle: S.of(context)!.reportSafeModeLpp,
-                lockedMessage: S.of(context)!.reportSafeModeLppMessage,
-                reasons: safeModeReasons,
-                child: _buildLppBuybackSection(context, report.lppBuybackStrategy!, report.profile),
-              ),
-
-            const SizedBox(height: MintSpacing.lg),
-
-            // ── Life event suggestions based on profile ──
-            LifeEventSuggestionsSection(
-              suggestions: buildLifeEventSuggestions(
-                age: report.profile.age,
-                civilStatus: report.profile.civilStatus,
-                childrenCount: report.profile.childrenCount,
-                employmentStatus: report.profile.employmentStatus,
-                monthlyNetIncome: report.profile.monthlyNetIncome,
-                canton: report.profile.canton,
-                s: S.of(context)!,
-              ),
-            ),
-
-            const SizedBox(height: MintSpacing.xl),
-
-            // ── SoA Compliance Section ──
-            _buildSoaComplianceSection(context, report),
-
-            const SizedBox(height: MintSpacing.lg),
-
-            // ── Disclaimer Footer ──
-            _buildDisclaimerFooter(context),
-
-            const SizedBox(height: MintSpacing.xxl),
-          ],
-        ),
-      ))),
+              ))),
     );
   }
 
@@ -233,7 +316,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  HEADER — Greeting + contextual status (replaces numeric score)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildHeader(BuildContext context, UserProfile profile, FinancialHealthScore healthScore) {
+  Widget _buildHeader(BuildContext context, UserProfile profile,
+      FinancialHealthScore healthScore) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -258,7 +342,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.reportProfileSummary(profile.age, profile.canton, profile.civilStatus),
+              S.of(context)!.reportProfileSummary(
+                  profile.age, profile.canton, profile.civilStatus),
               style: MintTextStyles.bodyMedium(color: MintColors.white70),
             ),
             const SizedBox(height: 20),
@@ -270,7 +355,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusSummary(BuildContext context, FinancialHealthScore healthScore) {
+  Widget _buildStatusSummary(
+      BuildContext context, FinancialHealthScore healthScore) {
     final level = healthScore.overallScore;
     String message;
     String emoji;
@@ -288,7 +374,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
       label: message,
       child: Text(
         '$emoji $message',
-        style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+        style: MintTextStyles.bodyLarge(color: MintColors.white)
+            .copyWith(fontWeight: FontWeight.w600),
         textAlign: TextAlign.center,
       ),
     );
@@ -380,7 +467,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return baseAdult * adults;
   }
 
-  List<String> _buildSafeModeReasons(BuildContext context, Map<String, dynamic> answers) {
+  List<String> _buildSafeModeReasons(
+      BuildContext context, Map<String, dynamic> answers) {
     final reasons = <String>[];
 
     if (answers['q_has_consumer_credit'] == 'yes' ||
@@ -508,9 +596,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
     String? lppText;
     if (lppBuyback != null) {
       lppText = S.of(context)!.reportRetirementLppText(
-        formatChf(lppBuyback.totalBuybackAvailable),
-        formatChf(lppBuyback.totalTaxSavings),
-      );
+            formatChf(lppBuyback.totalBuybackAvailable),
+            formatChf(lppBuyback.totalTaxSavings),
+          );
     }
 
     return ThematicCard(
@@ -559,12 +647,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
       title: S.of(context)!.reportTaxTitle,
       status: status,
       keyNumber: '${formatChfWithPrefix(tax.totalTax)}/an',
-      keyNumberLabel: S.of(context)!.reportTaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
+      keyNumberLabel: S
+          .of(context)!
+          .reportTaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
       actionLabel: S.of(context)!.reportTaxAction,
       onActionTap: () => context.push('/fiscal'),
       source: S.of(context)!.reportTaxSource,
       children: [
-        _taxRow(S.of(context)!.reportTaxIncome, formatChfWithPrefix(tax.taxableIncome)),
+        _taxRow(S.of(context)!.reportTaxIncome,
+            formatChfWithPrefix(tax.taxableIncome)),
         if (tax.totalDeductions > 0) ...[
           const SizedBox(height: 4),
           _taxRow(S.of(context)!.reportTaxDeductions,
@@ -579,7 +670,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
           const SizedBox(height: 8),
           _buildInfoChip(
             Icons.lightbulb_outline,
-            S.of(context)!.reportTaxSavings(formatChf(tax.taxSavingsFromBuyback!)),
+            S
+                .of(context)!
+                .reportTaxSavings(formatChf(tax.taxSavingsFromBuyback!)),
             MintColors.success,
           ),
         ],
@@ -633,6 +726,131 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
+  List<DossierPayload> _buildP0Dossiers(Map<String, dynamic> answers) {
+    if (!_hasResolvedOwnerId(answers)) {
+      return const [];
+    }
+    final generatedAt = DateTime.now().toUtc();
+    return const ['first_salary_tax', 'buy_property', 'transmit_property']
+        .map(
+          (caseId) => DossierPayloadService.buildP0Case(
+            caseId: caseId,
+            answers: answers,
+            generatedAt: generatedAt,
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  bool _hasResolvedOwnerId(Map<String, dynamic> answers) {
+    final value = answers['_coach_profile_owner_id']?.toString().trim();
+    return value != null && value.isNotEmpty && value != 'local_demo_pending';
+  }
+
+  Widget _buildDossierSection(
+    BuildContext context,
+    List<DossierPayload> dossiers,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            S.of(context)!.expertDossierTitle,
+            style: MintTextStyles.headlineMedium(),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            S.of(context)!.dossierAgentSectionTitle,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          ...dossiers.map((dossier) => _buildDossierCard(context, dossier)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDossierCard(BuildContext context, DossierPayload dossier) {
+    final missingCount = dossier.nextQuestions.length;
+    final isReady = missingCount == 0;
+    final statusColor = isReady ? MintColors.success : MintColors.warning;
+
+    return Semantics(
+      identifier: 'report_dossier_${dossier.caseId}_card',
+      container: true,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: MintSpacing.sm),
+        padding: const EdgeInsets.all(MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              _dossierIcon(dossier.caseId),
+              color: statusColor,
+              size: 22,
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _dossierTitle(context, dossier.caseId),
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isReady
+                        ? S.of(context)!.expertTierDossierReady
+                        : S.of(context)!.expertDossierIncomplete(missingCount),
+                    style: MintTextStyles.labelSmall(color: statusColor),
+                  ),
+                ],
+              ),
+            ),
+            Semantics(
+              identifier: 'report_dossier_${dossier.caseId}_export_cta',
+              container: true,
+              button: true,
+              child: IconButton(
+                tooltip: S.of(context)!.coachTooltipExport,
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+                color: MintColors.textPrimary,
+                onPressed: () async => _exportDossier(context, dossier),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _dossierIcon(String caseId) {
+    return switch (caseId) {
+      'first_salary_tax' => Icons.payments_outlined,
+      'buy_property' => Icons.home_work_outlined,
+      'transmit_property' => Icons.account_balance_outlined,
+      _ => Icons.description_outlined,
+    };
+  }
+
+  String _dossierTitle(BuildContext context, String caseId) {
+    return switch (caseId) {
+      'first_salary_tax' => S.of(context)!.planStepSalaryTitle,
+      'buy_property' => S.of(context)!.sequenceHousingGoal,
+      'transmit_property' => S.of(context)!.successionTitle,
+      _ => caseId,
+    };
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  TOP PRIORITIES (kept from original)
   // ════════════════════════════════════════════════════════════════
@@ -659,6 +877,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   // _getActionRoute removed — use _routeForCategory(action.category) instead
 
   Widget _buildActionCard(BuildContext context, ActionItem action) {
+    void goToAction() => context.push(_routeForCategory(action.category));
+
     Color priorityColor;
     switch (action.priority) {
       case ActionPriority.critical:
@@ -675,78 +895,89 @@ class FinancialReportScreenV2 extends StatelessWidget {
         break;
     }
 
-    return MintSurface(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      radius: 16,
-      elevated: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  action.title,
-                  style: MintTextStyles.titleMedium(),
-                ),
-              ),
-              if (action.potentialGainChf != null)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.successBg,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+    return Semantics(
+      identifier: _actionCardIdentifier(action.category),
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 16,
+        elevated: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
                   child: Text(
-                    '+${formatChfWithPrefix(action.potentialGainChf!)}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: MintColors.greenDark,
-                    ),
+                    action.title,
+                    style: MintTextStyles.titleMedium(),
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            action.description,
-            style: MintTextStyles.bodySmall(),
-          ),
-          const SizedBox(height: 12),
-          ...action.steps.take(3).map((step) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('\u2022 ', style: TextStyle(color: priorityColor)),
-                    Expanded(
-                      child: Text(
-                        step,
-                        style: MintTextStyles.labelSmall(),
+                if (action.potentialGainChf != null)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: MintColors.successBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '+${formatChfWithPrefix(action.potentialGainChf!)}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: MintColors.greenDark,
                       ),
                     ),
-                  ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              action.description,
+              style: MintTextStyles.bodySmall(),
+            ),
+            const SizedBox(height: 12),
+            ...action.steps.take(3).map((step) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('\u2022 ', style: TextStyle(color: priorityColor)),
+                      Expanded(
+                        child: Text(
+                          step,
+                          style: MintTextStyles.labelSmall(),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                identifier: _actionCtaIdentifier(action.category),
+                container: true,
+                button: true,
+                onTap: goToAction,
+                child: FilledButton.icon(
+                  onPressed: goToAction,
+                  icon: const Icon(Icons.arrow_forward, size: 16),
+                  label: Text(S.of(context)!.reportCommencer),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: priorityColor,
+                    foregroundColor: MintColors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
-              )),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => context.push(_routeForCategory(action.category)),
-              icon: const Icon(Icons.arrow_forward, size: 16),
-              label: Text(S.of(context)!.reportCommencer),
-              style: FilledButton.styleFrom(
-                backgroundColor: priorityColor,
-                foregroundColor: MintColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -755,15 +986,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  LPP BUYBACK SECTION (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppBuybackSection(BuildContext context, LppBuybackStrategy strategy, UserProfile profile) {
+  Widget _buildLppBuybackSection(
+      BuildContext context, LppBuybackStrategy strategy, UserProfile profile) {
     // Taux marginal estimé selon canton + revenu (LIFD + ICC)
-    final double marginalRate = profile.canton.isNotEmpty && profile.canton != 'CH'
-        ? TaxEstimatorService.estimateMarginalTaxRate(
-            netMonthlyIncome: profile.monthlyNetIncome,
-            cantonCode: profile.canton,
-            civilStatus: profile.civilStatus,
-          ).clamp(0.10, 0.50)
-        : 0.30; // Fallback conservateur si canton inconnu
+    final double marginalRate =
+        profile.canton.isNotEmpty && profile.canton != 'CH'
+            ? TaxEstimatorService.estimateMarginalTaxRate(
+                netMonthlyIncome: profile.monthlyNetIncome,
+                cantonCode: profile.canton,
+                civilStatus: profile.civilStatus,
+              ).clamp(0.10, 0.50)
+            : 0.30; // Fallback conservateur si canton inconnu
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
@@ -784,7 +1017,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.reportLppEconomie(formatChf(strategy.totalTaxSavings)),
+              S
+                  .of(context)!
+                  .reportLppEconomie(formatChf(strategy.totalTaxSavings)),
               style: MintTextStyles.bodyMedium(color: MintColors.greenDark)
                   .copyWith(fontWeight: FontWeight.bold),
             ),
@@ -800,11 +1035,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         children: [
                           Text(
                             S.of(context)!.reportLppYear(buyback.year),
-                            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                            style: MintTextStyles.bodySmall(
+                                    color: MintColors.textPrimary)
                                 .copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            S.of(context)!.reportLppBuyback(formatChf(buyback.amount)),
+                            S
+                                .of(context)!
+                                .reportLppBuyback(formatChf(buyback.amount)),
                             style: MintTextStyles.labelSmall(),
                           ),
                         ],
@@ -817,8 +1055,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          S.of(context)!.reportLppSaving(formatChf(buyback.estimatedTaxSavings)),
-                          style: MintTextStyles.labelSmall(color: MintColors.greenDark)
+                          S.of(context)!.reportLppSaving(
+                              formatChf(buyback.estimatedTaxSavings)),
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.greenDark)
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -846,7 +1086,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  SOA COMPLIANCE SECTION — Transparence reglementaire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSoaComplianceSection(BuildContext context, FinancialReport report) {
+  Widget _buildSoaComplianceSection(
+      BuildContext context, FinancialReport report) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
@@ -861,9 +1102,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
+                const Icon(Icons.verified_outlined,
+                    size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
-                Flexible(child: Text(
+                Flexible(
+                    child: Text(
                   S.of(context)!.reportSoaTitle,
                   style: MintTextStyles.headlineMedium(),
                   overflow: TextOverflow.ellipsis,
@@ -876,7 +1119,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
             _buildSoaRow(
               S.of(context)!.reportSoaNature,
               report.personalizedRoadmap.phases.isNotEmpty
-                  ? S.of(context)!.reportSoaEduPhases(report.personalizedRoadmap.phases.length)
+                  ? S.of(context)!.reportSoaEduPhases(
+                      report.personalizedRoadmap.phases.length)
                   : S.of(context)!.reportSoaEduSimple,
             ),
             const SizedBox(height: 12),
@@ -984,7 +1228,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item,
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
                     ),
                   ),
                 ],
@@ -1017,7 +1262,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   S.of(context)!.reportMentionLegale,
-                  style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelSmall()
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
