@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-009",
+  "title": "Collect pay frequency with housing costs",
+  "journey_id": "mint_lucidity_p0_acceptance",
+  "status": "triaged",
+  "owner": "mint-quality-gate",
+  "severity": "P2",
+  "evidence_status": "baselined",
+  "next_action": "Before Phase 4 Data Quest UX, ensure any housing-cost collection path also asks or confirms pay frequency so parent annual living cost guards can clear without repeated prompts.",
+  "source": "Claude Phase 2 refresh audit M2: .planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md."
+}

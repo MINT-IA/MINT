@@ -25,7 +25,10 @@
   "external_apis": [],
   "issues": [
     "JOS-006",
-    "JOS-007"
+    "JOS-007",
+    "JOS-008",
+    "JOS-009",
+    "JOS-010"
   ],
   "priority": {
     "trust_blast_radius": 5,
@@ -110,6 +113,14 @@
       "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T190006Z-mobile-scenarios-gate/mobile-scenarios.log",
       "reason": "Mobile scenarios gate passed on the clean branch: targeted Flutter scenario tests, succession/i18n tests, ARB parity, Python guard tests, and Maestro syntax checks for P0 report, scan, mortgage, confidence, and transmission flows all completed with exit 0.",
       "debt_ref": "P0-MOBILE-SCENARIOS-GATE"
+    },
+    {
+      "kind": "external",
+      "status": "green",
+      "command": "MINT_EVIDENCE_DIR=.planning/runtime-evidence/mint-lucidity-phase2-20260704T164746 CLAUDE_AUDIT_MAX_BUDGET_USD=2.00 CLAUDE_ULTRAREVIEW_TIMEOUT_MINUTES=30 bash tools/checks/claude_external_audit.sh phase2",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md",
+      "reason": "Claude Phase 2 refresh audit returned NO_UNRESOLVED_CRITICAL_HIGH with score 9.1/10; three MEDIUM debts are tracked as JOS-008, JOS-009, and JOS-010.",
+      "debt_ref": "CLAUDE-PHASE2-REFRESH"
     }
   ]
 }

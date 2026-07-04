@@ -1,0 +1,1 @@
+Ultrareview could not launch: Diff is too large for ultrareview: 358 files changed, 52605 insertions(+), 6731 deletions(-). Push a PR and use `claude ultrareview <PR#>`, or pass a closer base branch (`claude ultrareview <branch>`) to narrow the scope.

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-008",
+  "title": "Harden report dossier builder degradation",
+  "journey_id": "mint_lucidity_p0_acceptance",
+  "status": "triaged",
+  "owner": "mint-mobile",
+  "severity": "P2",
+  "evidence_status": "baselined",
+  "next_action": "Before Phase 4 UX hardening, isolate each FinancialReportScreenV2 P0 dossier build so one unexpected case failure degrades that case instead of crashing /rapport.",
+  "source": "Claude Phase 2 refresh audit M1: .planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md."
+}
