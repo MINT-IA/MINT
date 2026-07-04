@@ -278,7 +278,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     path: '/rente-vs-capital',
     category: RouteCategory.destination,
     owner: RouteOwner.retraite,
-    requiresAuth: true,
+    requiresAuth: false,
     killFlag: 'enableExplorerRetraite',
   ),
   '/arbitrage/rente-vs-capital': RouteMeta(

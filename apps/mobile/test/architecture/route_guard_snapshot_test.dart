@@ -210,5 +210,20 @@ void main() {
         reason: '/onboarding/intent must be marked as onboarding',
       );
     });
+
+    test('JOS-005 first-value route is reachable before account creation', () {
+      final route = routeScopes.firstWhere(
+        (entry) => entry.key == '/rente-vs-capital',
+        orElse: () => const MapEntry('', ''),
+      );
+
+      expect(
+        route.value,
+        'onboarding',
+        reason: 'JOS-005: selecting the Mint2 LPP/rente-capital first-value '
+            'axis must reach /rente-vs-capital before account creation, even '
+            'when anonymous local mode has not been opted in yet.',
+      );
+    });
   });
 }

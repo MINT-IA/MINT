@@ -11,6 +11,7 @@
 /3a-retroactif | authenticated
 /about | public
 /achievements | authenticated
+/admin/routes | authenticated
 /advisor | authenticated
 /advisor/plan-30-days | authenticated
 /advisor/wizard | authenticated
@@ -31,6 +32,7 @@
 /auth/verify-email | public
 /bank-import | authenticated
 /budget | authenticated
+/budget/setup | authenticated
 /cantonal-benchmark | authenticated
 /check/debt | authenticated
 /coach/agir | authenticated
@@ -122,7 +124,7 @@
 /profile | authenticated
 /rachat-lpp | authenticated
 /rapport | authenticated
-/rente-vs-capital | authenticated
+/rente-vs-capital | onboarding
 /report | authenticated
 /report/v2 | authenticated
 /retirement | authenticated

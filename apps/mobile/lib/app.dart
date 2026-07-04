@@ -965,6 +965,7 @@ final _router = GoRouter(
 
     ScopedGoRoute(
       path: '/rente-vs-capital',
+      scope: RouteScope.onboarding,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
