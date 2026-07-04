@@ -88,6 +88,14 @@
       "debt_ref": "P0-IOS-FIRST-SALARY-FATCA-PATROL"
     },
     {
+      "kind": "runtime",
+      "status": "green",
+      "command": "bash tools/simulator/maestro_with_watchdog.sh test apps/mobile/.maestro/r3c_report_dossier_export.yaml --format junit --output /tmp/mint-r3c-dossier.xml",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T202610Z-maestro-report-dossier/result.xml",
+      "reason": "iPhone 17 Pro Maestro proof for /rapport dossier export: the seeded report renders Ton Plan Mint, exposes the transmit_property typed dossier card, and taps report_dossier_transmit_property_export_cta.",
+      "debt_ref": "P0-IOS-REPORT-DOSSIER-MAESTRO"
+    },
+    {
       "kind": "external",
       "status": "green",
       "command": "CLAUDE_AUDIT_MAX_BUDGET_USD=2.00 CLAUDE_ULTRAREVIEW_TIMEOUT_MINUTES=30 bash tools/checks/claude_external_audit.sh phase2 && bash tools/checks/mint_lucidity_gate.sh phase2-artifacts",
