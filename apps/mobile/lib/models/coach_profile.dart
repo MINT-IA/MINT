@@ -876,6 +876,7 @@ class DetteProfile {
   final double? leasing;
   final double? hypotheque;
   final double? autresDettes;
+  final double? nonVentilee;
 
   // S45: Enrichment fields (optional, progressively filled)
   final double? tauxHypotheque; // Taux d'intérêt hypothécaire (%)
@@ -895,6 +896,7 @@ class DetteProfile {
     this.leasing,
     this.hypotheque,
     this.autresDettes,
+    this.nonVentilee,
     this.tauxHypotheque,
     this.tauxCreditConso,
     this.tauxLeasing,
@@ -912,7 +914,8 @@ class DetteProfile {
       (creditConsommation ?? 0) +
       (leasing ?? 0) +
       (hypotheque ?? 0) +
-      (autresDettes ?? 0);
+      (autresDettes ?? 0) +
+      (nonVentilee ?? 0);
 
   bool get hasDette => totalDettes > 0;
 
@@ -949,6 +952,7 @@ class DetteProfile {
       leasing: (json['leasing'] as num?)?.toDouble(),
       hypotheque: (json['hypotheque'] as num?)?.toDouble(),
       autresDettes: (json['autresDettes'] as num?)?.toDouble(),
+      nonVentilee: (json['nonVentilee'] as num?)?.toDouble(),
       tauxHypotheque: (json['tauxHypotheque'] as num?)?.toDouble(),
       tauxCreditConso: (json['tauxCreditConso'] as num?)?.toDouble(),
       tauxLeasing: (json['tauxLeasing'] as num?)?.toDouble(),
@@ -975,6 +979,7 @@ class DetteProfile {
     double? leasing,
     double? hypotheque,
     double? autresDettes,
+    double? nonVentilee,
     double? tauxHypotheque,
     double? tauxCreditConso,
     double? tauxLeasing,
@@ -992,6 +997,7 @@ class DetteProfile {
       leasing: leasing ?? this.leasing,
       hypotheque: hypotheque ?? this.hypotheque,
       autresDettes: autresDettes ?? this.autresDettes,
+      nonVentilee: nonVentilee ?? this.nonVentilee,
       tauxHypotheque: tauxHypotheque ?? this.tauxHypotheque,
       tauxCreditConso: tauxCreditConso ?? this.tauxCreditConso,
       tauxLeasing: tauxLeasing ?? this.tauxLeasing,
@@ -1013,6 +1019,7 @@ class DetteProfile {
         'leasing': leasing,
         'hypotheque': hypotheque,
         'autresDettes': autresDettes,
+        'nonVentilee': nonVentilee,
         'tauxHypotheque': tauxHypotheque,
         'tauxCreditConso': tauxCreditConso,
         'tauxLeasing': tauxLeasing,
@@ -2663,26 +2670,41 @@ class CoachProfile {
     final inlineCreditConso = _parseDouble(answers['_coach_dettes_credit']);
     final inlineLeasing = _parseDouble(answers['_coach_dettes_leasing']);
     final inlineAutresDettes = _parseDouble(answers['_coach_dettes_autres']);
+    final inlineNonVentilee =
+        _parseDouble(answers['_coach_dettes_non_ventile']);
+    final declaredTotalDebt = _parseDouble(answers['q_total_debt_balance_chf']);
     final hasInlineDettes = inlineHypotheque != null ||
         inlineCreditConso != null ||
         inlineLeasing != null ||
-        inlineAutresDettes != null;
+        inlineAutresDettes != null ||
+        inlineNonVentilee != null;
     final dettes = (() {
       if (hasInlineDettes) {
+        final categorizedDebt = (inlineHypotheque ?? 0) +
+            (inlineCreditConso ?? 0) +
+            (inlineLeasing ?? 0) +
+            (inlineAutresDettes ?? 0);
+        final residualDebt =
+            declaredTotalDebt != null && declaredTotalDebt > categorizedDebt
+                ? declaredTotalDebt - categorizedDebt
+                : null;
         return DetteProfile(
           hypotheque: inlineHypotheque,
           creditConsommation: inlineCreditConso,
           leasing: inlineLeasing,
           autresDettes: inlineAutresDettes,
+          nonVentilee: residualDebt ?? inlineNonVentilee,
         );
+      }
+      if (declaredTotalDebt != null) {
+        return DetteProfile(nonVentilee: declaredTotalDebt);
       }
       if (debtPaymentsMonthly > 0) {
         // Proxy conservateur: principal restant ≈ 24 mois de mensualités.
         return DetteProfile(creditConsommation: debtPaymentsMonthly * 24);
       }
       if (hasDebt) {
-        // Fallback si uniquement booléen déclaré sans montant.
-        return DetteProfile(creditConsommation: salaireBrutMensuel * 12 * 0.05);
+        return const DetteProfile();
       }
       return const DetteProfile();
     })();

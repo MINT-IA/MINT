@@ -80,10 +80,16 @@ void main() {
     expect(provider.profile!.goalA.type, GoalAType.achatImmo);
 
     expect(await provider.applySaveFact('hasDebt', true), isTrue);
-    expect(provider.profile!.dettes.hasDette, isTrue);
+    expect(provider.answersSnapshot['q_has_consumer_debt'], isTrue);
+    expect(provider.profile!.dettes.hasDette, isFalse);
 
     expect(await provider.applySaveFact('totalDebt', 15000), isTrue);
     expect(provider.profile!.dettes.totalDettes, 15000);
+    expect(provider.profile!.dettes.nonVentilee, 15000);
+    expect(
+      provider.answersSnapshot.containsKey('_coach_dettes_autres'),
+      isFalse,
+    );
 
     expect(await provider.applySaveFact('avsContributionYears', 32), isTrue);
     expect(provider.profile!.prevoyance.anneesContribuees, 32);

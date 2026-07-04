@@ -124,8 +124,9 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **Patrimoine & dette**
 - `q_cash_total`, `q_epargne_liquide`, `q_investissements`,
   `q_investments_total`, `q_emergency_fund`, `q_debt_payments_period_chf`,
+  `q_has_consumer_debt`, `q_total_debt_balance_chf`,
   `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
-  `_coach_dettes_autres`
+  `_coach_dettes_autres`, `_coach_dettes_non_ventile`
 
 **Fiscal**
 - `_coach_tax_revenu_imposable`, `_coach_tax_fortune_imposable`,

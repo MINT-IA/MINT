@@ -185,12 +185,13 @@ These **40** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `mortgageBalance` | `q_mortgage_balance` | double CHF | dettes/patrimoine | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `patrimoine.mortgageBalance`, transmission mortgage assumption, LTV, renewal shock |
 | `mortgageRate` | `q_mortgage_rate` | double % | dettes/patrimoine | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `patrimoine.mortgageRate`, mortgage cost, renewal sim, buy-property reconfirm |
 | `hasDebt` | `q_has_consumer_debt` | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
-| `totalDebt` | `_coach_dettes_autres` + `q_has_consumer_debt=(value>0)` | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
+| `totalDebt` | `q_total_debt_balance_chf` + `q_has_consumer_debt=(value>0)` | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.nonVentilee` until categorized `_coach_dettes_*` details cover the total; debt-to-income 0.33, net worth |
 | `parentAnnualLivingCosts` | `q_parent_annual_living_costs` | double CHF/yr | expenses/scenario | userInput, openBanking | volatile | .60 | applySaveFact/mergeAnswers | `PropertyTransmissionInputs.parentAnnualLivingCosts`, retirement-affordability guard, dossier specialist handoff |
 
 > `wealthEstimate` is intentionally separate from `totalSavings`: `q_cash_total` drives liquidity/emergency-fund logic, while `q_wealth_estimate` is read by `fromWizardAnswers` as a residual investment estimate (`wealthEstimate - cash - propertyMarketValue`, floored at 0) so it affects `totalPatrimoine` without inflating cash.
 > `targetPropertyValue` is intentionally separate from `patrimoine.propertyMarketValue`: the former is a planned purchase price, the latter is an owned property value.
 > `q_cash_total` is chronologically earlier than `q_target_property_value`: MINT must persist available liquid savings even when no purchase target exists yet, then ask for the target only in buy-property contexts.
+> `totalDebt` is an aggregate debt value. It MUST NOT write `_coach_dettes_autres`, because that key is a debt category. If categorized debt keys exist and their sum is lower than `q_total_debt_balance_chf`, `CoachProfile.fromWizardAnswers` keeps the difference as `dettes.nonVentilee`; if only `hasDebt=true` is known, no debt amount is invented.
 
 ### 3.6 Spouse (couple)
 
@@ -228,7 +229,7 @@ The formerly missing keys now map as follows:
 | `has2ndPillar` | `q_has_pension_fund` | LPP eligibility flag |
 | `hasVoluntaryLpp` | `q_has_pension_fund` | voluntary/facultative LPP gate |
 | `hasDebt` | `q_has_consumer_debt` | `dettes` presence flag |
-| `totalDebt` | `_coach_dettes_autres` + `q_has_consumer_debt=(value>0)` | `dettes.totalDettes` |
+| `totalDebt` | `q_total_debt_balance_chf` + `q_has_consumer_debt=(value>0)` | `dettes.nonVentilee` until categorized `_coach_dettes_*` details cover the total |
 | `spouseBirthYear` | `q_partner_birth_year` | `conjoint.birthYear` |
 | `spouseIncomeNetMonthly` | `q_partner_net_income_chf` | `conjoint.salaireBrutMensuel` (net→gross handling per existing conjoint logic) |
 | `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` | `conjoint.prevoyance.anneesContribuees` |
@@ -294,6 +295,7 @@ runtime result must expose the source keys used to compose them.
 | `dettes.leasing` | double CHF | dettes | userInput | volatile | .60 | mergeAnswers | `detteConsommation`, SafeMode |
 | `dettes.hypotheque` | double CHF | dettes | userInput, certificate | volatile | .60 | mergeAnswers | `detteStructurelle`, `interetsHypothecairesAnnuels` |
 | `dettes.autresDettes` | double CHF | dettes | userInput | volatile | .60 | mergeAnswers | SafeMode Signal A |
+| `dettes.nonVentilee` | double CHF | dettes | derived from `totalDebt` | volatile | .60 | computed/read-only unless explicitly reconciled | preserves declared total debt while the user progressively ventilates categories |
 | `dettes.taux{Hypotheque,CreditConso,Leasing}` | double % | dettes | userInput, certificate | volatile | .60 | mergeAnswers | `tauxMaxConsommation`, interest cost |
 | `dettes.mensualite{Hypotheque,CreditConso,Leasing}` | double CHF/mo | dettes | userInput | volatile | .60 | mergeAnswers | `totalMensualite`, debt-to-income 0.33 |
 | `dettes.echeance{Hypotheque,CreditConso,Leasing}` | DateTime | dettes | userInput, certificate | static | .60 | mergeAnswers | renewal shock timing, payoff date |

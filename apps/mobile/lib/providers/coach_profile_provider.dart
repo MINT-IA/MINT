@@ -756,6 +756,8 @@ class CoachProfileProvider extends ChangeNotifier {
         return '_coach_depenses_frais_medicaux';
       case 'depenses.autresDepensesFixes':
         return '_coach_depenses_autres';
+      case 'dettes.nonVentilee':
+        return '_coach_dettes_non_ventile';
       case 'parentAnnualLivingCosts':
         return 'q_parent_annual_living_costs';
       case 'prevoyance.projectedRenteLpp':
@@ -913,8 +915,14 @@ class CoachProfileProvider extends ChangeNotifier {
         case 'q_has_consumer_debt':
           paths.add('dettes.hasDette');
           break;
+        case 'q_total_debt_balance_chf':
+          paths.add('dettes.totalDettes');
+          break;
         case '_coach_dettes_autres':
           paths.add('dettes.autresDettes');
+          break;
+        case '_coach_dettes_non_ventile':
+          paths.add('dettes.nonVentilee');
           break;
         case 'q_partner_birth_year':
           paths.add('conjoint.birthYear');
@@ -1035,7 +1043,7 @@ class CoachProfileProvider extends ChangeNotifier {
         final totalDebt = _asNum(value);
         if (totalDebt == null) return const {};
         return {
-          '_coach_dettes_autres': totalDebt,
+          'q_total_debt_balance_chf': totalDebt,
           'q_has_consumer_debt': totalDebt > 0,
         };
       case 'parentAnnualLivingCosts':
