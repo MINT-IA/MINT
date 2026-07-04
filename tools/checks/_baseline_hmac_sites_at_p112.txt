@@ -1,0 +1,2 @@
+# Existing bare SHA-256 audit/PII sites grandfathered before P112.
+# Keep empty for new clean branches; add only audited legacy entries.
