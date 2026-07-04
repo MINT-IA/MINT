@@ -582,8 +582,19 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturnOnPop();
       },
-      child: Scaffold(
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      child: Semantics(
+        identifier: 'rente_vs_capital_screen',
+        container: true,
+        explicitChildNodes: true,
+        child: Scaffold(
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Semantics(
+                identifier: 'rvc_route_state',
+                container: true,
+                explicitChildNodes: true,
+                child: CustomScrollView(
         slivers: [
           // ── SliverAppBar (white standard — Simulator screen) ──
           SliverAppBar(
@@ -696,8 +707,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
           ),
         ],
-      )))),
-    );
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
   }
 
   // ═══════════════════════════════════════════════════════════════

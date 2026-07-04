@@ -1,0 +1,33 @@
+appId: ch.mint.app
+---
+# JOS-005: /rente-vs-capital must be reachable before account creation.
+# This is the current DataQuest-clean proof for the first-value contract after
+# the old Mint2 entry surface was removed.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/rente-vs-capital"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    id: "rente_vs_capital_screen"
+- assertVisible:
+    id: "rvc_route_state"
+- assertVisible:
+    text: "Rente ou capital"
+- assertNotVisible:
+    text: "Créer ton compte"
+- assertNotVisible:
+    text: "Continuer avec Apple"
+- assertNotVisible:
+    text: "Créer avec e-mail"
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "A RenderFlex overflowed"
+- assertNotVisible:
+    text: "Exception caught"
+- assertNotVisible:
+    text: "NoSuchMethodError"
