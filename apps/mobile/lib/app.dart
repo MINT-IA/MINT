@@ -461,7 +461,7 @@ class _ScanImpactRoute extends StatelessWidget {
     }
     return DocumentImpactScreen(
       result: session.confirmedResult ?? session.reviewResult,
-      previousConfidence: session.previousConfidence ?? 42,
+      previousConfidence: session.previousConfidence,
     );
   }
 }
@@ -471,13 +471,23 @@ class _ScanSessionUnavailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.background,
+      appBar: AppBar(
+        title: Text(l10n.documentsEmpty),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          tooltip: l10n.semanticsBackButton,
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/scan'),
+        ),
+      ),
       body: MintEmptyState(
         icon: Icons.description_outlined,
-        title: 'Document non disponible',
-        subtitle: 'Relance le scan pour confirmer les donnees extraites.',
-        ctaLabel: 'Scanner un document',
+        title: l10n.documentsEmpty,
+        subtitle: l10n.documentsEmptyVoice,
+        ctaLabel: l10n.enrichmentCtaScan,
         onCta: () => context.go('/scan'),
       ),
     );

@@ -44,7 +44,8 @@ void main() {
     );
   });
 
-  test('scan session id helper accepts only query or string extra fallback', () {
+  test('scan session id helper accepts only query or string extra fallback',
+      () {
     final source = File('lib/app.dart').readAsStringSync();
     // Structural lock only: _scanSessionIdFrom is private to app.dart, so this
     // audit test pins the route contract without exposing test-only API.
@@ -71,5 +72,48 @@ void main() {
       reason: 'A string extra is the only allowed ephemeral fallback; '
           'ExtractionResult/wizardAnswers/domain payloads remain forbidden.',
     );
+  });
+
+  test('missing scan sessions render a localized recoverable state', () {
+    final source = File('lib/app.dart').readAsStringSync();
+    final unavailableClass = RegExp(
+      r'class _ScanSessionUnavailable extends StatelessWidget \{(.*?)\n\}',
+      dotAll: true,
+    ).firstMatch(source);
+
+    expect(
+      source,
+      isNot(contains('Document non disponible')),
+      reason: 'The historical scan dead-end literal must not return.',
+    );
+    expect(
+      unavailableClass,
+      isNotNull,
+      reason: '_ScanSessionUnavailable is the reviewed recovery state.',
+    );
+
+    final body = unavailableClass!.group(1)!;
+    expect(body, contains('S.of(context)!'));
+    expect(body, contains('appBar: AppBar'));
+    expect(body, contains('l10n.documentsEmpty'));
+    expect(body, contains('l10n.documentsEmptyVoice'));
+    expect(body, contains('l10n.enrichmentCtaScan'));
+    expect(body, contains("context.go('/scan')"));
+  });
+
+  test('scan impact does not synthesize a confidence baseline', () {
+    final appSource = File('lib/app.dart').readAsStringSync();
+    final impactSource =
+        File('lib/screens/document_scan/document_impact_screen.dart')
+            .readAsStringSync();
+
+    expect(
+      appSource,
+      isNot(contains('previousConfidence: session.previousConfidence ??')),
+      reason: 'A missing prior confidence score must stay missing.',
+    );
+    expect(impactSource, contains('final int? previousConfidence'));
+    expect(impactSource, contains('scanImpactComparisonUnavailable'));
+    expect(impactSource, contains('scanImpactComparisonUnavailableBody'));
   });
 }

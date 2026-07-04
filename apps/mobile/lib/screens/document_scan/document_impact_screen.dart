@@ -32,7 +32,7 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class DocumentImpactScreen extends StatefulWidget {
   final ExtractionResult result;
-  final int previousConfidence; // 0-100
+  final int? previousConfidence; // 0-100 when a reliable prior score exists.
 
   const DocumentImpactScreen({
     super.key,
@@ -60,6 +60,8 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   late int _newConfidence;
   late int _deltaPoints;
 
+  bool get _hasConfidenceBaseline => widget.previousConfidence != null;
+
   // Premier eclairage state
   Map<String, dynamic>? _premierEclairage;
   bool _premierEclairageLoading = true;
@@ -70,8 +72,10 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     super.initState();
 
     _deltaPoints = widget.result.confidenceDelta.round();
-    _newConfidence =
-        (widget.previousConfidence + _deltaPoints).clamp(0, 100);
+    final previousConfidence = widget.previousConfidence;
+    _newConfidence = previousConfidence == null
+        ? min(100, max(0, (widget.result.overallConfidence * 100).round()))
+        : (previousConfidence + _deltaPoints).clamp(0, 100).toInt();
 
     _initAnimations();
     _fetchPremierEclairage();
@@ -344,7 +348,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                     MintEntrance(delay: const Duration(milliseconds: 100), child: _buildConfidenceCircle()),
                     const SizedBox(height: MintSpacing.lg),
                     MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDeltaBadge()),
-                    if (_deltaPoints > 5) ...[
+                    if (!_hasConfidenceBaseline || _deltaPoints > 5) ...[
                       const SizedBox(height: MintSpacing.md),
                       MintEntrance(delay: const Duration(milliseconds: 250), child: _buildConfidenceDeltaText()),
                     ],
@@ -354,7 +358,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                     MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFieldList()),
                     const SizedBox(height: MintSpacing.xl),
                     _buildCtaButton(context),
-                    if (_deltaPoints > 5) ...[
+                    if (_hasConfidenceBaseline && _deltaPoints > 5) ...[
                       const SizedBox(height: MintSpacing.sm),
                       _buildCoachCta(context),
                     ],
@@ -398,8 +402,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
   Widget _buildConfidenceCircle() {
     // Interpolate from previous to new confidence
-    final displayedConfidence = widget.previousConfidence +
-        ((_newConfidence - widget.previousConfidence) *
+    final previousConfidence = widget.previousConfidence;
+    final displayedConfidence = previousConfidence == null
+        ? _newConfidence
+        : previousConfidence +
+            ((_newConfidence - previousConfidence) *
                 _circleProgress.value)
             .round();
 
@@ -418,7 +425,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: CustomPaint(
           painter: _ConfidenceCirclePainter(
             progress: displayedConfidence / 100.0,
-            oldProgress: widget.previousConfidence / 100.0,
+            oldProgress: (previousConfidence ?? _newConfidence) / 100.0,
             animationProgress: _circleProgress.value,
             glowIntensity: pulseGlow,
           ),
@@ -445,6 +452,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   // ── Delta badge ──────────────────────────────────────────
 
   Widget _buildDeltaBadge() {
+    final hasBaseline = _hasConfidenceBaseline;
     return Opacity(
       opacity: _badgeFadeIn.value,
       child: Transform.translate(
@@ -460,11 +468,13 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.arrow_upward,
+              Icon(hasBaseline ? Icons.arrow_upward : Icons.info_outline,
                   size: 20, color: MintColors.success),
               const SizedBox(width: MintSpacing.sm - 2),
               Text(
-                S.of(context)!.docImpactDeltaPoints(_deltaPoints),
+                hasBaseline
+                    ? S.of(context)!.docImpactDeltaPoints(_deltaPoints)
+                    : S.of(context)!.scanImpactComparisonUnavailable,
                 style: MintTextStyles.titleMedium(
                   color: MintColors.success,
                 ).copyWith(fontWeight: FontWeight.w700),
@@ -721,10 +731,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 route: '/scan/impact',
                 updatedFields: {
                   'scannedDocument': docLabel,
-                  'confidenceDelta': _deltaPoints,
+                  if (_hasConfidenceBaseline) 'confidenceDelta': _deltaPoints,
                   'newConfidence': _newConfidence,
                 },
-                confidenceDelta: _deltaPoints / 100.0,
+                confidenceDelta:
+                    _hasConfidenceBaseline ? _deltaPoints / 100.0 : 0,
               ),
             );
             context.go('/coach/chat');
@@ -750,14 +761,17 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   // ── Confidence delta text ─────────────────────────────────
 
   Widget _buildConfidenceDeltaText() {
+    final previousConfidence = widget.previousConfidence;
     return Opacity(
       opacity: _badgeFadeIn.value,
       child: Text(
-        S.of(context)!.scanInsightConfidenceDelta(
-          widget.previousConfidence.toString(),
-          _newConfidence.toString(),
-          _deltaPoints.toString(),
-        ),
+        previousConfidence == null
+            ? S.of(context)!.scanImpactComparisonUnavailableBody
+            : S.of(context)!.scanInsightConfidenceDelta(
+                previousConfidence.toString(),
+                _newConfidence.toString(),
+                _deltaPoints.toString(),
+              ),
         textAlign: TextAlign.center,
         style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
       ),
