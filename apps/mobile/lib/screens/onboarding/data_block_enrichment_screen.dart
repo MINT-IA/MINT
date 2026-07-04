@@ -51,11 +51,16 @@ class _DataBlockEnrichmentScreenState
   final _cantonController = TextEditingController();
   final _salaryController = TextEditingController();
   final _birthYearController = TextEditingController();
+  final _savingsController = TextEditingController();
+  final _targetPropertyController = TextEditingController();
   bool _seededRevenueInputs = false;
+  bool _seededPatrimoineInputs = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
   bool _isSavingRevenue = false;
+  bool _isSavingPatrimoine = false;
   String? _revenueError;
+  String? _patrimoineError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
   List<ValidationAlert>? _cachedAlerts;
@@ -94,21 +99,61 @@ class _DataBlockEnrichmentScreenState
     _seededRevenueInputs = true;
   }
 
+  void _seedPatrimoineInputs(Map<String, dynamic> answers) {
+    if (_seededPatrimoineInputs) return;
+    final hasDraft = _savingsController.text.isNotEmpty ||
+        _targetPropertyController.text.isNotEmpty;
+    if (hasDraft) {
+      _seededPatrimoineInputs = true;
+      return;
+    }
+
+    final liquidSavings = _parseAnswerAmount(
+      answers['q_cash_total'],
+      allowZero: true,
+    );
+    if (liquidSavings != null) {
+      _savingsController.text = liquidSavings.toString();
+    }
+    final targetProperty = _parseAnswerAmount(
+      answers['q_target_property_value'],
+    );
+    if (targetProperty != null) {
+      _targetPropertyController.text = targetProperty.toString();
+    }
+    _seededPatrimoineInputs = true;
+  }
+
+  int? _parseAnswerAmount(dynamic raw, {bool allowZero = false}) {
+    final value = raw is num ? raw.round() : int.tryParse('$raw');
+    if (value == null || value < 0) return null;
+    if (!allowZero && value == 0) return null;
+    return value;
+  }
+
   @override
   void dispose() {
     _cantonController.dispose();
     _salaryController.dispose();
     _birthYearController.dispose();
+    _savingsController.dispose();
+    _targetPropertyController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final profile = context.watch<CoachProfileProvider>().profile;
+    final provider = context.watch<CoachProfileProvider>();
+    final profile = provider.profile;
     final canonicalBlockType = _canonicalBlockType(widget.blockType);
     if (canonicalBlockType == 'revenu') {
       _seedRevenueInputs(profile);
     }
+    if (canonicalBlockType == 'patrimoine') {
+      _seedPatrimoineInputs(provider.answersSnapshot);
+    }
+    final hasInlineCollector =
+        canonicalBlockType == 'revenu' || canonicalBlockType == 'patrimoine';
     final isKnownBlock =
         DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
     final blocs = profile != null
@@ -174,7 +219,7 @@ class _DataBlockEnrichmentScreenState
               ],
 
               // ── Enrichment prompts for this block ────────────────
-              if (profile != null && canonicalBlockType != 'revenu') ...[
+              if (profile != null && !hasInlineCollector) ...[
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
               ],
 
@@ -182,6 +227,12 @@ class _DataBlockEnrichmentScreenState
                 MintEntrance(
                   delay: const Duration(milliseconds: 250),
                   child: _buildRevenueCollector(),
+                ),
+              ],
+              if (canonicalBlockType == 'patrimoine') ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: _buildPatrimoineCollector(),
                 ),
               ],
 
@@ -193,7 +244,7 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 32),
 
               // ── CTA ──────────────────────────────────────────────
-              if (canonicalBlockType != 'revenu') Semantics(
+              if (!hasInlineCollector) Semantics(
                 button: true,
                 label: meta.ctaLabel,
                 child: SizedBox(
@@ -371,6 +422,103 @@ class _DataBlockEnrichmentScreenState
     if (!mounted) return;
     HapticFeedback.lightImpact();
     setState(() => _isSavingRevenue = false);
+  }
+
+  Widget _buildPatrimoineCollector() {
+    final l = S.of(context)!;
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key('savings_input'),
+            controller: _savingsController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.financialSummaryEpargneLiquide,
+              prefixText: 'CHF ',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            key: const Key('target_property_input'),
+            controller: _targetPropertyController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.affordabilityTargetPrice,
+              prefixText: 'CHF ',
+            ),
+          ),
+          if (_patrimoineError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _patrimoineError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('patrimoine_save_cta'),
+            onPressed: _isSavingPatrimoine ? null : _savePatrimoineFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l.financialSummaryEnregistrer,
+              style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _savePatrimoineFacts() async {
+    final savingsText = _savingsController.text.trim();
+    final targetPropertyText = _targetPropertyController.text.trim();
+    final hasSavingsInput = savingsText.isNotEmpty;
+    final hasTargetPropertyInput = targetPropertyText.isNotEmpty;
+    final savings = hasSavingsInput ? int.tryParse(savingsText) : null;
+    final targetProperty =
+        hasTargetPropertyInput ? int.tryParse(targetPropertyText) : null;
+
+    String? error;
+    if (!hasSavingsInput && !hasTargetPropertyInput) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (hasSavingsInput && (savings == null || savings < 0)) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (hasTargetPropertyInput &&
+        (targetProperty == null || targetProperty <= 0)) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    }
+
+    if (error != null) {
+      setState(() => _patrimoineError = error);
+      return;
+    }
+
+    setState(() {
+      _isSavingPatrimoine = true;
+      _patrimoineError = null;
+    });
+
+    await context.read<CoachProfileProvider>().mergeAnswers({
+      if (hasSavingsInput) 'q_cash_total': savings,
+      if (hasTargetPropertyInput) 'q_target_property_value': targetProperty,
+    });
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() => _isSavingPatrimoine = false);
   }
 
   Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {

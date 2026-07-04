@@ -154,6 +154,13 @@ class CoachProfileProvider extends ChangeNotifier {
     _persistSourceDates(answers, profile.dataSourceDates);
   }
 
+  static bool _canPersistExplicitCashTotal(ProfileDataSource? source) {
+    return source == ProfileDataSource.userInput ||
+        source == ProfileDataSource.crossValidated ||
+        source == ProfileDataSource.certificate ||
+        source == ProfileDataSource.openBanking;
+  }
+
   static String? _ownerIdFromAnswers(Map<String, dynamic> answers) {
     for (final key in const ['_profile_owner_id', '_coach_profile_owner_id']) {
       final value = answers[key]?.toString().trim();
@@ -1542,7 +1549,10 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_3a_total'] = profile.prevoyance.totalEpargne3a;
     }
     // Patrimoine
-    answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
+    final cashSource = profile.dataSources['patrimoine.epargneLiquide'];
+    if (_canPersistExplicitCashTotal(cashSource)) {
+      answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
+    }
     answers['q_investments_total'] = profile.patrimoine.investissements;
     if (profile.patrimoine.mortgageCapacity != null &&
         profile.patrimoine.mortgageCapacity! > 0) {

@@ -449,6 +449,7 @@ void main() {
         epargneLiquide: 20000,
         investissements: 40000,
       ),
+      dataSources: const {'patrimoine.epargneLiquide': ProfileDataSource.userInput},
     );
 
     provider.updateProfile(profile);
@@ -466,5 +467,36 @@ void main() {
     expect(answers.containsKey('q_avoir_lpp'), isFalse);
     expect(answers.containsKey('q_nombre_3a'), isFalse);
     expect(answers.containsKey('q_investissements'), isFalse);
+  });
+
+  test('updateProfile does not persist estimated liquid assets as cash answer', () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers(const {'q_canton': 'GE', 'q_gross_salary_annual': 96000, 'q_housing_cost_period_chf': 2000, 'q_lamal_premium_monthly_chf': 400, 'q_emergency_fund': 'yes_6months'});
+
+    expect(provider.profile!.patrimoine.epargneLiquide, greaterThan(0));
+    expect(provider.answersSnapshot.containsKey('q_cash_total'), isFalse);
+
+    provider.updateProfile(provider.profile!);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_cash_total'), isFalse);
+  });
+
+  test('updateProfile does not overwrite existing cash answer from estimate', () async {
+    await ReportPersistenceService.saveAnswers({'q_cash_total': 250000});
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      canton: 'GE',
+      salaireBrutMensuel: 8000,
+      patrimoine: const PatrimoineProfile(epargneLiquide: 320000),
+      dataSources: const {'patrimoine.epargneLiquide': ProfileDataSource.estimated},
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_cash_total'], 250000);
   });
 }

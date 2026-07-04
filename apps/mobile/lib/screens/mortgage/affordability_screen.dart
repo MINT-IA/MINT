@@ -8,11 +8,13 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/data_quest/data_quest_proof_strip.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
@@ -81,6 +83,12 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       if (epargne > 0) {
         _epargneDispo = epargne;
         _prefilledFields.add('epargne_dispo');
+        changed = true;
+      }
+      final targetProperty = profile.patrimoine.targetPropertyValue;
+      if (targetProperty != null && targetProperty > 0) {
+        _prixAchat = targetProperty;
+        _prefilledFields.add('prix_achat');
         changed = true;
       }
       final canton = profile.canton;
@@ -239,6 +247,12 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   Widget build(BuildContext context) {
     final result = _result;
     final l = S.of(context)!;
+    final provider = context.watch<CoachProfileProvider>();
+    final dataQuestPlan = DataQuestService.planCase(
+      caseId: 'buy_property',
+      answers: provider.answersSnapshot,
+      now: DateTime.now(),
+    );
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
@@ -278,11 +292,20 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
+                DataQuestProofStrip(
+                  plan: dataQuestPlan,
+                  semanticsPrefix: 'mortgage',
+                ),
+                const SizedBox(height: MintSpacing.lg),
 
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // SECTION 2 — LE RESULTAT : consequence financiere
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintResultHeroCard(
+                Semantics(
+                  identifier: 'mortgage_afford_result',
+                  value: _resultBasisValue(result),
+                  container: true,
+                  child: MintResultHeroCard(
                   eyebrow: result.premierEclairagePositif
                       ? l.affordabilityParameters
                       : l.affordabilityInsightEquityTitle,
@@ -297,6 +320,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       ? MintColors.success
                       : MintColors.error,
                   tone: MintSurfaceTone.porcelaine,
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
 
@@ -583,6 +607,14 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         ),
       ],
     );
+  }
+
+  String _resultBasisValue(AffordabilityResult result) {
+    return 'revenu=${formatChf(_revenuBrut)}; '
+        'canton=$_canton; '
+        'epargne=${formatChf(_epargneDispo)}; '
+        'prix=${formatChf(_prixAchat)}; '
+        'capacite=${formatChf(result.prixMaxAccessible)}';
   }
 
   Widget _buildInsightCard(AffordabilityResult result, S l) {
