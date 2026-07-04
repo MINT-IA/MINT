@@ -98,7 +98,7 @@ tags:
 
 - tapOn:
     id: "coach_input_field"
-- inputText: "Quel est le plafond legal 3a 2026 avec LPP ?"
+- inputText: "Quel est le plafond légal 3a 2026 avec LPP ?"
 - tapOn:
     id: "coach_send_button"
 - waitForAnimationToEnd:

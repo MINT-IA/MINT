@@ -6,7 +6,7 @@ Generated from Journey OS records and issues. Do not edit directly.
 
 | Issue | Severity | Status | Journey | Journey status | Journey priority | Owner | Evidence | Latest proof | Artifact | Next action |
 |---|---|---|---|---|---:|---|---|---|---|---|
-| JOS-004 | P0 | proof_needed | coach_advice_turn | partial | 27 | mint-quality-gate | baselined | baselined / runtime / 2026-07-04T16:35:43Z / 8d45588c | .planning/journeys/evidence/coach_advice_turn/20260704T163543Z-xcode-ui/summary.txt | Rerun the JOS-004 Coach advice Maestro proof once the local Maestro CLI responds again; require JUnit output or a captured flow-level [Passed]/Flow Passed marker before marking the issue verified. |
+| JOS-006 | P2 | proof_needed | mint_lucidity_p0_acceptance | blocked | 30 | mint-quality-gate | baselined | green / external | .planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/claude-phase2-audit.md | Keep iPhone simulator as the active product runtime gate for this Mac mini phase. Handle Android P0 Patrol in a dedicated compatibility branch/CI pass after updating Android Gradle Plugin, Gradle wrapper, compileSdk, and core library desugaring; do not block the current iOS product loop on local Android. |
 
 ## Operating Rule
 

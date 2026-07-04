@@ -271,3 +271,12 @@ def test_canonical_ios_runtime_device_uses_modern_iphone_target() -> None:
     assert "Compact legacy iPhone targets" in workflow
     assert "Compact legacy iPhone targets" in readme
     assert "iPhone 13 mini" not in active_text
+
+
+def test_maestro_env_pins_stable_java_and_jansi_bootstrap() -> None:
+    wrapper = (ROOT / "tools/simulator/maestro_env.sh").read_text()
+
+    assert "/opt/homebrew/opt/openjdk@21" in wrapper
+    assert "MAESTRO_DISABLE_UPDATE_CHECK=true" in wrapper
+    assert "library.jansi.path" in wrapper
+    assert "libjansi.jnilib" in wrapper

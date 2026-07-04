@@ -1,0 +1,10 @@
+[watchdog] artifacts → .planning/journeys/evidence/coach_advice_turn/20260704T165814Z-maestro
+[watchdog] hard limit 600s ; stall threshold 150s ; probe 15s
+[watchdog] maestro pid=94732 (running in own process group)
+
+Waiting for flows to complete...
+[Passed] flow_jos004_coach_advice_turn_runtime (49s)
+
+1/1 Flow Passed in 49s
+
+[watchdog] EXIT — maestro returned 0

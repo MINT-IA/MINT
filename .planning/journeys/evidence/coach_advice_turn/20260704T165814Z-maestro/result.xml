@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="49.0">
+    <testcase id="flow_jos004_coach_advice_turn_runtime" name="flow_jos004_coach_advice_turn_runtime" classname="flow_jos004_coach_advice_turn_runtime" time="49.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="journey-os, jos-004, coach-advice-turn, pillar-3a, opp3-art-7, runtime-proof"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
