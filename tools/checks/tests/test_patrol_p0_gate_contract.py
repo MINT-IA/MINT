@@ -250,3 +250,23 @@ def test_phase2_gate_splits_runtime_from_external_audit_artifacts() -> None:
     )[0]
     assert "check_phase_acceptance_artifacts phase2" in artifacts_case
     assert "run_phase2_runtime_gate" not in artifacts_case
+
+
+def test_canonical_ios_runtime_device_excludes_iphone13_mini() -> None:
+    agents = (ROOT / "AGENTS.md").read_text()
+    workflow = (ROOT / "docs/MINT_AGENT_WORKFLOW.md").read_text()
+    readme = (ROOT / "tools/simulator/README.md").read_text()
+    walker = (ROOT / "tools/simulator/walker.sh").read_text()
+    pii = (ROOT / "tools/simulator/pii_audit_screens.sh").read_text()
+
+    assert "iPhone 17 Pro" in agents
+    assert "iPhone 17 Pro" in workflow
+    assert "iPhone 17 Pro" in readme
+    assert "MINT_WALKER_DEVICE:-iPhone 17 Pro" in walker
+    assert "MINT_WALKER_DEVICE:-iPhone 17 Pro" in pii
+
+    active_text = "\n".join([agents, workflow, readme, walker, pii])
+    assert active_text.count("iPhone 13 mini") == 3
+    assert "Never use iPhone 13 mini" in agents
+    assert "Do not use iPhone 13 mini" in workflow
+    assert "Do not use iPhone 13 mini" in readme
