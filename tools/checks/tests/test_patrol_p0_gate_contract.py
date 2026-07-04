@@ -32,6 +32,21 @@ def test_mobile_p0_patrol_gate_runs_all_runtime_flows() -> None:
     assert "run_transmit_property_patrol" in suite
 
 
+def test_patrol_policy_references_current_runtime_tests() -> None:
+    policy = (ROOT / ".github/workflows/patrol.md").read_text()
+    patrol_dir = ROOT / "apps/mobile/test/patrol"
+    referenced_tests = sorted(set(re.findall(r"\b[\w]+_patrol_test\.dart\b", policy)))
+
+    assert referenced_tests == [
+        "f2_datablock_to_mortgage_patrol_test.dart",
+        "first_salary_tax_datablock_to_3a_patrol_test.dart",
+        "first_salary_tax_fatca_3a_patrol_test.dart",
+        "transmit_property_patrol_test.dart",
+    ]
+    for test_file in referenced_tests:
+        assert (patrol_dir / test_file).exists()
+
+
 def test_phase1_maestro_timeout_is_fatal_after_completed_assertions() -> None:
     gate = (ROOT / "tools/checks/mint_lucidity_gate.sh").read_text()
 
@@ -256,20 +271,23 @@ def test_canonical_ios_runtime_device_uses_modern_iphone_target() -> None:
     agents = (ROOT / "AGENTS.md").read_text()
     workflow = (ROOT / "docs/MINT_AGENT_WORKFLOW.md").read_text()
     readme = (ROOT / "tools/simulator/README.md").read_text()
+    patrol_policy = (ROOT / ".github/workflows/patrol.md").read_text()
     walker = (ROOT / "tools/simulator/walker.sh").read_text()
     pii = (ROOT / "tools/simulator/pii_audit_screens.sh").read_text()
 
     assert "iPhone 17 Pro" in agents
     assert "iPhone 17 Pro" in workflow
     assert "iPhone 17 Pro" in readme
+    assert "iPhone 17 Pro" in patrol_policy
     assert "MINT_WALKER_DEVICE:-iPhone 17 Pro" in walker
     assert "MINT_WALKER_DEVICE:-iPhone 17 Pro" in pii
 
-    active_text = "\n".join([agents, workflow, readme, walker, pii])
+    active_text = "\n".join([agents, workflow, readme, patrol_policy, walker, pii])
     assert "iPhone 15/14-class fallback" in active_text
     assert "Compact legacy iPhone targets" in agents
     assert "Compact legacy iPhone targets" in workflow
     assert "Compact legacy iPhone targets" in readme
+    assert "Compact legacy iPhone targets" in patrol_policy
     assert "iPhone 13 mini" not in active_text
 
 
