@@ -16,7 +16,7 @@ appId: ch.mint.app
 - assertVisible:
     id: "rvc_route_state"
 - assertVisible:
-    text: "Ton âge"
+    id: "rvc_age_input"
 - assertNotVisible:
     text: "Créer ton compte"
 - assertNotVisible:

@@ -1121,6 +1121,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     bool isPercent = false,
   }) {
     final isPrefilled = fieldName != null && _prefilledFields.contains(fieldName);
+    final fieldIdentifier = fieldName == null ? null : 'rvc_${fieldName}_input';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1137,30 +1138,34 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ],
         ),
         const SizedBox(height: MintSpacing.xs),
-        TextField(
-          controller: controller,
-          keyboardType: isPercent
-              ? const TextInputType.numberWithOptions(decimal: true)
-              : TextInputType.number,
-          onTapOutside: (_) => FocusScope.of(context).unfocus(),
-          inputFormatters: isPercent
-              ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
-              : [FilteringTextInputFormatter.digitsOnly],
-          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
-            fontSize: 15,
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: MintColors.surface,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+        Semantics(
+          identifier: fieldIdentifier,
+          container: fieldIdentifier != null,
+          child: TextField(
+            controller: controller,
+            keyboardType: isPercent
+                ? const TextInputType.numberWithOptions(decimal: true)
+                : TextInputType.number,
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
+            inputFormatters: isPercent
+                ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
+                : [FilteringTextInputFormatter.digitsOnly],
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+              fontSize: 15,
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.md, vertical: 14,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: MintColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md, vertical: 14,
+              ),
             ),
+            onChanged: (_) => _userRecalculate(),
           ),
-          onChanged: (_) => _userRecalculate(),
         ),
       ],
     );
