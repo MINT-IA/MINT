@@ -372,7 +372,12 @@ PY
   grep -q 'DataQuestProofStrip' apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart
   grep -q 'answersSnapshot' apps/mobile/lib/providers/coach_profile_provider.dart
   grep -q "\${semanticsPrefix}_data_quest_next_ask" apps/mobile/lib/widgets/data_quest/data_quest_proof_strip.dart
+  grep -q '_runtimeProofDebugLabelsEnabled' apps/mobile/lib/widgets/data_quest/data_quest_proof_strip.dart
+  grep -q "bool.fromEnvironment('MINT_ENABLE_RUNTIME_PROOF_SEMANTICS')" apps/mobile/lib/widgets/data_quest/data_quest_proof_strip.dart
   grep -q 'next_ask_value: $nextAsk' apps/mobile/lib/widgets/data_quest/data_quest_proof_strip.dart
+  # The next_ask_value text is an explicit debug/runtime-proof label. Maestro
+  # flows that assert it must run on debug builds or with the runtime-proof
+  # dart-define enabled, never as a normal release product proof.
   grep -q 'text: "Prochaine donnée à confirmer"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
   grep -q 'text: "next_ask_value: propertyMarketValue"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
   grep -q 'text: "next_ask_value: targetRetirementAge"' apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
@@ -1065,6 +1070,8 @@ check_future_maestro_contracts() {
   grep -q "q_net_income_period_chf" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
   grep -q "q_monthly_gross_salary_chf" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
   grep -q "#mortgage_data_quest_contract" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
+  grep -q "mortgage_data_quest_runtime_proof" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
+  grep -q "mobile-f2-patrol" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
   grep -q "mortgage_data_quest_next_ask" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
   grep -q "'householdType'" apps/mobile/test/patrol/f2_datablock_to_mortgage_patrol_test.dart
   grep -q "DataQuestProofStrip" apps/mobile/lib/screens/mortgage/affordability_screen.dart
@@ -1084,6 +1091,8 @@ check_future_maestro_contracts() {
   grep -q "q_net_income_period_chf" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
   grep -q "q_monthly_gross_salary_chf" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
   grep -q "#sim3a_data_quest_contract" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
+  grep -q "sim3a_data_quest_runtime_proof" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
+  grep -q "mobile-first-salary-patrol" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
   grep -q "sim3a_data_quest_next_ask" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
   grep -q "'pillar3aAnnual'" apps/mobile/test/patrol/first_salary_tax_datablock_to_3a_patrol_test.dart
   grep -q "DataQuestProofStrip" apps/mobile/lib/screens/simulator_3a_screen.dart
@@ -1094,6 +1103,8 @@ check_future_maestro_contracts() {
   grep -q "q_nationality" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
   grep -q "q_is_fatca_resident" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
   grep -q "isFatcaResident" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
+  grep -q "sim3a_data_quest_runtime_proof" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
+  grep -q "mobile-first-salary-patrol" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
   grep -q "#sim3a_non_contributable_state" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
   grep -q "can_contribute_3a=false" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
   grep -q "plafond_3a=CHF" apps/mobile/test/patrol/first_salary_tax_fatca_3a_patrol_test.dart
@@ -1156,6 +1167,8 @@ check_future_maestro_contracts() {
   grep -q "SuccessionPatrimoineScreen" apps/mobile/test/patrol/transmit_property_patrol_test.dart
   grep -q "property_value_input" apps/mobile/test/patrol/transmit_property_patrol_test.dart
   grep -q "succession_parents_note" apps/mobile/test/patrol/transmit_property_patrol_test.dart
+  grep -q "succession_data_quest_runtime_proof" apps/mobile/test/patrol/transmit_property_patrol_test.dart
+  grep -q "mobile-transmit-property-patrol" apps/mobile/test/patrol/transmit_property_patrol_test.dart
   grep -q "succession_data_quest_next_ask" apps/mobile/test/patrol/transmit_property_patrol_test.dart
   grep -q "'propertyMarketValue'" apps/mobile/test/patrol/transmit_property_patrol_test.dart
   grep -q "'targetRetirementAge'" apps/mobile/test/patrol/transmit_property_patrol_test.dart

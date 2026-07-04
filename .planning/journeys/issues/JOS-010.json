@@ -3,10 +3,10 @@
   "id": "JOS-010",
   "title": "Clean runtime proof labels and debug exposure",
   "journey_id": "mint_lucidity_p0_acceptance",
-  "status": "triaged",
+  "status": "verified",
   "owner": "mint-mobile",
   "severity": "P3",
-  "evidence_status": "baselined",
-  "next_action": "Before broader QA handoff, remap pending maestroFlowId labels to the Patrol flow id and review proof-strip visibility so debug builds do not expose misleading internal labels.",
-  "source": "Claude Phase 2 refresh audit M3/M4: .planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md."
+  "evidence_status": "green",
+  "next_action": "Closed for iOS P0 runtime labels: DataQuestCaseSpec.runtimeProofId mirrors runtime_input_gate, proof strips expose it through semantics only, and Patrol P0 verifies the runtime ids on iPhone 17 Pro. Broader debug proof visibility remains a separate release-build policy concern because current Patrol gates intentionally run in debug.",
+  "source": "Claude Phase 2 refresh audit M3/M4: .planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md. Closure evidence: .planning/journeys/evidence/mint_dataquest_clean/20260704T214445Z-jos010-runtime-proof/patrol-p0-summary.json."
 }

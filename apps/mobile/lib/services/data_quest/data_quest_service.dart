@@ -32,6 +32,7 @@ class DataQuestCaseSpec {
   final String targetRoute;
   final String pdfSectionId;
   final String maestroFlowId;
+  final String runtimeProofId;
   final bool heavyEvent;
   final List<DataQuestFieldSpec> guardFields;
   final List<DataQuestFieldSpec> requiredFields;
@@ -42,6 +43,7 @@ class DataQuestCaseSpec {
     required this.targetRoute,
     required this.pdfSectionId,
     required this.maestroFlowId,
+    required this.runtimeProofId,
     required this.guardFields,
     required this.requiredFields,
     this.usefulFields = const [],
@@ -76,6 +78,7 @@ class DataQuestPlan {
   final String targetRoute;
   final String pdfSectionId;
   final String maestroFlowId;
+  final String runtimeProofId;
   final List<DataQuestAsk> asks;
 
   const DataQuestPlan({
@@ -83,6 +86,7 @@ class DataQuestPlan {
     required this.targetRoute,
     required this.pdfSectionId,
     required this.maestroFlowId,
+    required this.runtimeProofId,
     required this.asks,
   });
 
@@ -98,6 +102,7 @@ class DataQuestCaseRegistry {
       targetRoute: '/pilier-3a',
       pdfSectionId: 'dossier_first_salary_tax',
       maestroFlowId: 'pending',
+      runtimeProofId: 'mobile-first-salary-patrol',
       guardFields: [
         DataQuestFieldSpec(
           inputKey: 'incomeGrossYearly',
@@ -145,6 +150,7 @@ class DataQuestCaseRegistry {
       targetRoute: '/hypotheque',
       pdfSectionId: 'dossier_buy_property',
       maestroFlowId: 'pending',
+      runtimeProofId: 'mobile-f2-patrol',
       guardFields: [
         DataQuestFieldSpec(
           inputKey: 'incomeGrossYearly',
@@ -199,6 +205,7 @@ class DataQuestCaseRegistry {
       targetRoute: '/succession',
       pdfSectionId: 'dossier_transmit_property',
       maestroFlowId: 'phase2_data_quest_transmit_property',
+      runtimeProofId: 'mobile-transmit-property-patrol',
       heavyEvent: true,
       guardFields: [
         DataQuestFieldSpec(
@@ -409,6 +416,7 @@ class DataQuestService {
       targetRoute: spec.targetRoute,
       pdfSectionId: spec.pdfSectionId,
       maestroFlowId: spec.maestroFlowId,
+      runtimeProofId: spec.runtimeProofId,
       asks: ([...asks]..sort((a, b) => _compareAsks(spec, a, b))),
     );
   }

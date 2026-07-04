@@ -356,6 +356,7 @@ def test_mobile_data_quest_service_mirrors_p0_case_registry() -> None:
         assert f"targetRoute: '{case['target_screen']}'" in service_text
         assert f"pdfSectionId: '{case['pdf_section_id']}'" in service_text
         assert f"maestroFlowId: '{case['maestro_flow_id']}'" in service_text
+        assert f"runtimeProofId: '{case['runtime_input_gate']}'" in service_text
         tiered_questions = (
             ("guard", guard_section, case["blocking_guard_questions"]),
             ("required", required_section, case.get("required_questions", [])),

@@ -132,6 +132,10 @@ void main() {
       expect($(find.bySemanticsIdentifier('succession_data_quest_next_ask')),
           findsOneWidget);
       expect(
+        _semanticsValue($.tester, 'succession_data_quest_runtime_proof'),
+        'mobile-transmit-property-patrol',
+      );
+      expect(
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'propertyMarketValue',
       );

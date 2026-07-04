@@ -130,6 +130,10 @@ void main() {
         ),
       );
 
+      final dataQuestRuntimeProof = $.tester.getSemantics(
+        find.bySemanticsIdentifier('sim3a_data_quest_runtime_proof'),
+      );
+      expect(dataQuestRuntimeProof.value, 'mobile-first-salary-patrol');
       expect($(#sim3a_profile_basis), findsOneWidget);
       final basisSemantics = $.tester.widget<Semantics>(
         find.byKey(const ValueKey('sim3a_profile_basis')),

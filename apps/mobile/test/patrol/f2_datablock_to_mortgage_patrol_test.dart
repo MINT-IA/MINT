@@ -188,6 +188,10 @@ void main() {
       await $.pumpAndSettle();
 
       expect($(#mortgage_data_quest_contract), findsOneWidget);
+      final dataQuestRuntimeProof = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_runtime_proof'),
+      );
+      expect(dataQuestRuntimeProof.value, 'mobile-f2-patrol');
       expect($(find.bySemanticsIdentifier('mortgage_data_quest_next_ask')),
           findsOneWidget);
       final dataQuestNextAsk = $.tester.getSemantics(

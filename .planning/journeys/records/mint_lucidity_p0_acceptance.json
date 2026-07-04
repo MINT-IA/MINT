@@ -93,6 +93,14 @@
     {
       "kind": "runtime",
       "status": "green",
+      "command": "MINT_PATROL_CLEAN_BUILD=1 bash tools/checks/mint_lucidity_gate.sh mobile-p0-patrol B03E429D-0422-4357-B754-536637D979F9",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T214445Z-jos010-runtime-proof/patrol-p0-summary.json",
+      "reason": "JOS-010 runtime label cleanup proof: the P0 Patrol suite passed on iPhone 17 Pro after DataQuestPlan exposed executable runtimeProofId semantics for first_salary_tax, buy_property, and transmit_property.",
+      "debt_ref": "JOS-010"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
       "command": "bash tools/simulator/maestro_with_watchdog.sh test apps/mobile/.maestro/r3c_report_dossier_export.yaml --format junit --output /tmp/mint-r3c-dossier.xml",
       "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T202610Z-maestro-report-dossier/result.xml",
       "reason": "iPhone 17 Pro Maestro proof for /rapport dossier export: the seeded report renders Ton Plan Mint, exposes the transmit_property typed dossier card, and taps report_dossier_transmit_property_export_cta.",

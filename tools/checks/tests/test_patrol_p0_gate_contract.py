@@ -78,6 +78,8 @@ def test_first_salary_tax_fatca_patrol_locks_single_source_of_truth() -> None:
     assert "q_is_fatca_resident" in patrol
     assert "containsKey('q_is_fatca_resident'), isFalse" in patrol
     assert "containsKey('isFatcaResident'), isFalse" in patrol
+    assert "sim3a_data_quest_runtime_proof" in patrol
+    assert "mobile-first-salary-patrol" in patrol
     assert "sim3a_non_contributable_state" in patrol
     assert "can_contribute_3a=false" in patrol
     assert "plafond_3a=CHF" in patrol
@@ -92,12 +94,25 @@ def test_first_salary_and_mortgage_patrol_prove_data_quest_next_asks() -> None:
     ).read_text()
 
     assert "sim3a_data_quest_next_ask" in first_salary
+    assert "sim3a_data_quest_runtime_proof" in first_salary
+    assert "mobile-first-salary-patrol" in first_salary
     assert "'pillar3aAnnual'" in first_salary
     assert "'useful'" in first_salary
 
     assert "mortgage_data_quest_next_ask" in mortgage
+    assert "mortgage_data_quest_runtime_proof" in mortgage
+    assert "mobile-f2-patrol" in mortgage
     assert "'householdType'" in mortgage
     assert "'guard'" in mortgage
+
+
+def test_transmit_property_patrol_proves_data_quest_runtime_id() -> None:
+    transmit = (
+        ROOT / "apps/mobile/test/patrol/transmit_property_patrol_test.dart"
+    ).read_text()
+
+    assert "succession_data_quest_runtime_proof" in transmit
+    assert "mobile-transmit-property-patrol" in transmit
 
 
 def test_mobile_scenarios_normalizes_generated_l10n_after_gen_l10n() -> None:

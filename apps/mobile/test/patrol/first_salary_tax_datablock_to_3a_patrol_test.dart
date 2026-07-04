@@ -154,6 +154,10 @@ void main() {
       await $.pumpAndSettle();
 
       expect($(#sim3a_data_quest_contract), findsOneWidget);
+      final dataQuestRuntimeProof = $.tester.getSemantics(
+        find.bySemanticsIdentifier('sim3a_data_quest_runtime_proof'),
+      );
+      expect(dataQuestRuntimeProof.value, 'mobile-first-salary-patrol');
       expect($(find.bySemanticsIdentifier('sim3a_data_quest_next_ask')),
           findsOneWidget);
       final dataQuestNextAsk = $.tester.getSemantics(

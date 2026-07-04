@@ -78,6 +78,7 @@ def _dart_cases() -> dict[str, dict]:
             "targetRoute": _string_value(body, "targetRoute"),
             "pdfSectionId": _string_value(body, "pdfSectionId"),
             "maestroFlowId": _string_value(body, "maestroFlowId"),
+            "runtimeProofId": _string_value(body, "runtimeProofId"),
             "heavyEvent": _bool_present(body, "heavyEvent"),
             "guardFields": _field_specs(_extract_named_list(body, "guardFields")),
             "requiredFields": _field_specs(
@@ -126,6 +127,7 @@ def test_p0_dart_case_registry_matches_json_contract() -> None:
         assert dart_case["targetRoute"] == json_case["target_screen"]
         assert dart_case["pdfSectionId"] == json_case["pdf_section_id"]
         assert dart_case["maestroFlowId"] == json_case["maestro_flow_id"]
+        assert dart_case["runtimeProofId"] == json_case["runtime_input_gate"]
         assert dart_case["heavyEvent"] is (case_id == "transmit_property")
         assert _dart_questions(dart_case, "guardFields") == _json_questions(
             json_case, "blocking_guard_questions"

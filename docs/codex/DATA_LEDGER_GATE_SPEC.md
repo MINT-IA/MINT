@@ -49,6 +49,11 @@ proof scope:
   path, with Maestro coverage for the seeded screen proof and Patrol coverage
   for real owned-property input chronology.
 
+The Dart `DataQuestCaseSpec.runtimeProofId` mirrors `runtime_input_gate` from
+`P0_CASE_VARIABLE_REGISTRY.json`. It is the ID exposed to runtime proof
+semantics. It must never be `pending`; `maestro_flow_id: pending` only means no
+separate Maestro flow is accepted for that case yet.
+
 These acceptances do not prove Android parity, production auth, full app shell
 navigation, or persistence across restart. They prove that the accepted P0
 variables are collected once, written through the ledger path, reused

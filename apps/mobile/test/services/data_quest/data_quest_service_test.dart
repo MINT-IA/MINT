@@ -6,7 +6,8 @@ void main() {
   group('DataQuestService', () {
     final now = DateTime.utc(2026, 7, 2);
 
-    test('declares all P0 cases with dossier and proof status ids', () {
+    test('declares all P0 cases with dossier and executable runtime proof ids',
+        () {
       const cases = DataQuestCaseRegistry.p0Cases;
 
       expect(
@@ -20,12 +21,23 @@ void main() {
         expect(entry.value.targetRoute, startsWith('/'));
         expect(entry.value.pdfSectionId, isNotEmpty);
         expect(entry.value.maestroFlowId, isNotEmpty);
+        expect(entry.value.runtimeProofId, isNotEmpty);
+        expect(entry.value.runtimeProofId, isNot('pending'));
       }
       expect(cases['first_salary_tax']!.maestroFlowId, 'pending');
+      expect(
+        cases['first_salary_tax']!.runtimeProofId,
+        'mobile-first-salary-patrol',
+      );
       expect(cases['buy_property']!.maestroFlowId, 'pending');
+      expect(cases['buy_property']!.runtimeProofId, 'mobile-f2-patrol');
       expect(
         cases['transmit_property']!.maestroFlowId,
         'phase2_data_quest_transmit_property',
+      );
+      expect(
+        cases['transmit_property']!.runtimeProofId,
+        'mobile-transmit-property-patrol',
       );
     });
 

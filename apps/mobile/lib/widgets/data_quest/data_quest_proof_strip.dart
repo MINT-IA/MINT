@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
@@ -5,6 +6,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+
+const bool _runtimeProofDebugLabelsEnabled =
+    kDebugMode || bool.fromEnvironment('MINT_ENABLE_RUNTIME_PROOF_SEMANTICS');
 
 class DataQuestNextQuestionCard extends StatelessWidget {
   final DataQuestPlan plan;
@@ -200,6 +204,13 @@ class DataQuestProofStrip extends StatelessWidget {
               ),
             ),
             Semantics(
+              identifier: '${semanticsPrefix}_data_quest_runtime_proof',
+              value: plan.runtimeProofId,
+              container: true,
+              hidden: true,
+              child: const SizedBox.shrink(),
+            ),
+            Semantics(
               identifier: '${semanticsPrefix}_data_quest_next_ask',
               value: nextAsk,
               container: true,
@@ -211,10 +222,11 @@ class DataQuestProofStrip extends StatelessWidget {
                     .copyWith(fontWeight: FontWeight.w700),
               ),
             ),
-            Text(
-              'next_ask_value: $nextAsk',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-            ),
+            if (_runtimeProofDebugLabelsEnabled)
+              Text(
+                'next_ask_value: $nextAsk',
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+              ),
             Semantics(
               identifier: '${semanticsPrefix}_data_quest_mode',
               value: mode,
