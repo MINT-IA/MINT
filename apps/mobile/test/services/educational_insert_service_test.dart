@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
+import 'package:mint_mobile/widgets/educational/lpp_pivot_insert_widget.dart';
+import 'package:mint_mobile/widgets/educational/tax_savings_insert_widget.dart';
 
 /// Unit tests for EducationalInsertService
 ///
@@ -139,6 +141,15 @@ void main() {
       expect(widget, isNotNull);
     });
 
+    test('accepts bool true for q_has_pension_fund inserts', () {
+      final widget = EducationalInsertService.getInsertWidget(
+        questionId: 'q_has_pension_fund',
+        answers: {'q_has_pension_fund': true},
+      );
+      expect(widget, isA<LppPivotInsertWidget>());
+      expect((widget! as LppPivotInsertWidget).hasPensionFund, true);
+    });
+
     test('returns non-null widget for q_has_3a with employee status', () {
       final widget = EducationalInsertService.getInsertWidget(
         questionId: 'q_has_3a',
@@ -148,6 +159,18 @@ void main() {
         },
       );
       expect(widget, isNotNull);
+    });
+
+    test('uses bool true as explicit LPP signal for 3a insert', () {
+      final widget = EducationalInsertService.getInsertWidget(
+        questionId: 'q_has_3a',
+        answers: {
+          'q_employment_status': 'self_employed',
+          'q_has_pension_fund': true,
+        },
+      );
+      expect(widget, isA<TaxSavingsInsertWidget>());
+      expect((widget! as TaxSavingsInsertWidget).hasPensionFund, true);
     });
 
     test('returns non-null widget for q_3a_annual_amount', () {

@@ -50,6 +50,15 @@ class EducationalInsertService {
     return questionsWithInserts.contains(questionId);
   }
 
+  static bool _isAffirmative(dynamic value) {
+    if (value is bool) return value;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized == 'yes' || normalized == 'true' || normalized == 'oui';
+    }
+    return false;
+  }
+
   /// Retourne le widget d'insert pour une question donnée
   /// Returns null si aucun insert n'est disponible
   static Widget? getInsertWidget({
@@ -67,7 +76,7 @@ class EducationalInsertService {
 
       case 'q_has_pension_fund':
         return LppPivotInsertWidget(
-          hasPensionFund: answers['q_has_pension_fund'] == 'yes',
+          hasPensionFund: _isAffirmative(answers['q_has_pension_fund']),
           onLearnMore: onLearnMore,
           onChanged: (val) => onAnswer?.call(val ? 'yes' : 'no'),
         );
@@ -98,7 +107,7 @@ class EducationalInsertService {
         // If employee -> Default to Yes (Small 3a limit)
         // If self employed -> Default to No (Large 3a limit), unless explicit Yes
         final status = answers['q_employment_status'] as String?;
-        final explicitLpp = answers['q_has_pension_fund'] == 'yes';
+        final explicitLpp = _isAffirmative(answers['q_has_pension_fund']);
 
         bool hasPensionFund = explicitLpp;
         if (status == 'employee') {
