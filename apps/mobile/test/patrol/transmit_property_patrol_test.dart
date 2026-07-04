@@ -233,12 +233,36 @@ void main() {
         $.tester,
         find.byKey(const ValueKey('succession_scenario_retirement_status')),
       );
-      expect($(find.textContaining("CHF -8'000")), findsOneWidget);
+      expect(
+        _semanticsValue($.tester, 'succession_scenario_retirement_status'),
+        'needs_review',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(
+            const ValueKey('succession_scenario_retirement_status'),
+          ),
+          matching: find.text("CHF -8'000"),
+        ),
+        findsOneWidget,
+      );
       await _scrollUntilVisible(
         $.tester,
         find.byKey(const ValueKey('succession_scenario_equalization_status')),
       );
-      expect($(find.textContaining("CHF 195'000")), findsOneWidget);
+      expect(
+        _semanticsValue($.tester, 'succession_scenario_equalization_status'),
+        'at_risk',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(
+            const ValueKey('succession_scenario_equalization_status'),
+          ),
+          matching: find.text("CHF 195'000"),
+        ),
+        findsOneWidget,
+      );
       await _scrollUntilVisible(
         $.tester,
         find.bySemanticsIdentifier('succession_runtime_scenario_statuses'),
