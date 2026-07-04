@@ -1325,6 +1325,7 @@ case "$mode" in
 	      flutter test \
 	        test/services/startup_route_override_parser_test.dart \
 	        test/services/financial_core/property_transmission_calculator_test.dart \
+	        test/architecture/raw_reference_stores_contract_test.dart \
 	        test/providers/coach_profile_provider_save_fact_mapping_test.dart \
 	        test/services/chat/fact_extraction_fallback_test.dart \
 	        test/i18n/succession_arb_compliance_test.dart \
