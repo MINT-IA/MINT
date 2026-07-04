@@ -2865,6 +2865,7 @@
   "dataBlockIncomplete": "Ce bloc est encore incomplet. Ouvre la section dédiée pour ajouter les données manquantes.",
   "dataBlockComplete": "Ce bloc est complet.",
   "dataBlockRevenueGrossAnnualLabel": "Revenu brut annuel",
+  "dataBlockSaveIdle": "Enregistrer",
   "dataBlockRevenueSaveIdle": "Enregistrer",
   "dataBlockRevenueSaveSaving": "Enregistrement...",
   "dataBlockRevenueInvalidAmount": "Montant invalide",

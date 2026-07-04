@@ -473,7 +473,7 @@ class _DataBlockEnrichmentScreenState
               ),
             ),
             child: Text(
-              l.financialSummaryEnregistrer,
+              l.dataBlockSaveIdle,
               style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
             ),
           ),

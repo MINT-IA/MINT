@@ -5860,6 +5860,9 @@ class SEs extends S {
   String get dataBlockRevenueGrossAnnualLabel => 'Ingresos brutos anuales';
 
   @override
+  String get dataBlockSaveIdle => 'Guardar';
+
+  @override
   String get dataBlockRevenueSaveIdle => 'Guardar';
 
   @override

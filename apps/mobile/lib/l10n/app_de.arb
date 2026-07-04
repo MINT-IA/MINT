@@ -2817,6 +2817,7 @@
   "dataBlockIncomplete": "Dieser Bereich ist noch unvollständig. Öffne den entsprechenden Bereich, um fehlende Daten hinzuzufügen.",
   "dataBlockComplete": "Dieser Bereich ist vollständig.",
   "dataBlockRevenueGrossAnnualLabel": "Bruttojahreseinkommen",
+  "dataBlockSaveIdle": "Speichern",
   "dataBlockRevenueSaveIdle": "Speichern",
   "dataBlockRevenueSaveSaving": "Speichern...",
   "dataBlockRevenueInvalidAmount": "Ungültiger Betrag",

@@ -5857,6 +5857,9 @@ class SPt extends S {
   String get dataBlockRevenueGrossAnnualLabel => 'Rendimento bruto anual';
 
   @override
+  String get dataBlockSaveIdle => 'Guardar';
+
+  @override
   String get dataBlockRevenueSaveIdle => 'Guardar';
 
   @override

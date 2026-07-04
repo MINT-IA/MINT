@@ -5869,6 +5869,9 @@ class SIt extends S {
   String get dataBlockRevenueGrossAnnualLabel => 'Reddito annuo lordo';
 
   @override
+  String get dataBlockSaveIdle => 'Salva';
+
+  @override
   String get dataBlockRevenueSaveIdle => 'Salvare';
 
   @override

@@ -5868,6 +5868,9 @@ class SDe extends S {
   String get dataBlockRevenueGrossAnnualLabel => 'Bruttojahreseinkommen';
 
   @override
+  String get dataBlockSaveIdle => 'Speichern';
+
+  @override
   String get dataBlockRevenueSaveIdle => 'Speichern';
 
   @override

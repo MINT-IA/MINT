@@ -5823,6 +5823,9 @@ class SEn extends S {
   String get dataBlockRevenueGrossAnnualLabel => 'Gross annual income';
 
   @override
+  String get dataBlockSaveIdle => 'Save';
+
+  @override
   String get dataBlockRevenueSaveIdle => 'Save';
 
   @override

@@ -10560,6 +10560,12 @@ abstract class S {
   /// **'Revenu brut annuel'**
   String get dataBlockRevenueGrossAnnualLabel;
 
+  /// No description provided for @dataBlockSaveIdle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get dataBlockSaveIdle;
+
   /// No description provided for @dataBlockRevenueSaveIdle.
   ///
   /// In fr, this message translates to:

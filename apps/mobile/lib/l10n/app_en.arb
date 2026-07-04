@@ -2817,6 +2817,7 @@
   "dataBlockIncomplete": "This section is still incomplete. Open the dedicated section to add missing data.",
   "dataBlockComplete": "This section is complete.",
   "dataBlockRevenueGrossAnnualLabel": "Gross annual income",
+  "dataBlockSaveIdle": "Save",
   "dataBlockRevenueSaveIdle": "Save",
   "dataBlockRevenueSaveSaving": "Saving...",
   "dataBlockRevenueInvalidAmount": "Invalid amount",

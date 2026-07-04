@@ -2817,6 +2817,7 @@
   "dataBlockIncomplete": "Esta secção ainda está incompleta. Abre a secção dedicada para adicionar os dados em falta.",
   "dataBlockComplete": "Esta secção está completa.",
   "dataBlockRevenueGrossAnnualLabel": "Rendimento bruto anual",
+  "dataBlockSaveIdle": "Guardar",
   "dataBlockRevenueSaveIdle": "Guardar",
   "dataBlockRevenueSaveSaving": "A guardar...",
   "dataBlockRevenueInvalidAmount": "Montante inválido",

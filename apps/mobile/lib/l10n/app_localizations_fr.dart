@@ -5864,6 +5864,9 @@ class SFr extends S {
   String get dataBlockRevenueGrossAnnualLabel => 'Revenu brut annuel';
 
   @override
+  String get dataBlockSaveIdle => 'Enregistrer';
+
+  @override
   String get dataBlockRevenueSaveIdle => 'Enregistrer';
 
   @override

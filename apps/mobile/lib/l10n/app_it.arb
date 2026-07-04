@@ -2817,6 +2817,7 @@
   "dataBlockIncomplete": "Questa sezione è ancora incompleta. Apri la sezione dedicata per aggiungere i dati mancanti.",
   "dataBlockComplete": "Questa sezione è completa.",
   "dataBlockRevenueGrossAnnualLabel": "Reddito annuo lordo",
+  "dataBlockSaveIdle": "Salva",
   "dataBlockRevenueSaveIdle": "Salvare",
   "dataBlockRevenueSaveSaving": "Salvataggio...",
   "dataBlockRevenueInvalidAmount": "Importo non valido",
