@@ -79,7 +79,7 @@
       "artifact": ".planning/journeys/evidence/coach_advice_turn/20260704T165814Z-maestro/result.xml",
       "reason": "Maestro JOS-004 ran on iPhone 17 Pro iOS 26.2, logged 1/1 Flow Passed, and wrote JUnit failures=0. The flow asks the accent-correct French question and asserts the 7'258 CHF salaried/LPP 3a ceiling, a legal citation, no stale freshness fallback, no incomplete-profile blocker, and no bounded-advice banned terms.",
       "verified_at": "2026-07-04T16:59:03Z",
-      "verified_commit": "pending"
+      "verified_commit": "44360b806b3e076dfa0d71e8ff21a51573df3cee"
     }
   ]
 }
