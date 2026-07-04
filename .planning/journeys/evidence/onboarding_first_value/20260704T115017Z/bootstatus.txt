@@ -1,0 +1,2 @@
+Monitoring boot status for MINT iPhone 13 mini RvC (3D0534A9-8C3A-4663-9348-106D0599E9D6).
+Device already booted, nothing to do.

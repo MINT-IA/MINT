@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="MINT iPhone 13 mini RvC - iOS 26.2 - 3D0534A9-8C3A-4663-9348-106D0599E9D6" tests="1" failures="0" time="13.0">
+    <testcase id="jos005_rente_vs_capital_before_account" name="jos005_rente_vs_capital_before_account" classname="jos005_rente_vs_capital_before_account" time="13.0" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

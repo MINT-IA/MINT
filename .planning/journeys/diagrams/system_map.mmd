@@ -85,8 +85,8 @@ flowchart LR
   issue_JOS_002["JOS-002<br/>verified/green"]
   issue_JOS_002 --> journey_money_truth_spine
   class issue_JOS_002 green
-  journey_onboarding_first_value["onboarding_first_value<br/>partial<br/>latest baselined"]
-  class journey_onboarding_first_value amber
+  journey_onboarding_first_value["onboarding_first_value<br/>partial<br/>latest green"]
+  class journey_onboarding_first_value green
   route_onb["/onb"]
   journey_onboarding_first_value --> route_onb
   class route_onb route
@@ -97,18 +97,18 @@ flowchart LR
   route_home["/home"]
   journey_onboarding_first_value --> route_home
   class route_home route
-  surface_OnboardingShellScreen["OnboardingShellScreen"]
-  journey_onboarding_first_value -.-> surface_OnboardingShellScreen
-  class surface_OnboardingShellScreen surface
+  surface_RenteVsCapitalScreen["RenteVsCapitalScreen"]
+  journey_onboarding_first_value -.-> surface_RenteVsCapitalScreen
+  class surface_RenteVsCapitalScreen surface
   surface_CoachProfileProvider["CoachProfileProvider"]
   journey_onboarding_first_value -.-> surface_CoachProfileProvider
   class surface_CoachProfileProvider surface
   surface_MintStateProvider["MintStateProvider"]
   journey_onboarding_first_value -.-> surface_MintStateProvider
   class surface_MintStateProvider surface
-  issue_JOS_005["JOS-005<br/>proof_needed/baselined"]
+  issue_JOS_005["JOS-005<br/>verified/green"]
   issue_JOS_005 --> journey_onboarding_first_value
-  class issue_JOS_005 amber
+  class issue_JOS_005 green
   journey_profile_privacy_control["profile_privacy_control<br/>live_proven<br/>latest green"]
   class journey_profile_privacy_control green
   journey_profile_privacy_control --> route_profile_privacy_control

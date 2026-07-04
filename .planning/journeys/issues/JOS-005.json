@@ -3,10 +3,10 @@
   "id": "JOS-005",
   "title": "Restore onboarding first value before account gate",
   "journey_id": "onboarding_first_value",
-  "status": "proof_needed",
+  "status": "verified",
   "owner": "mint-mobile",
   "severity": "P0",
-  "evidence_status": "baselined",
-  "next_action": "Restore or locate the Mint2 quality-gate flow and rerun the iPhone 13 mini first-value runtime proof now that /rente-vs-capital is an onboarding route.",
-  "source": "Mint2 quality gate 20260627T175336Z; flow_mint2_first_experience_rente_capital_entry.yaml; route-contract fix e2fd7f7a"
+  "evidence_status": "green",
+  "next_action": "Keep the /rente-vs-capital first-value runtime proof in Journey OS monitoring and continue with the next P0 Journey OS queue item.",
+  "source": "JOS-005 Maestro runtime proof 20260704T115017Z on iPhone 13 mini simulator; flow apps/mobile/.maestro/jos005_rente_vs_capital_before_account.yaml; commit efec4ee7e96fe97c70e6b579e6152d91a76fc9a2."
 }

@@ -1,0 +1,8 @@
+journey: onboarding_first_value
+issue: JOS-005
+commit: efec4ee7e96fe97c70e6b579e6152d91a76fc9a2
+flow: apps/mobile/.maestro/jos005_rente_vs_capital_before_account.yaml
+simulator_udid: 3D0534A9-8C3A-4663-9348-106D0599E9D6
+started_at_utc: 20260704T115017Z
+maestro_exit: 0
+finished_at_utc: 2026-07-04T11:52:17Z

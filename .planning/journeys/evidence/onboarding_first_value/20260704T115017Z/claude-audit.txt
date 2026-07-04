@@ -1,0 +1,42 @@
+External Audit - JOS-005 Closure
+
+Findings
+
+MEDIUM - Evidence directory untracked; JSON cross-reference will be broken after merge
+
+onboarding_first_value/20260704T115017Z/ is untracked. Every prior verified
+evidence directory is committed. The JSON record references
+.planning/journeys/evidence/onboarding_first_value/20260704T115017Z/result.xml;
+that path will be dead for any reviewer cloning from scratch.
+
+Fix: git add .planning/journeys/evidence/onboarding_first_value/20260704T115017Z/
+before committing the planning artifact changes.
+
+LOW - Proof covers route accessibility, not cold-start onboarding funnel
+
+The Maestro YAML uses MINT_TEST_INITIAL_ROUTE="/rente-vs-capital", a deep-link
+injection at launch rather than navigation from cold app start. It proves the
+screen renders and is gate-free when directly routed. It does not prove that a
+first-launch user following normal onboarding reaches this screen before an
+account prompt. Because onboarding_first_value remains partial, this scope is
+appropriate and does not overclaim.
+
+LOW - "stabilize/anchor/keep" commit series
+
+Four commits were needed to make assertions pass. The final YAML is legitimate:
+real semantic ID assertions and meaningful negative checks. The churn is
+consistent with exposing stable Flutter semantics for Maestro.
+
+No blockers found after adding the evidence directory.
+
+Requirements met:
+- No overclaiming: journey stays partial; issue verified matches JUnit SUCCESS.
+- Runtime evidence durable: result.xml SUCCESS, maestro.txt Passed,
+  maestro_exit: 0, commit SHA matches git log head.
+- Cross-artifact consistency: BOARD.md, JOURNEYS.md, diagrams, JOS-005.json,
+  and onboarding_first_value.json agree.
+- No local-only JSON paths: result.xml reference is repo-relative.
+- No l10n churn.
+- Minimal design/code changes for the final planning artifact closure.
+- Surface rename OnboardingShellScreen to RenteVsCapitalScreen matches the
+  screen actually proved by Maestro.

@@ -1,0 +1,200 @@
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-07-04 13:51:55.736 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-07-04 13:51:55.738 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c79f80> {pid=867} {uid=[ID:1 hash:0x0]}
+2026-07-04 13:51:55.738 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-07-04 13:51:55.738 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.00s
+2026-07-04 13:51:55.738 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Found main window: Window
+2026-07-04 13:51:55.738 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.738 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.738 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.738 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.738 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.738 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.738 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 867
+)} (error: (null))
+2026-07-04 13:51:55.738 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c63a80> (error: (null))
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Evaluating query:
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 867 for query
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-07-04 13:51:55.800 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-07-04 13:51:55.800 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-07-04 13:51:55.800 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-07-04 13:51:55.800 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000cd4390> {pid=867} {uid=[ID:4 hash:0x104c0e520]}
+2026-07-04 13:51:55.800 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-07-04 13:51:55.800 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+    attributes =     (
+        5003,
+        5004,
+        5002,
+        5019,
+        5058,
+        2004
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-07-04 13:51:55.800 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-07-04 13:51:55.802 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000cd4090> {pid=867} {uid=[ID:1 hash:0x0]}
+2026-07-04 13:51:55.802 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-07-04 13:51:55.802 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.00s
+2026-07-04 13:51:55.802 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Found main window: Window
+2026-07-04 13:51:55.802 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.802 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.803 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.803 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.803 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.803 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.803 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 867
+)} (error: (null))
+2026-07-04 13:51:55.803 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000ccc4e0> (error: (null))
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Evaluating query:
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 867 for query
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-07-04 13:51:55.862 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-07-04 13:51:55.862 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-07-04 13:51:55.862 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-07-04 13:51:55.863 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-07-04 13:51:55.863 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000cd4060> {pid=867} {uid=[ID:4 hash:0x104c0e520]}
+2026-07-04 13:51:55.863 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-07-04 13:51:55.863 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+    attributes =     (
+        5003,
+        5004,
+        5002,
+        5019,
+        5058,
+        2004
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-07-04 13:51:55.863 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-07-04 13:51:55.865 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000ccfcc0> {pid=867} {uid=[ID:1 hash:0x0]}
+2026-07-04 13:51:55.865 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-07-04 13:51:55.865 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.00s
+2026-07-04 13:51:55.865 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Found main window: Window
+2026-07-04 13:51:55.865 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.865 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.865 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.865 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.865 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.865 E  Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.865 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 867
+)} (error: (null))
+2026-07-04 13:51:55.865 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000cceeb0> (error: (null))
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e07] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Evaluating query:
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 867 for query
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-07-04 13:51:55.925 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-07-04 13:51:55.925 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-07-04 13:51:55.925 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-07-04 13:51:55.925 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c81620> {pid=867} {uid=[ID:4 hash:0x104c0e520]}
+2026-07-04 13:51:55.925 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-07-04 13:51:55.925 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+    attributes =     (
+        5003,
+        5004,
+        5002,
+        5019,
+        5058,
+        2004
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-07-04 13:51:55.925 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-07-04 13:51:55.927 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000cd4090> {pid=867} {uid=[ID:1 hash:0x0]}
+2026-07-04 13:51:55.927 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-07-04 13:51:55.927 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.00s
+2026-07-04 13:51:55.927 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Found main window: Window
+2026-07-04 13:51:55.927 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.927 E  Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.927 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.927 E  Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.928 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.928 E  Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.928 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 867
+)} (error: (null))
+2026-07-04 13:51:55.928 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000cce730> (error: (null))
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Evaluating query:
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 867 for query
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-07-04 13:51:55.990 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-07-04 13:51:55.990 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-07-04 13:51:55.990 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-07-04 13:51:55.990 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000ccf660> {pid=867} {uid=[ID:4 hash:0x104c0e520]}
+2026-07-04 13:51:55.990 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-07-04 13:51:55.990 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+    attributes =     (
+        5003,
+        5004,
+        5002,
+        5019,
+        5058,
+        2004
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-07-04 13:51:55.990 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-07-04 13:51:55.992 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000cce970> {pid=867} {uid=[ID:1 hash:0x0]}
+2026-07-04 13:51:55.992 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-07-04 13:51:55.992 Df Runner[867:a6b5df4] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.00s
+2026-07-04 13:51:55.993 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Found main window: Window
+2026-07-04 13:51:55.993 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.993 E  Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.993 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.993 E  Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.993 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: TextInputSemanticsObject:UIAccessibilityElement 146029150208
+2026-07-04 13:51:55.993 E  Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 49 from class TextInputSemanticsObject:UIAccessibilityElement, traits 146029150208, but AXAutomationType returned 0 which maps to 1
+2026-07-04 13:51:55.993 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 867
+)} (error: (null))
+2026-07-04 13:51:55.993 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000cce7f0> (error: (null))
+2026-07-04 13:51:56.755 Df Runner[867:a6b5e02] [com.apple.xpc:connection] [0x106814850] invalidated because the client process (pid 807) either cancelled the connection or exited
+2026-07-04 13:51:56.755 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Connection from client with pid 807 was invalidated.
+2026-07-04 13:51:56.756 Df Runner[867:a6b5e02] [com.apple.dt.automationmode:Default] Handling posted change notification (com.apple.dt.automationmode.state-changed)
+2026-07-04 13:51:56.756 Df Runner[867:a6b5e02] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
+2026-07-04 13:51:56.757 Df Runner[867:a6b5e02] [com.apple.xpc:connection] [0x1068b6eb0] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
+2026-07-04 13:51:56.757 Df Runner[867:a6b5e02] [com.apple.xpc:connection] [0x1068b6eb0] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-07-04 13:51:56.757 Df Runner[867:a6b5e02] [com.apple.dt.automationmode:Default] Comparing previous enabled state (1) to current enabled state (0)
+2026-07-04 13:51:56.758 Df Runner[867:a6b5e02] [com.apple.dt.xctest:Default] Automation Mode has been disabled, existing connections will be invalidated.
+2026-07-04 13:51:57.225 Df Runner[867:a6b5e07] [com.apple.launchservices:db] NotifyToken::RegisterDispatch(com.apple.LaunchServices.database) fired for session key LSSessionKey(system: 0 uid: 501)
+2026-07-04 13:52:16.378 Df log[1070:0] [com.apple.log:] log run noninteractively, parent: 60953 (launchd_sim), args: 'log' 'show' '--last' '3m' '--style' 'compact' '--predicate' 'process == "Runner" OR eventMessage CONTAINS "MINT_TEST_INITIAL_ROUTE" OR eventMessage CONTAINS "rente-vs-capital" OR eventMessage C
