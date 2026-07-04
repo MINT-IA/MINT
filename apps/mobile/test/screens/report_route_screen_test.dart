@@ -134,6 +134,49 @@ void main() {
         findsNothing);
   });
 
+  testWidgets('keeps other P0 dossiers visible when one dossier build fails',
+      (tester) async {
+    final requestedCases = <String>[];
+
+    await tester.pumpWidget(
+      _wrap(
+        FinancialReportScreenV2(
+          wizardAnswers: _answers,
+          buildDossierPayload: ({
+            required caseId,
+            required answers,
+            generatedAt,
+          }) {
+            requestedCases.add(caseId);
+            if (caseId == 'buy_property') {
+              throw StateError('fixture dossier failure');
+            }
+            return DossierPayloadService.buildP0Case(
+              caseId: caseId,
+              answers: answers,
+              generatedAt: generatedAt,
+            );
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.byType(FinancialReportScreenV2));
+    expect(find.text(S.of(context)!.reportTonPlanMint), findsOneWidget);
+    expect(
+      requestedCases,
+      ['first_salary_tax', 'buy_property', 'transmit_property'],
+    );
+    expect(_findSemanticsIdentifier('report_dossier_first_salary_tax_card'),
+        findsOneWidget);
+    expect(_findSemanticsIdentifier('report_dossier_buy_property_card'),
+        findsNothing);
+    expect(_findSemanticsIdentifier('report_dossier_transmit_property_card'),
+        findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('times out to retryable error instead of a permanent spinner',
       (tester) async {
     await tester.pumpWidget(

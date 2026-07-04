@@ -121,6 +121,14 @@
       "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md",
       "reason": "Claude Phase 2 refresh audit returned NO_UNRESOLVED_CRITICAL_HIGH with score 9.1/10; three MEDIUM debts are tracked as JOS-008, JOS-009, and JOS-010.",
       "debt_ref": "CLAUDE-PHASE2-REFRESH"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "bash tools/simulator/maestro_with_watchdog.sh test apps/mobile/.maestro/r3c_report_dossier_export.yaml --format junit --output /tmp/mint-r3c-jos008.xml",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T213542Z-jos008-report-dossier-runtime/result.xml",
+      "reason": "JOS-008 runtime proof after per-case dossier hardening: /rapport still renders the typed transmit-property dossier card and its export CTA on iPhone 17 Pro.",
+      "debt_ref": "JOS-008"
     }
   ]
 }

@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-04T19:25:29.000Z"
-last_activity: 2026-07-04 -- Claude Phase 2 refresh audit returned NO_UNRESOLVED_CRITICAL_HIGH with score 9.1/10; MEDIUM debts are tracked as JOS-008/JOS-009/JOS-010.
+last_updated: "2026-07-04T21:35:42.000Z"
+last_activity: 2026-07-04 -- JOS-008 fixed and verified: /rapport isolates individual P0 dossier build failures, targeted widget tests pass, and iPhone 17 Pro Maestro dossier runtime proof remains green.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -78,9 +78,11 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
   iPhone 17 Pro as canonical iOS runtime proof.
 - JOS-007: phase acceptance artifacts are verified in
   `.planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/`.
-- JOS-008/JOS-009/JOS-010: Claude Phase 2 refresh audit MEDIUM findings are
-  tracked for Phase 4 UX/Data Quest cleanup; they do not block the current
-  Phase 2 acceptance evidence.
+- JOS-008: fixed and verified by targeted widget test plus iPhone 17 Pro
+  Maestro dossier runtime proof.
+- JOS-009/JOS-010: Claude Phase 2 refresh audit MEDIUM findings are tracked
+  for Phase 4 UX/Data Quest cleanup; they do not block the current Phase 2
+  acceptance evidence.
 - The earlier Claude architecture audit blocker is retained as historical
   evidence at
   `.planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt`;

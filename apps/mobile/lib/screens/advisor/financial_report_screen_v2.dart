@@ -37,6 +37,12 @@ typedef DossierPayloadPdfExporter = Future<void> Function(
   DossierPayload dossier,
 );
 
+typedef DossierPayloadBuilder = DossierPayload Function({
+  required String caseId,
+  required Map<String, dynamic> answers,
+  DateTime? generatedAt,
+});
+
 /// Ecran d'affichage du rapport financier exhaustif V2
 /// Refonte : cartes thématiques (Budget, Protection, Retraite, Impôts)
 /// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
@@ -44,12 +50,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
   final FinancialReportPdfExporter? exportPdf;
   final DossierPayloadPdfExporter? exportDossierPdf;
+  final DossierPayloadBuilder? buildDossierPayload;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
     this.exportPdf,
     this.exportDossierPdf,
+    this.buildDossierPayload,
   });
 
   // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
@@ -731,15 +739,23 @@ class FinancialReportScreenV2 extends StatelessWidget {
       return const [];
     }
     final generatedAt = DateTime.now().toUtc();
-    return const ['first_salary_tax', 'buy_property', 'transmit_property']
-        .map(
-          (caseId) => DossierPayloadService.buildP0Case(
+    final builder = buildDossierPayload ?? DossierPayloadService.buildP0Case;
+    final dossiers = <DossierPayload>[];
+    for (final caseId
+        in const ['first_salary_tax', 'buy_property', 'transmit_property']) {
+      try {
+        dossiers.add(
+          builder(
             caseId: caseId,
             answers: answers,
             generatedAt: generatedAt,
           ),
-        )
-        .toList(growable: false);
+        );
+      } catch (_) {
+        continue;
+      }
+    }
+    return List.unmodifiable(dossiers);
   }
 
   bool _hasResolvedOwnerId(Map<String, dynamic> answers) {

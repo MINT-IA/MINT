@@ -3,10 +3,10 @@
   "id": "JOS-008",
   "title": "Harden report dossier builder degradation",
   "journey_id": "mint_lucidity_p0_acceptance",
-  "status": "triaged",
+  "status": "verified",
   "owner": "mint-mobile",
   "severity": "P2",
-  "evidence_status": "baselined",
-  "next_action": "Before Phase 4 UX hardening, isolate each FinancialReportScreenV2 P0 dossier build so one unexpected case failure degrades that case instead of crashing /rapport.",
-  "source": "Claude Phase 2 refresh audit M1: .planning/journeys/evidence/mint_dataquest_clean/20260704T192529Z-claude-phase2-refresh/claude-phase2-refresh.md."
+  "evidence_status": "green",
+  "next_action": "Keep the per-case dossier degradation test in regression and watch /rapport runtime proof when dossier service contracts change.",
+  "source": "Fixed by per-case DossierPayloadBuilder isolation in apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart; tested by apps/mobile/test/screens/report_route_screen_test.dart; iPhone 17 Pro runtime proof .planning/journeys/evidence/mint_dataquest_clean/20260704T213542Z-jos008-report-dossier-runtime/result.xml."
 }
