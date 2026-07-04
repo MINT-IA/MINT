@@ -15,8 +15,6 @@ appId: ch.mint.app
     id: "rente_vs_capital_screen"
 - assertVisible:
     id: "rvc_route_state"
-- assertVisible:
-    id: "rvc_input_section"
 - assertNotVisible:
     text: "Créer ton compte"
 - assertNotVisible:

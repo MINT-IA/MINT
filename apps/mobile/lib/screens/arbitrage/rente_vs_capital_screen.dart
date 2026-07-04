@@ -835,14 +835,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
-    return Semantics(
-      identifier: 'rvc_input_section',
-      container: true,
-      explicitChildNodes: true,
-      child: MintSurface(
-        tone: MintSurfaceTone.blanc,
-        padding: const EdgeInsets.all(MintSpacing.md),
-        child: Column(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Mode selector
@@ -1069,8 +1065,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
             ],
           ),
-          ],
-        ),
+        ],
       ),
     );
   }
