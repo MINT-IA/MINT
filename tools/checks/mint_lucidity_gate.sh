@@ -679,6 +679,10 @@ run_transmit_property_patrol() {
   run_mobile_patrol_test test/patrol/transmit_property_patrol_test.dart "${1:-}"
 }
 
+run_budget_housing_frequency_patrol() {
+  run_mobile_patrol_test test/patrol/budget_housing_frequency_patrol_test.dart "${1:-}"
+}
+
 run_p0_patrol_suite() {
   local device_id="${1:-}"
 
@@ -1382,6 +1386,9 @@ case "$mode" in
   mobile-transmit-property-patrol)
     run_transmit_property_patrol "${2:-}"
     ;;
+  mobile-budget-housing-frequency-patrol)
+    run_budget_housing_frequency_patrol "${2:-}"
+    ;;
   mobile-p0-patrol)
     run_p0_patrol_suite "${2:-}"
     ;;
@@ -1410,7 +1417,7 @@ case "$mode" in
     )
     ;;
   *)
-    echo "Usage: $0 {bootstrap|external-bootstrap|phase1|phase2|phase2-runtime|phase2-artifacts|ledger|backend-scenarios|live-http-scenario|mobile-live-http-scenario|mobile-scenarios|mobile-f2-patrol|mobile-first-salary-patrol|mobile-first-salary-fatca-patrol|mobile-transmit-property-patrol|mobile-p0-patrol|mobile-data-quest}" >&2
+    echo "Usage: $0 {bootstrap|external-bootstrap|phase1|phase2|phase2-runtime|phase2-artifacts|ledger|backend-scenarios|live-http-scenario|mobile-live-http-scenario|mobile-scenarios|mobile-f2-patrol|mobile-first-salary-patrol|mobile-first-salary-fatca-patrol|mobile-transmit-property-patrol|mobile-budget-housing-frequency-patrol|mobile-p0-patrol|mobile-data-quest}" >&2
     exit 2
     ;;
 esac

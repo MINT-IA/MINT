@@ -15,6 +15,14 @@ Philosophy: one script, one side effect, always `timeout`-wrapped.
 Per the façade-sans-câblage doctrine (`feedback_facade_sans_cablage.md`),
 these scripts MUST actually run end-to-end — they are not documentation.
 
+## Device baseline
+
+Use `iPhone 17 Pro` as the primary iOS simulator for new runtime evidence.
+If it is unavailable, use `iPhone 15` or `iPhone 14` and record the reason in
+the evidence. Compact legacy iPhone targets are not accepted for new Maestro,
+Patrol, `flutter run`, walker, screenshot, or dogfood proof; any existing
+mentions are historical evidence only.
+
 ## macOS Tahoe caveats
 
 > Source: `feedback_ios_build_macos_tahoe.md` (read before any device build).

@@ -2,7 +2,7 @@
 flowchart TD
   promise["MINT P0 lucidity paths are accepted only with cross-platform proof and explicit phase artifacts."]
   team["mint-quality-gate"]
-  latest["latest proof: green / runtime"]
+  latest["latest proof: green / external"]
   promise --> latest
   classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
   classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
@@ -66,9 +66,9 @@ flowchart TD
   issue_JOS_008["JOS-008 verified/green"]
   issue_JOS_008 --> promise
   class issue_JOS_008 green
-  issue_JOS_009["JOS-009 triaged/baselined"]
+  issue_JOS_009["JOS-009 verified/green"]
   issue_JOS_009 --> promise
-  class issue_JOS_009 amber
+  class issue_JOS_009 green
   issue_JOS_010["JOS-010 triaged/baselined"]
   issue_JOS_010 --> promise
   class issue_JOS_010 amber

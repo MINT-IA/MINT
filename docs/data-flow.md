@@ -54,7 +54,7 @@ flowchart LR
 
 ---
 
-## The 6 writers — who mutates `wizard_answers_v2`
+## The 8 writers — who mutates `wizard_answers_v2`
 
 Every writer persists via `ReportPersistenceService.saveAnswers(answers)`
 which encrypts sensitive keys via `SecureWizardStore` (Keychain) and
@@ -67,8 +67,9 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 | 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_total_3a`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
-| 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
+| 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_housing_cost_frequency='monthly'`, `q_lamal_premium_monthly_chf`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
+| 8 | **Open banking category import** | `coach_profile_provider.dart:updateFromOpenBanking` | `q_cash_total`, `_coach_total_3a`, `q_housing_cost_period_chf`, `q_housing_cost_frequency='monthly'`, `q_lamal_premium_monthly_chf`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux}` | bLink/category sync |
 
 **Legend.** Keys prefixed `q_*` come from wizard-style answers
 (`fromWizardAnswers` reads them natively). Keys prefixed `_coach_*` come
@@ -89,7 +90,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_gender`, `q_commune`
 
 **Income**
-- `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
+- `q_pay_frequency` (`monthly`|`yearly`|`annual`|`annuel`),
   `q_net_income_period_chf` (double, amount per period),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_employment_status` (salarie/independant/retraite/etc.),
@@ -98,6 +99,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 
 **Housing & fixed charges**
 - `q_housing_cost_period_chf` (double — rent OR mortgage),
+  `q_housing_cost_frequency` (`monthly`|`yearly`|`annual`|`annuel` — period for
+  `q_housing_cost_period_chf`; `q_pay_frequency` remains income-only),
   `q_housing_status` (locataire/proprietaire/…),
   `q_lamal_premium_monthly_chf` (double, health insurance actual value),
   `_coach_depenses_transport`, `_coach_depenses_telecom`,
@@ -264,7 +267,7 @@ BudgetSetupScreen (new, P0-MVP-3)
   ↓
 coachProvider.mergeAnswers({
   q_housing_cost_period_chf: …,
-  q_pay_frequency: 'monthly',
+  q_housing_cost_frequency: 'monthly',
   q_lamal_premium_monthly_chf: …,
   _coach_depenses_transport: …,          (optional)
   _coach_depenses_telecom: …,             (optional)

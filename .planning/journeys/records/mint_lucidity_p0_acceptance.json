@@ -129,6 +129,22 @@
       "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T213542Z-jos008-report-dossier-runtime/result.xml",
       "reason": "JOS-008 runtime proof after per-case dossier hardening: /rapport still renders the typed transmit-property dossier card and its export CTA on iPhone 17 Pro.",
       "debt_ref": "JOS-008"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MINT_PATROL_CLEAN_BUILD=1 bash tools/checks/mint_lucidity_gate.sh mobile-budget-housing-frequency-patrol B03E429D-0422-4357-B754-536637D979F9",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T200804Z-jos009-budget-frequency-patrol/xcresult-summary.json",
+      "reason": "JOS-009 iPhone 17 Pro Patrol proof: /budget/setup stores housing costs with q_housing_cost_frequency=monthly, preserves income-only q_pay_frequency=yearly, updates CoachProfile.depenses, and no longer crashes when saving from a direct route.",
+      "debt_ref": "JOS-009"
+    },
+    {
+      "kind": "external",
+      "status": "green",
+      "command": "claude -p --model sonnet --max-budget-usd 1.50 --permission-mode dontAsk --allowedTools \"Read,Grep,Bash(git diff *),Bash(git status *),Bash(rg *)\" < focused JOS-009 postfix audit prompt",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T204753Z-claude-jos009-postfix-audit/claude-jos009-postfix-audit.md",
+      "reason": "Claude JOS-009 post-fix audit returned NO_UNRESOLVED_CRITICAL_HIGH with score 9/10 and explicitly marked prior MEDIUM M1 and M2 as resolved.",
+      "debt_ref": "JOS-009"
     }
   ]
 }

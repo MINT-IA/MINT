@@ -2463,10 +2463,16 @@ class CoachProfile {
     final employmentStatus = _parseEmploymentStatus(employmentRaw);
 
     // ── Depenses ────────────────────────────────────────────
-    final housingCost =
-        _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
+    final housingCost = _parseDouble(answers['q_housing_cost_period_chf']) ??
+        _parseDouble(answers['_coach_depenses_loyer']) ??
+        1500;
+    final housingCostFrequency =
+        (answers['q_housing_cost_frequency'] as String?)?.toLowerCase() ??
+            'monthly';
     double monthlyHousing;
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    if (housingCostFrequency == 'yearly' ||
+        housingCostFrequency == 'annual' ||
+        housingCostFrequency == 'annuel') {
       monthlyHousing = housingCost / 12;
     } else {
       monthlyHousing = housingCost;
@@ -2474,7 +2480,8 @@ class CoachProfile {
 
     // Use actual LAMal from onboarding if available, otherwise estimate
     final lamalFromOnboarding =
-        _parseDouble(answers['q_lamal_premium_monthly_chf']);
+        _parseDouble(answers['q_lamal_premium_monthly_chf']) ??
+            _parseDouble(answers['_coach_depenses_assurance']);
     final assuranceMaladie =
         lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
 

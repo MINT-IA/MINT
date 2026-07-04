@@ -443,6 +443,83 @@ void main() {
           contains('ask_parent_annual_living_costs'));
     });
 
+    test('uses housing cost frequency separately from income pay frequency',
+        () {
+      final payload = DossierPayloadService.buildP0Case(
+        caseId: 'transmit_property',
+        answers: _withFreshMetadata(
+          const {
+            '_coach_profile_owner_id': ownerId,
+            'q_canton': 'VD',
+            'q_target_retirement_age': 64,
+            '_coach_avoir_lpp': 650000,
+            'q_3a_total': 180000,
+            '_transmit_property_parent_annual_retirement_income': 76000,
+            'q_cash_total': 120000,
+            'q_property_market_value': 1200000,
+            'q_mortgage_balance': 420000,
+            'q_children': 2,
+            'q_pay_frequency': 'yearly',
+            'q_net_income_period_chf': 120000,
+            'q_housing_cost_frequency': 'monthly',
+            'q_housing_cost_period_chf': 2000,
+            'q_lamal_premium_monthly_chf': 400,
+          },
+          _freshTransmitPropertyFieldPaths,
+        ),
+        generatedAt: generatedAt,
+      ).toJson();
+
+      expect(_schemaErrors('transmit_property', payload), isEmpty);
+      final livingCosts =
+          (payload['inputs'] as Map)['parentAnnualLivingCosts'] as Map;
+      expect(livingCosts['value'], 28800);
+      expect(
+        livingCosts['derived_from'],
+        containsAll([
+          'depenses.loyer',
+          'depenses.assuranceMaladie',
+        ]),
+      );
+    });
+
+    test('does not use yearly income frequency as housing fallback', () {
+      final payload = DossierPayloadService.buildP0Case(
+        caseId: 'transmit_property',
+        answers: _withFreshMetadata(
+          const {
+            '_coach_profile_owner_id': ownerId,
+            'q_canton': 'VD',
+            'q_target_retirement_age': 64,
+            '_coach_avoir_lpp': 650000,
+            'q_3a_total': 180000,
+            '_transmit_property_parent_annual_retirement_income': 76000,
+            'q_cash_total': 120000,
+            'q_property_market_value': 1200000,
+            'q_mortgage_balance': 420000,
+            'q_children': 2,
+            'q_pay_frequency': 'yearly',
+            'q_net_income_period_chf': 120000,
+            'q_housing_cost_period_chf': 2000,
+          },
+          _freshTransmitPropertyFieldPaths.where(
+            (fieldPath) =>
+                fieldPath != 'parentAnnualLivingCosts' &&
+                fieldPath != 'depenses.loyer' &&
+                fieldPath != 'depenses.assuranceMaladie',
+          ),
+        ),
+        generatedAt: generatedAt,
+      ).toJson();
+
+      expect(_schemaErrors('transmit_property', payload), isEmpty);
+      final livingCosts =
+          (payload['inputs'] as Map)['parentAnnualLivingCosts'] as Map;
+      expect(livingCosts['value'], isNull);
+      expect(payload['next_questions'],
+          contains('ask_parent_annual_living_costs'));
+    });
+
     test(
         'asks annual living costs before mortgage when budget evidence is absent',
         () {

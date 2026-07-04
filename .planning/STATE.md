@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-04T21:35:42.000Z"
-last_activity: 2026-07-04 -- JOS-008 fixed and verified: /rapport isolates individual P0 dossier build failures, targeted widget tests pass, and iPhone 17 Pro Maestro dossier runtime proof remains green.
+last_updated: "2026-07-04T22:08:04.000+02:00"
+last_activity: 2026-07-04 -- JOS-009 fixed and verified: /budget/setup keeps q_pay_frequency income-only, stores q_housing_cost_frequency for housing costs, passes targeted tests, and iPhone 17 Pro Patrol proof is green.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -80,8 +80,11 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
   `.planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/`.
 - JOS-008: fixed and verified by targeted widget test plus iPhone 17 Pro
   Maestro dossier runtime proof.
-- JOS-009/JOS-010: Claude Phase 2 refresh audit MEDIUM findings are tracked
-  for Phase 4 UX/Data Quest cleanup; they do not block the current Phase 2
+- JOS-009: fixed and verified by targeted widget/provider/dossier tests plus
+  iPhone 17 Pro Patrol proof. Housing-cost period metadata now uses
+  `q_housing_cost_frequency`; `q_pay_frequency` remains income-only.
+- JOS-010: Claude Phase 2 refresh audit MEDIUM finding remains tracked for
+  Phase 4 UX/Data Quest cleanup; it does not block the current Phase 2
   acceptance evidence.
 - The earlier Claude architecture audit blocker is retained as historical
   evidence at

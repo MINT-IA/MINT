@@ -654,6 +654,11 @@ class CoachProfileProvider extends ChangeNotifier {
       // after the card Budget populated. Read-then-merge-then-save is the
       // only crash-safe discipline.
       final current = await ReportPersistenceService.loadAnswers();
+      if (normalizedPartial.containsKey('q_housing_cost_period_chf') &&
+          !normalizedPartial.containsKey('q_housing_cost_frequency') &&
+          !current.containsKey('q_housing_cost_frequency')) {
+        normalizedPartial['q_housing_cost_frequency'] = 'monthly';
+      }
       final merged = Map<String, dynamic>.from(current)
         ..addAll(normalizedPartial);
       _lastAnswers = merged;
@@ -2716,7 +2721,10 @@ class CoachProfileProvider extends ChangeNotifier {
         answers['q_investments_total'] = investissements;
       }
       // Persist depenses — use canonical wizard keys where they exist
-      if (loyer != null) answers['q_housing_cost_period_chf'] = loyer;
+      if (loyer != null) {
+        answers['q_housing_cost_period_chf'] = loyer;
+        answers.putIfAbsent('q_housing_cost_frequency', () => 'monthly');
+      }
       if (assuranceMaladie != null) {
         answers['q_lamal_premium_monthly_chf'] = assuranceMaladie;
       }
@@ -2918,8 +2926,13 @@ class CoachProfileProvider extends ChangeNotifier {
         answers['_coach_investissements'] = investissements;
       }
       if (epargne3a > 0) answers['_coach_total_3a'] = epargne3a;
-      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
-      if (assurance != null) answers['_coach_depenses_assurance'] = assurance;
+      if (loyer != null) {
+        answers['q_housing_cost_period_chf'] = loyer;
+        answers.putIfAbsent('q_housing_cost_frequency', () => 'monthly');
+      }
+      if (assurance != null) {
+        answers['q_lamal_premium_monthly_chf'] = assurance;
+      }
       if (electricite != null) {
         answers['_coach_depenses_electricite'] = electricite;
       }

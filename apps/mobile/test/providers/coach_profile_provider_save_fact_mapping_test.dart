@@ -326,6 +326,84 @@ void main() {
     expect(afterReinstallAnswers['_coach_profile_owner_id'], ownerId);
   });
 
+  test(
+      'mergeAnswers records housing frequency without changing income frequency',
+      () async {
+    await ReportPersistenceService.saveAnswers(const {
+      'q_net_income_period_chf': 120000,
+      'q_pay_frequency': 'yearly',
+    });
+    final provider = CoachProfileProvider();
+
+    await provider.mergeAnswers(const {
+      'q_housing_cost_period_chf': 2100,
+      'q_lamal_premium_monthly_chf': 400,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_pay_frequency'], 'yearly');
+    expect(answers['q_housing_cost_frequency'], 'monthly');
+    expect(answers['q_housing_cost_period_chf'], 2100);
+    expect(provider.profile!.depenses.loyer, 2100);
+  });
+
+  test(
+      'updateInline records housing frequency without changing income frequency',
+      () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers(const {
+      'q_net_income_period_chf': 120000,
+      'q_pay_frequency': 'yearly',
+    });
+
+    await provider.updateInline(loyer: 2300);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_pay_frequency'], 'yearly');
+    expect(answers['q_housing_cost_frequency'], 'monthly');
+    expect(answers['q_housing_cost_period_chf'], 2300);
+    expect(provider.profile!.depenses.loyer, 2300);
+  });
+
+  test('open banking writes canonical housing cost keys', () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers(const {
+      'q_gross_salary_annual': 120000,
+      'q_net_income_period_chf': 120000,
+      'q_pay_frequency': 'yearly',
+    });
+
+    await provider.updateFromOpenBanking(
+      accounts: const [],
+      categoryTotals: const {
+        'logement': 2200,
+        'assurances': 400,
+      },
+    );
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_pay_frequency'], 'yearly');
+    expect(answers['q_housing_cost_frequency'], 'monthly');
+    expect(answers['q_housing_cost_period_chf'], 2200);
+    expect(answers['q_lamal_premium_monthly_chf'], 400);
+    expect(answers.containsKey('_coach_depenses_loyer'), isFalse);
+    expect(answers.containsKey('_coach_depenses_assurance'), isFalse);
+    expect(provider.profile!.depenses.loyer, 2200);
+  });
+
+  test('legacy open banking fixed charge keys still hydrate depenses', () {
+    final profile = CoachProfile.fromWizardAnswers(const {
+      'q_net_income_period_chf': 120000,
+      'q_pay_frequency': 'yearly',
+      '_coach_depenses_loyer': 2200,
+      '_coach_depenses_assurance': 400,
+    });
+
+    expect(profile.salaireBrutMensuel, closeTo(11494.25, 0.01));
+    expect(profile.depenses.loyer, 2200);
+    expect(profile.depenses.assuranceMaladie, 400);
+  });
+
   test('mergeAnswers stamps transmit property composed inputs', () async {
     final provider = CoachProfileProvider();
     final sourceDate = DateTime.utc(2026, 7, 1);
@@ -449,7 +527,9 @@ void main() {
         epargneLiquide: 20000,
         investissements: 40000,
       ),
-      dataSources: const {'patrimoine.epargneLiquide': ProfileDataSource.userInput},
+      dataSources: const {
+        'patrimoine.epargneLiquide': ProfileDataSource.userInput
+      },
     );
 
     provider.updateProfile(profile);
@@ -469,9 +549,16 @@ void main() {
     expect(answers.containsKey('q_investissements'), isFalse);
   });
 
-  test('updateProfile does not persist estimated liquid assets as cash answer', () async {
+  test('updateProfile does not persist estimated liquid assets as cash answer',
+      () async {
     final provider = CoachProfileProvider();
-    await provider.mergeAnswers(const {'q_canton': 'GE', 'q_gross_salary_annual': 96000, 'q_housing_cost_period_chf': 2000, 'q_lamal_premium_monthly_chf': 400, 'q_emergency_fund': 'yes_6months'});
+    await provider.mergeAnswers(const {
+      'q_canton': 'GE',
+      'q_gross_salary_annual': 96000,
+      'q_housing_cost_period_chf': 2000,
+      'q_lamal_premium_monthly_chf': 400,
+      'q_emergency_fund': 'yes_6months'
+    });
 
     expect(provider.profile!.patrimoine.epargneLiquide, greaterThan(0));
     expect(provider.answersSnapshot.containsKey('q_cash_total'), isFalse);
@@ -483,14 +570,17 @@ void main() {
     expect(answers.containsKey('q_cash_total'), isFalse);
   });
 
-  test('updateProfile does not overwrite existing cash answer from estimate', () async {
+  test('updateProfile does not overwrite existing cash answer from estimate',
+      () async {
     await ReportPersistenceService.saveAnswers({'q_cash_total': 250000});
     final provider = CoachProfileProvider();
     final profile = CoachProfile.defaults().copyWith(
       canton: 'GE',
       salaireBrutMensuel: 8000,
       patrimoine: const PatrimoineProfile(epargneLiquide: 320000),
-      dataSources: const {'patrimoine.epargneLiquide': ProfileDataSource.estimated},
+      dataSources: const {
+        'patrimoine.epargneLiquide': ProfileDataSource.estimated
+      },
     );
 
     provider.updateProfile(profile);

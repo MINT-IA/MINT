@@ -1060,13 +1060,19 @@ class DossierPayloadService {
       required String answerKey,
       required String ledgerKey,
       required double? profileValue,
-      bool amountUsesPayFrequency = false,
+      String? periodFrequencyKey,
+      String? legacyPeriodFrequencyKey,
     }) {
       if (answers.containsKey(answerKey)) {
         final parsed = _num(answers[answerKey]);
         if (parsed != null) {
-          final monthlyAmount = amountUsesPayFrequency
-              ? _monthlyAmountForPayFrequency(parsed, answers)
+          final monthlyAmount = periodFrequencyKey != null
+              ? _monthlyAmountForPeriodFrequency(
+                  parsed,
+                  answers,
+                  primaryKey: periodFrequencyKey,
+                  legacyKey: legacyPeriodFrequencyKey,
+                )
               : parsed;
           if (monthlyAmount == null) return;
           monthlyTotal += monthlyAmount;
@@ -1084,7 +1090,8 @@ class DossierPayloadService {
       answerKey: 'q_housing_cost_period_chf',
       ledgerKey: 'depenses.loyer',
       profileValue: profile.depenses.loyer,
-      amountUsesPayFrequency: true,
+      periodFrequencyKey: 'q_housing_cost_frequency',
+      legacyPeriodFrequencyKey: 'q_pay_frequency',
     );
     addMonthly(
       answerKey: 'q_lamal_premium_monthly_chf',
@@ -1136,7 +1143,7 @@ class DossierPayloadService {
         answerKey: 'q_debt_payments_period_chf',
         ledgerKey: 'depenses.autresDepensesFixes',
         profileValue: null,
-        amountUsesPayFrequency: true,
+        periodFrequencyKey: 'q_pay_frequency',
       );
     }
 
@@ -1151,15 +1158,25 @@ class DossierPayloadService {
     );
   }
 
-  static double? _monthlyAmountForPayFrequency(
+  static double? _monthlyAmountForPeriodFrequency(
     double amount,
-    Map<String, dynamic> answers,
-  ) {
-    final payFrequency = _string(answers['q_pay_frequency'])?.toLowerCase();
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    Map<String, dynamic> answers, {
+    required String primaryKey,
+    String? legacyKey,
+  }) {
+    final primaryFrequency = _string(answers[primaryKey])?.toLowerCase();
+    final legacyFrequency =
+        legacyKey == null ? null : _string(answers[legacyKey])?.toLowerCase();
+    final frequency = primaryFrequency ??
+        (legacyFrequency == 'monthly' || legacyFrequency == 'mensuel'
+            ? legacyFrequency
+            : null);
+    if (frequency == 'yearly' ||
+        frequency == 'annual' ||
+        frequency == 'annuel') {
       return amount / 12;
     }
-    if (payFrequency == 'monthly' || payFrequency == 'mensuel') {
+    if (frequency == 'monthly' || frequency == 'mensuel') {
       return amount;
     }
     return null;

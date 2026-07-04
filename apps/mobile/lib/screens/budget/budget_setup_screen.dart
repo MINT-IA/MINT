@@ -158,7 +158,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     final provider = context.read<CoachProfileProvider>();
     final answers = <String, dynamic>{
       'q_housing_cost_period_chf': housing,
-      'q_pay_frequency': 'monthly',
+      'q_housing_cost_frequency': 'monthly',
       'q_lamal_premium_monthly_chf': lamal,
     };
     final transport = _parseAmount(_transport.text);
@@ -190,7 +190,18 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     }
     if (!mounted) return;
     setState(() => _saving = false);
-    Navigator.of(context).pop();
+    final router = GoRouter.maybeOf(context);
+    if (router != null) {
+      if (router.canPop()) {
+        router.pop();
+      } else {
+        router.go('/budget');
+      }
+    } else if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      // Widget-test host without GoRouter: persistence already completed.
+    }
   }
 
   @override
@@ -206,14 +217,24 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             children: [
               Text(
                 s.budgetSetupSubtitle,
-                style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary),
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               ),
               const SizedBox(height: MintSpacing.lg),
-              _field(s.budgetSetupHousing, _housing,
-                  required: true, placeholder: _placeholderHousing),
-              _field(s.budgetSetupLamal, _lamal,
-                  required: true, placeholder: _placeholderLamal),
+              _field(
+                s.budgetSetupHousing,
+                _housing,
+                identifier: 'budget_housing_cost_input',
+                required: true,
+                placeholder: _placeholderHousing,
+              ),
+              _field(
+                s.budgetSetupLamal,
+                _lamal,
+                identifier: 'budget_lamal_premium_input',
+                required: true,
+                placeholder: _placeholderLamal,
+              ),
               if (_showOptional) ...[
                 _field(s.budgetSetupTransport, _transport,
                     placeholder: _placeholderTransport),
@@ -234,8 +255,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               if (_liveTotal > 0) ...[
                 const SizedBox(height: MintSpacing.md),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.craie,
                     borderRadius: BorderRadius.circular(10),
@@ -248,28 +269,32 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                 ),
               ],
               const SizedBox(height: MintSpacing.lg),
-              FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  minimumSize: const Size.fromHeight(48),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+              Semantics(
+                identifier: 'budget_setup_save_cta',
+                button: true,
+                child: FilledButton(
+                  key: const Key('budget_setup_save_cta'),
+                  onPressed: _saving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: MintColors.white),
+                        )
+                      : Text(s.budgetSetupSave),
                 ),
-                child: _saving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
-                      )
-                    : Text(s.budgetSetupSave),
               ),
               const SizedBox(height: MintSpacing.md),
               Center(
                 child: TextButton(
-                  onPressed: () =>
-                      context.push('/coach/chat?topic=budget'),
+                  onPressed: () => context.push('/coach/chat?topic=budget'),
                   child: Text(
                     s.budgetSetupChatFallback,
                     style: MintTextStyles.bodyMedium(
@@ -287,6 +312,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   Widget _field(
     String label,
     TextEditingController c, {
+    String? identifier,
     bool required = false,
     String? placeholder,
   }) {
@@ -299,8 +325,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           Row(
             children: [
               Text(label,
-                  style: MintTextStyles.labelLarge(
-                      color: MintColors.textPrimary)),
+                  style:
+                      MintTextStyles.labelLarge(color: MintColors.textPrimary)),
               if (required) ...[
                 const SizedBox(width: 6),
                 Text('*',
@@ -309,18 +335,24 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          TextField(
-            controller: c,
-            keyboardType: const TextInputType.numberWithOptions(decimal: false),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
-            ],
-            decoration: InputDecoration(
-              hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 12),
+          Semantics(
+            identifier: identifier,
+            textField: true,
+            child: TextField(
+              key: identifier == null ? null : Key(identifier),
+              controller: c,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: false),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
+              ],
+              decoration: InputDecoration(
+                hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
             ),
           ),
         ],
