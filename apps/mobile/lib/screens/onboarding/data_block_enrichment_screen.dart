@@ -8,7 +8,10 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
+import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
+import 'package:mint_mobile/services/dossier/dossier_payload_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -53,12 +56,15 @@ class _DataBlockEnrichmentScreenState
   final _birthYearController = TextEditingController();
   final _savingsController = TextEditingController();
   final _targetPropertyController = TextEditingController();
+  final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
   bool _seededPatrimoineInputs = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
   bool _isSavingRevenue = false;
   bool _isSavingPatrimoine = false;
+  bool _isReconfirming = false;
+  String? _activeUpdateInputKey;
   String? _revenueError;
   String? _patrimoineError;
 
@@ -76,7 +82,7 @@ class _DataBlockEnrichmentScreenState
     return _cachedAlerts!.where((a) => a.block == blockType).toList();
   }
 
-  void _seedRevenueInputs(CoachProfile? profile) {
+  void _seedRevenueInputs(CoachProfile? profile, Map<String, dynamic> answers) {
     if (_seededRevenueInputs) return;
     final hasDraft = _cantonController.text.isNotEmpty ||
         _salaryController.text.isNotEmpty ||
@@ -94,7 +100,13 @@ class _DataBlockEnrichmentScreenState
       if (salary > 0) {
         _salaryController.text = salary.round().toString();
       }
-      _birthYearController.text = profile.birthYear.toString();
+      if (profile.birthYear >= 1900) {
+        _birthYearController.text = profile.birthYear.toString();
+      }
+    }
+    final pensionFund = answers['q_has_pension_fund'];
+    if (pensionFund is bool) {
+      _hasPensionFund = pensionFund;
     }
     _seededRevenueInputs = true;
   }
@@ -145,12 +157,13 @@ class _DataBlockEnrichmentScreenState
   Widget build(BuildContext context) {
     final provider = context.watch<CoachProfileProvider>();
     final profile = provider.profile;
+    final answers = provider.answersSnapshot;
     final canonicalBlockType = _canonicalBlockType(widget.blockType);
     if (canonicalBlockType == 'revenu') {
-      _seedRevenueInputs(profile);
+      _seedRevenueInputs(profile, answers);
     }
     if (canonicalBlockType == 'patrimoine') {
-      _seedPatrimoineInputs(provider.answersSnapshot);
+      _seedPatrimoineInputs(answers);
     }
     final hasInlineCollector =
         canonicalBlockType == 'revenu' || canonicalBlockType == 'patrimoine';
@@ -160,6 +173,20 @@ class _DataBlockEnrichmentScreenState
         ? ConfidenceScorer.scoreAsBlocs(profile)
         : <String, BlockScore>{};
     final bloc = isKnownBlock ? blocs[canonicalBlockType] : null;
+    final dataQuestFacts = profile == null
+        ? const <String, BiographyFact>{}
+        : DossierPayloadService.dataQuestFactsFromProfile(
+            profile: profile,
+            answers: answers,
+          );
+    final dataQuestPlan = profile == null
+        ? null
+        : _dataQuestPlanForBlock(canonicalBlockType, answers, dataQuestFacts);
+    final reconfirmAsk =
+        dataQuestPlan == null ? null : _firstReconfirmAsk(dataQuestPlan);
+    final activeUpdateInputKey = _activeUpdateInputKey;
+    final showInlineCollector =
+        reconfirmAsk == null || activeUpdateInputKey != null;
 
     final l = S.of(context)!;
     final meta = _blockMeta(isKnownBlock ? canonicalBlockType : 'unknown', l);
@@ -218,21 +245,40 @@ class _DataBlockEnrichmentScreenState
                 const SizedBox(height: 24),
               ],
 
+              if (profile != null && reconfirmAsk != null) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 180),
+                  child: _buildReconfirmCard(
+                    ask: reconfirmAsk,
+                    factsByLedgerKey: dataQuestFacts,
+                    profile: profile,
+                    blockType: canonicalBlockType,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
               // ── Enrichment prompts for this block ────────────────
               if (profile != null && !hasInlineCollector) ...[
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
               ],
 
-              if (canonicalBlockType == 'revenu') ...[
+              if (canonicalBlockType == 'revenu' && showInlineCollector) ...[
                 MintEntrance(
                   delay: const Duration(milliseconds: 250),
-                  child: _buildRevenueCollector(),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildRevenueCollector(onlyInputKey: activeUpdateInputKey),
+                  ),
                 ),
               ],
-              if (canonicalBlockType == 'patrimoine') ...[
+              if (canonicalBlockType == 'patrimoine' && showInlineCollector) ...[
                 MintEntrance(
                   delay: const Duration(milliseconds: 250),
-                  child: _buildPatrimoineCollector(),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildPatrimoineCollector(onlyInputKey: activeUpdateInputKey),
+                  ),
                 ),
               ],
 
@@ -290,65 +336,76 @@ class _DataBlockEnrichmentScreenState
     );
   }
 
-  Widget _buildRevenueCollector() {
+  Widget _buildRevenueCollector({String? onlyInputKey}) {
     final l = S.of(context)!;
+    final capturesCanton = _capturesRevenue('canton', onlyInputKey);
+    final capturesSalary = _capturesRevenue('incomeGrossYearly', onlyInputKey);
+    final capturesBirthYear = _capturesRevenue('birthYear', onlyInputKey);
+    final capturesPensionFund = _capturesRevenue('has2ndPillar', onlyInputKey);
     return MintSurface(
       padding: const EdgeInsets.all(16),
       radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
-            key: const Key('canton_input'),
-            controller: _cantonController,
-            textCapitalization: TextCapitalization.characters,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp('[A-Za-z]')),
-              LengthLimitingTextInputFormatter(2),
-            ],
-            decoration: InputDecoration(
-              labelText: l.affordabilityCanton,
-              hintText: 'GE',
+          if (capturesCanton) ...[
+            TextField(
+              key: const Key('canton_input'),
+              controller: _cantonController,
+              textCapitalization: TextCapitalization.characters,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[A-Za-z]')),
+                LengthLimitingTextInputFormatter(2),
+              ],
+              decoration: InputDecoration(
+                labelText: l.affordabilityCanton,
+                hintText: 'GE',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            key: const Key('salary_input'),
-            controller: _salaryController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              labelText: l.dataBlockRevenueGrossAnnualLabel,
-              prefixText: 'CHF ',
+            const SizedBox(height: 12),
+          ],
+          if (capturesSalary) ...[
+            TextField(
+              key: const Key('salary_input'),
+              controller: _salaryController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: l.dataBlockRevenueGrossAnnualLabel,
+                prefixText: 'CHF ',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            key: const Key('birth_year_input'),
-            controller: _birthYearController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(4),
-            ],
-            decoration: InputDecoration(
-              labelText: l.authDateOfBirth,
-              hintText: '2001',
+            const SizedBox(height: 12),
+          ],
+          if (capturesBirthYear) ...[
+            TextField(
+              key: const Key('birth_year_input'),
+              controller: _birthYearController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(4),
+              ],
+              decoration: InputDecoration(
+                labelText: l.authDateOfBirth,
+                hintText: '2001',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          SwitchListTile.adaptive(
-            key: const Key('has_pension_fund_switch'),
-            value: _hasPensionFund,
-            contentPadding: EdgeInsets.zero,
-            title: Text(l.eduThemeLppQuestion),
-            onChanged: (value) {
-              setState(() {
-                _hasPensionFund = value;
-                _hasPensionFundTouched = true;
-              });
-            },
-          ),
+            const SizedBox(height: 12),
+          ],
+          if (capturesPensionFund)
+            SwitchListTile.adaptive(
+              key: const Key('has_pension_fund_switch'),
+              value: _hasPensionFund,
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.eduThemeLppQuestion),
+              onChanged: (value) {
+                setState(() {
+                  _hasPensionFund = value;
+                  _hasPensionFundTouched = true;
+                });
+              },
+            ),
           if (_revenueError != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -381,9 +438,18 @@ class _DataBlockEnrichmentScreenState
   }
 
   Future<void> _saveRevenueFacts() async {
-    final canton = _cantonController.text.trim().toUpperCase();
-    final salary = int.tryParse(_salaryController.text.trim());
-    final birthYearText = _birthYearController.text.trim();
+    final onlyInputKey = _activeUpdateInputKey;
+    final capturesCanton = _capturesRevenue('canton', onlyInputKey);
+    final capturesSalary = _capturesRevenue('incomeGrossYearly', onlyInputKey);
+    final capturesBirthYear = _capturesRevenue('birthYear', onlyInputKey);
+    final capturesPensionFund = _capturesRevenue('has2ndPillar', onlyInputKey);
+    final canton =
+        capturesCanton ? _cantonController.text.trim().toUpperCase() : null;
+    final salary = capturesSalary
+        ? int.tryParse(_salaryController.text.trim())
+        : null;
+    final birthYearText =
+        capturesBirthYear ? _birthYearController.text.trim() : '';
     int? birthYear;
     if (birthYearText.isNotEmpty) {
       birthYear = int.tryParse(birthYearText);
@@ -391,11 +457,16 @@ class _DataBlockEnrichmentScreenState
     final currentYear = DateTime.now().year;
 
     String? error;
-    if (canton.length != 2) {
+    if (capturesCanton && (canton == null || canton.length != 2)) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
-    } else if (salary == null || salary <= 0) {
+    } else if (capturesSalary && (salary == null || salary <= 0)) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
-    } else if (birthYearText.isNotEmpty &&
+    } else if (capturesBirthYear &&
+        onlyInputKey == 'birthYear' &&
+        birthYearText.isEmpty) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (capturesBirthYear &&
+        birthYearText.isNotEmpty &&
         (birthYear == null || birthYear < 1900 || birthYear > currentYear)) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
     }
@@ -411,48 +482,60 @@ class _DataBlockEnrichmentScreenState
     });
 
     final answers = <String, dynamic>{
-      'q_gross_salary_annual': salary,
-      'q_canton': canton,
-      if (birthYear != null) 'q_birth_year': birthYear,
-      if (_hasPensionFundTouched) 'q_has_pension_fund': _hasPensionFund,
+      if (capturesSalary) 'q_gross_salary_annual': salary,
+      if (capturesCanton) 'q_canton': canton,
+      if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
+      if (capturesPensionFund &&
+          (onlyInputKey == 'has2ndPillar' || _hasPensionFundTouched))
+        'q_has_pension_fund': _hasPensionFund,
     };
 
     await context.read<CoachProfileProvider>().mergeAnswers(answers);
 
     if (!mounted) return;
     HapticFeedback.lightImpact();
-    setState(() => _isSavingRevenue = false);
+    setState(() {
+      _isSavingRevenue = false;
+      _activeUpdateInputKey = null;
+    });
   }
 
-  Widget _buildPatrimoineCollector() {
+  Widget _buildPatrimoineCollector({String? onlyInputKey}) {
     final l = S.of(context)!;
+    final capturesSavings =
+        _capturesPatrimoine('patrimoine.epargneLiquide', onlyInputKey);
+    final capturesTargetProperty =
+        _capturesPatrimoine('targetPropertyValue', onlyInputKey);
     return MintSurface(
       padding: const EdgeInsets.all(16),
       radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
-            key: const Key('savings_input'),
-            controller: _savingsController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              labelText: l.financialSummaryEpargneLiquide,
-              prefixText: 'CHF ',
+          if (capturesSavings) ...[
+            TextField(
+              key: const Key('savings_input'),
+              controller: _savingsController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: l.financialSummaryEpargneLiquide,
+                prefixText: 'CHF ',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            key: const Key('target_property_input'),
-            controller: _targetPropertyController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              labelText: l.affordabilityTargetPrice,
-              prefixText: 'CHF ',
+            const SizedBox(height: 12),
+          ],
+          if (capturesTargetProperty)
+            TextField(
+              key: const Key('target_property_input'),
+              controller: _targetPropertyController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: l.affordabilityTargetPrice,
+                prefixText: 'CHF ',
+              ),
             ),
-          ),
           if (_patrimoineError != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -483,16 +566,30 @@ class _DataBlockEnrichmentScreenState
   }
 
   Future<void> _savePatrimoineFacts() async {
+    final onlyInputKey = _activeUpdateInputKey;
+    final capturesSavings =
+        _capturesPatrimoine('patrimoine.epargneLiquide', onlyInputKey);
+    final capturesTargetProperty =
+        _capturesPatrimoine('targetPropertyValue', onlyInputKey);
     final savingsText = _savingsController.text.trim();
     final targetPropertyText = _targetPropertyController.text.trim();
-    final hasSavingsInput = savingsText.isNotEmpty;
-    final hasTargetPropertyInput = targetPropertyText.isNotEmpty;
+    final hasSavingsInput = capturesSavings && savingsText.isNotEmpty;
+    final hasTargetPropertyInput =
+        capturesTargetProperty && targetPropertyText.isNotEmpty;
     final savings = hasSavingsInput ? int.tryParse(savingsText) : null;
     final targetProperty =
         hasTargetPropertyInput ? int.tryParse(targetPropertyText) : null;
 
     String? error;
-    if (!hasSavingsInput && !hasTargetPropertyInput) {
+    if (onlyInputKey == null && !hasSavingsInput && !hasTargetPropertyInput) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (onlyInputKey != null &&
+        capturesSavings &&
+        !hasSavingsInput) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (onlyInputKey != null &&
+        capturesTargetProperty &&
+        !hasTargetPropertyInput) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
     } else if (hasSavingsInput && (savings == null || savings < 0)) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
@@ -518,7 +615,287 @@ class _DataBlockEnrichmentScreenState
 
     if (!mounted) return;
     HapticFeedback.lightImpact();
-    setState(() => _isSavingPatrimoine = false);
+    setState(() {
+      _isSavingPatrimoine = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
+  DataQuestPlan? _dataQuestPlanForBlock(
+    String blockType,
+    Map<String, dynamic> answers,
+    Map<String, BiographyFact> factsByLedgerKey,
+  ) {
+    final caseId = switch (blockType) {
+      'revenu' => 'first_salary_tax',
+      'patrimoine' => 'buy_property',
+      _ => null,
+    };
+    if (caseId == null) return null;
+    return DataQuestService.planCase(
+      caseId: caseId,
+      answers: answers,
+      now: DateTime.now().toUtc(),
+      factsByLedgerKey: factsByLedgerKey,
+    );
+  }
+
+  DataQuestAsk? _firstReconfirmAsk(DataQuestPlan plan) {
+    for (final ask in plan.asks) {
+      if (ask.mode == DataQuestAskMode.reconfirm) return ask;
+    }
+    return null;
+  }
+
+  Widget _buildReconfirmCard({
+    required DataQuestAsk ask,
+    required Map<String, BiographyFact> factsByLedgerKey,
+    required CoachProfile profile,
+    required String blockType,
+  }) {
+    final l = S.of(context)!;
+    final fact = _factForAsk(ask, factsByLedgerKey);
+    final prompt = l.freshnessReconfirmPrompt(
+      _dataQuestFieldLabel(l, ask.inputKey),
+      _formatPriorValue(l, ask.inputKey, ask.priorValue),
+      _formatDate(l, fact?.sourceDate ?? fact?.updatedAt),
+    );
+    return MintSurface(
+      key: const Key('data_block_reconfirm_card'),
+      tone: MintSurfaceTone.bleu,
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.update_rounded, color: MintColors.info, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  prompt,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w600, height: 1.35),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                key: const Key('data_block_reconfirm_yes_cta'),
+                onPressed: _isReconfirming
+                    ? null
+                    : () => _confirmStaleAsk(
+                          ask: ask,
+                          profile: profile,
+                          fact: fact,
+                        ),
+                icon: const Icon(Icons.check_rounded, size: 18),
+                label: Text(l.freshnessReconfirmYes),
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                ),
+              ),
+              OutlinedButton.icon(
+                key: const Key('data_block_reconfirm_update_cta'),
+                onPressed: () => _startUpdateAsk(ask, blockType),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: Text(l.freshnessReconfirmUpdate),
+              ),
+              TextButton.icon(
+                key: const Key('data_block_reconfirm_rescan_cta'),
+                onPressed: () {
+                  context.push('/scan?type=${Uri.encodeComponent(blockType)}');
+                },
+                icon: const Icon(Icons.document_scanner_outlined, size: 18),
+                label: Text(l.freshnessReconfirmRescan),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmStaleAsk({
+    required DataQuestAsk ask,
+    required CoachProfile profile,
+    required BiographyFact? fact,
+  }) async {
+    final field = _fieldSpecForAsk(ask);
+    final answerKey = field?.answerKeys.first;
+    final value = ask.priorValue;
+    if (answerKey == null || value == null) return;
+    setState(() => _isReconfirming = true);
+    await context.read<CoachProfileProvider>().mergeAnswers(
+      {answerKey: value},
+      source: fact == null
+          ? ProfileDataSource.userInput
+          : profile.dataSources[fact.fieldPath] ?? ProfileDataSource.userInput,
+      sourceDate: fact?.sourceDate,
+    );
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isReconfirming = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
+  void _startUpdateAsk(DataQuestAsk ask, String currentBlockType) {
+    HapticFeedback.selectionClick();
+    final targetBlockType = _editorBlockForInput(ask.inputKey, currentBlockType);
+    if (targetBlockType != currentBlockType) {
+      context.push('/data-block/$targetBlockType');
+      return;
+    }
+    if (!_canInlineEdit(currentBlockType, ask.inputKey)) {
+      context.push('/coach/chat?topic=${Uri.encodeComponent(currentBlockType)}');
+      return;
+    }
+    setState(() {
+      _activeUpdateInputKey = ask.inputKey;
+      _revenueError = null;
+      _patrimoineError = null;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _scrollToCollector();
+    });
+  }
+
+  void _scrollToCollector() {
+    final context = _collectorKey.currentContext;
+    if (context == null) return;
+    Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
+  BiographyFact? _factForAsk(
+    DataQuestAsk ask,
+    Map<String, BiographyFact> factsByLedgerKey,
+  ) {
+    final ledgerKey = ask.ledgerKey;
+    if (ledgerKey != null && factsByLedgerKey.containsKey(ledgerKey)) {
+      return factsByLedgerKey[ledgerKey];
+    }
+    return factsByLedgerKey[ask.inputKey];
+  }
+
+  DataQuestFieldSpec? _fieldSpecForAsk(DataQuestAsk ask) {
+    final spec = DataQuestCaseRegistry.p0Cases[ask.caseId];
+    if (spec == null) return null;
+    for (final field in [
+      ...spec.guardFields,
+      ...spec.requiredFields,
+      ...spec.usefulFields,
+    ]) {
+      if (field.inputKey == ask.inputKey) return field;
+    }
+    return null;
+  }
+
+  String _editorBlockForInput(String inputKey, String fallbackBlockType) {
+    return switch (inputKey) {
+      'incomeGrossYearly' ||
+      'canton' ||
+      'birthYear' ||
+      'has2ndPillar' =>
+        'revenu',
+      'patrimoine.epargneLiquide' ||
+      'parentLiquidAssets' ||
+      'targetPropertyValue' ||
+      'patrimoine.mortgageRate' =>
+        'patrimoine',
+      'householdType' => 'compositionMenage',
+      _ => fallbackBlockType,
+    };
+  }
+
+  bool _canInlineEdit(String blockType, String inputKey) {
+    return switch (blockType) {
+      'revenu' => inputKey == 'incomeGrossYearly' ||
+          inputKey == 'canton' ||
+          inputKey == 'birthYear' ||
+          inputKey == 'has2ndPillar',
+      'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
+          inputKey == 'parentLiquidAssets' ||
+          inputKey == 'targetPropertyValue',
+      _ => false,
+    };
+  }
+
+  bool _capturesRevenue(String inputKey, String? onlyInputKey) {
+    return onlyInputKey == null || onlyInputKey == inputKey;
+  }
+
+  bool _capturesPatrimoine(String inputKey, String? onlyInputKey) {
+    if (onlyInputKey == null) return true;
+    if (inputKey == 'patrimoine.epargneLiquide') {
+      return onlyInputKey == inputKey || onlyInputKey == 'parentLiquidAssets';
+    }
+    return onlyInputKey == inputKey;
+  }
+
+  String _dataQuestFieldLabel(S l, String inputKey) {
+    return switch (inputKey) {
+      'incomeGrossYearly' => l.affordabilityGrossIncome,
+      'canton' => l.affordabilityCanton,
+      'birthYear' => l.authDateOfBirth,
+      'has2ndPillar' => l.eduThemeLppQuestion,
+      'patrimoine.epargneLiquide' ||
+      'parentLiquidAssets' =>
+        l.financialSummaryEpargneLiquide,
+      'targetPropertyValue' => l.affordabilityTargetPrice,
+      'householdType' => l.dossierCoupleSection,
+      'patrimoine.mortgageRate' => l.dataQuestFieldMortgageBalance,
+      _ => l.dataQuestFieldFallback,
+    };
+  }
+
+  String _formatPriorValue(S l, String inputKey, dynamic value) {
+    if (value == null) return l.dossierDataUnknown;
+    if (value is bool) {
+      return value ? l.documentThirdPartyYes : l.documentThirdPartyNo;
+    }
+    if (value is num) {
+      final formatted = _formatNumber(value);
+      return switch (inputKey) {
+        'incomeGrossYearly' ||
+        'patrimoine.epargneLiquide' ||
+        'parentLiquidAssets' ||
+        'targetPropertyValue' =>
+          'CHF $formatted',
+        _ => formatted,
+      };
+    }
+    return '$value';
+  }
+
+  String _formatNumber(num value) {
+    final raw = value.round().toString();
+    return raw.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (_) => "'",
+    );
+  }
+
+  String _formatDate(S l, DateTime? value) {
+    if (value == null) return l.dossierDataUnknown;
+    final local = value.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '${local.year}-$month-$day';
   }
 
   Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {

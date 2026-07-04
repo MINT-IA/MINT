@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
@@ -30,6 +32,41 @@ Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
   );
 }
 
+Widget _wrapRouter(String initialLocation, CoachProfileProvider provider) {
+  final router = GoRouter(
+    initialLocation: initialLocation,
+    routes: [
+      GoRoute(
+        path: '/data-block/:type',
+        builder: (_, state) => DataBlockEnrichmentScreen(
+          blockType: state.pathParameters['type']!,
+        ),
+      ),
+      GoRoute(
+        path: '/coach/chat',
+        builder: (_, __) => const Scaffold(body: Text('coach')),
+      ),
+    ],
+  );
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => provider),
+      ChangeNotifierProvider(create: (_) => SlmProvider()),
+    ],
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      routerConfig: router,
+    ),
+  );
+}
+
 void main() {
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
@@ -39,6 +76,30 @@ void main() {
   Future<void> pumpPatrimoine(WidgetTester tester, CoachProfileProvider provider) async {
     await tester.pumpWidget(_wrap(const DataBlockEnrichmentScreen(blockType: 'patrimoine'), coachProfileProvider: provider));
     await tester.pumpAndSettle();
+  }
+
+  Future<CoachProfileProvider> staleRevenueProvider() async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers(
+      const {
+        'q_gross_salary_annual': 96000,
+        'q_canton': 'VD',
+        'q_birth_year': 1990,
+        'q_has_pension_fund': true,
+      },
+      source: ProfileDataSource.userInput,
+      sourceDate: DateTime.utc(2020, 1, 1),
+    );
+    final profile = provider.profile!;
+    provider.updateProfile(
+      profile.copyWith(
+        dataTimestamps: {
+          ...profile.dataTimestamps,
+          'salaireBrutMensuel': DateTime.utc(2020, 1, 1),
+        },
+      ),
+    );
+    return provider;
   }
 
   testWidgets('maps pension alias to LPP block metadata', (tester) async {
@@ -121,6 +182,101 @@ void main() {
     expect(provider.profile?.revenuBrutAnnuel, 96000);
     expect(provider.profile?.canton, 'GE');
     expect(provider.profile?.birthYear, 2001);
+  });
+
+  testWidgets('revenue block reconfirms stale salary without duplicate fields',
+      (tester) async {
+    final provider = await staleRevenueProvider();
+
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'revenu'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_reconfirm_card')), findsOneWidget);
+    expect(find.text('Oui, toujours'), findsOneWidget);
+    expect(find.text('Mettre à jour'), findsOneWidget);
+    expect(find.text('Rescanner'), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('canton_input')), findsNothing);
+    expect(find.byKey(const Key('birth_year_input')), findsNothing);
+    expect(find.byKey(const Key('has_pension_fund_switch')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('data_block_reconfirm_yes_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_gross_salary_annual'], 96000);
+    expect(answers.containsKey('q_net_income_period_chf'), isFalse);
+    expect(answers.containsKey('q_monthly_gross_salary_chf'), isFalse);
+    expect(
+      provider.profile!.dataTimestamps['salaireBrutMensuel']!
+          .isAfter(DateTime.utc(2020, 1, 1)),
+      isTrue,
+    );
+  });
+
+  testWidgets('revenue block updates only the stale Data Quest field',
+      (tester) async {
+    final provider = await staleRevenueProvider();
+
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'revenu'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('data_block_reconfirm_update_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('salary_input')), findsOneWidget);
+    expect(find.byKey(const Key('canton_input')), findsNothing);
+    expect(find.byKey(const Key('birth_year_input')), findsNothing);
+    expect(find.byKey(const Key('has_pension_fund_switch')), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('salary_input')), '102000');
+    await tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_gross_salary_annual'], 102000);
+    expect(answers['q_canton'], 'VD');
+    expect(answers['q_birth_year'], 1990);
+    expect(answers['q_has_pension_fund'], true);
+    expect(answers.containsKey('q_net_income_period_chf'), isFalse);
+    expect(answers.containsKey('q_monthly_gross_salary_chf'), isFalse);
+  });
+
+  testWidgets('patrimoine stale salary update routes to revenue owner block',
+      (tester) async {
+    final provider = await staleRevenueProvider();
+
+    await tester.pumpWidget(_wrapRouter('/data-block/patrimoine', provider));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Patrimoine'), findsOneWidget);
+    expect(find.byKey(const Key('data_block_reconfirm_card')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('data_block_reconfirm_update_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Revenu'), findsOneWidget);
+    expect(find.byKey(const Key('data_block_reconfirm_card')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('data_block_reconfirm_update_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('salary_input')), findsOneWidget);
+    expect(find.byKey(const Key('canton_input')), findsNothing);
+    expect(find.byKey(const Key('birth_year_input')), findsNothing);
   });
 
   testWidgets('patrimoine block captures mortgage project facts only', (tester) async {
