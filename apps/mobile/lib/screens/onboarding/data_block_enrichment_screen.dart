@@ -48,6 +48,14 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
 class _DataBlockEnrichmentScreenState
     extends State<DataBlockEnrichmentScreen> {
   bool _showCoachMode = false;
+  final _cantonController = TextEditingController();
+  final _salaryController = TextEditingController();
+  final _birthYearController = TextEditingController();
+  bool _seededRevenueInputs = false;
+  bool _hasPensionFund = false;
+  bool _hasPensionFundTouched = false;
+  bool _isSavingRevenue = false;
+  String? _revenueError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
   List<ValidationAlert>? _cachedAlerts;
@@ -63,10 +71,44 @@ class _DataBlockEnrichmentScreenState
     return _cachedAlerts!.where((a) => a.block == blockType).toList();
   }
 
+  void _seedRevenueInputs(CoachProfile? profile) {
+    if (_seededRevenueInputs) return;
+    final hasDraft = _cantonController.text.isNotEmpty ||
+        _salaryController.text.isNotEmpty ||
+        _birthYearController.text.isNotEmpty ||
+        _hasPensionFundTouched;
+    if (hasDraft) {
+      _seededRevenueInputs = true;
+      return;
+    }
+    if (profile != null) {
+      if (profile.canton.isNotEmpty) {
+        _cantonController.text = profile.canton;
+      }
+      final salary = profile.revenuBrutAnnuel;
+      if (salary > 0) {
+        _salaryController.text = salary.round().toString();
+      }
+      _birthYearController.text = profile.birthYear.toString();
+    }
+    _seededRevenueInputs = true;
+  }
+
+  @override
+  void dispose() {
+    _cantonController.dispose();
+    _salaryController.dispose();
+    _birthYearController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<CoachProfileProvider>().profile;
     final canonicalBlockType = _canonicalBlockType(widget.blockType);
+    if (canonicalBlockType == 'revenu') {
+      _seedRevenueInputs(profile);
+    }
     final isKnownBlock =
         DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
     final blocs = profile != null
@@ -132,8 +174,15 @@ class _DataBlockEnrichmentScreenState
               ],
 
               // ── Enrichment prompts for this block ────────────────
-              if (profile != null) ...[
+              if (profile != null && canonicalBlockType != 'revenu') ...[
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
+              ],
+
+              if (canonicalBlockType == 'revenu') ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: _buildRevenueCollector(),
+                ),
               ],
 
               // ── Cross-validation alerts ────────────────────────────
@@ -144,7 +193,7 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 32),
 
               // ── CTA ──────────────────────────────────────────────
-              Semantics(
+              if (canonicalBlockType != 'revenu') Semantics(
                 button: true,
                 label: meta.ctaLabel,
                 child: SizedBox(
@@ -188,6 +237,140 @@ class _DataBlockEnrichmentScreenState
         ),
       ))),
     );
+  }
+
+  Widget _buildRevenueCollector() {
+    final l = S.of(context)!;
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key('canton_input'),
+            controller: _cantonController,
+            textCapitalization: TextCapitalization.characters,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp('[A-Za-z]')),
+              LengthLimitingTextInputFormatter(2),
+            ],
+            decoration: InputDecoration(
+              labelText: l.affordabilityCanton,
+              hintText: 'GE',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            key: const Key('salary_input'),
+            controller: _salaryController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.dataBlockRevenueGrossAnnualLabel,
+              prefixText: 'CHF ',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            key: const Key('birth_year_input'),
+            controller: _birthYearController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(4),
+            ],
+            decoration: InputDecoration(
+              labelText: l.authDateOfBirth,
+              hintText: '2001',
+            ),
+          ),
+          const SizedBox(height: 12),
+          SwitchListTile.adaptive(
+            key: const Key('has_pension_fund_switch'),
+            value: _hasPensionFund,
+            contentPadding: EdgeInsets.zero,
+            title: Text(l.eduThemeLppQuestion),
+            onChanged: (value) {
+              setState(() {
+                _hasPensionFund = value;
+                _hasPensionFundTouched = true;
+              });
+            },
+          ),
+          if (_revenueError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _revenueError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('salary_save_cta'),
+            onPressed: _isSavingRevenue ? null : _saveRevenueFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              _isSavingRevenue
+                  ? l.dataBlockRevenueSaveSaving
+                  : l.dataBlockRevenueSaveIdle,
+              style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveRevenueFacts() async {
+    final canton = _cantonController.text.trim().toUpperCase();
+    final salary = int.tryParse(_salaryController.text.trim());
+    final birthYearText = _birthYearController.text.trim();
+    int? birthYear;
+    if (birthYearText.isNotEmpty) {
+      birthYear = int.tryParse(birthYearText);
+    }
+    final currentYear = DateTime.now().year;
+
+    String? error;
+    if (canton.length != 2) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (salary == null || salary <= 0) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (birthYearText.isNotEmpty &&
+        (birthYear == null || birthYear < 1900 || birthYear > currentYear)) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    }
+
+    if (error != null) {
+      setState(() => _revenueError = error);
+      return;
+    }
+
+    setState(() {
+      _isSavingRevenue = true;
+      _revenueError = null;
+    });
+
+    final answers = <String, dynamic>{
+      'q_gross_salary_annual': salary,
+      'q_canton': canton,
+      if (birthYear != null) 'q_birth_year': birthYear,
+      if (_hasPensionFundTouched) 'q_has_pension_fund': _hasPensionFund,
+    };
+
+    await context.read<CoachProfileProvider>().mergeAnswers(answers);
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() => _isSavingRevenue = false);
   }
 
   Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {
@@ -362,20 +545,6 @@ class _DataBlockEnrichmentScreenState
     };
     final categories = mapping[blockType] ?? [];
     return categories.contains(category);
-  }
-
-  String _coachPromptForBlock(String type) {
-    return switch (type) {
-      '3a' => 'Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.',
-      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour améliorer ma situation.',
-      'avs' => 'Parle-moi de ma rente AVS : est-ce que j\'ai des lacunes de cotisation et comment les combler ?',
-      'patrimoine' => 'Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.',
-      'fiscalite' => 'Aide-moi a comprendre ma situation fiscale et les leviers d\'optimisation possibles.',
-      'revenu' => 'Je veux comprendre l\'impact de mon revenu sur ma prevoyance et mes impots.',
-      'objectifRetraite' => 'Quel serait l\'impact si je partais a la retraite plus tot ou plus tard ?',
-      'compositionMenage' => 'Comment la situation de couple influence mes projections de retraite ?',
-      _ => 'Aide-moi a completer mon profil financier.',
-    };
   }
 
   String? _enrichmentRoute(String type) {
