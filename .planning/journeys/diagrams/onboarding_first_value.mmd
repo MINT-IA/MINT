@@ -2,7 +2,7 @@
 flowchart TD
   promise["I get useful value before I commit more data."]
   team["mint-quality-gate"]
-  latest["latest proof: red / runtime / 2026-06-27T17:55:32Z / cc58ad2a"]
+  latest["latest proof: baselined / static_guard / 2026-07-04T08:33:58Z / e2fd7f7a"]
   promise --> latest
   classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
   classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
@@ -12,7 +12,7 @@ flowchart TD
   classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
   classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
   classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
-  class latest red
+  class latest amber
   priority["priority score 24"]
   priority --> promise
   route_onb["/onb"]
@@ -40,6 +40,6 @@ flowchart TD
   surface_MintStateProvider["MintStateProvider"]
   promise -.-> surface_MintStateProvider
   class surface_MintStateProvider surface
-  issue_JOS_005["JOS-005 regressed/red"]
+  issue_JOS_005["JOS-005 proof_needed/baselined"]
   issue_JOS_005 --> promise
-  class issue_JOS_005 red
+  class issue_JOS_005 amber

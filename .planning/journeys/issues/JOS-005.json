@@ -3,10 +3,10 @@
   "id": "JOS-005",
   "title": "Restore onboarding first value before account gate",
   "journey_id": "onboarding_first_value",
-  "status": "regressed",
+  "status": "proof_needed",
   "owner": "mint-mobile",
   "severity": "P0",
-  "evidence_status": "red",
-  "next_action": "Fix the Mint2 LPP/rente-capital first-value path so selecting the live axis reaches /rente-vs-capital before account creation, then rerun the iPhone 13 mini Mint2 quality gate.",
-  "source": "Mint2 quality gate 20260627T175336Z; flow_mint2_first_experience_rente_capital_entry.yaml"
+  "evidence_status": "baselined",
+  "next_action": "Restore or locate the Mint2 quality-gate flow and rerun the iPhone 13 mini first-value runtime proof now that /rente-vs-capital is an onboarding route.",
+  "source": "Mint2 quality gate 20260627T175336Z; flow_mint2_first_experience_rente_capital_entry.yaml; route-contract fix e2fd7f7a"
 }

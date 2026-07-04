@@ -52,6 +52,16 @@
       "reason": "Fresh Mint2 iPhone 13 mini quality gate reaches the LPP/rente-capital first-value axis, but selecting it lands on the account-creation gate instead of /rente-vs-capital.",
       "verified_at": "2026-06-27T17:55:32Z",
       "verified_commit": "cc58ad2a0e5113679412118ae9631c52a328496d"
+    },
+    {
+      "kind": "static_guard",
+      "status": "baselined",
+      "command": "flutter test test/architecture/route_guard_snapshot_test.dart test/routes/route_metadata_test.dart --reporter expanded && flutter analyze lib/app.dart lib/routes/route_metadata.dart test/architecture/route_guard_snapshot_test.dart test/routes/route_metadata_test.dart && python3 tools/checks/verify_phase_acceptance.py && claude --print --model sonnet --effort high --no-session-persistence",
+      "artifact": ".planning/journeys/evidence/onboarding_first_value/20260704T083358Z/jos005-route-contract.md",
+      "reason": "The route contract is fixed and externally audited: /rente-vs-capital is now onboarding-scoped before account creation. Runtime proof remains baselined because the referenced Mint2 quality-gate flow is absent from this clean worktree and the broader mobile-scenarios gate currently times out in Maestro check-syntax on r1_scan_review.yaml.",
+      "debt_ref": "JOS-005",
+      "verified_at": "2026-07-04T08:33:58Z",
+      "verified_commit": "e2fd7f7a962e2b048f232184607bcd6c277db974"
     }
   ]
 }
