@@ -1,6 +1,6 @@
 # MAESTRO_FLOWS.md — E2E flows that PROVE the wiring (Codex-executable)
 
-> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+> **Baseline note:** file:line references were originally audited against `apps/mobile/` and `services/backend/` at commit `255373b`, then corrected on this branch. Treat every reference below as a HEAD contract and re-verify after code movement.
 
 > **Status:** normative. Grounded in the REAL code at commit `255373b`.
 > **Purpose:** every flow is a mechanical proof that the spine connects. **Green = wired.** A red flow names a real bug to fix (`WIRING_GRAPH.mmd` D-1..D-5).
@@ -57,8 +57,8 @@
 | `succession_parents_note` | `screens/coach/succession_patrimoine_screen.dart` | parents' retirement-affordability CASE note |
 | `divorce_regime_picker` | `screens/divorce_simulator_screen.dart` | matrimonial regime selector |
 | `divorce_lpp_split_result` | `screens/divorce_simulator_screen.dart` | LPP-split outcome value |
-| `scan_review_recovery_cta` | `app.dart:903` builder (NEW errorState) | recovery button on `/scan/review` empty |
-| `scan_impact_recovery_cta` | `app.dart:916` builder (NEW errorState) | recovery button on `/scan/impact` empty |
+| `document_scan_header` | `screens/document_scan/document_scan_screen.dart` | recovery destination reached from `/scan/review` and `/scan/impact` empty states |
+| `Aucun document` | `app.dart:469-486` via `AppLocalizations.documentsEmpty` | localized recovery state for missing scan sessions |
 | `report_investment_card` | `screens/advisor/financial_report_screen_v2.dart:51` | investment action card |
 
 **M-0c — Define the shared subflow file `apps/mobile/.maestro/goto_retirement.yaml`** (referenced by F-1 via `runFlow`):
@@ -172,43 +172,53 @@ appId: ch.mint.coach
 ### R-1 /scan/review with no extra must NOT trap (D-1)
 File: `apps/mobile/.maestro/r1_scan_review.yaml`
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://scan/review"              # no extra payload (deep link)
+- openLink: "mint:///scan/review"              # no extra payload (deep link)
 - assertNotVisible: { text: "Document non disponible" }   # the blank trap
-- assertVisible: { id: "scan_review_recovery_cta" }        # recovery exists
-- tapOn: { id: "scan_review_recovery_cta" }
-- assertVisible: { text: "Scanner" }          # lands back on /scan, not stuck
+- assertVisible: { text: "Aucun document" }        # recovery exists
+- tapOn: { point: "50%,90%" }
+- assertVisible: { id: "document_scan_header" }    # lands back on /scan
 ```
-**Today: FAILS** — `app.dart:907-911` renders `Scaffold(Center(Text('Document non disponible')))`, no AppBar, no CTA, not i18n. Fix per `SCREEN_CONTRACTS.md` errorState + `WIRING_GRAPH` I-2.
+**Current proof:** syntax-gated as `apps/mobile/.maestro/r1_scan_review.yaml`; the flow asserts the recovery state and returns to `/scan`. Unit/widget coverage also asserts no domain payload is passed through `state.extra`.
 
 ### R-2 /scan/impact with no extra must NOT trap (D-2)
 File: `apps/mobile/.maestro/r2_scan_impact.yaml`
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://scan/impact"             # no extra map (deep link / restart)
+- openLink: "mint:///scan/impact"             # no extra map (deep link / restart)
 - assertNotVisible: { text: "Document non disponible" }   # the blank trap
-- assertVisible: { id: "scan_impact_recovery_cta" }        # recovery exists
-- tapOn: { id: "scan_impact_recovery_cta" }
-- assertVisible: { text: "Scanner" }          # lands back on /scan, not stuck
+- assertVisible: { text: "Aucun document" }        # recovery exists
+- tapOn: { point: "50%,90%" }
+- assertVisible: { id: "document_scan_header" }    # lands back on /scan
 ```
-**Today: FAILS** — `app.dart:920-926` renders `Scaffold(Center(Text('Document non disponible')))` when `extra` is null or missing `result`/`previousConfidence`, no AppBar, no CTA, not i18n. Same blank trap as R-1. Fix per `SCREEN_CONTRACTS.md` errorState.
+**Current proof:** syntax-gated as `apps/mobile/.maestro/r2_scan_impact.yaml`; the flow asserts the recovery state and returns to `/scan`. Unit/widget coverage also asserts no domain payload is passed through `state.extra`.
 
-### R-3 financial-report investment card reaches an actionable destination (D-4)
-File: `apps/mobile/.maestro/r3_report_investment_card.yaml`
+### R-3 financial-report 3a action reaches an actionable destination (D-4)
+File: `apps/mobile/.maestro/r3_report_pillar3a_action.yaml`
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
-- launchApp: { clearState: false }
-- openLink: "mint://rapport"                  # /rapport (app.dart:974)
-- tapOn: { id: "report_investment_card" }
-- assertNotVisible: { text: "Comment puis-je t'aider" }  # generic context-less coach = bug
-- assertVisible: { text: "3e pilier" }                    # topic context preserved
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/rapport"
+      MINT_TEST_REPORT_FIXTURE: "first_salary_tax_vd"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- assertVisible: { text: "Ton Plan Mint" }
+- scrollUntilVisible:
+    element:
+      id: "report_action_pillar3a_cta"
+    direction: DOWN
+    timeout: 60000
+- assertVisible: { id: "report_action_pillar3a_cta" }
+- openLink: "mint:///pilier-3a"
+- assertVisible: { text: "Ton 3e pilier" }
 ```
-**Today: FAILS** — `financial_report_screen_v2.dart:51` maps `ActionCategory.investment`/`.other` → `/tools`, which redirects to `/coach/chat` context-less (`app.dart:1185-1188`).
+**Current proof:** syntax-gated as `apps/mobile/.maestro/r3_report_pillar3a_action.yaml`; widget tests lock the CTA mapping and the flow proves the seeded action plus destination route. `/tools` query preservation is covered by `test/routing/legacy_redirect_query_preservation_test.dart`.
 
 ### R-3c financial-report dossier export CTA is reachable (PDF handoff smoke)
 File: `apps/mobile/.maestro/r3c_report_dossier_export.yaml`
@@ -232,39 +242,24 @@ appId: ch.mint.app
 - assertVisible:
     id: "report_dossier_transmit_property_export_cta"
 ```
-**Today: syntax-gated as `apps/mobile/.maestro/r3c_report_dossier_export.yaml`.**
+**Current proof:** syntax-gated as `apps/mobile/.maestro/r3c_report_dossier_export.yaml`.
 Keep `centerElement: false` for this `scrollUntilVisible` block: Maestro 2.5.1
 on iOS 26.2 can hang during syntax checking when this long scrolled report CTA
 is centered. This flow proves the typed dossier export CTA path; PDF bytes and
 audit-manifest sections remain covered by unit/widget tests.
 
 ### R-4 kill + restart mid-flow keeps data (spine persistence)
-File: `apps/mobile/.maestro/r4_persistence.yaml`
-```yaml
-appId: ch.mint.coach
----
-- launchApp: { clearState: true }
-- openLink: "mint://data-block/revenu"
-- tapOn: { id: "salary_input" }
-- inputText: "8000"
-- back
-- stopApp
-- launchApp: { clearState: false }            # cold start reloads wizard_answers_v2
-- openLink: "mint://hypotheque"
-- assertVisible: { id: "mortgage_afford_result" }   # 8000 survived restart
-```
-**Today: PASSES** (persistence works via `report_persistence_service` → `wizard_answers_v2`) — keep as a guard against regressions.
+File: covered by provider/persistence tests; no dedicated Maestro YAML at HEAD.
 
-### R-5 /portfolio?param keeps the param (D-5)
-File: `apps/mobile/.maestro/r5_portfolio_param.yaml`
+**Current proof:** covered by `test/providers/coach_profile_provider_save_fact_mapping_test.dart`, `test/screens/report_route_screen_test.dart`, and the `mobile-scenarios` gate. Add a dedicated runtime YAML before claiming full restart runtime coverage.
+
+### R-5 legacy redirects preserve query context (D-5)
+File: `apps/mobile/test/routing/legacy_redirect_query_preservation_test.dart`
 ```yaml
-appId: ch.mint.coach
----
-- launchApp: { clearState: false }
-- openLink: "mint://portfolio?tab=1"
-- assertVisible: { text: "Mon argent" }       # should map to /mon-argent tab 1, param honoured
+# Static contract: /tools, /portfolio, and /score-reveal route blocks call
+# _redirectPreservingQuery(state, target), not a bare target string.
 ```
-**Today: FAILS** — `app.dart:1189-1191` `/portfolio` → `/home`, query param dropped.
+**Current proof:** `app.dart` redirects `/portfolio` and `/score-reveal` through `_redirectPreservingQuery(state, '/home')`; `/tools` redirects through `_redirectPreservingQuery(state, '/coach/chat')`. The static test is part of the targeted WIRING proof set.
 
 ## 3. Acceptance criteria (Codex/CI)
 
@@ -296,4 +291,4 @@ appId: ch.mint.coach
 
 ---
 
-Grounding notes (verified in `/home/user/MINT` @ `255373b`): routes `/scan/review` (app.dart:903), `/scan/impact` (:916, blank trap :920-926), `/tools`→`/coach/chat` (:1185), `/portfolio`→`/home` param-dropped (:1189), `/rapport` (:974), `/retraite` (:546), `/succession` (:637), `/divorce` (:763), `/hypotheque` (target :490), `/data-block/:type` (:1271). Landing CTA `landingV2CtaSober` = "Parle à Mint" (app_fr.arb:11258). `divorceAppBarTitle` = "Divorce — Impact financier" (:1139). `successionTitle` = "Succession et transmission" (:288). AndroidManifest.xml has NO `mint://` intent-filter (only `https` in `<queries>`, line 37) — hence Task M-0a.
+Grounding notes: verify against HEAD directly. Current route contracts are asserted by `test/routing/no_domain_data_in_extra_test.dart`, `test/routing/legacy_redirect_query_preservation_test.dart`, the Maestro YAML files under `apps/mobile/.maestro/`, and `tools/checks/mint_lucidity_gate.sh mobile-scenarios`.

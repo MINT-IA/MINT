@@ -1,8 +1,8 @@
 # SCREEN_CONTRACTS.md — Per-Route Wiring Contracts (MINT)
 
-> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+> **Baseline note:** file:line references were originally audited against `apps/mobile/` and `services/backend/` at commit `255373b`, then corrected on this branch. Treat every reference below as a HEAD contract and re-verify after code movement.
 
-> Source of truth for route wiring. Verified against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `255373b`.
+> Source of truth for route wiring. Verified against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart`; current branch changes must keep the tests in §10 green.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -268,7 +268,9 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 
 ## 5. Scan flow — REPAIRED (was the worst dead road, finding C-1)
 
-**Root cause:** `/scan/review` and `/scan/impact` read the `ExtractionResult` from `state.extra`; on null they render `Scaffold(body: Center(Text('Document non disponible')))` — no AppBar, no back, no CTA, not i18n. Violates §0 (domain data in `extra`) and F-2.
+**Original root cause:** `/scan/review` and `/scan/impact` read the `ExtractionResult` from `state.extra`; on null they rendered `Scaffold(body: Center(Text('Document non disponible')))` — no AppBar, no back, no CTA, not i18n. That violated §0 (domain data in `extra`) and F-2.
+
+**Current HEAD repair:** `/scan/review` and `/scan/impact` resolve only `scanSessionId` via `_scanSessionIdFrom` (`apps/mobile/lib/app.dart:217-219`) and render `_ScanReviewRoute` / `_ScanImpactRoute` (`app.dart:431-467`). Missing sessions route to `_ScanSessionUnavailable` (`app.dart:469-494`), which uses `S.of(context)!`, an `AppBar`, a back/fallback action, and `MintEmptyState` with localized `documentsEmpty`, `documentsEmptyVoice`, and `enrichmentCtaScan`. Route builders are at `/scan/review` (`app.dart:1374-1378`) and `/scan/impact` (`app.dart:1380-1384`).
 
 ### 5.0 `ScanSessionProvider` — NEW, fully specified
 
@@ -365,7 +367,7 @@ Any other transition throws `StateError`.
 | routesOut | `/home`, `/confidence`, `/scan`, `/explore/<relevant domain>` |
 | killFlag | enableScan |
 
-> Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a `MintButton` whose label resolves to a non-null `AppLocalizations` key; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.
+> Tests: `test/routing/no_domain_data_in_extra_test.dart` rejects `ExtractionResult` / wizard/report payloads in `state.extra`, requires `_scanSessionIdFrom` to accept query `scanSessionId` plus string-only extra fallback, and locks `_ScanSessionUnavailable` to a localized recoverable state with no `Document non disponible` literal. `test/providers/scan_session_provider_test.dart` proves review and confirmed scan data stay behind a stable session id. Runtime syntax proof lives in `apps/mobile/.maestro/r1_scan_review.yaml` and `apps/mobile/.maestro/r2_scan_impact.yaml`.
 
 ---
 
@@ -587,7 +589,7 @@ Rules:
 
 ## 12. Route coverage ledger (every LIVE builder route in app.dart → its contract)
 
-Verified against `app.dart` at `255373b`. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
+Verified against `app.dart` from the original baseline and maintained as a HEAD contract. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
 
 | route (line) | contract § | route (line) | contract § |
 |---|---|---|---|

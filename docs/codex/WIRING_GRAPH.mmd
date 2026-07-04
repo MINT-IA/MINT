@@ -217,13 +217,14 @@ flowchart TB
 %% ============================================================================
 %% DEAD-ROADS / REPAIRS (verified — SCREEN_CONTRACTS.md specifies contracts)
 %% ----------------------------------------------------------------------------
-%% D-1 /scan/review  FIXED at HEAD. app.dart:1401-1420 resolves only
-%%     scanSessionId (query first, extra string fallback via app.dart:261-265)
-%%     and reads ScanSessionProvider via context.watch so persisted
-%%     scan_session_v1 restore can complete before the recovery branch.
-%% D-2 /scan/impact  FIXED at HEAD. app.dart:1423-1442 resolves only
-%%     scanSessionId and waits for ScanSessionProvider restore before showing
-%%     _MissingScanSessionScreen with scan_impact_recovery_cta after a true miss.
+%% D-1 /scan/review  FIXED at HEAD. app.dart:1374-1378 resolves only
+%%     scanSessionId (query first, extra string fallback via app.dart:217-219)
+%%     and reads ScanSessionProvider via context.watch in _ScanReviewRoute
+%%     (app.dart:431-447). A miss renders localized _ScanSessionUnavailable.
+%% D-2 /scan/impact  FIXED at HEAD. app.dart:1380-1384 resolves only
+%%     scanSessionId and reads ScanSessionProvider via _ScanImpactRoute
+%%     (app.dart:450-467). A miss renders localized _ScanSessionUnavailable,
+%%     and missing previousConfidence no longer synthesizes a baseline.
 %% D-3 /rapport      FIXED at HEAD for I-2/no-extra and spinner-forever.
 %%     app.dart:1490-1492 delegates to ReportRouteScreen; report_route_screen.dart:37-85
 %%     reads ReportPersistenceService.loadAnswers(), applies an 8s timeout, and
