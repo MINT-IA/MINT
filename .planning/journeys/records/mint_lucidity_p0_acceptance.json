@@ -102,6 +102,14 @@
       "artifact": ".planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/claude-phase2-audit.md",
       "reason": "External Phase 2 audit starts with NO_UNRESOLVED_CRITICAL_HIGH and artifact gate exits 0 with scorecard/co-signatures present.",
       "debt_ref": "JOS-007"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "bash tools/checks/mint_lucidity_gate.sh mobile-scenarios",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T190006Z-mobile-scenarios-gate/mobile-scenarios.log",
+      "reason": "Mobile scenarios gate passed on the clean branch: targeted Flutter scenario tests, succession/i18n tests, ARB parity, Python guard tests, and Maestro syntax checks for P0 report, scan, mortgage, confidence, and transmission flows all completed with exit 0.",
+      "debt_ref": "P0-MOBILE-SCENARIOS-GATE"
     }
   ]
 }

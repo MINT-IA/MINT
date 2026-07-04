@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-04T13:11:14.000Z"
-last_activity: 2026-07-04 -- DataQuest clean branch now has route-extra guards, scan recovery repair, raw-reference store contract, mobile-scenarios gate proof, and Claude architecture audit captured as Journey OS blockers JOS-006/JOS-007.
+last_updated: "2026-07-04T19:00:06.000Z"
+last_activity: 2026-07-04 -- iPhone 17 Pro remains the canonical iOS runtime target; JOS-007 phase artifacts are verified; mobile-scenarios gate is logged green with the old r1_scan_review Maestro timeout no longer reproducing.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -45,10 +45,12 @@ and `.planning/phases/mint-lucidity-dataquest-clean/VERIFICATION.md`.
 collected progressively, dated and sourced, then reused across life events
 without duplicate collection.
 
-**Current focus:** keep the clean branch reviewable while closing the external
-audit blockers: Android P0 Patrol proof and real phase acceptance artifacts.
-Route payloads, scan recovery, legacy profile island, redirect shims, and Data
-Quest proof gates are now covered by deterministic guards in this branch.
+**Current focus:** keep the clean branch reviewable while advancing the iOS P0
+product loop. Android P0 Patrol remains a separate compatibility branch per
+JOS-006; do not block the current iOS product proof on local Android. Route
+payloads, scan recovery, legacy profile island, redirect shims, Data Quest
+proof gates, and the mobile-scenarios gate are now covered by deterministic
+guards in this branch.
 
 ## Current Position
 
@@ -69,15 +71,17 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
 - Patrol P0 runtime gate when mobile flows are touched.
 - Claude CLI external audit with no unresolved critical/high finding.
 
-**Current critical findings:**
+**Current open findings:**
 
-- JOS-006: Android P0 Patrol runtime proof is missing; Claude architecture audit
-  treats iOS-only runtime proof as insufficient for product acceptance.
-- JOS-007: phase acceptance artifacts are missing; `MINT_EVIDENCE_DIR` needs a
-  real `SCORECARD.md`, Claude phase audit marker, quality-gate score, and roster
-  co-signatures before any ready claim.
-- Claude architecture audit remains non-green and is stored at
-  `.planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt`.
+- JOS-006: Android P0 Patrol runtime proof is still missing, but is downgraded
+  to a P2 compatibility branch because the current Mac mini product loop uses
+  iPhone 17 Pro as canonical iOS runtime proof.
+- JOS-007: phase acceptance artifacts are verified in
+  `.planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/`.
+- The earlier Claude architecture audit blocker is retained as historical
+  evidence at
+  `.planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt`;
+  the newer phase audit starts with `NO_UNRESOLVED_CRITICAL_HIGH`.
 
 ## Historical Receipts
 

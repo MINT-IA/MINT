@@ -1,0 +1,488 @@
+Because l10n.yaml exists, the options defined there will be used instead.
+To use the command line arguments, delete the l10n.yaml file in the Flutter project.
+
+
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.3 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_log 0.9.0 (0.9.1 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.23.0 available)
+  sentry_flutter 9.14.0 (9.23.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.26 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+90 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart
+00:00 +0: /private/tmp/mint-dataquest-clean/apps/mobile/test/architecture/raw_reference_stores_contract_test.dart: raw reference stores do not write financial ledger keys
+00:00 +1: /private/tmp/mint-dataquest-clean/apps/mobile/test/architecture/raw_reference_stores_contract_test.dart: scan confirmation writes confirmed facts through CoachProfileProvider
+00:00 +2: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute reads a safe internal route from environment
+00:00 +3: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute reads iOS-style separate launch arguments
+00:00 +4: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute reads inline launch arguments
+00:00 +5: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute rejects external URLs and malformed paths
+00:00 +6: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyValue reads a positive integer from environment
+00:00 +7: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyValue reads iOS-style separate launch arguments
+00:00 +8: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyValue rejects non-positive, non-numeric, and excessive values
+00:00 +9: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestRevenueAnnual reads a positive annual revenue from environment
+00:00 +10: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestRevenueAnnual reads iOS-style separate launch arguments
+00:00 +11: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestRevenueAnnual rejects non-positive, non-numeric, decimal, and excessive values
+00:00 +12: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestCanton reads and normalizes a valid Swiss canton
+00:00 +13: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestCanton reads iOS-style separate launch arguments
+00:00 +14: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestCanton rejects unknown or malformed canton values
+00:00 +15: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyStale reads true-like values from environment and launch arguments
+00:00 +16: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyStale rejects absent and false-like values
+00:00 +17: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: mintRuntimeProofStalePropertyValueDate makes propertyMarketValue stale enough to require refresh
+00:00 +18: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: mintRuntimeProofStalePropertyValueDate updates profile timestamp used by Data Quest facts
+00:00 +19: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +20: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +21: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +22: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +23: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +24: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +25: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +26: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator matches backend Raiffeisen property transmission fixture
+00:00 +27: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator degrades to missing_data before quantifying partial local inputs
+00:00 +28: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator uses total equalization need across all other heirs
+00:00 +29: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator treats explicit zero heirs as not applicable, not missing data
+00:00 +30: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator degrades when annual living costs are absent
+00:00 +31: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator marks freshness current when all tracked source dates are recent
+00:00 +32: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator marks freshness stale when a tracked source date is old
+00:00 +33: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator preserves estimated retirement-income provenance
+00:00 +34: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator documents liquidity and LPP capital-tax limits as product assumptions
+00:00 +35: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/financial_core/property_transmission_calculator_test.dart: PropertyTransmissionCalculator exposes localization keys instead of user-facing prose
+00:00 +36: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: applySaveFact maps allowlist facts into live CoachProfile fields
+00:00 +37: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: applySaveFact records source date provenance and restores it
+00:00 +38: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: householdType couple and family do not fall back to single
+00:00 +39: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers accepts fp payloads and persists field provenance
+00:00 +40: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers persists mortgage computed field paths as estimates
+00:00 +41: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers persists a stable local profile owner id
+00:00 +42: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers stamps transmit property composed inputs
+00:00 +43: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/chat/fact_extraction_fallback_test.dart: FactExtractionFallback extracts age from « j'ai 34 ans »
+00:00 +44: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/chat/fact_extraction_fallback_test.dart: FactExtractionFallback extracts age from « j'ai 34 ans »
+00:00 +45: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/chat/fact_extraction_fallback_test.dart: FactExtractionFallback extracts age from « j'ai 34 ans »
+00:00 +46: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +47: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +48: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +49: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +50: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +51: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +52: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +53: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +54: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +55: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +56: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +57: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +58: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +59: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +60: /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart: property transmission calculator localization keys exist in all ARBs
+00:00 +61: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not overwrite existing cash answer from estimate
+00:00 +62: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +62: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService builds first_salary_tax payload matching its JSON schema
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +63: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +64: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +65: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +66: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +67: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +67: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService builds buy_property payload with affordability and equity context
+reg() FALLBACK: mortgage.theoretical_rate → 0.05 (cache miss, logged once)
+reg() FALLBACK: mortgage.amortization_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.accessory_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.total_charges_rate → 0.07 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_charge_ratio → 0.3333333333333333 (cache miss, logged once)
+reg() FALLBACK: mortgage.min_equity_ratio → 0.2 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_2nd_pillar_ratio → 0.1 (cache miss, logged once)
+00:00 +68: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +69: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +70: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +71: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +72: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health / resolves to landing
+00:00 +73: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService uses guard-collected parent annual retirement income directly
+00:00 +74: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +75: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +76: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +77: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +78: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +79: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +80: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +81: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +82: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +83: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:00 +84: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/intent redirects to /coach/chat (KILL-01)
+00:01 +85: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /coach/chat resolves
+00:01 +86: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /data-block/:type resolves
+00:01 +87: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/quick redirects to /coach/chat
+00:01 +88: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/quick-start redirects to /coach/chat
+00:01 +89: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/premier-eclairage redirects to /coach/chat
+00:01 +90: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/promise redirects to /coach/chat
+00:01 +91: /private/tmp/mint-dataquest-clean/apps/mobile/test/navigation/goroute_health_test.dart: P10-04 GoRouter health /onboarding/plan redirects to /coach/chat
+00:02 +92: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests PdfService class can be instantiated
+00:02 +93: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests PdfService has generateSessionReportPdf static method
+00:02 +94: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests PdfService has generateFinancialReportPdf static method
+00:02 +95: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests buildFinancialReportPdfBytes generates a real PDF document
+00:02 +96: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests financial report PDF audit manifest locks dossier sections
+00:02 +97: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests buildDossierPayloadPdfBytes generates a real scenario dossier PDF
+00:02 +98: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests dossier payload PDF audit manifest locks P0 dossier sections
+00:02 +99: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests dossier manifest exposes remaining data section when useful
+00:02 +100: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests dossier PDF labels remaining questions for humans
+00:02 +101: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: PdfService structural tests dossier PDF formats years and CHF fields by semantic key
+00:02 +102: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: SessionReport (PDF input model) SessionReport holds all required fields
+00:02 +103: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: SessionReport (PDF input model) SessionReportOverview contains canton, household, goal
+00:02 +104: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: SessionReport (PDF input model) MintRoadmap contains compliance fields
+00:02 +105: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: SessionReport (PDF input model) precisionScore affects color logic (low score)
+00:02 +106: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: SessionReport (PDF input model) precisionScore affects color logic (high score)
+00:02 +107: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: FinancialReport (PDF input model) FinancialReport can be constructed with required fields
+00:02 +108: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: FinancialReport (PDF input model) UserProfile computes age correctly
+00:02 +109: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: FinancialReport (PDF input model) UserProfile computes yearsToRetirement
+00:02 +110: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: FinancialReport (PDF input model) TaxSimulation computes totalDeductions
+00:02 +111: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: FinancialReport (PDF input model) ActionPriority enum has 4 levels
+00:02 +112: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: FinancialReport (PDF input model) ActionCategory enum has 8 categories
+00:02 +113: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/pdf_service_test.dart: SessionReport.fromJson parses a complete JSON payload
+00:02 +114: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/confidence_route_screen_test.dart: prefers the context result loader over persisted answers
+00:03 +115: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +116: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +117: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+reg() FALLBACK: avs.full_contribution_years → 44.0 (cache miss, logged once)
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: mortgage.theoretical_rate → 0.05 (cache miss, logged once)
+Tax scales not loaded. Call load() first.
+00:03 +118: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +119: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +120: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +121: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +122: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:03 +123: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:04 +124: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: loads rapport from persisted answers without route extra
+00:04 +125: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +125: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: resolves and persists pending local owner before dossier build
+Tax scales not loaded. Call load() first.
+00:04 +126: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +127: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +128: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +129: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +130: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +131: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +132: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +133: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +134: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +135: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +136: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +137: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +138: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +138: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: copies valid legacy owner without resolving a new one
+Tax scales not loaded. Call load() first.
+00:04 +139: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +139: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: direct report screen defers dossiers until owner is resolved
+Tax scales not loaded. Call load() first.
+00:04 +140: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+reg() FALLBACK: lpp.conversion_rate_min → 0.068 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+00:04 +141: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/data_block_enrichment_screen_test.dart: revenue block captures canonical first salary facts only
+00:04 +142: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +143: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +144: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +145: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +146: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +147: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +148: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +149: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +150: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +151: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +152: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +153: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +154: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+reg() FALLBACK: mortgage.theoretical_rate → 0.05 (cache miss, logged once)
+reg() FALLBACK: mortgage.amortization_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.accessory_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.total_charges_rate → 0.07 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_charge_ratio → 0.3333333333333333 (cache miss, logged once)
+reg() FALLBACK: mortgage.min_equity_ratio → 0.2 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_2nd_pillar_ratio → 0.1 (cache miss, logged once)
+00:04 +155: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +156: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +156: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: priority 3a action exposes a stable id and reaches 3a
+Tax scales not loaded. Call load() first.
+00:04 +157: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +158: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +159: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: AffordabilityScreen renders without crash
+00:04 +159: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: PDF export CTA invokes the report exporter
+Tax scales not loaded. Call load() first.
+00:04 +160: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/document_scan/document_scan_screen_test.dart: DocumentScanScreen builds and surfaces capture buttons
+00:04 +161: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/document_scan/document_scan_screen_test.dart: DocumentScanScreen builds and surfaces capture buttons
+00:04 +162: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/document_scan/document_scan_screen_test.dart: DocumentScanScreen builds and surfaces capture buttons
+00:04 +162: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: typed dossier export CTA invokes the dossier exporter
+Tax scales not loaded. Call load() first.
+00:04 +163: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:04 +164: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) renders without crashing
+00:04 +165: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen renders without crash
+00:04 +166: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen renders without crash
+00:04 +166: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: Simulator3aScreen FATCA profile renders non-contributable 3a state
+reg() FALLBACK: avs.contribution_rate_employee → 0.053 (cache miss, logged once)
+reg() FALLBACK: lpp.entry_threshold → 22680.0 (cache miss, logged once)
+00:04 +167: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen renders without crash
+00:04 +168: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen renders without crash
+00:04 +169: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen renders without crash
+00:04 +170: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: typed dossier export CTA invokes the dossier exporter
+00:05 +171: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: Simulator3aScreen FATCA profile renders non-contributable 3a state
+00:05 +172: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/coach/retirement_dashboard_test.dart: RetirementDashboardScreen — empty state (State C) shows disclaimer in empty state
+00:05 +173: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen displays title in French
+00:05 +173: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: PDF export failure shows a recoverable snackbar
+Tax scales not loaded. Call load() first.
+00:05 +173: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: RachatEchelonneScreen renders without crash
+reg() FALLBACK: avs.reference_age_men → 65.0 (cache miss, logged once)
+reg() FALLBACK: lpp.coordination_deduction → 26460.0 (cache miss, logged once)
+reg() FALLBACK: lpp.min_coordinated_salary → 3780.0 (cache miss, logged once)
+reg() FALLBACK: lpp.max_coordinated_salary → 64260.0 (cache miss, logged once)
+Tax scales not loaded. Call load() first.
+Tax scales not loaded. Call load() first.
+Tax scales not loaded. Call load() first.
+Tax scales not loaded. Call load() first.
+Tax scales not loaded. Call load() first.
+00:05 +174: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: PDF export failure shows a recoverable snackbar
+00:05 +175: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: PDF export failure shows a recoverable snackbar
+00:05 +176: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: PDF export failure shows a recoverable snackbar
+00:05 +176: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: Retroactive3aScreen renders without crash
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:05 +177: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/report_route_screen_test.dart: PDF export failure shows a recoverable snackbar
+00:05 +178: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/calculator_prefill_writeback_test.dart: Retroactive3aScreen renders without crash
+00:05 +179: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders without crash
+00:05 +180: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders without crash
+00:05 +181: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders without crash
+00:05 +182: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen displays succession title
+00:05 +183: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows disclaimer (LSFin)
+00:05 +184: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows property transmission CASE guard before modelling gift
+00:05 +185: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen SuccessionPatrimoineScreen keeps a freshly confirmed old source current
+00:05 +186: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen SuccessionPatrimoineScreen reconfirms stale property update
+00:05 +187: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders estate illustrations only after retirement guard inputs exist
+00:05 +188: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen asks transaction assumptions after guard answers before trusting preview
+00:05 +189: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen does not treat default living costs as complete scenario data
+00:05 +190: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders Raiffeisen transmission figures from dated facts
+00:05 +191: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen treats explicit zero liquid assets as a known scenario input
+00:05 +192: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows stable local profile owner id after profile load
+00:05 +193: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen clamps property value live input to a plausible ceiling
+00:05 +194: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows legal sources section title
+00:05 +195: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen concept card uses CO for donation (not CC)
+00:05 +196: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen CTA uses spécialiste (not banned conseiller title)
+00:05 +197: All tests passed!
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r3_report_pillar3a_action.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r3_report_pillar3a_action.yaml (70s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r3c_report_dossier_export.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r3c_report_dossier_export.yaml (104s)
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.3 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_log 0.9.0 (0.9.1 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.23.0 available)
+  sentry_flutter 9.14.0 (9.23.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.26 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+90 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /private/tmp/mint-dataquest-clean/apps/mobile/test/i18n/succession_arb_compliance_test.dart
+00:00 +0: French succession and donation ARB strings contain no LSFin banned terms
+00:00 +1: French succession and donation ARB strings use non-breaking spaces before punctuation
+00:00 +2: property transmission calculator localization keys exist in all ARBs
+00:00 +3: All tests passed!
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/f5_transmitting_property.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/f5_transmitting_property.yaml (107s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r1_scan_review.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r1_scan_review.yaml (91s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r2_scan_impact.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r2_scan_impact.yaml (117s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r3c_report_dossier_export.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r3c_report_dossier_export.yaml (99s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r3b_confidence_dashboard.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r3b_confidence_dashboard.yaml (110s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r3_report_pillar3a_action.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r3_report_pillar3a_action.yaml (118s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/f2_datablock_to_mortgage.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/f2_datablock_to_mortgage.yaml (91s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/f2_datablock_to_mortgage.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/f2_datablock_to_mortgage.yaml (120s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r1b_scan_review_orphan_session.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r1b_scan_review_orphan_session.yaml (120s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/r2b_scan_impact_orphan_session.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/r2b_scan_impact_orphan_session.yaml (92s)
+ARB parity OK: app_fr.arb=6823, app_en.arb=6823, app_de.arb=6823, app_es.arb=6823, app_it.arb=6823, app_pt.arb=6823
+..............................................                           [100%]
+46 passed in 0.36s
