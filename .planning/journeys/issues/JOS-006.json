@@ -5,8 +5,8 @@
   "journey_id": "mint_lucidity_p0_acceptance",
   "status": "proof_needed",
   "owner": "mint-quality-gate",
-  "severity": "P0",
+  "severity": "P2",
   "evidence_status": "baselined",
-  "next_action": "Run at least one P0 Patrol journey on an Android emulator with tools/checks/mint_lucidity_gate.sh mobile-p0-patrol emulator-5554, store durable evidence, then rerun Claude external audit.",
-  "source": "Claude architecture audit 20260704 C-1; docs/codex/ANDROID_RUNTIME_BLOCKERS.md; .github/workflows/android-runtime-patrol.yml"
+  "next_action": "Keep iPhone simulator as the active product runtime gate for this Mac mini phase. Handle Android P0 Patrol in a dedicated compatibility branch/CI pass after updating Android Gradle Plugin, Gradle wrapper, compileSdk, and core library desugaring; do not block the current iOS product loop on local Android.",
+  "source": "Claude architecture audit 20260704 C-1; docs/codex/ANDROID_RUNTIME_BLOCKERS.md; .github/workflows/android-runtime-patrol.yml; local Mac mini probe 20260704 showed Android SDK/emulator can run but checked-in Android build config blocks Patrol before runtime."
 }
