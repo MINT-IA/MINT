@@ -8,8 +8,10 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
+import 'package:mint_mobile/widgets/data_quest/data_quest_proof_strip.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -258,7 +260,14 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    final provider = context.watch<CoachProfileProvider>();
     final hasDebt = lookupSafeModeFlag(context);
+    final dataQuestPlan = DataQuestService.planCase(
+      caseId: 'first_salary_tax',
+      answers: provider.answersSnapshot,
+      now: DateTime.now(),
+      includeUseful: true,
+    );
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
@@ -277,6 +286,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            MintEntrance(child: _buildDataQuestContract(dataQuestPlan, provider.profile)),
+            const SizedBox(height: MintSpacing.lg),
             MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
             MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
@@ -305,6 +316,35 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           ],
         ),
       )))),
+    );
+  }
+
+  Widget _buildDataQuestContract(
+    DataQuestPlan plan,
+    CoachProfile? profile,
+  ) {
+    final grossAnnual = profile?.revenuBrutAnnuel ?? 0;
+    final canton = profile?.canton.isNotEmpty == true
+        ? profile!.canton
+        : _profileCanton;
+    final basis = 'salaire=${formatChfWithPrefix(grossAnnual)}; '
+        'canton=$canton; plafond_3a=${formatChfWithPrefix(_plafond3a)}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DataQuestProofStrip(
+          plan: plan,
+          semanticsPrefix: 'sim3a',
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        Semantics(
+          key: const ValueKey('sim3a_profile_basis'),
+          value: basis,
+          container: true,
+          child: const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 
