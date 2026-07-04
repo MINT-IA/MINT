@@ -6,7 +6,7 @@ Generated from Journey OS records and issues. Do not edit directly.
 
 | Issue | Severity | Status | Journey | Journey status | Journey priority | Owner | Evidence | Latest proof | Artifact | Next action |
 |---|---|---|---|---|---:|---|---|---|---|---|
-| JOS-007 | P0 | proof_needed | mint_lucidity_p0_acceptance | blocked | 30 | mint-lead | baselined | baselined / external | .planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt | Create a real MINT_EVIDENCE_DIR with SCORECARD.md, claude-phase audit marker, quality-gate score, and roster co-signatures; then run the phase acceptance artifact gate. |
+| JOS-004 | P0 | proof_needed | coach_advice_turn | partial | 27 | mint-quality-gate | baselined | baselined / runtime / 2026-06-27T17:28:41Z / 4cb5c173 | .planning/journeys/evidence/coach_advice_turn/20260627T172841Z/maestro.txt | Rerun the JOS-004 Coach advice Maestro proof with JUnit output or a captured flow-level [Passed]/Flow Passed marker before marking the issue verified. |
 
 ## Operating Rule
 

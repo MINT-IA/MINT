@@ -46,6 +46,22 @@
       "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt",
       "reason": "Claude architecture audit found unresolved CRITICAL/HIGH acceptance blockers: Android runtime proof absent and phase acceptance artifacts missing.",
       "debt_ref": "CLAUDE-ARCH-20260704-C1-C2"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MINT_EVIDENCE_DIR=.planning/runtime-evidence/mint-lucidity-phase2-20260704T164746 MINT_PHASE2_FLUTTER_DEVICE_ID=B03E429D-0422-4357-B754-536637D979F9 bash tools/checks/mint_lucidity_gate.sh phase2-runtime",
+      "artifact": ".planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/gate-phase2-run.txt",
+      "reason": "Phase 2 Data Quest runtime gate passed on iPhone 17 Pro, including transmit-property delta collection and stale property reconfirmation.",
+      "debt_ref": "JOS-007"
+    },
+    {
+      "kind": "external",
+      "status": "green",
+      "command": "CLAUDE_AUDIT_MAX_BUDGET_USD=2.00 CLAUDE_ULTRAREVIEW_TIMEOUT_MINUTES=30 bash tools/checks/claude_external_audit.sh phase2 && bash tools/checks/mint_lucidity_gate.sh phase2-artifacts",
+      "artifact": ".planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/claude-phase2-audit.md",
+      "reason": "External Phase 2 audit starts with NO_UNRESOLVED_CRITICAL_HIGH and artifact gate exits 0 with scorecard/co-signatures present.",
+      "debt_ref": "JOS-007"
     }
   ]
 }

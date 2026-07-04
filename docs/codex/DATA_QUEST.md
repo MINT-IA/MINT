@@ -112,6 +112,14 @@ Phase 4 may replace `factsByLedgerKey` with direct
 `BiographyRepository.getLatestFactForField(key)` reads, but that is not the
 current runtime contract.
 
+For fields marked `requiresCompleteFact`, a present answer-map value is not
+enough to satisfy the field when no dated `BiographyFact` exists. This is
+intentional for aggregates such as `parentAnnualLivingCosts`: a partial period
+amount without pay-frequency/source timestamp stays in `AskMode.reconfirm`
+until the dossier/profile bridge emits a complete stamped fact. Guard:
+`data_quest_service_test.dart::transmit_property reconfirms partial living-cost
+answer without dated fact`.
+
 ### 2.2 Rendering rule (partial-graceful — NEVER a wall)
 
 - The target screen renders **immediately** with whatever is known, using its `partialState` (SCREEN_CONTRACTS) — result shown as a **range + `EnhancedConfidence`** (compliance I-5). No "complete to continue" gate.

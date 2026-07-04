@@ -1,0 +1,465 @@
+Mermaid evidence: .planning/runtime-evidence/mint-lucidity-phase2-20260704T164746/WIRING_GRAPH.svg
+.......................                                                  [100%]
+23 passed in 0.45s
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.3 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_log 0.9.0 (0.9.1 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.23.0 available)
+  sentry_flutter 9.14.0 (9.23.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.26 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+90 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing 10 items...
+No issues found! (ran in 1.7s)
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.3 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_log 0.9.0 (0.9.1 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.23.0 available)
+  sentry_flutter 9.14.0 (9.23.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.26 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+90 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart
+00:00 +0: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute reads a safe internal route from environment
+00:00 +1: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute reads iOS-style separate launch arguments
+00:00 +2: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute reads inline launch arguments
+00:00 +3: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestInitialRoute rejects external URLs and malformed paths
+00:00 +4: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyValue reads a positive integer from environment
+00:00 +5: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyValue reads iOS-style separate launch arguments
+00:00 +6: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyValue rejects non-positive, non-numeric, and excessive values
+00:00 +7: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestRevenueAnnual reads a positive annual revenue from environment
+00:00 +8: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestRevenueAnnual reads iOS-style separate launch arguments
+00:00 +9: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestRevenueAnnual rejects non-positive, non-numeric, decimal, and excessive values
+00:00 +10: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestCanton reads and normalizes a valid Swiss canton
+00:00 +11: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestCanton reads iOS-style separate launch arguments
+00:00 +12: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestCanton rejects unknown or malformed canton values
+00:00 +13: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyStale reads true-like values from environment and launch arguments
+00:00 +14: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestPropertyStale rejects absent and false-like values
+00:00 +15: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: mintRuntimeProofStalePropertyValueDate makes propertyMarketValue stale enough to require refresh
+00:00 +16: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: mintRuntimeProofStalePropertyValueDate updates profile timestamp used by Data Quest facts
+00:00 +17: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestTransmitPropertyFixture reads a safe fixture name from environment and launch arguments
+00:00 +18: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestTransmitPropertyFixture rejects empty or unsafe fixture names
+00:00 +19: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestReportFixture reads a safe report fixture name from environment and launch args
+00:00 +20: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintTestReportFixture rejects empty or unsafe report fixture names
+00:00 +21: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintRuntimeProofSemanticsEnabled reads true-like values from environment and launch arguments
+00:00 +22: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: parseMintRuntimeProofSemanticsEnabled rejects absent or false-like values
+00:00 +23: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/startup_route_override_parser_test.dart: runtime proof input gate does not enable seed inputs without an explicit runtime flag
+00:00 +24: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService declares all P0 cases with dossier and proof status ids
+00:00 +25: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService asks only missing first-salary variables in priority order
+00:00 +26: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService next question changes when a high-priority variable is answered
+00:00 +27: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService stale known data is reconfirmed instead of asked blank
+00:00 +28: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService fresh complete first-salary answers produce no asks
+00:00 +29: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService known legacy answers without provenance are not false reconfirmed
+00:00 +30: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService buy_property asks guard variables in priority order
+00:00 +31: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService buy_property moves from guard answers to enrichment questions
+00:00 +32: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService buy_property does not accept owned property value as target price
+00:00 +33: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService buy_property reconfirms stale equity without losing delta order
+00:00 +34: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property runs retirement guard before gift questions
+00:00 +35: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property useful quest exposes transaction assumptions
+00:00 +36: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property treats legacy property as known until migration
+00:00 +37: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property reuses fresh property fact without duplicate ask
+00:00 +38: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property asks annual living costs before mortgage details
+00:00 +39: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property reconfirms partial living-cost answer without dated fact
+00:00 +40: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property treats zero annual living costs as missing guard
+00:00 +41: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property accepts composed retirement income evidence before asking aggregate
+00:00 +42: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/data_quest/data_quest_service_test.dart: DataQuestService transmit_property does not treat AVS alone as annual income aggregate
+00:00 +43: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService builds first_salary_tax payload matching its JSON schema
+reg() FALLBACK: pillar3a.max_with_lpp → 7258.0 (cache miss, logged once)
+00:00 +44: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService uses explicit profile owner id when present
+00:00 +45: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService requires resolved local owner id before sync dossier build
+00:00 +46: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService rejects pending local owner id before sync dossier build
+00:00 +47: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService keeps 3a ceiling unresolved without explicit LPP status
+00:00 +48: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService builds buy_property payload with affordability and equity context
+reg() FALLBACK: mortgage.theoretical_rate → 0.05 (cache miss, logged once)
+reg() FALLBACK: mortgage.amortization_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.accessory_rate → 0.01 (cache miss, logged once)
+reg() FALLBACK: mortgage.total_charges_rate → 0.07 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_charge_ratio → 0.3333333333333333 (cache miss, logged once)
+reg() FALLBACK: mortgage.min_equity_ratio → 0.2 (cache miss, logged once)
+reg() FALLBACK: mortgage.max_2nd_pillar_ratio → 0.1 (cache miss, logged once)
+00:00 +49: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService uses synced mortgage stress rate in buy_property assumptions
+00:00 +50: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService keeps buy_property affordability unresolved without property value
+00:00 +51: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService keeps buy_property unresolved when only owned property value exists
+00:00 +52: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService builds transmit_property dossier from Raiffeisen-style inputs
+00:00 +53: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService uses guard-collected parent annual retirement income directly
+00:00 +54: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService does not double-count other fixed costs when catchall is present
+00:00 +55: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService keeps period housing cost untrusted when pay frequency is absent
+00:00 +56: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService asks annual living costs before mortgage when budget evidence is absent
+00:00 +57: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService fresh transmit_property profile metadata feeds Data Quest facts without duplicate property reconfirm
+00:00 +58: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService composes parent annual retirement income from AVS and LPP facts
+00:00 +59: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService transmit_property dossier surfaces stale profile next questions
+00:00 +60: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService does not mask missing parent liquidity or costs with profile defaults
+00:00 +61: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService keeps explicit zero parent liquid assets as known data
+00:00 +62: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService incomplete transmit_property payload surfaces next questions
+00:00 +63: /private/tmp/mint-dataquest-clean/apps/mobile/test/services/dossier/dossier_payload_service_test.dart: DossierPayloadService schema validator rejects input metadata drift
+00:00 +64: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: applySaveFact maps allowlist facts into live CoachProfile fields
+00:00 +65: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: applySaveFact records source date provenance and restores it
+00:00 +66: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: householdType couple and family do not fall back to single
+00:00 +67: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers accepts fp payloads and persists field provenance
+00:00 +68: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers persists mortgage computed field paths as estimates
+00:00 +69: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers persists a stable local profile owner id
+00:00 +70: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: mergeAnswers stamps transmit property composed inputs
+00:00 +71: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: property value wizard alias reloads into canonical field path
+00:00 +72: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile persists keys that fromWizardAnswers can reload
+00:00 +73: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not persist estimated liquid assets as cash answer
+00:00 +74: /private/tmp/mint-dataquest-clean/apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart: updateProfile does not overwrite existing cash answer from estimate
+00:00 +75: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 18 → youngProfessional
+00:00 +76: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 25 → youngProfessional (upper bound inclusive)
+00:00 +77: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 26 → stabilization (lower bound)
+00:00 +78: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 35 → stabilization (upper bound inclusive)
+00:00 +79: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 36 → peakEarnings (lower bound)
+00:00 +80: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 49 → peakEarnings (upper bound inclusive)
+00:00 +81: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 50 → preRetirement (lower bound)
+00:00 +82: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 65 → preRetirement (upper bound inclusive)
+00:00 +83: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 66 → retirement (lower bound)
+00:00 +84: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 80 → retirement
+00:00 +85: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age 120 → retirement (upper bound inclusive)
+00:00 +86: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: AgeBandPolicy.forAge — boundaries age below minimum (0) → falls back to first policy
+00:00 +87: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen renders without crash
+00:01 +88: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen displays title in French
+00:01 +89: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen shows disclaimer (LSFin)
+00:01 +90: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: OptimisationDecaissementScreen does not contain banned term "conseiller·e" as job title
+00:01 +91: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders without crash
+00:01 +92: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen displays succession title
+00:01 +93: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows disclaimer (LSFin)
+00:01 +94: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows property transmission CASE guard before modelling gift
+00:01 +95: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen SuccessionPatrimoineScreen keeps a freshly confirmed old source current
+00:01 +96: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen SuccessionPatrimoineScreen reconfirms stale property update
+00:01 +97: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders estate illustrations only after retirement guard inputs exist
+00:01 +98: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen asks transaction assumptions after guard answers before trusting preview
+00:01 +99: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen does not treat default living costs as complete scenario data
+00:01 +100: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen renders Raiffeisen transmission figures from dated facts
+00:01 +101: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen treats explicit zero liquid assets as a known scenario input
+00:01 +102: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows stable local profile owner id after profile load
+00:01 +103: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen clamps property value live input to a plausible ceiling
+00:01 +104: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen shows legal sources section title
+00:01 +105: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen concept card uses CO for donation (not CC)
+00:02 +106: /private/tmp/mint-dataquest-clean/apps/mobile/test/screens/s44_phase2_smoke_test.dart: SuccessionPatrimoineScreen CTA uses spécialiste (not banned conseiller title)
+00:02 +107: All tests passed!
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/phase2_data_quest_transmit_property.yaml (64s)
+[mint-gate] maestro check-syntax start apps/mobile/.maestro/phase2_data_quest_reconfirm.yaml
+[mint-gate] maestro check-syntax ok apps/mobile/.maestro/phase2_data_quest_reconfirm.yaml (92s)
+Resolving dependencies...
+Downloading packages...
+  async 2.11.0 (2.13.1 available)
+  boolean_selector 2.1.1 (2.1.2 available)
+  confetti 0.7.0 (0.8.0 available)
+  cross_file 0.3.4+2 (0.3.5+4 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  dbus 0.7.12 (0.7.14 available)
+  ffi 2.1.3 (2.2.0 available)
+  file 7.0.0 (7.0.1 available)
+  file_picker 8.3.7 (11.0.2 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+3 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  fl_chart 0.70.2 (1.2.0 available)
+  flutter_lints 3.0.2 (6.0.0 available)
+  flutter_local_notifications 18.0.1 (22.0.1 available)
+  flutter_local_notifications_linux 5.0.0 (8.0.1 available)
+  flutter_local_notifications_platform_interface 8.0.0 (12.0.0 available)
+  flutter_markdown 0.7.7+1 (discontinued replaced by flutter_markdown_plus)
+  flutter_plugin_android_lifecycle 2.0.29 (2.0.35 available)
+  flutter_secure_storage 9.2.4 (10.3.1 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.1 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.1 available)
+  flutter_secure_storage_windows 3.1.2 (4.2.2 available)
+  go_router 13.2.5 (17.3.0 available)
+  google_fonts 6.3.3 (8.1.0 available)
+  image 4.5.4 (4.9.1 available)
+  image_picker 1.2.0 (1.2.3 available)
+  image_picker_android 0.8.13 (0.8.13+19 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13 (0.8.13+6 available)
+  image_picker_macos 0.2.2 (0.2.2+1 available)
+  image_picker_platform_interface 2.11.0 (2.11.1 available)
+  in_app_purchase 3.2.3 (3.3.0 available)
+  in_app_purchase_android 0.4.0+3 (0.5.1 available)
+  in_app_purchase_platform_interface 1.4.0 (1.4.1 available)
+  in_app_purchase_storekit 0.4.4 (0.4.10+1 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 0.14.2 (1.0.0 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  lints 3.0.0 (6.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.17.0 (1.18.3 available)
+  package_config 2.2.0 (3.0.0 available)
+  package_info_plus 9.0.1 (10.2.0 available)
+  package_info_plus_platform_interface 3.2.1 (4.1.0 available)
+  path_provider 2.1.5 (2.1.6 available)
+  path_provider_android 2.2.17 (2.3.1 available)
+  path_provider_foundation 2.4.1 (2.6.0 available)
+  path_provider_linux 2.2.1 (2.2.2 available)
+  path_provider_platform_interface 2.1.2 (2.1.3 available)
+  patrol_log 0.9.0 (0.9.1 available)
+  pdf 3.11.3 (3.13.0 available)
+  petitparser 6.0.2 (7.0.2 available)
+  platform 3.1.5 (3.1.6 available)
+  printing 5.14.2 (5.15.0 available)
+  process 5.0.2 (5.0.5 available)
+  qr 3.0.2 (4.0.0 available)
+  sentry 9.14.0 (9.23.0 available)
+  sentry_flutter 9.14.0 (9.23.0 available)
+  shared_preferences 2.5.3 (2.5.5 available)
+  shared_preferences_android 2.4.11 (2.4.26 available)
+  shared_preferences_foundation 2.5.4 (2.5.6 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  sign_in_with_apple 6.1.4 (8.1.0 available)
+  sign_in_with_apple_platform_interface 1.1.0 (2.0.0 available)
+  sign_in_with_apple_web 2.1.1 (3.0.0 available)
+  source_span 1.10.0 (1.10.2 available)
+  speech_to_text 7.3.0 (7.4.0 available)
+  speech_to_text_platform_interface 2.3.0 (2.4.0 available)
+  speech_to_text_windows 1.0.0+beta.8 (1.0.1 available)
+  sqflite_common 2.5.6 (2.5.11 available)
+  string_scanner 1.3.0 (1.4.1 available)
+  synchronized 3.4.0 (3.4.1 available)
+  term_glyph 1.2.1 (1.2.2 available)
+  test_api 0.7.10 (0.7.13 available)
+  timezone 0.10.1 (0.11.1 available)
+  url_launcher_android 6.3.17 (6.3.32 available)
+  url_launcher_ios 6.3.3 (6.4.1 available)
+  url_launcher_linux 3.2.1 (3.2.2 available)
+  url_launcher_macos 3.2.2 (3.2.5 available)
+  url_launcher_web 2.4.1 (2.4.3 available)
+  url_launcher_windows 3.1.4 (3.1.5 available)
+  vector_math 2.2.0 (2.4.0 available)
+  vm_service 14.3.0 (15.2.0 available)
+  webdriver 3.0.4 (3.1.0 available)
+  win32 5.10.1 (6.3.0 available)
+  xml 6.5.0 (7.0.1 available)
+Got dependencies!
+1 package is discontinued.
+90 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Launching lib/main.dart on iPhone 17 Pro in debug mode...
+Running Xcode build...
+Xcode build done.                                            8.2s
+Syncing files to device iPhone 17 Pro...                            48ms
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow phase2_data_quest_transmit_property
+Launch app "ch.mint.app" with clear state (launch arguments: {MINT_TEST_INITIAL_ROUTE=/succession, MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true})... COMPLETED
+Tap on (Optional) "Cancel"... WARNED
+
+
+ Warning: Element not found: Text matching regex: Cancel
+Assert that "Succession et transmission" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_next_ask is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_contract is visible... COMPLETED
+Assert that id: succession_data_quest_next_ask is visible... COMPLETED
+Assert that "Prochaine donnée à confirmer" is visible... COMPLETED
+Assert that "next_ask_value: propertyMarketValue" is visible... COMPLETED
+Assert that id: succession_data_quest_mode is visible... COMPLETED
+Assert that "Donnée manquante à collecter" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_stage is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_stage is visible... COMPLETED
+Assert that "Indispensable avant le calcul" is visible... COMPLETED
+Launch app "ch.mint.app" with clear state (launch arguments: {MINT_TEST_INITIAL_ROUTE=/succession, MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true, MINT_TEST_PROPERTY_VALUE=1200000})... COMPLETED
+Scrolling DOWN until id: succession_data_quest_next_ask is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_next_ask is visible... COMPLETED
+Assert that "Prochaine donnée à confirmer" is visible... COMPLETED
+Assert that "next_ask_value: targetRetirementAge" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_stage is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_stage is visible... COMPLETED
+Assert that "Indispensable avant le calcul" is visible... COMPLETED
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow phase2_data_quest_reconfirm
+Launch app "ch.mint.app" with clear state (launch arguments: {MINT_TEST_INITIAL_ROUTE=/succession, MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true, MINT_TEST_PROPERTY_VALUE=1200000, MINT_TEST_PROPERTY_STALE=true})... COMPLETED
+Tap on (Optional) "Cancel"... WARNED
+
+
+ Warning: Element not found: Text matching regex: Cancel
+Assert that "Succession et transmission" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_next_ask is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_contract is visible... COMPLETED
+Assert that id: succession_data_quest_next_ask is visible... COMPLETED
+Assert that "Prochaine donnée à confirmer" is visible... COMPLETED
+Assert that "next_ask_value: propertyMarketValue" is visible... COMPLETED
+Assert that id: succession_data_quest_mode is visible... COMPLETED
+Assert that "Valeur existante à confirmer" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_stage is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_stage is visible... COMPLETED
+Assert that "Indispensable avant le calcul" is visible... COMPLETED

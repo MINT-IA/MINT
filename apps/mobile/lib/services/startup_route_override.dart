@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:mint_mobile/models/coach_profile.dart';
+
 import 'startup_route_override_platform_stub.dart'
     if (dart.library.io) 'startup_route_override_platform_io.dart' as platform;
 
@@ -43,6 +45,18 @@ Future<bool> readMintDebugPropertyValueStaleSeed() async {
 
 DateTime mintRuntimeProofStalePropertyValueDate(DateTime now) {
   return now.toUtc().subtract(const Duration(days: 30 * 30));
+}
+
+CoachProfile mintRuntimeProofProfileWithStalePropertyValueTimestamp(
+  CoachProfile profile,
+  DateTime staleDate,
+) {
+  return profile.copyWith(
+    dataTimestamps: {
+      ...profile.dataTimestamps,
+      'patrimoine.propertyMarketValue': staleDate,
+    },
+  );
 }
 
 Future<String?> readMintDebugTransmitPropertyFixtureSeed() async {

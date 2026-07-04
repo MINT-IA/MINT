@@ -263,6 +263,14 @@ void main() {
         find.byKey(const ValueKey('succession_data_quest_next_question')),
         findsOneWidget,
       );
+      expect(
+        _findSemanticsIdentifier('succession_data_quest_contract'),
+        findsOneWidget,
+      );
+      expect(
+        _findSemanticsIdentifier('succession_data_quest_next_ask'),
+        findsOneWidget,
+      );
       expect(find.text("Ce qu'il manque pour ce scénario"), findsOneWidget);
       expect(find.text('Valeur immobilière'), findsWidgets);
       expect(provenance, findsOneWidget);

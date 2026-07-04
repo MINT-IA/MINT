@@ -2,7 +2,7 @@
 flowchart TD
   promise["MINT P0 lucidity paths are accepted only with cross-platform proof and explicit phase artifacts."]
   team["mint-quality-gate"]
-  latest["latest proof: baselined / external"]
+  latest["latest proof: green / external"]
   promise --> latest
   classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
   classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
@@ -12,7 +12,7 @@ flowchart TD
   classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
   classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
   classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
-  class latest amber
+  class latest green
   priority["priority score 30"]
   priority --> promise
   route_rapport["/rapport"]
@@ -60,6 +60,6 @@ flowchart TD
   issue_JOS_006["JOS-006 proof_needed/baselined"]
   issue_JOS_006 --> promise
   class issue_JOS_006 amber
-  issue_JOS_007["JOS-007 proof_needed/baselined"]
+  issue_JOS_007["JOS-007 verified/green"]
   issue_JOS_007 --> promise
-  class issue_JOS_007 amber
+  class issue_JOS_007 green

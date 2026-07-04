@@ -253,6 +253,31 @@ check_phase_acceptance_artifacts() {
   grep -q 'mint-lead countersignature:' "$evidence_dir/SCORECARD.md"
 }
 
+run_phase2_runtime_gate() {
+  validate_evidence_dir
+  check_cli_exception_ledger
+  check_phase2_data_quest_contract
+  compile_mermaid
+  bash "$0" ledger
+  bash "$0" mobile-data-quest
+
+  if [[ -z "${MINT_PHASE2_MAESTRO_FLOW:-}" ]]; then
+    echo "ERROR: set MINT_PHASE2_MAESTRO_FLOW to an executable Phase 2 Maestro YAML" >&2
+    exit 1
+  fi
+  local local_phase2_reconfirm_flow
+  local_phase2_reconfirm_flow="${MINT_PHASE2_RECONFIRM_MAESTRO_FLOW:-apps/mobile/.maestro/phase2_data_quest_reconfirm.yaml}"
+  check_phase2_maestro_contract "$MINT_PHASE2_MAESTRO_FLOW"
+  check_phase2_reconfirm_maestro_contract "$local_phase2_reconfirm_flow"
+  if [[ "${MINT_PHASE2_SKIP_MAESTRO:-}" == "1" ]]; then
+    echo "ERROR: Phase 2 acceptance requires executed Maestro runtime proof; do not set MINT_PHASE2_SKIP_MAESTRO=1" >&2
+    exit 1
+  fi
+  install_phase2_flutter_app_if_requested
+  run_phase2_maestro "$MINT_PHASE2_MAESTRO_FLOW"
+  run_phase2_reconfirm_maestro "$local_phase2_reconfirm_flow"
+}
+
 check_no_open_baseline_highs() {
   local evidence_dir="${MINT_EVIDENCE_DIR:-}"
   local audit="$evidence_dir/DATA_LEDGER_BASELINE_AUDIT.md"
@@ -1226,7 +1251,7 @@ case "$mode" in
     check_final_bootstrap_audit
     ;;
   external-bootstrap)
-    "$0" bootstrap
+    bash "$0" bootstrap
     tools/checks/claude_external_audit.sh bootstrap
     ;;
   phase1)
@@ -1247,11 +1272,11 @@ case "$mode" in
 	    grep -q '^## Cross-Stack Fixture Schema' docs/codex/DATA_LEDGER_GATE_SPEC.md
 	    compile_mermaid
 	    check_phase1_runtime_args_guard
-	    "$0" ledger
-	    "$0" backend-scenarios
-	    "$0" mobile-scenarios
-	    "$0" live-http-scenario
-	    "$0" mobile-live-http-scenario
+	    bash "$0" ledger
+	    bash "$0" backend-scenarios
+	    bash "$0" mobile-scenarios
+	    bash "$0" live-http-scenario
+	    bash "$0" mobile-live-http-scenario
 
     if [[ -z "${MINT_PHASE1_MAESTRO_FLOW:-}" ]]; then
       echo "ERROR: set MINT_PHASE1_MAESTRO_FLOW to an executable Phase 1 Maestro YAML" >&2
@@ -1265,29 +1290,17 @@ case "$mode" in
     check_phase_acceptance_artifacts phase1
     ;;
   phase2)
+    run_phase2_runtime_gate
+    check_phase_acceptance_artifacts phase2
+    ;;
+  phase2-runtime)
+    run_phase2_runtime_gate
+    ;;
+  phase2-artifacts)
     validate_evidence_dir
     check_cli_exception_ledger
-    check_phase2_data_quest_contract
-    compile_mermaid
-    "$0" ledger
-    "$0" mobile-data-quest
-
-	    if [[ -z "${MINT_PHASE2_MAESTRO_FLOW:-}" ]]; then
-	      echo "ERROR: set MINT_PHASE2_MAESTRO_FLOW to an executable Phase 2 Maestro YAML" >&2
-	      exit 1
-	    fi
-	    local_phase2_reconfirm_flow="${MINT_PHASE2_RECONFIRM_MAESTRO_FLOW:-apps/mobile/.maestro/phase2_data_quest_reconfirm.yaml}"
-	    check_phase2_maestro_contract "$MINT_PHASE2_MAESTRO_FLOW"
-	    check_phase2_reconfirm_maestro_contract "$local_phase2_reconfirm_flow"
-	    if [[ "${MINT_PHASE2_SKIP_MAESTRO:-}" == "1" ]]; then
-	      echo "ERROR: Phase 2 acceptance requires executed Maestro runtime proof; do not set MINT_PHASE2_SKIP_MAESTRO=1" >&2
-	      exit 1
-	    fi
-	    install_phase2_flutter_app_if_requested
-	    run_phase2_maestro "$MINT_PHASE2_MAESTRO_FLOW"
-	    run_phase2_reconfirm_maestro "$local_phase2_reconfirm_flow"
-	    check_phase_acceptance_artifacts phase2
-	    ;;
+    check_phase_acceptance_artifacts phase2
+    ;;
   ledger)
     python3 -m pytest \
       tools/checks/tests/test_codex_ledger_parity.py \
@@ -1397,7 +1410,7 @@ case "$mode" in
     )
     ;;
   *)
-    echo "Usage: $0 {bootstrap|external-bootstrap|phase1|phase2|ledger|backend-scenarios|live-http-scenario|mobile-live-http-scenario|mobile-scenarios|mobile-f2-patrol|mobile-first-salary-patrol|mobile-first-salary-fatca-patrol|mobile-transmit-property-patrol|mobile-p0-patrol|mobile-data-quest}" >&2
+    echo "Usage: $0 {bootstrap|external-bootstrap|phase1|phase2|phase2-runtime|phase2-artifacts|ledger|backend-scenarios|live-http-scenario|mobile-live-http-scenario|mobile-scenarios|mobile-f2-patrol|mobile-first-salary-patrol|mobile-first-salary-fatca-patrol|mobile-transmit-property-patrol|mobile-p0-patrol|mobile-data-quest}" >&2
     exit 2
     ;;
 esac

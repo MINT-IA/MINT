@@ -1,0 +1,26 @@
+Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow phase2_data_quest_transmit_property
+Launch app "ch.mint.app" with clear state (launch arguments: {MINT_TEST_INITIAL_ROUTE=/succession, MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true})... COMPLETED
+Tap on (Optional) "Cancel"... WARNED
+
+
+ Warning: Element not found: Text matching regex: Cancel
+Assert that "Succession et transmission" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_next_ask is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_contract is visible... COMPLETED
+Assert that id: succession_data_quest_next_ask is visible... COMPLETED
+Assert that "Prochaine donnée à confirmer" is visible... COMPLETED
+Assert that "next_ask_value: propertyMarketValue" is visible... COMPLETED
+Assert that id: succession_data_quest_mode is visible... COMPLETED
+Assert that "Donnée manquante à collecter" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_stage is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_stage is visible... COMPLETED
+Assert that "Indispensable avant le calcul" is visible... COMPLETED
+Launch app "ch.mint.app" with clear state (launch arguments: {MINT_TEST_INITIAL_ROUTE=/succession, MINT_ENABLE_RUNTIME_PROOF_SEMANTICS=true, MINT_TEST_PROPERTY_VALUE=1200000})... COMPLETED
+Scrolling DOWN until id: succession_data_quest_next_ask is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_next_ask is visible... COMPLETED
+Assert that "Prochaine donnée à confirmer" is visible... COMPLETED
+Assert that "next_ask_value: targetRetirementAge" is visible... COMPLETED
+Scrolling DOWN until id: succession_data_quest_stage is visible with speed 5, visibility percentage 20%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that id: succession_data_quest_stage is visible... COMPLETED
+Assert that "Indispensable avant le calcul" is visible... COMPLETED

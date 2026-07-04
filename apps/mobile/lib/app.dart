@@ -1957,13 +1957,22 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     final propertyValue = await readMintDebugPropertyValueSeed();
     if (propertyValue == null || fixture == 'raiffeisen_status') return;
     final propertyValueStale = await readMintDebugPropertyValueStaleSeed();
+    final sourceDate = propertyValueStale
+        ? mintRuntimeProofStalePropertyValueDate(proofSourceDate)
+        : proofSourceDate;
     await provider.mergeAnswers(
       {'fp:patrimoine.propertyMarketValue': propertyValue},
       source: ProfileDataSource.userInput,
-      sourceDate: propertyValueStale
-          ? mintRuntimeProofStalePropertyValueDate(proofSourceDate)
-          : proofSourceDate,
+      sourceDate: sourceDate,
     );
+    if (propertyValueStale && provider.profile != null) {
+      provider.updateProfile(
+        mintRuntimeProofProfileWithStalePropertyValueTimestamp(
+          provider.profile!,
+          sourceDate,
+        ),
+      );
+    }
   }
 
   @override

@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 
@@ -210,3 +211,42 @@ def test_android_runtime_blocker_has_executable_patrol_remediation_path() -> Non
     assert "automatic triggers" in blocker
     assert "mobile-p0-patrol emulator-5554" in blocker
     assert "before any Phase 3" in blocker
+
+
+def test_lucidity_gate_self_recursion_works_when_invoked_with_bash() -> None:
+    gate = (ROOT / "tools/checks/mint_lucidity_gate.sh").read_text()
+
+    assert not re.search(r'^\s*"\$0"\s+\S+', gate, re.MULTILINE)
+    assert 'bash "$0" ledger' in gate
+    assert 'bash "$0" mobile-data-quest' in gate
+
+
+def test_phase2_gate_splits_runtime_from_external_audit_artifacts() -> None:
+    gate = (ROOT / "tools/checks/mint_lucidity_gate.sh").read_text()
+
+    assert "run_phase2_runtime_gate()" in gate
+    assert "phase2-runtime)" in gate
+    assert "phase2-artifacts)" in gate
+    assert "phase2-runtime" in gate.split("Usage: $0", maxsplit=1)[1]
+    assert "phase2-artifacts" in gate.split("Usage: $0", maxsplit=1)[1]
+
+    phase2_case = gate.split("phase2)", maxsplit=1)[1].split(
+        "phase2-runtime)",
+        maxsplit=1,
+    )[0]
+    assert "run_phase2_runtime_gate" in phase2_case
+    assert "check_phase_acceptance_artifacts phase2" in phase2_case
+
+    runtime_case = gate.split("phase2-runtime)", maxsplit=1)[1].split(
+        "phase2-artifacts)",
+        maxsplit=1,
+    )[0]
+    assert "run_phase2_runtime_gate" in runtime_case
+    assert "check_phase_acceptance_artifacts" not in runtime_case
+
+    artifacts_case = gate.split("phase2-artifacts)", maxsplit=1)[1].split(
+        "ledger)",
+        maxsplit=1,
+    )[0]
+    assert "check_phase_acceptance_artifacts phase2" in artifacts_case
+    assert "run_phase2_runtime_gate" not in artifacts_case

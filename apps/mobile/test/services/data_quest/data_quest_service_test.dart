@@ -487,7 +487,7 @@ void main() {
     });
 
     test(
-        'transmit_property keeps partial living-cost period answer on the living-cost ask',
+        'transmit_property reconfirms partial living-cost answer without dated fact',
         () {
       final plan = DataQuestService.planCase(
         caseId: 'transmit_property',
@@ -541,6 +541,7 @@ void main() {
       expect(plan.asks.first.questionId, 'ask_parent_annual_living_costs');
       expect(plan.asks.first.inputKey, 'parentAnnualLivingCosts');
       expect(plan.asks.first.mode, DataQuestAskMode.reconfirm);
+      expect(plan.asks.first.priorValue, 6600);
       expect(
         plan.asks.map((ask) => ask.inputKey),
         isNot(contains('mortgageBalance')),

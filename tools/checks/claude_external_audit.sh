@@ -251,7 +251,7 @@ case "$mode" in
         emit_file "${MINT_EVIDENCE_DIR}/SCORECARD.md" 180
         emit_file "${MINT_EVIDENCE_DIR}/phase2-maestro.txt" 160
         emit_file "${MINT_EVIDENCE_DIR}/phase2-reconfirm-maestro.txt" 160
-        emit_file "${MINT_EVIDENCE_DIR}/gate-phase2-run.txt" 220
+        emit_file "${MINT_EVIDENCE_DIR}/gate-phase2-run.txt" 520
       fi
     } > "$bundle"
     run_claude_prompt "$bundle"

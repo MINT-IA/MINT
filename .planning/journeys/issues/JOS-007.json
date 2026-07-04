@@ -3,10 +3,10 @@
   "id": "JOS-007",
   "title": "Produce phase acceptance scorecard artifacts",
   "journey_id": "mint_lucidity_p0_acceptance",
-  "status": "proof_needed",
+  "status": "verified",
   "owner": "mint-lead",
   "severity": "P0",
-  "evidence_status": "baselined",
-  "next_action": "Create a real MINT_EVIDENCE_DIR with SCORECARD.md, claude-phase audit marker, quality-gate score, and roster co-signatures; then run the phase acceptance artifact gate.",
-  "source": "Claude architecture audit 20260704 C-2; tools/checks/mint_lucidity_gate.sh check_phase_acceptance_artifacts"
+  "evidence_status": "green",
+  "next_action": "Keep Phase 2 acceptance artifacts durable in repo evidence; continue with the next Journey OS blocker before any broader product-ready claim.",
+  "source": "Phase 2 iPhone 17 Pro evidence .planning/runtime-evidence/mint-lucidity-phase2-20260704T164746; claude-phase2-audit.md starts with NO_UNRESOLVED_CRITICAL_HIGH; bash tools/checks/mint_lucidity_gate.sh phase2-artifacts exited 0."
 }

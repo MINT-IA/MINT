@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/biography/freshness_decay_service.dart';
+import 'package:mint_mobile/services/dossier/dossier_payload_service.dart';
 import 'package:mint_mobile/services/startup_route_override.dart';
 import 'package:mint_mobile/services/startup_route_override_parser.dart';
 
@@ -243,6 +245,34 @@ void main() {
           isTrue);
       expect(fact.fieldPath, 'patrimoine.propertyMarketValue');
       expect(fact.sourceDate, staleDate);
+      expect(FreshnessDecayService.needsRefresh(fact, now), isTrue);
+    });
+
+    test('updates profile timestamp used by Data Quest facts', () {
+      final now = DateTime.utc(2026, 7, 4);
+      final staleDate = mintRuntimeProofStalePropertyValueDate(now);
+      final profile = CoachProfile.defaults().copyWith(
+        patrimoine: const PatrimoineProfile(propertyMarketValue: 1200000),
+        dataSources: const {
+          'patrimoine.propertyMarketValue': ProfileDataSource.userInput,
+        },
+        dataTimestamps: {'patrimoine.propertyMarketValue': now},
+        dataSourceDates: {'patrimoine.propertyMarketValue': staleDate},
+      );
+
+      final staleProfile =
+          mintRuntimeProofProfileWithStalePropertyValueTimestamp(
+        profile,
+        staleDate,
+      );
+      final facts = DossierPayloadService.dataQuestFactsFromProfile(
+        profile: staleProfile,
+        answers: const {},
+      );
+      final fact = facts['patrimoine.propertyMarketValue'];
+
+      expect(fact, isNotNull);
+      expect(fact!.updatedAt, staleDate);
       expect(FreshnessDecayService.needsRefresh(fact, now), isTrue);
     });
   });
