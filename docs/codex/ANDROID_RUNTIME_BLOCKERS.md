@@ -20,7 +20,8 @@ This file is the mechanical blocker ledger for Mint runtime acceptance claims.
 - remediation path:
   - CI owner: `mint-quality-gate`
   - executable workflow: `.github/workflows/android-runtime-patrol.yml`
-  - automatic triggers: `pull_request` for `apps/mobile/**`, `tools/checks/mint_lucidity_gate.sh`, and the workflow file itself; `push` on `claude/mint-swiss-coach-eu33i7` for the same paths; `workflow_dispatch` remains for manual reruns
+  - automatic triggers: `pull_request` for `apps/mobile/**`, `tools/checks/mint_lucidity_gate.sh`, and the workflow file itself only on dedicated Android compatibility branches (`codex/android-*` or `*android-runtime*`); `push` on `claude/mint-swiss-coach-eu33i7` for the same paths; `workflow_dispatch` remains for manual reruns
+  - normal product PRs are not blocked by this open Android compatibility debt; they keep the iPhone simulator as active runtime proof until the dedicated Android branch updates Gradle/SDK/desugaring and reruns this workflow
   - target phase: before any Phase 3 or release claim that says "Android" or "cross-platform runtime accepted"
   - infrastructure: GitHub Actions `ubuntu-latest` + `reactivecircus/android-emulator-runner@v2` + API 35 Pixel emulator
   - required commands:

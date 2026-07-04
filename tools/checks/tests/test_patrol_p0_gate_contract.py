@@ -234,11 +234,14 @@ def test_android_runtime_blocker_has_executable_patrol_remediation_path() -> Non
     assert "reactivecircus/android-emulator-runner@v2" in workflow
     assert "pull_request:" in workflow
     assert "push:" in workflow
+    assert "startsWith(github.head_ref, 'codex/android-')" in workflow
+    assert "android-runtime" in workflow
     assert '"apps/mobile/**"' in workflow
     assert "flutter build apk --debug" in workflow
     assert "mobile-p0-patrol emulator-5554" in workflow
     assert ".github/workflows/android-runtime-patrol.yml" in blocker
-    assert "automatic triggers" in blocker
+    assert "dedicated Android compatibility branches" in blocker
+    assert "normal product PRs are not blocked" in blocker
     assert "mobile-p0-patrol emulator-5554" in blocker
     assert "before any Phase 3" in blocker
 
