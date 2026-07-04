@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "mint_lucidity_p0_acceptance",
+  "title": "Mint lucidity P0 acceptance",
+  "tier": "T0",
+  "status": "blocked",
+  "human_promise": "MINT P0 lucidity paths are accepted only with cross-platform proof and explicit phase artifacts.",
+  "accountable_team": "mint-quality-gate",
+  "route_paths": [
+    "/rapport",
+    "/scan/review",
+    "/scan/impact",
+    "/pilier-3a",
+    "/hypotheque",
+    "/coach/chat"
+  ],
+  "surfaces": [
+    "DataQuestService",
+    "DossierPayloadService",
+    "ReportRouteScreen",
+    "ScanSessionProvider",
+    "PatrolP0RuntimeGate",
+    "PhaseAcceptanceScorecard"
+  ],
+  "external_apis": [],
+  "issues": [
+    "JOS-006",
+    "JOS-007"
+  ],
+  "priority": {
+    "trust_blast_radius": 5,
+    "release_blocker_weight": 5,
+    "user_frequency": 5,
+    "evidence_gap": 5,
+    "route_centrality": 5,
+    "compliance_risk": 4,
+    "learning_value": 5,
+    "proof_cost": 4,
+    "rationale": "P0 lucidity acceptance crosses the user's core financial journeys; without platform proof and scorecards, product readiness claims are not credible."
+  },
+  "evidence": [
+    {
+      "kind": "external",
+      "status": "baselined",
+      "command": "CLAUDE_AUDIT_MAX_BUDGET_USD=2.00 CLAUDE_ULTRAREVIEW_TIMEOUT_MINUTES=30 bash tools/checks/claude_external_audit.sh architecture",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt",
+      "reason": "Claude architecture audit found unresolved CRITICAL/HIGH acceptance blockers: Android runtime proof absent and phase acceptance artifacts missing.",
+      "debt_ref": "CLAUDE-ARCH-20260704-C1-C2"
+    }
+  ]
+}

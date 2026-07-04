@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-04T00:00:00.000Z"
-last_activity: 2026-07-04 -- Mint OS consolidated into the clean DataQuest branch; active router now targets `.planning/phases/mint-lucidity-dataquest-clean/CONTEXT.md`.
+last_updated: "2026-07-04T13:11:14.000Z"
+last_activity: 2026-07-04 -- DataQuest clean branch now has route-extra guards, scan recovery repair, raw-reference store contract, mobile-scenarios gate proof, and Claude architecture audit captured as Journey OS blockers JOS-006/JOS-007.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -45,9 +45,10 @@ and `.planning/phases/mint-lucidity-dataquest-clean/VERIFICATION.md`.
 collected progressively, dated and sourced, then reused across life events
 without duplicate collection.
 
-**Current focus:** consolidate the Mint OS in the clean branch, then fix the
-critical `WIRING_GRAPH.mmd` invariants around route payloads, persisted data,
-legacy profile islands, redirects, and Data Quest proof gates.
+**Current focus:** keep the clean branch reviewable while closing the external
+audit blockers: Android P0 Patrol proof and real phase acceptance artifacts.
+Route payloads, scan recovery, legacy profile island, redirect shims, and Data
+Quest proof gates are now covered by deterministic guards in this branch.
 
 ## Current Position
 
@@ -70,14 +71,15 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
 
 **Current critical findings:**
 
-- `state.extra` still transports domain data for scan/report routes.
-- `ProfileProvider` still acts as a financial-data island in production widgets.
-- redirect shims drop query context.
-- Data Ledger wealth/mortgage/debt variables are under-documented.
-- the clean branch needs Mint OS guard consolidation before more product work.
+- JOS-006: Android P0 Patrol runtime proof is missing; Claude architecture audit
+  treats iOS-only runtime proof as insufficient for product acceptance.
+- JOS-007: phase acceptance artifacts are missing; `MINT_EVIDENCE_DIR` needs a
+  real `SCORECARD.md`, Claude phase audit marker, quality-gate score, and roster
+  co-signatures before any ready claim.
+- Claude architecture audit remains non-green and is stored at
+  `.planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt`.
 
 ## Historical Receipts
 
 Historical phase directories remain in `.planning/` and Git history. They may be
 cited as evidence, but they are not the current router.
-

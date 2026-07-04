@@ -1,0 +1,117 @@
+## External Architecture Audit — MINT Lucidity Spine
+
+**Audit scope:** data architecture, life-event progression, Swiss compliance, runtime evidence, facade risk
+**Files reviewed:** CLAUDE.md, AGENTS.md, spine plan, DATA_LEDGER_GATE_SPEC.md, ANDROID_RUNTIME_BLOCKERS.md, P0_CASE_VARIABLE_REGISTRY.json, mint_lucidity_gate.sh, property_transmission_calculator.dart, dossier_payload_service.dart, coach_chat.py, patrol tests, codex specs
+
+---
+
+## CRITICAL Findings
+
+### C-1 — Android runtime proof absent; iOS-only acceptance mislabeled as P0 product acceptance
+
+`ANDROID_RUNTIME_BLOCKERS.md` confirms `No Android SDK found`, `flutter build apk --debug` failed, and `adb` is not on PATH. All three P0 cases carry `"acceptance_status": "phase1_runtime_accepted"` but the acceptance is structurally iOS-only. The android-runtime-patrol.yml CI workflow has never produced evidence. For a Swiss financial lucidity app targeting 18–99 year olds, Android is ~40% of the Swiss market. Shipping iOS-only runtime proof and calling it P0 product acceptance is a category error.
+
+**Required before any "ready" claim:** at least one P0 case must pass `mint_lucidity_gate.sh mobile-p0-patrol emulator-5554` on an Android emulator per the blocker spec.
+
+### C-2 — Phase acceptance artifacts are plan items, not verified artifacts
+
+`check_phase_acceptance_artifacts()` in the gate script requires SCORECARD.md, a Claude CLI audit file with `NO_UNRESOLVED_CRITICAL_HIGH`, `cli_exception_consumed: false`, quality gate score ≥ 9.0/10, and both co-signatures. None of these artifacts are present in the provided evidence. Phase 1 and Phase 2 are described as accepted in the registry (`"acceptance_status": "phase1_runtime_accepted"`) without the gate script having run against real artifacts. This violates CLAUDE.md §9.1 — calling something accepted without citing the mechanical evidence is the exact failure mode the 0-TRUST protocol exists to prevent.
+
+---
+
+## HIGH Findings
+
+### H-1 — 3 of 18 life events implemented; product framing vs. delivered scope
+
+CLAUDE.md Rule 3: "18 life events equally weighted." The plan, case registry, DataQuest planner, and gate script exclusively cover `first_salary_tax`, `buy_property`, and `transmit_property`. There is no architecture, registry entry, or planned DataQuest spec for the remaining 15 events (divorce, inheritance, career change, disability, healthcare, debt…). `DataQuestCaseRegistry.p0Cases` is structurally a 3-case map. Calling this a "lucidity product" for 18 life events when 83% are unimplemented is a product identity gap that affects positioning, scope commitments, and specialist-handoff completeness.
+
+### H-2 — `simulator_3a_fatca_screen_test.dart` is explicitly `MISSING`
+
+The file listing includes:
+```
+===== FILE: apps/mobile/test/screens/simulator_3a_fatca_screen_test.dart =====
+MISSING: apps/mobile/test/screens/simulator_3a_fatca_screen_test.dart
+```
+FATCA is one of two explicit Swiss compliance archetypes tested at the patrol level. A missing widget test for the non-contributable state means the FATCA 3a block path has no isolated rendering test — the patrol test is the only coverage. Gate NEVER #10: "commit sans tests" applies.
+
+### H-3 — DataQuestService and CaseRegistry implementations not provided; facade risk unverifiable
+
+`apps/mobile/lib/services/data_quest/data_quest_service.dart` and `case_registry.dart` are referenced in the gate checks, in the succession screen, and in all three patrol tests, but no implementation is provided. The gate script asserts their existence and that specific symbols appear (`DataQuestService.planCase`, `DataQuestProofStrip`, `answersSnapshot`), but the planner logic itself — the core progressive acquisition engine — is not reviewable. This is the highest-value facade risk in the plan.
+
+### H-4 — Local profile ownership is fragile; no migration path for auth claim
+
+`LocalProfileOwnerService` uses `FlutterSecureStorage` as primary with a `SharedPreferences` fallback. The code comments acknowledge "iOS simulator can lack keychain entitlements." When keychain is unavailable (the common case in development), the owner ID is written only to SharedPreferences under a `mintfb_` key. The `profile_owner_id` is the persistence anchor for all dossier payloads. There is no specified migration path when a user subsequently creates an account — how does the server claim the `local_demo_<uuid>` keyed data? The plan says "Later account creation claims or migrates the same owner key" but no implementation exists.
+
+### H-5 — Maestro flow IDs for first_salary_tax and buy_property are `"pending"`
+
+The gate script `check_maestro_route_coverage_manifest()` detects stale files when `maestro_flow_id: "pending"` but a `.yaml` exists. For these two cases, Patrol is the accepted runtime proof. However, `check_phase_acceptance_artifacts()` requires a `claude-phase1-audit.md` — if the CLI audit ran against a Maestro-first expectation and only Patrol evidence exists, the audit scope is understated.
+
+### H-6 — PDF dossier content quality not verifiable from tests
+
+`test/screens/report_route_screen_test.dart` verifies `String.fromCharCodes(bytes.take(5)), '%PDF-'` — that the output is a valid PDF file header. The test does not assert regulatory disclaimer text, specialist-handoff language, assumption tables, confidence bands, or LSFin-compliant labels inside the PDF. The `buildDossierPayloadPdfBytes` and `buildFinancialReportPdfBytes` implementations are not provided. For a Swiss financial lucidity product, the PDF is the primary specialist handoff artifact and must be reviewed at content level.
+
+---
+
+## MEDIUM Findings
+
+### M-1 — `parentAnnualRetirementIncome` composed input has dual derivation paths with unclear precedence
+
+The P0 registry declares:
+```json
+"formula": "(prevoyance.renteAVSEstimeeMensuelle * 12) + prevoyance.projectedRenteLpp"
+```
+`DossierPayloadService._parentAnnualRetirementIncomeEvidence()` dispatches between direct answer keys (`q_parent_annual_retirement_income`, `_transmit_property_parent_annual_retirement_income`) and ledger derivation. The `composition.mobile_contract` points to `succession_patrimoine_screen.dart` and `property_transmission_calculator.dart` but neither the screen nor the test for this specific composition path is provided. If the AVS estimate is stale and the direct answer key is missing, the composed value silently uses `estimated` source with no freshness gate.
+
+### M-2 — `FROZEN_SAVE_FACT_ALLOWLIST_COUNT = 40` creates high coordination overhead for any extension
+
+Adding any new ledger key requires synchronized changes to: backend `_SAVE_FACT_ALLOWED_KEYS`, Flutter `_mapFactKeyToAnswers`, `DATA_LEDGER.md` §3 table, `DATA_QUEST.md` count references, `WIRING_GRAPH.mmd` allowlist label, `P0_CASE_VARIABLE_REGISTRY.json`, and the frozen count constant itself. The test explicitly asserts old counts are absent (`"(35 keys" not in text`, `"36-key contract" not in text`). For a product that claims 18 life events, this 7-file coordination requirement for each new data key will become a bottleneck.
+
+### M-3 — 3a ceiling defaults to LPP ceiling without requiring LPP status confirmation in the simulator
+
+`Simulator3aScreen._initializeFromProfile()` sets `_isIndepSansLpp = true` only if `archetype == FinancialArchetype.independentNoLpp`. If the user hasn't provided `has2ndPillar` but isn't detected as independent, `_plafond3a` defaults to `pilier3aPlafondAvecLpp`. A salaried worker without a pension fund would see the wrong ceiling until they answer the 3a case guard question. The DossierPayload correctly gates on `missingCeilingInputs` but the simulator screen can display a number before the information is collected.
+
+### M-4 — FATCA handling blocks 3a contribution but leaves other FATCA implications unaddressed
+
+The patrol test confirms `nationality=US` → `canContribute3a=false`. But Swiss investment accounts for US persons have additional constraints: QI reporting, FATCA withholding on dividends, restrictions on investing in US-registered funds via Swiss vehicles. The current implementation creates `q_nationality` without `isFatcaResident` (correctly avoids duplicate key), but the downstream educational content for `sim3a_non_contributable_state` is not provided — users may not understand what alternatives exist. For a compliance-conscious product this is a meaningful gap.
+
+### M-5 — `_transmitProperty()` function is truncated; dossier output not reviewable
+
+The `dossier_payload_service.dart` file ends mid-function after constructing inputs and calling `PropertyTransmissionCalculator.compute(inputs)`. The `DossierPayload(...)` return statement and the outputs/assumptions/warnings/nextQuestions construction are not visible. This is the most complex P0 dossier case and cannot be audited for correctness or completeness.
+
+### M-6 — `canContribute3a` derivation not provided; nationality-based blocking may have edge cases
+
+`simulator_3a_screen.dart` references `coachProfile.canContribute3a` and uses it for both the `_plafond3a` (set to 0) and the non-contributable semantics display. The `CoachProfile` model implementation of `canContribute3a` is not provided. Edge cases include dual Swiss/US nationality, former US persons who have renounced, Green Card holders, and non-US foreign nationals subject to bilateral treaties.
+
+### M-7 — Stress rate source relies on runtime sync with static constant fallback
+
+`DossierPayloadService.mortgageStressInterestRate` calls `reg('mortgage.theoretical_rate', hypothequeTauxTheorique)`. `hypothequeTauxTheorique` is a static constant. If `RegulatorySyncService` returns stale or failed data, the fallback value may not reflect current SNB/ASB affordability stress rate guidance. The test confirms the synced value is used when mocked, but no freshness check exists on the sync cache.
+
+---
+
+## LOW Findings
+
+### L-1 — Wiring graph is truncated; INVARIANTS not reviewable
+
+`WIRING_GRAPH.mmd` ends partway through the NAV subgraph. The documented invariants I-1..I-9 that a CI script must assert are not visible. The Mermaid compile check in the gate script validates syntax but not semantic correctness of the graph against the actual code.
+
+### L-2 — `test_patrol_runner_does_not_force_simctl_for_android_devices` test body missing
+
+The last test in `test_patrol_p0_gate_contract.py` is defined but has no body shown. This is a structural gap in the gate contract test that catches iOS-only assumptions in the Patrol runner.
+
+### L-3 — Disclaimer text not asserted at UI level in property transmission
+
+`PropertyTransmissionCalculator._modelScope()` produces `classification=educational_triage` and `requiresSpecialistReview=True`. The Maestro contract asserts these appear in Semantics values. However, a Semantics value is not user-visible text — it is accessibility metadata. The user-facing text asserting "this is educational triage, not a legal partition analysis" must appear explicitly in the screen's visible content. The `articles/thesis` field uses i18n key `successionPropertyTransmissionArticleThesis` but its content is not provided.
+
+---
+
+## Score: 5.5 / 10
+
+| Dimension | Score | Rationale |
+|---|---|---|
+| Data architecture | 7/10 | L1/L2 boundary, 40-key allowlist, provenance tracking are solid. Composed inputs and ownership migration are weak. |
+| Life-event progression | 3/10 | 3 of 18 life events. No generalization architecture for the remaining 15. Case registry is closed. |
+| Swiss compliance | 6/10 | Educational triage markers, cantonal review flags, FATCA 3a blocking, and dossier stubs are correct. FATCA implications incomplete, disclaimer visibility unverified. |
+| Runtime evidence | 4/10 | Android completely absent. iOS patrol tests exist but phase acceptance artifacts are not demonstrated in evidence. Maestro pending for 2 of 3 cases. |
+| Facade risk | 5/10 | Gate script is highly mechanical and guards against facades well. Core implementations (DataQuestService, succession screen, PDF content) are not provided for review. `simulator_3a_fatca_screen_test.dart` is explicitly missing. |
+
+**Summary:** The gate protocol and data architecture are industry-quality. The property transmission calculator is correctly classified as educational triage with well-structured confidence rationales. However: Android runtime is completely unproven, only 3 of 18 claimed life events are implemented, the two highest-value facades (DataQuestService planner and succession screen) are not reviewable, and phase acceptance artifacts are stated rather than demonstrated. The product cannot be called a "Swiss financial lucidity product" for a broad life-event platform until at minimum 5–6 life events are implemented, Android has at least one P0 runtime proof, and phase scorecards are actual files rather than planned deliverables.

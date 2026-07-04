@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-006",
+  "title": "Prove Android P0 Patrol runtime acceptance",
+  "journey_id": "mint_lucidity_p0_acceptance",
+  "status": "proof_needed",
+  "owner": "mint-quality-gate",
+  "severity": "P0",
+  "evidence_status": "baselined",
+  "next_action": "Run at least one P0 Patrol journey on an Android emulator with tools/checks/mint_lucidity_gate.sh mobile-p0-patrol emulator-5554, store durable evidence, then rerun Claude external audit.",
+  "source": "Claude architecture audit 20260704 C-1; docs/codex/ANDROID_RUNTIME_BLOCKERS.md; .github/workflows/android-runtime-patrol.yml"
+}

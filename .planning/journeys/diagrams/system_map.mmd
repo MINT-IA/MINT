@@ -63,6 +63,48 @@ flowchart LR
   issue_JOS_004["JOS-004<br/>proof_needed/baselined"]
   issue_JOS_004 --> journey_coach_advice_turn
   class issue_JOS_004 amber
+  journey_mint_lucidity_p0_acceptance["mint_lucidity_p0_acceptance<br/>blocked<br/>latest baselined"]
+  class journey_mint_lucidity_p0_acceptance amber
+  route_rapport["/rapport"]
+  journey_mint_lucidity_p0_acceptance --> route_rapport
+  class route_rapport route
+  route_scan_review["/scan/review"]
+  journey_mint_lucidity_p0_acceptance --> route_scan_review
+  class route_scan_review route
+  route_scan_impact["/scan/impact"]
+  journey_mint_lucidity_p0_acceptance --> route_scan_impact
+  class route_scan_impact route
+  route_pilier_3a["/pilier-3a"]
+  journey_mint_lucidity_p0_acceptance --> route_pilier_3a
+  class route_pilier_3a route
+  route_hypotheque["/hypotheque"]
+  journey_mint_lucidity_p0_acceptance --> route_hypotheque
+  class route_hypotheque route
+  journey_mint_lucidity_p0_acceptance --> route_coach_chat
+  surface_DataQuestService["DataQuestService"]
+  journey_mint_lucidity_p0_acceptance -.-> surface_DataQuestService
+  class surface_DataQuestService surface
+  surface_DossierPayloadService["DossierPayloadService"]
+  journey_mint_lucidity_p0_acceptance -.-> surface_DossierPayloadService
+  class surface_DossierPayloadService surface
+  surface_ReportRouteScreen["ReportRouteScreen"]
+  journey_mint_lucidity_p0_acceptance -.-> surface_ReportRouteScreen
+  class surface_ReportRouteScreen surface
+  surface_ScanSessionProvider["ScanSessionProvider"]
+  journey_mint_lucidity_p0_acceptance -.-> surface_ScanSessionProvider
+  class surface_ScanSessionProvider surface
+  surface_PatrolP0RuntimeGate["PatrolP0RuntimeGate"]
+  journey_mint_lucidity_p0_acceptance -.-> surface_PatrolP0RuntimeGate
+  class surface_PatrolP0RuntimeGate surface
+  surface_PhaseAcceptanceScorecard["PhaseAcceptanceScorecard"]
+  journey_mint_lucidity_p0_acceptance -.-> surface_PhaseAcceptanceScorecard
+  class surface_PhaseAcceptanceScorecard surface
+  issue_JOS_006["JOS-006<br/>proof_needed/baselined"]
+  issue_JOS_006 --> journey_mint_lucidity_p0_acceptance
+  class issue_JOS_006 amber
+  issue_JOS_007["JOS-007<br/>proof_needed/baselined"]
+  issue_JOS_007 --> journey_mint_lucidity_p0_acceptance
+  class issue_JOS_007 amber
   journey_money_truth_spine["money_truth_spine<br/>live_proven<br/>latest green"]
   class journey_money_truth_spine green
   route_budget["/budget"]
@@ -71,9 +113,7 @@ flowchart LR
   route_mon_argent["/mon-argent"]
   journey_money_truth_spine --> route_mon_argent
   class route_mon_argent route
-  route_rapport["/rapport"]
   journey_money_truth_spine --> route_rapport
-  class route_rapport route
   journey_money_truth_spine --> route_coach_chat
   surface_BudgetSnapshot["BudgetSnapshot"]
   journey_money_truth_spine -.-> surface_BudgetSnapshot

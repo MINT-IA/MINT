@@ -1,0 +1,65 @@
+%% Generated from .planning/journeys/records/mint_lucidity_p0_acceptance.json
+flowchart TD
+  promise["MINT P0 lucidity paths are accepted only with cross-platform proof and explicit phase artifacts."]
+  team["mint-quality-gate"]
+  latest["latest proof: baselined / external"]
+  promise --> latest
+  classDef green fill:#e8f5e9,stroke:#1b5e20,color:#0b3d1a;
+  classDef red fill:#ffebee,stroke:#b71c1c,color:#5f1111;
+  classDef amber fill:#fff8e1,stroke:#ff8f00,color:#5f3b00;
+  classDef blocked fill:#eceff1,stroke:#455a64,color:#263238;
+  classDef neutral fill:#f5f5f5,stroke:#616161,color:#212121;
+  classDef route fill:#e3f2fd,stroke:#0d47a1,color:#082f66;
+  classDef surface fill:#f3e5f5,stroke:#4a148c,color:#2b0d52;
+  classDef api fill:#e0f2f1,stroke:#00695c,color:#003d35;
+  class latest amber
+  priority["priority score 30"]
+  priority --> promise
+  route_rapport["/rapport"]
+  promise --> route_rapport
+  route_rapport --> team
+  class route_rapport route
+  route_scan_review["/scan/review"]
+  promise --> route_scan_review
+  route_scan_review --> team
+  class route_scan_review route
+  route_scan_impact["/scan/impact"]
+  promise --> route_scan_impact
+  route_scan_impact --> team
+  class route_scan_impact route
+  route_pilier_3a["/pilier-3a"]
+  promise --> route_pilier_3a
+  route_pilier_3a --> team
+  class route_pilier_3a route
+  route_hypotheque["/hypotheque"]
+  promise --> route_hypotheque
+  route_hypotheque --> team
+  class route_hypotheque route
+  route_coach_chat["/coach/chat"]
+  promise --> route_coach_chat
+  route_coach_chat --> team
+  class route_coach_chat route
+  surface_DataQuestService["DataQuestService"]
+  promise -.-> surface_DataQuestService
+  class surface_DataQuestService surface
+  surface_DossierPayloadService["DossierPayloadService"]
+  promise -.-> surface_DossierPayloadService
+  class surface_DossierPayloadService surface
+  surface_ReportRouteScreen["ReportRouteScreen"]
+  promise -.-> surface_ReportRouteScreen
+  class surface_ReportRouteScreen surface
+  surface_ScanSessionProvider["ScanSessionProvider"]
+  promise -.-> surface_ScanSessionProvider
+  class surface_ScanSessionProvider surface
+  surface_PatrolP0RuntimeGate["PatrolP0RuntimeGate"]
+  promise -.-> surface_PatrolP0RuntimeGate
+  class surface_PatrolP0RuntimeGate surface
+  surface_PhaseAcceptanceScorecard["PhaseAcceptanceScorecard"]
+  promise -.-> surface_PhaseAcceptanceScorecard
+  class surface_PhaseAcceptanceScorecard surface
+  issue_JOS_006["JOS-006 proof_needed/baselined"]
+  issue_JOS_006 --> promise
+  class issue_JOS_006 amber
+  issue_JOS_007["JOS-007 proof_needed/baselined"]
+  issue_JOS_007 --> promise
+  class issue_JOS_007 amber
