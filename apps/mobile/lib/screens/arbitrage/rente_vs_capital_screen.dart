@@ -835,10 +835,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md),
-      child: Column(
+    return Semantics(
+      identifier: 'rvc_input_section',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Mode selector
@@ -1065,7 +1069,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               ),
             ],
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1121,7 +1126,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     bool isPercent = false,
   }) {
     final isPrefilled = fieldName != null && _prefilledFields.contains(fieldName);
-    final fieldIdentifier = fieldName == null ? null : 'rvc_${fieldName}_input';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1138,34 +1142,30 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ],
         ),
         const SizedBox(height: MintSpacing.xs),
-        Semantics(
-          identifier: fieldIdentifier,
-          container: fieldIdentifier != null,
-          child: TextField(
-            controller: controller,
-            keyboardType: isPercent
-                ? const TextInputType.numberWithOptions(decimal: true)
-                : TextInputType.number,
-            onTapOutside: (_) => FocusScope.of(context).unfocus(),
-            inputFormatters: isPercent
-                ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
-                : [FilteringTextInputFormatter.digitsOnly],
-            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
-              fontSize: 15,
-            ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: MintColors.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: MintSpacing.md, vertical: 14,
-              ),
-            ),
-            onChanged: (_) => _userRecalculate(),
+        TextField(
+          controller: controller,
+          keyboardType: isPercent
+              ? const TextInputType.numberWithOptions(decimal: true)
+              : TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
+          inputFormatters: isPercent
+              ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
+              : [FilteringTextInputFormatter.digitsOnly],
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+            fontSize: 15,
           ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: MintColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md, vertical: 14,
+            ),
+          ),
+          onChanged: (_) => _userRecalculate(),
         ),
       ],
     );
