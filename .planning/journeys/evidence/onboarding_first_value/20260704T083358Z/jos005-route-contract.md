@@ -79,5 +79,10 @@ ERROR: maestro check-syntax timed out after 360s
 apps/mobile/.maestro/r1_scan_review.yaml
 ```
 
-JOS-005 should be moved to `verified/green` only after the iPhone 13 mini
-Mint2 first-value runtime proof is restored and passes.
+JOS-005 should be moved to `verified/green` only after canonical iOS runtime
+proof passes on the iPhone 17 Pro simulator, or an explicitly cited
+iPhone 15/14-class fallback.
+
+Supersession note, 2026-07-04: the earlier compact legacy iPhone runtime proof
+is historical evidence only. Active JOS-005 acceptance moved to
+`.planning/journeys/evidence/onboarding_first_value/20260704T203133Z-maestro-iphone17/`.

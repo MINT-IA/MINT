@@ -49,7 +49,7 @@
       "status": "red",
       "command": "MINT2_QUALITY_ARTIFACTS=/tmp/mint-jos005-onboarding-first-value-20260627T175336Z bash tools/simulator/mint2_quality_gate.sh",
       "artifact": ".planning/journeys/evidence/onboarding_first_value/20260627T175336Z/maestro-red.txt",
-      "reason": "Fresh Mint2 iPhone 13 mini quality gate reaches the LPP/rente-capital first-value axis, but selecting it lands on the account-creation gate instead of /rente-vs-capital.",
+      "reason": "Fresh Mint2 compact legacy iPhone quality gate reaches the LPP/rente-capital first-value axis, but selecting it lands on the account-creation gate instead of /rente-vs-capital.",
       "verified_at": "2026-06-27T17:55:32Z",
       "verified_commit": "cc58ad2a0e5113679412118ae9631c52a328496d"
     },
@@ -68,9 +68,19 @@
       "status": "green",
       "command": "MAESTRO_HARD_LIMIT=420 MAESTRO_STALL_THRESHOLD=120 MAESTRO_STALL_PROBE_INTERVAL=20 MINT_WALKER_ARTIFACTS=.planning/journeys/evidence/onboarding_first_value/20260704T115017Z/watchdog bash tools/simulator/maestro_with_watchdog.sh test --format junit --output .planning/journeys/evidence/onboarding_first_value/20260704T115017Z/result.xml apps/mobile/.maestro/jos005_rente_vs_capital_before_account.yaml",
       "artifact": ".planning/journeys/evidence/onboarding_first_value/20260704T115017Z/result.xml",
-      "reason": "JOS-005 direct-route runtime proof on iPhone 13 mini simulator: /rente-vs-capital launches before account creation via MINT_TEST_INITIAL_ROUTE, exposes the route/screen semantics ids, and does not hit account-gate or error assertions. This closes the direct-route first-value gate, not a full cold-start onboarding funnel; the journey remains partial. Build, install, Maestro/watchdog text output, OSLog tail, and run summary are stored beside the JUnit result.",
+      "reason": "JOS-005 direct-route runtime proof on an earlier compact legacy iPhone simulator: /rente-vs-capital launches before account creation via MINT_TEST_INITIAL_ROUTE, exposes the route/screen semantics ids, and does not hit account-gate or error assertions. This proof is historical only and is superseded by the canonical iPhone 17 Pro run; the journey remains partial.",
       "verified_at": "2026-07-04T11:52:17Z",
       "verified_commit": "efec4ee7e96fe97c70e6b579e6152d91a76fc9a2"
+    },
+    {
+      "kind": "runtime",
+      "status": "green",
+      "command": "bash tools/simulator/maestro_with_watchdog.sh test apps/mobile/.maestro/jos005_rente_vs_capital_before_account.yaml --format junit --output /tmp/mint-jos005-iphone17.xml",
+      "artifact": ".planning/journeys/evidence/onboarding_first_value/20260704T203133Z-maestro-iphone17/result.xml",
+      "reason": "JOS-005 direct-route runtime proof on canonical iPhone 17 Pro simulator B03E429D-0422-4357-B754-536637D979F9: /rente-vs-capital launches before account creation via MINT_TEST_INITIAL_ROUTE, exposes the route/screen semantics ids, and does not hit account-gate or error assertions. This supersedes the earlier compact iPhone proof as active evidence.",
+      "debt_ref": "JOS-005",
+      "verified_at": "2026-07-04T20:31:33Z",
+      "verified_commit": "e43b838c5b9c088920cf500f1e966392c8ca9e99"
     }
   ]
 }

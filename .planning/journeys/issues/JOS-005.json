@@ -7,6 +7,6 @@
   "owner": "mint-mobile",
   "severity": "P0",
   "evidence_status": "green",
-  "next_action": "Keep the /rente-vs-capital first-value runtime proof in Journey OS monitoring and continue with the next P0 Journey OS queue item.",
-  "source": "JOS-005 Maestro runtime proof 20260704T115017Z on iPhone 13 mini simulator; flow apps/mobile/.maestro/jos005_rente_vs_capital_before_account.yaml; commit efec4ee7e96fe97c70e6b579e6152d91a76fc9a2."
+  "next_action": "Keep the /rente-vs-capital first-value runtime proof in Journey OS monitoring on the canonical iPhone 17 Pro simulator and continue with the next P0 Journey OS queue item.",
+  "source": "JOS-005 Maestro runtime proof 20260704T203133Z on canonical iPhone 17 Pro simulator B03E429D-0422-4357-B754-536637D979F9; flow apps/mobile/.maestro/jos005_rente_vs_capital_before_account.yaml; artifact .planning/journeys/evidence/onboarding_first_value/20260704T203133Z-maestro-iphone17/result.xml."
 }
