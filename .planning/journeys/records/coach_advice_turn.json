@@ -69,7 +69,7 @@
       "artifact": ".planning/journeys/evidence/coach_advice_turn/20260704T163543Z-xcode-ui/summary.txt",
       "reason": "Native iOS UI proof shows the Coach answer includes 7'258 CHF and OPP3 art. 7, while the stale freshness fallback and false BYOK footer are absent. The local Maestro CLI stalled before running JOS-004, so this is supplementary evidence and not Journey OS acceptance.",
       "verified_at": "2026-07-04T16:35:43Z",
-      "verified_commit": "pending",
+      "verified_commit": "8d45588c9",
       "debt_ref": "JOS-004-maestro-cli-stall-20260704"
     }
   ]
