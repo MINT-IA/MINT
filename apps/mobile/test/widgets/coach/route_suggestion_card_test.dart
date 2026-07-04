@@ -218,6 +218,59 @@ void main() {
       expect(find.text('Rente vs Capital'), findsOneWidget);
     });
 
+    testWidgets('CTA leaves GoRouter.extra empty', (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => const Scaffold(
+              body: RouteSuggestionCard(
+                contextMessage: 'Ouvre le simulateur.',
+                route: '/rente-vs-capital',
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/rente-vs-capital',
+            builder: (context, state) => Scaffold(
+              body: Text(state.extra == null ? 'extra absent' : 'extra present'),
+            ),
+          ),
+        ],
+      );
+
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(MaterialApp.router(
+        routerConfig: router,
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('extra absent'),
+        findsOneWidget,
+        reason: 'Coach route suggestions must not pass financial maps through '
+            'GoRouter.extra; target screens read known facts from the '
+            'CoachProfileProvider/Data Ledger spine.',
+      );
+    });
+
     testWidgets('context_message is displayed as body text', (tester) async {
       const message = 'Ce simulateur te permettra de comparer les deux options.';
       await _pumpCard(

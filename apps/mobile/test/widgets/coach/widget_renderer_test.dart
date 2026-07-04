@@ -6,13 +6,13 @@
 //  1.  Valid route returns a RouteSuggestionCard widget
 //  2.  Invalid route returns SizedBox.shrink()
 //  3.  Missing route key returns SizedBox.shrink()
-//  4.  Prefill data is passed through to RouteSuggestionCard
+//  4.  Backend prefill does not leak into route widgets
 //  5.  context_message is passed through to RouteSuggestionCard
 //  6.  Empty route string returns SizedBox.shrink()
 //  7.  narrative field also accepted as contextMessage fallback
-//  8.  Backend prefill present, no profile → backend prefill passed through
-//  9.  Profile with data + intent → RoutePlanner prefill merged
-//  10. Backend prefill wins over RoutePlanner on key conflict
+//  8.  Partial state follows RoutePlanner readiness, not LLM-only fields
+//  9.  Profile with data + intent keeps Data Ledger as source of truth
+//  10. Backend prefill cannot override ledger values via GoRouter.extra
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -46,7 +46,14 @@ Widget _buildTestApp(Widget Function(BuildContext) builder) {
       ),
       GoRoute(
         path: '/rachat-lpp',
-        builder: (context, state) => const Scaffold(body: Text('Rachat')),
+        builder: (context, state) => Scaffold(
+          body: Column(
+            children: [
+              const Text('Rachat'),
+              Text(state.extra == null ? 'extra absent' : 'extra present'),
+            ],
+          ),
+        ),
       ),
     ],
   );
@@ -97,7 +104,14 @@ Widget _buildTestAppWithProfile(
       ),
       GoRoute(
         path: '/rachat-lpp',
-        builder: (context, state) => const Scaffold(body: Text('Rachat')),
+        builder: (context, state) => Scaffold(
+          body: Column(
+            children: [
+              const Text('Rachat'),
+              Text(state.extra == null ? 'extra absent' : 'extra present'),
+            ],
+          ),
+        ),
       ),
     ],
   );
@@ -175,7 +189,7 @@ void main() {
       expect(find.byType(RouteSuggestionCard), findsNothing);
     });
 
-    testWidgets('prefill data is passed through to RouteSuggestionCard',
+    testWidgets('backend prefill is not passed through to RouteSuggestionCard',
         (tester) async {
       late Widget? rendered;
       await tester.pumpWidget(_buildTestApp((context) {
@@ -193,10 +207,12 @@ void main() {
       }));
       await tester.pump();
       expect(find.byType(RouteSuggestionCard), findsOneWidget);
-      final card = tester.widget<RouteSuggestionCard>(
+      expect(
         find.byType(RouteSuggestionCard),
+        findsOneWidget,
+        reason: 'Financial prefill maps may arrive in legacy tool payloads, '
+            'but the renderer must not expose them to route widgets.',
       );
-      expect(card.prefill, {'avoirLpp': 70377});
     });
 
     testWidgets('context_message is passed to RouteSuggestionCard',
@@ -261,7 +277,7 @@ void main() {
       expect(card.contextMessage, 'Narration de secours');
     });
 
-    testWidgets('is_partial flag is passed through', (tester) async {
+    testWidgets('unschemaed is_partial flag is ignored', (tester) async {
       late Widget? rendered;
       await tester.pumpWidget(_buildTestApp((context) {
         rendered = WidgetRenderer.build(
@@ -280,15 +296,16 @@ void main() {
       final card = tester.widget<RouteSuggestionCard>(
         find.byType(RouteSuggestionCard),
       );
-      expect(card.isPartial, isTrue);
+      expect(card.isPartial, isFalse);
     });
   });
 
-  group('WidgetRenderer.build — prefill pipeline (T-06-01)', () {
+  group('WidgetRenderer.build — Data Ledger route contract', () {
     testWidgets(
-        'backend prefill preserved when no CoachProfileProvider in context',
+        'backend prefill ignored when no CoachProfileProvider in context',
         (tester) async {
-      // No Provider in context — catch block fires, backend prefill kept.
+      // No Provider in context — route still renders, but prefill is not
+      // transported by widget or route.
       late Widget? rendered;
       await tester.pumpWidget(_buildTestApp((context) {
         rendered = WidgetRenderer.build(
@@ -305,14 +322,13 @@ void main() {
       }));
       await tester.pump();
       expect(find.byType(RouteSuggestionCard), findsOneWidget);
-      final card = tester.widget<RouteSuggestionCard>(
-        find.byType(RouteSuggestionCard),
-      );
-      expect(card.prefill, {'avoirLpp': 70377, 'salaireBrut': 91967});
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+      expect(find.text('extra absent'), findsOneWidget);
     });
 
     testWidgets(
-        'isPartial true when mergedPrefill is null (no backend prefill, no profile)',
+        'isPartial false when no explicit partial signal is provided',
         (tester) async {
       late Widget? rendered;
       await tester.pumpWidget(_buildTestApp((context) {
@@ -334,11 +350,11 @@ void main() {
       final card = tester.widget<RouteSuggestionCard>(
         find.byType(RouteSuggestionCard),
       );
-      expect(card.isPartial, isTrue);
+      expect(card.isPartial, isFalse);
     });
 
     testWidgets(
-        'RoutePlanner prefill injected when profile has required fields',
+        'RoutePlanner prefill is not exposed through RouteSuggestionCard',
         (tester) async {
       // Build a minimal CoachProfile with fields that `lpp_buyback` entry needs.
       // lpp_buyback requiredFields: ['salaireBrut', 'age', 'canton']
@@ -364,7 +380,8 @@ void main() {
             input: {
               'route': '/rachat-lpp',
               'intent': 'lpp_buyback',
-              // No backend prefill — Flutter-side RoutePlanner should supply it
+              // No backend prefill. RoutePlanner may evaluate readiness, but
+              // route suggestions must not transport financial values.
             },
           ),
         );
@@ -372,18 +389,51 @@ void main() {
       }, profile));
       await tester.pump();
       expect(find.byType(RouteSuggestionCard), findsOneWidget);
-      final card = tester.widget<RouteSuggestionCard>(
-        find.byType(RouteSuggestionCard),
-      );
-      // RoutePlanner should have populated at least the 'salaireBrut' key
-      expect(card.prefill, isNotNull);
-      expect(card.prefill, isA<Map<String, dynamic>>());
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+      expect(find.text('extra absent'), findsOneWidget);
     });
 
     testWidgets(
-        'backend prefill wins over RoutePlanner prefill on same key',
+        'RoutePlanner readiness can mark the route suggestion partial',
         (tester) async {
-      // Backend sends avoirLpp = 99999 — should override RoutePlanner's value.
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 45,
+        canton: 'VS',
+        salaireBrutMensuel: 0,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2040),
+          label: 'Retraite',
+        ),
+      );
+
+      late Widget? rendered;
+      await tester.pumpWidget(_buildTestAppWithProfile((context) {
+        rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'route_to_screen',
+            input: {
+              'route': '/rachat-lpp',
+              'intent': 'lpp_buyback',
+            },
+          ),
+        );
+        return rendered ?? const SizedBox();
+      }, profile));
+      await tester.pump();
+      final card = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      expect(card.isPartial, isTrue);
+    });
+
+    testWidgets(
+        'backend prefill does not override ledger values through route extra',
+        (tester) async {
+      // Backend sends avoirLpp = 99999, but route suggestions no longer
+      // transport financial values. The target screen must read ledger state.
       final profile = CoachProfile(
         birthYear: DateTime.now().year - 45,
         canton: 'VS',
@@ -405,7 +455,7 @@ void main() {
             input: {
               'route': '/rachat-lpp',
               'intent': 'lpp_buyback',
-              'prefill': {'avoirLpp': 99999}, // backend value — must win
+              'prefill': {'avoirLpp': 99999},
             },
           ),
         );
@@ -413,12 +463,9 @@ void main() {
       }, profile));
       await tester.pump();
       expect(find.byType(RouteSuggestionCard), findsOneWidget);
-      final card = tester.widget<RouteSuggestionCard>(
-        find.byType(RouteSuggestionCard),
-      );
-      expect(card.prefill, isNotNull);
-      // Backend value MUST override RoutePlanner value for this key
-      expect(card.prefill!['avoirLpp'], 99999);
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+      expect(find.text('extra absent'), findsOneWidget);
     });
   });
 }
