@@ -215,7 +215,8 @@ final List<NavigatorObserver> _routerObservers = [
 ];
 
 String? _scanSessionIdFrom(GoRouterState state) =>
-    state.uri.queryParameters['scanSessionId'];
+    state.uri.queryParameters['scanSessionId'] ??
+    (state.extra is String ? state.extra as String : null);
 
 String _redirectPreservingQuery(GoRouterState state, String target) {
   final query = state.uri.hasQuery ? '?${state.uri.query}' : '';

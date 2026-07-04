@@ -43,4 +43,33 @@ void main() {
           'financial documents, wizard answers, or report domain payloads.',
     );
   });
+
+  test('scan session id helper accepts only query or string extra fallback', () {
+    final source = File('lib/app.dart').readAsStringSync();
+    // Structural lock only: _scanSessionIdFrom is private to app.dart, so this
+    // audit test pins the route contract without exposing test-only API.
+    final helperMatch = RegExp(
+      r'String\?\s+_scanSessionIdFrom\(GoRouterState state\)\s*=>\s*(.*?);',
+      dotAll: true,
+    ).firstMatch(source);
+
+    expect(
+      helperMatch,
+      isNotNull,
+      reason: '_scanSessionIdFrom must remain a single audited helper.',
+    );
+
+    final helper = helperMatch!.group(1)!;
+    expect(
+      helper,
+      contains("state.uri.queryParameters['scanSessionId']"),
+      reason: 'Query scanSessionId is the preferred durable route contract.',
+    );
+    expect(
+      helper,
+      contains('extra is String'),
+      reason: 'A string extra is the only allowed ephemeral fallback; '
+          'ExtractionResult/wizardAnswers/domain payloads remain forbidden.',
+    );
+  });
 }
