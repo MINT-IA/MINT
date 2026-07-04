@@ -80,6 +80,14 @@
       "debt_ref": "P0-IOS-TRANSMIT-PROPERTY-PATROL"
     },
     {
+      "kind": "runtime",
+      "status": "green",
+      "command": "MINT_PATROL_CLEAN_BUILD=1 bash tools/checks/mint_lucidity_gate.sh mobile-first-salary-fatca-patrol B03E429D-0422-4357-B754-536637D979F9",
+      "artifact": ".planning/journeys/evidence/mint_dataquest_clean/20260704T180908Z-patrol-first-salary-fatca/xcresult-summary.json",
+      "reason": "iPhone 17 Pro Patrol proof for first_salary_tax FATCA: nationality=US is the single source for non-contributable 3a state, no duplicate FATCA answer key is persisted, and /pilier-3a displays plafond_3a=CHF 0.",
+      "debt_ref": "P0-IOS-FIRST-SALARY-FATCA-PATROL"
+    },
+    {
       "kind": "external",
       "status": "green",
       "command": "CLAUDE_AUDIT_MAX_BUDGET_USD=2.00 CLAUDE_ULTRAREVIEW_TIMEOUT_MINUTES=30 bash tools/checks/claude_external_audit.sh phase2 && bash tools/checks/mint_lucidity_gate.sh phase2-artifacts",

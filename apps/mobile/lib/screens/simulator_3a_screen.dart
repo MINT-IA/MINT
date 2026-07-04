@@ -34,6 +34,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   double _annualContribution = pilier3aPlafondAvecLpp;
   double _plafond3a = pilier3aPlafondAvecLpp;
   bool _isIndepSansLpp = false;
+  bool _canContribute3a = true;
   double _marginalTaxRate = 0.25;
   int _years = 30;
   double _annualReturn = 4.0;
@@ -51,8 +52,10 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
   /// True if values were pre-filled from CoachProfile.
   bool _isPreFilled = false;
+
   /// Canton used for estimated marginal rate display.
   String _profileCanton = '';
+
   /// Fields pre-filled from GoRouter coach suggestion.
   final Set<String> _prefilledFields = {};
 
@@ -121,26 +124,31 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     _finalReturnEmitted = true;
 
     if (!_hasUserInteracted) {
-      ScreenCompletionTracker.markCompletedWithReturn('simulator_3a',
-        ScreenReturn.abandoned(
-          route: '/pilier-3a',
-          runId: _seqRunId, stepId: _seqStepId,
-          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-        ));
+      ScreenCompletionTracker.markCompletedWithReturn(
+          'simulator_3a',
+          ScreenReturn.abandoned(
+            route: '/pilier-3a',
+            runId: _seqRunId,
+            stepId: _seqStepId,
+            eventId:
+                'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+          ));
       return;
     }
 
     final economieFiscale = _result?['annualTaxSaved'] ?? 0.0;
-    ScreenCompletionTracker.markCompletedWithReturn('simulator_3a',
-      ScreenReturn.completed(
-        route: '/pilier-3a',
-        stepOutputs: {
-          'contribution_annuelle': _annualContribution,
-          'economie_fiscale': economieFiscale,
-        },
-        runId: _seqRunId, stepId: _seqStepId,
-        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-      ));
+    ScreenCompletionTracker.markCompletedWithReturn(
+        'simulator_3a',
+        ScreenReturn.completed(
+          route: '/pilier-3a',
+          stepOutputs: {
+            'contribution_annuelle': _annualContribution,
+            'economie_fiscale': economieFiscale,
+          },
+          runId: _seqRunId,
+          stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
   }
 
   @override
@@ -161,12 +169,17 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         _years = coachProfile.anneesAvantRetraite.clamp(1, 45);
 
         // Canton
-        _profileCanton = coachProfile.canton.isNotEmpty
-            ? coachProfile.canton
-            : '';
+        _profileCanton =
+            coachProfile.canton.isNotEmpty ? coachProfile.canton : '';
 
-        // Independent sans LPP
-        if (coachProfile.archetype == FinancialArchetype.independentNoLpp) {
+        // FATCA/US-person profiles can keep 3a data as patrimoine context, but
+        // should not show a contribution ceiling without specialist review.
+        if (!coachProfile.canContribute3a) {
+          _canContribute3a = false;
+          _plafond3a = 0;
+          _annualContribution = 0;
+        } else if (coachProfile.archetype ==
+            FinancialArchetype.independentNoLpp) {
           _isIndepSansLpp = true;
           _plafond3a = pilier3aPlafondSansLpp;
           _annualContribution = pilier3aPlafondSansLpp;
@@ -175,8 +188,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         // Marginal tax rate from TaxCalculator (precise, canton-aware)
         final grossAnnual = coachProfile.salaireBrutMensuel * 12;
         if (grossAnnual > 0 && _profileCanton.isNotEmpty) {
-          final isMarried =
-              coachProfile.etatCivil == CoachCivilStatus.marie;
+          final isMarried = coachProfile.etatCivil == CoachCivilStatus.marie;
           _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
             grossAnnual,
             _profileCanton,
@@ -274,48 +286,62 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         if (didPop) _emitFinalReturn();
       },
       child: Scaffold(
-      backgroundColor: MintColors.background,
-      appBar: AppBar(
-        backgroundColor: MintColors.white,
-        foregroundColor: MintColors.textPrimary,
-        title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
-        actions: const [],
-      ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MintEntrance(child: _buildDataQuestContract(dataQuestPlan, provider.profile)),
-            const SizedBox(height: MintSpacing.lg),
-            MintEntrance(child: _buildCoachSection()),
-            const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
-            const SizedBox(height: MintSpacing.xl),
-            if (_result != null)
-              SafeModeGate(
-                hasDebt: hasDebt,
-                lockedTitle: l.sim3aDebtLockedTitle,
-                lockedMessage: l.sim3aDebtLockedMessage,
-                child: _buildResultSection(),
-              ),
-            const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: SafeModeGate(
-              hasDebt: hasDebt,
-              lockedTitle: l.sim3aDebtStrategyTitle,
-              lockedMessage: l.sim3aDebtStrategyMessage,
-              child: _buildEducationSection(),
-            )),
-            const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRelatedSections()),
-            const SizedBox(height: MintSpacing.xxl),
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
-            const SizedBox(height: MintSpacing.lg),
-            _buildCountdown3a(),
-            const SizedBox(height: MintSpacing.xl),
-          ],
-        ),
-      )))),
+          backgroundColor: MintColors.background,
+          appBar: AppBar(
+            backgroundColor: MintColors.white,
+            foregroundColor: MintColors.textPrimary,
+            title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
+            actions: const [],
+          ),
+          body: Center(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        MintEntrance(
+                            child: _buildDataQuestContract(
+                                dataQuestPlan, provider.profile)),
+                        const SizedBox(height: MintSpacing.lg),
+                        MintEntrance(child: _buildCoachSection()),
+                        const SizedBox(height: MintSpacing.xl),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 100),
+                            child: _buildInputSection()),
+                        const SizedBox(height: MintSpacing.xl),
+                        if (_result != null)
+                          SafeModeGate(
+                            hasDebt: hasDebt,
+                            lockedTitle: l.sim3aDebtLockedTitle,
+                            lockedMessage: l.sim3aDebtLockedMessage,
+                            child: _buildResultSection(),
+                          ),
+                        const SizedBox(height: MintSpacing.xl),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 200),
+                            child: SafeModeGate(
+                              hasDebt: hasDebt,
+                              lockedTitle: l.sim3aDebtStrategyTitle,
+                              lockedMessage: l.sim3aDebtStrategyMessage,
+                              child: _buildEducationSection(),
+                            )),
+                        const SizedBox(height: MintSpacing.xl),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 300),
+                            child: _buildRelatedSections()),
+                        const SizedBox(height: MintSpacing.xxl),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 400),
+                            child: _buildDisclaimer()),
+                        const SizedBox(height: MintSpacing.lg),
+                        _buildCountdown3a(),
+                        const SizedBox(height: MintSpacing.xl),
+                      ],
+                    ),
+                  )))),
     );
   }
 
@@ -324,11 +350,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     CoachProfile? profile,
   ) {
     final grossAnnual = profile?.revenuBrutAnnuel ?? 0;
-    final canton = profile?.canton.isNotEmpty == true
-        ? profile!.canton
-        : _profileCanton;
+    final canton =
+        profile?.canton.isNotEmpty == true ? profile!.canton : _profileCanton;
     final basis = 'salaire=${formatChfWithPrefix(grossAnnual)}; '
-        'canton=$canton; plafond_3a=${formatChfWithPrefix(_plafond3a)}';
+        'canton=$canton; can_contribute_3a=$_canContribute3a; '
+        'plafond_3a=${formatChfWithPrefix(_plafond3a)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -359,7 +385,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome_outlined, color: MintColors.primary, size: 24),
+              const Icon(Icons.auto_awesome_outlined,
+                  color: MintColors.primary, size: 24),
               const SizedBox(width: MintSpacing.sm),
               Text(l.sim3aCoachTitle, style: MintTextStyles.titleMedium()),
             ],
@@ -393,13 +420,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           const SizedBox(height: MintSpacing.xs),
           Row(
             children: [
-              Icon(Icons.check_circle_outline, size: 14,
-                  color: MintColors.success.withValues(alpha: 0.7)),
+              Icon(Icons.check_circle_outline,
+                  size: 14, color: MintColors.success.withValues(alpha: 0.7)),
               const SizedBox(width: 4),
               Text(
                 l.sim3aProfilePreFilled,
-                style: MintTextStyles.labelSmall(color: MintColors.success)
-                    ,
+                style: MintTextStyles.labelSmall(color: MintColors.success),
               ),
               if (_prefilledFields.isNotEmpty)
                 const SmartDefaultIndicator(
@@ -412,55 +438,63 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
         const SizedBox(height: MintSpacing.lg),
 
-        // ── 1. Annual contribution: tap-to-type CHF field ──
-        Text(
-          _isIndepSansLpp
-              ? l.sim3aAnnualContributionIndep
-              : l.sim3aContributionFieldLabel,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-        ),
-        const SizedBox(height: MintSpacing.xs),
-        TextField(
-          controller: _contributionCtrl,
-          keyboardType: TextInputType.number,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-              .copyWith(fontWeight: FontWeight.w600),
-          decoration: InputDecoration(
-            suffixText: 'CHF',
-            suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
-            hintText: formatChfWithPrefix(_plafond3a),
-            hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.md, vertical: MintSpacing.sm),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: MintColors.border),
+        if (!_canContribute3a) ...[
+          _buildNonContributableState(l),
+          const SizedBox(height: MintSpacing.lg),
+        ] else ...[
+          // ── 1. Annual contribution: tap-to-type CHF field ──
+          Text(
+            _isIndepSansLpp
+                ? l.sim3aAnnualContributionIndep
+                : l.sim3aContributionFieldLabel,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          TextField(
+            controller: _contributionCtrl,
+            keyboardType: TextInputType.number,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
+            decoration: InputDecoration(
+              suffixText: 'CHF',
+              suffixStyle:
+                  MintTextStyles.bodySmall(color: MintColors.textMuted),
+              hintText: formatChfWithPrefix(_plafond3a),
+              hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.md, vertical: MintSpacing.sm),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: MintColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    const BorderSide(color: MintColors.primary, width: 1.5),
+              ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: MintColors.border),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: MintColors.primary, width: 1.5),
+            onChanged: (text) {
+              final parsed =
+                  double.tryParse(text.replaceAll(RegExp(r"[^0-9.]"), ''));
+              if (parsed != null) {
+                _hasUserInteracted = true;
+                _annualContribution = parsed.clamp(0, _plafond3a);
+                _calculate();
+              }
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              'Max: ${formatChfWithPrefix(_plafond3a)}',
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
             ),
           ),
-          onChanged: (text) {
-            final parsed = double.tryParse(text.replaceAll(RegExp(r"[^0-9.]"), ''));
-            if (parsed != null) {
-              _hasUserInteracted = true;
-              _annualContribution = parsed.clamp(0, _plafond3a);
-              _calculate();
-            }
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Text(
-            'Max: ${formatChfWithPrefix(_plafond3a)}',
-            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-          ),
-        ),
+        ],
 
         const SizedBox(height: MintSpacing.lg),
 
@@ -476,8 +510,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               (_marginalTaxRate * 100).round().toString(),
               _profileCanton,
             ),
-            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
-                ,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ],
         const SizedBox(height: MintSpacing.sm),
@@ -498,7 +531,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               backgroundColor: MintColors.surface,
               labelStyle: MintTextStyles.bodySmall(
                 color: isSelected ? MintColors.primary : MintColors.textPrimary,
-              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+              ).copyWith(
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
               side: BorderSide(
                 color: isSelected ? MintColors.primary : MintColors.border,
               ),
@@ -525,7 +559,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             MintSurface(
               tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.symmetric(
-                horizontal: MintSpacing.md, vertical: MintSpacing.xs),
+                  horizontal: MintSpacing.md, vertical: MintSpacing.xs),
               radius: 12,
               child: Text(
                 l.sim3aYearsReadOnly(_years),
@@ -561,7 +595,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               backgroundColor: MintColors.surface,
               labelStyle: MintTextStyles.bodySmall(
                 color: isSelected ? MintColors.primary : MintColors.textPrimary,
-              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+              ).copyWith(
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
               side: BorderSide(
                 color: isSelected ? MintColors.primary : MintColors.border,
               ),
@@ -572,6 +607,51 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           }).toList(),
         ),
       ],
+    );
+  }
+
+  Widget _buildNonContributableState(S l) {
+    return Semantics(
+      key: const ValueKey('sim3a_non_contributable_state'),
+      identifier: 'sim3a_non_contributable_state',
+      value: 'can_contribute_3a=false; plafond_3a=${formatChfWithPrefix(0)}',
+      container: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 16,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(
+              Icons.info_outline,
+              color: MintColors.warning,
+              size: 22,
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.sim3aNonContributableTitle,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(
+                    l.sim3aNonContributableBody,
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary,
+                    ).copyWith(height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -586,7 +666,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Semantics(
-            label: '${l.sim3aAnnualTaxSaved}: ${formatChfWithPrefix(_result!['annualTaxSaved']!)}',
+            label:
+                '${l.sim3aAnnualTaxSaved}: ${formatChfWithPrefix(_result!['annualTaxSaved']!)}',
             child: Text(
               formatChfWithPrefix(_result!['annualTaxSaved']!),
               style: MintTextStyles.displayMedium(color: MintColors.primary),
@@ -595,9 +676,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),
           const SizedBox(height: MintSpacing.md),
-          _buildImpactRow(l.sim3aFinalCapital, _result!['potentialFinalValue']!),
+          _buildImpactRow(
+              l.sim3aFinalCapital, _result!['potentialFinalValue']!),
           const SizedBox(height: MintSpacing.sm),
-          _buildImpactRow(l.sim3aCumulativeTaxSaved, _result!['totalTaxSavedOverPeriod']!, color: MintColors.success),
+          _buildImpactRow(
+              l.sim3aCumulativeTaxSaved, _result!['totalTaxSavedOverPeriod']!,
+              color: MintColors.success),
         ],
       ),
     );
@@ -610,7 +694,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         Flexible(child: Text(label, style: MintTextStyles.bodyMedium())),
         Text(
           formatChfWithPrefix(value),
-          style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+          style:
+              MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -623,9 +709,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       children: [
         Text(l.sim3aStrategyHeader, style: MintTextStyles.labelSmall()),
         const SizedBox(height: MintSpacing.lg),
-        _buildSmartItem(Icons.account_balance_wallet_outlined, l.sim3aStratBankTitle, l.sim3aStratBankBody),
-        _buildSmartItem(Icons.layers_outlined, l.sim3aStrat5AccountsTitle, l.sim3aStrat5AccountsBody),
-        _buildSmartItem(Icons.trending_up, l.sim3aStrat100ActionsTitle, l.sim3aStrat100ActionsBody),
+        _buildSmartItem(Icons.account_balance_wallet_outlined,
+            l.sim3aStratBankTitle, l.sim3aStratBankBody),
+        _buildSmartItem(Icons.layers_outlined, l.sim3aStrat5AccountsTitle,
+            l.sim3aStrat5AccountsBody),
+        _buildSmartItem(Icons.trending_up, l.sim3aStrat100ActionsTitle,
+            l.sim3aStrat100ActionsBody),
       ],
     );
   }
@@ -681,7 +770,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           title: l.sim3aStaggeredWithdrawal,
           subtitle: l.sim3aStaggeredWithdrawalSub,
           icon: Icons.calendar_month,
-          child: _buildSectionCta(l.sim3aCtaPlan, '/3a-deep/staggered-withdrawal'),
+          child:
+              _buildSectionCta(l.sim3aCtaPlan, '/3a-deep/staggered-withdrawal'),
         ),
       ],
     );
@@ -721,7 +811,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     final coachProfile = context.read<CoachProfileProvider>().profile;
     final monthly3a = coachProfile?.total3aMensuel ?? 0;
     final monthsElapsed = now.month; // Jan=1..Dec=12
-    final estimatedContributed = (monthly3a * monthsElapsed).clamp(0.0, _plafond3a);
+    final estimatedContributed =
+        (monthly3a * monthsElapsed).clamp(0.0, _plafond3a);
 
     return Countdown3aWidget(
       annualCeiling: _plafond3a,

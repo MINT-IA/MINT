@@ -12,6 +12,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,11 +30,14 @@ import 'package:mint_mobile/screens/pillar_3a_deep/retroactive_3a_screen.dart';
 //  Shared helpers
 // ---------------------------------------------------------------------------
 
-Widget _buildWrapped(Widget screen) {
+Widget _buildWrapped(
+  Widget screen, {
+  CoachProfileProvider? coachProfileProvider,
+}) {
   return MultiProvider(
     providers: [
-      ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
+      ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: coachProfileProvider ?? CoachProfileProvider(),
       ),
       ChangeNotifierProvider<ProfileProvider>(
         create: (_) => ProfileProvider(),
@@ -58,8 +62,46 @@ Widget _buildWrapped(Widget screen) {
 // ---------------------------------------------------------------------------
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final secureStorage = <String, String>{};
+
   setUp(() {
+    secureStorage.clear();
     SharedPreferences.setMockInitialValues({});
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) secureStorage[key] = value;
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'readAll':
+            return Map<String, String>.from(secureStorage);
+          case 'delete':
+            if (key != null) secureStorage.remove(key);
+            return null;
+          case 'deleteAll':
+            secureStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      null,
+    );
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -82,7 +124,8 @@ void main() {
     });
 
     test('mortgageCapacity roundtrips through toJson/fromJson', () {
-      const p = PatrimoineProfile(mortgageCapacity: 720000, estimatedMonthlyPayment: 3500);
+      const p = PatrimoineProfile(
+          mortgageCapacity: 720000, estimatedMonthlyPayment: 3500);
       final json = p.toJson();
       final restored = PatrimoineProfile.fromJson(json);
       expect(restored.mortgageCapacity, 720000);
@@ -102,7 +145,9 @@ void main() {
       expect(updated.estimatedMonthlyPayment, 2500);
     });
 
-    test('operator == accounts for mortgageCapacity and estimatedMonthlyPayment', () {
+    test(
+        'operator == accounts for mortgageCapacity and estimatedMonthlyPayment',
+        () {
       const p1 = PatrimoineProfile(mortgageCapacity: 500000);
       const p2 = PatrimoineProfile(mortgageCapacity: 500000);
       const p3 = PatrimoineProfile(mortgageCapacity: 600000);
@@ -157,14 +202,14 @@ void main() {
     test('9400 monthly × 13 = 122200 annual (Julien test case)', () {
       const monthly = 9400.0;
       const nombreDeMois = 13;
-      final annual = monthly * nombreDeMois;
+      const annual = monthly * nombreDeMois;
       expect(annual, closeTo(122200, 0.01));
     });
 
     test('5000 monthly × 13 = 65000 annual', () {
       const monthly = 5000.0;
       const nombreDeMois = 13;
-      final annual = monthly * nombreDeMois;
+      const annual = monthly * nombreDeMois;
       expect(annual, closeTo(65000, 0.01));
     });
 
@@ -201,6 +246,31 @@ void main() {
       await tester.pump();
       expect(find.byType(Scaffold), findsWidgets);
     });
+
+    testWidgets('FATCA profile renders non-contributable 3a state',
+        (tester) async {
+      final provider = CoachProfileProvider();
+      expect(await provider.applySaveFact('incomeGrossYearly', 96000), isTrue);
+      expect(await provider.applySaveFact('canton', 'GE'), isTrue);
+      expect(await provider.applySaveFact('has2ndPillar', true), isTrue);
+      expect(await provider.applySaveFact('nationality', 'US'), isTrue);
+
+      await tester.pumpWidget(_buildWrapped(
+        const Simulator3aScreen(),
+        coachProfileProvider: provider,
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final basis = tester.widget<Semantics>(
+        find.byKey(const ValueKey('sim3a_profile_basis')),
+      );
+      expect(basis.properties.value, contains('can_contribute_3a=false'));
+      expect(basis.properties.value, contains('plafond_3a=CHF\u00a00'));
+      expect(find.byKey(const ValueKey('sim3a_non_contributable_state')),
+          findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+    });
   });
 
   group('RachatEchelonneScreen', () {
@@ -228,27 +298,25 @@ void main() {
       // This mirrors the guard pattern used in all 6 screens:
       // if (!_hasUserInteracted) return;
       bool writeBackFired = false;
-      const hasUserInteracted = false;
 
-      void simulateWriteBack() {
+      void simulateWriteBack(bool hasUserInteracted) {
         if (!hasUserInteracted) return;
         writeBackFired = true;
       }
 
-      simulateWriteBack();
+      simulateWriteBack(false);
       expect(writeBackFired, isFalse);
     });
 
     test('write-back SHOULD fire after user interaction', () {
       bool writeBackFired = false;
-      const hasUserInteracted = true;
 
-      void simulateWriteBack() {
+      void simulateWriteBack(bool hasUserInteracted) {
         if (!hasUserInteracted) return;
         writeBackFired = true;
       }
 
-      simulateWriteBack();
+      simulateWriteBack(true);
       expect(writeBackFired, isTrue);
     });
   });
