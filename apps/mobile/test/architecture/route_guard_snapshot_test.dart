@@ -210,5 +210,28 @@ void main() {
         reason: '/onboarding/intent must be marked as onboarding',
       );
     });
+
+    test('JOS-005 first-value routes are reachable before account creation',
+        () {
+      const firstValueRoutes = [
+        '/rente-vs-capital',
+        '/arbitrage/rente-vs-capital',
+        '/simulator/rente-capital',
+      ];
+
+      for (final path in firstValueRoutes) {
+        final route = routeScopes.firstWhere(
+          (entry) => entry.key == path,
+          orElse: () => const MapEntry('', ''),
+        );
+
+        expect(
+          route.value,
+          'onboarding',
+          reason: 'Selecting the LPP rente-vs-capital first-value axis must '
+              'reach $path before permanent account creation.',
+        );
+      }
+    });
   });
 }

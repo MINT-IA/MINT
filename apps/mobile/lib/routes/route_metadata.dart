@@ -2,8 +2,11 @@
 //  RouteMeta + kRouteRegistry — Phase 32 MAP-01 (D-01 locked v4)
 // ────────────────────────────────────────────────────────────
 //
-// Source of truth for the 147 mobile routes declared in
-// `apps/mobile/lib/app.dart`. Consumed by:
+// Source of truth for the 148 non-admin mobile routes declared in
+// `apps/mobile/lib/app.dart`. Dev-only `/admin/routes` is intentionally
+// absent from this registry; see
+// `tools/checks/route_registry_parity-KNOWN-MISSES.md` Category 7.
+// Consumed by:
 //
 //   - `tools/mint-routes` CLI (Python, Plan 32-02 Wave 2)
 //   - `/admin/routes` Flutter schema viewer (Plan 32-03 Wave 3)
@@ -74,8 +77,8 @@ class RouteMeta {
 }
 
 /// Source-of-truth map: one entry per `GoRoute`/`ScopedGoRoute` declared
-/// in `apps/mobile/lib/app.dart`. Exactly **147 entries** as of Wave 0
-/// reconciliation (app.dart SHA b7a88cc8, see
+/// in `apps/mobile/lib/app.dart`. Exactly **148 non-admin entries** as of Wave
+/// 0 reconciliation (app.dart SHA b7a88cc8, see
 /// `.planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md`).
 ///
 /// **Maintenance contract (D-04, D-12):** adding or removing a `GoRoute`
@@ -279,21 +282,21 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     path: '/rente-vs-capital',
     category: RouteCategory.destination,
     owner: RouteOwner.retraite,
-    requiresAuth: true,
+    requiresAuth: false,
     killFlag: 'enableExplorerRetraite',
   ),
   '/arbitrage/rente-vs-capital': RouteMeta(
     path: '/arbitrage/rente-vs-capital',
     category: RouteCategory.alias,
     owner: RouteOwner.system,
-    requiresAuth: true,
+    requiresAuth: false,
     description: 'Legacy redirect -> /rente-vs-capital',
   ),
   '/simulator/rente-capital': RouteMeta(
     path: '/simulator/rente-capital',
     category: RouteCategory.alias,
     owner: RouteOwner.system,
-    requiresAuth: true,
+    requiresAuth: false,
     description: 'Legacy redirect -> /rente-vs-capital',
   ),
   '/rachat-lpp': RouteMeta(

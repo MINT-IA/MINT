@@ -11,6 +11,7 @@
 /3a-retroactif | authenticated
 /about | public
 /achievements | authenticated
+/admin/routes | authenticated
 /advisor | authenticated
 /advisor/plan-30-days | authenticated
 /advisor/wizard | authenticated
@@ -20,7 +21,7 @@
 /arbitrage/calendrier-retraits | authenticated
 /arbitrage/location-vs-propriete | authenticated
 /arbitrage/rachat-vs-marche | authenticated
-/arbitrage/rente-vs-capital | authenticated
+/arbitrage/rente-vs-capital | onboarding
 /ask-mint | authenticated
 /assurances/coverage | authenticated
 /assurances/lamal | authenticated
@@ -31,6 +32,7 @@
 /auth/verify-email | public
 /bank-import | authenticated
 /budget | authenticated
+/budget/setup | authenticated
 /cantonal-benchmark | authenticated
 /check/debt | authenticated
 /coach/agir | authenticated
@@ -122,7 +124,7 @@
 /profile | authenticated
 /rachat-lpp | authenticated
 /rapport | authenticated
-/rente-vs-capital | authenticated
+/rente-vs-capital | onboarding
 /report | authenticated
 /report/v2 | authenticated
 /retirement | authenticated
@@ -143,7 +145,7 @@
 /simulator/disability-gap | authenticated
 /simulator/job-comparison | authenticated
 /simulator/leasing | authenticated
-/simulator/rente-capital | authenticated
+/simulator/rente-capital | onboarding
 /succession | authenticated
 /timeline | authenticated
 /tools | authenticated
