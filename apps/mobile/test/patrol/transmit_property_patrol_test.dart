@@ -658,6 +658,37 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'retainedRight',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(const Key('retained_right_habitation_option')),
+      );
+      expect($(#retained_right_habitation_option), findsOneWidget);
+      await $(#retained_right_habitation_option).tap();
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await $(#succession_scenario_assumption_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final retainedRightAnswers = await ReportPersistenceService.loadAnswers();
+      expect(
+        retainedRightAnswers['_transmit_property_retained_right'],
+        'habitation',
+      );
+      expect(retainedRightAnswers.containsKey('retainedRight'), isFalse);
+      expect(
+        provider.transmitPropertyScenarioAssumptions['retainedRight'],
+        'habitation',
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'avancementHoirie',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

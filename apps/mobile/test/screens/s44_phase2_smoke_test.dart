@@ -607,6 +607,33 @@ void main() {
         _semanticsValue(tester, 'succession_data_quest_next_ask'),
         'retainedRight',
       );
+      expect(find.byKey(const Key('retained_right_habitation_option')),
+          findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const Key('retained_right_habitation_option')),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.tap(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        provider.answersSnapshot['_transmit_property_retained_right'],
+        'habitation',
+      );
+      expect(
+        provider.answersSnapshot.containsKey('retainedRight'),
+        isFalse,
+      );
+      expect(
+        _semanticsValue(tester, 'succession_data_quest_next_ask'),
+        'avancementHoirie',
+      );
       expect(
         find.byKey(
             const ValueKey('succession_scenario_transaction_assumption')),

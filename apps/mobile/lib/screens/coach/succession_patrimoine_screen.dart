@@ -649,7 +649,8 @@ class _ScenarioAssumptionCollector extends StatefulWidget {
   static bool supports(String inputKey) {
     return inputKey == 'cashPaidByRecipient' ||
         inputKey == 'mortgageAssumedByRecipient' ||
-        inputKey == 'recipientRelationship';
+        inputKey == 'recipientRelationship' ||
+        inputKey == 'retainedRight';
   }
 
   @override
@@ -675,6 +676,7 @@ class _ScenarioAssumptionCollectorState
         'mortgageAssumedByRecipient' =>
           '_transmit_property_mortgage_assumed_by_recipient',
         'recipientRelationship' => '_transmit_property_recipient_relationship',
+        'retainedRight' => '_transmit_property_retained_right',
         _ => null,
       };
 
@@ -697,6 +699,8 @@ class _ScenarioAssumptionCollectorState
           const ValueKey('succession_scenario_assumption_mortgage_card'),
         'recipientRelationship' =>
           const ValueKey('succession_scenario_assumption_recipient_card'),
+        'retainedRight' =>
+          const ValueKey('succession_scenario_assumption_retained_right_card'),
         _ => const ValueKey('succession_scenario_assumption_unknown_card'),
       };
 
@@ -705,10 +709,11 @@ class _ScenarioAssumptionCollectorState
         'mortgageAssumedByRecipient' =>
           l.dataQuestFieldMortgageAssumedByRecipient,
         'recipientRelationship' => l.dataQuestFieldRecipientRelationship,
+        'retainedRight' => l.dataQuestFieldRetainedRight,
         _ => widget.ask.inputKey,
       };
 
-  List<({String value, String label, Key key})> get _choiceOptions =>
+  List<({String value, String label, Key key})> _choiceOptions(S l) =>
       switch (widget.ask.inputKey) {
         'recipientRelationship' => const [
             (
@@ -730,6 +735,24 @@ class _ScenarioAssumptionCollectorState
               value: 'other',
               label: 'Autre',
               key: Key('recipient_relationship_other_option'),
+            ),
+          ],
+        'retainedRight' => [
+            (
+              value: 'habitation',
+              label:
+                  l.successionPropertyTransmissionRetainedRightHabitationLabel,
+              key: const Key('retained_right_habitation_option'),
+            ),
+            (
+              value: 'usufruct',
+              label: l.successionPropertyTransmissionRetainedRightUsufructLabel,
+              key: const Key('retained_right_usufruct_option'),
+            ),
+            (
+              value: 'none',
+              label: l.successionPropertyTransmissionRetainedRightNoneLabel,
+              key: const Key('retained_right_none_option'),
             ),
           ],
         _ => const [],
@@ -808,7 +831,7 @@ class _ScenarioAssumptionCollectorState
                 spacing: MintSpacing.xs,
                 runSpacing: MintSpacing.xs,
                 children: [
-                  for (final option in _choiceOptions)
+                  for (final option in _choiceOptions(l))
                     ChoiceChip(
                       key: option.key,
                       label: Text(option.label),
