@@ -393,23 +393,29 @@ Backed by `screens/onboarding/data_block_enrichment_screen.dart` (~70% built: co
 | routesOut | back to referrer, `/coach/chat?topic=:type`, `/confidence`, the domain hub for `:type` |
 | killFlag | null |
 
-### 6.validation — resolve the silent `'revenu'` coercion (finding wiring-2)
+### 6.validation — no silent `'revenu'` coercion (live contract)
 
-The current builder does `state.pathParameters['type'] ?? 'revenu'`. **This fallback MUST be removed.** Replace with, in the `/data-block/:type` route `builder:` in `app.dart`:
+The `/data-block/:type` route must pass the matched path parameter through to
+`DataBlockEnrichmentScreen` without defaulting to `revenu`. `:type` is required
+by the route pattern, and unsupported values are handled inside the screen as a
+migration-safe unknown block using `dataBlockUnknown*` i18n labels.
 
 ```dart
-const _allowedDataBlockTypes = {
-  'revenu','lpp','avs','3a','patrimoine','fiscalite','objectifRetraite','compositionMenage',
-};
 builder: (context, state) {
-  final type = state.pathParameters['type'];
-  if (type == null || !_allowedDataBlockTypes.contains(type)) {
-    return DataBlockEmptyState(); // renders emptyState above (unknownType), NOT '/revenu'
-  }
-  return DataBlockEnrichmentScreen(type: type);
+  return DataBlockEnrichmentScreen(
+    blockType: state.pathParameters['type']!,
+    initialInputKey: state.uri.queryParameters['inputKey'],
+  );
 }
 ```
-`_allowedDataBlockTypes` is the single source; `DataBlockEnrichmentScreen` no longer defaults. Asserted by `test/routing/data_block_unknown_type_test.dart` (pump `/data-block/zzz` → `DataBlockEmptyState` with `dataBlock.empty.unknownType`, NOT the revenu form).
+
+`DataBlockEnrichmentScreen._supportedBlockTypes` remains the local allowlist
+for rendered data blocks (`revenu`, `lpp`, `avs`, `3a`, `patrimoine`,
+`fiscalite`, `objectifRetraite`, `revenuRetraite`, `compositionMenage`).
+Unsupported legacy links such as `/data-block/zzz` render the unknown block,
+not the revenue form. Asserted by
+`test/screens/data_block_enrichment_screen_test.dart` and
+`tools/checks/tests/test_screen_contracts_doc_contract.py`.
 
 ### 6.note — per-field provenance API (live contract)
 

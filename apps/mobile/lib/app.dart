@@ -1730,9 +1730,8 @@ final _router = GoRouter(
       scope: RouteScope.onboarding, // Onboarding enrichment flow
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final type = state.pathParameters['type'] ?? 'revenu';
         return DataBlockEnrichmentScreen(
-          blockType: type,
+          blockType: state.pathParameters['type']!,
           initialInputKey: state.uri.queryParameters['inputKey'],
         );
       },

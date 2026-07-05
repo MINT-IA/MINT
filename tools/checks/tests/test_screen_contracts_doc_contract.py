@@ -5,6 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 SCREEN_CONTRACTS = ROOT / "docs/codex/SCREEN_CONTRACTS.md"
 APP_DART = ROOT / "apps/mobile/lib/app.dart"
+DATA_BLOCK_SCREEN = (
+    ROOT / "apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart"
+)
 COACH_PROFILE_PROVIDER = ROOT / "apps/mobile/lib/providers/coach_profile_provider.dart"
 MOBILE_PROVENANCE_TEST = (
     ROOT / "apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart"
@@ -52,6 +55,20 @@ def test_simulator_routes_render_in_screen_instead_of_redirecting() -> None:
         assert "redirect:" not in block, (
             f"{route} must use in-screen mode switching, not a route redirect"
         )
+
+
+def test_data_block_route_does_not_silently_default_to_revenu() -> None:
+    app = APP_DART.read_text(encoding="utf-8")
+    screen_contracts = SCREEN_CONTRACTS.read_text(encoding="utf-8")
+    data_block_screen = DATA_BLOCK_SCREEN.read_text(encoding="utf-8")
+    block = _route_block(app, "/data-block/:type")
+
+    assert "?? 'revenu'" not in block
+    assert '?? "revenu"' not in block
+    assert "state.pathParameters['type']!" in block
+    assert "The current builder does `state.pathParameters['type'] ?? 'revenu'`" not in screen_contracts
+    assert "'unknown' => _BlockMeta" in data_block_screen
+    assert "dataBlockUnknownTitle" in data_block_screen
 
 
 def test_screen_contracts_matches_live_per_field_provenance_api() -> None:
