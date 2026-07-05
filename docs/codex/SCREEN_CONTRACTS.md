@@ -411,16 +411,45 @@ builder: (context, state) {
 ```
 `_allowedDataBlockTypes` is the single source; `DataBlockEnrichmentScreen` no longer defaults. Asserted by `test/routing/data_block_unknown_type_test.dart` (pump `/data-block/zzz` → `DataBlockEmptyState` with `dataBlock.empty.unknownType`, NOT the revenu form).
 
-### 6.note — per-field provenance API (the missing 30%, finding E / B-4)
+### 6.note — per-field provenance API (live contract)
 
-Per-field `sourceDate` does NOT yet persist end-to-end. The current `applySaveFact(String factKey, dynamic factValue, {String confidence})` (coach_profile_provider.dart:542) maps to `mergeAnswers` and carries no source/date; the ledger has `dataSources` (source only) + `dataTimestamps` (updatedAt only), and backend `save_fact` has ONE `updated_at`. The agent MUST:
+Per-field provenance is live for the mobile runtime and backend `save_fact`
+mirror. `CoachProfile` carries `dataSources`, `dataTimestamps`, and
+`dataSourceDates`; `mergeAnswers()` stamps all touched field paths and
+`applySaveFact()` forwards `source` plus optional `sourceDate` to that single
+write path.
 
-1. **Extend the signature (backward-compatible):**
-   `Future<bool> applySaveFact(String factKey, dynamic factValue, {String confidence = 'medium', DataSource source = DataSource.userInput, DateTime? sourceDate})`.
-2. **Add the missing provenance map:** `CoachProfile.dataSourceDates : Map<String, DateTime?>` alongside the existing `dataSources` / `dataTimestamps` (DATA_LEDGER §6.1). `mergeAnswers` populates all three (I-3 write rule: on every field write, set `dataSources[path]`, `dataTimestamps[path] = now`, `dataSourceDates[path]`); persisted in `wizard_answers_v2` under a reserved `__provenance` sub-map (never collides with wizard keys). `CoachProfile.fromWizardAnswers` reconstructs it.
-3. **Backend:** add per-field provenance to `ProfileModel.data` under a reserved `_provenance` dict (does NOT expand the 35-key allowlist for values; provenance is metadata, redaction rules unchanged). Fire-and-forget sync as today.
+Live mobile contract:
 
-Until (1)–(3) land, any write in this document that "carries per-field source" is implemented via the extended `applySaveFact`. Do NOT assume `sourceDate` already persists.
+```dart
+Future<bool> applySaveFact(
+  String factKey,
+  dynamic factValue, {
+  String confidence = 'medium',
+  ProfileDataSource source = ProfileDataSource.userInput,
+  DateTime? sourceDate,
+})
+```
+
+Backend `save_fact` mirrors accepted allowlist keys into
+`ProfileModel.data['_provenance']`:
+
+```json
+{
+  "sources": { "<allowlistKey>": "<backend DataSource name>" },
+  "updated": { "<allowlistKey>": "<ISO8601 when MINT set it>" },
+  "source_dt": { "<allowlistKey>": "<ISO8601 document/source date or null>" }
+}
+```
+
+Keep these guards green before changing this contract:
+
+- `apps/mobile/test/providers/coach_profile_provider_save_fact_mapping_test.dart`
+  proves `applySaveFact` records and restores `sourceDate`.
+- `services/backend/tests/test_save_fact_provenance.py` proves backend
+  `_provenance.sources`, `_provenance.updated`, and `_provenance.source_dt`.
+- `tools/checks/tests/test_screen_contracts_doc_contract.py` prevents this
+  document from reintroducing the obsolete "sourceDate not persisted" claim.
 
 ---
 
