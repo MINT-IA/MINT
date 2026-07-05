@@ -139,6 +139,21 @@ def test_data_quest_doc_matches_live_goal_aware_confidence_ranking() -> None:
     assert "GoalAType.achatImmo" in scorer
 
 
+def test_data_quest_doc_matches_live_legacy_timestamp_guard() -> None:
+    doc_path = ROOT / "docs/codex/DATA_QUEST.md"
+    doc = doc_path.read_text(encoding="utf-8")
+    data_quest_tests = (
+        ROOT / "apps/mobile/test/services/data_quest/data_quest_service_test.dart"
+    ).read_text(encoding="utf-8")
+
+    assert (
+        "Legacy wizard answers without `_coach_data_timestamps` cannot be safely stale-classified"
+        not in doc
+    )
+    assert "known legacy answers without provenance are not false reconfirmed" in data_quest_tests
+    assert "transmit_property treats legacy property as known until migration" in data_quest_tests
+
+
 def test_data_block_revenue_form_uses_i18n_keys() -> None:
     path = MOBILE_LIB / "screens/onboarding/data_block_enrichment_screen.dart"
     text = path.read_text(encoding="utf-8")
