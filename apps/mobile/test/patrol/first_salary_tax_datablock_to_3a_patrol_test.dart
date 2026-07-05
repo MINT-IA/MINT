@@ -185,6 +185,19 @@ void main() {
         basisSemantics.properties.value,
         contains('plafond_3a=CHF\u00a07\'258'),
       );
+
+      expect($(#sim3a_contribution_input), findsOneWidget);
+      await $(#sim3a_contribution_input).enterText('6000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+
+      final answersAfter3a = await ReportPersistenceService.loadAnswers();
+      expect(answersAfter3a['q_3a_annual_contribution'], 6000);
+      expect(provider.answersSnapshot['q_3a_annual_contribution'], 6000);
+      final satisfiedNextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('sim3a_data_quest_next_ask'),
+      );
+      expect(satisfiedNextAsk.value, 'satisfied');
     },
   );
 }

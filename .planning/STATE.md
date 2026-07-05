@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-05T04:29:53+02:00"
-last_activity: 2026-07-05 -- Data Quest now surfaces the next missing variable visibly on the first-salary/3a and buy-property/mortgage P0 screens while retaining hidden runtime-proof semantics. Targeted Flutter tests, mobile-scenarios, and the two touched iPhone 17 Pro Patrol runtime gates are green. Claude external specs audit remains blocked by CLI budget.
+last_updated: "2026-07-05T04:42:26+02:00"
+last_activity: 2026-07-05 -- Data Quest now surfaces the next missing variable visibly on the first-salary/3a and buy-property/mortgage P0 screens, and the 3a simulator writes the user-entered annual contribution back through `CoachProfileProvider.mergeAnswers()` so `pillar3aAnnual` is satisfied by the ledger. Targeted Flutter tests, mobile-scenarios, and the touched iPhone 17 Pro Patrol runtime gates are green. Claude external specs audit remains blocked by CLI budget.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -113,6 +113,11 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
   `bash tools/checks/mint_lucidity_gate.sh mobile-first-salary-patrol "iPhone 17 Pro"`,
   `bash tools/checks/mint_lucidity_gate.sh mobile-f2-patrol "iPhone 17 Pro"`,
   `python3 tools/checks/verify_phase_acceptance.py`, and the OS guards.
+- 2026-07-05: `/pilier-3a` no longer leaves `pillar3aAnnual` as a visible but
+  unsatisfied Data Quest ask after the user types an annual contribution. The
+  simulator writes `q_3a_annual_contribution` through the canonical provider
+  merge path, and the first-salary Patrol proof now enters 6'000 CHF and
+  verifies `sim3a_data_quest_next_ask=satisfied` on iPhone 17 Pro.
 
 ## Historical Receipts
 

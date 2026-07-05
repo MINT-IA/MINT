@@ -25,6 +25,7 @@ import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/lpp_deep/rachat_echelonne_screen.dart';
 import 'package:mint_mobile/screens/pillar_3a_deep/retroactive_3a_screen.dart';
+import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
 
 // ---------------------------------------------------------------------------
 //  Shared helpers
@@ -270,6 +271,48 @@ void main() {
       expect(find.byKey(const ValueKey('sim3a_non_contributable_state')),
           findsOneWidget);
       expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('annual contribution write-back satisfies Data Quest',
+        (tester) async {
+      final provider = CoachProfileProvider();
+      expect(await provider.applySaveFact('incomeGrossYearly', 96000), isTrue);
+      expect(await provider.applySaveFact('canton', 'GE'), isTrue);
+      expect(await provider.applySaveFact('birthYear', 1990), isTrue);
+      expect(await provider.applySaveFact('has2ndPillar', true), isTrue);
+
+      await tester.pumpWidget(_buildWrapped(
+        const Simulator3aScreen(),
+        coachProfileProvider: provider,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(
+        DataQuestService.planCase(
+          caseId: 'first_salary_tax',
+          answers: provider.answersSnapshot,
+          now: DateTime.utc(2026, 7, 5),
+          includeUseful: true,
+        ).asks.map((ask) => ask.inputKey),
+        ['pillar3aAnnual'],
+      );
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sim3a_contribution_input')),
+        '6000',
+      );
+      await tester.pumpAndSettle();
+
+      expect(provider.answersSnapshot['q_3a_annual_contribution'], 6000);
+      expect(
+        DataQuestService.planCase(
+          caseId: 'first_salary_tax',
+          answers: provider.answersSnapshot,
+          now: DateTime.utc(2026, 7, 5),
+          includeUseful: true,
+        ).asks,
+        isEmpty,
+      );
     });
   });
 

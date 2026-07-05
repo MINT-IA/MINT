@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -212,7 +214,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       );
     });
     if (!_hasUserInteracted) return;
-    _writeBackResult();
+    unawaited(_writeBackResult());
     if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final screenReturn = ScreenReturn.completed(
       route: '/pilier-3a',
@@ -226,7 +228,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   }
 
   /// Write computed 3a simulation results back to CoachProfile.
-  void _writeBackResult() {
+  Future<void> _writeBackResult() async {
     if (!_hasUserInteracted) return;
     final result = _result;
     if (result == null) return;
@@ -235,15 +237,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       final profile = provider.profile;
       if (profile == null) return;
 
-      // Write back optimal 3a contribution to profile
-      final updated = profile.copyWith(
-        prevoyance: profile.prevoyance.copyWith(
-          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
-              ? profile.prevoyance.totalEpargne3a
-              : null,
-        ),
-      );
-      provider.updateProfile(updated);
+      await provider.mergeAnswers({
+        'q_3a_annual_contribution': _annualContribution.round(),
+      });
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -456,6 +454,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           ),
           const SizedBox(height: MintSpacing.xs),
           TextField(
+            key: const ValueKey('sim3a_contribution_input'),
             controller: _contributionCtrl,
             keyboardType: TextInputType.number,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
