@@ -386,8 +386,8 @@ Backed by `screens/onboarding/data_block_enrichment_screen.dart` (~70% built: co
 | purpose | Collect/refresh exactly the missing-or-stale delta for one typed block. |
 | reads | `CoachProfile` fields for `:type`; per-field provenance `dataSources{path→source}` + `dataTimestamps{path→updatedAt}` + `dataSourceDates{path→sourceDate}`; `FreshnessDecayService` |
 | writes | `mergeAnswers()` / `applySaveFact()` per field, carrying per-field `dataSources`/`dataTimestamps`/`dataSourceDates` (§6.note) |
-| entryConditions | none. Validation of `:type` happens IN THE ROUTE BUILDER (see §6.validation), not in the screen. |
-| emptyState (REQUIRED) | Invalid/unknown `:type` → "Ce thème n'existe pas." CTA → `/explore`. i18n `dataBlock.empty.unknownType` / `.cta` |
+| entryConditions | none. The route passes `:type` through; `DataBlockEnrichmentScreen` canonicalizes known aliases and renders unsupported values as the unknown block (see §6.validation). |
+| emptyState (REQUIRED) | Invalid/unknown `:type` → migration-safe unknown block. i18n `dataBlockUnknownTitle` / `dataBlockUnknownDesc` / `dataBlockUnknownCta`; no silent fallback to `revenu`. |
 | partialState (REQUIRED) | Some fields present → **DIFF, not FORM**: render only missing fields as questions; render present-but-stale (freshness <0.60) as **re-confirm** prompts ("Toujours exact ?"), NOT re-ask; show before/after delta on save (finding E). i18n `dataBlock.partial.confirmStale` / `.delta` |
 | errorState (REQUIRED) | Save failed (provider threw / backend allowlist reject) → keep entered values, "On n'a pas pu enregistrer." CTA Réessayer + CTA `/coach/chat?topic=:type`. i18n `dataBlock.error.saveFailed` / `.retry` |
 | routesOut | back to referrer, `/coach/chat?topic=:type`, `/confidence`, the domain hub for `:type` |
