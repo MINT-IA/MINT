@@ -237,7 +237,7 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
 |---|---|---|
 | Q-1 | Per-field provenance `{source, sourceDate, updatedAt}` exists in `CoachProfile` metadata for mobile runtime freshness and backend `save_fact` mirrors canonical facts to `ProfileModel.data['_provenance']` | decide in Phase 4 whether `BiographyRepository.recordFact()` becomes additive evidence or the canonical fact graph; until then, mobile `CoachProfile` metadata and backend `_provenance` are the runtime sources |
 | Q-2 | `DataQuest`/`Case` P0 pure planner exists, and `/succession` passes profile metadata as `BiographyFact` freshness context; repository-backed orchestration is still Phase 4 | extend `apps/mobile/lib/services/data_quest/data_quest_service.dart` from current pure planner/profile adapter to async BiographyRepository-backed orchestration if the repository remains canonical |
-| Q-3 | `/data-block/:type` has no delta/before-after UI, no reconfirm | i18n precondition is now met: `freshnessReconfirm*` and Data Block revenue keys exist in all six `.arb` files and generated `S` classes; next build target is the `AskMode.reconfirm` widget (§3). Guard: `tools/checks/tests/test_data_quest_i18n_preconditions.py` fails today if keys disappear or if Data Block revenue hardcodes French labels. Once a non-planner reconfirm widget lands, the same test file also enforces ARB-backed reconfirm labels and forbids `updateProfile()` in that UI. |
+| Q-3 | `/data-block/:type` has live one-tap reconfirm UI for stale Data Quest facts; it still has no richer before/after delta view | Keep `apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart` wired to `DataQuestAskMode.reconfirm`, ARB-backed `freshnessReconfirm*` labels, and `CoachProfileProvider.mergeAnswers()` for confirmations. Guards: `test/screens/data_block_enrichment_screen_test.dart` proves stale salary reconfirm/update without duplicate fields, and `tools/checks/tests/test_data_quest_i18n_preconditions.py` fails if the UI disappears, hardcodes French labels, or uses `updateProfile()`. |
 | Q-4 | Backend `suggest_actions` ranker wiring is done | keep `services/backend/tests/test_suggest_actions_enrichment.py` in the backend gate so `_compute_suggested_actions()` continues to match `enhanced_confidence_service.rank_enrichment_prompts()` and reads `_provenance` metadata |
 | Q-5 | Goal-aware ranking absent (ranker is generic) | add `impactOf(key, prompts, goal)` weighting in `confidence_scorer.dart` |
 | Q-6 | P0 `Case` registry exists for `first_salary_tax`, `buy_property`, `transmit_property`; broader heavy-event registry is still missing | extend `data_quest/case_registry.dart` beyond P0 with `divorce`, `retirement`, `invalidite`, and debt cases after Phase 2 acceptance. Registry tiers are `blocking_guard_questions` → Dart `guardFields`, `required_questions` → Dart `requiredFields`, and `enrichment_questions` → Dart `usefulFields`; tests must preserve this 1:1 mapping. |
@@ -252,7 +252,12 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
   hidden until earlier guard/required stages are clear. Q-5 later upgrades
   within-stage ordering to `ConfidenceScorer` impact + goal-aware ranking. It
   is never a blocking wall (partialState renders).
-- **DQ-3** Planner layer: a field with `needsRefresh==true` produces an `AskMode.reconfirm`, never a blank collect ask (`data_quest_service_test.dart`). UI rendering of the 1-tap "Oui / Mettre à jour / Rescanner" widget remains Q-3 in §7.
+- **DQ-3** Planner + UI: a field with `needsRefresh==true` produces an
+  `AskMode.reconfirm`, never a blank collect ask
+  (`data_quest_service_test.dart`). `/data-block/:type` renders the 1-tap
+  reconfirm card with ARB-backed labels and confirms through `mergeAnswers()`;
+  `data_block_enrichment_screen_test.dart` proves the stale salary path and the
+  update-only-one-field path.
 - **DQ-4** Every write goes through `CoachProfileProvider` /
   `ReportPersistenceService`; `tools/checks/tests/test_no_bypass_persistence.py`
   scans `apps/mobile/lib/**` so no other production writer can persist

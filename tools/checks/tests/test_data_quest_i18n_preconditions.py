@@ -81,10 +81,10 @@ def test_data_quest_i18n_keys_are_present_in_all_supported_locales() -> None:
 def test_data_quest_reconfirm_widget_cannot_ship_before_i18n_keys() -> None:
     reconfirm_files = _reconfirm_ui_files()
 
-    if not reconfirm_files:
-        # TODO(Q-3): remove this early return once the reconfirm widget ships;
-        # from that point, hardcoded-label checks must be non-vacuous.
-        return
+    assert reconfirm_files, (
+        "Data Quest reconfirm UI is accepted in this phase; keep at least one "
+        "runtime widget using DataQuestAskMode.reconfirm and freshnessReconfirm*."
+    )
 
     missing_by_locale = {
         locale: sorted(RECONFIRM_ARB_KEYS - _arb_keys(locale))
@@ -105,6 +105,23 @@ def test_data_quest_reconfirm_widget_cannot_ship_before_i18n_keys() -> None:
     assert not hardcoded, (
         "Data Quest reconfirm UI must use AppLocalizations keys, not hardcoded "
         f"French labels: {hardcoded}"
+    )
+
+
+def test_data_quest_doc_matches_live_reconfirm_ui_status() -> None:
+    doc_path = ROOT / "docs/codex/DATA_QUEST.md"
+    text = doc_path.read_text(encoding="utf-8")
+    forbidden_obsolete_claims = [
+        "`/data-block/:type` has no delta/before-after UI, no reconfirm",
+        'UI rendering of the 1-tap "Oui / Mettre à jour / Rescanner" widget remains Q-3',
+        "Once a non-planner reconfirm widget lands",
+    ]
+    stale_claims = [
+        claim for claim in forbidden_obsolete_claims if claim in text
+    ]
+    assert not stale_claims, (
+        "DATA_QUEST.md still describes the shipped reconfirm UI as missing: "
+        f"{stale_claims}"
     )
 
 
