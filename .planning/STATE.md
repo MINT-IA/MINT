@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-05T03:21:56+02:00"
-last_activity: 2026-07-05 -- Provider wiring now removes the BudgetProvider and FinancialPlanProvider data islands; MAESTRO_FLOWS, SCREEN_CONTRACTS, DATA_LEDGER, DATA_QUEST, and backend suggested actions have executable guards wired into phase acceptance. Claude external specs audit is blocked by CLI budget; local Maestro CLI is currently timing out on startup after partial mobile-scenarios progress.
+last_updated: "2026-07-05T04:29:53+02:00"
+last_activity: 2026-07-05 -- Data Quest now surfaces the next missing variable visibly on the first-salary/3a and buy-property/mortgage P0 screens while retaining hidden runtime-proof semantics. Targeted Flutter tests, mobile-scenarios, and the two touched iPhone 17 Pro Patrol runtime gates are green. Claude external specs audit remains blocked by CLI budget.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -106,6 +106,13 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
   Flutter tests passed, all current Maestro syntax checks finished in 1-2s
   including `r3_report_pillar3a_action`, ARB parity passed, and 49 pytest
   contracts passed.
+- 2026-07-05: the first-salary/3a and buy-property/mortgage P0 screens now
+  display the next Data Quest question card instead of keeping the missing
+  variable only in hidden semantics. Verification passed with targeted
+  Flutter tests, `bash tools/checks/mint_lucidity_gate.sh mobile-scenarios`,
+  `bash tools/checks/mint_lucidity_gate.sh mobile-first-salary-patrol "iPhone 17 Pro"`,
+  `bash tools/checks/mint_lucidity_gate.sh mobile-f2-patrol "iPhone 17 Pro"`,
+  `python3 tools/checks/verify_phase_acceptance.py`, and the OS guards.
 
 ## Historical Receipts
 

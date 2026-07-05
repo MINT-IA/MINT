@@ -359,6 +359,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        DataQuestNextQuestionCard(
+          plan: plan,
+          semanticsPrefix: 'sim3a',
+        ),
+        const SizedBox(height: MintSpacing.xs),
         DataQuestProofStrip(
           plan: plan,
           semanticsPrefix: 'sim3a',

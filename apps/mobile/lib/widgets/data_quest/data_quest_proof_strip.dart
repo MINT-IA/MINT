@@ -46,10 +46,15 @@ class DataQuestNextQuestionCard extends StatelessWidget {
     return switch (ask.inputKey) {
       'incomeGrossYearly' => l10n.affordabilityGrossIncome,
       'canton' => l10n.affordabilityCanton,
+      'birthYear' => l10n.authDateOfBirth,
+      'has2ndPillar' => l10n.affordabilityPillarLpp,
+      'pillar3aAnnual' => l10n.sim3aAnnualContribution,
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' =>
         l10n.financialSummaryEpargneLiquide,
       'targetPropertyValue' => l10n.affordabilityTargetPrice,
+      'householdType' => l10n.dataBlockMenageTitle,
+      'patrimoine.mortgageRate' => l10n.locationTauxHypo,
       'propertyMarketValue' ||
       'patrimoine.propertyMarketValue' =>
         l10n.donationValeurImmobiliere,

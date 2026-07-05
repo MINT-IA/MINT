@@ -292,9 +292,19 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
-                DataQuestProofStrip(
-                  plan: dataQuestPlan,
-                  semanticsPrefix: 'mortgage',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    DataQuestNextQuestionCard(
+                      plan: dataQuestPlan,
+                      semanticsPrefix: 'mortgage',
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    DataQuestProofStrip(
+                      plan: dataQuestPlan,
+                      semanticsPrefix: 'mortgage',
+                    ),
+                  ],
                 ),
                 const SizedBox(height: MintSpacing.lg),
 

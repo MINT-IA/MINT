@@ -172,6 +172,8 @@ void main() {
         find.bySemanticsIdentifier('sim3a_data_quest_stage'),
       );
       expect(dataQuestStage.value, 'useful');
+      expect($(#sim3a_data_quest_next_question), findsOneWidget);
+      expect($(find.text('Versement annuel')), findsOneWidget);
 
       expect($(#sim3a_profile_basis), findsOneWidget);
       final basisSemantics = $.tester.widget<Semantics>(

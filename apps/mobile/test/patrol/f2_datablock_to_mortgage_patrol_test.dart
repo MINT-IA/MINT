@@ -206,6 +206,8 @@ void main() {
         find.bySemanticsIdentifier('mortgage_data_quest_stage'),
       );
       expect(dataQuestStage.value, 'guard');
+      expect($(#mortgage_data_quest_next_question), findsOneWidget);
+      expect($(find.text('Composition du ménage')), findsOneWidget);
 
       expect($(find.bySemanticsIdentifier('mortgage_afford_result')),
           findsOneWidget);
