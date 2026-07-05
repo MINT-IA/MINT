@@ -4,8 +4,8 @@ milestone: mint-lucidity-dataquest-clean
 milestone_name: Mint Lucidity DataQuest Clean
 status: active
 stopped_at: ""
-last_updated: "2026-07-04T22:08:04.000+02:00"
-last_activity: 2026-07-04 -- JOS-009 fixed and verified: /budget/setup keeps q_pay_frequency income-only, stores q_housing_cost_frequency for housing costs, passes targeted tests, and iPhone 17 Pro Patrol proof is green.
+last_updated: "2026-07-05T03:21:56+02:00"
+last_activity: 2026-07-05 -- Provider wiring now removes the BudgetProvider and FinancialPlanProvider data islands; MAESTRO_FLOWS, SCREEN_CONTRACTS, DATA_LEDGER, DATA_QUEST, and backend suggested actions have executable guards wired into phase acceptance. Claude external specs audit is blocked by CLI budget; local Maestro CLI is currently timing out on startup after partial mobile-scenarios progress.
 progress:
   scope: mint_lucidity_dataquest_clean
   total_phases: 1
@@ -66,6 +66,9 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
 - `python3 tools/checks/mint_rules_guard.py`
 - `python3 tools/checks/workflow_contract_guard.py`
 - `python3 tools/checks/verify_phase_acceptance.py`
+- `python3 -m pytest tools/checks/tests/test_maestro_flows_doc_contract.py -q`
+- `python3 -m pytest tools/checks/tests/test_screen_contracts_doc_contract.py -q`
+- `cd apps/mobile && flutter test test/architecture/financial_plan_wiring_contract_test.dart test/providers/financial_plan_provider_test.dart --reporter expanded`
 - `bash tools/checks/mint_lucidity_gate.sh mobile-data-quest`
 - `bash tools/checks/mint_lucidity_gate.sh mobile-scenarios`
 - Patrol P0 runtime gate when mobile flows are touched.
@@ -90,6 +93,20 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
   evidence at
   `.planning/journeys/evidence/mint_dataquest_clean/20260704T130648Z/claude-architecture-audit.txt`;
   the newer phase audit starts with `NO_UNRESOLVED_CRITICAL_HIGH`.
+- 2026-07-05: `tools/checks/claude_external_audit.sh specs` was retried after
+  the provider/doc/backend guard cleanup, but the Claude CLI returned
+  `Exceeded USD budget (1)` before producing a new verdict. Deterministic local
+  acceptance remains green; external audit must be retried when budget is
+  available.
+- 2026-07-05: `bash tools/checks/mint_lucidity_gate.sh mobile-scenarios`
+  passed the 207-test Flutter suite, ARB/i18n succession checks, and multiple
+  Maestro syntax checks (`r3_report_pillar3a_action`, `r3c_report_dossier_export`,
+  `f5_transmitting_property`, `r1_scan_review`, `r2_scan_impact`,
+  `r3b_confidence_dashboard`) before timing out on a repeated
+  `r3_report_pillar3a_action` syntax check. A follow-up isolated
+  `maestro check-syntax` for that flow and `maestro --version` also timed out,
+  while `java -version` succeeded. Treat this as a local Maestro CLI blocker,
+  not as a green runtime gate.
 
 ## Historical Receipts
 

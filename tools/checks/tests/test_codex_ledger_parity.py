@@ -6,6 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 BACKEND_COACH = ROOT / "services/backend/app/api/v1/endpoints/coach_chat.py"
 MOBILE_PROVIDER = ROOT / "apps/mobile/lib/providers/coach_profile_provider.dart"
+MOBILE_PROFILE = ROOT / "apps/mobile/lib/models/coach_profile.dart"
+BACKEND_CROSSWALK = ROOT / "services/backend/app/services/confidence/source_crosswalk.py"
 DATA_LEDGER = ROOT / "docs/codex/DATA_LEDGER.md"
 DATA_QUEST = ROOT / "docs/codex/DATA_QUEST.md"
 WIRING_GRAPH = ROOT / "docs/codex/WIRING_GRAPH.mmd"
@@ -49,6 +51,24 @@ def _ledger_allowlist_keys() -> set[str]:
     return keys
 
 
+def _mobile_profile_data_source_members() -> set[str]:
+    text = MOBILE_PROFILE.read_text(encoding="utf-8")
+    match = re.search(r"enum ProfileDataSource\s*\{(.*?)\n\}", text, re.S)
+    assert match, "ProfileDataSource enum not found"
+    return set(re.findall(r"^\s*([A-Za-z]\w*)\s*,", match.group(1), re.M))
+
+
+def _backend_crosswalk_mobile_keys() -> set[str]:
+    text = BACKEND_CROSSWALK.read_text(encoding="utf-8")
+    match = re.search(
+        r"_MOBILE_TO_BACKEND:\s*dict\[str,\s*DataSource\]\s*=\s*\{(.*?)\n\}",
+        text,
+        re.S,
+    )
+    assert match, "_MOBILE_TO_BACKEND map not found"
+    return set(re.findall(r'"([^"]+)":\s*DataSource\.', match.group(1)))
+
+
 def test_backend_mobile_and_ledger_allowlist_are_identical() -> None:
     backend = _backend_save_fact_keys()
     mobile = _mobile_mapper_cases()
@@ -61,6 +81,10 @@ def test_backend_mobile_and_ledger_allowlist_are_identical() -> None:
     )
     assert ledger == backend
     assert mobile == backend
+
+
+def test_profile_data_source_enum_is_exhaustively_mapped_to_backend() -> None:
+    assert _backend_crosswalk_mobile_keys() == _mobile_profile_data_source_members()
 
 
 def test_data_quest_allowlist_count_matches_frozen_contract() -> None:

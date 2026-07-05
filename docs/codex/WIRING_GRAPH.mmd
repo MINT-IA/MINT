@@ -18,15 +18,17 @@
 flowchart TB
 
   %% ==========================================================================
-  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:2035-2165)
+  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:1994-2120)
   %% The spine + the islands. Solid arrow = live listen/recompute edge that
-  %% EXISTS in code. Dashed arrow = REQUIRED bridge that is MISSING today.
+  %% EXISTS in code. Dashed arrow = reference/best-effort edge, not an
+  %% authoritative ledger write. Missing required bridges must be called out
+  %% explicitly.
   %% ==========================================================================
   subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
     direction TB
-    CPP["CoachProfileProvider<br/>app.dart:2050<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
-    MSP["MintStateProvider<br/>app.dart:2114 (ProxyProvider)<br/>builds MintUserState (read-model)"]
-    NWS["NotificationsWiringService<br/>app.dart:2161 (ProxyProvider, lazy:false)"]
+    CPP["CoachProfileProvider<br/>app.dart:2009-2013<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
+    MSP["MintStateProvider<br/>app.dart:2061 (ProxyProvider)<br/>builds MintUserState (read-model)"]
+    NWS["NotificationsWiringService<br/>app.dart:2112 (ProxyProvider, lazy:false)"]
     PERSIST[("SharedPreferences<br/>key: wizard_answers_v2<br/>report_persistence_service.dart")]
     BACKEND[("backend ProfileModel.data<br/>save_fact 40-key allowlist<br/>coach_chat.py:_SAVE_FACT_ALLOWED_KEYS")]
     PTC["PropertyTransmissionCalculator<br/>financial_core/property_transmission_calculator.dart<br/>local deterministic succession triage"]
@@ -44,19 +46,19 @@ flowchart TB
     PTC -- "transmit_property outputs" --> DOSS
     DOSS -- "buildDossierPayloadPdfBytes" --> PDF
 
-    %% Budget/household/plan have live CoachProfile bridges. Timeline/documents
+    %% Budget/plan have live CoachProfile bridges. Household/timeline/documents
     %% are reference stores: they keep ids/activity/raw results, not financial
     %% ledger values. Confirmed extracted facts enter through CoachProfileProvider.
-    BUDGET["BudgetProvider<br/>app.dart:2063 — BRIDGED from CoachProfileProvider"]
-    HOUSE["HouseholdProvider<br/>app.dart:2055 — BRIDGED relation status only"]
-    TIMELINE["TimelineProvider<br/>app.dart:2140 — ACTIVITY/REFERENCE STORE"]
-    DOCS["DocumentProvider<br/>app.dart:2048 — RAW DOCUMENT STORE"]
-    PLAN["FinancialPlanProvider<br/>app.dart:2127 — BRIDGED to CoachProfileProvider staleness"]
+    BUDGET["BudgetProvider<br/>app.dart:2014 — BRIDGED from CoachProfileProvider"]
+    HOUSE["HouseholdProvider<br/>app.dart:2008 — BACKEND HOUSEHOLD REF STORE"]
+    TIMELINE["TimelineProvider<br/>app.dart:2091 — ACTIVITY/REFERENCE STORE"]
+    DOCS["DocumentProvider<br/>app.dart:2006 — RAW DOCUMENT STORE"]
+    PLAN["FinancialPlanProvider<br/>app.dart:2078 — BRIDGED to CoachProfileProvider staleness"]
     LEGACY_PROFILE["ProfileProvider + models/profile.dart<br/>legacy module, NOT mounted in app.dart<br/>no prod screen/widget consumer"]
 
     CPP -- "refreshFromProfile -> depenses inputs" --> BUDGET
     BUDGET -- "reads synced profile-derived budget" --> MSP
-    HOUSE -- "active/pending partner -> etatCivil + conjoint.invitationLevel only" --> CPP
+    HOUSE -. "membership refs only; relation facts enter via Data Quest" .-> BACKEND
     TIMELINE -. "read-only refs: conversations/docs/landmarks" .-> PERSIST
     DOCS -. "upload/list/delete ids and raw extraction results only" .-> BACKEND
     CPP -- "attachProfileProvider -> plan stale on profile hash change" --> PLAN
@@ -129,12 +131,12 @@ flowchart TB
     end
     subgraph DATA["collection / documents / report"]
       SCAN["/scan"]; SCANAVS["/scan/avs-guide"]
-      SREVIEW["/scan/review<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1401)"]
-      SIMPACT["/scan/impact<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1423)"]
+      SREVIEW["/scan/review<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1374)"]
+      SIMPACT["/scan/impact<br/>scanSessionId query/extra id<br/>wait restore, then session or recovery (:1380)"]
       DBLOCK["/data-block/:type<br/>DataBlockEnrichmentScreen"]
       DOCLIST["/documents"]; DOCID["/documents/:id"]; BANKIMP["/bank-import"]
-      RAPPORT["/rapport<br/>ReportRouteScreen<br/>loadAnswers timeout/retry (:1490)"]
-      CONF["/confidence<br/>ConfidenceRouteScreen<br/>profile-first loadResult timeout/retry (:1711)"]
+      RAPPORT["/rapport<br/>ReportRouteScreen<br/>loadAnswers timeout/retry (:1431)"]
+      CONF["/confidence<br/>ConfidenceRouteScreen<br/>profile-first loadResult timeout/retry (:1652)"]
     end
     subgraph MISC["misc / education / couple / settings (deep-link + settings entries)"]
       COUPLE["/couple"]; CACCEPT["/couple/accept"]; EHUB["/education/hub"]; ETHEME["/education/theme/:id"]
@@ -226,7 +228,7 @@ flowchart TB
 %%     (app.dart:450-467). A miss renders localized _ScanSessionUnavailable,
 %%     and missing previousConfidence no longer synthesizes a baseline.
 %% D-3 /rapport      FIXED at HEAD for I-2/no-extra and spinner-forever.
-%%     app.dart:1490-1492 delegates to ReportRouteScreen; report_route_screen.dart:37-85
+%%     app.dart:1431-1433 delegates to ReportRouteScreen; report_route_screen.dart:37-85
 %%     reads ReportPersistenceService.loadAnswers(), applies an 8s timeout, and
 %%     renders financialReportLoadErrorTitle/commonRetry on failure. The visible
 %%     screen now builds the three P0 DossierPayloadService cases and exposes
@@ -259,16 +261,17 @@ flowchart TB
 %%     writers outside coach_profile_provider.dart; expect 0.
 %% I-4 NO FINANCIAL-DATA ISLANDS: every provider that holds authoritative
 %%     financial/profile state must feed the recompute. BudgetProvider is now
-%%     bridged at app.dart:2063-2079.
-%%     HouseholdProvider is now bridged at app.dart:2055-2062 for relation
-%%     status only (etatCivil + conjoint.invitationLevel); spouse financial
-%%     fields remain Data Quest inputs. FinancialPlanProvider is now bridged at
-%%     app.dart:2127-2134 for plan-staleness detection. TimelineProvider(:2140),
-%%     DocumentProvider(:2048), ConversationStore and raw document stores are
+%%     bridged at app.dart:2014-2026.
+%%     FinancialPlanProvider is now bridged at app.dart:2078-2086 for
+%%     plan-staleness detection. HouseholdProvider(:2008), TimelineProvider(:2091),
+%%     DocumentProvider(:2006), ConversationStore and raw document stores are
 %%     reference/activity stores: they must NOT write financial ledger values.
-%%     Their extracted/confirmed facts enter through CoachProfileProvider
+%%     Household relation facts that affect calculations must enter through
+%%     CoachProfileProvider/Data Quest, not through the backend membership store.
+%%     Extracted/confirmed document facts enter through CoachProfileProvider
 %%     write APIs at scan or coach confirmation time.
 %%     CHECK: apps/mobile/test/architecture/raw_reference_stores_contract_test.dart
+%%     plus apps/mobile/test/architecture/financial_plan_wiring_contract_test.dart
 %% I-5 LEGACY PROVIDER (screen migration done): ProfileProvider is no longer
 %%     registered in app.dart and has no production screen/widget consumer.
 %%     `hasDebt` gates now use lookupSafeModeFlag(context), which resolves from

@@ -1,32 +1,38 @@
-# MAESTRO_FLOWS.md — E2E flows that PROVE the wiring (Codex-executable)
+# MAESTRO_FLOWS.md — E2E flow contracts and backlog (Codex-executable)
 
 > **Baseline note:** file:line references were originally audited against `apps/mobile/` and `services/backend/` at commit `255373b`, then corrected on this branch. Treat every reference below as a HEAD contract and re-verify after code movement.
 
-> **Status:** normative. Grounded in the REAL code at commit `255373b`.
-> **Purpose:** every flow is a mechanical proof that the spine connects. **Green = wired.** A red flow names a real bug to fix (`WIRING_GRAPH.mmd` D-1..D-5).
-> **appId:** `ch.mint.coach` (`android/app/build.gradle:50`).
+> **Status:** normative. Grounded in the REAL code at commit `255373b`, then
+> updated against the current clean branch. Treat this as a HEAD contract.
+> **Purpose:** every row labelled `File:` is a checked-in mechanical proof or
+> syntax-gated route smoke. Rows labelled `Blocked flow path:` are backlog
+> sketches and must not be cited as runtime evidence. Runtime P0 proof currently
+> runs on iOS/Patrol; Maestro provides checked-in iOS route smoke and
+> syntax-gated flow contracts.
+> **appId:** `ch.mint.app` (checked-in Maestro YAMLs under
+> `apps/mobile/.maestro/`).
 > **Companions:** `DATA_LEDGER.md`, `SCREEN_CONTRACTS.md`, `WIRING_GRAPH.mmd`, `DATA_QUEST.md`.
 
-## 0. Reality check — there is NO Maestro setup yet (build it)
+## 0. Reality check — current Maestro/iOS contract
 
-- No `.maestro/` folder exists. Only `apps/mobile/integration_test/{persona_lea_test.dart, persona_marc_test.dart}` (reuse persona names **Lea**, **Marc**).
-- Screens use `Semantics(...)` labels and i18n `Text(S.of(context)!.key)`, **not** stable `Key('...')` (verified: near-zero `Key('...')` in `lib/`). **Maestro needs stable ids.** So Task M-0 below is a prerequisite: add the listed identifiers.
-- **Deep links do NOT work yet.** `android/app/src/main/AndroidManifest.xml` declares only `android:scheme="https"` inside `<queries>` (line 37) and has NO `mint://` intent-filter on `MainActivity` (verified lines 25-28: only `MAIN`/`LAUNCHER`). iOS has no `CFBundleURLSchemes`. Every `openLink: "mint://…"` in the flows below is dead until Task M-0 registers the scheme.
+- `apps/mobile/.maestro/` exists and contains the currently accepted route
+  smoke flows. `tools/checks/mint_lucidity_gate.sh mobile-scenarios` syntax
+  checks them and enforces current route coverage status.
+- P0 product runtime proof is Patrol on the canonical iPhone simulator. Maestro
+  remains a route/smoke harness for the checked-in YAMLs and a backlog format
+  for future cross-screen proofs.
+- iOS registers the `mint` custom scheme in
+  `apps/mobile/ios/Runner/Info.plist`; checked-in flows use
+  `mint:///absolute-path`.
+- Android does **not** register the `mint` scheme yet. That is deliberate for
+  this product branch: Android runtime is a separate compatibility track in
+  `docs/codex/ANDROID_RUNTIME_BLOCKERS.md`, not the active iOS product gate.
 
-### Task M-0 — Setup, deep-link scheme, and required ids to ADD (file : what)
+### M-0 — Current setup contract and future ids
 
-**M-0a — Register the `mint://` custom scheme (REQUIRED before any `openLink` flow runs).**
+**M-0a — Custom scheme split.**
 
-- Android — add this intent-filter INSIDE the `<activity android:name=".MainActivity">` block of `apps/mobile/android/app/src/main/AndroidManifest.xml` (after the existing `MAIN`/`LAUNCHER` filter, before `</activity>` at line 29):
-  ```xml
-  <intent-filter android:autoVerify="false">
-      <action android:name="android.intent.action.VIEW" />
-      <category android:name="android.intent.category.DEFAULT" />
-      <category android:name="android.intent.category.BROWSABLE" />
-      <data android:scheme="mint" />
-  </intent-filter>
-  ```
-- iOS — add to `apps/mobile/ios/Runner/Info.plist`:
+- iOS — already registered in `apps/mobile/ios/Runner/Info.plist`:
   ```xml
   <key>CFBundleURLTypes</key>
   <array>
@@ -38,46 +44,68 @@
     </dict>
   </array>
   ```
-- GoRouter already resolves the paths (`/data-block/:type`, `/hypotheque`, `/scan/review`, …); the scheme registration is what lets the OS hand `mint://<path>` to the app. Verify with `adb shell am start -a android.intent.action.VIEW -d "mint://home" ch.mint.coach` before running flows.
+- Android — still pending in the Android compatibility track. The target patch
+  is to add this intent-filter inside `<activity android:name=".MainActivity">`
+  once `docs/codex/ANDROID_RUNTIME_BLOCKERS.md` is being handled:
+  ```xml
+  <intent-filter android:autoVerify="false">
+      <action android:name="android.intent.action.VIEW" />
+      <category android:name="android.intent.category.DEFAULT" />
+      <category android:name="android.intent.category.BROWSABLE" />
+      <data android:scheme="mint" />
+  </intent-filter>
+  ```
+- GoRouter resolves absolute paths (`/data-block/:type`, `/hypotheque`,
+  `/scan/review`, ...). Maestro flows must use `mint:///path`, not
+  host-form `mint://path`.
 
-**M-0b — Create `apps/mobile/.maestro/` and add these stable ids** (`Semantics(identifier: '...')` — Maestro reads it cross-platform; keep the i18n visible label separate):
+**M-0b — Stable ids** (`Semantics(identifier: '...')` — Maestro/Patrol read
+them; keep the i18n visible label separate):
 
-| id to add | file | element |
-|---|---|---|
-| `salary_input` | `screens/onboarding/data_block_enrichment_screen.dart` | net/gross salary field |
-| `canton_picker` | same | canton selector |
-| `coach_input` | `widgets/coach/coach_input_bar.dart` | chat text field |
-| `coach_send` | same | send button |
-| `retirement_gap_value` | `screens/coach/retirement_dashboard_screen.dart` | the projected gap number |
-| `mortgage_afford_result` | `screens/…/affordability` (`/hypotheque`) | affordability verdict |
-| `lpp_balance_input` | `widgets/coach/coach_input_bar.dart` (chat) or data-block `lpp` field | LPP balance entry |
-| `rente_capital_uses_lpp` | `/rente-vs-capital` result screen | value derived from LPP balance |
-| `savings_input` | `screens/onboarding/data_block_enrichment_screen.dart` | savings/patrimoine field |
-| `property_value_input` | `screens/coach/succession_patrimoine_screen.dart` | property value entry |
-| `succession_parents_note` | `screens/coach/succession_patrimoine_screen.dart` | parents' retirement-affordability CASE note |
-| `divorce_regime_picker` | `screens/divorce_simulator_screen.dart` | matrimonial regime selector |
-| `divorce_lpp_split_result` | `screens/divorce_simulator_screen.dart` | LPP-split outcome value |
-| `document_scan_header` | `screens/document_scan/document_scan_screen.dart` | recovery destination reached from `/scan/review` and `/scan/impact` empty states |
-| `Aucun document` | `app.dart:469-486` via `AppLocalizations.documentsEmpty` | localized recovery state for missing scan sessions |
-| `report_investment_card` | `screens/advisor/financial_report_screen_v2.dart:51` | investment action card |
+| status | id | file | element |
+|---|---|---|---|
+| backlog prerequisite | `salary_input` | `screens/onboarding/data_block_enrichment_screen.dart` | net/gross salary field |
+| backlog prerequisite | `canton_picker` | same | canton selector |
+| live prerequisite | `coach_input` | `widgets/coach/coach_input_bar.dart` | chat text field |
+| live prerequisite | `coach_send` | same | send button |
+| backlog prerequisite | `retirement_gap_value` | `screens/coach/retirement_dashboard_screen.dart` | the projected gap number |
+| live prerequisite | `mortgage_afford_result` | `screens/…/affordability` (`/hypotheque`) | affordability verdict |
+| backlog prerequisite | `lpp_balance_input` | `widgets/coach/coach_input_bar.dart` (chat) or data-block `lpp` field | LPP balance entry |
+| backlog prerequisite | `rente_capital_uses_lpp` | `/rente-vs-capital` result screen | value derived from LPP balance |
+| backlog prerequisite | `savings_input` | `screens/onboarding/data_block_enrichment_screen.dart` | savings/patrimoine field |
+| live prerequisite | `property_value_input` | `screens/coach/succession_patrimoine_screen.dart` | property value entry |
+| live prerequisite | `succession_parents_note` | `screens/coach/succession_patrimoine_screen.dart` | parents' retirement-affordability CASE note |
+| backlog prerequisite | `divorce_regime_picker` | `screens/divorce_simulator_screen.dart` | matrimonial regime selector |
+| backlog prerequisite | `divorce_lpp_split_result` | `screens/divorce_simulator_screen.dart` | LPP-split outcome value |
+| live proof | `document_scan_header` | `screens/document_scan/document_scan_screen.dart` | recovery destination reached from `/scan/review` and `/scan/impact` empty states |
+| live proof | `Aucun document` | `app.dart:478,488` via `AppLocalizations.documentsEmpty` | localized recovery state for missing scan sessions |
+| live proof | `report_action_investment_card` | `screens/advisor/financial_report_screen_v2.dart:78,914-915` | generated investment action card semantics id |
 
-**M-0c — Define the shared subflow file `apps/mobile/.maestro/goto_retirement.yaml`** (referenced by F-1 via `runFlow`):
+**M-0c — Future shared retirement navigation pattern**
+(not a checked-in file at HEAD; use only when a live flow is added):
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 # Navigate to the retirement dashboard (/retraite, app.dart:546) without relying on tab chrome.
-- openLink: "mint://retraite"
+- openLink: "mint:///retraite"
 - assertVisible: { id: "retirement_gap_value" }
 ```
 
-## 1. Happy-path flows (prove cross-screen data flow)
+## 1. Happy-path flow contracts (live `File:` rows prove cross-screen data flow)
 
-Each asserts: **data entered on screen A is visible/used on screen B** — i.e. the `CoachProfileProvider → MintStateProvider` spine works.
+Each live `File:` row asserts: **data entered on screen A is visible/used on
+screen B** — i.e. the `CoachProfileProvider → MintStateProvider` spine works.
+`Blocked flow path:` rows are product backlog sketches, not accepted proof.
 
 ### F-1 first-job → retirement gap uses the salary
-File: `apps/mobile/.maestro/f1_first_job.yaml`
+Blocked flow path: `apps/mobile/.maestro/f1_first_job.yaml`
+
+Not checked in at HEAD. This remains a backlog sketch until the salary capture
+and retirement projection ids are stable enough to become a live Maestro/Patrol
+proof.
+
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
 - assertVisible: { text: "Parle à Mint" }    # landing CTA (l10n landingV2CtaSober, app_fr.arb:11258)
@@ -86,7 +114,7 @@ appId: ch.mint.coach
 - inputText: "je commence mon premier job à 4500 net"
 - tapOn: { id: "coach_send" }
 - assertVisible: { text: "3e pilier" }        # coach explains, no product named
-- runFlow: goto_retirement.yaml               # navigate to /retraite (subflow, M-0c)
+- openLink: "mint:///retraite"                # navigate to /retraite
 - assertVisible: { id: "retirement_gap_value" }
 # PROOF: the gap reflects the salary just entered (not the empty-profile default)
 - assertVisible: { text: "4'500" }            # salary echoed in the projection basis
@@ -95,57 +123,65 @@ appId: ch.mint.coach
 ### F-2 salary entered in data-block is visible in mortgage affordability
 File: `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml`
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://data-block/revenu"        # /data-block/:type (app.dart:1271)
+- openLink: "mint:///data-block/revenu"       # /data-block/:type (app.dart:1271)
 - tapOn: { id: "salary_input" }
 - inputText: "8000"
 - tapOn: { id: "canton_picker" }
 - tapOn: { text: "Genève" }
 - back
-- openLink: "mint://hypotheque"               # /hypotheque (app.dart:490 target)
+- openLink: "mint:///hypotheque"              # /hypotheque (app.dart:490 target)
 - assertVisible: { id: "mortgage_afford_result" }
 # PROOF: affordability used the 8000 salary + GE canton from the ledger, not extra
 ```
 
 ### F-3 retirement — LPP balance entered in coach is used by rente-vs-capital
-File: `apps/mobile/.maestro/f3_retirement.yaml`
+Blocked flow path: `apps/mobile/.maestro/f3_retirement.yaml`
+
+Not checked in at HEAD. Keep as a backlog sketch until the coach fact-save path
+and rente-vs-capital assertion ids are stable enough for runtime proof.
+
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://coach/chat"               # coach chat (StatefulShell tab 1)
+- openLink: "mint:///coach/chat"              # coach chat (StatefulShell tab 1)
 - tapOn: { id: "coach_input" }
 - inputText: "mon avoir LPP est de 120000"
 - tapOn: { id: "coach_send" }
 - assertVisible: { text: "LPP" }              # coach acknowledges the pillar
-- openLink: "mint://retraite"                 # /retraite (app.dart:546)
+- openLink: "mint:///retraite"                # /retraite (app.dart:546)
 - assertVisible: { id: "retirement_gap_value" }
-- openLink: "mint://rente-vs-capital"         # rente-vs-capital simulator
+- openLink: "mint:///rente-vs-capital"        # rente-vs-capital simulator
 - assertVisible: { id: "rente_capital_uses_lpp" }
 # PROOF: the rente-vs-capital result is derived from the 120000 LPP from the ledger
 - assertVisible: { text: "120'000" }
 ```
 
 ### F-4 buying property — savings entered changes the affordability verdict
-File: `apps/mobile/.maestro/f4_buying_property.yaml`
+Blocked flow path: `apps/mobile/.maestro/f4_buying_property.yaml`
+
+Not checked in at HEAD. Keep as a backlog sketch until the patrimoine data-block
+and affordability verdict comparison are stable enough for runtime proof.
+
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://data-block/patrimoine"    # /data-block/:type (app.dart:1271)
+- openLink: "mint:///data-block/patrimoine"   # /data-block/:type (app.dart:1271)
 - tapOn: { id: "salary_input" }
 - inputText: "9000"
 - back
-- openLink: "mint://hypotheque"
+- openLink: "mint:///hypotheque"
 - assertVisible: { id: "mortgage_afford_result" }
 - copyTextFrom: { id: "mortgage_afford_result" }
-- openLink: "mint://data-block/patrimoine"
+- openLink: "mint:///data-block/patrimoine"
 - tapOn: { id: "savings_input" }
 - inputText: "300000"                          # add fonds propres
 - back
-- openLink: "mint://hypotheque"
+- openLink: "mint:///hypotheque"
 - assertVisible: { id: "mortgage_afford_result" }
 # PROOF: the verdict recomputed from the 300000 savings now in the ledger
 - assertNotVisible: { text: "${copiedText}" }  # verdict text changed after savings added
@@ -154,10 +190,10 @@ appId: ch.mint.coach
 ### F-5 transmitting property — property value drives the CASE, parents' note shows FIRST
 File: `apps/mobile/.maestro/f5_transmitting_property.yaml`
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://succession"                # /succession (app.dart:637)
+- openLink: "mint:///succession"               # /succession (app.dart:637)
 - assertVisible: { text: "Succession et transmission" }  # successionTitle (app_fr.arb:288)
 - tapOn: { id: "property_value_input" }
 - inputText: "1200000"
@@ -263,22 +299,35 @@ File: `apps/mobile/test/routing/legacy_redirect_query_preservation_test.dart`
 
 ## 3. Acceptance criteria (Codex/CI)
 
-- **M-1** `.maestro/` exists; `maestro test .maestro/` runs in CI; `mint://` scheme registered (M-0a) and verified via `adb shell am start … -d "mint://home"`.
-- **M-2** All F-1..F-5 green ⇒ the spine connects across screens (first job, retirement, buying property, transmitting property).
-- **M-3** All R-1..R-5 green ⇒ every verified dead road (D-1..D-5) is closed.
+- **M-1** `apps/mobile/.maestro/` exists; checked-in YAMLs syntax-check in
+  `mobile-scenarios`; iOS has the `mint` scheme registered; Android custom
+  scheme/runtime remains tracked in `docs/codex/ANDROID_RUNTIME_BLOCKERS.md`.
+- **M-2** P0 spine proof is split deliberately:
+  - `first_salary_tax` and `buy_property` are runtime-proven by Patrol
+    (`P0_CASE_VARIABLE_REGISTRY.json.patrol_flow_id`) while Maestro keeps route
+    smoke/status entries.
+  - `transmit_property` has both a checked-in Maestro flow
+    `phase2_data_quest_transmit_property.yaml` and a Patrol runtime proof.
+- **M-3** R-1/R-2/R-3/R-3c checked-in flows plus the static redirect tests cover
+  the repaired dead roads D-1..D-5. A future R-4 restart runtime YAML must be
+  added before claiming runtime restart coverage.
 - **M-4** Each flow uses a stable id from Task M-0 (no reliance on volatile visible text except localized asserts).
 - **M-5** A newly added screen without F-/R- coverage fails the "every live route has ≥1 flow" check (cross-ref `SCREEN_CONTRACTS.md`).
-- **M-6** Divorce happy-path (F-6) green ⇒ the required priority-event set {first job, retirement, buying property, transmitting property, divorce} is fully covered.
+- **M-6** Divorce happy-path (F-6) is blocked until
+  `apps/mobile/.maestro/f6_divorce.yaml` exists and passes syntax/runtime gates.
 
 ## 4. Divorce happy-path (priority event, real route `/divorce`)
 
 ### F-6 divorce — matrimonial regime selection drives the LPP-split result
-File: `apps/mobile/.maestro/f6_divorce.yaml`
+Blocked flow path: `apps/mobile/.maestro/f6_divorce.yaml`
+
+Not checked in at HEAD; blocked by the dedicated divorce UX/runtime contract.
+
 ```yaml
-appId: ch.mint.coach
+appId: ch.mint.app
 ---
 - launchApp: { clearState: true }
-- openLink: "mint://divorce"                  # /divorce (app.dart:763, DivorceSimulatorScreen)
+- openLink: "mint:///divorce"                 # /divorce (app.dart:763, DivorceSimulatorScreen)
 - assertVisible: { text: "Divorce — Impact financier" }  # divorceAppBarTitle (app_fr.arb:1139)
 - tapOn: { id: "divorce_regime_picker" }
 - tapOn: { text: "Séparation de biens" }      # divorceSeparation option
@@ -287,7 +336,9 @@ appId: ch.mint.coach
 # not an empty default (cross-screen: profile from spine feeds the simulator)
 - assertVisible: { text: "LPP" }
 ```
-**Today: PASSES** if the simulator reads `CoachProfileProvider` (verified: `retirement_dashboard`/simulators call `provider.updateProfile()` and read the spine). Guards against future isolation of the divorce simulator from the ledger.
+**Current status:** blocked. The flow remains a future contract because
+`apps/mobile/.maestro/f6_divorce.yaml` is not checked in. When it lands, it must
+guard against isolating the divorce simulator from the ledger.
 
 ---
 

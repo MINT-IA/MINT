@@ -1,6 +1,6 @@
 # SCREEN_CONTRACTS.md — Per-Route Wiring Contracts (MINT)
 
-> **Baseline note:** file:line references were originally audited against `apps/mobile/` and `services/backend/` at commit `255373b`, then corrected on this branch. Treat every reference below as a HEAD contract and re-verify after code movement.
+> **Baseline note:** file:line references were originally audited against `apps/mobile/` and `services/backend/` at commit `255373b`, then corrected on this branch. Treat explicit line anchors in contract sections as HEAD evidence and re-verify after code movement. The §12 route inventory is a coverage checklist; its parenthesized baseline hints are not authoritative anchors.
 
 > Source of truth for route wiring. Verified against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart`; current branch changes must keep the tests in §10 green.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
@@ -29,7 +29,7 @@ Every screen resolves the domain data it renders from the **ledger**:
 | Column | Meaning |
 |---|---|
 | **route** | Path as registered in `app.dart`. |
-| **shell** | `shell:<branchIndex>` if the route lives inside the `StatefulShellRoute.indexedStack` (app.dart:345); `root` if registered on `_rootNavigatorKey`; `redirect` if it is a redirect-only entry. See §1.1. |
+| **shell** | `shell:<branchIndex>` if the route lives inside the `StatefulShellRoute.indexedStack` (app.dart:633); `root` if registered on `_rootNavigatorKey`; `redirect` if it is a redirect-only entry. See §1.1. |
 | **reads[]** | Ledger fields/providers the screen reads. `∅` = none. Every name resolves in `DATA_LEDGER.md`. |
 | **writes[]** | Ledger fields written, ALWAYS via `CoachProfileProvider.mergeAnswers()/applySaveFact()/updateProfile()`. `∅` = read-only. |
 | **entryConditions** | Guard before render. `none` = always enterable. Guards are `ReadinessGate` REDIRECTS; in-screen mode switches are NOT entry conditions (see §1.2). |
@@ -43,7 +43,7 @@ All `i18n key` values below are keys the agent MUST add to all 6 ARB files (`lib
 
 ### 1.1 Shell vs root registration (do not misregister)
 
-`/home`, `/mon-argent`, `/coach/chat`, `/explore` are the four branches of the `StatefulShellRoute.indexedStack` in `app.dart:345`. The agent MUST register them as `StatefulShellBranch`es (they already are) and MUST NOT flatten them into top-level `GoRoute`s. Their contracts below are the per-branch root screen contracts; the shell wrapper (bottom nav) is unchanged.
+`/home`, `/mon-argent`, `/coach/chat`, `/explore` are the four branches of the `StatefulShellRoute.indexedStack` in `app.dart:633`. The agent MUST register them as `StatefulShellBranch`es (they already are) and MUST NOT flatten them into top-level `GoRoute`s. Their contracts below are the per-branch root screen contracts; the shell wrapper (bottom nav) is unchanged.
 
 **Navigating INTO a shell branch with query params** (e.g. the `/tools` repair targeting `/coach/chat?topic=…`): use `context.go('/coach/chat?topic=investment&actionId=<id>')`. `GoRouter` resolves the URI to the coach branch and rebuilds the branch root with `state.uri.queryParameters` available. Do NOT use `StatefulNavigationShell.goBranch(index)` for this — `goBranch` cannot carry query params. The coach branch root screen reads `topic`/`actionId` from `GoRouterState.of(context).uri.queryParameters`.
 
@@ -53,7 +53,12 @@ Two distinct compile targets. Pick ONE per route, never both:
 - **Entry guard (redirect):** implemented in the route's `redirect:` via `ReadinessGate`. Used ONLY when the screen is meaningless below a threshold. Redirects to the stated fallback route.
 - **In-screen mode switch:** implemented inside the screen `build()`. Used when the screen renders in *illustrative/general-population* mode below threshold and *personalised* mode above. This is NOT an entryCondition; it is a `partialState`/render-mode branch.
 
-For every simulator in §4 the rule is fixed: **simulators use the in-screen mode switch, NEVER an entry-guard redirect.** Their `entryConditions` is therefore `none`; the confidence threshold selects render mode inside the screen (illustrative ↔ personalised), which is asserted by `test/routing/simulator_mode_switch_test.dart` (below-threshold profile → illustrative-mode marker widget present, no redirect fired).
+For every simulator in §4 the rule is fixed: **simulators use the in-screen mode
+switch, NEVER an entry-guard redirect.** Their `entryConditions` is therefore
+`none`; the confidence threshold selects render mode inside the screen
+(illustrative ↔ personalised). The current mechanical guard is
+`tools/checks/tests/test_screen_contracts_doc_contract.py`: each simulator route
+block in `app.dart` must render a `builder:` and must not declare `redirect:`.
 
 ### 1.3 killFlag reference (verified from route_metadata.dart)
 
@@ -134,7 +139,7 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 | routesOut | `/data-block/:type`, `/confidence`, `/explore`, `/coach/history`, any simulator deep-link |
 | killFlag | enableCoachChat |
 
-### `/coach/history` — Conversation history (root, app.dart:632)
+### `/coach/history` — Conversation history (root, app.dart:1074)
 | | |
 |---|---|
 | shell | root |
@@ -589,7 +594,12 @@ Rules:
 
 ## 12. Route coverage ledger (every LIVE builder route in app.dart → its contract)
 
-Verified against `app.dart` from the original baseline and maintained as a HEAD contract. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
+Route names are the contract here. The parenthesized numbers are historical
+baseline hints only; use `apps/mobile/lib/app.dart` plus
+`tools/checks/tests/test_screen_contracts_doc_contract.py` and route tests for
+HEAD line/redirect verification. Redirect-only entries (category `alias`) are
+listed in §4 "Legacy redirects" and are NOT in this table (they carry no
+screen). Every path below has a `builder:` in `app.dart`.
 
 | route (line) | contract § | route (line) | contract § |
 |---|---|---|---|

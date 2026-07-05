@@ -2,7 +2,7 @@
 
 > **Baseline note:** file:line references were originally audited against `apps/mobile/` and `services/backend/` at commit `255373b`, then corrected on this branch. Treat every reference as a HEAD contract and re-verify after code movement.
 
-> **Status:** normative spec for the coding agent. Mechanical, deterministic, initially grounded in the REAL code at commit `255373b` and corrected against branch HEAD.
+> **Status:** normative for live Data Quest behavior. Sections explicitly marked conceptual/backlog are architecture targets, not instructions to add dead runtime classes.
 > **Companions:** `DATA_LEDGER.md` (fields + provenance), `SCREEN_CONTRACTS.md` (per-screen `reads[]`), `WIRING_GRAPH.mmd` (invariants).
 > **Conflict order:** `rules.md` > `CLAUDE.md` > this file. This file does not override compliance (education-not-advice; ranges + `EnhancedConfidence`; no promissory terms).
 
@@ -17,11 +17,11 @@ When any surface needs data it does not have, MINT asks **only the missing or st
 | Typed collection block | `/data-block/:type` → `screens/onboarding/data_block_enrichment_screen.dart` (renders confidence bar + ranked enrichment prompts + cross-validation; dual mode form / `coach/chat?topic=`; supported blocks include `revenu`, `lpp`, `avs`, `3a`, `patrimoine`, `fiscalite`, `objectifRetraite`, `compositionMenage`) |
 | Impact-ranked prompts | `ConfidenceScorer.score(CoachProfile) → ProjectionConfidence{ double score, String level, List<EnrichmentPrompt> prompts, List<String> assumptions }` (`financial_core/confidence_scorer.dart:138`; `ProjectionConfidence` at `:43`, `ConfidenceScorer` at `:104`); backend mirror `enhanced_confidence_service.py` (`rank_enrichment_prompts` at `:406`) |
 | Per-block score | `ConfidenceScorer` → `BlockScore` (`confidence_scorer.dart:63`) |
-| Staleness | `FreshnessDecayService.needsRefresh(BiographyFact, DateTime) → bool` (weight < `0.60` at `freshness_decay_service.dart:39,254`); `weight()` = annual (full 12mo→floor 36mo at `:43,46`) / volatile (full 3mo→floor 12mo at `:50,53`), implementation at `:165-174` |
+| Staleness | `FreshnessDecayService.needsRefresh(BiographyFact, DateTime) → bool` returns true when `weight < 0.60` (`freshness_decay_service.dart:39` threshold, `:262` method); `weight()` = annual (full 12mo→floor 36mo at `:43,46`) / volatile (full 3mo→floor 12mo at `:50,53`), implementation at `:165-174` |
 | Fact store | `BiographyRepository` (encrypted SQLite) — immutable `BiographyFact{ fieldPath, value, source, sourceDate, updatedAt, freshnessCategory }`; read via `getLatestFactForField(fieldPath)` (`biography_repository.dart:263`), write via `insertFact(fact)` (`:163`) / `recordFact(fact)` (`:276`) |
-| Write path | `CoachProfileProvider.mergeAnswers()` (`:579`) / `applySaveFact()` (`:673`) / full-profile `updateProfile()` (`:1366`) — the ONLY mutators |
-| Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (40 keys, `coach_chat.py:1071`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:871`) |
-| Field→screen mapping | `apps/mobile/lib/routes/route_metadata.dart` exposes `RouteMeta` + `kRouteRegistry`; `SCREEN_CONTRACTS.md` owns `reads[]`, `entryConditions`, and `partialState` as executable documentation contracts. HEAD does **not** expose `ScreenRegistry` or `ReadinessGate` runtime classes. |
+| Write path | `CoachProfileProvider.mergeAnswers()` (`coach_profile_provider.dart:621`) / `applySaveFact()` (`:723`) / full-profile `updateProfile()` (`:1468`) — the ONLY mutators |
+| Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (40 keys, `coach_chat.py:1071`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:962`) |
+| Field→screen mapping | `apps/mobile/lib/routes/route_metadata.dart` exposes `RouteMeta` + `kRouteRegistry`; `apps/mobile/lib/services/navigation/screen_registry.dart` and `readiness_gate.dart` expose the planner/readiness API. `SCREEN_CONTRACTS.md` owns the per-route `reads[]`, `entryConditions`, and `partialState` doc contracts, and simulator routes are guarded mechanically to use builders, not `redirect:` entry gates. |
 | Freshness prompt templates | private fallback labels already present: `freshnessConfirm`, `freshnessStale`, `freshnessPrefix` (`confidence_scorer.dart:747-749`). HEAD also has ARB-backed reconfirm keys `freshnessReconfirmPrompt`, `freshnessReconfirmYes`, `freshnessReconfirmUpdate`, and `freshnessReconfirmRescan` in all six `app_*.arb` files; `flutter gen-l10n` generated `S.freshnessReconfirm*`, and ARB parity is enforced. |
 | P0 Data Quest planner | `apps/mobile/lib/services/data_quest/data_quest_service.dart` + import shim `data_quest/case_registry.dart`; plans `first_salary_tax`, `buy_property`, `transmit_property` from raw `wizard_answers_v2` answers so defaults in `CoachProfile.fromWizardAnswers()` do not hide missing values. Runtime consumers: `/pilier-3a`, `/hypotheque`, and `/succession` proof strips expose `next_ask`, `ask_mode`, and `ask_stage` under runtime-proof semantics. |
 | P0 dossier payload | `apps/mobile/lib/services/dossier/dossier_payload_service.dart`; builds schema-checked `DossierPayload` for `first_salary_tax`, `buy_property`, `transmit_property` with every input tagged `{value, source, confidence, updated_at, source_date}` and scenario assumptions explicit. Guard: `test/services/dossier/dossier_payload_service_test.dart` validates each payload against `docs/codex/dossier_stubs/dossier_*.schema.json`. |
@@ -35,7 +35,13 @@ The former is an action-level "confirm this fact now" threshold; the latter is a
 softer dashboard nudge. Do not infer that every freshness prompt must become an
 inline Data Quest reconfirm ask.
 
-## 2. The `DataQuest` object (conceptual target; P0 runtime uses `planCase`)
+## 2. Backlog architecture target — the `DataQuest` object (P0 runtime uses `planCase`)
+
+Do not implement this class merely because it appears in this spec. P0 runtime
+does not instantiate it yet. The executable implementation is
+`DataQuestService.planCase(caseId, answers, now, factsByLedgerKey,
+includeUseful)`; it covers the same planner responsibilities for the three P0
+cases without a public `DataQuest` wrapper, `targetId`, or `goal` parameter.
 
 ```
 DataQuest {
@@ -45,11 +51,6 @@ DataQuest {
   goal            // Phase 5 target, NOT in P0 planCase(); GoalA/GoalB ranking
 }
 ```
-
-P0 runtime does not instantiate this class yet. The executable implementation is
-`DataQuestService.planCase(caseId, answers, now, factsByLedgerKey,
-includeUseful)`; it covers the same planner responsibilities for the three P0
-cases without a public `DataQuest` wrapper, `targetId`, or `goal` parameter.
 
 ### 2.1 Deterministic algorithm (pseudocode — staged P0 profile adapter)
 
@@ -107,6 +108,8 @@ For transaction-only assumptions that are not durable ledger facts
 `AskMode.scenarioAssumption` when `includeUseful=true`. These asks must be
 labelled as scenario assumptions with source/confidence in dossier output; they
 must not become silent calculator defaults.
+Guard:
+`data_quest_service_test.dart::transmit_property useful quest exposes transaction assumptions`.
 
 Phase 4 may replace `factsByLedgerKey` with direct
 `BiographyRepository.getLatestFactForField(key)` reads, but that is not the
