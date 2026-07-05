@@ -379,30 +379,34 @@ Backed by `screens/onboarding/data_block_enrichment_screen.dart` (~70% built: co
 | purpose | Collect/refresh exactly the missing-or-stale delta for one typed block. |
 | reads | `CoachProfile` fields for `:type`; per-field provenance `dataSources{path→source}` + `dataTimestamps{path→updatedAt}` + `dataSourceDates{path→sourceDate}`; `FreshnessDecayService` |
 | writes | `mergeAnswers()` / `applySaveFact()` per field, carrying per-field `dataSources`/`dataTimestamps`/`dataSourceDates` (§6.note) |
-| entryConditions | none. Validation of `:type` happens IN THE ROUTE BUILDER (see §6.validation), not in the screen. |
-| emptyState (REQUIRED) | Invalid/unknown `:type` → "Ce thème n'existe pas." CTA → `/explore`. i18n `dataBlock.empty.unknownType` / `.cta` |
+| entryConditions | none. The route passes `:type` through; `DataBlockEnrichmentScreen` canonicalizes known aliases and renders unsupported values as the unknown block (see §6.validation). |
+| emptyState (REQUIRED) | Invalid/unknown `:type` → migration-safe unknown block. i18n `dataBlockUnknownTitle` / `dataBlockUnknownDesc` / `dataBlockUnknownCta`; no silent fallback to `revenu`. |
 | partialState (REQUIRED) | Some fields present → **DIFF, not FORM**: render only missing fields as questions; render present-but-stale (freshness <0.60) as **re-confirm** prompts ("Toujours exact ?"), NOT re-ask; show before/after delta on save (finding E). i18n `dataBlock.partial.confirmStale` / `.delta` |
 | errorState (REQUIRED) | Save failed (provider threw / backend allowlist reject) → keep entered values, "On n'a pas pu enregistrer." CTA Réessayer + CTA `/coach/chat?topic=:type`. i18n `dataBlock.error.saveFailed` / `.retry` |
 | routesOut | back to referrer, `/coach/chat?topic=:type`, `/confidence`, the domain hub for `:type` |
 | killFlag | null |
 
-### 6.validation — resolve the silent `'revenu'` coercion (finding wiring-2)
+### 6.validation — no silent `'revenu'` coercion (live contract)
 
-The current builder does `state.pathParameters['type'] ?? 'revenu'`. **This fallback MUST be removed.** Replace with, in the `/data-block/:type` route `builder:` in `app.dart`:
+The `/data-block/:type` route must pass the matched path parameter through to
+`DataBlockEnrichmentScreen` without defaulting to `revenu`. `:type` is required
+by the route pattern, and unsupported values are handled inside the screen as a
+migration-safe unknown block using `dataBlockUnknown*` i18n labels.
 
 ```dart
-const _allowedDataBlockTypes = {
-  'revenu','lpp','avs','3a','patrimoine','fiscalite','objectifRetraite','compositionMenage',
-};
 builder: (context, state) {
-  final type = state.pathParameters['type'];
-  if (type == null || !_allowedDataBlockTypes.contains(type)) {
-    return DataBlockEmptyState(); // renders emptyState above (unknownType), NOT '/revenu'
-  }
-  return DataBlockEnrichmentScreen(type: type);
+  return DataBlockEnrichmentScreen(
+    blockType: state.pathParameters['type']!,
+  );
 }
 ```
-`_allowedDataBlockTypes` is the single source; `DataBlockEnrichmentScreen` no longer defaults. Asserted by `test/routing/data_block_unknown_type_test.dart` (pump `/data-block/zzz` → `DataBlockEmptyState` with `dataBlock.empty.unknownType`, NOT the revenu form).
+
+`DataBlockEnrichmentScreen._supportedBlockTypes` remains the local allowlist
+for rendered data blocks (`revenu`, `lpp`, `avs`, `3a`, `patrimoine`,
+`fiscalite`, `objectifRetraite`, `compositionMenage`). Unsupported legacy links
+such as `/data-block/zzz` render the unknown block, not the revenue form.
+Asserted by `test/screens/data_block_enrichment_screen_test.dart` and
+`tools/checks/tests/test_screen_contracts_route_contract.py`.
 
 ### 6.note — per-field provenance API (the missing 30%, finding E / B-4)
 
@@ -486,11 +490,14 @@ Add `EnhancedConfidenceInput.fromProfile(CoachProfile p)` in `enhanced_confidenc
 
 | route | shell | was | repaired contract |
 |---|---|---|---|
-| `/tools` | redirect (target = coach branch, shell:2) | redirect → `/coach/chat`, no context; `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:51-52` maps BOTH `ActionCategory.investment` AND `ActionCategory.other` → `/tools` → dead-end (finding C-2). | Redirect `/tools` → `/coach/chat`, forwarding query params. `financial_report_screen_v2.dart:51-52` MUST be changed so `investment` and `other` map to `/coach/chat?topic=investment&actionId=<id>` (and `topic=other`), never bare `/tools`. Navigation uses `context.go('/coach/chat?topic=…')` (resolves into shell branch 2 with query params per §1.1). Coach opens seeded on that action; investment stays general-population/illustrative (securities-3a excluded from personalised engine). i18n opener `coach.empty.opener.investment` / `.other`. killFlag null. |
-| `/portfolio` | redirect | redirect → `/home`, **query params dropped** (finding C-3). | `redirect: (c,s) => '/home${s.uri.query.isEmpty ? '' : '?${s.uri.query}'}'`. killFlag null. |
-| `/score-reveal` | redirect | redirect → `/home`. | Same query-preserving redirect. killFlag null. |
+| `/tools` | redirect (target = coach branch, shell:2) | legacy alias only; no report action may target bare `/tools`. | Redirect `/tools` → `/coach/chat`, forwarding query params. `financial_report_screen_v2.dart` maps `investment` and `other` to `/coach/chat?topic=investment&actionId=<category>` and `/coach/chat?topic=other&actionId=<category>`, never bare `/tools`. Navigation uses `context.go(route)` for coach-branch routes (resolves into shell branch 2 with query params per §1.1). Coach opens seeded on that action; investment stays general-population/illustrative (securities-3a excluded from personalised engine). i18n opener `coach.empty.opener.investment` / `.other`. killFlag null. |
+| `/portfolio` | redirect | legacy alias only. | Live query-preserving redirect to `/home` via `_redirectPreservingQuery(state, '/home')`. killFlag null. |
+| `/score-reveal` | redirect | legacy alias only. | Live query-preserving redirect to `/home` via `_redirectPreservingQuery(state, '/home')`. killFlag null. |
 
-**General rule:** EVERY redirect entry preserves `state.uri.query`. Asserted by `test/routing/redirect_preserves_query_test.dart`.
+**General rule:** redirect aliases must preserve `state.uri.query`. The live
+`/tools`, `/portfolio`, and `/score-reveal` legacy aliases are guarded by the
+static route test `apps/mobile/test/routes/legacy_redirect_query_preservation_test.dart`
+and the doc/code guard `tools/checks/tests/test_screen_contracts_route_contract.py`.
 
 ---
 

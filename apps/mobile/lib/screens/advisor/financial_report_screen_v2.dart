@@ -48,9 +48,22 @@ class FinancialReportScreenV2 extends StatelessWidget {
       ActionCategory.avs => '/retraite',
       ActionCategory.tax => '/fiscal',
       ActionCategory.insurance => '/assurances/lamal',
-      ActionCategory.investment => '/tools',
-      ActionCategory.other => '/tools',
+      ActionCategory.investment => '/coach/chat?topic=investment',
+      ActionCategory.other => '/coach/chat?topic=other',
     };
+  }
+
+  String _routeForAction(ActionItem action) {
+    final route = _routeForCategory(action.category);
+    if (!route.startsWith('/coach/chat')) return route;
+
+    final uri = Uri.parse(route);
+    return uri
+        .replace(queryParameters: {
+          ...uri.queryParameters,
+          'actionId': action.category.name,
+        })
+        .toString();
   }
 
   @override
@@ -734,7 +747,16 @@ class FinancialReportScreenV2 extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () => context.push(_routeForCategory(action.category)),
+              onPressed: () {
+                final route = _routeForAction(action);
+                if (route.startsWith('/coach/chat')) {
+                  // Coach chat lives in its shell branch; go() applies the
+                  // topic query to that branch instead of stacking report.
+                  context.go(route);
+                } else {
+                  context.push(route);
+                }
+              },
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(S.of(context)!.reportCommencer),
               style: FilledButton.styleFrom(
