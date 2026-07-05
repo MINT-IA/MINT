@@ -91,6 +91,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> pumpLpp(
+    WidgetTester tester,
+    CoachProfileProvider provider,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'lpp'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
   Future<CoachProfileProvider> staleRevenueProvider() async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers(
@@ -399,6 +412,31 @@ void main() {
     );
     expect(answers.containsKey('targetRetirementAge'), isFalse);
     expect(provider.profile?.targetRetirementAge, 64);
+  });
+
+  testWidgets('lpp block captures pension assets only', (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpLpp(tester, provider);
+
+    expect(find.byKey(const Key('lpp_balance_input')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('target_retirement_age_input')),
+        findsNothing);
+
+    await tester.enterText(find.byKey(const Key('lpp_balance_input')), '650000');
+    await tester.ensureVisible(find.byKey(const Key('lpp_save_cta')));
+    await tester.tap(find.byKey(const Key('lpp_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['_coach_avoir_lpp'], 650000);
+    expect(answers.containsKey('q_avoir_lpp'), isFalse);
+    expect(answers.containsKey('avoirLpp'), isFalse);
+    expect(provider.profile?.prevoyance.avoirLppTotal, 650000);
+    expect(
+      provider.profile?.dataSources['prevoyance.avoirLppTotal'],
+      ProfileDataSource.userInput,
+    );
   });
 
   testWidgets('patrimoine block saves liquid assets without target price', (tester) async {

@@ -55,12 +55,14 @@ class _DataBlockEnrichmentScreenState
   final _salaryController = TextEditingController();
   final _birthYearController = TextEditingController();
   final _targetRetirementAgeController = TextEditingController();
+  final _lppBalanceController = TextEditingController();
   final _savingsController = TextEditingController();
   final _targetPropertyController = TextEditingController();
   final _mortgageRateController = TextEditingController();
   final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
   bool _seededRetirementGoalInput = false;
+  bool _seededLppInput = false;
   bool _seededPatrimoineInputs = false;
   bool _seededHouseholdInput = false;
   bool _hasPensionFund = false;
@@ -68,12 +70,14 @@ class _DataBlockEnrichmentScreenState
   String _householdType = 'single';
   bool _isSavingRevenue = false;
   bool _isSavingRetirementGoal = false;
+  bool _isSavingLpp = false;
   bool _isSavingPatrimoine = false;
   bool _isSavingHousehold = false;
   bool _isReconfirming = false;
   String? _activeUpdateInputKey;
   String? _revenueError;
   String? _retirementGoalError;
+  String? _lppError;
   String? _patrimoineError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
@@ -136,6 +140,33 @@ class _DataBlockEnrichmentScreenState
     _seededRetirementGoalInput = true;
   }
 
+  void _seedLppInput(CoachProfile? profile, Map<String, dynamic> answers) {
+    if (_seededLppInput) return;
+    if (_lppBalanceController.text.isNotEmpty) {
+      _seededLppInput = true;
+      return;
+    }
+    final explicitAvoir = _parseAnswerAmount(
+      answers['_coach_avoir_lpp'],
+      allowZero: true,
+    );
+    if (explicitAvoir != null) {
+      _lppBalanceController.text = explicitAvoir.toString();
+      _seededLppInput = true;
+      return;
+    }
+
+    final source = profile?.dataSources['prevoyance.avoirLppTotal'];
+    final hasConfirmedProfileValue = source != null &&
+        source != ProfileDataSource.estimated &&
+        profile?.prevoyance.avoirLppTotal != null;
+    if (hasConfirmedProfileValue) {
+      _lppBalanceController.text =
+          profile!.prevoyance.avoirLppTotal!.round().toString();
+    }
+    _seededLppInput = true;
+  }
+
   void _seedPatrimoineInputs(Map<String, dynamic> answers) {
     if (_seededPatrimoineInputs) return;
     final hasDraft = _savingsController.text.isNotEmpty ||
@@ -192,6 +223,7 @@ class _DataBlockEnrichmentScreenState
     _salaryController.dispose();
     _birthYearController.dispose();
     _targetRetirementAgeController.dispose();
+    _lppBalanceController.dispose();
     _savingsController.dispose();
     _targetPropertyController.dispose();
     _mortgageRateController.dispose();
@@ -210,6 +242,9 @@ class _DataBlockEnrichmentScreenState
     if (canonicalBlockType == 'objectifRetraite') {
       _seedRetirementGoalInput(profile, answers);
     }
+    if (canonicalBlockType == 'lpp') {
+      _seedLppInput(profile, answers);
+    }
     if (canonicalBlockType == 'patrimoine') {
       _seedPatrimoineInputs(answers);
     }
@@ -219,6 +254,7 @@ class _DataBlockEnrichmentScreenState
     final hasInlineCollector =
         canonicalBlockType == 'revenu' ||
         canonicalBlockType == 'objectifRetraite' ||
+        canonicalBlockType == 'lpp' ||
         canonicalBlockType == 'patrimoine' ||
         canonicalBlockType == 'compositionMenage';
     final isKnownBlock =
@@ -333,6 +369,15 @@ class _DataBlockEnrichmentScreenState
                   child: KeyedSubtree(
                     key: _collectorKey,
                     child: _buildRetirementGoalCollector(),
+                  ),
+                ),
+              ],
+              if (canonicalBlockType == 'lpp' && showInlineCollector) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildLppCollector(),
                   ),
                 ),
               ],
@@ -653,6 +698,87 @@ class _DataBlockEnrichmentScreenState
     });
   }
 
+  Widget _buildLppCollector() {
+    final l = S.of(context)!;
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key('lpp_balance_input'),
+            controller: _lppBalanceController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.affordabilityPillarLpp,
+              prefixText: 'CHF ',
+            ),
+          ),
+          if (_lppError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _lppError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('lpp_save_cta'),
+            onPressed: _isSavingLpp ? null : _saveLppFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l.dataBlockSaveIdle,
+              style: MintTextStyles.titleMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            key: const Key('lpp_scan_cta'),
+            onPressed: () => context.push('/scan?type=lpp'),
+            icon: const Icon(Icons.document_scanner_outlined, size: 18),
+            label: Text(l.dataBlockLppCta),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveLppFacts() async {
+    final lppBalance = int.tryParse(_lppBalanceController.text.trim());
+
+    if (lppBalance == null || lppBalance < 0) {
+      setState(() => _lppError = S.of(context)!.dataBlockRevenueInvalidAmount);
+      return;
+    }
+
+    setState(() {
+      _isSavingLpp = true;
+      _lppError = null;
+    });
+
+    await context.read<CoachProfileProvider>().mergeAnswers(
+      {'_coach_avoir_lpp': lppBalance},
+      source: ProfileDataSource.userInput,
+    );
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isSavingLpp = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
   Widget _buildPatrimoineCollector({String? onlyInputKey}) {
     final l = S.of(context)!;
     final capturesSavings =
@@ -905,6 +1031,7 @@ class _DataBlockEnrichmentScreenState
   ) {
     final caseId = switch (blockType) {
       'revenu' => 'first_salary_tax',
+      'lpp' => 'transmit_property',
       'patrimoine' => 'buy_property',
       'objectifRetraite' => 'transmit_property',
       _ => null,
@@ -1092,6 +1219,7 @@ class _DataBlockEnrichmentScreenState
       'has2ndPillar' =>
         'revenu',
       'targetRetirementAge' => 'objectifRetraite',
+      'avoirLpp' => 'lpp',
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' ||
       'targetPropertyValue' ||
@@ -1109,6 +1237,7 @@ class _DataBlockEnrichmentScreenState
           inputKey == 'birthYear' ||
           inputKey == 'has2ndPillar',
       'objectifRetraite' => inputKey == 'targetRetirementAge',
+      'lpp' => inputKey == 'avoirLpp',
       'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
           inputKey == 'parentLiquidAssets' ||
           inputKey == 'targetPropertyValue' ||
@@ -1165,6 +1294,7 @@ class _DataBlockEnrichmentScreenState
       'birthYear' => l.authDateOfBirth,
       'has2ndPillar' => l.eduThemeLppQuestion,
       'targetRetirementAge' => l.dataQuestFieldTargetRetirementAge,
+      'avoirLpp' => l.affordabilityPillarLpp,
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' =>
         l.financialSummaryEpargneLiquide,
@@ -1184,6 +1314,7 @@ class _DataBlockEnrichmentScreenState
       final formatted = _formatNumber(value);
       return switch (inputKey) {
         'incomeGrossYearly' ||
+        'avoirLpp' ||
         'patrimoine.epargneLiquide' ||
         'parentLiquidAssets' ||
         'targetPropertyValue' =>

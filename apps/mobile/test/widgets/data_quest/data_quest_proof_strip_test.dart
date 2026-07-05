@@ -304,4 +304,39 @@ void main() {
 
     expect(find.text('block objectifRetraite'), findsOneWidget);
   });
+
+  testWidgets('next question card opens LPP owner for pension assets',
+      (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'succession',
+      plan: const DataQuestPlan(
+        caseId: 'transmit_property',
+        targetRoute: '/succession',
+        pdfSectionId: 'dossier_transmit_property',
+        maestroFlowId: 'phase2_data_quest_transmit_property',
+        runtimeProofId: 'mobile-transmit-property-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'transmit_property',
+            inputKey: 'avoirLpp',
+            ledgerKey: 'avoirLpp',
+            questionId: 'ask_lpp_assets',
+            mode: DataQuestAskMode.collect,
+            tone: DataQuestTone.gentle,
+            stage: DataQuestStage.guard,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('succession_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('block lpp'), findsOneWidget);
+  });
 }

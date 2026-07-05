@@ -94,6 +94,7 @@ class DataQuestNextQuestionCard extends StatelessWidget {
         '/data-block/patrimoine',
       'householdType' => '/data-block/compositionMenage',
       'targetRetirementAge' => '/data-block/objectifRetraite',
+      'avoirLpp' => '/data-block/lpp',
       _ => null,
     };
   }
