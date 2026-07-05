@@ -279,6 +279,40 @@ void main() {
     expect(find.byKey(const Key('birth_year_input')), findsNothing);
   });
 
+  testWidgets('compositionMenage block captures household type only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'compositionMenage'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('household_type_single')), findsOneWidget);
+    expect(find.byKey(const Key('household_type_cohabiting')), findsOneWidget);
+    expect(find.byKey(const Key('household_type_married')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('savings_input')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('household_type_cohabiting')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_civil_status'], 'cohabiting');
+    expect(
+      answers.keys.where((key) => key.startsWith('q_')).toSet(),
+      {'q_civil_status'},
+    );
+    expect(answers.containsKey('q_household_type'), isFalse);
+    expect(provider.profile?.etatCivil, CoachCivilStatus.concubinage);
+  });
+
   testWidgets('patrimoine block captures mortgage project facts only', (tester) async {
     final provider = CoachProfileProvider();
     await pumpPatrimoine(tester, provider);

@@ -208,6 +208,40 @@ void main() {
       expect(dataQuestStage.value, 'guard');
       expect($(#mortgage_data_quest_next_question), findsOneWidget);
       expect($(find.text('Composition du ménage')), findsOneWidget);
+      expect($(#mortgage_data_quest_next_question_cta), findsOneWidget);
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#household_type_cohabiting), findsOneWidget);
+      await $(#household_type_cohabiting).tap();
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+      await $(#household_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final householdAnswers = await ReportPersistenceService.loadAnswers();
+      expect(householdAnswers['q_civil_status'], 'cohabiting');
+      expect(
+        householdAnswers.keys.where((key) => key.startsWith('q_')).toSet(),
+        {
+          'q_gross_salary_annual',
+          'q_canton',
+          'q_cash_total',
+          'q_target_property_value',
+          'q_civil_status',
+        },
+      );
+      expect(householdAnswers.containsKey('q_household_type'), isFalse);
+      expect(provider.profile!.etatCivil, CoachCivilStatus.concubinage);
+
+      router.go('/hypotheque');
+      await $.pumpAndSettle();
+
+      final advancedNextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(advancedNextAsk.value, 'patrimoine.mortgageRate');
 
       expect($(find.bySemanticsIdentifier('mortgage_afford_result')),
           findsOneWidget);

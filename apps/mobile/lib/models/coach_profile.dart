@@ -3127,6 +3127,7 @@ class CoachProfile {
       case 'concubinage':
       case 'concubine':
       case 'concubin':
+      case 'cohabiting':
       case 'partenariat':
       case 'couple':
       case 'family':

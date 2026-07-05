@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -78,10 +79,28 @@ class DataQuestNextQuestionCard extends StatelessWidget {
     };
   }
 
+  String? _ownerRoute(DataQuestAsk? ask) {
+    return switch (ask?.inputKey) {
+      'incomeGrossYearly' ||
+      'canton' ||
+      'birthYear' ||
+      'has2ndPillar' =>
+        '/data-block/revenu',
+      'pillar3aAnnual' => '/pilier-3a',
+      'patrimoine.epargneLiquide' ||
+      'parentLiquidAssets' ||
+      'targetPropertyValue' =>
+        '/data-block/patrimoine',
+      'householdType' => '/data-block/compositionMenage',
+      _ => null,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
     final ask = _nextAsk;
+    final ownerRoute = _ownerRoute(ask);
     return Semantics(
       identifier: '${semanticsPrefix}_data_quest_next_question',
       container: true,
@@ -126,6 +145,16 @@ class DataQuestNextQuestionCard extends StatelessWidget {
                 color: MintColors.textSecondary,
               ).copyWith(height: 1.35),
             ),
+            if (ownerRoute != null) ...[
+              const SizedBox(height: MintSpacing.sm),
+              OutlinedButton.icon(
+                key:
+                    ValueKey('${semanticsPrefix}_data_quest_next_question_cta'),
+                onPressed: () => context.push(ownerRoute),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: Text(l10n.dataBlockDefaultCta),
+              ),
+            ],
           ],
         ),
       ),

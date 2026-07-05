@@ -59,10 +59,13 @@ class _DataBlockEnrichmentScreenState
   final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
   bool _seededPatrimoineInputs = false;
+  bool _seededHouseholdInput = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
+  String _householdType = 'single';
   bool _isSavingRevenue = false;
   bool _isSavingPatrimoine = false;
+  bool _isSavingHousehold = false;
   bool _isReconfirming = false;
   String? _activeUpdateInputKey;
   String? _revenueError;
@@ -136,6 +139,12 @@ class _DataBlockEnrichmentScreenState
     _seededPatrimoineInputs = true;
   }
 
+  void _seedHouseholdInput(Map<String, dynamic> answers) {
+    if (_seededHouseholdInput) return;
+    _householdType = _normalizeHouseholdType(answers['q_civil_status']);
+    _seededHouseholdInput = true;
+  }
+
   int? _parseAnswerAmount(dynamic raw, {bool allowZero = false}) {
     final value = raw is num ? raw.round() : int.tryParse('$raw');
     if (value == null || value < 0) return null;
@@ -165,8 +174,13 @@ class _DataBlockEnrichmentScreenState
     if (canonicalBlockType == 'patrimoine') {
       _seedPatrimoineInputs(answers);
     }
+    if (canonicalBlockType == 'compositionMenage') {
+      _seedHouseholdInput(answers);
+    }
     final hasInlineCollector =
-        canonicalBlockType == 'revenu' || canonicalBlockType == 'patrimoine';
+        canonicalBlockType == 'revenu' ||
+        canonicalBlockType == 'patrimoine' ||
+        canonicalBlockType == 'compositionMenage';
     final isKnownBlock =
         DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
     final blocs = profile != null
@@ -278,6 +292,15 @@ class _DataBlockEnrichmentScreenState
                   child: KeyedSubtree(
                     key: _collectorKey,
                     child: _buildPatrimoineCollector(onlyInputKey: activeUpdateInputKey),
+                  ),
+                ),
+              ],
+              if (canonicalBlockType == 'compositionMenage' && showInlineCollector) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildHouseholdCollector(),
                   ),
                 ),
               ],
@@ -621,6 +644,93 @@ class _DataBlockEnrichmentScreenState
     });
   }
 
+  Widget _buildHouseholdCollector() {
+    final l = S.of(context)!;
+    final options = [
+      (value: 'single', label: l.frontalierCelibataire),
+      (value: 'cohabiting', label: l.concubinageConcubinage),
+      (value: 'married', label: l.concubinageMariage),
+    ];
+
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.frontalierEtatCivil,
+            style: MintTextStyles.bodyMedium(
+              color: MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final option in options)
+                ChoiceChip(
+                  key: Key('household_type_${option.value}'),
+                  label: Text(option.label),
+                  selected: _householdType == option.value,
+                  selectedColor: MintColors.primary.withAlpha(36),
+                  checkmarkColor: MintColors.primary,
+                  labelStyle: MintTextStyles.labelMedium(
+                    color: _householdType == option.value
+                        ? MintColors.primary
+                        : MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w600),
+                  side: BorderSide(
+                    color: _householdType == option.value
+                        ? MintColors.primary
+                        : MintColors.border,
+                  ),
+                  onSelected: (_) {
+                    setState(() => _householdType = option.value);
+                    HapticFeedback.selectionClick();
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('household_save_cta'),
+            onPressed: _isSavingHousehold ? null : _saveHouseholdFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l.dataBlockSaveIdle,
+              style: MintTextStyles.titleMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveHouseholdFacts() async {
+    setState(() => _isSavingHousehold = true);
+
+    await context.read<CoachProfileProvider>().mergeAnswers({
+      'q_civil_status': _householdType,
+    });
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isSavingHousehold = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
   DataQuestPlan? _dataQuestPlanForBlock(
     String blockType,
     Map<String, dynamic> answers,
@@ -831,6 +941,7 @@ class _DataBlockEnrichmentScreenState
       'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
           inputKey == 'parentLiquidAssets' ||
           inputKey == 'targetPropertyValue',
+      'compositionMenage' => inputKey == 'householdType',
       _ => false,
     };
   }
@@ -845,6 +956,21 @@ class _DataBlockEnrichmentScreenState
       return onlyInputKey == inputKey || onlyInputKey == 'parentLiquidAssets';
     }
     return onlyInputKey == inputKey;
+  }
+
+  String _normalizeHouseholdType(dynamic raw) {
+    final value = raw?.toString().trim().toLowerCase();
+    return switch (value) {
+      'marie' || 'marié' || 'married' => 'married',
+      'concubinage' ||
+      'concubin' ||
+      'concubine' ||
+      'cohabiting' ||
+      'couple' ||
+      'family' =>
+        'cohabiting',
+      _ => 'single',
+    };
   }
 
   String _dataQuestFieldLabel(S l, String inputKey) {

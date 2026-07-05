@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/data_quest/data_quest_service.dart';
 import 'package:mint_mobile/widgets/data_quest/data_quest_proof_strip.dart';
@@ -63,6 +64,44 @@ void main() {
           semanticsPrefix: semanticsPrefix,
         ),
       ),
+    ));
+    await tester.pump();
+  }
+
+  Future<void> pumpNextQuestionCardRouter(
+    WidgetTester tester, {
+    required DataQuestPlan plan,
+    String semanticsPrefix = 'sim3a',
+  }) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, __) => Scaffold(
+            body: DataQuestNextQuestionCard(
+              plan: plan,
+              semanticsPrefix: semanticsPrefix,
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/data-block/:type',
+          builder: (_, state) => Scaffold(
+            body: Text('block ${state.pathParameters['type']}'),
+          ),
+        ),
+      ],
+    );
+    await tester.pumpWidget(MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      routerConfig: router,
     ));
     await tester.pump();
   }
@@ -160,5 +199,39 @@ void main() {
         findsOneWidget);
     expect(find.text('Composition du ménage'), findsOneWidget);
     expect(find.text('Donnée du scénario'), findsNothing);
+  });
+
+  testWidgets('next question card opens the owner data block', (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'mortgage',
+      plan: const DataQuestPlan(
+        caseId: 'buy_property',
+        targetRoute: '/hypotheque',
+        pdfSectionId: 'dossier_buy_property',
+        maestroFlowId: 'pending',
+        runtimeProofId: 'mobile-f2-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'buy_property',
+            inputKey: 'householdType',
+            ledgerKey: 'householdType',
+            questionId: 'ask_household_type',
+            mode: DataQuestAskMode.collect,
+            tone: DataQuestTone.plain,
+            stage: DataQuestStage.guard,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('mortgage_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('block compositionMenage'), findsOneWidget);
   });
 }
