@@ -297,6 +297,47 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'parentLiquidAssets',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#savings_input), findsOneWidget);
+      await $(#savings_input).enterText('120000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+      await $(#patrimoine_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final liquidityAnswers = await ReportPersistenceService.loadAnswers();
+      expect(liquidityAnswers['q_cash_total'], 120000);
+      expect(liquidityAnswers.containsKey('parentLiquidAssets'), isFalse);
+      expect(
+        liquidityAnswers.containsKey('patrimoine.epargneLiquide'),
+        isFalse,
+      );
+      expect(provider.profile!.patrimoine.epargneLiquide, 120000);
+      expect(
+        provider.profile!.dataSources['patrimoine.epargneLiquide'],
+        ProfileDataSource.userInput,
+      );
+
+      await $(find.byIcon(Icons.arrow_back)).tap();
+      await $.pumpAndSettle();
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'parentAnnualRetirementIncome',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

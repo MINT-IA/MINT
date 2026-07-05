@@ -494,6 +494,28 @@ void main() {
     expect(answers.containsKey('q_target_property_value'), isFalse);
   });
 
+  testWidgets('patrimoine block stores parent liquidity as the cash fact only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpPatrimoine(tester, provider);
+
+    await tester.enterText(find.byKey(const Key('savings_input')), '120000');
+    await tester.ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_cash_total'], 120000);
+    expect(answers.containsKey('parentLiquidAssets'), isFalse);
+    expect(answers.containsKey('patrimoine.epargneLiquide'), isFalse);
+    expect(answers.containsKey('q_target_property_value'), isFalse);
+    expect(provider.profile?.patrimoine.epargneLiquide, 120000);
+    expect(
+      provider.profile?.dataSources['patrimoine.epargneLiquide'],
+      ProfileDataSource.userInput,
+    );
+  });
+
   testWidgets('patrimoine block does not seed estimated liquid assets', (tester) async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers(const {

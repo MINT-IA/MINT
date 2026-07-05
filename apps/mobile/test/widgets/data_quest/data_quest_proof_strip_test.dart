@@ -270,6 +270,41 @@ void main() {
     expect(find.text('block patrimoine'), findsOneWidget);
   });
 
+  testWidgets('next question card opens patrimoine owner for parent liquidity',
+      (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'succession',
+      plan: const DataQuestPlan(
+        caseId: 'transmit_property',
+        targetRoute: '/succession',
+        pdfSectionId: 'dossier_transmit_property',
+        maestroFlowId: 'phase2_data_quest_transmit_property',
+        runtimeProofId: 'mobile-transmit-property-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'transmit_property',
+            inputKey: 'parentLiquidAssets',
+            ledgerKey: 'patrimoine.epargneLiquide',
+            questionId: 'ask_parent_liquid_assets',
+            mode: DataQuestAskMode.collect,
+            tone: DataQuestTone.gentle,
+            stage: DataQuestStage.guard,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('succession_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('block patrimoine'), findsOneWidget);
+  });
+
   testWidgets('next question card opens retirement-goal owner for target age',
       (tester) async {
     await pumpNextQuestionCardRouter(
