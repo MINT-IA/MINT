@@ -282,21 +282,25 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // SECTION 2 — LE RESULTAT : consequence financiere
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintResultHeroCard(
-                  eyebrow: result.premierEclairagePositif
-                      ? l.affordabilityParameters
-                      : l.affordabilityInsightEquityTitle,
-                  primaryValue: result.premierEclairagePositif
-                      ? 'CHF\u00a0${formatChf(result.prixMaxAccessible)}'
-                      : 'CHF\u00a0${formatChf(result.manqueFondsPropres)}',
-                  primaryLabel: result.premierEclairagePositif
-                      ? l.affordabilityCalculationDetail
-                      : l.affordabilityExceeded,
-                  narrative: result.premierEclairageTexte,
-                  accentColor: result.premierEclairagePositif
-                      ? MintColors.success
-                      : MintColors.error,
-                  tone: MintSurfaceTone.porcelaine,
+                Semantics(
+                  identifier: 'mortgage_afford_result',
+                  child: MintResultHeroCard(
+                    key: const Key('mortgage_afford_result'),
+                    eyebrow: result.premierEclairagePositif
+                        ? l.affordabilityParameters
+                        : l.affordabilityInsightEquityTitle,
+                    primaryValue: result.premierEclairagePositif
+                        ? 'CHF\u00a0${formatChf(result.prixMaxAccessible)}'
+                        : 'CHF\u00a0${formatChf(result.manqueFondsPropres)}',
+                    primaryLabel: result.premierEclairagePositif
+                        ? l.affordabilityCalculationDetail
+                        : l.affordabilityExceeded,
+                    narrative: result.premierEclairageTexte,
+                    accentColor: result.premierEclairagePositif
+                        ? MintColors.success
+                        : MintColors.error,
+                    tone: MintSurfaceTone.porcelaine,
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.xl),
 
@@ -417,38 +421,50 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       const SizedBox(height: MintSpacing.lg),
 
                       // Revenu brut annuel
-                      _buildAmountFieldWithBadge(
-                        label: l.affordabilityGrossIncome,
-                        value: _revenuBrut,
-                        fieldKey: 'revenu_brut',
-                        onChanged: (v) {
-                          setState(() { _hasUserInteracted = true; _revenuBrut = v; });
-                          WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
-                        },
-                        min: 50000,
-                        max: 300000,
+                      Semantics(
+                        identifier: 'mortgage_income_amount',
+                        child: _buildAmountFieldWithBadge(
+                          key: const Key('mortgage_income_amount'),
+                          label: l.affordabilityGrossIncome,
+                          value: _revenuBrut,
+                          fieldKey: 'revenu_brut',
+                          onChanged: (v) {
+                            setState(() { _hasUserInteracted = true; _revenuBrut = v; });
+                            WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                          },
+                          min: 50000,
+                          max: 300000,
+                        ),
                       ),
                       const SizedBox(height: MintSpacing.md),
 
                       // Prix d'achat
-                      MintAmountField(
-                        label: l.affordabilityTargetPrice,
-                        value: _prixAchat,
-                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _prixAchat = v; }),
-                        min: 200000,
-                        max: 3000000,
+                      Semantics(
+                        identifier: 'mortgage_price_amount',
+                        child: MintAmountField(
+                          key: const Key('mortgage_price_amount'),
+                          label: l.affordabilityTargetPrice,
+                          value: _prixAchat,
+                          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                          onChanged: (v) => setState(() { _hasUserInteracted = true; _prixAchat = v; }),
+                          min: 200000,
+                          max: 3000000,
+                        ),
                       ),
                       const SizedBox(height: MintSpacing.md),
 
                       // Epargne disponible
-                      MintAmountField(
-                        label: l.affordabilityAvailableSavings,
-                        value: _epargneDispo,
-                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _epargneDispo = v; }),
-                        min: 0,
-                        max: 500000,
+                      Semantics(
+                        identifier: 'mortgage_savings_amount',
+                        child: MintAmountField(
+                          key: const Key('mortgage_savings_amount'),
+                          label: l.affordabilityAvailableSavings,
+                          value: _epargneDispo,
+                          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                          onChanged: (v) => setState(() { _hasUserInteracted = true; _epargneDispo = v; }),
+                          min: 0,
+                          max: 500000,
+                        ),
                       ),
 
                       // Progressive disclosure: 3a + LPP behind toggle
@@ -480,22 +496,30 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       ),
                       if (_showAdvancedParams) ...[
                         const SizedBox(height: MintSpacing.md),
-                        MintAmountField(
-                          label: l.affordabilityPillar3a,
-                          value: _avoir3a,
-                          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
-                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoir3a = v; }),
-                          min: 0,
-                          max: 300000,
+                        Semantics(
+                          identifier: 'mortgage_pillar3a_amount',
+                          child: MintAmountField(
+                            key: const Key('mortgage_pillar3a_amount'),
+                            label: l.affordabilityPillar3a,
+                            value: _avoir3a,
+                            formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                            onChanged: (v) => setState(() { _hasUserInteracted = true; _avoir3a = v; }),
+                            min: 0,
+                            max: 300000,
+                          ),
                         ),
                         const SizedBox(height: MintSpacing.md),
-                        _buildAmountFieldWithBadge(
-                          label: l.affordabilityPillarLpp,
-                          value: _avoirLpp,
-                          fieldKey: 'avoir_lpp',
-                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirLpp = v; }),
-                          min: 0,
-                          max: 500000,
+                        Semantics(
+                          identifier: 'mortgage_lpp_amount',
+                          child: _buildAmountFieldWithBadge(
+                            key: const Key('mortgage_lpp_amount'),
+                            label: l.affordabilityPillarLpp,
+                            value: _avoirLpp,
+                            fieldKey: 'avoir_lpp',
+                            onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirLpp = v; }),
+                            min: 0,
+                            max: 500000,
+                          ),
                         ),
                       ],
                     ],
@@ -548,6 +572,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   /// Builds a MintAmountField with an optional SmartDefaultIndicator badge
   /// shown above the field when the field key is in _prefilledFields.
   Widget _buildAmountFieldWithBadge({
+    Key? key,
     required String label,
     required double value,
     required String fieldKey,
@@ -557,6 +582,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   }) {
     final isPrefilled = _prefilledFields.contains(fieldKey);
     return Column(
+      key: key,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (isPrefilled) ...[

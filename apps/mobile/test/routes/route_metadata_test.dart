@@ -146,6 +146,32 @@ void main() {
       expect(meta!.owner, RouteOwner.retraite);
     });
 
+    test('/rente-vs-capital is a first-value route before account creation',
+        () {
+      final meta = kRouteRegistry['/rente-vs-capital'];
+      expect(meta, isNotNull);
+      expect(meta!.owner, RouteOwner.retraite);
+      expect(meta.category, RouteCategory.destination);
+      expect(meta.requiresAuth, isFalse);
+      expect(meta.killFlag, 'enableExplorerRetraite');
+    });
+
+    test('/rente-vs-capital aliases do not reintroduce auth gating', () {
+      const aliases = [
+        '/arbitrage/rente-vs-capital',
+        '/simulator/rente-capital',
+      ];
+
+      for (final path in aliases) {
+        final meta = kRouteRegistry[path];
+        expect(meta, isNotNull);
+        expect(meta!.path, path);
+        expect(meta.category, RouteCategory.alias);
+        expect(meta.owner, RouteOwner.system);
+        expect(meta.requiresAuth, isFalse);
+      }
+    });
+
     test('/coach/chat owner=coach (first-segment rule)', () {
       final meta = kRouteRegistry['/coach/chat'];
       expect(meta, isNotNull);
