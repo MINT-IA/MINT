@@ -15,6 +15,8 @@ def test_data_quest_doc_matches_live_goal_aware_confidence_ranking() -> None:
     assert "Goal-aware ranking absent" not in doc
     assert "ranker is generic" not in doc
     assert "final String? fieldPath" in scorer
+    assert "_compareGoalAwarePromptsWithEvi" in scorer
     assert "_goalAwarePromptScore" in scorer
+    assert "ConfidenceScorer.score().prompts" in doc
     assert "GoalAType.achatImmo" in scorer
     assert "GoalAType.retraite" in scorer

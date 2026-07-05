@@ -131,16 +131,17 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
 | Q-2 | `DataQuest`/`Case` orchestrator does not exist | new `apps/mobile/lib/services/data_quest/data_quest_service.dart` implementing §2–§5 |
 | Q-3 | `/data-block/:type` has no delta/before-after UI, no reconfirm | extend `data_block_enrichment_screen.dart` with `AskMode.reconfirm` widget (§3) |
 | Q-4 | Backend `suggest_actions` is hardcoded, not the ranker | wire `suggest_actions` → `enhanced_confidence_service.rank_enrichment_prompts()` |
-| Q-5 | Goal-aware prompt ranking is live for mobile `ConfidenceScorer.scoreEnhanced()` axis prompts: each prompt carries its `fieldPath`, and sorting uses goal-aware effective impact without changing displayed impact points | Keep `confidence_scorer_test.dart` coverage for `GoalAType.achatImmo` vs `GoalAType.retraite`, and keep `tools/checks/tests/test_data_quest_goal_aware_ranking_contract.py` so the scorer cannot silently fall back to generic impact-only ordering. Backend/global `EnhancedConfidenceService.rank_enrichment_prompts()` remains generic unless a later phase makes it goal-aware too. |
+| Q-5 | Goal-aware prompt ranking is live for mobile `ConfidenceScorer.score()` visible prompts and `scoreEnhanced()` axis prompts: prompts carry `fieldPath`, and sorting uses goal-aware effective impact without changing displayed impact points | Keep `confidence_scorer_test.dart` coverage for `GoalAType.achatImmo` vs `GoalAType.retraite` on both visible prompts and enhanced axis prompts, and keep `tools/checks/tests/test_data_quest_goal_aware_ranking_contract.py` so the scorer cannot silently fall back to generic impact-only ordering. Backend/global `EnhancedConfidenceService.rank_enrichment_prompts()` remains generic unless a later phase makes it goal-aware too. |
 | Q-6 | No `Case` registry mapping events→guardQuests | new `data_quest/case_registry.dart`; seed with `transmit_property`, `divorce`, `retirement` |
 
 ## 8. Acceptance criteria (Codex/CI must verify)
 
 - **DQ-1** A screen with all `reads[]` fresh triggers **zero** Asks (planQuest returns []).
 - **DQ-2** A screen missing k fields surfaces exactly k Asks; mobile
-  confidence enrichment prompts use `ConfidenceScorer` impact plus `GoalAType`
-  ordering, while DataQuest case asks remain ordered by the case registry until
-  a later phase connects those rankers. It is never a blocking wall
+  confidence enrichment prompts rendered from `ConfidenceScorer.score().prompts`
+  use impact plus `GoalAType` ordering, while DataQuest case asks remain
+  ordered by the case registry until a later phase connects those rankers.
+  It is never a blocking wall
   (partialState renders).
 - **DQ-3** A field with `needsRefresh==true` produces an `AskMode.reconfirm` (1-tap), never a blank field.
 - **DQ-4** Every write goes through `CoachProfileProvider` (grep: no other writer of `wizard_answers_v2`).

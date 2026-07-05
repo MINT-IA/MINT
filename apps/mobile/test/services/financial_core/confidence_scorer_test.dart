@@ -88,6 +88,46 @@ void main() {
       }
     });
 
+    test('visible prompts prioritize liquid assets for home purchase', () {
+      final profile = _buildProfile(
+        age: 35,
+        salary: 5000,
+        canton: 'GE',
+        goalAType: GoalAType.achatImmo,
+      );
+      final confidence = ConfidenceScorer.score(profile);
+      final patrimoineIndex = confidence.prompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'patrimoine.epargneLiquide',
+      );
+      final lppIndex = confidence.prompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'prevoyance.avoirLppTotal',
+      );
+
+      expect(patrimoineIndex, greaterThan(-1));
+      expect(lppIndex, greaterThan(-1));
+      expect(patrimoineIndex, lessThan(lppIndex));
+    });
+
+    test('visible prompts prioritize pension data for retirement', () {
+      final profile = _buildProfile(
+        age: 35,
+        salary: 5000,
+        canton: 'GE',
+        goalAType: GoalAType.retraite,
+      );
+      final confidence = ConfidenceScorer.score(profile);
+      final lppIndex = confidence.prompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'prevoyance.avoirLppTotal',
+      );
+      final patrimoineIndex = confidence.prompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'patrimoine.epargneLiquide',
+      );
+
+      expect(lppIndex, greaterThan(-1));
+      expect(patrimoineIndex, greaterThan(-1));
+      expect(lppIndex, lessThan(patrimoineIndex));
+    });
+
     test('assumptions list populated for missing data', () {
       final profile = _buildProfile(
         age: 35,
@@ -131,7 +171,8 @@ void main() {
       final now = DateTime(2026, 3, 9);
       final result = ConfidenceScorer.scoreEnhanced(profile, now: now);
       expect(result.completeness, greaterThanOrEqualTo(70));
-      expect(result.accuracy, greaterThan(60)); // mix of certificate + userInput
+      expect(
+          result.accuracy, greaterThan(60)); // mix of certificate + userInput
       expect(result.combined, greaterThan(0));
       expect(result.combined, lessThanOrEqualTo(100));
     });
@@ -160,7 +201,8 @@ void main() {
           'etatCivil': now.subtract(const Duration(days: 30)),
           'prevoyance.avoirLppTotal': now.subtract(const Duration(days: 60)),
           'prevoyance.tauxConversion': now.subtract(const Duration(days: 60)),
-          'prevoyance.anneesContribuees': now.subtract(const Duration(days: 90)),
+          'prevoyance.anneesContribuees':
+              now.subtract(const Duration(days: 90)),
           'prevoyance.totalEpargne3a': now.subtract(const Duration(days: 30)),
           'patrimoine.epargneLiquide': now.subtract(const Duration(days: 15)),
         },
@@ -217,7 +259,12 @@ void main() {
       );
       final result = ConfidenceScorer.scoreEnhanced(profile);
       // Combined should be between min and max of the 4 axes
-      final axes = [result.completeness, result.accuracy, result.freshness, result.understanding];
+      final axes = [
+        result.completeness,
+        result.accuracy,
+        result.freshness,
+        result.understanding
+      ];
       final minAxis = axes.reduce((a, b) => a < b ? a : b);
       final maxAxis = axes.reduce((a, b) => a > b ? a : b);
       expect(result.combined, greaterThanOrEqualTo(minAxis - 1));
@@ -346,11 +393,17 @@ void main() {
     test('understanding axis included in combined geometric mean', () {
       // Same profile, different literacy → different combined
       final beginner = _buildProfile(
-        age: 45, salary: 8000, canton: 'ZH', avoirLpp: 300000,
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        avoirLpp: 300000,
         financialLiteracyLevel: FinancialLiteracyLevel.beginner,
       );
       final advanced = _buildProfile(
-        age: 45, salary: 8000, canton: 'ZH', avoirLpp: 300000,
+        age: 45,
+        salary: 8000,
+        canton: 'ZH',
+        avoirLpp: 300000,
         financialLiteracyLevel: FinancialLiteracyLevel.advanced,
         checkInsCount: 15,
       );
@@ -569,19 +622,21 @@ void main() {
     test('returns all expected bloc keys', () {
       final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
       final blocs = ConfidenceScorer.scoreAsBlocs(profile);
-      expect(blocs.keys, containsAll([
-        'revenu',
-        'age_canton',
-        'archetype',
-        'objectifRetraite',
-        'compositionMenage',
-        'lpp',
-        'taux_conversion',
-        'avs',
-        '3a',
-        'patrimoine',
-        'foreign_pension',
-      ]));
+      expect(
+          blocs.keys,
+          containsAll([
+            'revenu',
+            'age_canton',
+            'archetype',
+            'objectifRetraite',
+            'compositionMenage',
+            'lpp',
+            'taux_conversion',
+            'avs',
+            '3a',
+            'patrimoine',
+            'foreign_pension',
+          ]));
     });
 
     test('total maxScore sums to 115 (100 core + 15 fiscalite)', () {
@@ -606,7 +661,8 @@ void main() {
         expect(
           entry.value.score,
           lessThanOrEqualTo(entry.value.maxScore),
-          reason: '${entry.key}: score ${entry.value.score} > max ${entry.value.maxScore}',
+          reason:
+              '${entry.key}: score ${entry.value.score} > max ${entry.value.maxScore}',
         );
       }
     });
@@ -635,7 +691,8 @@ void main() {
       expect(blocs['objectifRetraite']!.score, 3.0); // default partial score
     });
 
-    test('compositionMenage is partial for default celibataire (unconfirmed)', () {
+    test('compositionMenage is partial for default celibataire (unconfirmed)',
+        () {
       final profile = _buildProfile(age: 45, salary: 8000, canton: 'VD');
       final blocs = ConfidenceScorer.scoreAsBlocs(profile);
       // Default celibataire (not confirmed) → partial with 5 points
@@ -696,7 +753,8 @@ CoachProfile _buildProfile({
   CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
   Map<String, ProfileDataSource> dataSources = const {},
   Map<String, DateTime> dataTimestamps = const {},
-  FinancialLiteracyLevel financialLiteracyLevel = FinancialLiteracyLevel.beginner,
+  FinancialLiteracyLevel financialLiteracyLevel =
+      FinancialLiteracyLevel.beginner,
   int checkInsCount = 0,
   int? targetRetirementAge,
   GoalAType goalAType = GoalAType.retraite,
