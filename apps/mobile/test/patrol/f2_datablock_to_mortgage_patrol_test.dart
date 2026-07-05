@@ -97,6 +97,7 @@ void main() {
             path: '/data-block/:type',
             builder: (_, state) => DataBlockEnrichmentScreen(
               blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
             ),
           ),
           GoRoute(
@@ -290,6 +291,65 @@ void main() {
       expect(resultSemantics.value, contains('GE'));
       expect(resultSemantics.value, contains("250'000"));
       expect(resultSemantics.value, contains("950'000"));
+    },
+  );
+
+  patrolTest(
+    'F-2 missing canton opens only the canton revenue ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      await provider.mergeAnswers({
+        'q_gross_salary_annual': 96000,
+        'q_cash_total': 250000,
+        'q_target_property_value': 950000,
+        'q_civil_status': 'cohabiting',
+      });
+      final router = GoRouter(
+        initialLocation: '/hypotheque',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/hypotheque',
+            builder: (_, __) => const AffordabilityScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'canton');
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#canton_input), findsOneWidget);
+      expect($(#salary_input), findsNothing);
+      await $(#canton_input).enterText('VD');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await $(#salary_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_canton'], 'VD');
+      expect(answers.containsKey('canton'), isFalse);
+      expect(provider.profile!.canton, 'VD');
     },
   );
 }
