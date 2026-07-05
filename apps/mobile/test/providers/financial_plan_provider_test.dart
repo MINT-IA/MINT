@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +43,18 @@ CoachProfile _makeProfile({double salary = 10000.0, String canton = 'VS'}) {
       label: 'Achat',
     ),
   );
+}
+
+class _MutableCoachProfileProvider extends CoachProfileProvider {
+  CoachProfile? _current;
+
+  @override
+  CoachProfile? get profile => _current;
+
+  void setProfile(CoachProfile? profile) {
+    _current = profile;
+    notifyListeners();
+  }
 }
 
 void main() {
@@ -95,6 +108,28 @@ void main() {
 
       expect(provider.isPlanStale, isFalse);
     });
+
+    testWidgets(
+      'Test 10b: attached CoachProfileProvider marks plan stale after profile update',
+      (tester) async {
+        final initialProfile = _makeProfile(salary: 10000.0, canton: 'VS');
+        final profileProvider = _MutableCoachProfileProvider()
+          ..setProfile(initialProfile);
+        final planProvider = FinancialPlanProvider();
+
+        planProvider.attachProfileProvider(profileProvider);
+        planProvider.setPlanDirect(
+          _makePlan(profileHash: computeProfileHash(initialProfile)),
+        );
+
+        expect(planProvider.isPlanStale, isFalse);
+
+        profileProvider.setProfile(_makeProfile(salary: 12000.0, canton: 'VS'));
+        await tester.pump();
+
+        expect(planProvider.isPlanStale, isTrue);
+      },
+    );
 
     test('Test 11: clearPlan() sets hasPlan to false', () async {
       final plan = _makePlan();

@@ -1998,7 +1998,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           auth.checkAuth(); // AUTH-03: Restore JWT from SecureStorage on cold start
           return auth;
         }),
-        ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
           provider.loadSavedKey();
@@ -2012,6 +2011,19 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           unawaited(_loadCoachProfileWithDebugSeed(provider));
           return provider;
         }),
+        ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
+          lazy: false,
+          create: (_) => BudgetProvider(),
+          update: (_, profileProvider, budgetProvider) {
+            final provider = budgetProvider ?? BudgetProvider();
+            final profile = profileProvider.profile;
+            if (profile != null && profileProvider.profileUpdatedSinceBudget) {
+              unawaited(provider.refreshFromProfile(profile));
+              profileProvider.markBudgetSynced();
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => ScanSessionProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
@@ -2059,7 +2071,19 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             return provider;
           },
         ),
-        ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
+        // FinancialPlanProvider is reactive plumbing as much as UI state:
+        // plans must become stale whenever CoachProfileProvider receives new
+        // ledger facts. Keep lazy:false so the listener exists before any
+        // screen explicitly watches FinancialPlanProvider.
+        ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>(
+          lazy: false,
+          create: (_) => FinancialPlanProvider(),
+          update: (_, profileProvider, planProvider) {
+            final provider = planProvider ?? FinancialPlanProvider();
+            provider.attachProfileProvider(profileProvider);
+            return provider;
+          },
+        ),
         // Wave E-PRIME (2026-04-18): CoachEntryPayloadProvider deleted —
         // setPayload/consumePayload had 0 caller in prod (docstring claimed
         // MintHomeScreen sets + MintCoachTab reads; neither exists).

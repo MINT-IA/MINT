@@ -23,6 +23,8 @@ import 'package:mint_mobile/services/financial_plan_service.dart';
 class FinancialPlanProvider extends ChangeNotifier {
   FinancialPlan? _currentPlan;
   bool _isStale = false;
+  CoachProfileProvider? _attachedProfileProvider;
+  VoidCallback? _profileListener;
 
   // ── Public getters ──────────────────────────────────────────────────────
 
@@ -74,9 +76,16 @@ class FinancialPlanProvider extends ChangeNotifier {
   /// notifyListeners is deferred to postFrameCallback to avoid
   /// setState-during-build errors.
   void attachProfileProvider(CoachProfileProvider profileProvider) {
-    profileProvider.addListener(() {
+    if (identical(_attachedProfileProvider, profileProvider)) {
       _checkStaleness(profileProvider.profile);
-    });
+      return;
+    }
+
+    _detachProfileProvider();
+    _attachedProfileProvider = profileProvider;
+    _profileListener = () => _checkStaleness(profileProvider.profile);
+    profileProvider.addListener(_profileListener!);
+    _checkStaleness(profileProvider.profile);
   }
 
   /// Compare current profile hash to [_currentPlan.profileHashAtGeneration].
@@ -113,5 +122,21 @@ class FinancialPlanProvider extends ChangeNotifier {
     if (currentHash != _currentPlan!.profileHashAtGeneration && !_isStale) {
       _isStale = true;
     }
+  }
+
+  void _detachProfileProvider() {
+    final provider = _attachedProfileProvider;
+    final listener = _profileListener;
+    if (provider != null && listener != null) {
+      provider.removeListener(listener);
+    }
+    _attachedProfileProvider = null;
+    _profileListener = null;
+  }
+
+  @override
+  void dispose() {
+    _detachProfileProvider();
+    super.dispose();
   }
 }
