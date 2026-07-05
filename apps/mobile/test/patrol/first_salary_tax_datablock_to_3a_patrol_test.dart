@@ -258,4 +258,121 @@ void main() {
       expect(provider.profile!.canton, 'GE');
     },
   );
+
+  patrolTest(
+    'first_salary_tax missing birth year opens only the birth year ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      expect(await provider.applySaveFact('incomeGrossYearly', 96000), isTrue);
+      expect(await provider.applySaveFact('canton', 'GE'), isTrue);
+      expect(await provider.applySaveFact('has2ndPillar', true), isTrue);
+
+      final router = GoRouter(
+        initialLocation: '/pilier-3a',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/pilier-3a',
+            builder: (_, __) => const Simulator3aScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('sim3a_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'birthYear');
+
+      await $(#sim3a_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#birth_year_input), findsOneWidget);
+      expect($(#salary_input), findsNothing);
+      expect($(#canton_input), findsNothing);
+      expect($(#has_pension_fund_switch), findsNothing);
+      await $(#birth_year_input).enterText('2001');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await $(#salary_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_birth_year'], 2001);
+      expect(answers.containsKey('birthYear'), isFalse);
+      expect(provider.profile!.birthYear, 2001);
+    },
+  );
+
+  patrolTest(
+    'first_salary_tax missing LPP status opens only the LPP ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      expect(await provider.applySaveFact('incomeGrossYearly', 96000), isTrue);
+      expect(await provider.applySaveFact('canton', 'GE'), isTrue);
+      expect(await provider.applySaveFact('birthYear', 2001), isTrue);
+
+      final router = GoRouter(
+        initialLocation: '/pilier-3a',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/pilier-3a',
+            builder: (_, __) => const Simulator3aScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('sim3a_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'has2ndPillar');
+
+      await $(#sim3a_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#has_pension_fund_switch), findsOneWidget);
+      expect($(#salary_input), findsNothing);
+      expect($(#canton_input), findsNothing);
+      expect($(#birth_year_input), findsNothing);
+      await $(#has_pension_fund_switch).tap();
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await $(#salary_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_has_pension_fund'], true);
+      expect(answers.containsKey('has2ndPillar'), isFalse);
+      expect(provider.answersSnapshot['q_has_pension_fund'], true);
+    },
+  );
 }
