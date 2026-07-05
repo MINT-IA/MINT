@@ -351,6 +351,7 @@ class _DataBlockEnrichmentScreenState
     final birthText = _birthYearController.text.trim();
     final birthYear = birthText.isEmpty ? null : int.tryParse(birthText);
     final currentYear = DateTime.now().year;
+    final youngestSupportedBirthYear = currentYear - 18;
 
     if (!_swissCantonCodes.contains(' $canton ') ||
         salary == null ||
@@ -358,7 +359,7 @@ class _DataBlockEnrichmentScreenState
         (birthText.isNotEmpty &&
             (birthYear == null ||
                 birthYear < 1900 ||
-                birthYear > currentYear))) {
+                birthYear > youngestSupportedBirthYear))) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
     }

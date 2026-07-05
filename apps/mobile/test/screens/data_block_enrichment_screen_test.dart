@@ -87,6 +87,33 @@ void main() {
     expect(tester.widget<SwitchListTile>(tile).value, true);
   });
 
+  testWidgets('revenue block rejects underage birth year', (tester) async {
+    final provider = CoachProfileProvider();
+    final underageBirthYear = DateTime.now().year - 17;
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(blockType: 'revenu'),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('canton_picker')), 'GE');
+    await tester.enterText(find.byKey(const Key('salary_input')), '96000');
+    await tester.enterText(
+      find.byKey(const Key('birth_year_input')),
+      '$underageBirthYear',
+    );
+
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_gross_salary_annual'), isFalse);
+    expect(answers.containsKey('q_canton'), isFalse);
+    expect(answers.containsKey('q_birth_year'), isFalse);
+    expect(provider.profile, isNull);
+  });
+
   testWidgets('maps pension alias to LPP block metadata', (tester) async {
     await tester.pumpWidget(
       _wrap(const DataBlockEnrichmentScreen(blockType: 'pension')),
