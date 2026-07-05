@@ -41,7 +41,8 @@
         "birthYear",
         "canton",
         "incomeGrossYearly",
-        "has2ndPillar"
+        "has2ndPillar",
+        "pillar3aAnnual"
       ],
       "additionalProperties": true
     },

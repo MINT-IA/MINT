@@ -310,6 +310,37 @@ def test_scenario_assumptions_require_dossier_source_and_confidence() -> None:
         )
 
 
+def test_dossier_inputs_cover_all_non_scenario_registry_variables() -> None:
+    missing_by_case = {}
+    for case_id, case in _registry()["cases"].items():
+        contract_path = ROOT / case["dossier_contract"]
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        required_inputs = set(contract["properties"]["inputs"]["required"])
+
+        missing_inputs = []
+        for variable in case["variables"]:
+            if variable["role"] in {"scenario_assumption", "system"}:
+                continue
+            accepted_payload_keys = {
+                key
+                for key in [variable["input_key"], variable.get("ledger_key")]
+                if key
+            }
+            if required_inputs.isdisjoint(accepted_payload_keys):
+                missing_inputs.append(
+                    f"{variable['input_key']} "
+                    f"({', '.join(sorted(accepted_payload_keys))})"
+                )
+
+        if missing_inputs:
+            missing_by_case[case_id] = missing_inputs
+
+    assert not missing_by_case, (
+        "dossier inputs.required misses registry variables: "
+        f"{missing_by_case}"
+    )
+
+
 def test_data_quest_single_write_path_for_wizard_answers_v2() -> None:
     offenders: list[str] = []
     for path in (ROOT / "apps/mobile/lib").rglob("*.dart"):

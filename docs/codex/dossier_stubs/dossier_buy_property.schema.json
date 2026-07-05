@@ -41,7 +41,9 @@
         "householdType",
         "incomeGrossYearly",
         "patrimoine.epargneLiquide",
-        "targetPropertyValue"
+        "targetPropertyValue",
+        "canton",
+        "patrimoine.mortgageRate"
       ],
       "additionalProperties": true
     },

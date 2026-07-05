@@ -728,6 +728,13 @@ class DossierPayloadService {
           value: profile.nombreEnfants,
           answerPresent: answers.containsKey('q_children'),
         ),
+        'canton': _input(
+          profile: profile,
+          inputKey: 'canton',
+          ledgerKey: 'canton',
+          value: profile.canton,
+          answerPresent: answers.containsKey('q_canton'),
+        ),
         'parentAnnualRetirementIncome': _input(
           profile: profile,
           inputKey: 'parentAnnualRetirementIncome',

@@ -44,7 +44,10 @@
         "patrimoine.epargneLiquide",
         "patrimoine.propertyMarketValue",
         "mortgageBalance",
-        "heirsCount"
+        "heirsCount",
+        "canton",
+        "parentAnnualRetirementIncome",
+        "parentAnnualLivingCosts"
       ],
       "additionalProperties": true
     },

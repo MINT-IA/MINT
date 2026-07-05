@@ -273,6 +273,7 @@ void main() {
 
       expect(_schemaErrors('transmit_property', payload), isEmpty);
       final outputs = payload['outputs'] as Map;
+      final inputs = payload['inputs'] as Map;
       expect(
         outputs['retirement_affordability']['status'],
         'needs_review',
@@ -281,6 +282,9 @@ void main() {
       expect(outputs['family_equalization']['status'], 'at_risk');
       expect(outputs['family_equalization']['gap'], 195000);
       expect(outputs['cantonal_review']['requires_cantonal_review'], isTrue);
+      expect(inputs['canton']['value'], 'VD');
+      expect(inputs['canton']['source'], 'userInput');
+      expect(inputs['canton']['confidence'], 'medium');
       expect(
         outputs['scenario_confidence']['rationale'],
         contains('educational_triage'),
