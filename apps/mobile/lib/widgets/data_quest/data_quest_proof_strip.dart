@@ -89,7 +89,8 @@ class DataQuestNextQuestionCard extends StatelessWidget {
       'pillar3aAnnual' => '/pilier-3a',
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' ||
-      'targetPropertyValue' =>
+      'targetPropertyValue' ||
+      'patrimoine.mortgageRate' =>
         '/data-block/patrimoine',
       'householdType' => '/data-block/compositionMenage',
       _ => null,

@@ -242,6 +242,44 @@ void main() {
         find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
       );
       expect(advancedNextAsk.value, 'patrimoine.mortgageRate');
+      expect($(#mortgage_data_quest_next_question_cta), findsOneWidget);
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#mortgage_rate_input), findsOneWidget);
+      await $(#mortgage_rate_input).enterText('1.8');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester
+          .ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+      await $(#patrimoine_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final mortgageRateAnswers = await ReportPersistenceService.loadAnswers();
+      expect(mortgageRateAnswers['q_mortgage_rate'], 0.018);
+      expect(
+        mortgageRateAnswers.keys.where((key) => key.startsWith('q_')).toSet(),
+        {
+          'q_gross_salary_annual',
+          'q_canton',
+          'q_cash_total',
+          'q_target_property_value',
+          'q_civil_status',
+          'q_mortgage_rate',
+        },
+      );
+      expect(mortgageRateAnswers.containsKey('q_mortgage_rate_percent'),
+          isFalse);
+      expect(provider.profile!.patrimoine.mortgageRate, 0.018);
+
+      router.go('/hypotheque');
+      await $.pumpAndSettle();
+
+      final satisfiedNextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(satisfiedNextAsk.value, 'satisfied');
 
       expect($(find.bySemanticsIdentifier('mortgage_afford_result')),
           findsOneWidget);

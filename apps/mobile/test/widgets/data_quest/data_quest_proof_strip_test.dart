@@ -234,4 +234,39 @@ void main() {
 
     expect(find.text('block compositionMenage'), findsOneWidget);
   });
+
+  testWidgets('next question card opens patrimoine owner for mortgage rate',
+      (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'mortgage',
+      plan: const DataQuestPlan(
+        caseId: 'buy_property',
+        targetRoute: '/hypotheque',
+        pdfSectionId: 'dossier_buy_property',
+        maestroFlowId: 'pending',
+        runtimeProofId: 'mobile-f2-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'buy_property',
+            inputKey: 'patrimoine.mortgageRate',
+            ledgerKey: 'patrimoine.mortgageRate',
+            questionId: 'ask_mortgage_rate',
+            mode: DataQuestAskMode.collect,
+            tone: DataQuestTone.plain,
+            stage: DataQuestStage.required,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('mortgage_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('block patrimoine'), findsOneWidget);
+  });
 }

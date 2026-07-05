@@ -338,6 +338,28 @@ void main() {
     expect(provider.profile?.patrimoine.propertyMarketValue, isNull);
   });
 
+  testWidgets('patrimoine block captures mortgage rate as decimal only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpPatrimoine(tester, provider);
+
+    expect(find.byKey(const Key('mortgage_rate_input')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('mortgage_rate_input')), '1.8');
+    await tester.ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_mortgage_rate'], 0.018);
+    expect(
+      answers.keys.where((key) => key.startsWith('q_')).toSet(),
+      {'q_mortgage_rate'},
+    );
+    expect(answers.containsKey('q_mortgage_rate_percent'), isFalse);
+    expect(provider.profile?.patrimoine.mortgageRate, 0.018);
+  });
+
   testWidgets('patrimoine block saves liquid assets without target price', (tester) async {
     final provider = CoachProfileProvider();
     await pumpPatrimoine(tester, provider);
