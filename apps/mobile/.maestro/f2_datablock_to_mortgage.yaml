@@ -1,0 +1,55 @@
+appId: ch.mint.app
+---
+# F-2: the user fills the revenue data block, saves canonical ledger facts,
+# then /hypotheque consumes those facts without asking for salary/canton again.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///data-block/revenu"
+- assertVisible:
+    text: "Revenu"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- tapOn:
+    id: "canton_picker"
+- inputText: "GE"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "2001"
+- tapOn:
+    text: "Revenu"
+- tapOn:
+    id: "has_pension_fund_switch"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    text: "12 / 12 pts"
+- assertVisible:
+    text: "Complet"
+- openLink: "mint:///hypotheque"
+- assertVisible:
+    id: "mortgage_afford_result"
+- scrollUntilVisible:
+    element:
+      id: "mortgage_income_amount"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "mortgage_income_amount"
+- assertVisible:
+    text: ".*CHF.*96'000.*"
+- assertVisible:
+    text: ".*Canton.*GE.*"
