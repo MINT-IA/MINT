@@ -104,6 +104,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> pumpPillar3a(
+    WidgetTester tester,
+    CoachProfileProvider provider,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: '3a'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
   Future<CoachProfileProvider> staleRevenueProvider() async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers(
@@ -435,6 +448,34 @@ void main() {
     expect(provider.profile?.prevoyance.avoirLppTotal, 650000);
     expect(
       provider.profile?.dataSources['prevoyance.avoirLppTotal'],
+      ProfileDataSource.userInput,
+    );
+  });
+
+  testWidgets('3a block captures pillar balance only', (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpPillar3a(tester, provider);
+
+    expect(find.byKey(const Key('pillar3a_balance_input')), findsOneWidget);
+    expect(find.byKey(const Key('lpp_balance_input')), findsNothing);
+    expect(find.byKey(const Key('target_retirement_age_input')),
+        findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('pillar3a_balance_input')),
+      '180000',
+    );
+    await tester.ensureVisible(find.byKey(const Key('pillar3a_save_cta')));
+    await tester.tap(find.byKey(const Key('pillar3a_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_3a_total'], 180000);
+    expect(answers.containsKey('_coach_total_3a'), isFalse);
+    expect(answers.containsKey('pillar3aBalance'), isFalse);
+    expect(provider.profile?.prevoyance.totalEpargne3a, 180000);
+    expect(
+      provider.profile?.dataSources['prevoyance.totalEpargne3a'],
       ProfileDataSource.userInput,
     );
   });

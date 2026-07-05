@@ -259,6 +259,44 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'pillar3aBalance',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#pillar3a_balance_input), findsOneWidget);
+      await $(#pillar3a_balance_input).enterText('180000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('pillar3a_save_cta')));
+      await $(#pillar3a_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final pillar3aAnswers = await ReportPersistenceService.loadAnswers();
+      expect(pillar3aAnswers['q_3a_total'], 180000);
+      expect(pillar3aAnswers.containsKey('_coach_total_3a'), isFalse);
+      expect(pillar3aAnswers.containsKey('pillar3aBalance'), isFalse);
+      expect(provider.profile!.prevoyance.totalEpargne3a, 180000);
+      expect(
+        provider.profile!.dataSources['prevoyance.totalEpargne3a'],
+        ProfileDataSource.userInput,
+      );
+
+      await $(find.byIcon(Icons.arrow_back)).tap();
+      await $.pumpAndSettle();
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'parentLiquidAssets',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

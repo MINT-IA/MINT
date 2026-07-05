@@ -56,6 +56,7 @@ class _DataBlockEnrichmentScreenState
   final _birthYearController = TextEditingController();
   final _targetRetirementAgeController = TextEditingController();
   final _lppBalanceController = TextEditingController();
+  final _pillar3aBalanceController = TextEditingController();
   final _savingsController = TextEditingController();
   final _targetPropertyController = TextEditingController();
   final _mortgageRateController = TextEditingController();
@@ -63,6 +64,7 @@ class _DataBlockEnrichmentScreenState
   bool _seededRevenueInputs = false;
   bool _seededRetirementGoalInput = false;
   bool _seededLppInput = false;
+  bool _seededPillar3aInput = false;
   bool _seededPatrimoineInputs = false;
   bool _seededHouseholdInput = false;
   bool _hasPensionFund = false;
@@ -71,6 +73,7 @@ class _DataBlockEnrichmentScreenState
   bool _isSavingRevenue = false;
   bool _isSavingRetirementGoal = false;
   bool _isSavingLpp = false;
+  bool _isSavingPillar3a = false;
   bool _isSavingPatrimoine = false;
   bool _isSavingHousehold = false;
   bool _isReconfirming = false;
@@ -78,6 +81,7 @@ class _DataBlockEnrichmentScreenState
   String? _revenueError;
   String? _retirementGoalError;
   String? _lppError;
+  String? _pillar3aError;
   String? _patrimoineError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
@@ -167,6 +171,41 @@ class _DataBlockEnrichmentScreenState
     _seededLppInput = true;
   }
 
+  void _seedPillar3aInput(
+    CoachProfile? profile,
+    Map<String, dynamic> answers,
+  ) {
+    if (_seededPillar3aInput) return;
+    if (_pillar3aBalanceController.text.isNotEmpty) {
+      _seededPillar3aInput = true;
+      return;
+    }
+    final reported3a = _parseAnswerAmount(
+      answers['q_3a_total'],
+      allowZero: true,
+    );
+    final legacy3a = _parseAnswerAmount(
+      answers['_coach_total_3a'],
+      allowZero: true,
+    );
+    final explicit3a = reported3a ?? legacy3a;
+    if (explicit3a != null) {
+      _pillar3aBalanceController.text = explicit3a.toString();
+      _seededPillar3aInput = true;
+      return;
+    }
+
+    final source = profile?.dataSources['prevoyance.totalEpargne3a'];
+    final hasConfirmedProfileValue = source != null &&
+        source != ProfileDataSource.estimated &&
+        profile?.prevoyance.totalEpargne3a != null;
+    if (hasConfirmedProfileValue) {
+      _pillar3aBalanceController.text =
+          profile!.prevoyance.totalEpargne3a.round().toString();
+    }
+    _seededPillar3aInput = true;
+  }
+
   void _seedPatrimoineInputs(Map<String, dynamic> answers) {
     if (_seededPatrimoineInputs) return;
     final hasDraft = _savingsController.text.isNotEmpty ||
@@ -224,6 +263,7 @@ class _DataBlockEnrichmentScreenState
     _birthYearController.dispose();
     _targetRetirementAgeController.dispose();
     _lppBalanceController.dispose();
+    _pillar3aBalanceController.dispose();
     _savingsController.dispose();
     _targetPropertyController.dispose();
     _mortgageRateController.dispose();
@@ -245,6 +285,9 @@ class _DataBlockEnrichmentScreenState
     if (canonicalBlockType == 'lpp') {
       _seedLppInput(profile, answers);
     }
+    if (canonicalBlockType == '3a') {
+      _seedPillar3aInput(profile, answers);
+    }
     if (canonicalBlockType == 'patrimoine') {
       _seedPatrimoineInputs(answers);
     }
@@ -255,6 +298,7 @@ class _DataBlockEnrichmentScreenState
         canonicalBlockType == 'revenu' ||
         canonicalBlockType == 'objectifRetraite' ||
         canonicalBlockType == 'lpp' ||
+        canonicalBlockType == '3a' ||
         canonicalBlockType == 'patrimoine' ||
         canonicalBlockType == 'compositionMenage';
     final isKnownBlock =
@@ -378,6 +422,15 @@ class _DataBlockEnrichmentScreenState
                   child: KeyedSubtree(
                     key: _collectorKey,
                     child: _buildLppCollector(),
+                  ),
+                ),
+              ],
+              if (canonicalBlockType == '3a' && showInlineCollector) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildPillar3aCollector(),
                   ),
                 ),
               ],
@@ -779,6 +832,89 @@ class _DataBlockEnrichmentScreenState
     });
   }
 
+  Widget _buildPillar3aCollector() {
+    final l = S.of(context)!;
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key('pillar3a_balance_input'),
+            controller: _pillar3aBalanceController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.affordabilityPillar3a,
+              prefixText: 'CHF ',
+            ),
+          ),
+          if (_pillar3aError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _pillar3aError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('pillar3a_save_cta'),
+            onPressed: _isSavingPillar3a ? null : _savePillar3aFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l.dataBlockSaveIdle,
+              style: MintTextStyles.titleMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            key: const Key('pillar3a_simulator_cta'),
+            onPressed: () => context.push('/pilier-3a'),
+            icon: const Icon(Icons.savings_outlined, size: 18),
+            label: Text(l.dataBlock3aCta),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _savePillar3aFacts() async {
+    final balance = int.tryParse(_pillar3aBalanceController.text.trim());
+
+    if (balance == null || balance < 0) {
+      setState(() {
+        _pillar3aError = S.of(context)!.dataBlockRevenueInvalidAmount;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSavingPillar3a = true;
+      _pillar3aError = null;
+    });
+
+    await context.read<CoachProfileProvider>().mergeAnswers(
+      {'q_3a_total': balance},
+      source: ProfileDataSource.userInput,
+    );
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isSavingPillar3a = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
   Widget _buildPatrimoineCollector({String? onlyInputKey}) {
     final l = S.of(context)!;
     final capturesSavings =
@@ -1032,6 +1168,7 @@ class _DataBlockEnrichmentScreenState
     final caseId = switch (blockType) {
       'revenu' => 'first_salary_tax',
       'lpp' => 'transmit_property',
+      '3a' => 'transmit_property',
       'patrimoine' => 'buy_property',
       'objectifRetraite' => 'transmit_property',
       _ => null,
@@ -1170,6 +1307,8 @@ class _DataBlockEnrichmentScreenState
       _activeUpdateInputKey = ask.inputKey;
       _revenueError = null;
       _retirementGoalError = null;
+      _lppError = null;
+      _pillar3aError = null;
       _patrimoineError = null;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1220,6 +1359,7 @@ class _DataBlockEnrichmentScreenState
         'revenu',
       'targetRetirementAge' => 'objectifRetraite',
       'avoirLpp' => 'lpp',
+      'pillar3aBalance' => '3a',
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' ||
       'targetPropertyValue' ||
@@ -1238,6 +1378,7 @@ class _DataBlockEnrichmentScreenState
           inputKey == 'has2ndPillar',
       'objectifRetraite' => inputKey == 'targetRetirementAge',
       'lpp' => inputKey == 'avoirLpp',
+      '3a' => inputKey == 'pillar3aBalance',
       'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
           inputKey == 'parentLiquidAssets' ||
           inputKey == 'targetPropertyValue' ||
@@ -1295,6 +1436,7 @@ class _DataBlockEnrichmentScreenState
       'has2ndPillar' => l.eduThemeLppQuestion,
       'targetRetirementAge' => l.dataQuestFieldTargetRetirementAge,
       'avoirLpp' => l.affordabilityPillarLpp,
+      'pillar3aBalance' => l.affordabilityPillar3a,
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' =>
         l.financialSummaryEpargneLiquide,
@@ -1315,6 +1457,7 @@ class _DataBlockEnrichmentScreenState
       return switch (inputKey) {
         'incomeGrossYearly' ||
         'avoirLpp' ||
+        'pillar3aBalance' ||
         'patrimoine.epargneLiquide' ||
         'parentLiquidAssets' ||
         'targetPropertyValue' =>
