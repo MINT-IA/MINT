@@ -1,7 +1,7 @@
 // Phase 32 MAP-01 — RouteMeta schema + enum integrity + kRouteRegistry.
 //
 // Baseline contract (from .planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md):
-// - kRouteRegistry.length == 147
+// - kRouteRegistry.length == 148
 // - RouteOwner enum has 15 values (11 flag-groups + auth/admin/system/explore)
 // - RouteCategory enum has 4 values (destination, flow, tool, alias)
 // - Owner ambiguity rule (D-01 v4): /explore/retraite -> owner=explore (first-segment-wins)
@@ -101,8 +101,8 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 147 entries', () {
-      expect(kRouteRegistry.length, 147);
+    test('has exactly 148 entries', () {
+      expect(kRouteRegistry.length, 148);
     });
 
     test('every entry path matches its key', () {
@@ -144,6 +144,32 @@ void main() {
       final meta = kRouteRegistry['/retraite'];
       expect(meta, isNotNull);
       expect(meta!.owner, RouteOwner.retraite);
+    });
+
+    test('/rente-vs-capital is a first-value route before account creation',
+        () {
+      final meta = kRouteRegistry['/rente-vs-capital'];
+      expect(meta, isNotNull);
+      expect(meta!.owner, RouteOwner.retraite);
+      expect(meta.category, RouteCategory.destination);
+      expect(meta.requiresAuth, isFalse);
+      expect(meta.killFlag, 'enableExplorerRetraite');
+    });
+
+    test('/rente-vs-capital aliases do not reintroduce auth gating', () {
+      const aliases = [
+        '/arbitrage/rente-vs-capital',
+        '/simulator/rente-capital',
+      ];
+
+      for (final path in aliases) {
+        final meta = kRouteRegistry[path];
+        expect(meta, isNotNull);
+        expect(meta!.path, path);
+        expect(meta.category, RouteCategory.alias);
+        expect(meta.owner, RouteOwner.system);
+        expect(meta.requiresAuth, isFalse);
+      }
     });
 
     test('/coach/chat owner=coach (first-segment rule)', () {

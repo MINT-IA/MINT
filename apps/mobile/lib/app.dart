@@ -563,14 +563,15 @@ final _router = GoRouter(
 
     ScopedGoRoute(
       path: '/rente-vs-capital',
+      scope: RouteScope.onboarding,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
-    ScopedGoRoute(path: '/arbitrage/rente-vs-capital', redirect: (_, state) {
+    ScopedGoRoute(path: '/arbitrage/rente-vs-capital', scope: RouteScope.onboarding, redirect: (_, state) {
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rente-vs-capital');
       return '/rente-vs-capital';
     }),
-    ScopedGoRoute(path: '/simulator/rente-capital', redirect: (_, state) {
+    ScopedGoRoute(path: '/simulator/rente-capital', scope: RouteScope.onboarding, redirect: (_, state) {
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rente-vs-capital');
       return '/rente-vs-capital';
     }),

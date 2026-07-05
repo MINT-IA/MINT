@@ -58,6 +58,15 @@ void main() {
       expect(find.byType(Scaffold), findsOneWidget);
     });
 
+    testWidgets('renders before account creation with no profile',
+        (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('displays i18n app bar title', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
