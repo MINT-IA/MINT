@@ -239,7 +239,7 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
 | Q-2 | `DataQuest`/`Case` P0 pure planner exists, and `/succession` passes profile metadata as `BiographyFact` freshness context; repository-backed orchestration is still Phase 4 | extend `apps/mobile/lib/services/data_quest/data_quest_service.dart` from current pure planner/profile adapter to async BiographyRepository-backed orchestration if the repository remains canonical |
 | Q-3 | `/data-block/:type` has live one-tap reconfirm UI for stale Data Quest facts; it still has no richer before/after delta view | Keep `apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart` wired to `DataQuestAskMode.reconfirm`, ARB-backed `freshnessReconfirm*` labels, and `CoachProfileProvider.mergeAnswers()` for confirmations. Guards: `test/screens/data_block_enrichment_screen_test.dart` proves stale salary reconfirm/update without duplicate fields, and `tools/checks/tests/test_data_quest_i18n_preconditions.py` fails if the UI disappears, hardcodes French labels, or uses `updateProfile()`. |
 | Q-4 | Backend `suggest_actions` ranker wiring is done | keep `services/backend/tests/test_suggest_actions_enrichment.py` in the backend gate so `_compute_suggested_actions()` continues to match `enhanced_confidence_service.rank_enrichment_prompts()` and reads `_provenance` metadata |
-| Q-5 | Goal-aware ranking absent (ranker is generic) | add `impactOf(key, prompts, goal)` weighting in `confidence_scorer.dart` |
+| Q-5 | Goal-aware prompt ranking is live for mobile `ConfidenceScorer.scoreEnhanced()` axis prompts: each prompt carries its `fieldPath`, and sorting uses goal-aware effective impact without changing displayed impact points | Keep `confidence_scorer_test.dart` coverage for `GoalAType.achatImmo` vs `GoalAType.retraite`, and keep the doc/code guard in `tools/checks/tests/test_data_quest_i18n_preconditions.py` so the scorer cannot silently fall back to generic impact-only ordering. Backend/global `EnhancedConfidenceService.rank_enrichment_prompts()` remains generic unless Phase 4 makes it goal-aware too. |
 | Q-6 | P0 `Case` registry exists for `first_salary_tax`, `buy_property`, `transmit_property`; broader heavy-event registry is still missing | extend `data_quest/case_registry.dart` beyond P0 with `divorce`, `retirement`, `invalidite`, and debt cases after Phase 2 acceptance. Registry tiers are `blocking_guard_questions` → Dart `guardFields`, `required_questions` → Dart `requiredFields`, and `enrichment_questions` → Dart `usefulFields`; tests must preserve this 1:1 mapping. |
 | Q-7 | Legacy wizard answers without `_coach_data_timestamps` cannot be safely stale-classified | Phase 4 gate must include either a timestamp/source-date backfill migration, or an explicit product guard that treats legacy answers as fresh until migration and never shows false reconfirm prompts |
 | Q-8 | `/rapport` now builds and exports the three P0 typed dossiers, but its main narrative cards still come from `FinancialReportService` | Future product work can make the whole report dossier-first; current contract is visible P0 dossier section + typed PDF export with explicit `next_questions` gaps. Widget/gate proof covers all three dossier cards/CTAs; Maestro runtime interaction remains scoped to `transmit_property`. |
@@ -249,9 +249,11 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
 - **DQ-1** A screen with all `reads[]` fresh triggers **zero** Asks (planQuest returns []).
 - **DQ-2** A screen missing k fields in the **current stage** surfaces exactly
   k Asks, ordered by `DataQuestFieldSpec.priority` at HEAD. Later stages are
-  hidden until earlier guard/required stages are clear. Q-5 later upgrades
-  within-stage ordering to `ConfidenceScorer` impact + goal-aware ranking. It
-  is never a blocking wall (partialState renders).
+  hidden until earlier guard/required stages are clear. Mobile confidence
+  enrichment prompts use `ConfidenceScorer` impact plus `GoalAType`-aware
+  ordering; DataQuest case asks remain ordered by case-registry priority until
+  Phase 4 connects the two rankers. It is never a blocking wall
+  (partialState renders).
 - **DQ-3** Planner + UI: a field with `needsRefresh==true` produces an
   `AskMode.reconfirm`, never a blank collect ask
   (`data_quest_service_test.dart`). `/data-block/:type` renders the 1-tap
