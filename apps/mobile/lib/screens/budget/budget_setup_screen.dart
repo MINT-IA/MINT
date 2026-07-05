@@ -237,17 +237,23 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               ),
               if (_showOptional) ...[
                 _field(s.budgetSetupTransport, _transport,
+                    identifier: 'budget_transport_input',
                     placeholder: _placeholderTransport),
                 _field(s.budgetSetupTelecom, _telecom,
+                    identifier: 'budget_telecom_input',
                     placeholder: _placeholderTelecom),
                 _field(s.budgetSetupElectricity, _electricity,
+                    identifier: 'budget_electricity_input',
                     placeholder: _placeholderElectricity),
                 _field(s.budgetSetupMedical, _medical,
+                    identifier: 'budget_medical_input',
                     placeholder: _placeholderMedical),
                 _field(s.budgetSetupOther, _other,
+                    identifier: 'budget_other_input',
                     placeholder: _placeholderOther),
               ] else
                 TextButton.icon(
+                  key: const Key('budget_setup_show_optional_cta'),
                   onPressed: () => setState(() => _showOptional = true),
                   icon: const Icon(Icons.add, size: 18),
                   label: Text(s.budgetSetupAddOthers),

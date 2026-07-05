@@ -90,6 +90,12 @@ void main() {
             body: Text('block ${state.pathParameters['type']}'),
           ),
         ),
+        GoRoute(
+          path: '/budget/setup',
+          builder: (_, __) => const Scaffold(
+            body: Text('budget setup'),
+          ),
+        ),
       ],
     );
     await tester.pumpWidget(MaterialApp.router(
@@ -443,5 +449,40 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('block revenuRetraite'), findsOneWidget);
+  });
+
+  testWidgets('next question card opens budget setup owner for living costs',
+      (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'succession',
+      plan: const DataQuestPlan(
+        caseId: 'transmit_property',
+        targetRoute: '/succession',
+        pdfSectionId: 'dossier_transmit_property',
+        maestroFlowId: 'phase2_data_quest_transmit_property',
+        runtimeProofId: 'mobile-transmit-property-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'transmit_property',
+            inputKey: 'parentAnnualLivingCosts',
+            ledgerKey: 'parentAnnualLivingCosts',
+            questionId: 'ask_parent_annual_living_costs',
+            mode: DataQuestAskMode.reconfirm,
+            tone: DataQuestTone.gentle,
+            stage: DataQuestStage.guard,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('succession_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('budget setup'), findsOneWidget);
   });
 }

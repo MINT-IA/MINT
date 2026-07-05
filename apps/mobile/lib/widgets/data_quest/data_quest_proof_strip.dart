@@ -97,6 +97,7 @@ class DataQuestNextQuestionCard extends StatelessWidget {
       'avoirLpp' => '/data-block/lpp',
       'pillar3aBalance' => '/data-block/3a',
       'parentAnnualRetirementIncome' => '/data-block/revenuRetraite',
+      'parentAnnualLivingCosts' => '/budget/setup',
       _ => null,
     };
   }

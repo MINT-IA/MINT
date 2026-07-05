@@ -48,7 +48,31 @@ void main() {
     expect(fields, findsNWidgets(2));
     await tester.enterText(fields.at(0), '2000');
     await tester.enterText(fields.at(1), '400');
-    await tester.tap(find.text('Enregistrer'));
+    await tester.tap(find.byKey(const Key('budget_setup_show_optional_cta')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('budget_transport_input')),
+      '180',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_telecom_input')),
+      '90',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_electricity_input')),
+      '110',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_medical_input')),
+      '120',
+    );
+    await tester.enterText(
+      find.byKey(const Key('budget_other_input')),
+      '250',
+    );
+    await tester.ensureVisible(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('budget_setup_save_cta')));
     await tester.pumpAndSettle();
 
     final answers = await ReportPersistenceService.loadAnswers();
@@ -56,5 +80,16 @@ void main() {
     expect(answers['q_housing_cost_frequency'], 'monthly');
     expect(answers['q_housing_cost_period_chf'], 2000);
     expect(answers['q_lamal_premium_monthly_chf'], 400);
+    expect(answers['_coach_depenses_transport'], 180);
+    expect(answers['_coach_depenses_telecom'], 90);
+    expect(answers['_coach_depenses_electricite'], 110);
+    expect(answers['_coach_depenses_frais_medicaux'], 120);
+    expect(answers['_coach_depenses_autres'], 250);
+    expect(answers.containsKey('q_parent_annual_living_costs'), isFalse);
+    expect(
+      answers.containsKey('_transmit_property_parent_annual_living_costs'),
+      isFalse,
+    );
+    expect(answers.containsKey('parentAnnualLivingCosts'), isFalse);
   });
 }

@@ -5,9 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
+import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -23,6 +25,9 @@ Widget _wrap(
     providers: [
       ChangeNotifierProvider<CoachProfileProvider>.value(
         value: coachProfileProvider,
+      ),
+      ChangeNotifierProvider<BudgetProvider>(
+        create: (_) => BudgetProvider(),
       ),
       ChangeNotifierProvider<ProfileProvider>(
         create: (_) => ProfileProvider(),
@@ -130,6 +135,10 @@ void main() {
             builder: (_, state) => DataBlockEnrichmentScreen(
               blockType: state.pathParameters['type'] ?? 'objectifRetraite',
             ),
+          ),
+          GoRoute(
+            path: '/budget/setup',
+            builder: (_, __) => const BudgetSetupScreen(),
           ),
         ],
       );
@@ -310,7 +319,8 @@ void main() {
       await $(#savings_input).enterText('120000');
       await $.tester.testTextInput.receiveAction(TextInputAction.done);
       await $.pumpAndSettle();
-      await $.tester.ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+      await $.tester
+          .ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
       await $(#patrimoine_save_cta).tap();
       await $.pumpAndSettle();
 
@@ -359,7 +369,8 @@ void main() {
 
       final retirementIncomeAnswers =
           await ReportPersistenceService.loadAnswers();
-      expect(retirementIncomeAnswers['q_parent_annual_retirement_income'], 76000);
+      expect(
+          retirementIncomeAnswers['q_parent_annual_retirement_income'], 76000);
       expect(
         retirementIncomeAnswers.containsKey(
           '_transmit_property_parent_annual_retirement_income',
@@ -385,6 +396,78 @@ void main() {
       expect(
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'parentAnnualLivingCosts',
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#budget_housing_cost_input), findsOneWidget);
+      await $(#budget_housing_cost_input).enterText('6600');
+      await $(#budget_lamal_premium_input).enterText('400');
+      await $.tester.ensureVisible(
+        find.byKey(const Key('budget_setup_show_optional_cta')),
+      );
+      await $(#budget_setup_show_optional_cta).tap();
+      await $.pumpAndSettle();
+      await $.tester
+          .ensureVisible(find.byKey(const Key('budget_transport_input')));
+      await $(#budget_transport_input).enterText('350');
+      await $.tester
+          .ensureVisible(find.byKey(const Key('budget_telecom_input')));
+      await $(#budget_telecom_input).enterText('120');
+      await $.tester
+          .ensureVisible(find.byKey(const Key('budget_electricity_input')));
+      await $(#budget_electricity_input).enterText('180');
+      await $.tester
+          .ensureVisible(find.byKey(const Key('budget_medical_input')));
+      await $(#budget_medical_input).enterText('150');
+      await $.tester.ensureVisible(find.byKey(const Key('budget_other_input')));
+      await $(#budget_other_input).enterText('200');
+      await $.tester
+          .ensureVisible(find.byKey(const Key('budget_setup_save_cta')));
+      await $(#budget_setup_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final livingCostAnswers = await ReportPersistenceService.loadAnswers();
+      expect(livingCostAnswers['q_housing_cost_period_chf'], 6600);
+      expect(livingCostAnswers['q_housing_cost_frequency'], 'monthly');
+      expect(livingCostAnswers['q_lamal_premium_monthly_chf'], 400);
+      expect(livingCostAnswers['_coach_depenses_transport'], 350);
+      expect(livingCostAnswers['_coach_depenses_telecom'], 120);
+      expect(livingCostAnswers['_coach_depenses_electricite'], 180);
+      expect(livingCostAnswers['_coach_depenses_frais_medicaux'], 150);
+      expect(livingCostAnswers['_coach_depenses_autres'], 200);
+      expect(livingCostAnswers.containsKey('q_parent_annual_living_costs'),
+          isFalse);
+      expect(
+        livingCostAnswers.containsKey(
+          '_transmit_property_parent_annual_living_costs',
+        ),
+        isFalse,
+      );
+      expect(livingCostAnswers.containsKey('parentAnnualLivingCosts'), isFalse);
+      expect(
+        provider.profile!.dataSources['depenses.loyer'],
+        ProfileDataSource.userInput,
+      );
+      expect(
+        provider.profile!.dataSources['depenses.assuranceMaladie'],
+        ProfileDataSource.userInput,
+      );
+
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'mortgageBalance',
       );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
