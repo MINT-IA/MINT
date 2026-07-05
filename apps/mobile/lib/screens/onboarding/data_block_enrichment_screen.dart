@@ -54,22 +54,26 @@ class _DataBlockEnrichmentScreenState
   final _cantonController = TextEditingController();
   final _salaryController = TextEditingController();
   final _birthYearController = TextEditingController();
+  final _targetRetirementAgeController = TextEditingController();
   final _savingsController = TextEditingController();
   final _targetPropertyController = TextEditingController();
   final _mortgageRateController = TextEditingController();
   final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
+  bool _seededRetirementGoalInput = false;
   bool _seededPatrimoineInputs = false;
   bool _seededHouseholdInput = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
   String _householdType = 'single';
   bool _isSavingRevenue = false;
+  bool _isSavingRetirementGoal = false;
   bool _isSavingPatrimoine = false;
   bool _isSavingHousehold = false;
   bool _isReconfirming = false;
   String? _activeUpdateInputKey;
   String? _revenueError;
+  String? _retirementGoalError;
   String? _patrimoineError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
@@ -113,6 +117,23 @@ class _DataBlockEnrichmentScreenState
       _hasPensionFund = pensionFund;
     }
     _seededRevenueInputs = true;
+  }
+
+  void _seedRetirementGoalInput(
+    CoachProfile? profile,
+    Map<String, dynamic> answers,
+  ) {
+    if (_seededRetirementGoalInput) return;
+    if (_targetRetirementAgeController.text.isNotEmpty) {
+      _seededRetirementGoalInput = true;
+      return;
+    }
+    final targetAge = _parseAnswerAmount(answers['q_target_retirement_age']) ??
+        profile?.targetRetirementAge;
+    if (targetAge != null) {
+      _targetRetirementAgeController.text = targetAge.toString();
+    }
+    _seededRetirementGoalInput = true;
   }
 
   void _seedPatrimoineInputs(Map<String, dynamic> answers) {
@@ -170,6 +191,7 @@ class _DataBlockEnrichmentScreenState
     _cantonController.dispose();
     _salaryController.dispose();
     _birthYearController.dispose();
+    _targetRetirementAgeController.dispose();
     _savingsController.dispose();
     _targetPropertyController.dispose();
     _mortgageRateController.dispose();
@@ -185,6 +207,9 @@ class _DataBlockEnrichmentScreenState
     if (canonicalBlockType == 'revenu') {
       _seedRevenueInputs(profile, answers);
     }
+    if (canonicalBlockType == 'objectifRetraite') {
+      _seedRetirementGoalInput(profile, answers);
+    }
     if (canonicalBlockType == 'patrimoine') {
       _seedPatrimoineInputs(answers);
     }
@@ -193,6 +218,7 @@ class _DataBlockEnrichmentScreenState
     }
     final hasInlineCollector =
         canonicalBlockType == 'revenu' ||
+        canonicalBlockType == 'objectifRetraite' ||
         canonicalBlockType == 'patrimoine' ||
         canonicalBlockType == 'compositionMenage';
     final isKnownBlock =
@@ -297,6 +323,16 @@ class _DataBlockEnrichmentScreenState
                   child: KeyedSubtree(
                     key: _collectorKey,
                     child: _buildRevenueCollector(onlyInputKey: activeUpdateInputKey),
+                  ),
+                ),
+              ],
+              if (canonicalBlockType == 'objectifRetraite' &&
+                  showInlineCollector) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildRetirementGoalCollector(),
                   ),
                 ),
               ],
@@ -533,6 +569,86 @@ class _DataBlockEnrichmentScreenState
     HapticFeedback.lightImpact();
     setState(() {
       _isSavingRevenue = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
+  Widget _buildRetirementGoalCollector() {
+    final l = S.of(context)!;
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key('target_retirement_age_input'),
+            controller: _targetRetirementAgeController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(2),
+            ],
+            decoration: InputDecoration(
+              labelText: l.dataQuestFieldTargetRetirementAge,
+              hintText: '64',
+            ),
+          ),
+          if (_retirementGoalError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _retirementGoalError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('retirement_goal_save_cta'),
+            onPressed:
+                _isSavingRetirementGoal ? null : _saveRetirementGoalFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l.dataBlockSaveIdle,
+              style: MintTextStyles.titleMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveRetirementGoalFacts() async {
+    final targetAge =
+        int.tryParse(_targetRetirementAgeController.text.trim());
+
+    if (targetAge == null || targetAge < 58 || targetAge > 70) {
+      setState(() {
+        _retirementGoalError = S.of(context)!.dataBlockRevenueInvalidAmount;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSavingRetirementGoal = true;
+      _retirementGoalError = null;
+    });
+
+    await context.read<CoachProfileProvider>().mergeAnswers({
+      'q_target_retirement_age': targetAge,
+    });
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isSavingRetirementGoal = false;
       _activeUpdateInputKey = null;
     });
   }
@@ -790,6 +906,7 @@ class _DataBlockEnrichmentScreenState
     final caseId = switch (blockType) {
       'revenu' => 'first_salary_tax',
       'patrimoine' => 'buy_property',
+      'objectifRetraite' => 'transmit_property',
       _ => null,
     };
     if (caseId == null) return null;
@@ -925,6 +1042,7 @@ class _DataBlockEnrichmentScreenState
     setState(() {
       _activeUpdateInputKey = ask.inputKey;
       _revenueError = null;
+      _retirementGoalError = null;
       _patrimoineError = null;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -973,6 +1091,7 @@ class _DataBlockEnrichmentScreenState
       'birthYear' ||
       'has2ndPillar' =>
         'revenu',
+      'targetRetirementAge' => 'objectifRetraite',
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' ||
       'targetPropertyValue' ||
@@ -989,6 +1108,7 @@ class _DataBlockEnrichmentScreenState
           inputKey == 'canton' ||
           inputKey == 'birthYear' ||
           inputKey == 'has2ndPillar',
+      'objectifRetraite' => inputKey == 'targetRetirementAge',
       'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
           inputKey == 'parentLiquidAssets' ||
           inputKey == 'targetPropertyValue' ||
@@ -1044,6 +1164,7 @@ class _DataBlockEnrichmentScreenState
       'canton' => l.affordabilityCanton,
       'birthYear' => l.authDateOfBirth,
       'has2ndPillar' => l.eduThemeLppQuestion,
+      'targetRetirementAge' => l.dataQuestFieldTargetRetirementAge,
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' =>
         l.financialSummaryEpargneLiquide,

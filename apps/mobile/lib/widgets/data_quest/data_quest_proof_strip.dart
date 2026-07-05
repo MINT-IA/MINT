@@ -93,6 +93,7 @@ class DataQuestNextQuestionCard extends StatelessWidget {
       'patrimoine.mortgageRate' =>
         '/data-block/patrimoine',
       'householdType' => '/data-block/compositionMenage',
+      'targetRetirementAge' => '/data-block/objectifRetraite',
       _ => null,
     };
   }

@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
+import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:patrol/patrol.dart';
 import 'package:provider/provider.dart';
@@ -53,14 +54,21 @@ String? _semanticsValue(WidgetTester tester, String identifier) {
 
 Future<void> _scrollUntilVisible(WidgetTester tester, Finder target) async {
   final scrollable = find.byType(Scrollable).first;
-  for (var i = 0; i < 30; i++) {
-    if (target.evaluate().isNotEmpty) {
-      await tester.ensureVisible(target);
-      await tester.pumpAndSettle();
-      return;
+  for (final delta in const [Offset(0, -350), Offset(0, 350)]) {
+    for (var i = 0; i < 20; i++) {
+      if (target.evaluate().isNotEmpty) {
+        await tester.ensureVisible(target);
+        await tester.pumpAndSettle();
+        return;
+      }
+      await tester.drag(scrollable, delta);
+      await tester.pump(const Duration(milliseconds: 80));
     }
-    await tester.drag(scrollable, const Offset(0, -350));
-    await tester.pump(const Duration(milliseconds: 80));
+  }
+  if (target.evaluate().isNotEmpty) {
+    await tester.ensureVisible(target);
+    await tester.pumpAndSettle();
+    return;
   }
   expect(target, findsOneWidget);
 }
@@ -117,6 +125,12 @@ void main() {
             path: '/succession',
             builder: (_, __) => const SuccessionPatrimoineScreen(),
           ),
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'objectifRetraite',
+            ),
+          ),
         ],
       );
       addTearDown(router.dispose);
@@ -167,6 +181,45 @@ void main() {
       expect(
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'targetRetirementAge',
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#target_retirement_age_input), findsOneWidget);
+      await $(#target_retirement_age_input).enterText('64');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('retirement_goal_save_cta')),
+      );
+      await $(#retirement_goal_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final retirementAgeAnswers = await ReportPersistenceService.loadAnswers();
+      expect(retirementAgeAnswers['q_target_retirement_age'], 64);
+      expect(retirementAgeAnswers.containsKey('targetRetirementAge'), isFalse);
+      expect(provider.profile!.targetRetirementAge, 64);
+      expect(
+        retirementAgeAnswers.keys.where((key) => key.startsWith('q_')).toSet(),
+        {'q_property_market_value', 'q_target_retirement_age'},
+      );
+
+      await $(find.byIcon(Icons.arrow_back)).tap();
+      await $.pumpAndSettle();
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'avoirLpp',
       );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(

@@ -78,6 +78,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> pumpObjectifRetraite(
+    WidgetTester tester,
+    CoachProfileProvider provider,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'objectifRetraite'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
   Future<CoachProfileProvider> staleRevenueProvider() async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers(
@@ -358,6 +371,34 @@ void main() {
     );
     expect(answers.containsKey('q_mortgage_rate_percent'), isFalse);
     expect(provider.profile?.patrimoine.mortgageRate, 0.018);
+  });
+
+  testWidgets('objectifRetraite block captures target retirement age only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpObjectifRetraite(tester, provider);
+
+    expect(find.byKey(const Key('target_retirement_age_input')),
+        findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('target_retirement_age_input')),
+      '64',
+    );
+    await tester.ensureVisible(
+      find.byKey(const Key('retirement_goal_save_cta')),
+    );
+    await tester.tap(find.byKey(const Key('retirement_goal_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_target_retirement_age'], 64);
+    expect(
+      answers.keys.where((key) => key.startsWith('q_')).toSet(),
+      {'q_target_retirement_age'},
+    );
+    expect(answers.containsKey('targetRetirementAge'), isFalse);
+    expect(provider.profile?.targetRetirementAge, 64);
   });
 
   testWidgets('patrimoine block saves liquid assets without target price', (tester) async {
