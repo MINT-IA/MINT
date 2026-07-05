@@ -412,6 +412,33 @@ void main() {
     expect(provider.profile?.patrimoine.mortgageRate, 0.018);
   });
 
+  testWidgets('patrimoine block stores mortgage balance as debt fact only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpPatrimoine(tester, provider);
+
+    expect(find.byKey(const Key('mortgage_balance_input')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('mortgage_balance_input')),
+      '420000',
+    );
+    await tester.ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_mortgage_balance'], 420000);
+    expect(answers.containsKey('_coach_dettes_hypotheque'), isFalse);
+    expect(answers.containsKey('mortgageBalance'), isFalse);
+    expect(answers.containsKey('patrimoine.mortgageBalance'), isFalse);
+    expect(provider.profile?.patrimoine.mortgageBalance, 420000);
+    expect(
+      provider.profile?.dataSources['patrimoine.mortgageBalance'],
+      ProfileDataSource.userInput,
+    );
+  });
+
   testWidgets('objectifRetraite block captures target retirement age only',
       (tester) async {
     final provider = CoachProfileProvider();

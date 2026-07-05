@@ -61,6 +61,7 @@ class _DataBlockEnrichmentScreenState
   final _pillar3aBalanceController = TextEditingController();
   final _savingsController = TextEditingController();
   final _targetPropertyController = TextEditingController();
+  final _mortgageBalanceController = TextEditingController();
   final _mortgageRateController = TextEditingController();
   final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
@@ -237,6 +238,7 @@ class _DataBlockEnrichmentScreenState
     if (_seededPatrimoineInputs) return;
     final hasDraft = _savingsController.text.isNotEmpty ||
         _targetPropertyController.text.isNotEmpty ||
+        _mortgageBalanceController.text.isNotEmpty ||
         _mortgageRateController.text.isNotEmpty;
     if (hasDraft) {
       _seededPatrimoineInputs = true;
@@ -255,6 +257,13 @@ class _DataBlockEnrichmentScreenState
     );
     if (targetProperty != null) {
       _targetPropertyController.text = targetProperty.toString();
+    }
+    final mortgageBalance = _parseAnswerAmount(
+      answers['q_mortgage_balance'],
+      allowZero: true,
+    );
+    if (mortgageBalance != null) {
+      _mortgageBalanceController.text = mortgageBalance.toString();
     }
     final mortgageRate = _parseAnswerAmount(
       answers['q_mortgage_rate'],
@@ -294,6 +303,7 @@ class _DataBlockEnrichmentScreenState
     _pillar3aBalanceController.dispose();
     _savingsController.dispose();
     _targetPropertyController.dispose();
+    _mortgageBalanceController.dispose();
     _mortgageRateController.dispose();
     super.dispose();
   }
@@ -1043,6 +1053,8 @@ class _DataBlockEnrichmentScreenState
         _capturesPatrimoine('patrimoine.epargneLiquide', onlyInputKey);
     final capturesTargetProperty =
         _capturesPatrimoine('targetPropertyValue', onlyInputKey);
+    final capturesMortgageBalance =
+        _capturesPatrimoine('mortgageBalance', onlyInputKey);
     final capturesMortgageRate =
         _capturesPatrimoine('patrimoine.mortgageRate', onlyInputKey);
     return MintSurface(
@@ -1075,8 +1087,22 @@ class _DataBlockEnrichmentScreenState
                 prefixText: 'CHF ',
               ),
             ),
-          if (capturesMortgageRate) ...[
+          if (capturesMortgageBalance) ...[
             if (capturesTargetProperty) const SizedBox(height: 12),
+            TextField(
+              key: const Key('mortgage_balance_input'),
+              controller: _mortgageBalanceController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: l.dataQuestFieldMortgageBalance,
+                prefixText: 'CHF ',
+              ),
+            ),
+          ],
+          if (capturesMortgageRate) ...[
+            if (capturesTargetProperty || capturesMortgageBalance)
+              const SizedBox(height: 12),
             TextField(
               key: const Key('mortgage_rate_input'),
               controller: _mortgageRateController,
@@ -1127,19 +1153,26 @@ class _DataBlockEnrichmentScreenState
         _capturesPatrimoine('patrimoine.epargneLiquide', onlyInputKey);
     final capturesTargetProperty =
         _capturesPatrimoine('targetPropertyValue', onlyInputKey);
+    final capturesMortgageBalance =
+        _capturesPatrimoine('mortgageBalance', onlyInputKey);
     final capturesMortgageRate =
         _capturesPatrimoine('patrimoine.mortgageRate', onlyInputKey);
     final savingsText = _savingsController.text.trim();
     final targetPropertyText = _targetPropertyController.text.trim();
+    final mortgageBalanceText = _mortgageBalanceController.text.trim();
     final mortgageRateText = _mortgageRateController.text.trim();
     final hasSavingsInput = capturesSavings && savingsText.isNotEmpty;
     final hasTargetPropertyInput =
         capturesTargetProperty && targetPropertyText.isNotEmpty;
+    final hasMortgageBalanceInput =
+        capturesMortgageBalance && mortgageBalanceText.isNotEmpty;
     final hasMortgageRateInput =
         capturesMortgageRate && mortgageRateText.isNotEmpty;
     final savings = hasSavingsInput ? int.tryParse(savingsText) : null;
     final targetProperty =
         hasTargetPropertyInput ? int.tryParse(targetPropertyText) : null;
+    final mortgageBalance =
+        hasMortgageBalanceInput ? int.tryParse(mortgageBalanceText) : null;
     final mortgageRate =
         hasMortgageRateInput ? _parseMortgageRatePercent(mortgageRateText) : null;
 
@@ -1147,6 +1180,7 @@ class _DataBlockEnrichmentScreenState
     if (onlyInputKey == null &&
         !hasSavingsInput &&
         !hasTargetPropertyInput &&
+        !hasMortgageBalanceInput &&
         !hasMortgageRateInput) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
     } else if (onlyInputKey != null &&
@@ -1158,6 +1192,10 @@ class _DataBlockEnrichmentScreenState
         !hasTargetPropertyInput) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
     } else if (onlyInputKey != null &&
+        capturesMortgageBalance &&
+        !hasMortgageBalanceInput) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (onlyInputKey != null &&
         capturesMortgageRate &&
         !hasMortgageRateInput) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
@@ -1165,6 +1203,9 @@ class _DataBlockEnrichmentScreenState
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
     } else if (hasTargetPropertyInput &&
         (targetProperty == null || targetProperty <= 0)) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (hasMortgageBalanceInput &&
+        (mortgageBalance == null || mortgageBalance < 0)) {
       error = S.of(context)!.dataBlockRevenueInvalidAmount;
     } else if (hasMortgageRateInput &&
         (mortgageRate == null || mortgageRate < 0 || mortgageRate > 0.2)) {
@@ -1184,6 +1225,7 @@ class _DataBlockEnrichmentScreenState
     await context.read<CoachProfileProvider>().mergeAnswers({
       if (hasSavingsInput) 'q_cash_total': savings,
       if (hasTargetPropertyInput) 'q_target_property_value': targetProperty,
+      if (hasMortgageBalanceInput) 'q_mortgage_balance': mortgageBalance,
       if (hasMortgageRateInput) 'q_mortgage_rate': mortgageRate,
     });
 
@@ -1488,6 +1530,8 @@ class _DataBlockEnrichmentScreenState
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' ||
       'targetPropertyValue' ||
+      'mortgageBalance' ||
+      'patrimoine.mortgageBalance' ||
       'patrimoine.mortgageRate' =>
         'patrimoine',
       'householdType' => 'compositionMenage',
@@ -1508,6 +1552,8 @@ class _DataBlockEnrichmentScreenState
       'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
           inputKey == 'parentLiquidAssets' ||
           inputKey == 'targetPropertyValue' ||
+          inputKey == 'mortgageBalance' ||
+          inputKey == 'patrimoine.mortgageBalance' ||
           inputKey == 'patrimoine.mortgageRate',
       'compositionMenage' => inputKey == 'householdType',
       _ => false,
@@ -1522,6 +1568,10 @@ class _DataBlockEnrichmentScreenState
     if (onlyInputKey == null) return true;
     if (inputKey == 'patrimoine.epargneLiquide') {
       return onlyInputKey == inputKey || onlyInputKey == 'parentLiquidAssets';
+    }
+    if (inputKey == 'mortgageBalance') {
+      return onlyInputKey == inputKey ||
+          onlyInputKey == 'patrimoine.mortgageBalance';
     }
     return onlyInputKey == inputKey;
   }
@@ -1570,6 +1620,9 @@ class _DataBlockEnrichmentScreenState
         l.financialSummaryEpargneLiquide,
       'targetPropertyValue' => l.affordabilityTargetPrice,
       'householdType' => l.dossierCoupleSection,
+      'mortgageBalance' ||
+      'patrimoine.mortgageBalance' =>
+        l.dataQuestFieldMortgageBalance,
       'patrimoine.mortgageRate' => l.dataQuestFieldMortgageBalance,
       _ => l.dataQuestFieldFallback,
     };

@@ -90,6 +90,8 @@ class DataQuestNextQuestionCard extends StatelessWidget {
       'patrimoine.epargneLiquide' ||
       'parentLiquidAssets' ||
       'targetPropertyValue' ||
+      'mortgageBalance' ||
+      'patrimoine.mortgageBalance' ||
       'patrimoine.mortgageRate' =>
         '/data-block/patrimoine',
       'householdType' => '/data-block/compositionMenage',
