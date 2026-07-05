@@ -401,6 +401,8 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
     );
     final hasOpenGuardAsk =
         dataQuestPlan.asks.any((ask) => ask.stage == DataQuestStage.guard);
+    final nextDataQuestAsk =
+        dataQuestPlan.asks.isEmpty ? null : dataQuestPlan.asks.first;
     final canRenderEstateIllustrations =
         !hasOpenGuardAsk && _canRenderEstateIllustrations(profile);
     final illustrationPatrimoine =
@@ -441,6 +443,13 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                           plan: dataQuestPlan,
                           semanticsPrefix: 'succession',
                         ),
+                        if (nextDataQuestAsk?.mode ==
+                                DataQuestAskMode.scenarioAssumption &&
+                            nextDataQuestAsk?.inputKey ==
+                                'cashPaidByRecipient') ...[
+                          const SizedBox(height: MintSpacing.md),
+                          _ScenarioAssumptionCollector(ask: nextDataQuestAsk!),
+                        ],
                         const SizedBox(height: MintSpacing.lg),
 
                         if (_runtimeProofSemanticsEnabled)
@@ -631,6 +640,102 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
 }
 
 // ── Widgets internes ─────────────────────────────────────────
+
+class _ScenarioAssumptionCollector extends StatefulWidget {
+  final DataQuestAsk ask;
+
+  const _ScenarioAssumptionCollector({required this.ask});
+
+  @override
+  State<_ScenarioAssumptionCollector> createState() =>
+      _ScenarioAssumptionCollectorState();
+}
+
+class _ScenarioAssumptionCollectorState
+    extends State<_ScenarioAssumptionCollector> {
+  final _amountController = TextEditingController();
+  bool _isSaving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveCashPaidByRecipient() async {
+    final amount = int.tryParse(_amountController.text.trim());
+    if (amount == null || amount < 0) {
+      setState(() => _error = S.of(context)!.dataBlockRevenueInvalidAmount);
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+      _error = null;
+    });
+
+    await context.read<CoachProfileProvider>().mergeAnswers(
+      {'_transmit_property_cash_paid_by_recipient': amount},
+      source: ProfileDataSource.userInput,
+    );
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() => _isSaving = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.ask.inputKey != 'cashPaidByRecipient') {
+      return const SizedBox.shrink();
+    }
+    final l = S.of(context)!;
+    return Semantics(
+      identifier: 'succession_scenario_assumption_collector',
+      value: widget.ask.inputKey,
+      container: true,
+      child: MintSurface(
+        key: const ValueKey('succession_scenario_assumption_cash_card'),
+        tone: MintSurfaceTone.porcelaine,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 10,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              key: const Key('cash_paid_by_recipient_input'),
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: l.dataQuestFieldCashPaidByRecipient,
+                prefixText: 'CHF ',
+              ),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                _error!,
+                style: MintTextStyles.labelSmall(color: MintColors.error),
+              ),
+            ],
+            const SizedBox(height: MintSpacing.sm),
+            FilledButton(
+              key: const Key('succession_scenario_assumption_save_cta'),
+              onPressed: _isSaving ? null : _saveCashPaidByRecipient,
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                foregroundColor: MintColors.white,
+              ),
+              child: Text(l.dataBlockSaveIdle),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _SuccessionRuntimeProofGate extends StatefulWidget {
   const _SuccessionRuntimeProofGate();

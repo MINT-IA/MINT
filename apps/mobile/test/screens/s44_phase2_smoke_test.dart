@@ -523,9 +523,36 @@ void main() {
         'scenarioAssumption',
       );
       expect(_semanticsValue(tester, 'succession_data_quest_stage'), 'useful');
+      expect(find.byKey(const Key('cash_paid_by_recipient_input')),
+          findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key('cash_paid_by_recipient_input')),
+        '50000',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.tap(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        provider.answersSnapshot['_transmit_property_cash_paid_by_recipient'],
+        50000,
+      );
+      expect(
+          provider.answersSnapshot.containsKey('cashPaidByRecipient'), isFalse);
+      expect(
+        _semanticsValue(tester, 'succession_data_quest_next_ask'),
+        'mortgageAssumedByRecipient',
+      );
       expect(
         find.byKey(
-            const ValueKey('succession_scenario_conservative_assumption')),
+            const ValueKey('succession_scenario_transaction_assumption')),
         findsOneWidget,
       );
       expect(

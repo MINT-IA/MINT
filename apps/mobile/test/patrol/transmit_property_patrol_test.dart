@@ -525,8 +525,7 @@ void main() {
       await $(#children_count_input).enterText('2');
       await $.tester.testTextInput.receiveAction(TextInputAction.done);
       await $.pumpAndSettle();
-      await $.tester
-          .ensureVisible(find.byKey(const Key('household_save_cta')));
+      await $.tester.ensureVisible(find.byKey(const Key('household_save_cta')));
       await $(#household_save_cta).tap();
       await $.pumpAndSettle();
 
@@ -552,6 +551,38 @@ void main() {
       expect(
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'cashPaidByRecipient',
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(const Key('cash_paid_by_recipient_input')),
+      );
+      expect($(#cash_paid_by_recipient_input), findsOneWidget);
+      await $(#cash_paid_by_recipient_input).enterText('50000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await $(#succession_scenario_assumption_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final cashPaidAnswers = await ReportPersistenceService.loadAnswers();
+      expect(
+        cashPaidAnswers['_transmit_property_cash_paid_by_recipient'],
+        50000,
+      );
+      expect(cashPaidAnswers.containsKey('cashPaidByRecipient'), isFalse);
+      expect(
+        provider.transmitPropertyScenarioAssumptions['cashPaidByRecipient'],
+        50000.0,
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'mortgageAssumedByRecipient',
       );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
