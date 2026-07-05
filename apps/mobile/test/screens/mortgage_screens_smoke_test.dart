@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
@@ -9,6 +10,7 @@ import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 
 // =============================================================================
@@ -31,8 +33,8 @@ void main() {
   // ===========================================================================
 
   group('AffordabilityScreen', () {
-    Widget buildScreen() {
-      return const MaterialApp(
+    Widget buildScreen({CoachProfileProvider? coachProvider}) {
+      const app = MaterialApp(
         locale: Locale('fr'),
         localizationsDelegates: [
           S.delegate,
@@ -42,6 +44,16 @@ void main() {
         ],
         supportedLocales: S.supportedLocales,
         home: AffordabilityScreen(),
+      );
+      if (coachProvider != null) {
+        return ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: coachProvider,
+          child: app,
+        );
+      }
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: app,
       );
     }
 
@@ -137,6 +149,38 @@ void main() {
       await tester.pump();
 
       expect(find.byType(DropdownButton<String>), findsOneWidget);
+    });
+
+    testWidgets('uses canonical ledger facts and exposes runtime result id',
+        (tester) async {
+      final coachProvider = CoachProfileProvider()
+        ..updateFromAnswers({
+          'q_gross_salary_annual': 96000,
+          'q_canton': 'GE',
+          'q_birth_year': 2001,
+          'q_has_pension_fund': false,
+        });
+
+      await tester.pumpWidget(buildScreen(coachProvider: coachProvider));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('mortgage_afford_result')), findsOneWidget);
+
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('mortgage_income_amount')),
+        300,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('mortgage_income_amount')), findsOneWidget);
+      expect(find.text('Estime'), findsWidgets);
+      expect(find.textContaining("96'000"), findsWidgets);
+      expect(find.text('GE'), findsWidgets);
+
+      await tester.tap(find.text('Estime').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Depuis ton profil MINT'), findsOneWidget);
     });
 
     testWidgets('displays detail section after scrolling', (tester) async {
