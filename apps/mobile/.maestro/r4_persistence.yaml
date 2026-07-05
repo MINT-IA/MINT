@@ -1,0 +1,41 @@
+appId: ch.mint.app
+---
+# Regression R-4: data collected through the runtime proof seed survives an app
+# stop/relaunch and still feeds the mortgage screen without re-seeding.
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/data-block/revenu"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    text: "Revenu brut annuel"
+- launchApp:
+    clearState: false
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/hypotheque"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+      MINT_TEST_REVENUE_ANNUAL: "96000"
+      MINT_TEST_CANTON: "GE"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    id: "mortgage_afford_result"
+- stopApp
+- launchApp:
+    clearState: false
+    arguments:
+      MINT_TEST_INITIAL_ROUTE: "/hypotheque"
+      MINT_ENABLE_RUNTIME_PROOF_SEMANTICS: "true"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    id: "mortgage_afford_result"
+- assertVisible:
+    id: "mortgage_data_quest_next_ask"
+- assertVisible:
+    text: "next_ask_value: patrimoine.epargneLiquide"

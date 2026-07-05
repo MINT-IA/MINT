@@ -1001,6 +1001,12 @@ check_future_maestro_contracts() {
   grep -q 'id: "document_scan_header"' apps/mobile/.maestro/r2_scan_impact.yaml
   grep -q 'id: "document_scan_header"' apps/mobile/.maestro/r1b_scan_review_orphan_session.yaml
   grep -q 'id: "document_scan_header"' apps/mobile/.maestro/r2b_scan_impact_orphan_session.yaml
+  if [[ -f "apps/mobile/.maestro/r4_persistence.yaml" ]]; then
+    maestro_check_syntax apps/mobile/.maestro/r4_persistence.yaml
+    grep -q 'text: "Revenu brut annuel"' apps/mobile/.maestro/r4_persistence.yaml
+    grep -q 'id: "mortgage_afford_result"' apps/mobile/.maestro/r4_persistence.yaml
+    grep -q 'id: "mortgage_data_quest_next_ask"' apps/mobile/.maestro/r4_persistence.yaml
+  fi
   if [[ "${MINT_ENABLE_LEGACY_STATIC_PATROL_CONTRACTS:-false}" != "true" ]]; then
     return 0
   fi
@@ -1185,11 +1191,6 @@ check_future_maestro_contracts() {
   if [[ -f "apps/mobile/.maestro/f6_divorce.yaml" ]]; then
     grep -q "identifier: 'divorce_regime_picker'" apps/mobile/lib/screens/divorce_simulator_screen.dart
     grep -q "identifier: 'divorce_lpp_split_result'" apps/mobile/lib/screens/divorce_simulator_screen.dart
-  fi
-  if [[ -f "apps/mobile/.maestro/r4_persistence.yaml" ]]; then
-    maestro_check_syntax apps/mobile/.maestro/r4_persistence.yaml
-    grep -q 'id: "salary_input"' apps/mobile/.maestro/r4_persistence.yaml
-    grep -q 'id: "mortgage_afford_result"' apps/mobile/.maestro/r4_persistence.yaml
   fi
   if [[ -f "apps/mobile/.maestro/r5_portfolio_param.yaml" ]]; then
     maestro_check_syntax apps/mobile/.maestro/r5_portfolio_param.yaml

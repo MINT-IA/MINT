@@ -68,6 +68,20 @@ def test_documented_live_maestro_files_exist() -> None:
     )
 
 
+def test_r4_persistence_flow_is_documented_as_live() -> None:
+    text = DOC.read_text(encoding="utf-8")
+    flow = MAESTRO_DIR / "r4_persistence.yaml"
+
+    assert flow.exists(), "R-4 restart persistence flow must stay checked in"
+    assert "File: `apps/mobile/.maestro/r4_persistence.yaml`" in text
+    assert "future R-4 restart runtime YAML" not in text
+    flow_text = flow.read_text(encoding="utf-8")
+    assert 'text: "Revenu brut annuel"' in flow_text
+    assert 'id: "mortgage_afford_result"' in flow_text
+    assert 'id: "mortgage_data_quest_next_ask"' in flow_text
+    assert 'text: "next_ask_value: patrimoine.epargneLiquide"' in flow_text
+
+
 def test_deep_link_registration_split_is_explicit() -> None:
     doc = DOC.read_text(encoding="utf-8")
     ios = IOS_PLIST.read_text(encoding="utf-8")

@@ -285,9 +285,15 @@ is centered. This flow proves the typed dossier export CTA path; PDF bytes and
 audit-manifest sections remain covered by unit/widget tests.
 
 ### R-4 kill + restart mid-flow keeps data (spine persistence)
-File: covered by provider/persistence tests; no dedicated Maestro YAML at HEAD.
+File: `apps/mobile/.maestro/r4_persistence.yaml`
 
-**Current proof:** covered by `test/providers/coach_profile_provider_save_fact_mapping_test.dart`, `test/screens/report_route_screen_test.dart`, and the `mobile-scenarios` gate. Add a dedicated runtime YAML before claiming full restart runtime coverage.
+**Current proof:** syntax-gated as `apps/mobile/.maestro/r4_persistence.yaml`.
+The flow starts from an empty revenue block (`Revenu brut annuel` visible),
+seeds annual revenue/canton through the runtime proof write path, stops the app,
+then relaunches `/hypotheque` without re-seeding and expects
+`mortgage_afford_result`, `mortgage_data_quest_next_ask`, and
+`next_ask_value: patrimoine.epargneLiquide`. Provider/persistence tests remain
+the deeper proof for exact stored keys.
 
 ### R-5 legacy redirects preserve query context (D-5)
 File: `apps/mobile/test/routing/legacy_redirect_query_preservation_test.dart`
@@ -308,9 +314,9 @@ File: `apps/mobile/test/routing/legacy_redirect_query_preservation_test.dart`
     smoke/status entries.
   - `transmit_property` has both a checked-in Maestro flow
     `phase2_data_quest_transmit_property.yaml` and a Patrol runtime proof.
-- **M-3** R-1/R-2/R-3/R-3c checked-in flows plus the static redirect tests cover
-  the repaired dead roads D-1..D-5. A future R-4 restart runtime YAML must be
-  added before claiming runtime restart coverage.
+- **M-3** R-1/R-2/R-3/R-3c/R-4 checked-in flows plus the static redirect tests
+  cover the repaired dead roads D-1..D-5 and a minimal restart persistence
+  smoke.
 - **M-4** Each flow uses a stable id from Task M-0 (no reliance on volatile visible text except localized asserts).
 - **M-5** A newly added screen without F-/R- coverage fails the "every live route has ≥1 flow" check (cross-ref `SCREEN_CONTRACTS.md`).
 - **M-6** Divorce happy-path (F-6) is blocked until
