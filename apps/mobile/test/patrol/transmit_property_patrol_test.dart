@@ -584,6 +584,44 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'mortgageAssumedByRecipient',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(const Key('mortgage_assumed_by_recipient_input')),
+      );
+      expect($(#mortgage_assumed_by_recipient_input), findsOneWidget);
+      await $(#mortgage_assumed_by_recipient_input).enterText('420000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await $(#succession_scenario_assumption_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final assumedMortgageAnswers =
+          await ReportPersistenceService.loadAnswers();
+      expect(
+        assumedMortgageAnswers[
+            '_transmit_property_mortgage_assumed_by_recipient'],
+        420000,
+      );
+      expect(
+        assumedMortgageAnswers.containsKey('mortgageAssumedByRecipient'),
+        isFalse,
+      );
+      expect(
+        provider
+            .transmitPropertyScenarioAssumptions['mortgageAssumedByRecipient'],
+        420000.0,
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'recipientRelationship',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

@@ -445,10 +445,10 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                         ),
                         if (nextDataQuestAsk?.mode ==
                                 DataQuestAskMode.scenarioAssumption &&
-                            nextDataQuestAsk?.inputKey ==
-                                'cashPaidByRecipient') ...[
+                            _ScenarioAssumptionCollector.supports(
+                                nextDataQuestAsk!.inputKey)) ...[
                           const SizedBox(height: MintSpacing.md),
-                          _ScenarioAssumptionCollector(ask: nextDataQuestAsk!),
+                          _ScenarioAssumptionCollector(ask: nextDataQuestAsk),
                         ],
                         const SizedBox(height: MintSpacing.lg),
 
@@ -646,6 +646,11 @@ class _ScenarioAssumptionCollector extends StatefulWidget {
 
   const _ScenarioAssumptionCollector({required this.ask});
 
+  static bool supports(String inputKey) {
+    return inputKey == 'cashPaidByRecipient' ||
+        inputKey == 'mortgageAssumedByRecipient';
+  }
+
   @override
   State<_ScenarioAssumptionCollector> createState() =>
       _ScenarioAssumptionCollectorState();
@@ -663,7 +668,38 @@ class _ScenarioAssumptionCollectorState
     super.dispose();
   }
 
-  Future<void> _saveCashPaidByRecipient() async {
+  String? get _answerKey => switch (widget.ask.inputKey) {
+        'cashPaidByRecipient' => '_transmit_property_cash_paid_by_recipient',
+        'mortgageAssumedByRecipient' =>
+          '_transmit_property_mortgage_assumed_by_recipient',
+        _ => null,
+      };
+
+  Key? get _fieldKey => switch (widget.ask.inputKey) {
+        'cashPaidByRecipient' => const Key('cash_paid_by_recipient_input'),
+        'mortgageAssumedByRecipient' =>
+          const Key('mortgage_assumed_by_recipient_input'),
+        _ => null,
+      };
+
+  ValueKey<String> get _cardKey => switch (widget.ask.inputKey) {
+        'cashPaidByRecipient' =>
+          const ValueKey('succession_scenario_assumption_cash_card'),
+        'mortgageAssumedByRecipient' =>
+          const ValueKey('succession_scenario_assumption_mortgage_card'),
+        _ => const ValueKey('succession_scenario_assumption_unknown_card'),
+      };
+
+  String _fieldLabel(S l) => switch (widget.ask.inputKey) {
+        'cashPaidByRecipient' => l.dataQuestFieldCashPaidByRecipient,
+        'mortgageAssumedByRecipient' =>
+          l.dataQuestFieldMortgageAssumedByRecipient,
+        _ => widget.ask.inputKey,
+      };
+
+  Future<void> _saveScenarioAssumption() async {
+    final answerKey = _answerKey;
+    if (answerKey == null) return;
     final amount = int.tryParse(_amountController.text.trim());
     if (amount == null || amount < 0) {
       setState(() => _error = S.of(context)!.dataBlockRevenueInvalidAmount);
@@ -676,7 +712,7 @@ class _ScenarioAssumptionCollectorState
     });
 
     await context.read<CoachProfileProvider>().mergeAnswers(
-      {'_transmit_property_cash_paid_by_recipient': amount},
+      {answerKey: amount},
       source: ProfileDataSource.userInput,
     );
 
@@ -687,7 +723,8 @@ class _ScenarioAssumptionCollectorState
 
   @override
   Widget build(BuildContext context) {
-    if (widget.ask.inputKey != 'cashPaidByRecipient') {
+    final fieldKey = _fieldKey;
+    if (fieldKey == null) {
       return const SizedBox.shrink();
     }
     final l = S.of(context)!;
@@ -696,7 +733,7 @@ class _ScenarioAssumptionCollectorState
       value: widget.ask.inputKey,
       container: true,
       child: MintSurface(
-        key: const ValueKey('succession_scenario_assumption_cash_card'),
+        key: _cardKey,
         tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
         radius: 10,
@@ -704,12 +741,12 @@ class _ScenarioAssumptionCollectorState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
-              key: const Key('cash_paid_by_recipient_input'),
+              key: fieldKey,
               controller: _amountController,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
-                labelText: l.dataQuestFieldCashPaidByRecipient,
+                labelText: _fieldLabel(l),
                 prefixText: 'CHF ',
               ),
             ),
@@ -723,7 +760,7 @@ class _ScenarioAssumptionCollectorState
             const SizedBox(height: MintSpacing.sm),
             FilledButton(
               key: const Key('succession_scenario_assumption_save_cta'),
-              onPressed: _isSaving ? null : _saveCashPaidByRecipient,
+              onPressed: _isSaving ? null : _saveScenarioAssumption,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 foregroundColor: MintColors.white,
