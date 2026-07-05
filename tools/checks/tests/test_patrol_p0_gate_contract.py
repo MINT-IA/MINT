@@ -1,3 +1,4 @@
+import json
 import re
 from pathlib import Path
 
@@ -104,6 +105,41 @@ def test_first_salary_and_mortgage_patrol_prove_data_quest_next_asks() -> None:
     assert "mobile-f2-patrol" in mortgage
     assert "'householdType'" in mortgage
     assert "'guard'" in mortgage
+
+
+def test_p0_registry_data_quest_asks_are_anchored_in_patrol_proofs() -> None:
+    registry = json.loads(
+        (ROOT / "docs/codex/P0_CASE_VARIABLE_REGISTRY.json").read_text()
+    )
+
+    for case_id, case in registry["cases"].items():
+        patrol_flow_id = case["patrol_flow_id"]
+        patrol_path = ROOT / "apps/mobile/test/patrol" / f"{patrol_flow_id}.dart"
+        assert patrol_path.exists(), f"{case_id}: missing Patrol file {patrol_path}"
+        patrol = patrol_path.read_text()
+        assert (
+            case["runtime_input_gate"] in patrol
+        ), f"{case_id}: runtime_input_gate is not asserted in Patrol"
+
+        missing_asks: list[str] = []
+        for group_name in [
+            "blocking_guard_questions",
+            "required_questions",
+            "enrichment_questions",
+        ]:
+            for question in case.get(group_name, []):
+                anchors = [
+                    question[key]
+                    for key in ["input_key", "ledger_key"]
+                    if question.get(key)
+                ]
+                if anchors and not any(anchor in patrol for anchor in anchors):
+                    missing_asks.append(
+                        f"{group_name}.{question['question_id']} "
+                        f"({', '.join(anchors)})"
+                    )
+
+        assert not missing_asks, f"{case_id}: asks missing from Patrol: {missing_asks}"
 
 
 def test_transmit_property_patrol_proves_data_quest_runtime_id() -> None:
