@@ -77,9 +77,8 @@ class RouteMeta {
 }
 
 /// Source-of-truth map: one entry per `GoRoute`/`ScopedGoRoute` declared
-/// in `apps/mobile/lib/app.dart`. Exactly **148 non-admin entries** as of Wave
-/// 0 reconciliation (app.dart SHA b7a88cc8, see
-/// `.planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md`).
+/// in `apps/mobile/lib/app.dart`. Exactly **148 non-admin entries** after the
+/// live route-alias reconciliation guarded by `tools/mint-routes`.
 ///
 /// **Maintenance contract (D-04, D-12):** adding or removing a `GoRoute`
 /// / `ScopedGoRoute` in `app.dart` MUST be mirrored here. Parity lint

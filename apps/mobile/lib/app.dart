@@ -148,6 +148,11 @@ import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+String _redirectPreservingQuery(GoRouterState state, String targetPath) {
+  final query = state.uri.query;
+  return query.isEmpty ? targetPath : '$targetPath?$query';
+}
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
 final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
@@ -1180,16 +1185,16 @@ final _router = GoRouter(
     // ── OUTILS & DIVERS ─────────────────────────────────────
     ScopedGoRoute(path: '/ask-mint', redirect: (_, state) {
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
+      return _redirectPreservingQuery(state, '/coach/chat');
     }),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
     ScopedGoRoute(path: '/tools', redirect: (_, state) {
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
-      return '/coach/chat';
+      return _redirectPreservingQuery(state, '/coach/chat');
     }),
     ScopedGoRoute(path: '/portfolio', redirect: (_, state) {
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-      return '/home';
+      return _redirectPreservingQuery(state, '/home');
     }),
     ScopedGoRoute(
       path: '/timeline',
@@ -1212,7 +1217,7 @@ final _router = GoRouter(
     ),
     ScopedGoRoute(path: '/score-reveal', redirect: (_, state) {
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
-      return '/home';
+      return _redirectPreservingQuery(state, '/home');
     }),
 
     // ── ONBOARDING ───────────────────────────────────────────
@@ -1273,8 +1278,9 @@ final _router = GoRouter(
       scope: RouteScope.onboarding, // Onboarding enrichment flow
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final type = state.pathParameters['type'] ?? 'revenu';
-        return DataBlockEnrichmentScreen(blockType: type);
+        return DataBlockEnrichmentScreen(
+          blockType: state.pathParameters['type']!,
+        );
       },
     ),
 
