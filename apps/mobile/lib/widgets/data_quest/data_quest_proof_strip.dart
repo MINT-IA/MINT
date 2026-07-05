@@ -96,6 +96,7 @@ class DataQuestNextQuestionCard extends StatelessWidget {
       'targetRetirementAge' => '/data-block/objectifRetraite',
       'avoirLpp' => '/data-block/lpp',
       'pillar3aBalance' => '/data-block/3a',
+      'parentAnnualRetirementIncome' => '/data-block/revenuRetraite',
       _ => null,
     };
   }

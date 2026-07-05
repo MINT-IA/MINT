@@ -117,6 +117,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> pumpRetirementIncome(
+    WidgetTester tester,
+    CoachProfileProvider provider,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'revenuRetraite'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
   Future<CoachProfileProvider> staleRevenueProvider() async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers(
@@ -512,6 +525,40 @@ void main() {
     expect(provider.profile?.patrimoine.epargneLiquide, 120000);
     expect(
       provider.profile?.dataSources['patrimoine.epargneLiquide'],
+      ProfileDataSource.userInput,
+    );
+  });
+
+  testWidgets('retirement income block stores direct scenario income only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    await pumpRetirementIncome(tester, provider);
+
+    expect(
+      find.byKey(const Key('parent_annual_retirement_income_input')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('target_retirement_age_input')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('parent_annual_retirement_income_input')),
+      '76000',
+    );
+    await tester.ensureVisible(
+      find.byKey(const Key('parent_retirement_income_save_cta')),
+    );
+    await tester.tap(find.byKey(const Key('parent_retirement_income_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_parent_annual_retirement_income'], 76000);
+    expect(
+      answers.containsKey('_transmit_property_parent_annual_retirement_income'),
+      isFalse,
+    );
+    expect(answers.containsKey('parentAnnualRetirementIncome'), isFalse);
+    expect(
+      provider.profile?.dataSources['parentAnnualRetirementIncome'],
       ProfileDataSource.userInput,
     );
   });

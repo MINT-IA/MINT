@@ -409,4 +409,39 @@ void main() {
 
     expect(find.text('block 3a'), findsOneWidget);
   });
+
+  testWidgets('next question card opens retirement-income owner',
+      (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'succession',
+      plan: const DataQuestPlan(
+        caseId: 'transmit_property',
+        targetRoute: '/succession',
+        pdfSectionId: 'dossier_transmit_property',
+        maestroFlowId: 'phase2_data_quest_transmit_property',
+        runtimeProofId: 'mobile-transmit-property-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'transmit_property',
+            inputKey: 'parentAnnualRetirementIncome',
+            ledgerKey: 'parentAnnualRetirementIncome',
+            questionId: 'ask_parent_annual_retirement_income',
+            mode: DataQuestAskMode.collect,
+            tone: DataQuestTone.gentle,
+            stage: DataQuestStage.guard,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('succession_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('block revenuRetraite'), findsOneWidget);
+  });
 }

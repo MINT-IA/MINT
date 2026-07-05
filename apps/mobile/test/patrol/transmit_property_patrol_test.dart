@@ -338,6 +338,54 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'parentAnnualRetirementIncome',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#parent_annual_retirement_income_input), findsOneWidget);
+      await $(#parent_annual_retirement_income_input).enterText('76000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('parent_retirement_income_save_cta')),
+      );
+      await $(#parent_retirement_income_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final retirementIncomeAnswers =
+          await ReportPersistenceService.loadAnswers();
+      expect(retirementIncomeAnswers['q_parent_annual_retirement_income'], 76000);
+      expect(
+        retirementIncomeAnswers.containsKey(
+          '_transmit_property_parent_annual_retirement_income',
+        ),
+        isFalse,
+      );
+      expect(
+        retirementIncomeAnswers.containsKey('parentAnnualRetirementIncome'),
+        isFalse,
+      );
+      expect(
+        provider.profile!.dataSources['parentAnnualRetirementIncome'],
+        ProfileDataSource.userInput,
+      );
+
+      await $(find.byIcon(Icons.arrow_back)).tap();
+      await $.pumpAndSettle();
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'parentAnnualLivingCosts',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

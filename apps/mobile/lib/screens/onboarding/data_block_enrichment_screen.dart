@@ -35,6 +35,7 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
     'patrimoine',
     'fiscalite',
     'objectifRetraite',
+    'revenuRetraite',
     'compositionMenage',
   };
 
@@ -55,6 +56,7 @@ class _DataBlockEnrichmentScreenState
   final _salaryController = TextEditingController();
   final _birthYearController = TextEditingController();
   final _targetRetirementAgeController = TextEditingController();
+  final _parentAnnualRetirementIncomeController = TextEditingController();
   final _lppBalanceController = TextEditingController();
   final _pillar3aBalanceController = TextEditingController();
   final _savingsController = TextEditingController();
@@ -63,6 +65,7 @@ class _DataBlockEnrichmentScreenState
   final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
   bool _seededRetirementGoalInput = false;
+  bool _seededParentRetirementIncomeInput = false;
   bool _seededLppInput = false;
   bool _seededPillar3aInput = false;
   bool _seededPatrimoineInputs = false;
@@ -72,6 +75,7 @@ class _DataBlockEnrichmentScreenState
   String _householdType = 'single';
   bool _isSavingRevenue = false;
   bool _isSavingRetirementGoal = false;
+  bool _isSavingParentRetirementIncome = false;
   bool _isSavingLpp = false;
   bool _isSavingPillar3a = false;
   bool _isSavingPatrimoine = false;
@@ -80,6 +84,7 @@ class _DataBlockEnrichmentScreenState
   String? _activeUpdateInputKey;
   String? _revenueError;
   String? _retirementGoalError;
+  String? _parentRetirementIncomeError;
   String? _lppError;
   String? _pillar3aError;
   String? _patrimoineError;
@@ -142,6 +147,28 @@ class _DataBlockEnrichmentScreenState
       _targetRetirementAgeController.text = targetAge.toString();
     }
     _seededRetirementGoalInput = true;
+  }
+
+  void _seedParentRetirementIncomeInput(Map<String, dynamic> answers) {
+    if (_seededParentRetirementIncomeInput) return;
+    if (_parentAnnualRetirementIncomeController.text.isNotEmpty) {
+      _seededParentRetirementIncomeInput = true;
+      return;
+    }
+    final directIncome = _parseAnswerAmount(
+      answers['q_parent_annual_retirement_income'],
+      allowZero: true,
+    );
+    final legacyIncome = _parseAnswerAmount(
+      answers['_transmit_property_parent_annual_retirement_income'],
+      allowZero: true,
+    );
+    final explicitIncome = directIncome ?? legacyIncome;
+    if (explicitIncome != null) {
+      _parentAnnualRetirementIncomeController.text =
+          explicitIncome.toString();
+    }
+    _seededParentRetirementIncomeInput = true;
   }
 
   void _seedLppInput(CoachProfile? profile, Map<String, dynamic> answers) {
@@ -262,6 +289,7 @@ class _DataBlockEnrichmentScreenState
     _salaryController.dispose();
     _birthYearController.dispose();
     _targetRetirementAgeController.dispose();
+    _parentAnnualRetirementIncomeController.dispose();
     _lppBalanceController.dispose();
     _pillar3aBalanceController.dispose();
     _savingsController.dispose();
@@ -282,6 +310,9 @@ class _DataBlockEnrichmentScreenState
     if (canonicalBlockType == 'objectifRetraite') {
       _seedRetirementGoalInput(profile, answers);
     }
+    if (canonicalBlockType == 'revenuRetraite') {
+      _seedParentRetirementIncomeInput(answers);
+    }
     if (canonicalBlockType == 'lpp') {
       _seedLppInput(profile, answers);
     }
@@ -297,6 +328,7 @@ class _DataBlockEnrichmentScreenState
     final hasInlineCollector =
         canonicalBlockType == 'revenu' ||
         canonicalBlockType == 'objectifRetraite' ||
+        canonicalBlockType == 'revenuRetraite' ||
         canonicalBlockType == 'lpp' ||
         canonicalBlockType == '3a' ||
         canonicalBlockType == 'patrimoine' ||
@@ -413,6 +445,16 @@ class _DataBlockEnrichmentScreenState
                   child: KeyedSubtree(
                     key: _collectorKey,
                     child: _buildRetirementGoalCollector(),
+                  ),
+                ),
+              ],
+              if (canonicalBlockType == 'revenuRetraite' &&
+                  showInlineCollector) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 250),
+                  child: KeyedSubtree(
+                    key: _collectorKey,
+                    child: _buildParentRetirementIncomeCollector(),
                   ),
                 ),
               ],
@@ -747,6 +789,86 @@ class _DataBlockEnrichmentScreenState
     HapticFeedback.lightImpact();
     setState(() {
       _isSavingRetirementGoal = false;
+      _activeUpdateInputKey = null;
+    });
+  }
+
+  Widget _buildParentRetirementIncomeCollector() {
+    final l = S.of(context)!;
+    return MintSurface(
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key('parent_annual_retirement_income_input'),
+            controller: _parentAnnualRetirementIncomeController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.dataQuestFieldParentAnnualRetirementIncome,
+              prefixText: 'CHF ',
+            ),
+          ),
+          if (_parentRetirementIncomeError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _parentRetirementIncomeError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 16),
+          FilledButton(
+            key: const Key('parent_retirement_income_save_cta'),
+            onPressed: _isSavingParentRetirementIncome
+                ? null
+                : _saveParentRetirementIncomeFacts,
+            style: FilledButton.styleFrom(
+              backgroundColor: MintColors.primary,
+              foregroundColor: MintColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              l.dataBlockSaveIdle,
+              style: MintTextStyles.titleMedium()
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveParentRetirementIncomeFacts() async {
+    final annualIncome =
+        int.tryParse(_parentAnnualRetirementIncomeController.text.trim());
+
+    if (annualIncome == null || annualIncome < 0) {
+      setState(() {
+        _parentRetirementIncomeError =
+            S.of(context)!.dataBlockRevenueInvalidAmount;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSavingParentRetirementIncome = true;
+      _parentRetirementIncomeError = null;
+    });
+
+    await context.read<CoachProfileProvider>().mergeAnswers(
+      {'q_parent_annual_retirement_income': annualIncome},
+      source: ProfileDataSource.userInput,
+    );
+
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isSavingParentRetirementIncome = false;
       _activeUpdateInputKey = null;
     });
   }
@@ -1171,6 +1293,7 @@ class _DataBlockEnrichmentScreenState
       '3a' => 'transmit_property',
       'patrimoine' => 'buy_property',
       'objectifRetraite' => 'transmit_property',
+      'revenuRetraite' => 'transmit_property',
       _ => null,
     };
     if (caseId == null) return null;
@@ -1307,6 +1430,7 @@ class _DataBlockEnrichmentScreenState
       _activeUpdateInputKey = ask.inputKey;
       _revenueError = null;
       _retirementGoalError = null;
+      _parentRetirementIncomeError = null;
       _lppError = null;
       _pillar3aError = null;
       _patrimoineError = null;
@@ -1358,6 +1482,7 @@ class _DataBlockEnrichmentScreenState
       'has2ndPillar' =>
         'revenu',
       'targetRetirementAge' => 'objectifRetraite',
+      'parentAnnualRetirementIncome' => 'revenuRetraite',
       'avoirLpp' => 'lpp',
       'pillar3aBalance' => '3a',
       'patrimoine.epargneLiquide' ||
@@ -1377,6 +1502,7 @@ class _DataBlockEnrichmentScreenState
           inputKey == 'birthYear' ||
           inputKey == 'has2ndPillar',
       'objectifRetraite' => inputKey == 'targetRetirementAge',
+      'revenuRetraite' => inputKey == 'parentAnnualRetirementIncome',
       'lpp' => inputKey == 'avoirLpp',
       '3a' => inputKey == 'pillar3aBalance',
       'patrimoine' => inputKey == 'patrimoine.epargneLiquide' ||
@@ -1435,6 +1561,8 @@ class _DataBlockEnrichmentScreenState
       'birthYear' => l.authDateOfBirth,
       'has2ndPillar' => l.eduThemeLppQuestion,
       'targetRetirementAge' => l.dataQuestFieldTargetRetirementAge,
+      'parentAnnualRetirementIncome' =>
+        l.dataQuestFieldParentAnnualRetirementIncome,
       'avoirLpp' => l.affordabilityPillarLpp,
       'pillar3aBalance' => l.affordabilityPillar3a,
       'patrimoine.epargneLiquide' ||
@@ -1456,6 +1584,7 @@ class _DataBlockEnrichmentScreenState
       final formatted = _formatNumber(value);
       return switch (inputKey) {
         'incomeGrossYearly' ||
+        'parentAnnualRetirementIncome' ||
         'avoirLpp' ||
         'pillar3aBalance' ||
         'patrimoine.epargneLiquide' ||
@@ -1651,6 +1780,7 @@ class _DataBlockEnrichmentScreenState
       'patrimoine': ['patrimoine'],
       'fiscalite': ['fiscalite', 'tax', 'commune'],
       'objectifRetraite': ['objectif_retraite', 'retirement_urgency'],
+      'revenuRetraite': ['retirement_income'],
       'compositionMenage': ['menage'],
       'foreign_pension': ['foreign_pension'],
     };
@@ -1667,6 +1797,7 @@ class _DataBlockEnrichmentScreenState
       'patrimoine': '/profile/bilan',
       'fiscalite': '/fiscal',
       'objectifRetraite': '/coach/cockpit',
+      'revenuRetraite': '/retraite',
       'compositionMenage': '/couple',
     };
     return routes[type] ?? '/profile/bilan';
@@ -1705,6 +1836,13 @@ class _DataBlockEnrichmentScreenState
       'retirement_goal' ||
       'retirement_urgency' =>
         'objectifRetraite',
+      'revenuretraite' ||
+      'revenu_retraite' ||
+      'retirement_income' ||
+      'retirementincome' ||
+      'income_retirement' ||
+      'parent_retirement_income' =>
+        'revenuRetraite',
       'housing' ||
       'property' ||
       'patrimoine' ||
@@ -1788,6 +1926,11 @@ class _DataBlockEnrichmentScreenState
       'objectifRetraite' => _BlockMeta(
           title: l.dataBlockObjectifTitle,
           description: l.dataBlockObjectifDesc,
+          ctaLabel: l.dataBlockObjectifCta,
+        ),
+      'revenuRetraite' => _BlockMeta(
+          title: l.dataQuestFieldParentAnnualRetirementIncome,
+          description: l.successionParentsNoteBody,
           ctaLabel: l.dataBlockObjectifCta,
         ),
       'compositionMenage' => _BlockMeta(
