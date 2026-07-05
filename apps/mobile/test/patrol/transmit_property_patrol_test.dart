@@ -622,6 +622,42 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'recipientRelationship',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(const Key('recipient_relationship_descendant_option')),
+      );
+      expect($(#recipient_relationship_descendant_option), findsOneWidget);
+      await $(#recipient_relationship_descendant_option).tap();
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await $(#succession_scenario_assumption_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final recipientRelationshipAnswers =
+          await ReportPersistenceService.loadAnswers();
+      expect(
+        recipientRelationshipAnswers[
+            '_transmit_property_recipient_relationship'],
+        'descendant',
+      );
+      expect(
+        recipientRelationshipAnswers.containsKey('recipientRelationship'),
+        isFalse,
+      );
+      expect(
+        provider.transmitPropertyScenarioAssumptions['recipientRelationship'],
+        'descendant',
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'retainedRight',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

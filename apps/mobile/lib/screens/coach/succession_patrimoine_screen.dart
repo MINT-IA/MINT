@@ -648,7 +648,8 @@ class _ScenarioAssumptionCollector extends StatefulWidget {
 
   static bool supports(String inputKey) {
     return inputKey == 'cashPaidByRecipient' ||
-        inputKey == 'mortgageAssumedByRecipient';
+        inputKey == 'mortgageAssumedByRecipient' ||
+        inputKey == 'recipientRelationship';
   }
 
   @override
@@ -659,6 +660,7 @@ class _ScenarioAssumptionCollector extends StatefulWidget {
 class _ScenarioAssumptionCollectorState
     extends State<_ScenarioAssumptionCollector> {
   final _amountController = TextEditingController();
+  String? _selectedChoice;
   bool _isSaving = false;
   String? _error;
 
@@ -672,8 +674,14 @@ class _ScenarioAssumptionCollectorState
         'cashPaidByRecipient' => '_transmit_property_cash_paid_by_recipient',
         'mortgageAssumedByRecipient' =>
           '_transmit_property_mortgage_assumed_by_recipient',
+        'recipientRelationship' => '_transmit_property_recipient_relationship',
         _ => null,
       };
+
+  bool get _isNumericAssumption {
+    return widget.ask.inputKey == 'cashPaidByRecipient' ||
+        widget.ask.inputKey == 'mortgageAssumedByRecipient';
+  }
 
   Key? get _fieldKey => switch (widget.ask.inputKey) {
         'cashPaidByRecipient' => const Key('cash_paid_by_recipient_input'),
@@ -687,6 +695,8 @@ class _ScenarioAssumptionCollectorState
           const ValueKey('succession_scenario_assumption_cash_card'),
         'mortgageAssumedByRecipient' =>
           const ValueKey('succession_scenario_assumption_mortgage_card'),
+        'recipientRelationship' =>
+          const ValueKey('succession_scenario_assumption_recipient_card'),
         _ => const ValueKey('succession_scenario_assumption_unknown_card'),
       };
 
@@ -694,16 +704,52 @@ class _ScenarioAssumptionCollectorState
         'cashPaidByRecipient' => l.dataQuestFieldCashPaidByRecipient,
         'mortgageAssumedByRecipient' =>
           l.dataQuestFieldMortgageAssumedByRecipient,
+        'recipientRelationship' => l.dataQuestFieldRecipientRelationship,
         _ => widget.ask.inputKey,
+      };
+
+  List<({String value, String label, Key key})> get _choiceOptions =>
+      switch (widget.ask.inputKey) {
+        'recipientRelationship' => const [
+            (
+              value: 'descendant',
+              label: 'Descendant',
+              key: Key('recipient_relationship_descendant_option'),
+            ),
+            (
+              value: 'spouse_partner',
+              label: 'Conjoint/partenaire',
+              key: Key('recipient_relationship_spouse_partner_option'),
+            ),
+            (
+              value: 'sibling',
+              label: 'Fratrie',
+              key: Key('recipient_relationship_sibling_option'),
+            ),
+            (
+              value: 'other',
+              label: 'Autre',
+              key: Key('recipient_relationship_other_option'),
+            ),
+          ],
+        _ => const [],
       };
 
   Future<void> _saveScenarioAssumption() async {
     final answerKey = _answerKey;
     if (answerKey == null) return;
-    final amount = int.tryParse(_amountController.text.trim());
-    if (amount == null || amount < 0) {
-      setState(() => _error = S.of(context)!.dataBlockRevenueInvalidAmount);
-      return;
+    final Object value;
+    if (_isNumericAssumption) {
+      final amount = int.tryParse(_amountController.text.trim());
+      if (amount == null || amount < 0) {
+        setState(() => _error = S.of(context)!.dataBlockRevenueInvalidAmount);
+        return;
+      }
+      value = amount;
+    } else {
+      final selectedChoice = _selectedChoice;
+      if (selectedChoice == null) return;
+      value = selectedChoice;
     }
 
     setState(() {
@@ -712,7 +758,7 @@ class _ScenarioAssumptionCollectorState
     });
 
     await context.read<CoachProfileProvider>().mergeAnswers(
-      {answerKey: amount},
+      {answerKey: value},
       source: ProfileDataSource.userInput,
     );
 
@@ -723,8 +769,7 @@ class _ScenarioAssumptionCollectorState
 
   @override
   Widget build(BuildContext context) {
-    final fieldKey = _fieldKey;
-    if (fieldKey == null) {
+    if (_answerKey == null) {
       return const SizedBox.shrink();
     }
     final l = S.of(context)!;
@@ -740,16 +785,54 @@ class _ScenarioAssumptionCollectorState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              key: fieldKey,
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: _fieldLabel(l),
-                prefixText: 'CHF ',
+            if (_isNumericAssumption)
+              TextField(
+                key: _fieldKey,
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: _fieldLabel(l),
+                  prefixText: 'CHF ',
+                ),
+              )
+            else ...[
+              Text(
+                _fieldLabel(l),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
-            ),
+              const SizedBox(height: MintSpacing.sm),
+              Wrap(
+                spacing: MintSpacing.xs,
+                runSpacing: MintSpacing.xs,
+                children: [
+                  for (final option in _choiceOptions)
+                    ChoiceChip(
+                      key: option.key,
+                      label: Text(option.label),
+                      selected: _selectedChoice == option.value,
+                      selectedColor: MintColors.primary.withAlpha(36),
+                      checkmarkColor: MintColors.primary,
+                      labelStyle: MintTextStyles.labelMedium(
+                        color: _selectedChoice == option.value
+                            ? MintColors.primary
+                            : MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                      side: BorderSide(
+                        color: _selectedChoice == option.value
+                            ? MintColors.primary
+                            : MintColors.border,
+                      ),
+                      onSelected: (_) {
+                        setState(() => _selectedChoice = option.value);
+                        HapticFeedback.selectionClick();
+                      },
+                    ),
+                ],
+              ),
+            ],
             if (_error != null) ...[
               const SizedBox(height: MintSpacing.xs),
               Text(
@@ -760,7 +843,10 @@ class _ScenarioAssumptionCollectorState
             const SizedBox(height: MintSpacing.sm),
             FilledButton(
               key: const Key('succession_scenario_assumption_save_cta'),
-              onPressed: _isSaving ? null : _saveScenarioAssumption,
+              onPressed: _isSaving ||
+                      (!_isNumericAssumption && _selectedChoice == null)
+                  ? null
+                  : _saveScenarioAssumption,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 foregroundColor: MintColors.white,

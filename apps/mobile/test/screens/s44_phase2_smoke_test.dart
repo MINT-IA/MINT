@@ -580,6 +580,33 @@ void main() {
         _semanticsValue(tester, 'succession_data_quest_next_ask'),
         'recipientRelationship',
       );
+      expect(find.byKey(const Key('recipient_relationship_descendant_option')),
+          findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const Key('recipient_relationship_descendant_option')),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.tap(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        provider.answersSnapshot['_transmit_property_recipient_relationship'],
+        'descendant',
+      );
+      expect(
+        provider.answersSnapshot.containsKey('recipientRelationship'),
+        isFalse,
+      );
+      expect(
+        _semanticsValue(tester, 'succession_data_quest_next_ask'),
+        'retainedRight',
+      );
       expect(
         find.byKey(
             const ValueKey('succession_scenario_transaction_assumption')),
