@@ -17,6 +17,7 @@ BACKEND_PROVENANCE_TEST = ROOT / "services/backend/tests/test_save_fact_provenan
 FINANCIAL_REPORT_SCREEN = (
     ROOT / "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart"
 )
+LEGACY_REDIRECT_TEST = ROOT / "apps/mobile/test/routing/legacy_redirect_query_preservation_test.dart"
 
 SIMULATOR_ROUTES = (
     "/rente-vs-capital",
@@ -109,3 +110,16 @@ def test_report_actions_route_coach_topics_without_tools_dead_end() -> None:
     assert "actionId" in report_screen
     assert "context.go(route)" in report_screen
     assert "maps BOTH `ActionCategory.investment` AND `ActionCategory.other` → `/tools`" not in screen_contracts
+
+
+def test_legacy_redirect_contract_marks_query_preservation_live() -> None:
+    screen_contracts = SCREEN_CONTRACTS.read_text(encoding="utf-8")
+    app = APP_DART.read_text(encoding="utf-8")
+    redirect_test = LEGACY_REDIRECT_TEST.read_text(encoding="utf-8")
+
+    assert "query params dropped" not in screen_contracts
+    assert "`/portfolio` | redirect | redirect → `/home`" not in screen_contracts
+    assert "`/score-reveal` | redirect | redirect → `/home`" not in screen_contracts
+    assert "_redirectPreservingQuery(state, '/home')" in app
+    assert "'/portfolio': '/home'" in redirect_test
+    assert "'/score-reveal': '/home'" in redirect_test

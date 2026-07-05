@@ -529,8 +529,8 @@ Add `EnhancedConfidenceInput.fromProfile(CoachProfile p)` in `enhanced_confidenc
 | route | shell | was | repaired contract |
 |---|---|---|---|
 | `/tools` | redirect (target = coach branch, shell:2) | legacy alias only; no report action may target bare `/tools`. | Redirect `/tools` → `/coach/chat`, forwarding query params. `financial_report_screen_v2.dart` maps `investment` and `other` to `/coach/chat?topic=investment&actionId=<category>` and `/coach/chat?topic=other&actionId=<category>`, never bare `/tools`. Navigation uses `context.go(route)` for coach-branch routes (resolves into shell branch 2 with query params per §1.1). Coach opens seeded on that action; investment stays general-population/illustrative (securities-3a excluded from personalised engine). i18n opener `coach.empty.opener.investment` / `.other`. killFlag null. |
-| `/portfolio` | redirect | redirect → `/home`, **query params dropped** (finding C-3). | `redirect: (c,s) => '/home${s.uri.query.isEmpty ? '' : '?${s.uri.query}'}'`. killFlag null. |
-| `/score-reveal` | redirect | redirect → `/home`. | Same query-preserving redirect. killFlag null. |
+| `/portfolio` | redirect | legacy alias only. | Live query-preserving redirect to `/home` via `_redirectPreservingQuery(state, '/home')`. killFlag null. |
+| `/score-reveal` | redirect | legacy alias only. | Live query-preserving redirect to `/home` via `_redirectPreservingQuery(state, '/home')`. killFlag null. |
 
 **General rule:** EVERY redirect entry preserves `state.uri.query`. Asserted by `test/routing/redirect_preserves_query_test.dart`.
 
