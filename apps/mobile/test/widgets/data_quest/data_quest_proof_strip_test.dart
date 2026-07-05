@@ -87,7 +87,13 @@ void main() {
         GoRoute(
           path: '/data-block/:type',
           builder: (_, state) => Scaffold(
-            body: Text('block ${state.pathParameters['type']}'),
+            body: Column(
+              children: [
+                Text('block ${state.pathParameters['type']}'),
+                Text(
+                    'input ${state.uri.queryParameters['inputKey'] ?? 'none'}'),
+              ],
+            ),
           ),
         ),
         GoRoute(
@@ -344,6 +350,42 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('block compositionMenage'), findsOneWidget);
+  });
+
+  testWidgets('next question card targets only canton in revenue owner',
+      (tester) async {
+    await pumpNextQuestionCardRouter(
+      tester,
+      semanticsPrefix: 'succession',
+      plan: const DataQuestPlan(
+        caseId: 'transmit_property',
+        targetRoute: '/succession',
+        pdfSectionId: 'dossier_transmit_property',
+        maestroFlowId: 'phase2_data_quest_transmit_property',
+        runtimeProofId: 'mobile-transmit-property-patrol',
+        asks: [
+          DataQuestAsk(
+            caseId: 'transmit_property',
+            inputKey: 'canton',
+            ledgerKey: 'canton',
+            questionId: 'ask_canton',
+            mode: DataQuestAskMode.collect,
+            tone: DataQuestTone.gentle,
+            stage: DataQuestStage.useful,
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('succession_data_quest_next_question_cta'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('block revenu'), findsOneWidget);
+    expect(find.text('input canton'), findsOneWidget);
   });
 
   testWidgets('next question card opens patrimoine owner for parent liquidity',

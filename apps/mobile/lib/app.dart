@@ -1731,7 +1731,10 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final type = state.pathParameters['type'] ?? 'revenu';
-        return DataBlockEnrichmentScreen(blockType: type);
+        return DataBlockEnrichmentScreen(
+          blockType: type,
+          initialInputKey: state.uri.queryParameters['inputKey'],
+        );
       },
     ),
 

@@ -134,6 +134,7 @@ void main() {
             path: '/data-block/:type',
             builder: (_, state) => DataBlockEnrichmentScreen(
               blockType: state.pathParameters['type'] ?? 'objectifRetraite',
+              initialInputKey: state.uri.queryParameters['inputKey'],
             ),
           ),
           GoRoute(
@@ -738,6 +739,28 @@ void main() {
         findsOneWidget,
       );
       expect($(#succession_scenario_confidence), findsOneWidget);
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#canton_input), findsOneWidget);
+      expect($(#salary_input), findsNothing);
+      await $(#canton_input).enterText('VD');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await $(#salary_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final cantonAnswers = await ReportPersistenceService.loadAnswers();
+      expect(cantonAnswers['q_canton'], 'VD');
+      expect(cantonAnswers.containsKey('canton'), isFalse);
+      expect(provider.profile!.canton, 'VD');
     },
   );
 

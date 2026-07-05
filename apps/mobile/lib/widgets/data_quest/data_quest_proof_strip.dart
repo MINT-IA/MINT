@@ -107,6 +107,14 @@ class DataQuestNextQuestionCard extends StatelessWidget {
     };
   }
 
+  String _targetRoute(String ownerRoute, DataQuestAsk ask) {
+    if (!ownerRoute.startsWith('/data-block/')) return ownerRoute;
+    return Uri(
+      path: ownerRoute,
+      queryParameters: {'inputKey': ask.inputKey},
+    ).toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
@@ -161,7 +169,9 @@ class DataQuestNextQuestionCard extends StatelessWidget {
               OutlinedButton.icon(
                 key:
                     ValueKey('${semanticsPrefix}_data_quest_next_question_cta'),
-                onPressed: () => context.push(ownerRoute),
+                onPressed: () => context.push(
+                  ask == null ? ownerRoute : _targetRoute(ownerRoute, ask),
+                ),
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 label: Text(l10n.dataBlockDefaultCta),
               ),

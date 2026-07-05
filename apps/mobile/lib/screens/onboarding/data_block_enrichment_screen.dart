@@ -27,6 +27,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// objectifRetraite, compositionMenage.
 class DataBlockEnrichmentScreen extends StatefulWidget {
   final String blockType;
+  final String? initialInputKey;
   static const Set<String> _supportedBlockTypes = {
     'revenu',
     'lpp',
@@ -42,6 +43,7 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
   const DataBlockEnrichmentScreen({
     super.key,
     required this.blockType,
+    this.initialInputKey,
   });
 
   @override
@@ -105,6 +107,16 @@ class _DataBlockEnrichmentScreenState
       _cachedAlertsProfile = profile;
     }
     return _cachedAlerts!.where((a) => a.block == blockType).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final initialInputKey = widget.initialInputKey;
+    final blockType = _canonicalBlockType(widget.blockType);
+    if (initialInputKey != null && _canInlineEdit(blockType, initialInputKey)) {
+      _activeUpdateInputKey = initialInputKey;
+    }
   }
 
   void _seedRevenueInputs(CoachProfile? profile, Map<String, dynamic> answers) {
@@ -1516,7 +1528,10 @@ class _DataBlockEnrichmentScreenState
     HapticFeedback.selectionClick();
     final targetBlockType = _editorBlockForInput(ask.inputKey, currentBlockType);
     if (targetBlockType != currentBlockType) {
-      context.push('/data-block/$targetBlockType');
+      context.push(Uri(
+        path: '/data-block/$targetBlockType',
+        queryParameters: {'inputKey': ask.inputKey},
+      ).toString());
       return;
     }
     if (!_canInlineEdit(currentBlockType, ask.inputKey)) {

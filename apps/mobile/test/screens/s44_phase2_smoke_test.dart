@@ -11,8 +11,10 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/age_band_policy.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
+import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -25,9 +27,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
   final router = GoRouter(routes: [
     GoRoute(path: '/', builder: (_, __) => child),
+    GoRoute(
+      path: '/data-block/:type',
+      builder: (_, state) => DataBlockEnrichmentScreen(
+        blockType: state.pathParameters['type'] ?? 'revenu',
+        initialInputKey: state.uri.queryParameters['inputKey'],
+      ),
+    ),
   ]);
-  return ChangeNotifierProvider<CoachProfileProvider>.value(
-    value: coachProfileProvider ?? CoachProfileProvider(),
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: coachProfileProvider ?? CoachProfileProvider(),
+      ),
+      ChangeNotifierProvider<SlmProvider>(
+        create: (_) => SlmProvider(),
+      ),
+    ],
     child: MaterialApp.router(
       locale: const Locale('fr'),
       localizationsDelegates: const [
@@ -674,6 +690,26 @@ void main() {
         findsOneWidget,
       );
       expect(find.textContaining('à confirmer'), findsWidgets);
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('succession_data_quest_next_question_cta')),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('succession_data_quest_next_question_cta')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('canton_input')), findsOneWidget);
+      expect(find.byKey(const Key('salary_input')), findsNothing);
+      await tester.enterText(find.byKey(const Key('canton_input')), 'VD');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await tester.tap(find.byKey(const Key('salary_save_cta')));
+      await tester.pumpAndSettle();
+
+      expect(provider.answersSnapshot['q_canton'], 'VD');
+      expect(provider.answersSnapshot.containsKey('canton'), isFalse);
+      expect(provider.profile!.canton, 'VD');
     });
 
     testWidgets('does not treat default living costs as complete scenario data',
