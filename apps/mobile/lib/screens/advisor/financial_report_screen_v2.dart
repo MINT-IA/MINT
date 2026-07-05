@@ -74,6 +74,19 @@ class FinancialReportScreenV2 extends StatelessWidget {
     };
   }
 
+  String _routeForAction(ActionItem action) {
+    final route = _routeForCategory(action.category);
+    if (!route.startsWith('/coach/chat?')) return route;
+
+    final uri = Uri.parse(route);
+    return uri
+        .replace(queryParameters: {
+          ...uri.queryParameters,
+          'actionId': action.category.name,
+        })
+        .toString();
+  }
+
   String _actionCardIdentifier(ActionCategory category) =>
       'report_action_${category.name}_card';
 
@@ -890,10 +903,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  // _getActionRoute removed — use _routeForCategory(action.category) instead
-
   Widget _buildActionCard(BuildContext context, ActionItem action) {
-    void goToAction() => context.push(_routeForCategory(action.category));
+    void goToAction() {
+      final route = _routeForAction(action);
+      if (route.startsWith('/coach/chat?')) {
+        context.go(route);
+      } else {
+        context.push(route);
+      }
+    }
 
     Color priorityColor;
     switch (action.priority) {

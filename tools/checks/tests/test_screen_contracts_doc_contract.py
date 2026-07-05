@@ -14,6 +14,9 @@ MOBILE_PROVENANCE_TEST = (
 )
 BACKEND_SAVE_FACT = ROOT / "services/backend/app/api/v1/endpoints/coach_chat.py"
 BACKEND_PROVENANCE_TEST = ROOT / "services/backend/tests/test_save_fact_provenance.py"
+FINANCIAL_REPORT_SCREEN = (
+    ROOT / "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart"
+)
 
 SIMULATOR_ROUTES = (
     "/rente-vs-capital",
@@ -93,3 +96,16 @@ def test_screen_contracts_matches_live_per_field_provenance_api() -> None:
     assert 'data["_provenance"] = {' in backend
     assert 'provenance_source_dt[fact_key] = tool_input.get("source_date")' in backend
     assert "test_save_fact_persists_field_provenance" in backend_test
+
+
+def test_report_actions_route_coach_topics_without_tools_dead_end() -> None:
+    screen_contracts = SCREEN_CONTRACTS.read_text(encoding="utf-8")
+    report_screen = FINANCIAL_REPORT_SCREEN.read_text(encoding="utf-8")
+
+    assert "ActionCategory.investment => '/tools'" not in report_screen
+    assert "ActionCategory.other => '/tools'" not in report_screen
+    assert "ActionCategory.investment => '/coach/chat?topic=investment'" in report_screen
+    assert "ActionCategory.other => '/coach/chat?topic=other'" in report_screen
+    assert "actionId" in report_screen
+    assert "context.go(route)" in report_screen
+    assert "maps BOTH `ActionCategory.investment` AND `ActionCategory.other` → `/tools`" not in screen_contracts
