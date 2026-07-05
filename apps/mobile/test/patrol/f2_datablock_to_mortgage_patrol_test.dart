@@ -544,4 +544,130 @@ void main() {
       expect(provider.profile!.patrimoine.epargneLiquide, 250000);
     },
   );
+
+  patrolTest(
+    'F-2 missing household type opens only the household ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      await provider.mergeAnswers({
+        'q_gross_salary_annual': 96000,
+        'q_canton': 'GE',
+        'q_cash_total': 250000,
+        'q_target_property_value': 950000,
+      });
+      final router = GoRouter(
+        initialLocation: '/hypotheque',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/hypotheque',
+            builder: (_, __) => const AffordabilityScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'householdType');
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#household_type_cohabiting), findsOneWidget);
+      expect($(#salary_input), findsNothing);
+      expect($(#canton_input), findsNothing);
+      expect($(#savings_input), findsNothing);
+      expect($(#target_property_input), findsNothing);
+      await $(#household_type_cohabiting).tap();
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+      await $(#household_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_civil_status'], 'cohabiting');
+      expect(answers.containsKey('householdType'), isFalse);
+      expect(provider.profile!.etatCivil, CoachCivilStatus.concubinage);
+    },
+  );
+
+  patrolTest(
+    'F-2 missing mortgage rate opens only the mortgage rate ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      await provider.mergeAnswers({
+        'q_gross_salary_annual': 96000,
+        'q_canton': 'GE',
+        'q_cash_total': 250000,
+        'q_target_property_value': 950000,
+        'q_civil_status': 'cohabiting',
+      });
+      final router = GoRouter(
+        initialLocation: '/hypotheque',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/hypotheque',
+            builder: (_, __) => const AffordabilityScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'patrimoine.mortgageRate');
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#mortgage_rate_input), findsOneWidget);
+      expect($(#salary_input), findsNothing);
+      expect($(#canton_input), findsNothing);
+      expect($(#savings_input), findsNothing);
+      expect($(#target_property_input), findsNothing);
+      await $(#mortgage_rate_input).enterText('1.8');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester
+          .ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+      await $(#patrimoine_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_mortgage_rate'], 0.018);
+      expect(answers.containsKey('patrimoine.mortgageRate'), isFalse);
+      expect(answers.containsKey('q_mortgage_rate_percent'), isFalse);
+      expect(provider.profile!.patrimoine.mortgageRate, 0.018);
+    },
+  );
 }
