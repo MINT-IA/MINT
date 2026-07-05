@@ -689,6 +689,38 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'avancementHoirie',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(const Key('avancement_hoirie_yes_option')),
+      );
+      expect($(#avancement_hoirie_yes_option), findsOneWidget);
+      await $(#avancement_hoirie_yes_option).tap();
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await $(#succession_scenario_assumption_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final avancementHoirieAnswers =
+          await ReportPersistenceService.loadAnswers();
+      expect(
+        avancementHoirieAnswers['_transmit_property_avancement_hoirie'],
+        isTrue,
+      );
+      expect(avancementHoirieAnswers.containsKey('avancementHoirie'), isFalse);
+      expect(
+        provider.transmitPropertyScenarioAssumptions['avancementHoirie'],
+        isTrue,
+      );
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'canton',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),

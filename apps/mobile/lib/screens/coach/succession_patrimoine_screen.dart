@@ -650,7 +650,8 @@ class _ScenarioAssumptionCollector extends StatefulWidget {
     return inputKey == 'cashPaidByRecipient' ||
         inputKey == 'mortgageAssumedByRecipient' ||
         inputKey == 'recipientRelationship' ||
-        inputKey == 'retainedRight';
+        inputKey == 'retainedRight' ||
+        inputKey == 'avancementHoirie';
   }
 
   @override
@@ -677,6 +678,7 @@ class _ScenarioAssumptionCollectorState
           '_transmit_property_mortgage_assumed_by_recipient',
         'recipientRelationship' => '_transmit_property_recipient_relationship',
         'retainedRight' => '_transmit_property_retained_right',
+        'avancementHoirie' => '_transmit_property_avancement_hoirie',
         _ => null,
       };
 
@@ -701,6 +703,8 @@ class _ScenarioAssumptionCollectorState
           const ValueKey('succession_scenario_assumption_recipient_card'),
         'retainedRight' =>
           const ValueKey('succession_scenario_assumption_retained_right_card'),
+        'avancementHoirie' =>
+          const ValueKey('succession_scenario_assumption_avancement_card'),
         _ => const ValueKey('succession_scenario_assumption_unknown_card'),
       };
 
@@ -710,6 +714,7 @@ class _ScenarioAssumptionCollectorState
           l.dataQuestFieldMortgageAssumedByRecipient,
         'recipientRelationship' => l.dataQuestFieldRecipientRelationship,
         'retainedRight' => l.dataQuestFieldRetainedRight,
+        'avancementHoirie' => l.dataQuestFieldAvancementHoirie,
         _ => widget.ask.inputKey,
       };
 
@@ -755,6 +760,18 @@ class _ScenarioAssumptionCollectorState
               key: const Key('retained_right_none_option'),
             ),
           ],
+        'avancementHoirie' => [
+            (
+              value: 'true',
+              label: l.donationAvancementHoirie,
+              key: const Key('avancement_hoirie_yes_option'),
+            ),
+            (
+              value: 'false',
+              label: 'Hors part / dispense',
+              key: const Key('avancement_hoirie_no_option'),
+            ),
+          ],
         _ => const [],
       };
 
@@ -772,7 +789,9 @@ class _ScenarioAssumptionCollectorState
     } else {
       final selectedChoice = _selectedChoice;
       if (selectedChoice == null) return;
-      value = selectedChoice;
+      value = widget.ask.inputKey == 'avancementHoirie'
+          ? selectedChoice == 'true'
+          : selectedChoice;
     }
 
     setState(() {

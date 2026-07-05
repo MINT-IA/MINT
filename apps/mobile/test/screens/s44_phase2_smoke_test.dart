@@ -635,6 +635,35 @@ void main() {
         'avancementHoirie',
       );
       expect(
+        find.byKey(const Key('avancement_hoirie_yes_option')),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(const Key('avancement_hoirie_yes_option')),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.tap(
+        find.byKey(const Key('succession_scenario_assumption_save_cta')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        provider.answersSnapshot['_transmit_property_avancement_hoirie'],
+        isTrue,
+      );
+      expect(
+        provider.answersSnapshot.containsKey('avancementHoirie'),
+        isFalse,
+      );
+      expect(
+        _semanticsValue(tester, 'succession_data_quest_next_ask'),
+        'canton',
+      );
+      expect(
         find.byKey(
             const ValueKey('succession_scenario_transaction_assumption')),
         findsOneWidget,
