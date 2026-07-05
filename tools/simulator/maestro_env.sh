@@ -42,6 +42,14 @@ export PATH="$OPENJDK_FORMULA/bin:$PATH"
 export MAESTRO_CLI_NO_ANALYTICS=1
 export MAESTRO_DISABLE_UPDATE_CHECK=true
 
+# Jansi scans java.io.tmpdir during CLI bootstrap. On this Mac mini the default
+# macOS TMPDIR can be large enough to make even `maestro --version` hang.
+MINT_MAESTRO_TMP_ROOT="${MINT_MAESTRO_TMP_ROOT:-/tmp/mint-maestro-runtime}"
+MINT_MAESTRO_JAVA_TMPDIR="${MINT_MAESTRO_JAVA_TMPDIR:-$MINT_MAESTRO_TMP_ROOT/java}"
+MINT_MAESTRO_JANSI_TMPDIR="${MINT_MAESTRO_JANSI_TMPDIR:-$MINT_MAESTRO_TMP_ROOT/jansi}"
+mkdir -p "$MINT_MAESTRO_JAVA_TMPDIR" "$MINT_MAESTRO_JANSI_TMPDIR"
+export JAVA_OPTS="-Djava.io.tmpdir=$MINT_MAESTRO_JAVA_TMPDIR -Djansi.tmpdir=$MINT_MAESTRO_JANSI_TMPDIR -Djansi.graceful=true ${JAVA_OPTS:-}"
+
 if [ "$(uname)" = "Darwin" ]; then
   case "$(uname -m)" in
     arm64) JANSI_ARCH="arm64" ;;
@@ -55,7 +63,7 @@ if [ "$(uname)" = "Darwin" ]; then
     JANSI_JAR="$HOME/.maestro/lib/jansi-2.4.1.jar"
 
     if [ ! -x "$JANSI_LIB" ] && [ -f "$JANSI_JAR" ]; then
-      JANSI_TMP="$(mktemp -d "${TMPDIR:-/tmp}/mint-jansi.XXXXXX")"
+      JANSI_TMP="$(mktemp -d "$MINT_MAESTRO_JANSI_TMPDIR/mint-jansi-extract.XXXXXX")"
       mkdir -p "$(dirname "$JANSI_LIB")"
       (
         cd "$JANSI_TMP"
@@ -69,7 +77,7 @@ if [ "$(uname)" = "Darwin" ]; then
     fi
 
     if [ -x "$JANSI_LIB" ]; then
-      export JAVA_OPTS="-Dlibrary.jansi.path=$JANSI_ROOT -Djansi.graceful=true ${JAVA_OPTS:-}"
+      export JAVA_OPTS="-Dlibrary.jansi.path=$JANSI_ROOT ${JAVA_OPTS:-}"
     fi
   fi
 fi

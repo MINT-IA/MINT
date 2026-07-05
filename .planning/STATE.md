@@ -98,15 +98,14 @@ Branch: `codex/mint-dataquest-transmit-property-clean`.
   `Exceeded USD budget (1)` before producing a new verdict. Deterministic local
   acceptance remains green; external audit must be retried when budget is
   available.
-- 2026-07-05: `bash tools/checks/mint_lucidity_gate.sh mobile-scenarios`
-  passed the 207-test Flutter suite, ARB/i18n succession checks, and multiple
-  Maestro syntax checks (`r3_report_pillar3a_action`, `r3c_report_dossier_export`,
-  `f5_transmitting_property`, `r1_scan_review`, `r2_scan_impact`,
-  `r3b_confidence_dashboard`) before timing out on a repeated
-  `r3_report_pillar3a_action` syntax check. A follow-up isolated
-  `maestro check-syntax` for that flow and `maestro --version` also timed out,
-  while `java -version` succeeded. Treat this as a local Maestro CLI blocker,
-  not as a green runtime gate.
+- 2026-07-05: the local Maestro CLI blocker was traced to Jansi scanning the
+  default macOS `TMPDIR` during bootstrap; even `maestro --version` hung before
+  `tools/simulator/maestro_env.sh` forced dedicated `/tmp/mint-maestro-runtime`
+  Java/Jansi temp directories. After the wrapper fix,
+  `bash tools/checks/mint_lucidity_gate.sh mobile-scenarios` completed: 207
+  Flutter tests passed, all current Maestro syntax checks finished in 1-2s
+  including `r3_report_pillar3a_action`, ARB parity passed, and 49 pytest
+  contracts passed.
 
 ## Historical Receipts
 

@@ -314,5 +314,20 @@ def test_maestro_env_pins_stable_java_and_jansi_bootstrap() -> None:
 
     assert "/opt/homebrew/opt/openjdk@21" in wrapper
     assert "MAESTRO_DISABLE_UPDATE_CHECK=true" in wrapper
+    assert "MINT_MAESTRO_TMP_ROOT" in wrapper
+    assert "-Djava.io.tmpdir=$MINT_MAESTRO_JAVA_TMPDIR" in wrapper
+    assert "-Djansi.tmpdir=$MINT_MAESTRO_JANSI_TMPDIR" in wrapper
+    assert 'mktemp -d "$MINT_MAESTRO_JANSI_TMPDIR/' in wrapper
     assert "library.jansi.path" in wrapper
     assert "libjansi.jnilib" in wrapper
+
+
+def test_mint_lucidity_gate_uses_maestro_env_wrapper() -> None:
+    gate = (ROOT / "tools/checks/mint_lucidity_gate.sh").read_text()
+
+    assert 'MAESTRO_ENV_SCRIPT="${MINT_MAESTRO_ENV_SCRIPT:-tools/simulator/maestro_env.sh}"' in gate
+    assert 'bash "$MAESTRO_ENV_SCRIPT" --version' in gate
+    assert '["bash", maestro_env, "check-syntax", flow]' in gate
+    assert 'bash "$MAESTRO_ENV_SCRIPT" test "$flow"' in gate
+    assert 'version="$(maestro --version' not in gate
+    assert '["maestro", "check-syntax", flow]' not in gate

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 mode="${1:-bootstrap}"
+MAESTRO_ENV_SCRIPT="${MINT_MAESTRO_ENV_SCRIPT:-tools/simulator/maestro_env.sh}"
 
 require_file() {
   local file="$1"
@@ -22,7 +23,8 @@ require_command() {
 check_maestro_version() {
   local min_version="${MINT_MIN_MAESTRO_VERSION:-2.5.1}"
   local version
-  version="$(maestro --version | tr -d '[:space:]')"
+  require_file "$MAESTRO_ENV_SCRIPT"
+  version="$(bash "$MAESTRO_ENV_SCRIPT" --version | tr -d '[:space:]')"
   python3 - "$version" "$min_version" <<'PY'
 import sys
 
@@ -65,7 +67,8 @@ maestro_check_syntax() {
   started_at="$(date +%s)"
   printf '[mint-gate] maestro check-syntax start %s\n' "$flow" >&2
   set +e
-  python3 - "$timeout_seconds" "$flow" <<'PY'
+  require_file "$MAESTRO_ENV_SCRIPT"
+  python3 - "$timeout_seconds" "$flow" "$MAESTRO_ENV_SCRIPT" <<'PY'
 import os
 import signal
 import subprocess
@@ -74,6 +77,7 @@ import tempfile
 
 timeout_seconds = int(sys.argv[1])
 flow = sys.argv[2]
+maestro_env = sys.argv[3]
 stderr_file = None
 stderr_path = None
 try:
@@ -86,7 +90,7 @@ try:
     )
     stderr_path = stderr_file.name
     proc = subprocess.Popen(
-        ["maestro", "check-syntax", flow],
+        ["bash", maestro_env, "check-syntax", flow],
         stdout=subprocess.DEVNULL,
         stderr=stderr_file,
         text=True,
@@ -457,7 +461,7 @@ run_phase1_maestro() {
   rm -f "$log"
   (
     set -o pipefail
-    maestro test "$flow" 2>&1 | tee "$log"
+    bash "$MAESTRO_ENV_SCRIPT" test "$flow" 2>&1 | tee "$log"
   ) &
   local pid="$!"
 
@@ -504,7 +508,7 @@ run_phase2_maestro() {
   rm -f "$log"
   (
     set -o pipefail
-    maestro test "$flow" 2>&1 | tee "$log"
+    bash "$MAESTRO_ENV_SCRIPT" test "$flow" 2>&1 | tee "$log"
   ) &
   local pid="$!"
 
@@ -547,7 +551,7 @@ run_phase2_reconfirm_maestro() {
   rm -f "$log"
   (
     set -o pipefail
-    maestro test "$flow" 2>&1 | tee "$log"
+    bash "$MAESTRO_ENV_SCRIPT" test "$flow" 2>&1 | tee "$log"
   ) &
   local pid="$!"
 
