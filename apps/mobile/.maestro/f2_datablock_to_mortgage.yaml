@@ -40,3 +40,16 @@ appId: ch.mint.app
 - openLink: "mint:///hypotheque"
 - assertVisible:
     id: "mortgage_afford_result"
+- scrollUntilVisible:
+    element:
+      id: "mortgage_income_amount"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "mortgage_income_amount"
+- assertVisible:
+    text: ".*CHF.*96'000.*"
+- assertVisible:
+    text: ".*Canton.*GE.*"
