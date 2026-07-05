@@ -352,4 +352,68 @@ void main() {
       expect(provider.profile!.canton, 'VD');
     },
   );
+
+  patrolTest(
+    'F-2 missing liquid assets opens only the savings ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      await provider.mergeAnswers({
+        'q_gross_salary_annual': 96000,
+        'q_canton': 'GE',
+        'q_target_property_value': 950000,
+        'q_civil_status': 'cohabiting',
+      });
+      final router = GoRouter(
+        initialLocation: '/hypotheque',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/hypotheque',
+            builder: (_, __) => const AffordabilityScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'patrimoine.epargneLiquide');
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#savings_input), findsOneWidget);
+      expect($(#target_property_input), findsNothing);
+      expect($(#salary_input), findsNothing);
+      expect($(#canton_input), findsNothing);
+      await $(#savings_input).enterText('250000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester
+          .ensureVisible(find.byKey(const Key('patrimoine_save_cta')));
+      await $(#patrimoine_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_cash_total'], 250000);
+      expect(answers['q_target_property_value'], 950000);
+      expect(answers.containsKey('patrimoine.epargneLiquide'), isFalse);
+      expect(provider.profile!.patrimoine.epargneLiquide, 250000);
+      expect(provider.profile!.patrimoine.targetPropertyValue, 950000);
+    },
+  );
 }
