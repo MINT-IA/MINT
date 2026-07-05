@@ -94,7 +94,10 @@ class DataQuestNextQuestionCard extends StatelessWidget {
       'patrimoine.mortgageBalance' ||
       'patrimoine.mortgageRate' =>
         '/data-block/patrimoine',
-      'householdType' => '/data-block/compositionMenage',
+      'householdType' ||
+      'heirsCount' ||
+      'nombreEnfants' =>
+        '/data-block/compositionMenage',
       'targetRetirementAge' => '/data-block/objectifRetraite',
       'avoirLpp' => '/data-block/lpp',
       'pillar3aBalance' => '/data-block/3a',

@@ -63,6 +63,7 @@ class _DataBlockEnrichmentScreenState
   final _targetPropertyController = TextEditingController();
   final _mortgageBalanceController = TextEditingController();
   final _mortgageRateController = TextEditingController();
+  final _childrenCountController = TextEditingController();
   final _collectorKey = GlobalKey();
   bool _seededRevenueInputs = false;
   bool _seededRetirementGoalInput = false;
@@ -74,6 +75,7 @@ class _DataBlockEnrichmentScreenState
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
   String _householdType = 'single';
+  bool _householdTypeTouched = false;
   bool _isSavingRevenue = false;
   bool _isSavingRetirementGoal = false;
   bool _isSavingParentRetirementIncome = false;
@@ -89,6 +91,7 @@ class _DataBlockEnrichmentScreenState
   String? _lppError;
   String? _pillar3aError;
   String? _patrimoineError;
+  String? _householdError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
   List<ValidationAlert>? _cachedAlerts;
@@ -281,7 +284,18 @@ class _DataBlockEnrichmentScreenState
 
   void _seedHouseholdInput(Map<String, dynamic> answers) {
     if (_seededHouseholdInput) return;
+    if (_childrenCountController.text.isNotEmpty || _householdTypeTouched) {
+      _seededHouseholdInput = true;
+      return;
+    }
     _householdType = _normalizeHouseholdType(answers['q_civil_status']);
+    final childrenCount = _parseAnswerAmount(
+      answers['q_children'],
+      allowZero: true,
+    );
+    if (childrenCount != null) {
+      _childrenCountController.text = childrenCount.toString();
+    }
     _seededHouseholdInput = true;
   }
 
@@ -305,6 +319,7 @@ class _DataBlockEnrichmentScreenState
     _targetPropertyController.dispose();
     _mortgageBalanceController.dispose();
     _mortgageRateController.dispose();
+    _childrenCountController.dispose();
     super.dispose();
   }
 
@@ -1280,12 +1295,33 @@ class _DataBlockEnrichmentScreenState
                         : MintColors.border,
                   ),
                   onSelected: (_) {
-                    setState(() => _householdType = option.value);
+                    setState(() {
+                      _householdType = option.value;
+                      _householdTypeTouched = true;
+                    });
                     HapticFeedback.selectionClick();
                   },
                 ),
             ],
           ),
+          const SizedBox(height: 16),
+          TextField(
+            key: const Key('children_count_input'),
+            controller: _childrenCountController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.donationNbEnfants,
+              hintText: '2',
+            ),
+          ),
+          if (_householdError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _householdError!,
+              style: MintTextStyles.labelSmall(color: MintColors.error),
+            ),
+          ],
           const SizedBox(height: 16),
           FilledButton(
             key: const Key('household_save_cta'),
@@ -1310,10 +1346,28 @@ class _DataBlockEnrichmentScreenState
   }
 
   Future<void> _saveHouseholdFacts() async {
+    final childrenText = _childrenCountController.text.trim();
+    final hasChildrenInput = childrenText.isNotEmpty;
+    final childrenCount =
+        hasChildrenInput ? int.tryParse(childrenText) : null;
+    String? error;
+    if (!_householdTypeTouched && !hasChildrenInput) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    } else if (hasChildrenInput &&
+        (childrenCount == null || childrenCount < 0)) {
+      error = S.of(context)!.dataBlockRevenueInvalidAmount;
+    }
+
+    if (error != null) {
+      setState(() => _householdError = error);
+      return;
+    }
+
     setState(() => _isSavingHousehold = true);
 
     await context.read<CoachProfileProvider>().mergeAnswers({
-      'q_civil_status': _householdType,
+      if (_householdTypeTouched) 'q_civil_status': _householdType,
+      if (hasChildrenInput) 'q_children': childrenCount,
     });
 
     if (!mounted) return;
@@ -1321,6 +1375,7 @@ class _DataBlockEnrichmentScreenState
     setState(() {
       _isSavingHousehold = false;
       _activeUpdateInputKey = null;
+      _householdError = null;
     });
   }
 
@@ -1476,6 +1531,7 @@ class _DataBlockEnrichmentScreenState
       _lppError = null;
       _pillar3aError = null;
       _patrimoineError = null;
+      _householdError = null;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _scrollToCollector();
@@ -1534,7 +1590,10 @@ class _DataBlockEnrichmentScreenState
       'patrimoine.mortgageBalance' ||
       'patrimoine.mortgageRate' =>
         'patrimoine',
-      'householdType' => 'compositionMenage',
+      'householdType' ||
+      'heirsCount' ||
+      'nombreEnfants' =>
+        'compositionMenage',
       _ => fallbackBlockType,
     };
   }
@@ -1555,7 +1614,9 @@ class _DataBlockEnrichmentScreenState
           inputKey == 'mortgageBalance' ||
           inputKey == 'patrimoine.mortgageBalance' ||
           inputKey == 'patrimoine.mortgageRate',
-      'compositionMenage' => inputKey == 'householdType',
+      'compositionMenage' => inputKey == 'householdType' ||
+          inputKey == 'heirsCount' ||
+          inputKey == 'nombreEnfants',
       _ => false,
     };
   }
@@ -1620,6 +1681,7 @@ class _DataBlockEnrichmentScreenState
         l.financialSummaryEpargneLiquide,
       'targetPropertyValue' => l.affordabilityTargetPrice,
       'householdType' => l.dossierCoupleSection,
+      'heirsCount' || 'nombreEnfants' => l.donationNbEnfants,
       'mortgageBalance' ||
       'patrimoine.mortgageBalance' =>
         l.dataQuestFieldMortgageBalance,

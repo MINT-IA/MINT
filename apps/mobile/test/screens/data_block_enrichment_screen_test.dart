@@ -365,6 +365,38 @@ void main() {
     expect(provider.profile?.etatCivil, CoachCivilStatus.concubinage);
   });
 
+  testWidgets('compositionMenage block stores heirs count as children fact only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(
+      _wrap(
+        const DataBlockEnrichmentScreen(blockType: 'compositionMenage'),
+        coachProfileProvider: provider,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('children_count_input')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('children_count_input')), '2');
+    await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_children'], 2);
+    expect(answers.containsKey('q_civil_status'), isFalse);
+    expect(answers.containsKey('q_household_type'), isFalse);
+    expect(answers.containsKey('heirsCount'), isFalse);
+    expect(answers.containsKey('nombreEnfants'), isFalse);
+    expect(provider.profile?.nombreEnfants, 2);
+    expect(
+      provider.profile?.dataSources['nombreEnfants'],
+      ProfileDataSource.userInput,
+    );
+  });
+
   testWidgets('patrimoine block captures mortgage project facts only', (tester) async {
     final provider = CoachProfileProvider();
     await pumpPatrimoine(tester, provider);

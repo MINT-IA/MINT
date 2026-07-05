@@ -512,6 +512,47 @@ void main() {
         _semanticsValue($.tester, 'succession_data_quest_next_ask'),
         'heirsCount',
       );
+      await _scrollUntilVisible(
+        $.tester,
+        find.byKey(
+          const ValueKey('succession_data_quest_next_question_cta'),
+        ),
+      );
+      await $(#succession_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#children_count_input), findsOneWidget);
+      await $(#children_count_input).enterText('2');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester
+          .ensureVisible(find.byKey(const Key('household_save_cta')));
+      await $(#household_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final heirsAnswers = await ReportPersistenceService.loadAnswers();
+      expect(heirsAnswers['q_children'], 2);
+      expect(heirsAnswers.containsKey('q_civil_status'), isFalse);
+      expect(heirsAnswers.containsKey('q_household_type'), isFalse);
+      expect(heirsAnswers.containsKey('heirsCount'), isFalse);
+      expect(heirsAnswers.containsKey('nombreEnfants'), isFalse);
+      expect(provider.profile!.nombreEnfants, 2);
+      expect(
+        provider.profile!.dataSources['nombreEnfants'],
+        ProfileDataSource.userInput,
+      );
+
+      await $(find.byIcon(Icons.arrow_back)).tap();
+      await $.pumpAndSettle();
+      await _scrollUntilVisible(
+        $.tester,
+        find.bySemanticsIdentifier('succession_data_quest_next_ask'),
+      );
+
+      expect(
+        _semanticsValue($.tester, 'succession_data_quest_next_ask'),
+        'cashPaidByRecipient',
+      );
       expect($(find.textContaining('next_ask:')), findsNothing);
       await $.tester.ensureVisible(
         find.bySemanticsIdentifier('succession_scenario_preview'),
