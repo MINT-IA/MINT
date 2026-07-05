@@ -30,12 +30,14 @@ class EnrichmentPrompt {
   final int impact; // percentage points of confidence gained
   final String category; // 'lpp', 'avs', '3a', 'patrimoine', 'foreign_pension'
   final String action; // short description of what to do
+  final String? fieldPath; // ledger/profile field improved by this prompt
 
   const EnrichmentPrompt({
     required this.label,
     required this.impact,
     required this.category,
     required this.action,
+    this.fieldPath,
   });
 }
 
@@ -856,6 +858,7 @@ class ConfidenceScorer {
               ? (prompts['freshnessStale'] ?? 'Donn\u00e9e datant de {months} mois')
                   .replaceAll('{months}', '$monthsOld')
               : prompts['freshnessConfirm'] ?? 'Confirme que cette valeur est toujours actuelle',
+          fieldPath: fieldPath,
         ));
       }
     }
@@ -875,6 +878,7 @@ class ConfidenceScorer {
           impact: (entry.value * (1.0 - (_accuracyWeights[source] ?? 0.25))).round().clamp(1, 15),
           category: 'accuracy',
           action: upgradeAction,
+          fieldPath: fieldPath,
         ));
       }
     }
@@ -897,8 +901,9 @@ class ConfidenceScorer {
       ));
     }
 
-    // Sort by impact descending
-    axisPrompts.sort((a, b) => b.impact.compareTo(a.impact));
+    axisPrompts.sort(
+      (a, b) => _compareGoalAwarePrompts(profile.goalA.type, a, b),
+    );
 
     return EnhancedConfidence(
       completeness: completeness,
@@ -916,6 +921,64 @@ class ConfidenceScorer {
   static double _pow(double base, double exponent) {
     if (base <= 0 || !base.isFinite) return 0;
     return math.exp(exponent * math.log(base));
+  }
+
+  static int _compareGoalAwarePrompts(
+    GoalAType goalType,
+    EnrichmentPrompt a,
+    EnrichmentPrompt b,
+  ) {
+    final scoreOrder = _goalAwarePromptScore(goalType, b)
+        .compareTo(_goalAwarePromptScore(goalType, a));
+    if (scoreOrder != 0) return scoreOrder;
+    final impactOrder = b.impact.compareTo(a.impact);
+    if (impactOrder != 0) return impactOrder;
+    return a.label.compareTo(b.label);
+  }
+
+  static int _goalAwarePromptScore(
+    GoalAType goalType,
+    EnrichmentPrompt prompt,
+  ) {
+    return prompt.impact + _goalFieldBoost(goalType, prompt.fieldPath);
+  }
+
+  static int _goalFieldBoost(GoalAType goalType, String? fieldPath) {
+    if (fieldPath == null) return 0;
+    return switch (goalType) {
+      // Home purchase: liquid assets and salary unlock affordability first;
+      // canton drives tax; LPP can support purchase but is not the first ask.
+      GoalAType.achatImmo => switch (fieldPath) {
+          'patrimoine.epargneLiquide' => 12,
+          'salaireBrutMensuel' => 6,
+          'canton' => 4,
+          'prevoyance.avoirLppTotal' => 2,
+          _ => 0,
+        },
+      // Retirement: pension capital/years/3a/conversion rate drive the first
+      // lucidity gap before broader wealth data.
+      GoalAType.retraite => switch (fieldPath) {
+          'prevoyance.avoirLppTotal' => 8,
+          'prevoyance.anneesContribuees' => 5,
+          'prevoyance.totalEpargne3a' => 5,
+          'prevoyance.tauxConversion' => 4,
+          _ => 0,
+        },
+      // Independence: runway and voluntary pension data matter before salary.
+      GoalAType.independance => switch (fieldPath) {
+          'patrimoine.epargneLiquide' => 7,
+          'prevoyance.totalEpargne3a' => 5,
+          'salaireBrutMensuel' => 3,
+          _ => 0,
+        },
+      // Debt-free: repayment capacity and liquid buffer are the first signals.
+      GoalAType.debtFree => switch (fieldPath) {
+          'salaireBrutMensuel' => 5,
+          'patrimoine.epargneLiquide' => 5,
+          _ => 0,
+        },
+      GoalAType.custom => 0,
+    };
   }
 
   // ── COUP-03: Partner estimate confidence degradation ──────────

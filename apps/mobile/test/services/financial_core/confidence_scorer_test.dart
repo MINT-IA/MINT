@@ -245,11 +245,12 @@ void main() {
       expect(categories, contains('freshness'));
     });
 
-    test('axisPrompts sorted by impact descending', () {
+    test('axisPrompts sorted by impact descending when goal is custom', () {
       final profile = _buildProfile(
         age: 35,
         salary: 5000,
         canton: 'GE',
+        goalAType: GoalAType.custom,
       );
       final result = ConfidenceScorer.scoreEnhanced(profile);
       for (int i = 0; i < result.axisPrompts.length - 1; i++) {
@@ -258,6 +259,46 @@ void main() {
           greaterThanOrEqualTo(result.axisPrompts[i + 1].impact),
         );
       }
+    });
+
+    test('axisPrompts use goal-aware ranking for home purchase', () {
+      final profile = _buildProfile(
+        age: 35,
+        salary: 5000,
+        canton: 'GE',
+        goalAType: GoalAType.achatImmo,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      final patrimoineIndex = result.axisPrompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'patrimoine.epargneLiquide',
+      );
+      final lppIndex = result.axisPrompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'prevoyance.avoirLppTotal',
+      );
+
+      expect(patrimoineIndex, greaterThan(-1));
+      expect(lppIndex, greaterThan(-1));
+      expect(patrimoineIndex, lessThan(lppIndex));
+    });
+
+    test('axisPrompts keep retirement focus on pension data', () {
+      final profile = _buildProfile(
+        age: 35,
+        salary: 5000,
+        canton: 'GE',
+        goalAType: GoalAType.retraite,
+      );
+      final result = ConfidenceScorer.scoreEnhanced(profile);
+      final lppIndex = result.axisPrompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'prevoyance.avoirLppTotal',
+      );
+      final patrimoineIndex = result.axisPrompts.indexWhere(
+        (prompt) => prompt.fieldPath == 'patrimoine.epargneLiquide',
+      );
+
+      expect(lppIndex, greaterThan(-1));
+      expect(patrimoineIndex, greaterThan(-1));
+      expect(lppIndex, lessThan(patrimoineIndex));
     });
 
     // ── Phase 2: Understanding axis (V3) ──────────────────────
@@ -658,6 +699,7 @@ CoachProfile _buildProfile({
   FinancialLiteracyLevel financialLiteracyLevel = FinancialLiteracyLevel.beginner,
   int checkInsCount = 0,
   int? targetRetirementAge,
+  GoalAType goalAType = GoalAType.retraite,
 }) {
   final checkIns = List.generate(
     checkInsCount,
@@ -693,9 +735,9 @@ CoachProfile _buildProfile({
     ),
     depenses: const DepensesProfile(),
     goalA: GoalA(
-      type: GoalAType.retraite,
+      type: goalAType,
       targetDate: DateTime(2050),
-      label: 'Retraite',
+      label: 'Test goal',
     ),
   );
 }
