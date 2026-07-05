@@ -260,6 +260,65 @@ void main() {
   );
 
   patrolTest(
+    'first_salary_tax missing gross income opens only the salary ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      expect(await provider.applySaveFact('canton', 'GE'), isTrue);
+      expect(await provider.applySaveFact('birthYear', 2001), isTrue);
+      expect(await provider.applySaveFact('has2ndPillar', true), isTrue);
+
+      final router = GoRouter(
+        initialLocation: '/pilier-3a',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/pilier-3a',
+            builder: (_, __) => const Simulator3aScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('sim3a_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'incomeGrossYearly');
+
+      await $(#sim3a_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#salary_input), findsOneWidget);
+      expect($(#canton_input), findsNothing);
+      expect($(#birth_year_input), findsNothing);
+      expect($(#has_pension_fund_switch), findsNothing);
+      await $(#salary_input).enterText('96000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await $(#salary_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_gross_salary_annual'], 96000);
+      expect(answers.containsKey('incomeGrossYearly'), isFalse);
+      expect(provider.profile!.revenuBrutAnnuel, 96000);
+    },
+  );
+
+  patrolTest(
     'first_salary_tax missing birth year opens only the birth year ask',
     ($) async {
       final provider = CoachProfileProvider();

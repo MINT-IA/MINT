@@ -270,8 +270,8 @@ void main() {
           'q_mortgage_rate',
         },
       );
-      expect(mortgageRateAnswers.containsKey('q_mortgage_rate_percent'),
-          isFalse);
+      expect(
+          mortgageRateAnswers.containsKey('q_mortgage_rate_percent'), isFalse);
       expect(provider.profile!.patrimoine.mortgageRate, 0.018);
 
       router.go('/hypotheque');
@@ -350,6 +350,70 @@ void main() {
       expect(answers['q_canton'], 'VD');
       expect(answers.containsKey('canton'), isFalse);
       expect(provider.profile!.canton, 'VD');
+    },
+  );
+
+  patrolTest(
+    'F-2 missing gross income opens only the salary ask',
+    ($) async {
+      final provider = CoachProfileProvider();
+      await provider.mergeAnswers({
+        'q_canton': 'GE',
+        'q_cash_total': 250000,
+        'q_target_property_value': 950000,
+        'q_civil_status': 'cohabiting',
+      });
+      final router = GoRouter(
+        initialLocation: '/hypotheque',
+        routes: [
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => DataBlockEnrichmentScreen(
+              blockType: state.pathParameters['type'] ?? 'revenu',
+              initialInputKey: state.uri.queryParameters['inputKey'],
+            ),
+          ),
+          GoRoute(
+            path: '/hypotheque',
+            builder: (_, __) => const AffordabilityScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await $.pumpWidgetAndSettle(
+        _wrap(
+          router,
+          coachProfileProvider: provider,
+        ),
+      );
+
+      final nextAsk = $.tester.getSemantics(
+        find.bySemanticsIdentifier('mortgage_data_quest_next_ask'),
+      );
+      expect(nextAsk.value, 'incomeGrossYearly');
+
+      await $(#mortgage_data_quest_next_question_cta).tap();
+      await $.pumpAndSettle();
+
+      expect($(#salary_input), findsOneWidget);
+      expect($(#canton_input), findsNothing);
+      expect($(#savings_input), findsNothing);
+      expect($(#target_property_input), findsNothing);
+      await $(#salary_input).enterText('96000');
+      await $.tester.testTextInput.receiveAction(TextInputAction.done);
+      await $.pumpAndSettle();
+      await $.tester.ensureVisible(find.byKey(const Key('salary_save_cta')));
+      await $(#salary_save_cta).tap();
+      await $.pumpAndSettle();
+
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers['q_gross_salary_annual'], 96000);
+      expect(answers['q_canton'], 'GE');
+      expect(answers['q_cash_total'], 250000);
+      expect(answers['q_target_property_value'], 950000);
+      expect(answers.containsKey('incomeGrossYearly'), isFalse);
+      expect(provider.profile!.revenuBrutAnnuel, 96000);
     },
   );
 
