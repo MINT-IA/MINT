@@ -50,8 +50,8 @@ def test_report_actions_route_coach_topics_without_tools_dead_end() -> None:
     assert "ActionCategory.other => '/tools'" not in report_screen
     assert "ActionCategory.investment => '/coach/chat?topic=investment'" in report_screen
     assert "ActionCategory.other => '/coach/chat?topic=other'" in report_screen
-    assert "actionId" in report_screen
-    assert "_routeForAction(ActionItem action)" in report_screen
+    assert "actionId" not in report_screen
+    assert "_routeForAction(ActionItem action)" not in report_screen
     assert "context.go(route)" in report_screen
     assert "maps BOTH `ActionCategory.investment` AND `ActionCategory.other` → `/tools`" not in screen_contracts
 
@@ -66,6 +66,6 @@ def test_legacy_redirect_contract_marks_query_preservation_live() -> None:
     assert "query params dropped" not in screen_contracts
     assert "`/portfolio` | redirect | redirect → `/home`" not in screen_contracts
     assert "`/score-reveal` | redirect | redirect → `/home`" not in screen_contracts
-    for route in ("/tools", "/portfolio", "/score-reveal"):
+    for route in ("/ask-mint", "/tools", "/portfolio", "/score-reveal"):
         block = _route_block(app, route)
         assert "_redirectPreservingQuery(state," in block

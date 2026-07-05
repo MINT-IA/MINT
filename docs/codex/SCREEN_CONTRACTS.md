@@ -45,7 +45,7 @@ All `i18n key` values below are keys the agent MUST add to all 6 ARB files (`lib
 
 `/home`, `/mon-argent`, `/coach/chat`, `/explore` are the four branches of the `StatefulShellRoute.indexedStack` in `app.dart:345`. The agent MUST register them as `StatefulShellBranch`es (they already are) and MUST NOT flatten them into top-level `GoRoute`s. Their contracts below are the per-branch root screen contracts; the shell wrapper (bottom nav) is unchanged.
 
-**Navigating INTO a shell branch with query params** (e.g. the `/tools` repair targeting `/coach/chat?topic=…`): use `context.go('/coach/chat?topic=investment&actionId=<id>')`. `GoRouter` resolves the URI to the coach branch and rebuilds the branch root with `state.uri.queryParameters` available. Do NOT use `StatefulNavigationShell.goBranch(index)` for this — `goBranch` cannot carry query params. The coach branch root screen reads `topic`/`actionId` from `GoRouterState.of(context).uri.queryParameters`.
+**Navigating INTO a shell branch with query params** (e.g. the `/tools` repair targeting `/coach/chat?topic=…`): use `context.go('/coach/chat?topic=investment')`. `GoRouter` resolves the URI to the coach branch and rebuilds the branch root with `state.uri.queryParameters` available. Do NOT use `StatefulNavigationShell.goBranch(index)` for this — `goBranch` cannot carry query params. The coach branch root screen reads `topic` from `GoRouterState.of(context).uri.queryParameters`.
 
 ### 1.2 entryConditions vs in-screen mode (mechanical rule for guarded simulators)
 
@@ -125,7 +125,7 @@ These are registered at the top of the router (`app.dart:301-339`) with `scope: 
 |---|---|
 | shell | shell:2 |
 | purpose | Conversational lucidity; teaches mechanisms, refuses advice. Compliance filter on every utterance. |
-| reads | `CoachProfile` (full), `MintUserState`, `conversationId` from `state.uri.queryParameters['conversationId']` or `_chat_conversation_index`; `topic`/`actionId` from query params |
+| reads | `CoachProfile` (full), `MintUserState`, `conversationId` from `state.uri.queryParameters['conversationId']` or `_chat_conversation_index`; `topic` from query params |
 | writes | via `save_fact`→`applySaveFact()` (§6.note on provenance), conversation persisted by conversation store bridged to recompute |
 | entryConditions | none (also the `/tools`, `/ask-mint`, `/anonymous/chat`, `/onboarding/*` redirect target) |
 | emptyState | No history → seeded opener from `topic` query param if present (e.g. `?topic=lpp`, `?topic=investment`, `?topic=premier-eclairage`). i18n `coach.empty.opener` (+ per-topic variants) |
@@ -490,12 +490,13 @@ Add `EnhancedConfidenceInput.fromProfile(CoachProfile p)` in `enhanced_confidenc
 
 | route | shell | was | repaired contract |
 |---|---|---|---|
-| `/tools` | redirect (target = coach branch, shell:2) | legacy alias only; no report action may target bare `/tools`. | Redirect `/tools` → `/coach/chat`, forwarding query params. `financial_report_screen_v2.dart` maps `investment` and `other` to `/coach/chat?topic=investment&actionId=<category>` and `/coach/chat?topic=other&actionId=<category>`, never bare `/tools`. Navigation uses `context.go(route)` for coach-branch routes (resolves into shell branch 2 with query params per §1.1). Coach opens seeded on that action; investment stays general-population/illustrative (securities-3a excluded from personalised engine). i18n opener `coach.empty.opener.investment` / `.other`. killFlag null. |
+| `/ask-mint` | redirect (target = coach branch, shell:2) | legacy alias only. | Live query-preserving redirect to `/coach/chat` via `_redirectPreservingQuery(state, '/coach/chat')`. killFlag null. |
+| `/tools` | redirect (target = coach branch, shell:2) | legacy alias only; no report action may target bare `/tools`. | Redirect `/tools` → `/coach/chat`, forwarding query params. `financial_report_screen_v2.dart` maps `investment` and `other` to `/coach/chat?topic=investment` and `/coach/chat?topic=other`, never bare `/tools`. Navigation uses `context.go(route)` for coach-branch routes (resolves into shell branch 2 with query params per §1.1). Coach opens seeded by topic; investment stays general-population/illustrative (securities-3a excluded from personalised engine). i18n opener `coach.empty.opener.investment` / `.other`. killFlag null. |
 | `/portfolio` | redirect | legacy alias only. | Live query-preserving redirect to `/home` via `_redirectPreservingQuery(state, '/home')`. killFlag null. |
 | `/score-reveal` | redirect | legacy alias only. | Live query-preserving redirect to `/home` via `_redirectPreservingQuery(state, '/home')`. killFlag null. |
 
 **General rule:** redirect aliases must preserve `state.uri.query`. The live
-`/tools`, `/portfolio`, and `/score-reveal` legacy aliases are guarded by the
+`/ask-mint`, `/tools`, `/portfolio`, and `/score-reveal` legacy aliases are guarded by the
 static route test `apps/mobile/test/routes/legacy_redirect_query_preservation_test.dart`
 and the doc/code guard `tools/checks/tests/test_screen_contracts_route_contract.py`.
 

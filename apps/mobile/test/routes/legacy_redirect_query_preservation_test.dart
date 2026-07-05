@@ -24,6 +24,7 @@ void main() {
     });
 
     for (final entry in const {
+      '/ask-mint': '/coach/chat',
       '/tools': '/coach/chat',
       '/portfolio': '/home',
       '/score-reveal': '/home',

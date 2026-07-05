@@ -2,7 +2,7 @@
 //  RouteMeta + kRouteRegistry — Phase 32 MAP-01 (D-01 locked v4)
 // ────────────────────────────────────────────────────────────
 //
-// Source of truth for the 147 mobile routes declared in
+// Source of truth for the 148 mobile route entries declared in
 // `apps/mobile/lib/app.dart`. Consumed by:
 //
 //   - `tools/mint-routes` CLI (Python, Plan 32-02 Wave 2)
@@ -74,9 +74,8 @@ class RouteMeta {
 }
 
 /// Source-of-truth map: one entry per `GoRoute`/`ScopedGoRoute` declared
-/// in `apps/mobile/lib/app.dart`. Exactly **147 entries** as of Wave 0
-/// reconciliation (app.dart SHA b7a88cc8, see
-/// `.planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md`).
+/// in `apps/mobile/lib/app.dart`. Exactly **148 entries** after the
+/// live route-alias reconciliation guarded by `tools/mint-routes`.
 ///
 /// **Maintenance contract (D-04, D-12):** adding or removing a `GoRoute`
 /// / `ScopedGoRoute` in `app.dart` MUST be mirrored here. Parity lint

@@ -53,19 +53,6 @@ class FinancialReportScreenV2 extends StatelessWidget {
     };
   }
 
-  String _routeForAction(ActionItem action) {
-    final route = _routeForCategory(action.category);
-    if (!route.startsWith('/coach/chat')) return route;
-
-    final uri = Uri.parse(route);
-    return uri
-        .replace(queryParameters: {
-          ...uri.queryParameters,
-          'actionId': action.category.name,
-        })
-        .toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (wizardAnswers.isEmpty) {
@@ -748,7 +735,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: () {
-                final route = _routeForAction(action);
+                final route = _routeForCategory(action.category);
                 if (route.startsWith('/coach/chat')) {
                   // Coach chat lives in its shell branch; go() applies the
                   // topic query to that branch instead of stacking report.
