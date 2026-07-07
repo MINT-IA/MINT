@@ -54,6 +54,13 @@ EXCLUDE_SUBSTRINGS = (
 )
 
 
+def _lintable_line(path: Path, line: str) -> str:
+    if path.suffix == ".md":
+        # Markdown specs often contain route/API literals; these must stay ASCII.
+        return re.sub(r"`[^`]*`", "", line)
+    return line
+
+
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
     """Return list of (lineno, snippet, pattern->correction) violations."""
     try:
@@ -62,8 +69,9 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
         return []
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
+        haystack = _lintable_line(path, line)
         for pat, correct in PATTERNS:
-            if re.search(pat, line, re.IGNORECASE):
+            if re.search(pat, haystack, re.IGNORECASE):
                 snippet = line.strip()[:140]
                 out.append((lineno, snippet, f"{pat} -> {correct}"))
     return out

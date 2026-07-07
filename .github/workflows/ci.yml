@@ -634,6 +634,9 @@ jobs:
       - name: Run CLI + parity + redirect breadcrumb tests
         run: pytest tests/tools/test_mint_routes.py tests/tools/test_redirect_breadcrumb_coverage.py tests/checks/test_route_registry_parity.py -q --tb=short
 
+      - name: Run Codex spec-reality contract tests
+        run: pytest tools/checks/tests/ -q --tb=short
+
   # ─── Phase 32 Plan 32-05 / D-12 §3: admin build sanity (T-32-05) ─
   # Defensive scan against the tree-shake contract: the admin shell
   # (/admin/routes + kRouteRegistry exposure) is compile-gated by
