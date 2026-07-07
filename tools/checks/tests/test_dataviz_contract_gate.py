@@ -38,6 +38,6 @@ def test_goldens_readme_documents_dataviz_contract_policy() -> None:
     assert "Linux" in readme
     assert "FriHistoryChart" in readme
     assert "fri_history_chart" in readme
-    assert "chiffre_choc_screen" in readme
+    assert "historical snake-case screen slug" in readme
     assert "no Flutter widget" in readme
     assert "MintResultHeroCard" in readme
