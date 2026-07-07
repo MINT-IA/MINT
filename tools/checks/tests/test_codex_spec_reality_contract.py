@@ -95,6 +95,21 @@ def _wizard_keys_read_by_profile() -> set[str]:
     return set(re.findall(r"answers\['([^']+)'\]", from_wizard))
 
 
+def _backend_goal_values() -> set[str]:
+    source = _read(COACH_CHAT)
+    match = re.search(r'"goal": \{(?P<body>.*?)\}', source, re.DOTALL)
+    assert match is not None
+    return set(re.findall(r'"([^"]+)"', match.group("body")))
+
+
+def _mobile_goal_parser_cases() -> set[str]:
+    source = _read(COACH_PROFILE)
+    parser = source.split("static GoalA _parseGoalA", 1)[1].split(
+        "/// Estime l'avoir LPP total", 1
+    )[0]
+    return set(re.findall(r"case '([^']+)':", parser))
+
+
 def test_codex_docs_are_audited_against_current_head_not_stale_baseline() -> None:
     for path in CODEX_SPEC_FILES:
         text = _read(path)
@@ -104,7 +119,7 @@ def test_codex_docs_are_audited_against_current_head_not_stale_baseline() -> Non
         assert "095eeaa32" in text, path
 
 
-def test_data_ledger_doc_matches_current_save_fact_reality() -> None:
+def test_data_ledger_save_fact_parity_is_repaired() -> None:
     backend_keys = _backend_allowlist()
     tool_keys = _coach_tool_enum()
     mapper = _mapper_cases_to_wizard_keys()
@@ -117,38 +132,16 @@ def test_data_ledger_doc_matches_current_save_fact_reality() -> None:
         if fact_key in backend_keys and not (wizard_keys & read_keys)
     }
 
-    assert len(backend_keys) == 35
     assert backend_keys == tool_keys
-    assert len(mapper) == 24
-    assert unmapped == {
-        "goal",
-        "selfEmployedNetIncome",
-        "has2ndPillar",
-        "hasVoluntaryLpp",
-        "hasDebt",
-        "totalDebt",
-        "spouseBirthYear",
-        "spouseIncomeNetMonthly",
-        "spouseAvsContributionYears",
-        "hasAvsGaps",
-        "avsContributionYears",
-    }
-    assert mapped_but_unread == {
-        "commune",
-        "gender",
-        "employmentRate",
-        "annualBonus",
-        "pillar3aBalance",
-        "totalSavings",
-        "wealthEstimate",
-    }
-    assert len(unmapped | mapped_but_unread) == 18
+    assert len(backend_keys) == 35
+    assert set(mapper) == backend_keys
+    assert not unmapped
+    assert not mapped_but_unread
+    assert len(unmapped | mapped_but_unread) == 0
 
-    ledger = _read(DATA_LEDGER)
-    report = _read(AUDIT_REPORT)
-    assert "18 backend-writable keys are ineffective locally" in ledger
-    assert "mapped-but-unread" in ledger
-    assert "18 backend-writable keys are ineffective locally" in report
+
+def test_save_fact_goal_values_are_parsed_by_mobile_profile() -> None:
+    assert _backend_goal_values() <= _mobile_goal_parser_cases()
 
 
 def test_wiring_and_screen_docs_mark_extra_and_scan_as_live_gaps() -> None:
