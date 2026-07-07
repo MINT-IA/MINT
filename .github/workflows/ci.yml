@@ -111,6 +111,7 @@ jobs:
           python3 -m pytest tools/checks/tests/ -q
           python3 -m pytest tests/checks/test_test_roadmap_contract.py -q
           python3 -m pytest tests/checks/test_governance_docs_contract.py -q
+          python3 -m pytest tests/checks/test_instruction_hygiene_contract.py -q
 
   # ─── LSFin UI copy gate ─────────────────────────────────────
   # Blocks core banned promise terms from CLAUDE.md /

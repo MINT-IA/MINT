@@ -4,7 +4,7 @@ Objectif: coder vite (“vibe coding”) sans casser la cohérence.
 
 ## 0) Hiérarchie de vérité
 1. rules.md — Non-negotiable technical + ethical rules
-2. .claude/CLAUDE.md — Project context, constants, compliance, anti-patterns
+2. CLAUDE.md — Project context, constants, compliance, anti-patterns
 3. AGENTS.md — Team workflow, roles, sprint tracker
 4. .claude/skills/ — Agent-specific conventions and patterns
 5. LEGAL_RELEASE_CHECK.md — Wording compliance checklist
@@ -12,10 +12,13 @@ Objectif: coder vite (“vibe coding”) sans casser la cohérence.
 7. docs/ (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
 8. decisions/ (ADR) — Architecture decisions
 9. SOT.md + OpenAPI — Data contracts
-10. Code — Implementation follows documents
+10. Code — executable implementation reality in the repo
 
-Si le code contredit 1–9: corriger le code OU écrire une ADR.
-docs/ evolution specs sit below visions/ but above ADRs.
+The repo source of truth includes git history, decisions/ ADRs, checked-in
+docs, SOT/OpenAPI, and code. On a contract/spec conflict, reconcile
+SOT/OpenAPI/ADR ↔ code in the same patch; if the decision changes architecture
+or product meaning, write an ADR. If an evolution spec is obsolete against
+verified code, fix the spec before coding against a fiction.
 
 ## 1) Commandes standards
 
