@@ -1,5 +1,5 @@
 # MINT CI — Run tests on every push & PR
-# Triggers on push to staging/main + PRs targeting dev/staging/main
+# Triggers on push to staging/main + PRs targeting dev/staging/main and active Mint product branches
 # Smart path detection: only runs backend/flutter jobs when relevant files changed.
 # Saves ~5-8 min per run when only one side is modified.
 
@@ -9,7 +9,7 @@ on:
   push:
     branches: [dev, staging, main]
   pull_request:
-    branches: [dev, staging, main]
+    branches: [dev, staging, main, claude/mint-swiss-coach-eu33i7]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -470,6 +470,9 @@ jobs:
         run: pip install pytest
       - name: Run CLI + parity + redirect breadcrumb tests
         run: pytest tests/tools/test_mint_routes.py tests/tools/test_redirect_breadcrumb_coverage.py tests/checks/test_route_registry_parity.py -q --tb=short
+
+      - name: Run Codex spec-reality contract tests
+        run: pytest tools/checks/tests/ -q --tb=short
 
   # ─── Phase 32 Plan 32-05 / D-12 §3: admin build sanity (T-32-05) ─
   # Defensive scan against the tree-shake contract: the admin shell

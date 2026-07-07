@@ -28,6 +28,9 @@ pre-commit:
       run: for file in {staged_files}; do python3 tools/checks/accent_lint_fr.py --file "$file" || exit 1; done
       glob: "*.{dart,py,arb,md}"
       tags: [i18n, mint]
+    codex-spec-reality:
+      run: python3 -m pytest tools/checks/tests/ -q
+      tags: [docs, codex, mint]
     no-hardcoded-fr:
       run: for file in {staged_files}; do python3 tools/checks/no_hardcoded_fr.py --file "$file" || exit 1; done
       glob: "apps/mobile/lib/**/*.dart"
