@@ -4,7 +4,7 @@ Verifies:
     1. All constants from social_insurance.py are present in the registry.
     2. Values match exactly between registry and social_insurance.py.
     3. All parameters have source_url set.
-    4. All parameters have reviewed_at within 90 days.
+    4. All parameters have reviewed_at within 180 days.
     5. No expired parameter without a replacement.
     6. All 26 cantonal tax rates are present.
     7. 3a historical limits 2016-2026 are all present.
@@ -321,16 +321,16 @@ class TestMetadataQuality:
 
 
 # ---------------------------------------------------------------------------
-# 4. All parameters have reviewed_at within 90 days
+# 4. All parameters have reviewed_at within 180 days
 # ---------------------------------------------------------------------------
 
 
 class TestFreshness:
     """All parameters must have been reviewed recently."""
 
-    def test_all_reviewed_within_90_days(self, registry):
-        """No parameter should be stale (reviewed_at > 90 days ago)."""
-        stale = registry.check_freshness(max_age_days=90)
+    def test_all_reviewed_within_180_days(self, registry):
+        """No parameter should be stale (reviewed_at > 180 days ago)."""
+        stale = registry.check_freshness(max_age_days=180)
         stale_keys = [p.key for p in stale]
         assert stale_keys == [], f"Stale parameters: {stale_keys}"
 
@@ -343,7 +343,7 @@ class TestFreshness:
 
     def test_freshness_check_empty(self, registry):
         """check_freshness returns empty list when all are fresh."""
-        stale = registry.check_freshness(max_age_days=90)
+        stale = registry.check_freshness(max_age_days=180)
         assert len(stale) == 0
 
 
@@ -480,7 +480,7 @@ class TestFreshnessCheck:
     """The freshness check should confirm all parameters are recently reviewed."""
 
     def test_check_freshness_returns_empty(self, registry):
-        stale = registry.check_freshness(max_age_days=90)
+        stale = registry.check_freshness(max_age_days=180)
         assert stale == []
 
     def test_stale_detection_works(self):

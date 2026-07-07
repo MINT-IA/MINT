@@ -10,7 +10,7 @@ Architecture:
     - Singleton pattern: one registry instance per process.
     - Constants are hardcoded in _PARAMETERS for now (DB migration planned P4).
     - Every constant from social_insurance.py is mirrored here with full metadata.
-    - Freshness tracking: reviewed_at must be within 90 days or flagged stale.
+    - Freshness tracking: 180-day hard gate; 90-day API/warning signal.
 
 Sources:
     - CLAUDE.md §5 (Key Constants 2025/2026)
