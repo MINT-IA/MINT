@@ -56,14 +56,19 @@ EXCLUDE_SUBSTRINGS = (
 
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
     """Return list of (lineno, snippet, pattern->correction) violations."""
+    if path.name == "accent_lint_fr.py":
+        return []
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return []
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
+        lint_line = line
+        if path.suffix == ".md":
+            lint_line = re.sub(r"`[^`]*`", "", line)
         for pat, correct in PATTERNS:
-            if re.search(pat, line, re.IGNORECASE):
+            if re.search(pat, lint_line, re.IGNORECASE):
                 snippet = line.strip()[:140]
                 out.append((lineno, snippet, f"{pat} -> {correct}"))
     return out
