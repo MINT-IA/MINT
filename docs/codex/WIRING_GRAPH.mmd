@@ -1,9 +1,11 @@
 %% ============================================================================
 %% WIRING_GRAPH.mmd — MINT navigation + data-flow graph (Codex-executable)
 %% ----------------------------------------------------------------------------
-%% Baseline note: file:line refs target apps/mobile & services/backend at 255373b,
-%% which are UNCHANGED on this branch (only docs/codex/ added since) -> valid at HEAD.
-%% Status: normative. Hand-grounded against the REAL code at commit 255373b.
+%% G1 reality audit: file:line refs were re-checked against HEAD 095eeaa32
+%% on 2026-07-07. Treat refs as evidence snapshots, not evergreen truth.
+%% Status: target contract + live gap ledger. Verified/false/obsolete statuses
+%% are recorded below; rerun tools/checks/tests/test_codex_spec_reality_contract.py
+%% when code or this graph changes.
 %% Every node/edge below is transcribed from apps/mobile/lib/app.dart (router +
 %% MultiProvider tree) with line numbers. Companion: DATA_LEDGER.md,
 %% SCREEN_CONTRACTS.md (exhaustive per-route contracts). Conflict order:
@@ -17,15 +19,15 @@
 flowchart TB
 
   %% ==========================================================================
-  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:1411-1531)
+  %% PART A — PROVIDER / DATA-FLOW GRAPH (apps/mobile/lib/app.dart:1418-1520)
   %% The spine + the islands. Solid arrow = live listen/recompute edge that
   %% EXISTS in code. Dashed arrow = REQUIRED bridge that is MISSING today.
   %% ==========================================================================
   subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
     direction TB
-    CPP["CoachProfileProvider<br/>app.dart:1428<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
-    MSP["MintStateProvider<br/>app.dart:1466 (ProxyProvider)<br/>builds MintUserState (read-model)"]
-    NWS["NotificationsWiringService<br/>app.dart:1504 (ProxyProvider)"]
+    CPP["CoachProfileProvider<br/>app.dart:1435<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
+    MSP["MintStateProvider<br/>app.dart:1473 (ProxyProvider)<br/>builds MintUserState (read-model)"]
+    NWS["NotificationsWiringService<br/>app.dart:1511 (ProxyProvider)"]
     PERSIST[("SharedPreferences<br/>key: wizard_answers_v2<br/>report_persistence_service.dart")]
     BACKEND[("backend ProfileModel.data<br/>save_fact 35-key allowlist<br/>coach_chat.py:924")]
 
@@ -35,12 +37,12 @@ flowchart TB
     CPP -. "fire-and-forget sync" .-> BACKEND
 
     %% Islands: plain ChangeNotifierProvider, NOT bridged to the recompute.
-    BUDGET["BudgetProvider<br/>app.dart:1419 — ISLAND"]
-    HOUSE["HouseholdProvider<br/>app.dart:1427 — ISLAND"]
-    TIMELINE["TimelineProvider<br/>app.dart:1484 — ISLAND"]
-    DOCS["DocumentProvider<br/>app.dart:1425 — ISLAND"]
-    PLAN["FinancialPlanProvider<br/>app.dart:1479 — ISLAND"]
-    DEADP["ProfileProvider<br/>app.dart:1418 — LEGACY (4 hasDebt consumers, migrate then delete)"]
+    BUDGET["BudgetProvider<br/>app.dart:1426 — ISLAND"]
+    HOUSE["HouseholdProvider<br/>app.dart:1434 — ISLAND"]
+    TIMELINE["TimelineProvider<br/>app.dart:1491 — ISLAND"]
+    DOCS["DocumentProvider<br/>app.dart:1432 — ISLAND"]
+    PLAN["FinancialPlanProvider<br/>app.dart:1486 — ISLAND"]
+    DEADP["ProfileProvider<br/>app.dart:1425 — LEGACY (5 live consumers, migrate then delete)"]
 
     BUDGET -. "MISSING bridge -> recompute" .-> MSP
     HOUSE  -. "MISSING sync -> CoachProfile.conjoint" .-> CPP
@@ -188,22 +190,22 @@ flowchart TB
   classDef redir fill:#333,stroke:#888,color:#ccc,stroke-dasharray:4 3;
 
 %% ============================================================================
-%% DEAD-ROADS TO ELIMINATE (verified — SCREEN_CONTRACTS.md specifies the fix)
+%% REALITY-AUDITED ROADS (G1 @ 095eeaa32)
 %% ----------------------------------------------------------------------------
-%% D-1 /scan/review  (app.dart:903)  builds Scaffold(Text('Document non
+%% D-1 /scan/review  (app.dart:909; null branch :913-916) builds Scaffold(Text('Document non
 %%     disponible')) when state.extra is null. No AppBar, no back, no CTA, not
 %%     i18n. FIX: resolve doc from ledger by id; render errorState with recovery
 %%     CTA -> /scan. (Violates I-1, I-2, I-6.)
-%% D-2 /scan/impact  (app.dart:916)  same trap. Same fix.
-%% D-3 /rapport      (app.dart:974)  depends on extra: wizardAnswers; blank if
-%%     ReportPersistenceService slow/fails. FIX: read from ledger; loading +
-%%     errorState. (Violates I-1, I-2.)
-%% D-4 /tools        (app.dart:1185) redirect -> /coach/chat loses context; the
-%%     financial-report investment cards (financial_report_screen_v2.dart:51
-%%     ActionCategory.investment/.other -> '/tools') dead-end. FIX: route to a
-%%     real actionable destination or an education screen with the topic param.
-%% D-5 /portfolio    (app.dart:1189) redirect -> /home drops query params.
-%%     FIX: pass-through params, or map to /mon-argent preserving state.
+%% D-2 /scan/impact  (app.dart:922; null branch :925-931) same trap. Same fix.
+%% D-3 /rapport      (app.dart:980) PARTIAL: still reads wizardAnswers from
+%%     extra (:983-986), but now falls back to ReportPersistenceService
+%%     (:987-999). Remaining gap: no timeout/errorState if load stalls/fails.
+%% D-4 /tools        FIXED at HEAD for query preservation and report actions:
+%%     /tools uses _redirectPreservingQuery (app.dart:1191-1193), and report
+%%     investment/other actions route to /coach/chat?topic=... (financial_report_screen_v2.dart:51-52).
+%% D-5 /portfolio    FIXED at HEAD for query preservation: /portfolio uses
+%%     _redirectPreservingQuery (app.dart:1195-1197); /home maps tab=1 to
+%%     /mon-argent (app.dart:251-273).
 %% ============================================================================
 
 %% ============================================================================
@@ -212,22 +214,31 @@ flowchart TB
 %% I-1 SINGLE SOURCE: no GoRoute `builder:` in app.dart reads domain financial
 %%     data from `state.extra`. Allowed in extra: ids, enums, ephemeral UI.
 %%     CHECK: grep builders for `state.extra` casts to domain models; expect 0.
+%%     G1 status @095eeaa32: FALSE. /scan/review, /scan/impact, /rapport, and
+%%     /confidence still consume domain objects/maps/results from state.extra.
 %% I-2 EXTRA IS EPHEMERAL: every route whose builder currently consumes extra
-%%     (/scan/review :903, /scan/impact :916, /rapport :974) must resolve its
+%%     (/scan/review :909, /scan/impact :922, /rapport :980, /confidence :1205)
+%%     must resolve its
 %%     data from CoachProfileProvider/MintStateProvider by id and render an
 %%     errorState (recovery CTA + i18n key) when the id is absent.
+%%     G1 status @095eeaa32: PARTIAL. /rapport has persisted fallback; scan and
+%%     confidence remain extra/domain dependent.
 %% I-3 SINGLE WRITE PATH: no screen/service writes wizard_answers_v2 or backend
 %%     ProfileModel.data except via CoachProfileProvider.mergeAnswers /
 %%     applySaveFact / updateProfile. CHECK: grep report_persistence_service
 %%     writers outside coach_profile_provider.dart; expect 0.
+%%     G1 status @095eeaa32: FALSE as written. Mobile RegisterScreen and several
+%%     backend endpoints write through other sanctioned stores/endpoints. Narrow
+%%     the invariant before enforcing.
 %% I-4 NO ISLANDS: every provider that holds user-derived state must feed the
-%%     recompute. Today MISSING for BudgetProvider(:1419), HouseholdProvider
-%%     (:1427), TimelineProvider(:1484), DocumentProvider(:1425),
-%%     FinancialPlanProvider(:1479). FIX: convert each to
+%%     recompute. Today MISSING for BudgetProvider(:1426), HouseholdProvider
+%%     (:1434), TimelineProvider(:1491), DocumentProvider(:1432),
+%%     FinancialPlanProvider(:1486). FIX: convert each to
 %%     ChangeNotifierProxyProvider<CoachProfileProvider, _> OR emit a bridge
-%%     that calls MintStateProvider.recompute (pattern = app.dart:1466-1478).
-%% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1418) still
-%%     has 4 live consumers, all reading `hasDebt`:
+%%     that calls MintStateProvider.recompute (pattern = app.dart:1473-1483).
+%%     G1 status @095eeaa32: VERIFIED AS DEBT.
+%% I-5 LEGACY PROVIDER (partial-migration target): ProfileProvider(:1425) still
+%%     has 5 live consumers:
 %%       - simulator_3a_screen.dart:197 (context.read<ProfileProvider>())
 %%       - simulator_3a_screen.dart:301 (context.watch<ProfileProvider>())
 %%       - widgets/comparators/pillar3a_comparator_widget.dart:29
@@ -238,17 +249,25 @@ flowchart TB
 %%     models/profile.dart. models/profile.dart is not part of the ledger.
 %%     CHECK: grep `context.(read|watch)<ProfileProvider>` under apps/mobile/lib
 %%     expect 0 before the provider is removed.
+%%     G1 status @095eeaa32: PARTIAL; count corrected from 4 to 5.
 %% I-6 EVERY SCREEN NODE has emptyState + partialState + errorState declared in
 %%     SCREEN_CONTRACTS.md (1:1 with the live routes above). CHECK: every
 %%     `path:` builder in app.dart has a row; no row missing those 3 states.
+%%     G1 status @095eeaa32: PARTIAL. Contracts exist, but scan/rapport/confidence
+%%     code and the named route tests do not yet prove the degraded states.
 %% I-7 NO ORPHAN / NO DEAD-END: every NAV node is reachable from a shell tab,
 %%     a hub, or an explicit deep-link/settings entry point (COUPLE via H_FAM,
 %%     EHUB via COACH, SCOMP/SLEAS/SCRED via ARGENT, LANGUE/ABOUT/ADMINR via
 %%     HOME profile drawer) and has >=1 outgoing edge (or is a terminal leaf
 %%     with a Back affordance via MintNav.back() fallback to /home). Redirect
 %%     shims must terminate at a live node (edges R_* above).
+%%     G1 status @095eeaa32: PARTIAL. Route registry parity passes, but some
+%%     graph UI-entry edges are aspirational or not evidenced by current widgets.
 %% I-8 REDIRECTS PRESERVE CONTEXT: redirect routes must forward query params /
 %%     topic (fix D-4, D-5). CHECK: /tools and /portfolio redirects pass state.
+%%     G1 status @095eeaa32: VERIFIED for /ask-mint, /tools, /portfolio,
+%%     /score-reveal; not yet universal across all legacy redirects.
 %% I-9 PROJECTIONS RANGED: any node that renders a projected number pairs it
 %%     with EnhancedConfidence + range (DATA_LEDGER I-5 / CLAUDE.md §5).
+%%     G1 status @095eeaa32: PARTIAL/FALSE on several projection surfaces.
 %% ============================================================================

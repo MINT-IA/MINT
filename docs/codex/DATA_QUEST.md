@@ -1,8 +1,8 @@
 # DATA_QUEST.md — MINT diff-not-form collection engine (Codex-executable)
 
-> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+> **G1 reality audit:** `file:line` references were re-checked against HEAD `095eeaa32` on 2026-07-07. Treat line refs as evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
 
-> **Status:** normative spec for the coding agent. Mechanical, deterministic, grounded in the REAL code at commit `255373b`.
+> **Status:** target contract for the coding agent. Mechanical, deterministic, with live gaps called out against the REAL code at commit `095eeaa32`.
 > **Companions:** `DATA_LEDGER.md` (fields + provenance), `SCREEN_CONTRACTS.md` (per-screen `reads[]`), `WIRING_GRAPH.mmd` (invariants).
 > **Conflict order:** `rules.md` > `CLAUDE.md` > this file. This file does not override compliance (education-not-advice; ranges + `EnhancedConfidence`; no promissory terms).
 
@@ -35,7 +35,7 @@ DataQuest {
 }
 ```
 
-### 2.1 Deterministic algorithm (pseudocode — calls REAL methods)
+### 2.1 Deterministic algorithm (pseudocode — calls REAL instance methods)
 
 ```
 List<Ask> planQuest(DataQuest q, CoachProfile profile, DateTime now):
@@ -45,7 +45,7 @@ List<Ask> planQuest(DataQuest q, CoachProfile profile, DateTime now):
      if !profile.has(key):                                    // value absent
         missing.add(key)
      else:
-        fact = BiographyRepository.getLatestFactForField(key) // provenance record (or null)
+        fact = await biographyRepo.getLatestFactForField(key) // provenance record (or null)
         if fact != null && FreshnessDecayService.needsRefresh(fact, now):
            stale.add(key)                                     // present but weight < 0.60
   // ONLY the delta is ever surfaced. Fields already fresh are never re-asked.
@@ -115,7 +115,7 @@ onAnswer(key, value, source):
    else:
        CoachProfileProvider.mergeAnswers({ wizardKeyFor(key): value })
    // record provenance (the missing-30%, §7) — append an immutable fact:
-   BiographyRepository.recordFact(BiographyFact(
+      await biographyRepo.recordFact(BiographyFact(
        fieldPath: key, value: value, source: source,
        sourceDate: now, updatedAt: now,
    ))                                              // recordFact delegates to insertFact
@@ -128,7 +128,7 @@ No screen writes SharedPreferences / `ProfileModel.data` directly.
 | # | Gap | Build target |
 |---|---|---|
 | Q-1 | Per-field provenance `{source, sourceDate, updatedAt}` not durable end-to-end | add `dataSources`/`dataTimestamps` write in `coach_profile_provider.dart` mergeAnswers; mirror to backend `ProfileModel` (add per-field `field_meta` JSON) in `coach_chat.py` save_fact |
-| Q-2 | `DataQuest`/`Case` orchestrator does not exist | new `apps/mobile/lib/services/data_quest/data_quest_service.dart` implementing §2–§5 |
+| Q-2 | `DataQuest`/`Case` orchestrator does not exist at `095eeaa32` | new `apps/mobile/lib/services/data_quest/data_quest_service.dart` implementing §2–§5 |
 | Q-3 | `/data-block/:type` has no delta/before-after UI, no reconfirm | extend `data_block_enrichment_screen.dart` with `AskMode.reconfirm` widget (§3) |
 | Q-4 | Backend `suggest_actions` is hardcoded, not the ranker | wire `suggest_actions` → `enhanced_confidence_service.rank_enrichment_prompts()` |
 | Q-5 | Goal-aware prompt ranking is live for mobile `ConfidenceScorer.score()` visible prompts and `scoreEnhanced()` axis prompts: prompts carry `fieldPath`, and sorting uses goal-aware effective impact without changing displayed impact points | Keep `confidence_scorer_test.dart` coverage for `GoalAType.achatImmo` vs `GoalAType.retraite` on both visible prompts and enhanced axis prompts, and keep `tools/checks/tests/test_data_quest_goal_aware_ranking_contract.py` so the scorer cannot silently fall back to generic impact-only ordering. Backend/global `EnhancedConfidenceService.rank_enrichment_prompts()` remains generic unless a later phase makes it goal-aware too. |
