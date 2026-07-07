@@ -1,9 +1,9 @@
 # DATA_LEDGER.md — MINT Canonical Data Ledger
 
-> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+> **G1 reality audit:** `file:line` references were re-checked against HEAD `095eeaa32` on 2026-07-07. Treat line refs as evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
 
-> **Status:** normative spec for the coding agent (Codex). Mechanical, testable, implementable.
-> **Frozen baseline:** commit `255373b` (2026-04-21).
+> **Status:** target contract plus live gap ledger for the coding agent (Codex). Mechanical, testable, implementable.
+> **Audited baseline:** commit `095eeaa32` (2026-07-07).
 > **Scope:** defines THE single typed registry of every user data field MINT knows. Every screen reads/writes from this ledger and nowhere else.
 > **Conflict order:** `rules.md` (tier 1) > `CLAUDE.md` (tier 2) > this file (tier 3 operational). This file does not override compliance.
 
@@ -24,7 +24,7 @@ The ledger is **not new infrastructure**. It is the formalisation of the spine t
 | Decay | `apps/mobile/lib/services/biography/freshness_decay_service.dart` | Two-tier freshness, 0.60 refresh threshold. API is `weight(BiographyFact fact, DateTime now)` — see §5. |
 | Confidence | `services/backend/app/services/confidence/enhanced_confidence_service.py` | 4-axis score; consumes source + freshness. |
 
-**`models/profile.dart` + `ProfileProvider` are NOT part of the ledger** and are slated for deletion — but they are **not a zero-consumer dead module on the frozen baseline**. `ProfileProvider` (`apps/mobile/lib/providers/profile_provider.dart:5`, importing `models/profile.dart:2`) still has **live screen/widget consumers**, all reading `profile?.hasDebt`: `simulator_3a_screen.dart:197` (`context.read<ProfileProvider>()`, legacy fallback path) and `:301` (`context.watch<ProfileProvider>().profile?.hasDebt` inside `build()`), plus 3 widgets — `widgets/simulators/buyback_widget.dart:39`, `widgets/recommendation_card.dart:17`, `widgets/comparators/pillar3a_comparator_widget.dart:29`. Deletion is a REQUIRED but **not-yet-safe** task: these 5 consumers MUST first be migrated to read `hasDebt` from `CoachProfileProvider`/`MintStateProvider` (e.g. `CoachProfile.hasDebt` / `MintUserState`), after which `ProfileProvider` + `models/profile.dart` become genuinely orphaned and can be removed. Do not extend them; do not delete them before the migration.
+**`models/profile.dart` + `ProfileProvider` are NOT part of the ledger** and are slated for deletion — but they are **not a zero-consumer dead module at `095eeaa32`**. `ProfileProvider` (`apps/mobile/lib/providers/profile_provider.dart:5`, registered in `app.dart:1425`) still has **5 live screen/widget consumers**: `simulator_3a_screen.dart:197` (`context.read<ProfileProvider>()`, legacy fallback path), `simulator_3a_screen.dart:301` (`context.watch<ProfileProvider>().profile?.hasDebt`), plus 3 widgets — `widgets/simulators/buyback_widget.dart:39`, `widgets/recommendation_card.dart:17`, `widgets/comparators/pillar3a_comparator_widget.dart:29`. Deletion is a REQUIRED but **not-yet-safe** task: these consumers MUST first be migrated to read from `CoachProfileProvider`/`MintStateProvider`, after which `ProfileProvider` + `models/profile.dart` become genuinely orphaned and can be removed. Do not extend them; do not delete them before the migration.
 
 ---
 
@@ -38,7 +38,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-4 — NO ISLANDS.** Every isolated provider (`BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, documents, conversations) MUST bridge into the recompute so `MintUserState` is never stale. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
-- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The three MUST stay in sync. **This parity is BROKEN on the frozen baseline — see §3.8 — and its repair is a required task, not an assumption.**
+- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist and coach tool enum are in sync at `095eeaa32`, but the mobile path is not: **18 backend-writable keys are ineffective locally via `applySaveFact`** — see §3.8.
 
 ---
 
@@ -186,29 +186,45 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — the 11 allowlist keys with NO mapper case (parity is broken today)
+### 3.8 REQUIRED REPAIR — 18 backend-writable keys ineffective locally (parity is broken today)
 
-On the frozen baseline the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`). The parity invariant I-7 does NOT hold at `255373b`. The following is a required task, not a description of existing behaviour.
+At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
+
+G1 found a second gap: **7 mapped keys write to wizard keys that `CoachProfile.fromWizardAnswers()` does not read**, so `applySaveFact` returns `true` but the profile still does not reconstruct the intended value. Total local ineffectiveness: **18 backend-writable keys**.
 
 **The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
 
-**Task T-1 (mandatory):** add a `case` for each of the 11 keys to `_mapFactKeyToAnswers`, mapping to the wizard key that `fromWizardAnswers` reads for the corresponding `CoachProfile` field. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the `fromWizardAnswers` read, using these canonical wizard keys:
+**The 7 mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`, `totalSavings -> q_epargne_liquide`, `wealthEstimate -> q_epargne_liquide`.
+
+**Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
+
+| allowlist key | current mapper | read by `fromWizardAnswers` today | required direction |
+|---|---|---|---|
+| `commune` | `q_commune` | none | add a `commune` field/read or remove coach-writable status |
+| `gender` | `q_gender` | none | add a profile gender read or remove coach-writable status |
+| `employmentRate` | `q_employment_rate` | none | add field/read or remove coach-writable status |
+| `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
+| `pillar3aBalance` | `q_total_3a` | `q_3a_total` / `_coach_total_3a` | map to a read key or add alias |
+| `totalSavings` | `q_epargne_liquide` | `q_cash_total` | map to `q_cash_total` |
+| `wealthEstimate` | `q_epargne_liquide` | none distinct | add `q_wealth_estimate` or explicitly drop coach-write |
+
+**Task T-1 (mandatory):** add a `case` for each of the 11 unmapped keys to `_mapFactKeyToAnswers`, mapping to a wizard key that `fromWizardAnswers` already reads where one exists. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the read.
 
 | allowlist key | wizard key to add | `fromWizardAnswers` target field |
 |---|---|---|
-| `goal` | `q_goal` | `goalA` (GoalA.type) |
-| `selfEmployedNetIncome` | `q_self_employed_income` | `prevoyance`/income: self-employed net income used by indep archetype |
-| `has2ndPillar` | `q_has_2nd_pillar` | LPP eligibility flag |
+| `goal` | `q_main_goal` (or add alias `q_goal`) | `goalA` (GoalA.type) |
+| `selfEmployedNetIncome` | `q_self_employed_income` | add/read income field used by independent archetype |
+| `has2ndPillar` | `q_has_pension_fund` | LPP eligibility flag |
 | `hasVoluntaryLpp` | `q_has_voluntary_lpp` | `prevoyance` facultative flag |
-| `hasDebt` | `q_has_debt` | `dettes` presence flag |
-| `totalDebt` | `q_total_debt` | `dettes` aggregate |
-| `spouseBirthYear` | `q_spouse_birth_year` | `conjoint.birthYear` |
-| `spouseIncomeNetMonthly` | `q_spouse_income` | `conjoint.salaireBrutMensuel` (net→gross handling per existing conjoint logic) |
-| `spouseAvsContributionYears` | `q_spouse_avs_years` | `conjoint.prevoyance` AVS years |
-| `hasAvsGaps` | `q_has_avs_gaps` | `prevoyance.lacunesAVS` flag |
-| `avsContributionYears` | `q_avs_years` | `prevoyance.anneesContribuees` |
+| `hasDebt` | `q_has_consumer_debt` | `dettes` presence flag |
+| `totalDebt` | add `q_total_debt` or map to existing debt detail keys | `dettes` aggregate/detail |
+| `spouseBirthYear` | `q_partner_birth_year` | `conjoint.birthYear` |
+| `spouseIncomeNetMonthly` | `q_partner_net_income_chf` | `conjoint.salaireBrutMensuel` (net->gross handling per existing conjoint logic) |
+| `spouseAvsContributionYears` | add `q_spouse_avs_contribution_years` | `conjoint.prevoyance` AVS years |
+| `hasAvsGaps` | add boolean/status mapping to `q_avs_lacunes_status` or `_coach_avs_lacunes` | `prevoyance.lacunesAVS` flag |
+| `avsContributionYears` | `q_avs_contribution_years` | `prevoyance.anneesContribuees` |
 
-After T-1, `_mapFactKeyToAnswers` handles all 35 keys and the §8.1 parity test passes. Until T-1 lands, that test is expected RED and gates the PR.
+After T-0 and T-1, `_mapFactKeyToAnswers` handles all 35 keys and every mapper target is actually read by `fromWizardAnswers`; the §8.1 parity test passes. Until both tasks land, that test is expected RED and gates the PR.
 
 **Task T-2 (mandatory, from §3.5 note):** resolve the `totalSavings` / `wealthEstimate` → `q_epargne_liquide` collision by giving `wealthEstimate` its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read into `totalPatrimoine`.
 
