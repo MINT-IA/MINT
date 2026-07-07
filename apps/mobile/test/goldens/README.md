@@ -79,7 +79,7 @@ Spec reality for Infra-G5:
 - `FriHistoryChart` / `fri_history_chart` is deferred: no Flutter widget or
   class exists in the repo today, so the gate must not alias it to another
   chart.
-- The historical snake-case screen slug for the chiffre-choc surface is
+- The historical snake-case screen slug for the shock-number surface is
   obsolete for this purpose. The live surface is pinned to
   `MintResultHeroCard`, used as the life-event hero card.
 
