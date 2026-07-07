@@ -38,7 +38,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-4 — NO ISLANDS.** Every isolated provider (`BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, documents, conversations) MUST bridge into the recompute so `MintUserState` is never stale. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
-- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist and coach tool enum are in sync at `095eeaa32`, but the mobile path is not: **18 backend-writable keys are ineffective locally via `applySaveFact`** — see §3.8.
+- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. G2 requires backend allowlist == coach tool enum == mobile mapper == keys read by `CoachProfile.fromWizardAnswers`; §3.8 records the repaired mapping decisions.
 
 ---
 
@@ -100,7 +100,7 @@ Backend-only members `document_scan` (.85, unconfirmed OCR), `institutional_api`
 
 ## 3. Ledger — coach/backend-writable fields (the 35-key allowlist)
 
-These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_chat.py:924`). They are the ONLY keys the coach (`save_fact`) and backend may write. `wizard key` = the target produced by `CoachProfileProvider._mapFactKeyToAnswers`, verbatim from the real switch. Rows whose `wizard key` cell reads **⚠ NO MAPPER CASE** currently fall through `default: return const {}` and are silently dropped on mobile — §3.8 lists them as required repair work.
+These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_chat.py:924`). They are the ONLY keys the coach (`save_fact`) and backend may write. `wizard key` = the target produced by `CoachProfileProvider._mapFactKeyToAnswers`, verbatim from the real switch. G2's parity gate fails if any backend-writable key is missing from that switch or maps to a key not read by `CoachProfile.fromWizardAnswers`.
 
 ### 3.1 Identity / location
 
@@ -112,7 +112,7 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `commune` | `q_commune` | String | identity | userInput | annual | .60 | applySaveFact/mergeAnswers | communal tax multiplier, fiscal precision |
 | `householdType` | `q_civil_status` | enum {single, couple, concubine, family} | identity/couple | userInput | static* | .60 | applySaveFact/mergeAnswers | `isCouple`, couple AVS plafonnement, succession, lifecyclePhase |
 | `employmentStatus` | `q_employment_status` | enum {salarie, independant, retraite, employee, self_employed, retired, mixed, unemployed, student} | identity | userInput | static* | .60 | applySaveFact/mergeAnswers | `archetype` (indep w/wo LPP), LPP eligibility, SafeMode E1/E4 |
-| `goal` | ⚠ NO MAPPER CASE (§3.8; target `q_goal` → `GoalA`) | enum {house, retire, emergency, invest, optimize_taxes, other} | goals | userInput | static* | .60 | applySaveFact/mergeAnswers | `GoalA`, goal-aware prioritization, Pulse hero |
+| `goal` | `q_main_goal` | enum {house, retire, emergency, invest, optimize_taxes, other} | goals | userInput | static* | .60 | applySaveFact/mergeAnswers | `GoalA`, goal-aware prioritization, Pulse hero |
 | `targetRetirementAge` | `q_target_retirement_age` | int (58–70) | identity | userInput | static* | .60 | applySaveFact/mergeAnswers | `effectiveRetirementAge`, `anneesAvantRetraite`, all retirement sims |
 | `gender` | `q_gender` | enum {M, F} | identity | userInput, certificate | static | .60 | applySaveFact/mergeAnswers | AVS21 transitional reference age (women 1961–63), mortality cohort |
 
@@ -128,9 +128,9 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `incomeGrossYearly` | `q_gross_salary_annual` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuel`, tax tiers, LPP insured salary inference |
 | `employmentRate` | `q_employment_rate` | double % (0–100) | income | userInput | annual | .60 | applySaveFact/mergeAnswers | part-timer LPP pro-rating, coordination deduction |
 | `annualBonus` | `q_annual_bonus` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `bonusPourcentage`, `revenuBrutAnnuel` |
-| `selfEmployedNetIncome` | ⚠ NO MAPPER CASE (§3.8) | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | independant archetype, 3a max 36'288, AVS indep |
+| `selfEmployedNetIncome` | `q_self_employed_net_income` + context fields | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | independant archetype, 3a max 36'288, AVS indep |
 
-> Income keys map to a **pay-frequency-consistent pair** so `fromWizardAnswers` computes `salaireBrutMensuel` correctly (the `incomeNetMonthly/Yearly` cases set BOTH `q_net_income_period_chf` and `q_pay_frequency`; the gross cases normalise to `q_gross_salary_annual`). A write to a `Net*` key MUST NOT silently overwrite a `Gross*`-derived value of a different frequency.
+> Income keys map to a **pay-frequency-consistent pair** so `fromWizardAnswers` computes `salaireBrutMensuel` correctly (the `incomeNetMonthly/Yearly` cases set BOTH `q_net_income_period_chf` and `q_pay_frequency`; the gross cases normalise to `q_gross_salary_annual`). `selfEmployedNetIncome` clears stale `q_gross_salary_annual` and sets `q_employment_status='independant'`, except when the existing status is `mixed`, where the salaried gross component is preserved. A write to a `Net*` key MUST NOT silently overwrite a `Gross*`-derived value of a different frequency.
 
 ### 3.3 LPP (2nd pillar)
 
@@ -141,8 +141,8 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `avoirLppObligatoire` | `_coach_avoir_lpp_oblig` | double CHF | prevoyance | certificate | annual | .95 | applySaveFact/mergeAnswers | split conversion rate (6.8% oblig), flips `isLppFromCertificate` |
 | `avoirLppSurobligatoire` | `_coach_avoir_lpp_suroblig` | double CHF | prevoyance | certificate | annual | .95 | applySaveFact/mergeAnswers | surobligatoire conversion rate, rente split |
 | `lppBuybackMax` | `_coach_rachat_maximum` | double CHF | prevoyance | certificate, userInput | annual | .95 | applySaveFact/mergeAnswers | `rachatMaximum`, `lacuneRachatRestante`, rachat sim, tax deduction |
-| `has2ndPillar` | ⚠ NO MAPPER CASE (§3.8) | bool | prevoyance | userInput | static* | .60 | applySaveFact/mergeAnswers | LPP eligibility gate, archetype indep w/wo LPP |
-| `hasVoluntaryLpp` | ⚠ NO MAPPER CASE (§3.8) | bool | prevoyance | userInput | static* | .60 | applySaveFact/mergeAnswers | independant facultative caisse logic |
+| `has2ndPillar` | `q_has_pension_fund` | bool | prevoyance | userInput | static* | .60 | applySaveFact/mergeAnswers | LPP eligibility gate, archetype indep w/wo LPP |
+| `hasVoluntaryLpp` | `q_self_employed_voluntary_lpp` | bool | prevoyance | userInput | static* | .60 | applySaveFact/mergeAnswers | independant facultative caisse logic |
 
 > **Source inference (existing, keep):** `CoachProfile._resolveDataSources` infers `certificate` for LPP fields when certificate-only signals exist (`_coach_avoir_lpp_oblig`, `_coach_salaire_assure`, `tauxConversionSuroblig`, `_coach_rachat_maximum`), else `estimated`. The ledger's per-field provenance (§6) must record the **actual** source at write time and override this inference.
 
@@ -151,7 +151,7 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
 | `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | 3a max gate (7'258 / 36'288), tax deduction sim, CapEngine |
-| `pillar3aBalance` | `q_total_3a` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
+| `pillar3aBalance` | `q_3a_total` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
 
 > 3a writes MUST respect `canContribute3a` (false for US/FATCA; conditional for frontalier permis G). A `pillar3a*` write for a US person should be accepted as data but flagged non-contributable, not silently zeroed.
 
@@ -160,73 +160,48 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
 | `savingsMonthly` | `q_savings_monthly` | double CHF/mo | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
-| `totalSavings` | `q_epargne_liquide` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
-| `wealthEstimate` | `q_epargne_liquide` **(key collision — see note)** | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine`, wealth tax, net worth |
-| `hasDebt` | ⚠ NO MAPPER CASE (§3.8) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
-| `totalDebt` | ⚠ NO MAPPER CASE (§3.8) | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
+| `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
+| `wealthEstimate` | `q_wealth_estimate` | double CHF gross | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine`, wealth tax, gross wealth |
+| `hasDebt` | `q_has_consumer_debt` | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
+| `totalDebt` | `q_total_debt` | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.declaredTotalDebt`, debt-to-income 0.33, net worth |
 
-> **⚠ `totalSavings` and `wealthEstimate` BOTH map to `q_epargne_liquide` in the real switch** (`case 'totalSavings': case 'wealthEstimate': return {'q_epargne_liquide': value};`). This is a real key collision: the last write wins and clobbers the other concept. The §3.8 repair MUST split these onto distinct wizard keys (`wealthEstimate` → a new `q_wealth_estimate` read by `fromWizardAnswers` into `totalPatrimoine`), or explicitly document and accept the collision. Do not silently preserve the collision without a decision recorded here.
+> `totalSavings` and `wealthEstimate` are deliberately split: savings means liquid cash (`q_cash_total`), while wealth estimate is a **gross** total patrimoine estimate (`q_wealth_estimate`). `PatrimoineProfile.totalPatrimoine` uses `max(wealthEstimate, componentSum)` so a coarse estimate can bootstrap the profile but cannot cap later detailed components. Dettes are subtracted only by `patrimoineNet`; do not store net worth in `wealthEstimate`.
+> `totalDebt` is a declared aggregate and must not be stored in `_coach_dettes_autres`. `DetteProfile.totalDettes` uses `max(declaredTotalDebt, componentSum)` so the declared total does not double-count when later debt components are scanned or edited.
 
 ### 3.6 Spouse (couple)
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `spouseBirthYear` | ⚠ NO MAPPER CASE (§3.8) | int (year) | couple | userInput | static | .60 | applySaveFact/mergeAnswers | `conjoint.birthYear`, couple AVS, survivor question |
-| `spouseIncomeNetMonthly` | ⚠ NO MAPPER CASE (§3.8) | double CHF/mo | couple | userInput | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuelCouple`, couple budget, AVS plafonnement |
-| `spouseAvsContributionYears` | ⚠ NO MAPPER CASE (§3.8) | int (yr) | couple | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | couple AVS rente, lacunes |
+| `spouseBirthYear` | `q_partner_birth_year` | int (year) | couple | userInput | static | .60 | applySaveFact/mergeAnswers | `conjoint.birthYear`, couple AVS, survivor question |
+| `spouseIncomeNetMonthly` | `q_partner_net_income_chf` | double CHF/mo | couple | userInput | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuelCouple`, couple budget, AVS plafonnement |
+| `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` | int (yr) | couple | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | couple AVS rente, lacunes |
 
-> Spouse keys feed `CoachProfile.conjoint`. **Gap (§7):** `HouseholdProvider` is backend-only and is NOT synced down into `conjoint` — offline simulators miss the spouse. The bridge in §7 is mandatory.
+> Spouse keys feed `CoachProfile.conjoint`. `spouseBirthYear` or spouse AVS years materialize a partial conjoint even without income (`salaireBrutMensuel=0`) so collection order does not drop typed partner data. **Gap (§7):** `HouseholdProvider` is backend-only and is NOT synced down into `conjoint` — offline simulators miss the spouse. The bridge in §7 is mandatory.
 
 ### 3.7 AVS (1st pillar)
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `hasAvsGaps` | ⚠ NO MAPPER CASE (§3.8) | bool | prevoyance | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `lacunesAVS` flag, AVS rente reduction warning |
-| `avsContributionYears` | ⚠ NO MAPPER CASE (§3.8) | int (yr) | prevoyance | certificate, userInput | annual | .95 / .60 | applySaveFact/mergeAnswers | `anneesContribuees`, AVS full-rente eligibility (44 yr), RAMD |
+| `hasAvsGaps` | `q_avs_lacunes_status` (`true`→`unknown`, `false`→`no_gaps`) | bool | prevoyance | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `lacunesAVS` flag, AVS rente reduction warning |
+| `avsContributionYears` | `q_avs_contribution_years` | int (yr) | prevoyance | certificate, userInput | annual | .95 / .60 | applySaveFact/mergeAnswers | `anneesContribuees`, AVS full-rente eligibility (44 yr), RAMD |
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — 18 backend-writable keys ineffective locally (parity is broken today)
+### 3.8 G2 REPAIR — save_fact parity is enforced
 
-At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
+G1 found **18 ineffective backend-writable keys** at `095eeaa32`: 11 had no mobile mapper case, and 7 mapped to wizard keys that `CoachProfile.fromWizardAnswers()` did not read. G2 repairs the mobile path and turns the contract into a hard parity gate: backend allowlist == coach tool enum == 35 mobile mapper cases == 0 mapped-but-unread targets.
 
-G1 found a second gap: **7 mapped keys write to wizard keys that `CoachProfile.fromWizardAnswers()` does not read**, so `applySaveFact` returns `true` but the profile still does not reconstruct the intended value. Total local ineffectiveness: **18 backend-writable keys**.
+**Gate:** `tools/checks/tests/test_codex_spec_reality_contract.py::test_data_ledger_save_fact_parity_is_repaired` asserts no backend-writable key can be added, renamed, or mapped to a dead wizard key without failing CI.
 
-**The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
-
-**The 7 mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`, `totalSavings -> q_epargne_liquide`, `wealthEstimate -> q_epargne_liquide`.
-
-**Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
-
-| allowlist key | current mapper | read by `fromWizardAnswers` today | required direction |
-|---|---|---|---|
-| `commune` | `q_commune` | none | add a `commune` field/read or remove coach-writable status |
-| `gender` | `q_gender` | none | add a profile gender read or remove coach-writable status |
-| `employmentRate` | `q_employment_rate` | none | add field/read or remove coach-writable status |
-| `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
-| `pillar3aBalance` | `q_total_3a` | `q_3a_total` / `_coach_total_3a` | map to a read key or add alias |
-| `totalSavings` | `q_epargne_liquide` | `q_cash_total` | map to `q_cash_total` |
-| `wealthEstimate` | `q_epargne_liquide` | none distinct | add `q_wealth_estimate` or explicitly drop coach-write |
-
-**Task T-1 (mandatory):** add a `case` for each of the 11 unmapped keys to `_mapFactKeyToAnswers`, mapping to a wizard key that `fromWizardAnswers` already reads where one exists. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the read.
-
-| allowlist key | wizard key to add | `fromWizardAnswers` target field |
-|---|---|---|
-| `goal` | `q_main_goal` (or add alias `q_goal`) | `goalA` (GoalA.type) |
-| `selfEmployedNetIncome` | `q_self_employed_income` | add/read income field used by independent archetype |
-| `has2ndPillar` | `q_has_pension_fund` | LPP eligibility flag |
-| `hasVoluntaryLpp` | `q_has_voluntary_lpp` | `prevoyance` facultative flag |
-| `hasDebt` | `q_has_consumer_debt` | `dettes` presence flag |
-| `totalDebt` | add `q_total_debt` or map to existing debt detail keys | `dettes` aggregate/detail |
-| `spouseBirthYear` | `q_partner_birth_year` | `conjoint.birthYear` |
-| `spouseIncomeNetMonthly` | `q_partner_net_income_chf` | `conjoint.salaireBrutMensuel` (net->gross handling per existing conjoint logic) |
-| `spouseAvsContributionYears` | add `q_spouse_avs_contribution_years` | `conjoint.prevoyance` AVS years |
-| `hasAvsGaps` | add boolean/status mapping to `q_avs_lacunes_status` or `_coach_avs_lacunes` | `prevoyance.lacunesAVS` flag |
-| `avsContributionYears` | `q_avs_contribution_years` | `prevoyance.anneesContribuees` |
-
-After T-0 and T-1, `_mapFactKeyToAnswers` handles all 35 keys and every mapper target is actually read by `fromWizardAnswers`; the §8.1 parity test passes. Until both tasks land, that test is expected RED and gates the PR.
-
-**Task T-2 (mandatory, from §3.5 note):** resolve the `totalSavings` / `wealthEstimate` → `q_epargne_liquide` collision by giving `wealthEstimate` its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read into `totalPatrimoine`.
+| decision | repaired mapping |
+|---|---|
+| identity / revenue | `commune`, `gender`, `employmentRate`, `annualBonus`, and `selfEmployedNetIncome` are read into typed `CoachProfile` fields. |
+| goals | `goal` writes `q_main_goal`; every backend enum value (`house`, `retire`, `emergency`, `invest`, `optimize_taxes`, `other`) has an explicit `GoalA` parser case. |
+| LPP | `has2ndPillar` writes `q_has_pension_fund`; `hasVoluntaryLpp` writes `q_self_employed_voluntary_lpp` and reconstructs `PrevoyanceProfile.hasVoluntaryLpp`. |
+| debt | `hasDebt` writes `q_has_consumer_debt`; `totalDebt` writes aggregate `q_total_debt`, and `dettes.totalDettes` uses the higher of declared total and detailed component sum. |
+| spouse | spouse income stays net in `q_partner_net_income_chf`; existing model conversion derives gross monthly conjoint income. AVS years write `q_spouse_avs_contribution_years`. |
+| AVS | `hasAvsGaps` writes `q_avs_lacunes_status` (`true` -> `unknown`, `false` -> `no_gaps`); exact years write `q_avs_contribution_years`. |
+| savings / wealth | `pillar3aBalance` writes wizard key `q_3a_total`; `totalSavings` writes `q_cash_total`; `wealthEstimate` writes a gross `q_wealth_estimate` and `totalPatrimoine` uses the higher of that estimate and detailed component sum. |
 
 ---
 
