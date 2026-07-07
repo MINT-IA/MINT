@@ -187,6 +187,33 @@ jobs:
           fi
           python3 tools/checks/no_bypass_persistence.py --base-ref "$BASE_REF"
 
+  # ─── Swiss financial constants gate ────────────────────────
+  # Blocks newly introduced financial rates outside regulatory registry.py or
+  # mobile financial_core. Keeps product services from embedding ad hoc taux.
+  hardcoded-rate-gate:
+    name: Hardcoded rate gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan introduced hardcoded financial rates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [[ -z "$BASE_REF" ]] || [[ "${BASE_REF//0/}" == "" ]]; then
+              BASE_REF="HEAD^"
+            fi
+          fi
+          python3 tools/checks/hardcoded_rate_gate.py --base-ref "$BASE_REF"
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -661,7 +688,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, contracts-drift, secret-scan, repo-contract-tests, banned-ui-terms, financial-core-gate, no-bypass-persistence, backend, flutter, readability, wcag-aa-all-touched, pii-log-gate, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, contracts-drift, secret-scan, repo-contract-tests, banned-ui-terms, financial-core-gate, no-bypass-persistence, hardcoded-rate-gate, backend, flutter, readability, wcag-aa-all-touched, pii-log-gate, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -673,6 +700,7 @@ jobs:
           banned_terms="${{ needs.banned-ui-terms.result }}"
           financial_core="${{ needs.financial-core-gate.result }}"
           no_bypass="${{ needs.no-bypass-persistence.result }}"
+          hardcoded_rates="${{ needs.hardcoded-rate-gate.result }}"
           backend="${{ needs.backend.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
           flutter="${{ needs.flutter.result }}"
@@ -688,6 +716,7 @@ jobs:
           [[ "$banned_terms" == "skipped" ]] && banned_terms="success"
           [[ "$financial_core" == "skipped" ]] && financial_core="success"
           [[ "$no_bypass" == "skipped" ]] && no_bypass="success"
+          [[ "$hardcoded_rates" == "skipped" ]] && hardcoded_rates="success"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$secret_scan" == "skipped" ]] && secret_scan="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
@@ -698,8 +727,8 @@ jobs:
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$contracts" != "success" ]] || [[ "$repo_contracts" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$no_bypass" != "success" ]] || [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$pii" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — contracts=$contracts repo_contracts=$repo_contracts banned_terms=$banned_terms financial_core=$financial_core no_bypass=$no_bypass backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag pii=$pii parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$contracts" != "success" ]] || [[ "$repo_contracts" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$no_bypass" != "success" ]] || [[ "$hardcoded_rates" != "success" ]] || [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$pii" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — contracts=$contracts repo_contracts=$repo_contracts banned_terms=$banned_terms financial_core=$financial_core no_bypass=$no_bypass hardcoded_rates=$hardcoded_rates backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag pii=$pii parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"

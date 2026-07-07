@@ -50,6 +50,10 @@ pre-commit:
       run: python3 tools/checks/no_bypass_persistence.py --staged
       glob: "apps/mobile/lib/**/*.dart"
       tags: [persistence, ledger, mint]
+    hardcoded-rate-gate:
+      run: python3 tools/checks/hardcoded_rate_gate.py --staged
+      glob: "*.{dart,py}"
+      tags: [financial-core, constants, mint]
 
 skip:
   - merge
