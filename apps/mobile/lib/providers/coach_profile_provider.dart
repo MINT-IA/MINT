@@ -197,19 +197,17 @@ class CoachProfileProvider extends ChangeNotifier {
       final isLoggedIn = await AuthService.isLoggedIn();
       if (!isLoggedIn) return;
       final remoteData = await ApiService.get('/profiles/me');
-      if (remoteData is Map<String, dynamic>) {
-        mergeFromRemoteProfile(remoteData);
-        // Also merge financial fields that the basic merge doesn't cover.
-        _mergeFinancialFieldsFromRemote(remoteData);
-        // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
-        // factKind is the coarse 'profile_sync' enum; the finer-grained
-        // per-field attribution is deferred to Phase 31-02 (backend can
-        // echo `facts_saved: [...]` in /profiles/me response).
-        MintBreadcrumbs.saveFact(
-          success: true,
-          factKind: 'profile_sync',
-        );
-      }
+      mergeFromRemoteProfile(remoteData);
+      // Also merge financial fields that the basic merge doesn't cover.
+      _mergeFinancialFieldsFromRemote(remoteData);
+      // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
+      // factKind is the coarse 'profile_sync' enum; the finer-grained
+      // per-field attribution is deferred to Phase 31-02 (backend can
+      // echo `facts_saved: [...]` in /profiles/me response).
+      MintBreadcrumbs.saveFact(
+        success: true,
+        factKind: 'profile_sync',
+      );
     } catch (e) {
       debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
       // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
@@ -253,7 +251,7 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     // 3a balance
     final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
-    if ((p.totalEpargne3a ?? 0) <= 0 && remote3a != null && remote3a > 0) {
+    if (p.totalEpargne3a <= 0 && remote3a != null && remote3a > 0) {
       partial['_coach_total_3a'] = remote3a;
     }
 
@@ -484,8 +482,8 @@ class CoachProfileProvider extends ChangeNotifier {
     _scoreHistory = await ReportPersistenceService.loadScoreHistory();
   }
 
-  /// Met a jour le profil directement a partir d'un map d'answers.
-  /// Utilise apres la completion du wizard pour eviter un rechargement async.
+  /// Updates the profile directly from an answers map.
+  /// Used after wizard completion to avoid an async reload.
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
     _lastAnswers = answers;
@@ -527,7 +525,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Backend `save_fact` persists to `ProfileModel.data` only when `user_id`
   /// is present. Anonymous local-mode users (the default for fresh installs)
   /// never have a `user_id`, so the backend path hits `# Hors-DB path` and
-  /// returns "Fait noté (hors DB)" without persisting — the chat captures
+  /// returns an out-of-DB acknowledgement without persisting; chat captures
   /// data in theory but nothing lands in the profile.
   ///
   /// This method closes that gap: when the coach_chat_screen receives a
@@ -545,7 +543,12 @@ class CoachProfileProvider extends ChangeNotifier {
     String confidence = 'medium',
   }) async {
     if (confidence == 'low') return false; // mirror backend skip
-    final mapped = _mapFactKeyToAnswers(factKey, factValue);
+    final currentAnswers = await ReportPersistenceService.loadAnswers();
+    final mapped = _mapFactKeyToAnswers(
+      factKey,
+      factValue,
+      currentAnswers: currentAnswers,
+    );
     if (mapped.isEmpty) return false;
     await mergeAnswers(mapped);
     return true;
@@ -554,7 +557,11 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Translates a `save_fact` canonical key + value into the corresponding
   /// wizard answer keys expected by `CoachProfile.fromWizardAnswers`.
   /// Returns an empty map when the key is unknown.
-  Map<String, dynamic> _mapFactKeyToAnswers(String factKey, dynamic value) {
+  Map<String, dynamic> _mapFactKeyToAnswers(
+    String factKey,
+    dynamic value, {
+    Map<String, dynamic>? currentAnswers,
+  }) {
     if (value == null) return const {};
     switch (factKey) {
       // Identity / location
@@ -570,8 +577,12 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_civil_status': value};
       case 'employmentStatus':
         return {'q_employment_status': value};
+      case 'has2ndPillar':
+        return {'q_has_pension_fund': value};
       case 'gender':
         return {'q_gender': value};
+      case 'goal':
+        return {'q_main_goal': value};
       case 'targetRetirementAge':
         return {'q_target_retirement_age': value};
       // Income — map each fact into a pay-frequency-consistent pair so
@@ -592,6 +603,14 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_gross_salary_annual': monthly * 12};
       case 'incomeGrossYearly':
         return {'q_gross_salary_annual': value};
+      case 'selfEmployedNetIncome':
+        final keepMixedStatus =
+            currentAnswers?['q_employment_status'] == 'mixed';
+        return {
+          'q_self_employed_net_income': value,
+          if (!keepMixedStatus) 'q_gross_salary_annual': null,
+          if (!keepMixedStatus) 'q_employment_status': 'independant',
+        };
       case 'employmentRate':
         return {'q_employment_rate': value};
       case 'annualBonus':
@@ -607,20 +626,62 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'_coach_salaire_assure': value};
       case 'lppBuybackMax':
         return {'_coach_rachat_maximum': value};
+      case 'hasVoluntaryLpp':
+        return {'q_self_employed_voluntary_lpp': value};
       // 3a
       case 'pillar3aAnnual':
         return {'q_3a_annual_contribution': value};
       case 'pillar3aBalance':
-        return {'q_total_3a': value};
+        return {'q_3a_total': value};
       // Savings / wealth / debt
       case 'savingsMonthly':
         return {'q_savings_monthly': value};
       case 'totalSavings':
+        return {'q_cash_total': value};
       case 'wealthEstimate':
-        return {'q_epargne_liquide': value};
+        return {'q_wealth_estimate': value};
+      case 'hasDebt':
+        return {'q_has_consumer_debt': value};
+      case 'totalDebt':
+        return {'q_total_debt': value};
+      // Spouse
+      case 'spouseBirthYear':
+        return {'q_partner_birth_year': value};
+      case 'spouseIncomeNetMonthly':
+        return {'q_partner_net_income_chf': value};
+      case 'spouseAvsContributionYears':
+        return {'q_spouse_avs_contribution_years': value};
+      // AVS
+      case 'hasAvsGaps':
+        if (currentAnswers?['q_avs_lacunes_status'] != null) return const {};
+        final hasGaps = _asBool(value);
+        if (hasGaps == null) return const {};
+        return {'q_avs_lacunes_status': hasGaps ? 'unknown' : 'no_gaps'};
+      case 'avsContributionYears':
+        return {'q_avs_contribution_years': value};
       default:
         return const {};
     }
+  }
+
+  static bool? _asBool(dynamic v) {
+    if (v is bool) return v;
+    if (v is num) return v != 0;
+    if (v is String) {
+      switch (v.toLowerCase()) {
+        case 'true':
+        case 'yes':
+        case 'oui':
+        case '1':
+          return true;
+        case 'false':
+        case 'no':
+        case 'non':
+        case '0':
+          return false;
+      }
+    }
+    return null;
   }
 
   static num? _asNum(dynamic v) {
@@ -1259,7 +1320,7 @@ class CoachProfileProvider extends ChangeNotifier {
     // a chaque restart et daysSinceUpdate >= 330 ne sera jamais vrai.
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
 
-    // Persister aussi createdAt si c'est le premier refresh (preserve l'original)
+    // Persist createdAt on the first refresh so the original date is preserved.
     if (answers['_coach_created_at'] == null && p.createdAt != p.updatedAt) {
       answers['_coach_created_at'] = p.createdAt.toIso8601String();
     }
