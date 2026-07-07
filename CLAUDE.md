@@ -7,10 +7,16 @@
 ## 🚨 TOP — 5 RULES CRITIQUES (repeat at BOTTOM — Liu 2024 lost-in-the-middle mitigation)
 
 1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur », « certain », « assuré », « sans risque », « parfait ». Use « pourrait », « envisager », « adapté ». Full list → [swiss-brain.md §1](docs/AGENTS/swiss-brain.md).
-2. **Accents 100% FR mandatory** — `creer → créer`, `eclairage → éclairage`, `decouvrir → découvrir`, `securite → sécurité`, `premier éclairage` (jamais `premier eclairage`). ASCII « e » à la place de « é » = bug. Lint : `tools/checks/accent_lint_fr.py`.
+2. **Accents 100% FR mandatory** — écrire `créer`, `éclairage`, `découvrir`, `sécurité`, `premier éclairage`. ASCII « e » à la place de « é » = bug. Lint : `tools/checks/accent_lint_fr.py`.
 3. **MINT ≠ retirement app** — 18 life events equally weighted (housing, family, tax, career, debt…). Never frame screens/prompts as « retraite-first ». Target : 18-99. Pivot 2026-04-12 : lucidité, pas protection.
 4. **Financial_core reuse mandatory** — `lib/services/financial_core/` est SOURCE OF TRUTH. Never re-implement `_calculate*()` dans services. ADR : `decisions/ADR-20260223-unified-financial-engine.md`.
 5. **i18n required** — Toutes strings user-facing via `AppLocalizations.of(context)!.key`. Never `Text('Bonjour')`. 6 ARB files (fr/en/de/es/it/pt) sous `lib/l10n/`. Run `flutter gen-l10n`.
+
+---
+
+## 0. MEMORY HIERARCHY
+
+- **Hiérarchie mémoire** — repo (git history + `decisions/` ADR + checked-in docs/code) = source de vérité ; Engram = index de rappel, jamais source primaire. Conflit → le repo gagne.
 
 ---
 
@@ -115,7 +121,7 @@ cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 ## 🚨 BOTTOM — 5 RULES CRITIQUES (duplicated intentionally, Liu 2024)
 
 1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur ». Use « pourrait », « envisager ».
-2. **Accents 100% FR mandatory** — `creer → créer`, `eclairage → éclairage`. ASCII = bug.
+2. **Accents 100% FR mandatory** — écrire `créer` et `éclairage`. ASCII = bug.
 3. **MINT ≠ retirement app** — 18 life events equally weighted. Frame generically, pas « retraite-first ».
 4. **Financial_core reuse mandatory** — `lib/services/financial_core/`. Never re-implement `_calculate*()`.
 5. **i18n required** — `AppLocalizations.of(context)!.key`. 6 ARB files. Run `flutter gen-l10n`.
