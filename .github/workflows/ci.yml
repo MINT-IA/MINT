@@ -109,6 +109,24 @@ jobs:
       - name: Run repo contract tests
         run: python3 -m pytest tools/checks/tests/ -q
 
+  # ─── LSFin UI copy gate ─────────────────────────────────────
+  # Blocks core banned promise terms from CLAUDE.md /
+  # LEGAL_RELEASE_CHECK.md in Dart UI string literals. The scanner is
+  # lexical but not raw grep: it skips comments/tests/imports/internal guard
+  # dictionaries and allows explicit Swiss legal terms such as "salaire
+  # assuré" plus negative disclaimers such as "ne constitue pas un conseil
+  # financier".
+  banned-ui-terms:
+    name: Banned UI terms
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan Dart UI strings
+        run: python3 tools/checks/banned_ui_terms.py
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -597,7 +615,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, contracts-drift, secret-scan, repo-contract-tests, backend, flutter, readability, wcag-aa-all-touched, pii-log-gate, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, contracts-drift, secret-scan, repo-contract-tests, banned-ui-terms, backend, flutter, readability, wcag-aa-all-touched, pii-log-gate, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -606,6 +624,7 @@ jobs:
           # Skip check if job was skipped (no relevant changes)
           contracts="${{ needs.contracts-drift.result }}"
           repo_contracts="${{ needs.repo-contract-tests.result }}"
+          banned_terms="${{ needs.banned-ui-terms.result }}"
           backend="${{ needs.backend.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
           flutter="${{ needs.flutter.result }}"
@@ -618,6 +637,7 @@ jobs:
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$contracts" == "skipped" ]] && contracts="success"
           [[ "$repo_contracts" == "skipped" ]] && repo_contracts="success"
+          [[ "$banned_terms" == "skipped" ]] && banned_terms="success"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$secret_scan" == "skipped" ]] && secret_scan="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
@@ -628,8 +648,8 @@ jobs:
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$contracts" != "success" ]] || [[ "$repo_contracts" != "success" ]] || [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$pii" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — contracts=$contracts repo_contracts=$repo_contracts backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag pii=$pii parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$contracts" != "success" ]] || [[ "$repo_contracts" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$pii" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — contracts=$contracts repo_contracts=$repo_contracts banned_terms=$banned_terms backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag pii=$pii parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"

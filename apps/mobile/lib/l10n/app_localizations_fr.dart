@@ -20947,7 +20947,7 @@ class SFr extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle garantit un revenu de base à la retraite.';
+      'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle sert de revenu de base à la retraite.';
 
   @override
   String get jargonRamdTooltip =>

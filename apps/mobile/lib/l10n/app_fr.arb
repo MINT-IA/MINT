@@ -10290,7 +10290,7 @@
   "jargonReplacementRateTooltip": "Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.",
   "jargonLppTooltip": "La LPP (Loi sur la prévoyance professionnelle) est le 2e pilier. Ton employeur et toi cotisez ensemble pour ta retraite.",
   "jargon3aTooltip": "Le pilier 3a est une épargne retraite volontaire avec avantage fiscal. Le plafond est de 7 258 CHF/an (salarié avec LPP).",
-  "jargonAvsTooltip": "L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle garantit un revenu de base à la retraite.",
+  "jargonAvsTooltip": "L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle sert de revenu de base à la retraite.",
   "jargonRamdTooltip": "Le RAMD détermine le montant de ta rente AVS. Il est calculé à partir de tes revenus soumis à cotisation.",
   "confidenceDetailsTooltip": "Basé sur : âge, revenu, canton, statut civil, nationalité, LPP et 3a déclarés. Plus tu fournis de données, plus la projection est fiable.",
   "replacementRateContextGood": "C’est un bon niveau — au-dessus de 80 %.",

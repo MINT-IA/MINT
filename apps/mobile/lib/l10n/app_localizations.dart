@@ -36858,7 +36858,7 @@ abstract class S {
   /// No description provided for @jargonAvsTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle garantit un revenu de base à la retraite.'**
+  /// **'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle sert de revenu de base à la retraite.'**
   String get jargonAvsTooltip;
 
   /// No description provided for @jargonRamdTooltip.
