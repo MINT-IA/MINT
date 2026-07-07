@@ -416,15 +416,69 @@
       }
     }
   },
+  "trajectoryDebtSubtitle": "Restschuld · {years} Jahre",
+  "@trajectoryDebtSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryDebtSemantics": "Schuldentrajektorie. Geschätzte Restschuld am Ende des Zeitraums: {capital}.",
+  "@trajectoryDebtSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryFinancialSemantics": "Finanzielle Trajektorie. Basisszenario: {capital}. Geschätzte Ersatzquote: {rate} Prozent.",
+  "@trajectoryFinancialSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryOptimiste": "Optimistisch",
   "trajectoryBase": "Basis",
   "trajectoryPrudent": "Konservativ",
   "trajectoryTauxRemplacement": "Geschätzter Ersatzquote: ",
+  "trajectoryDebtGoalReached": "Ziel Schuldenfreiheit in diesem Horizont erreicht.",
+  "trajectoryDebtRemaining": "Geschätzte Restschuld: {value} ({percent}% zurückgezahlt).",
+  "@trajectoryDebtRemaining": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryEmpty": "Noch keine Projektion verfügbar",
   "trajectoryEmptySub": "Vervollständige dein Profil, um deine Entwicklung zu sehen",
   "trajectoryDisclaimer": "Bildungsschätzungen — keine Finanzberatung.",
   "trajectoryDragHint": "Wischen zum Erkunden",
   "trajectoryGoalLabel": "Ziel",
+  "friBreakdownLiquidite": "Liquidität",
+  "friBreakdownFiscalite": "Steuern",
+  "friBreakdownRetraite": "Ruhestand",
+  "friBreakdownRisque": "Risiko",
+  "friBreakdownSemantics": "{label}: {score} von 25",
+  "@friBreakdownSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {
@@ -4532,7 +4586,7 @@
   "genderGapAppBarTitle": "Vorsorgelücke",
   "genderGapHeaderTitle": "Vorsorgelücke",
   "genderGapHeaderSubtitle": "Auswirkung der Teilzeitarbeit auf die Rente",
-  "genderGapIntro": "Der Koordinationsabzug (CHF 26'460) wird nicht anteilsmässig für Teilzeit berechnet, was Teilzeitbeschäftigte stärker benachteiligt. Bewege den Regler, um die Auswirkung zu sehen.",
+  "genderGapIntro": "Der Koordinationsabzug (CHF 26'460) wird nicht anteilsmässig für Teilzeit berechnet, was Teilzeitbeschäftigte stärker benachteiligt. Bewege den Schieber, um die Auswirkung zu sehen.",
   "genderGapTauxActivite": "Beschäftigungsgrad",
   "genderGapParametres": "Parameter",
   "genderGapRevenuAnnuel": "Bruttojahreseinkommen (100%)",
@@ -4614,7 +4668,7 @@
   "lamalFranchiseDemoMode": "DEMOMODUS",
   "lamalFranchiseHeaderTitle": "Deine KVG-Franchise",
   "lamalFranchiseHeaderSubtitle": "Finde die ideale Franchise je nach deinen Gesundheitskosten",
-  "lamalFranchiseIntro": "Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Regler, um das richtige Gleichgewicht zu finden.",
+  "lamalFranchiseIntro": "Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Schieber, um das richtige Gleichgewicht zu finden.",
   "lamalFranchiseToggleAdulte": "Erwachsene",
   "lamalFranchiseToggleEnfant": "Kind",
   "lamalFranchisePrimeSliderLabel": "Monatsprämie (Franchise 300)",

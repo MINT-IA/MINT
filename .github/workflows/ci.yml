@@ -523,26 +523,12 @@ jobs:
           echo "Running golden helper unit tests (CI-safe subset)"
           flutter test test/goldens/helpers/ --reporter compact
 
-      - name: Dataviz golden readiness (non-blocking until Infra-G5)
+      - name: Dataviz contract gate (Infra-G5)
         if: matrix.shard == 'screens'
-        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t dataviz_goldens < <(
-            find test/golden test/goldens -type f \( \
-              -name '*trajectory_chart*_test.dart' -o \
-              -name '*fri_breakdown_bars*_test.dart' -o \
-              -name '*fri_history_chart*_test.dart' -o \
-              -name '*breakeven_indicator*_test.dart' -o \
-              -name '*chiffre_choc_screen*_test.dart' \
-            \) 2>/dev/null || true
-          )
-          if [ "${#dataviz_goldens[@]}" -eq 0 ]; then
-            echo "::notice::Infra-G5 will add blocking dataviz golden baselines; none found yet."
-            exit 0
-          fi
-          flutter test "${dataviz_goldens[@]}" --reporter compact
+          flutter test test/goldens/dataviz_contract_test.dart --reporter compact
 
   # ─── Phase 32 Plan 32-05 / D-12 §1: route registry parity gate ──
   # Runs the stdlib-only Python lint (tools/checks/route_registry_parity.py)

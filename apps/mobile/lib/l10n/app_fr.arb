@@ -441,15 +441,69 @@
       }
     }
   },
+  "trajectoryDebtSubtitle": "Dette restante · {years} ans",
+  "@trajectoryDebtSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryDebtSemantics": "Graphique de trajectoire de dette. Dette restante estimée en fin de période : {capital}.",
+  "@trajectoryDebtSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryFinancialSemantics": "Graphique de trajectoire financière. Scénario base : {capital}. Taux de remplacement estimé : {rate} pour cent.",
+  "@trajectoryFinancialSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryOptimiste": "Optimiste",
   "trajectoryBase": "Base",
   "trajectoryPrudent": "Prudent",
   "trajectoryTauxRemplacement": "Taux de remplacement estimé : ",
+  "trajectoryDebtGoalReached": "Objectif dette zéro atteint sur cet horizon.",
+  "trajectoryDebtRemaining": "Dette restante estimée : {value} ({percent}% remboursée).",
+  "@trajectoryDebtRemaining": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryEmpty": "Pas encore de projection disponible",
   "trajectoryEmptySub": "Complète ton profil pour voir ta trajectoire",
   "trajectoryDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier.",
   "trajectoryDragHint": "Glisse pour explorer",
   "trajectoryGoalLabel": "Cible",
+  "friBreakdownLiquidite": "Liquidité",
+  "friBreakdownFiscalite": "Fiscalité",
+  "friBreakdownRetraite": "Retraite",
+  "friBreakdownRisque": "Risque",
+  "friBreakdownSemantics": "{label}: {score} sur 25",
+  "@friBreakdownSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {

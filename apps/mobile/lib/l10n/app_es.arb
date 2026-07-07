@@ -416,15 +416,69 @@
       }
     }
   },
+  "trajectoryDebtSubtitle": "Deuda restante · {years} años",
+  "@trajectoryDebtSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryDebtSemantics": "Gráfico de trayectoria de deuda. Deuda restante estimada al final del período: {capital}.",
+  "@trajectoryDebtSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryFinancialSemantics": "Gráfico de trayectoria financiera. Escenario base: {capital}. Tasa de reemplazo estimada: {rate} por ciento.",
+  "@trajectoryFinancialSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryOptimiste": "Optimiste",
   "trajectoryBase": "Base",
   "trajectoryPrudent": "Prudent",
   "trajectoryTauxRemplacement": "Tasa de reemplazo estimada: ",
+  "trajectoryDebtGoalReached": "Objetivo deuda cero alcanzado en este horizonte.",
+  "trajectoryDebtRemaining": "Deuda restante estimada: {value} ({percent}% reembolsada).",
+  "@trajectoryDebtRemaining": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryEmpty": "Todavía no hay proyección disponible",
   "trajectoryEmptySub": "Completa tu perfil para ver tu trayectoria",
   "trajectoryDisclaimer": "Estimaciones educativas — no constituye asesoramiento financiero.",
   "trajectoryDragHint": "Glisse pour explorer",
   "trajectoryGoalLabel": "Cible",
+  "friBreakdownLiquidite": "Liquidez",
+  "friBreakdownFiscalite": "Fiscalidad",
+  "friBreakdownRetraite": "Jubilación",
+  "friBreakdownRisque": "Riesgo",
+  "friBreakdownSemantics": "{label}: {score} de 25",
+  "@friBreakdownSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {
@@ -7982,7 +8036,7 @@
   },
   "coachingDescAttentif": "MINT está atento en cada sesión. Sugerencias frecuentes y memoria rica.",
   "coachingDescCalme": "MINT interviene ocasionalmente. Un recordatorio cada 3 días máximo.",
-  "coachingDescDiscret": "MINT te deja tranquilo. Recordatorios raros, solo plazos críticos.",
+  "coachingDescDiscret": "MINT no te molesta. Recordatorios raros, solo plazos críticos.",
   "coachingDescEquilibre": "MINT te guía diariamente. Un recordatorio por día, sugerencias contextuales.",
   "coachingDescProactif": "MINT te acompaña activamente. Recordatorios en cada visita, memoria completa.",
   "coachingEngagementStats": "{engaged} interacciones de {total} sugerencias",

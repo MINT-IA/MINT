@@ -2211,6 +2211,24 @@ abstract class S {
   /// **'3 scénarios · {years} ans'**
   String trajectorySubtitle(String years);
 
+  /// No description provided for @trajectoryDebtSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dette restante · {years} ans'**
+  String trajectoryDebtSubtitle(String years);
+
+  /// No description provided for @trajectoryDebtSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Graphique de trajectoire de dette. Dette restante estimée en fin de période : {capital}.'**
+  String trajectoryDebtSemantics(String capital);
+
+  /// No description provided for @trajectoryFinancialSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Graphique de trajectoire financière. Scénario base : {capital}. Taux de remplacement estimé : {rate} pour cent.'**
+  String trajectoryFinancialSemantics(String capital, String rate);
+
   /// No description provided for @trajectoryOptimiste.
   ///
   /// In fr, this message translates to:
@@ -2234,6 +2252,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Taux de remplacement estimé : '**
   String get trajectoryTauxRemplacement;
+
+  /// No description provided for @trajectoryDebtGoalReached.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif dette zéro atteint sur cet horizon.'**
+  String get trajectoryDebtGoalReached;
+
+  /// No description provided for @trajectoryDebtRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dette restante estimée : {value} ({percent}% remboursée).'**
+  String trajectoryDebtRemaining(String value, String percent);
 
   /// No description provided for @trajectoryEmpty.
   ///
@@ -2264,6 +2294,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Cible'**
   String get trajectoryGoalLabel;
+
+  /// No description provided for @friBreakdownLiquidite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liquidité'**
+  String get friBreakdownLiquidite;
+
+  /// No description provided for @friBreakdownFiscalite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get friBreakdownFiscalite;
+
+  /// No description provided for @friBreakdownRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get friBreakdownRetraite;
+
+  /// No description provided for @friBreakdownRisque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Risque'**
+  String get friBreakdownRisque;
+
+  /// No description provided for @friBreakdownSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'{label}: {score} sur 25'**
+  String friBreakdownSemantics(String label, String score);
 
   /// No description provided for @checkinTitle.
   ///

@@ -416,15 +416,69 @@
       }
     }
   },
+  "trajectoryDebtSubtitle": "Remaining debt · {years} years",
+  "@trajectoryDebtSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryDebtSemantics": "Debt trajectory chart. Estimated remaining debt at the end of the period: {capital}.",
+  "@trajectoryDebtSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryFinancialSemantics": "Financial trajectory chart. Base scenario: {capital}. Estimated replacement rate: {rate} percent.",
+  "@trajectoryFinancialSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryOptimiste": "Optimistic",
   "trajectoryBase": "Base",
   "trajectoryPrudent": "Conservative",
   "trajectoryTauxRemplacement": "Estimated replacement rate: ",
+  "trajectoryDebtGoalReached": "Debt-free goal reached on this horizon.",
+  "trajectoryDebtRemaining": "Estimated remaining debt: {value} ({percent}% repaid).",
+  "@trajectoryDebtRemaining": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryEmpty": "No projection available yet",
   "trajectoryEmptySub": "Complete your profile to see your trajectory",
   "trajectoryDisclaimer": "Educational estimates — not financial advice.",
   "trajectoryDragHint": "Drag to explore",
   "trajectoryGoalLabel": "Target",
+  "friBreakdownLiquidite": "Liquidity",
+  "friBreakdownFiscalite": "Tax",
+  "friBreakdownRetraite": "Retirement",
+  "friBreakdownRisque": "Risk",
+  "friBreakdownSemantics": "{label}: {score} out of 25",
+  "@friBreakdownSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {

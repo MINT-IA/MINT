@@ -1147,6 +1147,21 @@ class SEn extends S {
   }
 
   @override
+  String trajectoryDebtSubtitle(String years) {
+    return 'Remaining debt · $years years';
+  }
+
+  @override
+  String trajectoryDebtSemantics(String capital) {
+    return 'Debt trajectory chart. Estimated remaining debt at the end of the period: $capital.';
+  }
+
+  @override
+  String trajectoryFinancialSemantics(String capital, String rate) {
+    return 'Financial trajectory chart. Base scenario: $capital. Estimated replacement rate: $rate percent.';
+  }
+
+  @override
   String get trajectoryOptimiste => 'Optimistic';
 
   @override
@@ -1157,6 +1172,15 @@ class SEn extends S {
 
   @override
   String get trajectoryTauxRemplacement => 'Estimated replacement rate: ';
+
+  @override
+  String get trajectoryDebtGoalReached =>
+      'Debt-free goal reached on this horizon.';
+
+  @override
+  String trajectoryDebtRemaining(String value, String percent) {
+    return 'Estimated remaining debt: $value ($percent% repaid).';
+  }
 
   @override
   String get trajectoryEmpty => 'No projection available yet';
@@ -1174,6 +1198,23 @@ class SEn extends S {
 
   @override
   String get trajectoryGoalLabel => 'Target';
+
+  @override
+  String get friBreakdownLiquidite => 'Liquidity';
+
+  @override
+  String get friBreakdownFiscalite => 'Tax';
+
+  @override
+  String get friBreakdownRetraite => 'Retirement';
+
+  @override
+  String get friBreakdownRisque => 'Risk';
+
+  @override
+  String friBreakdownSemantics(String label, String score) {
+    return '$label: $score out of 25';
+  }
 
   @override
   String checkinTitle(String month) {

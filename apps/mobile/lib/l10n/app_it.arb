@@ -416,15 +416,69 @@
       }
     }
   },
+  "trajectoryDebtSubtitle": "Debito residuo · {years} anni",
+  "@trajectoryDebtSubtitle": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryDebtSemantics": "Grafico della traiettoria del debito. Debito residuo stimato alla fine del periodo: {capital}.",
+  "@trajectoryDebtSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "trajectoryFinancialSemantics": "Grafico della traiettoria finanziaria. Scenario base: {capital}. Tasso di sostituzione stimato: {rate} per cento.",
+  "@trajectoryFinancialSemantics": {
+    "placeholders": {
+      "capital": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryOptimiste": "Optimiste",
   "trajectoryBase": "Base",
   "trajectoryPrudent": "Prudent",
   "trajectoryTauxRemplacement": "Tasso di sostituzione stimato: ",
+  "trajectoryDebtGoalReached": "Obiettivo debito zero raggiunto su questo orizzonte.",
+  "trajectoryDebtRemaining": "Debito residuo stimato: {value} ({percent}% rimborsato).",
+  "@trajectoryDebtRemaining": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "trajectoryEmpty": "Nessuna proiezione disponibile per ora",
   "trajectoryEmptySub": "Completa il tuo profilo per vedere la tua traiettoria",
   "trajectoryDisclaimer": "Stime educative — non costituisce consulenza finanziaria.",
   "trajectoryDragHint": "Glisse pour explorer",
   "trajectoryGoalLabel": "Cible",
+  "friBreakdownLiquidite": "Liquidità",
+  "friBreakdownFiscalite": "Fiscalità",
+  "friBreakdownRetraite": "Pensione",
+  "friBreakdownRisque": "Rischio",
+  "friBreakdownSemantics": "{label}: {score} su 25",
+  "@friBreakdownSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
   "checkinTitle": "CHECK-IN {month}",
   "@checkinTitle": {
     "placeholders": {

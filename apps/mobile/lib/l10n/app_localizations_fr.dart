@@ -1155,6 +1155,21 @@ class SFr extends S {
   }
 
   @override
+  String trajectoryDebtSubtitle(String years) {
+    return 'Dette restante · $years ans';
+  }
+
+  @override
+  String trajectoryDebtSemantics(String capital) {
+    return 'Graphique de trajectoire de dette. Dette restante estimée en fin de période : $capital.';
+  }
+
+  @override
+  String trajectoryFinancialSemantics(String capital, String rate) {
+    return 'Graphique de trajectoire financière. Scénario base : $capital. Taux de remplacement estimé : $rate pour cent.';
+  }
+
+  @override
   String get trajectoryOptimiste => 'Optimiste';
 
   @override
@@ -1165,6 +1180,15 @@ class SFr extends S {
 
   @override
   String get trajectoryTauxRemplacement => 'Taux de remplacement estimé : ';
+
+  @override
+  String get trajectoryDebtGoalReached =>
+      'Objectif dette zéro atteint sur cet horizon.';
+
+  @override
+  String trajectoryDebtRemaining(String value, String percent) {
+    return 'Dette restante estimée : $value ($percent% remboursée).';
+  }
 
   @override
   String get trajectoryEmpty => 'Pas encore de projection disponible';
@@ -1182,6 +1206,23 @@ class SFr extends S {
 
   @override
   String get trajectoryGoalLabel => 'Cible';
+
+  @override
+  String get friBreakdownLiquidite => 'Liquidité';
+
+  @override
+  String get friBreakdownFiscalite => 'Fiscalité';
+
+  @override
+  String get friBreakdownRetraite => 'Retraite';
+
+  @override
+  String get friBreakdownRisque => 'Risque';
+
+  @override
+  String friBreakdownSemantics(String label, String score) {
+    return '$label: $score sur 25';
+  }
 
   @override
   String checkinTitle(String month) {

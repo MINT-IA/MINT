@@ -81,17 +81,12 @@ def test_repo_contract_tests_run_in_ci() -> None:
     assert "python3 -m pytest tools/checks/tests/ -q" in repo_contracts
 
 
-def test_dataviz_goldens_are_prepared_non_blocking_until_infra_g5() -> None:
+def test_dataviz_contract_gate_blocks_after_infra_g5() -> None:
     ci = _ci_text()
     flutter = _job_block(ci, "flutter")
 
-    assert "Dataviz golden readiness (non-blocking until Infra-G5)" in flutter
-    assert "continue-on-error: true" in flutter
-    for target in (
-        "trajectory_chart",
-        "fri_breakdown_bars",
-        "fri_history_chart",
-        "breakeven_indicator",
-        "chiffre_choc_screen",
-    ):
-        assert target in flutter
+    dataviz_step = flutter.split("Dataviz contract gate (Infra-G5)", maxsplit=1)[1]
+    dataviz_step = dataviz_step.split("# \u2500\u2500\u2500 Phase 32", maxsplit=1)[0]
+
+    assert "continue-on-error" not in dataviz_step
+    assert "flutter test test/goldens/dataviz_contract_test.dart --reporter compact" in dataviz_step

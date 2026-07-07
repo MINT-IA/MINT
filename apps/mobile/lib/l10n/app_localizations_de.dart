@@ -1158,6 +1158,21 @@ class SDe extends S {
   }
 
   @override
+  String trajectoryDebtSubtitle(String years) {
+    return 'Restschuld · $years Jahre';
+  }
+
+  @override
+  String trajectoryDebtSemantics(String capital) {
+    return 'Schuldentrajektorie. Geschätzte Restschuld am Ende des Zeitraums: $capital.';
+  }
+
+  @override
+  String trajectoryFinancialSemantics(String capital, String rate) {
+    return 'Finanzielle Trajektorie. Basisszenario: $capital. Geschätzte Ersatzquote: $rate Prozent.';
+  }
+
+  @override
   String get trajectoryOptimiste => 'Optimistisch';
 
   @override
@@ -1168,6 +1183,15 @@ class SDe extends S {
 
   @override
   String get trajectoryTauxRemplacement => 'Geschätzter Ersatzquote: ';
+
+  @override
+  String get trajectoryDebtGoalReached =>
+      'Ziel Schuldenfreiheit in diesem Horizont erreicht.';
+
+  @override
+  String trajectoryDebtRemaining(String value, String percent) {
+    return 'Geschätzte Restschuld: $value ($percent% zurückgezahlt).';
+  }
 
   @override
   String get trajectoryEmpty => 'Noch keine Projektion verfügbar';
@@ -1185,6 +1209,23 @@ class SDe extends S {
 
   @override
   String get trajectoryGoalLabel => 'Ziel';
+
+  @override
+  String get friBreakdownLiquidite => 'Liquidität';
+
+  @override
+  String get friBreakdownFiscalite => 'Steuern';
+
+  @override
+  String get friBreakdownRetraite => 'Ruhestand';
+
+  @override
+  String get friBreakdownRisque => 'Risiko';
+
+  @override
+  String friBreakdownSemantics(String label, String score) {
+    return '$label: $score von 25';
+  }
 
   @override
   String checkinTitle(String month) {
@@ -9546,7 +9587,7 @@ class SDe extends S {
 
   @override
   String get genderGapIntro =>
-      'Der Koordinationsabzug (CHF 26\'460) wird nicht anteilsmässig für Teilzeit berechnet, was Teilzeitbeschäftigte stärker benachteiligt. Bewege den Regler, um die Auswirkung zu sehen.';
+      'Der Koordinationsabzug (CHF 26\'460) wird nicht anteilsmässig für Teilzeit berechnet, was Teilzeitbeschäftigte stärker benachteiligt. Bewege den Schieber, um die Auswirkung zu sehen.';
 
   @override
   String get genderGapTauxActivite => 'Beschäftigungsgrad';
@@ -9677,7 +9718,7 @@ class SDe extends S {
 
   @override
   String get lamalFranchiseIntro =>
-      'Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Regler, um das richtige Gleichgewicht zu finden.';
+      'Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Schieber, um das richtige Gleichgewicht zu finden.';
 
   @override
   String get lamalFranchiseToggleAdulte => 'Erwachsene';

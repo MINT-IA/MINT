@@ -50,6 +50,39 @@ This mirrors the policy that already governs
 `test/golden_screenshots/` — it is not a new compromise; it is the
 existing pixel-golden doctrine, applied to MTC.
 
+## Infra-G5 Dataviz Contract Gate
+
+Infra-G5 adds a **CI-blocking** deterministic dataviz gate:
+
+```bash
+cd apps/mobile
+flutter test test/goldens/dataviz_contract_test.dart --reporter compact
+```
+
+This gate mounts the live dataviz surfaces in the locked iPhone 14 Pro
+golden scaffold and fails on Flutter exceptions, layout overflows, missing
+core labels, missing custom painters, or missing progress indicators. It
+binds to real widgets:
+
+- `MintTrajectoryChart`
+- `FriBreakdownBars`
+- `BreakevenIndicatorWidget`
+- `MintResultHeroCard`
+
+It is intentionally **not** a pixel-diff golden in CI yet. Pixel masters
+generated on macOS remain fragile against Linux CI rasterization. Dataviz
+pixel goldens can become blocking only after a pinned Linux generator owns
+the masters and regenerates them in the same rendering environment as CI.
+
+Spec reality for Infra-G5:
+
+- `FriHistoryChart` / `fri_history_chart` is deferred: no Flutter widget or
+  class exists in the repo today, so the gate must not alias it to another
+  chart.
+- `chiffre_choc_screen` is an obsolete screen name for this purpose. The
+  live chiffre-choc surface is pinned to `MintResultHeroCard`, used as the
+  life-event hero card.
+
 ## Regenerating masters locally
 
 ```bash

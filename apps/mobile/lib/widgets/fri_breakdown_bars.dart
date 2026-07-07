@@ -4,8 +4,8 @@
 /// Each bar: label + score/25 + colored progress bar.
 ///
 /// Components:
-///   - L (Liquidite): info (blue)
-///   - F (Fiscalite): purple
+///   - L (Liquidité): info (blue)
+///   - F (Fiscalité): purple
 ///   - R (Retraite): teal
 ///   - S (Risque): amber
 ///
@@ -18,6 +18,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -25,7 +26,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 ///
 /// Each bar shows a component label, numeric score (out of 25),
 /// and a colored progress indicator. Components are:
-///   - Liquidite (blue), Fiscalite (purple), Retraite (teal), Risque (amber).
+///   - Liquidité (blue), Fiscalité (purple), Retraite (teal), Risque (amber).
 class FriBreakdownBars extends StatelessWidget {
   /// Liquidity score (0-25).
   final double liquidite;
@@ -49,31 +50,32 @@ class FriBreakdownBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Column(
       children: [
         _BarRow(
-          label: 'Liquidite',
+          label: s.friBreakdownLiquidite,
           shortLabel: 'L',
           value: liquidite,
           color: MintColors.info,
         ),
         const SizedBox(height: 10),
         _BarRow(
-          label: 'Fiscalite',
+          label: s.friBreakdownFiscalite,
           shortLabel: 'F',
           value: fiscalite,
           color: MintColors.purple,
         ),
         const SizedBox(height: 10),
         _BarRow(
-          label: 'Retraite',
+          label: s.friBreakdownRetraite,
           shortLabel: 'R',
           value: retraite,
           color: MintColors.teal,
         ),
         const SizedBox(height: 10),
         _BarRow(
-          label: 'Risque',
+          label: s.friBreakdownRisque,
           shortLabel: 'S',
           value: risque,
           color: MintColors.amber,
@@ -101,9 +103,10 @@ class _BarRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final clamped = value.clamp(0.0, 25.0);
     final fraction = clamped / 25.0;
+    final s = S.of(context)!;
 
     return Semantics(
-      label: '$label: ${clamped.toStringAsFixed(1)} sur 25',
+      label: s.friBreakdownSemantics(label, clamped.toStringAsFixed(1)),
       child: Row(
         children: [
           // Short label badge
@@ -117,7 +120,8 @@ class _BarRow extends StatelessWidget {
             child: Center(
               child: Text(
                 shortLabel,
-                style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                style: MintTextStyles.bodySmall(color: color)
+                    .copyWith(fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -154,7 +158,8 @@ class _BarRow extends StatelessWidget {
             child: Text(
               '${clamped.toStringAsFixed(0)}/25',
               textAlign: TextAlign.right,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],

@@ -1150,6 +1150,21 @@ class SEs extends S {
   }
 
   @override
+  String trajectoryDebtSubtitle(String years) {
+    return 'Deuda restante · $years años';
+  }
+
+  @override
+  String trajectoryDebtSemantics(String capital) {
+    return 'Gráfico de trayectoria de deuda. Deuda restante estimada al final del período: $capital.';
+  }
+
+  @override
+  String trajectoryFinancialSemantics(String capital, String rate) {
+    return 'Gráfico de trayectoria financiera. Escenario base: $capital. Tasa de reemplazo estimada: $rate por ciento.';
+  }
+
+  @override
   String get trajectoryOptimiste => 'Optimiste';
 
   @override
@@ -1160,6 +1175,15 @@ class SEs extends S {
 
   @override
   String get trajectoryTauxRemplacement => 'Tasa de reemplazo estimada: ';
+
+  @override
+  String get trajectoryDebtGoalReached =>
+      'Objetivo deuda cero alcanzado en este horizonte.';
+
+  @override
+  String trajectoryDebtRemaining(String value, String percent) {
+    return 'Deuda restante estimada: $value ($percent% reembolsada).';
+  }
 
   @override
   String get trajectoryEmpty => 'Todavía no hay proyección disponible';
@@ -1176,6 +1200,23 @@ class SEs extends S {
 
   @override
   String get trajectoryGoalLabel => 'Cible';
+
+  @override
+  String get friBreakdownLiquidite => 'Liquidez';
+
+  @override
+  String get friBreakdownFiscalite => 'Fiscalidad';
+
+  @override
+  String get friBreakdownRetraite => 'Jubilación';
+
+  @override
+  String get friBreakdownRisque => 'Riesgo';
+
+  @override
+  String friBreakdownSemantics(String label, String score) {
+    return '$label: $score de 25';
+  }
 
   @override
   String checkinTitle(String month) {
@@ -15008,7 +15049,7 @@ class SEs extends S {
 
   @override
   String get coachingDescDiscret =>
-      'MINT te deja tranquilo. Recordatorios raros, solo plazos críticos.';
+      'MINT no te molesta. Recordatorios raros, solo plazos críticos.';
 
   @override
   String get coachingDescEquilibre =>

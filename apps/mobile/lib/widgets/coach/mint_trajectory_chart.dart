@@ -132,15 +132,16 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final hasPoints = _displayBasePoints.isNotEmpty;
 
     return Semantics(
       label: _isDebtGoal
-          ? 'Graphique de trajectoire de dette. '
-              'Dette restante estimée en fin de période : ${_formatChf(_displayBaseFinal)}.'
-          : 'Graphique de trajectoire financière. '
-              'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}. '
-              'Taux de remplacement estimé : ${widget.result.tauxRemplacementBase.round()} pour cent.',
+          ? s.trajectoryDebtSemantics(_formatChf(_displayBaseFinal))
+          : s.trajectoryFinancialSemantics(
+              _formatChf(widget.result.base.capitalFinal),
+              widget.result.tauxRemplacementBase.round().toString(),
+            ),
       child: GestureDetector(
         onTap: hasPoints ? _handleTap : widget.onTap,
         onTapDown: hasPoints ? _handleTapDown : null,
@@ -263,7 +264,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
     final s = S.of(context)!;
     final yearsToTarget = _yearsToTarget();
     final subtitle = _isDebtGoal
-        ? 'Dette restante · $yearsToTarget ans'
+        ? s.trajectoryDebtSubtitle(yearsToTarget.toString())
         : s.trajectorySubtitle(yearsToTarget.toString());
     return Row(
       children: [
@@ -287,11 +288,13 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             children: [
               Text(
                 s.trajectoryTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 subtitle,
-                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+                style:
+                    MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -307,7 +310,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             _formatChf(_isDebtGoal
                 ? _displayBaseFinal
                 : widget.result.base.capitalFinal),
-            style: MintTextStyles.labelMedium(color: MintColors.trajectoryBase).copyWith(fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: MintColors.trajectoryBase)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -333,21 +337,21 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
               Semantics(
                 label: 'Financial trajectory chart',
                 child: CustomPaint(
-                painter: _TrajectoryPainter(
-                  prudentPoints: _displayPrudentPoints,
-                  basePoints: _displayBasePoints,
-                  optimistePoints: _displayOptimistePoints,
-                  milestones: widget.result.milestones,
-                  progress: _drawAnimation.value,
-                  goalALabel: widget.goalALabel,
-                  selectedIndex: _selectedPointIndex,
-                  prudentLabel: S.of(context)!.trajectoryPrudent,
-                  baseLabel: S.of(context)!.trajectoryBase,
-                  optimisteLabel: S.of(context)!.trajectoryOptimiste,
-                  goalLabel: S.of(context)!.trajectoryGoalLabel,
+                  painter: _TrajectoryPainter(
+                    prudentPoints: _displayPrudentPoints,
+                    basePoints: _displayBasePoints,
+                    optimistePoints: _displayOptimistePoints,
+                    milestones: widget.result.milestones,
+                    progress: _drawAnimation.value,
+                    goalALabel: widget.goalALabel,
+                    selectedIndex: _selectedPointIndex,
+                    prudentLabel: S.of(context)!.trajectoryPrudent,
+                    baseLabel: S.of(context)!.trajectoryBase,
+                    optimisteLabel: S.of(context)!.trajectoryOptimiste,
+                    goalLabel: S.of(context)!.trajectoryGoalLabel,
+                  ),
+                  size: Size(availableWidth, chartHeight),
                 ),
-                size: Size(availableWidth, chartHeight),
-              ),
               ),
               // Tooltip overlay
               if (_selectedPointIndex != null &&
@@ -414,7 +418,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           children: [
             Text(
               dateLabel,
-              style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)).copyWith(fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelSmall(
+                      color: MintColors.white.withValues(alpha: 0.7))
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             if (optimistePoint != null)
@@ -456,12 +462,15 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           const SizedBox(width: 6),
           Text(
             label,
-            style: MintTextStyles.micro(color: MintColors.white.withValues(alpha: 0.6)).copyWith(fontStyle: FontStyle.normal),
+            style: MintTextStyles.micro(
+                    color: MintColors.white.withValues(alpha: 0.6))
+                .copyWith(fontStyle: FontStyle.normal),
           ),
           const Spacer(),
           Text(
             value,
-            style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelSmall(color: MintColors.white)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -474,21 +483,22 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   Widget _buildLegend() {
     final s = S.of(context)!;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      runAlignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 8,
       children: [
         _buildLegendItem(
           s.trajectoryOptimiste,
           MintColors.trajectoryOptimiste,
           dashed: true,
         ),
-        const SizedBox(width: 16),
         _buildLegendItem(
           s.trajectoryBase,
           MintColors.trajectoryBase,
           dashed: false,
         ),
-        const SizedBox(width: 16),
         _buildLegendItem(
           s.trajectoryPrudent,
           MintColors.trajectoryPrudent,
@@ -528,7 +538,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
       padding: const EdgeInsets.only(top: 6),
       child: Text(
         s.trajectoryDragHint,
-        style: MintTextStyles.micro(color: MintColors.textMuted.withValues(alpha: 0.6)),
+        style: MintTextStyles.micro(
+            color: MintColors.textMuted.withValues(alpha: 0.6)),
         textAlign: TextAlign.center,
       ),
     );
@@ -567,13 +578,14 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                 Expanded(
                   child: RichText(
                     text: TextSpan(
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary),
                       children: [
-                        TextSpan(
-                            text: s.trajectoryTauxRemplacement),
+                        TextSpan(text: s.trajectoryTauxRemplacement),
                         TextSpan(
                           text: '${taux.round()}%',
-                          style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
+                          style: MintTextStyles.bodyMedium(color: color)
+                              .copyWith(fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -588,6 +600,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   }
 
   Widget _buildDebtMetric() {
+    final s = S.of(context)!;
     final debtLeft = _displayBaseFinal.clamp(0.0, double.infinity);
     final debtPaid =
         (widget.initialDebt - debtLeft).clamp(0.0, widget.initialDebt);
@@ -612,9 +625,11 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           Expanded(
             child: Text(
               isGood
-                  ? 'Objectif dette zéro atteint sur cet horizon.'
-                  : 'Dette restante estimée : ${_formatChf(debtLeft)} '
-                      '(${(paidRatio * 100).round()}% remboursée).',
+                  ? s.trajectoryDebtGoalReached
+                  : s.trajectoryDebtRemaining(
+                      _formatChf(debtLeft),
+                      (paidRatio * 100).round().toString(),
+                    ),
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),
@@ -648,7 +663,8 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           const SizedBox(height: 4),
           Text(
             s.trajectoryEmptySub,
-            style: MintTextStyles.labelMedium(color: MintColors.textMuted.withValues(alpha: 0.7)),
+            style: MintTextStyles.labelMedium(
+                color: MintColors.textMuted.withValues(alpha: 0.7)),
           ),
         ],
       ),
@@ -956,7 +972,8 @@ class _TrajectoryPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: MintTextStyles.labelTiny(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted)
+              .copyWith(fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -990,7 +1007,8 @@ class _TrajectoryPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '$year',
-            style: MintTextStyles.labelTiny(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: MintColors.textMuted)
+                .copyWith(fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         );
@@ -1002,7 +1020,9 @@ class _TrajectoryPainter extends CustomPainter {
       final lastXTp = TextPainter(
         text: TextSpan(
           text: '$lastYear',
-          style: MintTextStyles.labelTiny(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textSecondary)
+              .copyWith(
+                  fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -1211,7 +1231,8 @@ class _TrajectoryPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: MintTextStyles.labelTiny(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+        style: MintTextStyles.labelTiny(color: MintColors.textSecondary)
+            .copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -1280,7 +1301,8 @@ class _TrajectoryPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: MintTextStyles.labelTiny(color: color).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: color).copyWith(
+              fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
