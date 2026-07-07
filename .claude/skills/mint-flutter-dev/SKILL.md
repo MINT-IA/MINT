@@ -16,7 +16,13 @@ You work exclusively in `apps/mobile/`. Never touch `services/backend/`.
 ## Before Writing Any Code
 
 Read these files first:
+- `AGENTS.md` pre-flight row for the touched surface
+- `.claude/skills/mint-operating-gates/SKILL.md`
+- `docs/data-flow.md` for profile/data wiring
+- `docs/calculator-graph.md` for financial calculations
+- `docs/codex/SCREEN_CONTRACTS.md` for known/estimated/stale/missing states
 - `apps/mobile/lib/app.dart` — GoRouter config, all routes
+- `apps/mobile/lib/routes/route_metadata.dart` — route registry
 - `apps/mobile/lib/widgets/mint_ui_kit.dart` — Reusable components (MintCard, MintPremiumButton, MintSection, etc.)
 - `apps/mobile/lib/theme/colors.dart` — MintColors palette (textPrimary, textSecondary, textMuted, background, surface, border, primary, accent)
 - `apps/mobile/lib/models/` — Data models (Profile, Session, FinancialReport, etc.)
@@ -133,6 +139,17 @@ Julien (50, CH, 100k, swiss_native) + Lauren (45, US/FATCA, 60k, expat_us). File
 - Google Fonts: Montserrat (headings), Inter (body). Outfit is deprecated.
 - **ALWAYS use `financial_core/` calculators** — never duplicate AVS/LPP/Tax logic
 - Certificate extraction MUST persist to CoachProfile and trigger recalculation
+- Every user-facing screen affected by financial data must distinguish known,
+  estimated, stale, missing, and next-question states.
+- Respect MINT design tokens and existing shared widgets before adding local
+  colors, typography, or card styles.
+- Preserve data chronology: reuse fresh known ledger facts before asking again,
+  and never introduce duplicate aliases for one concept in a flow.
+- Use iOS-oriented runtime evidence for MINT mobile. Patrol is the target gate
+  for real P0 input proof when available; until then, record the missing CLI
+  and use Maestro plus Flutter widget tests as the temporary evidence floor.
+- For new or changed product screens, request design review before push and
+  verify text does not overlap on the target device class.
 
 ## Anti-Bug Discipline (per MINT_FINAL_EXECUTION_SYSTEM.md §13.7)
 
@@ -151,3 +168,12 @@ Before ANY commit:
 
 After ANY commit:
 10. **Auto-audit** — list: most likely remaining bug, least proven joint, riskiest fallback
+
+## Current Mandatory Commands
+
+```bash
+(cd apps/mobile && flutter analyze <touched files>)
+(cd apps/mobile && flutter test <targeted tests> --reporter expanded)
+python3 tools/checks/arb_parity.py
+./tools/mint-routes reconcile
+```
