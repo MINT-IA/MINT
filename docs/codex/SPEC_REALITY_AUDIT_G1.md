@@ -4,6 +4,8 @@ Audit date: 2026-07-07
 Code baseline: `095eeaa32` on `claude/mint-swiss-coach-eu33i7`
 Scope: the five `docs/codex` specs challenged against live code before product coding.
 
+> G2 update: the Data Ledger `save_fact` parity gap listed below is historical for baseline `095eeaa32`. Branch `codex/mint-g2-ledger-parity-20260707` repairs it with a code gate requiring 35 backend-writable keys, 35 mobile mapper cases, and 0 mapped-but-unread targets.
+
 ## Verdict
 
 The five specs are the right architecture direction for Mint, but several claims were product targets, not live code. G1 corrects that drift and makes the corrected reality executable.

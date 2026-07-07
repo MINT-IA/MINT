@@ -66,7 +66,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
 | 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
-| 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_total_3a`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
+| 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_pay_frequency`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `q_3a_total` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
 
@@ -93,7 +93,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_net_income_period_chf` (double, amount per period),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_employment_status` (salarie/independant/retraite/etc.),
-  `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
+  `q_employment_rate` (%), `q_annual_bonus` (CHF),
+  `q_self_employed_net_income` (CHF/year), `q_partner_net_income_chf`,
   `q_partner_birth_year`, `q_partner_employment_status`
 
 **Housing & fixed charges**
@@ -106,11 +107,13 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 
 **AVS (1st pillar)**
 - `q_avs_lacunes_status`, `q_avs_years_abroad`, `q_avs_contribution_years`,
-  `q_avs_arrival_year`, `_coach_avs_rente_estimee`, `_coach_avs_lacunes`,
-  `_coach_avs_ramd`, `_coach_avs_source`
+  `q_spouse_avs_contribution_years`, `q_avs_arrival_year`,
+  `_coach_avs_rente_estimee`, `_coach_avs_lacunes`, `_coach_avs_ramd`,
+  `_coach_avs_source`
 
 **LPP (2nd pillar)**
-- `q_avoir_lpp` (total legacy), `_coach_avoir_lpp` (scanned total),
+- `q_has_pension_fund`, `q_self_employed_voluntary_lpp`,
+  `q_avoir_lpp` (total legacy), `_coach_avoir_lpp` (scanned total),
   `_coach_avoir_lpp_oblig`, `_coach_avoir_lpp_suroblig`,
   `_coach_taux_conversion`, `_coach_taux_conversion_suroblig`,
   `_coach_salaire_assure`, `_coach_rachat_maximum`,
@@ -122,10 +125,11 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_3a_providers`, `_coach_total_3a`
 
 **Patrimoine & dette**
-- `q_cash_total`, `q_epargne_liquide`, `q_investissements`,
-  `q_investments_total`, `q_emergency_fund`, `q_debt_payments_period_chf`,
-  `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
-  `_coach_dettes_autres`
+- `q_cash_total`, `q_investments_total`, `q_emergency_fund`,
+  `q_wealth_estimate` (gross patrimoine estimate),
+  `q_has_consumer_debt`, `q_total_debt`, `q_debt_payments_period_chf`,
+  `_coach_dettes_hypotheque`, `_coach_dettes_credit`,
+  `_coach_dettes_leasing`, `_coach_dettes_autres`
 
 **Fiscal**
 - `_coach_tax_revenu_imposable`, `_coach_tax_fortune_imposable`,
@@ -133,7 +137,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `_coach_tax_taux_marginal`, `_coach_tax_source`
 
 **Goals & lifecycle**
-- `q_target_retirement_age`, `_coach_family_change`,
+- `q_main_goal`, `q_target_retirement_age`, `_coach_family_change`,
   `_coach_financial_literacy_level`, `_coach_created_at`, `_coach_updated_at`,
   `_coach_data_timestamps` (dict: fieldPath → ISO timestamp)
 
