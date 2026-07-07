@@ -107,7 +107,9 @@ jobs:
       - name: Install pytest
         run: pip install pytest
       - name: Run repo contract tests
-        run: python3 -m pytest tools/checks/tests/ -q
+        run: |
+          python3 -m pytest tools/checks/tests/ -q
+          python3 -m pytest tests/checks/test_test_roadmap_contract.py -q
 
   # ─── LSFin UI copy gate ─────────────────────────────────────
   # Blocks core banned promise terms from CLAUDE.md /
@@ -407,11 +409,11 @@ jobs:
   #   - screens:  test/screens/ + test/golden/ + test/auth/ + test/modules/
   #               + test/journeys/ + test/accessibility/ + test/i18n/                                  (~55 files)
   #
-  # NOTE: test/patrol/ is intentionally excluded — requires emulator infrastructure.
+  # NOTE: Patrol is intentionally excluded — requires emulator infrastructure.
   # NOTE: test/golden_screenshots/ is intentionally excluded — pixel diffs are
   #       cross-platform fragile (Mac baselines fail on Linux CI). Run locally
   #       before each release. See test/golden_screenshots/README.md.
-  # See .github/workflows/patrol.md for manual gate policy.
+  # See .github/workflows/patrol.md for the current manual-gap policy.
   #
   # `flutter analyze` runs only in the services shard to avoid redundant work.
   # All shards exclude test/_archive/ (legacy suite).

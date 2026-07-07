@@ -3,6 +3,58 @@
 ## Objectif
 Valider que l'application s'adapte correctement à des profils financiers radicalement différents, en vérifiant la logique métier, la compliance (Safe Mode) et les recommandations.
 
+## Infra-G6 QA Tool Split
+
+G6 turns this roadmap into an executable QA contract: every tool must have a
+clear owner, execution mode, evidence artifact, and current repo status.
+
+### Tool Roles
+
+| Tool | Role | Use when | Current gate |
+|---|---|---|---|
+| Flutter tests | Deterministic logic, rendering, and contract checks | Any backend/mobile/doc contract change | CI |
+| Maestro = black-box agent loop | Drive the installed app through accessibility ids and deep links like an external user/agent | P0 route proof, data reuse proof, no-facade checks | Manual/local until runner wiring |
+| Patrol = white-box native input proof | Drive Flutter/native input where black-box taps are fragile, including native pickers, permissions, camera, and biometric flows | P0 native input proof and future biometric proof | Manual gap until Patrol is added to pubspec and CI runner support exists |
+
+### Current executable state
+
+- CI runs repo contracts, backend tests, Flutter shards, route parity,
+  financial_core, banned UI terms, WCAG, PII, and gitleaks.
+- Maestro is present locally at `~/.maestro/bin/maestro`; real flows live under
+  `apps/mobile/.maestro/`. Current smoke command:
+  `cd apps/mobile && ~/.maestro/bin/maestro test .maestro/`.
+- Patrol CLI is not installed in PATH in this checkout, `apps/mobile/pubspec.yaml`
+  has no `patrol:` dependency, and no committed Patrol suite exists yet under
+  `apps/mobile/test/patrol/`.
+- Patrol remains manual: GitHub Actions ubuntu runners have no iOS simulator support.
+- This is a manual gap until Patrol is added to pubspec and CI runner support exists.
+- Flutter integration coverage currently contains `persona_lea_test.dart` and
+  `persona_marc_test.dart`; the other personas below are target coverage, not
+  committed executable tests.
+
+### Promotion gates
+
+| Change type | Required proof |
+|---|---|
+| Pure docs/spec/contract | Targeted pytest contract plus `lefthook run pre-commit` |
+| Flutter logic or widget | Targeted Flutter test plus relevant CI shard |
+| P0 route/screen | Maestro proof when identifiers/deep links exist |
+| P0 native input, camera, permissions, biometrics | Patrol proof once the Patrol dependency and runner exist |
+| Promotion to staging/main | CI green plus any manual runtime proof recorded in evidence |
+
+### Evidence artifacts
+
+Runtime proof belongs under `.planning/runtime-evidence/` with command, device,
+branch, commit, screenshots/log path, and pass/fail summary. The directory may
+be absent on a clean branch until a runtime proof is actually produced.
+
+### Interaction Registry - walker assertions
+
+Interaction Registry is reserved for a future blocking walker that checks
+route nodes, payloads, provenance-aware back behavior, and test references.
+It is not implemented in G6. Until that registry exists, G6 only requires this
+roadmap contract and the existing route/data/widget gates.
+
 ## 1. Persona "Léa" (Starter / Student)
 *   **Profil** : 22 ans, Étudiante/Stage, Revenu < 4k, Célibataire, Locataire.
 *   **Situation** : Pas de 3a, pas de dettes, épargne faible.
@@ -91,8 +143,6 @@ Valider que l'application s'adapte correctement à des profils financiers radica
 ---
 
 ## Stratégie d'Exécution
-Pour chaque persona, nous allons créer un **Test d'Intégration Flutter** (`integration_test/`) qui :
-1.  Lance l'app.
-2.  Remplit le Wizard avec les réponses spécifiques.
-3.  Vérifie l'écran de Rapport généré (Textes, Scores).
-4.  Navigue vers `/tools` et vérifie l'état des verrous (Safe Mode).
+Les personas ci-dessus définissent la couverture cible. Un persona devient
+accepté seulement quand il a une preuve exécutable nommée dans ce fichier:
+test Flutter, flow Maestro, ou future preuve Patrol selon la surface touchée.

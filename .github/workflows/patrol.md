@@ -1,54 +1,44 @@
-# Patrol Integration Tests — Manual Gate Policy
+# Patrol Integration Tests — Manual Gap Policy
 
 ## Status
 
-Patrol integration tests are **NOT** included in CI. They require emulator infrastructure
-(iOS 17 simulator + Android API 34 emulator) that is not available on GitHub Actions
-ubuntu runners.
+Patrol integration tests are NOT included in CI. They require emulator
+infrastructure that is not available on GitHub Actions ubuntu runners, and this
+checkout does not yet install Patrol.
 
-## Test Location
+## Current Repo State
 
-```
-apps/mobile/test/patrol/
-  onboarding_patrol_test.dart   — Full onboarding flow (7 steps)
-  document_patrol_test.dart     — Document capture flow (7 steps, screenshots)
-```
+- `apps/mobile/pubspec.yaml` has `integration_test`, but no `patrol:`
+  dependency.
+- `patrol` is not expected on the default PATH.
+- No committed Patrol suite is present yet. The reserved future location is
+  `apps/mobile/test/patrol/`.
+- Existing executable mobile runtime proof is Maestro-first until Patrol is
+  added.
 
 ## When to Run
 
-Patrol tests are a **manual gate** required before promotion PRs:
+Patrol is a manual gap until the dependency, test suite, and runner exist.
+After that, it becomes the required proof for native input surfaces:
 
-| PR Type              | Patrol Required | Who Runs       |
-|----------------------|-----------------|----------------|
-| feature/* -> dev     | No              | —              |
-| dev -> staging       | Yes             | Developer      |
-| staging -> main      | Yes             | Developer      |
+| Surface | Patrol status |
+|---|---|
+| Pure Flutter logic/widget | Not required; use Flutter tests |
+| Black-box route and data reuse | Use Maestro when identifiers/deep links exist |
+| Native pickers, permissions, camera, biometrics | Required after Patrol is installed |
+| Promotion PR with native input changed | Blocked until Patrol proof or explicit deferral |
 
-## How to Run
+## Future Command Shape
 
-### Prerequisites
-
-- macOS with Xcode 15+ (iOS 17 simulator)
-- Android Studio with API 34 emulator image
-- Flutter 3.27.4+ with patrol_cli installed
-
-### Commands
+Once Patrol is added to `pubspec.yaml` and the suite exists, use a real device
+or simulator command shaped like:
 
 ```bash
-cd apps/mobile
-
-# iOS (iPhone 15 simulator)
-flutter test test/patrol/ --device-id "iPhone 15"
-
-# Android (Pixel 7 API 34 emulator)
-flutter test test/patrol/ --device-id "emulator-5554"
+cd apps/mobile && patrol test --target test/patrol/<flow>_test.dart
 ```
 
-### Expected Results
-
-- All 7 onboarding steps complete without crash
-- All 7 document capture steps complete with screenshots captured
-- No unhandled exceptions in console output
+Record every run under `.planning/runtime-evidence/` with branch, commit,
+device, command, logs, screenshots, and pass/fail summary.
 
 ## Future: CI Integration
 
@@ -58,7 +48,7 @@ When GitHub Actions macOS runners with iOS simulator support are configured
 1. Create `.github/workflows/patrol.yml` with macOS runner
 2. Configure iOS 17 simulator boot
 3. Add Android API 34 emulator via `reactivecircus/android-emulator-runner`
-4. Move `test/patrol/` into the new workflow
+4. Run the committed Patrol suite from the mobile package
 5. Remove this manual gate policy document
 
 ## Why Not CI Today
