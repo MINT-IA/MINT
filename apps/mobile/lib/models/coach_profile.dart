@@ -327,6 +327,7 @@ class PrevoyanceProfile {
   final double rendementCaisse; // rendement annuel estime de la caisse
   final double? salaireAssure; // salaire assure LPP (from certificate)
   final double? bonificationRate; // taux bonification total (from certificate, e.g. CPE 24%)
+  final bool? hasVoluntaryLpp; // affiliation LPP facultative declaree
 
   // --- AVS (from extraction) ---
   final double? ramd; // revenu annuel moyen determinant (AVS)
@@ -363,6 +364,7 @@ class PrevoyanceProfile {
     this.rendementCaisse = 0.02,
     this.salaireAssure,
     this.bonificationRate,
+    this.hasVoluntaryLpp,
     this.ramd,
     this.bonificationsEducatives,
     this.projectedRenteLpp,
@@ -440,6 +442,7 @@ class PrevoyanceProfile {
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
       salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
       bonificationRate: (json['bonificationRate'] as num?)?.toDouble(),
+      hasVoluntaryLpp: json['hasVoluntaryLpp'] as bool?,
       ramd: (json['ramd'] as num?)?.toDouble(),
       bonificationsEducatives: json['bonificationsEducatives'] as int?,
       projectedRenteLpp: (json['projectedRenteLpp'] as num?)?.toDouble(),
@@ -476,6 +479,7 @@ class PrevoyanceProfile {
     double? rendementCaisse,
     double? salaireAssure,
     double? bonificationRate,
+    bool? hasVoluntaryLpp,
     double? ramd,
     int? bonificationsEducatives,
     double? projectedRenteLpp,
@@ -504,6 +508,7 @@ class PrevoyanceProfile {
       rendementCaisse: rendementCaisse ?? this.rendementCaisse,
       salaireAssure: salaireAssure ?? this.salaireAssure,
       bonificationRate: bonificationRate ?? this.bonificationRate,
+      hasVoluntaryLpp: hasVoluntaryLpp ?? this.hasVoluntaryLpp,
       ramd: ramd ?? this.ramd,
       bonificationsEducatives: bonificationsEducatives ?? this.bonificationsEducatives,
       projectedRenteLpp: projectedRenteLpp ?? this.projectedRenteLpp,
@@ -535,6 +540,7 @@ class PrevoyanceProfile {
         'rendementCaisse': rendementCaisse,
         'salaireAssure': salaireAssure,
         'bonificationRate': bonificationRate,
+        'hasVoluntaryLpp': hasVoluntaryLpp,
         'ramd': ramd,
         'bonificationsEducatives': bonificationsEducatives,
         'projectedRenteLpp': projectedRenteLpp,
@@ -568,6 +574,7 @@ class PrevoyanceProfile {
           rendementCaisse == other.rendementCaisse &&
           salaireAssure == other.salaireAssure &&
           bonificationRate == other.bonificationRate &&
+          hasVoluntaryLpp == other.hasVoluntaryLpp &&
           ramd == other.ramd &&
           nombre3a == other.nombre3a &&
           totalEpargne3a == other.totalEpargne3a &&
@@ -597,6 +604,7 @@ class PrevoyanceProfile {
         rendementCaisse,
         salaireAssure,
         bonificationRate,
+        hasVoluntaryLpp,
         ramd,
         nombre3a,
         totalEpargne3a,
@@ -695,6 +703,7 @@ class PatrimoineProfile {
   final double epargneLiquide;
   final double investissements;
   final double? immobilier;
+  final double? wealthEstimate;
   final InvestmentCurrency deviseInvestissements;
   final String? plateformeInvestissement; // "Interactive Brokers", etc.
 
@@ -715,6 +724,7 @@ class PatrimoineProfile {
     this.epargneLiquide = 0,
     this.investissements = 0,
     this.immobilier,
+    this.wealthEstimate,
     this.deviseInvestissements = InvestmentCurrency.chf,
     this.plateformeInvestissement,
     this.propertyMarketValue,
@@ -739,8 +749,11 @@ class PatrimoineProfile {
       immobilierEffectif > 0 ? (mortgageBalance ?? 0) / immobilierEffectif : 0;
 
   /// Patrimoine brut total (liquidités + investissements + immobilier).
-  double get totalPatrimoine =>
-      epargneLiquide + investissements + immobilierEffectif;
+  double get totalPatrimoine {
+    final componentTotal = epargneLiquide + investissements + immobilierEffectif;
+    if (wealthEstimate == null) return componentTotal;
+    return wealthEstimate! > componentTotal ? wealthEstimate! : componentTotal;
+  }
 
   /// Patrimoine net (brut - dettes). Dettes passed via parameter since
   /// PatrimoineProfile doesn't hold a reference to DetteProfile.
@@ -752,6 +765,7 @@ class PatrimoineProfile {
       epargneLiquide: (json['epargneLiquide'] as num?)?.toDouble() ?? 0,
       investissements: (json['investissements'] as num?)?.toDouble() ?? 0,
       immobilier: (json['immobilier'] as num?)?.toDouble(),
+      wealthEstimate: (json['wealthEstimate'] as num?)?.toDouble(),
       deviseInvestissements: InvestmentCurrency.values.firstWhere(
         (e) => e.name == json['deviseInvestissements'],
         orElse: () => InvestmentCurrency.chf,
@@ -771,6 +785,7 @@ class PatrimoineProfile {
     double? epargneLiquide,
     double? investissements,
     double? immobilier,
+    double? wealthEstimate,
     InvestmentCurrency? deviseInvestissements,
     String? plateformeInvestissement,
     double? propertyMarketValue,
@@ -785,6 +800,7 @@ class PatrimoineProfile {
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
       investissements: investissements ?? this.investissements,
       immobilier: immobilier ?? this.immobilier,
+      wealthEstimate: wealthEstimate ?? this.wealthEstimate,
       deviseInvestissements:
           deviseInvestissements ?? this.deviseInvestissements,
       plateformeInvestissement:
@@ -803,6 +819,7 @@ class PatrimoineProfile {
         'epargneLiquide': epargneLiquide,
         'investissements': investissements,
         'immobilier': immobilier,
+        'wealthEstimate': wealthEstimate,
         'deviseInvestissements': deviseInvestissements.name,
         'plateformeInvestissement': plateformeInvestissement,
         'propertyMarketValue': propertyMarketValue,
@@ -822,6 +839,7 @@ class PatrimoineProfile {
           epargneLiquide == other.epargneLiquide &&
           investissements == other.investissements &&
           immobilier == other.immobilier &&
+          wealthEstimate == other.wealthEstimate &&
           deviseInvestissements == other.deviseInvestissements &&
           plateformeInvestissement == other.plateformeInvestissement &&
           propertyMarketValue == other.propertyMarketValue &&
@@ -837,6 +855,7 @@ class PatrimoineProfile {
         epargneLiquide,
         investissements,
         immobilier,
+        wealthEstimate,
         deviseInvestissements,
         plateformeInvestissement,
         propertyMarketValue,
@@ -859,6 +878,7 @@ class DetteProfile {
   final double? leasing;
   final double? hypotheque;
   final double? autresDettes;
+  final double? declaredTotalDebt;
 
   // S45: Enrichment fields (optional, progressively filled)
   final double? tauxHypotheque; // Taux d'intérêt hypothécaire (%)
@@ -878,6 +898,7 @@ class DetteProfile {
     this.leasing,
     this.hypotheque,
     this.autresDettes,
+    this.declaredTotalDebt,
     this.tauxHypotheque,
     this.tauxCreditConso,
     this.tauxLeasing,
@@ -891,11 +912,16 @@ class DetteProfile {
     this.amortissementIndirect = false,
   });
 
-  double get totalDettes =>
-      (creditConsommation ?? 0) +
-      (leasing ?? 0) +
-      (hypotheque ?? 0) +
-      (autresDettes ?? 0);
+  double get totalDettes {
+    final componentTotal = (creditConsommation ?? 0) +
+        (leasing ?? 0) +
+        (hypotheque ?? 0) +
+        (autresDettes ?? 0);
+    if (declaredTotalDebt == null) return componentTotal;
+    return declaredTotalDebt! > componentTotal
+        ? declaredTotalDebt!
+        : componentTotal;
+  }
 
   bool get hasDette => totalDettes > 0;
 
@@ -933,6 +959,7 @@ class DetteProfile {
       leasing: (json['leasing'] as num?)?.toDouble(),
       hypotheque: (json['hypotheque'] as num?)?.toDouble(),
       autresDettes: (json['autresDettes'] as num?)?.toDouble(),
+      declaredTotalDebt: (json['declaredTotalDebt'] as num?)?.toDouble(),
       tauxHypotheque: (json['tauxHypotheque'] as num?)?.toDouble(),
       tauxCreditConso: (json['tauxCreditConso'] as num?)?.toDouble(),
       tauxLeasing: (json['tauxLeasing'] as num?)?.toDouble(),
@@ -960,6 +987,7 @@ class DetteProfile {
     double? leasing,
     double? hypotheque,
     double? autresDettes,
+    double? declaredTotalDebt,
     double? tauxHypotheque,
     double? tauxCreditConso,
     double? tauxLeasing,
@@ -977,6 +1005,7 @@ class DetteProfile {
       leasing: leasing ?? this.leasing,
       hypotheque: hypotheque ?? this.hypotheque,
       autresDettes: autresDettes ?? this.autresDettes,
+      declaredTotalDebt: declaredTotalDebt ?? this.declaredTotalDebt,
       tauxHypotheque: tauxHypotheque ?? this.tauxHypotheque,
       tauxCreditConso: tauxCreditConso ?? this.tauxCreditConso,
       tauxLeasing: tauxLeasing ?? this.tauxLeasing,
@@ -999,6 +1028,7 @@ class DetteProfile {
         'leasing': leasing,
         'hypotheque': hypotheque,
         'autresDettes': autresDettes,
+        'declaredTotalDebt': declaredTotalDebt,
         'tauxHypotheque': tauxHypotheque,
         'tauxCreditConso': tauxCreditConso,
         'tauxLeasing': tauxLeasing,
@@ -1337,6 +1367,9 @@ class CoachProfile {
   final double salaireBrutMensuel;
   final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
+  final double? annualBonus;
+  final double? employmentRate;
+  final double? selfEmployedNetIncome;
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
 
@@ -1464,6 +1497,9 @@ class CoachProfile {
     required this.salaireBrutMensuel,
     this.nombreDeMois = 12.0,
     this.bonusPourcentage,
+    this.annualBonus,
+    this.employmentRate,
+    this.selfEmployedNetIncome,
     this.employmentStatus = 'salarie',
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
@@ -1593,6 +1629,9 @@ class CoachProfile {
           salaireBrutMensuel == other.salaireBrutMensuel &&
           nombreDeMois == other.nombreDeMois &&
           bonusPourcentage == other.bonusPourcentage &&
+          annualBonus == other.annualBonus &&
+          employmentRate == other.employmentRate &&
+          selfEmployedNetIncome == other.selfEmployedNetIncome &&
           employmentStatus == other.employmentStatus &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
@@ -1622,7 +1661,8 @@ class CoachProfile {
   int get hashCode => Object.hashAll([
         firstName, birthYear, dateOfBirth, canton, commune, nationality,
         etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
-        nombreDeMois, bonusPourcentage, employmentStatus,
+        nombreDeMois, bonusPourcentage, annualBonus, employmentRate,
+        selfEmployedNetIncome, employmentStatus,
         depenses, prevoyance, patrimoine, dettes, goalA,
         goalsB.length, plannedContributions.length, checkIns.length,
         housingStatus, riskTolerance, realEstateProject,
@@ -1696,7 +1736,7 @@ class CoachProfile {
   /// Revenu brut annuel estime
   double get revenuBrutAnnuel {
     final base = salaireBrutMensuel * nombreDeMois;
-    final bonus = (bonusPourcentage ?? 0) / 100 * base;
+    final bonus = annualBonus ?? ((bonusPourcentage ?? 0) / 100 * base);
     return base + bonus;
   }
 
@@ -1925,6 +1965,9 @@ class CoachProfile {
     double? salaireBrutMensuel,
     double? nombreDeMois,
     double? bonusPourcentage,
+    double? annualBonus,
+    double? employmentRate,
+    double? selfEmployedNetIncome,
     String? employmentStatus,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
@@ -1976,6 +2019,10 @@ class CoachProfile {
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
+      annualBonus: annualBonus ?? this.annualBonus,
+      employmentRate: employmentRate ?? this.employmentRate,
+      selfEmployedNetIncome:
+          selfEmployedNetIncome ?? this.selfEmployedNetIncome,
       employmentStatus: employmentStatus ?? this.employmentStatus,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
@@ -2154,6 +2201,10 @@ class CoachProfile {
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
       nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
+      annualBonus: (json['annualBonus'] as num?)?.toDouble(),
+      employmentRate: (json['employmentRate'] as num?)?.toDouble(),
+      selfEmployedNetIncome:
+          (json['selfEmployedNetIncome'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
@@ -2261,6 +2312,9 @@ class CoachProfile {
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
+        'annualBonus': annualBonus,
+        'employmentRate': employmentRate,
+        'selfEmployedNetIncome': selfEmployedNetIncome,
         'employmentStatus': employmentStatus,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
@@ -2342,11 +2396,17 @@ class CoachProfile {
     // recognized, causing annual salary to be treated as monthly.
     final payFrequency =
         (answers['q_pay_frequency'] as String?)?.toLowerCase() ?? 'monthly';
-    final netIncome = _parseDouble(answers['q_net_income_period_chf']) ?? 5000;
+    final selfEmployedNetIncome =
+        _parseDouble(answers['q_self_employed_net_income']);
+    final netIncome = selfEmployedNetIncome ??
+        _parseDouble(answers['q_net_income_period_chf']) ??
+        5000;
 
     // Convert to monthly net income based on pay frequency
     double monthlyNetIncome;
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    if (selfEmployedNetIncome != null) {
+      monthlyNetIncome = selfEmployedNetIncome / 12;
+    } else if (payFrequency == 'yearly' || payFrequency == 'annuel') {
       monthlyNetIncome = netIncome / 12;
     } else {
       monthlyNetIncome = netIncome;
@@ -2366,6 +2426,8 @@ class CoachProfile {
     // Employment status mapping
     final employmentRaw = answers['q_employment_status'] as String?;
     final employmentStatus = _parseEmploymentStatus(employmentRaw);
+    final employmentRate = _parseDouble(answers['q_employment_rate']);
+    final annualBonus = _parseDouble(answers['q_annual_bonus']);
 
     // ── Depenses ────────────────────────────────────────────
     final housingCost =
@@ -2406,6 +2468,10 @@ class CoachProfile {
 
     // ── Prevoyance ──────────────────────────────────────────
     final hasPensionFund = _parseBool(answers['q_has_pension_fund']);
+    final hasVoluntaryLpp =
+        answers.containsKey('q_self_employed_voluntary_lpp')
+            ? _parseBool(answers['q_self_employed_voluntary_lpp'])
+            : _parseBool(answers['q_has_voluntary_lpp']);
     final lppBuybackAvailable =
         _parseDouble(answers['q_lpp_buyback_available']);
     final has3a = _parseBool(answers['q_has_3a']);
@@ -2493,6 +2559,7 @@ class CoachProfile {
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
       rendementCaisse: coachRendementCaisse ?? 0.02,
       salaireAssure: coachSalaireAssure,
+      hasVoluntaryLpp: hasVoluntaryLpp,
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
@@ -2534,10 +2601,12 @@ class CoachProfile {
     final estimatedInvestments = investmentsTotal > 0
         ? investmentsTotal
         : (hasInvestments ? (monthlyNetIncome * 2).clamp(0.0, 50000.0) : 0.0);
+    final wealthEstimate = _parseDouble(answers['q_wealth_estimate']);
 
     final patrimoine = PatrimoineProfile(
       epargneLiquide: epargneLiquide,
       investissements: estimatedInvestments,
+      wealthEstimate: wealthEstimate,
       propertyMarketValue: _parseDouble(answers['q_property_market_value']),
       mortgageBalance: _parseDouble(answers['q_mortgage_balance']),
       mortgageRate: _parseDouble(answers['q_mortgage_rate']),
@@ -2554,6 +2623,7 @@ class CoachProfile {
     final inlineCreditConso = _parseDouble(answers['_coach_dettes_credit']);
     final inlineLeasing = _parseDouble(answers['_coach_dettes_leasing']);
     final inlineAutresDettes = _parseDouble(answers['_coach_dettes_autres']);
+    final declaredTotalDebt = _parseDouble(answers['q_total_debt']);
     final hasInlineDettes = inlineHypotheque != null ||
         inlineCreditConso != null ||
         inlineLeasing != null ||
@@ -2565,7 +2635,11 @@ class CoachProfile {
           creditConsommation: inlineCreditConso,
           leasing: inlineLeasing,
           autresDettes: inlineAutresDettes,
+          declaredTotalDebt: declaredTotalDebt,
         );
+      }
+      if (declaredTotalDebt != null && declaredTotalDebt > 0) {
+        return DetteProfile(declaredTotalDebt: declaredTotalDebt);
       }
       if (debtPaymentsMonthly > 0) {
         // Proxy conservateur: principal restant ≈ 24 mois de mensualités.
@@ -2703,10 +2777,20 @@ class CoachProfile {
     // ── Conjoint (partner) data from onboarding ────────────
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
-    if (partnerIncome != null && partnerIncome > 0) {
+    final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
+    final spouseAvsContributionYears =
+        _parseInt(answers['q_spouse_avs_contribution_years']);
+    final hasPartnerData = (partnerIncome != null && partnerIncome > 0) ||
+        partnerBirthYear != null ||
+        spouseAvsContributionYears != null ||
+        answers['q_spouse_avs_lacunes_status'] != null ||
+        answers['q_spouse_avs_arrival_year'] != null ||
+        answers['q_spouse_avs_years_abroad'] != null;
+    if (hasPartnerData) {
       // Net -> Brut estimation: same social charges rate as main user
-      final partnerBrut = partnerIncome / (1 - socialChargesRate);
-      final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
+      final partnerBrut = partnerIncome != null && partnerIncome > 0
+          ? partnerIncome / (1 - socialChargesRate)
+          : 0.0;
       final conjEmployment = answers['q_partner_employment_status'] as String?;
 
       // === Conjoint arrivalAge ===
@@ -2762,6 +2846,7 @@ class CoachProfile {
       // === Conjoint prevoyance profile ===
       // FATCA hard block: most providers refuse US persons (LSFin compliance).
       final conjointPrevoyance = PrevoyanceProfile(
+        anneesContribuees: spouseAvsContributionYears,
         lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,
         canContribute3a: !conjIsFatca,
@@ -2872,11 +2957,15 @@ class CoachProfile {
       birthYear: birthYear,
       dateOfBirth: dateOfBirth,
       canton: canton,
+      commune: answers['q_commune'] as String?,
       nationality: answers['q_nationality'] as String?,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,
+      annualBonus: annualBonus,
+      employmentRate: employmentRate,
+      selfEmployedNetIncome: selfEmployedNetIncome,
       employmentStatus: employmentStatus,
       depenses: depenses,
       prevoyance: prevoyance,
@@ -2893,6 +2982,7 @@ class CoachProfile {
       arrivalAge: computedArrivalAge,
       residencePermit: answers['q_residence_permit'] as String?,
       familyChange: familyChange,
+      gender: answers['q_gender'] as String?,
       targetRetirementAge: targetRetAge,
       updatedAt:
           savedUpdatedAt != null ? DateTime.tryParse(savedUpdatedAt) : null,
@@ -3026,6 +3116,7 @@ class CoachProfile {
     }
 
     switch (raw.toLowerCase()) {
+      case 'retire':
       case 'retirement':
         return GoalA(
           type: GoalAType.retraite,
@@ -3056,10 +3147,23 @@ class CoachProfile {
           label: retirementLabel,
         );
       case 'project':
+      case 'other':
         return GoalA(
           type: GoalAType.custom,
           targetDate: DateTime.now().add(const Duration(days: 365 * 3)),
           label: 'Projet personnel',
+        );
+      case 'emergency':
+        return GoalA(
+          type: GoalAType.custom,
+          targetDate: DateTime.now().add(const Duration(days: 365 * 2)),
+          label: "Fonds d'urgence",
+        );
+      case 'optimize_taxes':
+        return GoalA(
+          type: GoalAType.custom,
+          targetDate: DateTime.now().add(const Duration(days: 365)),
+          label: 'Optimisation fiscale',
         );
       case 'debt_free':
       case 'debtfree':
