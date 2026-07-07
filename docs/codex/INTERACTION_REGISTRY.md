@@ -1,0 +1,242 @@
+# Interaction Registry — Spécification v1.1
+
+Status: Proposed
+Date: 2026-07-07
+Origine : v1.0-RC (panel 5 experts, 3 itérations) + revue contextuelle repo du 2026-07-07.
+
+> **Principe** : un bouton ne sait pas où il va — la carte le sait.
+> **Promesse exacte** : éliminer l'*incohérence* (bouton cassé, back qui perd
+> les données, écran orphelin, branche non testée). La carte ne produit PAS le
+> raffinement UX (motion, timing, micro-interactions) — ça reste le domaine de
+> `MOTION_INTERACTION_AUDIT.md`. Ne pas confondre grammaire et poésie.
+
+---
+
+## 0.a Amendements v1.1 (revue contextuelle — ce qui change vs v1.0-RC)
+
+| # | Amendement | Pourquoi |
+|---|---|---|
+| A1 | **Cible = base propre** (`claude/mint-swiss-coach-eu33i7`), pas `dev`. L'exemple wedge (`mvp_wedge/`, lignée dev) est remplacé par le chemin réel prouvé `/data-block/revenu → /hypotheque`. | Le wedge 9 étapes et `.planning/journeys/` n'existent que sur `origin/dev` ; toute la reconstruction G0–G7 vit sur la base propre. Cartographier la lignée qu'on remplace = effort perdu. |
+| A2 | **Clause de subsomption** : le registre GÉNÈRE les tables par route de `SCREEN_CONTRACTS.md` (§reads/writes/states/routesOut) et le graphe `WIRING_GRAPH` ; nouveau lint `contract_double_authority`. | Sans ça, le registre devient une 4e source de vérité concurrente — la maladie qu'il prétend soigner. Une seule carte ; les autres artefacts deviennent générés. |
+| A3 | **Gate D1 recalibré** : ≥ 8 incohérences **nouvelles**, absentes de `SCREEN_CONTRACTS.md` (dead-ends D-1→D-5, îlots I-4) et de `WIRING_GRAPH`. | Les incohérences déjà documentées passeraient le gate d'avance — le go/no-go doit mesurer ce que la photo apporte, pas recompter le connu. |
+| A4 | **`payload.extra` contraint par la Rule 0 de SCREEN_CONTRACTS** : ids d'entités, enums, codes, tokens, sélection éphémère uniquement. Jamais d'objet domaine (`CoachProfile`, `ExtractionResult`, réponses de wizard…). Le lint `payload_mismatch` incorpore cette règle. | La forme `extra: dart_type` de v1.0 légitimait n'importe quel type — en tension frontale avec la Rule 0 déjà testée (`no_domain_data_in_extra_test.dart`). |
+| A5 | **`a11y_label` = clé ARB**, jamais une chaîne libre. | Règle i18n 6 langues du repo ; une chaîne libre dans le YAML recréerait du texte user-facing hors ARB. |
+| A6 | **`analytics:` transite par le guard consentement/nLPD existant** ; un event déclaré dans une edge n'est émis que si le consentement le couvre. | La spec v1.0 ne disait rien du régime de protection des données des events. |
+
+Réserve levée partiellement : `route_centrality` (D8) n'existe pas sur la base
+propre — soit porter `.planning/journeys/PRIORITY_RUBRIC.md` depuis dev, soit
+calculer la centralité directement depuis le graphe extrait (betweenness sur
+les edges). Décision à prendre au moment de l'étape 1, pas avant.
+
+## 0.b Réserves irréductibles (héritées v1.0 — pourquoi pas 10/10)
+
+À lever par l'implémentation, pas par la spec :
+1. **Extraction des navigations dynamiques** — les ternaires et `path: _fn(seg)`
+   (catégories 2-3 du KNOWN-MISSES MAP-04) résisteront à l'extraction d'edges.
+   Test de levée : l'extracteur couvre ≥ 90 % des navigations réelles.
+2. **Walker sur scènes in-shell** — jamais éprouvé. Test : le walker distingue
+   les scènes d'un shell et vérifie une transition `in_shell` de bout en bout.
+3. **Ergonomie agents** — se mesure à l'usage. Test : un agent ajoute une edge
+   + son bouton en < 15 min sans question au fondateur.
+
+## 0.c Décisions de cadrage (héritées v1.0, amendées)
+
+| # | Décision |
+|---|---|
+| D1 | **Photo d'abord, framework ensuite.** Étapes 1-2 (extracteur + lints sur l'existant) livrées seules. Go/no-go executor : **≥ 8 incohérences nouvelles (A3) → executor justifié ; sinon lints + walker sans executor.** Seuil écrit d'avance, non renégociable. |
+| D2 | `back:` est **documenté + vérifié par walker** en v1, pas imposé par codegen. Le codegen PopScope est un chantier v2 explicite. Champ `enforcement: declared\|walker\|codegen` par propriété. |
+| D3 | Guards = **source unique** : le registre GÉNÈRE les redirects GoRouter (ou les remplace). Interdiction de coexistence avec des redirects manuels (lint). |
+| D4 | `test_ref:` n'est **jamais déclaratif** : référence vers un test existant, vérifiée par CI (le test existe ET référence l'edge id). |
+| D5 | KNOWN-MISSES sous **ratchet** : la liste ne peut que décroître (check CI compare au count committé). |
+| D6 | Pas de lint `intent_vague` : les intents des edges modifiées sont extraits **en tête du diff de PR** pour revue humaine. |
+| D7 | `actions:` limité aux actions **destructives ou irréversibles** en v1. |
+| D8 | Walker priorisé par centralité de route (voir §0.a) + présence `analytics:` : critique en nightly, graphe complet en hebdo. |
+| D9 | Squelettes Maestro générés **à la demande** (`--edge <id>`), jamais en masse. |
+| D10 | Index généré **une-ligne-par-edge** (`interactions/INDEX.md`) pour la lecture agents ; les YAML par flux restent la source. |
+| D11 | **(v1.1)** Relation aux specs existantes : `SCREEN_CONTRACTS.md` tables par route et `WIRING_GRAPH` deviennent des **artefacts générés** dès qu'un flux est migré ; un flux non migré reste gouverné par les docs actuels. Lint `contract_double_authority` : une route ne peut pas être déclarée à la fois dans un flux migré et éditée à la main dans les docs générés. |
+
+## 1. Modèle
+
+Trois entités : **node** (écran ou scène), **edge** (interaction), **flow**
+(regroupement + invariants). Deux niveaux de nœuds :
+
+- `kind: route` — adressable GoRouter, DOIT ∈ `kRouteRegistry` (réutilise MAP-04).
+- `kind: scene` — sous-nœud d'un shell (`parent:` requis), transition par
+  provider/état, invisible de GoRouter, visible du walker.
+
+## 2. Schéma YAML (v1.1)
+
+```yaml
+# interactions/<flow_id>.yaml
+schema_version: 1            # OBLIGATOIRE — validé par lint
+
+flow:
+  id: string                 # snake_case, stable, jamais renommé
+  title: string
+  exits: [node_id | flow_ref]
+  invariants:
+    max_depth: int
+    back_never_loses_input: bool     # enforcement: walker (D2)
+    every_scene_has_exit: bool
+
+nodes:
+  - id: string               # regex lint : ^[a-z]+\.(route|scene)\.[a-z0-9_]+$
+    kind: route | scene
+    parent: node_id?         # requis si scene
+    route: string?           # requis si route — ∈ kRouteRegistry
+    widget: string           # vérifié par l'extracteur
+    platforms: [mobile, web] # défaut [mobile] — toute route web DOIT survivre
+                             # au cold start sur URL directe (entry direct_url)
+    entries:                 # PROVENANCE — le back DÉPEND de la provenance
+      - via: flow | tab | drawer | deeplink | notification | direct_url | system
+        back: pop | pop_to(node_id) | reset_to(node_id) | exits_app
+        # Doctrine MINT « chaque notification = deeplink » ⇒ toute cible de
+        # notification déclare son entry via: notification.
+    states: [content, loading, empty, error.network, error.guard, error.compute]
+        # Chaque error.* déclaré doit avoir un fallback nommé.
+        # Exemption motivée : states_waived: "raison"
+    guards: [guard_id]?
+
+edges:
+  - id: string               # = interactionId passé au widget CTA (API à créer)
+    from: node_id
+    to: node_id | action_ref | flow_ref
+    trigger: tap | swipe | long_press | submit | system
+    intent: string           # ce que l'utilisateur CROIT faire — revu en PR (D6)
+    payload:                 # CONTRAT DE DONNÉES — contraint par Rule 0 (A4)
+      path_params: {name: dart_type}?    # ex. {type: EnrichmentType}
+      extra: dart_type?                  # ids / enums / codes / tokens /
+                                         # sélection éphémère UNIQUEMENT (A4)
+      # Le codegen vérifie que la cible consomme exactement ce contrat.
+    transition: push | replace | reset_stack | sheet | dialog | in_shell
+    back: ...                # v1 : enforcement walker (D2)
+    guards: [guard_id]?
+    variant: string?
+    analytics: string?       # émis via le guard consentement/nLPD (A6)
+    a11y_label: arb_key?     # clé ARB, jamais une chaîne libre (A5)
+    test_ref: path#test_id | waived(reason)   # D4 — vérifié par CI
+
+actions:                     # v1 : destructives/irréversibles uniquement (D7)
+  - id: string
+    effect: string
+    confirmation: required | none   # destructive ⇒ required (lint)
+    feedback: toast | inline
+    then: node_id?
+
+guards:
+  - id: string
+    source: string           # provider/service Dart
+    on_fail: node_id | action_ref   # OBLIGATOIRE — guard silencieux = écran mort
+    generates: gorouter_redirect | inline_check   # D3 — source unique
+```
+
+## 3. Exemple — flux `revenu_to_mortgage` (routes réelles base propre, chemin prouvé au runtime)
+
+Chemin déjà prouvé : Maestro `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml`
+(PR #834) + deeplink `mint:///data-block/revenu` enregistré (PR #832).
+
+```yaml
+schema_version: 1
+flow:
+  id: revenu_to_mortgage
+  title: "Faits de revenu canoniques → capacité d'achat immobilier"
+  exits: [home.route.dashboard, coach.route.chat]
+  invariants: {max_depth: 4, back_never_loses_input: true, every_scene_has_exit: true}
+
+nodes:
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/revenu
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: deeplink, back: reset_to(home.route.dashboard)}   # mint:///data-block/revenu
+    states: [content, loading, error.compute]
+
+  - id: mortgage.route.hypotheque
+    kind: route
+    route: /hypotheque
+    widget: screens/mortgage/affordability_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: tab, back: pop_to(home.route.dashboard)}
+    states: [content, partial, loading, error.compute]
+    # partial : rend avec les facts du ledger disponibles (q_gross_salary_annual,
+    # q_canton) + source sheet MINT profile — jamais de mur de formulaire.
+
+edges:
+  - id: db.edge.revenu.submit
+    from: db.route.revenu
+    to: mortgage.route.hypotheque
+    trigger: submit
+    intent: "Enregistrer mes faits de revenu et voir ma capacité d'achat"
+    payload: {}              # les facts transitent par le ledger (mergeAnswers),
+                             # JAMAIS par extra — Rule 0 + invariant I-3
+    transition: push
+    back: pop
+    analytics: revenu_facts_saved
+    test_ref: apps/mobile/.maestro/f2_datablock_to_mortgage.yaml
+    # fichier mono-flow : l'ancre #test_id est requise seulement pour les
+    # fichiers multi-tests (dart) — le lint test_ref_valid gère les deux formes
+```
+
+## 4. Lints de graphe (CI, sur YAML seul)
+
+| Lint | Règle | Sévérité |
+|---|---|---|
+| schema_version_present | version connue du validateur | error |
+| orphan_node | tout node a ≥ 1 entry ou edge entrante | error |
+| dead_end | tout node a une sortie ou ∈ exits | error |
+| unknown_route | kind:route → ∈ kRouteRegistry (MAP-04) | error |
+| ghost_target / undeclared_exit | cibles existantes / sorties ∈ flow.exits | error |
+| payload_mismatch | payload edge = signature consommée par la cible **ET** conforme Rule 0 (A4) | error |
+| missing_states / silent_guard | states requis ; guard sans on_fail | error |
+| notification_target_entry | cible de notification sans entry via: notification | error |
+| web_route_direct_url | platforms: web sans entry via: direct_url | error |
+| destructive_no_confirm | action destructive sans confirmation: required | error |
+| guard_double_authority | redirect GoRouter manuel sur route gouvernée (D3) | error |
+| contract_double_authority | route d'un flux migré éditée à la main dans SCREEN_CONTRACTS/WIRING_GRAPH générés (D11) | error |
+| a11y_label_is_arb_key | a11y_label présent → clé existante dans app_fr.arb (A5) | error |
+| test_ref_valid | test existe ET référence l'edge id | error |
+| known_misses_ratchet | count(KNOWN-MISSES) ≤ count committé (D5) | error |
+| depth_exceeded / id_format | max_depth ; regex de nommage | warn / error |
+
+## 5. Artefacts générés
+
+1. `interaction_registry.g.dart` + `InteractionExecutor` — **si et seulement si
+   go/no-go D1 positif**. Lint lefthook `no-raw-navigation` avec KNOWN-MISSES
+   sous ratchet.
+2. `interactions/INDEX.md` — une ligne par edge (lecture agents, D10).
+3. `.planning/journeys/diagrams/interaction_graph.mmd` — guards en losanges,
+   test_ref waived en pointillé, entries multiples visibles.
+4. **Tables par route de `SCREEN_CONTRACTS.md` + `WIRING_GRAPH` régénérés** pour
+   les flux migrés (D11/A2) — en-tête « GÉNÉRÉ — ne pas éditer » + doc-guard.
+5. Redirects GoRouter générés depuis les guards `generates: gorouter_redirect` (D3).
+6. Squelettes Maestro à la demande : `--maestro-skeleton --edge <id>` (D9).
+7. Assertions walker : chaque edge (priorisée D8) tapée sur simulateur,
+   atterrissage vérifié ; échec = nightly fail + screenshot.
+   Réservation déjà posée dans `TEST_ROADMAP.md` §Interaction Registry (Infra-G6).
+
+## 6. Séquencement (ordre imposé, gates chiffrés)
+
+0. **Précondition** : trains G1/G2 produit (#836–841) et Infra-G1→G7 (#842–848)
+   mergés — la photo se prend sur une base stable, pas sur une cible mouvante.
+1. **Photo** : extracteur → `interaction_graph_current.json` (+ taps walker pour
+   les scènes). Mesurer la couverture d'extraction ; si < 90 %, traiter les
+   navigations dynamiques d'abord (réserve n°1). Trancher la source de
+   centralité (§0.a).
+2. **Audit** : lints §4 en mode rapport → `INTERACTION_GRAPH_AUDIT.md` = liste
+   des incohérences, **marquées connues (déjà dans SCREEN_CONTRACTS/WIRING_GRAPH)
+   vs nouvelles**.
+3. **GATE D1** : ≥ 8 incohérences **nouvelles** → étapes 4-6. Sinon : lints +
+   walker en garde permanente, STOP (l'executor ne se justifie pas).
+4. Déclaration flux par flux : `revenu_to_mortgage` → data-blocks restants →
+   coach → rapport/dossier → reste. Lint bloquant par flux migré ; à chaque flux
+   migré, ses tables SCREEN_CONTRACTS passent en généré (D11).
+5. `no-raw-navigation` global quand KNOWN-MISSES < 10 (et ratchet actif).
+6. v2 (chantier séparé, jamais implicite) : codegen PopScope → `back` passe de
+   `enforcement: walker` à `codegen`.
+
+**Règle agents (CLAUDE.md, une ligne, à activer à l'étape 4)** : « Toute
+nouvelle interaction UI commence par une edge dans `interactions/*.yaml`.
+Pas d'edge, pas de bouton. »
