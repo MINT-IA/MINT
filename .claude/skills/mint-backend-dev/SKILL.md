@@ -16,6 +16,10 @@ You work exclusively in `services/backend/`. Never touch `apps/mobile/`.
 ## Before Writing Any Code
 
 Read these files first:
+- `AGENTS.md` pre-flight row for the touched surface
+- `.claude/skills/mint-operating-gates/SKILL.md`
+- `docs/codex/DATA_LEDGER.md` and `docs/codex/DATA_QUEST.md` for
+  scenario/profile variable ownership
 - `services/backend/app/services/rules_engine.py` — Core calculation engine
 - `services/backend/app/schemas/` — All Pydantic v2 schemas
 - `services/backend/app/api/v1/endpoints/` — API endpoints
@@ -86,6 +90,18 @@ def compute_xxx(
 3. Update `tools/openapi/mint.openapi.canonical.json`
 4. Update `SOT.md`
 
+### MINT Data/Scenario Discipline
+
+- Prefer pure calculation services with deterministic inputs.
+- Pydantic schemas must make optional, estimated, stale, and missing states
+  explicit where the product depends on them.
+- Every scenario output needs sources, assumptions, disclaimers, confidence or
+  missing-value behavior, and tests.
+- No silently accepted profile key: allowlists, fixtures, docs, and tests must
+  stay in sync.
+- No facade endpoints: every endpoint must have a real consumer or documented
+  phase gate.
+
 ## Testing Patterns
 
 ```python
@@ -148,4 +164,6 @@ Julien (50, CH, 100k) + Lauren (45, US/FATCA, 60k). Golden file: `test/golden/ju
 ruff check .           # Lint
 pytest -q              # Tests
 pytest -q -x           # Stop at first failure
+python3 -m pytest ../../tools/checks/tests/test_data_quest_goal_aware_ranking_contract.py -q
+python3 -m pytest ../../tools/checks/tests/test_screen_contracts_route_contract.py -q
 ```

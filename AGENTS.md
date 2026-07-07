@@ -3,9 +3,48 @@
 > **Start here, every session.** This file tells any agent (human or LLM)
 > how to navigate MINT so the rules in `CLAUDE.md` apply to the right code.
 > Team structure + spawning recipes live further down.
-> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Sprint history: [`docs/SPRINT_TRACKER.md`](docs/SPRINT_TRACKER.md).
+> Full ruleset: [`CLAUDE.md`](CLAUDE.md) · Roadmap: [`docs/ROADMAP_V2.md`](docs/ROADMAP_V2.md).
+> Agent/Codex/Claude workflow: [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
 
 ---
+
+## Operating Mode - Clean Mint Base
+
+At G0, MINT is rebuilt from the checkout currently mounted at
+`/Users/julienbattaglia/Desktop/MINT.nosync`. `MINT 2` is only a Finder symlink
+to that checkout. Archive folders and safety bundles are not active workspaces.
+Always verify the active branch and cleanliness with `git status --short
+--branch`; do not infer state from Finder folder names.
+
+Default rule: one real user flow, one clean worktree, one short PR, one
+runtime proof when UI is touched. Do not merge oversized draft PRs directly;
+extract reviewable slices.
+
+Permanent MINT roster:
+
+| Agent | File | Owns |
+|---|---|---|
+| `mint-lead` | `.claude/agents/mint-lead.md` | Scope, sequencing, merge/no-merge |
+| `mint-quality-gate` | `.claude/agents/mint-quality-gate.md` | Tests, runtime evidence, scorecards |
+| `mint-mobile` | `.claude/agents/mint-mobile.md` | Flutter app changes |
+| `mint-backend` | `.claude/agents/mint-backend.md` | FastAPI/backend/data changes |
+| `mint-swiss-brain` | `.claude/agents/mint-swiss-brain.md` | Swiss finance/compliance meaning |
+| `mint-data-ledger-architect` | `.claude/agents/mint-data-ledger-architect.md` | Variable ledger, provenance, freshness |
+| `mint-data-quest-architect` | `.claude/agents/mint-data-quest-architect.md` | Progressive questions and Case registry |
+| `mint-lucidity-pdf` | `.claude/agents/mint-lucidity-pdf.md` | Specialist-ready dossier/PDF |
+| `mint-external-auditor` | `.claude/agents/mint-external-auditor.md` | Claude CLI review loop |
+
+Canonical skills live in `.claude/skills/mint-*`:
+
+| Skill | Use |
+|---|---|
+| `mint-operating-gates` | Mandatory before user-facing/auth/privacy/runtime/financial work |
+| `mint-flutter-dev` | Flutter implementation in `apps/mobile/` |
+| `mint-backend-dev` | Backend implementation in `services/backend/` |
+| `mint-swiss-compliance` | Swiss regulatory/compliance review |
+
+External or generic specialists are not active by default. Use them only for a
+named gap after the MINT roster scopes the work.
 
 ## 🗺 Before you edit X, read Y, grep Z
 
@@ -20,7 +59,7 @@ time of looking at the map.
 | `apps/mobile/lib/services/financial_core/**` | [`docs/calculator-graph.md`](docs/calculator-graph.md) | `grep -rn "YourCalculator\." apps/mobile/lib` | `flutter test test/services/financial_core/` |
 | `apps/mobile/lib/screens/document_scan/**` | [`docs/data-flow.md`](docs/data-flow.md) §Scan pipeline | `grep "updateFrom.*Extraction" apps/mobile/lib/providers/coach_profile_provider.dart` | `flutter test test/services/document_parser/ test/providers/` |
 | `apps/mobile/lib/screens/budget/**` | [`docs/data-flow.md`](docs/data-flow.md) §Budget flow | `grep "q_housing_cost\|q_lamal_premium\|_coach_depenses" apps/mobile/lib` | `flutter test test/screens/budget/` |
-| A new route | [`apps/mobile/lib/routes/route_metadata.dart`](apps/mobile/lib/routes/route_metadata.dart) (Phase 32 registry) | `./tools/mint-routes check` | `flutter test test/routes/` |
+| A new route | [`apps/mobile/lib/routes/route_metadata.dart`](apps/mobile/lib/routes/route_metadata.dart) (Phase 32 registry) | `./tools/mint-routes reconcile` | `flutter test test/routes/` |
 | `apps/mobile/lib/l10n/app_*.arb` | ARB parity across 6 langs | verify same keys in fr/en/de/es/it/pt | `flutter gen-l10n && flutter test` |
 | Any financial calculation | [`CLAUDE.md`](CLAUDE.md) §4 + [`docs/calculator-graph.md`](docs/calculator-graph.md) | `grep -rn "_calculate\|_compute" apps/mobile/lib/services/ \| grep -v financial_core/` | `flutter test test/services/financial_core/` |
 
@@ -68,28 +107,30 @@ Revolut) from ones that turn in circles. Apply religiously.
   hidden constraints, invariants, workarounds.
 - Tests that assert LLM mock output (testing the mock, not the code).
 
-## 🛡 MINT drift-catchers (already roadmapped — use them as soon as shipped)
+## 🛡 MINT drift-catchers (use checked-in gates first)
 
-Until v2.8 Phases 33/34/35 land, the docs in `/docs/*.md` are the manual
-rampart. After ship:
+The repo currently has a small checked-in gate set plus a broader roadmap.
+Use what exists, and record missing tools instead of pretending they ran.
 
-- **Phase 33 kill-switches** → any path flag-kill-able from `/admin/flags`
-- **Phase 34 lefthook** → 5 mechanical lints block regressions at commit
-- **Phase 35 Boucle Daily** → morning sim walk + Sentry pull + auto-PR
+- **Feature flags / kill switches** → every new product path must be disableable
+- **Lefthook** → memory retention, map freshness hints, ARB parity
+- **Daily loop roadmap** → morning sim walk + Sentry pull + auto-PR
   on P0/P1. **The mechanism that catches « an agent broke something
   overnight ».** Mandatory for solo-dev + AI workflow.
-- **Phase 30.7 MCP tools** → Swiss constants / banned-terms /
-  ARB-parity as on-demand tools (stop bloating agent context with rules)
+- **Future MCP/tools** → Swiss constants / banned-terms / Patrol / Beads /
+  Mermaid gates once installed and wired in this checkout
 
 ## 🤝 Session handshake — run these in order, every time
 
-1. Read [`MEMORY.md`](memory/MEMORY.md) (auto-loaded).
+1. Read curator memory when present; otherwise use Engram context plus checked-in docs.
 2. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
 3. Read this file.
-4. When the user names a subsystem, read the matching `docs/*.md` **before
+4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
+5. Read [`.claude/skills/mint-operating-gates/SKILL.md`](.claude/skills/mint-operating-gates/SKILL.md).
+6. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-5. Run the grep verification from the table.
-6. *Only then* propose code.
+7. Run the grep verification from the table.
+8. *Only then* propose code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.
@@ -99,17 +140,15 @@ the ghost in prod.
 ## TEAM STRUCTURE
 
 ```
-┌──────────────────────────────────────────────┐
-│              TEAM LEAD (Opus)                │
-│     Orchestrate, review, decide, merge       │
-│     Doesn't code directly (except urgency)   │
-└─────────┬──────────┬──────────┬──────────────┘
-          │          │          │
-    ┌─────▼──┐ ┌─────▼──┐ ┌────▼─────┐
-    │  DART  │ │ PYTHON │ │  SWISS   │
-    │ Agent  │ │ Agent  │ │  BRAIN   │
-    │Sonnet  │ │Sonnet  │ │  Opus    │
-    └────────┘ └────────┘ └──────────┘
+mint-lead
+  ├─ mint-swiss-brain
+  ├─ mint-data-ledger-architect
+  ├─ mint-data-quest-architect
+  ├─ mint-backend
+  ├─ mint-mobile
+  ├─ mint-lucidity-pdf
+  ├─ mint-quality-gate
+  └─ mint-external-auditor
 ```
 
 ---
@@ -118,16 +157,16 @@ the ghost in prod.
 
 ### Flutter chantier (UI, widgets, screens)
 ```
-Spawn "dart-agent" with model sonnet.
-Read: .claude/skills/mint-flutter-dev/SKILL.md, .claude/skills/mint-test-suite/SKILL.md, CLAUDE.md
+Spawn "mint-mobile" with model sonnet.
+Read: .claude/agents/mint-mobile.md, .claude/skills/mint-flutter-dev/SKILL.md, .claude/skills/mint-operating-gates/SKILL.md, CLAUDE.md
 Scope: apps/mobile/ only. Never touch backend.
 Before changes: flutter analyze && flutter test.
 ```
 
 ### Backend chantier (FastAPI, services, tax)
 ```
-Spawn "python-agent" with model sonnet.
-Read: .claude/skills/mint-backend-dev/SKILL.md, .claude/skills/mint-test-suite/SKILL.md, CLAUDE.md
+Spawn "mint-backend" with model sonnet.
+Read: .claude/agents/mint-backend.md, .claude/skills/mint-backend-dev/SKILL.md, .claude/skills/mint-operating-gates/SKILL.md, CLAUDE.md
 Scope: services/backend/ only. Never touch Flutter.
 Before changes: ruff check . && pytest -q.
 API change → update tools/openapi/ + SOT.md.
@@ -135,8 +174,8 @@ API change → update tools/openapi/ + SOT.md.
 
 ### Business/compliance chantier (fiscalité, LPP, compliance)
 ```
-Spawn "swiss-brain" with model opus.
-Read: .claude/skills/mint-swiss-compliance/SKILL.md, CLAUDE.md, LEGAL_RELEASE_CHECK.md, visions/
+Spawn "mint-swiss-brain" with model opus.
+Read: .claude/agents/mint-swiss-brain.md, .claude/skills/mint-swiss-compliance/SKILL.md, CLAUDE.md, LEGAL_RELEASE_CHECK.md, visions/
 Scope: docs/, education/, decisions/, visions/. No code.
 Output: specs with legal sources, test cases, educational text, compliance alerts.
 ```
@@ -148,20 +187,27 @@ Output: specs with legal sources, test cases, educational text, compliance alert
 ### Rule 1: Team Lead doesn't code (except urgency)
 Orchestrate, review, merge. Create tasks, verify outputs, make decisions.
 
-### Rule 2: Swiss-Brain validates BEFORE devs implement
+### Rule 2: Swiss meaning validates BEFORE devs implement
 ```
-Swiss-Brain (spec + test cases)
-  → Python-Agent (backend implementation)
-    → Dart-Agent (UI/screen)
-      → Team Lead (review + merge)
+mint-swiss-brain (spec + test cases)
+  → mint-data-ledger-architect / mint-data-quest-architect (variables + asks)
+    → mint-backend (backend implementation)
+      → mint-mobile (UI/screen)
+        → mint-quality-gate + mint-external-auditor (review)
+          → mint-lead (merge/no-merge)
 ```
 
 ### Rule 3: Cross-modification boundaries
 | Agent | Can modify | Cannot modify |
 |-------|-----------|---------------|
-| dart-agent | `apps/mobile/` | `services/backend/`, `tools/openapi/` |
-| python-agent | `services/backend/`, `tools/openapi/`, `SOT.md` | `apps/mobile/` |
-| swiss-brain | `docs/`, `education/`, `decisions/`, `visions/` | Code (`*.dart`, `*.py`) |
+| mint-mobile | `apps/mobile/` | `services/backend/`, `tools/openapi/` |
+| mint-backend | `services/backend/`, `tools/openapi/`, `SOT.md` | `apps/mobile/` |
+| mint-swiss-brain | `docs/`, `education/`, `decisions/`, `visions/` | Code (`*.dart`, `*.py`) |
+| mint-data-ledger-architect | `docs/codex/`, ledger schemas/tests | Product UI without a caller |
+| mint-data-quest-architect | `docs/codex/`, question plans/tests | Duplicate variable aliases |
+| mint-lucidity-pdf | PDF/dossier contracts and surfaces | Financial law constants |
+| mint-quality-gate | Evidence, tests, scorecards | Feature code outside fixes for gates |
+| mint-external-auditor | Audit prompts/evidence | Product implementation |
 
 ### Rule 4: Token economy
 - Sonnet by default, Opus for complex reasoning
@@ -174,11 +220,10 @@ Swiss-Brain (spec + test cases)
 
 | Skill | File | Agent |
 |-------|------|-------|
-| mint-flutter-dev | `.claude/skills/mint-flutter-dev/SKILL.md` | dart-agent |
-| mint-backend-dev | `.claude/skills/mint-backend-dev/SKILL.md` | python-agent |
-| mint-swiss-compliance | `.claude/skills/mint-swiss-compliance/SKILL.md` | swiss-brain |
-| mint-test-suite | `.claude/skills/mint-test-suite/SKILL.md` | all agents |
-| mint-commit | `.claude/skills/mint-commit/SKILL.md` | team-lead |
+| mint-operating-gates | `.claude/skills/mint-operating-gates/SKILL.md` | all agents |
+| mint-flutter-dev | `.claude/skills/mint-flutter-dev/SKILL.md` | mint-mobile |
+| mint-backend-dev | `.claude/skills/mint-backend-dev/SKILL.md` | mint-backend |
+| mint-swiss-compliance | `.claude/skills/mint-swiss-compliance/SKILL.md` | mint-swiss-brain |
 
 ---
 
