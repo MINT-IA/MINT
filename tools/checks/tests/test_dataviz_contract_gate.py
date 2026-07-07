@@ -20,24 +20,12 @@ def test_ci_runs_blocking_dataviz_contract_gate() -> None:
 def test_dataviz_contract_names_real_surfaces() -> None:
     source = DATAVIZ_TEST.read_text(encoding="utf-8")
 
-    for widget_name in (
-        "MintTrajectoryChart",
-        "FriBreakdownBars",
-        "BreakevenIndicatorWidget",
-        "MintResultHeroCard",
-    ):
-        assert widget_name in source
+    for token in ("MintTrajectoryChart", "FriBreakdownBars", "BreakevenIndicatorWidget", "MintResultHeroCard"):
+        assert token in source
 
 
 def test_goldens_readme_documents_dataviz_contract_policy() -> None:
     readme = GOLDENS_README.read_text(encoding="utf-8")
 
-    assert "Infra-G5 Dataviz Contract Gate" in readme
-    assert "CI-blocking" in readme
-    assert "pixel" in readme
-    assert "Linux" in readme
-    assert "FriHistoryChart" in readme
-    assert "fri_history_chart" in readme
-    assert "historical snake-case screen slug" in readme
-    assert "no Flutter widget" in readme
-    assert "MintResultHeroCard" in readme
+    for token in ("Infra-G5 Dataviz Contract Gate", "CI-blocking", "pixel", "Linux", "FriHistoryChart", "fri_history_chart", "historical snake-case screen slug", "no Flutter widget", "MintResultHeroCard"):
+        assert token in readme

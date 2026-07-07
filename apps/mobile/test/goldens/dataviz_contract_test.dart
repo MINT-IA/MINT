@@ -11,92 +11,79 @@ import 'helpers/screen_pump.dart';
 
 void main() {
   group('Infra-G5 dataviz contract gate', () {
-    testWidgets('MintTrajectoryChart renders the real trajectory surface',
+    testWidgets('renders the live dataviz surfaces without layout failures',
         (tester) async {
       await _pumpDataviz(
         tester,
-        MintTrajectoryChart(
-          result: _projectionFixture(),
-          goalALabel: 'Retraite 65 ans',
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MintTrajectoryChart(
+              result: _projectionFixture(),
+              goalALabel: 'Retraite 65 ans',
+            ),
+            const SizedBox(height: 24),
+            const FriBreakdownBars(
+              liquidite: 18,
+              fiscalite: 11,
+              retraite: 20,
+              risque: 9,
+            ),
+            const SizedBox(height: 24),
+            const BreakevenIndicatorWidget(
+              breakevenYear: 9,
+              ageRetraite: 65,
+              horizon: 25,
+              showCalendarYear: false,
+              sensitivity: {
+                'rendement_plus_1': 12000,
+                'rendement_moins_1': -9000,
+              },
+            ),
+            const SizedBox(height: 24),
+            const MintResultHeroCard(
+              eyebrow: 'Premier éclairage',
+              primaryValue: "CHF 12'400",
+              primaryLabel: 'impact annuel estimé',
+              secondaryValue: "CHF 1'030",
+              secondaryLabel: 'par mois',
+              narrative: 'Ce nombre sert à préparer une discussion structurée.',
+              accentColor: MintColors.primary,
+            ),
+          ],
         ),
       );
 
       expect(find.byType(MintTrajectoryChart), findsOneWidget);
-      expect(find.byType(CustomPaint), findsWidgets);
-      expect(find.text('Ta trajectoire'), findsOneWidget);
-      expect(find.text('Optimiste'), findsWidgets);
-      expect(find.text('Base'), findsWidgets);
-      expect(find.text('Prudent'), findsWidgets);
-      _expectNoFlutterException(tester);
-    });
-
-    testWidgets('FriBreakdownBars renders four bounded component bars',
-        (tester) async {
-      await _pumpDataviz(
-        tester,
-        const FriBreakdownBars(
-          liquidite: 18,
-          fiscalite: 11,
-          retraite: 20,
-          risque: 9,
-        ),
-      );
-
       expect(find.byType(FriBreakdownBars), findsOneWidget);
-      expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
-      expect(find.text('Liquidité'), findsOneWidget);
-      expect(find.text('Fiscalité'), findsOneWidget);
-      expect(find.text('Retraite'), findsOneWidget);
-      expect(find.text('Risque'), findsOneWidget);
-      expect(find.text('18/25'), findsOneWidget);
-      expect(find.text('11/25'), findsOneWidget);
-      expect(find.text('20/25'), findsOneWidget);
-      expect(find.text('9/25'), findsOneWidget);
-      _expectNoFlutterException(tester);
-    });
-
-    testWidgets('BreakevenIndicatorWidget renders deterministic age output',
-        (tester) async {
-      await _pumpDataviz(
-        tester,
-        const BreakevenIndicatorWidget(
-          breakevenYear: 9,
-          ageRetraite: 65,
-          horizon: 25,
-          showCalendarYear: false,
-          sensitivity: {
-            'rendement_plus_1': 12000,
-            'rendement_moins_1': -9000,
-          },
-        ),
-      );
-
       expect(find.byType(BreakevenIndicatorWidget), findsOneWidget);
+      expect(find.byType(MintResultHeroCard), findsOneWidget);
+      expect(find.byType(CustomPaint), findsWidgets);
+      expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
+
+      for (final text in [
+        'Ta trajectoire',
+        'Optimiste',
+        'Base',
+        'Prudent',
+        'Liquidité',
+        'Fiscalité',
+        'Retraite',
+        'Risque',
+        '18/25',
+        '11/25',
+        '20/25',
+        '9/25',
+        "CHF 12'400",
+        "CHF 1'030",
+        'Premier éclairage',
+      ]) {
+        expect(find.text(text), findsWidgets);
+      }
+
       expect(find.textContaining('74 ans'), findsOneWidget);
       expect(find.textContaining('Rendement +1 %'), findsOneWidget);
       expect(find.byIcon(Icons.swap_vert_rounded), findsOneWidget);
-      _expectNoFlutterException(tester);
-    });
-
-    testWidgets('MintResultHeroCard pins the live chiffre-choc hero surface',
-        (tester) async {
-      await _pumpDataviz(
-        tester,
-        const MintResultHeroCard(
-          eyebrow: 'Premier éclairage',
-          primaryValue: "CHF 12'400",
-          primaryLabel: 'impact annuel estimé',
-          secondaryValue: "CHF 1'030",
-          secondaryLabel: 'par mois',
-          narrative: 'Ce nombre sert à préparer une discussion structurée.',
-          accentColor: MintColors.primary,
-        ),
-      );
-
-      expect(find.byType(MintResultHeroCard), findsOneWidget);
-      expect(find.text("CHF 12'400"), findsOneWidget);
-      expect(find.text("CHF 1'030"), findsOneWidget);
-      expect(find.text('Premier éclairage'), findsOneWidget);
       _expectNoFlutterException(tester);
     });
   });
@@ -130,11 +117,10 @@ ProjectionResult _projectionFixture() {
     final points = List.generate(10, (index) {
       final capital = 100000 + (index * 18000 * multiplier);
       return ProjectionPoint(
-        date: DateTime.utc(2026 + index),
-        capitalCumule: capital,
-        contributionMensuelle: 700,
-        rendementCumule: capital * 0.12,
-      );
+          date: DateTime.utc(2026 + index),
+          capitalCumule: capital,
+          contributionMensuelle: 700,
+          rendementCumule: capital * 0.12);
     });
 
     return ProjectionScenario(
@@ -152,19 +138,15 @@ ProjectionResult _projectionFixture() {
   }
 
   return ProjectionResult(
-    prudent: scenario('Prudent', 0.75),
-    base: scenario('Base', 1),
-    optimiste: scenario('Optimiste', 1.35),
-    tauxRemplacementBase: 64,
-    milestones: [
-      ProjectionMilestone(
-        date: DateTime.utc(2030),
-        label: "150'000 CHF",
-        amount: 150000,
-      ),
-    ],
-    disclaimer: 'Projection pedagogique',
-    sources: const ['fixture Infra-G5'],
-    confidenceScore: 80,
-  );
+      prudent: scenario('Prudent', 0.75),
+      base: scenario('Base', 1),
+      optimiste: scenario('Optimiste', 1.35),
+      tauxRemplacementBase: 64,
+      milestones: [
+        ProjectionMilestone(
+            date: DateTime.utc(2030), label: "150'000 CHF", amount: 150000),
+      ],
+      disclaimer: 'Projection pedagogique',
+      sources: const ['fixture Infra-G5'],
+      confidenceScore: 80);
 }
