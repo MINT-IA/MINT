@@ -1,0 +1,16 @@
+title = "MINT gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Non-secret placeholders in the backend example environment file."
+condition = "AND"
+regexTarget = "line"
+paths = [
+  '''^services/backend/\.env\.example$''',
+]
+regexes = [
+  '''^DATABASE_URL=postgresql://mint:mint@localhost:5432/mint$''',
+  '''^JWT_SECRET_KEY=change-me-in-production$''',
+]
