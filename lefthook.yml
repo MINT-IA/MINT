@@ -42,6 +42,10 @@ pre-commit:
       run: for file in {staged_files}; do python3 tools/checks/banned_ui_terms.py --file "$file" || exit 1; done
       glob: "apps/mobile/lib/**/*.dart"
       tags: [compliance, mint]
+    financial-core-gate:
+      run: python3 tools/checks/financial_core_gate.py --staged
+      glob: "apps/mobile/lib/**/*.dart"
+      tags: [financial-core, mint]
 
 skip:
   - merge
