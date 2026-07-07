@@ -1,7 +1,7 @@
 # MINT CI — Run tests on every push & PR
-# Triggers on push to staging/main + PRs targeting dev/staging/main
-# Smart path detection: only runs backend/flutter jobs when relevant files changed.
-# Saves ~5-8 min per run when only one side is modified.
+# Triggers on push to dev/staging/main + every PR.
+# Backend/flutter baseline runs on every PR and protected push.
+# Selected auxiliary jobs still use smart path detection.
 
 name: CI
 
@@ -9,7 +9,6 @@ on:
   push:
     branches: [dev, staging, main]
   pull_request:
-    branches: [dev, staging, main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -94,6 +93,22 @@ jobs:
             ghcr.io/gitleaks/gitleaks:v8.30.1 \
             git --redact --config .gitleaks.toml --log-opts="${LOG_OPTS}" .
 
+  # ─── Repo contract tests ─────────────────────────────────────
+  # Stdlib/lightweight pytest contracts for repo-level gates and docs/code
+  # wiring. Keeps safety contracts executable instead of agent-local only.
+  repo-contract-tests:
+    name: Repository contract tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run repo contract tests
+        run: python3 -m pytest tools/checks/tests/ -q
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -165,7 +180,7 @@ jobs:
   backend:
     name: Backend tests
     needs: [changes, contracts-drift]
-    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    if: github.event_name == 'pull_request' || needs.changes.outputs.backend == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -317,7 +332,7 @@ jobs:
   pii-log-gate:
     name: PII log gate (PRIV-03)
     needs: [changes]
-    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    if: github.event_name == 'pull_request' || needs.changes.outputs.backend == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -359,7 +374,7 @@ jobs:
   flutter:
     name: Flutter ${{ matrix.shard }}
     needs: [changes, contracts-drift]
-    if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
+    if: github.event_name == 'pull_request' || needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -462,6 +477,27 @@ jobs:
           echo "Running golden helper unit tests (CI-safe subset)"
           flutter test test/goldens/helpers/ --reporter compact
 
+      - name: Dataviz golden readiness (non-blocking until Infra-G5)
+        if: matrix.shard == 'screens'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t dataviz_goldens < <(
+            find test/golden test/goldens -type f \( \
+              -name '*trajectory_chart*_test.dart' -o \
+              -name '*fri_breakdown_bars*_test.dart' -o \
+              -name '*fri_history_chart*_test.dart' -o \
+              -name '*breakeven_indicator*_test.dart' -o \
+              -name '*chiffre_choc_screen*_test.dart' \
+            \) 2>/dev/null || true
+          )
+          if [ "${#dataviz_goldens[@]}" -eq 0 ]; then
+            echo "::notice::Infra-G5 will add blocking dataviz golden baselines; none found yet."
+            exit 0
+          fi
+          flutter test "${dataviz_goldens[@]}" --reporter compact
+
   # ─── Phase 32 Plan 32-05 / D-12 §1: route registry parity gate ──
   # Runs the stdlib-only Python lint (tools/checks/route_registry_parity.py)
   # on every push / PR. Compares 148 extracted GoRoute|ScopedGoRoute(path:)
@@ -561,33 +597,39 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, secret-scan, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, contracts-drift, secret-scan, repo-contract-tests, backend, flutter, readability, wcag-aa-all-touched, pii-log-gate, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check results
         run: |
           # Skip check if job was skipped (no relevant changes)
+          contracts="${{ needs.contracts-drift.result }}"
+          repo_contracts="${{ needs.repo-contract-tests.result }}"
           backend="${{ needs.backend.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
           wcag="${{ needs.wcag-aa-all-touched.result }}"
+          pii="${{ needs.pii-log-gate.result }}"
           parity="${{ needs.route-registry-parity.result }}"
           cli_tests="${{ needs.mint-routes-tests.result }}"
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
+          [[ "$contracts" == "skipped" ]] && contracts="success"
+          [[ "$repo_contracts" == "skipped" ]] && repo_contracts="success"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$secret_scan" == "skipped" ]] && secret_scan="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
           [[ "$wcag" == "skipped" ]] && wcag="success"
+          [[ "$pii" == "skipped" ]] && pii="success"
           [[ "$parity" == "skipped" ]] && parity="success"
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$contracts" != "success" ]] || [[ "$repo_contracts" != "success" ]] || [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$pii" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — contracts=$contracts repo_contracts=$repo_contracts backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag pii=$pii parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
