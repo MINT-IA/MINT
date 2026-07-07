@@ -19,7 +19,7 @@ Origine : v1.0-RC (panel 5 experts, 3 itérations) + revue contextuelle repo du 
 | A1 | **Cible = base propre** (`claude/mint-swiss-coach-eu33i7`), pas `dev`. L'exemple wedge (`mvp_wedge/`, lignée dev) est remplacé par le chemin réel prouvé `/data-block/revenu → /hypotheque`. | Le wedge 9 étapes et `.planning/journeys/` n'existent que sur `origin/dev` ; toute la reconstruction G0–G7 vit sur la base propre. Cartographier la lignée qu'on remplace = effort perdu. |
 | A2 | **Clause de subsomption** : le registre GÉNÈRE les tables par route de `SCREEN_CONTRACTS.md` (§reads/writes/states/routesOut) et le graphe `WIRING_GRAPH` ; nouveau lint `contract_double_authority`. | Sans ça, le registre devient une 4e source de vérité concurrente — la maladie qu'il prétend soigner. Une seule carte ; les autres artefacts deviennent générés. |
 | A3 | **Gate D1 recalibré** : ≥ 8 incohérences **nouvelles**, absentes de `SCREEN_CONTRACTS.md` (dead-ends D-1→D-5, îlots I-4) et de `WIRING_GRAPH`. | Les incohérences déjà documentées passeraient le gate d'avance — le go/no-go doit mesurer ce que la photo apporte, pas recompter le connu. |
-| A4 | **`payload.extra` contraint par la Rule 0 de SCREEN_CONTRACTS** : ids d'entités, enums, codes, tokens, sélection éphémère uniquement. Jamais d'objet domaine (`CoachProfile`, `ExtractionResult`, réponses de wizard…). Le lint `payload_mismatch` incorpore cette règle. | La forme `extra: dart_type` de v1.0 légitimait n'importe quel type — en tension frontale avec la Rule 0 déjà testée (`no_domain_data_in_extra_test.dart`). |
+| A4 | **`payload.extra` contraint par `SCREEN_CONTRACTS.md` §0 HARD RULE** : ids d'entités, enums, codes, tokens, sélection éphémère uniquement. Jamais d'objet domaine (`CoachProfile`, `ExtractionResult`, réponses de wizard…). Le lint `payload_mismatch` incorpore cette règle. | La forme `extra: dart_type` de v1.0 légitimait n'importe quel type — en tension frontale avec `SCREEN_CONTRACTS.md` §0 HARD RULE déjà testée (`no_domain_data_in_extra_test.dart`). |
 | A5 | **`a11y_label` = clé ARB**, jamais une chaîne libre. | Règle i18n 6 langues du repo ; une chaîne libre dans le YAML recréerait du texte user-facing hors ARB. |
 | A6 | **`analytics:` transite par le guard consentement/nLPD existant** ; un event déclaré dans une edge n'est émis que si le consentement le couvre. | La spec v1.0 ne disait rien du régime de protection des données des events. |
 
@@ -103,7 +103,7 @@ edges:
     to: node_id | action_ref | flow_ref
     trigger: tap | swipe | long_press | submit | system
     intent: string           # ce que l'utilisateur CROIT faire — revu en PR (D6)
-    payload:                 # CONTRAT DE DONNÉES — contraint par Rule 0 (A4)
+    payload:                 # CONTRAT DE DONNÉES — contraint par SCREEN_CONTRACTS.md §0 HARD RULE (A4)
       path_params: {name: dart_type}?    # ex. {type: EnrichmentType}
       extra: dart_type?                  # ids / enums / codes / tokens /
                                          # sélection éphémère UNIQUEMENT (A4)
@@ -171,7 +171,7 @@ edges:
     trigger: submit
     intent: "Enregistrer mes faits de revenu et voir ma capacité d'achat"
     payload: {}              # les facts transitent par le ledger (mergeAnswers),
-                             # JAMAIS par extra — Rule 0 + invariant I-3
+                             # JAMAIS par extra — SCREEN_CONTRACTS.md §0 HARD RULE + invariant I-3
     transition: push
     back: pop
     analytics: revenu_facts_saved
@@ -189,7 +189,7 @@ edges:
 | dead_end | tout node a une sortie ou ∈ exits | error |
 | unknown_route | kind:route → ∈ kRouteRegistry (MAP-04) | error |
 | ghost_target / undeclared_exit | cibles existantes / sorties ∈ flow.exits | error |
-| payload_mismatch | payload edge = signature consommée par la cible **ET** conforme Rule 0 (A4) | error |
+| payload_mismatch | payload edge = signature consommée par la cible **ET** conforme `SCREEN_CONTRACTS.md` §0 HARD RULE (A4) | error |
 | missing_states / silent_guard | states requis ; guard sans on_fail | error |
 | notification_target_entry | cible de notification sans entry via: notification | error |
 | web_route_direct_url | platforms: web sans entry via: direct_url | error |
@@ -219,8 +219,12 @@ edges:
 
 ## 6. Séquencement (ordre imposé, gates chiffrés)
 
-0. **Précondition** : trains G1/G2 produit (#836–841) et Infra-G1→G7 (#842–848)
-   mergés — la photo se prend sur une base stable, pas sur une cible mouvante.
+0. **Précondition Interaction Registry uniquement** : trains G1/G2 produit
+   (#836–841) et Infra-G1→G8 (#842–#850) verts puis intégrés ou explicitement
+   rebases sur la base choisie. Cette spec reste `Status: Proposed` et ne bloque
+   PAS les G produits restants ; elle se merge en parallèle si son statut proposé
+   est rappelé dans la PR et si `gh pr checks <num>` est vert. #849 ne doit pas
+   devenir une autorité produit implicite avant l'étape 4.
 1. **Photo** : extracteur → `interaction_graph_current.json` (+ taps walker pour
    les scènes). Mesurer la couverture d'extraction ; si < 90 %, traiter les
    navigations dynamiques d'abord (réserve n°1). Trancher la source de
