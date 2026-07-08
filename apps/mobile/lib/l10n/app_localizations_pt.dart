@@ -23073,4 +23073,54 @@ class SPt extends S {
 
   @override
   String get dataBlockReconfirmEdit => 'Corrigir';
+
+  @override
+  String get firstJobG5Title => 'Salário, imposto e 3a';
+
+  @override
+  String get firstJobG5KnownBody =>
+      'Esta primeira leitura liga salário, cantão e idade. Os valores continuam estimados até a contribuição 3a ser confirmada.';
+
+  @override
+  String get firstJobG5MissingBody =>
+      'Esta primeira leitura precisa de salário, cantão e ano de nascimento. Mint não volta a pedir um dado que ainda está fresco.';
+
+  @override
+  String get firstJobG5StatusSalary => 'Salário';
+
+  @override
+  String get firstJobG5StatusCanton => 'Cantão';
+
+  @override
+  String get firstJobG5StatusAge => 'Idade';
+
+  @override
+  String get firstJobG5Status3a => 'Pagamento 3a';
+
+  @override
+  String get firstJobG5StatusKnown => 'Fornecido';
+
+  @override
+  String get firstJobG5StatusStale => 'A confirmar';
+
+  @override
+  String get firstJobG5StatusMissing => 'A completar';
+
+  @override
+  String get firstJobG5NetMonthly => 'Salário líquido estimado / mês';
+
+  @override
+  String get firstJobG5TaxAnnual => 'Imposto estimado / ano';
+
+  @override
+  String get firstJobG5Remaining3a => 'Margem 3a restante';
+
+  @override
+  String get firstJobG5AdditionalSaving => 'Impacto fiscal possível';
+
+  @override
+  String get firstJobG5DataCta => 'Completar dados';
+
+  @override
+  String get firstJobG5Pillar3aCta => 'Abrir 3a';
 }

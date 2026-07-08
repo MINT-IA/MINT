@@ -210,10 +210,6 @@ class RetirementTaxCalculator {
   /// Capital withdrawal is taxed separately at withdrawal (LIFD art. 38).
   /// SWR drawdown from withdrawn capital is consumption of own patrimony —
   /// NOT taxable income. Never double-tax capital.
-  static const String renteLppTaxDisclaimer =
-      'La rente LPP est imposee comme revenu (LIFD art. 22). '
-      'Consulte un·e specialiste fiscal·e pour une estimation personnalisee.';
-
   /// Progressive capital withdrawal tax (LIFD art. 38).
   ///
   /// Brackets: 0-100k (1.0×), 100k-200k (1.15×), 200k-500k (1.30×),
@@ -425,6 +421,8 @@ class RetirementTaxCalculator {
   /// [isMarried]: for family situation adjustment.
   /// [children]: number of dependent children.
   /// [hasLpp]: if true, ceiling = 7'258; if false, ceiling = min(20% net, 36'288).
+  /// [isCrossBorder]: if true, use the same withholding-tax estimator as
+  ///   [NetIncomeBreakdown] instead of ordinary taxation.
   /// [contributionMonths]: months worked in the tax year (1-12). Pro-rates the
   ///   ceiling for partial years (e.g. new job mid-year, or first job).
   ///   OPP3 art. 7: the deductible amount is proportional to the employment duration.
@@ -439,6 +437,7 @@ class RetirementTaxCalculator {
     bool isMarried = false,
     int children = 0,
     bool hasLpp = true,
+    bool isCrossBorder = false,
     int contributionMonths = 12,
     double? contribution,
   }) {
@@ -458,6 +457,26 @@ class RetirementTaxCalculator {
     final double deductible = contribution != null
         ? contribution.clamp(0.0, proRatedCeiling)
         : proRatedCeiling;
+
+    if (isCrossBorder) {
+      final before = NetIncomeBreakdown.compute(
+        grossSalary: grossAnnualSalary,
+        canton: canton,
+        age: 25,
+        etatCivil: isMarried ? 'marie' : 'celibataire',
+        nombreEnfants: children,
+        isCrossBorder: true,
+      ).incomeTaxEstimate;
+      final after = NetIncomeBreakdown.compute(
+        grossSalary: grossAnnualSalary - deductible,
+        canton: canton,
+        age: 25,
+        etatCivil: isMarried ? 'marie' : 'celibataire',
+        nombreEnfants: children,
+        isCrossBorder: true,
+      ).incomeTaxEstimate;
+      return (before - after).clamp(0.0, double.infinity).toDouble();
+    }
 
     return estimateTaxSaving(
       income: grossAnnualSalary,

@@ -1,0 +1,26 @@
+appId: ch.mint.app
+---
+# G5: /first-job exposes the tax + pillar 3a scene with progressive data status.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///first-job"
+- assertVisible:
+    text: "Premier emploi"
+- swipe:
+    start: 50%, 72%
+    end: 50%, 48%
+    duration: 350
+- takeScreenshot: g5-first-job-tax-3a-hero
+- swipe:
+    start: 50%, 72%
+    end: 50%, 52%
+    duration: 300
+- swipe:
+    start: 50%, 64%
+    end: 50%, 56%
+    duration: 250
+- takeScreenshot: g5-first-job-tax-3a-status

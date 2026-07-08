@@ -16,6 +16,7 @@ export 'coach_reasoner.dart';
 export 'confidence_scorer.dart';
 export 'couple_optimizer.dart';
 export 'fri_calculator.dart';
+export 'first_salary_tax_3a_calculator.dart';
 export 'housing_cost_calculator.dart';
 export 'lpp_calculator.dart';
 export 'monte_carlo_models.dart';

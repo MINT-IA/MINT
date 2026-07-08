@@ -23066,4 +23066,54 @@ class SFr extends S {
 
   @override
   String get dataBlockReconfirmEdit => 'Corriger';
+
+  @override
+  String get firstJobG5Title => 'Salaire, impôt et 3a';
+
+  @override
+  String get firstJobG5KnownBody =>
+      'Ce premier éclairage relie salaire, canton et âge. Les chiffres restent estimés tant que le versement 3a n\'est pas confirmé.';
+
+  @override
+  String get firstJobG5MissingBody =>
+      'Ce premier éclairage attend salaire, canton et année de naissance. Mint ne te redemandera pas une donnée déjà fraîche.';
+
+  @override
+  String get firstJobG5StatusSalary => 'Salaire';
+
+  @override
+  String get firstJobG5StatusCanton => 'Canton';
+
+  @override
+  String get firstJobG5StatusAge => 'Âge';
+
+  @override
+  String get firstJobG5Status3a => 'Versement 3a';
+
+  @override
+  String get firstJobG5StatusKnown => 'Fourni';
+
+  @override
+  String get firstJobG5StatusStale => 'À confirmer';
+
+  @override
+  String get firstJobG5StatusMissing => 'À compléter';
+
+  @override
+  String get firstJobG5NetMonthly => 'Net salaire estimé / mois';
+
+  @override
+  String get firstJobG5TaxAnnual => 'Impôt estimé / an';
+
+  @override
+  String get firstJobG5Remaining3a => 'Marge 3a restante';
+
+  @override
+  String get firstJobG5AdditionalSaving => 'Impact fiscal possible';
+
+  @override
+  String get firstJobG5DataCta => 'Compléter les données';
+
+  @override
+  String get firstJobG5Pillar3aCta => 'Voir le 3a';
 }

@@ -22954,4 +22954,54 @@ class SEn extends S {
 
   @override
   String get dataBlockReconfirmEdit => 'Correct';
+
+  @override
+  String get firstJobG5Title => 'Salary, tax and 3a';
+
+  @override
+  String get firstJobG5KnownBody =>
+      'This first reading links salary, canton and age. The figures stay estimated until the 3a contribution is confirmed.';
+
+  @override
+  String get firstJobG5MissingBody =>
+      'This first reading needs salary, canton and birth year. Mint will not ask again for data that is already fresh.';
+
+  @override
+  String get firstJobG5StatusSalary => 'Salary';
+
+  @override
+  String get firstJobG5StatusCanton => 'Canton';
+
+  @override
+  String get firstJobG5StatusAge => 'Age';
+
+  @override
+  String get firstJobG5Status3a => '3a payment';
+
+  @override
+  String get firstJobG5StatusKnown => 'Provided';
+
+  @override
+  String get firstJobG5StatusStale => 'To confirm';
+
+  @override
+  String get firstJobG5StatusMissing => 'To complete';
+
+  @override
+  String get firstJobG5NetMonthly => 'Estimated payslip net / month';
+
+  @override
+  String get firstJobG5TaxAnnual => 'Estimated tax / year';
+
+  @override
+  String get firstJobG5Remaining3a => 'Remaining 3a room';
+
+  @override
+  String get firstJobG5AdditionalSaving => 'Possible tax impact';
+
+  @override
+  String get firstJobG5DataCta => 'Complete data';
+
+  @override
+  String get firstJobG5Pillar3aCta => 'Open 3a';
 }

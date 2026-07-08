@@ -23127,4 +23127,54 @@ class SIt extends S {
 
   @override
   String get dataBlockReconfirmEdit => 'Correggere';
+
+  @override
+  String get firstJobG5Title => 'Salario, imposte e 3a';
+
+  @override
+  String get firstJobG5KnownBody =>
+      'Questa prima lettura collega salario, cantone ed età. Le cifre restano stimate finché il versamento 3a non è confermato.';
+
+  @override
+  String get firstJobG5MissingBody =>
+      'Questa prima lettura richiede salario, cantone e anno di nascita. Mint non richiederà un dato ancora fresco.';
+
+  @override
+  String get firstJobG5StatusSalary => 'Salario';
+
+  @override
+  String get firstJobG5StatusCanton => 'Cantone';
+
+  @override
+  String get firstJobG5StatusAge => 'Età';
+
+  @override
+  String get firstJobG5Status3a => 'Versamento 3a';
+
+  @override
+  String get firstJobG5StatusKnown => 'Fornito';
+
+  @override
+  String get firstJobG5StatusStale => 'Da confermare';
+
+  @override
+  String get firstJobG5StatusMissing => 'Da completare';
+
+  @override
+  String get firstJobG5NetMonthly => 'Netto busta stimato / mese';
+
+  @override
+  String get firstJobG5TaxAnnual => 'Imposta stimata / anno';
+
+  @override
+  String get firstJobG5Remaining3a => 'Margine 3a residuo';
+
+  @override
+  String get firstJobG5AdditionalSaving => 'Impatto fiscale possibile';
+
+  @override
+  String get firstJobG5DataCta => 'Completare i dati';
+
+  @override
+  String get firstJobG5Pillar3aCta => 'Aprire 3a';
 }

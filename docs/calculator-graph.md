@@ -30,6 +30,7 @@ flowchart LR
     PROFILE --> AVS[AvsCalculator]:::calc
     PROFILE --> LPP[LppCalculator]:::calc
     PROFILE --> TAX[TaxCalculator]:::calc
+    PROFILE --> FIRSTSALARY[FirstSalaryTax3aCalculator]:::calc
     PROFILE --> HOUSING[HousingCostCalculator]:::calc
     PROFILE --> BAYESIAN[BayesianEnricher]:::calc
 
@@ -76,6 +77,7 @@ Julien + Lauren golden values.
 | **AvsCalculator** | `avs_calculator.dart` | RAMD, years, gaps | monthly rente | FriCalculator, RetirementDashboardScreen, coach_narrative |
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
+| **FirstSalaryTax3aCalculator** | `first_salary_tax_3a_calculator.dart` | gross salary, canton, age, LPP status, 3a contribution | payslip net + tax estimate + 3a room/saving | FirstSalaryTax3aSummaryService, FirstJobScreen |
 | **HousingCostCalculator** | `housing_cost_calculator.dart` | loyer/hyp + canton | monthly housing effective cost | FriCalculator, budget calcs |
 | **FriCalculator** (composite) | `fri_calculator.dart` | CoachProfile | FRI score 0-100 + breakdown | FriComputationService, CoachNarrativeService |
 | **ConfidenceScorer** | `confidence_scorer.dart` | CoachProfile | score 0-100 + per-field confidence | ExtractionReviewScreen, RetirementDashboardScreen, `dataReliability` |
@@ -106,6 +108,7 @@ for a specific UI surface. Found under `apps/mobile/lib/services/`.
 | **EnhancedConfidenceService** | `confidence/enhanced_confidence_service.dart` | Per-field confidence + enrichment prompts | CoachProfile | Extraction review, Retirement dashboard |
 | **SnapshotService** | `snapshot_service.dart` | Persists daily/scan/life-event snapshots | CoachProfile | `updateFromRefresh`, `createSnapshotFromProfile` |
 | **SessionSnapshotService** | `session_snapshot_service.dart` | In-session delta | Snapshot + current profile | MintStateEngine |
+| **FirstSalaryTax3aSummaryService** | `data_quest/first_salary_tax_3a_summary_service.dart` | CoachProfile + wizard answers + FirstJob screen values | known/stale/missing facts + G5 result | `first_job_screen.dart` |
 
 ---
 

@@ -23121,4 +23121,54 @@ class SDe extends S {
 
   @override
   String get dataBlockReconfirmEdit => 'Korrigieren';
+
+  @override
+  String get firstJobG5Title => 'Lohn, Steuer und 3a';
+
+  @override
+  String get firstJobG5KnownBody =>
+      'Diese erste Lesart verbindet Lohn, Kanton und Alter. Die Zahlen bleiben geschätzt, bis der 3a-Beitrag bestätigt ist.';
+
+  @override
+  String get firstJobG5MissingBody =>
+      'Diese erste Lesart braucht Lohn, Kanton und Geburtsjahr. Mint fragt frische Daten nicht erneut ab.';
+
+  @override
+  String get firstJobG5StatusSalary => 'Lohn';
+
+  @override
+  String get firstJobG5StatusCanton => 'Kanton';
+
+  @override
+  String get firstJobG5StatusAge => 'Alter';
+
+  @override
+  String get firstJobG5Status3a => '3a-Zahlung';
+
+  @override
+  String get firstJobG5StatusKnown => 'Erfasst';
+
+  @override
+  String get firstJobG5StatusStale => 'Zu bestätigen';
+
+  @override
+  String get firstJobG5StatusMissing => 'Zu ergänzen';
+
+  @override
+  String get firstJobG5NetMonthly => 'Geschätzter Nettolohn / Monat';
+
+  @override
+  String get firstJobG5TaxAnnual => 'Geschätzte Steuer / Jahr';
+
+  @override
+  String get firstJobG5Remaining3a => 'Verbleibender 3a-Raum';
+
+  @override
+  String get firstJobG5AdditionalSaving => 'Möglicher Steuereffekt';
+
+  @override
+  String get firstJobG5DataCta => 'Daten ergänzen';
+
+  @override
+  String get firstJobG5Pillar3aCta => '3a öffnen';
 }

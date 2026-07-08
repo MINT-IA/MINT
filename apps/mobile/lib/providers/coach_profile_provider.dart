@@ -51,6 +51,9 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
 
+  /// Last canonical wizard answers loaded into this provider.
+  Map<String, dynamic> get lastAnswers => Map.unmodifiable(_lastAnswers);
+
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
   static Map<String, DateTime> _stampTimestamps(

@@ -11,6 +11,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/services/data_quest/first_salary_tax_3a_summary_service.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
@@ -23,6 +24,9 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -57,9 +61,32 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   // Swiss cantons
   static const List<String> _cantons = [
-    'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
-    'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
-    'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+    'AG',
+    'AI',
+    'AR',
+    'BE',
+    'BL',
+    'BS',
+    'FR',
+    'GE',
+    'GL',
+    'GR',
+    'JU',
+    'LU',
+    'NE',
+    'NW',
+    'OW',
+    'SG',
+    'SH',
+    'SO',
+    'SZ',
+    'TG',
+    'TI',
+    'UR',
+    'VD',
+    'VS',
+    'ZG',
+    'ZH',
   ];
 
   @override
@@ -95,7 +122,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
       );
-      ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
+      ScreenCompletionTracker.markCompletedWithReturn(
+          'first_job', screenReturn);
       return;
     }
 
@@ -139,133 +167,139 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final profileProvider = context.watch<CoachProfileProvider>();
+    final firstSalarySummary = FirstSalaryTax3aSummaryService.build(
+      profile: profileProvider.profile,
+      answers: profileProvider.lastAnswers,
+      screenValues: FirstSalaryTax3aScreenValues(
+        grossAnnualSalary: _salaire * 12,
+        canton: _canton,
+        age: _age,
+      ),
+    );
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturn();
       },
       child: Scaffold(
-      backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(
-                MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                MintEntrance(child: MintNarrativeCard(
-                  headline: S.of(context)!.narrativeFirstJobHeadline,
-                  body: S.of(context)!.narrativeFirstJobBody,
-                  tone: MintSurfaceTone.sauge,
-                  badge: S.of(context)!.narrativeFirstJobBadge,
-                )),
-                const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),
-                const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSalaireSlider()),
-                const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAgeSlider()),
-                const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCantonAndActivity()),
-                const SizedBox(height: MintSpacing.lg),
-                if (_result != null) ...[
-                  _buildPremierEclairage(),
-                  const SizedBox(height: MintSpacing.lg),
-                  SalaryBreakdownWidget(
-                    brut: _result!.brut,
-                    netEstime: _result!.netEstime,
-                    cotisationsEmployeur: _result!.cotisationsEmployeur,
-                    deductions: _result!.deductionItems,
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-                  PayslipXRayWidget(
-                    grossSalary: _salaire,
-                    netSalary: _salaire * 0.76,
-                    employerHiddenCost: _salaire * 1.13,
-                    deductions: [
-                      PayslipLine(
-                        label: S.of(context)!.firstJobPayslipAvsLabel,
-                        emoji: '\u{1F6E1}\u{FE0F}',
-                        amount: _salaire * 0.053,
-                        percentage: 5.3,
-                        explanation: S.of(context)!.firstJobPayslipAvsExplanation,
-                        legalRef: 'LAVS art. 5',
-                      ),
-                      PayslipLine(
-                        label: S.of(context)!.firstJobPayslipLppLabel,
-                        emoji: '\u{1F3E6}',
-                        amount: _salaire * 0.08,
-                        percentage: 8.0,
-                        explanation: S.of(context)!.firstJobPayslipLppExplanation,
-                        legalRef: 'LPP art. 16',
-                      ),
-                      PayslipLine(
-                        label: S.of(context)!.firstJobPayslipImpotLabel,
-                        emoji: '\u{1F3DB}\u{FE0F}',
-                        amount: _salaire * 0.09,
-                        percentage: 9.0,
-                        explanation: S.of(context)!.firstJobPayslipImpotExplanation,
-                        legalRef: 'LIFD art. 83',
+          backgroundColor: MintColors.porcelaine,
+          body: Center(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: CustomScrollView(
+                    slivers: [
+                      _buildAppBar(context),
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(
+                            MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            MintEntrance(
+                                child: MintNarrativeCard(
+                              headline:
+                                  S.of(context)!.narrativeFirstJobHeadline,
+                              body: S.of(context)!.narrativeFirstJobBody,
+                              tone: MintSurfaceTone.sauge,
+                              badge: S.of(context)!.narrativeFirstJobBadge,
+                            )),
+                            const SizedBox(height: MintSpacing.md + 4),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 100),
+                                child: _buildHeader()),
+                            const SizedBox(height: MintSpacing.md + 4),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 200),
+                                child: _buildSalaireSlider()),
+                            const SizedBox(height: MintSpacing.md + 4),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 300),
+                                child: _buildAgeSlider()),
+                            const SizedBox(height: MintSpacing.md + 4),
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 400),
+                                child: _buildCantonAndActivity()),
+                            const SizedBox(height: MintSpacing.lg),
+                            MintEntrance(
+                              delay: const Duration(milliseconds: 80),
+                              child: _buildFirstSalaryTax3aSummary(
+                                  firstSalarySummary),
+                            ),
+                            const SizedBox(height: MintSpacing.lg),
+                            if (_result != null) ...[
+                              _buildPremierEclairage(),
+                              const SizedBox(height: MintSpacing.lg),
+                            ],
+                            if (_result != null) ...[
+                              SalaryBreakdownWidget(
+                                brut: _result!.brut,
+                                netEstime: _result!.netEstime,
+                                cotisationsEmployeur:
+                                    _result!.cotisationsEmployeur,
+                                deductions: _result!.deductionItems,
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
+                              _buildPayslipXRay(firstSalarySummary),
+                              const SizedBox(height: MintSpacing.lg),
+                              _build3aRecommendation(),
+                              const SizedBox(height: MintSpacing.lg),
+                              _build3aWarning(),
+                              const SizedBox(height: MintSpacing.lg),
+                              _buildLamalComparison(),
+                              const SizedBox(height: MintSpacing.lg),
+                              _buildChecklist(),
+                              const SizedBox(height: MintSpacing.lg),
+                              Builder(
+                                builder: (ctx) {
+                                  final l = S.of(ctx)!;
+                                  return JobChangeChecklistWidget(
+                                    items: [
+                                      ChecklistItem(
+                                        deadline: l.firstJobChecklistDeadline1,
+                                        emoji: '\u{1F4C4}',
+                                        action: l.firstJobChecklistAction1,
+                                        legalRef: 'LPP art. 3 — libre passage',
+                                        consequence:
+                                            l.firstJobChecklistConsequence1,
+                                      ),
+                                      ChecklistItem(
+                                        deadline: l.firstJobChecklistDeadline2,
+                                        emoji: '\u{1F3E6}',
+                                        action: l.firstJobChecklistAction2,
+                                        legalRef: 'OLP art. 3',
+                                        consequence:
+                                            l.firstJobChecklistConsequence2,
+                                      ),
+                                      ChecklistItem(
+                                        deadline: l.firstJobChecklistDeadline3,
+                                        emoji: '\u{1F6E1}\u{FE0F}',
+                                        action: l.firstJobChecklistAction3,
+                                        legalRef: 'LAMal art. 3',
+                                      ),
+                                      ChecklistItem(
+                                        deadline: l.firstJobChecklistDeadline4,
+                                        emoji: '\u{1F3E6}',
+                                        action: l.firstJobChecklistAction4,
+                                        legalRef: 'OPP3 art. 1',
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
+                              _buildEducation(),
+                              const SizedBox(height: MintSpacing.lg),
+                              _buildMintAnalysisSection(),
+                              const SizedBox(height: MintSpacing.lg),
+                            ],
+                            MintEntrance(
+                                delay: const Duration(milliseconds: 400),
+                                child: _buildDisclaimer()),
+                            const SizedBox(height: 100),
+                          ]),
+                        ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-                  _build3aRecommendation(),
-                  const SizedBox(height: MintSpacing.lg),
-                  _build3aWarning(),
-                  const SizedBox(height: MintSpacing.lg),
-                  _buildLamalComparison(),
-                  const SizedBox(height: MintSpacing.lg),
-                  _buildChecklist(),
-                  const SizedBox(height: MintSpacing.lg),
-                  Builder(
-                    builder: (ctx) {
-                      final l = S.of(ctx)!;
-                      return JobChangeChecklistWidget(
-                        items: [
-                          ChecklistItem(
-                            deadline: l.firstJobChecklistDeadline1,
-                            emoji: '\u{1F4C4}',
-                            action: l.firstJobChecklistAction1,
-                            legalRef: 'LPP art. 3 — libre passage',
-                            consequence: l.firstJobChecklistConsequence1,
-                          ),
-                          ChecklistItem(
-                            deadline: l.firstJobChecklistDeadline2,
-                            emoji: '\u{1F3E6}',
-                            action: l.firstJobChecklistAction2,
-                            legalRef: 'OLP art. 3 — d\u00e9lai de transfert',
-                            consequence: l.firstJobChecklistConsequence2,
-                          ),
-                          ChecklistItem(
-                            deadline: l.firstJobChecklistDeadline3,
-                            emoji: '\u{1F6E1}\u{FE0F}',
-                            action: l.firstJobChecklistAction3,
-                            legalRef: 'LAMal art. 3',
-                          ),
-                          ChecklistItem(
-                            deadline: l.firstJobChecklistDeadline4,
-                            emoji: '\u{1F3E6}',
-                            action: l.firstJobChecklistAction4,
-                            legalRef: 'OPP3 art. 1',
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-                  _buildEducation(),
-                  const SizedBox(height: MintSpacing.lg),
-                  _buildMintAnalysisSection(),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
-                const SizedBox(height: 100),
-              ]),
-            ),
-          ),
-        ],
-      )))),
+                  )))),
     );
   }
 
@@ -294,6 +328,255 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   // ── Header ─────────────────────────────────────────────────
 
+  Widget _buildFirstSalaryTax3aSummary(FirstSalaryTax3aSummary summary) {
+    final l = S.of(context)!;
+    final result = summary.result;
+    final showDataCta =
+        summary.needsCoreData || summary.dataQuestAsks.isNotEmpty;
+
+    if (result == null) {
+      return MintSurface(
+        key: const Key('first_salary_tax_3a_summary'),
+        tone: MintSurfaceTone.porcelaine,
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        radius: 20,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l.firstJobG5Title,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.corailDiscret,
+              ).copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Text(
+              l.firstJobG5MissingBody,
+              style: MintTextStyles.headlineSmall(
+                color: MintColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Wrap(
+              spacing: MintSpacing.sm,
+              runSpacing: MintSpacing.sm,
+              children: [
+                _buildFirstSalaryStatusChip(
+                  key: const Key('first_salary_tax_3a_status_salary'),
+                  label: l.firstJobG5StatusSalary,
+                  status: summary.salaryStatus,
+                ),
+                _buildFirstSalaryStatusChip(
+                  key: const Key('first_salary_tax_3a_status_canton'),
+                  label: l.firstJobG5StatusCanton,
+                  status: summary.cantonStatus,
+                ),
+                _buildFirstSalaryStatusChip(
+                  key: const Key('first_salary_tax_3a_status_age'),
+                  label: l.firstJobG5StatusAge,
+                  status: summary.ageStatus,
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.lg),
+            FilledButton.icon(
+              key: const Key('first_salary_tax_3a_data_cta'),
+              onPressed: () => context.push('/data-block/revenu'),
+              icon: const Icon(Icons.edit_note_outlined, size: 18),
+              label: Text(l.firstJobG5DataCta),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                foregroundColor: MintColors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      key: const Key('first_salary_tax_3a_summary'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MintResultHeroCard(
+          key: const Key('first_salary_tax_3a_room'),
+          eyebrow: l.firstJobG5Title,
+          primaryValue: formatChfWithPrefix(result.remaining3aRoom),
+          primaryLabel: l.firstJobG5Remaining3a,
+          secondaryValue: formatChfMonthly(result.netMonthlyPayslip),
+          secondaryLabel: l.firstJobG5NetMonthly,
+          narrative: l.firstJobG5KnownBody,
+          accentColor: MintColors.textPrimary,
+          tone: MintSurfaceTone.porcelaine,
+        ),
+        const SizedBox(height: MintSpacing.sm + 4),
+        MintSurface(
+          tone: MintSurfaceTone.blanc,
+          padding: const EdgeInsets.all(MintSpacing.md + 4),
+          radius: 18,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: MintSpacing.sm,
+                runSpacing: MintSpacing.sm,
+                children: [
+                  _buildFirstSalaryStatusChip(
+                    key: const Key('first_salary_tax_3a_status_salary'),
+                    label: l.firstJobG5StatusSalary,
+                    status: summary.salaryStatus,
+                  ),
+                  _buildFirstSalaryStatusChip(
+                    key: const Key('first_salary_tax_3a_status_canton'),
+                    label: l.firstJobG5StatusCanton,
+                    status: summary.cantonStatus,
+                  ),
+                  _buildFirstSalaryStatusChip(
+                    key: const Key('first_salary_tax_3a_status_age'),
+                    label: l.firstJobG5StatusAge,
+                    status: summary.ageStatus,
+                  ),
+                  _buildFirstSalaryStatusChip(
+                    key: Key(summary.pillar3aContributionStatus ==
+                            FirstSalaryFactStatus.known
+                        ? 'first_salary_tax_3a_status_3a_known'
+                        : 'first_salary_tax_3a_status_3a_missing'),
+                    label: l.firstJobG5Status3a,
+                    status: summary.pillar3aContributionStatus,
+                  ),
+                ],
+              ),
+              const SizedBox(height: MintSpacing.md),
+              Divider(
+                color: MintColors.border.withValues(alpha: 0.35),
+                height: 1,
+              ),
+              MintSignalRow(
+                label: l.firstJobG5TaxAnnual,
+                value: formatChfWithPrefix(result.income.incomeTaxEstimate),
+              ),
+              MintSignalRow(
+                label: l.firstJobG5AdditionalSaving,
+                value: formatChfWithPrefix(result.additional3aTaxSaving),
+                valueColor: MintColors.successAaa,
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Wrap(
+                spacing: MintSpacing.sm,
+                runSpacing: MintSpacing.sm,
+                children: [
+                  if (showDataCta)
+                    OutlinedButton.icon(
+                      key: const Key('first_salary_tax_3a_data_cta'),
+                      onPressed: () => context.push('/data-block/revenu'),
+                      icon: const Icon(Icons.edit_note_outlined, size: 18),
+                      label: Text(l.firstJobG5DataCta),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: MintColors.primary,
+                        side: const BorderSide(color: MintColors.primary),
+                      ),
+                    ),
+                  FilledButton.icon(
+                    key: const Key('first_salary_tax_3a_pillar3a_cta'),
+                    onPressed: () => context.push('/pilier-3a'),
+                    icon: const Icon(Icons.savings_outlined, size: 18),
+                    label: Text(l.firstJobG5Pillar3aCta),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      foregroundColor: MintColors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFirstSalaryStatusChip({
+    required Key key,
+    required String label,
+    required FirstSalaryFactStatus status,
+  }) {
+    final statusColor = switch (status) {
+      FirstSalaryFactStatus.known => MintColors.success,
+      FirstSalaryFactStatus.stale => MintColors.warning,
+      FirstSalaryFactStatus.missing => MintColors.textMuted,
+    };
+    return Container(
+      key: key,
+      padding:
+          const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 6),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: statusColor.withValues(alpha: 0.25)),
+      ),
+      child: Text(
+        '$label · ${_firstSalaryStatusText(status)}',
+        style: MintTextStyles.labelSmall(color: statusColor),
+      ),
+    );
+  }
+
+  String _firstSalaryStatusText(FirstSalaryFactStatus status) {
+    final l = S.of(context)!;
+    return switch (status) {
+      FirstSalaryFactStatus.known => l.firstJobG5StatusKnown,
+      FirstSalaryFactStatus.stale => l.firstJobG5StatusStale,
+      FirstSalaryFactStatus.missing => l.firstJobG5StatusMissing,
+    };
+  }
+
+  Widget _buildPayslipXRay(FirstSalaryTax3aSummary summary) {
+    final l = S.of(context)!;
+    final r = _result!;
+    final monthlyTax = summary.result?.monthlyIncomeTaxEstimate ?? 0;
+    final deductions = <PayslipLine>[
+      PayslipLine(
+        label: l.firstJobPayslipAvsLabel,
+        emoji: '\u{1F6E1}\u{FE0F}',
+        amount: r.avsAiApg,
+        percentage: _percentOfGross(r.avsAiApg),
+        explanation: l.firstJobPayslipAvsExplanation,
+        legalRef: 'LAVS art. 5',
+      ),
+      if (r.lppEmploye > 0)
+        PayslipLine(
+          label: l.firstJobPayslipLppLabel,
+          emoji: '\u{1F3E6}',
+          amount: r.lppEmploye,
+          percentage: _percentOfGross(r.lppEmploye),
+          explanation: l.firstJobPayslipLppExplanation,
+          legalRef: 'LPP art. 16',
+        ),
+      if (monthlyTax > 0)
+        PayslipLine(
+          label: l.firstJobPayslipImpotLabel,
+          emoji: '\u{1F3DB}\u{FE0F}',
+          amount: monthlyTax,
+          percentage: _percentOfGross(monthlyTax),
+          explanation: l.firstJobPayslipImpotExplanation,
+          legalRef: 'LIFD art. 83',
+        ),
+    ];
+
+    return PayslipXRayWidget(
+      grossSalary: r.brut,
+      netSalary: r.netEstime,
+      employerHiddenCost: r.brut + r.cotisationsEmployeur,
+      deductions: deductions,
+    );
+  }
+
+  double _percentOfGross(double amount) {
+    final gross = _result?.brut ?? 0;
+    if (gross <= 0) return 0;
+    return amount / gross * 100;
+  }
+
   Widget _buildHeader() {
     return MintSurface(
       tone: MintSurfaceTone.blanc,
@@ -308,8 +591,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           Expanded(
             child: Text(
               S.of(context)!.firstJobHeaderDesc,
-              style:
-                  MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
         ],
@@ -410,8 +692,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   child: DropdownButton<String>(
                     value: _canton,
                     underline: const SizedBox.shrink(),
-                    style: MintTextStyles.titleMedium(
-                        color: MintColors.primary),
+                    style:
+                        MintTextStyles.titleMedium(color: MintColors.primary),
                     items: _cantons.map((c) {
                       return DropdownMenuItem(value: c, child: Text(c));
                     }).toList(),
@@ -553,9 +835,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         children: [
           Text(
             value,
-            style:
-                MintTextStyles.titleMedium(color: MintColors.primary)
-                    .copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.titleMedium(color: MintColors.primary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 2),
           Text(
@@ -575,8 +856,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: MintColors.error.withValues(alpha: 0.15), width: 1.5),
+        border: Border.all(
+            color: MintColors.error.withValues(alpha: 0.15), width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,8 +877,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 const SizedBox(height: MintSpacing.xs + 2),
                 Text(
                   _result!.alerte3a,
-                  style: MintTextStyles.bodySmall(
-                      color: MintColors.textPrimary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
               ],
             ),
@@ -632,13 +913,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
           // Franchise cards
           ...r.franchiseOptions.map((option) {
-            final isRecommended =
-                option.franchise == r.franchiseRecommandee;
+            final isRecommended = option.franchise == r.franchiseRecommandee;
             return Container(
               margin: const EdgeInsets.only(bottom: MintSpacing.sm),
               padding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.sm + 6,
-                  vertical: MintSpacing.sm + 4),
+                  horizontal: MintSpacing.sm + 6, vertical: MintSpacing.sm + 4),
               decoration: BoxDecoration(
                 color: isRecommended
                     ? MintColors.success.withValues(alpha: 0.06)
@@ -648,8 +927,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     ? Border.all(
                         color: MintColors.success.withValues(alpha: 0.15))
                     : Border.all(
-                        color:
-                            MintColors.border.withValues(alpha: 0.5)),
+                        color: MintColors.border.withValues(alpha: 0.5)),
               ),
               child: Row(
                 children: [
@@ -666,8 +944,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         S.of(context)!.firstJobTopBadge,
                         style: MintTextStyles.labelSmall(
                                 color: MintColors.white)
-                            .copyWith(
-                                fontSize: 9, fontWeight: FontWeight.w700),
+                            .copyWith(fontSize: 9, fontWeight: FontWeight.w700),
                       ),
                     ),
                   Expanded(
@@ -687,13 +964,15 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   Expanded(
                     flex: 3,
                     child: Text(
-                      S.of(context)!.firstJobPrimePerMonth(FirstJobService.formatChf(option.primeMensuelle)),
+                      S.of(context)!.firstJobPrimePerMonth(
+                          FirstJobService.formatChf(option.primeMensuelle)),
                       style: MintTextStyles.labelSmall(
                           color: MintColors.textSecondary),
                     ),
                   ),
                   Text(
-                    S.of(context)!.firstJobCoutMaxPerYear(FirstJobService.formatChf(option.coutAnnuelMax)),
+                    S.of(context)!.firstJobCoutMaxPerYear(
+                        FirstJobService.formatChf(option.coutAnnuelMax)),
                     style: MintTextStyles.labelSmall(),
                   ),
                 ],
@@ -785,9 +1064,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: checked
-                              ? MintColors.success
-                              : MintColors.surface,
+                          color:
+                              checked ? MintColors.success : MintColors.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: checked
@@ -815,9 +1093,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                 ? MintColors.textMuted
                                 : MintColors.textPrimary,
                           ).copyWith(
-                            decoration: checked
-                                ? TextDecoration.lineThrough
-                                : null,
+                            decoration:
+                                checked ? TextDecoration.lineThrough : null,
                           ),
                         ),
                       ),
@@ -896,9 +1173,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 children: [
                   Text(
                     title,
-                    style: MintTextStyles.bodyMedium(
-                            color: MintColors.textPrimary)
-                        .copyWith(fontWeight: FontWeight.w600),
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Text(
@@ -996,13 +1273,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     const monthly3a = pilier3aPlafondAvecLpp / 12;
     const annual3a = monthly3a * 12;
 
-    final candidateAges =
-        [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
+    final candidateAges = [22, 25, 30, 35].where((a) => a <= _age + 5).toList();
     final scenarioAges = candidateAges.isEmpty ? [_age] : candidateAges;
     final scenarios = scenarioAges
         .map((a) => TimeLapseScenario(
               startAge: a,
-              capitalAt65: _fvAnnuity(annual3a, (avsAgeReferenceHomme - a).clamp(0, 45)),
+              capitalAt65:
+                  _fvAnnuity(annual3a, (avsAgeReferenceHomme - a).clamp(0, 45)),
             ))
         .toList();
 
@@ -1042,9 +1319,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 ? '\u{1F4CD} ${S.of(context)!.firstJobProfileBadge}'
                 : '\u{1F4A1} ${S.of(context)!.firstJobIllustrativeBadge}',
             style: MintTextStyles.labelSmall(
-              color: _seededFromProfile
-                  ? MintColors.success
-                  : MintColors.warning,
+              color:
+                  _seededFromProfile ? MintColors.success : MintColors.warning,
             ).copyWith(fontWeight: FontWeight.w700),
           ),
         ),
@@ -1056,10 +1332,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final l10n = S.of(context)!;
     const median = 6500.0;
     final profileVal = _seededFromProfile
-        ? context
-                .read<CoachProfileProvider>()
-                .profile
-                ?.salaireBrutMensuel ??
+        ? context.read<CoachProfileProvider>().profile?.salaireBrutMensuel ??
             5000.0
         : 5000.0;
     final boosted = (profileVal * 1.20).clamp(2000.0, 15000.0);
@@ -1070,8 +1343,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             ? '\u{1F4CD} ${l10n.firstJobScenarioMySalary}'
             : '\u{1F4CD} ${l10n.firstJobScenarioDefault}',
         value: profileVal.clamp(2000.0, 15000.0),
-        active:
-            (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
+        active: (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
       ),
       (
         label: '\u{1F1E8}\u{1F1ED} ${l10n.firstJobScenarioMedianCH}',
@@ -1103,24 +1375,20 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: MintSpacing.sm + 6,
-                      vertical: MintSpacing.sm),
+                      horizontal: MintSpacing.sm + 6, vertical: MintSpacing.sm),
                   decoration: BoxDecoration(
                     color: s.active ? MintColors.primary : MintColors.white,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: s.active
-                          ? MintColors.primary
-                          : MintColors.border,
+                      color: s.active ? MintColors.primary : MintColors.border,
                       width: s.active ? 2 : 1,
                     ),
                   ),
                   child: Text(
                     '${s.label}  CHF ${FirstJobService.formatChf(s.value)}',
                     style: MintTextStyles.labelSmall(
-                      color: s.active
-                          ? MintColors.white
-                          : MintColors.textPrimary,
+                      color:
+                          s.active ? MintColors.white : MintColors.textPrimary,
                     ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),

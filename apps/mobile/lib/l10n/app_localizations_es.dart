@@ -23065,4 +23065,54 @@ class SEs extends S {
 
   @override
   String get dataBlockReconfirmEdit => 'Corregir';
+
+  @override
+  String get firstJobG5Title => 'Salario, impuestos y 3a';
+
+  @override
+  String get firstJobG5KnownBody =>
+      'Esta primera lectura conecta salario, cantón y edad. Las cifras siguen estimadas hasta confirmar el aporte 3a.';
+
+  @override
+  String get firstJobG5MissingBody =>
+      'Esta primera lectura necesita salario, cantón y año de nacimiento. Mint no volverá a pedir un dato que siga fresco.';
+
+  @override
+  String get firstJobG5StatusSalary => 'Salario';
+
+  @override
+  String get firstJobG5StatusCanton => 'Cantón';
+
+  @override
+  String get firstJobG5StatusAge => 'Edad';
+
+  @override
+  String get firstJobG5Status3a => 'Aporte 3a';
+
+  @override
+  String get firstJobG5StatusKnown => 'Aportado';
+
+  @override
+  String get firstJobG5StatusStale => 'Por confirmar';
+
+  @override
+  String get firstJobG5StatusMissing => 'Por completar';
+
+  @override
+  String get firstJobG5NetMonthly => 'Neto estimado de nómina / mes';
+
+  @override
+  String get firstJobG5TaxAnnual => 'Impuesto estimado / año';
+
+  @override
+  String get firstJobG5Remaining3a => 'Margen 3a restante';
+
+  @override
+  String get firstJobG5AdditionalSaving => 'Impacto fiscal posible';
+
+  @override
+  String get firstJobG5DataCta => 'Completar datos';
+
+  @override
+  String get firstJobG5Pillar3aCta => 'Abrir 3a';
 }

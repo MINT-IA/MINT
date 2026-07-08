@@ -40460,6 +40460,102 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Corriger'**
   String get dataBlockReconfirmEdit;
+
+  /// G5 first salary tax and pillar 3a summary title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire, impôt et 3a'**
+  String get firstJobG5Title;
+
+  /// G5 first salary summary body when core data exists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce premier éclairage relie salaire, canton et âge. Les chiffres restent estimés tant que le versement 3a n\'est pas confirmé.'**
+  String get firstJobG5KnownBody;
+
+  /// G5 first salary summary body when core data is missing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce premier éclairage attend salaire, canton et année de naissance. Mint ne te redemandera pas une donnée déjà fraîche.'**
+  String get firstJobG5MissingBody;
+
+  /// G5 salary fact label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire'**
+  String get firstJobG5StatusSalary;
+
+  /// G5 canton fact label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get firstJobG5StatusCanton;
+
+  /// G5 age fact label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get firstJobG5StatusAge;
+
+  /// G5 annual pillar 3a contribution fact label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement 3a'**
+  String get firstJobG5Status3a;
+
+  /// G5 known fact status.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourni'**
+  String get firstJobG5StatusKnown;
+
+  /// G5 stale fact status.
+  ///
+  /// In fr, this message translates to:
+  /// **'À confirmer'**
+  String get firstJobG5StatusStale;
+
+  /// G5 missing fact status.
+  ///
+  /// In fr, this message translates to:
+  /// **'À compléter'**
+  String get firstJobG5StatusMissing;
+
+  /// G5 monthly payslip net metric label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net salaire estimé / mois'**
+  String get firstJobG5NetMonthly;
+
+  /// G5 annual tax estimate metric label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt estimé / an'**
+  String get firstJobG5TaxAnnual;
+
+  /// G5 remaining pillar 3a room metric label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge 3a restante'**
+  String get firstJobG5Remaining3a;
+
+  /// G5 possible additional tax impact metric label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact fiscal possible'**
+  String get firstJobG5AdditionalSaving;
+
+  /// G5 CTA to complete salary data block.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter les données'**
+  String get firstJobG5DataCta;
+
+  /// G5 CTA to open pillar 3a screen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le 3a'**
+  String get firstJobG5Pillar3aCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
