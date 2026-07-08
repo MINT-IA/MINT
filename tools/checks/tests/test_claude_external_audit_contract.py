@@ -1,0 +1,127 @@
+import os
+import subprocess
+from pathlib import Path
+
+import pytest
+
+
+ROOT = Path(__file__).resolve().parents[3]
+SCRIPT = ROOT / "tools/checks/claude_external_audit.sh"
+AGENT = ROOT / ".claude/agents/mint-external-auditor.md"
+WORKFLOW = ROOT / "docs/MINT_AGENT_WORKFLOW.md"
+
+
+def _run(*args: str, **env_overrides: str) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env.update(env_overrides)
+    return subprocess.run(
+        ["bash", str(SCRIPT), *args],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def test_wrapper_is_syntax_valid_and_executable() -> None:
+    result = subprocess.run(
+        ["bash", "-n", str(SCRIPT)],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert os.access(SCRIPT, os.X_OK)
+
+
+def test_wrapper_defaults_are_bounded() -> None:
+    result = _run("code", "HEAD", CLAUDE_AUDIT_DRY_RUN="1")
+
+    assert result.returncode == 0, result.stderr
+    for needle in (
+        "--model opus",
+        "--effort high",
+        "--safe-mode",
+        "--strict-mcp-config",
+        r"\{\"mcpServers\":\{\}\}",
+        "--disable-slash-commands",
+        "--no-session-persistence",
+        "--permission-mode dontAsk",
+        "--tools Read\\,Grep\\,Bash",
+        "--exclude-dynamic-system-prompt-sections",
+        "--- PROMPT_BEGIN ---",
+        "Staged worktree diff:",
+        "Unstaged worktree diff:",
+    ):
+        assert needle in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("args", "env", "stderr"),
+    (
+        (("code",), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "code mode requires a base ref"),
+        (("unknown",), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "unknown mode"),
+        (
+            ("code", "HEAD"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_EFFORT": "max"},
+            "refusing --effort max",
+        ),
+        (
+            ("code", "HEAD"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_MAX_TURNS": "25"},
+            "MAX_TURNS is not supported",
+        ),
+        (
+            ("specs",),
+            {
+                "CLAUDE_AUDIT_DRY_RUN": "1",
+                "CLAUDE_AUDIT_BARE": "1",
+                "ANTHROPIC_API_KEY": "",
+                "CLAUDE_AUDIT_SETTINGS": "",
+            },
+            "--bare skips OAuth/keychain",
+        ),
+    ),
+)
+def test_wrapper_rejects_unsafe_or_invalid_invocations(
+    args: tuple[str, ...],
+    env: dict[str, str],
+    stderr: str,
+) -> None:
+    result = _run(*args, **env)
+
+    assert result.returncode == 2
+    assert stderr in result.stderr
+
+
+def test_specs_and_architecture_prompts_are_wired() -> None:
+    specs = _run("specs", CLAUDE_AUDIT_DRY_RUN="1")
+    architecture = _run("architecture", CLAUDE_AUDIT_DRY_RUN="1")
+
+    assert specs.returncode == 0, specs.stderr
+    assert architecture.returncode == 0, architecture.stderr
+    for spec in (
+        "DATA_LEDGER.md",
+        "SCREEN_CONTRACTS.md",
+        "WIRING_GRAPH.mmd",
+        "DATA_QUEST.md",
+        "MAESTRO_FLOWS.md",
+    ):
+        assert spec in specs.stdout
+    for doc in ("AGENTS.md", "CLAUDE.md", "docs/MINT_AGENT_WORKFLOW.md"):
+        assert doc in architecture.stdout
+
+
+def test_auditor_docs_point_to_wrapper_policy() -> None:
+    for text in (
+        AGENT.read_text(encoding="utf-8"),
+        WORKFLOW.read_text(encoding="utf-8"),
+    ):
+        lowered = text.lower()
+        assert "tools/checks/claude_external_audit.sh" in text
+        assert "opus high" in lowered
+        assert "Sonnet high" in text
+        assert "--effort max" in text
