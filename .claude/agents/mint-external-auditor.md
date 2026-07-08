@@ -29,6 +29,9 @@ Spec drift audit:
 Code audit against a base branch:
 `tools/checks/claude_external_audit.sh code <base-branch>`.
 
+Same-gate rerun after a first finding pass:
+`CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh code <base-branch>`.
+
 The wrapper is the default. It runs Claude CLI with Opus high, safe mode,
 strict empty MCP, disabled slash commands, no session persistence, bounded
 tools, and dynamic-system-prompt sections excluded for cache stability.
@@ -37,9 +40,11 @@ default 2500). If it trips, split the PR; use `CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1`
 only for a named final-release/P0 dispute.
 
 Use `--effort max` only for named final-release/P0 disputes. Repeated re-audits of the same bounded diff should use
-Sonnet high first, then one Opus high final confirmation. This avoids paying
-full startup hooks, MCP servers, memory injection, skill inventory, and max
-reasoning on every tool turn.
+Sonnet high first (`CLAUDE_AUDIT_RERUN=1`), then one Opus high final
+confirmation. The wrapper rejects non-Sonnet reruns unless
+`CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1` is explicitly set for a final
+confirmation or P0 dispute. This avoids paying full startup hooks, MCP servers, memory
+injection, skill inventory, and max reasoning on every tool turn.
 
 Do not add `--max-turns`: the installed Claude CLI does not expose it, and the
 wrapper rejects `CLAUDE_AUDIT_MAX_TURNS` to prevent fake safety knobs. Do not

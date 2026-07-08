@@ -49,8 +49,10 @@ no session persistence, no dynamic-system-prompt sections, and no `--effort max`
 unless `CLAUDE_AUDIT_ALLOW_MAX=1` is explicitly set for a named final-release
 or unresolved P0/P1 dispute. Code audits reject large diff prompts by default
 (`CLAUDE_AUDIT_MAX_DIFF_LINES`, default 2500) so oversized branches are split
-before review. Repeated same-gate re-audits should use Sonnet high first, then
-one Opus high final.
+before review. Repeated same-gate re-audits should use Sonnet high first via
+`CLAUDE_AUDIT_RERUN=1`, then one Opus high final. The wrapper rejects
+non-Sonnet reruns unless `CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1` is explicitly set for a
+final confirmation or P0 dispute.
 
 For `docs/codex/` contract work, run the contract tests that exist in this
 checkout:
