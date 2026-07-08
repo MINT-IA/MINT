@@ -23046,4 +23046,23 @@ class SEs extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificado de salario escaneado';
+
+  @override
+  String get dataBlockReconfirmTitle => '¿Sigue siendo correcto?';
+
+  @override
+  String dataBlockReconfirmSalaryBody(String value) {
+    return 'Tu ingreso bruto anual está registrado como $value. Confírmalo o corrige el campo de abajo.';
+  }
+
+  @override
+  String dataBlockReconfirmCantonBody(String value) {
+    return 'Tu cantón está registrado como $value. Confírmalo o corrige el campo de abajo.';
+  }
+
+  @override
+  String get dataBlockReconfirmConfirm => 'Confirmar';
+
+  @override
+  String get dataBlockReconfirmEdit => 'Corregir';
 }

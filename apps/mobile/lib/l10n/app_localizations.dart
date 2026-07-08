@@ -40430,6 +40430,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Certificat de salaire scanné'**
   String get scanSummarySalaryCertificate;
+
+  /// Data block stale value reconfirmation card title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toujours exact ?'**
+  String get dataBlockReconfirmTitle;
+
+  /// Data block stale salary reconfirmation body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu brut annuel est noté à {value}. Confirme-le ou corrige le champ ci-dessous.'**
+  String dataBlockReconfirmSalaryBody(String value);
+
+  /// Data block stale canton reconfirmation body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton est noté {value}. Confirme-le ou corrige le champ ci-dessous.'**
+  String dataBlockReconfirmCantonBody(String value);
+
+  /// Data block stale value confirm button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer'**
+  String get dataBlockReconfirmConfirm;
+
+  /// Data block stale value edit button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger'**
+  String get dataBlockReconfirmEdit;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

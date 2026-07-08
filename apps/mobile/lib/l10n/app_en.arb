@@ -11139,5 +11139,21 @@
   "scanSummaryTaxDeclaration": "Tax declaration scanned",
   "scanSummaryAvsExtract": "AVS extract scanned",
   "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
-  "scanSummarySalaryCertificate": "Salary certificate scanned"
+  "scanSummarySalaryCertificate": "Salary certificate scanned",
+  "dataBlockReconfirmTitle": "Still correct?",
+  "@dataBlockReconfirmTitle": { "description": "Data block stale value reconfirmation card title." },
+  "dataBlockReconfirmSalaryBody": "Your gross annual income is recorded as {value}. Confirm it or correct the field below.",
+  "@dataBlockReconfirmSalaryBody": {
+    "description": "Data block stale salary reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmCantonBody": "Your canton is recorded as {value}. Confirm it or correct the field below.",
+  "@dataBlockReconfirmCantonBody": {
+    "description": "Data block stale canton reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmConfirm": "Confirm",
+  "@dataBlockReconfirmConfirm": { "description": "Data block stale value confirm button." },
+  "dataBlockReconfirmEdit": "Correct",
+  "@dataBlockReconfirmEdit": { "description": "Data block stale value edit button." }
 }

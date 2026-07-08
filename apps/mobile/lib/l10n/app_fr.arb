@@ -11928,5 +11928,21 @@
   "scanSummaryMortgageAttestation": "Attestation hypothèque scannée",
   "@scanSummaryMortgageAttestation": { "description": "Persistent event summary when a mortgage attestation is scanned." },
   "scanSummarySalaryCertificate": "Certificat de salaire scanné",
-  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." }
+  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." },
+  "dataBlockReconfirmTitle": "Toujours exact ?",
+  "@dataBlockReconfirmTitle": { "description": "Data block stale value reconfirmation card title." },
+  "dataBlockReconfirmSalaryBody": "Ton revenu brut annuel est noté à {value}. Confirme-le ou corrige le champ ci-dessous.",
+  "@dataBlockReconfirmSalaryBody": {
+    "description": "Data block stale salary reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmCantonBody": "Ton canton est noté {value}. Confirme-le ou corrige le champ ci-dessous.",
+  "@dataBlockReconfirmCantonBody": {
+    "description": "Data block stale canton reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmConfirm": "Confirmer",
+  "@dataBlockReconfirmConfirm": { "description": "Data block stale value confirm button." },
+  "dataBlockReconfirmEdit": "Corriger",
+  "@dataBlockReconfirmEdit": { "description": "Data block stale value edit button." }
 }

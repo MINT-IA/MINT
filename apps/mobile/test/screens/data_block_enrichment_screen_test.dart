@@ -18,12 +18,16 @@ Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
       ),
       ChangeNotifierProvider(create: (_) => SlmProvider()),
     ],
-    child: MaterialApp(locale: const Locale('fr'), localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ], supportedLocales: S.supportedLocales, home: child),
+    child: MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: child),
   );
 }
 
@@ -85,6 +89,54 @@ void main() {
 
     final tile = find.byKey(const Key('has_pension_fund_switch'));
     expect(tester.widget<SwitchListTile>(tile).value, true);
+  });
+
+  testWidgets('revenue block reconfirms stale salary without blanking field',
+      (tester) async {
+    final provider = CoachProfileProvider();
+    final stale = DateTime.now().subtract(const Duration(days: 900));
+    await ReportPersistenceService.saveAnswers({
+      'q_gross_salary_annual': 96000,
+      'q_annual_bonus': 10000,
+      'q_canton': 'GE',
+      'q_birth_year': 1990,
+      '_coach_data_timestamps': {
+        'salaireBrutMensuel': stale.toIso8601String(),
+        'canton': DateTime.now().toIso8601String(),
+        'age': stale.toIso8601String(),
+      },
+    });
+    await provider.loadFromWizard();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(blockType: 'revenu'),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+        find.byKey(const Key('reconfirm_salaireBrutMensuel')), findsOneWidget);
+    expect(find.byKey(const Key('reconfirm_canton')), findsNothing);
+    expect(find.textContaining('CHF 96'), findsOneWidget);
+    expect(find.textContaining('CHF 106'), findsNothing);
+
+    await tester.tap(
+      find.byKey(const Key('reconfirm_salaireBrutMensuel_confirm')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('reconfirm_salaireBrutMensuel')), findsNothing);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('salary_input')))
+          .controller
+          ?.text,
+      '96000',
+    );
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_gross_salary_annual'], 96000);
+    expect(answers['q_annual_bonus'], 10000);
+    expect(provider.profile?.revenuBrutAnnuel, 106000);
   });
 
   testWidgets('revenue block rejects underage birth year', (tester) async {

@@ -23054,4 +23054,23 @@ class SPt extends S {
   @override
   String get scanSummarySalaryCertificate =>
       'Certificado de salário digitalizado';
+
+  @override
+  String get dataBlockReconfirmTitle => 'Ainda está correto?';
+
+  @override
+  String dataBlockReconfirmSalaryBody(String value) {
+    return 'O teu rendimento bruto anual está registado como $value. Confirma-o ou corrige o campo abaixo.';
+  }
+
+  @override
+  String dataBlockReconfirmCantonBody(String value) {
+    return 'O teu cantão está registado como $value. Confirma-o ou corrige o campo abaixo.';
+  }
+
+  @override
+  String get dataBlockReconfirmConfirm => 'Confirmar';
+
+  @override
+  String get dataBlockReconfirmEdit => 'Corrigir';
 }

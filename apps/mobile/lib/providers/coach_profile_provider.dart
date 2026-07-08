@@ -520,6 +520,44 @@ class CoachProfileProvider extends ChangeNotifier {
     _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
+  /// Confirms that an existing answer is still fresh.
+  ///
+  /// This is intentionally separate from [mergeAnswers]: a one-tap
+  /// reconfirmation must advance the field-path timestamp, otherwise the
+  /// next Data Quest pass would keep asking the same stale question. It must
+  /// not rewrite the answer payload: reconfirming is an idempotent timestamp
+  /// update, while changing values goes through [mergeAnswers].
+  Future<void> confirmFreshness({
+    required String answerKey,
+    required String fieldPath,
+    DateTime? now,
+  }) async {
+    if (answerKey.isEmpty || fieldPath.isEmpty) return;
+
+    final current = await ReportPersistenceService.loadAnswers();
+    final merged = Map<String, dynamic>.from(
+      current.isNotEmpty ? current : _lastAnswers,
+    );
+
+    final profile = CoachProfile.fromWizardAnswers(merged);
+    final timestamps = _stampTimestamps(
+      profile.dataTimestamps,
+      [fieldPath],
+      now: now,
+    );
+    _persistTimestamps(merged, timestamps);
+
+    _lastAnswers = merged;
+    _profile = CoachProfile.fromWizardAnswers(merged);
+    _isLoaded = true;
+    _profileUpdatedSinceBudget = true;
+
+    await ReportPersistenceService.saveAnswers(merged);
+    CoachNarrativeService.invalidateCache(profile: _profile);
+    notifyListeners();
+    _syncToBackend();
+  }
+
   /// Apply a `save_fact` tool call locally.
   ///
   /// Backend `save_fact` persists to `ProfileModel.data` only when `user_id`

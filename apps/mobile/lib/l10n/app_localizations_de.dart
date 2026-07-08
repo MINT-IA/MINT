@@ -23102,4 +23102,23 @@ class SDe extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+
+  @override
+  String get dataBlockReconfirmTitle => 'Noch korrekt?';
+
+  @override
+  String dataBlockReconfirmSalaryBody(String value) {
+    return 'Dein Bruttojahreseinkommen ist als $value erfasst. Bestätige es oder korrigiere das Feld unten.';
+  }
+
+  @override
+  String dataBlockReconfirmCantonBody(String value) {
+    return 'Dein Kanton ist als $value erfasst. Bestätige ihn oder korrigiere das Feld unten.';
+  }
+
+  @override
+  String get dataBlockReconfirmConfirm => 'Bestätigen';
+
+  @override
+  String get dataBlockReconfirmEdit => 'Korrigieren';
 }

@@ -23108,4 +23108,23 @@ class SIt extends S {
   @override
   String get scanSummarySalaryCertificate =>
       'Certificato di stipendio scansionato';
+
+  @override
+  String get dataBlockReconfirmTitle => 'È ancora corretto?';
+
+  @override
+  String dataBlockReconfirmSalaryBody(String value) {
+    return 'Il tuo reddito annuo lordo è registrato come $value. Confermalo o correggi il campo qui sotto.';
+  }
+
+  @override
+  String dataBlockReconfirmCantonBody(String value) {
+    return 'Il tuo cantone è registrato come $value. Confermalo o correggi il campo qui sotto.';
+  }
+
+  @override
+  String get dataBlockReconfirmConfirm => 'Confermare';
+
+  @override
+  String get dataBlockReconfirmEdit => 'Correggere';
 }

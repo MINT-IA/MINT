@@ -22935,4 +22935,23 @@ class SEn extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+
+  @override
+  String get dataBlockReconfirmTitle => 'Still correct?';
+
+  @override
+  String dataBlockReconfirmSalaryBody(String value) {
+    return 'Your gross annual income is recorded as $value. Confirm it or correct the field below.';
+  }
+
+  @override
+  String dataBlockReconfirmCantonBody(String value) {
+    return 'Your canton is recorded as $value. Confirm it or correct the field below.';
+  }
+
+  @override
+  String get dataBlockReconfirmConfirm => 'Confirm';
+
+  @override
+  String get dataBlockReconfirmEdit => 'Correct';
 }

@@ -23047,4 +23047,23 @@ class SFr extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificat de salaire scanné';
+
+  @override
+  String get dataBlockReconfirmTitle => 'Toujours exact ?';
+
+  @override
+  String dataBlockReconfirmSalaryBody(String value) {
+    return 'Ton revenu brut annuel est noté à $value. Confirme-le ou corrige le champ ci-dessous.';
+  }
+
+  @override
+  String dataBlockReconfirmCantonBody(String value) {
+    return 'Ton canton est noté $value. Confirme-le ou corrige le champ ci-dessous.';
+  }
+
+  @override
+  String get dataBlockReconfirmConfirm => 'Confirmer';
+
+  @override
+  String get dataBlockReconfirmEdit => 'Corriger';
 }

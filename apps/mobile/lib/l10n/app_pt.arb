@@ -11139,5 +11139,21 @@
   "scanSummaryTaxDeclaration": "Declaração fiscal digitalizada",
   "scanSummaryAvsExtract": "Extrato AVS digitalizado",
   "scanSummaryMortgageAttestation": "Atestação hipoteca digitalizada",
-  "scanSummarySalaryCertificate": "Certificado de salário digitalizado"
+  "scanSummarySalaryCertificate": "Certificado de salário digitalizado",
+  "dataBlockReconfirmTitle": "Ainda está correto?",
+  "@dataBlockReconfirmTitle": { "description": "Data block stale value reconfirmation card title." },
+  "dataBlockReconfirmSalaryBody": "O teu rendimento bruto anual está registado como {value}. Confirma-o ou corrige o campo abaixo.",
+  "@dataBlockReconfirmSalaryBody": {
+    "description": "Data block stale salary reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmCantonBody": "O teu cantão está registado como {value}. Confirma-o ou corrige o campo abaixo.",
+  "@dataBlockReconfirmCantonBody": {
+    "description": "Data block stale canton reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmConfirm": "Confirmar",
+  "@dataBlockReconfirmConfirm": { "description": "Data block stale value confirm button." },
+  "dataBlockReconfirmEdit": "Corrigir",
+  "@dataBlockReconfirmEdit": { "description": "Data block stale value edit button." }
 }

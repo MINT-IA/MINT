@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
+import 'package:mint_mobile/services/data_quest/revenue_data_quest_planner.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -54,6 +56,9 @@ class _DataBlockEnrichmentScreenState
   final TextEditingController _cantonController = TextEditingController();
   final TextEditingController _salaryController = TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
+  final FocusNode _cantonFocusNode = FocusNode();
+  final FocusNode _salaryFocusNode = FocusNode();
+  final FocusNode _birthYearFocusNode = FocusNode();
   bool _revenueInputsSeeded = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
@@ -69,6 +74,9 @@ class _DataBlockEnrichmentScreenState
     _cantonController.dispose();
     _salaryController.dispose();
     _birthYearController.dispose();
+    _cantonFocusNode.dispose();
+    _salaryFocusNode.dispose();
+    _birthYearFocusNode.dispose();
     super.dispose();
   }
 
@@ -158,8 +166,19 @@ class _DataBlockEnrichmentScreenState
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
               ],
               if (canonicalBlockType == 'revenu') ...[
+                if (profile != null) ...[
+                  Builder(builder: (context) {
+                    final ask = _firstRevenueReconfirmAsk(profile);
+                    if (ask == null) return const SizedBox.shrink();
+                    return MintEntrance(
+                      delay: const Duration(milliseconds: 200),
+                      child: _buildRevenueReconfirmCard(l, ask),
+                    );
+                  }),
+                  const SizedBox(height: 12),
+                ],
                 MintEntrance(
-                  delay: const Duration(milliseconds: 200),
+                  delay: const Duration(milliseconds: 240),
                   child: _buildRevenueCollector(l),
                 ),
               ],
@@ -222,13 +241,24 @@ class _DataBlockEnrichmentScreenState
   void _seedRevenueInputs(CoachProfile? profile) {
     if (_revenueInputsSeeded || profile == null) return;
     _revenueInputsSeeded = true;
-    if (profile.canton.isNotEmpty) _cantonController.text = profile.canton;
-    if (profile.revenuBrutAnnuel > 0) {
-      _salaryController.text = '${profile.revenuBrutAnnuel.round()}';
+    if (profile.canton.isNotEmpty) {
+      _cantonController.text = profile.canton;
     }
-    if (profile.birthYear >= 1900) _birthYearController.text = '${profile.birthYear}';
+    final grossSalaryAnnual = _grossSalaryAnnualInput(profile);
+    if (grossSalaryAnnual > 0) {
+      _salaryController.text = '$grossSalaryAnnual';
+    }
+    if (profile.birthYear >= 1900) {
+      _birthYearController.text = '${profile.birthYear}';
+    }
     _hasPensionFund = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
         profile.prevoyance.isLppFromCertificate;
+  }
+
+  int _grossSalaryAnnualInput(CoachProfile profile) {
+    final baseSalary = profile.salaireBrutMensuel * profile.nombreDeMois;
+    if (baseSalary > 0) return baseSalary.round();
+    return profile.revenuBrutAnnuel.round();
   }
 
   Widget _buildRevenueCollector(S l) {
@@ -242,6 +272,7 @@ class _DataBlockEnrichmentScreenState
             key: const Key('salary_input'),
             semanticsIdentifier: 'salary_input',
             controller: _salaryController,
+            focusNode: _salaryFocusNode,
             label: l.renteVsCapitalSalary,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
@@ -251,6 +282,7 @@ class _DataBlockEnrichmentScreenState
             key: const Key('canton_picker'),
             semanticsIdentifier: 'canton_picker',
             controller: _cantonController,
+            focusNode: _cantonFocusNode,
             label: l.affordabilityCanton,
             textCapitalization: TextCapitalization.characters,
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), LengthLimitingTextInputFormatter(2)],
@@ -260,6 +292,7 @@ class _DataBlockEnrichmentScreenState
             key: const Key('birth_year_input'),
             semanticsIdentifier: 'birth_year_input',
             controller: _birthYearController,
+            focusNode: _birthYearFocusNode,
             label: l.landingBirthYear,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
@@ -322,6 +355,7 @@ class _DataBlockEnrichmentScreenState
     required TextEditingController controller,
     required String label,
     required String semanticsIdentifier,
+    FocusNode? focusNode,
     TextInputType? keyboardType,
     TextCapitalization textCapitalization = TextCapitalization.none,
     List<TextInputFormatter>? inputFormatters,
@@ -331,6 +365,7 @@ class _DataBlockEnrichmentScreenState
       child: TextField(
         key: key,
         controller: controller,
+        focusNode: focusNode,
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
         inputFormatters: inputFormatters,
@@ -342,6 +377,112 @@ class _DataBlockEnrichmentScreenState
         ),
       ),
     );
+  }
+
+  DataQuestAsk? _firstRevenueReconfirmAsk(CoachProfile profile) {
+    final asks = RevenueDataQuestPlanner.plan(profile: profile);
+    for (final ask in asks) {
+      if (ask.mode == AskMode.reconfirm) return ask;
+    }
+    return null;
+  }
+
+  Widget _buildRevenueReconfirmCard(S l, DataQuestAsk ask) {
+    final value = _formatRevenueAskValue(context, ask);
+    final body = ask.fieldPath == 'canton'
+        ? l.dataBlockReconfirmCantonBody(value)
+        : l.dataBlockReconfirmSalaryBody(value);
+
+    return MintSurface(
+      key: Key('reconfirm_${ask.fieldPath}'),
+      tone: MintSurfaceTone.peche,
+      padding: const EdgeInsets.all(16),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.update, color: MintColors.warning, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.dataBlockReconfirmTitle,
+                      style: MintTextStyles.titleMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      body,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(height: 1.35),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  key: Key('reconfirm_${ask.fieldPath}_edit'),
+                  onPressed: () => _focusRevenueAsk(ask),
+                  child: Text(l.dataBlockReconfirmEdit),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton(
+                  key: Key('reconfirm_${ask.fieldPath}_confirm'),
+                  onPressed: () => _confirmRevenueAsk(ask),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    foregroundColor: MintColors.white,
+                  ),
+                  child: Text(l.dataBlockReconfirmConfirm),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatRevenueAskValue(BuildContext context, DataQuestAsk ask) {
+    final raw = ask.priorValue;
+    if (ask.answerKey == 'q_gross_salary_annual' && raw is num) {
+      final locale = Localizations.localeOf(context).toLanguageTag();
+      return 'CHF ${NumberFormat.decimalPattern(locale).format(raw)}';
+    }
+    return raw?.toString() ?? '';
+  }
+
+  void _focusRevenueAsk(DataQuestAsk ask) {
+    if (ask.fieldPath == 'canton') {
+      _cantonFocusNode.requestFocus();
+      return;
+    }
+    if (ask.fieldPath == 'age') {
+      _birthYearFocusNode.requestFocus();
+      return;
+    }
+    _salaryFocusNode.requestFocus();
+  }
+
+  Future<void> _confirmRevenueAsk(DataQuestAsk ask) async {
+    await context.read<CoachProfileProvider>().confirmFreshness(
+          answerKey: ask.answerKey,
+          fieldPath: ask.fieldPath,
+        );
   }
 
   Future<void> _saveRevenueFacts() async {
@@ -627,21 +768,21 @@ class _DataBlockEnrichmentScreenState
   String _normalizeTypeToken(String value) {
     var normalized = value.trim().toLowerCase();
     const accents = {
-      'à': 'a',
-      'â': 'a',
-      'ä': 'a',
-      'é': 'e',
-      'è': 'e',
-      'ê': 'e',
-      'ë': 'e',
-      'î': 'i',
-      'ï': 'i',
-      'ô': 'o',
-      'ö': 'o',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ç': 'c',
+      '\u00e0': 'a',
+      '\u00e2': 'a',
+      '\u00e4': 'a',
+      '\u00e9': 'e',
+      '\u00e8': 'e',
+      '\u00ea': 'e',
+      '\u00eb': 'e',
+      '\u00ee': 'i',
+      '\u00ef': 'i',
+      '\u00f4': 'o',
+      '\u00f6': 'o',
+      '\u00f9': 'u',
+      '\u00fb': 'u',
+      '\u00fc': 'u',
+      '\u00e7': 'c',
     };
     accents.forEach((source, target) {
       normalized = normalized.replaceAll(source, target);

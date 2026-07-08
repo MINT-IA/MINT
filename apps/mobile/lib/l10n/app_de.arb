@@ -11139,5 +11139,21 @@
   "scanSummaryTaxDeclaration": "Steuererklärung gescannt",
   "scanSummaryAvsExtract": "AHV-Auszug gescannt",
   "scanSummaryMortgageAttestation": "Hypothekenbescheinigung gescannt",
-  "scanSummarySalaryCertificate": "Lohnausweis gescannt"
+  "scanSummarySalaryCertificate": "Lohnausweis gescannt",
+  "dataBlockReconfirmTitle": "Noch korrekt?",
+  "@dataBlockReconfirmTitle": { "description": "Data block stale value reconfirmation card title." },
+  "dataBlockReconfirmSalaryBody": "Dein Bruttojahreseinkommen ist als {value} erfasst. Bestätige es oder korrigiere das Feld unten.",
+  "@dataBlockReconfirmSalaryBody": {
+    "description": "Data block stale salary reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmCantonBody": "Dein Kanton ist als {value} erfasst. Bestätige ihn oder korrigiere das Feld unten.",
+  "@dataBlockReconfirmCantonBody": {
+    "description": "Data block stale canton reconfirmation body.",
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "dataBlockReconfirmConfirm": "Bestätigen",
+  "@dataBlockReconfirmConfirm": { "description": "Data block stale value confirm button." },
+  "dataBlockReconfirmEdit": "Korrigieren",
+  "@dataBlockReconfirmEdit": { "description": "Data block stale value edit button." }
 }
