@@ -31,6 +31,16 @@ Spec drift audit:
 Code audit against a base branch:
 `tools/checks/claude_external_audit.sh code <base-branch>` when present;
 otherwise use `claude -p` with `git diff <base>...HEAD`.
+
+Default bounded diff audit:
+`claude -p --model opus --effort high --safe-mode --strict-mcp-config --mcp-config '{"mcpServers":{}}' --disable-slash-commands --no-session-persistence --permission-mode dontAsk --tools Read,Grep,Bash --add-dir <worktree>`
+
+Use `--effort max` only for a named final-release or unresolved P0/P1
+architecture dispute. Repeated re-audits of the same bounded diff should use
+Sonnet high first, then one Opus high final confirmation. This avoids paying
+full startup hooks, MCP servers, memory injection, skill inventory, and max
+reasoning on every tool turn. The currently installed Claude CLI does not expose
+`--max-turns`; keep prompts bounded and cite exact files/functions instead.
 </commands>
 
 <policy>
