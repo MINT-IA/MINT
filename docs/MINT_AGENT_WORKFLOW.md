@@ -61,7 +61,7 @@ Every product PR must list:
 
 | Tool | Status in clean checkout | Gate use |
 |---|---|---|
-| Claude CLI | Available after local login | External audit |
+| Claude CLI | Available after local login | External audit via `tools/checks/claude_external_audit.sh`; use bounded audits (`opus high`, safe mode, strict empty MCP) by default |
 | Engram MCP | Available | Memory |
 | Maestro | Available at `~/.maestro/bin/maestro` | Runtime UI proof |
 | Patrol CLI | Not in PATH at G0 base restore | Required gap before Patrol-only gates |
@@ -78,3 +78,10 @@ MINT work must converge on this chain:
 No service without a caller, no route without a degraded state, no projection
 without range + confidence + source/freshness, and no data collection that asks
 again for a fresh known fact.
+
+Claude CLI audits should be bounded through
+`tools/checks/claude_external_audit.sh`: Opus high by default, strict empty MCP,
+no session persistence, and no `--effort max` except named final-release/P0
+disputes. Re-run loops use Sonnet high first, then one Opus high final; do not
+use `--bare` without explicit API-key auth, and do not add unsupported
+`--max-turns`.

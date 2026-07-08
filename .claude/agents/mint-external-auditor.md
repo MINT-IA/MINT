@@ -21,16 +21,27 @@ and force resolution of critical/high issues before phase acceptance.
 
 <commands>
 Architecture/spec audit:
-`tools/checks/claude_external_audit.sh architecture` when present; otherwise
-use `claude -p` with the relevant diff and docs.
+`tools/checks/claude_external_audit.sh architecture`.
 
 Spec drift audit:
-`tools/checks/claude_external_audit.sh specs` when present; otherwise use
-`claude -p` with the five `docs/codex/` specs and code evidence.
+`tools/checks/claude_external_audit.sh specs`.
 
 Code audit against a base branch:
-`tools/checks/claude_external_audit.sh code <base-branch>` when present;
-otherwise use `claude -p` with `git diff <base>...HEAD`.
+`tools/checks/claude_external_audit.sh code <base-branch>`.
+
+The wrapper is the default. It runs Claude CLI with Opus high, safe mode,
+strict empty MCP, disabled slash commands, no session persistence, bounded
+tools, and dynamic-system-prompt sections excluded for cache stability.
+
+Use `--effort max` only for named final-release/P0 disputes. Repeated re-audits of the same bounded diff should use
+Sonnet high first, then one Opus high final confirmation. This avoids paying
+full startup hooks, MCP servers, memory injection, skill inventory, and max
+reasoning on every tool turn.
+
+Do not add `--max-turns`: the installed Claude CLI does not expose it, and the
+wrapper rejects `CLAUDE_AUDIT_MAX_TURNS` to prevent fake safety knobs. Do not
+use `--bare` by default: it skips OAuth/keychain auth and only works with
+explicit API-key/apiKeyHelper auth.
 </commands>
 
 <policy>
