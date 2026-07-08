@@ -63,7 +63,25 @@ class WizardQuestion {
 
   bool shouldShow(Map<String, dynamic> answers) {
     if (condition == null) return true;
-    return condition!(answers);
+    return condition!(_withCanonicalAliases(answers));
+  }
+
+  static const _canonicalAliases = {
+    'q_housing_cost_period_chf': '_coach_depenses_loyer',
+    'q_lamal_premium_monthly_chf': '_coach_depenses_assurance',
+  };
+
+  static Map<String, dynamic> _withCanonicalAliases(
+    Map<String, dynamic> answers,
+  ) {
+    final normalized = Map<String, dynamic>.from(answers);
+    for (final entry in _canonicalAliases.entries) {
+      final canonicalValue = answers[entry.value];
+      if (canonicalValue != null) {
+        normalized[entry.key] = canonicalValue;
+      }
+    }
+    return normalized;
   }
 }
 

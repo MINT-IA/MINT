@@ -26,6 +26,11 @@ class SecureWizardStore {
     'q_partner_salary',
     'q_patrimoine_liquide',
     'q_dettes_total',
+    // Kept for backward restore of pre-canonicalization secure entries.
+    'q_housing_cost_period_chf',
+    'q_lamal_premium_monthly_chf',
+    '_coach_depenses_loyer',
+    '_coach_depenses_assurance',
   };
 
   /// Whether a key should be stored in secure storage.

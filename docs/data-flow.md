@@ -62,7 +62,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
-| 1 | **Wizard full** | `wizard_service.dart` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, `q_housing_cost_period_chf`, … (all `q_*`) | `WizardProvider.complete()` sets `_completed_key` flag |
+| 1 | **Wizard full** | Wizard provider/save flow → `ReportPersistenceService.saveAnswers` | `q_firstname`, `q_birth_year`, `q_canton`, `q_net_income_period_chf`, `q_pay_frequency`, …; legacy fixed-charge IDs are normalized before storage to `_coach_depenses_loyer` / `_coach_depenses_assurance` | `WizardProvider.complete()` sets `_completed_key` flag |
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
 | 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
@@ -99,10 +99,13 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 
 **Housing & fixed charges**
 - `q_housing_cost_period_chf` (double — legacy wizard rent OR mortgage;
-  canonical budget consumers read it only as fallback),
+  `ReportPersistenceService.saveAnswers` migrates it to
+  `_coach_depenses_loyer` before storage; consumers read it only as fallback),
   `q_housing_status` (locataire/proprietaire/…),
   `q_lamal_premium_monthly_chf` (double, legacy health insurance actual
-  value; canonical budget consumers read it only as fallback),
+  value; `ReportPersistenceService.saveAnswers` migrates it to
+  `_coach_depenses_assurance` before storage; consumers read it only as
+  fallback),
   `_coach_depenses_loyer` (canonical monthly rent/mortgage value written by
   field-path bridges, budget setup and banking imports),
   `_coach_depenses_assurance` (canonical monthly health-insurance value

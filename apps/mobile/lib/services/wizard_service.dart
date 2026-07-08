@@ -5,6 +5,16 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/data/wizard_questions.dart';
 
 class WizardService {
+  static const _questionAnswerAliases = {
+    'q_housing_cost_period_chf': ['_coach_depenses_loyer'],
+    'q_lamal_premium_monthly_chf': ['_coach_depenses_assurance'],
+  };
+
+  static const _answerQuestionAliases = {
+    '_coach_depenses_loyer': 'q_housing_cost_period_chf',
+    '_coach_depenses_assurance': 'q_lamal_premium_monthly_chf',
+  };
+
   /// Filtre les questions selon le profil utilisateur
   static List<WizardQuestion> getQuestionsForUser(
     Profile? profile,
@@ -29,7 +39,7 @@ class WizardService {
     Profile? profile,
     Map<String, dynamic> answers,
   ) {
-    if (question.condition != null && !question.condition!(answers)) {
+    if (!question.shouldShow(answers)) {
       return false;
     }
     return true;
@@ -74,14 +84,6 @@ class WizardService {
     if (answers['q_has_consumer_credit'] == 'yes') {
       totalDebt += (answers['q_credit_monthly'] as num?)?.toDouble() ?? 0.0;
     }
-
-    // Ajout: dette périodique du budget aussi ?
-    // Le prompt dit "q_debt_payments_period_chf: double (0 OK)"
-    // Si on a cette réponse, on devrait l'ajouter, mais attention aux doublons avec leasing/credit_monthly existants.
-    // Le prompt dit "Offline, read-only...".
-    // Si l'utilisateur remplit le budget wizard, il remplit q_debt_payments_period_chf.
-    // Si c'est le wizard classic, il remplit q_leasing/q_credit.
-    // Pour l'instant, je garde l'existant + le nouveau si présent (en assumant qu'ils sont exclusifs ou complémentaires).
 
     if (answers.containsKey('q_debt_payments_period_chf')) {
       // Normaliser la dette périodique en mensuel
@@ -183,12 +185,13 @@ class WizardService {
     final summary = <String, String>{};
 
     for (final entry in answers.entries) {
+      final questionId = _answerQuestionAliases[entry.key] ?? entry.key;
       final question = questions.firstWhere(
-        (q) => q.id == entry.key,
+        (q) => q.id == questionId,
         orElse: () => questions.first,
       );
 
-      if (question.id == entry.key) {
+      if (question.id == questionId) {
         summary[question.title] = _formatAnswer(entry.value, question, l: l);
       }
     }
@@ -196,9 +199,8 @@ class WizardService {
     return summary;
   }
 
-  static String _formatAnswer(dynamic value, WizardQuestion question,
-      {S? l}) {
-    if (value == null) return l?.wizardAnswerNotProvided ?? 'Non renseigné';
+  static String _formatAnswer(dynamic value, WizardQuestion question, {S? l}) {
+    if (value == null) return l?.wizardAnswerNotProvided ?? '-';
 
     if (question.type == QuestionType.choice) {
       final option = question.options?.firstWhere(
@@ -225,11 +227,17 @@ class WizardService {
   ) {
     final requiredQuestions = allQuestions.where((q) => q.required).toList();
     final answeredRequired = requiredQuestions
-        .where((q) => answers.containsKey(q.id) && answers[q.id] != null)
+        .where((q) => _hasAnswerForQuestion(answers, q.id))
         .length;
 
     if (requiredQuestions.isEmpty) return 100.0;
 
     return (answeredRequired / requiredQuestions.length) * 100;
+  }
+
+  static bool _hasAnswerForQuestion(Map<String, dynamic> answers, String id) {
+    if (answers[id] != null) return true;
+    final aliases = _questionAnswerAliases[id] ?? const <String>[];
+    return aliases.any((alias) => answers[alias] != null);
   }
 }
