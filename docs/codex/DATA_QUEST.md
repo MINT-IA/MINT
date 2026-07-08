@@ -22,7 +22,7 @@ When any surface needs data it does not have, MINT asks **only the missing or st
 | Write path | `CoachProfileProvider.mergeAnswers()` (`:502`) / `applySaveFact()` (`:542`) / `updateProfile()` (`:969`) — the ONLY mutators |
 | Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (35 keys, `coach_chat.py:924`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:557`) |
 | Field→screen mapping | `ScreenRegistry` + `ReadinessGate` (behaviors A–E) + `routes/route_metadata.dart` |
-| Freshness i18n | keys already present: `freshnessConfirm`, `freshnessStale`, `freshnessPrefix` (`confidence_scorer.dart:747-749`) |
+| Freshness i18n | target behavior exists in copy only; checked-in ARB keys for stale reconfirm cards must be added by the slice that implements them. Do not reuse nonexistent `freshnessConfirm` / `freshnessStale` keys. |
 
 ## 2. The `DataQuest` object (new — the orchestrator this doc specifies)
 
@@ -78,9 +78,9 @@ When `FreshnessDecayService.needsRefresh(fact, now)` is true, the Ask is a **1-t
    [ Oui, toujours ]   [ Mettre à jour ]   [ Rescanner ]
 ```
 
-- **Oui** → `CoachProfileProvider.updateProfile(key: same value)` → resets `updatedAt=now` (freshness back to 1.0). No re-entry.
+- **Oui** → provider write path that confirms the same value and advances the field-path timestamp (`dataTimestamps[path]=now`, persisted in `_coach_data_timestamps`) so freshness returns to 1.0. No re-entry.
 - **Mettre à jour** → collect flow for that one key.
-- Use existing i18n keys `freshnessConfirm` / `freshnessStale` (`confidence_scorer.dart:747`).
+- Use real ARB keys added by the implementation slice for the reconfirm title/body/buttons; hardcoded copy is not acceptable.
 
 ## 4. Heavy events get a conversational quest, not a form wall
 
