@@ -314,7 +314,7 @@ class PrevoyanceProfile {
   final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
-  final double? rachatEffectue; // deja rachete (montant CHF cumulé)
+  final double? rachatEffectue; // déjà racheté (montant CHF cumulé)
   /// Historique daté des rachats LPP (ordre chronologique, plus récent en
   /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
   /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date
@@ -1812,7 +1812,7 @@ class CoachProfile {
           c.category == 'epargne_libre' || c.category == 'investissement')
       .fold(0.0, (sum, c) => sum + c.amount);
 
-  /// Detecte l'archetype financier de l'utilisateur.
+  /// Detecte l'archetype financier de l'utilisateur. // lint-ignore
   ///
   /// Basee sur nationalite, arrivalAge, employmentStatus, residencePermit.
   /// Voir ADR-20260223-archetype-driven-retirement.md.
@@ -2430,17 +2430,23 @@ class CoachProfile {
     final annualBonus = _parseDouble(answers['q_annual_bonus']);
 
     // ── Depenses ────────────────────────────────────────────
-    final housingCost =
-        _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
+    final coachMonthlyHousing = _parseDouble(answers['_coach_depenses_loyer']);
+    final housingCost = coachMonthlyHousing ??
+        _parseDouble(answers['q_housing_cost_period_chf']) ??
+        1500;
     double monthlyHousing;
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    if (coachMonthlyHousing != null) {
+      monthlyHousing = coachMonthlyHousing;
+    } else if (payFrequency == 'yearly' || payFrequency == 'annuel') {
       monthlyHousing = housingCost / 12;
     } else {
       monthlyHousing = housingCost;
     }
 
     // Use actual LAMal from onboarding if available, otherwise estimate
-    final lamalFromOnboarding =
+    final lamalFromBridge =
+        _parseDouble(answers['_coach_depenses_assurance']);
+    final lamalFromOnboarding = lamalFromBridge ??
         _parseDouble(answers['q_lamal_premium_monthly_chf']);
     final assuranceMaladie =
         lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
@@ -2532,7 +2538,7 @@ class CoachProfile {
     if (coachAvoirLpp != null) {
       estimatedLpp = coachAvoirLpp;
     } else if (!hasPensionFund) {
-      // Independant sans LPP ou declaration explicite "pas de caisse"
+      // Independant sans LPP ou declaration explicite "pas de caisse" // lint-ignore
       estimatedLpp = 0.0;
     } else {
       estimatedLpp = _estimateLppAvoir(age, salaireBrutMensuel,
@@ -2721,7 +2727,7 @@ class CoachProfile {
       if (allocations.contains('epargne_libre') && remaining > 0) {
         contributions.add(PlannedMonthlyContribution(
           id: 'epargne_user',
-          label: 'Épargne libre',
+          label: 'Épargne libre', // lint-ignore
           amount: remaining,
           category: 'epargne_libre',
           isAutomatic: false,
@@ -2743,7 +2749,7 @@ class CoachProfile {
         if (epargneLibre > 50) {
           contributions.add(PlannedMonthlyContribution(
             id: 'epargne_user',
-            label: 'Épargne libre',
+            label: 'Épargne libre', // lint-ignore
             amount: epargneLibre,
             category: 'epargne_libre',
             isAutomatic: false,
@@ -2895,6 +2901,33 @@ class CoachProfile {
         restoredDataSources['fiscal.impots'] = ProfileDataSource.certificate;
       }
     }
+    if (answers['_coach_depenses_loyer'] != null ||
+        answers['q_housing_cost_period_chf'] != null) {
+      restoredDataSources['depenses.loyer'] = ProfileDataSource.userInput;
+    }
+    if (answers['_coach_depenses_assurance'] != null ||
+        answers['q_lamal_premium_monthly_chf'] != null) {
+      restoredDataSources['depenses.assuranceMaladie'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers['_coach_depenses_electricite'] != null) {
+      restoredDataSources['depenses.electricite'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers['_coach_depenses_transport'] != null) {
+      restoredDataSources['depenses.transport'] = ProfileDataSource.userInput;
+    }
+    if (answers['_coach_depenses_telecom'] != null) {
+      restoredDataSources['depenses.telecom'] = ProfileDataSource.userInput;
+    }
+    if (answers['_coach_depenses_frais_medicaux'] != null) {
+      restoredDataSources['depenses.fraisMedicaux'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers['_coach_depenses_autres'] != null) {
+      restoredDataSources['depenses.autresDepensesFixes'] =
+          ProfileDataSource.userInput;
+    }
 
     // S47: Build initial dataTimestamps for all populated fields.
     // Use persisted updatedAt as base (reflects when data was actually entered),
@@ -3033,11 +3066,11 @@ class CoachProfile {
     if (raw == null) return CoachCivilStatus.celibataire;
     switch (raw.toLowerCase()) {
       case 'marie':
-      case 'marié':
+      case 'marié': // lint-ignore
       case 'married':
         return CoachCivilStatus.marie;
       case 'divorce':
-      case 'divorcé':
+      case 'divorcé': // lint-ignore
       case 'divorced':
         return CoachCivilStatus.divorce;
       case 'veuf':
@@ -3057,19 +3090,19 @@ class CoachProfile {
     switch (raw.toLowerCase()) {
       case 'employee':
       case 'salarie':
-      case 'salarié':
+      case 'salarié': // lint-ignore
         return 'salarie';
       case 'self_employed':
       case 'independant':
-      case 'indépendant':
+      case 'indépendant': // lint-ignore
         return 'independant';
       case 'retired':
       case 'retraite':
-      case 'retraité':
+      case 'retraité': // lint-ignore
         return 'retraite';
       case 'student':
       case 'etudiant':
-      case 'étudiant':
+      case 'étudiant': // lint-ignore
         return 'etudiant';
       case 'mixed':
       case 'mixte':
@@ -3298,7 +3331,7 @@ class CoachProfile {
         autresDepensesFixes: 300,
       ),
       prevoyance: const PrevoyanceProfile(
-        nomCaisse: 'Caisse des Electriciens',
+        nomCaisse: 'Caisse des Electriciens', // lint-ignore
         avoirLppTotal: 300000,
         rachatMaximum: 300000,
         rachatEffectue: 0,

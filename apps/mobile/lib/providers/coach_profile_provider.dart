@@ -45,7 +45,18 @@ class CoachProfileProvider extends ChangeNotifier {
   int? _previousScore;
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
+  bool _mergingFromFieldPathBridge = false;
   Map<String, dynamic> _lastAnswers = const {};
+
+  static const Map<String, String> _fieldPathAnswerKeys = {
+    'depenses.loyer': '_coach_depenses_loyer',
+    'depenses.assuranceMaladie': '_coach_depenses_assurance',
+    'depenses.electricite': '_coach_depenses_electricite',
+    'depenses.transport': '_coach_depenses_transport',
+    'depenses.telecom': '_coach_depenses_telecom',
+    'depenses.fraisMedicaux': '_coach_depenses_frais_medicaux',
+    'depenses.autresDepensesFixes': '_coach_depenses_autres',
+  };
 
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
@@ -502,6 +513,10 @@ class CoachProfileProvider extends ChangeNotifier {
   /// overwriting the rest of the profile.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
+    final normalized = _normalizeMergeAnswers(partial);
+    if (normalized.answers.isEmpty) return;
+    final bridgeMerge = normalized.fieldPaths.isNotEmpty;
+    if (bridgeMerge && _mergingFromFieldPathBridge) return;
     // Deep-walk crack #15: always re-read the on-disk answers before
     // merging. `_lastAnswers` is populated at startup by loadFromWizard
     // but updateFrom*Extraction / budget setup / regex fallback each
@@ -512,17 +527,56 @@ class CoachProfileProvider extends ChangeNotifier {
     // after the card Budget populated. Read-then-merge-then-save is the
     // only crash-safe discipline.
     final current = await ReportPersistenceService.loadAnswers();
-    final merged = Map<String, dynamic>.from(current)..addAll(partial);
+    final merged = Map<String, dynamic>.from(current)
+      ..addAll(normalized.answers);
+    if (bridgeMerge) {
+      final profile = CoachProfile.fromWizardAnswers(merged);
+      final timestamps = _stampTimestamps(
+        profile.dataTimestamps,
+        normalized.fieldPaths,
+      );
+      _persistTimestamps(merged, timestamps);
+    }
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
     await ReportPersistenceService.saveAnswers(merged);
     CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
+    if (bridgeMerge) _mergingFromFieldPathBridge = true;
+    try {
+      notifyListeners();
+    } finally {
+      if (bridgeMerge) _mergingFromFieldPathBridge = false;
+    }
     _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
+  static _NormalizedMergeAnswers _normalizeMergeAnswers(
+    Map<String, dynamic> partial,
+  ) {
+    final answers = <String, dynamic>{};
+    final fieldPaths = <String>{};
+
+    for (final entry in partial.entries) {
+      final key = entry.key;
+      if (!key.startsWith('fp:')) {
+        answers[key] = entry.value;
+        continue;
+      }
+
+      final fieldPath = key.substring(3);
+      final answerKey = _fieldPathAnswerKeys[fieldPath];
+      if (answerKey == null) continue;
+      answers[answerKey] = entry.value;
+      fieldPaths.add(fieldPath);
+    }
+
+    return _NormalizedMergeAnswers(
+      answers: answers,
+      fieldPaths: fieldPaths,
+    );
+  }
   /// Confirms that an existing answer is still fresh.
   ///
   /// This is intentionally separate from [mergeAnswers]: a one-tap
@@ -2524,6 +2578,15 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 }
 
+class _NormalizedMergeAnswers {
+  final Map<String, dynamic> answers;
+  final Set<String> fieldPaths;
+
+  const _NormalizedMergeAnswers({
+    required this.answers,
+    required this.fieldPaths,
+  });
+}
 /// Safe [CoachProfile] lookup extensions.
 ///
 /// Screens that watch [CoachProfileProvider] for prefill / SafeMode decisions

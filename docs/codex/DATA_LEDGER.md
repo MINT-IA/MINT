@@ -388,7 +388,14 @@ The doc must give the per-route reads/writes/emptyState/partialState/errorState/
 
 ### 7B. Provider bridges
 
-`depenses.*`, `conjoint.*` and other §4 field paths are NOT allowlist keys and have NO `_mapFactKeyToAnswers` case. Bridges that need to write them use the **field-path payload shape**: `mergeAnswers` accepts, in addition to `q_*` wizard keys, entries whose key is a **dotted CoachProfile field path** (prefix `fp:` to disambiguate), which `mergeAnswers` routes to the sub-model setter and records provenance for. **Task T-4 (mandatory):** extend `mergeAnswers` to accept `{'fp:depenses.loyer': 1800, ...}` entries (route by path, set value, set `dataSources`/`dataTimestamps`/`dataSourceDates`), and add a **re-entrancy guard** (`bool _mergingFromBridge`) so a bridge-triggered `notifyListeners()` → recompute cannot loop back into the same bridge.
+`depenses.*`, `conjoint.*` and other §4 field paths are NOT allowlist keys and have NO `_mapFactKeyToAnswers` case. Bridges that need to write them use the **field-path payload shape**: `mergeAnswers` accepts, in addition to `q_*` wizard keys, entries whose key is a **dotted CoachProfile field path** (prefix `fp:` to disambiguate), which `mergeAnswers` routes to canonical persisted storage and records provenance for. **Task T-4 (mandatory):** extend `mergeAnswers` to accept `{'fp:depenses.loyer': 1800, ...}` entries (route by path, set value, set `dataSources`/`dataTimestamps`/`dataSourceDates`), and add a **re-entrancy guard** (`bool _mergingFromBridge`) so a bridge-triggered `notifyListeners()` → recompute cannot loop back into the same bridge. For `depenses.*`, G9 deliberately uses monthly `_coach_depenses_*` answer keys instead of a generic sub-model setter, because `q_housing_cost_period_chf` is coupled to salary pay frequency.
+
+> **G9 status:** `fp:depenses.*` is live in `CoachProfileProvider.mergeAnswers`.
+> It normalizes field-path writes to the monthly `_coach_depenses_*` keys,
+> stamps `dataTimestamps`, restores `dataSources=userInput`, and does not
+> persist raw `fp:` keys. Remaining T-4 work: `fp:conjoint.*`, generic §4
+> field paths, `dataSourceDates`, and wiring BudgetProvider/HouseholdProvider
+> call sites to emit the field-path payload.
 
 | Island | Path (authoritative store) | Problem | Fix (mechanical) |
 |---|---|---|---|

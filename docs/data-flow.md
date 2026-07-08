@@ -101,6 +101,9 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 - `q_housing_cost_period_chf` (double — rent OR mortgage),
   `q_housing_status` (locataire/proprietaire/…),
   `q_lamal_premium_monthly_chf` (double, health insurance actual value),
+  `_coach_depenses_loyer` (monthly rent/mortgage override written by
+  field-path bridges / banking imports), `_coach_depenses_assurance`
+  (monthly health-insurance override written by field-path bridges / banking),
   `_coach_depenses_transport`, `_coach_depenses_telecom`,
   `_coach_depenses_electricite`, `_coach_depenses_frais_medicaux`,
   `_coach_depenses_autres`
