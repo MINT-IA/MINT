@@ -1,18 +1,37 @@
 /// FIX-191: Verify that every context.push/context.go target in screens
 /// corresponds to a real GoRoute path in app.dart.
 library;
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
+
+bool _routeMatches(Set<String> definedRoutes, String basePath) {
+  if (definedRoutes.contains(basePath)) return true;
+
+  for (final definedRoute in definedRoutes) {
+    if (!definedRoute.contains(':')) {
+      if (basePath.startsWith('$definedRoute/')) return true;
+      continue;
+    }
+
+    final pattern = definedRoute
+        .split('/')
+        .map((segment) =>
+            segment.startsWith(':') ? r'[^/]+' : RegExp.escape(segment))
+        .join('/');
+    if (RegExp('^$pattern\$').hasMatch(basePath)) return true;
+  }
+
+  return false;
+}
 
 void main() {
   test('FIX-191: all static context.push targets match a GoRoute path', () {
     // 1. Extract all GoRoute paths from app.dart
     final appDart = File('lib/app.dart').readAsStringSync();
     final routePattern = RegExp(r"path:\s*'(/[^']*)'");
-    final definedRoutes = routePattern
-        .allMatches(appDart)
-        .map((m) => m.group(1)!)
-        .toSet();
+    final definedRoutes =
+        routePattern.allMatches(appDart).map((m) => m.group(1)!).toSet();
 
     // 2. Extract all STATIC route targets from screens, widgets, services, data
     // Scans: context.push/go, route: '/...' fields, and redirect patterns
@@ -35,12 +54,15 @@ void main() {
         final contentLines = content.split('\n');
         for (final match in pushPattern.allMatches(content)) {
           // Skip matches inside comments
-          final lineIdx = content.substring(0, match.start).split('\n').length - 1;
-          if (lineIdx < contentLines.length && contentLines[lineIdx].trimLeft().startsWith('//')) continue;
+          final lineIdx =
+              content.substring(0, match.start).split('\n').length - 1;
+          if (lineIdx < contentLines.length &&
+              contentLines[lineIdx].trimLeft().startsWith('//')) {
+            continue;
+          }
           final route = match.group(2)!;
           final basePath = route.split('?').first;
-          final hasMatch = definedRoutes.contains(basePath) ||
-              definedRoutes.any((r) => basePath.startsWith('$r/'));
+          final hasMatch = _routeMatches(definedRoutes, basePath);
           if (!hasMatch) {
             brokenRoutes.add('${file.path.split('lib/').last}: $route');
           }
@@ -49,12 +71,15 @@ void main() {
         final lines = content.split('\n');
         for (final match in routeFieldPattern.allMatches(content)) {
           // Skip matches inside comments
-          final lineIdx = content.substring(0, match.start).split('\n').length - 1;
-          if (lineIdx < lines.length && lines[lineIdx].trimLeft().startsWith('//')) continue;
+          final lineIdx =
+              content.substring(0, match.start).split('\n').length - 1;
+          if (lineIdx < lines.length &&
+              lines[lineIdx].trimLeft().startsWith('//')) {
+            continue;
+          }
           final route = match.group(1)!;
           final basePath = route.split('?').first;
-          final hasMatch = definedRoutes.contains(basePath) ||
-              definedRoutes.any((r) => basePath.startsWith('$r/'));
+          final hasMatch = _routeMatches(definedRoutes, basePath);
           if (!hasMatch) {
             brokenRoutes.add('${file.path.split('lib/').last}: $route (field)');
           }
