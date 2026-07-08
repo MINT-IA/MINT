@@ -1,8 +1,8 @@
 # SCREEN_CONTRACTS.md — Per-Route Wiring Contracts (MINT)
 
-> **Baseline note:** all `file:line` references target `apps/mobile/` and `services/backend/` at commit `255373b`. Those trees are **UNCHANGED on this branch** — the only commits since are additions under `docs/codex/`. Therefore every code reference below is valid at the current branch HEAD; verify against HEAD directly.
+> **G1 reality audit:** `file:line` references were re-checked against HEAD `095eeaa32` on 2026-07-07. Treat line refs as evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
 
-> Source of truth for route wiring. Verified against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `255373b`.
+> Source of truth for target route wiring. Audited against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `095eeaa32`.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
 > A coding agent (Codex) implements these contracts directly. Every row is mechanical and test-verifiable. Violations are bugs, not style notes.
 
@@ -21,6 +21,8 @@ Every screen resolves the domain data it renders from the **ledger**:
 - Confidence → read `MintUserState.confidenceScore` (ledger field; upgraded to the 4-axis result per §8.0), never passed in.
 
 **Test that enforces this rule (must exist):** `test/routing/no_domain_data_in_extra_test.dart` — see §10.1 for the exact matcher and harness.
+
+**G1 live status at `095eeaa32`: false as code.** `/scan/review` still casts `ExtractionResult` from `state.extra` (`app.dart:912`), `/scan/impact` casts a domain map (`:925`), `/rapport` reads `wizardAnswers` from `extra` before persisted fallback (`:983`), and `/confidence` accepts `ConfidenceResult` from `extra` (`:1208`). This section is the target contract; the named test is not checked in yet.
 
 ---
 
@@ -67,7 +69,7 @@ For every simulator in §4 the rule is fixed: **simulators use the in-screen mod
 - `/open-banking`, `/open-banking/*` → `enableOpenBanking` (in-route redirect guard).
 - `/anonymous/*` → `enableAnonymousFlow`.
 
-Any new route the agent adds MUST set `killFlag` to one of the above `FeatureFlags.<name>` values or `null`, and MUST pass `tools/checks/route_registry_parity.py`.
+Any new route the agent adds MUST set `killFlag` to one of the above metadata strings or `null`, and MUST pass `tools/checks/route_registry_parity.py`. G1 note: most values are forward-referenced metadata for Phase 33; runtime `FeatureFlags` currently exposes only OpenBanking/Admin gates plus supporting config.
 
 ---
 
@@ -262,11 +264,11 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 > - `/about` (`AboutScreen`, app.dart:1159, public) — static legal/info page. emptyState n/a. errorState → static fallback. routesOut back, `/`. killFlag null.
 > - `/admin/routes` (`RoutesRegistryScreen` in `AdminShell`, app.dart:1170; tree-shaken behind `AdminGate.isAvailable`) — reads `route_metadata.dart` registry. emptyState "Registre vide." errorState + Réessayer. routesOut per-route deep links. killFlag `enableAdminScreens`.
 
-> **Legacy redirects** (`route_metadata.dart` category `alias`; killFlag null): `/coach/dashboard`, `/coach/cockpit`, `/coach/checkin`, `/coach/refresh`, `/coach/agir`, `/coach/decaissement`, `/coach/succession`, `/retirement`, `/retirement/projection`, `/arbitrage/rente-vs-capital`, `/arbitrage/rachat-vs-marche`, `/arbitrage/calendrier-retraits`, `/simulator/rente-capital`, `/simulator/3a`, `/simulator/disability-gap`, `/lpp-deep/*`, `/life-event/{divorce,succession}`, `/mortgage/affordability`, `/disability/gap`, `/document-scan`, `/document-scan/avs-guide`, `/report`, `/report/v2`, `/score-reveal`, `/achievements`, `/ask-mint`, `/advisor`, `/advisor/plan-30-days`, `/advisor/wizard`, `/household`, `/household/accept`, onboarding shims (`/onboarding/{quick,quick-start,premier-eclairage,intent,promise,plan,smart,minimal,enrichment}`) → canonical routes. Contract: redirects MUST preserve query params (§9 general rule) and emit `MintBreadcrumbs.legacyRedirectHit`.
+> **Legacy redirects** (`route_metadata.dart` category `alias`; killFlag null): `/coach/dashboard`, `/coach/cockpit`, `/coach/checkin`, `/coach/refresh`, `/coach/agir`, `/coach/decaissement`, `/coach/succession`, `/retirement`, `/retirement/projection`, `/arbitrage/rente-vs-capital`, `/arbitrage/rachat-vs-marche`, `/arbitrage/calendrier-retraits`, `/simulator/rente-capital`, `/simulator/3a`, `/simulator/disability-gap`, `/lpp-deep/*`, `/life-event/{divorce,succession}`, `/mortgage/affordability`, `/disability/gap`, `/document-scan`, `/document-scan/avs-guide`, `/report`, `/report/v2`, `/score-reveal`, `/achievements`, `/ask-mint`, `/advisor`, `/advisor/plan-30-days`, `/advisor/wizard`, `/household`, `/household/accept`, onboarding shims (`/onboarding/{quick,quick-start,premier-eclairage,intent,promise,plan,smart,minimal,enrichment}`) → canonical routes. Contract target: redirects SHOULD preserve query params (§9 general rule) and emit `MintBreadcrumbs.legacyRedirectHit`. G1 live status: query preservation is verified only for `/ask-mint`, `/tools`, `/portfolio`, `/score-reveal`; several other aliases still return bare target paths.
 
 ---
 
-## 5. Scan flow — REPAIRED (was the worst dead road, finding C-1)
+## 5. Scan flow — TARGET, NOT LIVE YET (was the worst dead road, finding C-1)
 
 **Root cause:** `/scan/review` and `/scan/impact` read the `ExtractionResult` from `state.extra`; on null they render `Scaffold(body: Center(Text('Document non disponible')))` — no AppBar, no back, no CTA, not i18n. Violates §0 (domain data in `extra`) and F-2.
 
@@ -337,7 +339,7 @@ Any other transition throws `StateError`.
 | routesOut | `/scan`, back |
 | killFlag | enableScan |
 
-### `/scan/review` — REPAIRED
+### `/scan/review` — TARGET
 | | |
 |---|---|
 | shell | root |
@@ -351,7 +353,7 @@ Any other transition throws `StateError`.
 | routesOut | `/scan/impact?scanSessionId=…`, `/scan`, `/documents`, `/data-block/:type` |
 | killFlag | enableScan |
 
-### `/scan/impact` — REPAIRED
+### `/scan/impact` — TARGET
 | | |
 |---|---|
 | shell | root |
@@ -421,7 +423,7 @@ Until (1)–(3) land, any write in this document that "carries per-field source"
 
 ---
 
-## 7. `/rapport` — REPAIRED extra-dependency + spinner-forever (findings C-4, wiring-1)
+## 7. `/rapport` — PARTIAL, TARGET extra-dependency + spinner-forever repair (findings C-4, wiring-1)
 
 | | |
 |---|---|
@@ -450,7 +452,7 @@ Until (1)–(3) land, any write in this document that "carries per-field source"
 
 ---
 
-## 8. `/confidence` — REPAIRED (single-source + spinner) 
+## 8. `/confidence` — TARGET (single-source + spinner)
 
 ### 8.0 Single confidence source — reconcile the two engines (finding arch-1)
 
@@ -595,7 +597,7 @@ Rules:
 
 ## 12. Route coverage ledger (every LIVE builder route in app.dart → its contract)
 
-Verified against `app.dart` at `255373b`. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
+Audited against `app.dart` at `095eeaa32`. Redirect-only entries (category `alias`) are listed in §4 "Legacy redirects" and are NOT in this table (they carry no screen). Every path below has a `builder:` in `app.dart`.
 
 | route (line) | contract § | route (line) | contract § |
 |---|---|---|---|
@@ -623,7 +625,7 @@ Verified against `app.dart` at `255373b`. Redirect-only entries (category `alias
 | `/epl` (593) | §4 | `/naissance` (778) | §4 |
 | `/decaissement` (603) | §4 | `/concubinage` (783) | §4 |
 | `/coach/history` (632) | §2 | `/unemployment` (790) | §4 |
-| `/first-job` (795) | §4 | `/scan/impact` (916) | §5 |
+| `/first-job` (795) | §4 | `/scan/impact` (922) | §5 |
 | `/expatriation` (800) | §4 | `/documents` (935) | §4 |
 | `/simulator/job-comparison` (805) | §4 | `/documents/:id` (940) | §4 |
 | `/segments/independant` (812) | §4 | `/couple` (950) | §4 |
@@ -639,7 +641,7 @@ Verified against `app.dart` at `255373b`. Redirect-only entries (category `alias
 | `/assurances/coverage` (873) | §4 | `/segments/gender-gap` (1056) | §4 |
 | `/scan` (880) | §5 | `/segments/frontalier` (1061) | §4 |
 | `/scan/avs-guide` (894) | §5 | `/life-event/housing-sale` (1066) | §4 |
-| `/scan/review` (903) | §5 | `/life-event/donation` (1071) | §4 |
+| `/scan/review` (909) | §5 | `/life-event/donation` (1071) | §4 |
 | `/life-event/deces-proche` (1076) | §4 | `/simulator/leasing` (1108) | §4 |
 | `/life-event/demenagement-cantonal` (1081) | §4 | `/simulator/credit` (1113) | §4 |
 | `/education/hub` (1088) | §4 | `/arbitrage/bilan` (1120) | §4 |
