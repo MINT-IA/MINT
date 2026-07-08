@@ -16693,34 +16693,6 @@ class SEn extends S {
       'Educational assumptions. Past performance does not guarantee future results.';
 
   @override
-  String get jobChangeChecklistAlertBody =>
-      'Without a vested benefits transfer within the deadline, your LPP capital may end up at the Substitute Foundation at 0.05 %.';
-
-  @override
-  String get jobChangeChecklistAlertTitle =>
-      'ALWAYS request the LPP certificate before signing';
-
-  @override
-  String get jobChangeChecklistDisclaimer =>
-      'Educational tool · does not constitute financial advice under FinSA. Source: LPP art. 3 (vested benefits), OLP art. 1-3.';
-
-  @override
-  String jobChangeChecklistProgress(int completed, int total) {
-    return '$completed / $total actions completed';
-  }
-
-  @override
-  String get jobChangeChecklistSemantics =>
-      'New job checklist LPP vested benefits urgent actions';
-
-  @override
-  String get jobChangeChecklistSubtitle =>
-      'You have 30 days to verify that your LPP has been transferred.';
-
-  @override
-  String get jobChangeChecklistTitle => 'Job change checklist';
-
-  @override
   String get lifeEventLabelAchatImmo => 'Buying property';
 
   @override

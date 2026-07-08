@@ -29640,48 +29640,6 @@ abstract class S {
   /// **'Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.'**
   String get interactive3aDisclaimer;
 
-  /// No description provided for @jobChangeChecklistAlertBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.'**
-  String get jobChangeChecklistAlertBody;
-
-  /// No description provided for @jobChangeChecklistAlertTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Demande TOUJOURS le certificat LPP avant de signer'**
-  String get jobChangeChecklistAlertTitle;
-
-  /// No description provided for @jobChangeChecklistDisclaimer.
-  ///
-  /// In fr, this message translates to:
-  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.'**
-  String get jobChangeChecklistDisclaimer;
-
-  /// No description provided for @jobChangeChecklistProgress.
-  ///
-  /// In fr, this message translates to:
-  /// **'{completed} / {total} actions complétées'**
-  String jobChangeChecklistProgress(int completed, int total);
-
-  /// No description provided for @jobChangeChecklistSemantics.
-  ///
-  /// In fr, this message translates to:
-  /// **'Checklist nouveau job libre passage LPP actions urgentes'**
-  String get jobChangeChecklistSemantics;
-
-  /// No description provided for @jobChangeChecklistSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Tu as 30 jours pour vérifier que ton LPP a été transféré.'**
-  String get jobChangeChecklistSubtitle;
-
-  /// No description provided for @jobChangeChecklistTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Checklist changement de job'**
-  String get jobChangeChecklistTitle;
-
   /// No description provided for @lifeEventLabelAchatImmo.
   ///
   /// In fr, this message translates to:

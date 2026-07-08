@@ -7115,16 +7115,6 @@
       }
     }
   },
-  "@jobChangeChecklistProgress": {
-    "placeholders": {
-      "completed": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "@memoryRefGoal": {
     "placeholders": {
       "goal": {
@@ -8995,13 +8985,6 @@
   "indicativeBannerCta": "Préciser",
   "indicativeBannerTitle": "Résultat indicatif ({pct} % de fiabilité)",
   "interactive3aDisclaimer": "Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.",
-  "jobChangeChecklistAlertBody": "Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.",
-  "jobChangeChecklistAlertTitle": "Demande TOUJOURS le certificat LPP avant de signer",
-  "jobChangeChecklistDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.",
-  "jobChangeChecklistProgress": "{completed} / {total} actions complétées",
-  "jobChangeChecklistSemantics": "Checklist nouveau job libre passage LPP actions urgentes",
-  "jobChangeChecklistSubtitle": "Tu as 30 jours pour vérifier que ton LPP a été transféré.",
-  "jobChangeChecklistTitle": "Checklist changement de job",
   "lifeEventLabelAchatImmo": "Achat immobilier",
   "lifeEventLabelConcubinage": "On vit ensemble",
   "lifeEventLabelDeces": "Décès d’un proche",

@@ -16810,34 +16810,6 @@ class SDe extends S {
       'Pädagogische Annahmen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.';
 
   @override
-  String get jobChangeChecklistAlertBody =>
-      'Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05 % landen.';
-
-  @override
-  String get jobChangeChecklistAlertTitle =>
-      'Fordere IMMER den BVG-Ausweis an, bevor du unterschreibst';
-
-  @override
-  String get jobChangeChecklistDisclaimer =>
-      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art. 3 (Freizügigkeit), FZV Art. 1-3.';
-
-  @override
-  String jobChangeChecklistProgress(int completed, int total) {
-    return '$completed / $total Aufgaben erledigt';
-  }
-
-  @override
-  String get jobChangeChecklistSemantics =>
-      'Checkliste neuer Job BVG Freizügigkeit dringende Aufgaben';
-
-  @override
-  String get jobChangeChecklistSubtitle =>
-      'Du hast 30 Tage, um zu prüfen, ob dein BVG übertragen wurde.';
-
-  @override
-  String get jobChangeChecklistTitle => 'Checkliste Jobwechsel';
-
-  @override
   String get lifeEventLabelAchatImmo => 'Immobilienkauf';
 
   @override

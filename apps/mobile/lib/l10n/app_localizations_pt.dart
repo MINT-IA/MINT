@@ -16774,35 +16774,6 @@ class SPt extends S {
       'Pressupostos pedagógicos. O desempenho passado não garante rendimentos futuros.';
 
   @override
-  String get jobChangeChecklistAlertBody =>
-      'Sem transferência do livre passagem nos prazos, o teu capital LPP pode acabar na Fundação supletiva a 0.05 %.';
-
-  @override
-  String get jobChangeChecklistAlertTitle =>
-      'Pede SEMPRE o certificado LPP antes de assinar';
-
-  @override
-  String get jobChangeChecklistDisclaimer =>
-      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LPP art. 3 (livre passagem), OLP art. 1-3.';
-
-  @override
-  String jobChangeChecklistProgress(int completed, int total) {
-    return '$completed / $total ações concluídas';
-  }
-
-  @override
-  String get jobChangeChecklistSemantics =>
-      'Lista de verificação novo emprego LPP livre passagem ações urgentes';
-
-  @override
-  String get jobChangeChecklistSubtitle =>
-      'Tens 30 dias para verificar que o teu LPP foi transferido.';
-
-  @override
-  String get jobChangeChecklistTitle =>
-      'Lista de verificação mudança de emprego';
-
-  @override
   String get lifeEventLabelAchatImmo => 'Compra imobiliária';
 
   @override
