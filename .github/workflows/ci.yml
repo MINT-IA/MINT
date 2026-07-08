@@ -111,6 +111,34 @@ jobs:
       - name: Scan Dart UI strings
         run: python3 tools/checks/banned_ui_terms.py
 
+  # ─── Financial calculation drift gate ──────────────────────────
+  # Blocks newly introduced financial calculation helpers/formulas
+  # outside apps/mobile/lib/services/financial_core/. Existing drift is
+  # handled separately; this job prevents making the hole larger.
+  financial-core-gate:
+    name: Financial core gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan introduced financial calculations
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [[ -z "$BASE_REF" ]] || [[ "${BASE_REF//0/}" == "" ]]; then
+              BASE_REF="HEAD^"
+            fi
+          fi
+          python3 tools/checks/financial_core_gate.py --base-ref "$BASE_REF"
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -591,7 +619,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, secret-scan, banned-ui-terms, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, secret-scan, banned-ui-terms, financial-core-gate, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -601,6 +629,7 @@ jobs:
           backend="${{ needs.backend.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
           banned_terms="${{ needs.banned-ui-terms.result }}"
+          financial_core="${{ needs.financial-core-gate.result }}"
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
           wcag="${{ needs.wcag-aa-all-touched.result }}"
@@ -611,6 +640,7 @@ jobs:
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$banned_terms" == "skipped" ]] && banned_terms="success"
+          [[ "$financial_core" == "skipped" ]] && financial_core="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
           [[ "$wcag" == "skipped" ]] && wcag="success"
@@ -619,8 +649,8 @@ jobs:
           [[ "$contract_tests" == "skipped" ]] && contract_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms financial_core=$financial_core flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
