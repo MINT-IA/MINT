@@ -54,7 +54,7 @@ void main() {
 
     test('persists canonical tax fields and data sources', () async {
       final provider = CoachProfileProvider();
-      provider.updateFromSmartFlow(
+      await provider.updateFromSmartFlow(
         age: 35,
         grossSalary: 120000,
         canton: 'VD',
@@ -140,7 +140,7 @@ void main() {
 
     test('handles missing fields gracefully', () async {
       final provider = CoachProfileProvider();
-      provider.updateFromSmartFlow(
+      await provider.updateFromSmartFlow(
         age: 50,
         grossSalary: 100000,
         canton: 'ZH',
@@ -202,7 +202,7 @@ void main() {
 
     test('ignores fields without profileField mapping', () async {
       final provider = CoachProfileProvider();
-      provider.updateFromSmartFlow(
+      await provider.updateFromSmartFlow(
         age: 40,
         grossSalary: 90000,
         canton: 'GE',
@@ -245,7 +245,7 @@ void main() {
 
     test('ignores non-double values', () async {
       final provider = CoachProfileProvider();
-      provider.updateFromSmartFlow(
+      await provider.updateFromSmartFlow(
         age: 45,
         grossSalary: 110000,
         canton: 'BE',
@@ -273,7 +273,7 @@ void main() {
 
     test('sets updatedAt and source marker in persisted answers', () async {
       final provider = CoachProfileProvider();
-      provider.updateFromSmartFlow(
+      await provider.updateFromSmartFlow(
         age: 55,
         grossSalary: 130000,
         canton: 'TI',
@@ -307,7 +307,7 @@ void main() {
 
     test('notifies listeners after extraction', () async {
       final provider = CoachProfileProvider();
-      provider.updateFromSmartFlow(
+      await provider.updateFromSmartFlow(
         age: 42,
         grossSalary: 95000,
         canton: 'LU',
