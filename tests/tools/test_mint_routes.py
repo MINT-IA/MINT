@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -186,8 +187,10 @@ def test_pii_redaction_walks_dict_user_keys():
 def test_status_classification_buckets():
     from tools.mint_routes.sentry_client import classify_status
 
+    fresh_visit = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
     assert classify_status(
-        sentry_24h=0, ff_state=True, last_visit="2026-04-19T00:00:00Z"
+        sentry_24h=0, ff_state=True, last_visit=fresh_visit
     ) == "green"
     assert classify_status(
         sentry_24h=3, ff_state=True, last_visit="2026-04-19T00:00:00Z"

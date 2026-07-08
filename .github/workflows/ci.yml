@@ -1,5 +1,5 @@
 # MINT CI — Run tests on every push & PR
-# Triggers on push to staging/main + PRs targeting dev/staging/main
+# Triggers on push to dev/staging/main + every PR, regardless of base branch.
 # Smart path detection: only runs backend/flutter jobs when relevant files changed.
 # Saves ~5-8 min per run when only one side is modified.
 
@@ -8,8 +8,7 @@ name: CI
 on:
   push:
     branches: [dev, staging, main]
-  pull_request:
-    branches: [dev, staging, main]
+  pull_request: {}
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -471,6 +470,19 @@ jobs:
       - name: Run CLI + parity + redirect breadcrumb tests
         run: pytest tests/tools/test_mint_routes.py tests/tools/test_redirect_breadcrumb_coverage.py tests/checks/test_route_registry_parity.py -q --tb=short
 
+  repository-contract-tests:
+    name: Repository contract tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run repository contract tests
+        run: pytest tools/checks/tests tests/checks -q --tb=short
+
   # ─── Phase 32 Plan 32-05 / D-12 §3: admin build sanity (T-32-05) ─
   # Defensive scan against the tree-shake contract: the admin shell
   # (/admin/routes + kRouteRegistry exposure) is compile-gated by
@@ -525,7 +537,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -538,6 +550,7 @@ jobs:
           wcag="${{ needs.wcag-aa-all-touched.result }}"
           parity="${{ needs.route-registry-parity.result }}"
           cli_tests="${{ needs.mint-routes-tests.result }}"
+          contract_tests="${{ needs.repository-contract-tests.result }}"
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
@@ -546,10 +559,11 @@ jobs:
           [[ "$wcag" == "skipped" ]] && wcag="success"
           [[ "$parity" == "skipped" ]] && parity="success"
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
+          [[ "$contract_tests" == "skipped" ]] && contract_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
