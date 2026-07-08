@@ -23,6 +23,7 @@ __pycache__/
 *.pyc
 *.pyo
 .venv/
+.hypothesis/
 services/backend/.venv/
 
 # Flutter generated

@@ -10,7 +10,8 @@ Usage:
 Env: CLAUDE_AUDIT_MODEL, CLAUDE_AUDIT_EFFORT, CLAUDE_AUDIT_ALLOW_MAX,
 CLAUDE_AUDIT_WORKTREE, CLAUDE_AUDIT_BARE, CLAUDE_AUDIT_SETTINGS,
 CLAUDE_AUDIT_MAX_BUDGET_USD, CLAUDE_AUDIT_MAX_DIFF_LINES,
-CLAUDE_AUDIT_ALLOW_LARGE_DIFF, CLAUDE_AUDIT_DRY_RUN.
+CLAUDE_AUDIT_ALLOW_LARGE_DIFF, CLAUDE_AUDIT_RERUN,
+CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN, CLAUDE_AUDIT_DRY_RUN.
 EOF
 }
 die() {
@@ -31,11 +32,22 @@ case "$mode" in
     ;;
 esac
 [[ -n "${CLAUDE_AUDIT_MAX_TURNS:-}" ]] && die "CLAUDE_AUDIT_MAX_TURNS is not supported by the installed Claude CLI; bound the prompt instead"
-model="${CLAUDE_AUDIT_MODEL:-opus}"
+rerun="${CLAUDE_AUDIT_RERUN:-0}"
+case "$rerun" in 0|1) ;; *) die "CLAUDE_AUDIT_RERUN must be 0 or 1" ;; esac
+if [[ -n "${CLAUDE_AUDIT_MODEL:-}" ]]; then
+  model="$CLAUDE_AUDIT_MODEL"
+elif [[ "$rerun" == "1" ]]; then
+  model="sonnet"
+else
+  model="opus"
+fi
 effort="${CLAUDE_AUDIT_EFFORT:-high}"
 case "$effort" in low|medium|high|xhigh|max) ;; *) die "unsupported effort '$effort'" ;; esac
 if [[ "$effort" == "max" && "${CLAUDE_AUDIT_ALLOW_MAX:-}" != "1" ]]; then
   die "refusing --effort max without CLAUDE_AUDIT_ALLOW_MAX=1; use high for bounded PR audits"
+fi
+if [[ "$rerun" == "1" && "$model" != *sonnet* && "${CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN:-}" != "1" ]]; then
+  die "CLAUDE_AUDIT_RERUN=1 must use a sonnet model; reserve non-sonnet reruns for final confirmation/P0 disputes with CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1"
 fi
 repo_root="$(git rev-parse --show-toplevel)"
 worktree="${CLAUDE_AUDIT_WORKTREE:-$repo_root}"

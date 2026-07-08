@@ -77,6 +77,14 @@ def test_wrapper_defaults_are_bounded() -> None:
         assert needle in result.stdout
 
 
+def test_rerun_mode_defaults_to_sonnet_high() -> None:
+    result = _run("code", "HEAD", CLAUDE_AUDIT_DRY_RUN="1", CLAUDE_AUDIT_RERUN="1")
+
+    assert result.returncode == 0, result.stderr
+    assert "--model sonnet" in result.stdout
+    assert "--effort high" in result.stdout
+
+
 @pytest.mark.parametrize(
     ("args", "env", "stderr"),
     (
@@ -92,6 +100,29 @@ def test_wrapper_defaults_are_bounded() -> None:
             ("code", "HEAD"),
             {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_MAX_TURNS": "25"},
             "MAX_TURNS is not supported",
+        ),
+        (
+            ("code", "HEAD"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_RERUN": "maybe"},
+            "CLAUDE_AUDIT_RERUN must be 0 or 1",
+        ),
+        (
+            ("code", "HEAD"),
+            {
+                "CLAUDE_AUDIT_DRY_RUN": "1",
+                "CLAUDE_AUDIT_RERUN": "1",
+                "CLAUDE_AUDIT_MODEL": "opus",
+            },
+            "CLAUDE_AUDIT_RERUN=1 must use a sonnet model",
+        ),
+        (
+            ("code", "HEAD"),
+            {
+                "CLAUDE_AUDIT_DRY_RUN": "1",
+                "CLAUDE_AUDIT_RERUN": "1",
+                "CLAUDE_AUDIT_MODEL": "haiku",
+            },
+            "CLAUDE_AUDIT_RERUN=1 must use a sonnet model",
         ),
         (
             ("code", "HEAD"),
@@ -119,6 +150,20 @@ def test_wrapper_rejects_unsafe_or_invalid_invocations(
 
     assert result.returncode == 2
     assert stderr in result.stderr
+
+
+def test_rerun_mode_allows_non_sonnet_only_with_explicit_override() -> None:
+    result = _run(
+        "code",
+        "HEAD",
+        CLAUDE_AUDIT_DRY_RUN="1",
+        CLAUDE_AUDIT_RERUN="1",
+        CLAUDE_AUDIT_MODEL="opus",
+        CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN="1",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "--model opus" in result.stdout
 
 
 def test_wrapper_rejects_large_code_diff_without_explicit_override() -> None:
@@ -175,6 +220,8 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "tools/checks/claude_external_audit.sh" in text
         assert "opus high" in lowered
         assert "Sonnet high" in text
+        assert "CLAUDE_AUDIT_RERUN=1" in text
+        assert "CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1" in text
         assert "--effort max" in text
         assert "CLAUDE_AUDIT_MAX_DIFF_LINES" in text
 
