@@ -185,6 +185,17 @@ wizard keys.
 **Spouse**: `spouseBirthYear`, `spouseIncomeNetMonthly`,
 `spouseAvsContributionYears`
 
+Spouse `save_fact` keys are retained only when `q_civil_status` is already a
+coupled status (`marie`, `married`, `couple`, `registered_partner`,
+`partenariat`, `concubinage`, `concubine`, `family`, `cohabiting`). If a spouse
+fact arrives before the household status is known, `CoachProfileProvider`
+treats it as orphaned spouse payload and purges `q_partner_*` / `q_spouse_*`
+answers plus encrypted spouse copies. If spouse facts arrive before
+`householdType`, the provider keeps them only as in-memory pending facts; they
+are persisted only if a later same-session merge establishes a coupled
+`householdType`. Data Quest must still collect or emit `householdType` before
+spouse-specific values.
+
 **AVS**: `hasAvsGaps`, `avsContributionYears`
 
 **⚠ Trap.** Adding a new canonical key to the backend whitelist without

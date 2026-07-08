@@ -8,6 +8,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "tools/checks/claude_external_audit.sh"
 AGENT = ROOT / ".claude/agents/mint-external-auditor.md"
+AGENTS = ROOT / "AGENTS.md"
+OPERATING_GATES = ROOT / ".claude/skills/mint-operating-gates/SKILL.md"
 WORKFLOW = ROOT / "docs/MINT_AGENT_WORKFLOW.md"
 
 
@@ -118,6 +120,8 @@ def test_specs_and_architecture_prompts_are_wired() -> None:
 def test_auditor_docs_point_to_wrapper_policy() -> None:
     for text in (
         AGENT.read_text(encoding="utf-8"),
+        AGENTS.read_text(encoding="utf-8"),
+        OPERATING_GATES.read_text(encoding="utf-8"),
         WORKFLOW.read_text(encoding="utf-8"),
     ):
         lowered = text.lower()
@@ -125,3 +129,10 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "opus high" in lowered
         assert "Sonnet high" in text
         assert "--effort max" in text
+
+
+def test_operating_gates_do_not_mark_claude_wrapper_missing() -> None:
+    text = OPERATING_GATES.read_text(encoding="utf-8")
+
+    assert "For external Claude CLI audits" in text
+    assert "- `tools/checks/claude_external_audit.sh`" not in text

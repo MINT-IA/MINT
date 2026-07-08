@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:provider/provider.dart';
@@ -47,6 +49,8 @@ class CoachProfileProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
   bool _mergingFromFieldPathBridge = false;
+  Future<void>? _mergeAnswersLock;
+  final Map<String, dynamic> _pendingPartnerAnswers = {};
   Map<String, dynamic> _lastAnswers = const {};
 
   static const Map<String, String> _fieldPathAnswerKeys = {
@@ -532,46 +536,70 @@ class CoachProfileProvider extends ChangeNotifier {
   /// overwriting the rest of the profile.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
-    final normalized = _normalizeMergeAnswers(partial);
-    if (normalized.answers.isEmpty) return;
-    final bridgeMerge = normalized.fieldPaths.isNotEmpty;
-    if (bridgeMerge && _mergingFromFieldPathBridge) return;
-    // Deep-walk crack #15: always re-read the on-disk answers before
-    // merging. `_lastAnswers` is populated at startup by loadFromWizard
-    // but updateFrom*Extraction / budget setup / regex fallback each
-    // load+save independently. If mergeAnswers relied on the stale
-    // in-memory copy, a budget setup that ran after a scan would build
-    // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
-    // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
-    // after the card Budget populated. Read-then-merge-then-save is the
-    // only crash-safe discipline.
-    final current = await ReportPersistenceService.loadAnswers();
-    final merged = Map<String, dynamic>.from(current)
-      ..addAll(normalized.answers);
-    if (_isNonCoupledCivilStatus(normalized.answers['q_civil_status'])) {
-      _removePartnerAnswers(merged);
+    while (_mergeAnswersLock != null) {
+      await _mergeAnswersLock;
     }
-    if (bridgeMerge) {
-      final profile = CoachProfile.fromWizardAnswers(merged);
-      final timestamps = _stampTimestamps(
-        profile.dataTimestamps,
-        normalized.fieldPaths,
-      );
-      _persistTimestamps(merged, timestamps);
-    }
-    _lastAnswers = merged;
-    _profile = CoachProfile.fromWizardAnswers(merged);
-    _isLoaded = true;
-    _profileUpdatedSinceBudget = true;
-    await ReportPersistenceService.saveAnswers(merged);
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    if (bridgeMerge) _mergingFromFieldPathBridge = true;
+
+    final completer = Completer<void>();
+    _mergeAnswersLock = completer.future;
     try {
-      notifyListeners();
+      final normalized = _normalizeMergeAnswers(partial);
+      if (normalized.answers.isEmpty) return;
+      final bridgeMerge = normalized.fieldPaths.isNotEmpty;
+      if (bridgeMerge && _mergingFromFieldPathBridge) return;
+      // Deep-walk crack #15: always re-read the on-disk answers before
+      // merging. `_lastAnswers` is populated at startup by loadFromWizard
+      // but updateFrom*Extraction / budget setup / regex fallback each
+      // load+save independently. If mergeAnswers relied on the stale
+      // in-memory copy, a budget setup that ran after a scan would build
+      // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
+      // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
+      // after the card Budget populated. Read-then-merge-then-save is the
+      // only crash-safe discipline.
+      final current = await ReportPersistenceService.loadAnswers();
+      final merged = Map<String, dynamic>.from(current)
+        ..addAll(normalized.answers);
+      final hasIncomingPartnerAnswers =
+          _containsPartnerAnswers(normalized.answers);
+      if (_isNonCoupledCivilStatus(merged['q_civil_status'])) {
+        _pendingPartnerAnswers.clear();
+        _removePartnerAnswers(merged);
+      } else if (hasIncomingPartnerAnswers &&
+          !_isCoupledCivilStatus(merged['q_civil_status'])) {
+        _pendingPartnerAnswers
+          ..clear()
+          ..addAll(_partnerAnswersOnly(normalized.answers));
+        _removePartnerAnswers(merged);
+      } else if (_pendingPartnerAnswers.isNotEmpty &&
+          _isCoupledCivilStatus(merged['q_civil_status'])) {
+        merged.addAll(_pendingPartnerAnswers);
+        _pendingPartnerAnswers.clear();
+      }
+      if (bridgeMerge) {
+        final profile = CoachProfile.fromWizardAnswers(merged);
+        final timestamps = _stampTimestamps(
+          profile.dataTimestamps,
+          normalized.fieldPaths,
+        );
+        _persistTimestamps(merged, timestamps);
+      }
+      _lastAnswers = merged;
+      _profile = CoachProfile.fromWizardAnswers(merged);
+      _isLoaded = true;
+      _profileUpdatedSinceBudget = true;
+      await ReportPersistenceService.saveAnswers(merged);
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      if (bridgeMerge) _mergingFromFieldPathBridge = true;
+      try {
+        notifyListeners();
+      } finally {
+        if (bridgeMerge) _mergingFromFieldPathBridge = false;
+      }
+      _syncToBackend(); // Fire-and-forget, does not block UI
     } finally {
-      if (bridgeMerge) _mergingFromFieldPathBridge = false;
+      _mergeAnswersLock = null;
+      completer.complete();
     }
-    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   static _NormalizedMergeAnswers _normalizeMergeAnswers(
@@ -1281,12 +1309,26 @@ class CoachProfileProvider extends ChangeNotifier {
     }
   }
 
+  static bool _containsPartnerAnswers(Map<String, dynamic> answers) {
+    return answers.keys.any(
+      (key) => key.startsWith('q_partner_') || key.startsWith('q_spouse_'),
+    );
+  }
+
+  static Map<String, dynamic> _partnerAnswersOnly(
+    Map<String, dynamic> answers,
+  ) {
+    return Map.fromEntries(
+      answers.entries.where(
+        (entry) =>
+            entry.key.startsWith('q_partner_') ||
+            entry.key.startsWith('q_spouse_'),
+      ),
+    );
+  }
+
   static bool _isNonCoupledCivilStatus(dynamic value) {
-    final status = value
-        ?.toString()
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'[\u00e9\u00e8\u00ea\u00eb]'), 'e');
+    final status = _normalizedCivilStatusToken(value);
     if (status == null || status.isEmpty) return false;
     return status == 'celibataire' ||
         status == 'single' ||
@@ -1295,6 +1337,28 @@ class CoachProfileProvider extends ChangeNotifier {
         status == 'veuf' ||
         status == 'veuve' ||
         status == 'widowed';
+  }
+
+  static bool _isCoupledCivilStatus(dynamic value) {
+    final status = _normalizedCivilStatusToken(value);
+    if (status == null || status.isEmpty) return false;
+    return status == 'marie' ||
+        status == 'married' ||
+        status == 'couple' ||
+        status == 'registered_partner' ||
+        status == 'partenariat' ||
+        status == 'concubinage' ||
+        status == 'concubine' ||
+        status == 'family' ||
+        status == 'cohabiting';
+  }
+
+  static String? _normalizedCivilStatusToken(dynamic value) {
+    return value
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[\u00e9\u00e8\u00ea\u00eb]'), 'e');
   }
 
   /// W15: Create a financial snapshot from the current profile state.

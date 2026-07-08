@@ -44,6 +44,23 @@ python3 -m pytest tools/checks/tests/test_data_quest_goal_aware_ranking_contract
 python3 -m pytest tools/checks/tests/test_screen_contracts_route_contract.py -q
 ```
 
+For external Claude CLI audits, use the checked-in wrapper, not raw `claude`
+commands:
+
+```bash
+tools/checks/claude_external_audit.sh code <base-ref>
+tools/checks/claude_external_audit.sh specs
+tools/checks/claude_external_audit.sh architecture
+```
+
+The wrapper defaults to Opus high, safe mode, strict empty MCP, disabled slash
+commands, no session persistence, bounded tools, and dynamic-system-prompt
+sections excluded. Repeated re-audits of the same gate should use
+`CLAUDE_AUDIT_MODEL=sonnet` for Sonnet high first, then one Opus high final
+confirmation.
+`--effort max` requires an explicit final-release/P0 exception; do not add
+`--max-turns` because the installed Claude CLI does not expose that flag.
+
 ## Roadmap Gates Not Installed At G0
 
 These names may appear in older plans, but they are not checked-in gates until
@@ -53,7 +70,6 @@ the files exist in this checkout:
 - `tools/checks/phase_contract_guard.py`
 - `tools/checks/mint_rules_guard.py`
 - `tools/checks/verify_phase_acceptance.py`
-- `tools/checks/claude_external_audit.sh`
 
 Missing guard scripts are workflow gaps, not silent passes.
 

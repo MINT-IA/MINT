@@ -114,6 +114,10 @@ Use what exists, and record missing tools instead of pretending they ran.
 
 - **Feature flags / kill switches** → every new product path must be disableable
 - **Lefthook** → memory retention, map freshness hints, ARB parity
+- **Claude external audits** → always run through
+  `tools/checks/claude_external_audit.sh`; default Opus high is bounded, same
+  gate re-runs use Sonnet high first, and `--effort max` is an explicit
+  final-release/P0 exception only.
 - **Daily loop roadmap** → morning sim walk + Sentry pull + auto-PR
   on P0/P1. **The mechanism that catches « an agent broke something
   overnight ».** Mandatory for solo-dev + AI workflow.

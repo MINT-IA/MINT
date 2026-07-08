@@ -154,6 +154,7 @@ void main() {
   test('save_fact spouse income is stored only in secure storage', () async {
     await profileAfterSaveFacts([
       const MapEntry('birthYear', 1980),
+      const MapEntry('householdType', 'married'),
       const MapEntry('spouseIncomeNetMonthly', 5500.0),
     ]);
 
@@ -163,6 +164,119 @@ void main() {
     expect(rawAnswers, contains('"q_partner_net_income_chf":"__secure__"'));
     expect(rawAnswers, isNot(contains('5500')));
     expect(mockSecureStorage['q_partner_net_income_chf'], '5500.0');
+  });
+
+  test('save_fact concurrent household and spouse facts keep spouse data',
+      () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('birthYear', 1980), isTrue);
+
+    final results = await Future.wait([
+      provider.applySaveFact('householdType', 'married'),
+      provider.applySaveFact('spouseIncomeNetMonthly', 5500.0),
+    ]);
+
+    final prefs = await SharedPreferences.getInstance();
+    final persisted = await ReportPersistenceService.loadAnswers();
+    final rawAnswers = prefs.getString('wizard_answers_v2')!;
+
+    expect(results, everyElement(isTrue));
+    expect(persisted['q_civil_status'], 'married');
+    expect(persisted['q_partner_net_income_chf'], 5500.0);
+    expect(rawAnswers, contains('"q_partner_net_income_chf":"__secure__"'));
+    expect(rawAnswers, isNot(contains('5500')));
+    expect(mockSecureStorage['q_partner_net_income_chf'], '5500.0');
+    expect(provider.profile!.etatCivil, CoachCivilStatus.marie);
+    expect(provider.profile!.conjoint, isNotNull);
+    expect(
+      provider.profile!.conjoint!.salaireBrutMensuel,
+      closeTo(6321.84, 0.01),
+    );
+  });
+
+  test('save_fact spouse before household keeps pending spouse data', () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('birthYear', 1980), isTrue);
+
+    final results = await Future.wait([
+      provider.applySaveFact('spouseIncomeNetMonthly', 5500.0),
+      provider.applySaveFact('householdType', 'married'),
+    ]);
+
+    final prefs = await SharedPreferences.getInstance();
+    final persisted = await ReportPersistenceService.loadAnswers();
+    final rawAnswers = prefs.getString('wizard_answers_v2')!;
+
+    expect(results, everyElement(isTrue));
+    expect(persisted['q_civil_status'], 'married');
+    expect(persisted['q_partner_net_income_chf'], 5500.0);
+    expect(rawAnswers, contains('"q_partner_net_income_chf":"__secure__"'));
+    expect(rawAnswers, isNot(contains('5500')));
+    expect(provider.profile!.etatCivil, CoachCivilStatus.marie);
+    expect(provider.profile!.conjoint, isNotNull);
+  });
+
+  test(
+      'save_fact spouse income without coupled status purges stale spouse data',
+      () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('birthYear', 1980), isTrue);
+
+    final prefs = await SharedPreferences.getInstance();
+    mockSecureStorage['q_partner_net_income_chf'] = '5500.0';
+    mockSecureStorage['q_partner_salary'] = '9999';
+    await prefs.setString(
+      'wizard_answers_v2',
+      jsonEncode({
+        'q_birth_year': 1980,
+        'q_partner_net_income_chf': '__secure__',
+        'q_partner_birth_year': 1982,
+        'q_spouse_avs_contribution_years': 22,
+      }),
+    );
+
+    expect(
+        await provider.applySaveFact('spouseIncomeNetMonthly', 6200.0), isTrue);
+
+    final persisted = await ReportPersistenceService.loadAnswers();
+    final rawAnswers = prefs.getString('wizard_answers_v2')!;
+
+    expect(rawAnswers, isNot(contains('6200')));
+    expect(rawAnswers, isNot(contains('5500')));
+    expect(rawAnswers, isNot(contains('__secure__')));
+    expect(persisted['q_partner_net_income_chf'], isNull);
+    expect(persisted.containsKey('q_partner_birth_year'), isFalse);
+    expect(persisted.containsKey('q_spouse_avs_contribution_years'), isFalse);
+    expect(mockSecureStorage.containsKey('q_partner_net_income_chf'), isFalse);
+    expect(mockSecureStorage.containsKey('q_partner_salary'), isFalse);
+    expect(provider.profile!.etatCivil, CoachCivilStatus.celibataire);
+    expect(provider.profile!.conjoint, isNull);
+  });
+
+  test('save_fact non-coupled persisted status clears pending spouse data',
+      () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('birthYear', 1980), isTrue);
+    expect(
+        await provider.applySaveFact('spouseIncomeNetMonthly', 5500.0), isTrue);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'wizard_answers_v2',
+      jsonEncode({
+        'q_birth_year': 1980,
+        'q_civil_status': 'divorced',
+      }),
+    );
+
+    expect(await provider.applySaveFact('incomeGrossYearly', 120000.0), isTrue);
+    expect(await provider.applySaveFact('householdType', 'married'), isTrue);
+
+    final persisted = await ReportPersistenceService.loadAnswers();
+    expect(persisted['q_civil_status'], 'married');
+    expect(persisted['q_partner_net_income_chf'], isNull);
+    expect(mockSecureStorage.containsKey('q_partner_net_income_chf'), isFalse);
+    expect(provider.profile!.conjoint?.salaireBrutMensuel, isNull);
   });
 
   test('divorce profile update purges stale spouse answers and secure values',
