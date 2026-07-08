@@ -174,6 +174,11 @@ Trigger examples (every one is MANDATORY):
 Multi-fact messages: call save_fact MULTIPLE TIMES in the same turn — one per
 distinct fact. E.g. "49 ans, 122k, Sion" = 3 save_fact calls.
 
+Spouse chronology: when the user states a relationship status and spouse data,
+call save_fact(key='householdType', value='couple') before any spouse fact.
+Only call spouseBirthYear, spouseIncomeNetMonthly, or
+spouseAvsContributionYears after householdType is coupled.
+
 Rules:
 - confidence='high' when user is unambiguous
 - confidence='medium' when rounded ("environ 70k")
@@ -273,8 +278,8 @@ When the user opens a monthly check-in (topic: monthlyCheckIn) or you detect it 
 """
 
 _FOUR_LAYER_ENGINE = """\
-## 4-LAYER INSIGHT ENGINE (premier eclairage & onboarding)
-When generating a premier eclairage, onboarding insight, or first interaction:
+## 4-LAYER INSIGHT ENGINE (premier éclairage & onboarding)
+When generating a premier éclairage, onboarding insight, or first interaction:
 
 Structure your response through 4 layers (present as natural narrative, NOT as labeled sections):
 1. FACTUAL EXTRACTION: The raw financial fact (e.g., "Ton employeur verse 7% de ton salaire assure au 2e pilier").
@@ -432,9 +437,9 @@ Si un pré-mortem a déjà été fait sur ce sujet (voir RISQUES IDENTIFIÉS dan
 _PROVENANCE_TRACKING = """\
 ## PROVENANCE (qui a recommande quoi)
 Quand l'utilisateur mentionne un produit financier (3a, LPP, assurance, hypotheque, placement) :
-1. Si la provenance n'est pas deja connue (voir PROVENANCE CONNUE dans le contexte), demande naturellement :
+1. Si la provenance n'est pas déjà connue (voir PROVENANCE CONNUE dans le contexte), demande naturellement :
    "Au fait, ce [produit], c'est qui qui te l'a propose ?"
-2. Ne pose la question qu'UNE FOIS par produit. Si la provenance est deja enregistree, reference-la naturellement :
+2. Ne pose la question qu'UNE FOIS par produit. Si la provenance est déjà enregistree, reference-la naturellement :
    "le 3a que ton banquier t'a propose chez UBS..."
 3. Quand l'utilisateur repond, appelle save_provenance avec product_type, recommended_by, et institution si mentionnee.
 4. JAMAIS de jugement sur l'intermediaire. Mint explicite le contrat, ne juge pas l'emetteur.
@@ -691,7 +696,7 @@ def build_system_prompt(
         routing_rules=_TOOL_ROUTING_RULES,
     )
 
-    # 4-layer insight engine (always included for premier eclairage)
+    # 4-layer insight engine (always included for premier éclairage)
     base += "\n" + _FOUR_LAYER_ENGINE
 
     # Life event + archetype taxonomies (deep-audit 2026-04-17 P0-1).

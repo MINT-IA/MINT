@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import uuid
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.core.auth import get_current_user, require_current_user
@@ -63,7 +62,11 @@ def _profile_data(user_id: str) -> dict:
         db.close()
 
 
-def _invoke(tool_input: dict, user_id: str) -> str:
+def _invoke(
+    tool_input: dict,
+    user_id: str,
+    profile_context: dict | None = None,
+) -> str:
     """Execute the save_fact handler through the internal dispatcher."""
     from app.api.v1.endpoints.coach_chat import _execute_internal_tool
 
@@ -72,7 +75,7 @@ def _invoke(tool_input: dict, user_id: str) -> str:
         return _execute_internal_tool(
             tool_call={"name": "save_fact", "input": tool_input},
             memory_block=None,
-            profile_context=None,
+            profile_context=profile_context,
             user_id=user_id,
             db=db,
         )
@@ -195,3 +198,88 @@ def test_save_fact_chain_builds_full_profile(client: TestClient):
     assert data["incomeNetMonthly"] == 7600.0
     assert data["avoirLpp"] == 70376.6
     assert data["pillar3aAnnual"] == 7258.0
+
+
+def test_save_fact_rejects_spouse_fact_without_confirmed_coupled_household(
+    client: TestClient,
+):
+    cases = [
+        ("spouse-no-household", None, None, "spouseIncomeNetMonthly", 5200),
+        ("spouse-single", "single", None, "spouseBirthYear", 1984),
+        (
+            "spouse-context-single",
+            "single",
+            {"civil_status": "married"},
+            "spouseIncomeNetMonthly",
+            5200,
+        ),
+    ]
+    for tag, household_type, profile_context, key, value in cases:
+        email, _ = _register(client, tag)
+        user_id = _user_id_by_email(email)
+        if household_type is not None:
+            _invoke(
+                {"key": "householdType", "value": household_type, "confidence": "high"},
+                user_id,
+            )
+
+        msg = _invoke(
+            {"key": key, "value": value, "confidence": "high"},
+            user_id,
+            profile_context=profile_context,
+        )
+
+        assert "householdType" in msg
+        data = _profile_data(user_id)
+        if household_type is not None:
+            assert data["householdType"] == household_type
+        assert key not in data
+
+
+def test_save_fact_accepts_spouse_fact_with_coupled_context(client: TestClient):
+    cases = [
+        ("spouse-couple", "couple", None),
+        ("spouse-context", None, {"civil_status": "married"}),
+    ]
+    for tag, household_type, profile_context in cases:
+        email, _ = _register(client, tag)
+        user_id = _user_id_by_email(email)
+        if household_type is not None:
+            _invoke(
+                {"key": "householdType", "value": household_type, "confidence": "high"},
+                user_id,
+            )
+
+        msg = _invoke(
+            {"key": "spouseIncomeNetMonthly", "value": 5200, "confidence": "high"},
+            user_id,
+            profile_context=profile_context,
+        )
+
+        assert "Fait enregistré" in msg, msg
+        data = _profile_data(user_id)
+        assert data["householdType"] == "couple"
+        assert data["spouseIncomeNetMonthly"] == 5200.0
+
+
+def test_save_fact_non_coupled_household_purges_stale_spouse_facts(
+    client: TestClient,
+):
+    email, _ = _register(client, "spouse-purge")
+    user_id = _user_id_by_email(email)
+
+    _invoke({"key": "householdType", "value": "couple", "confidence": "high"}, user_id)
+    _invoke(
+        {"key": "spouseIncomeNetMonthly", "value": 5200, "confidence": "high"},
+        user_id,
+    )
+
+    msg = _invoke(
+        {"key": "householdType", "value": "single", "confidence": "high"},
+        user_id,
+    )
+
+    assert "Fait enregistré" in msg, msg
+    data = _profile_data(user_id)
+    assert data["householdType"] == "single"
+    assert "spouseIncomeNetMonthly" not in data

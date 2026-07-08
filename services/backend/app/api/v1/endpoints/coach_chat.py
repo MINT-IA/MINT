@@ -35,7 +35,7 @@ import asyncio
 import logging
 import os
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -961,6 +961,33 @@ _SAVE_FACT_BOOL_KEYS: set[str] = {
     "has2ndPillar", "hasVoluntaryLpp", "hasDebt", "hasAvsGaps",
 }
 
+_SAVE_FACT_SPOUSE_KEYS: set[str] = {
+    "spouseBirthYear",
+    "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears",
+}
+
+_SAVE_FACT_COUPLED_HOUSEHOLD_TYPES: set[str] = {
+    "couple",
+    "concubine",
+    "family",
+}
+
+_SAVE_FACT_HOUSEHOLD_CONFIRMED_KEY = "_coach_household_type_confirmed"
+
+_SAVE_FACT_PROFILE_CONTEXT_HOUSEHOLD_TYPES: dict[str, str] = {
+    "couple": "couple",
+    "marie": "couple",
+    "marié": "couple",
+    "married": "couple",
+    "partenariat": "couple",
+    "registered_partner": "couple",
+    "concubinage": "concubine",
+    "concubine": "concubine",
+    "cohabiting": "concubine",
+    "family": "family",
+}
+
 # Enum constraints for string-valued keys. Keys NOT in this dict accept
 # any non-empty string (commune, dateOfBirth). Keys IN this dict reject
 # values outside the set — prevents Claude from persisting typos like
@@ -1037,6 +1064,45 @@ def _coerce_fact_value(key: str, value):
             return None
         return stripped
     return None
+
+
+def _has_coupled_household_context(data: dict) -> bool:
+    household_type = str(data.get("householdType") or "").strip().lower()
+    return household_type in _SAVE_FACT_COUPLED_HOUSEHOLD_TYPES
+
+
+def _has_confirmed_household_type(data: dict) -> bool:
+    return data.get(_SAVE_FACT_HOUSEHOLD_CONFIRMED_KEY) is True
+
+
+def _purge_spouse_fact_keys(data: dict) -> None:
+    for key in _SAVE_FACT_SPOUSE_KEYS:
+        data.pop(key, None)
+
+
+def _canonical_household_type_from_profile_context(
+    profile_context: Optional[dict],
+) -> str | None:
+    if not profile_context:
+        return None
+    if profile_context.get("is_married") is True:
+        return "couple"
+    for key in ("householdType", "household_type", "civil_status", "marital_status"):
+        value = profile_context.get(key)
+        canonical = _SAVE_FACT_PROFILE_CONTEXT_HOUSEHOLD_TYPES.get(
+            str(value or "").strip().lower()
+        )
+        if canonical is not None:
+            return canonical
+    return None
+
+
+def _profile_context_has_coupled_household_context(
+    profile_context: Optional[dict],
+) -> bool:
+    return _canonical_household_type_from_profile_context(profile_context) is not None
+
+
 AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
@@ -1374,7 +1440,32 @@ def _execute_internal_tool(
                     return (
                         f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
                     )
+                if fact_key in _SAVE_FACT_SPOUSE_KEYS:
+                    context_household_type = (
+                        _canonical_household_type_from_profile_context(
+                            profile_context
+                        )
+                    )
+                    if not _has_coupled_household_context(data):
+                        if (
+                            context_household_type is None
+                            or _has_confirmed_household_type(data)
+                        ):
+                            return (
+                                "[save_fact ÉCHEC: householdType couplé requis "
+                                f"avant '{fact_key}']"
+                            )
+                        # `profile_context` is user-influenced client context.
+                        # It can fill only an unconfirmed/default DB household.
+                        data["householdType"] = context_household_type
                 data[fact_key] = coerced
+                if fact_key == "householdType":
+                    data[_SAVE_FACT_HOUSEHOLD_CONFIRMED_KEY] = True
+                if (
+                    fact_key == "householdType"
+                    and not _has_coupled_household_context(data)
+                ):
+                    _purge_spouse_fact_keys(data)
                 profile.data = data
                 profile.updated_at = datetime.now(timezone.utc)
                 db.add(profile)
@@ -1408,6 +1499,14 @@ def _execute_internal_tool(
                 return f"[save_fact ÉCHEC: {type(exc).__name__}]"
         # Hors-DB path: same redaction contract applies.
         from app.services.privacy.fact_key_allowlist import is_safe_to_log
+        if (
+            fact_key in _SAVE_FACT_SPOUSE_KEYS
+            and not _profile_context_has_coupled_household_context(profile_context)
+        ):
+            return (
+                "[save_fact ÉCHEC: householdType couplé requis avant "
+                f"'{fact_key}']"
+            )
         if is_safe_to_log(fact_key):
             return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
         return f"Fait noté (hors DB) : {fact_key}"
@@ -1425,14 +1524,14 @@ def _execute_internal_tool(
     # Actual DB persistence happens via dedicated endpoint (Plan 02).
     if name == "record_commitment":
         when_t = tool_input.get("when_text", "")
-        where_t = tool_input.get("where_text", "")
+        _where_t = tool_input.get("where_text", "")
         if_then_t = tool_input.get("if_then_text", "")
         logger.info("record_commitment ack: %s / %s", when_t[:50], if_then_t[:50])
         return f"Engagement noté : QUAND={when_t} — SI-ALORS={if_then_t}"
 
     if name == "save_pre_mortem":
         decision_type = tool_input.get("decision_type", "")
-        user_response = tool_input.get("user_response", "")
+        _user_response = tool_input.get("user_response", "")
         logger.info("save_pre_mortem ack: type=%s", decision_type[:50])
         return f"Pré-mortem enregistré pour {decision_type}."
 

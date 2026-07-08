@@ -439,6 +439,17 @@ class TestCoachChatSystemPrompt:
         prompt = build_system_prompt(ctx=None)
         assert "ROUTING RULES" in prompt
 
+    def test_system_prompt_orders_spouse_facts_after_household_type(self):
+        """Spouse save_fact keys need household context first."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "spouseBirthYear" in prompt
+        assert "spouseIncomeNetMonthly" in prompt
+        assert "spouseAvsContributionYears" in prompt
+        assert "householdType" in prompt
+        assert "before any spouse" in prompt
+
     def test_system_prompt_includes_life_event_catalog(self):
         """Life-event enum (18 types) must be present so Claude can match raw
         user text to the canonical MINT event and apply the Swiss specificity.

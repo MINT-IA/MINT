@@ -85,6 +85,21 @@ class TestCoachToolsStructure:
                 )
 
 
+class TestSaveFactToolContract:
+    """Validate load-bearing save_fact data-chronology rules."""
+
+    def test_save_fact_description_orders_spouse_after_household_type(self):
+        tool = _find_tool("save_fact")
+        assert tool is not None, "save_fact not found in COACH_TOOLS"
+
+        desc = tool["description"]
+        assert "spouseBirthYear" in desc
+        assert "spouseIncomeNetMonthly" in desc
+        assert "spouseAvsContributionYears" in desc
+        assert "householdType" in desc
+        assert "before any spouse" in desc
+
+
 # ===========================================================================
 # TestRouteToScreenTool — route_to_screen specific tests
 # ===========================================================================

@@ -260,3 +260,28 @@ def test_save_fact_no_db_echoes_safe_keys():
     )
     assert "VS" in result
     assert "Fait noté (hors DB) : canton = VS" in result
+
+
+def test_save_fact_no_db_spouse_key_requires_household_context():
+    from app.api.v1.endpoints.coach_chat import _execute_internal_tool
+
+    for profile_context, expected in [
+        (None, "householdType"),
+        ({"civil_status": "married"}, "Fait noté (hors DB) : spouseIncomeNetMonthly"),
+    ]:
+        result = _execute_internal_tool(
+            tool_call={
+                "name": "save_fact",
+                "input": {
+                    "key": "spouseIncomeNetMonthly",
+                    "value": 5200,
+                    "confidence": "high",
+                },
+            },
+            memory_block=None,
+            profile_context=profile_context,
+            user_id=None,
+            db=None,
+        )
+        assert expected in result
+        assert "5200" not in result

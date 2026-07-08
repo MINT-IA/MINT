@@ -89,8 +89,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_canton` (2-letter, default `ZH`), `q_civil_status`
   (celibataire/marie/concubinage/divorce/veuf; save_fact aliases:
   single → celibataire, couple → marie, concubine/family → concubinage),
-  `q_children` (int),
-  `q_gender`, `q_commune`
+  `q_children` (int), `q_gender`, `q_commune`
 
 **Income**
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
@@ -155,6 +154,11 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `_coach_financial_literacy_level`, `_coach_created_at`, `_coach_updated_at`,
   `_coach_data_timestamps` (dict: fieldPath → ISO timestamp)
 
+**Backend meta**
+- `_coach_household_type_confirmed` (bool in `ProfileModel.data`, not
+  `wizard_answers_v2`): marks that `householdType` was explicitly set by
+  backend `save_fact`, not only a schema/default value.
+
 ---
 
 ## The `_SAVE_FACT_ALLOWED_KEYS` whitelist — coach-LLM canonical names
@@ -193,8 +197,17 @@ treats it as orphaned spouse payload and purges `q_partner_*` / `q_spouse_*`
 answers plus encrypted spouse copies. If spouse facts arrive before
 `householdType`, the provider keeps them only as in-memory pending facts; they
 are persisted only if a later same-session merge establishes a coupled
-`householdType`. Data Quest must still collect or emit `householdType` before
-spouse-specific values.
+`householdType`. The backend `save_fact` DB path enforces the same chronology:
+`spouseBirthYear`, `spouseIncomeNetMonthly`, and `spouseAvsContributionYears`
+are rejected until `ProfileModel.data.householdType` is coupled or sanitized
+`profile_context` proves a coupled household while the DB `householdType` is
+only an unconfirmed/default value; in that latter case, the DB path first
+canonizes `householdType` to `couple`, `concubine`, or `family`. A
+`householdType` confirmed by `save_fact` wins over client context. Changing
+`householdType` to a non-coupled value purges stale spouse facts. The backend
+hors-DB path also rejects spouse keys unless sanitized `profile_context` proves
+a coupled household. Data Quest must still collect or emit `householdType`
+before spouse-specific values.
 
 **AVS**: `hasAvsGaps`, `avsContributionYears`
 

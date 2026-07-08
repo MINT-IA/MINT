@@ -176,7 +176,18 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `spouseIncomeNetMonthly` | `q_partner_net_income_chf` | double CHF/mo | couple | userInput | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuelCouple`, couple budget, AVS plafonnement |
 | `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` | int (yr) | couple | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | couple AVS rente, lacunes |
 
-> Spouse keys feed `CoachProfile.conjoint`. `spouseBirthYear` or spouse AVS years materialize a partial conjoint even without income (`salaireBrutMensuel=0`) so collection order does not drop typed partner data. **Gap (§7):** `HouseholdProvider` is backend-only and is NOT synced down into `conjoint` — offline simulators miss the spouse. The bridge in §7 is mandatory.
+> Spouse keys feed `CoachProfile.conjoint`. They require a coupled household
+> context first: backend `save_fact` rejects `spouseBirthYear`,
+> `spouseIncomeNetMonthly`, and `spouseAvsContributionYears` until
+> `householdType` is `couple`, `concubine`, or `family`, unless sanitized
+> `profile_context` already proves a coupled household while the DB
+> `householdType` is still an unconfirmed/default value and can be canonized
+> into one. A `householdType` confirmed by `save_fact` wins over client context;
+> a later non-coupled `householdType` purges stale spouse facts. On mobile,
+> spouse facts that arrive before `householdType` are memory-only pending facts
+> and persist only after a same-session coupled household write. **Gap (§7):**
+> `HouseholdProvider` is backend-only and is NOT synced down into `conjoint` —
+> offline simulators miss the spouse. The bridge in §7 is mandatory.
 
 ### 3.7 AVS (1st pillar)
 
@@ -282,6 +293,7 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 | `goalsB[]` | List\<GoalB\> | goals | userInput | static* | .60 | mergeAnswers | secondary goals view |
 | `plannedContributions[]` | List\<PlannedMonthlyContribution\> | goals | userInput | volatile | .60 | mergeAnswers | `total3aMensuel`, cap plan, check-in |
 | `checkIns[]` | List\<MonthlyCheckIn\> | meta | userInput | n/a (event log) | n/a | mergeAnswers | streak, FRI history |
+| `_coach_household_type_confirmed` | bool | meta/identity | save_fact backend | static* | n/a | `save_fact(householdType)` | tells backend spouse guard whether stored `householdType` is explicit or only a default/sync value |
 | `arrivalAge` | int yr | identity | userInput, certificate | static | .60 | mergeAnswers | `archetype` (expat vs native), LPP since-25 |
 | `residencePermit` | String {B,C,L,G,Swiss} | identity | userInput, certificate | static* | .60 | mergeAnswers | `isCrossBorder`, frontalier, expat |
 | `nationality` | String ISO-2 | identity | userInput, certificate | static | .60 | mergeAnswers | `archetype`, FATCA, 3a eligibility |
