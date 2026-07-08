@@ -53,6 +53,11 @@ EXCLUDE_SUBSTRINGS = (
 )
 
 
+def _is_excluded(path: Path) -> bool:
+    rel = "/" + path.as_posix() + "/"
+    return any(ex in rel for ex in EXCLUDE_SUBSTRINGS)
+
+
 def _line_is_exempt(line: str) -> bool:
     return any(marker in line for marker in IGNORE_MARKERS)
 
@@ -87,8 +92,7 @@ def _collect_paths(scope: list[str]) -> list[Path]:
                 continue
             if p.suffix not in TEXT_EXTS:
                 continue
-            rel = "/" + p.as_posix() + "/"
-            if any(ex in rel for ex in EXCLUDE_SUBSTRINGS):
+            if _is_excluded(p):
                 continue
             paths.append(p)
     return paths
@@ -116,7 +120,7 @@ def main() -> int:
         if not target.exists():
             print(f"no_hardcoded_fr: file not found: {target}", file=sys.stderr)
             return 1
-        paths = [target]
+        paths = [] if _is_excluded(target) or target.suffix not in TEXT_EXTS else [target]
     else:
         paths = _collect_paths(args.scope)
 

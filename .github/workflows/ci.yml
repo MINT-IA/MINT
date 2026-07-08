@@ -93,6 +93,24 @@ jobs:
             ghcr.io/gitleaks/gitleaks:v8.30.1 \
             git --redact --config .gitleaks.toml --log-opts="${LOG_OPTS}" .
 
+  # ─── LSFin UI copy gate ─────────────────────────────────────
+  # Blocks core banned promise terms from CLAUDE.md /
+  # LEGAL_RELEASE_CHECK.md in Dart UI string literals. The scanner is
+  # lexical but not a raw grep: it skips comments/tests/imports/internal
+  # guard dictionaries and allows explicit Swiss legal terms such as
+  # "salaire assuré" plus negative disclaimers such as "ne constitue pas
+  # un conseil financier".
+  banned-ui-terms:
+    name: Banned UI terms
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan Dart UI strings
+        run: python3 tools/checks/banned_ui_terms.py
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -573,7 +591,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, secret-scan, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, secret-scan, banned-ui-terms, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -582,6 +600,7 @@ jobs:
           # Skip check if job was skipped (no relevant changes)
           backend="${{ needs.backend.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
+          banned_terms="${{ needs.banned-ui-terms.result }}"
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
           wcag="${{ needs.wcag-aa-all-touched.result }}"
@@ -591,6 +610,7 @@ jobs:
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
+          [[ "$banned_terms" == "skipped" ]] && banned_terms="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
           [[ "$wcag" == "skipped" ]] && wcag="success"
@@ -599,8 +619,8 @@ jobs:
           [[ "$contract_tests" == "skipped" ]] && contract_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend secret_scan=$secret_scan flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
