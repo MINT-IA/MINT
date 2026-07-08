@@ -127,8 +127,7 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       _requiresEmailVerification =
           prefs.getBool('requires_email_verification') ?? false;
-      // Local-mode default: true on fresh install (local-first per UX copy
-      // "Compte optionnel : tes données restent locales par défaut").
+      // Local-mode default: true on fresh install.
       // Explicit register/login flips it to false.
       if (!prefs.containsKey('auth_local_mode')) {
         await prefs.setBool('auth_local_mode', true);
@@ -705,31 +704,31 @@ class AuthProvider extends ChangeNotifier {
       final data = profileData['data'] as Map<String, dynamic>?;
       if (data == null) return;
 
-      final prefs = await SharedPreferences.getInstance();
+      final answers = await ReportPersistenceService.loadAnswers();
+      var changed = false;
       if (data['birthYear'] != null) {
-        await prefs.setInt('q_birth_year', data['birthYear'] as int);
+        answers['q_birth_year'] = data['birthYear'] as int;
+        changed = true;
       }
       if (data['canton'] != null) {
-        await prefs.setString('q_canton', data['canton'] as String);
+        answers['q_canton'] = data['canton'] as String;
+        changed = true;
       }
       if (data['incomeGrossYearly'] != null) {
-        await prefs.setDouble(
-          'q_gross_salary',
-          (data['incomeGrossYearly'] as num).toDouble() / 12,
-        );
+        answers['q_gross_salary_annual'] =
+            (data['incomeGrossYearly'] as num).toDouble();
+        changed = true;
       }
       if (data['incomeNetMonthly'] != null) {
-        await prefs.setDouble(
-          'q_net_income_period_chf',
-          (data['incomeNetMonthly'] as num).toDouble(),
-        );
+        answers['q_net_income_period_chf'] =
+            (data['incomeNetMonthly'] as num).toDouble();
+        changed = true;
       }
       if (data['householdType'] != null) {
-        await prefs.setString(
-          'q_household_type',
-          data['householdType'] as String,
-        );
+        answers['q_household_type'] = data['householdType'] as String;
+        changed = true;
       }
+      if (changed) await ReportPersistenceService.saveAnswers(answers);
     } catch (e) {
       // Hydration is best-effort — never block login flow
       if (kDebugMode) {
@@ -766,7 +765,7 @@ class AuthProvider extends ChangeNotifier {
       return AuthError.networkUnavailable;
     }
 
-    if (lower.contains('existe déjà')) {
+    if (lower.contains('existe déjà')) { // lint-ignore: backend error fragment, not UI copy
       return AuthError.emailAlreadyUsed;
     }
 
@@ -792,7 +791,7 @@ class AuthProvider extends ChangeNotifier {
     if (lower.contains('expir')) {
       return AuthError.linkExpired;
     }
-    if (lower.contains('non vérifié') || lower.contains('not verified')) {
+    if (lower.contains('non vérifié') || lower.contains('not verified')) { // lint-ignore: backend error fragment, not UI copy
       return AuthError.emailNotVerified;
     }
 

@@ -19,7 +19,9 @@ class SecureWizardStore {
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
   static const _sensitiveKeys = {
+    // Legacy key retained so old secure placeholders do not leak as plain JSON.
     'q_gross_salary',
+    'q_gross_salary_annual',
     'q_net_income_period_chf',
     'q_lpp_avoir',
     'q_3a_capital',
@@ -72,6 +74,7 @@ class SecureWizardStore {
     final cleaned = Map<String, dynamic>.from(answers);
     for (final key in _sensitiveKeys) {
       if (cleaned.containsKey(key) && cleaned[key] != null) {
+        if (cleaned[key] == '__secure__') continue;
         await write(key, cleaned[key].toString());
         cleaned[key] = '__secure__';
       }
