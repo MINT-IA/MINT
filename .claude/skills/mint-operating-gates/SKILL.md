@@ -35,6 +35,21 @@ python3 tools/checks/arb_parity.py
 lefthook run pre-commit --file <touched-file>
 ```
 
+For external Claude review, use the checked-in wrapper instead of raw
+`claude -p` commands:
+
+```bash
+tools/checks/claude_external_audit.sh code <base-ref>
+tools/checks/claude_external_audit.sh specs
+tools/checks/claude_external_audit.sh architecture
+```
+
+The wrapper is deliberately bounded: Opus high by default, strict empty MCP,
+no session persistence, no dynamic-system-prompt sections, and no `--effort max`
+unless `CLAUDE_AUDIT_ALLOW_MAX=1` is explicitly set for a named final-release
+or unresolved P0/P1 dispute. Repeated same-gate re-audits should use Sonnet high
+first, then one Opus high final.
+
 For `docs/codex/` contract work, run the contract tests that exist in this
 checkout:
 
@@ -52,7 +67,6 @@ the files exist in this checkout:
 - `tools/checks/phase_contract_guard.py`
 - `tools/checks/mint_rules_guard.py`
 - `tools/checks/verify_phase_acceptance.py`
-- `tools/checks/claude_external_audit.sh`
 
 Missing guard scripts are workflow gaps, not silent passes.
 
