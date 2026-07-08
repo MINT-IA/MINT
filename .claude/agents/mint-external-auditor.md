@@ -21,26 +21,30 @@ and force resolution of critical/high issues before phase acceptance.
 
 <commands>
 Architecture/spec audit:
-`tools/checks/claude_external_audit.sh architecture` when present; otherwise
-use `claude -p` with the relevant diff and docs.
+`tools/checks/claude_external_audit.sh architecture`.
 
 Spec drift audit:
-`tools/checks/claude_external_audit.sh specs` when present; otherwise use
-`claude -p` with the five `docs/codex/` specs and code evidence.
+`tools/checks/claude_external_audit.sh specs`.
 
 Code audit against a base branch:
-`tools/checks/claude_external_audit.sh code <base-branch>` when present;
-otherwise use `claude -p` with `git diff <base>...HEAD`.
+`tools/checks/claude_external_audit.sh code <base-branch>`.
 
-Default bounded diff audit:
-`claude -p --model opus --effort high --safe-mode --strict-mcp-config --mcp-config '{"mcpServers":{}}' --disable-slash-commands --no-session-persistence --permission-mode dontAsk --tools Read,Grep,Bash --add-dir <worktree>`
+The wrapper is the default. It runs Claude CLI with Opus high, safe mode,
+strict empty MCP, disabled slash commands, no session persistence, bounded
+tools, and dynamic-system-prompt sections excluded for cache stability:
+
+`claude -p --model opus --effort high --safe-mode --strict-mcp-config --mcp-config '{"mcpServers":{}}' --disable-slash-commands --no-session-persistence --permission-mode dontAsk --tools Read,Grep,Bash --add-dir <worktree> --exclude-dynamic-system-prompt-sections`
 
 Use `--effort max` only for a named final-release or unresolved P0/P1
 architecture dispute. Repeated re-audits of the same bounded diff should use
 Sonnet high first, then one Opus high final confirmation. This avoids paying
 full startup hooks, MCP servers, memory injection, skill inventory, and max
-reasoning on every tool turn. The currently installed Claude CLI does not expose
-`--max-turns`; keep prompts bounded and cite exact files/functions instead.
+reasoning on every tool turn.
+
+Do not add `--max-turns`: the currently installed Claude CLI does not expose it,
+and the wrapper rejects `CLAUDE_AUDIT_MAX_TURNS` to prevent fake safety knobs.
+Do not use `--bare` by default: it skips OAuth/keychain auth and only works with
+`ANTHROPIC_API_KEY` or an explicit `apiKeyHelper` in `CLAUDE_AUDIT_SETTINGS`.
 </commands>
 
 <policy>
