@@ -692,6 +692,27 @@ void main() {
       expect(inputs.style, BudgetStyle.envelopes3);
     });
 
+    test('fromMap prefers canonical monthly expense keys over legacy q keys',
+        () {
+      final map = {
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 5000.0,
+        'q_housing_cost_period_chf': 999.0,
+        '_coach_depenses_loyer': 1800.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_lamal_premium_monthly_chf': 111.0,
+        '_coach_depenses_assurance': 420.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      };
+
+      final inputs = BudgetInputs.fromMap(map);
+
+      expect(inputs.housingCost, 1800.0);
+      expect(inputs.healthInsurance, 420.0);
+      expect(inputs.isHealthEstimated, isFalse);
+    });
+
     test('toMap roundtrip preserves core values', () {
       const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
@@ -710,10 +731,12 @@ void main() {
       final map = inputs.toMap();
       expect(map['q_pay_frequency'], 'monthly');
       expect(map['q_net_income_period_chf'], 5000);
-      expect(map['q_housing_cost_period_chf'], 1500);
+      expect(map['_coach_depenses_loyer'], 1500);
+      expect(map.containsKey('q_housing_cost_period_chf'), isFalse);
       expect(map['q_debt_payments_period_chf'], 200);
       expect(map['q_tax_provision_monthly_chf'], 300);
-      expect(map['q_lamal_premium_monthly_chf'], 400);
+      expect(map['_coach_depenses_assurance'], 400);
+      expect(map.containsKey('q_lamal_premium_monthly_chf'), isFalse);
       expect(map['q_other_fixed_costs_monthly_chf'], 100);
       expect(map['meta_tax_estimated'], isTrue);
       expect(map['meta_health_estimated'], isFalse);

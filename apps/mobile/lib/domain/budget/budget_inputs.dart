@@ -85,7 +85,7 @@ class BudgetInputs {
       _ => 'single',
     };
 
-    // Data source tags — propagate "estimé" vs "saisi" from profile
+    // Data source tags: propagate estimated vs user-entered status from profile.
     final healthSource =
         profile.dataSources['depenses.assuranceMaladie'];
     final isHealthFromUser = healthSource == ProfileDataSource.userInput ||
@@ -149,15 +149,17 @@ class BudgetInputs {
     );
     final netIncome =
         (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0;
-    final housingCost =
-        (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final housingCost = (map['_coach_depenses_loyer'] as num?)?.toDouble() ??
+        (map['q_housing_cost_period_chf'] as num?)?.toDouble() ??
+        0.0;
     final debtPayments =
         (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0;
 
     final normalizedMonthlyIncome = _toMonthly(netIncome, payFrequency);
     final taxProvisionRaw =
         (map['q_tax_provision_monthly_chf'] as num?)?.toDouble();
-    final lamalRaw = (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble();
+    final lamalRaw = (map['_coach_depenses_assurance'] as num?)?.toDouble() ??
+        (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble();
     final otherFixedRaw =
         (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble();
 
@@ -211,10 +213,10 @@ class BudgetInputs {
     return {
       'q_pay_frequency': payFrequency.name,
       'q_net_income_period_chf': netIncome,
-      'q_housing_cost_period_chf': housingCost,
+      '_coach_depenses_loyer': housingCost,
       'q_debt_payments_period_chf': debtPayments,
       'q_tax_provision_monthly_chf': taxProvision,
-      'q_lamal_premium_monthly_chf': healthInsurance,
+      '_coach_depenses_assurance': healthInsurance,
       'q_other_fixed_costs_monthly_chf': otherFixedCosts,
       'meta_tax_estimated': isTaxEstimated,
       'meta_health_estimated': isHealthEstimated,

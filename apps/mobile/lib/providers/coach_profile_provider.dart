@@ -58,6 +58,11 @@ class CoachProfileProvider extends ChangeNotifier {
     'depenses.autresDepensesFixes': '_coach_depenses_autres',
   };
 
+  static const Map<String, List<String>> _qualityKeyAliases = {
+    'q_housing_cost_period_chf': ['_coach_depenses_loyer'],
+    'q_lamal_premium_monthly_chf': ['_coach_depenses_assurance'],
+  };
+
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
@@ -331,9 +336,17 @@ class CoachProfileProvider extends ChangeNotifier {
     return true;
   }
 
+  bool _isQualityKeyAnswered(String key) {
+    if (_isAnswered(_lastAnswers[key])) return true;
+    for (final alias in _qualityKeyAliases[key] ?? const <String>[]) {
+      if (_isAnswered(_lastAnswers[alias])) return true;
+    }
+    return false;
+  }
+
   int get onboardingAnsweredSignals {
     if (_profile == null) return 0;
-    return _qualityKeys.where((k) => _isAnswered(_lastAnswers[k])).length;
+    return _qualityKeys.where(_isQualityKeyAnswered).length;
   }
 
   int get onboardingTotalSignals {
@@ -2310,10 +2323,10 @@ class CoachProfileProvider extends ChangeNotifier {
       if (investissements != null) {
         answers['q_investments_total'] = investissements;
       }
-      // Persist depenses — use canonical wizard keys where they exist
-      if (loyer != null) answers['q_housing_cost_period_chf'] = loyer;
+      // Persist depenses to canonical ledger keys.
+      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
       if (assuranceMaladie != null) {
-        answers['q_lamal_premium_monthly_chf'] = assuranceMaladie;
+        answers['_coach_depenses_assurance'] = assuranceMaladie;
       }
       if (electricite != null) {
         answers['_coach_depenses_electricite'] = electricite;

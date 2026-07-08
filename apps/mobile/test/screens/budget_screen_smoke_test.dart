@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct imports
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/budget/budget_screen.dart';
+import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,6 +14,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
   setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
     SharedPreferences.setMockInitialValues({});
   });
 
@@ -89,5 +94,44 @@ void main() {
 
     // Available 0 => Variables 0 => Stop Rule Warning
     expect(find.textContaining('Stop Rule Triggered'), findsOneWidget);
+  });
+
+  testWidgets('BudgetSetupScreen saves canonical depenses keys',
+      (tester) async {
+    final coachProvider = CoachProfileProvider();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: coachProvider),
+            ChangeNotifierProvider.value(value: budgetProvider),
+          ],
+          child: const BudgetSetupScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).at(0), '2100');
+    await tester.enterText(find.byType(TextField).at(1), '390');
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['_coach_depenses_loyer'], 2100.0);
+    expect(answers['_coach_depenses_assurance'], 390.0);
+    expect(answers.containsKey('q_housing_cost_period_chf'), isFalse);
+    expect(answers.containsKey('q_lamal_premium_monthly_chf'), isFalse);
+    expect(coachProvider.profile?.depenses.loyer, 2100.0);
   });
 }

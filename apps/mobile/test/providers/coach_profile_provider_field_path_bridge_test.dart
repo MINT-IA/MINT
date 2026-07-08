@@ -56,4 +56,45 @@ void main() {
       isTrue,
     );
   });
+
+  test('canonical depenses keys count toward onboarding signals', () {
+    final provider = CoachProfileProvider();
+
+    provider.updateFromAnswers({
+      'q_birth_year': 1990,
+      'q_canton': 'VD',
+      '_coach_depenses_loyer': 1850.0,
+      '_coach_depenses_assurance': 420.0,
+    });
+
+    expect(provider.onboardingAnsweredSignals, 4);
+  });
+
+  test('updateInline persists loyer and LAMal to canonical depenses keys',
+      () async {
+    final provider = CoachProfileProvider();
+    provider.updateFromAnswers({
+      'q_birth_year': 1990,
+      'q_canton': 'VD',
+      '_coach_depenses_loyer': 1850.0,
+      '_coach_depenses_assurance': 420.0,
+    });
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': 1990,
+      'q_canton': 'VD',
+      '_coach_depenses_loyer': 1850.0,
+      '_coach_depenses_assurance': 420.0,
+    });
+
+    await provider.updateInline(
+      loyer: 2100.0,
+      assuranceMaladie: 390.0,
+    );
+
+    final persisted = await ReportPersistenceService.loadAnswers();
+    expect(persisted['_coach_depenses_loyer'], 2100.0);
+    expect(persisted['_coach_depenses_assurance'], 390.0);
+    expect(persisted.containsKey('q_housing_cost_period_chf'), isFalse);
+    expect(persisted.containsKey('q_lamal_premium_monthly_chf'), isFalse);
+  });
 }

@@ -140,6 +140,31 @@ void main() {
       // Thematic cards replaced circles — check for a thematic card title
       expect(find.textContaining('Ton Budget'), findsOneWidget);
     });
+
+    testWidgets('budget card reads canonical monthly expense keys',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..remove('q_housing_cost_period_chf')
+        ..remove('q_lamal_premium_monthly_chf')
+        ..['q_tax_provision_monthly_chf'] = 0.0
+        ..['q_debt_payments_period_chf'] = 0.0
+        ..['q_other_fixed_costs_monthly_chf'] = 0.0
+        ..['_coach_depenses_loyer'] = 2100.0
+        ..['_coach_depenses_assurance'] = 390.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text("CHF\u00a03'510"), findsOneWidget);
+    });
   });
 
   // ===========================================================================

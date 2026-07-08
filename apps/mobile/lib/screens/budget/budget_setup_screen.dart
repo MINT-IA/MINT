@@ -157,32 +157,31 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     setState(() => _saving = true);
     final provider = context.read<CoachProfileProvider>();
     final answers = <String, dynamic>{
-      'q_housing_cost_period_chf': housing,
-      'q_pay_frequency': 'monthly',
-      'q_lamal_premium_monthly_chf': lamal,
+      'fp:depenses.loyer': housing,
+      'fp:depenses.assuranceMaladie': lamal,
     };
     final transport = _parseAmount(_transport.text);
-    if (transport != null) answers['_coach_depenses_transport'] = transport;
+    if (transport != null) answers['fp:depenses.transport'] = transport;
     final telecom = _parseAmount(_telecom.text);
-    if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
+    if (telecom != null) answers['fp:depenses.telecom'] = telecom;
     final electricity = _parseAmount(_electricity.text);
     if (electricity != null) {
-      answers['_coach_depenses_electricite'] = electricity;
+      answers['fp:depenses.electricite'] = electricity;
     }
     final medical = _parseAmount(_medical.text);
     if (medical != null) {
-      answers['_coach_depenses_frais_medicaux'] = medical;
+      answers['fp:depenses.fraisMedicaux'] = medical;
     }
     final other = _parseAmount(_other.text);
-    if (other != null) answers['_coach_depenses_autres'] = other;
+    if (other != null) answers['fp:depenses.autresDepensesFixes'] = other;
 
     await provider.mergeAnswers(answers);
     if (!mounted) return;
-    // Refresh BudgetProvider so the Mon argent « Ton budget ce mois »
+    // Refresh BudgetProvider so the money dashboard monthly-budget
     // card re-derives inputs from the updated CoachProfile.depenses and
-    // swaps from the empty "Définis ton budget" state to the computed
-    // plan (revenu / charges fixes / reste). Without this the user
-    // enters their charges and the card still shows « Commencer » —
+    // swaps from the empty setup state to the computed
+    // plan (income / fixed charges / remaining). Without this the user
+    // enters their charges and the card still shows the start action:
     // silent failure, identical to the save_fact bug.
     final updated = provider.profile;
     if (updated != null) {

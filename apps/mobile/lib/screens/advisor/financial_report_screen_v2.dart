@@ -301,8 +301,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget _buildBudgetSection(
       BuildContext context, Map<String, dynamic> answers) {
     final income = WizardService.getMonthlyIncome(answers);
-    final housing =
-        (answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
+    final housing = (answers['_coach_depenses_loyer'] as num?)?.toDouble() ??
+        (answers['q_housing_cost_period_chf'] as num?)?.toDouble() ??
+        0;
     final debt =
         (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
     final civilStatus = answers['q_civil_status'] as String? ?? 'single';
@@ -321,8 +322,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 isSourceTaxed: false,
               ),
             );
-    final healthInsurance = (answers['q_lamal_premium_monthly_chf'] as num?)
-            ?.toDouble() ??
+    final healthInsurance =
+        (answers['_coach_depenses_assurance'] as num?)?.toDouble() ??
+        (answers['q_lamal_premium_monthly_chf'] as num?)?.toDouble() ??
         _estimateLamalMonthly(canton, answers['q_household_type'] as String?);
     final otherFixed =
         (answers['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble() ?? 0;
