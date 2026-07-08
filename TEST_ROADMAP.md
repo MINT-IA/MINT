@@ -90,9 +90,38 @@ Valider que l'application s'adapte correctement à des profils financiers radica
 
 ---
 
-## Stratégie d'Exécution
-Pour chaque persona, nous allons créer un **Test d'Intégration Flutter** (`integration_test/`) qui :
-1.  Lance l'app.
-2.  Remplit le Wizard avec les réponses spécifiques.
-3.  Vérifie l'écran de Rapport généré (Textes, Scores).
-4.  Navigue vers `/tools` et vérifie l'état des verrous (Safe Mode).
+## 10. Répartition Patrol / Maestro / Flutter
+
+La preuve MINT ne doit pas dupliquer le même risque dans trois outils. Chaque
+outil a un propriétaire clair :
+
+| Niveau | Outil | Mission | Gate |
+|---|---|---|---|
+| Logique et rendu isolé | Flutter widget tests | Calculs, providers, états partiels, widgets dataviz, goldens CI-safe | Chaque PR qui touche le composant |
+| Parcours utilisateur externe | Maestro = black-box | Runtime proof sans introspection Flutter : deep links, navigation réelle, textes visibles, états dégradés, ids `Semantics` | P0 UI touchée et boucle agent |
+| Entrées réelles et intégration native | Patrol = white-box | P0 input proof : formulaires, clavier, scan document, permissions, biométrie à venir, assertions Flutter quand Maestro est trop fragile | Promotion dev -> staging et staging -> main, ou PR P0 input critique |
+
+### Ordre de preuve
+
+1. **Flutter widget tests** verrouillent la logique et le rendu local. Exemple :
+   un graphique FRI ou un `breakeven_indicator` doit être testé ici avant toute
+   preuve simulateur.
+2. **Maestro = black-box** prouve que l'utilisateur peut traverser le flux dans
+   l'app lancée, sans accès aux providers. Il sert aux flows `.maestro/`, aux
+   deep links, aux routes mortes et aux preuves faciles à rejouer par agent.
+3. **Patrol = white-box** prouve les entrées qui demandent précision ou natif :
+   saisie structurée, upload/scan, permissions, biométrie à venir, clavier et
+   assertions widget-tree. Aucun scorecard ne peut écrire « Patrol passé » sans
+   log réel `patrol` ou `flutter test test/patrol/`.
+
+### Application aux personas
+
+Pour chaque persona :
+
+1. Les calculs et états attendus passent par des tests Flutter ciblés.
+2. Le flux principal a une preuve Maestro quand il existe des routes, CTA ou
+   états visibles à vérifier en black-box.
+3. Les écrans de collecte de données et les entrées P0 ont une preuve Patrol
+   dès que le CLI et le simulateur requis sont disponibles.
+4. Les artefacts de preuve sont attachés au PR : commande, device, résultat,
+   et limite connue si Patrol ou Maestro est indisponible.
