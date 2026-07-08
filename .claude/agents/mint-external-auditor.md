@@ -32,6 +32,9 @@ Code audit against a base branch:
 The wrapper is the default. It runs Claude CLI with Opus high, safe mode,
 strict empty MCP, disabled slash commands, no session persistence, bounded
 tools, and dynamic-system-prompt sections excluded for cache stability.
+Code audits also enforce a diff-prompt budget (`CLAUDE_AUDIT_MAX_DIFF_LINES`,
+default 2500). If it trips, split the PR; use `CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1`
+only for a named final-release/P0 dispute.
 
 Use `--effort max` only for named final-release/P0 disputes. Repeated re-audits of the same bounded diff should use
 Sonnet high first, then one Opus high final confirmation. This avoids paying

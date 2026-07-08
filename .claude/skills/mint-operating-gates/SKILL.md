@@ -47,8 +47,10 @@ tools/checks/claude_external_audit.sh architecture
 The wrapper is deliberately bounded: Opus high by default, strict empty MCP,
 no session persistence, no dynamic-system-prompt sections, and no `--effort max`
 unless `CLAUDE_AUDIT_ALLOW_MAX=1` is explicitly set for a named final-release
-or unresolved P0/P1 dispute. Repeated same-gate re-audits should use Sonnet high
-first, then one Opus high final.
+or unresolved P0/P1 dispute. Code audits reject large diff prompts by default
+(`CLAUDE_AUDIT_MAX_DIFF_LINES`, default 2500) so oversized branches are split
+before review. Repeated same-gate re-audits should use Sonnet high first, then
+one Opus high final.
 
 For `docs/codex/` contract work, run the contract tests that exist in this
 checkout:

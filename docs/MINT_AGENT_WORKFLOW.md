@@ -84,4 +84,6 @@ Claude CLI audits should be bounded through
 no session persistence, and no `--effort max` except named final-release/P0
 disputes. Re-run loops use Sonnet high first, then one Opus high final; do not
 use `--bare` without explicit API-key auth, and do not add unsupported
-`--max-turns`.
+`--max-turns`. Code audits refuse large diff prompts by default
+(`CLAUDE_AUDIT_MAX_DIFF_LINES`, default 2500); split the PR instead of
+overriding except for a named final-release/P0 dispute.
