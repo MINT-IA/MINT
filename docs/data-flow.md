@@ -87,7 +87,9 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 **Identity**
 - `q_firstname` (str), `q_birth_year` (int), `q_date_of_birth` (ISO str),
   `q_canton` (2-letter, default `ZH`), `q_civil_status`
-  (celibataire/marie/concubinage/divorce/veuf), `q_children` (int),
+  (celibataire/marie/concubinage/divorce/veuf; save_fact aliases:
+  single → celibataire, couple → marie, concubine/family → concubinage),
+  `q_children` (int),
   `q_gender`, `q_commune`
 
 **Income**
@@ -96,7 +98,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF),
-  `q_self_employed_net_income` (CHF/year), `q_partner_net_income_chf`,
+  `q_self_employed_net_income` (CHF/year), `q_partner_net_income_chf`
+  (CHF/month, sensitive; encrypted by `SecureWizardStore`),
   `q_partner_birth_year`, `q_partner_employment_status`
 
 **Housing & fixed charges**

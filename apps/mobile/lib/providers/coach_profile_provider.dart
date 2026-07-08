@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
@@ -61,6 +62,11 @@ class CoachProfileProvider extends ChangeNotifier {
   static const Map<String, List<String>> _qualityKeyAliases = {
     'q_housing_cost_period_chf': ['_coach_depenses_loyer'],
     'q_lamal_premium_monthly_chf': ['_coach_depenses_assurance'],
+  };
+
+  static const Set<String> _sensitivePartnerKeysToPurge = {
+    'q_partner_net_income_chf',
+    'q_partner_salary',
   };
 
   /// Le profil Coach construit a partir des reponses wizard.
@@ -542,6 +548,9 @@ class CoachProfileProvider extends ChangeNotifier {
     final current = await ReportPersistenceService.loadAnswers();
     final merged = Map<String, dynamic>.from(current)
       ..addAll(normalized.answers);
+    if (_isNonCoupledCivilStatus(normalized.answers['q_civil_status'])) {
+      _removePartnerAnswers(merged);
+    }
     if (bridgeMerge) {
       final profile = CoachProfile.fromWizardAnswers(merged);
       final timestamps = _stampTimestamps(
@@ -1135,13 +1144,13 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Replace the current profile with an updated one and persist via answers.
-  void updateProfile(CoachProfile updated) {
+  Future<void> updateProfile(CoachProfile updated) async {
     final previousStatus = _profile?.etatCivil;
     _profile = updated;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
     // FIX-045: Persist ALL profile fields.
-    _persistFullProfile(updated);
+    await _persistFullProfile(updated);
     // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
     CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
     // Also invalidate daily narrative cache so greeting / topTip / scenarios
@@ -1162,18 +1171,14 @@ class CoachProfileProvider extends ChangeNotifier {
         previousStatus != updated.etatCivil &&
         updated.etatCivil != CoachCivilStatus.marie &&
         updated.etatCivil != CoachCivilStatus.concubinage) {
-      // FIX-097: Clear local household state on divorce (AWAITED).
-      // FIX-P0-1: Remove ALL partner/spouse keys to prevent ghost conjoint
-      // on app restart. Without this, fromWizardAnswers() recreates the spouse
-      // from stale SharedPreferences → AVS couple cap 150% applied to a single.
-      // FIX-P0-3: Was fire-and-forget → now awaited to guarantee cleanup before
-      // any subsequent read.
-      _awaitedDivorceCleanup();
+      // Wizard JSON spouse cleanup is handled in _persistFullProfile.
+      // This clears only legacy top-level household caches.
+      await _awaitedDivorceCleanup();
     }
   }
 
-  /// Awaited divorce cleanup — removes all partner/spouse keys from SharedPreferences.
-  /// Previously fire-and-forget (.then/.catchError), which could race with subsequent reads.
+  /// Awaited divorce cleanup — removes legacy top-level household cache keys.
+  /// Canonical wizard-answer cleanup happens in [_persistFullProfile].
   Future<void> _awaitedDivorceCleanup() async {
     try {
       final sp = await SharedPreferences.getInstance();
@@ -1218,9 +1223,13 @@ class CoachProfileProvider extends ChangeNotifier {
     if (profile.targetRetirementAge != null) {
       answers['q_target_retirement_age'] = profile.targetRetirementAge;
     }
+    final coupledStatus = profile.etatCivil == CoachCivilStatus.marie ||
+        profile.etatCivil == CoachCivilStatus.concubinage;
     // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
     // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
-    if (profile.conjoint != null) {
+    if (!coupledStatus || profile.conjoint == null) {
+      _removePartnerAnswers(answers);
+    } else {
       final c = profile.conjoint!;
       if (c.salaireBrutMensuel != null) {
         // Store as net (reverse the brut→net from fromWizardAnswers)
@@ -1251,6 +1260,41 @@ class CoachProfileProvider extends ChangeNotifier {
       }
     }
     await ReportPersistenceService.saveAnswers(answers);
+  }
+
+  static void _removePartnerAnswers(Map<String, dynamic> answers) {
+    final partnerKeys = answers.keys
+        .where((key) =>
+            key.startsWith('q_partner_') || key.startsWith('q_spouse_'))
+        .toList();
+
+    for (final key in partnerKeys) {
+      if (SecureWizardStore.isSensitive(key)) {
+        answers[key] = null;
+      } else {
+        answers.remove(key);
+      }
+    }
+
+    for (final key in _sensitivePartnerKeysToPurge) {
+      answers[key] = null;
+    }
+  }
+
+  static bool _isNonCoupledCivilStatus(dynamic value) {
+    final status = value
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[\u00e9\u00e8\u00ea\u00eb]'), 'e');
+    if (status == null || status.isEmpty) return false;
+    return status == 'celibataire' ||
+        status == 'single' ||
+        status == 'divorce' ||
+        status == 'divorced' ||
+        status == 'veuf' ||
+        status == 'veuve' ||
+        status == 'widowed';
   }
 
   /// W15: Create a financial snapshot from the current profile state.

@@ -2786,12 +2786,15 @@ class CoachProfile {
     final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
     final spouseAvsContributionYears =
         _parseInt(answers['q_spouse_avs_contribution_years']);
-    final hasPartnerData = (partnerIncome != null && partnerIncome > 0) ||
-        partnerBirthYear != null ||
-        spouseAvsContributionYears != null ||
-        answers['q_spouse_avs_lacunes_status'] != null ||
-        answers['q_spouse_avs_arrival_year'] != null ||
-        answers['q_spouse_avs_years_abroad'] != null;
+    final isCoupledStatus = etatCivil == CoachCivilStatus.marie ||
+        etatCivil == CoachCivilStatus.concubinage;
+    final hasPartnerData = isCoupledStatus &&
+        ((partnerIncome != null && partnerIncome > 0) ||
+            partnerBirthYear != null ||
+            spouseAvsContributionYears != null ||
+            answers['q_spouse_avs_lacunes_status'] != null ||
+            answers['q_spouse_avs_arrival_year'] != null ||
+            answers['q_spouse_avs_years_abroad'] != null);
     if (hasPartnerData) {
       // Net -> Brut estimation: same social charges rate as main user
       final partnerBrut = partnerIncome != null && partnerIncome > 0
@@ -3065,9 +3068,14 @@ class CoachProfile {
   static CoachCivilStatus _parseCivilStatus(String? raw) {
     if (raw == null) return CoachCivilStatus.celibataire;
     switch (raw.toLowerCase()) {
+      case 'single':
+        return CoachCivilStatus.celibataire;
       case 'marie':
       case 'marié': // lint-ignore
       case 'married':
+      case 'couple':
+      case 'registered_partner':
+      case 'partenariat':
         return CoachCivilStatus.marie;
       case 'divorce':
       case 'divorcé': // lint-ignore
@@ -3078,7 +3086,9 @@ class CoachProfile {
       case 'widowed':
         return CoachCivilStatus.veuf;
       case 'concubinage':
-      case 'partenariat':
+      case 'concubine':
+      case 'family':
+      case 'cohabiting':
         return CoachCivilStatus.concubinage;
       default:
         return CoachCivilStatus.celibataire;

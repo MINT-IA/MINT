@@ -23,6 +23,8 @@ class SecureWizardStore {
     'q_net_income_period_chf',
     'q_lpp_avoir',
     'q_3a_capital',
+    'q_partner_net_income_chf',
+    // Legacy spouse salary key kept so old encrypted copies can be purged.
     'q_partner_salary',
     'q_patrimoine_liquide',
     'q_dettes_total',
