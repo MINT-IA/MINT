@@ -26,6 +26,21 @@ def _run(*args: str, **env_overrides: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _run_with_temporary_worktree_diff(
+    *args: str,
+    **env_overrides: str,
+) -> subprocess.CompletedProcess[str]:
+    original = WORKFLOW.read_text(encoding="utf-8")
+    WORKFLOW.write_text(
+        f"{original}\n\n<!-- contract-test-diff: claude audit budget -->\n",
+        encoding="utf-8",
+    )
+    try:
+        return _run(*args, **env_overrides)
+    finally:
+        WORKFLOW.write_text(original, encoding="utf-8")
+
+
 def test_wrapper_is_syntax_valid_and_executable() -> None:
     result = subprocess.run(
         ["bash", "-n", str(SCRIPT)],
@@ -107,9 +122,9 @@ def test_wrapper_rejects_unsafe_or_invalid_invocations(
 
 
 def test_wrapper_rejects_large_code_diff_without_explicit_override() -> None:
-    result = _run(
+    result = _run_with_temporary_worktree_diff(
         "code",
-        "HEAD~1",
+        "HEAD",
         CLAUDE_AUDIT_DRY_RUN="1",
         CLAUDE_AUDIT_MAX_DIFF_LINES="1",
     )
@@ -120,9 +135,9 @@ def test_wrapper_rejects_large_code_diff_without_explicit_override() -> None:
 
 
 def test_wrapper_allows_large_code_diff_only_with_named_override() -> None:
-    result = _run(
+    result = _run_with_temporary_worktree_diff(
         "code",
-        "HEAD~1",
+        "HEAD",
         CLAUDE_AUDIT_DRY_RUN="1",
         CLAUDE_AUDIT_MAX_DIFF_LINES="1",
         CLAUDE_AUDIT_ALLOW_LARGE_DIFF="1",
