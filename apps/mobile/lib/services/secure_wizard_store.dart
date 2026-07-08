@@ -43,6 +43,13 @@ class SecureWizardStore {
     }
   }
 
+  /// Delete a sensitive value from encrypted storage.
+  static Future<void> delete(String key) async {
+    if (_sensitiveKeys.contains(key)) {
+      await _storage.delete(key: key);
+    }
+  }
+
   /// Read a sensitive value from encrypted storage.
   ///
   /// On iOS simulator without a valid keychain-access-groups entitlement
@@ -76,10 +83,16 @@ class SecureWizardStore {
   ) async {
     final cleaned = Map<String, dynamic>.from(answers);
     for (final key in _sensitiveKeys) {
-      if (cleaned.containsKey(key) && cleaned[key] != null) {
-        await write(key, cleaned[key].toString());
-        cleaned[key] = '__secure__';
+      if (!cleaned.containsKey(key)) continue;
+
+      final value = cleaned[key];
+      if (value == null) {
+        await delete(key);
+        continue;
       }
+
+      await write(key, value.toString());
+      cleaned[key] = '__secure__';
     }
     return cleaned;
   }

@@ -80,6 +80,60 @@ void main() {
     );
   });
 
+  test('explicit null fixed-charge value deletes stale secure copy', () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_canton': 'VD',
+      '_coach_depenses_loyer': 2100,
+    });
+
+    expect(mockSecureStorage['_coach_depenses_loyer'], '2100');
+
+    await ReportPersistenceService.saveAnswers({
+      'q_canton': 'VD',
+      '_coach_depenses_loyer': null,
+    });
+
+    final loaded = await ReportPersistenceService.loadAnswers();
+
+    expect(mockSecureStorage.containsKey('_coach_depenses_loyer'), isFalse);
+    expect(loaded['_coach_depenses_loyer'], isNull);
+  });
+
+  test('explicit null sensitive value deletes stale secure copy', () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 6400,
+    });
+
+    expect(mockSecureStorage['q_net_income_period_chf'], '6400');
+
+    await ReportPersistenceService.saveAnswers({
+      'q_canton': 'VD',
+      'q_net_income_period_chf': null,
+    });
+
+    final loaded = await ReportPersistenceService.loadAnswers();
+
+    expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    expect(loaded['q_net_income_period_chf'], isNull);
+  });
+
+  test('absent sensitive value preserves secure copy for partial saves',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 6400,
+    });
+
+    await ReportPersistenceService.saveAnswers({'q_canton': 'GE'});
+
+    final loaded = await ReportPersistenceService.loadAnswers();
+
+    expect(mockSecureStorage['q_net_income_period_chf'], '6400');
+    expect(loaded['q_canton'], 'GE');
+    expect(loaded['q_net_income_period_chf'], 6400);
+  });
+
   test('savings allocation condition reads canonical fixed charges first', () {
     final savingsAllocation = WizardQuestionsV2.questions
         .firstWhere((q) => q.id == 'q_savings_allocation');

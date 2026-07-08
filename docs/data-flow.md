@@ -59,6 +59,8 @@ flowchart LR
 Every writer persists via `ReportPersistenceService.saveAnswers(answers)`
 which encrypts sensitive keys via `SecureWizardStore` (Keychain) and
 mirrors to SharedPreferences. **This is the only legal write path.**
+For sensitive keys, an absent key is a partial save and preserves the
+encrypted copy; a key explicitly set to `null` deletes the encrypted copy.
 
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
