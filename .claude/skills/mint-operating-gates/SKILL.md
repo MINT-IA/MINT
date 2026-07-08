@@ -39,6 +39,7 @@ For `docs/codex/` contract work, run the contract tests that exist in this
 checkout:
 
 ```bash
+python3 -m pytest tools/checks/tests/test_ledger_parity.py -q
 python3 -m pytest tools/checks/tests/test_data_quest_goal_aware_ranking_contract.py -q
 python3 -m pytest tools/checks/tests/test_screen_contracts_route_contract.py -q
 ```

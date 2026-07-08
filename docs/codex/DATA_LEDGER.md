@@ -191,7 +191,7 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 G1 found **18 ineffective backend-writable keys** at `095eeaa32`: 11 had no mobile mapper case, and 7 mapped to wizard keys that `CoachProfile.fromWizardAnswers()` did not read. G2 repairs the mobile path and turns the contract into a hard parity gate: backend allowlist == coach tool enum == 35 mobile mapper cases == 0 mapped-but-unread targets.
 
-**Gate:** `tools/checks/tests/test_codex_spec_reality_contract.py::test_data_ledger_save_fact_parity_is_repaired` asserts no backend-writable key can be added, renamed, or mapped to a dead wizard key without failing CI.
+**Gate:** `tools/checks/tests/test_ledger_parity.py` asserts no backend-writable key can be added, renamed, omitted from the ledger, or mapped to a dead wizard key without failing CI. The broader `test_codex_spec_reality_contract.py` keeps cross-spec reality checks, but ledger parity lives in the dedicated gate.
 
 | decision | repaired mapping |
 |---|---|
@@ -403,11 +403,12 @@ The doc must give the per-route reads/writes/emptyState/partialState/errorState/
 
 Each gate names exact symbols/modules so it is mechanically buildable.
 
-### 8.1 Allowlist parity (I-7) — new test `test_ledger_parity.py`
+### 8.1 Allowlist parity (I-7) — implemented test `test_ledger_parity.py`
 
 - **8.1a** `assert len(_SAVE_FACT_ALLOWED_KEYS) == 35` (import from `app.api.v1.endpoints.coach_chat`).
-- **8.1b** Parse the mobile switch: extract the set of `case '<key>':` labels in `_mapFactKeyToAnswers` (`coach_profile_provider.dart`, between `Map<String, dynamic> _mapFactKeyToAnswers` and its closing `default:`). `assert mapped_keys == _SAVE_FACT_ALLOWED_KEYS`. **On the frozen baseline `mapped_keys` has 24 entries; this assertion is RED until §3.8 T-1 lands and is the gate that proves T-1 done.**
+- **8.1b** Parse the mobile switch: extract the set of `case '<key>':` labels in `_mapFactKeyToAnswers` (`coach_profile_provider.dart`, between `Map<String, dynamic> _mapFactKeyToAnswers` and its closing `default:`). `assert mapped_keys == _SAVE_FACT_ALLOWED_KEYS`.
 - **8.1c** Parse §3 of this file: the set of `key` cells (excluding §4). `assert ledger_keys == _SAVE_FACT_ALLOWED_KEYS`.
+- **8.1d** Parse the wizard keys returned by each mobile mapper case. Every returned `q_*` / `_coach_*` target must be read by `CoachProfile.fromWizardAnswers`, and every wizard key declared in §3 must be a subset of that fact's actual mapper targets.
 - **Do NOT reuse `test_allowlist_count_is_exactly_eight`** — that test targets the DIFFERENT purpose-tagging allowlist `ALLOWED_FACT_KEYS` (`services/backend/app/services/privacy/fact_key_allowlist.py`, **8** entries), not `_SAVE_FACT_ALLOWED_KEYS`. Keep it as-is for its own purpose.
 
 ### 8.2 No extra-as-data (I-1/I-2) — lint `no_domain_from_extra`
