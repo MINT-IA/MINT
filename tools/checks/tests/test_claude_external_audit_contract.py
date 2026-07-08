@@ -8,6 +8,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "tools/checks/claude_external_audit.sh"
 AGENT = ROOT / ".claude/agents/mint-external-auditor.md"
+QUALITY_GATE = ROOT / ".claude/agents/mint-quality-gate.md"
 WORKFLOW = ROOT / "docs/MINT_AGENT_WORKFLOW.md"
 OPERATING_GATES = ROOT / ".claude/skills/mint-operating-gates/SKILL.md"
 
@@ -54,6 +55,7 @@ def test_wrapper_defaults_are_bounded() -> None:
         "--tools Read\\,Grep\\,Bash",
         "--exclude-dynamic-system-prompt-sections",
         "--- PROMPT_BEGIN ---",
+        "Diff line budget: 2500 lines",
         "Staged worktree diff:",
         "Unstaged worktree diff:",
     ):
@@ -65,6 +67,7 @@ def test_wrapper_defaults_are_bounded() -> None:
     (
         (("code",), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "code mode requires a base ref"),
         (("unknown",), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "unknown mode"),
+        (("code", "no-such-ref-xyz"), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "unknown base ref"),
         (
             ("code", "HEAD"),
             {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_EFFORT": "max"},
@@ -74,6 +77,11 @@ def test_wrapper_defaults_are_bounded() -> None:
             ("code", "HEAD"),
             {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_MAX_TURNS": "25"},
             "MAX_TURNS is not supported",
+        ),
+        (
+            ("code", "HEAD"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_MAX_DIFF_LINES": "not-a-number"},
+            "MAX_DIFF_LINES must be a non-negative integer",
         ),
         (
             ("specs",),
@@ -96,6 +104,32 @@ def test_wrapper_rejects_unsafe_or_invalid_invocations(
 
     assert result.returncode == 2
     assert stderr in result.stderr
+
+
+def test_wrapper_rejects_large_code_diff_without_explicit_override() -> None:
+    result = _run(
+        "code",
+        "HEAD~1",
+        CLAUDE_AUDIT_DRY_RUN="1",
+        CLAUDE_AUDIT_MAX_DIFF_LINES="1",
+    )
+
+    assert result.returncode == 2
+    assert "diff prompt is" in result.stderr
+    assert "CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1" in result.stderr
+
+
+def test_wrapper_allows_large_code_diff_only_with_named_override() -> None:
+    result = _run(
+        "code",
+        "HEAD~1",
+        CLAUDE_AUDIT_DRY_RUN="1",
+        CLAUDE_AUDIT_MAX_DIFF_LINES="1",
+        CLAUDE_AUDIT_ALLOW_LARGE_DIFF="1",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Diff line budget: 1 lines" in result.stdout
 
 
 def test_specs_and_architecture_prompts_are_wired() -> None:
@@ -127,6 +161,15 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "opus high" in lowered
         assert "Sonnet high" in text
         assert "--effort max" in text
+        assert "CLAUDE_AUDIT_MAX_DIFF_LINES" in text
+
+
+def test_quality_gate_does_not_allow_raw_claude_fallback() -> None:
+    text = QUALITY_GATE.read_text(encoding="utf-8")
+
+    assert "tools/checks/claude_external_audit.sh" in text
+    assert "otherwise `claude -p`" not in text
+    assert "raw `claude -p`" in text
 
 
 def test_operating_gates_do_not_mark_claude_wrapper_as_missing() -> None:

@@ -9,7 +9,8 @@ Usage:
 
 Env: CLAUDE_AUDIT_MODEL, CLAUDE_AUDIT_EFFORT, CLAUDE_AUDIT_ALLOW_MAX,
 CLAUDE_AUDIT_WORKTREE, CLAUDE_AUDIT_BARE, CLAUDE_AUDIT_SETTINGS,
-CLAUDE_AUDIT_MAX_BUDGET_USD, CLAUDE_AUDIT_DRY_RUN.
+CLAUDE_AUDIT_MAX_BUDGET_USD, CLAUDE_AUDIT_MAX_DIFF_LINES,
+CLAUDE_AUDIT_ALLOW_LARGE_DIFF, CLAUDE_AUDIT_DRY_RUN.
 EOF
 }
 die() {
@@ -38,8 +39,28 @@ if [[ "$effort" == "max" && "${CLAUDE_AUDIT_ALLOW_MAX:-}" != "1" ]]; then
 fi
 repo_root="$(git rev-parse --show-toplevel)"
 worktree="${CLAUDE_AUDIT_WORKTREE:-$repo_root}"
+max_diff_lines="${CLAUDE_AUDIT_MAX_DIFF_LINES:-2500}"
+case "$max_diff_lines" in ""|*[!0-9]*) die "CLAUDE_AUDIT_MAX_DIFF_LINES must be a non-negative integer" ;; esac
 prompt_file="$(mktemp "${TMPDIR:-/tmp}/mint-claude-audit.XXXXXX")"
 trap 'rm -f "$prompt_file"' EXIT
+
+count_diff_lines() {
+  git -C "$repo_root" diff "$@" | wc -l | tr -d '[:space:]'
+}
+
+enforce_code_diff_budget() {
+  local base_ref="$1"
+  local branch_lines staged_lines unstaged_lines total_lines
+  branch_lines="$(count_diff_lines --no-ext-diff --unified=80 "${base_ref}...HEAD")"
+  staged_lines="$(count_diff_lines --cached --no-ext-diff --unified=80)"
+  unstaged_lines="$(count_diff_lines --no-ext-diff --unified=80)"
+  total_lines=$((branch_lines + staged_lines + unstaged_lines))
+
+  if (( total_lines > max_diff_lines )) && [[ "${CLAUDE_AUDIT_ALLOW_LARGE_DIFF:-}" != "1" ]]; then
+    die "diff prompt is ${total_lines} lines, above CLAUDE_AUDIT_MAX_DIFF_LINES=${max_diff_lines}; split the PR or set CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1 for a named final-release/P0 dispute"
+  fi
+}
+
 write_header() {
   local audit_mode="$1"
   cat >"$prompt_file" <<EOF
@@ -63,9 +84,12 @@ case "$mode" in
   code)
     base_ref="${2:-}"
     [[ -n "$base_ref" ]] || die "code mode requires a base ref"
+    git -C "$repo_root" rev-parse --verify --quiet "${base_ref}^{commit}" >/dev/null || die "unknown base ref '$base_ref'"
+    enforce_code_diff_budget "$base_ref"
     write_header "code"
     {
       echo "Base ref: ${base_ref}"
+      echo "Diff line budget: ${max_diff_lines} lines (override requires CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1)."
       echo
       echo "Current branch/status:"
       echo '```text'

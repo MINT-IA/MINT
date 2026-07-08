@@ -33,7 +33,9 @@ Run the smallest relevant set first, then widen:
   record the missing tool and use Maestro as the temporary runtime proof.
 - Maestro P0 flow: `maestro test --udid <device> --format JUNIT --output <evidence>/junit.xml <flow.yaml>`
 - iOS build proof: `cd apps/mobile && flutter build ios --simulator --debug`
-- External audit: wrapper script when present, otherwise `claude -p` on the diff.
+- External audit: `tools/checks/claude_external_audit.sh`; if the wrapper or
+  Claude CLI is unavailable, log the blocker and retry plan instead of running
+  raw `claude -p`.
 - Privacy/nLPD: for profile, prompt, log, analytics, export, or PDF changes,
   verify that PII exposure, retention, and purpose limitation are documented.
 </required_gates>
