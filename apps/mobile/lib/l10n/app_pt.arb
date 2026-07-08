@@ -11187,5 +11187,28 @@
   "firstJobG5DataCta": "Completar dados",
   "@firstJobG5DataCta": { "description": "G5 CTA to complete salary data block." },
   "firstJobG5Pillar3aCta": "Abrir 3a",
-  "@firstJobG5Pillar3aCta": { "description": "G5 CTA to open pillar 3a screen." }
+  "@firstJobG5Pillar3aCta": { "description": "G5 CTA to open pillar 3a screen." },
+  "payslipXraySemantics": "Raio X do recibo de salário. Bruto: {gross}, líquido: {net}.",
+  "@payslipXraySemantics": {
+    "description": "Accessibility label for the payslip x-ray widget.",
+    "placeholders": {
+      "gross": { "type": "String" },
+      "net": { "type": "String" }
+    }
+  },
+  "payslipXrayTitle": "Raio X do teu recibo de salário",
+  "@payslipXrayTitle": { "description": "Payslip x-ray widget title." },
+  "payslipXraySubtitle": "Toca em cada linha para entender",
+  "@payslipXraySubtitle": { "description": "Payslip x-ray widget subtitle." },
+  "payslipXrayGrossSalary": "Salário bruto",
+  "@payslipXrayGrossSalary": { "description": "Payslip x-ray gross salary label." },
+  "payslipXrayNetSalary": "Salário líquido",
+  "@payslipXrayNetSalary": { "description": "Payslip x-ray net salary label." },
+  "payslipXrayEmployerCost": "O teu salário real: {amount} (incluindo contribuições do empregador)",
+  "@payslipXrayEmployerCost": {
+    "description": "Payslip x-ray employer total cost insight.",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "payslipXrayDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).",
+  "@payslipXrayDisclaimer": { "description": "Payslip x-ray educational disclaimer." }
 }

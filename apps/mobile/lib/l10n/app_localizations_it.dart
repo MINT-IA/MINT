@@ -23177,4 +23177,30 @@ class SIt extends S {
 
   @override
   String get firstJobG5Pillar3aCta => 'Aprire 3a';
+
+  @override
+  String payslipXraySemantics(String gross, String net) {
+    return 'Radiografia della busta paga. Lordo: $gross, netto: $net.';
+  }
+
+  @override
+  String get payslipXrayTitle => 'Radiografia della busta paga';
+
+  @override
+  String get payslipXraySubtitle => 'Tocca ogni riga per capirla';
+
+  @override
+  String get payslipXrayGrossSalary => 'Salario lordo';
+
+  @override
+  String get payslipXrayNetSalary => 'Salario netto';
+
+  @override
+  String payslipXrayEmployerCost(String amount) {
+    return 'Il tuo salario reale: $amount (con contributi del datore di lavoro)';
+  }
+
+  @override
+  String get payslipXrayDisclaimer =>
+      'Strumento educativo — non costituisce consulenza finanziaria (LSFin).';
 }

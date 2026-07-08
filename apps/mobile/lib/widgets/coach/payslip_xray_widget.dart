@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -17,7 +18,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 /// Single deduction line on the payslip.
 class PayslipLine {
   final String label;
-  final String emoji;
+  final IconData icon;
   final double amount;
   final double percentage;
   final String explanation;
@@ -25,7 +26,7 @@ class PayslipLine {
 
   const PayslipLine({
     required this.label,
-    required this.emoji,
+    required this.icon,
     required this.amount,
     required this.percentage,
     required this.explanation,
@@ -56,10 +57,12 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Semantics(
-      label: 'Radiographie fiche de paie. '
-          'Brut\u00a0: ${formatChfWithPrefix(widget.grossSalary)}, '
-          'Net\u00a0: ${formatChfWithPrefix(widget.netSalary)}.',
+      label: l.payslipXraySemantics(
+        formatChfWithPrefix(widget.grossSalary),
+        formatChfWithPrefix(widget.netSalary),
+      ),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -72,18 +75,18 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Radiographie de ta fiche de paie',
+              l.payslipXrayTitle,
               style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Tape sur chaque ligne pour comprendre',
+              l.payslipXraySubtitle,
               style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
             // ── Gross ──
-            _buildHeaderLine('Salaire brut', widget.grossSalary, true),
+            _buildHeaderLine(l.payslipXrayGrossSalary, widget.grossSalary, true),
             const Divider(height: 16),
 
             // ── Deductions ──
@@ -93,7 +96,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
             const Divider(height: 16),
 
             // ── Net ──
-            _buildHeaderLine('Salaire net', widget.netSalary, false),
+            _buildHeaderLine(l.payslipXrayNetSalary, widget.netSalary, false),
 
             // ── Employer hidden cost ──
             if (widget.employerHiddenCost != null) ...[
@@ -110,14 +113,13 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                 ),
                 child: Row(
                   children: [
-                    const Text('\ud83d\udca1',
-                        style: TextStyle(fontSize: 16)),
+                    const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.primary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Ton vrai salaire\u00a0: '
-                        '${formatChfWithPrefix(widget.employerHiddenCost!)} '
-                        '(cotisations employeur incluses)',
+                        l.payslipXrayEmployerCost(
+                          formatChfWithPrefix(widget.employerHiddenCost!),
+                        ),
                         style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -128,7 +130,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
 
             const SizedBox(height: 12),
             Text(
-              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+              l.payslipXrayDisclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
@@ -176,7 +178,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
           children: [
             Row(
               children: [
-                Text(line.emoji, style: const TextStyle(fontSize: 16)),
+                Icon(line.icon, size: 16, color: MintColors.textMuted),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

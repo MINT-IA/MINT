@@ -23004,4 +23004,30 @@ class SEn extends S {
 
   @override
   String get firstJobG5Pillar3aCta => 'Open 3a';
+
+  @override
+  String payslipXraySemantics(String gross, String net) {
+    return 'Payslip x-ray. Gross: $gross, net: $net.';
+  }
+
+  @override
+  String get payslipXrayTitle => 'Payslip x-ray';
+
+  @override
+  String get payslipXraySubtitle => 'Tap each line to understand it';
+
+  @override
+  String get payslipXrayGrossSalary => 'Gross salary';
+
+  @override
+  String get payslipXrayNetSalary => 'Net salary';
+
+  @override
+  String payslipXrayEmployerCost(String amount) {
+    return 'Your real salary: $amount (including employer contributions)';
+  }
+
+  @override
+  String get payslipXrayDisclaimer =>
+      'Educational tool — not financial advice (FinSA).';
 }

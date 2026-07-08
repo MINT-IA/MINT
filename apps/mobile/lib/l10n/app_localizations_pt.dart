@@ -23123,4 +23123,30 @@ class SPt extends S {
 
   @override
   String get firstJobG5Pillar3aCta => 'Abrir 3a';
+
+  @override
+  String payslipXraySemantics(String gross, String net) {
+    return 'Raio X do recibo de salário. Bruto: $gross, líquido: $net.';
+  }
+
+  @override
+  String get payslipXrayTitle => 'Raio X do teu recibo de salário';
+
+  @override
+  String get payslipXraySubtitle => 'Toca em cada linha para entender';
+
+  @override
+  String get payslipXrayGrossSalary => 'Salário bruto';
+
+  @override
+  String get payslipXrayNetSalary => 'Salário líquido';
+
+  @override
+  String payslipXrayEmployerCost(String amount) {
+    return 'O teu salário real: $amount (incluindo contribuições do empregador)';
+  }
+
+  @override
+  String get payslipXrayDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).';
 }

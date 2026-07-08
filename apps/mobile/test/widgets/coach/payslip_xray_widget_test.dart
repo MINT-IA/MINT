@@ -8,7 +8,7 @@ void main() {
   final lines = [
     const PayslipLine(
       label: 'AVS / AI / APG',
-      emoji: '\ud83e\uddf1',
+      icon: Icons.security_outlined,
       amount: 291.5,
       percentage: 5.3,
       explanation: 'Rente vieillesse.',
@@ -16,7 +16,7 @@ void main() {
     ),
     const PayslipLine(
       label: 'LPP',
-      emoji: '\ud83c\udfe6',
+      icon: Icons.account_balance_outlined,
       amount: 193.0,
       percentage: 3.5,
       explanation: '2e pilier.',
@@ -24,7 +24,7 @@ void main() {
     ),
     const PayslipLine(
       label: 'AC',
-      emoji: '\ud83e\ude82',
+      icon: Icons.work_outline,
       amount: 60.5,
       percentage: 1.1,
       explanation: 'Assurance-ch\u00f4mage.',

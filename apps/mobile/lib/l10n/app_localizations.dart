@@ -40556,6 +40556,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Voir le 3a'**
   String get firstJobG5Pillar3aCta;
+
+  /// Accessibility label for the payslip x-ray widget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Radiographie fiche de paie. Brut : {gross}, net : {net}.'**
+  String payslipXraySemantics(String gross, String net);
+
+  /// Payslip x-ray widget title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Radiographie de ta fiche de paie'**
+  String get payslipXrayTitle;
+
+  /// Payslip x-ray widget subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape sur chaque ligne pour comprendre'**
+  String get payslipXraySubtitle;
+
+  /// Payslip x-ray gross salary label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut'**
+  String get payslipXrayGrossSalary;
+
+  /// Payslip x-ray net salary label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire net'**
+  String get payslipXrayNetSalary;
+
+  /// Payslip x-ray employer total cost insight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton vrai salaire : {amount} (cotisations employeur incluses)'**
+  String payslipXrayEmployerCost(String amount);
+
+  /// Payslip x-ray educational disclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin).'**
+  String get payslipXrayDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -4,6 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
+import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
+import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
+import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
+import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -75,5 +79,33 @@ void main() {
         find.byKey(const Key('first_salary_tax_3a_summary')), findsOneWidget);
     expect(
         find.byKey(const Key('first_salary_tax_3a_data_cta')), findsOneWidget);
+  });
+
+  testWidgets('does not render legacy analysis widgets in first-job path',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 8000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final provider = CoachProfileProvider()
+      ..updateFromAnswers({
+        'q_gross_salary_annual': 96000,
+        'q_canton': 'GE',
+        'q_birth_year': 2001,
+      });
+
+    await tester.pumpWidget(_wrap(const FirstJobScreen(), provider));
+    await tester.pump();
+
+    expect(
+        find.byKey(const Key('first_salary_tax_3a_summary')), findsOneWidget);
+    expect(find.byKey(const Key('first_salary_tax_3a_room')), findsOneWidget);
+    expect(find.byType(FirstSalaryFilmWidget), findsNothing);
+    expect(find.byType(Budget503020Widget), findsNothing);
+    expect(find.byType(CareerTimeLapseWidget), findsNothing);
+    expect(find.byType(JobChangeChecklistWidget), findsNothing);
   });
 }

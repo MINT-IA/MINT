@@ -23116,4 +23116,30 @@ class SFr extends S {
 
   @override
   String get firstJobG5Pillar3aCta => 'Voir le 3a';
+
+  @override
+  String payslipXraySemantics(String gross, String net) {
+    return 'Radiographie fiche de paie. Brut : $gross, net : $net.';
+  }
+
+  @override
+  String get payslipXrayTitle => 'Radiographie de ta fiche de paie';
+
+  @override
+  String get payslipXraySubtitle => 'Tape sur chaque ligne pour comprendre';
+
+  @override
+  String get payslipXrayGrossSalary => 'Salaire brut';
+
+  @override
+  String get payslipXrayNetSalary => 'Salaire net';
+
+  @override
+  String payslipXrayEmployerCost(String amount) {
+    return 'Ton vrai salaire : $amount (cotisations employeur incluses)';
+  }
+
+  @override
+  String get payslipXrayDisclaimer =>
+      'Outil éducatif — ne constitue pas un conseil financier (LSFin).';
 }

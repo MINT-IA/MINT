@@ -23171,4 +23171,30 @@ class SDe extends S {
 
   @override
   String get firstJobG5Pillar3aCta => '3a öffnen';
+
+  @override
+  String payslipXraySemantics(String gross, String net) {
+    return 'Lohnabrechnungs-Röntgen. Brutto: $gross, netto: $net.';
+  }
+
+  @override
+  String get payslipXrayTitle => 'Lohnabrechnung verstehen';
+
+  @override
+  String get payslipXraySubtitle => 'Tippe auf jede Zeile, um sie zu verstehen';
+
+  @override
+  String get payslipXrayGrossSalary => 'Bruttolohn';
+
+  @override
+  String get payslipXrayNetSalary => 'Nettolohn';
+
+  @override
+  String payslipXrayEmployerCost(String amount) {
+    return 'Dein echter Lohn: $amount (inklusive Arbeitgeberbeiträge)';
+  }
+
+  @override
+  String get payslipXrayDisclaimer =>
+      'Bildungstool — keine Finanzberatung (FIDLEG).';
 }

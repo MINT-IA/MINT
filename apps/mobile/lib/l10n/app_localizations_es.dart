@@ -23115,4 +23115,30 @@ class SEs extends S {
 
   @override
   String get firstJobG5Pillar3aCta => 'Abrir 3a';
+
+  @override
+  String payslipXraySemantics(String gross, String net) {
+    return 'Radiografía de nómina. Bruto: $gross, neto: $net.';
+  }
+
+  @override
+  String get payslipXrayTitle => 'Radiografía de tu nómina';
+
+  @override
+  String get payslipXraySubtitle => 'Toca cada línea para entenderla';
+
+  @override
+  String get payslipXrayGrossSalary => 'Salario bruto';
+
+  @override
+  String get payslipXrayNetSalary => 'Salario neto';
+
+  @override
+  String payslipXrayEmployerCost(String amount) {
+    return 'Tu salario real: $amount (incluidas las cotizaciones del empleador)';
+  }
+
+  @override
+  String get payslipXrayDisclaimer =>
+      'Herramienta educativa — no constituye asesoramiento financiero (LSFin).';
 }
