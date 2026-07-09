@@ -63,6 +63,8 @@ named final-release/P0 dispute with
 `CLAUDE_AUDIT_ALLOW_MAX=1`. Do not add unsupported `--max-turns`: the installed
 Claude CLI does not expose it, and the wrapper rejects `CLAUDE_AUDIT_MAX_TURNS`
 so agents cannot rely on a fake safety knob.
+No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
+if still blocked, fix or triage the findings instead of relaunching the same gate.
 
 ## 4. ROLE ROUTING
 

@@ -63,6 +63,8 @@ If a rerun needs Opus for final confirmation or a P0 dispute, set
 project/local settings, set `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1`. Do not add
 a max-turn cap; this Claude CLI does not expose `--max-turns`, and the wrapper
 rejects `CLAUDE_AUDIT_MAX_TURNS` so agents cannot rely on a fake safety knob.
+No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
+if still blocked, fix or triage the findings instead of relaunching the same gate.
 
 ## 🗺 Before you edit X, read Y, grep Z
 

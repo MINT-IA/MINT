@@ -48,6 +48,8 @@ confirmation. The wrapper rejects non-Sonnet reruns unless
 `CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1` is explicitly set for a final
 confirmation or P0 dispute. This avoids paying full startup hooks, MCP servers, memory
 injection, skill inventory, and max reasoning on every tool turn.
+No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
+if still blocked, fix or triage the findings instead of relaunching the same gate.
 
 Do not replace safe mode with ad hoc minimal settings. Do not add
 `--max-turns`: the installed Claude CLI does not expose it, and the wrapper
