@@ -46,6 +46,21 @@ Canonical skills live in `.claude/skills/mint-*`:
 External or generic specialists are not active by default. Use them only for a
 named gap after the MINT roster scopes the work.
 
+### External Claude Audit
+
+Run external reviews through `tools/checks/claude_external_audit.sh`, never raw
+`claude -p`. The wrapper is the operating contract: Opus high for first-pass
+bounded reviews, Sonnet high for same-gate reruns with `CLAUDE_AUDIT_RERUN=1`,
+strict empty MCP, `--setting-sources user`, no session persistence, and a code
+diff budget via `CLAUDE_AUDIT_MAX_DIFF_LINES`. Use `--effort max` only for a
+named final-release/P0 dispute with `CLAUDE_AUDIT_ALLOW_MAX=1`.
+
+If a rerun needs Opus for final confirmation or a P0 dispute, set
+`CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1`. If a named debug run must load
+project/local settings, set `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1`. Do not add
+a max-turn cap; this Claude CLI does not expose `--max-turns`, and the wrapper
+rejects `CLAUDE_AUDIT_MAX_TURNS` so agents cannot rely on a fake safety knob.
+
 ## 🗺 Before you edit X, read Y, grep Z
 
 Pre-flight for any code change. If the agent can't state which row applies
