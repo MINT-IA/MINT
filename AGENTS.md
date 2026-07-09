@@ -93,9 +93,10 @@ Revolut) from ones that turn in circles. Apply religiously.
 1. **TDD first.** Write the failing test (or contract shape) before the
    code. Agents fill specs well; they *design* them poorly. The failing
    test is the ground truth for « done ».
-2. **< 300 lines per PR.** Beyond that, you and the agent lose the plot.
-   Run `git diff --shortstat origin/dev...HEAD` before pushing. Split if
-   over.
+2. **Prefer reviewable diffs; 300 lines is a heuristic, not a hard gate.**
+   Run `git diff --shortstat origin/dev...HEAD` before pushing. Split only
+   when it improves concern boundaries or reviewability; do not split a
+   coherent, well-tested change just because it exceeds 300 lines.
 3. **Atomic, revertable commits.** One concern per commit. If `git revert
    <sha>` would break something orthogonal, split.
 4. **Grep before assume.** If you name a symbol (method, var, tool, ARB
