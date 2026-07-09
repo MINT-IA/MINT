@@ -275,17 +275,26 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       children: [
         Semantics(
           button: true,
+          identifier: 'document_scan_capture_cta',
           label: S.of(context)!.documentScanTakePhoto,
-          child: SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: FilledButton.icon(
-              onPressed: _isProcessing
-                  ? null
-                  : () {
-                      HapticFeedback.lightImpact();
-                      _onCameraPressed();
-                    },
+          onTap: _isProcessing
+              ? null
+              : () {
+                  HapticFeedback.lightImpact();
+                  _onCameraPressed();
+                },
+          child: ExcludeSemantics(
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: FilledButton.icon(
+                key: const Key('document_scan_capture_cta'),
+                onPressed: _isProcessing
+                    ? null
+                    : () {
+                        HapticFeedback.lightImpact();
+                        _onCameraPressed();
+                      },
             icon: const Icon(
               kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
               size: 22,
@@ -307,6 +316,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
           ),
         ),
+          ),
         ),
         const SizedBox(height: 12),
         Semantics(
@@ -644,7 +654,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // slice, which blocked iterating on Apple Silicon simulators). Backend
       // Claude Vision is the single source of OCR — it already ran above;
       // if it produced nothing, the user sees the OCR recovery sheet.
-      final String extractedText = '';
+      const String extractedText = '';
 
       if (extractedText.trim().length < 12) {
         if (!mounted) return;
@@ -1221,9 +1231,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         return SalaryCertificateParser.parse(text);
       case DocumentType.threeAAttestation:
       case DocumentType.mortgageAttestation:
-        throw UnsupportedError(
-          'Type non supporte pour le moment: ${_selectedType.label}',
-        );
+        throw UnsupportedError(S.of(context)!.docScanPdfTypeUnsupported);
     }
   }
 

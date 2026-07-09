@@ -11,4 +11,4 @@ appId: ch.mint.app
 - tapOn:
     id: "scan_impact_recovery_cta"
 - assertVisible:
-    text: "MINT"
+    id: "home_route"

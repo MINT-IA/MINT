@@ -39,6 +39,14 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
   final Set<String> _collapsedMonths = {};
   bool _initialCollapseSet = false;
 
+  Widget _homeRoute(Widget child) {
+    return Semantics(
+      container: true,
+      identifier: 'home_route',
+      child: child,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -79,20 +87,20 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     final l10n = S.of(context)!;
 
     if (provider.isLoading) {
-      return const Scaffold(
+      return _homeRoute(const Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: Center(
           child: CircularProgressIndicator(
             color: MintColors.success,
           ),
         ),
-      );
+      ));
     }
 
     if (provider.isEmpty) {
       // Wave B-minimal B1-fix (2026-04-18): Cap du jour banner surfaces
       // even when the timeline is empty so CapEngine's fallback card
-      // ("Parle-moi de toi") is visible on first open.
+      // (fallback coach invite) is visible on first open.
       //
       // Deep-walk 2026-04-21 crack #11: the tension-empty card below
       // used to always render, repeating "Commence par parler au coach"
@@ -102,7 +110,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       // redundant copy disappears.
       final hasAnyProfileFact =
           context.watch<CoachProfileProvider>().profile != null;
-      return Scaffold(
+      return _homeRoute(Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
           child: Column(
@@ -155,13 +163,13 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             ],
           ),
         ),
-      );
+      ));
     }
 
     // Set initial collapse state once provider has data.
     _ensureInitialCollapse(provider);
 
-    return Scaffold(
+    return _homeRoute(Scaffold(
       backgroundColor: MintColors.warmWhite,
       body: SafeArea(
         child: CustomScrollView(
@@ -219,7 +227,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
               ),
             ),
 
-            // ── Divider: "Ton histoire" ────────────────────────
+            // ── Timeline divider ────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 24, bottom: 12),
@@ -333,6 +341,6 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

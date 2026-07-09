@@ -180,7 +180,7 @@ appId: ch.mint.app
 - assertNotVisible: { text: "Document non disponible" }   # the blank trap
 - assertVisible: { id: "scan_review_recovery_cta" }        # recovery exists
 - tapOn: { id: "scan_review_recovery_cta" }
-- assertVisible: { text: "Prendre une photo" } # lands back on /scan, not stuck
+- assertVisible: { id: "document_scan_capture_cta" }       # lands back on /scan
 ```
 **G1 repair status:** checked-in flow exists; the blank trap is covered by `apps/mobile/test/routing/scan_flow_repair_test.dart`. Runtime acceptance still requires running this Maestro flow against the app.
 
@@ -194,7 +194,7 @@ appId: ch.mint.app
 - assertNotVisible: { text: "Document non disponible" }   # the blank trap
 - assertVisible: { id: "scan_impact_recovery_cta" }        # recovery exists
 - tapOn: { id: "scan_impact_recovery_cta" }
-- assertVisible: { text: "MINT" }             # lands on /home, not stuck
+- assertVisible: { id: "home_route" }                      # lands on /home
 ```
 **G1 repair status:** checked-in flow exists; the blank trap is covered by `apps/mobile/test/routing/scan_flow_repair_test.dart`. Runtime acceptance still requires running this Maestro flow against the app.
 
@@ -269,4 +269,4 @@ appId: ch.mint.app
 
 ---
 
-Grounding notes (verified at `095eeaa32`): `/scan/review` and `/scan/impact` still hit the `Document non disponible` trap; `/tools` and `/portfolio` now preserve query; only F-2 exists under `.maestro`; iOS has the `mint` scheme; Android still needs the `mint` intent-filter.
+Grounding notes: `/scan/review` and `/scan/impact` recovery flows are now checked in as R-1/R-2 with stable ids; `/tools` and `/portfolio` preserve query; F-2 plus R-1/R-2 exist under `.maestro`; iOS has the `mint` scheme; Android still needs the `mint` intent-filter.

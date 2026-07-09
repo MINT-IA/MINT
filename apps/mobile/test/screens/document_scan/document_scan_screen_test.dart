@@ -47,15 +47,40 @@ Widget _buildWrapped() {
 void main() {
   testWidgets('DocumentScanScreen builds and surfaces capture buttons',
       (tester) async {
-    await tester.pumpWidget(_buildWrapped());
-    await tester.pump();
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    try {
+      await tester.pumpWidget(_buildWrapped());
+      await tester.pump();
 
-    // The screen renders without throwing. We don't assert the exact label
-    // string — i18n lookups in fr exercise the live ARB. Phase 28-04 will
-    // add the polished reject bubble UI; here we just verify the screen
-    // composes cleanly with the new classifier wiring.
-    expect(find.byType(DocumentScanScreen), findsOneWidget);
-    expect(tester.takeException(), isNull);
+      final captureCta = find.byKey(const Key('document_scan_capture_cta'));
+      final scrollable = find.byType(Scrollable);
+      if (scrollable.evaluate().isNotEmpty) {
+        await tester.scrollUntilVisible(
+          captureCta,
+          200,
+          scrollable: scrollable.first,
+        );
+        await tester.pumpAndSettle();
+      }
+
+      // The screen renders without throwing. We don't assert the exact label
+      // string — i18n lookups in fr exercise the live ARB. Phase 28-04 will
+      // add the polished reject bubble UI; here we just verify the screen
+      // composes cleanly with the new classifier wiring.
+      expect(find.byType(DocumentScanScreen), findsOneWidget);
+      expect(
+        find.bySemanticsIdentifier('document_scan_capture_cta'),
+        findsOneWidget,
+      );
+      expect(captureCta, findsOneWidget);
+      expect(tester.takeException(), isNull);
+    } finally {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+      semantics.dispose();
+    }
   });
 
   testWidgets('Phase 28-03 i18n keys for pre-reject + scanner error resolve',
