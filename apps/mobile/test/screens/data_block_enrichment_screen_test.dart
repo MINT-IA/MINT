@@ -162,6 +162,32 @@ void main() {
     expect(provider.profile, isNotNull);
   });
 
+  testWidgets('patrimoine block inputKey collects only liquid savings',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'patrimoine',
+        initialInputKey: 'totalSavings',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('savings_input')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('savings_input')), '120000');
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_cash_total', 120000));
+    expect(answers.containsKey('q_epargne_liquide'), isFalse);
+    expect(provider.profile?.patrimoine.epargneLiquide, 120000);
+  });
+
   testWidgets('revenue block seeds pension switch from existing profile',
       (tester) async {
     final provider = CoachProfileProvider()
