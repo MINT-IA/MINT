@@ -10,7 +10,7 @@ Subcommands (positional per D-09):
   baseline    -> [STUB Task 1 — full impl Task 3] capture J0 snapshot
   ingest      -> parse git log + jsonl transcripts + hits log into drift.db
   report      -> render .planning/agent-drift/YYYY-MM-DD.md with 4 metrics
-  golden-run  -> run 20 golden prompts via `claude -p` (A7 AVAILABLE)
+  golden-run  -> run 20 golden prompts via bounded Claude print (A7 AVAILABLE)
   compare-to  -> compare current drift.db vs baseline markdown (CTX-05 spike)
 
 Per D-09: CLI Python + nightly markdown report (NOT mobile route).
@@ -195,7 +195,7 @@ def cmd_report(args: argparse.Namespace) -> int:
 # golden-run
 # ---------------------------------------------------------------------------
 def cmd_golden_run(args: argparse.Namespace) -> int:
-    """Run 20 golden prompts via `claude -p` (A7 AVAILABLE per Plan 00 spike)."""
+    """Run 20 golden prompts via bounded Claude print."""
     if not GOLDEN_RUN_SH.exists():
         print(f"golden-run: missing {GOLDEN_RUN_SH}", file=sys.stderr)
         return 1

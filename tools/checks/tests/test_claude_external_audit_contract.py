@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -11,8 +12,23 @@ CLAUDE_MD = ROOT / "CLAUDE.md"
 AGENTS_MD = ROOT / "AGENTS.md"
 AGENT = ROOT / ".claude/agents/mint-external-auditor.md"
 QUALITY_GATE = ROOT / ".claude/agents/mint-quality-gate.md"
+GSD_REVIEW = ROOT / ".claude/get-shit-done/workflows/review.md"
 WORKFLOW = ROOT / "docs/MINT_AGENT_WORKFLOW.md"
 OPERATING_GATES = ROOT / ".claude/skills/mint-operating-gates/SKILL.md"
+RAW_CLAUDE_PRINT_RE = re.compile(
+    r"claude\s+(-p|--print)|"
+    r"\[\s*[\"']claude[\"']\s*,\s*[\"'](-p|--print)[\"']"
+)
+RAW_CLAUDE_PRINT_ALLOWLIST = {
+    ".claude/agents/mint-quality-gate.md",
+    ".claude/get-shit-done/workflows/review.md",
+    ".claude/skills/mint-operating-gates/SKILL.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "tools/agent-drift/golden/run.py",
+    "tools/agent-drift/tests/test_golden_claude_command.py",
+    "tools/checks/tests/test_claude_external_audit_contract.py",
+}
 
 
 def _run(*args: str, **env_overrides: str) -> subprocess.CompletedProcess[str]:
@@ -279,6 +295,61 @@ def test_quality_gate_does_not_allow_raw_claude_fallback() -> None:
     assert "tools/checks/claude_external_audit.sh" in text
     assert "otherwise `claude -p`" not in text
     assert "raw `claude -p`" in text
+
+
+def test_raw_claude_print_usage_is_confined_to_known_contracts() -> None:
+    files = subprocess.run(
+        ["git", "ls-files"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.splitlines()
+
+    offenders: list[str] = []
+    for rel_path in files:
+        if rel_path.startswith(".planning/phases/"):
+            continue
+        if not rel_path.endswith((".md", ".py", ".sh", ".yml", ".yaml", ".txt")):
+            continue
+        text = (ROOT / rel_path).read_text(encoding="utf-8", errors="ignore")
+        if RAW_CLAUDE_PRINT_RE.search(text) and rel_path not in RAW_CLAUDE_PRINT_ALLOWLIST:
+            offenders.append(rel_path)
+
+    assert offenders == []
+
+
+def test_raw_claude_print_allowlist_entries_still_match() -> None:
+    stale_entries = [
+        rel_path
+        for rel_path in RAW_CLAUDE_PRINT_ALLOWLIST
+        if not RAW_CLAUDE_PRINT_RE.search(
+            (ROOT / rel_path).read_text(encoding="utf-8", errors="ignore")
+        )
+    ]
+
+    assert stale_entries == []
+
+
+def test_gsd_review_claude_invocation_is_bounded() -> None:
+    text = GSD_REVIEW.read_text(encoding="utf-8")
+
+    assert "--no-input" not in text
+    for needle in (
+        "--model sonnet",
+        "--effort high",
+        "--safe-mode",
+        "--strict-mcp-config",
+        "--mcp-config",
+        '{"mcpServers":{}}',
+        "--disable-slash-commands",
+        "--no-session-persistence",
+        "--setting-sources user",
+        "--permission-mode dontAsk",
+        '--tools ""',
+        "--exclude-dynamic-system-prompt-sections",
+    ):
+        assert needle in text
 
 
 def test_operating_gates_do_not_mark_claude_wrapper_as_missing() -> None:

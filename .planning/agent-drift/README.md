@@ -12,7 +12,7 @@ snapshot is captured pre-refonte and locked.
 2. `python3 tools/agent-drift/dashboard.py ingest` — parse last 7d git log + JSONL transcripts + `context_hits.jsonl` + `golden/results.jsonl` into `drift.db`.
 3. `python3 tools/agent-drift/dashboard.py report` — render `.planning/agent-drift/{today}.md`.
 4. `python3 tools/agent-drift/dashboard.py baseline` — lock baseline J0 snapshot. **Run ONCE pre-refonte** (D-12). Re-running exits 1 unless `.baseline-lock` is deleted.
-5. `python3 tools/agent-drift/dashboard.py golden-run` — run 20 golden prompts via `claude -p` (A7 AVAILABLE from Plan 00 spike).
+5. `python3 tools/agent-drift/dashboard.py golden-run` — run 20 golden prompts via the bounded Claude print command in `tools/agent-drift/golden/run.py`.
 6. `python3 tools/agent-drift/dashboard.py compare-to .planning/agent-drift/baseline-J0.md` — compare current state vs baseline (CTX-05 spike will harden this into a strict >5% regression gate).
 
 ## The 4 metrics (D-11)
@@ -31,7 +31,7 @@ snapshot is captured pre-refonte and locked.
 - `.planning/agent-drift/context_hits.jsonl` — append-only, written by the
   extended `.claude/hooks/gsd-prompt-guard.js` (v1.33.0+).
 - `tools/agent-drift/golden/results.jsonl` — written by the nightly
-  `golden/run.sh` harness (A7 AVAILABLE, uses `claude -p --output-format json`).
+  `golden/run.sh` harness with bounded Claude print settings.
 
 ## Storage
 
