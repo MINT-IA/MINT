@@ -60,6 +60,8 @@ before review. Repeated same-gate re-audits should use Sonnet high first via
 `CLAUDE_AUDIT_RERUN=1`, then one Opus high final. The wrapper rejects
 non-Sonnet reruns unless `CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1` is explicitly set for a
 final confirmation or P0 dispute.
+No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
+if still blocked, fix or triage the findings instead of relaunching the same gate.
 
 For `docs/codex/` contract work, run the contract tests that exist in this
 checkout:

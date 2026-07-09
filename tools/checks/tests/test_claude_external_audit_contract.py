@@ -343,6 +343,22 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "CLAUDE_AUDIT_MAX_DIFF_LINES" in text
 
 
+def test_auditor_docs_reject_repeated_same_gate_audit_loops() -> None:
+    for text in (
+        CLAUDE_MD.read_text(encoding="utf-8"),
+        AGENT.read_text(encoding="utf-8"),
+        AGENTS_MD.read_text(encoding="utf-8"),
+        WORKFLOW.read_text(encoding="utf-8"),
+        OPERATING_GATES.read_text(encoding="utf-8"),
+    ):
+        lowered = text.lower()
+        assert "no audit carousel" in lowered
+        assert "one first pass" in lowered
+        assert "one sonnet rerun" in lowered
+        assert "one opus final confirmation" in lowered
+        assert "fix or triage" in lowered
+
+
 def test_claude_md_anchors_external_audit_latency_policy() -> None:
     text = CLAUDE_MD.read_text(encoding="utf-8")
 
@@ -359,6 +375,7 @@ def test_claude_md_anchors_external_audit_latency_policy() -> None:
         "--no-session-persistence",
         "--effort max",
         "unsupported `--max-turns`",
+        "No audit carousel",
     ):
         assert needle in text
 

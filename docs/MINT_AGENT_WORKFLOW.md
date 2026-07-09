@@ -97,3 +97,5 @@ switches the default model to Sonnet and rejects non-Sonnet reruns unless
 Code audits refuse large diff prompts by default
 (`CLAUDE_AUDIT_MAX_DIFF_LINES`, default 2500); split the PR instead of
 overriding except for a named final-release/P0 dispute.
+No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
+if still blocked, fix or triage the findings instead of relaunching the same gate.
