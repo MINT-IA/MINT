@@ -347,10 +347,10 @@ Any other transition throws `StateError`.
 | reads | `ScanSessionProvider.byId(state.uri.queryParameters['scanSessionId'])` → `ExtractionResult`; current `CoachProfile` (for before/after) |
 | writes | on confirm: `applySaveFact()` per confirmed field with `source: DataSource.scan` (accuracy .85), `sourceDate: DateTime.now()` — see §6.note on the required signature extension |
 | entryConditions | `scanSessionId` present AND session resolves in `status: extracted`. |
-| emptyState (REQUIRED) | id missing OR session not found (deep link, restart, GC) → **NOT blank**. AppBar+back. "Ce document n'est plus disponible. Tu peux le scanner à nouveau." CTA Rescanner → `/scan`; secondary → `/documents`. i18n `scan.review.empty.title` / `.rescan` |
+| emptyState (REQUIRED) | id missing OR session not found (deep link, restart, GC) → **NOT blank**. AppBar+back. "Ce document n'est plus disponible. Tu peux le scanner à nouveau." CTA Rescanner → `/scan`. i18n `scan.review.empty.title` / `.rescan` |
 | partialState (REQUIRED) | Some fields low-OCR-confidence → flag them, require manual confirm before enabling "Appliquer". i18n `scan.review.partial.confirmLow` |
 | errorState (REQUIRED) | Session resolution threw OR re-parse failed → AppBar+back + "On n'a pas pu lire ce document." CTA Réessayer + CTA `/data-block/:type`. i18n `scan.review.error.title` / `.manual` |
-| routesOut | `/scan/impact?scanSessionId=…`, `/scan`, `/documents`, `/data-block/:type` |
+| routesOut | `/scan/impact?scanSessionId=…`, `/scan`, `/data-block/:type` |
 | killFlag | enableScan |
 
 ### `/scan/impact` — TARGET
@@ -361,13 +361,13 @@ Any other transition throws `StateError`.
 | reads | `ScanSessionProvider.byId(...)` (incl. `confidenceBefore`); `MintUserState.confidenceScore` (current = "after") |
 | writes | ∅ (write happened at `/scan/review`) |
 | entryConditions | `scanSessionId` resolves AND session `status: applied`. |
-| emptyState (REQUIRED) | id missing/not found → AppBar+back + "Aucun impact à afficher." CTA Voir mon aperçu → `/home`; secondary `/scan`. i18n `scan.impact.empty.title` / `.cta` |
+| emptyState (REQUIRED) | id missing/not found → AppBar+back + "Aucun impact à afficher." CTA Voir mon aperçu → `/home`. i18n `scan.impact.empty.title` / `.cta` |
 | partialState (REQUIRED) | `confidenceBefore` absent → show after-state only, label "comparaison indisponible". i18n `scan.impact.partial.noBaseline` |
 | errorState (REQUIRED) | Confidence read failed → AppBar+back + message + Réessayer + `/coach/chat`. i18n `scan.impact.error.title` |
 | routesOut | `/home`, `/confidence`, `/scan`, `/explore/<relevant domain>` |
 | killFlag | enableScan |
 
-> Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a `MintButton` whose label resolves to a non-null `AppLocalizations` key; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.
+> Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a localized CTA exposed by stable `Semantics(identifier:)` for Maestro; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.
 
 ---
 

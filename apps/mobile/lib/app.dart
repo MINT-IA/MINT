@@ -153,6 +153,99 @@ String _redirectPreservingQuery(GoRouterState state, String targetPath) {
   final query = state.uri.query;
   return query.isEmpty ? targetPath : '$targetPath?$query';
 }
+
+enum _ScanRecoveryTarget { review, impact }
+
+Widget _buildScanRecoveryScaffold(
+  BuildContext context,
+  _ScanRecoveryTarget target,
+) {
+  final s = S.of(context)!;
+  final isReview = target == _ScanRecoveryTarget.review;
+  final title = isReview ? s.scanReviewEmptyTitle : s.scanImpactEmptyTitle;
+  final body = isReview ? s.scanReviewEmptyBody : s.scanImpactEmptyBody;
+  final ctaLabel = isReview ? s.scanReviewRescan : s.scanImpactBackHome;
+  final ctaRoute = isReview ? '/scan' : '/home';
+  final ctaIdentifier =
+      isReview ? 'scan_review_recovery_cta' : 'scan_impact_recovery_cta';
+  final ctaKey = Key(ctaIdentifier);
+
+  return Scaffold(
+    appBar: AppBar(
+      leading: BackButton(
+        onPressed: () {
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop();
+            return;
+          }
+          context.go(ctaRoute);
+        },
+      ),
+      title: Text(isReview ? s.scanReviewTitle : s.scanImpactTitle),
+    ),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isReview ? Icons.document_scanner_outlined : Icons.insights,
+              size: 48,
+              color: MintColors.greyApple,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              body,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            Semantics(
+              identifier: ctaIdentifier,
+              button: true,
+              label: ctaLabel,
+              excludeSemantics: true,
+              child: FilledButton.icon(
+                key: ctaKey,
+                onPressed: () => context.go(ctaRoute),
+                icon: Icon(isReview ? Icons.document_scanner : Icons.home),
+                label: Text(ctaLabel),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+@visibleForTesting
+Widget testOnlyBuildScanRecoveryScaffold(String route) {
+  return Builder(
+    builder: (context) {
+      switch (route) {
+        case '/scan/review':
+          return _buildScanRecoveryScaffold(context, _ScanRecoveryTarget.review);
+        case '/scan/impact':
+          return _buildScanRecoveryScaffold(context, _ScanRecoveryTarget.impact);
+        default:
+          throw ArgumentError.value(route, 'route', 'Unsupported scan route');
+      }
+    },
+  );
+}
+
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
 final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
@@ -911,8 +1004,9 @@ final _router = GoRouter(
       builder: (context, state) {
         final result = state.extra as ExtractionResult?;
         if (result == null) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
+          return _buildScanRecoveryScaffold(
+            context,
+            _ScanRecoveryTarget.review,
           );
         }
         return ExtractionReviewScreen(result: result);
@@ -926,8 +1020,9 @@ final _router = GoRouter(
         if (extra == null ||
             extra['result'] is! ExtractionResult ||
             extra['previousConfidence'] is! int) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
+          return _buildScanRecoveryScaffold(
+            context,
+            _ScanRecoveryTarget.impact,
           );
         }
         return DocumentImpactScreen(
