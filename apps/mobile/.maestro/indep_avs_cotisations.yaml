@@ -1,7 +1,6 @@
 appId: ch.mint.app
 ---
-# Independants AVS: the simulator route must render the net-income input and
-# core result blocks on a recent iPhone simulator.
+# AVS renders ledger facts, collects missing income through DataBlock, then shows results.
 - stopApp
 - launchApp:
     clearState: true
@@ -12,8 +11,40 @@ appId: ch.mint.app
 - assertVisible:
     text: "Cotisations AVS"
 - assertVisible:
-    text: "Ton revenu net annuel"
+    id: "avs_ledger_facts"
 - assertVisible:
-    text: ".*CHF.*4'240.*"
+    id: "avs_income_fact"
 - assertVisible:
-    text: "Comparaison annuelle"
+    text: "Enrichir mon profil"
+- openLink: "mint:///data-block/revenu?inputKey=q_self_employed_income"
+- assertVisible:
+    id: "self_employed_income_input"
+- tapOn:
+    id: "self_employed_income_input"
+- inputText: "135000"
+- tapOn:
+    id: "salary_save_cta"
+- openLink: "mint:///independants/avs"
+- assertVisible:
+    id: "avs_ledger_facts"
+- scrollUntilVisible:
+    element:
+      id: "avs_result_cards"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      id: "avs_comparison_chart"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      id: "avs_bareme_gauge"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true

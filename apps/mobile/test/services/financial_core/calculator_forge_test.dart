@@ -70,6 +70,16 @@ void main() {
       expect(avsNombreRentesParAn, equals(13));
       expect(avs13emeRenteFactor, closeTo(13.0 / 12.0, 0.001));
     });
+
+    test('S1.6 — self-employed AVS gauge caps at full-rate bracket', () {
+      expect(AvsCalculator.selfEmployedCotisationGaugePosition(0), equals(0.0));
+      expect(
+        AvsCalculator.selfEmployedCotisationGaugePosition(30250),
+        closeTo(0.5, 0.001),
+      );
+      expect(AvsCalculator.selfEmployedCotisationGaugePosition(60500), equals(1.0));
+      expect(AvsCalculator.selfEmployedCotisationGaugePosition(135000), equals(1.0));
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════

@@ -124,7 +124,8 @@ void main() {
 
       // i18n: avsCotisationsTitle = "Cotisations AVS"
       expect(find.textContaining('Cotisations AVS'), findsOneWidget);
-      expect(find.textContaining('revenu'), findsWidgets);
+      expect(find.byKey(const Key('avs_ledger_facts')), findsOneWidget);
+      expect(find.text('Manquant'), findsOneWidget);
     });
 
     testWidgets('DividendeVsSalaireScreen renders without error',
