@@ -160,12 +160,12 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
 | `savingsMonthly` | `q_savings_monthly` | double CHF/mo | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
-| `totalSavings` | `q_epargne_liquide` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
-| `wealthEstimate` | `q_epargne_liquide` **(key collision — see note)** | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine`, wealth tax, net worth |
+| `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
+| `wealthEstimate` | `q_epargne_liquide` **(legacy unread key — see note)** | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine`, wealth tax, net worth |
 | `hasDebt` | ⚠ NO MAPPER CASE (§3.8) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
 | `totalDebt` | ⚠ NO MAPPER CASE (§3.8) | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
 
-> **⚠ `totalSavings` and `wealthEstimate` BOTH map to `q_epargne_liquide` in the real switch** (`case 'totalSavings': case 'wealthEstimate': return {'q_epargne_liquide': value};`). This is a real key collision: the last write wins and clobbers the other concept. The §3.8 repair MUST split these onto distinct wizard keys (`wealthEstimate` → a new `q_wealth_estimate` read by `fromWizardAnswers` into `totalPatrimoine`), or explicitly document and accept the collision. Do not silently preserve the collision without a decision recorded here.
+> **Status:** `totalSavings` now maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` still maps to the legacy unread `q_epargne_liquide`; the remaining §3.8 repair MUST give it a distinct wizard key (`q_wealth_estimate`) and a distinct read into `totalPatrimoine`, or explicitly drop coach-write support. Do not reintroduce the old collision.
 
 ### 3.6 Spouse (couple)
 
@@ -186,15 +186,17 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — 18 backend-writable keys ineffective locally (parity is broken today)
+### 3.8 REQUIRED REPAIR — 17 backend-writable keys still ineffective locally (parity is still broken)
 
 At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
 
-G1 found a second gap: **7 mapped keys write to wizard keys that `CoachProfile.fromWizardAnswers()` does not read**, so `applySaveFact` returns `true` but the profile still does not reconstruct the intended value. Total local ineffectiveness: **18 backend-writable keys**.
+G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`; total remaining local ineffectiveness is now **17 backend-writable keys**.
 
 **The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
 
-**The 7 mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`, `totalSavings -> q_epargne_liquide`, `wealthEstimate -> q_epargne_liquide`.
+**The 6 remaining mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`, `wealthEstimate -> q_epargne_liquide`.
+
+**Repaired mapped key:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`.
 
 **Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
 
@@ -205,7 +207,7 @@ G1 found a second gap: **7 mapped keys write to wizard keys that `CoachProfile.f
 | `employmentRate` | `q_employment_rate` | none | add field/read or remove coach-writable status |
 | `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
 | `pillar3aBalance` | `q_total_3a` | `q_3a_total` / `_coach_total_3a` | map to a read key or add alias |
-| `totalSavings` | `q_epargne_liquide` | `q_cash_total` | map to `q_cash_total` |
+| `totalSavings` | `q_cash_total` | `q_cash_total` | ✅ repaired; keep mapping on `q_cash_total` |
 | `wealthEstimate` | `q_epargne_liquide` | none distinct | add `q_wealth_estimate` or explicitly drop coach-write |
 
 **Task T-1 (mandatory):** add a `case` for each of the 11 unmapped keys to `_mapFactKeyToAnswers`, mapping to a wizard key that `fromWizardAnswers` already reads where one exists. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the read.
@@ -226,7 +228,7 @@ G1 found a second gap: **7 mapped keys write to wizard keys that `CoachProfile.f
 
 After T-0 and T-1, `_mapFactKeyToAnswers` handles all 35 keys and every mapper target is actually read by `fromWizardAnswers`; the §8.1 parity test passes. Until both tasks land, that test is expected RED and gates the PR.
 
-**Task T-2 (mandatory, from §3.5 note):** resolve the `totalSavings` / `wealthEstimate` → `q_epargne_liquide` collision by giving `wealthEstimate` its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read into `totalPatrimoine`.
+**Task T-2 (mandatory, from §3.5 note):** finish the split by giving `wealthEstimate` its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read into `totalPatrimoine`. `totalSavings` MUST remain on `q_cash_total`.
 
 ---
 

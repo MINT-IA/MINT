@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,6 +65,18 @@ void main() {
       final applied = await FactExtractionFallback.extract(
         "mon 3a est à 15000 CHF", p);
       expect(applied, contains('pillar3aBalance'));
+    });
+
+    test('save_fact totalSavings writes the cash key read by the profile',
+        () async {
+      final p = CoachProfileProvider();
+      final applied = await p.applySaveFact('totalSavings', 120000);
+
+      expect(applied, isTrue);
+      final answers = await ReportPersistenceService.loadAnswers();
+      expect(answers, containsPair('q_cash_total', 120000));
+      expect(answers.containsKey('q_epargne_liquide'), isFalse);
+      expect(p.profile?.patrimoine.epargneLiquide, 120000);
     });
 
     test('IGNORES third-person salary (« ma sœur gagne 7500 »)', () async {
