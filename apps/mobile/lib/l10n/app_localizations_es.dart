@@ -22988,6 +22988,32 @@ class SEs extends S {
       'Estas retiradas siguen siendo posibles en caso de procedimiento formal de saneamiento de deudas — habla con un especialista.';
 
   @override
+  String get scanReviewTitle => 'Revisar el documento';
+
+  @override
+  String get scanReviewEmptyTitle => 'Escanea el documento otra vez';
+
+  @override
+  String get scanReviewEmptyBody =>
+      'Este documento ya no está disponible. Puedes escanearlo de nuevo.';
+
+  @override
+  String get scanReviewRescan => 'Escanear de nuevo';
+
+  @override
+  String get scanImpactTitle => 'Impacto del escaneo';
+
+  @override
+  String get scanImpactEmptyTitle => 'No hay impacto para mostrar';
+
+  @override
+  String get scanImpactEmptyBody =>
+      'El resultado del escaneo ya no está vinculado a esta sesión.';
+
+  @override
+  String get scanImpactBackHome => 'Ver mi resumen';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificado LPP escaneado';
 
   @override

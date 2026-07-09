@@ -23044,6 +23044,32 @@ class SDe extends S {
       'Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.';
 
   @override
+  String get scanReviewTitle => 'Dokument prüfen';
+
+  @override
+  String get scanReviewEmptyTitle => 'Dokument erneut scannen';
+
+  @override
+  String get scanReviewEmptyBody =>
+      'Dieses Dokument ist nicht mehr verfügbar. Du kannst es erneut scannen.';
+
+  @override
+  String get scanReviewRescan => 'Erneut scannen';
+
+  @override
+  String get scanImpactTitle => 'Scan-Auswirkung';
+
+  @override
+  String get scanImpactEmptyTitle => 'Keine Auswirkung anzuzeigen';
+
+  @override
+  String get scanImpactEmptyBody =>
+      'Das Scan-Ergebnis ist nicht mehr mit dieser Sitzung verknüpft.';
+
+  @override
+  String get scanImpactBackHome => 'Meine Übersicht anzeigen';
+
+  @override
   String get scanSummaryLppCertificate => 'BVG-Ausweis gescannt';
 
   @override

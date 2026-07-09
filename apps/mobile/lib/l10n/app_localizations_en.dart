@@ -22878,6 +22878,32 @@ class SEn extends S {
       'These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.';
 
   @override
+  String get scanReviewTitle => 'Review the document';
+
+  @override
+  String get scanReviewEmptyTitle => 'Scan the document again';
+
+  @override
+  String get scanReviewEmptyBody =>
+      'This document is no longer available. You can scan it again.';
+
+  @override
+  String get scanReviewRescan => 'Scan again';
+
+  @override
+  String get scanImpactTitle => 'Scan impact';
+
+  @override
+  String get scanImpactEmptyTitle => 'No impact to show';
+
+  @override
+  String get scanImpactEmptyBody =>
+      'The scan result is no longer attached to this session.';
+
+  @override
+  String get scanImpactBackHome => 'View my overview';
+
+  @override
   String get scanSummaryLppCertificate => 'LPP certificate scanned';
 
   @override
