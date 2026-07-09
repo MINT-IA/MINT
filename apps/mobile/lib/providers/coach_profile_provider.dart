@@ -858,7 +858,9 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_employment_status': effectiveEmployment,
       // LPP access: salary > seuil AND salarié (LPP art. 7 — indépendants: opt.)
       'q_has_pension_fund':
-          clampedGrossSalary >= 22680 && effectiveEmployment != 'independant',
+          clampedGrossSalary >= 22680 && effectiveEmployment != 'independant'
+              ? 'yes'
+              : 'no',
       // AVS years estimated from age and situation (LAVS art. 29)
       'q_avs_contribution_years': avsContributionYears,
       // P2-15: Flag when AVS years were clamped to [0,44] so UI can warn user.

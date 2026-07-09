@@ -58,7 +58,7 @@ void main() {
     expect((answers['q_gross_salary_annual'] as num).toDouble(), 96000);
     expect(answers['q_canton'], 'GE');
     expect(answers['q_birth_year'], 2001);
-    expect(answers['q_has_pension_fund'], true);
+    expect(answers['q_has_pension_fund'], 'yes');
     expect(answers.containsKey('q_net_income_period_chf'), isFalse);
     expect(answers.containsKey('q_monthly_gross_salary_chf'), isFalse);
 
@@ -158,7 +158,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final answers = await ReportPersistenceService.loadAnswers();
-    expect(answers, containsPair('q_has_pension_fund', false));
+    expect(answers, containsPair('q_has_pension_fund', 'no'));
     expect(provider.profile, isNotNull);
   });
 

@@ -424,7 +424,7 @@ class _DataBlockEnrichmentScreenState
       if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
       if (capturesPensionFund &&
           (_hasPensionFundTouched || onlyInputKey == 'q_has_pension_fund'))
-        'q_has_pension_fund': _hasPensionFund,
+        'q_has_pension_fund': _hasPensionFund ? 'yes' : 'no',
     };
 
     if (answers.isNotEmpty) {

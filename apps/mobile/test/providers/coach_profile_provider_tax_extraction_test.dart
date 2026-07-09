@@ -52,6 +52,27 @@ void main() {
       );
     });
 
+    test('smart flow stores pension fund eligibility as yes/no strings',
+        () async {
+      final provider = CoachProfileProvider();
+      await provider.updateFromSmartFlow(
+        age: 35,
+        grossSalary: 120000,
+        canton: 'VD',
+      );
+      var answers = await ReportPersistenceService.loadAnswers();
+      expect(answers, containsPair('q_has_pension_fund', 'yes'));
+
+      await provider.updateFromSmartFlow(
+        age: 35,
+        grossSalary: 120000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+      );
+      answers = await ReportPersistenceService.loadAnswers();
+      expect(answers, containsPair('q_has_pension_fund', 'no'));
+    });
+
     test('persists canonical tax fields and data sources', () async {
       final provider = CoachProfileProvider();
       await provider.updateFromSmartFlow(
