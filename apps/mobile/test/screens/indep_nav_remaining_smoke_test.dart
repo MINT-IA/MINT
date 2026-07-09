@@ -137,10 +137,14 @@ Map<String, dynamic> independentAnswers({
   double? selfIncome,
   double? grossSalary,
   int? birthYear,
+  double? cashTotal,
+  bool hasConsumerDebt = false,
   bool voluntaryLpp = false,
 }) {
   return {
     if (birthYear != null) 'q_birth_year': birthYear,
+    if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (hasConsumerDebt) 'q_has_consumer_debt': true,
     if (selfIncome != null) ...{
       'q_self_employed_income': selfIncome,
       'q_net_income_period_chf': selfIncome,
@@ -250,15 +254,19 @@ void main() {
       expect(find.text('LPP volontaire'), findsOneWidget);
     });
 
-    testWidgets('has revenu and age sliders visible', (tester) async {
+    testWidgets('shows missing ledger facts instead of local inputs',
+        (tester) async {
       await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // In the default test viewport, only the first 2 sliders are visible
-      // (revenu net annuel and Ton age). The taux marginal slider is offscreen.
-      expect(find.byType(Slider), findsWidgets);
+      expect(
+          find.byKey(const Key('lpp_volontaire_ledger_facts')), findsOneWidget);
       expect(find.text('Revenu net annuel'), findsOneWidget);
-      expect(find.textContaining('Ton âge'), findsOneWidget);
+      expect(find.text('Ton âge'), findsOneWidget);
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPickerTile), findsNothing);
+      expect(find.byType(Slider), findsNothing);
     });
 
     testWidgets('shows intro info text about LPP', (tester) async {
@@ -267,32 +275,38 @@ void main() {
 
       expect(
         find.textContaining('caisse de pension'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
-    testWidgets('shows CHF value labels on sliders', (tester) async {
-      await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // The revenu slider shows CHF formatted value and range labels
-      expect(find.textContaining('CHF'), findsWidgets);
-    });
-
-    testWidgets('shows age picker tile', (tester) async {
-      await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Age picker shows formatted value with MintPickerTile
-      expect(find.byType(MintPickerTile), findsOneWidget);
-    });
-
-    testWidgets('prefills known independent income and age from profile',
+    testWidgets('shows missing status when ledger facts are absent',
         (tester) async {
+      await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Manquant'), findsNWidgets(2));
+    });
+
+    testWidgets('hides scenario slider until ledger facts are complete',
+        (tester) async {
+      await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+    });
+
+    testWidgets('uses known independent income and age from profile facts',
+        (tester) async {
+      tester.view.physicalSize = const Size(390, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final provider = RecordingCoachProfileProvider(
         independentAnswers(
           selfIncome: 140000,
           birthYear: DateTime.now().year - 52,
+          cashTotal: 50000,
         ),
       );
 
@@ -304,16 +318,47 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-      final agePicker =
-          tester.widget<MintPickerTile>(find.byType(MintPickerTile));
-
-      expect(amountField.value, 140000);
-      expect(agePicker.value, 52);
+      expect(find.text('Données connues'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0140'000"), findsWidgets);
+      expect(find.text('52 ans'), findsWidgets);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPickerTile), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsOneWidget);
+      expect(
+          find.byKey(const Key('lpp_volontaire_result_cards')), findsOneWidget);
+      expect(find.byKey(const Key('lpp_volontaire_retirement_comparison')),
+          findsOneWidget);
+      expect(find.byKey(const Key('lpp_volontaire_age_table')), findsOneWidget);
     });
 
-    testWidgets('does not prefill net income from a gross salary fallback',
+    testWidgets('keeps contribution planning locked in SafeMode',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 140000,
+          birthYear: DateTime.now().year - 52,
+          cashTotal: 50000,
+          hasConsumerDebt: true,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const LppVolontaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Concentration Prioritaire'), findsOneWidget);
+      expect(
+          find.byKey(const Key('lpp_volontaire_result_cards')), findsNothing);
+      expect(find.byKey(const Key('lpp_volontaire_retirement_comparison')),
+          findsNothing);
+      expect(find.byKey(const Key('lpp_volontaire_age_table')), findsNothing);
+    });
+
+    testWidgets('does not use gross salary fallback as independent income',
         (tester) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(grossSalary: 220000),
@@ -327,13 +372,15 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-
-      expect(amountField.value, 80000);
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.text("CHF\u00A0220'000"), findsNothing);
+      expect(find.text("CHF\u00A080'000"), findsNothing);
+      expect(find.byType(MintAmountField), findsNothing);
     });
 
-    testWidgets('clamps known profile values to the screen ranges',
+    testWidgets(
+        'does not clamp ledger income and treats invalid age as missing',
         (tester) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(
@@ -350,16 +397,12 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-      final agePicker =
-          tester.widget<MintPickerTile>(find.byType(MintPickerTile));
-
-      expect(amountField.value, 250000);
-      expect(agePicker.value, 65);
+      expect(find.text("CHF\u00A0450'000"), findsOneWidget);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.byType(MintPremiumSlider), findsNothing);
     });
 
-    testWidgets('persists edited independent income through the profile path',
+    testWidgets('does not expose an income editor inside the simulator',
         (tester) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(selfIncome: 90000),
@@ -373,28 +416,11 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 500));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-      amountField.onChanged(123000);
-      await tester.pump();
-
-      expect(provider.writes, isNotEmpty);
-      expect(
-        provider.writes.last,
-        containsPair('q_self_employed_income', 123000),
-      );
-      expect(
-        provider.writes.last,
-        containsPair('q_net_income_period_chf', 123000),
-      );
-      expect(provider.writes.last, containsPair('q_pay_frequency', 'yearly'));
-      expect(
-        provider.writes.last,
-        containsPair('q_employment_status', 'independant'),
-      );
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(provider.writes, isEmpty);
     });
 
-    testWidgets('persists edited age as birth year through the profile path',
+    testWidgets('does not expose an age editor inside the simulator',
         (tester) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(
@@ -411,16 +437,8 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 500));
 
-      final agePicker =
-          tester.widget<MintPickerTile>(find.byType(MintPickerTile));
-      agePicker.onChanged(44);
-      await tester.pump();
-
-      expect(provider.writes, isNotEmpty);
-      expect(
-        provider.writes.last,
-        containsPair('q_birth_year', DateTime.now().year - 44),
-      );
+      expect(find.byType(MintPickerTile), findsNothing);
+      expect(provider.writes, isEmpty);
     });
   });
 

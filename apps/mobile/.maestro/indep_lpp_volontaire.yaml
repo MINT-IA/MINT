@@ -1,0 +1,69 @@
+appId: ch.mint.app
+---
+# LPP volontaire renders ledger facts, collects missing facts through DataBlock,
+# confirms enough liquidity to stay out of SafeMode, then shows results.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///independants/lpp-volontaire"
+- assertVisible:
+    text: "LPP volontaire"
+- assertVisible:
+    id: "lpp_volontaire_ledger_facts"
+- assertVisible:
+    id: "lpp_volontaire_income_fact"
+- assertVisible:
+    id: "lpp_volontaire_age_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- openLink: "mint:///data-block/revenu?inputKey=q_self_employed_income"
+- assertVisible:
+    id: "self_employed_income_input"
+- tapOn:
+    id: "self_employed_income_input"
+- inputText: "144000"
+- tapOn:
+    id: "salary_save_cta"
+- openLink: "mint:///data-block/revenu?inputKey=q_birth_year"
+- assertVisible:
+    id: "birth_year_input"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "1978"
+- tapOn:
+    id: "salary_save_cta"
+- openLink: "mint:///data-block/patrimoine?inputKey=q_cash_total"
+- assertVisible:
+    id: "savings_input"
+- tapOn:
+    id: "savings_input"
+- inputText: "50000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- openLink: "mint:///independants/lpp-volontaire"
+- assertVisible:
+    id: "lpp_volontaire_ledger_facts"
+- scrollUntilVisible:
+    element:
+      id: "lpp_volontaire_result_cards"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      id: "lpp_volontaire_retirement_comparison"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      id: "lpp_volontaire_age_table"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
