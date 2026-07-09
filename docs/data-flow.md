@@ -92,6 +92,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
   `q_net_income_period_chf` (double, amount per period),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
+  `q_nombre_mois` (salary months, defaults to 12),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
   `q_partner_birth_year`, `q_partner_employment_status`

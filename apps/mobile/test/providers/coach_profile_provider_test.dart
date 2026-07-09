@@ -130,4 +130,78 @@ void main() {
     expect(rehydrated.commune, 'Lausanne');
     expect(rehydrated.gender, 'F');
   });
+
+  test('save_fact employmentRate and annualBonus hydrate income keys',
+      () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('incomeGrossYearly', 120000), isTrue);
+    expect(await provider.applySaveFact('employmentRate', 80), isTrue);
+    expect(await provider.applySaveFact('annualBonus', 12000), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_employment_rate', 80));
+    expect(answers, containsPair('q_annual_bonus', 12000));
+    expect(provider.profile?.employmentRate, 80);
+    expect(provider.profile?.bonusPourcentage, closeTo(10, 0.001));
+    expect(provider.profile?.revenuBrutAnnuel, closeTo(132000, 0.001));
+    expect(provider.profile?.toCoachingProfile().tauxActivite, 80);
+  });
+
+  test('updateProfile preserves 13-month salary, rate, and bonus shape',
+      () async {
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      salaireBrutMensuel: 10000,
+      nombreDeMois: 13,
+      bonusPourcentage: 5,
+      employmentRate: 80,
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_nombre_mois', 13));
+    expect(answers, containsPair('q_gross_salary_annual', 130000));
+    expect(answers, containsPair('q_employment_rate', 80));
+    expect(answers, containsPair('q_annual_bonus', 6500));
+    final rehydrated = CoachProfile.fromWizardAnswers(answers);
+    expect(rehydrated.salaireBrutMensuel, closeTo(10000, 0.001));
+    expect(rehydrated.nombreDeMois, 13);
+    expect(rehydrated.employmentRate, 80);
+    expect(rehydrated.bonusPourcentage, closeTo(5, 0.001));
+    expect(rehydrated.revenuBrutAnnuel, closeTo(136500, 0.001));
+  });
+
+  test('updateProfile clears stale employment rate and annual bonus keys',
+      () async {
+    final provider = CoachProfileProvider();
+    final partTimeWithBonus = CoachProfile.defaults().copyWith(
+      salaireBrutMensuel: 10000,
+      nombreDeMois: 12,
+      bonusPourcentage: 10,
+      employmentRate: 80,
+    );
+    final fullTimeWithoutBonus = CoachProfile.defaults().copyWith(
+      salaireBrutMensuel: 0,
+      nombreDeMois: 12,
+      employmentRate: 100,
+    );
+
+    provider.updateProfile(partTimeWithBonus);
+    await Future<void>.delayed(Duration.zero);
+    provider.updateProfile(fullTimeWithoutBonus);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_employment_rate'), isFalse);
+    expect(answers.containsKey('q_annual_bonus'), isFalse);
+    expect(answers, containsPair('q_gross_salary_annual', 0));
+    final rehydrated = CoachProfile.fromWizardAnswers(answers);
+    expect(rehydrated.employmentRate, 100);
+    expect(rehydrated.bonusPourcentage, isNull);
+    expect(rehydrated.revenuBrutAnnuel, 0);
+    expect(rehydrated.toCoachingProfile().tauxActivite, 100);
+  });
 }
