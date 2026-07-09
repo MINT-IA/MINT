@@ -8,6 +8,7 @@ import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
 import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
@@ -532,7 +533,68 @@ void main() {
   });
 
   // ===========================================================================
-  // 5. PILLAR 3A INDEPENDANT SCREEN
+  // 5. DISABILITY SELF-EMPLOYED SCREEN
+  // ===========================================================================
+
+  group('DisabilitySelfEmployedScreen', () {
+    Future<void> pumpDisabilitySelf(
+      WidgetTester tester,
+      Map<String, dynamic> answers,
+    ) async {
+      await tester.pumpWidget(buildWithCoachProfileProvider(
+        RecordingCoachProfileProvider(answers),
+        const DisabilitySelfEmployedScreen(),
+      ));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+    }
+
+    testWidgets('uses ledger income instead of a local revenue slider',
+        (tester) async {
+      await pumpDisabilitySelf(
+        tester,
+        independentAnswers(selfIncome: 144000),
+      );
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('disability_self_ledger_facts')),
+        findsOneWidget,
+      );
+      expect(
+          find.byKey(const Key('disability_self_income_fact')), findsOneWidget);
+      expect(find.textContaining("144'000"), findsOneWidget);
+      expect(find.byKey(const Key('disability_self_result_cards')),
+          findsOneWidget);
+    });
+
+    testWidgets('does not calculate from a gross salary fallback',
+        (tester) async {
+      await pumpDisabilitySelf(
+        tester,
+        independentAnswers(grossSalary: 240000),
+      );
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 240'000"), findsNothing);
+      expect(
+          find.byKey(const Key('disability_self_result_cards')), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+    });
+
+    testWidgets('shows missing fact instead of defaulting to a monthly value',
+        (tester) async {
+      await pumpDisabilitySelf(tester, independentAnswers());
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 8'000"), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(
+          find.byKey(const Key('disability_self_result_cards')), findsNothing);
+    });
+  });
+
+  // ===========================================================================
+  // 6. PILLAR 3A INDEPENDANT SCREEN
   // ===========================================================================
 
   group('Pillar3aIndepScreen', () {

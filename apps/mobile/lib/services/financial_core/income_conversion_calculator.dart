@@ -25,8 +25,15 @@ class IncomeConversionCalculator {
     double annualGross, {
     double months = defaultAnnualSalaryMonths,
   }) {
-    if (annualGross <= 0 || months <= 0) return 0;
-    return annualGross / months;
+    return monthlyAmountFromAnnual(annualGross, months: months);
+  }
+
+  static double monthlyAmountFromAnnual(
+    double annualAmount, {
+    double months = defaultAnnualSalaryMonths,
+  }) {
+    if (annualAmount <= 0 || months <= 0) return 0;
+    return annualAmount / months;
   }
 
   static double annualGrossFromMonthly({
