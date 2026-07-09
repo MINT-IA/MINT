@@ -233,6 +233,33 @@ jobs:
           fi
           python3 tools/checks/financial_core_gate.py --base-ref "$BASE_REF"
 
+  # ─── Hardcoded financial rate drift gate ──────────────────────
+  # Blocks newly introduced Swiss financial rates outside the
+  # checked-in regulatory registry and financial_core calculators.
+  hardcoded-rate-gate:
+    name: Hardcoded financial rate gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan introduced hardcoded financial rates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [[ -z "$BASE_REF" ]] || [[ "${BASE_REF//0/}" == "" ]]; then
+              BASE_REF="HEAD^"
+            fi
+          fi
+          python3 tools/checks/hardcoded_rate_gate.py --base-ref "$BASE_REF"
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -713,7 +740,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, secret-scan, banned-ui-terms, arb-parity, accent-lint-fr, no-hardcoded-fr, financial-core-gate, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, secret-scan, banned-ui-terms, arb-parity, accent-lint-fr, no-hardcoded-fr, financial-core-gate, hardcoded-rate-gate, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -727,6 +754,7 @@ jobs:
           accent_lint="${{ needs.accent-lint-fr.result }}"
           no_hardcoded_fr="${{ needs.no-hardcoded-fr.result }}"
           financial_core="${{ needs.financial-core-gate.result }}"
+          hardcoded_rates="${{ needs.hardcoded-rate-gate.result }}"
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
           wcag="${{ needs.wcag-aa-all-touched.result }}"
@@ -741,6 +769,7 @@ jobs:
           [[ "$accent_lint" == "skipped" ]] && accent_lint="success"
           [[ "$no_hardcoded_fr" == "skipped" ]] && no_hardcoded_fr="success"
           [[ "$financial_core" == "skipped" ]] && financial_core="success"
+          [[ "$hardcoded_rates" == "skipped" ]] && hardcoded_rates="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
           [[ "$wcag" == "skipped" ]] && wcag="success"
@@ -749,8 +778,8 @@ jobs:
           [[ "$contract_tests" == "skipped" ]] && contract_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$arb_parity" != "success" ]] || [[ "$accent_lint" != "success" ]] || [[ "$no_hardcoded_fr" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms arb_parity=$arb_parity accent_lint=$accent_lint no_hardcoded_fr=$no_hardcoded_fr financial_core=$financial_core flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$arb_parity" != "success" ]] || [[ "$accent_lint" != "success" ]] || [[ "$no_hardcoded_fr" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$hardcoded_rates" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms arb_parity=$arb_parity accent_lint=$accent_lint no_hardcoded_fr=$no_hardcoded_fr financial_core=$financial_core hardcoded_rates=$hardcoded_rates flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
