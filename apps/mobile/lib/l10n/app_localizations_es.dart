@@ -16359,6 +16359,14 @@ class SEs extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Prima de accidente no profesional retenida del salario según la cobertura del empleador.';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Cotización del empleado al seguro de desempleo, calculada con el límite LACI aplicable.';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Cotización del empleado: 5.3% del salario bruto. Tu empleador también paga 5.3% adicional.';
 
@@ -16378,6 +16386,10 @@ class SEs extends S {
 
   @override
   String get firstJobPayslipLppLabel => 'LPP (2.° pilar)';
+
+  @override
+  String get firstJobPayslipOtherExplanation =>
+      'Retención calculada por el motor salarial de Mint.';
 
   @override
   String firstJobPrimePerMonth(String amount) {

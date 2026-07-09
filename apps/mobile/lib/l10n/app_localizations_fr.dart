@@ -16350,6 +16350,14 @@ class SFr extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Prime accident non professionnel retenue sur le salaire selon la couverture de l’employeur.';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Cotisation d’assurance-chômage salarié·e, calculée selon le plafond LACI applicable.';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.';
 
@@ -16369,6 +16377,10 @@ class SFr extends S {
 
   @override
   String get firstJobPayslipLppLabel => 'LPP (2e pilier)';
+
+  @override
+  String get firstJobPayslipOtherExplanation =>
+      'Retenue calculée par le moteur salaire de Mint.';
 
   @override
   String firstJobPrimePerMonth(String amount) {

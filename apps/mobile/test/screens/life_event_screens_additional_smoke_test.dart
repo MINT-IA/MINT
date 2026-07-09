@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
@@ -23,15 +24,20 @@ import 'package:mint_mobile/screens/unemployment_screen.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
+import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ---------------------------------------------------------------------------
 //  Shared helpers
 // ---------------------------------------------------------------------------
 
 /// Wraps screen with Provider + French i18n (for screens that read a profile).
-Widget _buildWrappedWithProvider(Widget screen) {
+Widget _buildWrappedWithProvider(
+  Widget screen, {
+  CoachProfileProvider? provider,
+}) {
   return ChangeNotifierProvider<CoachProfileProvider>(
-    create: (_) => CoachProfileProvider(),
+    create: (_) => provider ?? CoachProfileProvider(),
     child: MaterialApp(
       locale: const Locale('fr'),
       localizationsDelegates: const [
@@ -44,6 +50,29 @@ Widget _buildWrappedWithProvider(Widget screen) {
       home: screen,
     ),
   );
+}
+
+class RecordingCoachProfileProvider extends CoachProfileProvider {
+  final Map<String, dynamic> _answers;
+  CoachProfile? _profileOverride;
+
+  RecordingCoachProfileProvider(Map<String, dynamic> initialAnswers)
+      : _answers = Map<String, dynamic>.from(initialAnswers) {
+    _profileOverride = CoachProfile.fromWizardAnswers(_answers);
+  }
+
+  @override
+  CoachProfile? get profile => _profileOverride;
+
+  @override
+  bool get hasProfile => _profileOverride != null;
+
+  @override
+  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    _answers.addAll(partial);
+    _profileOverride = CoachProfile.fromWizardAnswers(_answers);
+    notifyListeners();
+  }
 }
 
 /// Wraps screen with French i18n only (no provider needed).
@@ -243,7 +272,8 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('UnemploymentScreen', () {
-    Widget buildScreen() => _buildWrappedWithProvider(const UnemploymentScreen());
+    Widget buildScreen() =>
+        _buildWrappedWithProvider(const UnemploymentScreen());
 
     testWidgets('renders without crash', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -279,7 +309,11 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('FirstJobScreen', () {
-    Widget buildScreen() => _buildWrappedWithProvider(const FirstJobScreen());
+    Widget buildScreen({CoachProfileProvider? provider}) =>
+        _buildWrappedWithProvider(
+          const FirstJobScreen(),
+          provider: provider,
+        );
 
     testWidgets('renders without crash', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -294,26 +328,96 @@ void main() {
       expect(find.textContaining('emploi'), findsWidgets);
     });
 
-    testWidgets('shows salary slider', (tester) async {
+    testWidgets('shows missing ledger facts instead of local defaults',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: firstJobSalaryTitle = "Salaire brut mensuel"
-      expect(find.textContaining('alaire'), findsWidgets);
+
+      expect(find.byKey(const Key('first_job_ledger_facts')), findsOneWidget);
+      expect(find.byKey(const Key('first_job_salary_fact')), findsOneWidget);
+      expect(find.byKey(const Key('first_job_age_fact')), findsOneWidget);
+      expect(find.byKey(const Key('first_job_canton_fact')), findsOneWidget);
+      expect(find.text('Manquant'), findsNWidgets(3));
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.byKey(const Key('first_job_result_cards')), findsNothing);
+      expect(find.textContaining("5'000"), findsNothing);
     });
 
-    testWidgets('shows canton selector', (tester) async {
-      await tester.pumpWidget(buildScreen());
+    testWidgets('uses salary age and canton from ledger facts', (tester) async {
+      final currentYear = DateTime.now().year;
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_gross_salary_annual': 90000,
+          'q_birth_year': currentYear - 25,
+          'q_canton': 'VD',
+        }),
+      ));
       await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
-      await tester.pump();
-      expect(find.textContaining('Canton'), findsWidgets);
+
+      expect(find.byKey(const Key('first_job_ledger_facts')), findsOneWidget);
+      expect(find.textContaining("7'500"), findsWidgets);
+      expect(find.text('25 ans'), findsWidgets);
+      expect(find.text('VD'), findsWidgets);
+      expect(
+        find.byKey(
+          const Key('first_job_result_cards'),
+          skipOffstage: false,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byType(MintPremiumSlider, skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(find.textContaining("5'000"), findsNothing);
     });
 
-    testWidgets('shows results section with CHF amounts', (tester) async {
-      await tester.pumpWidget(buildScreen());
+    testWidgets('keeps selected salary scenario after provider notify',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      final provider = RecordingCoachProfileProvider({
+        'q_gross_salary_annual': 90000,
+        'q_birth_year': currentYear - 25,
+        'q_canton': 'VD',
+      });
+      final medianResult = FirstJobService.analyzeSalary(
+        salaireBrutMensuel: 6500,
+        age: 25,
+        canton: 'VD',
+      );
+      final medianEmployerCost =
+          FirstJobService.formatChf(medianResult.cotisationsEmployeur);
+
+      await tester.pumpWidget(buildScreen(provider: provider));
       await tester.pump();
-      // initState calls _calculate(), result should render CHF breakdown
-      expect(find.textContaining('CHF'), findsWidgets);
+
+      await tester.scrollUntilVisible(
+        find.textContaining('Médian CH'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Médian CH'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('first_job_result_cards')),
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(medianEmployerCost), findsOneWidget);
+
+      await provider.mergeAnswers({'q_unrelated_notify': true});
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('first_job_result_cards')),
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(medianEmployerCost), findsOneWidget);
     });
   });
 
@@ -357,7 +461,8 @@ void main() {
       await tester.drag(find.byType(Scrollable).first, const Offset(0, -800));
       await tester.pump();
       // i18n: demenagementChecklistTitre = "Checklist déménagement"
-      expect(find.textContaining('hecklist', skipOffstage: false), findsWidgets);
+      expect(
+          find.textContaining('hecklist', skipOffstage: false), findsWidgets);
     });
 
     testWidgets('shows disclaimer', (tester) async {

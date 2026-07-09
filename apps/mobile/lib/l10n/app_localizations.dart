@@ -28890,6 +28890,18 @@ abstract class S {
   /// **'Max {amount}/an'**
   String firstJobCoutMaxPerYear(String amount);
 
+  /// No description provided for @firstJobPayslipAanpExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prime accident non professionnel retenue sur le salaire selon la couverture de l’employeur.'**
+  String get firstJobPayslipAanpExplanation;
+
+  /// No description provided for @firstJobPayslipAcExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation d’assurance-chômage salarié·e, calculée selon le plafond LACI applicable.'**
+  String get firstJobPayslipAcExplanation;
+
   /// No description provided for @firstJobPayslipAvsExplanation.
   ///
   /// In fr, this message translates to:
@@ -28925,6 +28937,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'LPP (2e pilier)'**
   String get firstJobPayslipLppLabel;
+
+  /// No description provided for @firstJobPayslipOtherExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retenue calculée par le moteur salaire de Mint.'**
+  String get firstJobPayslipOtherExplanation;
 
   /// No description provided for @firstJobPrimePerMonth.
   ///

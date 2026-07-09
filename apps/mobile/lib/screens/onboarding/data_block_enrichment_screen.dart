@@ -248,7 +248,9 @@ class _DataBlockEnrichmentScreenState
     if (selfEmployedIncome != null && selfEmployedIncome > 0) {
       _selfEmployedIncomeController.text = '${selfEmployedIncome.round()}';
     }
-    if (profile.birthYear >= 1900) _birthYearController.text = '${profile.birthYear}';
+    if (profile.birthYear >= 1900) {
+      _birthYearController.text = '${profile.birthYear}';
+    }
     _hasPensionFund = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
         profile.prevoyance.isLppFromCertificate;
   }
@@ -610,21 +612,26 @@ class _DataBlockEnrichmentScreenState
           ),
         );
       }
-      return MintSurface(
-        tone: MintSurfaceTone.sauge,
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle_outline,
-                color: MintColors.success, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                S.of(context)!.dataBlockComplete,
-                style: MintTextStyles.bodyMedium(color: MintColors.success),
+      return Semantics(
+        key: const Key('data_block_complete_state'),
+        identifier: 'data_block_complete_state',
+        container: true,
+        child: MintSurface(
+          tone: MintSurfaceTone.sauge,
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  color: MintColors.success, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  S.of(context)!.dataBlockComplete,
+                  style: MintTextStyles.bodyMedium(color: MintColors.success),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
@@ -944,19 +951,25 @@ class _BlockScoreBar extends StatelessWidget {
               '${bloc.score.round()} / ${bloc.maxScore.round()} pts',
               style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w700),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: color.withAlpha(20),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                switch (bloc.status) {
-                  'complete' => S.of(context)!.dataBlockStatusComplete,
-                  'partial' => S.of(context)!.dataBlockStatusPartial,
-                  _ => S.of(context)!.dataBlockStatusMissing,
-                },
-                style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
+            Semantics(
+              key: Key('data_block_status_${bloc.status}'),
+              identifier: 'data_block_status_${bloc.status}',
+              container: true,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(20),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  switch (bloc.status) {
+                    'complete' => S.of(context)!.dataBlockStatusComplete,
+                    'partial' => S.of(context)!.dataBlockStatusPartial,
+                    _ => S.of(context)!.dataBlockStatusMissing,
+                  },
+                  style: MintTextStyles.labelSmall(color: color)
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ],

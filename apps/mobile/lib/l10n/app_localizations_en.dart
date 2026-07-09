@@ -16276,6 +16276,14 @@ class SEn extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Non-occupational accident premium withheld from salary according to the employer coverage.';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Employee unemployment insurance contribution, calculated using the applicable LACI ceiling.';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Employee contribution: 5.3% of gross salary. Your employer also pays 5.3% on top.';
 
@@ -16295,6 +16303,10 @@ class SEn extends S {
 
   @override
   String get firstJobPayslipLppLabel => 'LPP (2nd pillar)';
+
+  @override
+  String get firstJobPayslipOtherExplanation =>
+      'Deduction calculated by the Mint salary engine.';
 
   @override
   String firstJobPrimePerMonth(String amount) {
