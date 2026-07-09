@@ -10,15 +10,31 @@ void main() {
 
   const secureStorage =
       MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final secureStorageValues = <String, String>{};
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(secureStorage, (call) async {
-    if (call.method == 'read') return null;
-    if (call.method == 'readAll') return <String, String>{};
+    final args = Map<String, dynamic>.from(call.arguments as Map? ?? {});
+    final key = args['key'] as String?;
+    if (call.method == 'write' && key != null) {
+      secureStorageValues[key] = args['value'] as String;
+      return null;
+    }
+    if (call.method == 'read' && key != null) return secureStorageValues[key];
+    if (call.method == 'readAll') return secureStorageValues;
+    if (call.method == 'delete' && key != null) {
+      secureStorageValues.remove(key);
+      return null;
+    }
+    if (call.method == 'deleteAll') {
+      secureStorageValues.clear();
+      return null;
+    }
     return null;
   });
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    secureStorageValues.clear();
   });
 
   test('updateProfile persists liquid savings on the readable cash key',
@@ -36,5 +52,19 @@ void main() {
     expect(answers.containsKey('q_epargne_liquide'), isFalse);
     expect(CoachProfile.fromWizardAnswers(answers).patrimoine.epargneLiquide,
         88000);
+  });
+
+  test('save_fact wealthEstimate writes its own readable estimate key',
+      () async {
+    final provider = CoachProfileProvider();
+
+    final applied = await provider.applySaveFact('wealthEstimate', 350000);
+
+    expect(applied, isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_wealth_estimate', 350000));
+    expect(answers.containsKey('q_epargne_liquide'), isFalse);
+    expect(provider.profile?.patrimoine.wealthEstimate, 350000);
+    expect(provider.profile?.patrimoine.totalPatrimoine, 350000);
   });
 }

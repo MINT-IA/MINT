@@ -3,7 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/visibility_score_service.dart';
+import 'package:mint_mobile/widgets/pulse/focus_selector.dart';
 import 'package:mint_mobile/widgets/pulse/visibility_score_card.dart';
 import 'package:mint_mobile/widgets/pulse/pulse_action_card.dart';
 import 'package:mint_mobile/widgets/pulse/comprendre_section.dart';
@@ -71,7 +73,7 @@ VisibilityScore _makeScore({
             hint: 'Complet',
           ),
           VisibilityAxis(
-            id: 'securite',
+            id: 'sécurité',
             label: 'S\u00e9curit\u00e9',
             icon: 'shield',
             score: 15,
@@ -123,7 +125,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('20/25'), findsOneWidget); // Liquidite
-      expect(find.text('15/25'), findsWidgets); // Retraite + Securite
+      expect(find.text('15/25'), findsWidgets); // Retraite + Sécurité
       expect(find.text('22/25'), findsOneWidget); // Fiscalite
     });
 
@@ -409,6 +411,44 @@ void main() {
       expect(find.textContaining('Visualise'), findsOneWidget);
       expect(find.textContaining('Estime'), findsOneWidget);
     });
+  });
+
+  // ────────────────────────────────────────────────────────────
+  //  FOCUS SELECTOR
+  // ────────────────────────────────────────────────────────────
+
+  group('FocusSelector', () {
+    testWidgets(
+      'patrimoine aperçu does not add pillars on top of wealth estimate',
+      (tester) async {
+        final profile = CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 7000,
+          patrimoine: const PatrimoineProfile(wealthEstimate: 500000),
+          prevoyance: const PrevoyanceProfile(
+            avoirLppTotal: 200000,
+            totalEpargne3a: 50000,
+          ),
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055, 12, 31),
+            label: 'Retraite',
+          ),
+        );
+
+        await tester.pumpWidget(
+          _l10nApp(FocusSelector(profile: profile, onFocusSelected: (_) {})),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Optimiser'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('CHF 500k'), findsOneWidget);
+        expect(find.text('CHF 750k'), findsNothing);
+      },
+    );
   });
 
   // ────────────────────────────────────────────────────────────

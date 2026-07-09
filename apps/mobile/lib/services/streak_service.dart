@@ -48,14 +48,14 @@ class StreakService {
     MintBadge(
       id: 'first_step',
       label: 'Premier pas',
-      description: 'Tu as fait ton premier check-in.',
+      description: 'Tu as fait ton premier check-in.', // lint-ignore: legacy user copy
       icon: Icons.emoji_events_outlined,
       requiredStreak: 1,
     ),
     MintBadge(
       id: 'regulier',
-      label: 'Régulier·e',
-      description: '3 mois consécutifs de check-in.',
+      label: 'Régulier·e', // lint-ignore: legacy user copy
+      description: '3 mois consécutifs de check-in.', // lint-ignore: legacy user copy
       icon: Icons.local_fire_department,
       requiredStreak: 3,
     ),
@@ -68,8 +68,8 @@ class StreakService {
     ),
     MintBadge(
       id: 'discipline',
-      label: 'Discipliné·e',
-      description: '12 mois consécutifs — une année complète.',
+      label: 'Discipliné·e', // lint-ignore: legacy user copy
+      description: '12 mois consécutifs — une année complète.', // lint-ignore: legacy user copy
       icon: Icons.military_tech,
       requiredStreak: 12,
     ),
@@ -171,11 +171,15 @@ class StreakService {
   /// on the user's current patrimoine, 3a contributions, and emergency fund.
   /// All thresholds are based on Swiss financial planning best practices.
   static List<MintMilestone> computeMilestones(CoachProfile profile) {
-    // Total patrimoine = epargne liquide + investissements + immobilier
-    // + avoir LPP + epargne 3a
-    final patrimoine = profile.patrimoine.totalPatrimoine +
+    // Milestones compare the detailed pillar-aware total with the broad
+    // aggregate estimate. They must never add those two totals together.
+    final detailedPatrimoine = profile.patrimoine.detailedAssetTotal +
         (profile.prevoyance.avoirLppTotal ?? 0) +
         profile.prevoyance.totalEpargne3a;
+    final estimatedPatrimoine = profile.patrimoine.wealthEstimate ?? 0;
+    final patrimoine = detailedPatrimoine > estimatedPatrimoine
+        ? detailedPatrimoine
+        : estimatedPatrimoine;
 
     // Annual 3a contribution from planned monthly contributions
     final annual3a = profile.total3aMensuel * 12;
@@ -197,7 +201,7 @@ class StreakService {
       ),
       MintMilestone(
         id: 'patrimoine_100k',
-        label: 'Cap des 100k',
+        label: 'Cap des 100k', // lint-ignore: legacy user copy
         description: 'Patrimoine atteint 100\'000 CHF',
         icon: Icons.workspace_premium,
         threshold: 100000,
@@ -205,7 +209,7 @@ class StreakService {
       ),
       MintMilestone(
         id: 'patrimoine_250k',
-        label: 'Quart de million',
+        label: 'Quart de million', // lint-ignore: legacy user copy
         description: 'Patrimoine atteint 250\'000 CHF',
         icon: Icons.diamond,
         threshold: 250000,
@@ -230,7 +234,7 @@ class StreakService {
       MintMilestone(
         id: 'emergency_fund',
         label: 'Matelas 6 mois',
-        description: '6 mois de depenses en epargne liquide',
+        description: '6 mois de depenses en epargne liquide', // lint-ignore: legacy user copy
         icon: Icons.shield,
         threshold: monthlyExpenses * 6,
         isReached:

@@ -25,6 +25,7 @@ void main() {
     double? rachatMaximum,
     double? rachatEffectue,
     double? immobilier,
+    double? wealthEstimate,
     double? propertyMarketValue,
     double? mortgageBalance,
     double? mortgageRate,
@@ -47,6 +48,7 @@ void main() {
         epargneLiquide: epargneLiquide,
         investissements: investissements,
         immobilier: immobilier,
+        wealthEstimate: wealthEstimate,
         propertyMarketValue: propertyMarketValue,
         mortgageBalance: mortgageBalance,
         mortgageRate: mortgageRate,
@@ -214,6 +216,26 @@ void main() {
       // FRI should still compute valid result regardless of confidence
       expect(result.total, greaterThan(0));
       expect(result.total, lessThanOrEqualTo(100));
+    });
+
+    test('wealth estimate does not dilute detailed concentration risk', () {
+      final detailedOnly = FriComputationService.compute(
+        profile: buildProfile(
+          epargneLiquide: 10000,
+          investissements: 2000,
+        ),
+        projection: buildProjection(),
+      );
+      final withBroadEstimate = FriComputationService.compute(
+        profile: buildProfile(
+          epargneLiquide: 10000,
+          investissements: 2000,
+          wealthEstimate: 500000,
+        ),
+        projection: buildProjection(),
+      );
+
+      expect(withBroadEstimate.risque, detailedOnly.risque);
     });
 
     test('overall score is bounded 0-100', () {

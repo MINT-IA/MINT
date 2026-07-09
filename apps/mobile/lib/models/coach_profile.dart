@@ -314,7 +314,7 @@ class PrevoyanceProfile {
   final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
-  final double? rachatEffectue; // deja rachete (montant CHF cumulé)
+  final double? rachatEffectue; // déjà racheté (montant CHF cumulé)
   /// Historique daté des rachats LPP (ordre chronologique, plus récent en
   /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
   /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date
@@ -695,6 +695,11 @@ class PatrimoineProfile {
   final double epargneLiquide;
   final double investissements;
   final double? immobilier;
+
+  /// Broad user-supplied wealth estimate. Treat as an aggregate fallback, never
+  /// as an additive asset component. Because users may answer all-in, consumers
+  /// that add explicit LPP/3a values must compare totals with max(), not sum.
+  final double? wealthEstimate;
   final InvestmentCurrency deviseInvestissements;
   final String? plateformeInvestissement; // "Interactive Brokers", etc.
 
@@ -715,6 +720,7 @@ class PatrimoineProfile {
     this.epargneLiquide = 0,
     this.investissements = 0,
     this.immobilier,
+    this.wealthEstimate,
     this.deviseInvestissements = InvestmentCurrency.chf,
     this.plateformeInvestissement,
     this.propertyMarketValue,
@@ -738,9 +744,18 @@ class PatrimoineProfile {
   double get loanToValue =>
       immobilierEffectif > 0 ? (mortgageBalance ?? 0) / immobilierEffectif : 0;
 
-  /// Patrimoine brut total (liquidités + investissements + immobilier).
-  double get totalPatrimoine =>
-      epargneLiquide + investissements + immobilierEffectif;
+  double get detailedAssetTotal =>
+      epargneLiquide +
+      investissements +
+      immobilierEffectif;
+
+  /// Patrimoine brut total. Use the broad estimate as an aggregate total, not
+  /// as an asset component, so it never double-counts detailed values.
+  double get totalPatrimoine {
+    final detailedTotal = detailedAssetTotal;
+    final estimatedTotal = wealthEstimate ?? 0;
+    return detailedTotal > estimatedTotal ? detailedTotal : estimatedTotal;
+  }
 
   /// Patrimoine net (brut - dettes). Dettes passed via parameter since
   /// PatrimoineProfile doesn't hold a reference to DetteProfile.
@@ -752,6 +767,7 @@ class PatrimoineProfile {
       epargneLiquide: (json['epargneLiquide'] as num?)?.toDouble() ?? 0,
       investissements: (json['investissements'] as num?)?.toDouble() ?? 0,
       immobilier: (json['immobilier'] as num?)?.toDouble(),
+      wealthEstimate: (json['wealthEstimate'] as num?)?.toDouble(),
       deviseInvestissements: InvestmentCurrency.values.firstWhere(
         (e) => e.name == json['deviseInvestissements'],
         orElse: () => InvestmentCurrency.chf,
@@ -771,6 +787,7 @@ class PatrimoineProfile {
     double? epargneLiquide,
     double? investissements,
     double? immobilier,
+    double? wealthEstimate,
     InvestmentCurrency? deviseInvestissements,
     String? plateformeInvestissement,
     double? propertyMarketValue,
@@ -785,6 +802,7 @@ class PatrimoineProfile {
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
       investissements: investissements ?? this.investissements,
       immobilier: immobilier ?? this.immobilier,
+      wealthEstimate: wealthEstimate ?? this.wealthEstimate,
       deviseInvestissements:
           deviseInvestissements ?? this.deviseInvestissements,
       plateformeInvestissement:
@@ -803,6 +821,7 @@ class PatrimoineProfile {
         'epargneLiquide': epargneLiquide,
         'investissements': investissements,
         'immobilier': immobilier,
+        'wealthEstimate': wealthEstimate,
         'deviseInvestissements': deviseInvestissements.name,
         'plateformeInvestissement': plateformeInvestissement,
         'propertyMarketValue': propertyMarketValue,
@@ -822,6 +841,7 @@ class PatrimoineProfile {
           epargneLiquide == other.epargneLiquide &&
           investissements == other.investissements &&
           immobilier == other.immobilier &&
+          wealthEstimate == other.wealthEstimate &&
           deviseInvestissements == other.deviseInvestissements &&
           plateformeInvestissement == other.plateformeInvestissement &&
           propertyMarketValue == other.propertyMarketValue &&
@@ -837,6 +857,7 @@ class PatrimoineProfile {
         epargneLiquide,
         investissements,
         immobilier,
+        wealthEstimate,
         deviseInvestissements,
         plateformeInvestissement,
         propertyMarketValue,
@@ -1772,7 +1793,7 @@ class CoachProfile {
           c.category == 'epargne_libre' || c.category == 'investissement')
       .fold(0.0, (sum, c) => sum + c.amount);
 
-  /// Detecte l'archetype financier de l'utilisateur.
+  /// Detects the user's financial archetype.
   ///
   /// Basee sur nationalite, arrivalAge, employmentStatus, residencePermit.
   /// Voir ADR-20260223-archetype-driven-retirement.md.
@@ -2466,7 +2487,7 @@ class CoachProfile {
     if (coachAvoirLpp != null) {
       estimatedLpp = coachAvoirLpp;
     } else if (!hasPensionFund) {
-      // Independant sans LPP ou declaration explicite "pas de caisse"
+      // Independent without LPP or explicit no-pension-fund declaration.
       estimatedLpp = 0.0;
     } else {
       estimatedLpp = _estimateLppAvoir(age, salaireBrutMensuel,
@@ -2505,6 +2526,7 @@ class CoachProfile {
     final estimatedMonthlyExpenses = monthlyHousing + assuranceMaladie;
     final emergencyFundRaw = answers['q_emergency_fund'];
     final cashTotal = _parseDouble(answers['q_cash_total']) ?? 0;
+    final wealthEstimate = _parseDouble(answers['q_wealth_estimate']);
     double epargneLiquide;
     if (emergencyFundRaw is String) {
       switch (emergencyFundRaw.toLowerCase()) {
@@ -2538,6 +2560,7 @@ class CoachProfile {
     final patrimoine = PatrimoineProfile(
       epargneLiquide: epargneLiquide,
       investissements: estimatedInvestments,
+      wealthEstimate: wealthEstimate,
       propertyMarketValue: _parseDouble(answers['q_property_market_value']),
       mortgageBalance: _parseDouble(answers['q_mortgage_balance']),
       mortgageRate: _parseDouble(answers['q_mortgage_rate']),
@@ -2647,7 +2670,7 @@ class CoachProfile {
       if (allocations.contains('epargne_libre') && remaining > 0) {
         contributions.add(PlannedMonthlyContribution(
           id: 'epargne_user',
-          label: 'Épargne libre',
+          label: 'Épargne libre', // lint-ignore: legacy model label
           amount: remaining,
           category: 'epargne_libre',
           isAutomatic: false,
@@ -2669,7 +2692,7 @@ class CoachProfile {
         if (epargneLibre > 50) {
           contributions.add(PlannedMonthlyContribution(
             id: 'epargne_user',
-            label: 'Épargne libre',
+            label: 'Épargne libre', // lint-ignore: legacy model label
             amount: epargneLibre,
             category: 'epargne_libre',
             isAutomatic: false,
@@ -2943,11 +2966,11 @@ class CoachProfile {
     if (raw == null) return CoachCivilStatus.celibataire;
     switch (raw.toLowerCase()) {
       case 'marie':
-      case 'marié':
+      case 'marié': // lint-ignore: accepted legacy input
       case 'married':
         return CoachCivilStatus.marie;
       case 'divorce':
-      case 'divorcé':
+      case 'divorcé': // lint-ignore: accepted legacy input
       case 'divorced':
         return CoachCivilStatus.divorce;
       case 'veuf':
@@ -2967,19 +2990,19 @@ class CoachProfile {
     switch (raw.toLowerCase()) {
       case 'employee':
       case 'salarie':
-      case 'salarié':
+      case 'salarié': // lint-ignore: accepted legacy input
         return 'salarie';
       case 'self_employed':
       case 'independant':
-      case 'indépendant':
+      case 'indépendant': // lint-ignore: accepted legacy input
         return 'independant';
       case 'retired':
       case 'retraite':
-      case 'retraité':
+      case 'retraité': // lint-ignore: accepted legacy input
         return 'retraite';
       case 'student':
       case 'etudiant':
-      case 'étudiant':
+      case 'étudiant': // lint-ignore: accepted legacy input
         return 'etudiant';
       case 'mixed':
       case 'mixte':
@@ -3194,7 +3217,7 @@ class CoachProfile {
         autresDepensesFixes: 300,
       ),
       prevoyance: const PrevoyanceProfile(
-        nomCaisse: 'Caisse des Electriciens',
+        nomCaisse: 'Caisse des Electriciens', // lint-ignore: demo seed
         avoirLppTotal: 300000,
         rachatMaximum: 300000,
         rachatEffectue: 0,

@@ -28,6 +28,7 @@ class SecureWizardStore {
     'q_partner_salary',
     'q_patrimoine_liquide',
     'q_dettes_total',
+    'q_wealth_estimate',
   };
 
   /// Whether a key should be stored in secure storage.
