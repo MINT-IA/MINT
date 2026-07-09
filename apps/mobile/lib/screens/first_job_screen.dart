@@ -185,6 +185,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     });
   }
 
+  String _revenueDataBlockRoute() => '/data-block/revenu';
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -400,7 +402,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   child: TextButton.icon(
                     onPressed: () {
                       _hasUserInteracted = true;
-                      context.push('/data-block/revenu');
+                      context.push(_revenueDataBlockRoute());
                     },
                     icon: Icon(
                       hasMissing
