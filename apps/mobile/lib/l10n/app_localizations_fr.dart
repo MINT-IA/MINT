@@ -22990,6 +22990,32 @@ class SFr extends S {
       'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.';
 
   @override
+  String get scanReviewTitle => 'Vérifier le document';
+
+  @override
+  String get scanReviewEmptyTitle => 'Document à rescanner';
+
+  @override
+  String get scanReviewEmptyBody =>
+      'Ce document n\'est plus disponible. Tu peux le scanner à nouveau.';
+
+  @override
+  String get scanReviewRescan => 'Rescanner';
+
+  @override
+  String get scanImpactTitle => 'Impact du scan';
+
+  @override
+  String get scanImpactEmptyTitle => 'Aucun impact à afficher';
+
+  @override
+  String get scanImpactEmptyBody =>
+      'Le résultat du scan n\'est plus attaché à cette session.';
+
+  @override
+  String get scanImpactBackHome => 'Voir mon aperçu';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificat LPP scanné';
 
   @override

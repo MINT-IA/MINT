@@ -23050,6 +23050,32 @@ class SIt extends S {
       'Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.';
 
   @override
+  String get scanReviewTitle => 'Verifica il documento';
+
+  @override
+  String get scanReviewEmptyTitle => 'Scansiona di nuovo il documento';
+
+  @override
+  String get scanReviewEmptyBody =>
+      'Questo documento non è più disponibile. Puoi scansionarlo di nuovo.';
+
+  @override
+  String get scanReviewRescan => 'Scansiona di nuovo';
+
+  @override
+  String get scanImpactTitle => 'Impatto della scansione';
+
+  @override
+  String get scanImpactEmptyTitle => 'Nessun impatto da mostrare';
+
+  @override
+  String get scanImpactEmptyBody =>
+      'Il risultato della scansione non è più collegato a questa sessione.';
+
+  @override
+  String get scanImpactBackHome => 'Vedi la mia panoramica';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificato LPP scansionato';
 
   @override
