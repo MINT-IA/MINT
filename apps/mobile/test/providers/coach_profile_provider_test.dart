@@ -204,4 +204,62 @@ void main() {
     expect(rehydrated.revenuBrutAnnuel, 0);
     expect(rehydrated.toCoachingProfile().tauxActivite, 100);
   });
+
+  test('save_fact AVS gaps and contribution years hydrate AVS keys', () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('birthYear', 1970), isTrue);
+    expect(await provider.applySaveFact('avsContributionYears', 30), isTrue);
+    expect(await provider.applySaveFact('hasAvsGaps', true), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_avs_contribution_years', 30));
+    expect(answers, containsPair('q_avs_lacunes_status', 'unknown'));
+    expect(provider.profile?.prevoyance.anneesContribuees, 30);
+    expect(provider.profile?.prevoyance.lacunesAVS, 2);
+  });
+
+  test('save_fact hasAvsGaps false clears AVS gap status', () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('birthYear', 1970), isTrue);
+    expect(await provider.applySaveFact('hasAvsGaps', true), isTrue);
+    expect(await provider.applySaveFact('hasAvsGaps', false), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_avs_lacunes_status', 'no_gaps'));
+    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
+  });
+
+  test('save_fact hasAvsGaps true preserves precise AVS status', () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers({
+      'q_birth_year': 1970,
+      'q_avs_lacunes_status': 'lived_abroad',
+      'q_avs_years_abroad': 4,
+    });
+
+    expect(await provider.applySaveFact('hasAvsGaps', true), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_avs_lacunes_status', 'lived_abroad'));
+    expect(provider.profile?.prevoyance.lacunesAVS, 4);
+  });
+
+  test('save_fact hasAvsGaps true preserves arrived-late AVS status',
+      () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers({
+      'q_birth_year': 1975,
+      'q_avs_lacunes_status': 'arrived_late',
+      'q_avs_arrival_year': 2005,
+    });
+
+    expect(await provider.applySaveFact('hasAvsGaps', true), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_avs_lacunes_status', 'arrived_late'));
+    expect(answers, containsPair('q_avs_arrival_year', 2005));
+    expect(provider.profile?.prevoyance.lacunesAVS, 9);
+  });
 }

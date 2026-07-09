@@ -546,6 +546,14 @@ class CoachProfileProvider extends ChangeNotifier {
     if (confidence == 'low') return false; // mirror backend skip
     final mapped = _mapFactKeyToAnswers(factKey, factValue);
     if (mapped.isEmpty) return false;
+    if (factKey == 'hasAvsGaps' && _asBool(factValue) == true) {
+      final current = await ReportPersistenceService.loadAnswers();
+      final currentStatus = current['q_avs_lacunes_status'];
+      if (currentStatus == 'arrived_late' || currentStatus == 'lived_abroad') {
+        await mergeAnswers({'q_avs_lacunes_status': currentStatus});
+        return true;
+      }
+    }
     await mergeAnswers(mapped);
     return true;
   }
@@ -618,6 +626,13 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_cash_total': value};
       case 'wealthEstimate':
         return {'q_wealth_estimate': value};
+      // AVS
+      case 'avsContributionYears':
+        return {'q_avs_contribution_years': value};
+      case 'hasAvsGaps':
+        final hasGaps = _asBool(value);
+        if (hasGaps == null) return const {};
+        return {'q_avs_lacunes_status': hasGaps ? 'unknown' : 'no_gaps'};
       default:
         return const {};
     }
@@ -626,6 +641,26 @@ class CoachProfileProvider extends ChangeNotifier {
   static num? _asNum(dynamic v) {
     if (v is num) return v;
     if (v is String) return num.tryParse(v);
+    return null;
+  }
+
+  static bool? _asBool(dynamic v) {
+    if (v is bool) return v;
+    if (v is num) return v != 0;
+    if (v is String) {
+      switch (v.toLowerCase()) {
+        case 'true':
+        case 'yes':
+        case 'oui':
+        case '1':
+          return true;
+        case 'false':
+        case 'no':
+        case 'non':
+        case '0':
+          return false;
+      }
+    }
     return null;
   }
 
