@@ -111,7 +111,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `_coach_avs_ramd`, `_coach_avs_source`
 
 **LPP (2nd pillar)**
-- `q_avoir_lpp` (total legacy), `_coach_avoir_lpp` (scanned total),
+- `q_has_pension_fund` (`yes`|`no` string), `q_avoir_lpp` (total legacy),
+  `_coach_avoir_lpp` (scanned total),
   `_coach_avoir_lpp_oblig`, `_coach_avoir_lpp_suroblig`,
   `_coach_taux_conversion`, `_coach_taux_conversion_suroblig`,
   `_coach_salaire_assure`, `_coach_rachat_maximum`,
