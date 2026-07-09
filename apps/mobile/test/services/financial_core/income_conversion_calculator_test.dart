@@ -21,9 +21,26 @@ void main() {
     );
 
     expect(annualGross, 120000);
-    expect(IncomeConversionCalculator.annualBonusFromPercentage(annualGross: annualGross, bonusPercentage: 10), 12000);
-    expect(IncomeConversionCalculator.bonusPercentageFromAnnualBonus(annualBonus: 12000, annualBaseSalary: annualGross), 10);
-    expect(IncomeConversionCalculator.annualGrossFromMonthly(monthlyGross: 10000, months: 0), 0);
-    expect(IncomeConversionCalculator.bonusPercentageFromAnnualBonus(annualBonus: 12000, annualBaseSalary: 0), isNull);
+    expect(IncomeConversionCalculator.monthlyAmountFromAnnual(144000), 12000);
+    expect(
+      IncomeConversionCalculator.monthlyAmountFromAnnual(130000, months: 13),
+      10000,
+    );
+    expect(
+        IncomeConversionCalculator.annualBonusFromPercentage(
+            annualGross: annualGross, bonusPercentage: 10),
+        12000);
+    expect(
+        IncomeConversionCalculator.bonusPercentageFromAnnualBonus(
+            annualBonus: 12000, annualBaseSalary: annualGross),
+        10);
+    expect(
+        IncomeConversionCalculator.annualGrossFromMonthly(
+            monthlyGross: 10000, months: 0),
+        0);
+    expect(
+        IncomeConversionCalculator.bonusPercentageFromAnnualBonus(
+            annualBonus: 12000, annualBaseSalary: 0),
+        isNull);
   });
 }

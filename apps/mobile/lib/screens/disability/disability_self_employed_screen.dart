@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/disability_red_screen_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -28,61 +29,92 @@ class DisabilitySelfEmployedScreen extends StatefulWidget {
 
 class _DisabilitySelfEmployedScreenState
     extends State<DisabilitySelfEmployedScreen> {
-  double _monthlyRevenue = 8000;
   bool _hasPerteDegain = false;
-  bool _seededFromProfile = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_seededFromProfile) return;
-    _seededFromProfile = true;
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
-    setState(() {
-      final salary = profile.salaireBrutMensuel;
-      if (salary > 0) _monthlyRevenue = salary.clamp(2000.0, 25000.0);
-    });
+  CoachProfileProvider? _profileProvider(BuildContext context) {
+    try {
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  double? _annualIncome(CoachProfileProvider? provider) {
+    final income = provider?.profile?.selfEmployedNetIncome;
+    if (income != null && income > 0) return income.toDouble();
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final provider = _profileProvider(context);
+    final annualIncome = _annualIncome(provider);
+    final monthlyRevenue = annualIncome == null
+        ? null
+        : IncomeConversionCalculator.monthlyAmountFromAnnual(annualIncome);
+
     return Scaffold(
       backgroundColor: MintColors.redBgLight, // fond rouge très pale
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 20),
-                MintEntrance(child: _buildRevenueSlider()),
-                const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: DisabilityRedScreenWidget(
-                  monthlyExpenses: _monthlyRevenue * 0.70,
-                  hasPerteDegain: _hasPerteDegain,
-                )),
-                const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCountdownWidget(
-                  monthlyExpenses: _monthlyRevenue * 0.70,
-                  initialSavings: _monthlyRevenue * 3, // hypothèse 3 mois
-                )),
-                const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPerteDegainToggle()),
-                const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: EduDisclaimer(
-                  text: S.of(context)!.disabilitySelfEmployedDisclaimer,
-                )),
-                const SizedBox(height: 8),
-                EduLegalSources(
-                  sources: S.of(context)!.disabilitySelfEmployedSources,
-                ),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 20),
+                        MintEntrance(
+                            child: _buildLedgerFactsCard(
+                                context, s, annualIncome)),
+                        const SizedBox(height: 20),
+                        if (monthlyRevenue != null) ...[
+                          Semantics(
+                            key: const Key('disability_self_result_cards'),
+                            identifier: 'disability_self_result_cards',
+                            child: Column(
+                              children: [
+                                MintEntrance(
+                                    delay: const Duration(milliseconds: 100),
+                                    child: DisabilityRedScreenWidget(
+                                      monthlyExpenses: monthlyRevenue * 0.70,
+                                      hasPerteDegain: _hasPerteDegain,
+                                    )),
+                                const SizedBox(height: 20),
+                                MintEntrance(
+                                    delay: const Duration(milliseconds: 200),
+                                    child: DisabilityCountdownWidget(
+                                      monthlyExpenses: monthlyRevenue * 0.70,
+                                      initialSavings: monthlyRevenue * 3,
+                                    )),
+                                const SizedBox(height: 20),
+                                MintEntrance(
+                                    delay: const Duration(milliseconds: 300),
+                                    child: _buildPerteDegainToggle()),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ],
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 400),
+                            child: EduDisclaimer(
+                              text: S
+                                  .of(context)!
+                                  .disabilitySelfEmployedDisclaimer,
+                            )),
+                        const SizedBox(height: 8),
+                        EduLegalSources(
+                          sources: S.of(context)!.disabilitySelfEmployedSources,
+                        ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ))),
     );
   }
 
@@ -117,7 +149,8 @@ class _DisabilitySelfEmployedScreenState
                     ),
                     child: Text(
                       S.of(context)!.disabilitySelfEmployedAlertLabel,
-                      style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(
+                      style: MintTextStyles.labelSmall(color: MintColors.white)
+                          .copyWith(
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1,
                       ),
@@ -126,7 +159,9 @@ class _DisabilitySelfEmployedScreenState
                   const SizedBox(height: MintSpacing.sm),
                   Text(
                     S.of(context)!.disabilitySelfEmployedTitle,
-                    style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
+                    style:
+                        MintTextStyles.headlineMedium(color: MintColors.white)
+                            .copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -136,38 +171,98 @@ class _DisabilitySelfEmployedScreenState
       ),
       title: Text(
         S.of(context)!.disabilitySelfEmployedAppBarTitle,
-        style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+        style: MintTextStyles.bodyLarge(color: MintColors.white)
+            .copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
 
-  Widget _buildRevenueSlider() {
-    return MintSurface(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.of(context)!.disabilitySelfEmployedRevenueTitle,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            S.of(context)!.disabilitySelfEmployedRevenueHint,
-            style: MintTextStyles.labelSmall(),
-          ),
-          const SizedBox(height: 12),
-          MintPremiumSlider(
-            label: S.of(context)!.disabilitySelfEmployedRevenueLabel,
-            value: _monthlyRevenue,
-            min: 2000,
-            max: 25000,
-            divisions: 46,
-            formatValue: (v) => "CHF ${_fmtChf(v)}",
-            activeColor: MintColors.critical,
-            onChanged: (v) => setState(() => _monthlyRevenue = v),
-          ),
-        ],
+  Widget _buildLedgerFactsCard(
+    BuildContext context,
+    S s,
+    double? annualIncome,
+  ) {
+    final hasMissing = annualIncome == null;
+    final incomeLabel =
+        hasMissing ? s.dataBlockStatusMissing : 'CHF ${_fmtChf(annualIncome)}';
+    return Semantics(
+      key: const Key('disability_self_ledger_facts'),
+      identifier: 'disability_self_ledger_facts',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  hasMissing
+                      ? Icons.manage_search_outlined
+                      : Icons.check_circle_outline,
+                  color: hasMissing ? MintColors.warning : MintColors.success,
+                  size: 20,
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    hasMissing
+                        ? s.dataQualityMissingSection
+                        : s.dataQualityKnownSection,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => context.push(
+                      '/data-block/revenu?inputKey=q_self_employed_income'),
+                  icon: Icon(
+                    hasMissing ? Icons.add_circle_outline : Icons.edit_outlined,
+                    size: 18,
+                  ),
+                  label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm + 4),
+            Semantics(
+              key: const Key('disability_self_income_fact'),
+              identifier: 'disability_self_income_fact',
+              label: '${s.independantRevenueTitle}, $incomeLabel',
+              container: true,
+              child: Row(
+                children: [
+                  Icon(
+                    hasMissing
+                        ? Icons.help_outline
+                        : Icons.check_circle_outline,
+                    color: hasMissing ? MintColors.warning : MintColors.success,
+                    size: 16,
+                  ),
+                  const SizedBox(width: MintSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      s.independantRevenueTitle,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    incomeLabel,
+                    style: MintTextStyles.bodySmall(
+                      color: hasMissing
+                          ? MintColors.warning
+                          : MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -180,19 +275,24 @@ class _DisabilitySelfEmployedScreenState
         children: [
           Text(
             S.of(context)!.disabilitySelfEmployedInsuranceQuestion,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: _buildToggleChip(S.of(context)!.disabilitySelfEmployedYes, _hasPerteDegain,
+                child: _buildToggleChip(
+                    S.of(context)!.disabilitySelfEmployedYes,
+                    _hasPerteDegain,
                     () => setState(() => _hasPerteDegain = true),
                     color: MintColors.success),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildToggleChip(S.of(context)!.disabilitySelfEmployedNo, !_hasPerteDegain,
+                child: _buildToggleChip(
+                    S.of(context)!.disabilitySelfEmployedNo,
+                    !_hasPerteDegain,
                     () => setState(() => _hasPerteDegain = false),
                     color: MintColors.critical),
               ),
@@ -214,7 +314,9 @@ class _DisabilitySelfEmployedScreenState
                   Expanded(
                     child: Text(
                       S.of(context)!.disabilitySelfEmployedApgTip,
-                      style: MintTextStyles.labelSmall(color: MintColors.amberDark).copyWith(height: 1.4),
+                      style:
+                          MintTextStyles.labelSmall(color: MintColors.amberDark)
+                              .copyWith(height: 1.4),
                     ),
                   ),
                 ],
@@ -232,27 +334,30 @@ class _DisabilitySelfEmployedScreenState
       label: label,
       button: true,
       child: GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.08) : MintColors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? color : MintColors.border,
-            width: selected ? 2 : 1,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: selected
+                ? color.withValues(alpha: 0.08)
+                : MintColors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? color : MintColors.border,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(
+                color: selected ? color : MintColors.textSecondary,
+              ).copyWith(
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400),
+            ),
           ),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: MintTextStyles.bodySmall(
-              color: selected ? color : MintColors.textSecondary,
-            ).copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w400),
-          ),
-        ),
-      ),
       ),
     );
   }
