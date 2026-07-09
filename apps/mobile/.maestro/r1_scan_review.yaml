@@ -11,4 +11,4 @@ appId: ch.mint.app
 - tapOn:
     id: "scan_review_recovery_cta"
 - assertVisible:
-    text: "Prendre une photo"
+    id: "document_scan_capture_cta"
