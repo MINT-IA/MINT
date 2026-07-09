@@ -18,6 +18,7 @@ Docs are executable specs, not gospel. Challenge them against the live repo. If
 docs and implementation diverge, reconcile with code, SOT/OpenAPI, and ADRs:
 fix the implementation, update the spec, or write a new ADR/test that names the
 accepted divergence. Engram is never source of truth; it is only a recall index.
+Checked-in hooks/CI, not memory, enforce mechanical rules.
 docs/ evolution specs sit below visions/ but above ADRs.
 
 ## 1) Commandes standards
