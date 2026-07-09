@@ -544,6 +544,16 @@ void main() {
     expect(answers, containsPair('q_has_pension_fund', 'yes'));
   });
 
+  test('save_fact hasVoluntaryLpp true hydrates pension fund cold-start',
+      () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('hasVoluntaryLpp', true), isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_voluntary_lpp', 'yes'));
+    expect(answers, containsPair('q_has_pension_fund', 'yes'));
+    expect(provider.profile?.prevoyance.toJson()['hasVoluntaryLpp'], true);
+  });
+
   test('save_fact hasVoluntaryLpp enables independent LPP path', () async {
     final provider = CoachProfileProvider();
     expect(await provider.applySaveFact('birthYear', 1980), isTrue);
