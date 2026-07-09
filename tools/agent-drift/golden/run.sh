@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Golden prompts harness runner (CTX-02 metric d — time-to-first-correct-output).
 #
-# Delegates to run.py which implements real `claude -p` per-prompt execution
+# Delegates to run.py which implements bounded Claude print per-prompt execution
 # + domain-specific pass/fail checks + JSONL results output.
 #
 # Per D-11: 20 prompts covering 5 domains (i18n, financial_core, retirement,
