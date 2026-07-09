@@ -52,11 +52,31 @@ EXCLUDE_SUBSTRINGS = (
     "/docs/archive/",
     "/.planning/archives/",
 )
+ROUTE_OR_URL_LITERAL_RE = re.compile(
+    r"""(?P<quote>['"])(?:[a-z][a-z0-9+.-]*:)?/{1,3}[^'"\s]*(?P=quote)""",
+    re.IGNORECASE,
+)
+NON_FRENCH_GENERATED_L10N_RE = re.compile(
+    r"^app_localizations_(?!fr\b)[a-z]{2}\.dart$"
+)
+
+
+def _line_for_lint(path: Path, line: str) -> str:
+    lint_line = line
+    if path.suffix == ".md":
+        lint_line = re.sub(r"`[^`]*`", "", lint_line)
+    if path.suffix == ".dart":
+        lint_line = ROUTE_OR_URL_LITERAL_RE.sub("", lint_line)
+    return lint_line
 
 
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
     """Return list of (lineno, snippet, pattern->correction) violations."""
     if path.name == "accent_lint_fr.py":
+        return []
+    if path.suffix == ".arb" and path.name != "app_fr.arb":
+        return []
+    if NON_FRENCH_GENERATED_L10N_RE.match(path.name):
         return []
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
@@ -64,9 +84,7 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
         return []
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
-        lint_line = line
-        if path.suffix == ".md":
-            lint_line = re.sub(r"`[^`]*`", "", line)
+        lint_line = _line_for_lint(path, line)
         for pat, correct in PATTERNS:
             if re.search(pat, lint_line, re.IGNORECASE):
                 snippet = line.strip()[:140]

@@ -1,0 +1,14 @@
+appId: ch.mint.app
+---
+# R-1: /scan/review without a GoRouter extra must expose a recovery action.
+- launchApp:
+    clearState: true
+- openLink: "mint:///scan/review"
+- assertNotVisible:
+    text: "Document non disponible"
+- assertVisible:
+    id: "scan_review_recovery_cta"
+- tapOn:
+    id: "scan_review_recovery_cta"
+- assertVisible:
+    text: "Prendre une photo"

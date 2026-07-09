@@ -367,7 +367,7 @@ Any other transition throws `StateError`.
 | routesOut | `/home`, `/confidence`, `/scan`, `/explore/<relevant domain>` |
 | killFlag | enableScan |
 
-> Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a `MintButton` whose label resolves to a non-null `AppLocalizations` key; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.
+> Test: `test/routing/scan_flow_repair_test.dart` — pump `/scan/review` and `/scan/impact` with `extra: null` and no query param → assert an AppBar with a back button AND a localized CTA exposed by stable `Semantics(identifier:)` for Maestro; assert NO widget with literal text `Document non disponible` and NO bare `Center(child: Text(...))`.
 
 ---
 

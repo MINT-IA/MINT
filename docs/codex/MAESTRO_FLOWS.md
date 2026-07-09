@@ -9,9 +9,9 @@
 
 ## 0. Reality check — partial Maestro setup exists
 
-- `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` exists and is the only checked-in Maestro flow at `095eeaa32`.
+- `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` exists at `095eeaa32`; R-1/R-2 scan recovery flows are checked in by the G1 repair slice.
 - The F-2 stable ids are present: `salary_input`, `canton_picker`, `birth_year_input`, `has_pension_fund_switch`, `salary_save_cta`, `mortgage_afford_result`, `mortgage_income_amount`.
-- IDs for F-1/F-3/F-5/F-6 and scan recovery are still missing or not fully wired (`coach_input`, `coach_send`, `retirement_gap_value`, `property_value_input`, `succession_parents_note`, `divorce_regime_picker`, `divorce_lpp_split_result`, `scan_review_recovery_cta`, `scan_impact_recovery_cta`, `report_investment_card`).
+- IDs for F-1/F-3/F-5/F-6 are still missing or not fully wired (`coach_input`, `coach_send`, `retirement_gap_value`, `property_value_input`, `succession_parents_note`, `divorce_regime_picker`, `divorce_lpp_split_result`, `report_investment_card`).
 - **Deep links are partial.** iOS has `CFBundleURLSchemes` with `mint` (`ios/Runner/Info.plist:21-29`). Android still has no `mint://` intent-filter on `MainActivity` (only `MAIN`/`LAUNCHER`, `AndroidManifest.xml:25-28`; `https` appears only under `<queries>`, `:34-38`). Android `openLink: "mint:///..."` is dead until Task M-0a registers the scheme.
 
 ### Task M-0 — Setup, deep-link scheme, and required ids to ADD (file : what)
@@ -180,9 +180,9 @@ appId: ch.mint.app
 - assertNotVisible: { text: "Document non disponible" }   # the blank trap
 - assertVisible: { id: "scan_review_recovery_cta" }        # recovery exists
 - tapOn: { id: "scan_review_recovery_cta" }
-- assertVisible: { text: "Scanner" }          # lands back on /scan, not stuck
+- assertVisible: { text: "Prendre une photo" } # lands back on /scan, not stuck
 ```
-**G1 status: FAILS** — `app.dart:913-916` renders `Scaffold(Center(Text('Document non disponible')))`, no AppBar, no CTA, not i18n. Fix per `SCREEN_CONTRACTS.md` errorState + `WIRING_GRAPH` I-2.
+**G1 repair status:** checked-in flow exists; the blank trap is covered by `apps/mobile/test/routing/scan_flow_repair_test.dart`. Runtime acceptance still requires running this Maestro flow against the app.
 
 ### R-2 /scan/impact with no extra must NOT trap (D-2)
 File: `apps/mobile/.maestro/r2_scan_impact.yaml`
@@ -194,9 +194,9 @@ appId: ch.mint.app
 - assertNotVisible: { text: "Document non disponible" }   # the blank trap
 - assertVisible: { id: "scan_impact_recovery_cta" }        # recovery exists
 - tapOn: { id: "scan_impact_recovery_cta" }
-- assertVisible: { text: "Scanner" }          # lands back on /scan, not stuck
+- assertVisible: { text: "MINT" }             # lands on /home, not stuck
 ```
-**G1 status: FAILS** — `app.dart:925-931` renders `Scaffold(Center(Text('Document non disponible')))` when `extra` is null or missing `result`/`previousConfidence`, no AppBar, no CTA, not i18n. Same blank trap as R-1. Fix per `SCREEN_CONTRACTS.md` errorState.
+**G1 repair status:** checked-in flow exists; the blank trap is covered by `apps/mobile/test/routing/scan_flow_repair_test.dart`. Runtime acceptance still requires running this Maestro flow against the app.
 
 ### R-3 financial-report investment card reaches an actionable destination (D-4)
 File: `apps/mobile/.maestro/r3_report_investment_card.yaml`

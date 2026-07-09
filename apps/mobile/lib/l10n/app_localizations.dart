@@ -40335,6 +40335,54 @@ abstract class S {
   /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
   String get safeModeFormalDesendettementNote;
 
+  /// Title for the scan review degraded route.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le document'**
+  String get scanReviewTitle;
+
+  /// Empty state title when /scan/review has no recoverable scan payload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document à rescanner'**
+  String get scanReviewEmptyTitle;
+
+  /// Empty state body when /scan/review has no recoverable scan payload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document n\'est plus disponible. Tu peux le scanner à nouveau.'**
+  String get scanReviewEmptyBody;
+
+  /// Primary CTA on /scan/review degraded route.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rescanner'**
+  String get scanReviewRescan;
+
+  /// Title for the scan impact degraded route.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact du scan'**
+  String get scanImpactTitle;
+
+  /// Empty state title when /scan/impact has no recoverable scan payload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun impact à afficher'**
+  String get scanImpactEmptyTitle;
+
+  /// Empty state body when /scan/impact has no recoverable scan payload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le résultat du scan n\'est plus attaché à cette session.'**
+  String get scanImpactEmptyBody;
+
+  /// Primary CTA on /scan/impact degraded route.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon aperçu'**
+  String get scanImpactBackHome;
+
   /// Persistent event summary when an LPP certificate is scanned.
   ///
   /// In fr, this message translates to:

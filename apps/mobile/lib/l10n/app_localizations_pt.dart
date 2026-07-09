@@ -22995,6 +22995,32 @@ class SPt extends S {
       'Estes levantamentos continuam possíveis em caso de procedimento formal de saneamento de dívidas — fala com um especialista.';
 
   @override
+  String get scanReviewTitle => 'Rever o documento';
+
+  @override
+  String get scanReviewEmptyTitle => 'Digitaliza o documento novamente';
+
+  @override
+  String get scanReviewEmptyBody =>
+      'Este documento já não está disponível. Podes digitalizá-lo novamente.';
+
+  @override
+  String get scanReviewRescan => 'Digitalizar novamente';
+
+  @override
+  String get scanImpactTitle => 'Impacto da digitalização';
+
+  @override
+  String get scanImpactEmptyTitle => 'Nenhum impacto para mostrar';
+
+  @override
+  String get scanImpactEmptyBody =>
+      'O resultado da digitalização já não está ligado a esta sessão.';
+
+  @override
+  String get scanImpactBackHome => 'Ver a minha visão geral';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificado LPP digitalizado';
 
   @override
