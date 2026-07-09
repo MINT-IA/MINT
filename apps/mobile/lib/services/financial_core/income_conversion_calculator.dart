@@ -8,6 +8,7 @@ class IncomeConversionCalculator {
   static const double minimumEmploymentRatePercent = 0.0;
   static const double fullTimeEmploymentRatePercent = 100.0;
   static const double defaultAnnualSalaryMonths = 12.0;
+  static const double fallbackSwissSocialChargesRate = 0.13;
 
   static double clampEmploymentRatePercent(double? value) {
     return (value ?? fullTimeEmploymentRatePercent)

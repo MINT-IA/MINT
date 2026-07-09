@@ -36,6 +36,11 @@ void main() {
       expect(SecureWizardStore.isSensitive('q_wealth_estimate'), isTrue);
     });
 
+    test('treats partner income as sensitive but not partner birth year', () {
+      expect(SecureWizardStore.isSensitive('q_partner_net_income_chf'), isTrue);
+      expect(SecureWizardStore.isSensitive('q_partner_birth_year'), isFalse);
+    });
+
     test('treats debt ledger keys as sensitive', () {
       expect(SecureWizardStore.isSensitive('q_has_consumer_debt'), isTrue);
       expect(SecureWizardStore.isSensitive('_coach_dettes_hypotheque'), isTrue);

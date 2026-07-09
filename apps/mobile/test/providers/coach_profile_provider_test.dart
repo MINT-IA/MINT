@@ -263,6 +263,174 @@ void main() {
     expect(provider.profile?.prevoyance.lacunesAVS, 9);
   });
 
+  test('save_fact spouse facts hydrate readable conjoint keys', () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+    ));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(await provider.applySaveFact('spouseIncomeNetMonthly', 7000),
+        isTrue);
+    expect(await provider.applySaveFact('spouseBirthYear', 1988), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_partner_net_income_chf', 7000));
+    expect(answers, containsPair('q_partner_birth_year', 1988));
+    expect(provider.profile?.conjoint?.birthYear, 1988);
+    expect(
+      provider.profile?.conjoint?.salaireBrutMensuel,
+      closeTo(7000 / 0.87, 0.001),
+    );
+  });
+
+  test('save_fact spouse birth year alone hydrates conjoint', () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+    ));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(await provider.applySaveFact('spouseBirthYear', 1988), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_partner_birth_year', 1988));
+    expect(answers['q_partner_net_income_chf'], isNull);
+    expect(provider.profile?.conjoint?.birthYear, 1988);
+    expect(provider.profile?.conjoint?.salaireBrutMensuel, isNull);
+  });
+
+  test('save_fact spouse facts are ignored for non-coupled profiles',
+      () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults());
+    await Future<void>.delayed(Duration.zero);
+
+    expect(provider.profile?.etatCivil, CoachCivilStatus.celibataire);
+    expect(await provider.applySaveFact('spouseIncomeNetMonthly', 7000),
+        isFalse);
+    expect(await provider.applySaveFact('spouseBirthYear', 1988), isFalse);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_partner_net_income_chf'], isNull);
+    expect(answers['q_partner_birth_year'], isNull);
+    expect(secureStorageValues['q_partner_net_income_chf'], isNull);
+    expect(provider.profile?.conjoint, isNull);
+  });
+
+  test('save_fact householdType single clears stale spouse answers', () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+    ));
+    await Future<void>.delayed(Duration.zero);
+    expect(await provider.applySaveFact('spouseBirthYear', 1988), isTrue);
+    expect(await provider.applySaveFact('spouseIncomeNetMonthly', 7000),
+        isTrue);
+    expect(provider.profile?.conjoint, isNotNull);
+    expect(secureStorageValues['q_partner_net_income_chf'], isNotNull);
+
+    expect(await provider.applySaveFact('householdType', 'single'), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(provider.profile?.etatCivil, CoachCivilStatus.celibataire);
+    expect(provider.profile?.conjoint, isNull);
+    expect(answers['q_partner_birth_year'], isNull);
+    expect(answers['q_partner_net_income_chf'], isNull);
+    expect(secureStorageValues['q_partner_net_income_chf'], isNull);
+  });
+
+  test('save_fact spouse birth year rejects impossible values when coupled',
+      () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+    ));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(await provider.applySaveFact('spouseBirthYear', 2200), isFalse);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_partner_birth_year'], isNull);
+    expect(provider.profile?.conjoint, isNull);
+  });
+
+  test('updateProfile preserves spouse income through readable keys', () async {
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+      conjoint: const ConjointProfile(
+        birthYear: 1988,
+        salaireBrutMensuel: 8000,
+      ),
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_partner_birth_year', 1988));
+    expect(answers['q_partner_net_income_chf'], closeTo(8000 * 0.87, 0.001));
+    final rehydrated = CoachProfile.fromWizardAnswers(answers);
+    expect(rehydrated.conjoint?.birthYear, 1988);
+    expect(rehydrated.conjoint?.salaireBrutMensuel, closeTo(8000, 0.001));
+  });
+
+  test('updateProfile clears spouse answers and secure income when single',
+      () async {
+    final provider = CoachProfileProvider();
+    final married = CoachProfile.defaults().copyWith(
+      etatCivil: CoachCivilStatus.marie,
+      conjoint: const ConjointProfile(
+        birthYear: 1988,
+        salaireBrutMensuel: 8000,
+      ),
+    );
+
+    provider.updateProfile(married);
+    await Future<void>.delayed(Duration.zero);
+    var answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_partner_birth_year', 1988));
+    expect(answers['q_partner_net_income_chf'], closeTo(8000 * 0.87, 0.001));
+    expect(secureStorageValues['q_partner_net_income_chf'], isNotNull);
+    secureStorageValues['q_partner_salary'] = 'legacy-secret';
+
+    provider.updateProfile(married.copyWith(
+      etatCivil: CoachCivilStatus.celibataire,
+    ));
+    await Future<void>.delayed(Duration.zero);
+
+    answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_partner_birth_year'], isNull);
+    expect(answers['q_partner_net_income_chf'], isNull);
+    expect(secureStorageValues['q_partner_net_income_chf'], isNull);
+    expect(secureStorageValues['q_partner_salary'], isNull);
+    expect(CoachProfile.fromWizardAnswers(answers).conjoint, isNull);
+  });
+
+  test('updateProfile ignores non-null spouse on non-coupled profile',
+      () async {
+    final provider = CoachProfileProvider();
+    final inconsistentSingle = CoachProfile.defaults().copyWith(
+      conjoint: const ConjointProfile(
+        birthYear: 1988,
+        salaireBrutMensuel: 8000,
+      ),
+    );
+
+    expect(inconsistentSingle.etatCivil, CoachCivilStatus.celibataire);
+    expect(inconsistentSingle.conjoint, isNotNull);
+
+    provider.updateProfile(inconsistentSingle);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_partner_birth_year'], isNull);
+    expect(answers['q_partner_net_income_chf'], isNull);
+    expect(secureStorageValues['q_partner_net_income_chf'], isNull);
+    expect(CoachProfile.fromWizardAnswers(answers).conjoint, isNull);
+  });
+
   test('save_fact debt facts hydrate readable debt keys', () async {
     final provider = CoachProfileProvider();
 

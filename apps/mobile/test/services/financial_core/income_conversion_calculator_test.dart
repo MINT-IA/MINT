@@ -2,6 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 
 void main() {
+  test('exposes shared fallback Swiss social charge rate', () {
+    expect(IncomeConversionCalculator.fallbackSwissSocialChargesRate, 0.13);
+  });
+
   test('normalizes and converts income values', () {
     expect(IncomeConversionCalculator.clampEmploymentRatePercent(null), 100);
     expect(IncomeConversionCalculator.clampEmploymentRatePercent(-10), 0);
