@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 // Screens under test
 import 'package:mint_mobile/screens/independant_screen.dart';
 import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
+import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
@@ -509,7 +510,67 @@ void main() {
   });
 
   // ===========================================================================
-  // 4. PILLAR 3A INDEPENDANT SCREEN
+  // 4. IJM SCREEN
+  // ===========================================================================
+
+  group('IjmScreen', () {
+    Future<void> pumpIjm(
+      WidgetTester tester,
+      Map<String, dynamic> answers,
+    ) async {
+      await tester.pumpWidget(buildWithCoachProfileProvider(
+        RecordingCoachProfileProvider(answers),
+        const IjmScreen(),
+      ));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+    }
+
+    testWidgets('uses ledger facts instead of local income or age sliders',
+        (tester) async {
+      await pumpIjm(
+        tester,
+        independentAnswers(
+          selfIncome: 144000,
+          birthYear: DateTime.now().year - 48,
+        ),
+      );
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.byKey(const Key('ijm_ledger_facts')), findsOneWidget);
+      expect(find.textContaining("144'000"), findsOneWidget);
+      expect(find.text('48 ans'), findsOneWidget);
+      expect(find.byKey(const Key('ijm_result_cards')), findsOneWidget);
+    });
+
+    testWidgets('does not calculate from a gross salary fallback',
+        (tester) async {
+      await pumpIjm(
+        tester,
+        independentAnswers(
+          grossSalary: 240000,
+          birthYear: DateTime.now().year - 48,
+        ),
+      );
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 240'000"), findsNothing);
+      expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+    });
+
+    testWidgets('shows missing facts instead of defaulting to a monthly value',
+        (tester) async {
+      await pumpIjm(tester, independentAnswers());
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 6'000"), findsNothing);
+      expect(find.text('Manquant'), findsNWidgets(2));
+      expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+    });
+  });
+
+  // ===========================================================================
+  // 5. PILLAR 3A INDEPENDANT SCREEN
   // ===========================================================================
 
   group('Pillar3aIndepScreen', () {
@@ -696,7 +757,7 @@ void main() {
   // ExploreTab tests removed — screen deleted in S49 Phase 5
 
   // ===========================================================================
-  // 5. TIMELINE SCREEN
+  // 6. TIMELINE SCREEN
   //    Uses a larger surface size to prevent overflow in quick-action cards.
   // ===========================================================================
 
@@ -785,7 +846,7 @@ void main() {
   });
 
   // ===========================================================================
-  // 6. BUDGET CONTAINER SCREEN (needs BudgetProvider)
+  // 7. BUDGET CONTAINER SCREEN (needs BudgetProvider)
   // ===========================================================================
 
   group('BudgetContainerScreen', () {

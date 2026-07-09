@@ -1,0 +1,53 @@
+appId: ch.mint.app
+---
+# IJM renders ledger facts, collects missing facts through DataBlock, then shows results.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///independants/ijm"
+- assertVisible:
+    text: "Assurance IJM"
+- assertVisible:
+    id: "ijm_ledger_facts"
+- assertVisible:
+    id: "ijm_income_fact"
+- assertVisible:
+    id: "ijm_age_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- openLink: "mint:///data-block/revenu?inputKey=q_self_employed_income"
+- assertVisible:
+    id: "self_employed_income_input"
+- tapOn:
+    id: "self_employed_income_input"
+- inputText: "144000"
+- tapOn:
+    id: "salary_save_cta"
+- openLink: "mint:///data-block/revenu?inputKey=q_birth_year"
+- assertVisible:
+    id: "birth_year_input"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "1978"
+- tapOn:
+    id: "salary_save_cta"
+- openLink: "mint:///independants/ijm"
+- assertVisible:
+    id: "ijm_ledger_facts"
+- scrollUntilVisible:
+    element:
+      id: "ijm_result_cards"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      id: "ijm_coverage_timeline"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true

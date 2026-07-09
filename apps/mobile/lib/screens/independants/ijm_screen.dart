@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/independants_service.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -19,49 +20,50 @@ class IjmScreen extends StatefulWidget {
 }
 
 class _IjmScreenState extends State<IjmScreen> {
-  double _revenuMensuel = 6000;
-  int _age = 40;
+  static const int _ageMin = 18;
+  static const int _ageMax = avsAgeReferenceHomme;
+
   int _delaiCarence = 30;
-  IjmResult? _result;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
-    _calculate();
-  }
-
-  void _initializeFromProfile() {
+  CoachProfileProvider? _profileProvider(BuildContext context) {
     try {
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
-      bool changed = false;
-      if (profile.salaireBrutMensuel > 0) {
-        _revenuMensuel = profile.salaireBrutMensuel.clamp(0, 20000);
-        changed = true;
-      }
-      final age = profile.age;
-      if (age >= 18 && age <= avsAgeReferenceHomme) {
-        _age = age;
-        changed = true;
-      }
-      if (changed) _calculate();
-    } catch (_) {
-      // Provider not available
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
     }
   }
 
-  void _calculate() {
-    setState(() {
-      _result = IndependantsService.calculateIjm(_revenuMensuel, _age, _delaiCarence);
-    });
+  double? _annualIncome(CoachProfileProvider? provider) {
+    final annualIncome = provider?.profile?.selfEmployedNetIncome;
+    if (annualIncome != null && annualIncome > 0) {
+      return annualIncome.toDouble();
+    }
+    return null;
+  }
+
+  int? _age(CoachProfileProvider? provider) {
+    final age = provider?.profile?.ageOrNull;
+    if (age != null && age >= _ageMin && age <= _ageMax) {
+      return age;
+    }
+    return null;
+  }
+
+  IjmResult? _computeResult(double? annualIncome, int? age) {
+    if (annualIncome == null || age == null) return null;
+    // IJM uses declared independent net income; this only periodizes it.
+    final monthlyIncome = IncomeConversionCalculator.monthlyGrossFromAnnualGross(annualIncome);
+    return IndependantsService.calculateIjm(monthlyIncome, age, _delaiCarence);
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
+    final provider = _profileProvider(context);
+    final annualIncome = _annualIncome(provider);
+    final age = _age(provider);
+    final result = _computeResult(annualIncome, age);
+
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
@@ -78,22 +80,20 @@ class _IjmScreenState extends State<IjmScreen> {
           children: [
             MintEntrance(child: _buildHeader(s)),
             const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderCard(title: s.ijmRevenuMensuel, valueLabel: IndependantsService.formatChf(_revenuMensuel), minLabel: s.ijmSliderMinChf0, maxLabel: s.ijmSliderMax20k, value: _revenuMensuel, min: 0, max: 20000, divisions: 200, onChanged: (v) { _revenuMensuel = v; _calculate(); })),
-            const SizedBox(height: MintSpacing.md + 4),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderCard(title: s.ijmTonAge, valueLabel: '$_age ans', minLabel: s.ijmAgeMin, maxLabel: s.ijmAgeMax, value: _age.toDouble(), min: 18, max: 65, divisions: 47, onChanged: (v) { _age = v.toInt(); _calculate(); })),
-            const SizedBox(height: MintSpacing.md + 4),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCarenceToggle(s)),
-            const SizedBox(height: MintSpacing.lg),
-            if (_result != null) ...[
-              _buildPremierEclairage(s),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildLedgerFactsCard(context, s, annualIncome, age)),
+            if (result != null) ...[
               const SizedBox(height: MintSpacing.lg),
-              if (_result!.isHighRisk) ...[
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCarenceToggle(s)),
+              const SizedBox(height: MintSpacing.lg),
+              _buildPremierEclairage(s, result),
+              const SizedBox(height: MintSpacing.lg),
+              if (result.isHighRisk) ...[
                 _buildHighRiskWarning(s),
                 const SizedBox(height: MintSpacing.md + 4),
               ],
-              _buildResultCards(s),
+              _buildResultCards(s, result),
               const SizedBox(height: MintSpacing.lg),
-              _buildCoverageTimeline(s),
+              _buildCoverageTimeline(s, result),
               const SizedBox(height: MintSpacing.lg),
               _buildEducation(s),
               const SizedBox(height: MintSpacing.lg),
@@ -125,18 +125,85 @@ class _IjmScreenState extends State<IjmScreen> {
     );
   }
 
-  Widget _buildSliderCard({required String title, required String valueLabel, required String minLabel, required String maxLabel, required double value, required double min, required double max, required int divisions, required ValueChanged<double> onChanged}) {
-    return MintSurface(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      radius: 16,
-      child: MintPremiumSlider(
-        label: title,
-        value: value,
-        min: min,
-        max: max,
-        divisions: divisions,
-        formatValue: (_) => valueLabel,
-        onChanged: onChanged,
+  Widget _buildLedgerFactsCard(BuildContext context, S s, double? annualIncome, int? age) {
+    final hasMissing = annualIncome == null || age == null;
+    final editRoute = annualIncome == null
+        ? '/data-block/revenu?inputKey=q_self_employed_income'
+        : '/data-block/revenu?inputKey=q_birth_year';
+
+    return Semantics(
+      key: const Key('ijm_ledger_facts'),
+      identifier: 'ijm_ledger_facts',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  hasMissing ? Icons.manage_search_outlined : Icons.check_circle_outline,
+                  color: hasMissing ? MintColors.warning : MintColors.success,
+                  size: 20,
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    hasMissing ? s.dataQualityMissingSection : s.dataQualityKnownSection,
+                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => context.push(editRoute),
+                  icon: Icon(hasMissing ? Icons.add_circle_outline : Icons.edit_outlined, size: 18),
+                  label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm + 4),
+            _buildFactRow(
+              identifier: 'ijm_income_fact',
+              label: s.independantRevenueTitle,
+              value: annualIncome == null
+                  ? s.dataBlockStatusMissing
+                  : IndependantsService.formatChf(annualIncome),
+              isMissing: annualIncome == null,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _buildFactRow(
+              identifier: 'ijm_age_fact',
+              label: s.ijmTonAge,
+              value: age == null ? s.dataBlockStatusMissing : '$age ans',
+              isMissing: age == null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFactRow({required String identifier, required String label, required String value, required bool isMissing}) {
+    return Semantics(
+      identifier: identifier,
+      label: '$label, $value',
+      container: true,
+      child: Row(
+        children: [
+          Icon(
+            isMissing ? Icons.help_outline : Icons.check_circle_outline,
+            color: isMissing ? MintColors.warning : MintColors.success,
+            size: 16,
+          ),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(child: Text(label, style: MintTextStyles.bodySmall(color: MintColors.textSecondary))),
+          Text(
+            value,
+            style: MintTextStyles.bodySmall(color: isMissing ? MintColors.warning : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }
@@ -174,7 +241,7 @@ class _IjmScreenState extends State<IjmScreen> {
         button: true,
         selected: isSelected,
         child: GestureDetector(
-          onTap: () { _delaiCarence = jours; _calculate(); },
+          onTap: () => setState(() => _delaiCarence = jours),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
@@ -195,8 +262,7 @@ class _IjmScreenState extends State<IjmScreen> {
     );
   }
 
-  Widget _buildPremierEclairage(S s) {
-    final r = _result!;
+  Widget _buildPremierEclairage(S s, IjmResult r) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(color: MintColors.error, borderRadius: BorderRadius.circular(16)),
@@ -238,22 +304,25 @@ class _IjmScreenState extends State<IjmScreen> {
     );
   }
 
-  Widget _buildResultCards(S s) {
-    final r = _result!;
-    return Column(
-      children: [
-        Row(children: [
-          Expanded(child: _buildResultCard(s.ijmPrimeMois, IndependantsService.formatChf(r.primeMensuelle), Icons.payment_outlined)),
-          const SizedBox(width: MintSpacing.sm + 4),
-          Expanded(child: _buildResultCard(s.ijmPrimeAn, IndependantsService.formatChf(r.primeAnnuelle), Icons.calendar_month_outlined)),
-        ]),
-        const SizedBox(height: MintSpacing.sm + 4),
-        Row(children: [
-          Expanded(child: _buildResultCard(s.ijmIndemniteJour, IndependantsService.formatChf(r.indemniteJournaliere), Icons.today_outlined)),
-          const SizedBox(width: MintSpacing.sm + 4),
-          Expanded(child: _buildResultCard(s.ijmTrancheAge, r.ageBandLabel, Icons.person_outline, small: true)),
-        ]),
-      ],
+  Widget _buildResultCards(S s, IjmResult r) {
+    return Semantics(
+      key: const Key('ijm_result_cards'),
+      identifier: 'ijm_result_cards',
+      child: Column(
+        children: [
+          Row(children: [
+            Expanded(child: _buildResultCard(s.ijmPrimeMois, IndependantsService.formatChf(r.primeMensuelle), Icons.payment_outlined)),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(child: _buildResultCard(s.ijmPrimeAn, IndependantsService.formatChf(r.primeAnnuelle), Icons.calendar_month_outlined)),
+          ]),
+          const SizedBox(height: MintSpacing.sm + 4),
+          Row(children: [
+            Expanded(child: _buildResultCard(s.ijmIndemniteJour, IndependantsService.formatChf(r.indemniteJournaliere), Icons.today_outlined)),
+            const SizedBox(width: MintSpacing.sm + 4),
+            Expanded(child: _buildResultCard(s.ijmTrancheAge, r.ageBandLabel, Icons.person_outline, small: true)),
+          ]),
+        ],
+      ),
     );
   }
 
@@ -274,45 +343,48 @@ class _IjmScreenState extends State<IjmScreen> {
     );
   }
 
-  Widget _buildCoverageTimeline(S s) {
-    final r = _result!;
+  Widget _buildCoverageTimeline(S s, IjmResult r) {
     const totalDays = 180;
     final carenceRatio = r.delaiCarence / totalDays;
-    return MintSurface(
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      radius: 16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(s.ijmTimelineTitle, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
-          const SizedBox(height: MintSpacing.md + 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: Row(children: [
-              Expanded(
-                flex: (carenceRatio * 100).toInt().clamp(1, 99),
-                child: Container(height: 32, color: MintColors.error.withValues(alpha: 0.2), alignment: Alignment.center, child: Text('${r.delaiCarence}j', style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600))),
-              ),
-              Expanded(
-                flex: (100 - carenceRatio * 100).toInt().clamp(1, 99),
-                child: Container(height: 32, color: MintColors.success.withValues(alpha: 0.2), alignment: Alignment.center, child: Text(s.ijmTimelineCouvert, style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600))),
-              ),
+    return Semantics(
+      key: const Key('ijm_coverage_timeline'),
+      identifier: 'ijm_coverage_timeline',
+      child: MintSurface(
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(s.ijmTimelineTitle, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: MintSpacing.md + 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Row(children: [
+                Expanded(
+                  flex: (carenceRatio * 100).toInt().clamp(1, 99),
+                  child: Container(height: 32, color: MintColors.error.withValues(alpha: 0.2), alignment: Alignment.center, child: Text('${r.delaiCarence}j', style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600))),
+                ),
+                Expanded(
+                  flex: (100 - carenceRatio * 100).toInt().clamp(1, 99),
+                  child: Container(height: 32, color: MintColors.success.withValues(alpha: 0.2), alignment: Alignment.center, child: Text(s.ijmTimelineCouvert, style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600))),
+                ),
+              ]),
+            ),
+            const SizedBox(height: MintSpacing.sm + 4),
+            Row(children: [
+              _buildLegendDot(MintColors.error, s.ijmTimelineNoCoverage),
+              const SizedBox(width: MintSpacing.md),
+              _buildLegendDot(MintColors.success, s.ijmTimelineCoverageIjm),
             ]),
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Row(children: [
-            _buildLegendDot(MintColors.error, s.ijmTimelineNoCoverage),
-            const SizedBox(width: MintSpacing.md),
-            _buildLegendDot(MintColors.success, s.ijmTimelineCoverageIjm),
-          ]),
-          const SizedBox(height: MintSpacing.md),
-          MintSurface(
-            tone: MintSurfaceTone.porcelaine,
-            padding: const EdgeInsets.all(MintSpacing.sm + 4),
-            radius: 12,
-            child: Text(s.ijmTimelineSummary(r.delaiCarence, IndependantsService.formatChf(r.indemniteJournaliere)), style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.md),
+            MintSurface(
+              tone: MintSurfaceTone.porcelaine,
+              padding: const EdgeInsets.all(MintSpacing.sm + 4),
+              radius: 12,
+              child: Text(s.ijmTimelineSummary(r.delaiCarence, IndependantsService.formatChf(r.indemniteJournaliere)), style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+            ),
+          ],
+        ),
       ),
     );
   }
