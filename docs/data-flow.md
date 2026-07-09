@@ -122,7 +122,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_3a_providers`, `_coach_total_3a`
 
 **Patrimoine & dette**
-- `q_cash_total`, `q_epargne_liquide`, `q_investissements`,
+- `q_cash_total`, `q_wealth_estimate`, `q_investissements`,
   `q_investments_total`, `q_emergency_fund`, `q_debt_payments_period_chf`,
   `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
   `_coach_dettes_autres`

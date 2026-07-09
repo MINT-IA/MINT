@@ -337,6 +337,31 @@ void main() {
       expect(investCrit.points, 25);
     });
 
+    test('investment ratio ignores broad wealth estimate denominator', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 50000,
+          investissements: 50000,
+          wealthEstimate: 1000000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final score = FinancialFitnessService.calculate(profile: profile);
+      final investCrit = score.patrimoine.criteria
+          .firstWhere((c) => c.id == 'epargne_investie');
+
+      expect(investCrit.points, 25);
+      expect(investCrit.detail, startsWith('50%'));
+    });
+
     test('diversification with multiple asset classes', () {
       final profile = CoachProfile(
         birthYear: 1990,

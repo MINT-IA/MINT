@@ -358,6 +358,34 @@ void main() {
       const p = PatrimoineProfile(epargneLiquide: 5000);
       expect(p.totalPatrimoine, 5000);
     });
+
+    test('totalPatrimoine uses the strongest aggregate without double counting',
+        () {
+      const estimateOnly = PatrimoineProfile(wealthEstimate: 350000);
+      const withCash = PatrimoineProfile(
+        epargneLiquide: 120000,
+        wealthEstimate: 350000,
+      );
+      const detailsAboveEstimate = PatrimoineProfile(
+        epargneLiquide: 120000,
+        investissements: 300000,
+        wealthEstimate: 350000,
+      );
+
+      expect(estimateOnly.totalPatrimoine, 350000);
+      expect(withCash.totalPatrimoine, 350000);
+      expect(detailsAboveEstimate.totalPatrimoine, 420000);
+    });
+
+    test('fromWizardAnswers lets wealth estimate beat heuristic liquidity', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_wealth_estimate': 350000,
+        'q_savings_monthly': 5000,
+      });
+
+      expect(profile.patrimoine.epargneLiquide, 15000);
+      expect(profile.patrimoine.totalPatrimoine, 350000);
+    });
   });
 
   group('DetteProfile', () {

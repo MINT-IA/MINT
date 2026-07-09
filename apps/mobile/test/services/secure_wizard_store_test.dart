@@ -10,6 +10,10 @@ void main() {
       expect(SecureWizardStore.isSensitive('q_gross_salary_annual'), isTrue);
     });
 
+    test('treats broad wealth estimate as sensitive', () {
+      expect(SecureWizardStore.isSensitive('q_wealth_estimate'), isTrue);
+    });
+
     test('does not treat public profile keys as sensitive', () {
       expect(SecureWizardStore.isSensitive('q_canton'), isFalse);
       expect(SecureWizardStore.isSensitive('q_birth_year'), isFalse);

@@ -616,7 +616,7 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'totalSavings':
         return {'q_cash_total': value};
       case 'wealthEstimate':
-        return {'q_epargne_liquide': value};
+        return {'q_wealth_estimate': value};
       default:
         return const {};
     }
@@ -1042,6 +1042,9 @@ class CoachProfileProvider extends ChangeNotifier {
     // Patrimoine
     answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
     answers['q_investissements'] = profile.patrimoine.investissements;
+    if (profile.patrimoine.wealthEstimate != null) {
+      answers['q_wealth_estimate'] = profile.patrimoine.wealthEstimate;
+    }
     // Housing
     _persistHousingFieldsSync(answers, profile);
     // Target retirement

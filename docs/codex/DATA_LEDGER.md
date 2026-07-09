@@ -38,7 +38,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-4 — NO ISLANDS.** Every isolated provider (`BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, documents, conversations) MUST bridge into the recompute so `MintUserState` is never stale. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
-- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist and coach tool enum are in sync at `095eeaa32`, but the mobile path is not: **18 backend-writable keys are ineffective locally via `applySaveFact`** — see §3.8.
+- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist and coach tool enum are in sync at `095eeaa32`, but the mobile path is not: **16 backend-writable keys are ineffective locally via `applySaveFact`** — see §3.8.
 
 ---
 
@@ -161,11 +161,11 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 |---|---|---|---|---|---|---|---|---|
 | `savingsMonthly` | `q_savings_monthly` | double CHF/mo | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
 | `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
-| `wealthEstimate` | `q_epargne_liquide` **(legacy unread key — see note)** | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine`, wealth tax, net worth |
+| `wealthEstimate` | `q_wealth_estimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `PatrimoineProfile.wealthEstimate`, `totalPatrimoine` aggregate, wealth tax, net worth, absolute patrimoine previews |
 | `hasDebt` | ⚠ NO MAPPER CASE (§3.8) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
 | `totalDebt` | ⚠ NO MAPPER CASE (§3.8) | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
 
-> **Status:** `totalSavings` now maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` still maps to the legacy unread `q_epargne_liquide`; the remaining §3.8 repair MUST give it a distinct wizard key (`q_wealth_estimate`) and a distinct read into `totalPatrimoine`, or explicitly drop coach-write support. Do not reintroduce the old collision.
+> **Status:** `totalSavings` maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` maps to `q_wealth_estimate`, read as `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as an aggregate total. `totalPatrimoine` takes the higher of detailed asset sum and the broad estimate; it never adds them together. Do not reintroduce the old `q_epargne_liquide` collision.
 
 ### 3.6 Spouse (couple)
 
@@ -186,17 +186,17 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — 17 backend-writable keys still ineffective locally (parity is still broken)
+### 3.8 REQUIRED REPAIR — 16 backend-writable keys still ineffective locally (parity is still broken)
 
 At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
 
-G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`; total remaining local ineffectiveness is now **17 backend-writable keys**.
+G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, and `wealthEstimate` to `q_wealth_estimate`; total remaining local ineffectiveness is now **16 backend-writable keys**.
 
 **The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
 
-**The 6 remaining mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`, `wealthEstimate -> q_epargne_liquide`.
+**The 5 remaining mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`.
 
-**Repaired mapped key:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`.
+**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total.
 
 **Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
 
@@ -208,7 +208,7 @@ G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.f
 | `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
 | `pillar3aBalance` | `q_total_3a` | `q_3a_total` / `_coach_total_3a` | map to a read key or add alias |
 | `totalSavings` | `q_cash_total` | `q_cash_total` | ✅ repaired; keep mapping on `q_cash_total` |
-| `wealthEstimate` | `q_epargne_liquide` | none distinct | add `q_wealth_estimate` or explicitly drop coach-write |
+| `wealthEstimate` | `q_wealth_estimate` | `q_wealth_estimate` | ✅ repaired; aggregate for `totalPatrimoine`, never added on top of detailed assets |
 
 **Task T-1 (mandatory):** add a `case` for each of the 11 unmapped keys to `_mapFactKeyToAnswers`, mapping to a wizard key that `fromWizardAnswers` already reads where one exists. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the read.
 
@@ -228,7 +228,7 @@ G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.f
 
 After T-0 and T-1, `_mapFactKeyToAnswers` handles all 35 keys and every mapper target is actually read by `fromWizardAnswers`; the §8.1 parity test passes. Until both tasks land, that test is expected RED and gates the PR.
 
-**Task T-2 (mandatory, from §3.5 note):** finish the split by giving `wealthEstimate` its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read into `totalPatrimoine`. `totalSavings` MUST remain on `q_cash_total`.
+**Task T-2 (done):** `wealthEstimate` has its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read via `PatrimoineProfile.wealthEstimate`. `totalPatrimoine` compares it with the detailed asset sum and uses the higher aggregate total, so `totalSavings` stays on `q_cash_total` without double counting.
 
 ---
 
@@ -263,6 +263,7 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 |---|---|---|---|---|---|---|---|
 | `patrimoine.epargneLiquide` | double CHF | patrimoine | userInput, openBanking | annual | .60 | mergeAnswers / updateProfile | liquidity axis, emergency fund |
 | `patrimoine.investissements` | double CHF | patrimoine | userInput, openBanking | annual | .60 | mergeAnswers / updateProfile | net worth, investment view |
+| `patrimoine.wealthEstimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine` aggregate total, wealth tax, net worth |
 | `patrimoine.deviseInvestissements` | enum {chf,usd,eur} | patrimoine | userInput | static | .60 | mergeAnswers | FX exposure, US person PFIC flag |
 | `patrimoine.propertyMarketValue` | double CHF | patrimoine | userInput, estimated | annual | .60 | mergeAnswers / updateProfile | `immobilierNet`, LTV, valeur locative |
 | `patrimoine.mortgageBalance` | double CHF | dettes/patrimoine | userInput, certificate | volatile | .60 | mergeAnswers / updateProfile | `loanToValue`, renewal shock, SafeMode |
@@ -270,6 +271,10 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 | `patrimoine.monthlyRent` | double CHF/mo | expenses/patrimoine | userInput | volatile | .60 | mergeAnswers | rent-vs-buy, budget |
 | `patrimoine.mortgageCapacity` | double CHF | patrimoine | estimated (calc) | volatile | .25 | updateProfile (`/hypotheque`) | affordability sim write-back (CAL-03) |
 | `patrimoine.estimatedMonthlyPayment` | double CHF/mo | patrimoine | estimated (calc) | volatile | .25 | updateProfile (`/hypotheque`) | affordability sim write-back (CAL-03) |
+
+> **Ratio denominator rule:** `totalPatrimoine` is now the higher of detailed asset sum and `wealthEstimate`. Ratios that divide a known detailed component by a total MUST use `patrimoine.detailedAssetTotal`, not the broad aggregate estimate. Fixed consumers in this slice: FRI concentration and FinancialFitness investment ratio.
+>
+> **Absolute total rule:** Consumers that display an absolute patrimoine total while also adding explicit LPP/3a values MUST compare `detailedAssetTotal + explicit pillars` with `wealthEstimate` and use the higher value. They MUST NOT compute `wealthEstimate + LPP + 3a`. Fixed consumers in this slice: streak/milestones and Pulse `FocusSelector` patrimoine aperçu.
 
 ### 4.3 Dettes detail (S45 enrichment)
 

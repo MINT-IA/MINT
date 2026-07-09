@@ -265,6 +265,27 @@ void main() {
       expect(m50k.isReached, true);
     });
 
+    test('patrimoine milestone does not double-count broad estimate with LPP',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055, 12, 31),
+          label: 'Retraite',
+        ),
+        patrimoine: const PatrimoineProfile(wealthEstimate: 40000),
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 20000),
+      );
+
+      final milestones = StreakService.computeMilestones(profile);
+      final m50k = milestones.firstWhere((m) => m.id == 'patrimoine_50k');
+
+      expect(m50k.isReached, false);
+    });
+
     test('3a max milestone reached at 7258 CHF annual', () {
       final profile = CoachProfile(
         birthYear: 1990,

@@ -147,15 +147,16 @@ class FriComputationService {
         propertyValue * kFriMortgageFraisAccessoires; // frais accessoires 1%
     final mortgageStressRatio =
         annualIncome > 0 ? annualMortgageCost / annualIncome : 0.0;
-    // Concentration: largest single asset / total patrimoine
-    final totalPatrimoine = profile.patrimoine.totalPatrimoine;
+    // Concentration compares detailed asset components only. A broad wealth
+    // estimate is an aggregate total and would hide concentration risk here.
+    final detailedPatrimoine = profile.patrimoine.detailedAssetTotal;
     final largestAsset = [
       profile.patrimoine.epargneLiquide,
       profile.patrimoine.investissements,
       profile.patrimoine.immobilier ?? 0,
     ].reduce(max);
     final concentrationRatio =
-        totalPatrimoine > 0 ? largestAsset / totalPatrimoine : 0.0;
+        detailedPatrimoine > 0 ? largestAsset / detailedPatrimoine : 0.0;
     // Employer dependency: salary as % of total income (simplified at 1.0 for salariés)
     final employerDependencyRatio =
         profile.employmentStatus == 'salarie' ? kFriEmployerDependencySalarie : kFriEmployerDependencyAutre;
