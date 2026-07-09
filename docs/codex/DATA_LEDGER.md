@@ -186,24 +186,24 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — 16 backend-writable keys still ineffective locally (parity is still broken)
+### 3.8 REQUIRED REPAIR — 13 backend-writable keys still ineffective locally (parity is still broken)
 
 At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
 
-G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, and `pillar3aBalance` to `q_3a_total`; total remaining local ineffectiveness is now **15 backend-writable keys**.
+G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, `pillar3aBalance` to `q_3a_total`, and identity keys `commune`/`gender` to `q_commune`/`q_gender`; total remaining local ineffectiveness is now **13 backend-writable keys**.
 
 **The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
 
-**The 4 remaining mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`.
+**The 2 remaining mapped-but-unread keys:** `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`.
 
-**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`.
+**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`.
 
 **Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
 
 | allowlist key | current mapper | read by `fromWizardAnswers` today | required direction |
 |---|---|---|---|
-| `commune` | `q_commune` | none | add a `commune` field/read or remove coach-writable status |
-| `gender` | `q_gender` | none | add a profile gender read or remove coach-writable status |
+| `commune` | `q_commune` | `q_commune` | ✅ repaired; keep profile identity read/write on `q_commune` |
+| `gender` | `q_gender` | `q_gender` | ✅ repaired; keep profile identity read/write on `q_gender` |
 | `employmentRate` | `q_employment_rate` | none | add field/read or remove coach-writable status |
 | `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
 | `pillar3aBalance` | `q_3a_total` | `q_3a_total` / `_coach_total_3a` | ✅ repaired; keep mapping on `q_3a_total` |
