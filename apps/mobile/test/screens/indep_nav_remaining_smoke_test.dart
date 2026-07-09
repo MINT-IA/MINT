@@ -17,6 +17,7 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -27,14 +28,15 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 /// Simple wrapper for screens without provider dependencies.
 Widget buildTestable(Widget child) {
   return MaterialApp(
-locale: const Locale('fr'),
-localizationsDelegates: const [
-  S.delegate,
-  GlobalMaterialLocalizations.delegate,
-  GlobalWidgetsLocalizations.delegate,
-  GlobalCupertinoLocalizations.delegate,
-],
-supportedLocales: S.supportedLocales,home: child);
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: child);
 }
 
 /// Wrapper that provides ProfileProvider + ByokProvider (needed by ExploreTab).
@@ -81,6 +83,69 @@ Widget buildWithBudgetProvider(Widget child) {
       child: child,
     ),
   );
+}
+
+Widget buildWithCoachProfileProvider(
+  CoachProfileProvider provider,
+  Widget child,
+) {
+  return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    home: ChangeNotifierProvider<CoachProfileProvider>.value(
+      value: provider,
+      child: child,
+    ),
+  );
+}
+
+class RecordingCoachProfileProvider extends CoachProfileProvider {
+  final Map<String, dynamic> _answers;
+  final writes = <Map<String, dynamic>>[];
+  CoachProfile? _profileOverride;
+
+  RecordingCoachProfileProvider(Map<String, dynamic> initialAnswers)
+      : _answers = Map<String, dynamic>.from(initialAnswers) {
+    _profileOverride = CoachProfile.fromWizardAnswers(_answers);
+  }
+
+  @override
+  CoachProfile? get profile => _profileOverride;
+
+  @override
+  bool get hasProfile => _profileOverride != null;
+
+  @override
+  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    writes.add(Map<String, dynamic>.from(partial));
+    _answers.addAll(partial);
+    _profileOverride = CoachProfile.fromWizardAnswers(_answers);
+    notifyListeners();
+  }
+}
+
+Map<String, dynamic> independentAnswers({
+  double? selfIncome,
+  double? grossSalary,
+  bool voluntaryLpp = false,
+}) {
+  return {
+    if (selfIncome != null) ...{
+      'q_self_employed_income': selfIncome,
+      'q_net_income_period_chf': selfIncome,
+      'q_pay_frequency': 'yearly',
+    },
+    if (grossSalary != null) 'q_gross_salary_annual': grossSalary,
+    'q_employment_status': 'independant',
+    'q_has_voluntary_lpp': voluntaryLpp ? 'yes' : 'no',
+    'q_has_pension_fund': voluntaryLpp ? 'yes' : 'no',
+  };
 }
 
 void main() {
@@ -250,7 +315,8 @@ void main() {
       );
     });
 
-    testWidgets('has amount field and premium slider (revenu and taux)', (tester) async {
+    testWidgets('has amount field and premium slider (revenu and taux)',
+        (tester) async {
       await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -276,6 +342,128 @@ void main() {
       expect(
         find.textContaining("Taux marginal"),
         findsOneWidget,
+      );
+    });
+
+    testWidgets('prefills known independent income and LPP choice',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 180000, voluntaryLpp: true),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const Pillar3aIndepScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+      final lppSwitch = tester.widget<Switch>(find.byType(Switch));
+
+      expect(amountField.value, 180000);
+      expect(lppSwitch.value, isTrue);
+    });
+
+    testWidgets('does not prefill net income from a gross salary fallback',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(grossSalary: 240000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const Pillar3aIndepScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+
+      expect(amountField.value, 100000);
+    });
+
+    testWidgets('clamps known independent income to the field maximum',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 450000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const Pillar3aIndepScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+
+      expect(amountField.value, 300000);
+    });
+
+    testWidgets('persists LPP toggle through the profile answer path',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const Pillar3aIndepScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+
+      expect(provider.writes, isNotEmpty);
+      expect(
+        provider.writes.last,
+        containsPair('q_has_voluntary_lpp', 'yes'),
+      );
+      expect(provider.writes.last, containsPair('q_has_pension_fund', 'yes'));
+    });
+
+    testWidgets('persists edited independent income through the profile path',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const Pillar3aIndepScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+      amountField.onChanged(123000);
+      await tester.pump();
+
+      expect(provider.writes, isNotEmpty);
+      expect(
+        provider.writes.last,
+        containsPair('q_self_employed_income', 123000),
+      );
+      expect(
+        provider.writes.last,
+        containsPair('q_net_income_period_chf', 123000),
+      );
+      expect(provider.writes.last, containsPair('q_pay_frequency', 'yearly'));
+      expect(
+        provider.writes.last,
+        containsPair('q_employment_status', 'independant'),
       );
     });
   });
