@@ -580,6 +580,8 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_civil_status': value};
       case 'employmentStatus':
         return {'q_employment_status': value};
+      case 'goal':
+        return {'q_main_goal': value};
       case 'gender':
         return {'q_gender': value};
       case 'targetRetirementAge':
@@ -606,6 +608,16 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_employment_rate': value};
       case 'annualBonus':
         return {'q_annual_bonus': value};
+      case 'selfEmployedNetIncome':
+        final income = _asNum(value);
+        if (income == null) return const {};
+        final normalized = income < 0 ? 0 : income;
+        return {
+          'q_self_employed_income': normalized,
+          'q_net_income_period_chf': normalized,
+          'q_pay_frequency': 'yearly',
+          'q_employment_status': 'independant',
+        };
       // LPP — align with keys fromWizardAnswers reads for scan data
       case 'avoirLpp':
         return {'_coach_avoir_lpp': value};
@@ -617,6 +629,18 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'_coach_salaire_assure': value};
       case 'lppBuybackMax':
         return {'_coach_rachat_maximum': value};
+      case 'has2ndPillar':
+        final hasPillar = _asBool(value);
+        if (hasPillar == null) return const {};
+        return {'q_has_pension_fund': hasPillar ? 'yes' : 'no'};
+      case 'hasVoluntaryLpp':
+        final hasVoluntary = _asBool(value);
+        if (hasVoluntary == null) return const {};
+        final answers = {'q_has_voluntary_lpp': hasVoluntary ? 'yes' : 'no'};
+        if (hasVoluntary || _profile?.employmentStatus == 'independant') {
+          answers['q_has_pension_fund'] = hasVoluntary ? 'yes' : 'no';
+        }
+        return answers;
       // 3a
       case 'pillar3aAnnual':
         return {'q_3a_annual_contribution': value};
@@ -670,6 +694,11 @@ class CoachProfileProvider extends ChangeNotifier {
         final income = _asNum(value);
         if (income == null) return const {};
         return {'q_partner_net_income_chf': income < 0 ? 0 : income};
+      case 'spouseAvsContributionYears':
+        if (_profile?.isCouple != true) return const {};
+        final years = _asNum(value)?.toInt();
+        if (years == null) return const {};
+        return {'q_spouse_avs_contribution_years': years.clamp(0, 44)};
       // AVS
       case 'avsContributionYears':
         return {'q_avs_contribution_years': value};
@@ -1155,7 +1184,20 @@ class CoachProfileProvider extends ChangeNotifier {
     if (profile.employmentStatus.isNotEmpty) {
       answers['q_employment_status'] = profile.employmentStatus;
     }
+    if (profile.selfEmployedNetIncome != null) {
+      answers['q_self_employed_income'] = profile.selfEmployedNetIncome;
+      answers['q_net_income_period_chf'] = profile.selfEmployedNetIncome;
+      answers['q_pay_frequency'] = 'yearly';
+    }
     // Prevoyance
+    if (profile.prevoyance.hasPensionFund != null) {
+      answers['q_has_pension_fund'] =
+          profile.prevoyance.hasPensionFund! ? 'yes' : 'no';
+    }
+    if (profile.prevoyance.hasVoluntaryLpp != null) {
+      answers['q_has_voluntary_lpp'] =
+          profile.prevoyance.hasVoluntaryLpp! ? 'yes' : 'no';
+    }
     if (profile.prevoyance.avoirLppTotal != null) {
       answers['q_avoir_lpp'] = profile.prevoyance.avoirLppTotal;
     }
@@ -1210,6 +1252,10 @@ class CoachProfileProvider extends ChangeNotifier {
       }
       if (c.nombreEnfants != null) {
         answers['q_partner_enfants'] = c.nombreEnfants;
+      }
+      if (c.prevoyance?.anneesContribuees != null) {
+        answers['q_spouse_avs_contribution_years'] =
+            c.prevoyance!.anneesContribuees;
       }
     } else {
       _clearPartnerAnswers(answers);

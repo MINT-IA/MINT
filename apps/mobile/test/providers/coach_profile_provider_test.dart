@@ -355,6 +355,20 @@ void main() {
     expect(provider.profile?.conjoint, isNull);
   });
 
+  test('save_fact spouse AVS contribution years hydrates conjoint prevoyance',
+      () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(
+      CoachProfile.defaults().copyWith(etatCivil: CoachCivilStatus.marie),
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(await provider.applySaveFact('spouseAvsContributionYears', 35),
+        isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_spouse_avs_contribution_years', 35));
+    expect(provider.profile?.conjoint?.prevoyance?.anneesContribuees, 35);
+  });
+
   test('updateProfile preserves spouse income through readable keys', () async {
     final provider = CoachProfileProvider();
     final profile = CoachProfile.defaults().copyWith(
@@ -484,5 +498,65 @@ void main() {
     expect(answers['_coach_dettes_autres'], isNull);
     expect(provider.profile?.dettes.creditConsommation, 6000);
     expect(provider.profile?.dettes.totalDettes, 6000);
+  });
+
+  test('save_fact goal writes the readable main goal key', () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('goal', 'house'), isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_main_goal', 'house'));
+    expect(provider.profile?.goalA.type, GoalAType.achatImmo);
+  });
+
+  test('save_fact selfEmployedNetIncome hydrates independent income',
+      () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('selfEmployedNetIncome', 120000),
+        isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_self_employed_income', 120000));
+    expect(answers, containsPair('q_net_income_period_chf', 120000));
+    expect(answers, containsPair('q_pay_frequency', 'yearly'));
+    expect(answers, containsPair('q_employment_status', 'independant'));
+    expect(provider.profile?.employmentStatus, 'independant');
+    expect(provider.profile?.toJson()['selfEmployedNetIncome'], 120000);
+    final restored = CoachProfile.fromJson(provider.profile!.toJson());
+    expect(restored.toJson()['selfEmployedNetIncome'], 120000);
+  });
+
+  test('save_fact has2ndPillar false disables LPP estimation', () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('birthYear', 1980), isTrue);
+    expect(await provider.applySaveFact('incomeGrossYearly', 120000), isTrue);
+    expect(await provider.applySaveFact('has2ndPillar', false), isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_pension_fund', 'no'));
+    expect(provider.profile?.prevoyance.avoirLppTotal, 0);
+  });
+
+  test('save_fact hasVoluntaryLpp false preserves salaried LPP', () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('incomeGrossYearly', 120000), isTrue);
+    expect(await provider.applySaveFact('has2ndPillar', true), isTrue);
+    expect(await provider.applySaveFact('hasVoluntaryLpp', false), isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_voluntary_lpp', 'no'));
+    expect(answers, containsPair('q_has_pension_fund', 'yes'));
+  });
+
+  test('save_fact hasVoluntaryLpp enables independent LPP path', () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('birthYear', 1980), isTrue);
+    expect(await provider.applySaveFact('incomeGrossYearly', 120000), isTrue);
+    expect(await provider.applySaveFact('employmentStatus', 'independant'),
+        isTrue);
+    expect(await provider.applySaveFact('hasVoluntaryLpp', true), isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_voluntary_lpp', 'yes'));
+    expect(answers, containsPair('q_has_pension_fund', 'yes'));
+    expect(provider.profile?.prevoyance.toJson()['hasVoluntaryLpp'], true);
+    final restored = CoachProfile.fromJson(provider.profile!.toJson());
+    expect(restored.prevoyance.toJson()['hasVoluntaryLpp'], true);
+    expect(provider.profile?.prevoyance.avoirLppTotal, greaterThan(0));
   });
 }
