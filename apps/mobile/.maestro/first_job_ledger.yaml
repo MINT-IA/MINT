@@ -1,0 +1,57 @@
+appId: ch.mint.app
+---
+# First job consumes canonical ledger facts instead of local salary/age/canton defaults.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///first-job"
+- assertVisible:
+    id: "first_job_ledger_facts"
+- assertVisible:
+    id: "first_job_salary_fact"
+- assertVisible:
+    id: "first_job_age_fact"
+- assertVisible:
+    id: "first_job_canton_fact"
+- assertVisible:
+    id: "first_job_enrich_profile_cta"
+- openLink: "mint:///data-block/revenu"
+- assertVisible:
+    text: "Revenu"
+- tapOn:
+    id: "salary_input"
+- inputText: "90000"
+- tapOn:
+    id: "canton_picker"
+- inputText: "VD"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "2001"
+- tapOn:
+    text: "Revenu"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_status_complete"
+- openLink: "mint:///first-job"
+- assertVisible:
+    id: "first_job_ledger_facts"
+- scrollUntilVisible:
+    element:
+      id: "first_job_result_cards"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "first_job_result_cards"

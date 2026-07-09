@@ -16356,6 +16356,14 @@ class SPt extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Prémio de acidente não profissional retido no salário segundo a cobertura do empregador.';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Contribuição do trabalhador para o seguro de desemprego, calculada com o teto LACI aplicável.';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.';
 
@@ -16375,6 +16383,10 @@ class SPt extends S {
 
   @override
   String get firstJobPayslipLppLabel => 'LPP (2.º pilar)';
+
+  @override
+  String get firstJobPayslipOtherExplanation =>
+      'Retenção calculada pelo motor salarial da Mint.';
 
   @override
   String firstJobPrimePerMonth(String amount) {

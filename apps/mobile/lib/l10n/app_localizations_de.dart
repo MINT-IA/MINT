@@ -16390,6 +16390,14 @@ class SDe extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Prämie für Nichtberufsunfall, gemäss Deckung des Arbeitgebers vom Lohn abgezogen.';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Arbeitnehmerbeitrag an die Arbeitslosenversicherung, berechnet mit der anwendbaren AVIG-Obergrenze.';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.';
 
@@ -16409,6 +16417,10 @@ class SDe extends S {
 
   @override
   String get firstJobPayslipLppLabel => 'BVG (2. Säule)';
+
+  @override
+  String get firstJobPayslipOtherExplanation =>
+      'Abzug, der vom Mint-Lohnmotor berechnet wird.';
 
   @override
   String firstJobPrimePerMonth(String amount) {

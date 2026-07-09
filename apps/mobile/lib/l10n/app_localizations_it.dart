@@ -16399,6 +16399,14 @@ class SIt extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Premio per infortunio non professionale trattenuto dallo stipendio secondo la copertura del datore di lavoro.';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Contributo del dipendente all\'assicurazione disoccupazione, calcolato con il limite LACI applicabile.';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contributo del dipendente: 5.3% del lordo. Il datore di lavoro paga anche lui il 5.3%.';
 
@@ -16418,6 +16426,10 @@ class SIt extends S {
 
   @override
   String get firstJobPayslipLppLabel => 'LPP (2° pilastro)';
+
+  @override
+  String get firstJobPayslipOtherExplanation =>
+      'Trattenuta calcolata dal motore salariale Mint.';
 
   @override
   String firstJobPrimePerMonth(String amount) {
