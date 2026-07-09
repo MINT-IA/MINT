@@ -609,7 +609,7 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'pillar3aAnnual':
         return {'q_3a_annual_contribution': value};
       case 'pillar3aBalance':
-        return {'q_total_3a': value};
+        return {'q_3a_total': value};
       // Savings / wealth / debt
       case 'savingsMonthly':
         return {'q_savings_monthly': value};
@@ -1037,7 +1037,7 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_nombre_3a'] = profile.prevoyance.nombre3a;
     }
     if (profile.prevoyance.totalEpargne3a > 0) {
-      answers['q_total_3a'] = profile.prevoyance.totalEpargne3a;
+      answers['q_3a_total'] = profile.prevoyance.totalEpargne3a;
     }
     // Patrimoine
     answers['q_cash_total'] = profile.patrimoine.epargneLiquide;

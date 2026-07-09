@@ -54,6 +54,23 @@ void main() {
         88000);
   });
 
+  test('updateProfile persists 3a balance on the readable 3a total key',
+      () async {
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      prevoyance: const PrevoyanceProfile(totalEpargne3a: 42000),
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_3a_total', 42000));
+    expect(answers.containsKey('q_total_3a'), isFalse);
+    expect(CoachProfile.fromWizardAnswers(answers).prevoyance.totalEpargne3a,
+        42000);
+  });
+
   test('save_fact wealthEstimate writes its own readable estimate key',
       () async {
     final provider = CoachProfileProvider();
@@ -66,5 +83,17 @@ void main() {
     expect(answers.containsKey('q_epargne_liquide'), isFalse);
     expect(provider.profile?.patrimoine.wealthEstimate, 350000);
     expect(provider.profile?.patrimoine.totalPatrimoine, 350000);
+  });
+
+  test('save_fact pillar3aBalance writes the readable 3a total key', () async {
+    final provider = CoachProfileProvider();
+
+    final applied = await provider.applySaveFact('pillar3aBalance', 42000);
+
+    expect(applied, isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_3a_total', 42000));
+    expect(answers.containsKey('q_total_3a'), isFalse);
+    expect(provider.profile?.prevoyance.totalEpargne3a, 42000);
   });
 }
