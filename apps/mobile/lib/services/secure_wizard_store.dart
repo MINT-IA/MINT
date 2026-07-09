@@ -28,6 +28,11 @@ class SecureWizardStore {
     'q_partner_salary',
     'q_patrimoine_liquide',
     'q_dettes_total',
+    'q_has_consumer_debt',
+    '_coach_dettes_hypotheque',
+    '_coach_dettes_credit',
+    '_coach_dettes_leasing',
+    '_coach_dettes_autres',
     'q_wealth_estimate',
   };
 
@@ -74,7 +79,12 @@ class SecureWizardStore {
   ) async {
     final cleaned = Map<String, dynamic>.from(answers);
     for (final key in _sensitiveKeys) {
-      if (cleaned.containsKey(key) && cleaned[key] != null) {
+      if (cleaned.containsKey(key)) {
+        if (cleaned[key] == null) {
+          await _storage.delete(key: key);
+          cleaned.remove(key);
+          continue;
+        }
         if (cleaned[key] == '__secure__') continue;
         await write(key, cleaned[key].toString());
         cleaned[key] = '__secure__';
@@ -91,6 +101,14 @@ class SecureWizardStore {
     for (final key in _sensitiveKeys) {
       final value = await read(key);
       if (value != null) {
+        if (value == 'true') {
+          restored[key] = true;
+          continue;
+        }
+        if (value == 'false') {
+          restored[key] = false;
+          continue;
+        }
         // Try to parse as number if it looks like one
         final asNum = num.tryParse(value);
         restored[key] = asNum ?? value;

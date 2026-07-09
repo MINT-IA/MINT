@@ -626,6 +626,31 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_cash_total': value};
       case 'wealthEstimate':
         return {'q_wealth_estimate': value};
+      case 'hasDebt':
+        final hasDebt = _asBool(value);
+        if (hasDebt == null) return const {};
+        if (hasDebt) {
+          return {
+            'q_has_consumer_debt': 'yes',
+            '_coach_dettes_credit': null,
+            '_coach_dettes_leasing': null,
+            '_coach_dettes_autres': null,
+          };
+        }
+        return {
+          'q_has_consumer_debt': 'no',
+          '_coach_dettes_credit': 0,
+          '_coach_dettes_leasing': 0,
+          '_coach_dettes_autres': 0,
+        };
+      case 'totalDebt':
+        final total = _asNum(value);
+        if (total == null) return const {};
+        final normalized = total < 0 ? 0 : total;
+        return {
+          'q_has_consumer_debt': normalized > 0 ? 'yes' : 'no',
+          '_coach_dettes_autres': normalized,
+        };
       // AVS
       case 'avsContributionYears':
         return {'q_avs_contribution_years': value};
