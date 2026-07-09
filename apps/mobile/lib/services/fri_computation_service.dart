@@ -100,10 +100,11 @@ class FriComputationService {
     // ── F: Fiscal efficiency ─────────────────────────
     // 3a: sum of planned 3a contributions (annualized)
     final actual3a = profile.total3aMensuel * 12;
-    final isIndependantNoLpp =
-        profile.employmentStatus == 'independant' &&
-            (profile.prevoyance.avoirLppTotal ?? 0) <= 0;
-    final max3a = isIndependantNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final isIndependantNoLpp = profile.employmentStatus == 'independant' &&
+        (profile.prevoyance.avoirLppTotal ?? 0) <= 0;
+    final max3a = isIndependantNoLpp
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     // Rachat: use rachatMaximum (total buyback gap) and rachatEffectue
     final potentielRachat = profile.prevoyance.rachatMaximum ?? 0.0;
     final rachatEffectue = profile.prevoyance.rachatEffectue ?? 0.0;
@@ -115,13 +116,11 @@ class FriComputationService {
       isMarried: isMarried,
       children: profile.nombreEnfants,
     );
-    final isPropertyOwner =
-        (profile.patrimoine.immobilier ?? 0) > 0 ||
-            (profile.patrimoine.propertyMarketValue ?? 0) > 0;
+    final isPropertyOwner = (profile.patrimoine.immobilier ?? 0) > 0 ||
+        (profile.patrimoine.propertyMarketValue ?? 0) > 0;
     // Amort indirect: approximated from 3a contributions if property owner
     // (real data would come from mortgage advisor documents)
-    final amortIndirect =
-        isPropertyOwner && actual3a > 0 ? actual3a : 0.0;
+    final amortIndirect = isPropertyOwner && actual3a > 0 ? actual3a : 0.0;
 
     // ── R: Retirement readiness ──────────────────────
     final replacementRatio = projection.tauxRemplacementBase;
@@ -137,11 +136,10 @@ class FriComputationService {
     // Real value would come from LPP certificate parsing.
     const deathProtectionGapRatio = kFriDefaultDeathProtectionGapRatio;
     // Mortgage stress = mortgage payments / gross income
-    final mortgageBalance =
-        profile.patrimoine.mortgageBalance ?? 0;
-    final mortgageRate = profile.patrimoine.mortgageRate ?? kFriMortgageTauxTheorique;
-    final propertyValue =
-        profile.patrimoine.propertyMarketValue ?? 0;
+    final mortgageBalance = profile.patrimoine.mortgageBalance ?? 0;
+    final mortgageRate =
+        profile.patrimoine.mortgageRate ?? kFriMortgageTauxTheorique;
+    final propertyValue = profile.patrimoine.propertyMarketValue ?? 0;
     final annualMortgageCost = mortgageBalance * mortgageRate +
         mortgageBalance * kFriMortgageAmortissementRate + // amortissement 1%
         propertyValue * kFriMortgageFraisAccessoires; // frais accessoires 1%
@@ -153,13 +151,14 @@ class FriComputationService {
     final largestAsset = [
       profile.patrimoine.epargneLiquide,
       profile.patrimoine.investissements,
-      profile.patrimoine.immobilier ?? 0,
+      profile.patrimoine.immobilierEffectif,
     ].reduce(max);
     final concentrationRatio =
         detailedPatrimoine > 0 ? largestAsset / detailedPatrimoine : 0.0;
     // Employer dependency: salary as % of total income (simplified at 1.0 for salariés)
-    final employerDependencyRatio =
-        profile.employmentStatus == 'salarie' ? kFriEmployerDependencySalarie : kFriEmployerDependencyAutre;
+    final employerDependencyRatio = profile.employmentStatus == 'salarie'
+        ? kFriEmployerDependencySalarie
+        : kFriEmployerDependencyAutre;
 
     return FriInput(
       liquidAssets: liquidAssets,
@@ -238,5 +237,4 @@ class FriComputationService {
     // 6. Foreign national arrived young (< 20) → treated as swiss_native
     return 'swiss_native';
   }
-
 }

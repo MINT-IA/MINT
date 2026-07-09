@@ -163,7 +163,8 @@ void main() {
       expect(indep.total, greaterThan(0));
     });
 
-    test('mortgage stress ratio affects S axis — FINMA 5% theoretical rate', () {
+    test('mortgage stress ratio affects S axis — FINMA 5% theoretical rate',
+        () {
       final noMortgage = FriComputationService.compute(
         profile: buildProfile(),
         projection: buildProjection(),
@@ -178,8 +179,7 @@ void main() {
         projection: buildProjection(),
       );
 
-      expect(noMortgage.risque,
-          greaterThanOrEqualTo(highMortgage.risque),
+      expect(noMortgage.risque, greaterThanOrEqualTo(highMortgage.risque),
           reason: 'Heavy mortgage worsens structural risk');
     });
 
@@ -236,6 +236,30 @@ void main() {
       );
 
       expect(withBroadEstimate.risque, detailedOnly.risque);
+    });
+
+    test(
+        'property market value drives concentration risk without legacy immobilier',
+        () {
+      final marketValueOnly = FriComputationService.compute(
+        profile: buildProfile(
+          epargneLiquide: 50000,
+          investissements: 100000,
+          propertyMarketValue: 500000,
+        ),
+        projection: buildProjection(),
+      );
+      final legacyAndMarketValue = FriComputationService.compute(
+        profile: buildProfile(
+          epargneLiquide: 50000,
+          investissements: 100000,
+          immobilier: 500000,
+          propertyMarketValue: 500000,
+        ),
+        projection: buildProjection(),
+      );
+
+      expect(marketValueOnly.risque, legacyAndMarketValue.risque);
     });
 
     test('overall score is bounded 0-100', () {
@@ -298,7 +322,8 @@ void main() {
         employmentStatus: 'independant',
         avoirLppTotal: 50000,
       );
-      expect(FriComputationService.detectArchetype(profile), 'independent_with_lpp');
+      expect(FriComputationService.detectArchetype(profile),
+          'independent_with_lpp');
     });
 
     test('independent_no_lpp for independant without LPP', () {
@@ -306,7 +331,8 @@ void main() {
         employmentStatus: 'independant',
         avoirLppTotal: 0,
       );
-      expect(FriComputationService.detectArchetype(profile), 'independent_no_lpp');
+      expect(
+          FriComputationService.detectArchetype(profile), 'independent_no_lpp');
     });
 
     test('returning_swiss for CH national arrived late', () {
@@ -336,7 +362,8 @@ void main() {
         employmentStatus: 'independant',
         avoirLppTotal: 0,
       );
-      expect(FriComputationService.detectArchetype(profile), 'independent_no_lpp');
+      expect(
+          FriComputationService.detectArchetype(profile), 'independent_no_lpp');
     });
   });
 }
