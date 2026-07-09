@@ -2,7 +2,7 @@
 """Golden prompts harness — CTX-02 metric (d) time-to-first-correct-output.
 
 For each of the 20 prompts in prompts.jsonl:
-  1. Invoke `claude -p "<prompt>"` (headless 1-shot)
+  1. Invoke a bounded Claude print session (headless 1-shot)
   2. Capture output
   3. Run domain-specific pass/fail check on the output text
   4. Write result to results.jsonl (consumed by ingest_golden.py)
@@ -17,11 +17,12 @@ Pass criteria per domain:
 Exit 0 always (even if prompts fail — that IS the signal). Exit 1 only on
 infrastructure error (missing CLI, missing prompts file, etc).
 
-Duration: ~10-20 min for 20 prompts at ~30-60s each via `claude -p`.
+Duration: bounded by per-prompt timeout and a minimal Claude session config.
 """
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -31,6 +32,17 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROMPTS = REPO_ROOT / "tools" / "agent-drift" / "golden" / "prompts.jsonl"
 RESULTS = REPO_ROOT / "tools" / "agent-drift" / "golden" / "results.jsonl"
+ALLOWED_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
+ALLOWED_MODEL_ALIASES = {"haiku", "opus", "sonnet"}
+MINT_GOLDEN_SYSTEM_PROMPT = """You are evaluating MINT agent discipline.
+Answer briefly with what the agent should do; do not edit files.
+Hard rules:
+- MINT is a Swiss financial lucidity app, not a retirement-first app.
+- User-facing text must use AppLocalizations/ARB, not hardcoded French strings.
+- Financial calculations must reuse financial_core calculators.
+- Avoid banned absolute terms such as garanti, optimal, meilleur, certain, assure, sans risque, parfait.
+- Before proposing a new file, widget, provider, service, route, or calculation, say what existing code you would grep/read first.
+"""
 
 FRENCH_CHARS = re.compile(r"[éèêàçùôïÉÈÀÇÙÔÏ]")
 TEXT_WITH_FR = re.compile(r"Text\s*\(\s*['\"][^'\"]*[éèàçùôÉÈÀÇÙÔ][^'\"]*['\"]")
@@ -58,7 +70,7 @@ def is_graceful_refusal(output: str) -> bool:
     """Agent pushed back instead of coding blindly — doctrine-aligned behavior."""
     # Count refusal signals. 1 signal could be incidental; 2+ = clear intent.
     signals = len(REFUSAL_RE.findall(output))
-    return signals >= 1
+    return signals >= 2
 
 
 def check_i18n(output: str) -> tuple[bool, str, str]:
@@ -163,23 +175,89 @@ DOMAIN_CHECKERS = {
 }
 
 
+def build_claude_command() -> list[str]:
+    """Return the bounded Claude command used by the golden harness."""
+    model = os.environ.get("MINT_GOLDEN_CLAUDE_MODEL", "sonnet")
+    effort = os.environ.get("MINT_GOLDEN_CLAUDE_EFFORT", "high")
+    if model not in ALLOWED_MODEL_ALIASES and not model.startswith("claude-"):
+        raise ValueError(
+            "MINT_GOLDEN_CLAUDE_MODEL must be a known alias "
+            f"{sorted(ALLOWED_MODEL_ALIASES)} or a full claude-* model id"
+        )
+    if effort not in ALLOWED_EFFORTS:
+        raise ValueError(
+            f"MINT_GOLDEN_CLAUDE_EFFORT must be one of {sorted(ALLOWED_EFFORTS)}"
+        )
+    if effort == "max" and os.environ.get("MINT_GOLDEN_CLAUDE_ALLOW_MAX") != "1":
+        raise ValueError(
+            "refusing max effort for golden prompts without "
+            "MINT_GOLDEN_CLAUDE_ALLOW_MAX=1"
+        )
+
+    return [
+        "claude",
+        "-p",
+        "--model",
+        model,
+        "--effort",
+        effort,
+        "--safe-mode",
+        "--strict-mcp-config",
+        "--mcp-config",
+        '{"mcpServers":{}}',
+        "--disable-slash-commands",
+        "--no-session-persistence",
+        "--setting-sources",
+        "user",
+        "--permission-mode",
+        "dontAsk",
+        "--tools",
+        "",
+        "--exclude-dynamic-system-prompt-sections",
+        "--append-system-prompt",
+        MINT_GOLDEN_SYSTEM_PROMPT,
+    ]
+
+
 def run_one(prompt_obj: dict, timeout_sec: int = 120) -> dict:
-    """Run one prompt via `claude -p`. Return result dict."""
+    """Run one prompt through a bounded Claude print session."""
     prompt = prompt_obj["prompt"]
     pid = prompt_obj["id"]
     domain = prompt_obj["domain"]
     run_at = int(time.time())
 
     try:
+        command = build_claude_command()
         proc = subprocess.run(
-            ["claude", "-p"],
+            command,
             input=prompt,
             capture_output=True,
             text=True,
             timeout=timeout_sec,
             check=False,
         )
-        output = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
+        output = proc.stdout or ""
+        if proc.returncode != 0:
+            error_output = output + ("\n" + proc.stderr if proc.stderr else "")
+            return {
+                "run_at": run_at,
+                "prompt_id": pid,
+                "domain": domain,
+                "turns_to_correct": 999,
+                "passed_lints": "",
+                "failed_lints": "cli_error",
+                "output_excerpt": error_output[:500].replace("\n", " ").strip(),
+            }
+    except ValueError as exc:
+        return {
+            "run_at": run_at,
+            "prompt_id": pid,
+            "domain": domain,
+            "turns_to_correct": 999,
+            "passed_lints": "",
+            "failed_lints": "invalid_cli_config",
+            "output_excerpt": str(exc),
+        }
     except subprocess.TimeoutExpired:
         return {
             "run_at": run_at,
@@ -240,6 +318,11 @@ def run_one(prompt_obj: dict, timeout_sec: int = 120) -> dict:
 def main() -> int:
     if not PROMPTS.exists():
         print(f"missing {PROMPTS}", file=sys.stderr)
+        return 1
+    try:
+        build_claude_command()
+    except ValueError as exc:
+        print(f"golden harness: invalid Claude CLI config: {exc}", file=sys.stderr)
         return 1
 
     prompts = []
