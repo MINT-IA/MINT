@@ -56,11 +56,15 @@ class _DataBlockEnrichmentScreenState
   final TextEditingController _cantonController = TextEditingController();
   final TextEditingController _salaryController = TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
+  final TextEditingController _cashController = TextEditingController();
   bool _revenueInputsSeeded = false;
+  bool _patrimoineInputsSeeded = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
   bool _isSavingRevenue = false;
+  bool _isSavingPatrimoine = false;
   String? _revenueError;
+  String? _patrimoineError;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
   List<ValidationAlert>? _cachedAlerts;
@@ -71,6 +75,7 @@ class _DataBlockEnrichmentScreenState
     _cantonController.dispose();
     _salaryController.dispose();
     _birthYearController.dispose();
+    _cashController.dispose();
     super.dispose();
   }
 
@@ -90,6 +95,8 @@ class _DataBlockEnrichmentScreenState
     final canonicalBlockType = _canonicalBlockType(widget.blockType);
     if (canonicalBlockType == 'revenu') {
       _seedRevenueInputs(profile);
+    } else if (canonicalBlockType == 'patrimoine') {
+      _seedPatrimoineInputs(profile);
     }
     final isKnownBlock =
         DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
@@ -156,7 +163,12 @@ class _DataBlockEnrichmentScreenState
               ],
 
               // ── Enrichment prompts for this block ────────────────
-              if (profile != null && canonicalBlockType != 'revenu') ...[
+              if (_shouldShowPatrimoineCollector(canonicalBlockType)) ...[
+                MintEntrance(
+                  delay: const Duration(milliseconds: 200),
+                  child: _buildPatrimoineCollector(l),
+                ),
+              ] else if (profile != null && canonicalBlockType != 'revenu') ...[
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
               ],
               if (canonicalBlockType == 'revenu') ...[
@@ -174,7 +186,8 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 32),
 
               // ── CTA ──────────────────────────────────────────────
-              if (canonicalBlockType != 'revenu')
+              if (canonicalBlockType != 'revenu' &&
+                  !_shouldShowPatrimoineCollector(canonicalBlockType))
                 Semantics(
                   button: true,
                   label: meta.ctaLabel,
@@ -231,6 +244,14 @@ class _DataBlockEnrichmentScreenState
     if (profile.birthYear >= 1900) _birthYearController.text = '${profile.birthYear}';
     _hasPensionFund = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
         profile.prevoyance.isLppFromCertificate;
+  }
+
+  void _seedPatrimoineInputs(CoachProfile? profile) {
+    if (_patrimoineInputsSeeded || profile == null) return;
+    _patrimoineInputsSeeded = true;
+    if (profile.patrimoine.epargneLiquide > 0) {
+      _cashController.text = '${profile.patrimoine.epargneLiquide.round()}';
+    }
   }
 
   Widget _buildRevenueCollector(S l) {
@@ -414,7 +435,96 @@ class _DataBlockEnrichmentScreenState
     setState(() => _isSavingRevenue = false);
   }
 
+  bool _shouldShowPatrimoineCollector(String canonicalBlockType) {
+    return canonicalBlockType == 'patrimoine' &&
+        _canonicalPatrimoineInputKey(widget.initialInputKey) != null;
+  }
+
+  Widget _buildPatrimoineCollector(S l) {
+    return MintSurface(
+      padding: const EdgeInsets.all(18),
+      radius: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildRevenueTextField(
+            key: const Key('savings_input'),
+            semanticsIdentifier: 'savings_input',
+            controller: _cashController,
+            label: l.financialSummaryEditEpargneLiquide,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+          ),
+          if (_patrimoineError != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _patrimoineError!,
+              style: MintTextStyles.labelMedium(color: MintColors.error),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Semantics(
+            identifier: 'patrimoine_save_cta',
+            button: true,
+            label: l.financialSummaryEnregistrer,
+            child: FilledButton(
+              key: const Key('patrimoine_save_cta'),
+              onPressed: _isSavingPatrimoine ? null : _savePatrimoineFacts,
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                foregroundColor: MintColors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                l.financialSummaryEnregistrer,
+                style: MintTextStyles.titleMedium()
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _savePatrimoineFacts() async {
+    final l = S.of(context)!;
+    final cash = int.tryParse(_digitsOnly(_cashController.text));
+    if (cash == null || cash < 0) {
+      setState(() => _patrimoineError = l.authErrorInvalid);
+      return;
+    }
+    setState(() {
+      _isSavingPatrimoine = true;
+      _patrimoineError = null;
+    });
+    await context.read<CoachProfileProvider>().mergeAnswers({
+      'q_cash_total': cash,
+    });
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() => _isSavingPatrimoine = false);
+  }
+
   String _digitsOnly(String value) => value.replaceAll(RegExp(r'[^0-9]'), '');
+
+  String? _canonicalPatrimoineInputKey(String? inputKey) {
+    if (inputKey == null || inputKey.trim().isEmpty) return null;
+    final token =
+        inputKey.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    return switch (token) {
+      'totalsavings' ||
+      'cashtotal' ||
+      'qcashtotal' ||
+      'epargneliquide' ||
+      'savings' =>
+        'q_cash_total',
+      _ => null,
+    };
+  }
 
   String? _canonicalRevenueInputKey(String? inputKey) {
     if (inputKey == null || inputKey.trim().isEmpty) return null;

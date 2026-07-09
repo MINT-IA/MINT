@@ -197,19 +197,17 @@ class CoachProfileProvider extends ChangeNotifier {
       final isLoggedIn = await AuthService.isLoggedIn();
       if (!isLoggedIn) return;
       final remoteData = await ApiService.get('/profiles/me');
-      if (remoteData is Map<String, dynamic>) {
-        mergeFromRemoteProfile(remoteData);
-        // Also merge financial fields that the basic merge doesn't cover.
-        _mergeFinancialFieldsFromRemote(remoteData);
-        // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
-        // factKind is the coarse 'profile_sync' enum; the finer-grained
-        // per-field attribution is deferred to Phase 31-02 (backend can
-        // echo `facts_saved: [...]` in /profiles/me response).
-        MintBreadcrumbs.saveFact(
-          success: true,
-          factKind: 'profile_sync',
-        );
-      }
+      mergeFromRemoteProfile(remoteData);
+      // Also merge financial fields that the basic merge doesn't cover.
+      _mergeFinancialFieldsFromRemote(remoteData);
+      // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
+      // factKind is the coarse 'profile_sync' enum; the finer-grained
+      // per-field attribution is deferred to Phase 31-02 (backend can
+      // echo `facts_saved: [...]` in /profiles/me response).
+      MintBreadcrumbs.saveFact(
+        success: true,
+        factKind: 'profile_sync',
+      );
     } catch (e) {
       debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
       // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
@@ -253,7 +251,7 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     // 3a balance
     final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
-    if ((p.totalEpargne3a ?? 0) <= 0 && remote3a != null && remote3a > 0) {
+    if (p.totalEpargne3a <= 0 && remote3a != null && remote3a > 0) {
       partial['_coach_total_3a'] = remote3a;
     }
 
@@ -484,8 +482,8 @@ class CoachProfileProvider extends ChangeNotifier {
     _scoreHistory = await ReportPersistenceService.loadScoreHistory();
   }
 
-  /// Met a jour le profil directement a partir d'un map d'answers.
-  /// Utilise apres la completion du wizard pour eviter un rechargement async.
+  /// Updates the profile directly from an answers map.
+  /// Used after wizard completion to avoid an async reload.
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
     _lastAnswers = answers;
@@ -527,7 +525,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Backend `save_fact` persists to `ProfileModel.data` only when `user_id`
   /// is present. Anonymous local-mode users (the default for fresh installs)
   /// never have a `user_id`, so the backend path hits `# Hors-DB path` and
-  /// returns "Fait noté (hors DB)" without persisting — the chat captures
+  /// returns a non-DB acknowledgement without persisting — the chat captures
   /// data in theory but nothing lands in the profile.
   ///
   /// This method closes that gap: when the coach_chat_screen receives a
@@ -616,6 +614,7 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'savingsMonthly':
         return {'q_savings_monthly': value};
       case 'totalSavings':
+        return {'q_cash_total': value};
       case 'wealthEstimate':
         return {'q_epargne_liquide': value};
       default:
@@ -1041,7 +1040,7 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_total_3a'] = profile.prevoyance.totalEpargne3a;
     }
     // Patrimoine
-    answers['q_epargne_liquide'] = profile.patrimoine.epargneLiquide;
+    answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
     answers['q_investissements'] = profile.patrimoine.investissements;
     // Housing
     _persistHousingFieldsSync(answers, profile);
@@ -1259,7 +1258,7 @@ class CoachProfileProvider extends ChangeNotifier {
     // a chaque restart et daysSinceUpdate >= 330 ne sera jamais vrai.
     answers['_coach_updated_at'] = DateTime.now().toIso8601String();
 
-    // Persister aussi createdAt si c'est le premier refresh (preserve l'original)
+    // Preserve createdAt on the first refresh.
     if (answers['_coach_created_at'] == null && p.createdAt != p.updatedAt) {
       answers['_coach_created_at'] = p.createdAt.toIso8601String();
     }
