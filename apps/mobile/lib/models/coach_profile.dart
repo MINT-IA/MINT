@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
@@ -1358,6 +1359,7 @@ class CoachProfile {
   final double salaireBrutMensuel;
   final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
+  final double employmentRate; // 0.0-100.0 (%), default full-time
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
 
@@ -1485,6 +1487,8 @@ class CoachProfile {
     required this.salaireBrutMensuel,
     this.nombreDeMois = 12.0,
     this.bonusPourcentage,
+    this.employmentRate =
+        IncomeConversionCalculator.fullTimeEmploymentRatePercent,
     this.employmentStatus = 'salarie',
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
@@ -1614,6 +1618,7 @@ class CoachProfile {
           salaireBrutMensuel == other.salaireBrutMensuel &&
           nombreDeMois == other.nombreDeMois &&
           bonusPourcentage == other.bonusPourcentage &&
+          employmentRate == other.employmentRate &&
           employmentStatus == other.employmentStatus &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
@@ -1643,7 +1648,7 @@ class CoachProfile {
   int get hashCode => Object.hashAll([
         firstName, birthYear, dateOfBirth, canton, commune, nationality,
         etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
-        nombreDeMois, bonusPourcentage, employmentStatus,
+        nombreDeMois, bonusPourcentage, employmentRate, employmentStatus,
         depenses, prevoyance, patrimoine, dettes, goalA,
         goalsB.length, plannedContributions.length, checkIns.length,
         housingStatus, riskTolerance, realEstateProject,
@@ -1946,6 +1951,7 @@ class CoachProfile {
     double? salaireBrutMensuel,
     double? nombreDeMois,
     double? bonusPourcentage,
+    double? employmentRate,
     String? employmentStatus,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
@@ -1997,6 +2003,7 @@ class CoachProfile {
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
+      employmentRate: employmentRate ?? this.employmentRate,
       employmentStatus: employmentStatus ?? this.employmentStatus,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
@@ -2132,7 +2139,7 @@ class CoachProfile {
       hasLpp: (prevoyance.avoirLppTotal ?? 0) > 0,
       avoirLpp: prevoyance.avoirLppTotal ?? 0,
       lacuneLpp: prevoyance.lacuneRachatRestante,
-      tauxActivite: 100,
+      tauxActivite: employmentRate,
       chargesFixesMensuelles: depenses.totalMensuel,
       epargneDispo: patrimoine.epargneLiquide,
       detteTotale: dettes.totalDettes,
@@ -2175,6 +2182,9 @@ class CoachProfile {
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
       nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
+      employmentRate: IncomeConversionCalculator.clampEmploymentRatePercent(
+        (json['employmentRate'] as num?)?.toDouble(),
+      ),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
@@ -2282,6 +2292,7 @@ class CoachProfile {
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
+        'employmentRate': employmentRate,
         'employmentStatus': employmentStatus,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
@@ -2381,10 +2392,30 @@ class CoachProfile {
     // Source: OFAS barème cotisations 2025. Ceci est une estimation;
     // le taux réel dépend du plan LPP et du canton.
     const double socialChargesRate = 0.13;
+    final nombreDeMois = IncomeConversionCalculator.normalizeAnnualSalaryMonths(
+      _parseDouble(answers['q_nombre_mois']),
+    );
     final grossSalaryDirect = _parseDouble(answers['q_gross_salary_annual']);
     final salaireBrutMensuel = grossSalaryDirect != null
-        ? grossSalaryDirect / 12
+        ? IncomeConversionCalculator.monthlyGrossFromAnnualGross(
+            grossSalaryDirect,
+            months: nombreDeMois,
+          )
         : monthlyNetIncome / (1 - socialChargesRate);
+    final employmentRate = IncomeConversionCalculator.clampEmploymentRatePercent(
+      _parseDouble(answers['q_employment_rate']),
+    );
+    final annualBonus = _parseDouble(answers['q_annual_bonus']);
+    final annualBaseSalary = IncomeConversionCalculator.annualGrossFromMonthly(
+      monthlyGross: salaireBrutMensuel,
+      months: nombreDeMois,
+    );
+    final bonusPourcentage =
+        IncomeConversionCalculator.bonusPercentageFromAnnualBonus(
+              annualBonus: annualBonus,
+              annualBaseSalary: annualBaseSalary,
+            ) ??
+            _parseDouble(answers['q_bonus_percentage']);
 
     // Employment status mapping
     final employmentRaw = answers['q_employment_status'] as String?;
@@ -2891,6 +2922,8 @@ class CoachProfile {
         answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
     }
+    if (answers.containsKey('q_employment_rate')) provided.add('employmentRate');
+    if (answers.containsKey('q_annual_bonus')) provided.add('bonusPourcentage');
     if (answers.containsKey('q_civil_status')) provided.add('civilStatus');
     if (answers.containsKey('q_nationality')) provided.add('nationality');
 
@@ -2905,6 +2938,9 @@ class CoachProfile {
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,
+      nombreDeMois: nombreDeMois,
+      bonusPourcentage: bonusPourcentage,
+      employmentRate: employmentRate,
       employmentStatus: employmentStatus,
       depenses: depenses,
       prevoyance: prevoyance,

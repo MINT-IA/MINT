@@ -126,7 +126,7 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `incomeNetYearly` | `q_net_income_period_chf` + `q_pay_frequency='yearly'` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | tax, affordability ~33% |
 | `incomeGrossMonthly` | `q_gross_salary_annual` (= value × 12) | double CHF/mo | income | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `salaireBrutMensuel`, `revenuBrutAnnuel`, LPP coordination, AVS RAMD |
 | `incomeGrossYearly` | `q_gross_salary_annual` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuel`, tax tiers, LPP insured salary inference |
-| `employmentRate` | `q_employment_rate` | double % (0–100) | income | userInput | annual | .60 | applySaveFact/mergeAnswers | part-timer LPP pro-rating, coordination deduction |
+| `employmentRate` | `q_employment_rate` | double % (0–100) | income | userInput | annual | .60 | applySaveFact/mergeAnswers | part-time coaching, coordination-deduction alert |
 | `annualBonus` | `q_annual_bonus` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `bonusPourcentage`, `revenuBrutAnnuel` |
 | `selfEmployedNetIncome` | ⚠ NO MAPPER CASE (§3.8) | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | independant archetype, 3a max 36'288, AVS indep |
 
@@ -186,17 +186,17 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — 13 backend-writable keys still ineffective locally (parity is still broken)
+### 3.8 REQUIRED REPAIR — 11 backend-writable keys still ineffective locally (parity is still broken)
 
 At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
 
-G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, `pillar3aBalance` to `q_3a_total`, and identity keys `commune`/`gender` to `q_commune`/`q_gender`; total remaining local ineffectiveness is now **13 backend-writable keys**.
+G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, `pillar3aBalance` to `q_3a_total`, identity keys `commune`/`gender` to `q_commune`/`q_gender`, and income keys `employmentRate`/`annualBonus` to `q_employment_rate`/`q_annual_bonus`; total remaining local ineffectiveness is now **11 backend-writable keys**.
 
 **The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
 
-**The 2 remaining mapped-but-unread keys:** `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`.
+**The 0 remaining mapped-but-unread keys:** none. T-0 is complete.
 
-**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`.
+**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`; `employmentRate -> q_employment_rate`, which is read into `CoachProfile.employmentRate` and forwarded to `CoachingProfile.tauxActivite`; `annualBonus -> q_annual_bonus`, which is converted to `bonusPourcentage` and therefore included in `revenuBrutAnnuel`.
 
 **Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
 
@@ -204,8 +204,8 @@ G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.f
 |---|---|---|---|
 | `commune` | `q_commune` | `q_commune` | ✅ repaired; keep profile identity read/write on `q_commune` |
 | `gender` | `q_gender` | `q_gender` | ✅ repaired; keep profile identity read/write on `q_gender` |
-| `employmentRate` | `q_employment_rate` | none | add field/read or remove coach-writable status |
-| `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
+| `employmentRate` | `q_employment_rate` | `q_employment_rate` | ✅ repaired; keep profile read/write and `toCoachingProfile().tauxActivite` on this value |
+| `annualBonus` | `q_annual_bonus` | `q_annual_bonus` | ✅ repaired; keep raw CHF/year storage and convert to `bonusPourcentage` for `revenuBrutAnnuel` |
 | `pillar3aBalance` | `q_3a_total` | `q_3a_total` / `_coach_total_3a` | ✅ repaired; keep mapping on `q_3a_total` |
 | `totalSavings` | `q_cash_total` | `q_cash_total` | ✅ repaired; keep mapping on `q_cash_total` |
 | `wealthEstimate` | `q_wealth_estimate` | `q_wealth_estimate` | ✅ repaired; aggregate for `totalPatrimoine`, never added on top of detailed assets |

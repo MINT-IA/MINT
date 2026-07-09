@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -1032,6 +1033,26 @@ class CoachProfileProvider extends ChangeNotifier {
     answers['q_civil_status'] = profile.etatCivil.name;
     answers['q_salaire'] = profile.salaireBrutMensuel;
     answers['q_nombre_mois'] = profile.nombreDeMois;
+    final grossAnnual = IncomeConversionCalculator.annualGrossFromMonthly(
+      monthlyGross: profile.salaireBrutMensuel,
+      months: profile.nombreDeMois,
+    );
+    answers['q_gross_salary_annual'] = grossAnnual;
+    if (grossAnnual > 0 && profile.bonusPourcentage != null) {
+      answers['q_annual_bonus'] =
+          IncomeConversionCalculator.annualBonusFromPercentage(
+        annualGross: grossAnnual,
+        bonusPercentage: profile.bonusPourcentage!,
+      );
+    } else {
+      answers.remove('q_annual_bonus');
+    }
+    if (profile.employmentRate !=
+        IncomeConversionCalculator.fullTimeEmploymentRatePercent) {
+      answers['q_employment_rate'] = profile.employmentRate;
+    } else {
+      answers.remove('q_employment_rate');
+    }
     if (profile.employmentStatus.isNotEmpty) {
       answers['q_employment_status'] = profile.employmentStatus;
     }

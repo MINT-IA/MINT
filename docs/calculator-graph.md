@@ -78,6 +78,7 @@ Julien + Lauren golden values.
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
 | **HousingCostCalculator** | `housing_cost_calculator.dart` | loyer/hyp + canton | monthly housing effective cost | FriCalculator, budget calcs |
 | **FriCalculator** (composite) | `fri_calculator.dart` | CoachProfile | FRI score 0-100 + breakdown | FriComputationService, CoachNarrativeService |
+| **IncomeConversionCalculator** | `income_conversion_calculator.dart` | salary, months, bonus, employment rate | normalized salary/bonus/rate units | CoachProfile.fromWizardAnswers, CoachProfileProvider |
 | **ConfidenceScorer** | `confidence_scorer.dart` | CoachProfile | score 0-100 + per-field confidence | ExtractionReviewScreen, RetirementDashboardScreen, `dataReliability` |
 | **CrossPillarCalculator** | `cross_pillar_calculator.dart` | 3 pillars values | arbitrage opportunities | ArbitrageEngine |
 | **CoupleOptimizer** | `couple_optimizer.dart` | 2 profiles | optimization suggestions | CoupleDashboardScreen |
