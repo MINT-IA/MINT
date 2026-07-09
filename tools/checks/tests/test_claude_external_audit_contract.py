@@ -7,6 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "tools/checks/claude_external_audit.sh"
+CLAUDE_MD = ROOT / "CLAUDE.md"
 AGENT = ROOT / ".claude/agents/mint-external-auditor.md"
 QUALITY_GATE = ROOT / ".claude/agents/mint-quality-gate.md"
 WORKFLOW = ROOT / "docs/MINT_AGENT_WORKFLOW.md"
@@ -224,6 +225,23 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1" in text
         assert "--effort max" in text
         assert "CLAUDE_AUDIT_MAX_DIFF_LINES" in text
+
+
+def test_claude_md_anchors_external_audit_latency_policy() -> None:
+    text = CLAUDE_MD.read_text(encoding="utf-8")
+
+    for needle in (
+        "tools/checks/claude_external_audit.sh",
+        "Opus high",
+        "Sonnet high",
+        "CLAUDE_AUDIT_RERUN=1",
+        "--safe-mode",
+        "--strict-mcp-config",
+        "--no-session-persistence",
+        "--effort max",
+        "unsupported `--max-turns`",
+    ):
+        assert needle in text
 
 
 def test_quality_gate_does_not_allow_raw_claude_fallback() -> None:
