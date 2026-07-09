@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -18,36 +20,65 @@ class AvsCotisationsScreen extends StatefulWidget {
 }
 
 class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
+  static const double _incomeMin = 0;
+  static const double _incomeMax = 250000;
+
   double _revenuNet = 80000;
   AvsCotisationResult? _result;
+  bool _didHydrateFromProfile = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
-    _calculate();
+    _result = _computeResult();
   }
 
-  void _initializeFromProfile() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didHydrateFromProfile) return;
+    _didHydrateFromProfile = true;
+    _hydrateFromProfile();
+  }
+
+  AvsCotisationResult _computeResult() {
+    return IndependantsService.calculateAvsCotisations(_revenuNet);
+  }
+
+  CoachProfileProvider? _profileProvider() {
     try {
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
-      bool changed = false;
-      if (profile.revenuBrutAnnuel > 0) {
-        _revenuNet = profile.revenuBrutAnnuel;
-        changed = true;
-      }
-      if (changed) _calculate();
-    } catch (_) {
-      // Provider not available
+      return context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
     }
+  }
+
+  void _hydrateFromProfile() {
+    final provider = _profileProvider();
+    final profile = provider?.profile;
+    if (profile == null) return;
+
+    final income = profile.selfEmployedNetIncome;
+    if (income != null && income > 0) {
+      _revenuNet = income.clamp(_incomeMin, _incomeMax).toDouble();
+    }
+
+    _result = _computeResult();
+  }
+
+  Future<void> _persistIncome(double value) async {
+    final provider = _profileProvider();
+    await provider?.mergeAnswers({
+      'q_self_employed_income': value,
+      'q_net_income_period_chf': value,
+      'q_pay_frequency': 'yearly',
+      'q_employment_status': 'independant',
+    });
   }
 
   void _calculate() {
     setState(() {
-      _result = IndependantsService.calculateAvsCotisations(_revenuNet);
+      _result = _computeResult();
     });
   }
 
@@ -120,13 +151,16 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
       child: MintPremiumSlider(
         label: s.avsCotisationsRevenuLabel,
         value: _revenuNet,
-        min: 0,
-        max: 250000,
+        min: _incomeMin,
+        max: _incomeMax,
         divisions: 250,
         formatValue: (v) => IndependantsService.formatChf(v),
         onChanged: (value) {
           _revenuNet = value;
           _calculate();
+        },
+        onChangeEnd: (value) {
+          unawaited(_persistIncome(value));
         },
       ),
     );

@@ -16,6 +16,7 @@ class MintPremiumSlider extends StatelessWidget {
   final String Function(double)? formatValue;
   final Color? activeColor;
   final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChangeEnd;
 
   const MintPremiumSlider({
     super.key,
@@ -27,6 +28,7 @@ class MintPremiumSlider extends StatelessWidget {
     this.formatValue,
     this.activeColor,
     required this.onChanged,
+    this.onChangeEnd,
   });
 
   @override
@@ -80,6 +82,7 @@ class MintPremiumSlider extends StatelessWidget {
             max: max,
             divisions: divisions,
             onChanged: onChanged,
+            onChangeEnd: onChangeEnd,
           ),
         ),
       ],
