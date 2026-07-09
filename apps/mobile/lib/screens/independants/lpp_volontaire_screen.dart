@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -12,6 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:provider/provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LPP VOLONTAIRE SCREEN — Sprint S18 / Independants complet
@@ -31,24 +35,85 @@ class LppVolontaireScreen extends StatefulWidget {
 }
 
 class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
+  static const double _incomeMin = 0;
+  static const double _incomeMax = 250000;
+  static const int _ageMin = 25;
+  static const int _ageMax = 65;
+
   double _revenuNet = 80000;
   int _age = 40;
   double _tauxMarginal = 0.30;
   LppVolontaireResult? _result;
+  bool _didHydrateFromProfile = false;
 
   @override
   void initState() {
     super.initState();
-    _calculate();
+    _result = _computeResult();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didHydrateFromProfile) return;
+    _didHydrateFromProfile = true;
+    _hydrateFromProfile();
+  }
+
+  LppVolontaireResult _computeResult() {
+    return IndependantsService.calculateLppVolontaire(
+      _revenuNet,
+      _age,
+      _tauxMarginal,
+    );
   }
 
   void _calculate() {
     setState(() {
-      _result = IndependantsService.calculateLppVolontaire(
-        _revenuNet,
-        _age,
-        _tauxMarginal,
-      );
+      _result = _computeResult();
+    });
+  }
+
+  CoachProfileProvider? _profileProvider() {
+    try {
+      return context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  void _hydrateFromProfile() {
+    final provider = _profileProvider();
+    final profile = provider?.profile;
+    if (profile == null) return;
+
+    final income = profile.selfEmployedNetIncome;
+    if (income != null && income > 0) {
+      _revenuNet = income.clamp(_incomeMin, _incomeMax).toDouble();
+    }
+
+    final age = profile.ageOrNull;
+    if (age != null) {
+      _age = age.clamp(_ageMin, _ageMax).toInt();
+    }
+
+    _result = _computeResult();
+  }
+
+  Future<void> _persistIncome(double value) async {
+    final provider = _profileProvider();
+    await provider?.mergeAnswers({
+      'q_self_employed_income': value,
+      'q_net_income_period_chf': value,
+      'q_pay_frequency': 'yearly',
+      'q_employment_status': 'independant',
+    });
+  }
+
+  Future<void> _persistAge(int value) async {
+    final provider = _profileProvider();
+    await provider?.mergeAnswers({
+      'q_birth_year': DateTime.now().year - value,
     });
   }
 
@@ -153,13 +218,12 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
         value: _revenuNet,
         formatValue: (v) => IndependantsService.formatChf(v),
         onChanged: (v) {
-          setState(() {
-            _revenuNet = v;
-            _calculate();
-          });
+          _revenuNet = v;
+          _calculate();
+          unawaited(_persistIncome(v));
         },
-        min: 0,
-        max: 250000,
+        min: _incomeMin,
+        max: _incomeMax,
       ),
     );
   }
@@ -169,14 +233,13 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       child: MintPickerTile(
         label: S.of(context)!.lppVolontaireTonAge,
         value: _age,
-        minValue: 25,
-        maxValue: 65,
+        minValue: _ageMin,
+        maxValue: _ageMax,
         formatValue: (v) => '$v ans',
         onChanged: (v) {
-          setState(() {
-            _age = v;
-            _calculate();
-          });
+          _age = v;
+          _calculate();
+          unawaited(_persistAge(v));
         },
       ),
     );
