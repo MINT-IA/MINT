@@ -97,6 +97,40 @@ void main() {
     expect(provider.profile?.canton, 'GE');
   });
 
+  testWidgets(
+      'revenue block inputKey collects independent income as canonical ledger facts',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'q_self_employed_income',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('self_employed_income_input')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('canton_picker')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('self_employed_income_input')),
+      '144000',
+    );
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_self_employed_income', 144000));
+    expect(answers, containsPair('q_net_income_period_chf', 144000));
+    expect(answers, containsPair('q_pay_frequency', 'yearly'));
+    expect(answers, containsPair('q_employment_status', 'independant'));
+    expect(answers.containsKey('q_gross_salary_annual'), isFalse);
+    expect(provider.profile?.selfEmployedNetIncome, 144000);
+  });
+
   testWidgets('revenue block does not treat monthly income as annual input',
       (tester) async {
     await tester.pumpWidget(_wrap(
