@@ -40418,6 +40418,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Certificat de salaire scanné'**
   String get scanSummarySalaryCertificate;
+
+  /// Title for the low projection confidence card.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas assez de données pour une projection fiable'**
+  String get lowConfidenceCardTitle;
+
+  /// Intro text before the ranked enrichment prompts in the low projection confidence card.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ce qui améliorerait le plus tes projections :'**
+  String get lowConfidenceCardPromptIntro;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

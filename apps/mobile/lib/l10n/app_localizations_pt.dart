@@ -23039,4 +23039,11 @@ class SPt extends S {
   @override
   String get scanSummarySalaryCertificate =>
       'Certificado de salário digitalizado';
+  @override
+  String get lowConfidenceCardTitle =>
+      'Dados insuficientes para uma projeção fiável';
+
+  @override
+  String get lowConfidenceCardPromptIntro =>
+      'Isto melhoraria mais as tuas projeções:';
 }

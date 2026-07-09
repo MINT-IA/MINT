@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -47,6 +48,48 @@ Widget buildSimpleApp({required Widget child}) {
     home: Scaffold(
       body: SingleChildScrollView(child: child),
     ),
+  );
+}
+
+Widget buildRoutedApp({
+  required Widget child,
+  required ValueChanged<Uri> onDataBlockRoute,
+}) {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => Scaffold(
+          body: SingleChildScrollView(child: child),
+        ),
+      ),
+      GoRoute(
+        path: '/data-block/:type',
+        builder: (_, state) {
+          onDataBlockRoute(state.uri);
+          return const Scaffold(body: SizedBox.shrink());
+        },
+      ),
+      GoRoute(
+        path: '/scan',
+        builder: (_, __) => const Scaffold(body: SizedBox.shrink()),
+      ),
+      GoRoute(
+        path: '/scan/avs-guide',
+        builder: (_, __) => const Scaffold(body: SizedBox.shrink()),
+      ),
+    ],
+  );
+  return MaterialApp.router(
+    routerConfig: router,
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
   );
 }
 
@@ -102,6 +145,36 @@ CoachProfile buildMinimalProfile() {
     canton: 'GE',
     salaireBrutMensuel: 5000,
     employmentStatus: 'salarie',
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2055, 12, 31),
+      label: 'Retraite',
+    ),
+  );
+}
+
+/// Creates a profile where the only high-impact visible gap is salary.
+CoachProfile buildProfileMissingSalaryOnly() {
+  return CoachProfile(
+    firstName: 'Nina',
+    birthYear: 1990,
+    canton: 'GE',
+    salaireBrutMensuel: 0,
+    employmentStatus: 'salarie',
+    etatCivil: CoachCivilStatus.divorce,
+    targetRetirementAge: 65,
+    prevoyance: const PrevoyanceProfile(
+      anneesContribuees: 20,
+      avoirLppTotal: 180000,
+      salaireAssure: 76000,
+      tauxConversion: 0.055,
+      nombre3a: 2,
+      totalEpargne3a: 42000,
+      canContribute3a: true,
+    ),
+    patrimoine: const PatrimoineProfile(
+      epargneLiquide: 50000,
+    ),
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2055, 12, 31),
@@ -218,7 +291,7 @@ void main() {
     testWidgets('renders with minimal profile', (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(
-        buildSimpleApp(child: LowConfidenceCard(profile: profile)),
+        buildLocalizedApp(child: LowConfidenceCard(profile: profile)),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -229,12 +302,12 @@ void main() {
         (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(
-        buildSimpleApp(child: LowConfidenceCard(profile: profile)),
+        buildLocalizedApp(child: LowConfidenceCard(profile: profile)),
       );
       await tester.pump(const Duration(seconds: 1));
 
       expect(
-        find.textContaining('ne constitue pas un conseil financier'),
+        find.textContaining('constitue pas un conseil financier'),
         findsOneWidget,
       );
     });
@@ -242,7 +315,7 @@ void main() {
     testWidgets('shows info icon and header text', (tester) async {
       final profile = buildMinimalProfile();
       await tester.pumpWidget(
-        buildSimpleApp(child: LowConfidenceCard(profile: profile)),
+        buildLocalizedApp(child: LowConfidenceCard(profile: profile)),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -251,6 +324,24 @@ void main() {
         find.textContaining('Pas assez de donn'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('routes salary prompt to targeted revenue inputKey',
+        (tester) async {
+      Uri? capturedRoute;
+      await tester.pumpWidget(
+        buildRoutedApp(
+          child: LowConfidenceCard(profile: buildProfileMissingSalaryOnly()),
+          onDataBlockRoute: (uri) => capturedRoute = uri,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Ajoute ton salaire'));
+      await tester.pumpAndSettle();
+
+      expect(capturedRoute?.path, '/data-block/revenu');
+      expect(capturedRoute?.queryParameters['inputKey'], 'salary');
     });
   });
 
