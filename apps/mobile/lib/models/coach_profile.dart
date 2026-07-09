@@ -2391,7 +2391,8 @@ class CoachProfile {
     // (AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1% ≈ 12.5%, arrondi 13%)
     // Source: OFAS barème cotisations 2025. Ceci est une estimation;
     // le taux réel dépend du plan LPP et du canton.
-    const double socialChargesRate = 0.13;
+    const double socialChargesRate =
+        IncomeConversionCalculator.fallbackSwissSocialChargesRate;
     final nombreDeMois = IncomeConversionCalculator.normalizeAnnualSalaryMonths(
       _parseDouble(answers['q_nombre_mois']),
     );
@@ -2759,11 +2760,20 @@ class CoachProfile {
     // ── Conjoint (partner) data from onboarding ────────────
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
-    if (partnerIncome != null && partnerIncome > 0) {
+    final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
+    final conjEmployment = answers['q_partner_employment_status'] as String?;
+    final conjNationality = answers['q_partner_nationality'] as String?;
+    final partnerChildren = _parseInt(answers['q_partner_enfants']);
+    final hasPartnerData = (partnerIncome != null && partnerIncome > 0) ||
+        partnerBirthYear != null ||
+        (conjEmployment?.isNotEmpty ?? false) ||
+        (conjNationality?.isNotEmpty ?? false) ||
+        partnerChildren != null;
+    if (hasPartnerData) {
       // Net -> Brut estimation: same social charges rate as main user
-      final partnerBrut = partnerIncome / (1 - socialChargesRate);
-      final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
-      final conjEmployment = answers['q_partner_employment_status'] as String?;
+      final partnerBrut = partnerIncome != null && partnerIncome > 0
+          ? partnerIncome / (1 - socialChargesRate)
+          : null;
 
       // === Conjoint arrivalAge ===
       // First check for spouse-specific AVS arrival data, then fall back
@@ -2806,13 +2816,12 @@ class CoachProfile {
           : 35;
       final conjHasLpp =
           conjEmployment != 'independant' && conjEmployment != 'inactive';
-      final conjLppEstimate = conjHasLpp
+      final conjLppEstimate = conjHasLpp && partnerBrut != null
           ? _estimateLppAvoir(conjAge, partnerBrut,
               arrivalAge: conjointArrivalAge)
           : 0.0;
 
       // === Conjoint FATCA / nationality detection ===
-      final conjNationality = answers['q_partner_nationality'] as String?;
       final conjIsFatca = conjNationality == 'US';
 
       // === Conjoint prevoyance profile ===
@@ -2835,7 +2844,7 @@ class CoachProfile {
         canContribute3a: !conjIsFatca,
         prevoyance: conjointPrevoyance,
         canton: answers['q_partner_canton'] as String?,
-        nombreEnfants: _parseInt(answers['q_partner_enfants']),
+        nombreEnfants: partnerChildren,
       );
     }
 

@@ -26,6 +26,7 @@ class SecureWizardStore {
     'q_lpp_avoir',
     'q_3a_capital',
     'q_partner_salary',
+    'q_partner_net_income_chf',
     'q_patrimoine_liquide',
     'q_dettes_total',
     'q_has_consumer_debt',

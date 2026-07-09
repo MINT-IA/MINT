@@ -511,6 +511,9 @@ class CoachProfileProvider extends ChangeNotifier {
     // only crash-safe discipline.
     final current = await ReportPersistenceService.loadAnswers();
     final merged = Map<String, dynamic>.from(current)..addAll(partial);
+    if (_setsNonCoupledCivilStatus(partial)) {
+      _clearPartnerAnswers(merged);
+    }
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
@@ -651,6 +654,22 @@ class CoachProfileProvider extends ChangeNotifier {
           'q_has_consumer_debt': normalized > 0 ? 'yes' : 'no',
           '_coach_dettes_autres': normalized,
         };
+      // Spouse
+      case 'spouseBirthYear':
+        if (_profile?.isCouple != true) return const {};
+        final birthYear = _asNum(value)?.toInt();
+        final currentYear = DateTime.now().year;
+        if (birthYear == null ||
+            birthYear < 1900 ||
+            birthYear > currentYear + 1) {
+          return const {};
+        }
+        return {'q_partner_birth_year': birthYear};
+      case 'spouseIncomeNetMonthly':
+        if (_profile?.isCouple != true) return const {};
+        final income = _asNum(value);
+        if (income == null) return const {};
+        return {'q_partner_net_income_chf': income < 0 ? 0 : income};
       // AVS
       case 'avsContributionYears':
         return {'q_avs_contribution_years': value};
@@ -742,7 +761,8 @@ class CoachProfileProvider extends ChangeNotifier {
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
     // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
     // ce qui préserve le salaire brut original.
-    const double socialChargesRate = 0.13;
+    const double socialChargesRate =
+        IncomeConversionCalculator.fallbackSwissSocialChargesRate;
     final netMonthly = (clampedGrossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
     final effectiveEmployment = employmentStatus ?? 'salarie';
@@ -1053,29 +1073,48 @@ class CoachProfileProvider extends ChangeNotifier {
         previousStatus != updated.etatCivil &&
         updated.etatCivil != CoachCivilStatus.marie &&
         updated.etatCivil != CoachCivilStatus.concubinage) {
-      // FIX-097: Clear local household state on divorce (AWAITED).
-      // FIX-P0-1: Remove ALL partner/spouse keys to prevent ghost conjoint
-      // on app restart. Without this, fromWizardAnswers() recreates the spouse
-      // from stale SharedPreferences → AVS couple cap 150% applied to a single.
-      // FIX-P0-3: Was fire-and-forget → now awaited to guarantee cleanup before
-      // any subsequent read.
-      _awaitedDivorceCleanup();
+      // Clear local household cache after separation. Partner answers are
+      // cleared by _persistFullProfile() based on civil status, so this
+      // fire-and-forget cache cleanup cannot resurrect a ghost conjoint.
+      _clearHouseholdCacheAfterSeparation();
     }
   }
 
-  /// Awaited divorce cleanup — removes all partner/spouse keys from SharedPreferences.
-  /// Previously fire-and-forget (.then/.catchError), which could race with subsequent reads.
-  Future<void> _awaitedDivorceCleanup() async {
+  /// Best-effort separation cleanup for the legacy household cache.
+  Future<void> _clearHouseholdCacheAfterSeparation() async {
     try {
       final sp = await SharedPreferences.getInstance();
       await sp.remove('_household_data');
-      final keysToRemove = sp.getKeys().where(
-          (k) => k.startsWith('q_partner_') || k.startsWith('q_spouse_'));
-      for (final key in keysToRemove.toList()) {
-        await sp.remove(key);
-      }
     } catch (_) {
       // Best-effort: SharedPreferences failure is non-fatal.
+    }
+  }
+
+  void _clearPartnerAnswers(Map<String, dynamic> answers) {
+    final keysToRemove = answers.keys
+        .where((k) => k.startsWith('q_partner_') || k.startsWith('q_spouse_'))
+        .toList();
+    for (final key in keysToRemove) {
+      answers.remove(key);
+    }
+    // Keep this null marker so SecureWizardStore deletes encrypted values too.
+    answers['q_partner_net_income_chf'] = null;
+    answers['q_partner_salary'] = null;
+  }
+
+  bool _setsNonCoupledCivilStatus(Map<String, dynamic> answers) {
+    if (!answers.containsKey('q_civil_status')) return false;
+    final value = answers['q_civil_status'];
+    if (value is! String) return true;
+    switch (value.toLowerCase()) {
+      case 'marie':
+      case 'marié': // lint-ignore: accepted legacy input
+      case 'married':
+      case 'concubinage':
+      case 'partenariat':
+        return false;
+      default:
+        return true;
     }
   }
 
@@ -1140,11 +1179,14 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
     // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
-    if (profile.conjoint != null) {
+    final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
+        profile.etatCivil == CoachCivilStatus.concubinage;
+    if (isCoupled && profile.conjoint != null) {
       final c = profile.conjoint!;
       if (c.salaireBrutMensuel != null) {
         // Store as net (reverse the brut→net from fromWizardAnswers)
-        const socialChargesRate = 0.133; // AVS+AI+APG+AC standard rate
+        const socialChargesRate =
+            IncomeConversionCalculator.fallbackSwissSocialChargesRate;
         answers['q_partner_net_income_chf'] =
             c.salaireBrutMensuel! * (1 - socialChargesRate);
       }
@@ -1169,6 +1211,8 @@ class CoachProfileProvider extends ChangeNotifier {
       if (c.nombreEnfants != null) {
         answers['q_partner_enfants'] = c.nombreEnfants;
       }
+    } else {
+      _clearPartnerAnswers(answers);
     }
     await ReportPersistenceService.saveAnswers(answers);
   }
