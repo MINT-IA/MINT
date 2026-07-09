@@ -124,6 +124,18 @@ class AvsCalculator {
     return (value * 20).roundToDouble() / 20;
   }
 
+  /// Position the self-employed AVS/AI/APG barème gauge.
+  ///
+  /// `1.0` means the income has reached the full-rate bracket for independent
+  /// AVS cotisations. Keep this threshold in financial_core so screens render
+  /// calculator output instead of owning financial constants.
+  static double selfEmployedCotisationGaugePosition(double revenuNet) {
+    final fullRateThreshold =
+        reg('avs.self_employed_full_rate_threshold', 60500.0);
+    if (revenuNet <= 0 || fullRateThreshold <= 0) return 0.0;
+    return (revenuNet / fullRateThreshold).clamp(0.0, 1.0).toDouble();
+  }
+
   /// AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
   ///
   /// Concave lookup + linear interpolation between table points.
@@ -240,26 +252,4 @@ class AvsCalculator {
     return renteMax * gap / fullYears;
   }
 
-  /// Explains why a computed rente is zero or very low.
-  ///
-  /// Use after [computeMonthlyRente] returns 0 or near-zero to provide
-  /// user-facing context instead of a bare "0 CHF".
-  static String? explainZeroRente({
-    required double computedRente,
-    required double grossAnnualSalary,
-    required int currentAge,
-    required int retirementAge,
-  }) {
-    if (computedRente > 0) return null;
-    if (grossAnnualSalary <= 0) {
-      return 'Aucun revenu d\u00e9clar\u00e9 \u2014 renseigne ton salaire pour estimer ta rente AVS.';
-    }
-    if (retirementAge < 63) {
-      return 'Anticipation AVS possible uniquement d\u00e8s 63 ans (LAVS art.\u00a040).';
-    }
-    if (currentAge < 20) {
-      return 'Les cotisations AVS d\u00e9butent \u00e0 20 ans (LAVS art.\u00a03).';
-    }
-    return 'Revenu insuffisant pour g\u00e9n\u00e9rer une rente dans cette configuration.';
-  }
 }

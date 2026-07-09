@@ -428,84 +428,46 @@ void main() {
   // ===========================================================================
 
   group('AvsCotisationsScreen', () {
-    testWidgets('prefills known independent income from profile',
-        (tester) async {
-      final provider = RecordingCoachProfileProvider(
-        independentAnswers(selfIncome: 135000),
-      );
-
-      await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const AvsCotisationsScreen(),
-        ),
-      );
+    Future<void> pumpAvs(
+      WidgetTester tester,
+      Map<String, dynamic> answers,
+    ) async {
+      await tester.pumpWidget(buildWithCoachProfileProvider(
+        RecordingCoachProfileProvider(answers),
+        const AvsCotisationsScreen(),
+      ));
       await tester.pumpAndSettle(const Duration(seconds: 5));
+    }
 
-      final incomeSlider = tester
-          .widget<MintPremiumSlider>(find.byType(MintPremiumSlider).first);
+    testWidgets('uses ledger facts instead of a local income slider',
+        (tester) async {
+      await pumpAvs(tester, independentAnswers(selfIncome: 135000));
 
-      expect(incomeSlider.value, 135000);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.byKey(const Key('avs_ledger_facts')), findsOneWidget);
+      expect(find.byKey(const Key('avs_income_fact')), findsOneWidget);
+      expect(find.textContaining("135'000"), findsOneWidget);
+      expect(find.byKey(const Key('avs_result_cards')), findsOneWidget);
     });
 
-    testWidgets('does not prefill net income from a gross salary fallback',
+    testWidgets('does not calculate from a gross salary fallback',
         (tester) async {
-      final provider = RecordingCoachProfileProvider(
-        independentAnswers(grossSalary: 220000),
-      );
+      await pumpAvs(tester, independentAnswers(grossSalary: 220000));
 
-      await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const AvsCotisationsScreen(),
-        ),
-      );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      final incomeSlider = tester
-          .widget<MintPremiumSlider>(find.byType(MintPremiumSlider).first);
-
-      expect(incomeSlider.value, 80000);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 220'000"), findsNothing);
+      expect(find.byKey(const Key('avs_result_cards')), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
     });
 
-    testWidgets('persists edited independent income through the profile path',
+    testWidgets('shows missing fact instead of defaulting to 80000',
         (tester) async {
-      final provider = RecordingCoachProfileProvider(
-        independentAnswers(selfIncome: 90000),
-      );
+      await pumpAvs(tester, independentAnswers());
 
-      await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const AvsCotisationsScreen(),
-        ),
-      );
-      await tester.pump(const Duration(milliseconds: 500));
-
-      final incomeSlider = tester
-          .widget<MintPremiumSlider>(find.byType(MintPremiumSlider).first);
-      incomeSlider.onChanged(123000);
-      await tester.pump();
-
-      expect(provider.writes, isEmpty);
-
-      incomeSlider.onChangeEnd!(123000);
-      await tester.pump();
-
-      expect(provider.writes, isNotEmpty);
-      expect(
-        provider.writes.last,
-        containsPair('q_self_employed_income', 123000),
-      );
-      expect(
-        provider.writes.last,
-        containsPair('q_net_income_period_chf', 123000),
-      );
-      expect(provider.writes.last, containsPair('q_pay_frequency', 'yearly'));
-      expect(
-        provider.writes.last,
-        containsPair('q_employment_status', 'independant'),
-      );
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 80'000"), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byKey(const Key('avs_result_cards')), findsNothing);
     });
   });
 
