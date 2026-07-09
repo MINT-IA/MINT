@@ -111,6 +111,100 @@ jobs:
       - name: Scan Dart UI strings
         run: python3 tools/checks/banned_ui_terms.py
 
+  # ─── i18n gate: ARB key parity ───────────────────────────────
+  # Server-side backstop for the lefthook `arb-parity` command.
+  # This is global because the current ARB corpus is clean and parity is cheap.
+  arb-parity:
+    name: ARB parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify ARB key parity
+        run: python3 tools/checks/arb_parity.py
+
+  # ─── i18n gate: French accent drift ──────────────────────────
+  # Server-side backstop for the lefthook `accent-lint-fr` command.
+  # Scope is changed files only because the historical repo still contains
+  # legacy accent debt; this job prevents making the debt larger.
+  accent-lint-fr:
+    name: Accent lint FR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan changed French text files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [[ -z "$BASE_REF" ]] || [[ "${BASE_REF//0/}" == "" ]]; then
+              BASE_REF="HEAD^"
+            fi
+          fi
+          found=0
+          while IFS= read -r file; do
+            [[ -f "$file" ]] || continue
+            case "$file" in
+              *.dart|*.py|*.arb|*.md)
+                python3 tools/checks/accent_lint_fr.py --file "$file"
+                found=1
+                ;;
+            esac
+          done < <(git diff --name-only --diff-filter=ACMR "$BASE_REF" HEAD)
+          if [[ "$found" == "0" ]]; then
+            echo "No changed text files for accent lint."
+          fi
+
+  # ─── i18n gate: hardcoded French in Flutter UI ───────────────
+  # Server-side backstop for the lefthook `no-hardcoded-fr` command.
+  # Scope is changed Flutter files only because the historical repo still
+  # contains legacy hardcoded-FR debt; this job prevents making it larger.
+  no-hardcoded-fr:
+    name: No hardcoded FR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan changed Flutter source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [[ -z "$BASE_REF" ]] || [[ "${BASE_REF//0/}" == "" ]]; then
+              BASE_REF="HEAD^"
+            fi
+          fi
+          found=0
+          while IFS= read -r file; do
+            [[ -f "$file" ]] || continue
+            case "$file" in
+              apps/mobile/lib/*.dart)
+                python3 tools/checks/no_hardcoded_fr.py --file "$file"
+                found=1
+                ;;
+            esac
+          done < <(git diff --name-only --diff-filter=ACMR "$BASE_REF" HEAD)
+          if [[ "$found" == "0" ]]; then
+            echo "No changed Flutter source files for hardcoded-FR lint."
+          fi
+
   # ─── Financial calculation drift gate ──────────────────────────
   # Blocks newly introduced financial calculation helpers/formulas
   # outside apps/mobile/lib/services/financial_core/. Existing drift is
@@ -619,7 +713,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, secret-scan, banned-ui-terms, financial-core-gate, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, secret-scan, banned-ui-terms, arb-parity, accent-lint-fr, no-hardcoded-fr, financial-core-gate, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, repository-contract-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -629,6 +723,9 @@ jobs:
           backend="${{ needs.backend.result }}"
           secret_scan="${{ needs.secret-scan.result }}"
           banned_terms="${{ needs.banned-ui-terms.result }}"
+          arb_parity="${{ needs.arb-parity.result }}"
+          accent_lint="${{ needs.accent-lint-fr.result }}"
+          no_hardcoded_fr="${{ needs.no-hardcoded-fr.result }}"
           financial_core="${{ needs.financial-core-gate.result }}"
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
@@ -640,6 +737,9 @@ jobs:
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$banned_terms" == "skipped" ]] && banned_terms="success"
+          [[ "$arb_parity" == "skipped" ]] && arb_parity="success"
+          [[ "$accent_lint" == "skipped" ]] && accent_lint="success"
+          [[ "$no_hardcoded_fr" == "skipped" ]] && no_hardcoded_fr="success"
           [[ "$financial_core" == "skipped" ]] && financial_core="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -649,8 +749,8 @@ jobs:
           [[ "$contract_tests" == "skipped" ]] && contract_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms financial_core=$financial_core flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$secret_scan" != "success" ]] || [[ "$banned_terms" != "success" ]] || [[ "$arb_parity" != "success" ]] || [[ "$accent_lint" != "success" ]] || [[ "$no_hardcoded_fr" != "success" ]] || [[ "$financial_core" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$contract_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend secret_scan=$secret_scan banned_terms=$banned_terms arb_parity=$arb_parity accent_lint=$accent_lint no_hardcoded_fr=$no_hardcoded_fr financial_core=$financial_core flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests contract_tests=$contract_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
