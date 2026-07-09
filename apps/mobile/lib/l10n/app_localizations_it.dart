@@ -23093,4 +23093,11 @@ class SIt extends S {
   @override
   String get scanSummarySalaryCertificate =>
       'Certificato di stipendio scansionato';
+  @override
+  String get lowConfidenceCardTitle =>
+      'Dati insufficienti per una proiezione affidabile';
+
+  @override
+  String get lowConfidenceCardPromptIntro =>
+      'Questi dati migliorerebbero di più le tue proiezioni:';
 }

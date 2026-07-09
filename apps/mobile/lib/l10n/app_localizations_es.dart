@@ -23031,4 +23031,11 @@ class SEs extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificado de salario escaneado';
+  @override
+  String get lowConfidenceCardTitle =>
+      'No hay suficientes datos para una proyección fiable';
+
+  @override
+  String get lowConfidenceCardPromptIntro =>
+      'Esto mejoraría más tus proyecciones:';
 }

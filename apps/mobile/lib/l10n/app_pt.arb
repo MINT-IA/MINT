@@ -11093,5 +11093,7 @@
   "scanSummaryTaxDeclaration": "Declaração fiscal digitalizada",
   "scanSummaryAvsExtract": "Extrato AVS digitalizado",
   "scanSummaryMortgageAttestation": "Atestação hipoteca digitalizada",
-  "scanSummarySalaryCertificate": "Certificado de salário digitalizado"
+  "scanSummarySalaryCertificate": "Certificado de salário digitalizado",
+  "lowConfidenceCardTitle": "Dados insuficientes para uma projeção fiável",
+  "lowConfidenceCardPromptIntro": "Isto melhoraria mais as tuas projeções:"
 }

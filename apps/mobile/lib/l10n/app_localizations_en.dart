@@ -22920,4 +22920,11 @@ class SEn extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+  @override
+  String get lowConfidenceCardTitle =>
+      'Not enough data for a reliable projection';
+
+  @override
+  String get lowConfidenceCardPromptIntro =>
+      'This would improve your projections the most:';
 }

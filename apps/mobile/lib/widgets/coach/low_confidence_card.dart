@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
@@ -20,16 +21,16 @@ class LowConfidenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final confidence = ConfidenceScorer.score(profile);
     final topPrompts = confidence.prompts.take(3).toList();
 
     // Determine the best CTA route from the highest-impact prompt
     final bestRoute = topPrompts.isNotEmpty
-        ? _routeForCategory(topPrompts.first.category) ?? '/scan'
+        ? _routeForPrompt(topPrompts.first) ?? '/scan'
         : '/scan';
-    final bestLabel = topPrompts.isNotEmpty
-        ? topPrompts.first.action
-        : 'Compl\u00e9ter mon profil';
+    final bestLabel =
+        topPrompts.isNotEmpty ? topPrompts.first.action : l.dossierCompleteCta;
 
     return Container(
       width: double.infinity,
@@ -51,9 +52,10 @@ class LowConfidenceCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Pas assez de donn\u00e9es pour une projection fiable',
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-                      .copyWith(fontWeight: FontWeight.w700),
+                  l.lowConfidenceCardTitle,
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -64,8 +66,9 @@ class LowConfidenceCard extends StatelessWidget {
             children: [
               Text(
                 '${confidence.score.round()}/100',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
-                    .copyWith(fontWeight: FontWeight.w600),
+                style:
+                    MintTextStyles.labelSmall(color: MintColors.textSecondary)
+                        .copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -89,14 +92,14 @@ class LowConfidenceCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Voici ce qui am\u00e9liorerait le plus tes projections\u00a0:',
+            l.lowConfidenceCardPromptIntro,
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
                 .copyWith(height: 1.4),
           ),
           const SizedBox(height: 12),
           // EVI-ranked prompts with tappable rows
           ...topPrompts.map((p) {
-            final route = _routeForCategory(p.category);
+            final route = _routeForPrompt(p);
             return Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: InkWell(
@@ -168,12 +171,20 @@ class LowConfidenceCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+            l.dataBlockDisclaimer,
             style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ],
       ),
     );
+  }
+
+  static String? _routeForPrompt(EnrichmentPrompt prompt) {
+    if (prompt.category == 'income' &&
+        prompt.fieldPath == 'salaireBrutMensuel') {
+      return '/data-block/revenu?inputKey=salary';
+    }
+    return _routeForCategory(prompt.category);
   }
 
   /// Map enrichment category to the best data capture route.
