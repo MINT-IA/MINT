@@ -15,13 +15,7 @@ flutter build ios --simulator --debug
 xcrun simctl install booted build/ios/iphonesimulator/Runner.app
 xcrun simctl launch booted ch.mint.app
 ```
-
-Result:
-
-```text
-✓ Built build/ios/iphonesimulator/Runner.app
-Installed at .../Runner.app
-```
+Build result: `Runner.app` built and installed on the simulator.
 
 ## Runtime Proof
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -66,8 +67,16 @@ void main() {
             find.bySemanticsIdentifier(routeCase.ctaIdentifier),
             findsOneWidget,
           );
+          final ctaNode = tester.getSemantics(find.bySemanticsIdentifier(routeCase.ctaIdentifier));
+          expect(ctaNode.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
 
-          await tester.tap(find.byKey(routeCase.ctaKey));
+          tester.binding.performSemanticsAction(
+            SemanticsActionEvent(
+              type: SemanticsAction.tap,
+              nodeId: ctaNode.id,
+              viewId: tester.view.viewId,
+            ),
+          );
           await tester.pumpAndSettle();
           expect(find.text(routeCase.destination), findsOneWidget);
         } finally {
