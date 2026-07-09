@@ -55,6 +55,8 @@ class _DataBlockEnrichmentScreenState
   bool _showCoachMode = false;
   final TextEditingController _cantonController = TextEditingController();
   final TextEditingController _salaryController = TextEditingController();
+  final TextEditingController _selfEmployedIncomeController =
+      TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
   bool _revenueInputsSeeded = false;
@@ -74,6 +76,7 @@ class _DataBlockEnrichmentScreenState
   void dispose() {
     _cantonController.dispose();
     _salaryController.dispose();
+    _selfEmployedIncomeController.dispose();
     _birthYearController.dispose();
     _cashController.dispose();
     super.dispose();
@@ -241,6 +244,10 @@ class _DataBlockEnrichmentScreenState
     if (profile.revenuBrutAnnuel > 0) {
       _salaryController.text = '${profile.revenuBrutAnnuel.round()}';
     }
+    final selfEmployedIncome = profile.selfEmployedNetIncome;
+    if (selfEmployedIncome != null && selfEmployedIncome > 0) {
+      _selfEmployedIncomeController.text = '${selfEmployedIncome.round()}';
+    }
     if (profile.birthYear >= 1900) _birthYearController.text = '${profile.birthYear}';
     _hasPensionFund = (profile.prevoyance.avoirLppTotal ?? 0) > 0 ||
         profile.prevoyance.isLppFromCertificate;
@@ -269,6 +276,16 @@ class _DataBlockEnrichmentScreenState
         semanticsIdentifier: 'salary_input',
         controller: _salaryController,
         label: l.renteVsCapitalSalary,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+      ));
+    }
+    if (onlyInputKey == 'q_self_employed_income') {
+      addField(_buildRevenueTextField(
+        key: const Key('self_employed_income_input'),
+        semanticsIdentifier: 'self_employed_income_input',
+        controller: _selfEmployedIncomeController,
+        label: l.independantRevenueTitle,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
       ));
@@ -387,12 +404,16 @@ class _DataBlockEnrichmentScreenState
     final onlyInputKey = _canonicalRevenueInputKey(widget.initialInputKey);
     final capturesSalary =
         _capturesRevenue('q_gross_salary_annual', onlyInputKey);
+    final capturesSelfEmployedIncome =
+        onlyInputKey == 'q_self_employed_income';
     final capturesCanton = _capturesRevenue('q_canton', onlyInputKey);
     final capturesBirthYear = _capturesRevenue('q_birth_year', onlyInputKey);
     final capturesPensionFund =
         _capturesRevenue('q_has_pension_fund', onlyInputKey);
     final canton = _cantonController.text.trim().toUpperCase();
     final salary = int.tryParse(_digitsOnly(_salaryController.text));
+    final selfEmployedIncome =
+        int.tryParse(_digitsOnly(_selfEmployedIncomeController.text));
     final birthText = _birthYearController.text.trim();
     final birthYear = birthText.isEmpty ? null : int.tryParse(birthText);
     final currentYear = DateTime.now().year;
@@ -408,6 +429,8 @@ class _DataBlockEnrichmentScreenState
 
     if ((capturesCanton && !_swissCantonCodes.contains(' $canton ')) ||
         (capturesSalary && (salary == null || salary <= 0)) ||
+        (capturesSelfEmployedIncome &&
+            (selfEmployedIncome == null || selfEmployedIncome <= 0)) ||
         invalidBirthYear) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
@@ -420,6 +443,12 @@ class _DataBlockEnrichmentScreenState
 
     final answers = <String, dynamic>{
       if (capturesSalary) 'q_gross_salary_annual': salary,
+      if (capturesSelfEmployedIncome) ...{
+        'q_self_employed_income': selfEmployedIncome,
+        'q_net_income_period_chf': selfEmployedIncome,
+        'q_pay_frequency': 'yearly',
+        'q_employment_status': 'independant',
+      },
       if (capturesCanton) 'q_canton': canton,
       if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
       if (capturesPensionFund &&
@@ -537,6 +566,11 @@ class _DataBlockEnrichmentScreenState
       'grosssalaryannual' ||
       'salary' =>
         'q_gross_salary_annual',
+      'qselfemployedincome' ||
+      'selfemployedincome' ||
+      'revenuindependant' ||
+      'revenunetannuelindependant' =>
+        'q_self_employed_income',
       'qcanton' || 'canton' => 'q_canton',
       'qbirthyear' || 'birthyear' => 'q_birth_year',
       'qhaspensionfund' || 'has2ndpillar' || 'haspensionfund' =>
