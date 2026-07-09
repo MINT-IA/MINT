@@ -9,6 +9,7 @@ Usage:
 
 Env: CLAUDE_AUDIT_MODEL, CLAUDE_AUDIT_EFFORT, CLAUDE_AUDIT_ALLOW_MAX,
 CLAUDE_AUDIT_WORKTREE, CLAUDE_AUDIT_BARE, CLAUDE_AUDIT_SETTINGS,
+CLAUDE_AUDIT_SETTING_SOURCES, CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS,
 CLAUDE_AUDIT_MAX_BUDGET_USD, CLAUDE_AUDIT_MAX_DIFF_LINES,
 CLAUDE_AUDIT_ALLOW_LARGE_DIFF, CLAUDE_AUDIT_RERUN,
 CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN, CLAUDE_AUDIT_DRY_RUN.
@@ -53,6 +54,25 @@ repo_root="$(git rev-parse --show-toplevel)"
 worktree="${CLAUDE_AUDIT_WORKTREE:-$repo_root}"
 max_diff_lines="${CLAUDE_AUDIT_MAX_DIFF_LINES:-2500}"
 case "$max_diff_lines" in ""|*[!0-9]*) die "CLAUDE_AUDIT_MAX_DIFF_LINES must be a non-negative integer" ;; esac
+setting_sources="${CLAUDE_AUDIT_SETTING_SOURCES:-user}"
+case "${CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS:-0}" in
+  0|1) ;;
+  *) die "CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS must be 0 or 1" ;;
+esac
+IFS=',' read -r -a setting_source_parts <<< "$setting_sources"
+for setting_source in "${setting_source_parts[@]}"; do
+  case "$setting_source" in
+    user) ;;
+    project|local)
+      if [[ "${CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS:-0}" != "1" ]]; then
+        die "project/local settings can load repo hooks; keep CLAUDE_AUDIT_SETTING_SOURCES=user or set CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1 for a named debug run"
+      fi
+      ;;
+    *)
+      die "CLAUDE_AUDIT_SETTING_SOURCES must be a comma-separated list of user,project,local"
+      ;;
+  esac
+done
 prompt_file="$(mktemp "${TMPDIR:-/tmp}/mint-claude-audit.XXXXXX")"
 trap 'rm -f "$prompt_file"' EXIT
 
@@ -156,6 +176,7 @@ esac
 claude_args=(-p --model "$model" --effort "$effort" --safe-mode
   --strict-mcp-config --mcp-config '{"mcpServers":{}}'
   --disable-slash-commands --no-session-persistence
+  --setting-sources "$setting_sources"
   --permission-mode dontAsk --tools Read,Grep,Bash --add-dir "$worktree"
   --exclude-dynamic-system-prompt-sections)
 

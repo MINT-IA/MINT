@@ -45,9 +45,12 @@ tools/checks/claude_external_audit.sh architecture
 ```
 
 The wrapper is deliberately bounded: Opus high by default, strict empty MCP,
-no session persistence, no dynamic-system-prompt sections, and no `--effort max`
-unless `CLAUDE_AUDIT_ALLOW_MAX=1` is explicitly set for a named final-release
-or unresolved P0/P1 dispute. Code audits reject large diff prompts by default
+no session persistence, `--setting-sources user`, no dynamic-system-prompt
+sections, and no `--effort max` unless `CLAUDE_AUDIT_ALLOW_MAX=1` is explicitly
+set for a named final-release or unresolved P0/P1 dispute. Project/local setting
+sources are rejected by default because they can load repo hooks; override only
+with `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1` for a named debug run. Code audits
+reject large diff prompts by default
 (`CLAUDE_AUDIT_MAX_DIFF_LINES`, default 2500) so oversized branches are split
 before review. Repeated same-gate re-audits should use Sonnet high first via
 `CLAUDE_AUDIT_RERUN=1`, then one Opus high final. The wrapper rejects
