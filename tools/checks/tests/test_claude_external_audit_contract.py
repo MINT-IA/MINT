@@ -67,6 +67,7 @@ def test_wrapper_defaults_are_bounded() -> None:
         r"\{\"mcpServers\":\{\}\}",
         "--disable-slash-commands",
         "--no-session-persistence",
+        "--setting-sources user",
         "--permission-mode dontAsk",
         "--tools Read\\,Grep\\,Bash",
         "--exclude-dynamic-system-prompt-sections",
@@ -131,6 +132,16 @@ def test_rerun_mode_defaults_to_sonnet_high() -> None:
             "MAX_DIFF_LINES must be a non-negative integer",
         ),
         (
+            ("code", "HEAD"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_SETTING_SOURCES": "project"},
+            "project/local settings can load repo hooks",
+        ),
+        (
+            ("code", "HEAD"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_SETTING_SOURCES": "local"},
+            "project/local settings can load repo hooks",
+        ),
+        (
             ("specs",),
             {
                 "CLAUDE_AUDIT_DRY_RUN": "1",
@@ -165,6 +176,19 @@ def test_rerun_mode_allows_non_sonnet_only_with_explicit_override() -> None:
 
     assert result.returncode == 0, result.stderr
     assert "--model opus" in result.stdout
+
+
+def test_project_setting_sources_require_explicit_override() -> None:
+    result = _run(
+        "code",
+        "HEAD",
+        CLAUDE_AUDIT_DRY_RUN="1",
+        CLAUDE_AUDIT_SETTING_SOURCES="project,local",
+        CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS="1",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "--setting-sources project\\,local" in result.stdout
 
 
 def test_wrapper_rejects_large_code_diff_without_explicit_override() -> None:
@@ -223,6 +247,8 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "Sonnet high" in text
         assert "CLAUDE_AUDIT_RERUN=1" in text
         assert "CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1" in text
+        assert "--setting-sources user" in text
+        assert "CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1" in text
         assert "--effort max" in text
         assert "CLAUDE_AUDIT_MAX_DIFF_LINES" in text
 
@@ -237,6 +263,7 @@ def test_claude_md_anchors_external_audit_latency_policy() -> None:
         "CLAUDE_AUDIT_RERUN=1",
         "--safe-mode",
         "--strict-mcp-config",
+        "--setting-sources user",
         "--no-session-persistence",
         "--effort max",
         "unsupported `--max-turns`",

@@ -53,8 +53,10 @@ tools/checks/claude_external_audit.sh architecture
 
 The wrapper is intentionally bounded: Opus high by default, Sonnet high for
 same-gate reruns via `CLAUDE_AUDIT_RERUN=1`, `--safe-mode`,
-`--strict-mcp-config`, empty MCP config, `--no-session-persistence`, and bounded
-tools. Use `--effort max` only for a named final-release/P0 dispute with
+`--strict-mcp-config`, empty MCP config, `--setting-sources user`,
+`--no-session-persistence`, and bounded tools. Project/local setting sources are
+rejected by default because `.claude/settings*.json` can load repo hooks. Use
+`--effort max` only for a named final-release/P0 dispute with
 `CLAUDE_AUDIT_ALLOW_MAX=1`. Do not add unsupported `--max-turns`: the installed
 Claude CLI does not expose it, and the wrapper rejects `CLAUDE_AUDIT_MAX_TURNS`
 so agents cannot rely on a fake safety knob.

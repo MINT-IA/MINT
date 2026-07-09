@@ -61,7 +61,7 @@ Every product PR must list:
 
 | Tool | Status in clean checkout | Gate use |
 |---|---|---|
-| Claude CLI | Available after local login | External audit via `tools/checks/claude_external_audit.sh`; use bounded audits (`opus high`, safe mode, strict empty MCP) by default |
+| Claude CLI | Available after local login | External audit via `tools/checks/claude_external_audit.sh`; use bounded audits (`opus high`, safe mode, strict empty MCP, `--setting-sources user`) by default |
 | Engram MCP | Available | Memory |
 | Maestro | Available at `~/.maestro/bin/maestro` | Runtime UI proof |
 | Patrol CLI | Not in PATH at G0 base restore | Required gap before Patrol-only gates |
@@ -84,7 +84,10 @@ Claude CLI audits should be bounded through
 no session persistence, and no `--effort max` except named final-release/P0
 disputes. Re-run loops use Sonnet high first, then one Opus high final; do not
 use `--bare` without explicit API-key auth, and do not add unsupported
-`--max-turns`. Same-gate re-runs use
+`--max-turns`. The wrapper also forces `--setting-sources user` by default and
+rejects project/local setting sources unless `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1`
+is explicitly set for a named debug run, because project/local settings can
+reload repo hooks. Same-gate re-runs use
 `CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh ...`; the wrapper
 switches the default model to Sonnet and rejects non-Sonnet reruns unless
 `CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1` is set for a final confirmation/P0 dispute.
