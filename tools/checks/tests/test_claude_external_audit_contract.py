@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -70,6 +71,74 @@ def test_wrapper_is_syntax_valid_and_executable() -> None:
 
     assert result.returncode == 0, result.stderr
     assert os.access(SCRIPT, os.X_OK)
+
+
+def test_wrapper_rejects_concurrent_live_audits(tmp_path: Path) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    release_file = tmp_path / "release"
+    fake_claude = fake_bin / "claude"
+    fake_claude.write_text(
+        "#!/usr/bin/env bash\n"
+        'while [ ! -f "$CLAUDE_FAKE_RELEASE" ]; do sleep 0.05; done\n'
+        'printf "fake claude done\\n"\n',
+        encoding="utf-8",
+    )
+    fake_claude.chmod(0o755)
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "PATH": f"{fake_bin}:{env['PATH']}",
+            "CLAUDE_AUDIT_LOCK_DIR": str(tmp_path),
+            "CLAUDE_FAKE_RELEASE": str(release_file),
+        }
+    )
+    first = subprocess.Popen(
+        ["bash", str(SCRIPT), "specs"],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    try:
+        deadline = time.monotonic() + 5
+        lock_paths: list[Path] = []
+        while time.monotonic() < deadline:
+            lock_paths = list(tmp_path.glob("mint-claude-audit-*.lock"))
+            if lock_paths:
+                break
+            if first.poll() is not None:
+                stdout, stderr = first.communicate()
+                pytest.fail(
+                    f"first audit exited before creating lock: {first.returncode}\n"
+                    f"stdout={stdout}\nstderr={stderr}"
+                )
+            time.sleep(0.05)
+
+        assert lock_paths, "first audit did not create a lock"
+        second = subprocess.run(
+            ["bash", str(SCRIPT), "specs"],
+            cwd=ROOT,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        assert second.returncode == 2
+        assert "another Claude audit is already running for this repo" in second.stderr
+        assert "let it finish instead of launching a duplicate" in second.stderr
+    finally:
+        release_file.write_text("ok", encoding="utf-8")
+        try:
+            first.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            first.kill()
+            first.wait(timeout=5)
+
+    assert list(tmp_path.glob("mint-claude-audit-*.lock")) == []
 
 
 def test_wrapper_defaults_are_bounded() -> None:
