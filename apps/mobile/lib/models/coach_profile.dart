@@ -316,6 +316,8 @@ class PrevoyanceProfile {
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
   final double? rachatEffectue; // déjà racheté (montant CHF cumulé)
+  final bool? hasPensionFund; // user-declared LPP eligibility
+  final bool? hasVoluntaryLpp; // prevoyance facultative for independants
   /// Historique daté des rachats LPP (ordre chronologique, plus récent en
   /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
   /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date
@@ -358,6 +360,8 @@ class PrevoyanceProfile {
     this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
+    this.hasPensionFund,
+    this.hasVoluntaryLpp,
     this.dateRachats = const [],
     this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
@@ -431,6 +435,8 @@ class PrevoyanceProfile {
           (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
+      hasPensionFund: json['hasPensionFund'] as bool?,
+      hasVoluntaryLpp: json['hasVoluntaryLpp'] as bool?,
       dateRachats: (json['dateRachats'] as List?)
               ?.map((s) => DateTime.parse(s as String))
               .toList() ??
@@ -471,6 +477,8 @@ class PrevoyanceProfile {
     double? avoirLppSurobligatoire,
     double? rachatMaximum,
     double? rachatEffectue,
+    bool? hasPensionFund,
+    bool? hasVoluntaryLpp,
     List<DateTime>? dateRachats,
     double? tauxConversion,
     double? tauxConversionSuroblig,
@@ -499,6 +507,8 @@ class PrevoyanceProfile {
       avoirLppSurobligatoire: avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
       rachatMaximum: rachatMaximum ?? this.rachatMaximum,
       rachatEffectue: rachatEffectue ?? this.rachatEffectue,
+      hasPensionFund: hasPensionFund ?? this.hasPensionFund,
+      hasVoluntaryLpp: hasVoluntaryLpp ?? this.hasVoluntaryLpp,
       dateRachats: dateRachats ?? this.dateRachats,
       tauxConversion: tauxConversion ?? this.tauxConversion,
       tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
@@ -529,6 +539,8 @@ class PrevoyanceProfile {
         'avoirLppSurobligatoire': avoirLppSurobligatoire,
         'rachatMaximum': rachatMaximum,
         'rachatEffectue': rachatEffectue,
+        'hasPensionFund': hasPensionFund,
+        'hasVoluntaryLpp': hasVoluntaryLpp,
         'dateRachats':
             dateRachats.map((d) => d.toIso8601String()).toList(),
         'tauxConversion': tauxConversion,
@@ -563,6 +575,8 @@ class PrevoyanceProfile {
           avoirLppSurobligatoire == other.avoirLppSurobligatoire &&
           rachatMaximum == other.rachatMaximum &&
           rachatEffectue == other.rachatEffectue &&
+          hasPensionFund == other.hasPensionFund &&
+          hasVoluntaryLpp == other.hasVoluntaryLpp &&
           listEquals(dateRachats, other.dateRachats) &&
           tauxConversion == other.tauxConversion &&
           tauxConversionSuroblig == other.tauxConversionSuroblig &&
@@ -592,6 +606,8 @@ class PrevoyanceProfile {
         avoirLppSurobligatoire,
         rachatMaximum,
         rachatEffectue,
+        hasPensionFund,
+        hasVoluntaryLpp,
         Object.hashAll(dateRachats),
         tauxConversion,
         tauxConversionSuroblig,
@@ -1362,6 +1378,7 @@ class CoachProfile {
   final double employmentRate; // 0.0-100.0 (%), default full-time
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
+  final double? selfEmployedNetIncome; // CHF/year for independants
 
   // === DEPENSES ===
   final DepensesProfile depenses;
@@ -1490,6 +1507,7 @@ class CoachProfile {
     this.employmentRate =
         IncomeConversionCalculator.fullTimeEmploymentRatePercent,
     this.employmentStatus = 'salarie',
+    this.selfEmployedNetIncome,
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
     this.patrimoine = const PatrimoineProfile(),
@@ -1620,6 +1638,7 @@ class CoachProfile {
           bonusPourcentage == other.bonusPourcentage &&
           employmentRate == other.employmentRate &&
           employmentStatus == other.employmentStatus &&
+          selfEmployedNetIncome == other.selfEmployedNetIncome &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
@@ -1649,6 +1668,7 @@ class CoachProfile {
         firstName, birthYear, dateOfBirth, canton, commune, nationality,
         etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
         nombreDeMois, bonusPourcentage, employmentRate, employmentStatus,
+        selfEmployedNetIncome,
         depenses, prevoyance, patrimoine, dettes, goalA,
         goalsB.length, plannedContributions.length, checkIns.length,
         housingStatus, riskTolerance, realEstateProject,
@@ -1953,6 +1973,7 @@ class CoachProfile {
     double? bonusPourcentage,
     double? employmentRate,
     String? employmentStatus,
+    double? selfEmployedNetIncome,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
     PatrimoineProfile? patrimoine,
@@ -2005,6 +2026,8 @@ class CoachProfile {
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
       employmentRate: employmentRate ?? this.employmentRate,
       employmentStatus: employmentStatus ?? this.employmentStatus,
+      selfEmployedNetIncome:
+          selfEmployedNetIncome ?? this.selfEmployedNetIncome,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
       patrimoine: patrimoine ?? this.patrimoine,
@@ -2186,6 +2209,8 @@ class CoachProfile {
         (json['employmentRate'] as num?)?.toDouble(),
       ),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
+      selfEmployedNetIncome:
+          (json['selfEmployedNetIncome'] as num?)?.toDouble(),
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -2294,6 +2319,7 @@ class CoachProfile {
         'bonusPourcentage': bonusPourcentage,
         'employmentRate': employmentRate,
         'employmentStatus': employmentStatus,
+        'selfEmployedNetIncome': selfEmployedNetIncome,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
@@ -2375,8 +2401,15 @@ class CoachProfile {
     // FIX-P0-2: Normalize to lowercase — "Yearly" (capitalized) was not
     // recognized, causing annual salary to be treated as monthly.
     final payFrequency =
-        (answers['q_pay_frequency'] as String?)?.toLowerCase() ?? 'monthly';
-    final netIncome = _parseDouble(answers['q_net_income_period_chf']) ?? 5000;
+        (answers['q_pay_frequency'] as String?)?.toLowerCase() ??
+            (answers.containsKey('q_self_employed_income')
+                ? 'yearly'
+                : 'monthly');
+    final selfEmployedNetIncome =
+        _parseDouble(answers['q_self_employed_income']);
+    final netIncome = _parseDouble(answers['q_net_income_period_chf']) ??
+        selfEmployedNetIncome ??
+        5000;
 
     // Convert to monthly net income based on pay frequency
     double monthlyNetIncome;
@@ -2419,7 +2452,8 @@ class CoachProfile {
             _parseDouble(answers['q_bonus_percentage']);
 
     // Employment status mapping
-    final employmentRaw = answers['q_employment_status'] as String?;
+    final employmentRaw = (answers['q_employment_status'] as String?) ??
+        (selfEmployedNetIncome != null ? 'independant' : null);
     final employmentStatus = _parseEmploymentStatus(employmentRaw);
 
     // ── Depenses ────────────────────────────────────────────
@@ -2460,7 +2494,12 @@ class CoachProfile {
     );
 
     // ── Prevoyance ──────────────────────────────────────────
-    final hasPensionFund = _parseBool(answers['q_has_pension_fund']);
+    final hasVoluntaryLpp = answers.containsKey('q_has_voluntary_lpp')
+        ? _parseBool(answers['q_has_voluntary_lpp'])
+        : null;
+    final hasPensionFund = answers.containsKey('q_has_pension_fund')
+        ? _parseBool(answers['q_has_pension_fund'])
+        : hasVoluntaryLpp ?? false;
     final lppBuybackAvailable =
         _parseDouble(answers['q_lpp_buyback_available']);
     final has3a = _parseBool(answers['q_has_3a']);
@@ -2543,6 +2582,8 @@ class CoachProfile {
       avoirLppTotal: estimatedLpp,
       avoirLppObligatoire: coachAvoirLppOblig,
       avoirLppSurobligatoire: coachAvoirLppSuroblig,
+      hasPensionFund: hasPensionFund,
+      hasVoluntaryLpp: hasVoluntaryLpp,
       tauxConversion: coachTauxConversion ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig: coachTauxConvSuroblig,
       rachatMaximum: coachRachatMax ?? lppBuybackAvailable,
@@ -2761,11 +2802,14 @@ class CoachProfile {
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
     final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
+    final rawSpouseAvsYears =
+        _parseInt(answers['q_spouse_avs_contribution_years']);
     final conjEmployment = answers['q_partner_employment_status'] as String?;
     final conjNationality = answers['q_partner_nationality'] as String?;
     final partnerChildren = _parseInt(answers['q_partner_enfants']);
     final hasPartnerData = (partnerIncome != null && partnerIncome > 0) ||
         partnerBirthYear != null ||
+        rawSpouseAvsYears != null ||
         (conjEmployment?.isNotEmpty ?? false) ||
         (conjNationality?.isNotEmpty ?? false) ||
         partnerChildren != null;
@@ -2826,7 +2870,13 @@ class CoachProfile {
 
       // === Conjoint prevoyance profile ===
       // FATCA hard block: most providers refuse US persons (LSFin compliance).
+      final spouseAvsYearsMax = partnerBirthYear != null
+          ? (DateTime.now().year - partnerBirthYear - 20).clamp(0, 44)
+          : 44;
+      final spouseAvsYears =
+          rawSpouseAvsYears?.clamp(0, spouseAvsYearsMax).toInt();
       final conjointPrevoyance = PrevoyanceProfile(
+        anneesContribuees: spouseAvsYears,
         lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,
         canContribute3a: !conjIsFatca,
@@ -2931,6 +2981,15 @@ class CoachProfile {
         answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
     }
+    if (answers.containsKey('q_self_employed_income')) {
+      provided.add('selfEmployedNetIncome');
+    }
+    if (answers.containsKey('q_has_pension_fund')) {
+      provided.add('hasPensionFund');
+    }
+    if (answers.containsKey('q_has_voluntary_lpp')) {
+      provided.add('hasVoluntaryLpp');
+    }
     if (answers.containsKey('q_employment_rate')) provided.add('employmentRate');
     if (answers.containsKey('q_annual_bonus')) provided.add('bonusPourcentage');
     if (answers.containsKey('q_civil_status')) provided.add('civilStatus');
@@ -2951,6 +3010,7 @@ class CoachProfile {
       bonusPourcentage: bonusPourcentage,
       employmentRate: employmentRate,
       employmentStatus: employmentStatus,
+      selfEmployedNetIncome: selfEmployedNetIncome,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,
