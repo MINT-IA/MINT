@@ -51,8 +51,11 @@ named gap after the MINT roster scopes the work.
 Run external reviews through `tools/checks/claude_external_audit.sh`, never raw
 `claude -p`. The wrapper is the operating contract: Opus high for first-pass
 bounded reviews, Sonnet high for same-gate reruns with `CLAUDE_AUDIT_RERUN=1`,
-strict empty MCP, `--setting-sources user`, no session persistence, and a code
-diff budget via `CLAUDE_AUDIT_MAX_DIFF_LINES`. Use `--effort max` only for a
+safe mode no-hooks boot, strict empty MCP, `--setting-sources user`, no session
+persistence, and a code diff budget via `CLAUDE_AUDIT_MAX_DIFF_LINES`.
+`--safe-mode` is required because it disables hooks, skills, plugins, custom
+agents, auto memory, and CLAUDE.md auto-discovery while preserving
+auth/model/permissions. Use `--effort max` only for a
 named final-release/P0 dispute with `CLAUDE_AUDIT_ALLOW_MAX=1`.
 
 If a rerun needs Opus for final confirmation or a P0 dispute, set

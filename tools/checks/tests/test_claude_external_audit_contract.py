@@ -265,6 +265,9 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
         assert "Sonnet high" in text
         assert "CLAUDE_AUDIT_RERUN=1" in text
         assert "CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1" in text
+        assert "safe mode" in lowered
+        assert "hooks" in lowered
+        assert "plugins" in lowered
         assert "--setting-sources user" in text
         assert "CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1" in text
         assert "--effort max" in text
@@ -280,6 +283,8 @@ def test_claude_md_anchors_external_audit_latency_policy() -> None:
         "Sonnet high",
         "CLAUDE_AUDIT_RERUN=1",
         "--safe-mode",
+        "no-hooks",
+        "hooks, skills, plugins",
         "--strict-mcp-config",
         "--setting-sources user",
         "--no-session-persistence",

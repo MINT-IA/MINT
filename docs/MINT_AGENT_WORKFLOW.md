@@ -80,10 +80,13 @@ without range + confidence + source/freshness, and no data collection that asks
 again for a fresh known fact.
 
 Claude CLI audits should be bounded through
-`tools/checks/claude_external_audit.sh`: Opus high by default, strict empty MCP,
-no session persistence, and no `--effort max` except named final-release/P0
-disputes. Re-run loops use Sonnet high first, then one Opus high final; do not
-use `--bare` without explicit API-key auth, and do not add unsupported
+`tools/checks/claude_external_audit.sh`: Opus high by default, `--safe-mode`
+no-hooks boot, strict empty MCP, no session persistence, and no `--effort max`
+except named final-release/P0 disputes. `--safe-mode` is the required latency
+guard because it disables hooks, skills, plugins, custom agents, auto memory,
+and CLAUDE.md auto-discovery without losing auth/model/permissions. Re-run loops
+use Sonnet high first, then one Opus high final; do not use `--bare` without
+explicit API-key auth, and do not add unsupported
 `--max-turns`. The wrapper also forces `--setting-sources user` by default and
 rejects project/local setting sources unless `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1`
 is explicitly set for a named debug run, because project/local settings can

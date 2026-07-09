@@ -47,7 +47,11 @@ tools/checks/claude_external_audit.sh architecture
 The wrapper is deliberately bounded: Opus high by default, strict empty MCP,
 no session persistence, `--setting-sources user`, no dynamic-system-prompt
 sections, and no `--effort max` unless `CLAUDE_AUDIT_ALLOW_MAX=1` is explicitly
-set for a named final-release or unresolved P0/P1 dispute. Project/local setting
+set for a named final-release or unresolved P0/P1 dispute. It uses safe mode
+(`--safe-mode`) as the no-hooks boot path, disabling hooks, skills, plugins,
+custom agents, auto memory, and CLAUDE.md auto-discovery while preserving
+auth/model/permissions.
+Project/local setting
 sources are rejected by default because they can load repo hooks; override only
 with `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1` for a named debug run. Code audits
 reject large diff prompts by default
