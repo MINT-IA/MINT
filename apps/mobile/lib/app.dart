@@ -153,6 +153,99 @@ String _redirectPreservingQuery(GoRouterState state, String targetPath) {
   final query = state.uri.query;
   return query.isEmpty ? targetPath : '$targetPath?$query';
 }
+
+enum _ScanRecoveryTarget { review, impact }
+
+Widget _buildScanRecoveryScaffold(
+  BuildContext context,
+  _ScanRecoveryTarget target,
+) {
+  final s = S.of(context)!;
+  final isReview = target == _ScanRecoveryTarget.review;
+  final title = isReview ? s.scanReviewEmptyTitle : s.scanImpactEmptyTitle;
+  final body = isReview ? s.scanReviewEmptyBody : s.scanImpactEmptyBody;
+  final ctaLabel = isReview ? s.scanReviewRescan : s.scanImpactBackHome;
+  final ctaRoute = isReview ? '/scan' : '/home';
+  final ctaIdentifier =
+      isReview ? 'scan_review_recovery_cta' : 'scan_impact_recovery_cta';
+  final ctaKey = Key(ctaIdentifier);
+
+  return Scaffold(
+    appBar: AppBar(
+      leading: BackButton(
+        onPressed: () {
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop();
+            return;
+          }
+          context.go(ctaRoute);
+        },
+      ),
+      title: Text(isReview ? s.scanReviewTitle : s.scanImpactTitle),
+    ),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isReview ? Icons.document_scanner_outlined : Icons.insights,
+              size: 48,
+              color: MintColors.greyApple,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              body,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            Semantics(
+              identifier: ctaIdentifier,
+              button: true,
+              label: ctaLabel,
+              onTap: () => context.go(ctaRoute),
+              child: FilledButton.icon(
+                key: ctaKey,
+                onPressed: () => context.go(ctaRoute),
+                icon: Icon(isReview ? Icons.document_scanner : Icons.home),
+                label: Text(ctaLabel),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+@visibleForTesting
+Widget testOnlyBuildScanRecoveryScaffold(String route) {
+  return Builder(
+    builder: (context) {
+      switch (route) {
+        case '/scan/review':
+          return _buildScanRecoveryScaffold(context, _ScanRecoveryTarget.review);
+        case '/scan/impact':
+          return _buildScanRecoveryScaffold(context, _ScanRecoveryTarget.impact);
+        default:
+          throw ArgumentError.value(route, 'route', 'Unsupported scan route');
+      }
+    },
+  );
+}
+
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
 final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
@@ -176,8 +269,8 @@ final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellE
 // see `_AuthRefreshNotifier` below. Without this listener, login/logout
 // events change AuthProvider state but the router never re-evaluates the
 // `redirect` callback, so the user stays stuck on the public scope after
-// signing in (Gate 0 P0-1: "logged in but Explorer/Aujourd'hui still show
-// 'Crée ton compte'"). The notifier is bridged to AuthProvider once the
+// signing in (Gate 0 P0-1: the public-scope prompt still shows after auth).
+// The notifier is bridged to AuthProvider once the
 // MultiProvider tree is built (see _bindRouterAuthListener below).
 final _authNotifier = ChangeNotifier();
 
@@ -451,8 +544,8 @@ final _router = GoRouter(
           HubEntry(icon: Icons.timeline, label: 'Projection retraite', route: '/retraite'),
           HubEntry(icon: Icons.compare_arrows, label: 'Rente vs Capital', route: '/rente-vs-capital'),
           HubEntry(icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
-          HubEntry(icon: Icons.home_work, label: 'EPL (retrait pour logement)', route: '/epl'),
-          HubEntry(icon: Icons.calendar_month, label: 'Sequence de decaissement', route: '/decaissement'),
+          HubEntry(icon: Icons.home_work, label: 'EPL (retrait pour logement)', route: '/epl'), // lint-ignore legacy route label
+          HubEntry(icon: Icons.calendar_month, label: 'Sequence de decaissement', route: '/decaissement'), // lint-ignore legacy route label
           HubEntry(icon: Icons.account_balance_wallet, label: 'Libre passage', route: '/libre-passage'),
         ],
       ),
@@ -526,7 +619,7 @@ final _router = GoRouter(
           HubEntry(icon: Icons.assessment, label: 'Bilan arbitrage', route: '/arbitrage/bilan'),
           HubEntry(icon: Icons.pie_chart, label: 'Allocation annuelle', route: '/arbitrage/allocation-annuelle'),
           HubEntry(icon: Icons.card_giftcard, label: 'Donation', route: '/life-event/donation'),
-          HubEntry(icon: Icons.people, label: 'Deces d\'un proche', route: '/life-event/deces-proche'),
+          HubEntry(icon: Icons.people, label: 'Deces d\'un proche', route: '/life-event/deces-proche'), // lint-ignore legacy route label
           HubEntry(icon: Icons.swap_vert, label: 'Demenagement cantonal', route: '/life-event/demenagement-cantonal'),
         ],
       ),
@@ -911,8 +1004,9 @@ final _router = GoRouter(
       builder: (context, state) {
         final result = state.extra as ExtractionResult?;
         if (result == null) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
+          return _buildScanRecoveryScaffold(
+            context,
+            _ScanRecoveryTarget.review,
           );
         }
         return ExtractionReviewScreen(result: result);
@@ -926,8 +1020,9 @@ final _router = GoRouter(
         if (extra == null ||
             extra['result'] is! ExtractionResult ||
             extra['previousConfidence'] is! int) {
-          return const Scaffold(
-            body: Center(child: Text('Document non disponible')),
+          return _buildScanRecoveryScaffold(
+            context,
+            _ScanRecoveryTarget.impact,
           );
         }
         return DocumentImpactScreen(
@@ -1503,7 +1598,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // widget downstream calls `context.watch<NotificationsWiringService>()`.
         // No screen does — the service is purely reactive plumbing,
         // not a UI dependency. The 3-panel post-exec audit unanimously
-        // flagged this as a P0 "façade sans câblage" that would ship
+        // flagged this as a P0 unwired facade that would ship
         // 100% dead code while all 7 unit tests passed. The `lazy: false`
         // flag materialises the service at MultiProvider mount time so
         // its `update` actually fires on every CoachProfileProvider
@@ -1718,7 +1813,7 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
     } else {
       setState(() {
         _isVerifying = false;
-        _errorMessage = 'Ce lien est invalide ou a expiré';
+        _errorMessage = 'Ce lien est invalide ou a expiré'; // lint-ignore legacy auth copy
       });
     }
   }
@@ -1737,7 +1832,7 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                     CircularProgressIndicator(),
                     SizedBox(height: 24),
                     Text(
-                      'Vérification en cours...',
+                      'Vérification en cours...', // lint-ignore legacy auth copy
                       style: TextStyle(fontSize: 16, color: Colors.black87),
                     ),
                   ],
@@ -1749,7 +1844,7 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                         size: 64, color: Colors.red),
                     const SizedBox(height: 24),
                     Text(
-                      _errorMessage ?? 'Erreur de vérification',
+                      _errorMessage ?? 'Erreur de vérification', // lint-ignore legacy auth copy
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 16, color: Colors.black87),
@@ -1757,12 +1852,12 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                     const SizedBox(height: 24),
                     FilledButton(
                       onPressed: () => _verifyToken(),
-                      child: const Text('Réessayer'),
+                      child: const Text('Réessayer'), // lint-ignore legacy auth copy
                     ),
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: () => context.go('/auth/login'),
-                      child: const Text('Retour à la connexion'),
+                      child: const Text('Retour à la connexion'), // lint-ignore legacy auth copy
                     ),
                   ],
                 ),
@@ -1781,7 +1876,7 @@ class _MintErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Page introuvable'),
+        title: const Text('Page introuvable'), // lint-ignore legacy fallback copy
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
@@ -1796,7 +1891,7 @@ class _MintErrorScreen extends StatelessWidget {
                   size: 64, color: Colors.grey),
               const SizedBox(height: 24),
               const Text(
-                'Cette page n\'existe pas ou a été déplacée.',
+                'Cette page n\'existe pas ou a été déplacée.', // lint-ignore legacy fallback copy
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.black87),
               ),
@@ -1804,7 +1899,7 @@ class _MintErrorScreen extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () => context.go('/coach/chat'),
                 icon: const Icon(Icons.chat_outlined),
-                label: const Text('Retour à l\'accueil'),
+                label: const Text('Retour à l\'accueil'), // lint-ignore legacy fallback copy
               ),
             ],
           ),

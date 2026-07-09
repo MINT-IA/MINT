@@ -1,0 +1,14 @@
+appId: ch.mint.app
+---
+# R-2: /scan/impact without a GoRouter extra must expose a home recovery action.
+- launchApp:
+    clearState: true
+- openLink: "mint:///scan/impact"
+- assertNotVisible:
+    text: "Document non disponible"
+- assertVisible:
+    id: "scan_impact_recovery_cta"
+- tapOn:
+    id: "scan_impact_recovery_cta"
+- assertVisible:
+    text: "MINT"
