@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 // Screens under test
 import 'package:mint_mobile/screens/independant_screen.dart';
+import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
@@ -422,7 +423,93 @@ void main() {
   });
 
   // ===========================================================================
-  // 3. PILLAR 3A INDEPENDANT SCREEN
+  // 3. AVS COTISATIONS SCREEN
+  // ===========================================================================
+
+  group('AvsCotisationsScreen', () {
+    testWidgets('prefills known independent income from profile',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 135000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const AvsCotisationsScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final incomeSlider = tester
+          .widget<MintPremiumSlider>(find.byType(MintPremiumSlider).first);
+
+      expect(incomeSlider.value, 135000);
+    });
+
+    testWidgets('does not prefill net income from a gross salary fallback',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(grossSalary: 220000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const AvsCotisationsScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final incomeSlider = tester
+          .widget<MintPremiumSlider>(find.byType(MintPremiumSlider).first);
+
+      expect(incomeSlider.value, 80000);
+    });
+
+    testWidgets('persists edited independent income through the profile path',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const AvsCotisationsScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final incomeSlider = tester
+          .widget<MintPremiumSlider>(find.byType(MintPremiumSlider).first);
+      incomeSlider.onChanged(123000);
+      await tester.pump();
+
+      expect(provider.writes, isEmpty);
+
+      incomeSlider.onChangeEnd!(123000);
+      await tester.pump();
+
+      expect(provider.writes, isNotEmpty);
+      expect(
+        provider.writes.last,
+        containsPair('q_self_employed_income', 123000),
+      );
+      expect(
+        provider.writes.last,
+        containsPair('q_net_income_period_chf', 123000),
+      );
+      expect(provider.writes.last, containsPair('q_pay_frequency', 'yearly'));
+      expect(
+        provider.writes.last,
+        containsPair('q_employment_status', 'independant'),
+      );
+    });
+  });
+
+  // ===========================================================================
+  // 4. PILLAR 3A INDEPENDANT SCREEN
   // ===========================================================================
 
   group('Pillar3aIndepScreen', () {
@@ -609,7 +696,7 @@ void main() {
   // ExploreTab tests removed — screen deleted in S49 Phase 5
 
   // ===========================================================================
-  // 4. TIMELINE SCREEN
+  // 5. TIMELINE SCREEN
   //    Uses a larger surface size to prevent overflow in quick-action cards.
   // ===========================================================================
 

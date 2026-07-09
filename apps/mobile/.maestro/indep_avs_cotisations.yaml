@@ -1,0 +1,19 @@
+appId: ch.mint.app
+---
+# Independants AVS: the simulator route must render the net-income input and
+# core result blocks on a recent iPhone simulator.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///independants/avs"
+- assertVisible:
+    text: "Cotisations AVS"
+- assertVisible:
+    text: "Ton revenu net annuel"
+- assertVisible:
+    text: ".*CHF.*4'240.*"
+- assertVisible:
+    text: "Comparaison annuelle"
