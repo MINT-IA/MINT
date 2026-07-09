@@ -40418,6 +40418,7 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Certificat de salaire scanné'**
   String get scanSummarySalaryCertificate;
+
   /// Title for the low projection confidence card.
   ///
   /// In fr, this message translates to:
