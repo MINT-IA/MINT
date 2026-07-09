@@ -40,6 +40,24 @@ cd services/backend && python3 -m pytest tests/ -q && uvicorn app.main:app --rel
 cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 ```
 
+### 3.1 EXTERNAL CLAUDE AUDIT (latency policy)
+
+Use the checked-in wrapper, never raw `claude -p`, for external reviews:
+
+```bash
+tools/checks/claude_external_audit.sh code <base-ref>
+tools/checks/claude_external_audit.sh specs
+tools/checks/claude_external_audit.sh architecture
+```
+
+The wrapper is intentionally bounded: Opus high by default, Sonnet high for
+same-gate reruns via `CLAUDE_AUDIT_RERUN=1`, `--safe-mode`,
+`--strict-mcp-config`, empty MCP config, `--no-session-persistence`, and bounded
+tools. Use `--effort max` only for a named final-release/P0 dispute with
+`CLAUDE_AUDIT_ALLOW_MAX=1`. Do not add unsupported `--max-turns`: the installed
+Claude CLI does not expose it, and the wrapper rejects `CLAUDE_AUDIT_MAX_TURNS`
+so agents cannot rely on a fake safety knob.
+
 ## 4. ROLE ROUTING
 
 - **Flutter work** → [docs/AGENTS/flutter.md](docs/AGENTS/flutter.md) (UX rules, design system, navigation, i18n setup, anti-bug discipline).
