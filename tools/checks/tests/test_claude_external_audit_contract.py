@@ -8,6 +8,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "tools/checks/claude_external_audit.sh"
 CLAUDE_MD = ROOT / "CLAUDE.md"
+AGENTS_MD = ROOT / "AGENTS.md"
 AGENT = ROOT / ".claude/agents/mint-external-auditor.md"
 QUALITY_GATE = ROOT / ".claude/agents/mint-quality-gate.md"
 WORKFLOW = ROOT / "docs/MINT_AGENT_WORKFLOW.md"
@@ -238,6 +239,7 @@ def test_specs_and_architecture_prompts_are_wired() -> None:
 def test_auditor_docs_point_to_wrapper_policy() -> None:
     for text in (
         AGENT.read_text(encoding="utf-8"),
+        AGENTS_MD.read_text(encoding="utf-8"),
         WORKFLOW.read_text(encoding="utf-8"),
         OPERATING_GATES.read_text(encoding="utf-8"),
     ):
