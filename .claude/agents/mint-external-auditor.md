@@ -35,7 +35,9 @@ Same-gate rerun after a first finding pass:
 The wrapper is the default. It runs Claude CLI with Opus high, safe mode,
 strict empty MCP, disabled slash commands, no session persistence, bounded
 tools, `--setting-sources user`, and dynamic-system-prompt sections excluded for
-cache stability.
+cache stability. Safe mode is the no-hooks boot path: it disables hooks, skills,
+plugins, custom agents, auto memory, and CLAUDE.md auto-discovery while keeping
+auth/model/permissions available.
 Code audits also enforce a diff-prompt budget (`CLAUDE_AUDIT_MAX_DIFF_LINES`,
 default 2500). If it trips, split the PR; use `CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1`
 only for a named final-release/P0 dispute.
@@ -47,9 +49,10 @@ confirmation. The wrapper rejects non-Sonnet reruns unless
 confirmation or P0 dispute. This avoids paying full startup hooks, MCP servers, memory
 injection, skill inventory, and max reasoning on every tool turn.
 
-Do not add `--max-turns`: the installed Claude CLI does not expose it, and the
-wrapper rejects `CLAUDE_AUDIT_MAX_TURNS` to prevent fake safety knobs. Do not
-use `--bare` by default: it skips OAuth/keychain auth and only works with
+Do not replace safe mode with ad hoc minimal settings. Do not add
+`--max-turns`: the installed Claude CLI does not expose it, and the wrapper
+rejects `CLAUDE_AUDIT_MAX_TURNS` to prevent fake safety knobs. Do not use
+`--bare` by default: it skips OAuth/keychain auth and only works with
 explicit API-key/apiKeyHelper auth. Do not use project/local setting sources by
 default: they can reload repo hooks. The wrapper rejects them unless
 `CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS=1` is set for a named debug run.
