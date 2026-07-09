@@ -23032,4 +23032,11 @@ class SFr extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificat de salaire scanné';
+  @override
+  String get lowConfidenceCardTitle =>
+      'Pas assez de données pour une projection fiable';
+
+  @override
+  String get lowConfidenceCardPromptIntro =>
+      'Voici ce qui améliorerait le plus tes projections :';
 }

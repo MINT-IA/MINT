@@ -11093,5 +11093,7 @@
   "scanSummaryTaxDeclaration": "Tax declaration scanned",
   "scanSummaryAvsExtract": "AVS extract scanned",
   "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
-  "scanSummarySalaryCertificate": "Salary certificate scanned"
+  "scanSummarySalaryCertificate": "Salary certificate scanned",
+  "lowConfidenceCardTitle": "Not enough data for a reliable projection",
+  "lowConfidenceCardPromptIntro": "This would improve your projections the most:"
 }

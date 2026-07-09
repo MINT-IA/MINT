@@ -23087,4 +23087,11 @@ class SDe extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+  @override
+  String get lowConfidenceCardTitle =>
+      'Nicht genug Daten für eine verlässliche Projektion';
+
+  @override
+  String get lowConfidenceCardPromptIntro =>
+      'Das würde deine Projektionen am stärksten verbessern:';
 }

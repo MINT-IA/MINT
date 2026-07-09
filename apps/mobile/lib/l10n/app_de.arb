@@ -11093,5 +11093,7 @@
   "scanSummaryTaxDeclaration": "Steuererklärung gescannt",
   "scanSummaryAvsExtract": "AHV-Auszug gescannt",
   "scanSummaryMortgageAttestation": "Hypothekenbescheinigung gescannt",
-  "scanSummarySalaryCertificate": "Lohnausweis gescannt"
+  "scanSummarySalaryCertificate": "Lohnausweis gescannt",
+  "lowConfidenceCardTitle": "Nicht genug Daten für eine verlässliche Projektion",
+  "lowConfidenceCardPromptIntro": "Das würde deine Projektionen am stärksten verbessern:"
 }

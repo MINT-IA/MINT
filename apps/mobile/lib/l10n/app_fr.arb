@@ -11890,5 +11890,9 @@
   "scanSummaryMortgageAttestation": "Attestation hypothèque scannée",
   "@scanSummaryMortgageAttestation": { "description": "Persistent event summary when a mortgage attestation is scanned." },
   "scanSummarySalaryCertificate": "Certificat de salaire scanné",
-  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." }
+  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." },
+  "lowConfidenceCardTitle": "Pas assez de données pour une projection fiable",
+  "@lowConfidenceCardTitle": { "description": "Title for the low projection confidence card." },
+  "lowConfidenceCardPromptIntro": "Voici ce qui améliorerait le plus tes projections :",
+  "@lowConfidenceCardPromptIntro": { "description": "Intro text before the ranked enrichment prompts in the low projection confidence card." }
 }

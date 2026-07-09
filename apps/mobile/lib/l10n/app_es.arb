@@ -11093,5 +11093,7 @@
   "scanSummaryTaxDeclaration": "Declaración fiscal escaneada",
   "scanSummaryAvsExtract": "Extracto AVS escaneado",
   "scanSummaryMortgageAttestation": "Certificado hipotecario escaneado",
-  "scanSummarySalaryCertificate": "Certificado de salario escaneado"
+  "scanSummarySalaryCertificate": "Certificado de salario escaneado",
+  "lowConfidenceCardTitle": "No hay suficientes datos para una proyección fiable",
+  "lowConfidenceCardPromptIntro": "Esto mejoraría más tus proyecciones:"
 }
