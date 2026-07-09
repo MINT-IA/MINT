@@ -1,8 +1,30 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  const secureStorage =
+      MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final secureStorageValues = <String, String>{};
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(secureStorage, (call) async {
+    final args = Map<String, dynamic>.from(call.arguments as Map? ?? {});
+    final key = args['key'] as String?;
+    if (call.method == 'write' && key != null) {
+      secureStorageValues[key] = args['value'] as String;
+      return null;
+    }
+    if (call.method == 'read' && key != null) return secureStorageValues[key];
+    if (call.method == 'delete' && key != null) {
+      secureStorageValues.remove(key);
+      return null;
+    }
+    return null;
+  });
+
+  setUp(secureStorageValues.clear);
 
   group('SecureWizardStore', () {
     test('treats gross salary ledger keys as sensitive', () {
@@ -12,6 +34,14 @@ void main() {
 
     test('treats broad wealth estimate as sensitive', () {
       expect(SecureWizardStore.isSensitive('q_wealth_estimate'), isTrue);
+    });
+
+    test('treats debt ledger keys as sensitive', () {
+      expect(SecureWizardStore.isSensitive('q_has_consumer_debt'), isTrue);
+      expect(SecureWizardStore.isSensitive('_coach_dettes_hypotheque'), isTrue);
+      expect(SecureWizardStore.isSensitive('_coach_dettes_credit'), isTrue);
+      expect(SecureWizardStore.isSensitive('_coach_dettes_leasing'), isTrue);
+      expect(SecureWizardStore.isSensitive('_coach_dettes_autres'), isTrue);
     });
 
     test('does not treat public profile keys as sensitive', () {
@@ -25,6 +55,31 @@ void main() {
       });
 
       expect(cleaned['q_gross_salary_annual'], '__secure__');
+    });
+
+    test('round-trips debt presence as a bool', () async {
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        'q_has_consumer_debt': true,
+      });
+
+      final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+
+      expect(cleaned['q_has_consumer_debt'], '__secure__');
+      expect(restored['q_has_consumer_debt'], true);
+    });
+
+    test('deletes stale secure debt amount when value is null', () async {
+      await SecureWizardStore.secureSensitiveKeys({
+        '_coach_dettes_autres': 25000,
+      });
+
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        '_coach_dettes_autres': null,
+      });
+      final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+
+      expect(cleaned.containsKey('_coach_dettes_autres'), isFalse);
+      expect(restored['_coach_dettes_autres'], isNull);
     });
   });
 }

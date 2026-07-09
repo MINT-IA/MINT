@@ -38,7 +38,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-4 — NO ISLANDS.** Every isolated provider (`BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, documents, conversations) MUST bridge into the recompute so `MintUserState` is never stale. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
-- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist and coach tool enum are in sync at `095eeaa32`, but the mobile path is not: **9 backend-writable keys are ineffective locally via `applySaveFact`** — see §3.8.
+- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist and coach tool enum are in sync at `095eeaa32`, but the mobile path is not: **7 backend-writable keys are ineffective locally via `applySaveFact`** — see §3.8.
 
 ---
 
@@ -162,10 +162,10 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `savingsMonthly` | `q_savings_monthly` | double CHF/mo | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
 | `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
 | `wealthEstimate` | `q_wealth_estimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `PatrimoineProfile.wealthEstimate`, `totalPatrimoine` aggregate, wealth tax, net worth, absolute patrimoine previews |
-| `hasDebt` | ⚠ NO MAPPER CASE (§3.8) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
-| `totalDebt` | ⚠ NO MAPPER CASE (§3.8) | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
+| `hasDebt` | `q_has_consumer_debt` (`true` → `yes`, `false` → `no`; `false` zeroes `_coach_dettes_credit`, `_coach_dettes_leasing`, `_coach_dettes_autres`; `true` nulls them so the bool-only fallback can run) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
+| `totalDebt` | `_coach_dettes_autres` + `q_has_consumer_debt` (`>0` → `yes`, `0` → `no`) | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
 
-> **Status:** `totalSavings` maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` maps to `q_wealth_estimate`, read as `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as an aggregate total. `totalPatrimoine` takes the higher of detailed asset sum and the broad estimate; it never adds them together. Do not reintroduce the old `q_epargne_liquide` collision.
+> **Status:** `totalSavings` maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` maps to `q_wealth_estimate`, read as `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as an aggregate total. `totalDebt` maps to the existing generic debt bucket `_coach_dettes_autres` and flips `q_has_consumer_debt` with the existing wizard `yes`/`no` format; `hasDebt=false` zeroes generic consumer debt buckets, `hasDebt=true` nulls them to re-enable the bool-only fallback, and neither path touches `_coach_dettes_hypotheque`. `totalPatrimoine` takes the higher of detailed asset sum and the broad estimate; it never adds them together. Do not reintroduce the old `q_epargne_liquide` collision.
 
 ### 3.6 Spouse (couple)
 
@@ -186,17 +186,17 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
 
-### 3.8 REQUIRED REPAIR — 9 backend-writable keys still ineffective locally (parity is still broken)
+### 3.8 REQUIRED REPAIR — 7 backend-writable keys still ineffective locally (parity is still broken)
 
-At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handled only **24** of the 35 allowlist keys; the other **11** fell through `default: return const {}`, so `applySaveFact` returned `false` and the coach write was **silently dropped**. After the savings, wealth, 3a, identity, income, and AVS repairs, **9** backend-writable keys still fall through locally.
+At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handled only **24** of the 35 allowlist keys; the other **11** fell through `default: return const {}`, so `applySaveFact` returned `false` and the coach write was **silently dropped**. After the savings, wealth, 3a, identity, income, AVS, and debt repairs, **7** backend-writable keys still fall through locally.
 
-G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, `pillar3aBalance` to `q_3a_total`, identity keys `commune`/`gender` to `q_commune`/`q_gender`, income keys `employmentRate`/`annualBonus` to `q_employment_rate`/`q_annual_bonus`, and AVS keys `hasAvsGaps`/`avsContributionYears` to `q_avs_lacunes_status`/`q_avs_contribution_years` with precise AVS statuses preserved; total remaining local ineffectiveness is now **9 backend-writable keys**.
+G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, `pillar3aBalance` to `q_3a_total`, identity keys `commune`/`gender` to `q_commune`/`q_gender`, income keys `employmentRate`/`annualBonus` to `q_employment_rate`/`q_annual_bonus`, AVS keys `hasAvsGaps`/`avsContributionYears` to `q_avs_lacunes_status`/`q_avs_contribution_years` with precise AVS statuses preserved, and debt keys `hasDebt`/`totalDebt` to `q_has_consumer_debt`/`_coach_dettes_autres`; total remaining local ineffectiveness is now **7 backend-writable keys**.
 
-**The 9 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`.
+**The 7 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`.
 
 **The 0 remaining mapped-but-unread keys:** none. T-0 is complete.
 
-**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`; `employmentRate -> q_employment_rate`, which is read into `CoachProfile.employmentRate` and forwarded to `CoachingProfile.tauxActivite`; `annualBonus -> q_annual_bonus`, which is converted to `bonusPourcentage` and therefore included in `revenuBrutAnnuel`; `hasAvsGaps -> q_avs_lacunes_status`, which is read into `prevoyance.lacunesAVS`; `avsContributionYears -> q_avs_contribution_years`, which is read into `prevoyance.anneesContribuees`.
+**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`; `employmentRate -> q_employment_rate`, which is read into `CoachProfile.employmentRate` and forwarded to `CoachingProfile.tauxActivite`; `annualBonus -> q_annual_bonus`, which is converted to `bonusPourcentage` and therefore included in `revenuBrutAnnuel`; `hasAvsGaps -> q_avs_lacunes_status`, which is read into `prevoyance.lacunesAVS`; `avsContributionYears -> q_avs_contribution_years`, which is read into `prevoyance.anneesContribuees`; `hasDebt -> q_has_consumer_debt`, which is used by the `fromWizardAnswers` bool-only fallback to construct `DetteProfile.creditConsommation = salaireBrutMensuel * 12 * 0.05` when no debt amount exists; `totalDebt -> _coach_dettes_autres`, which is read into `dettes.autresDettes` and therefore `dettes.totalDettes`.
 
 **Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
 
@@ -210,7 +210,7 @@ G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.f
 | `totalSavings` | `q_cash_total` | `q_cash_total` | ✅ repaired; keep mapping on `q_cash_total` |
 | `wealthEstimate` | `q_wealth_estimate` | `q_wealth_estimate` | ✅ repaired; aggregate for `totalPatrimoine`, never added on top of detailed assets |
 
-**Task T-1 (mandatory):** add a `case` for each of the 9 unmapped keys to `_mapFactKeyToAnswers`, mapping to a wizard key that `fromWizardAnswers` already reads where one exists. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the read.
+**Task T-1 (mandatory):** add a `case` for each of the 7 unmapped keys to `_mapFactKeyToAnswers`, mapping to a wizard key that `fromWizardAnswers` already reads where one exists. Where no wizard key exists yet in `fromWizardAnswers`, add BOTH the mapper case AND the read.
 
 | allowlist key | wizard key to add | `fromWizardAnswers` target field |
 |---|---|---|
@@ -218,8 +218,6 @@ G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.f
 | `selfEmployedNetIncome` | `q_self_employed_income` | add/read income field used by independent archetype |
 | `has2ndPillar` | `q_has_pension_fund` | LPP eligibility flag |
 | `hasVoluntaryLpp` | `q_has_voluntary_lpp` | `prevoyance` facultative flag |
-| `hasDebt` | `q_has_consumer_debt` | `dettes` presence flag |
-| `totalDebt` | add `q_total_debt` or map to existing debt detail keys | `dettes` aggregate/detail |
 | `spouseBirthYear` | `q_partner_birth_year` | `conjoint.birthYear` |
 | `spouseIncomeNetMonthly` | `q_partner_net_income_chf` | `conjoint.salaireBrutMensuel` (net->gross handling per existing conjoint logic) |
 | `spouseAvsContributionYears` | add `q_spouse_avs_contribution_years` | `conjoint.prevoyance` AVS years |
@@ -423,7 +421,7 @@ The doc must give the per-route reads/writes/emptyState/partialState/errorState/
 | Island | Path (authoritative store) | Problem | Fix (mechanical) |
 |---|---|---|---|
 | `BudgetProvider` | `apps/mobile/lib/providers/budget/budget_provider.dart` (the provider); ancillary `domain/budget/budget_service.dart` (pure calc), `data/budget/budget_local_store.dart` (cache), `budget_living_engine.dart` (derivation) | overrides don't trigger recompute → `MintUserState.budgetGap` stale on Pulse/home | On budget override commit, call `CoachProfileProvider.mergeAnswers({'fp:depenses.loyer': v, 'fp:depenses.assuranceMaladie': v, ...})` (field-path shape, §7B) so the change flows into `CoachProfile.depenses` and recompute fires. **Authoritative store after the fix = `CoachProfile.depenses` via the provider.** `budget_local_store.dart` is DEMOTED to a non-authoritative UI cache: it may cache for fast paint but MUST NOT be the source other screens read, and MUST be re-hydrated from `CoachProfile.depenses` on load. Remove any code path where a screen reads budget domain values from `budget_local_store` instead of the ledger. |
-| `HouseholdProvider` | backend-only spouse data | not synced into `CoachProfile.conjoint` → offline sims miss spouse | On household fetch/edit, map to spouse allowlist keys (`spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears` — now mapped after §3.8 T-1) + `conjoint.*` field-path entries and call `mergeAnswers`. |
+| `HouseholdProvider` | backend-only spouse data | not synced into `CoachProfile.conjoint` → offline sims miss spouse | On household fetch/edit, first complete the spouse keys still listed in §3.8 T-1 (`spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`), then bridge them plus `conjoint.*` field-path entries through `mergeAnswers`. |
 | `TimelineProvider` | 4 re-fetched services | conversations (`_chat_conversation_index`) + documents (`_uploaded_documents`) in separate SharedPreferences keys, not in profile | Keep these as separate stores (not domain financial data), but surface their derived facts (e.g. a scanned LPP cert) into the ledger via `mergeAnswers`/`applySaveFact` at extraction time. Timeline reads ledger for the financial dimension; references docs/threads by id only. |
 | Documents / Conversations | separate SP keys | not merged into profile | Same as above: the *extracted facts* go through `applySaveFact`; the raw documents/threads stay in their own stores (not part of the ledger, referenced by id only — never via `GoRouter.extra`, I-2). |
 

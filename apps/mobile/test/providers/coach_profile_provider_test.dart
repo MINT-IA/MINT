@@ -262,4 +262,59 @@ void main() {
     expect(answers, containsPair('q_avs_arrival_year', 2005));
     expect(provider.profile?.prevoyance.lacunesAVS, 9);
   });
+
+  test('save_fact debt facts hydrate readable debt keys', () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('totalDebt', 25000), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_consumer_debt', 'yes'));
+    expect(answers, containsPair('_coach_dettes_autres', 25000));
+    expect(provider.profile?.dettes.autresDettes, 25000);
+    expect(provider.profile?.dettes.totalDettes, 25000);
+  });
+
+  test('save_fact totalDebt clamps negative values to no debt', () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('totalDebt', -500), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_consumer_debt', 'no'));
+    expect(answers, containsPair('_coach_dettes_autres', 0));
+    expect(provider.profile?.dettes.totalDettes, 0);
+  });
+
+  test('save_fact hasDebt false clears generic debt amount', () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('totalDebt', 25000), isTrue);
+    expect(await provider.applySaveFact('hasDebt', false), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_consumer_debt', 'no'));
+    expect(answers, containsPair('_coach_dettes_credit', 0));
+    expect(answers, containsPair('_coach_dettes_leasing', 0));
+    expect(answers, containsPair('_coach_dettes_autres', 0));
+    expect(provider.profile?.dettes.totalDettes, 0);
+  });
+
+  test('save_fact hasDebt true re-enables debt fallback after false',
+      () async {
+    final provider = CoachProfileProvider();
+
+    expect(await provider.applySaveFact('incomeGrossYearly', 120000), isTrue);
+    expect(await provider.applySaveFact('totalDebt', 25000), isTrue);
+    expect(await provider.applySaveFact('hasDebt', false), isTrue);
+    expect(await provider.applySaveFact('hasDebt', true), isTrue);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_consumer_debt', 'yes'));
+    expect(answers['_coach_dettes_credit'], isNull);
+    expect(answers['_coach_dettes_leasing'], isNull);
+    expect(answers['_coach_dettes_autres'], isNull);
+    expect(provider.profile?.dettes.creditConsommation, 6000);
+    expect(provider.profile?.dettes.totalDettes, 6000);
+  });
 }
