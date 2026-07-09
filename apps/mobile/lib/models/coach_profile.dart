@@ -2334,6 +2334,8 @@ class CoachProfile {
     final dobRaw = answers['q_date_of_birth'];
     final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
     final canton = (answers['q_canton'] as String?) ?? 'ZH';
+    final commune = answers['q_commune'] as String?;
+    final gender = answers['q_gender'] as String?;
     // Use precise age from dateOfBirth if available
     final int age;
     if (dateOfBirth != null) {
@@ -2883,6 +2885,8 @@ class CoachProfile {
       provided.add('age');
     }
     if (answers.containsKey('q_canton')) provided.add('canton');
+    if (answers.containsKey('q_commune')) provided.add('commune');
+    if (answers.containsKey('q_gender')) provided.add('gender');
     if (answers.containsKey('q_net_income_period_chf') ||
         answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
@@ -2895,6 +2899,7 @@ class CoachProfile {
       birthYear: birthYear,
       dateOfBirth: dateOfBirth,
       canton: canton,
+      commune: commune,
       nationality: answers['q_nationality'] as String?,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
@@ -2916,6 +2921,7 @@ class CoachProfile {
       arrivalAge: computedArrivalAge,
       residencePermit: answers['q_residence_permit'] as String?,
       familyChange: familyChange,
+      gender: gender,
       targetRetirementAge: targetRetAge,
       updatedAt:
           savedUpdatedAt != null ? DateTime.tryParse(savedUpdatedAt) : null,

@@ -96,4 +96,38 @@ void main() {
     expect(answers.containsKey('q_total_3a'), isFalse);
     expect(provider.profile?.prevoyance.totalEpargne3a, 42000);
   });
+
+  test('save_fact commune and gender hydrate readable identity keys', () async {
+    final provider = CoachProfileProvider();
+
+    final communeApplied = await provider.applySaveFact('commune', 'Lausanne');
+    final genderApplied = await provider.applySaveFact('gender', 'F');
+
+    expect(communeApplied, isTrue);
+    expect(genderApplied, isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_commune', 'Lausanne'));
+    expect(answers, containsPair('q_gender', 'F'));
+    expect(provider.profile?.commune, 'Lausanne');
+    expect(provider.profile?.gender, 'F');
+  });
+
+  test('updateProfile persists commune and gender on readable identity keys',
+      () async {
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      commune: 'Lausanne',
+      gender: 'F',
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_commune', 'Lausanne'));
+    expect(answers, containsPair('q_gender', 'F'));
+    final rehydrated = CoachProfile.fromWizardAnswers(answers);
+    expect(rehydrated.commune, 'Lausanne');
+    expect(rehydrated.gender, 'F');
+  });
 }

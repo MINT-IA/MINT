@@ -1022,6 +1022,12 @@ class CoachProfileProvider extends ChangeNotifier {
     final answers = await ReportPersistenceService.loadAnswers();
     // Core fields
     if (profile.canton.isNotEmpty) answers['q_canton'] = profile.canton;
+    if (profile.commune != null && profile.commune!.isNotEmpty) {
+      answers['q_commune'] = profile.commune;
+    }
+    if (profile.gender != null && profile.gender!.isNotEmpty) {
+      answers['q_gender'] = profile.gender;
+    }
     // FIX-096: Persist etatCivil (divorce was lost on restart).
     answers['q_civil_status'] = profile.etatCivil.name;
     answers['q_salaire'] = profile.salaireBrutMensuel;
