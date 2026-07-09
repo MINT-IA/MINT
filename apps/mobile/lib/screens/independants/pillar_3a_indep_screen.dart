@@ -1,8 +1,10 @@
 import 'dart:math' as math;
+import 'dart:async';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -14,6 +16,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:provider/provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -32,24 +35,87 @@ class Pillar3aIndepScreen extends StatefulWidget {
 }
 
 class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
+  static const double _incomeMin = 0;
+  static const double _incomeMax = 300000;
+
   double _revenuNet = 100000;
   bool _affilieLpp = false;
   double _tauxMarginal = 0.30;
   Pillar3aIndepResult? _result;
+  bool _didHydrateFromProfile = false;
 
   @override
   void initState() {
     super.initState();
-    _calculate();
+    _result = _computeResult();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didHydrateFromProfile) return;
+    _didHydrateFromProfile = true;
+    _hydrateFromProfile();
+  }
+
+  Pillar3aIndepResult _computeResult() {
+    return IndependantsService.calculate3aIndependant(
+      _revenuNet,
+      _affilieLpp,
+      _tauxMarginal,
+    );
   }
 
   void _calculate() {
     setState(() {
-      _result = IndependantsService.calculate3aIndependant(
-        _revenuNet,
-        _affilieLpp,
-        _tauxMarginal,
-      );
+      _result = _computeResult();
+    });
+  }
+
+  CoachProfileProvider? _profileProvider() {
+    try {
+      return context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  void _hydrateFromProfile() {
+    final provider = _profileProvider();
+    final profile = provider?.profile;
+    if (profile == null) return;
+
+    final income = profile.selfEmployedNetIncome;
+    if (income != null && income > 0) {
+      _revenuNet = income.clamp(_incomeMin, _incomeMax).toDouble();
+    }
+
+    final hasLpp = profile.prevoyance.hasVoluntaryLpp ??
+        (profile.employmentStatus == 'independant'
+            ? profile.prevoyance.hasPensionFund
+            : null);
+    if (hasLpp != null) {
+      _affilieLpp = hasLpp;
+    }
+
+    _result = _computeResult();
+  }
+
+  Future<void> _persistIncome(double value) async {
+    final provider = _profileProvider();
+    await provider?.mergeAnswers({
+      'q_self_employed_income': value,
+      'q_net_income_period_chf': value,
+      'q_pay_frequency': 'yearly',
+      'q_employment_status': 'independant',
+    });
+  }
+
+  Future<void> _persistLppChoice(bool value) async {
+    final provider = _profileProvider();
+    await provider?.mergeAnswers({
+      'q_has_voluntary_lpp': value ? 'yes' : 'no',
+      'q_has_pension_fund': value ? 'yes' : 'no',
     });
   }
 
@@ -181,6 +247,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
               onChanged: (v) {
                 _affilieLpp = v;
                 _calculate();
+                unawaited(_persistLppChoice(v));
               },
               activeTrackColor: MintColors.success,
             ),
@@ -205,13 +272,12 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         value: _revenuNet,
         formatValue: (v) => IndependantsService.formatChf(v),
         onChanged: (v) {
-          setState(() {
-            _revenuNet = v;
-            _calculate();
-          });
+          _revenuNet = v;
+          _calculate();
+          unawaited(_persistIncome(v));
         },
-        min: 0,
-        max: 300000,
+        min: _incomeMin,
+        max: _incomeMax,
       ),
     );
   }
