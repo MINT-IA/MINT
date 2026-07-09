@@ -151,7 +151,7 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
 | `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | 3a max gate (7'258 / 36'288), tax deduction sim, CapEngine |
-| `pillar3aBalance` | `q_total_3a` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
+| `pillar3aBalance` | `q_3a_total` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
 
 > 3a writes MUST respect `canContribute3a` (false for US/FATCA; conditional for frontalier permis G). A `pillar3a*` write for a US person should be accepted as data but flagged non-contributable, not silently zeroed.
 
@@ -190,13 +190,13 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handles only **24** of the 35 allowlist keys; the other **11** fall through `default: return const {}`, so `applySaveFact` returns `false` and the coach write is **silently dropped** — a live dead road (`save_fact('hasAvsGaps')` etc. writes nothing to `CoachProfile`).
 
-G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, and `wealthEstimate` to `q_wealth_estimate`; total remaining local ineffectiveness is now **16 backend-writable keys**.
+G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value. `totalSavings` has since been repaired to `q_cash_total`, `wealthEstimate` to `q_wealth_estimate`, and `pillar3aBalance` to `q_3a_total`; total remaining local ineffectiveness is now **15 backend-writable keys**.
 
 **The 11 unmapped keys:** `goal`, `selfEmployedNetIncome`, `has2ndPillar`, `hasVoluntaryLpp`, `hasDebt`, `totalDebt`, `spouseBirthYear`, `spouseIncomeNetMonthly`, `spouseAvsContributionYears`, `hasAvsGaps`, `avsContributionYears`.
 
-**The 5 remaining mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`, `pillar3aBalance -> q_total_3a`.
+**The 4 remaining mapped-but-unread keys:** `commune -> q_commune`, `gender -> q_gender`, `employmentRate -> q_employment_rate`, `annualBonus -> q_annual_bonus`.
 
-**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total.
+**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`.
 
 **Task T-0 (mandatory):** repair the 7 mapped-but-unread cases first. Either align the mapper to wizard keys already read by `fromWizardAnswers`, or add explicit `fromWizardAnswers` reads with tests.
 
@@ -206,7 +206,7 @@ G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.f
 | `gender` | `q_gender` | none | add a profile gender read or remove coach-writable status |
 | `employmentRate` | `q_employment_rate` | none | add field/read or remove coach-writable status |
 | `annualBonus` | `q_annual_bonus` | none | add field/read or remove coach-writable status |
-| `pillar3aBalance` | `q_total_3a` | `q_3a_total` / `_coach_total_3a` | map to a read key or add alias |
+| `pillar3aBalance` | `q_3a_total` | `q_3a_total` / `_coach_total_3a` | ✅ repaired; keep mapping on `q_3a_total` |
 | `totalSavings` | `q_cash_total` | `q_cash_total` | ✅ repaired; keep mapping on `q_cash_total` |
 | `wealthEstimate` | `q_wealth_estimate` | `q_wealth_estimate` | ✅ repaired; aggregate for `totalPatrimoine`, never added on top of detailed assets |
 
