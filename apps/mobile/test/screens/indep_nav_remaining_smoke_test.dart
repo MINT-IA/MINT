@@ -133,9 +133,11 @@ class RecordingCoachProfileProvider extends CoachProfileProvider {
 Map<String, dynamic> independentAnswers({
   double? selfIncome,
   double? grossSalary,
+  int? birthYear,
   bool voluntaryLpp = false,
 }) {
   return {
+    if (birthYear != null) 'q_birth_year': birthYear,
     if (selfIncome != null) ...{
       'q_self_employed_income': selfIncome,
       'q_net_income_period_chf': selfIncome,
@@ -280,6 +282,142 @@ void main() {
 
       // Age picker shows formatted value with MintPickerTile
       expect(find.byType(MintPickerTile), findsOneWidget);
+    });
+
+    testWidgets('prefills known independent income and age from profile',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 140000,
+          birthYear: DateTime.now().year - 52,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const LppVolontaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+      final agePicker =
+          tester.widget<MintPickerTile>(find.byType(MintPickerTile));
+
+      expect(amountField.value, 140000);
+      expect(agePicker.value, 52);
+    });
+
+    testWidgets('does not prefill net income from a gross salary fallback',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(grossSalary: 220000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const LppVolontaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+
+      expect(amountField.value, 80000);
+    });
+
+    testWidgets('clamps known profile values to the screen ranges',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 450000,
+          birthYear: DateTime.now().year - 80,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const LppVolontaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+      final agePicker =
+          tester.widget<MintPickerTile>(find.byType(MintPickerTile));
+
+      expect(amountField.value, 250000);
+      expect(agePicker.value, 65);
+    });
+
+    testWidgets('persists edited independent income through the profile path',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const LppVolontaireScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final amountField =
+          tester.widget<MintAmountField>(find.byType(MintAmountField));
+      amountField.onChanged(123000);
+      await tester.pump();
+
+      expect(provider.writes, isNotEmpty);
+      expect(
+        provider.writes.last,
+        containsPair('q_self_employed_income', 123000),
+      );
+      expect(
+        provider.writes.last,
+        containsPair('q_net_income_period_chf', 123000),
+      );
+      expect(provider.writes.last, containsPair('q_pay_frequency', 'yearly'));
+      expect(
+        provider.writes.last,
+        containsPair('q_employment_status', 'independant'),
+      );
+    });
+
+    testWidgets('persists edited age as birth year through the profile path',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 90000,
+          birthYear: DateTime.now().year - 39,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const LppVolontaireScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final agePicker =
+          tester.widget<MintPickerTile>(find.byType(MintPickerTile));
+      agePicker.onChanged(44);
+      await tester.pump();
+
+      expect(provider.writes, isNotEmpty);
+      expect(
+        provider.writes.last,
+        containsPair('q_birth_year', DateTime.now().year - 44),
+      );
     });
   });
 
