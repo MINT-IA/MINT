@@ -24,6 +24,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// objectifRetraite, compositionMenage.
 class DataBlockEnrichmentScreen extends StatefulWidget {
   final String blockType;
+  final String? initialInputKey;
   static const Set<String> _supportedBlockTypes = {
     'revenu',
     'lpp',
@@ -38,6 +39,7 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
   const DataBlockEnrichmentScreen({
     super.key,
     required this.blockType,
+    this.initialInputKey,
   });
 
   @override
@@ -232,56 +234,71 @@ class _DataBlockEnrichmentScreenState
   }
 
   Widget _buildRevenueCollector(S l) {
+    final onlyInputKey = _canonicalRevenueInputKey(widget.initialInputKey);
+    final children = <Widget>[];
+
+    void addField(Widget field) {
+      if (children.isNotEmpty) children.add(const SizedBox(height: 14));
+      children.add(field);
+    }
+
+    if (_capturesRevenue('q_gross_salary_annual', onlyInputKey)) {
+      addField(_buildRevenueTextField(
+        key: const Key('salary_input'),
+        semanticsIdentifier: 'salary_input',
+        controller: _salaryController,
+        label: l.renteVsCapitalSalary,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+      ));
+    }
+    if (_capturesRevenue('q_canton', onlyInputKey)) {
+      addField(_buildRevenueTextField(
+        key: const Key('canton_picker'),
+        semanticsIdentifier: 'canton_picker',
+        controller: _cantonController,
+        label: l.affordabilityCanton,
+        textCapitalization: TextCapitalization.characters,
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), LengthLimitingTextInputFormatter(2)],
+      ));
+    }
+    if (_capturesRevenue('q_birth_year', onlyInputKey)) {
+      addField(_buildRevenueTextField(
+        key: const Key('birth_year_input'),
+        semanticsIdentifier: 'birth_year_input',
+        controller: _birthYearController,
+        label: l.landingBirthYear,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
+      ));
+    }
+    if (_capturesRevenue('q_has_pension_fund', onlyInputKey)) {
+      addField(Semantics(
+        identifier: 'has_pension_fund_switch',
+        child: SwitchListTile.adaptive(
+          key: const Key('has_pension_fund_switch'),
+          contentPadding: EdgeInsets.zero,
+          activeThumbColor: MintColors.primary,
+          title: Text(
+            l.eduThemeLppQuestion,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          ),
+          value: _hasPensionFund,
+          onChanged: (value) => setState(() {
+            _hasPensionFund = value;
+            _hasPensionFundTouched = true;
+          }),
+        ),
+      ));
+    }
+
     return MintSurface(
       padding: const EdgeInsets.all(18),
       radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildRevenueTextField(
-            key: const Key('salary_input'),
-            semanticsIdentifier: 'salary_input',
-            controller: _salaryController,
-            label: l.renteVsCapitalSalary,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
-          ),
-          const SizedBox(height: 14),
-          _buildRevenueTextField(
-            key: const Key('canton_picker'),
-            semanticsIdentifier: 'canton_picker',
-            controller: _cantonController,
-            label: l.affordabilityCanton,
-            textCapitalization: TextCapitalization.characters,
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), LengthLimitingTextInputFormatter(2)],
-          ),
-          const SizedBox(height: 14),
-          _buildRevenueTextField(
-            key: const Key('birth_year_input'),
-            semanticsIdentifier: 'birth_year_input',
-            controller: _birthYearController,
-            label: l.landingBirthYear,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
-          ),
-          const SizedBox(height: 8),
-          Semantics(
-            identifier: 'has_pension_fund_switch',
-            child: SwitchListTile.adaptive(
-              key: const Key('has_pension_fund_switch'),
-              contentPadding: EdgeInsets.zero,
-              activeThumbColor: MintColors.primary,
-              title: Text(
-                l.eduThemeLppQuestion,
-                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-              ),
-              value: _hasPensionFund,
-              onChanged: (value) => setState(() {
-                _hasPensionFund = value;
-                _hasPensionFundTouched = true;
-              }),
-            ),
-          ),
+          ...children,
           if (_revenueError != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -346,6 +363,13 @@ class _DataBlockEnrichmentScreenState
 
   Future<void> _saveRevenueFacts() async {
     final l = S.of(context)!;
+    final onlyInputKey = _canonicalRevenueInputKey(widget.initialInputKey);
+    final capturesSalary =
+        _capturesRevenue('q_gross_salary_annual', onlyInputKey);
+    final capturesCanton = _capturesRevenue('q_canton', onlyInputKey);
+    final capturesBirthYear = _capturesRevenue('q_birth_year', onlyInputKey);
+    final capturesPensionFund =
+        _capturesRevenue('q_has_pension_fund', onlyInputKey);
     final canton = _cantonController.text.trim().toUpperCase();
     final salary = int.tryParse(_digitsOnly(_salaryController.text));
     final birthText = _birthYearController.text.trim();
@@ -353,13 +377,17 @@ class _DataBlockEnrichmentScreenState
     final currentYear = DateTime.now().year;
     final youngestSupportedBirthYear = currentYear - 18;
 
-    if (!_swissCantonCodes.contains(' $canton ') ||
-        salary == null ||
-        salary <= 0 ||
-        (birthText.isNotEmpty &&
-            (birthYear == null ||
-                birthYear < 1900 ||
-                birthYear > youngestSupportedBirthYear))) {
+    final birthYearRequired = onlyInputKey == 'q_birth_year';
+    final invalidBirthYear = capturesBirthYear &&
+        ((birthYearRequired && birthText.isEmpty) ||
+            (birthText.isNotEmpty &&
+                (birthYear == null ||
+                    birthYear < 1900 ||
+                    birthYear > youngestSupportedBirthYear)));
+
+    if ((capturesCanton && !_swissCantonCodes.contains(' $canton ')) ||
+        (capturesSalary && (salary == null || salary <= 0)) ||
+        invalidBirthYear) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
     }
@@ -370,19 +398,46 @@ class _DataBlockEnrichmentScreenState
     });
 
     final answers = <String, dynamic>{
-      'q_gross_salary_annual': salary,
-      'q_canton': canton,
-      if (birthYear != null) 'q_birth_year': birthYear,
-      if (_hasPensionFundTouched) 'q_has_pension_fund': _hasPensionFund,
+      if (capturesSalary) 'q_gross_salary_annual': salary,
+      if (capturesCanton) 'q_canton': canton,
+      if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
+      if (capturesPensionFund &&
+          (_hasPensionFundTouched || onlyInputKey == 'q_has_pension_fund'))
+        'q_has_pension_fund': _hasPensionFund,
     };
 
-    await context.read<CoachProfileProvider>().mergeAnswers(answers);
+    if (answers.isNotEmpty) {
+      await context.read<CoachProfileProvider>().mergeAnswers(answers);
+    }
     if (!mounted) return;
     HapticFeedback.lightImpact();
     setState(() => _isSavingRevenue = false);
   }
 
   String _digitsOnly(String value) => value.replaceAll(RegExp(r'[^0-9]'), '');
+
+  String? _canonicalRevenueInputKey(String? inputKey) {
+    if (inputKey == null || inputKey.trim().isEmpty) return null;
+    final token =
+        inputKey.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    return switch (token) {
+      'qgrosssalaryannual' ||
+      'incomegrossyearly' ||
+      'revenubrutannuel' ||
+      'grosssalaryannual' ||
+      'salary' =>
+        'q_gross_salary_annual',
+      'qcanton' || 'canton' => 'q_canton',
+      'qbirthyear' || 'birthyear' => 'q_birth_year',
+      'qhaspensionfund' || 'has2ndpillar' || 'haspensionfund' =>
+        'q_has_pension_fund',
+      _ => null,
+    };
+  }
+
+  bool _capturesRevenue(String inputKey, String? onlyInputKey) {
+    return onlyInputKey == null || onlyInputKey == inputKey;
+  }
 
   Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {
     final confidence = ConfidenceScorer.score(profile);
@@ -627,24 +682,24 @@ class _DataBlockEnrichmentScreenState
   String _normalizeTypeToken(String value) {
     var normalized = value.trim().toLowerCase();
     const accents = {
-      'à': 'a',
-      'â': 'a',
-      'ä': 'a',
-      'é': 'e',
-      'è': 'e',
-      'ê': 'e',
-      'ë': 'e',
-      'î': 'i',
-      'ï': 'i',
-      'ô': 'o',
-      'ö': 'o',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ç': 'c',
+      0x00E0: 'a',
+      0x00E2: 'a',
+      0x00E4: 'a',
+      0x00E9: 'e',
+      0x00E8: 'e',
+      0x00EA: 'e',
+      0x00EB: 'e',
+      0x00EE: 'i',
+      0x00EF: 'i',
+      0x00F4: 'o',
+      0x00F6: 'o',
+      0x00F9: 'u',
+      0x00FB: 'u',
+      0x00FC: 'u',
+      0x00E7: 'c',
     };
     accents.forEach((source, target) {
-      normalized = normalized.replaceAll(source, target);
+      normalized = normalized.replaceAll(String.fromCharCode(source), target);
     });
     normalized = normalized
         .replaceAll(RegExp(r'[^a-z0-9]+'), '_')

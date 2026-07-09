@@ -391,14 +391,18 @@ Backed by `screens/onboarding/data_block_enrichment_screen.dart` (~70% built: co
 ### 6.validation — no silent `'revenu'` coercion (live contract)
 
 The `/data-block/:type` route must pass the matched path parameter through to
-`DataBlockEnrichmentScreen` without defaulting to `revenu`. `:type` is required
-by the route pattern, and unsupported values are handled inside the screen as a
+`DataBlockEnrichmentScreen` without defaulting to `revenu`. It also preserves
+the optional `?inputKey=...` query parameter so DataQuest can collect exactly
+one missing revenue field instead of reopening the whole revenue block. Other
+block types ignore `inputKey` until their field-level collectors are live.
+`:type` is required by the route pattern, and unsupported values are handled inside the screen as a
 migration-safe unknown block using `dataBlockUnknown*` i18n labels.
 
 ```dart
 builder: (context, state) {
   return DataBlockEnrichmentScreen(
     blockType: state.pathParameters['type']!,
+    initialInputKey: state.uri.queryParameters['inputKey'],
   );
 }
 ```
