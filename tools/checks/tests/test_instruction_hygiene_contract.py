@@ -73,9 +73,9 @@ def test_claude_md_gate_labels_are_backed_by_checked_in_hooks_or_ci() -> None:
     for label, script in GATES.items():
         assert f"{label}:" in lefthook
         assert script in lefthook
-
-    for label in ("banned-ui-terms", "financial-core-gate"):
         assert f"{label}:" in ci
+        assert script in ci
+        assert f"needs.{label}.result" in ci
 
 
 def test_rules_md_points_to_repo_claude_and_checked_in_gates() -> None:
