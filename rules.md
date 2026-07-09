@@ -4,17 +4,20 @@ Objectif: coder vite (“vibe coding”) sans casser la cohérence.
 
 ## 0) Hiérarchie de vérité
 1. rules.md — Non-negotiable technical + ethical rules
-2. .claude/CLAUDE.md — Project context, constants, compliance, anti-patterns
-3. AGENTS.md — Team workflow, roles, sprint tracker
-4. .claude/skills/ — Agent-specific conventions and patterns
-5. LEGAL_RELEASE_CHECK.md — Wording compliance checklist
-6. visions/ — Product vision + limits
-7. docs/ (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
-8. decisions/ (ADR) — Architecture decisions
-9. SOT.md + OpenAPI — Data contracts
-10. Code — Implementation follows documents
+2. Code/repo reality — authoritative implementation evidence
+3. CLAUDE.md — Project context, constants, compliance, anti-patterns
+4. AGENTS.md — Team workflow, roles, sprint tracker
+5. .claude/skills/ — Agent-specific conventions and patterns
+6. LEGAL_RELEASE_CHECK.md — Wording compliance checklist
+7. visions/ — Product vision + limits
+8. docs/ (evolution specs) — ONBOARDING_ARBITRAGE_ENGINE, COACH_VIVANT_ROADMAP, DATA_ACQUISITION
+9. decisions/ (ADR) — Architecture decisions
+10. SOT.md + OpenAPI — Data contracts
 
-Si le code contredit 1–9: corriger le code OU écrire une ADR.
+Docs are executable specs, not gospel. Challenge them against the live repo. If
+docs and implementation diverge, reconcile with code, SOT/OpenAPI, and ADRs:
+fix the implementation, update the spec, or write a new ADR/test that names the
+accepted divergence. Engram is never source of truth; it is only a recall index.
 docs/ evolution specs sit below visions/ but above ADRs.
 
 ## 1) Commandes standards

@@ -3,6 +3,7 @@
 > Loaded at every session start. Quickref ~150L.
 > Role-scoped detail : [docs/AGENTS/flutter.md](docs/AGENTS/flutter.md) · [docs/AGENTS/backend.md](docs/AGENTS/backend.md) · [docs/AGENTS/swiss-brain.md](docs/AGENTS/swiss-brain.md).
 > Conflict resolution : `rules.md` (tier 1) > this file (tier 2) > `.claude/skills/*` (tier 3).
+> Memory hierarchy : repo git/ADR/AGENTS_LOG is the source of truth. Engram is a recall index, not a primary source. If memory conflicts with the checked-in repo, the repo wins.
 
 ## 🚨 TOP — 5 RULES CRITIQUES (repeat at BOTTOM — Liu 2024 lost-in-the-middle mitigation)
 
