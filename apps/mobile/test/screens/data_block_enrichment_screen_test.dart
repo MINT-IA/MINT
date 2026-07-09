@@ -67,6 +67,101 @@ void main() {
     expect(provider.profile?.birthYear, 2001);
   });
 
+  testWidgets('revenue block inputKey collects only the requested canton fact',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'canton',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('canton_picker')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('birth_year_input')), findsNothing);
+    expect(find.byKey(const Key('has_pension_fund_switch')), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('canton_picker')), 'ge');
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_canton', 'GE'));
+    expect(answers.containsKey('q_gross_salary_annual'), isFalse);
+    expect(answers.containsKey('q_birth_year'), isFalse);
+    expect(answers.containsKey('q_has_pension_fund'), isFalse);
+    expect(provider.profile?.canton, 'GE');
+  });
+
+  testWidgets('revenue block does not treat monthly income as annual input',
+      (tester) async {
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'incomeGrossMonthly',
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('salary_input')), findsOneWidget);
+    expect(find.byKey(const Key('canton_picker')), findsOneWidget);
+    expect(find.byKey(const Key('birth_year_input')), findsOneWidget);
+    expect(find.byKey(const Key('has_pension_fund_switch')), findsOneWidget);
+  });
+
+  testWidgets('revenue block birth-year inputKey requires a value',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'birthYear',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('birth_year_input')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_birth_year'), isFalse);
+    expect(provider.profile, isNull);
+    expect(find.text('Les informations saisies sont invalides.'), findsOneWidget);
+  });
+
+  testWidgets('revenue block pension inputKey can persist default false',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'has2ndPillar',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('has_pension_fund_switch')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_has_pension_fund', false));
+    expect(provider.profile, isNotNull);
+  });
+
   testWidgets('revenue block seeds pension switch from existing profile',
       (tester) async {
     final provider = CoachProfileProvider()

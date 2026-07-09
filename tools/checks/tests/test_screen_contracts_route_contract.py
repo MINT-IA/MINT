@@ -34,6 +34,7 @@ def test_data_block_route_does_not_silently_default_to_revenu() -> None:
     assert "?? 'revenu'" not in block
     assert '?? "revenu"' not in block
     assert "blockType: state.pathParameters['type']!" in block
+    assert "initialInputKey: state.uri.queryParameters['inputKey']" in block
     assert "The current builder does `state.pathParameters['type'] ?? 'revenu'`" not in screen_contracts
     assert 'Invalid/unknown `:type` → "Ce thème n\'existe pas."' not in screen_contracts
     assert "Validation of `:type` happens IN THE ROUTE BUILDER" not in screen_contracts

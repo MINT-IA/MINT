@@ -1375,6 +1375,7 @@ final _router = GoRouter(
       builder: (context, state) {
         return DataBlockEnrichmentScreen(
           blockType: state.pathParameters['type']!,
+          initialInputKey: state.uri.queryParameters['inputKey'],
         );
       },
     ),
