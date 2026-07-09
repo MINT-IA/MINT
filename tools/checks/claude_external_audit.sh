@@ -12,7 +12,8 @@ CLAUDE_AUDIT_WORKTREE, CLAUDE_AUDIT_BARE, CLAUDE_AUDIT_SETTINGS,
 CLAUDE_AUDIT_SETTING_SOURCES, CLAUDE_AUDIT_ALLOW_PROJECT_SETTINGS,
 CLAUDE_AUDIT_MAX_BUDGET_USD, CLAUDE_AUDIT_MAX_DIFF_LINES,
 CLAUDE_AUDIT_ALLOW_LARGE_DIFF, CLAUDE_AUDIT_RERUN,
-CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN, CLAUDE_AUDIT_DRY_RUN.
+CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN, CLAUDE_AUDIT_LOCK_DIR,
+CLAUDE_AUDIT_DRY_RUN.
 EOF
 }
 die() {
@@ -52,6 +53,43 @@ if [[ "$rerun" == "1" && "$model" != *sonnet* && "${CLAUDE_AUDIT_ALLOW_NON_SONNE
 fi
 repo_root="$(git rev-parse --show-toplevel)"
 worktree="${CLAUDE_AUDIT_WORKTREE:-$repo_root}"
+prompt_file=""
+repo_lock_key="$(printf '%s' "$repo_root" | shasum -a 256 | awk '{print $1}')"
+lock_parent="${CLAUDE_AUDIT_LOCK_DIR:-${TMPDIR:-/tmp}}"
+lock_dir="${lock_parent%/}/mint-claude-audit-${repo_lock_key}.lock"
+
+acquire_audit_lock() {
+  if mkdir "$lock_dir" 2>/dev/null; then
+    printf '%s\n' "$$" >"$lock_dir/pid"
+    printf '%s\n' "$mode" >"$lock_dir/mode"
+    return
+  fi
+
+  local existing_pid existing_mode
+  existing_pid="$(cat "$lock_dir/pid" 2>/dev/null || true)"
+  existing_mode="$(cat "$lock_dir/mode" 2>/dev/null || true)"
+  if [[ -n "$existing_pid" ]] && ! kill -0 "$existing_pid" 2>/dev/null; then
+    rm -rf "$lock_dir"
+    if mkdir "$lock_dir" 2>/dev/null; then
+      printf '%s\n' "$$" >"$lock_dir/pid"
+      printf '%s\n' "$mode" >"$lock_dir/mode"
+      return
+    fi
+  fi
+
+  die "another Claude audit is already running for this repo${existing_pid:+ (pid ${existing_pid})}${existing_mode:+, mode ${existing_mode}}; let it finish instead of launching a duplicate"
+}
+
+release_audit_lock() {
+  if [[ -f "$lock_dir/pid" ]] && [[ "$(cat "$lock_dir/pid" 2>/dev/null || true)" == "$$" ]]; then
+    rm -rf "$lock_dir"
+  fi
+}
+
+if [[ "${CLAUDE_AUDIT_DRY_RUN:-}" != "1" ]]; then
+  acquire_audit_lock
+  trap 'release_audit_lock; [[ -n "${prompt_file:-}" ]] && rm -f "$prompt_file"' EXIT
+fi
 max_diff_lines="${CLAUDE_AUDIT_MAX_DIFF_LINES:-2500}"
 case "$max_diff_lines" in ""|*[!0-9]*) die "CLAUDE_AUDIT_MAX_DIFF_LINES must be a non-negative integer" ;; esac
 setting_sources="${CLAUDE_AUDIT_SETTING_SOURCES:-user}"
@@ -74,7 +112,9 @@ for setting_source in "${setting_source_parts[@]}"; do
   esac
 done
 prompt_file="$(mktemp "${TMPDIR:-/tmp}/mint-claude-audit.XXXXXX")"
-trap 'rm -f "$prompt_file"' EXIT
+if [[ "${CLAUDE_AUDIT_DRY_RUN:-}" == "1" ]]; then
+  trap 'rm -f "$prompt_file"' EXIT
+fi
 
 count_diff_lines() {
   git -C "$repo_root" diff "$@" | wc -l | tr -d '[:space:]'
