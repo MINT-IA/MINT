@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // Screens under test
@@ -10,7 +13,10 @@ import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 
 // =============================================================================
@@ -33,7 +39,20 @@ void main() {
   // ===========================================================================
 
   group('AffordabilityScreen', () {
-    Widget buildScreen({CoachProfileProvider? coachProvider}) {
+    CoachProfileProvider mortgageFactsProvider() {
+      return CoachProfileProvider()
+        ..updateFromAnswers({
+          'q_gross_salary_annual': 96000,
+          'q_canton': 'GE',
+          'q_birth_year': 2001,
+          'q_has_pension_fund': false,
+        });
+    }
+
+    Widget buildScreen({
+      CoachProfileProvider? coachProvider,
+      bool withLedgerFacts = true,
+    }) {
       const app = MaterialApp(
         locale: Locale('fr'),
         localizationsDelegates: [
@@ -45,14 +64,10 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: AffordabilityScreen(),
       );
-      if (coachProvider != null) {
-        return ChangeNotifierProvider<CoachProfileProvider>.value(
-          value: coachProvider,
-          child: app,
-        );
-      }
-      return ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
+      final provider = coachProvider ??
+          (withLedgerFacts ? mortgageFactsProvider() : CoachProfileProvider());
+      return ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: provider,
         child: app,
       );
     }
@@ -64,6 +79,111 @@ void main() {
       expect(find.byType(Scaffold), findsOneWidget);
     });
 
+    testWidgets('requires revenue ledger facts before calculating capacity',
+        (tester) async {
+      await tester.pumpWidget(buildScreen(withLedgerFacts: false));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('mortgage_ledger_facts')), findsOneWidget);
+      expect(find.byKey(const Key('mortgage_afford_result')), findsNothing);
+      expect(find.byKey(const Key('mortgage_income_amount')), findsNothing);
+    });
+
+    testWidgets('uses household income when spouse ledger data exists',
+        (tester) async {
+      final coachProvider = mortgageFactsProvider();
+      final profile = coachProvider.profile!;
+      coachProvider.updateProfile(
+        profile.copyWith(
+          conjoint: const ConjointProfile(
+            salaireBrutMensuel: 4000,
+            nombreDeMois: 13,
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(buildScreen(coachProvider: coachProvider));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('mortgage_income_amount')),
+        300,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining("148'000"), findsWidgets);
+    });
+
+    testWidgets(
+        'emits abandoned sequence return when facts stay missing after enrichment',
+        (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) => const Scaffold(body: Text('Home')),
+          ),
+          GoRoute(
+            path: '/hypotheque',
+            builder: (_, __) => const AffordabilityScreen(),
+          ),
+          GoRoute(
+            path: '/data-block/revenu',
+            builder: (_, __) => const Scaffold(body: Text('Data block')),
+          ),
+        ],
+      );
+      final eventFuture = ScreenCompletionTracker.stream
+          .firstWhere(
+            (event) =>
+                event.route == '/hypotheque' &&
+                event.runId == 'run_missing_facts',
+          )
+          .timeout(const Duration(seconds: 2));
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: CoachProfileProvider(),
+          child: MaterialApp.router(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            routerConfig: router,
+          ),
+        ),
+      );
+
+      unawaited(
+        router.push<void>(
+          '/hypotheque',
+          extra: {
+            'runId': 'run_missing_facts',
+            'stepId': 'hou_03_capacity',
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('mortgage_revenue_enrich_cta')));
+      await tester.pumpAndSettle();
+      expect(find.text('Data block'), findsOneWidget);
+
+      router.pop();
+      await tester.pumpAndSettle();
+      router.pop();
+      await tester.pumpAndSettle();
+
+      final event = await eventFuture;
+      expect(event.outcome, ScreenOutcome.abandoned);
+      expect(event.stepId, 'hou_03_capacity');
+    });
+
     testWidgets('displays i18n title in SliverAppBar', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
@@ -72,7 +192,8 @@ void main() {
       expect(find.textContaining('achat'), findsWidgets);
     });
 
-    testWidgets('displays premier éclairage card with CHF amount', (tester) async {
+    testWidgets('displays premier éclairage card with CHF amount',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -117,14 +238,18 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
-      await tester.pump();
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('mortgage_price_amount')),
+        300,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pumpAndSettle();
 
-      // i18n: affordabilityParameters = "Tes hypotheses"
-      expect(find.textContaining('hypoth'), findsWidgets);
+      expect(find.byKey(const Key('mortgage_price_amount')), findsOneWidget);
     });
 
-    testWidgets('has MintAmountField widgets for input parameters', (tester) async {
+    testWidgets('has MintAmountField widgets for input parameters',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -174,13 +299,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('mortgage_income_amount')), findsOneWidget);
-      expect(find.text('Estime'), findsWidgets);
       expect(find.textContaining("96'000"), findsWidgets);
       expect(find.text('GE'), findsWidgets);
-
-      await tester.tap(find.text('Estime').first);
-      await tester.pumpAndSettle();
-      expect(find.text('Depuis ton profil MINT'), findsOneWidget);
+      expect(find.text('Estime'), findsNothing);
     });
 
     testWidgets('displays detail section after scrolling', (tester) async {
@@ -194,7 +315,8 @@ void main() {
       expect(find.textContaining('calcul'), findsWidgets);
     });
 
-    testWidgets('builds without overflow or crash at various scroll depths', (tester) async {
+    testWidgets('builds without overflow or crash at various scroll depths',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -381,7 +503,8 @@ void main() {
       expect(find.textContaining('locative'), findsWidgets);
     });
 
-    testWidgets('displays premier éclairage with fiscal impact', (tester) async {
+    testWidgets('displays premier éclairage with fiscal impact',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -491,7 +614,8 @@ void main() {
       expect(find.textContaining('direct'), findsWidgets);
     });
 
-    testWidgets('displays two method cards (Direct / Indirect)', (tester) async {
+    testWidgets('displays two method cards (Direct / Indirect)',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
