@@ -1,0 +1,39 @@
+schema_version: 1
+flow:
+  id: first_job_missing_facts
+  title: "First job screen to canonical revenue facts"
+  exits: [db.route.revenu]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: firstjob.route.first_job
+    kind: route
+    route: /first-job
+    widget: screens/first_job_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: firstjob.edge.first_job.enrich_revenue
+    from: firstjob.route.first_job
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect salary, age, and canton before analyzing a first job"
+    payload: {path_params: {type: EnrichmentType}}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/first_job_ledger.yaml

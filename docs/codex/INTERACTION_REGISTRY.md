@@ -88,6 +88,10 @@ bloque pas encore les routes non migrées.
   DataBlock revenu/patrimoine. Il ne déclare pas de hub
   `/segments/independant -> outils` tant que le code et Maestro ne prouvent pas
   ces taps.
+- `interactions/first_job_missing_facts.yaml` : flux premier emploi réel,
+  limité à la CTA `first_job_enrich_profile_cta` vers DataBlock revenu. Il ne
+  déclare pas de sortie vers 3a/fiscalité tant que ces transitions ne sont pas
+  des interactions produit prouvées dans l'écran.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.

@@ -6,8 +6,8 @@
 
 - Extracted Flutter route references: 350
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 5
-- Known route templates not yet declared as route nodes: 87
+- Covered by declared Interaction Registry route nodes: 6
+- Known route templates not yet declared as route nodes: 86
 - Declared edge target route templates: 2
 - Unknown route literals/templates: 0
 
@@ -16,6 +16,7 @@
 | Status | Route | References |
 |---|---|---|
 | covered by declared route node | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1325, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:801, apps/mobile/lib/widgets/coach/confidence_blocks_bar.dart:82, apps/mobile/lib/widgets/coach/indicatif_banner.dart:99 |
+| covered by declared route node | `/first-job` | apps/mobile/lib/app.dart:573, apps/mobile/lib/screens/first_job_screen.dart:111, apps/mobile/lib/screens/first_job_screen.dart:122, apps/mobile/lib/screens/timeline_screen.dart:106 (+2 more) |
 | covered by declared route node | `/home` | apps/mobile/lib/services/navigation/mint_nav.dart:19 |
 | covered by declared route node | `/hypotheque` | apps/mobile/lib/app.dart:588, apps/mobile/lib/screens/mortgage/affordability_screen.dart:192, apps/mobile/lib/screens/mortgage/affordability_screen.dart:203, apps/mobile/lib/screens/timeline_screen.dart:148 (+5 more) |
 | covered by declared route node | `/independants/avs` | apps/mobile/lib/widgets/coach/smart_shortcuts.dart:183 |
@@ -71,7 +72,6 @@
 | uncovered literal route | `/explore/retraite` | apps/mobile/lib/screens/explore/explorer_screen.dart:41 |
 | uncovered literal route | `/explore/sante` | apps/mobile/lib/screens/explore/explorer_screen.dart:77 |
 | uncovered literal route | `/explore/travail` | apps/mobile/lib/screens/explore/explorer_screen.dart:53 |
-| uncovered literal route | `/first-job` | apps/mobile/lib/app.dart:573, apps/mobile/lib/screens/first_job_screen.dart:111, apps/mobile/lib/screens/first_job_screen.dart:122, apps/mobile/lib/screens/timeline_screen.dart:106 (+2 more) |
 | uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:609, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:564, apps/mobile/lib/screens/fiscal_comparator_screen.dart:170 (+8 more) |
 | uncovered literal route | `/household/accept` | apps/mobile/lib/screens/household/household_screen.dart:509 |
 | uncovered literal route | `/invalidite` | apps/mobile/lib/app.dart:633, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:871 (+2 more) |
@@ -124,6 +124,7 @@
 | Route |
 |---|
 | `/data-block/:type` |
+| `/first-job` |
 | `/home` |
 | `/hypotheque` |
 | `/independants/3a` |
