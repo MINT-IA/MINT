@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -7,6 +8,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/independent_hub_calculator.dart';
 import 'package:mint_mobile/services/segments_service.dart';
 import 'package:mint_mobile/widgets/coach/ninety_day_plan_widget.dart';
 import 'package:mint_mobile/widgets/coach/true_hourly_rate_widget.dart';
@@ -14,7 +16,6 @@ import 'package:mint_mobile/widgets/coach/lpp_vs_3a_decision_tree.dart';
 import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
 import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -39,174 +40,208 @@ class IndependantScreen extends StatefulWidget {
 
 class _IndependantScreenState extends State<IndependantScreen> {
   // ── State ──────────────────────────────────────────────────
-  double _revenuNet = 80000;
-  int _age = 42;
+  static const int _ageMin = 18;
+  static const int _ageMax = 70;
+
   bool _hasLpp = false;
   bool _hasIjm = false;
   bool _hasLaa = false;
   bool _has3a = false;
-  String _canton = 'ZH';
 
-  IndependantResult? _result;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
-    _compute();
-  }
-
-  void _initializeFromProfile() {
+  CoachProfileProvider? _profileProvider(BuildContext context) {
     try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        // Age
-        final age = profile.age;
-        if (age >= 18 && age <= 70) _age = age;
-
-        // Canton
-        if (cantonFullNames.containsKey(profile.canton)) {
-          _canton = profile.canton;
-        }
-
-        // Revenue
-        final revenu = profile.revenuBrutAnnuel;
-        if (revenu > 0) _revenuNet = revenu;
-      });
-      _compute();
-    } catch (_) {
-      // Provider not in tree (tests) — keep defaults
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
     }
   }
 
-  void _compute() {
-    final input = IndependantInput(
-      revenuNet: _revenuNet,
-      age: _age,
-      hasLpp: _hasLpp,
-      hasIjm: _hasIjm,
-      hasLaa: _hasLaa,
-      has3a: _has3a,
-      canton: _canton,
+  bool _isProvided(CoachProfileProvider? provider, String field) {
+    return provider?.profile?.userProvidedFields.contains(field) ?? false;
+  }
+
+  double? _annualIncome(CoachProfileProvider? provider) {
+    if (!_isProvided(provider, 'selfEmployedNetIncome')) return null;
+    final annualIncome = provider?.profile?.selfEmployedNetIncome;
+    if (annualIncome != null && annualIncome > 0) {
+      return annualIncome.toDouble();
+    }
+    return null;
+  }
+
+  int? _age(CoachProfileProvider? provider) {
+    if (!_isProvided(provider, 'age')) return null;
+    final age = provider?.profile?.ageOrNull;
+    if (age != null && age >= _ageMin && age <= _ageMax) {
+      return age;
+    }
+    return null;
+  }
+
+  String? _canton(CoachProfileProvider? provider) {
+    if (!_isProvided(provider, 'canton')) return null;
+    final canton = provider?.profile?.canton;
+    if (canton != null && cantonFullNames.containsKey(canton)) {
+      return canton;
+    }
+    return null;
+  }
+
+  IndependantResult? _computeResult(
+    double? annualIncome,
+    int? age,
+    String? canton,
+  ) {
+    if (annualIncome == null || age == null || canton == null) return null;
+    return IndependantService.analyse(
+      input: IndependantInput(
+        revenuNet: annualIncome,
+        age: age,
+        hasLpp: _hasLpp,
+        hasIjm: _hasIjm,
+        hasLaa: _hasLaa,
+        has3a: _has3a,
+        canton: canton,
+      ),
     );
-    setState(() {
-      _result = IndependantService.analyse(input: input);
-    });
   }
 
   // ── Build ──────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final provider = _profileProvider(context);
+    final annualIncome = _annualIncome(provider);
+    final age = _age(provider);
+    final canton = _canton(provider);
+    final result = _computeResult(annualIncome, age, canton);
+
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(
-                MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                MintEntrance(child: _buildHeader()),
-                const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro()),
-                const SizedBox(height: MintSpacing.lg),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(context),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                        MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        MintEntrance(child: _buildHeader()),
+                        const SizedBox(height: MintSpacing.lg),
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 100),
+                            child: _buildIntro()),
+                        const SizedBox(height: MintSpacing.lg),
 
-                // Revenue input
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenueSection()),
-                const SizedBox(height: MintSpacing.lg),
+                        // Revenue input
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 200),
+                            child: _buildRevenueSection(
+                                context, s, annualIncome, age, canton)),
+                        const SizedBox(height: MintSpacing.lg),
 
-                // Coverage toggles
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageToggles()),
-                const SizedBox(height: MintSpacing.lg),
+                        // Coverage toggles
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 300),
+                            child: _buildCoverageToggles()),
+                        const SizedBox(height: MintSpacing.lg),
 
-                if (_result != null) ...[
-                  // Jour J — protection before/after (P6-A / S42)
-                  _buildJourJSection(),
-                  const SizedBox(height: MintSpacing.lg),
+                        if (result != null &&
+                            annualIncome != null &&
+                            age != null) ...[
+                          // Jour J — protection before/after (P6-A / S42)
+                          _buildJourJSection(annualIncome, age),
+                          const SizedBox(height: MintSpacing.lg),
 
-                  // Critical alerts
-                  if (_result!.alerts.isNotEmpty) ...[
-                    _buildAlerts(),
-                    const SizedBox(height: MintSpacing.lg),
-                  ],
+                          // Critical alerts
+                          if (result.alerts.isNotEmpty) ...[
+                            _buildAlerts(result),
+                            const SizedBox(height: MintSpacing.lg),
+                          ],
 
-                  // Coverage gap analysis
-                  _buildCoverageGapSection(),
-                  const SizedBox(height: MintSpacing.lg),
+                          // Coverage gap analysis
+                          _buildCoverageGapSection(result),
+                          const SizedBox(height: MintSpacing.lg),
 
-                  // Protection cost calculator
-                  _buildProtectionCost(),
-                  const SizedBox(height: MintSpacing.lg),
+                          // Protection cost calculator
+                          _buildProtectionCost(result),
+                          const SizedBox(height: MintSpacing.lg),
 
-                  // AVS info
-                  _buildAvsInfo(),
-                  const SizedBox(height: MintSpacing.lg),
+                          // AVS info
+                          _buildAvsInfo(result),
+                          const SizedBox(height: MintSpacing.lg),
 
-                  // 3a info
-                  _build3aInfo(),
-                  const SizedBox(height: MintSpacing.lg),
+                          // 3a info
+                          _build3aInfo(result),
+                          const SizedBox(height: MintSpacing.lg),
 
-                  // Recommendations
-                  _buildRecommendations(),
-                  const SizedBox(height: MintSpacing.lg),
+                          // Recommendations
+                          _buildRecommendations(result),
+                          const SizedBox(height: MintSpacing.lg),
 
-                  // ── P7-D : Sauvetage LPP — libre passage (LFLP art. 3-4) ──
-                  if (!_hasLpp)
-                    LppRescueWidget(
-                      lppBalance: _revenuNet * 0.15,
-                      daysElapsed: 0,
-                      options: const [
-                        LppTransferOption(
-                          label: 'Fondation de libre passage',
-                          emoji: '\u{1F3E6}',
-                          description:
-                              'Place ton avoir en libre passage avec un rendement correct.',
-                          fiveYearGain: 8500,
-                          recommended: true,
-                          legalRef: 'LFLP art. 4',
-                        ),
-                        LppTransferOption(
-                          label: 'Institution suppl\u00e9tive',
-                          emoji: '\u26A0\uFE0F',
-                          description:
-                              'Transfert automatique apr\u00e8s 6 mois \u2014 rendement minimal.',
-                          fiveYearGain: 1200,
-                          legalRef: 'OPP2 art. 10',
-                        ),
-                        LppTransferOption(
-                          label: 'Nouvelle caisse LPP',
-                          emoji: '\u{1F504}',
-                          description:
-                              'Tu t\'affilies volontairement \u00e0 une caisse LPP.',
-                          fiveYearGain: 12000,
-                          legalRef: 'LPP art. 44',
-                        ),
-                      ],
+                          // ── P7-D : Sauvetage LPP — libre passage (LFLP art. 3-4) ──
+                          if (!_hasLpp)
+                            LppRescueWidget(
+                              lppBalance: IndependentHubCalculator
+                                  .estimatedLppRescueBalance(annualIncome),
+                              daysElapsed: 0,
+                              options: [
+                                LppTransferOption(
+                                  label: s.lppChecklistTitleOuvrirLP,
+                                  emoji: '\u{1F3E6}',
+                                  description: s.lppChecklistDescOuvrirLP,
+                                  fiveYearGain: IndependentHubCalculator
+                                      .librePassageFiveYearGain,
+                                  recommended: true,
+                                  legalRef: 'LFLP art. 4',
+                                ),
+                                LppTransferOption(
+                                  label: s.lppChecklistTitleTransfert30j,
+                                  emoji: '\u26A0\uFE0F',
+                                  description: s.lppChecklistDescTransfert30j,
+                                  fiveYearGain: IndependentHubCalculator
+                                      .substituteInstitutionFiveYearGain,
+                                  legalRef: 'OPP2 art. 10',
+                                ),
+                                LppTransferOption(
+                                  label: s.lppVolontaireEduAffiliationTitle,
+                                  emoji: '\u{1F504}',
+                                  description:
+                                      s.lppVolontaireEduAffiliationBody,
+                                  fiveYearGain: IndependentHubCalculator
+                                      .voluntaryLppFiveYearGain,
+                                  legalRef: 'LPP art. 44',
+                                ),
+                              ],
+                            ),
+                          if (!_hasLpp) const SizedBox(height: MintSpacing.lg),
+                        ],
+
+                        // Disclaimer
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 400),
+                            child: _buildDisclaimer()),
+                        const SizedBox(height: MintSpacing.md),
+
+                        if (result != null &&
+                            annualIncome != null &&
+                            age != null) ...[
+                          _buildMintIndependantSection(annualIncome, age),
+                          const SizedBox(height: MintSpacing.lg),
+                        ],
+
+                        // Sources
+                        _buildSourcesFooter(),
+                        const SizedBox(height: MintSpacing.xxl),
+                      ]),
                     ),
-                  if (!_hasLpp) const SizedBox(height: MintSpacing.lg),
+                  ),
                 ],
-
-                // Disclaimer
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
-                const SizedBox(height: MintSpacing.md),
-
-                _buildMintIndependantSection(),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Sources
-                _buildSourcesFooter(),
-                const SizedBox(height: MintSpacing.xxl),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+              ))),
     );
   }
 
@@ -299,17 +334,17 @@ class _IndependantScreenState extends State<IndependantScreen> {
   // ── Jour J section (P6-A / S42) ───────────────────────────
 
   List<(String, String, String)> _protections(S s) => [
-    ('AVS', '\ud83e\uddf1', s.indepProtAvs),
-    ('LPP', '\ud83c\udfe6', s.indepProtLpp),
-    ('LAA', '\ud83c\udfe5', s.indepProtLaa),
-    ('IJM', '\ud83e\ude7a', s.indepProtIjm),
-    ('APG', '\ud83d\udc76', s.indepProtApg),
-  ];
+        ('AVS', '\ud83e\uddf1', s.indepProtAvs),
+        ('LPP', '\ud83c\udfe6', s.indepProtLpp),
+        ('LAA', '\ud83c\udfe5', s.indepProtLaa),
+        ('IJM', '\ud83e\ude7a', s.indepProtIjm),
+        ('APG', '\ud83d\udc76', s.indepProtApg),
+      ];
 
-  Widget _buildJourJSection() {
-    final avsMonth = _revenuNet * avsCotisationSalarie / 12;
-    final lppMonth = _result?.protectionCost.avsMensuel ??
-        _revenuNet * getLppBonificationRate(_age) / 12;
+  Widget _buildJourJSection(double revenuNet, int age) {
+    final avsMonth = IndependentHubCalculator.employeeAvsMonthly(revenuNet);
+    final lppMonth =
+        IndependentHubCalculator.employeeLppMonthly(revenuNet, age);
     const double kLaaIndepMensuel = 150.0;
     const double kIjmIndepMensuel = 100.0;
     final totalLoss =
@@ -374,7 +409,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
 
-          ..._protections(S.of(context)!).map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
+          ..._protections(S.of(context)!)
+              .map((p) => _buildProtectionRow(p.$1, p.$2, p.$3)),
 
           const SizedBox(height: MintSpacing.sm),
 
@@ -439,35 +475,124 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── Revenue section ────────────────────────────────────────
 
-  Widget _buildRevenueSection() {
-    return MintSurface(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      radius: 16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildRevenueSection(
+    BuildContext context,
+    S s,
+    double? annualIncome,
+    int? age,
+    String? canton,
+  ) {
+    final hasMissing = annualIncome == null || age == null || canton == null;
+    final editRoute = annualIncome == null
+        ? '/data-block/revenu?inputKey=q_self_employed_income'
+        : age == null
+            ? '/data-block/revenu?inputKey=q_birth_year'
+            : canton == null
+                ? '/data-block/revenu?inputKey=q_canton'
+                : '/data-block/revenu';
+    final cantonValue = canton == null
+        ? s.dataBlockStatusMissing
+        : '$canton - ${cantonFullNames[canton] ?? canton}';
+
+    return Semantics(
+      key: const Key('independant_ledger_facts'),
+      identifier: 'independant_ledger_facts',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  hasMissing
+                      ? Icons.manage_search_outlined
+                      : Icons.check_circle_outline,
+                  color: hasMissing ? MintColors.warning : MintColors.success,
+                  size: 20,
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    hasMissing
+                        ? s.dataQualityMissingSection
+                        : s.dataQualityKnownSection,
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => context.push(editRoute),
+                  icon: Icon(
+                    hasMissing ? Icons.add_circle_outline : Icons.edit_outlined,
+                    size: 18,
+                  ),
+                  label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm + 4),
+            _buildFactRow(
+              identifier: 'independant_income_fact',
+              label: s.independantRevenueTitle,
+              value: annualIncome == null
+                  ? s.dataBlockStatusMissing
+                  : IndependantService.formatChf(annualIncome),
+              isMissing: annualIncome == null,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _buildFactRow(
+              identifier: 'independant_age_fact',
+              label: s.ijmTonAge,
+              value: age == null ? s.dataBlockStatusMissing : '$age ans',
+              isMissing: age == null,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _buildFactRow(
+              identifier: 'independant_canton_fact',
+              label: s.fiscalCanton,
+              value: cantonValue,
+              isMissing: canton == null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFactRow({
+    required String identifier,
+    required String label,
+    required String value,
+    required bool isMissing,
+  }) {
+    return Semantics(
+      identifier: identifier,
+      label: '$label, $value',
+      container: true,
+      child: Row(
         children: [
-          Text(
-            S.of(context)!.independantRevenueTitle,
-            style: MintTextStyles.titleMedium(),
+          Icon(
+            isMissing ? Icons.help_outline : Icons.check_circle_outline,
+            color: isMissing ? MintColors.warning : MintColors.success,
+            size: 16,
           ),
-          const SizedBox(height: MintSpacing.sm),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
           Text(
-            S.of(context)!.independantAgeLabel(_age),
+            value,
             style: MintTextStyles.bodySmall(
-                color: MintColors.textSecondary),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          MintPremiumSlider(
-            label: S.of(context)!.independantRevenueTitle,
-            value: _revenuNet,
-            min: 20000,
-            max: 200000,
-            divisions: 36,
-            formatValue: (v) => IndependantService.formatChf(v),
-            onChanged: (value) {
-              _revenuNet = value;
-              _compute();
-            },
+              color: isMissing ? MintColors.warning : MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -489,20 +614,16 @@ class _IndependantScreenState extends State<IndependantScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
           _buildToggleRow(S.of(context)!.independantToggleLpp, _hasLpp, (v) {
-            _hasLpp = v;
-            _compute();
+            setState(() => _hasLpp = v);
           }),
           _buildToggleRow(S.of(context)!.independantToggleIjm, _hasIjm, (v) {
-            _hasIjm = v;
-            _compute();
+            setState(() => _hasIjm = v);
           }),
           _buildToggleRow(S.of(context)!.independantToggleLaa, _hasLaa, (v) {
-            _hasLaa = v;
-            _compute();
+            setState(() => _hasLaa = v);
           }),
           _buildToggleRow(S.of(context)!.independantToggle3a, _has3a, (v) {
-            _has3a = v;
-            _compute();
+            setState(() => _has3a = v);
           }),
         ],
       ),
@@ -538,8 +659,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── Alerts ─────────────────────────────────────────────────
 
-  Widget _buildAlerts() {
-    final result = _result!;
+  Widget _buildAlerts(IndependantResult result) {
     return Column(
       children: result.alerts.map((alert) {
         final isCritique = alert.startsWith('CRITIQUE');
@@ -583,9 +703,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── Coverage gap section ───────────────────────────────────
 
-  Widget _buildCoverageGapSection() {
+  Widget _buildCoverageGapSection(IndependantResult result) {
     final l = S.of(context)!;
-    final result = _result!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -669,8 +788,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                         ),
                         child: Text(
                           statusLabel,
-                          style:
-                              MintTextStyles.labelSmall(color: statusColor),
+                          style: MintTextStyles.labelSmall(color: statusColor),
                         ),
                       ),
                     ],
@@ -696,8 +814,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── Protection cost calculator ─────────────────────────────
 
-  Widget _buildProtectionCost() {
-    final result = _result!;
+  Widget _buildProtectionCost(IndependantResult result) {
     final cost = result.protectionCost;
 
     return MintSurface(
@@ -716,7 +833,6 @@ class _IndependantScreenState extends State<IndependantScreen> {
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: MintSpacing.lg),
-
           _buildCostRow(S.of(context)!.independantCostAvs, cost.avsMensuel,
               MintColors.tealLight),
           const SizedBox(height: MintSpacing.sm),
@@ -731,10 +847,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
           _buildCostRow(S.of(context)!.independantCost3a, cost.pillar3aMensuel,
               MintColors.indigo),
           const SizedBox(height: MintSpacing.md),
-
           Divider(color: MintColors.border.withValues(alpha: 0.5)),
           const SizedBox(height: MintSpacing.sm),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -797,8 +911,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── AVS info ───────────────────────────────────────────────
 
-  Widget _buildAvsInfo() {
-    final result = _result!;
+  Widget _buildAvsInfo(IndependantResult result) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
@@ -837,8 +950,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── 3a info ────────────────────────────────────────────────
 
-  Widget _build3aInfo() {
-    final result = _result!;
+  Widget _build3aInfo(IndependantResult result) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
       decoration: BoxDecoration(
@@ -879,8 +991,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── Recommendations ────────────────────────────────────────
 
-  Widget _buildRecommendations() {
-    final result = _result!;
+  Widget _buildRecommendations(IndependantResult result) {
     if (result.recommendations.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -941,14 +1052,17 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── MINT Ind\u00e9pendant section (S42) ────────────────────────
 
-  Widget _buildMintIndependantSection() {
-    final desiredNet = _revenuNet;
-    final taxes = desiredNet * 0.22;
-    final socialCharges = desiredNet * 0.10;
-    final businessExp = desiredNet * 0.15;
-    final unpaidDays = desiredNet * 0.05;
+  Widget _buildMintIndependantSection(double revenuNet, int age) {
+    final desiredNet = revenuNet;
+    final taxes = IndependentHubCalculator.estimatedTaxBurden(desiredNet);
+    final socialCharges =
+        IndependentHubCalculator.estimatedSocialCharges(desiredNet);
+    final businessExp =
+        IndependentHubCalculator.estimatedBusinessExpenses(desiredNet);
+    final unpaidDays =
+        IndependentHubCalculator.estimatedUnpaidDaysCost(desiredNet);
     final requiredRevenue =
-        desiredNet + taxes + socialCharges + businessExp + unpaidDays;
+        IndependentHubCalculator.requiredRevenueForDesiredNet(desiredNet);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -964,7 +1078,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
         // LPP vs 3a decision tree
         LppVs3aDecisionTree(
-          expectedIncome: _revenuNet,
+          expectedIncome: revenuNet,
           lppOption: DecisionOption(
             title: S.of(context)!.indepCaisseLpp,
             emoji: '\u{1F3DB}\uFE0F',
@@ -978,7 +1092,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
               S.of(context)!.indepLppConCotisations,
               S.of(context)!.indepLppConFlexible,
             ],
-            annualTaxSavings: _revenuNet * 0.08,
+            annualTaxSavings:
+                IndependentHubCalculator.voluntaryLppTaxSavings(revenuNet),
           ),
           grand3aOption: DecisionOption(
             title: S.of(context)!.indepGrand3a,
@@ -994,8 +1109,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
               S.of(context)!.indepGrand3aConRente,
             ],
             annualTaxSavings:
-                (_revenuNet * pilier3aTauxRevenuSansLpp).clamp(0, pilier3aPlafondSansLpp) *
-                    0.25,
+                IndependentHubCalculator.grand3aTaxSavings(revenuNet),
           ),
         ),
         const SizedBox(height: MintSpacing.lg),
@@ -1027,29 +1141,36 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
         // ── Super-pouvoir fiscal ind\u00e9pendant (d\u00e9ductions) ──
         FiscalSuperpowerWidget(
-          taxRate: 0.25,
+          taxRate: IndependentHubCalculator.independentTaxProxyRate,
           superpowers: [
             FiscalSuperpower(
               label: S.of(context)!.indepFiscal3a,
               emoji: '\u{1F3E6}',
-              annualDeduction: 20000,
-              taxSaving: 20000 * 0.25,
+              annualDeduction:
+                  IndependentHubCalculator.grand3aIllustrativeDeduction,
+              taxSaving: IndependentHubCalculator.taxSavingForDeduction(
+                IndependentHubCalculator.grand3aIllustrativeDeduction,
+              ),
               legalRef: 'OPP3 art. 1',
               note: S.of(context)!.indepFiscal3aNote,
             ),
             FiscalSuperpower(
               label: S.of(context)!.indepFiscalFraisPro,
               emoji: '\u{1F4BC}',
-              annualDeduction: desiredNet * 0.15,
-              taxSaving: desiredNet * 0.15 * 0.25,
+              annualDeduction: businessExp,
+              taxSaving:
+                  IndependentHubCalculator.taxSavingForDeduction(businessExp),
               legalRef: 'LIFD art. 27 al. 2',
               note: S.of(context)!.indepFiscalFraisProNote,
             ),
             FiscalSuperpower(
               label: S.of(context)!.indepFiscalPrimesLpp,
               emoji: '\u{1F6E1}\uFE0F',
-              annualDeduction: 3600,
-              taxSaving: 3600 * 0.25,
+              annualDeduction:
+                  IndependentHubCalculator.lppPremiumIllustrativeDeduction,
+              taxSaving: IndependentHubCalculator.taxSavingForDeduction(
+                IndependentHubCalculator.lppPremiumIllustrativeDeduction,
+              ),
               legalRef: 'LIFD art. 33 al. 1 lit. g',
             ),
           ],
@@ -1058,35 +1179,45 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
         // Double prix de la libert\u00e9
         DoublePriceFreedomWidget(
-          grossIncome: _revenuNet,
+          grossIncome: revenuNet,
           charges: [
             ChargeLine(
               label: S.of(context)!.indepChargeAvs,
-              employeeAmount: _revenuNet * avsCotisationSalarie,
-              selfEmployedAmount: _revenuNet * avsCotisationTotal,
+              employeeAmount:
+                  IndependentHubCalculator.employeeAvsCharge(revenuNet),
+              selfEmployedAmount:
+                  IndependentHubCalculator.selfEmployedAvsCharge(revenuNet),
               note: 'LAVS art. 8',
             ),
             ChargeLine(
               label: S.of(context)!.indepChargeLpp,
-              employeeAmount: _revenuNet * getLppBonificationRate(_age),
+              employeeAmount:
+                  IndependentHubCalculator.employeeLppCharge(revenuNet, age),
               selfEmployedAmount: 0,
               note: S.of(context)!.indepChargeLppNote,
             ),
             ChargeLine(
               label: S.of(context)!.indepChargeAc,
-              employeeAmount: _revenuNet * acCotisationSalarie,
+              employeeAmount:
+                  IndependentHubCalculator.employeeUnemploymentCharge(
+                      revenuNet),
               selfEmployedAmount: 0,
               note: S.of(context)!.indepChargeAcNote,
             ),
             ChargeLine(
               label: S.of(context)!.indepChargePro,
-              employeeAmount: _revenuNet * 0.020,
-              selfEmployedAmount: _revenuNet * 0.040,
+              employeeAmount:
+                  IndependentHubCalculator.employeeProfessionalCoverageCharge(
+                      revenuNet),
+              selfEmployedAmount: IndependentHubCalculator
+                  .selfEmployedProfessionalCoverageCharge(revenuNet),
               note: S.of(context)!.indepChargeProNote,
             ),
           ],
-          totalEmployee: _revenuNet * (avsCotisationSalarie + getLppBonificationRate(_age) + acCotisationSalarie + 0.020),
-          totalSelfEmployed: _revenuNet * (avsCotisationTotal + 0 + 0 + 0.040),
+          totalEmployee:
+              IndependentHubCalculator.employeeProtectionTotal(revenuNet, age),
+          totalSelfEmployed:
+              IndependentHubCalculator.selfEmployedProtectionTotal(revenuNet),
         ),
         const SizedBox(height: MintSpacing.lg),
 
@@ -1133,10 +1264,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
               deadline: 'J+90',
               urgencyColor: MintColors.primary,
               actions: [
-                PlanAction(
-                    label: S.of(context)!.indepPlanFraisPro),
-                PlanAction(
-                    label: S.of(context)!.indepPlanAcomptes),
+                PlanAction(label: S.of(context)!.indepPlanFraisPro),
+                PlanAction(label: S.of(context)!.indepPlanAcomptes),
               ],
             ),
           ],
@@ -1157,7 +1286,8 @@ class _IndependantScreenState extends State<IndependantScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.info_outline, color: MintColors.textMuted, size: 18),
+            const Icon(Icons.info_outline,
+                color: MintColors.textMuted, size: 18),
             const SizedBox(width: MintSpacing.sm),
             Expanded(
               child: Text(

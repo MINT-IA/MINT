@@ -174,6 +174,7 @@ Map<String, dynamic> independentAnswers({
   double? selfIncome,
   double? grossSalary,
   int? birthYear,
+  String? canton,
   double? cashTotal,
   double? companyProfit,
   bool hasConsumerDebt = false,
@@ -181,6 +182,7 @@ Map<String, dynamic> independentAnswers({
 }) {
   return {
     if (birthYear != null) 'q_birth_year': birthYear,
+    if (canton != null) 'q_canton': canton,
     if (cashTotal != null) 'q_cash_total': cashTotal,
     if (hasConsumerDebt) 'q_has_consumer_debt': true,
     if (selfIncome != null) ...{
@@ -228,6 +230,19 @@ void main() {
   // ===========================================================================
 
   group('IndependantScreen', () {
+    Future<void> pumpIndependant(
+      WidgetTester tester,
+      Map<String, dynamic> answers,
+    ) async {
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          RecordingCoachProfileProvider(answers),
+          const IndependantScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+    }
+
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -252,6 +267,115 @@ void main() {
     });
 
     // Revenue input test removed — IndependantScreen layout changed with slider migration
+
+    testWidgets('shows ledger facts instead of a local revenue slider', (
+      tester,
+    ) async {
+      await pumpIndependant(
+        tester,
+        independentAnswers(
+          selfIncome: 132000,
+          birthYear: DateTime.now().year - 44,
+          canton: 'VD',
+        ),
+      );
+
+      expect(find.byKey(const Key('independant_ledger_facts')), findsOneWidget);
+      expect(find.textContaining("132'000"), findsOneWidget);
+      expect(find.text('44 ans'), findsOneWidget);
+      expect(find.textContaining('VD'), findsOneWidget);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 80'000"), findsNothing);
+    });
+
+    testWidgets('does not calculate from a gross salary fallback', (
+      tester,
+    ) async {
+      await pumpIndependant(
+        tester,
+        independentAnswers(
+          grossSalary: 220000,
+          birthYear: DateTime.now().year - 44,
+          canton: 'VD',
+        ),
+      );
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text("CHF 220'000"), findsNothing);
+      expect(find.text("CHF 80'000"), findsNothing);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.text('Coût de ma protection complète'), findsNothing);
+    });
+
+    testWidgets('missing income CTA opens the targeted income collector', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          birthYear: DateTime.now().year - 44,
+          canton: 'VD',
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.text('Enrichir mon profil'));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('data-block:revenu:q_self_employed_income'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('missing canton CTA opens the targeted canton collector', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 132000,
+          birthYear: DateTime.now().year - 44,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.text('Enrichir mon profil'));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('data-block:revenu:q_canton'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('coverage switches remain local scenario levers', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 132000,
+          birthYear: DateTime.now().year - 44,
+          canton: 'VD',
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.byType(Switch).first);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      expect(provider.writes, isEmpty);
+    });
 
     testWidgets('shows PARCOURS INDEPENDANT in app bar', (tester) async {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
@@ -590,6 +714,40 @@ void main() {
         expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
       },
     );
+
+    testWidgets('requires an explicit age fact before calculating from income',
+        (
+      tester,
+    ) async {
+      await pumpIjm(tester, independentAnswers(selfIncome: 144000));
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.textContaining("144'000"), findsOneWidget);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.textContaining('46 ans'), findsNothing);
+      expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+    });
+
+    testWidgets('missing age CTA opens the targeted birth-year collector', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 144000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IjmScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.text('Enrichir mon profil'));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('data-block:revenu:q_birth_year'),
+        findsOneWidget,
+      );
+    });
   });
 
   // ===========================================================================
