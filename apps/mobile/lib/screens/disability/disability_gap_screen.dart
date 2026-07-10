@@ -73,6 +73,16 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     return savings.toDouble();
   }
 
+  double? _monthlyExpenses(CoachProfile? profile) {
+    if (profile == null ||
+        !profile.userProvidedFields.contains('monthlyExpenses')) {
+      return null;
+    }
+    final expenses = profile.depenses.totalMensuel;
+    if (expenses <= 0) return null;
+    return expenses.toDouble();
+  }
+
   void _emitScreenReturn(double grossMonthly) {
     if (!_hasUserInteracted) return;
     final act3Income = DisabilityInsuranceCalculator.act3MonthlyIncome(
@@ -174,6 +184,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   List<CoverageItem> _scorecardItems({
     required double grossMonthly,
     required double savings,
+    required double monthlyExpenses,
   }) {
     final s = S.of(context)!;
     // APG/IJM grade
@@ -193,8 +204,9 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         hasLpp ? s.disabilityGapLppCovered : s.disabilityGapLppNotCovered;
 
     // Épargne urgence grade
-    final monthsReserve = DisabilityInsuranceCalculator.emergencyReserveMonths(
-      grossMonthlySalary: grossMonthly,
+    final monthsReserve =
+        DisabilityInsuranceCalculator.emergencyReserveMonthsFromExpenses(
+      monthlyExpenses: monthlyExpenses,
       liquidSavings: savings,
     );
     final String savingsGrade;
@@ -242,13 +254,15 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   String _overallGrade({
     required double grossMonthly,
     required double savings,
+    required double monthlyExpenses,
   }) {
     final hasIjmOk = _hasIjm;
     final hasLpp = DisabilityInsuranceCalculator.hasLppInvalidityCoverage(
       grossMonthlySalary: grossMonthly,
     );
-    final monthsReserve = DisabilityInsuranceCalculator.emergencyReserveMonths(
-      grossMonthlySalary: grossMonthly,
+    final monthsReserve =
+        DisabilityInsuranceCalculator.emergencyReserveMonthsFromExpenses(
+      monthlyExpenses: monthlyExpenses,
       liquidSavings: savings,
     );
     int score = 0;
@@ -287,8 +301,11 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final grossMonthly = _grossMonthlySalary(profile);
     final age = _ageFromLedger(profile);
     final savings = _liquidSavings(profile);
-    final hasRequiredFacts =
-        grossMonthly != null && age != null && savings != null;
+    final monthlyExpenses = _monthlyExpenses(profile);
+    final hasRequiredFacts = grossMonthly != null &&
+        age != null &&
+        savings != null &&
+        monthlyExpenses != null;
     final lppCapitalBefore = hasRequiredFacts
         ? _lppCapitalBefore(age: age, grossMonthly: grossMonthly)
         : 0.0;
@@ -325,6 +342,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                               grossMonthly: grossMonthly,
                               age: age,
                               savings: savings,
+                              monthlyExpenses: monthlyExpenses,
                             )),
                         const SizedBox(height: 20),
                         if (hasRequiredFacts) ...[
@@ -343,9 +361,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                                 MintEntrance(
                                     delay: const Duration(milliseconds: 300),
                                     child: DisabilityCountdownWidget(
-                                      monthlyExpenses: grossMonthly *
-                                          DisabilityInsuranceCalculator
-                                              .emergencyReserveChargeRatio,
+                                      monthlyExpenses: monthlyExpenses,
                                       initialSavings: savings,
                                       allowSavingsAdjustment: false,
                                     )),
@@ -372,10 +388,12 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                                       items: _scorecardItems(
                                         grossMonthly: grossMonthly,
                                         savings: savings,
+                                        monthlyExpenses: monthlyExpenses,
                                       ),
                                       overallGrade: _overallGrade(
                                         grossMonthly: grossMonthly,
                                         savings: savings,
+                                        monthlyExpenses: monthlyExpenses,
                                       ),
                                       lifeDropPercent:
                                           _lifeDropPercent(grossMonthly),
@@ -458,16 +476,21 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     required double? grossMonthly,
     required int? age,
     required double? savings,
+    required double? monthlyExpenses,
   }) {
     final missingSalary = grossMonthly == null;
     final missingAge = age == null;
     final missingSavings = savings == null;
-    final hasMissing = missingSalary || missingAge || missingSavings;
+    final missingExpenses = monthlyExpenses == null;
+    final hasMissing =
+        missingSalary || missingAge || missingSavings || missingExpenses;
     final missingFactRoute = missingSalary
         ? '/data-block/revenu?inputKey=q_gross_salary_annual'
         : missingAge
             ? '/data-block/revenu?inputKey=q_birth_year'
-            : '/data-block/patrimoine?inputKey=q_cash_total';
+            : missingSavings
+                ? '/data-block/patrimoine?inputKey=q_cash_total'
+                : '/budget/setup';
     final route = hasMissing
         ? missingFactRoute
         : '/data-block/revenu?inputKey=q_gross_salary_annual';
@@ -541,6 +564,16 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ? s.dataBlockStatusMissing
                   : 'CHF ${_fmtChf(savings)}',
               missing: missingSavings,
+            ),
+            const SizedBox(height: 12),
+            _buildFactRow(
+              key: const Key('disability_gap_expenses_fact'),
+              identifier: 'disability_gap_expenses_fact',
+              label: s.emergencyFundChargesLabel,
+              value: monthlyExpenses == null
+                  ? s.dataBlockStatusMissing
+                  : 'CHF ${_fmtChf(monthlyExpenses)}',
+              missing: missingExpenses,
             ),
             const SizedBox(height: 16),
             _buildToggleRow(

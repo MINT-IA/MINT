@@ -26900,7 +26900,7 @@ abstract class S {
   /// No description provided for @disabilityCountdownEmergencyAction.
   ///
   /// In fr, this message translates to:
-  /// **'Constitue un fonds d\'urgence de 6 mois de charges'**
+  /// **'Constitue un fonds d\'urgence de 6 mois de charges fixes connues'**
   String get disabilityCountdownEmergencyAction;
 
   /// No description provided for @disabilityCountdownGapAmount.
@@ -27171,7 +27171,7 @@ abstract class S {
   /// No description provided for @disabilityGapSavingsDetail.
   ///
   /// In fr, this message translates to:
-  /// **'{months} mois de charges couverts'**
+  /// **'{months} mois de charges fixes connues couverts'**
   String disabilityGapSavingsDetail(String months);
 
   /// No description provided for @disabilityGapSavingsLabel.

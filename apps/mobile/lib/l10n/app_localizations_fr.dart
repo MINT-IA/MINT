@@ -15246,7 +15246,7 @@ class SFr extends S {
 
   @override
   String get disabilityCountdownEmergencyAction =>
-      'Constitue un fonds d\'urgence de 6 mois de charges';
+      'Constitue un fonds d\'urgence de 6 mois de charges fixes connues';
 
   @override
   String disabilityCountdownGapAmount(String amount) {
@@ -15421,7 +15421,7 @@ class SFr extends S {
 
   @override
   String disabilityGapSavingsDetail(String months) {
-    return '$months mois de charges couverts';
+    return '$months mois de charges fixes connues couverts';
   }
 
   @override

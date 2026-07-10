@@ -15282,7 +15282,7 @@ class SDe extends S {
 
   @override
   String get disabilityCountdownEmergencyAction =>
-      'Baue einen Notgroschen für 6 Monate Ausgaben auf';
+      'Baue einen Notgroschen für 6 Monate bekannte Fixkosten auf';
 
   @override
   String disabilityCountdownGapAmount(String amount) {
@@ -15457,7 +15457,7 @@ class SDe extends S {
 
   @override
   String disabilityGapSavingsDetail(String months) {
-    return '$months Monate Ausgaben gedeckt';
+    return '$months Monate bekannte Fixkosten gedeckt';
   }
 
   @override

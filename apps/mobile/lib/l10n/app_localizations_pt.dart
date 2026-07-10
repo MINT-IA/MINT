@@ -15249,7 +15249,7 @@ class SPt extends S {
 
   @override
   String get disabilityCountdownEmergencyAction =>
-      'Cria um fundo de emergência de 6 meses de despesas';
+      'Cria um fundo de emergência de 6 meses de encargos fixos conhecidos';
 
   @override
   String disabilityCountdownGapAmount(String amount) {
@@ -15424,7 +15424,7 @@ class SPt extends S {
 
   @override
   String disabilityGapSavingsDetail(String months) {
-    return '$months meses de despesas cobertos';
+    return '$months meses de encargos fixos conhecidos cobertos';
   }
 
   @override

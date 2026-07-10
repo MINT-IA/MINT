@@ -15256,7 +15256,7 @@ class SEs extends S {
 
   @override
   String get disabilityCountdownEmergencyAction =>
-      'Construye un fondo de emergencia de 6 meses de gastos';
+      'Construye un fondo de emergencia de 6 meses de gastos fijos conocidos';
 
   @override
   String disabilityCountdownGapAmount(String amount) {
@@ -15431,7 +15431,7 @@ class SEs extends S {
 
   @override
   String disabilityGapSavingsDetail(String months) {
-    return '$months meses de gastos cubiertos';
+    return '$months meses de gastos fijos conocidos cubiertos';
   }
 
   @override

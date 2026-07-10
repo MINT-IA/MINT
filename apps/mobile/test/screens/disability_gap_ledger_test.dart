@@ -76,6 +76,13 @@ Widget _buildWithRouter(
           key: const Key('data_block_route_probe'),
         ),
       ),
+      GoRoute(
+        path: '/budget/setup',
+        builder: (_, __) => const Text(
+          'budget-setup',
+          key: Key('budget_setup_route_probe'),
+        ),
+      ),
     ],
   );
 
@@ -96,22 +103,28 @@ Map<String, dynamic> _answers({
   double? grossSalaryAnnual,
   int? birthYear,
   double? cashTotal,
+  double? monthlyHousing,
+  double? monthlyLamal,
 }) {
   return {
     if (grossSalaryAnnual != null) 'q_gross_salary_annual': grossSalaryAnnual,
     if (birthYear != null) 'q_birth_year': birthYear,
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
+    if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     'q_employment_status': 'salarie',
   };
 }
 
 void main() {
-  testWidgets('reads salary age and savings from ledger facts only',
+  testWidgets('reads salary age savings and expenses from ledger facts only',
       (tester) async {
     final provider = _RecordingCoachProfileProvider(_answers(
       grossSalaryAnnual: 96000,
       birthYear: DateTime.now().year - 45,
       cashTotal: 42000,
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
     ));
 
     await tester.pumpWidget(_buildWithProvider(
@@ -126,9 +139,12 @@ void main() {
     expect(find.byKey(const Key('disability_gap_age_fact')), findsOneWidget);
     expect(
         find.byKey(const Key('disability_gap_savings_fact')), findsOneWidget);
+    expect(
+        find.byKey(const Key('disability_gap_expenses_fact')), findsOneWidget);
     expect(find.text("CHF 8'000"), findsWidgets);
     expect(find.text('45 ans'), findsWidgets);
     expect(find.text("CHF 42'000"), findsWidgets);
+    expect(find.text("CHF 2'620"), findsOneWidget);
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
     await tester.pumpAndSettle();
 
@@ -164,7 +180,7 @@ void main() {
     expect(find.text("CHF 8'000"), findsNothing);
     expect(find.text('45 ans'), findsNothing);
     expect(find.text("CHF 42'000"), findsNothing);
-    expect(find.text('Manquant'), findsNWidgets(3));
+    expect(find.text('Manquant'), findsNWidgets(4));
     expect(find.byType(MintPremiumSlider), findsNothing);
     expect(find.byType(Slider), findsNothing);
   });
@@ -189,5 +205,24 @@ void main() {
       find.text('data-block:patrimoine:q_cash_total'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('routes missing expenses to budget setup', (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      grossSalaryAnnual: 96000,
+      birthYear: DateTime.now().year - 45,
+      cashTotal: 42000,
+    ));
+
+    await tester.pumpWidget(_buildWithRouter(
+      provider,
+      const DisabilityGapScreen(),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('disability_gap_enrich_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('budget-setup'), findsOneWidget);
   });
 }

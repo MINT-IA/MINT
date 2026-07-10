@@ -8062,7 +8062,7 @@
     }
   },
   "disabilityCountdownDisclaimer": "Herramienta educativa · no constituye asesoramiento financiero según la LSFin. Fuente: LAI art. 28, LPGA art. 19.",
-  "disabilityCountdownEmergencyAction": "Construye un fondo de emergencia de 6 meses de gastos",
+  "disabilityCountdownEmergencyAction": "Construye un fondo de emergencia de 6 meses de gastos fijos conocidos",
   "disabilityCountdownGapAmount": "Te faltan CHF {amount} para aguantar hasta la decisión AI.",
   "@disabilityCountdownGapAmount": {
     "placeholders": {
@@ -8183,7 +8183,7 @@
   "disabilityGapLppLabel": "LPP invalidez (2º pilar)",
   "disabilityGapLppNotCovered": "Salario bajo el umbral LPP — sin cobertura 2º pilar",
   "disabilityGapNoIjmCoverage": "Ninguna IJM suscrita — riesgo máximo",
-  "disabilityGapSavingsDetail": "{months} meses de gastos cubiertos",
+  "disabilityGapSavingsDetail": "{months} meses de gastos fijos conocidos cubiertos",
   "disabilityGapSavingsLabel": "Reserva de emergencia",
   "disabilityGapSources": "• LAI art. 28-29 (pensión AI)\n• LPP art. 23-26 (invalidez 2º pilar)\n• CO art. 324a (mantenimiento salario)\n• LPGA art. 19 (plazo de carencia)",
   "disabilitySelfEmployedAlertLabel": "🚨  ALERTA INDEPENDIENTE",

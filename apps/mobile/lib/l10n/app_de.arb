@@ -8062,7 +8062,7 @@
     }
   },
   "disabilityCountdownDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: IVG Art. 28, ATSG Art. 19.",
-  "disabilityCountdownEmergencyAction": "Baue einen Notgroschen für 6 Monate Ausgaben auf",
+  "disabilityCountdownEmergencyAction": "Baue einen Notgroschen für 6 Monate bekannte Fixkosten auf",
   "disabilityCountdownGapAmount": "Dir fehlen CHF {amount}, um bis zum IV-Entscheid durchzuhalten.",
   "@disabilityCountdownGapAmount": {
     "placeholders": {
@@ -8183,7 +8183,7 @@
   "disabilityGapLppLabel": "BVG Invalidität (2. Säule)",
   "disabilityGapLppNotCovered": "Lohn unter BVG-Schwelle — keine 2. Säule Deckung",
   "disabilityGapNoIjmCoverage": "Kein KTG abgeschlossen — maximales Risiko",
-  "disabilityGapSavingsDetail": "{months} Monate Ausgaben gedeckt",
+  "disabilityGapSavingsDetail": "{months} Monate bekannte Fixkosten gedeckt",
   "disabilityGapSavingsLabel": "Notreserve",
   "disabilityGapSources": "• IVG Art. 28-29 (IV-Rente)\n• BVG Art. 23-26 (2. Säule Invalidität)\n• OR Art. 324a (Lohnfortzahlung Arbeitgeber)\n• ATSG Art. 19 (Wartefrist)",
   "disabilitySelfEmployedAlertLabel": "🚨  SELBSTÄNDIGEN-ALARM",

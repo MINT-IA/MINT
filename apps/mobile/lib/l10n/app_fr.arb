@@ -8502,7 +8502,7 @@
     }
   },
   "disabilityCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAI art. 28, LPGA art. 19.",
-  "disabilityCountdownEmergencyAction": "Constitue un fonds d'urgence de 6 mois de charges",
+  "disabilityCountdownEmergencyAction": "Constitue un fonds d'urgence de 6 mois de charges fixes connues",
   "disabilityCountdownGapAmount": "Il te manque CHF {amount} pour tenir jusqu'à la décision AI.",
   "@disabilityCountdownGapAmount": {
     "placeholders": {
@@ -8623,7 +8623,7 @@
   "disabilityGapLppLabel": "LPP invalidité (2e pilier)",
   "disabilityGapLppNotCovered": "Salaire sous le seuil LPP — pas de couverture 2e pilier",
   "disabilityGapNoIjmCoverage": "Aucune IJM souscrite — risque maximal",
-  "disabilityGapSavingsDetail": "{months} mois de charges couverts",
+  "disabilityGapSavingsDetail": "{months} mois de charges fixes connues couverts",
   "disabilityGapSavingsLabel": "Réserve d’urgence",
   "disabilityGapSources": "• LAI art. 28-29 (rente AI)\n• LPP art. 23-26 (invalidité 2e pilier)\n• CO art. 324a (maintien salaire employeur)\n• LPGA art. 19 (délai de carence)",
   "disabilitySelfEmployedAlertLabel": "🚨  ALERTE INDÉPENDANT",

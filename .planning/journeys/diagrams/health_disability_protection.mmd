@@ -36,7 +36,7 @@ flowchart LR
 
   Provider["CoachProfileProvider<br/>mergeAnswers/applySaveFact"]:::fact
   Recompute["MintStateProvider<br/>recompute"]:::fact
-  GapResult["disability_gap_result_section<br/>unlocked only with all three facts"]:::proof
+  GapResult["disability_gap_result_section<br/>unlocked only with salary + age + savings + charges"]:::proof
   EmployeeResult["disability_insurance_result_section<br/>unlocked only with both facts"]:::proof
   SelfResult["disability_self_result_cards<br/>unlocked with income + charges<br/>countdown also requires savings"]:::proof
   Runtime["Widget tests + Maestro/Patrol ids<br/>no screen-local fact sliders"]:::proof
@@ -48,6 +48,7 @@ flowchart LR
   Gap --> Salary
   Gap --> BirthYear
   Gap --> Cash
+  Gap --> FixedCharges
   Gap --> IjmToggle
   Employee --> Salary
   Employee --> Cash
@@ -77,6 +78,7 @@ flowchart LR
   Salary --> GapResult
   BirthYear --> GapResult
   Cash --> GapResult
+  FixedCharges --> GapResult
   Salary --> EmployeeResult
   Cash --> EmployeeResult
   SelfIncome --> SelfResult
@@ -92,4 +94,4 @@ flowchart LR
   %% HD-3 missing salary routes to q_gross_salary_annual; missing age routes to q_birth_year; missing savings routes to q_cash_total.
   %% HD-4 /disability/self-employed routes missing income to q_self_employed_income, missing savings to q_cash_total, and missing charges to /budget/setup.
   %% HD-5 coverage toggles are scenario/current-coverage levers until persisted as dated facts.
-  %% HD-6 /invalidite has no screen-local salary/age/savings sliders; result unlocks only with q_gross_salary_annual + q_birth_year + q_cash_total.
+  %% HD-6 /invalidite has no screen-local salary/age/savings/charges sliders; result unlocks only with q_gross_salary_annual + q_birth_year + q_cash_total + monthly fixed charges.

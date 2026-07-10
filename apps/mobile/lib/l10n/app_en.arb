@@ -8062,7 +8062,7 @@
     }
   },
   "disabilityCountdownDisclaimer": "Educational tool · not financial advice under FinSA. Source: DIA art. 28, LPGA art. 19.",
-  "disabilityCountdownEmergencyAction": "Build an emergency fund covering 6 months of expenses",
+  "disabilityCountdownEmergencyAction": "Build an emergency fund covering 6 months of known fixed charges",
   "disabilityCountdownGapAmount": "You are short CHF {amount} to bridge the DI decision delay.",
   "@disabilityCountdownGapAmount": {
     "placeholders": {
@@ -8183,7 +8183,7 @@
   "disabilityGapLppLabel": "LPP disability (2nd pillar)",
   "disabilityGapLppNotCovered": "Salary below LPP threshold — no 2nd pillar coverage",
   "disabilityGapNoIjmCoverage": "No DLI subscribed — maximum risk",
-  "disabilityGapSavingsDetail": "{months} months of expenses covered",
+  "disabilityGapSavingsDetail": "{months} months of known fixed charges covered",
   "disabilityGapSavingsLabel": "Emergency reserve",
   "disabilityGapSources": "• DIA art. 28-29 (DI pension)\n• LPP art. 23-26 (2nd pillar disability)\n• CO art. 324a (employer salary maintenance)\n• LPGA art. 19 (waiting period)",
   "disabilitySelfEmployedAlertLabel": "🚨  SELF-EMPLOYED ALERT",

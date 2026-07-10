@@ -104,7 +104,11 @@ def test_disability_insurance_contract_is_ledger_first() -> None:
     assert "`q_gross_salary_annual`" in gap_row
     assert "`q_birth_year`" in gap_row
     assert "`q_cash_total`" in gap_row
+    assert "`q_housing_cost_period_chf`" in gap_row
+    assert "`q_lamal_premium_monthly_chf`" in gap_row
+    assert "`depenses.*`" in gap_row
     assert "/data-block/revenu?inputKey=q_birth_year" in gap_row
+    assert "/budget/setup" in gap_row
     assert "screen-local user fact sliders" not in gap_row
     assert "salaireBrutMensuel" not in gap_row
     assert "`q_self_employed_income`" in self_employed_row

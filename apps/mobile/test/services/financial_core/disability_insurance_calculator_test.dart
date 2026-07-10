@@ -20,6 +20,23 @@ void main() {
     );
   });
 
+  test('computes emergency reserve months from explicit monthly expenses', () {
+    expect(
+      DisabilityInsuranceCalculator.emergencyReserveMonthsFromExpenses(
+        monthlyExpenses: 2620,
+        liquidSavings: 42000,
+      ),
+      closeTo(16.03, 0.01),
+    );
+    expect(
+      DisabilityInsuranceCalculator.emergencyReserveMonthsFromExpenses(
+        monthlyExpenses: 0,
+        liquidSavings: 42000,
+      ),
+      0,
+    );
+  });
+
   test('estimates LPP invalidity income with Swiss coordinated salary caps',
       () {
     expect(

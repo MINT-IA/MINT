@@ -24,6 +24,14 @@ class DisabilityInsuranceCalculator {
     return liquidSavings / (grossMonthlySalary * chargeRatio);
   }
 
+  static double emergencyReserveMonthsFromExpenses({
+    required double monthlyExpenses,
+    required double liquidSavings,
+  }) {
+    if (monthlyExpenses <= 0 || liquidSavings <= 0) return 0;
+    return liquidSavings / monthlyExpenses;
+  }
+
   static double lppInvalidityMonthlyIncome({
     required double grossMonthlySalary,
   }) {
