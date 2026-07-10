@@ -55,6 +55,25 @@ les edges). Décision à prendre au moment de l'étape 1, pas avant.
 | D10 | Index généré **une-ligne-par-edge** (`interactions/INDEX.md`) pour la lecture agents ; les YAML par flux restent la source. |
 | D11 | **(v1.1)** Relation aux specs existantes : `SCREEN_CONTRACTS.md` tables par route et `WIRING_GRAPH` deviennent des **artefacts générés** dès qu'un flux est migré ; un flux non migré reste gouverné par les docs actuels. Lint `contract_double_authority` : une route ne peut pas être déclarée à la fois dans un flux migré et éditée à la main dans les docs générés. |
 
+## 0.d Cartographie Mermaid active sans executor
+
+Ce registre reste `Status: Proposed`; il ne génère pas encore de routes,
+guards, tables `SCREEN_CONTRACTS.md`, ni `WIRING_GRAPH`. En revanche, la
+cartographie de parcours est active et vérifiée par
+`tools/checks/mermaid_render_guard.py` :
+
+- `docs/codex/WIRING_GRAPH.mmd` : graphe système global.
+- `.planning/journeys/diagrams/data_quest_loop.mmd` : boucle
+  `SCREEN_CONTRACTS.reads[] -> ledger -> DataQuest -> write-back -> recompute`.
+- `.planning/journeys/diagrams/independent_protection.mmd` : chaîne
+  indépendants et frontière stricte faits utilisateur vs leviers de scénario.
+
+La règle opérationnelle immédiate est donc : une interaction critique nouvelle
+est d'abord représentée dans un diagramme de parcours focalisé, puis reliée à
+`SCREEN_CONTRACTS.md`, `DATA_LEDGER.md` et à une preuve Maestro/Patrol. La règle
+plus forte « pas d'edge YAML, pas de bouton » reste réservée à l'étape 4 du
+séquencement, après le go/no-go D1.
+
 ## 1. Modèle
 
 Trois entités : **node** (écran ou scène), **edge** (interaction), **flow**

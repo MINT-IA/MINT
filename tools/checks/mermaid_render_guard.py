@@ -10,13 +10,21 @@ import sys
 import tempfile
 from pathlib import Path
 
-REQUIRED_DIAGRAMS = (Path("docs/codex/WIRING_GRAPH.mmd"),)
+REQUIRED_DIAGRAMS = (
+    Path("docs/codex/WIRING_GRAPH.mmd"),
+    Path(".planning/journeys/diagrams/data_quest_loop.mmd"),
+    Path(".planning/journeys/diagrams/independent_protection.mmd"),
+)
 OPTIONAL_DIAGRAM_DIRS = (Path(".planning/journeys/diagrams"),)
 MERMAID_CLI = "@mermaid-js/mermaid-cli@11.4.2"
 
 
 def _render(root: Path, diagram: Path, out_dir: Path, puppeteer_config: Path) -> str | None:
-    output = out_dir / f"{diagram.stem}.svg"
+    output_stem = "__".join(
+        f"dot_{part[1:]}" if part.startswith(".") else part
+        for part in diagram.relative_to(root).with_suffix("").parts
+    )
+    output = out_dir / f"{output_stem}.svg"
     proc = subprocess.run(
         ["npx", "-y", MERMAID_CLI, "-p", str(puppeteer_config), "-i", str(diagram), "-o", str(output)],
         cwd=root,
@@ -45,6 +53,7 @@ def check(root: Path) -> list[str]:
     diagrams = [root / path for path in REQUIRED_DIAGRAMS]
     for diagram_dir in OPTIONAL_DIAGRAM_DIRS:
         diagrams.extend(sorted((root / diagram_dir).glob("*.mmd")))
+    diagrams = list(dict.fromkeys(diagrams))
     errors: list[str] = []
     with tempfile.TemporaryDirectory(prefix="mint-mermaid-render-") as tmp:
         out_dir = Path(tmp)

@@ -1,0 +1,96 @@
+%% ============================================================================
+%% independent_protection.mmd — independent worker protection journey
+%% ----------------------------------------------------------------------------
+%% Purpose: keep independent screens ledger-first while preserving scenario
+%% levers. This map covers the current P0 independent chain:
+%% AVS, IJM, independent 3a, dividend-vs-salary, voluntary LPP.
+%% Sources: DATA_LEDGER.md §3.2/3.3/3.5, SCREEN_CONTRACTS.md §4,
+%% MAESTRO_FLOWS.md M-0b/F independent stable ids.
+%% ============================================================================
+
+flowchart LR
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef fact fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef lever fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef missing fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
+
+  Hub["/segments/independant"]:::route
+  Avs["/independants/avs<br/>AVS cotisations"]:::route
+  Ijm["/independants/ijm<br/>daily allowance gap"]:::route
+  P3a["/independants/3a<br/>3a independent"]:::route
+  Div["/independants/dividende-salaire<br/>SA/Sarl split"]:::route
+  Lpp["/independants/lpp-volontaire<br/>voluntary LPP"]:::route
+
+  SelfIncome["q_self_employed_income<br/>self-employed annual net income"]:::fact
+  BirthYear["q_birth_year<br/>age fact"]:::fact
+  PensionFund["q_has_pension_fund<br/>2nd pillar status"]:::fact
+  Cash["q_cash_total<br/>liquid savings"]:::fact
+  CompanyProfit["q_company_profit_annual_chf<br/>SA/Sarl annual profit"]:::fact
+  VoluntaryLpp["q_has_voluntary_lpp<br/>voluntary LPP status"]:::fact
+
+  DBIncome["/data-block/revenu<br/>?inputKey=q_self_employed_income"]:::missing
+  DBAge["/data-block/revenu<br/>?inputKey=q_birth_year"]:::missing
+  DBPension["/data-block/revenu<br/>?inputKey=q_has_pension_fund"]:::missing
+  DBCash["/data-block/patrimoine<br/>?inputKey=q_cash_total"]:::missing
+  DBProfit["/data-block/revenu<br/>?inputKey=q_company_profit_annual_chf"]:::missing
+
+  Delay["Scenario lever<br/>IJM waiting period"]:::lever
+  TaxRate["Scenario lever<br/>marginal tax rate"]:::lever
+  SalarySplit["Scenario lever<br/>salary/dividend split"]:::lever
+
+  Provider["CoachProfileProvider<br/>mergeAnswers/applySaveFact"]:::fact
+  Recompute["MintStateProvider<br/>recompute"]:::fact
+  Evidence["Widget tests + Maestro/Patrol ids<br/>result unlocked only with facts"]:::proof
+
+  Hub --> Avs
+  Hub --> Ijm
+  Hub --> P3a
+  Hub --> Div
+  Hub --> Lpp
+
+  Avs --> SelfIncome
+  Ijm --> SelfIncome
+  Ijm --> BirthYear
+  P3a --> SelfIncome
+  P3a --> PensionFund
+  P3a --> Cash
+  Div --> CompanyProfit
+  Lpp --> SelfIncome
+  Lpp --> BirthYear
+  Lpp --> VoluntaryLpp
+
+  SelfIncome -- "missing" --> DBIncome
+  BirthYear -- "missing" --> DBAge
+  PensionFund -- "missing" --> DBPension
+  Cash -- "missing" --> DBCash
+  CompanyProfit -- "missing" --> DBProfit
+
+  DBIncome --> Provider
+  DBAge --> Provider
+  DBPension --> Provider
+  DBCash --> Provider
+  DBProfit --> Provider
+  Provider --> Recompute
+  Recompute --> Avs
+  Recompute --> Ijm
+  Recompute --> P3a
+  Recompute --> Div
+  Recompute --> Lpp
+
+  Ijm --> Delay
+  P3a --> TaxRate
+  Div --> TaxRate
+  Div --> SalarySplit
+  Lpp --> TaxRate
+
+  Avs --> Evidence
+  Ijm --> Evidence
+  P3a --> Evidence
+  Div --> Evidence
+  Lpp --> Evidence
+
+  %% Fact/lever separation:
+  %% - Facts are user ledger values and must not be represented as local sliders.
+  %% - Levers are scenario assumptions and may remain local when clearly labeled.
+  %% - Dividend-vs-salary uses q_company_profit_annual_chf, never q_self_employed_income.

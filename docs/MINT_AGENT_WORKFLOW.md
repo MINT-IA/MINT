@@ -81,6 +81,12 @@ screen-by-screen encyclopedia.
 
 - `docs/codex/WIRING_GRAPH.mmd` owns system wiring: routes, providers, source
   of truth, live gaps, and machine-checkable invariants.
+- `.planning/journeys/diagrams/data_quest_loop.mmd` owns the progressive
+  collection loop: route contract, ledger freshness, DataQuest asks, write-back,
+  recompute, and runtime proof.
+- `.planning/journeys/diagrams/independent_protection.mmd` owns the current
+  independent-worker protection chain: AVS, IJM, independent 3a,
+  dividend-vs-salary, voluntary LPP, and the fact-vs-scenario-lever boundary.
 - Product journeys own their own Mermaid flow when they become P0/P1: data
   collection, decisions, branches, degraded states, PDF handoff, and runtime
   proof links.
@@ -98,6 +104,12 @@ flow archetypes before inventing a new flow: progressive data collection,
 known-fact review/edit, scenario comparison, document extraction, permission or
 consent, dossier export, specialist handoff, error recovery, and return to the
 ledger.
+
+`python3 tools/checks/mermaid_render_guard.py` renders the wiring graph and the
+canonical journey diagrams above. A new P0/P1 product path should add or update
+a focused `.mmd` diagram before changing the screen, but the
+`INTERACTION_REGISTRY.md` executor remains Proposed until its own go/no-go
+threshold is met.
 
 ## Product Spine
 

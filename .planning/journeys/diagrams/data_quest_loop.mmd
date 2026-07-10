@@ -1,0 +1,65 @@
+%% ============================================================================
+%% data_quest_loop.mmd — MINT progressive data collection loop
+%% ----------------------------------------------------------------------------
+%% Purpose: route every missing/stale fact through DATA_QUEST + DATA_LEDGER,
+%% not through screen-local sliders or GoRouter.extra domain payloads.
+%% Sources: docs/codex/DATA_QUEST.md, DATA_LEDGER.md, SCREEN_CONTRACTS.md.
+%% ============================================================================
+
+flowchart TB
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef ledger fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef guard fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef proof fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef no fill:#fff0f0,stroke:#c83d3d,color:#2c0f0f,stroke-width:1px;
+
+  Start["User intent<br/>CTA, hub card, coach topic, deep link"]:::route
+  Screen["Target route<br/>SCREEN_CONTRACTS reads[]"]:::route
+  Contract["Route contract<br/>required ledger keys + states"]:::proof
+  Profile["CoachProfileProvider.profile<br/>single read/write spine"]:::ledger
+  Facts["BiographyRepository<br/>source, date, freshness"]:::ledger
+  Fresh{"All required facts<br/>fresh enough?"}:::guard
+
+  Partial["Render partialState now<br/>range + confidence + missing facts"]:::route
+  DataQuest["DataQuest.planQuest<br/>missing + stale delta only"]:::proof
+  Heavy{"Heavy life event?"}:::guard
+  CoachAsk["Coach gentle ask<br/>one question per turn"]:::route
+  DataBlock["/data-block/:type<br/>optional inputKey"]:::route
+  Reconfirm["AskMode.reconfirm<br/>yes / update / rescan"]:::route
+
+  Write["mergeAnswers / applySaveFact / updateProfile<br/>no direct persistence"]:::ledger
+  Recompute["MintStateProvider recompute<br/>derived state refresh"]:::ledger
+  Result["Personalized screen state<br/>known / estimated / missing / error"]:::route
+  Dossier["PDF / specialist handoff<br/>facts + assumptions + open questions"]:::proof
+  Runtime["Maestro / Patrol proof<br/>stable ids, route, persisted values"]:::proof
+
+  ExtraBan["Forbidden<br/>domain data in GoRouter.extra"]:::no
+  LocalBan["Forbidden<br/>screen-local fact sliders"]:::no
+
+  Start --> Screen --> Contract
+  Contract --> Profile
+  Contract --> Facts
+  Profile --> Fresh
+  Facts --> Fresh
+  Fresh -- "yes" --> Result
+  Fresh -- "no" --> Partial --> DataQuest
+  DataQuest --> Heavy
+  Heavy -- "yes" --> CoachAsk
+  Heavy -- "no" --> DataBlock
+  DataQuest --> Reconfirm
+  CoachAsk --> Write
+  DataBlock --> Write
+  Reconfirm --> Write
+  Write --> Profile --> Recompute --> Result
+  Result --> Dossier --> Runtime
+
+  ExtraBan -. "blocked by SCREEN_CONTRACTS hard rule" .-> Contract
+  LocalBan -. "replace with ledger fact or scenario lever" .-> DataQuest
+
+  %% Invariants:
+  %% DQ-1 fresh facts trigger zero asks.
+  %% DQ-2 missing facts trigger only the missing delta, never a form wall.
+  %% DQ-3 stale facts trigger reconfirm, never blank re-entry.
+  %% DQ-4 all writes pass through CoachProfileProvider.
+  %% DQ-5 heavy cases ask gently in the coach.
+  %% DQ-6 every projection carries range + confidence.
