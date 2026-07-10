@@ -4,6 +4,8 @@
 
 | Flow | Edge | From -> To | Trigger | Transition | Runtime proof |
 |---|---|---|---|---|---|
+| document_scan_recovery | `scan.edge.impact_recovery.home` | `scan.route.impact_recovery -> home.route.dashboard` | `tap` | `go` | `apps/mobile/.maestro/r2_scan_impact.yaml` |
+| document_scan_recovery | `scan.edge.review_recovery.rescan` | `scan.route.review_recovery -> scan.route.capture` | `tap` | `go` | `apps/mobile/.maestro/r1_scan_review.yaml` |
 | first_job_missing_facts | `firstjob.edge.first_job.enrich_revenue` | `firstjob.route.first_job -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/first_job_ledger.yaml` |
 | independent_missing_facts | `indep.edge.avs.enrich_income` | `indep.route.avs -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_avs_cotisations.yaml` |
 | independent_missing_facts | `indep.edge.divsalary.enrich_profit` | `indep.route.divsalary -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_dividende_salaire.yaml` |

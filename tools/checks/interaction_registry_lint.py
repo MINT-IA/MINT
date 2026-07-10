@@ -277,7 +277,15 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
                     _validate_data_block_edge_reference(root, rel_path, edge_id, source_node, target_node, errors)
             if edge.get("trigger") not in ("tap", "swipe", "long_press", "submit", "system"):
                 errors.append(f"{rel_path}: edge {edge_id} trigger is invalid")
-            if edge.get("transition") not in ("push", "replace", "reset_stack", "sheet", "dialog", "in_shell"):
+            if edge.get("transition") not in (
+                "push",
+                "go",
+                "replace",
+                "reset_stack",
+                "sheet",
+                "dialog",
+                "in_shell",
+            ):
                 errors.append(f"{rel_path}: edge {edge_id} transition is invalid")
             payload = edge.get("payload")
             if payload is not None and not isinstance(payload, dict):

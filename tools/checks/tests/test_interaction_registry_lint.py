@@ -183,6 +183,20 @@ def test_interaction_registry_lint_allows_result_code_extra(tmp_path: Path) -> N
     assert not any("payload.extra" in error for error in errors)
 
 
+def test_interaction_registry_lint_allows_gorouter_go_transition(tmp_path: Path) -> None:
+    _write_minimal_repo(tmp_path)
+    _write_registry(tmp_path)
+    registry = tmp_path / "interactions/revenu_to_mortgage.yaml"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace("transition: push", "transition: go"),
+        encoding="utf-8",
+    )
+
+    errors = interaction_registry_lint.check(tmp_path)
+
+    assert not any("transition is invalid" in error for error in errors)
+
+
 def test_interaction_registry_lint_rejects_unapproved_extra_type(tmp_path: Path) -> None:
     _write_minimal_repo(tmp_path)
     _write_registry(tmp_path)

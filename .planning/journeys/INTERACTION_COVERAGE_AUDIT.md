@@ -6,9 +6,9 @@
 
 - Extracted Flutter route references: 350
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 6
-- Known route templates not yet declared as route nodes: 86
-- Declared edge target route templates: 2
+- Covered by declared Interaction Registry route nodes: 9
+- Known route templates not yet declared as route nodes: 83
+- Declared edge target route templates: 4
 - Unknown route literals/templates: 0
 
 ## Covered Registry Route Nodes
@@ -21,6 +21,9 @@
 | covered by declared route node | `/hypotheque` | apps/mobile/lib/app.dart:588, apps/mobile/lib/screens/mortgage/affordability_screen.dart:192, apps/mobile/lib/screens/mortgage/affordability_screen.dart:203, apps/mobile/lib/screens/timeline_screen.dart:148 (+5 more) |
 | covered by declared route node | `/independants/avs` | apps/mobile/lib/widgets/coach/smart_shortcuts.dart:183 |
 | covered by declared route node | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:403 |
+| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1940, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:465, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+9 more) |
+| covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:745 |
+| covered by declared route node | `/scan/review` | apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1397, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1617, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:645 (+2 more) |
 
 ## Uncovered Known Routes
 
@@ -98,9 +101,6 @@
 | uncovered literal route | `/rapport` | apps/mobile/lib/widgets/mentor_fab.dart:69 |
 | uncovered literal route | `/rente-vs-capital` | apps/mobile/lib/app.dart:545, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:146, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:157, apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:533 (+11 more) |
 | uncovered literal route | `/retraite` | apps/mobile/lib/app.dart:544, apps/mobile/lib/data/educational_themes.dart:133, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:335, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:350 (+5 more) |
-| uncovered literal route | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1940, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:465, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+9 more) |
-| uncovered literal route | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:745 |
-| uncovered literal route | `/scan/review` | apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1397, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1617, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:645 (+2 more) |
 | uncovered literal route | `/segments/frontalier` | apps/mobile/lib/app.dart:578, apps/mobile/lib/services/response_card_service.dart:380 |
 | uncovered literal route | `/segments/gender-gap` | apps/mobile/lib/services/response_card_service.dart:452 |
 | uncovered literal route | `/segments/independant` | apps/mobile/lib/app.dart:576, apps/mobile/lib/screens/timeline_screen.dart:120, apps/mobile/lib/services/cap_engine.dart:823, apps/mobile/lib/widgets/life_event_suggestions.dart:128 |
@@ -132,10 +132,15 @@
 | `/independants/dividende-salaire` |
 | `/independants/ijm` |
 | `/independants/lpp-volontaire` |
+| `/scan` |
+| `/scan/impact` |
+| `/scan/review` |
 
 ## Declared Edge Target Routes
 
 | Route |
 |---|
 | `/data-block/:type` |
+| `/home` |
 | `/hypotheque` |
+| `/scan` |

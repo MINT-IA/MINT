@@ -92,6 +92,12 @@ bloque pas encore les routes non migrées.
   limité à la CTA `first_job_enrich_profile_cta` vers DataBlock revenu. Il ne
   déclare pas de sortie vers 3a/fiscalité tant que ces transitions ne sont pas
   des interactions produit prouvées dans l'écran.
+- `interactions/document_scan_recovery.yaml` : flux scan documentaire réel,
+  limité aux routes dégradées `/scan/review` et `/scan/impact` quand le
+  payload GoRouter manque. Il déclare seulement les CTA de récupération
+  prouvées par Maestro (`r1_scan_review`, `r2_scan_impact`) et ne déclare pas
+  encore le pipeline OCR réussi tant que le contrat `extra` domaine
+  `ExtractionResult` / `Map` n'est pas remplacé ou explicitement testé.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.
@@ -157,7 +163,7 @@ edges:
       extra: dart_type?                  # ids / enums / codes / tokens /
                                          # sélection éphémère UNIQUEMENT (A4)
       # Le codegen vérifie que la cible consomme exactement ce contrat.
-    transition: push | replace | reset_stack | sheet | dialog | in_shell
+    transition: push | go | replace | reset_stack | sheet | dialog | in_shell
     back: ...                # v1 : enforcement walker (D2)
     guards: [guard_id]?
     variant: string?

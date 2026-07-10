@@ -1,0 +1,69 @@
+schema_version: 1
+flow:
+  id: document_scan_recovery
+  title: "Document scan degraded routes to safe recovery targets"
+  exits: [scan.route.capture, home.route.dashboard]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: scan.route.review_recovery
+    kind: route
+    route: /scan/review
+    widget: app.dart
+    entries:
+      - {via: deeplink, back: reset_to(scan.route.capture)}
+      - {via: system, back: reset_to(scan.route.capture)}
+    states: [error.guard]
+
+  - id: scan.route.impact_recovery
+    kind: route
+    route: /scan/impact
+    widget: app.dart
+    entries:
+      - {via: deeplink, back: reset_to(home.route.dashboard)}
+      - {via: system, back: reset_to(home.route.dashboard)}
+    states: [error.guard]
+
+  - id: scan.route.capture
+    kind: route
+    route: /scan
+    widget: screens/document_scan/document_scan_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: deeplink, back: pop}
+    states: [content, loading, error.network, error.compute]
+
+  - id: home.route.dashboard
+    kind: route
+    route: /home
+    widget: screens/aujourdhui/aujourdhui_screen.dart
+    entries:
+      - {via: tab, back: exits_app}
+      - {via: deeplink, back: reset_to(home.route.dashboard)}
+    states: [content, loading]
+
+edges:
+  - id: scan.edge.review_recovery.rescan
+    from: scan.route.review_recovery
+    to: scan.route.capture
+    trigger: tap
+    intent: "Recover a missing scan review payload by returning to document capture"
+    payload: {}
+    transition: go
+    back: reset_to(scan.route.capture)
+    a11y_label: scanReviewRescan
+    test_ref: apps/mobile/.maestro/r1_scan_review.yaml
+
+  - id: scan.edge.impact_recovery.home
+    from: scan.route.impact_recovery
+    to: home.route.dashboard
+    trigger: tap
+    intent: "Recover a missing scan impact payload by returning to the home overview"
+    payload: {}
+    transition: go
+    back: reset_to(home.route.dashboard)
+    a11y_label: scanImpactBackHome
+    test_ref: apps/mobile/.maestro/r2_scan_impact.yaml
