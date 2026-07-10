@@ -31,11 +31,11 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/app_*.arb"
       tags: [i18n, mint]
     accent-lint-fr:
-      run: for file in {staged_files}; do python3 tools/checks/accent_lint_fr.py --file "$file" || exit 1; done
+      run: python3 tools/checks/accent_lint_fr.py --staged
       glob: "*.{dart,py,arb,md}"
       tags: [i18n, mint]
     no-hardcoded-fr:
-      run: for file in {staged_files}; do python3 tools/checks/no_hardcoded_fr.py --file "$file" || exit 1; done
+      run: python3 tools/checks/no_hardcoded_fr.py --staged
       glob: "apps/mobile/lib/**/*.dart"
       tags: [i18n, mint]
     banned-ui-terms:

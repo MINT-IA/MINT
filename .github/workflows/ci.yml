@@ -151,19 +151,7 @@ jobs:
               BASE_REF="HEAD^"
             fi
           fi
-          found=0
-          while IFS= read -r file; do
-            [[ -f "$file" ]] || continue
-            case "$file" in
-              *.dart|*.py|*.arb|*.md)
-                python3 tools/checks/accent_lint_fr.py --file "$file"
-                found=1
-                ;;
-            esac
-          done < <(git diff --name-only --diff-filter=ACMR "$BASE_REF" HEAD)
-          if [[ "$found" == "0" ]]; then
-            echo "No changed text files for accent lint."
-          fi
+          python3 tools/checks/accent_lint_fr.py --base-ref "$BASE_REF"
 
   # ─── i18n gate: hardcoded French in Flutter UI ───────────────
   # Server-side backstop for the lefthook `no-hardcoded-fr` command.
@@ -191,19 +179,7 @@ jobs:
               BASE_REF="HEAD^"
             fi
           fi
-          found=0
-          while IFS= read -r file; do
-            [[ -f "$file" ]] || continue
-            case "$file" in
-              apps/mobile/lib/*.dart)
-                python3 tools/checks/no_hardcoded_fr.py --file "$file"
-                found=1
-                ;;
-            esac
-          done < <(git diff --name-only --diff-filter=ACMR "$BASE_REF" HEAD)
-          if [[ "$found" == "0" ]]; then
-            echo "No changed Flutter source files for hardcoded-FR lint."
-          fi
+          python3 tools/checks/no_hardcoded_fr.py --base-ref "$BASE_REF"
 
   # ─── Financial calculation drift gate ──────────────────────────
   # Blocks newly introduced financial calculation helpers/formulas
