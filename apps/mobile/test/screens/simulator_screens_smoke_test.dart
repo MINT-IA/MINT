@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // Screens under test
@@ -12,6 +13,7 @@ import 'package:mint_mobile/screens/gender_gap_screen.dart';
 // Dependencies
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -20,6 +22,29 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 // SMOKE TESTS — Simulator & Comparator Screens
 // Post-S52: screens use i18n with sentence-case titles.
 // =============================================================================
+
+class RecordingCoachProfileProvider extends CoachProfileProvider {
+  final Map<String, dynamic> _answers;
+  CoachProfile? _profileOverride;
+
+  RecordingCoachProfileProvider(Map<String, dynamic> initialAnswers)
+      : _answers = Map<String, dynamic>.from(initialAnswers) {
+    _profileOverride = CoachProfile.fromWizardAnswers(_answers);
+  }
+
+  @override
+  CoachProfile? get profile => _profileOverride;
+
+  @override
+  bool get hasProfile => _profileOverride != null;
+
+  @override
+  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    _answers.addAll(partial);
+    _profileOverride = CoachProfile.fromWizardAnswers(_answers);
+    notifyListeners();
+  }
+}
 
 void main() {
   // ===========================================================================
@@ -107,7 +132,8 @@ void main() {
       expect(find.textContaining('5 comptes'), findsOneWidget);
     });
 
-    testWidgets('has modern inputs (chips + text field) for parameters', (tester) async {
+    testWidgets('has modern inputs (chips + text field) for parameters',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // Sliders replaced: tax rate chips + return rate chips + contribution text field
@@ -162,7 +188,8 @@ void main() {
       expect(find.textContaining('leasing'), findsWidgets);
     });
 
-    testWidgets('displays result section with opportunity cost', (tester) async {
+    testWidgets('displays result section with opportunity cost',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       expect(find.textContaining('opportunit'), findsWidgets);
@@ -266,9 +293,9 @@ void main() {
   // ===========================================================================
 
   group('FiscalComparatorScreen', () {
-    Widget buildScreen() {
-      return ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => CoachProfileProvider(),
+    Widget buildScreen({Map<String, dynamic> answers = const {}}) {
+      return ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: RecordingCoachProfileProvider(answers),
         child: const MaterialApp(
           locale: Locale('fr'),
           localizationsDelegates: [
@@ -283,10 +310,72 @@ void main() {
       );
     }
 
+    Widget buildScreenWithoutProvider() {
+      return const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: FiscalComparatorScreen(),
+      );
+    }
+
+    Widget buildScreenWithRouter({
+      Map<String, dynamic> answers = const {},
+    }) {
+      final provider = RecordingCoachProfileProvider(answers);
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) =>
+                ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: provider,
+              child: const FiscalComparatorScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (_, state) => Text(
+              'data-block:${state.pathParameters['type']}:${state.uri.queryParameters['inputKey']}',
+              key: const Key('data_block_route_probe'),
+            ),
+          ),
+        ],
+      );
+
+      return MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        routerConfig: router,
+      );
+    }
+
     testWidgets('renders without crash', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       expect(find.byType(Scaffold), findsOneWidget);
+    });
+
+    testWidgets('renders missing facts when mounted without profile provider', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildScreenWithoutProvider());
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Comparateur fiscal'), findsOneWidget);
+      expect(find.text('Manquant'), findsWidgets);
     });
 
     testWidgets('displays French title in SliverAppBar', (tester) async {
@@ -303,32 +392,184 @@ void main() {
       expect(find.textContaining('nager'), findsWidgets);
     });
 
-    testWidgets('displays revenue slider with French label', (tester) async {
+    testWidgets('does not calculate from derived default salary or canton', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      expect(find.textContaining('Revenu'), findsWidgets);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.textContaining('COMPOSITION FISCALE'), findsNothing);
+      expect(find.textContaining("100'000"), findsNothing);
+      expect(find.byType(Slider), findsNothing);
+    });
+
+    testWidgets('uses explicit ledger salary and canton to unlock tax result', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
+      await tester.pump();
+      await tester.drag(find.byType(NestedScrollView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining("120'000"), findsWidgets);
+      expect(find.textContaining('COMPOSITION FISCALE'), findsOneWidget);
+    });
+
+    testWidgets('keeps local civil status when ledger salary changes', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(const {
+        'q_gross_salary_annual': 120000,
+        'q_canton': 'VD',
+      });
+
+      await tester
+          .pumpWidget(ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: provider,
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: FiscalComparatorScreen(),
+        ),
+      ));
+      await tester.pump();
+
+      final civilStatusSegmentedButton = find.byWidgetPredicate((widget) {
+        return widget is SegmentedButton<String> &&
+            widget.segments.any((segment) => segment.value == 'marie');
+      });
+
+      await tester.tap(find.text('Marié·e'));
+      await tester.pump();
+      expect(
+        tester
+            .widget<SegmentedButton<String>>(civilStatusSegmentedButton)
+            .selected,
+        {'marie'},
+      );
+
+      await provider.mergeAnswers({'q_gross_salary_annual': 130000});
+      await tester.pump();
+
+      expect(
+        tester
+            .widget<SegmentedButton<String>>(civilStatusSegmentedButton)
+            .selected,
+        {'marie'},
+      );
+    });
+
+    testWidgets('missing salary CTA opens the targeted salary collector', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildScreenWithRouter());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Enrichir mon profil'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('data-block:revenu:q_gross_salary_annual'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('missing canton CTA opens the targeted canton collector', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildScreenWithRouter(
+        answers: const {'q_gross_salary_annual': 120000},
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Enrichir mon profil'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('data-block:revenu:q_canton'), findsOneWidget);
+    });
+
+    test('sequence capital withdrawal output stays zero without ledger canton',
+        () {
+      expect(
+        fiscalCapitalWithdrawalTaxForReturn(
+          montantRetrait: 100000,
+          ledgerCanton: null,
+        ),
+        0,
+      );
+    });
+
+    test('sequence capital withdrawal output uses explicit ledger canton', () {
+      expect(
+        fiscalCapitalWithdrawalTaxForReturn(
+          montantRetrait: 100000,
+          ledgerCanton: 'VD',
+        ),
+        greaterThan(0),
+      );
+    });
+
+    test('move destination changes when ledger departure is current default',
+        () {
+      expect(
+        fiscalMoveDestinationAfterLedgerDepartureSync(
+          departureCanton: 'ZG',
+          currentDestinationCanton: 'ZG',
+        ),
+        isNot('ZG'),
+      );
+    });
+
+    test('move destination keeps an existing distinct destination', () {
+      expect(
+        fiscalMoveDestinationAfterLedgerDepartureSync(
+          departureCanton: 'VD',
+          currentDestinationCanton: 'ZG',
+        ),
+        'ZG',
+      );
     });
 
     testWidgets('displays civil status toggle in French', (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       expect(find.textContaining('tat civil'), findsWidgets);
     });
 
-    testWidgets('displays canton dropdown', (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      expect(find.text('Canton'), findsOneWidget);
-    });
-
     testWidgets('displays children counter label', (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       expect(find.text('Enfants'), findsOneWidget);
     });
 
     testWidgets('displays tax breakdown after scrolling', (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -400));
       await tester.pumpAndSettle();
@@ -336,7 +577,12 @@ void main() {
     });
 
     testWidgets('displays effective rate after scrolling', (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -300));
       await tester.pumpAndSettle();
@@ -344,7 +590,12 @@ void main() {
     });
 
     testWidgets('displays disclaimer after scrolling down', (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -500));
       await tester.pumpAndSettle();
@@ -355,7 +606,12 @@ void main() {
 
     testWidgets('displays fortune and church tax inputs after scrolling',
         (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -250));
       await tester.pumpAndSettle();
@@ -363,7 +619,12 @@ void main() {
     });
 
     testWidgets('displays national ranking after scrolling', (tester) async {
-      await tester.pumpWidget(buildScreen());
+      await tester.pumpWidget(buildScreen(
+        answers: const {
+          'q_gross_salary_annual': 120000,
+          'q_canton': 'VD',
+        },
+      ));
       await tester.pump();
       await tester.drag(find.byType(NestedScrollView), const Offset(0, -500));
       await tester.pumpAndSettle();
@@ -473,9 +734,11 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // GenderGapScreen uses SingleChildScrollView — scroll to OFS section
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -1000));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -1000));
       await tester.pump();
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -500));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -500));
       await tester.pump();
       expect(find.textContaining('OFS'), findsWidgets);
     });
@@ -504,8 +767,7 @@ void main() {
       expect(find.textContaining('LPP art.'), findsWidgets);
     });
 
-    testWidgets('displays demo mode indicator after scrolling',
-        (tester) async {
+    testWidgets('displays demo mode indicator after scrolling', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       await tester.scrollUntilVisible(

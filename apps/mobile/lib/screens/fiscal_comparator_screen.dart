@@ -18,7 +18,6 @@ import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/models/screen_return.dart';
@@ -30,13 +29,43 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 // ────────────────────────────────────────────────────────────
 //
 // Three-tab interactive screen:
-//   Tab 1: "Mon impot"  — Tax estimate for one canton
+//   Tab 1: one-canton tax estimate
 //   Tab 2: "26 cantons" — Ranking with horizontal bar chart
 //   Tab 3: "Demenager"  — Move simulation between cantons
 //
 // All text in French (informal "tu").
 // Material 3, MintColors theme, MintTextStyles tokens.
 // ────────────────────────────────────────────────────────────
+
+@visibleForTesting
+double fiscalCapitalWithdrawalTaxForReturn({
+  required double? montantRetrait,
+  required String? ledgerCanton,
+}) {
+  if (montantRetrait == null || montantRetrait <= 0 || ledgerCanton == null) {
+    return 0.0;
+  }
+
+  return RetirementTaxCalculator.capitalWithdrawalTax(
+    capitalBrut: montantRetrait,
+    canton: ledgerCanton,
+  );
+}
+
+@visibleForTesting
+String fiscalMoveDestinationAfterLedgerDepartureSync({
+  required String departureCanton,
+  required String currentDestinationCanton,
+}) {
+  if (currentDestinationCanton != departureCanton) {
+    return currentDestinationCanton;
+  }
+
+  return FiscalService.sortedCantonCodes.firstWhere(
+    (code) => code != departureCanton,
+    orElse: () => currentDestinationCanton,
+  );
+}
 
 class FiscalComparatorScreen extends StatefulWidget {
   const FiscalComparatorScreen({super.key});
@@ -50,8 +79,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   late TabController _tabController;
 
   // ── Shared inputs ───────────────────────────────────────
-  double _revenuBrut = 100000;
-  String _canton = 'ZH';
+  double? _revenuBrut;
+  String? _canton;
   String? _commune;
   String _etatCivil = 'celibataire';
   int _nombreEnfants = 0;
@@ -80,6 +109,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── Move checklist ─────────────────────────────────────
   final Set<int> _moveChecked = {};
   bool _hasUserInteracted = false;
+  String? _lastLedgerSignature;
+  String? _lastLedgerCanton;
 
   /// Sequence IDs read from GoRouter.extra (Tier A when present).
   String? _seqRunId;
@@ -93,9 +124,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _initFromProfile();
     _recalculate();
-    // Charge les donnees communales (si pas deja chargees)
+    // Load commune data if it is not already available.
     if (!CommuneData.isLoaded) {
       CommuneData.load().then((_) {
         if (mounted) setState(() {});
@@ -107,32 +137,95 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     });
   }
 
-  /// Pre-fill from onboarding profile if available
-  void _initFromProfile() {
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    try {
+      _syncFromProfile(context.watch<CoachProfileProvider>().profile);
+    } on ProviderNotFoundException {
+      // Some legacy smoke tests may mount the screen without the provider.
+      _syncFromProfile(null);
+    }
+  }
 
-    if (profile.revenuBrutAnnuel > 0) {
-      _revenuBrut = profile.revenuBrutAnnuel;
+  bool get _hasRequiredLedgerFacts => _revenuBrut != null && _canton != null;
+
+  String get _missingDataRoute {
+    if (_revenuBrut == null) {
+      return '/data-block/revenu?inputKey=q_gross_salary_annual';
     }
-    if (profile.canton.isNotEmpty) {
-      _canton = profile.canton;
-      _cantonDepart = profile.canton;
+    if (_canton == null) {
+      return '/data-block/revenu?inputKey=q_canton';
     }
-    if (profile.commune != null && profile.commune!.isNotEmpty) {
-      _commune = profile.commune;
-      _communeDepart = profile.commune;
+    return '/data-block/revenu';
+  }
+
+  double? _ledgerAnnualIncome(CoachProfile? profile) {
+    if (profile == null || !profile.userProvidedFields.contains('salary')) {
+      return null;
     }
-    _etatCivil = switch (profile.etatCivil) {
-      CoachCivilStatus.marie => 'marie',
-      CoachCivilStatus.concubinage => 'celibataire', // taxed individually
-      _ => 'celibataire',
-    };
-    _nombreEnfants = profile.nombreEnfants;
-    if (profile.patrimoine.investissements > 0 || profile.patrimoine.epargneLiquide > 0) {
-      _fortune = profile.patrimoine.epargneLiquide + profile.patrimoine.investissements;
-      _fortuneController.text = _fortune.toInt().toString();
+    final revenuBrut = profile.revenuBrutAnnuel;
+    return revenuBrut > 0 ? revenuBrut : null;
+  }
+
+  String? _ledgerCanton(CoachProfile? profile) {
+    if (profile == null || !profile.userProvidedFields.contains('canton')) {
+      return null;
     }
+    final canton = profile.canton.trim().toUpperCase();
+    if (!FiscalService.cantonNames.containsKey(canton)) return null;
+    return canton;
+  }
+
+  void _syncFromProfile(CoachProfile? profile) {
+    final revenuBrut = _ledgerAnnualIncome(profile);
+    final canton = _ledgerCanton(profile);
+    final signature = [
+      revenuBrut?.toStringAsFixed(2) ?? '',
+      canton ?? '',
+      profile?.commune ?? '',
+      profile?.etatCivil.name ?? '',
+      profile?.nombreEnfants.toString() ?? '',
+      profile?.patrimoine.epargneLiquide.toStringAsFixed(2) ?? '',
+      profile?.patrimoine.investissements.toStringAsFixed(2) ?? '',
+    ].join('|');
+    if (signature == _lastLedgerSignature) return;
+
+    _lastLedgerSignature = signature;
+    _revenuBrut = revenuBrut;
+    _canton = canton;
+    if (canton != null &&
+        (_lastLedgerCanton == null || _cantonDepart == _lastLedgerCanton)) {
+      _cantonDepart = canton;
+      _cantonArrivee = fiscalMoveDestinationAfterLedgerDepartureSync(
+        departureCanton: canton,
+        currentDestinationCanton: _cantonArrivee,
+      );
+    }
+    _lastLedgerCanton = canton;
+
+    final shouldSeedScenarioLevers = profile != null && !_hasUserInteracted;
+    if (shouldSeedScenarioLevers) {
+      if (canton != null &&
+          profile.commune != null &&
+          profile.commune!.isNotEmpty) {
+        _commune = profile.commune;
+        _communeDepart = profile.commune;
+      }
+      _etatCivil = switch (profile.etatCivil) {
+        CoachCivilStatus.marie => 'marie',
+        CoachCivilStatus.concubinage => 'celibataire',
+        _ => 'celibataire',
+      };
+      _nombreEnfants = profile.nombreEnfants;
+      if (profile.patrimoine.investissements > 0 ||
+          profile.patrimoine.epargneLiquide > 0) {
+        _fortune = profile.patrimoine.epargneLiquide +
+            profile.patrimoine.investissements;
+        _fortuneController.text = _fortune.toInt().toString();
+      }
+    }
+    _updateCalculatedResults();
   }
 
   /// Read sequence runId/stepId/prefill from GoRouter.extra if present.
@@ -179,13 +272,10 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
       return;
     }
 
-    // Compute capital withdrawal tax if we have the EPL amount from step 2.
-    final impotRetrait = _montantRetrait != null && _montantRetrait! > 0
-        ? RetirementTaxCalculator.capitalWithdrawalTax(
-            capitalBrut: _montantRetrait!,
-            canton: _canton,
-          )
-        : 0.0;
+    final impotRetrait = fiscalCapitalWithdrawalTaxForReturn(
+      montantRetrait: _montantRetrait,
+      ledgerCanton: _canton,
+    );
 
     final screenReturn = ScreenReturn.completed(
       route: '/fiscal',
@@ -217,62 +307,75 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     super.dispose();
   }
 
+  void _updateCalculatedResults() {
+    final revenuBrut = _revenuBrut;
+    final canton = _canton;
+    if (revenuBrut == null || canton == null) {
+      _taxResult = null;
+      _allCantons = [];
+      _moveResult = null;
+      _wealthTaxResult = null;
+      _churchTaxResult = null;
+      return;
+    }
+
+    _taxResult = FiscalService.estimateTax(
+      revenuBrut: revenuBrut,
+      canton: canton,
+      etatCivil: _etatCivil,
+      nombreEnfants: _nombreEnfants,
+      commune: _commune,
+    );
+    _allCantons = FiscalService.compareAllCantons(
+      revenuBrut: revenuBrut,
+      etatCivil: _etatCivil,
+      nombreEnfants: _nombreEnfants,
+    );
+    _moveResult = FiscalService.simulateMove(
+      revenuBrut: revenuBrut,
+      cantonDepart: _cantonDepart,
+      cantonArrivee: _cantonArrivee,
+      etatCivil: _etatCivil,
+      nombreEnfants: _nombreEnfants,
+      communeDepart: _communeDepart,
+      communeArrivee: _communeArrivee,
+    );
+
+    // Wealth tax
+    _wealthTaxResult = WealthTaxService.estimateWealthTax(
+      fortune: _fortune,
+      canton: canton,
+      etatCivil: _etatCivil,
+    );
+
+    // Church tax (based on cantonal BASE tax, not full cantonal+communal)
+    final impotCantonalCommunal =
+        (_taxResult?['impotCantonalCommunal'] as double?) ?? 0.0;
+    // Get the commune multiplier to extract base cantonal tax
+    double communeMultiplier;
+    if (_commune != null && CommuneData.isLoaded) {
+      communeMultiplier = CommuneData.getCommuneMultiplier(canton, _commune!) ??
+          AverageTaxMultipliers.get(canton);
+    } else {
+      communeMultiplier = AverageTaxMultipliers.get(canton);
+    }
+    _churchTaxResult = WealthTaxService.estimateChurchTax(
+      impotCantonalCommunal: impotCantonalCommunal,
+      canton: canton,
+      communeMultiplier: communeMultiplier,
+    );
+  }
+
   void _recalculate() {
     setState(() {
-      _taxResult = FiscalService.estimateTax(
-        revenuBrut: _revenuBrut,
-        canton: _canton,
-        etatCivil: _etatCivil,
-        nombreEnfants: _nombreEnfants,
-        commune: _commune,
-      );
-      _allCantons = FiscalService.compareAllCantons(
-        revenuBrut: _revenuBrut,
-        etatCivil: _etatCivil,
-        nombreEnfants: _nombreEnfants,
-      );
-      _moveResult = FiscalService.simulateMove(
-        revenuBrut: _revenuBrut,
-        cantonDepart: _cantonDepart,
-        cantonArrivee: _cantonArrivee,
-        etatCivil: _etatCivil,
-        nombreEnfants: _nombreEnfants,
-        communeDepart: _communeDepart,
-        communeArrivee: _communeArrivee,
-      );
-
-      // Wealth tax
-      _wealthTaxResult = WealthTaxService.estimateWealthTax(
-        fortune: _fortune,
-        canton: _canton,
-        etatCivil: _etatCivil,
-      );
-
-      // Church tax (based on cantonal BASE tax, not full cantonal+communal)
-      final impotCantonalCommunal =
-          (_taxResult?['impotCantonalCommunal'] as double?) ?? 0.0;
-      // Get the commune multiplier to extract base cantonal tax
-      double communeMultiplier;
-      if (_commune != null && CommuneData.isLoaded) {
-        communeMultiplier =
-            CommuneData.getCommuneMultiplier(_canton, _commune!)
-                ?? AverageTaxMultipliers.get(_canton);
-      } else {
-        communeMultiplier = AverageTaxMultipliers.get(_canton);
-      }
-      _churchTaxResult = WealthTaxService.estimateChurchTax(
-        impotCantonalCommunal: impotCantonalCommunal,
-        canton: _canton,
-        communeMultiplier: communeMultiplier,
-      );
+      _updateCalculatedResults();
     });
     if (!_hasUserInteracted) return;
     // In sequence mode, terminal return is emitted on pop (_emitFinalReturn).
     // Suppress realtime emissions to avoid dual processing + legacy side effects.
     if (_seqRunId != null) return;
-    final bestCanton = _allCantons.isNotEmpty
-        ? _allCantons.first['canton'] as String?
-        : null;
+    final bestCanton =
+        _allCantons.isNotEmpty ? _allCantons.first['canton'] as String? : null;
     final maxSavings = _allCantons.isNotEmpty
         ? (_allCantons.last['chargeTotale'] as double) -
             (_allCantons.first['chargeTotale'] as double)
@@ -333,7 +436,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         onPressed: () => safePop(context),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
+        titlePadding:
+            const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
         title: Text(
           S.of(context)!.fiscalComparatorTitle,
           style: MintTextStyles.headlineMedium(),
@@ -346,7 +450,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         labelColor: MintColors.textPrimary,
         unselectedLabelColor: MintColors.textMuted,
         labelStyle: MintTextStyles.bodySmall(),
-        unselectedLabelStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
+        unselectedLabelStyle:
+            MintTextStyles.bodySmall(color: MintColors.textMuted),
         tabs: [
           Tab(text: S.of(context)!.fiscalTabMyTax),
           Tab(text: S.of(context)!.fiscalTab26Cantons),
@@ -362,7 +467,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   Widget _buildTab1MonImpot() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         MintEntrance(child: _buildInputsCard()),
         const SizedBox(height: 20),
@@ -374,7 +480,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           _buildNationalComparison(),
           const SizedBox(height: 20),
         ],
-        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDisclaimer()),
+        MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildDisclaimer()),
       ],
     );
   }
@@ -382,76 +490,75 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── Inputs card (shared across tabs) ───────────────────
 
   Widget _buildInputsCard() {
-    final sortedCodes = FiscalService.sortedCantonCodes;
-
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Revenue slider
-          MintPremiumSlider(
-            label: S.of(context)!.fiscalGrossAnnualIncome,
-            value: _revenuBrut,
-            min: 30000,
-            max: 500000,
-            divisions: 94,
-            formatValue: (v) => FiscalService.formatChf(v),
-            onChanged: (v) {
-              _hasUserInteracted = true;
-              _revenuBrut = (v / 5000).round() * 5000.0;
-              _recalculate();
-            },
-          ),
-          const SizedBox(height: 20),
-
-          // Canton dropdown
           Row(
             children: [
+              Icon(
+                _hasRequiredLedgerFacts
+                    ? Icons.check_circle_outline
+                    : Icons.manage_search_outlined,
+                color: _hasRequiredLedgerFacts
+                    ? MintColors.success
+                    : MintColors.warning,
+                size: 20,
+              ),
+              const SizedBox(width: MintSpacing.sm),
               Expanded(
                 child: Text(
-                  S.of(context)!.fiscalCanton,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  _hasRequiredLedgerFacts
+                      ? S.of(context)!.dataQualityKnownSection
+                      : S.of(context)!.dataQualityMissingSection,
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: MintColors.appleSurface,
-                  borderRadius: BorderRadius.circular(10),
+              TextButton.icon(
+                onPressed: () => context.push(_missingDataRoute),
+                icon: Icon(
+                  _hasRequiredLedgerFacts
+                      ? Icons.edit_outlined
+                      : Icons.add_circle_outline,
+                  size: 18,
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _canton,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-                    items: sortedCodes.map((code) {
-                      return DropdownMenuItem(
-                        value: code,
-                        child: Text(
-                            '$code — ${FiscalService.cantonNames[code]}'),
-                      );
-                    }).toList(),
-                    onChanged: (v) {
-                      if (v != null) {
-                        _hasUserInteracted = true;
-                        _canton = v;
-                        _commune = null; // Reset commune when canton changes
-                        _recalculate();
-                      }
-                    },
-                  ),
+                label: Text(
+                  _hasRequiredLedgerFacts
+                      ? S.of(context)!.commonEdit
+                      : S.of(context)!.dataQualityEnrich,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          _buildFactRow(
+            identifier: 'fiscal_salary_fact',
+            label: S.of(context)!.fiscalGrossAnnualIncome,
+            value: _revenuBrut == null
+                ? S.of(context)!.dataBlockStatusMissing
+                : FiscalService.formatChf(_revenuBrut!),
+            isMissing: _revenuBrut == null,
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          _buildFactRow(
+            identifier: 'fiscal_canton_fact',
+            label: S.of(context)!.fiscalCanton,
+            value: _canton == null
+                ? S.of(context)!.dataBlockStatusMissing
+                : '$_canton - ${FiscalService.cantonNames[_canton] ?? _canton}',
+            isMissing: _canton == null,
+          ),
 
           // Commune dropdown (if commune data loaded)
-          if (CommuneData.isLoaded) ...[
+          if (CommuneData.isLoaded && _canton != null) ...[
             const SizedBox(height: 16),
             _buildCommuneDropdown(
               value: _commune,
-              cantonCode: _canton,
+              cantonCode: _canton!,
               onChanged: (v) {
                 _hasUserInteracted = true;
                 _commune = v;
@@ -467,14 +574,16 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalCivilStatus,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               SegmentedButton<String>(
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
                   selectedForegroundColor: MintColors.white,
-                  textStyle: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                  textStyle:
+                      MintTextStyles.bodySmall(color: MintColors.textPrimary),
                 ),
                 segments: [
                   ButtonSegment(
@@ -504,7 +613,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalChildren,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               Row(
@@ -524,7 +634,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     width: 32,
                     child: Text(
                       '$_nombreEnfants',
-                      style: MintTextStyles.titleLarge().copyWith(fontWeight: FontWeight.w700),
+                      style: MintTextStyles.titleLarge()
+                          .copyWith(fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -553,7 +664,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalNetWealth,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                 ),
               ),
               SizedBox(
@@ -562,7 +674,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   controller: _fortuneController,
                   keyboardType: TextInputType.number,
                   onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary),
                   decoration: InputDecoration(
                     prefixText: 'CHF ',
                     prefixStyle: MintTextStyles.bodyMedium(),
@@ -599,7 +712,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                   children: [
                     Text(
                       S.of(context)!.fiscalChurchMember,
-                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -625,6 +739,41 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     );
   }
 
+  Widget _buildFactRow({
+    required String identifier,
+    required String label,
+    required String value,
+    required bool isMissing,
+  }) {
+    return Semantics(
+      identifier: identifier,
+      label: '$label, $value',
+      container: true,
+      child: Row(
+        children: [
+          Icon(
+            isMissing ? Icons.help_outline : Icons.check_circle_outline,
+            color: isMissing ? MintColors.warning : MintColors.success,
+            size: 16,
+          ),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          Text(
+            value,
+            style: MintTextStyles.bodySmall(
+              color: isMissing ? MintColors.warning : MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Tax gauge (effective rate circle) ──────────────────
 
   Widget _buildTaxGauge() {
@@ -632,7 +781,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     if (tax == null) return const SizedBox.shrink();
     final tauxEffectif = (tax['tauxEffectif'] as double);
     final avgAdjusted = FiscalService.estimateNationalAverageRate(
-      revenuBrut: _revenuBrut,
+      revenuBrut: _revenuBrut!,
       etatCivil: _etatCivil,
       nombreEnfants: _nombreEnfants,
     );
@@ -668,13 +817,19 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               children: [
                 Text(
                   S.of(context)!.fiscalEffectiveRate,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   isBelow
-                      ? S.of(context)!.fiscalBelowAverage(avgAdjusted.toStringAsFixed(1))
-                      : S.of(context)!.fiscalAboveAverage(avgAdjusted.toStringAsFixed(1)),
+                      ? S
+                          .of(context)!
+                          .fiscalBelowAverage(avgAdjusted.toStringAsFixed(1))
+                      : S
+                          .of(context)!
+                          .fiscalAboveAverage(avgAdjusted.toStringAsFixed(1)),
                   style: MintTextStyles.bodySmall(
                     color: isBelow ? MintColors.success : MintColors.error,
                   ),
@@ -703,10 +858,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   Widget _buildTaxBreakdownCard() {
     final tax = _taxResult;
     if (tax == null) return const SizedBox.shrink();
-    final wealthTax =
-        (_wealthTaxResult?['impotFortune'] as double?) ?? 0.0;
-    final churchTax =
-        (_isChurchMember ? (_churchTaxResult?['impotEglise'] as double?) : null) ?? 0.0;
+    final wealthTax = (_wealthTaxResult?['impotFortune'] as double?) ?? 0.0;
+    final churchTax = (_isChurchMember
+            ? (_churchTaxResult?['impotEglise'] as double?)
+            : null) ??
+        0.0;
 
     final chargeTotaleAvecExtras =
         (tax['chargeTotale'] as double) + wealthTax + churchTax;
@@ -764,7 +920,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             children: [
               Text(
                 S.of(context)!.fiscalTotalBurden,
-                style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleMedium()
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 FiscalService.formatChf(chargeTotaleAvecExtras),
@@ -805,7 +962,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         ),
         Text(
           FiscalService.formatChf(amount),
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -814,13 +972,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ── National comparison ────────────────────────────────
 
   Widget _buildNationalComparison() {
+    final canton = _canton;
+    if (canton == null) return const SizedBox.shrink();
     // Find rank of current canton
-    final rank = _allCantons.indexWhere(
-            (c) => c['canton'] == _canton) +
-        1;
+    final rank = _allCantons.indexWhere((c) => c['canton'] == canton) + 1;
     final cheapest = _allCantons.isNotEmpty ? _allCantons.first : null;
-    final mostExpensive =
-        _allCantons.isNotEmpty ? _allCantons.last : null;
+    final mostExpensive = _allCantons.isNotEmpty ? _allCantons.last : null;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -853,7 +1010,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 ),
                 TextSpan(text: ' ${S.of(context)!.fiscalRanks} '),
                 TextSpan(
-                  text: '${rank}e sur 26',
+                  text: '$rank / 26',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: rank <= 8
@@ -901,6 +1058,17 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab2AllCantons() {
+    if (!_hasRequiredLedgerFacts) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+        children: [
+          MintEntrance(child: _buildInputsCard()),
+          const SizedBox(height: 20),
+          _buildDisclaimer(),
+        ],
+      );
+    }
+
     if (_allCantons.isEmpty) {
       return const MintLoadingSkeleton();
     }
@@ -956,10 +1124,16 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Flexible(
                 child: Text(
                   S.of(context)!.fiscalIncomeInfoLabel(
-                    FiscalService.formatChf(_revenuBrut),
-                    _etatCivil == 'marie' ? S.of(context)!.fiscalStatusMarried : S.of(context)!.fiscalStatusSingle,
-                    _nombreEnfants > 0 ? S.of(context)!.fiscalChildrenSuffix(_nombreEnfants) : '',
-                  ),
+                        FiscalService.formatChf(_revenuBrut!),
+                        _etatCivil == 'marie'
+                            ? S.of(context)!.fiscalStatusMarried
+                            : S.of(context)!.fiscalStatusSingle,
+                        _nombreEnfants > 0
+                            ? S
+                                .of(context)!
+                                .fiscalChildrenSuffix(_nombreEnfants)
+                            : '',
+                      ),
                   style: MintTextStyles.bodySmall(),
                 ),
               ),
@@ -998,12 +1172,24 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
 
   Widget _buildTab3Demenager() {
     final sortedCodes = FiscalService.sortedCantonCodes;
-
+    if (!_hasRequiredLedgerFacts) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(
+            MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
+        children: [
+          MintEntrance(child: _buildInputsCard()),
+          const SizedBox(height: 20),
+          _buildDisclaimer(),
+        ],
+      );
+    }
     return ListView(
-      padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
+      padding: const EdgeInsets.fromLTRB(
+          MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
         // Intro
-        MintEntrance(child: Container(
+        MintEntrance(
+            child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: MintColors.appleSurface,
@@ -1018,7 +1204,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               Expanded(
                 child: Text(
                   S.of(context)!.fiscalMoveIntro,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
             ],
@@ -1027,54 +1214,56 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 20),
 
         // Canton pickers
-        MintEntrance(delay: const Duration(milliseconds: 100), child: MintSurface(
-          tone: MintSurfaceTone.blanc,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // From
-              _buildCantonPicker(
-                label: S.of(context)!.fiscalCurrentCanton,
-                icon: Icons.location_on_outlined,
-                value: _cantonDepart,
-                codes: sortedCodes,
-                onChanged: (v) {
-                  _hasUserInteracted = true;
-                  _cantonDepart = v;
-                  _recalculate();
-                },
+        MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: MintSurface(
+              tone: MintSurfaceTone.blanc,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // From
+                  _buildCantonPicker(
+                    label: S.of(context)!.fiscalCurrentCanton,
+                    icon: Icons.location_on_outlined,
+                    value: _cantonDepart,
+                    codes: sortedCodes,
+                    onChanged: (v) {
+                      _hasUserInteracted = true;
+                      _cantonDepart = v;
+                      _recalculate();
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // Arrow
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: MintColors.appleSurface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.south,
+                      color: MintColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // To
+                  _buildCantonPicker(
+                    label: S.of(context)!.fiscalDestinationCanton,
+                    icon: Icons.flag_outlined,
+                    value: _cantonArrivee,
+                    codes: sortedCodes,
+                    onChanged: (v) {
+                      _hasUserInteracted = true;
+                      _cantonArrivee = v;
+                      _recalculate();
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              // Arrow
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: MintColors.appleSurface,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.south,
-                  color: MintColors.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // To
-              _buildCantonPicker(
-                label: S.of(context)!.fiscalDestinationCanton,
-                icon: Icons.flag_outlined,
-                value: _cantonArrivee,
-                codes: sortedCodes,
-                onChanged: (v) {
-                  _hasUserInteracted = true;
-                  _cantonArrivee = v;
-                  _recalculate();
-                },
-              ),
-            ],
-          ),
-        )),
+            )),
         const SizedBox(height: 24),
 
         // Results
@@ -1100,44 +1289,40 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         const SizedBox(height: 24),
 
         // Moving checklist
-        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildMoveChecklist()),
+        MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _buildMoveChecklist()),
         const SizedBox(height: 24),
 
         // Education
-        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildMoveEducation()),
+        MintEntrance(
+            delay: const Duration(milliseconds: 300),
+            child: _buildMoveEducation()),
         const SizedBox(height: 24),
 
         // ── P12-B : Le vrai coût du déménagement cantonal ───
-        MovingTrueCostWidget(
-          fromCanton: _cantonDepart,
-          toCanton: _cantonArrivee,
-          movingFees: 3000,
-          items: [
-            MovingCostItem(
-              label: S.of(context)!.fiscalIncomeTaxLabel,
-              emoji: '🏛️',
-              monthlyBefore:
-                  (_moveResult?['chargeDepart'] as double? ?? _revenuBrut * 0.20) / 12,
-              monthlyAfter:
-                  (_moveResult?['chargeArrivee'] as double? ?? _revenuBrut * 0.15) / 12,
-              note: S.of(context)!.fiscalEstimateNote,
-            ),
-            MovingCostItem(
-              label: S.of(context)!.fiscalEstimatedRent,
-              emoji: '🏠',
-              monthlyBefore: _revenuBrut / 12 * 0.25,
-              monthlyAfter: _revenuBrut / 12 * 0.30,
-              note: S.of(context)!.fiscalRentNote,
-            ),
-            MovingCostItem(
-              label: S.of(context)!.fiscalMovingCosts,
-              emoji: '🚛',
-              monthlyBefore: 0,
-              monthlyAfter: 3000 / 24,
-              note: S.of(context)!.fiscalMovingCostsNote,
-            ),
-          ],
-        ),
+        if (_moveResult != null)
+          MovingTrueCostWidget(
+            fromCanton: _cantonDepart,
+            toCanton: _cantonArrivee,
+            movingFees: 3000,
+            items: [
+              MovingCostItem(
+                label: S.of(context)!.fiscalIncomeTaxLabel,
+                emoji: '🏛️',
+                monthlyBefore: (_moveResult!['chargeDepart'] as double) / 12,
+                monthlyAfter: (_moveResult!['chargeArrivee'] as double) / 12,
+                note: S.of(context)!.fiscalEstimateNote,
+              ),
+              MovingCostItem(
+                label: S.of(context)!.fiscalMovingCosts,
+                emoji: '🚛',
+                monthlyBefore: 0,
+                monthlyAfter: 3000 / 24,
+                note: S.of(context)!.fiscalMovingCostsNote,
+              ),
+            ],
+          ),
         const SizedBox(height: 24),
 
         _buildDisclaimer(),
@@ -1180,7 +1365,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            S.of(context)!.fiscalNetWealthAmount(FiscalService.formatChf(_fortune)),
+            S
+                .of(context)!
+                .fiscalNetWealthAmount(FiscalService.formatChf(_fortune)),
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
@@ -1196,7 +1383,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     const SizedBox(height: 4),
                     Text(
                       FiscalService.formatChf(impotDepart),
-                      style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
+                      style: MintTextStyles.titleMedium()
+                          .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -1217,7 +1405,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     const SizedBox(height: 4),
                     Text(
                       FiscalService.formatChf(impotArrivee),
-                      style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w700),
+                      style: MintTextStyles.titleMedium()
+                          .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -1228,9 +1417,12 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           Center(
             child: Text(
               isSaving
-                  ? S.of(context)!.fiscalWealthSaving(FiscalService.formatChf(difference))
+                  ? S
+                      .of(context)!
+                      .fiscalWealthSaving(FiscalService.formatChf(difference))
                   : difference < 0
-                      ? S.of(context)!.fiscalWealthSurcharge(FiscalService.formatChf(-difference))
+                      ? S.of(context)!.fiscalWealthSurcharge(
+                          FiscalService.formatChf(-difference))
                       : S.of(context)!.fiscalWealthEquivalent,
               style: MintTextStyles.bodyMedium(
                 color: isSaving
@@ -1309,7 +1501,8 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.checklist, size: 16, color: MintColors.textMuted),
+              const Icon(Icons.checklist,
+                  size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.fiscalChecklistTitle,
@@ -1324,58 +1517,57 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
               label: items[index],
               button: true,
               child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (checked) {
-                    _moveChecked.remove(index);
-                  } else {
-                    _moveChecked.add(index);
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: checked
-                            ? MintColors.success
-                            : MintColors.transparent,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
+                onTap: () {
+                  setState(() {
+                    if (checked) {
+                      _moveChecked.remove(index);
+                    } else {
+                      _moveChecked.add(index);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
                           color: checked
                               ? MintColors.success
-                              : MintColors.border,
-                          width: 1.5,
+                              : MintColors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: checked
+                                ? MintColors.success
+                                : MintColors.border,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: checked
+                            ? const Icon(Icons.check,
+                                size: 14, color: MintColors.white)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          items[index],
+                          style: MintTextStyles.bodyMedium(
+                            color: checked
+                                ? MintColors.textMuted
+                                : MintColors.textPrimary,
+                          ).copyWith(
+                            decoration:
+                                checked ? TextDecoration.lineThrough : null,
+                          ),
                         ),
                       ),
-                      child: checked
-                          ? const Icon(Icons.check,
-                              size: 14, color: MintColors.white)
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        items[index],
-                        style: MintTextStyles.bodyMedium(
-                          color: checked
-                              ? MintColors.textMuted
-                              : MintColors.textPrimary,
-                        ).copyWith(
-                          decoration: checked
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               ),
             );
           }),
@@ -1445,12 +1637,15 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 children: [
                   Text(
                     title,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     body,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -1552,4 +1747,3 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     );
   }
 }
-
