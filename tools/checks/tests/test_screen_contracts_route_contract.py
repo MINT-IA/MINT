@@ -89,6 +89,11 @@ def test_disability_insurance_contract_is_ledger_first() -> None:
         for line in screen_contracts.splitlines()
         if line.startswith("| `/explore/sante`")
     )
+    self_employed_row = next(
+        line
+        for line in screen_contracts.splitlines()
+        if line.startswith("| `/disability/self-employed`")
+    )
 
     assert "`q_gross_salary_annual`" in insurance_row
     assert "`q_cash_total`" in insurance_row
@@ -102,4 +107,12 @@ def test_disability_insurance_contract_is_ledger_first() -> None:
     assert "/data-block/revenu?inputKey=q_birth_year" in gap_row
     assert "screen-local user fact sliders" not in gap_row
     assert "salaireBrutMensuel" not in gap_row
+    assert "`q_self_employed_income`" in self_employed_row
+    assert "`q_cash_total`" in self_employed_row
+    assert "`q_housing_cost_period_chf`" in self_employed_row
+    assert "`q_lamal_premium_monthly_chf`" in self_employed_row
+    assert "`depenses.*`" in self_employed_row
+    assert "/data-block/revenu?inputKey=q_self_employed_income" in self_employed_row
+    assert "/data-block/patrimoine?inputKey=q_cash_total" in self_employed_row
+    assert "/budget/setup" in self_employed_row
     assert "/disability/self-employed" in health_hub_row

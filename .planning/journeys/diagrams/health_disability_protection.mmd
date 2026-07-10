@@ -22,11 +22,13 @@ flowchart LR
   BirthYear["q_birth_year<br/>age fact"]:::fact
   Cash["q_cash_total<br/>liquid savings fact"]:::fact
   SelfIncome["q_self_employed_income<br/>independent income fact"]:::fact
+  FixedCharges["q_housing_cost_period_chf + q_lamal_premium_monthly_chf<br/>monthly fixed charges fact"]:::fact
 
   DBSalary["/data-block/revenu<br/>?inputKey=q_gross_salary_annual"]:::missing
   DBBirthYear["/data-block/revenu<br/>?inputKey=q_birth_year"]:::missing
   DBCash["/data-block/patrimoine<br/>?inputKey=q_cash_total"]:::missing
   DBSelfIncome["/data-block/revenu<br/>?inputKey=q_self_employed_income"]:::missing
+  BudgetSetup["/budget/setup<br/>collect monthly fixed charges"]:::missing
 
   IjmToggle["Scenario lever<br/>IJM / employer daily allowance"]:::lever
   PrivateToggle["Scenario lever<br/>private loss-of-income insurance"]:::lever
@@ -36,7 +38,7 @@ flowchart LR
   Recompute["MintStateProvider<br/>recompute"]:::fact
   GapResult["disability_gap_result_section<br/>unlocked only with all three facts"]:::proof
   EmployeeResult["disability_insurance_result_section<br/>unlocked only with both facts"]:::proof
-  SelfResult["disability_self_result_cards<br/>unlocked only with income fact"]:::proof
+  SelfResult["disability_self_result_cards<br/>unlocked with income + charges<br/>countdown also requires savings"]:::proof
   Runtime["Widget tests + Maestro/Patrol ids<br/>no screen-local fact sliders"]:::proof
 
   HealthHub --> Gap
@@ -52,17 +54,21 @@ flowchart LR
   Employee --> IjmToggle
   Employee --> PrivateToggle
   SelfEmployed --> SelfIncome
+  SelfEmployed --> Cash
+  SelfEmployed --> FixedCharges
   SelfEmployed --> SelfToggle
 
   Salary -- "missing" --> DBSalary
   BirthYear -- "missing" --> DBBirthYear
   Cash -- "missing" --> DBCash
   SelfIncome -- "missing" --> DBSelfIncome
+  FixedCharges -- "missing" --> BudgetSetup
 
   DBSalary --> Provider
   DBBirthYear --> Provider
   DBCash --> Provider
   DBSelfIncome --> Provider
+  BudgetSetup --> Provider
   Provider --> Recompute
   Recompute --> Gap
   Recompute --> Employee
@@ -74,6 +80,8 @@ flowchart LR
   Salary --> EmployeeResult
   Cash --> EmployeeResult
   SelfIncome --> SelfResult
+  FixedCharges --> SelfResult
+  Cash --> SelfResult
   GapResult --> Runtime
   EmployeeResult --> Runtime
   SelfResult --> Runtime
@@ -82,6 +90,6 @@ flowchart LR
   %% HD-1 /disability/insurance has no MintPremiumSlider for salary or savings.
   %% HD-2 injected profile defaults do not unlock results unless userProvidedFields contains the facts.
   %% HD-3 missing salary routes to q_gross_salary_annual; missing age routes to q_birth_year; missing savings routes to q_cash_total.
-  %% HD-4 /disability/self-employed routes missing income to q_self_employed_income.
+  %% HD-4 /disability/self-employed routes missing income to q_self_employed_income, missing savings to q_cash_total, and missing charges to /budget/setup.
   %% HD-5 coverage toggles are scenario/current-coverage levers until persisted as dated facts.
   %% HD-6 /invalidite has no screen-local salary/age/savings sliders; result unlocks only with q_gross_salary_annual + q_birth_year + q_cash_total.

@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/independent_ledger_facts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -44,14 +43,35 @@ class _DisabilitySelfEmployedScreenState
     return IndependentLedgerFacts.selfEmployedAnnualIncome(provider?.profile);
   }
 
+  double? _liquidSavings(CoachProfileProvider? provider) {
+    final profile = provider?.profile;
+    if (profile == null ||
+        !profile.userProvidedFields.contains('liquidSavings')) {
+      return null;
+    }
+    final savings = profile.patrimoine.epargneLiquide;
+    if (savings < 0) return null;
+    return savings.toDouble();
+  }
+
+  double? _monthlyExpenses(CoachProfileProvider? provider) {
+    final profile = provider?.profile;
+    if (profile == null ||
+        !profile.userProvidedFields.contains('monthlyExpenses')) {
+      return null;
+    }
+    final expenses = profile.depenses.totalMensuel;
+    if (expenses <= 0) return null;
+    return expenses.toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
     final provider = _profileProvider(context);
     final annualIncome = _annualIncome(provider);
-    final monthlyRevenue = annualIncome == null
-        ? null
-        : IncomeConversionCalculator.monthlyAmountFromAnnual(annualIncome);
+    final liquidSavings = _liquidSavings(provider);
+    final monthlyExpenses = _monthlyExpenses(provider);
 
     return Scaffold(
       backgroundColor: MintColors.redBgLight, // fond rouge très pale
@@ -68,9 +88,15 @@ class _DisabilitySelfEmployedScreenState
                         const SizedBox(height: 20),
                         MintEntrance(
                             child: _buildLedgerFactsCard(
-                                context, s, annualIncome)),
+                          context,
+                          s,
+                          annualIncome: annualIncome,
+                          liquidSavings: liquidSavings,
+                          monthlyExpenses: monthlyExpenses,
+                        )),
                         const SizedBox(height: 20),
-                        if (monthlyRevenue != null) ...[
+                        if (annualIncome != null &&
+                            monthlyExpenses != null) ...[
                           Semantics(
                             key: const Key('disability_self_result_cards'),
                             identifier: 'disability_self_result_cards',
@@ -79,17 +105,21 @@ class _DisabilitySelfEmployedScreenState
                                 MintEntrance(
                                     delay: const Duration(milliseconds: 100),
                                     child: DisabilityRedScreenWidget(
-                                      monthlyExpenses: monthlyRevenue * 0.70,
+                                      monthlyExpenses: monthlyExpenses,
                                       hasPerteDegain: _hasPerteDegain,
                                     )),
                                 const SizedBox(height: 20),
                                 MintEntrance(
                                     delay: const Duration(milliseconds: 200),
-                                    child: DisabilityCountdownWidget(
-                                      monthlyExpenses: monthlyRevenue * 0.70,
-                                      initialSavings: monthlyRevenue * 3,
-                                    )),
-                                const SizedBox(height: 20),
+                                    child: liquidSavings == null
+                                        ? const SizedBox.shrink()
+                                        : DisabilityCountdownWidget(
+                                            monthlyExpenses: monthlyExpenses,
+                                            initialSavings: liquidSavings,
+                                            allowSavingsAdjustment: false,
+                                          )),
+                                if (liquidSavings != null)
+                                  const SizedBox(height: 20),
                                 MintEntrance(
                                     delay: const Duration(milliseconds: 300),
                                     child: _buildPerteDegainToggle()),
@@ -178,12 +208,31 @@ class _DisabilitySelfEmployedScreenState
 
   Widget _buildLedgerFactsCard(
     BuildContext context,
-    S s,
-    double? annualIncome,
-  ) {
-    final hasMissing = annualIncome == null;
-    final incomeLabel =
-        hasMissing ? s.dataBlockStatusMissing : 'CHF ${_fmtChf(annualIncome)}';
+    S s, {
+    required double? annualIncome,
+    required double? liquidSavings,
+    required double? monthlyExpenses,
+  }) {
+    final missingIncome = annualIncome == null;
+    final missingSavings = liquidSavings == null;
+    final missingExpenses = monthlyExpenses == null;
+    final hasMissing = missingIncome || missingSavings || missingExpenses;
+    final route = missingIncome
+        ? '/data-block/revenu?inputKey=q_self_employed_income'
+        : missingSavings
+            ? '/data-block/patrimoine?inputKey=q_cash_total'
+            : missingExpenses
+                ? '/budget/setup'
+                : '/data-block/revenu?inputKey=q_self_employed_income';
+    final incomeLabel = missingIncome
+        ? s.dataBlockStatusMissing
+        : 'CHF ${_fmtChf(annualIncome)}';
+    final savingsLabel = missingSavings
+        ? s.dataBlockStatusMissing
+        : 'CHF ${_fmtChf(liquidSavings)}';
+    final expensesLabel = missingExpenses
+        ? s.dataBlockStatusMissing
+        : 'CHF ${_fmtChf(monthlyExpenses)}';
     return Semantics(
       key: const Key('disability_self_ledger_facts'),
       identifier: 'disability_self_ledger_facts',
@@ -215,8 +264,7 @@ class _DisabilitySelfEmployedScreenState
                   ),
                 ),
                 TextButton.icon(
-                  onPressed: () => context.push(
-                      '/data-block/revenu?inputKey=q_self_employed_income'),
+                  onPressed: () => context.push(route),
                   icon: Icon(
                     hasMissing ? Icons.add_circle_outline : Icons.edit_outlined,
                     size: 18,
@@ -226,42 +274,70 @@ class _DisabilitySelfEmployedScreenState
               ],
             ),
             const SizedBox(height: MintSpacing.sm + 4),
-            Semantics(
+            _buildFactRow(
               key: const Key('disability_self_income_fact'),
               identifier: 'disability_self_income_fact',
-              label: '${s.independantRevenueTitle}, $incomeLabel',
-              container: true,
-              child: Row(
-                children: [
-                  Icon(
-                    hasMissing
-                        ? Icons.help_outline
-                        : Icons.check_circle_outline,
-                    color: hasMissing ? MintColors.warning : MintColors.success,
-                    size: 16,
-                  ),
-                  const SizedBox(width: MintSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      s.independantRevenueTitle,
-                      style: MintTextStyles.bodySmall(
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    incomeLabel,
-                    style: MintTextStyles.bodySmall(
-                      color: hasMissing
-                          ? MintColors.warning
-                          : MintColors.textPrimary,
-                    ).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
+              label: s.independantRevenueTitle,
+              value: incomeLabel,
+              isMissing: missingIncome,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _buildFactRow(
+              key: const Key('disability_self_savings_fact'),
+              identifier: 'disability_self_savings_fact',
+              label: s.disabilityAvailableSavings,
+              value: savingsLabel,
+              isMissing: missingSavings,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _buildFactRow(
+              key: const Key('disability_self_expenses_fact'),
+              identifier: 'disability_self_expenses_fact',
+              label: s.emergencyFundChargesLabel,
+              value: expensesLabel,
+              isMissing: missingExpenses,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFactRow({
+    required Key key,
+    required String identifier,
+    required String label,
+    required String value,
+    required bool isMissing,
+  }) {
+    return Semantics(
+      key: key,
+      identifier: identifier,
+      label: '$label, $value',
+      container: true,
+      child: Row(
+        children: [
+          Icon(
+            isMissing ? Icons.help_outline : Icons.check_circle_outline,
+            color: isMissing ? MintColors.warning : MintColors.success,
+            size: 16,
+          ),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: MintTextStyles.bodySmall(
+              color: isMissing ? MintColors.warning : MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }

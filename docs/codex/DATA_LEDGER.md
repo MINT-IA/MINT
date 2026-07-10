@@ -295,6 +295,8 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 | `depenses.{electricite,transport,telecom,fraisMedicaux,autresDepensesFixes}` | double? CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | `totalMensuel`, budget gap |
 
 > `depenses.*` field paths are NOT allowlist keys and have NO `_mapFactKeyToAnswers` case. The BudgetProvider bridge (§7) therefore writes them via the **field-path payload shape** defined in §7B, not via a `q_*` mapping.
+> `monthlyExpenses` is a **completion marker**, not a stored ledger value. Mobile may add it to `CoachProfile.userProvidedFields` only when both base monthly-charge keys `q_housing_cost_period_chf` and `q_lamal_premium_monthly_chf` are present. Screens such as `/disability/self-employed` must not unlock expense-sensitive projections from the default rent (`1500`) or estimated LAMal fallback.
+> `q_housing_cost_period_chf` is interpreted as a monthly housing charge unless an optional dedicated `q_housing_pay_frequency` says `yearly`/`annuel`; income `q_pay_frequency` must not change housing charges.
 
 ### 4.5 Couple detail (`conjoint.*`) and goals/meta
 

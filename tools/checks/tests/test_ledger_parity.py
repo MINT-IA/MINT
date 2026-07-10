@@ -46,3 +46,13 @@ def test_backend_mobile_and_data_ledger_save_fact_keys_match() -> None:
     assert len(allowlist_keys) == 36
     assert mapper_keys == allowlist_keys
     assert ledger_keys == allowlist_keys
+
+
+def test_monthly_expenses_completion_marker_is_documented() -> None:
+    ledger = DATA_LEDGER.read_text(encoding="utf-8")
+
+    assert "`monthlyExpenses` is a **completion marker**" in ledger
+    assert "`q_housing_cost_period_chf` and `q_lamal_premium_monthly_chf`" in ledger
+    assert "must not unlock expense-sensitive projections" in ledger
+    assert "`q_housing_cost_period_chf` is interpreted as a monthly housing charge" in ledger
+    assert "income `q_pay_frequency` must not change housing charges" in ledger

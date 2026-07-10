@@ -177,12 +177,16 @@ Map<String, dynamic> independentAnswers({
   double? grossSalary,
   int? birthYear,
   double? cashTotal,
+  double? monthlyHousing,
+  double? monthlyLamal,
   bool hasConsumerDebt = false,
   bool? voluntaryLpp,
 }) {
   return {
     if (birthYear != null) 'q_birth_year': birthYear,
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
+    if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     if (hasConsumerDebt) 'q_has_consumer_debt': true,
     if (selfIncome != null) ...{
       'q_self_employed_income': selfIncome,
@@ -687,15 +691,28 @@ void main() {
     testWidgets('uses ledger income instead of a local revenue slider', (
       tester,
     ) async {
-      await pumpDisabilitySelf(tester, independentAnswers(selfIncome: 144000));
+      await pumpDisabilitySelf(
+        tester,
+        independentAnswers(
+          selfIncome: 144000,
+          cashTotal: 30000,
+          monthlyHousing: 2200,
+          monthlyLamal: 420,
+        ),
+      );
 
       expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.byType(Slider), findsNothing);
       expect(
         find.byKey(const Key('disability_self_ledger_facts')),
         findsOneWidget,
       );
       expect(
         find.byKey(const Key('disability_self_income_fact')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('disability_self_expenses_fact')),
         findsOneWidget,
       );
       expect(find.textContaining("144'000"), findsOneWidget);
@@ -711,12 +728,13 @@ void main() {
       await pumpDisabilitySelf(tester, independentAnswers(grossSalary: 240000));
 
       expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.byType(Slider), findsNothing);
       expect(find.text("CHF 240'000"), findsNothing);
       expect(
         find.byKey(const Key('disability_self_result_cards')),
         findsNothing,
       );
-      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.text('Manquant'), findsNWidgets(3));
     });
 
     testWidgets('shows missing fact instead of defaulting to a monthly value', (
@@ -725,8 +743,9 @@ void main() {
       await pumpDisabilitySelf(tester, independentAnswers());
 
       expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.byType(Slider), findsNothing);
       expect(find.text("CHF 8'000"), findsNothing);
-      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.text('Manquant'), findsNWidgets(3));
       expect(
         find.byKey(const Key('disability_self_result_cards')),
         findsNothing,
@@ -750,7 +769,8 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.textContaining("144'000"), findsNothing);
-      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.text('Manquant'), findsNWidgets(3));
+      expect(find.byType(Slider), findsNothing);
       expect(
         find.byKey(const Key('disability_self_result_cards')),
         findsNothing,

@@ -101,6 +101,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 
 **Housing & fixed charges**
 - `q_housing_cost_period_chf` (double — rent OR mortgage),
+  `q_housing_pay_frequency` (`monthly`|`yearly`|`annuel`, optional; defaults
+  to monthly and must not reuse income `q_pay_frequency`),
   `q_housing_status` (locataire/proprietaire/…),
   `q_lamal_premium_monthly_chf` (double, health insurance actual value),
   `_coach_depenses_transport`, `_coach_depenses_telecom`,

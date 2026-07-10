@@ -2472,8 +2472,9 @@ class CoachProfile {
     // ── Depenses ────────────────────────────────────────────
     final housingCost =
         _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
+    final housingFrequency = answers['q_housing_pay_frequency'] as String?;
     double monthlyHousing;
-    if (payFrequency == 'yearly' || payFrequency == 'annuel') {
+    if (housingFrequency == 'yearly' || housingFrequency == 'annuel') {
       monthlyHousing = housingCost / 12;
     } else {
       monthlyHousing = housingCost;
@@ -3009,6 +3010,10 @@ class CoachProfile {
     if (answers.containsKey('q_cash_total') ||
         answers.containsKey('q_emergency_fund')) {
       provided.add('liquidSavings');
+    }
+    if (answers.containsKey('q_housing_cost_period_chf') &&
+        answers.containsKey('q_lamal_premium_monthly_chf')) {
+      provided.add('monthlyExpenses');
     }
     if (answers.containsKey('q_employment_rate')) {
       provided.add('employmentRate');
