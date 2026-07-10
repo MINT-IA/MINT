@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+
 Future<GoRouter> _pumpDebtRatio(
   WidgetTester tester, {
   Map<String, dynamic> answers = const {},
@@ -101,6 +102,78 @@ void main() {
     expect(find.byType(CustomPaint), findsWidgets);
   });
 
+  testWidgets('preserves exact net income facts from the ledger',
+      (tester) async {
+    await _pumpDebtRatio(
+      tester,
+      answers: const {
+        'q_birth_year': 1986,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+      },
+    );
+
+    expect(
+        find.byKey(const Key('debt_ratio_income_fact_card')), findsOneWidget);
+    expect(find.textContaining(formatChf(7200)), findsOneWidget);
+    expect(find.textContaining('Données connues'), findsOneWidget);
+    expect(find.textContaining('Estimé'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('debt_ratio_edit_income_cta')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('data-block:revenu:q_net_income_period_chf'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('prefers exact net income when gross salary also exists',
+      (tester) async {
+    await _pumpDebtRatio(
+      tester,
+      answers: const {
+        'q_birth_year': 1986,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_gross_salary_annual': 120000,
+      },
+    );
+
+    expect(
+        find.byKey(const Key('debt_ratio_income_fact_card')), findsOneWidget);
+    expect(find.textContaining(formatChf(7200)), findsOneWidget);
+    expect(find.textContaining('Données connues'), findsOneWidget);
+    expect(find.textContaining('Estimé'), findsNothing);
+  });
+
+  testWidgets('taxes concubinage as two single persons for estimates',
+      (tester) async {
+    await _pumpDebtRatio(
+      tester,
+      answers: const {
+        'q_birth_year': 1986,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 120000,
+        'q_civil_status': 'concubinage',
+      },
+    );
+
+    final expectedNetMonthly = NetIncomeBreakdown.compute(
+      grossSalary: 120000,
+      canton: 'VD',
+      age: DateTime.now().year - 1986,
+      etatCivil: 'celibataire',
+    ).monthlyNetPayslip;
+
+    expect(
+        find.byKey(const Key('debt_ratio_income_fact_card')), findsOneWidget);
+    expect(find.textContaining(formatChf(expectedNetMonthly)), findsOneWidget);
+    expect(find.textContaining('Estimé'), findsOneWidget);
+  });
+
   testWidgets('seeds minimum vital family defaults from ledger',
       (tester) async {
     await _pumpDebtRatio(
@@ -146,6 +219,7 @@ void main() {
         'q_canton': 'GE',
         'q_employment_status': 'independant',
         'q_self_employed_income': 96000,
+        'q_gross_salary_annual': 120000,
       },
     );
 

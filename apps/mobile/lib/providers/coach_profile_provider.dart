@@ -52,6 +52,13 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
 
+  /// Immutable slice of the wizard answers backing [profile].
+  Map<String, dynamic> answersForKeys(Iterable<String> keys) =>
+      Map.unmodifiable({
+        for (final key in keys)
+          if (_lastAnswers.containsKey(key)) key: _lastAnswers[key],
+      });
+
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
   static Map<String, DateTime> _stampTimestamps(

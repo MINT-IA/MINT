@@ -35,6 +35,14 @@ class DebtRatioScreen extends StatefulWidget {
 }
 
 class _DebtRatioIncomeFacts {
+  static const _incomeAnswerKeys = [
+    'q_employment_status',
+    'q_gross_salary_annual',
+    'q_net_income_period_chf',
+    'q_pay_frequency',
+    'q_self_employed_income',
+  ];
+
   final double? netMonthly;
   final bool isEstimated;
   final String inputKey;
@@ -47,41 +55,109 @@ class _DebtRatioIncomeFacts {
 
   bool get hasIncome => netMonthly != null && netMonthly! > 0;
 
-  factory _DebtRatioIncomeFacts.fromProfile(CoachProfile? profile) {
+  factory _DebtRatioIncomeFacts.fromProvider(CoachProfileProvider? provider) {
+    return _DebtRatioIncomeFacts.fromProfile(
+      provider?.profile,
+      answers: provider?.answersForKeys(_incomeAnswerKeys) ?? const {},
+    );
+  }
+
+  factory _DebtRatioIncomeFacts.fromProfile(
+    CoachProfile? profile, {
+    Map<String, dynamic> answers = const {},
+  }) {
     if (profile == null) {
       return const _DebtRatioIncomeFacts();
     }
 
-    final hasSalary = profile.userProvidedFields.contains('salary') &&
-        profile.salaireBrutMensuel > 0;
+    final selfEmployedAnnual =
+        _positiveDouble(answers['q_self_employed_income']) ??
+            (profile.userProvidedFields.contains('selfEmployedNetIncome')
+                ? profile.selfEmployedNetIncome
+                : null);
     final hasSelfEmployedIncome =
-        profile.userProvidedFields.contains('selfEmployedNetIncome') &&
-            (profile.selfEmployedNetIncome ?? 0) > 0;
+        selfEmployedAnnual != null && selfEmployedAnnual > 0;
+    final isIndependent = _isIndependent(profile, answers);
+    final grossAnnual = _positiveDouble(answers['q_gross_salary_annual']);
+    final exactNetPeriod = _positiveDouble(answers['q_net_income_period_chf']);
+    final hasSalary = grossAnnual != null ||
+        exactNetPeriod != null ||
+        (profile.userProvidedFields.contains('salary') &&
+            profile.salaireBrutMensuel > 0);
+
+    // Independent-specific income is a domain-specific annual fact; it wins
+    // over generic net income when the employment status is independent.
+    if (hasSelfEmployedIncome && (isIndependent || !hasSalary)) {
+      return _DebtRatioIncomeFacts(
+        netMonthly: selfEmployedAnnual / 12,
+        inputKey: 'q_self_employed_income',
+      );
+    }
+
+    if (exactNetPeriod != null) {
+      return _DebtRatioIncomeFacts(
+        netMonthly: _isYearly(answers['q_pay_frequency'])
+            ? exactNetPeriod / 12
+            : exactNetPeriod,
+        inputKey: 'q_net_income_period_chf',
+      );
+    }
+
     if (!hasSalary && !hasSelfEmployedIncome) {
       return _DebtRatioIncomeFacts(
-        inputKey: profile.employmentStatus == 'independant'
-            ? 'q_self_employed_income'
-            : 'q_gross_salary_annual',
+        inputKey:
+            isIndependent ? 'q_self_employed_income' : 'q_gross_salary_annual',
       );
     }
 
     final age = profile.ageOrNull ?? 40;
-    final netMonthly = hasSelfEmployedIncome
-        ? profile.selfEmployedNetIncome! / 12
-        : NetIncomeBreakdown.compute(
-            grossSalary: profile.revenuBrutAnnuel,
-            canton: profile.canton,
-            age: age,
-            etatCivil: profile.etatCivil.name,
-            nombreEnfants: profile.nombreEnfants,
-          ).monthlyNetPayslip;
+    final netMonthly = NetIncomeBreakdown.compute(
+      grossSalary: grossAnnual ?? profile.revenuBrutAnnuel,
+      canton: profile.canton,
+      age: age,
+      etatCivil: _taxCivilStatus(profile.etatCivil),
+      nombreEnfants: profile.nombreEnfants,
+    ).monthlyNetPayslip;
     return _DebtRatioIncomeFacts(
       netMonthly: netMonthly,
-      isEstimated: hasSalary,
-      inputKey: hasSelfEmployedIncome
-          ? 'q_self_employed_income'
-          : 'q_gross_salary_annual',
+      isEstimated: true,
+      inputKey: 'q_gross_salary_annual',
     );
+  }
+
+  static double? _positiveDouble(dynamic raw) {
+    final value = switch (raw) {
+      num n => n.toDouble(),
+      String s => double.tryParse(
+          s.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.'),
+        ),
+      _ => null,
+    };
+    if (value == null || value <= 0) return null;
+    return value;
+  }
+
+  static bool _isYearly(dynamic raw) {
+    final value = raw?.toString().toLowerCase();
+    return value == 'yearly' || value == 'annual' || value == 'annuel';
+  }
+
+  static bool _isIndependent(
+    CoachProfile profile,
+    Map<String, dynamic> answers,
+  ) {
+    final value =
+        (answers['q_employment_status'] as String?) ?? profile.employmentStatus;
+    return value == 'independant' ||
+        value == 'independent' ||
+        value == 'self_employed';
+  }
+
+  static String _taxCivilStatus(CoachCivilStatus status) {
+    return switch (status) {
+      CoachCivilStatus.marie => 'marie',
+      _ => 'celibataire',
+    };
   }
 }
 
@@ -117,7 +193,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     _finalReturnEmitted = true;
 
     final provider = _coachProvider(context, listen: false);
-    final incomeFacts = _DebtRatioIncomeFacts.fromProfile(provider?.profile);
+    final incomeFacts = _DebtRatioIncomeFacts.fromProvider(provider);
     final result = _resultFor(incomeFacts);
     if (result == null) {
       final screenReturn = ScreenReturn.abandoned(
@@ -189,7 +265,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
   Widget build(BuildContext context) {
     final provider = _coachProvider(context);
     _syncFamilyDefaultsFromProfile(provider?.profile);
-    final incomeFacts = _DebtRatioIncomeFacts.fromProfile(provider?.profile);
+    final incomeFacts = _DebtRatioIncomeFacts.fromProvider(provider);
     final result = _resultFor(incomeFacts);
 
     return PopScope(
