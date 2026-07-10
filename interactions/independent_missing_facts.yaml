@@ -1,0 +1,138 @@
+schema_version: 1
+flow:
+  id: independent_missing_facts
+  title: "Independent protection screens to missing ledger facts"
+  exits: [db.route.revenu, db.route.patrimoine]
+  invariants:
+    max_depth: 3
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: indep.route.avs
+    kind: route
+    route: /independants/avs
+    widget: screens/independants/avs_cotisations_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: indep.route.ijm
+    kind: route
+    route: /independants/ijm
+    widget: screens/independants/ijm_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: indep.route.pillar3a
+    kind: route
+    route: /independants/3a
+    widget: screens/independants/pillar_3a_indep_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: indep.route.divsalary
+    kind: route
+    route: /independants/dividende-salaire
+    widget: screens/independants/dividende_vs_salaire_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: indep.route.lpp
+    kind: route
+    route: /independants/lpp-volontaire
+    widget: screens/independants/lpp_volontaire_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: db.route.patrimoine
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: indep.edge.avs.enrich_income
+    from: indep.route.avs
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect self-employed income before calculating AVS contributions"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_avs_cotisations.yaml
+
+  - id: indep.edge.ijm.enrich_income_or_age
+    from: indep.route.ijm
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect independent income or birth year before estimating IJM cover"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_ijm.yaml
+
+  - id: indep.edge.pillar3a.enrich_income_or_pension
+    from: indep.route.pillar3a
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect independent income or pension-fund status before calculating 3a room"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_pillar3a.yaml
+
+  - id: indep.edge.pillar3a.enrich_cash
+    from: indep.route.pillar3a
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect liquid savings before showing independent 3a safe-mode result"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_pillar3a.yaml
+
+  - id: indep.edge.divsalary.enrich_profit
+    from: indep.route.divsalary
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect company profit envelope before comparing salary and dividend"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_dividende_salaire.yaml
+
+  - id: indep.edge.lpp.enrich_income_or_age
+    from: indep.route.lpp
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect independent income or birth year before estimating voluntary LPP"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_lpp_volontaire.yaml

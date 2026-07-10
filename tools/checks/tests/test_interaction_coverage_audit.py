@@ -72,6 +72,7 @@ void wire(context, doc) {
   context.go('/coach/chat?topic=budget');
   context.push('/missing');
   final item = LinkItem(route: '/documents/${doc.id}'); // context.push('/inline-commented');
+  final enrichment = LinkItem(route: '/data-block/${type}');
   /*
    context.push('/block-commented');
    */
@@ -94,7 +95,8 @@ def test_interaction_coverage_audit_generates_current_report(tmp_path: Path) -> 
     report = (tmp_path / ".planning/journeys/INTERACTION_COVERAGE_AUDIT.md").read_text(
         encoding="utf-8",
     )
-    assert "covered by declared edge target | `/hypotheque`" in report
+    assert "covered by declared route node | `/hypotheque`" in report
+    assert "covered by declared route node | `/data-block/:type`" in report
     assert "uncovered literal route | `/coach/chat`" in report
     assert "uncovered literal route | `/documents/:id`" in report
     assert "unknown route literal | `/missing`" in report
@@ -109,6 +111,7 @@ def test_interaction_coverage_extracts_query_and_dynamic_route_templates(tmp_pat
 
     assert by_raw["/coach/chat?topic=budget"].canonical_route == "/coach/chat"
     assert by_raw["/documents/${doc.id}"].canonical_route == "/documents/:id"
+    assert by_raw["/data-block/${type}"].canonical_route == "/data-block/:type"
     assert "/commented" not in by_raw
     assert "/inline-commented" not in by_raw
     assert "/block-commented" not in by_raw

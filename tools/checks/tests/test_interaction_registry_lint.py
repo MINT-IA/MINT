@@ -11,6 +11,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   '/data-block/:type': RouteMeta(path: '/data-block/:type'),
   '/hypotheque': RouteMeta(path: '/hypotheque'),
   '/home': RouteMeta(path: '/home'),
+  '/independants/avs': RouteMeta(path: '/independants/avs'),
 };
 """,
         encoding="utf-8",
@@ -30,6 +31,11 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
         "class AffordabilityScreen {}\n",
         encoding="utf-8",
     )
+    (root / "apps/mobile/lib/screens/independants").mkdir(parents=True)
+    (root / "apps/mobile/lib/screens/independants/avs_cotisations_screen.dart").write_text(
+        "void cta(context) => context.push('/data-block/revenu?inputKey=q_self_employed_income');\n",
+        encoding="utf-8",
+    )
     (root / "apps/mobile/lib/services").mkdir(parents=True)
     (root / "apps/mobile/lib/services/analytics_events.dart").write_text(
         "const String kEventCtaClicked = 'cta_clicked';\n",
@@ -43,6 +49,10 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     (root / "apps/mobile/.maestro").mkdir(parents=True)
     (root / "apps/mobile/.maestro/f2_datablock_to_mortgage.yaml").write_text(
         "appId: ch.mint.app\n---\n- assertVisible: {text: Revenu}\n",
+        encoding="utf-8",
+    )
+    (root / "apps/mobile/.maestro/indep_avs_cotisations.yaml").write_text(
+        "appId: ch.mint.app\n---\n- assertVisible: {text: AVS}\n",
         encoding="utf-8",
     )
     (root / ".planning/journeys/diagrams").mkdir(parents=True)
@@ -224,6 +234,67 @@ def test_interaction_registry_lint_rejects_undeclared_back_target(tmp_path: Path
     assert (
         "interactions/revenu_to_mortgage.yaml: node db.route.revenu back target "
         "is undeclared: home.route.dashbord"
+    ) in interaction_registry_lint.check(tmp_path)
+
+
+def test_interaction_registry_lint_rejects_unreferenced_data_block_instance(tmp_path: Path) -> None:
+    _write_minimal_repo(tmp_path)
+    interactions = tmp_path / "interactions"
+    interactions.mkdir()
+    (interactions / "independent_missing_facts.yaml").write_text(
+        """
+schema_version: 1
+flow:
+  id: independent_missing_facts
+  title: "Independent missing facts"
+  exits: [db.route.patrimoine]
+nodes:
+  - id: indep.route.avs
+    kind: route
+    route: /independants/avs
+    widget: screens/independants/avs_cotisations_screen.dart
+    entries: [{via: deeplink, back: pop}]
+    states: [content]
+  - id: db.route.patrimoine
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries: [{via: flow, back: pop}]
+    states: [content]
+edges:
+  - id: indep.edge.avs.enrich_cash
+    from: indep.route.avs
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect cash"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_avs_cotisations.yaml
+""",
+        encoding="utf-8",
+    )
+
+    assert (
+        "interactions/independent_missing_facts.yaml: edge indep.edge.avs.enrich_cash "
+        "target instance /data-block/patrimoine is not referenced in source widget "
+        "screens/independants/avs_cotisations_screen.dart"
+    ) in interaction_registry_lint.check(tmp_path)
+
+
+def test_interaction_registry_lint_rejects_unenforced_data_block_node_name(tmp_path: Path) -> None:
+    _write_minimal_repo(tmp_path)
+    _write_registry(tmp_path)
+    registry = tmp_path / "interactions/revenu_to_mortgage.yaml"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace("db.route.revenu", "data.route.revenu"),
+        encoding="utf-8",
+    )
+
+    assert (
+        "interactions/revenu_to_mortgage.yaml: data-block node data.route.revenu "
+        "must use id format db.route.<type>"
     ) in interaction_registry_lint.check(tmp_path)
 
 

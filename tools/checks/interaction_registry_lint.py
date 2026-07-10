@@ -36,6 +36,7 @@ EXTRA_ALLOWLIST_RE = re.compile(
     r"^[A-Z][A-Za-z0-9_]*(Id|Ids|Key|Code|Token|Enum|Type|Selection|Slug)$",
 )
 BACK_TARGET_RE = re.compile(r"^(?:pop_to|reset_to)\(([^)]+)\)$")
+DATA_BLOCK_NODE_RE = re.compile(r"^db\.route\.([a-z0-9_]+)$")
 
 
 @dataclass(frozen=True)
@@ -120,6 +121,43 @@ def _arb_keys(root: Path) -> set[str]:
     return {key for key in data if not key.startswith("@")}
 
 
+def _data_block_instance_for_node(node: dict[str, Any]) -> str | None:
+    if node.get("route") != "/data-block/:type":
+        return None
+    node_id = node.get("id")
+    if not isinstance(node_id, str):
+        return None
+    match = DATA_BLOCK_NODE_RE.match(node_id)
+    if not match:
+        return None
+    return f"/data-block/{match.group(1)}"
+
+
+def _validate_data_block_edge_reference(
+    root: Path,
+    rel_path: str,
+    edge_id: str,
+    from_node: dict[str, Any],
+    to_node: dict[str, Any],
+    errors: list[str],
+) -> None:
+    expected_literal = _data_block_instance_for_node(to_node)
+    if expected_literal is None:
+        return
+    widget = from_node.get("widget")
+    if not isinstance(widget, str):
+        return
+    widget_path = root / "apps/mobile/lib" / widget
+    if not widget_path.is_file():
+        return
+    text = widget_path.read_text(encoding="utf-8", errors="ignore")
+    if expected_literal not in text:
+        errors.append(
+            f"{rel_path}: edge {edge_id} target instance {expected_literal} "
+            f"is not referenced in source widget {widget}",
+        )
+
+
 def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
     routes = _route_registry(root)
     analytics = _analytics_events(root)
@@ -153,6 +191,7 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
             errors.append(f"{rel_path}: edges must contain at least one edge")
 
         node_ids: set[str] = set()
+        nodes_by_id: dict[str, dict[str, Any]] = {}
         incoming: dict[str, int] = {}
         outgoing: dict[str, int] = {}
         exits = flow.get("exits") or []
@@ -170,6 +209,7 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
             if node_id in node_ids:
                 errors.append(f"{rel_path}: duplicate node id {node_id}")
             node_ids.add(node_id)
+            nodes_by_id[node_id] = node
             if node_kind not in ("route", "scene"):
                 errors.append(f"{rel_path}: node {node_id} kind must be route or scene")
             if node_kind == "route":
@@ -178,6 +218,10 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
                     errors.append(f"{rel_path}: node {node_id} route is required")
                 elif route not in routes:
                     errors.append(f"{rel_path}: unknown route {route}")
+                elif route == "/data-block/:type" and _data_block_instance_for_node(node) is None:
+                    errors.append(
+                        f"{rel_path}: data-block node {node_id} must use id format db.route.<type>",
+                    )
             if node_kind == "scene" and not node.get("parent"):
                 errors.append(f"{rel_path}: scene {node_id} must declare parent")
             widget = node.get("widget")
@@ -226,6 +270,11 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
                 outgoing[from_node] = outgoing.get(from_node, 0) + 1
             if isinstance(to_node, str):
                 incoming[to_node] = incoming.get(to_node, 0) + 1
+            if isinstance(from_node, str) and isinstance(to_node, str):
+                source_node = nodes_by_id.get(from_node)
+                target_node = nodes_by_id.get(to_node)
+                if source_node is not None and target_node is not None:
+                    _validate_data_block_edge_reference(root, rel_path, edge_id, source_node, target_node, errors)
             if edge.get("trigger") not in ("tap", "swipe", "long_press", "submit", "system"):
                 errors.append(f"{rel_path}: edge {edge_id} trigger is invalid")
             if edge.get("transition") not in ("push", "replace", "reset_stack", "sheet", "dialog", "in_shell"):

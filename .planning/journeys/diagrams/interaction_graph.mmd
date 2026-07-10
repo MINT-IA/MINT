@@ -3,10 +3,22 @@ flowchart LR
   classDef route fill:#eef7f2,stroke:#0d7c66,stroke-width:1px,color:#10231f;
   classDef scene fill:#fff7e8,stroke:#b7791f,stroke-width:1px,color:#2b2112;
 
+  db_route_patrimoine["db.route.patrimoine<br/>/data-block/:type"]:::route
   db_route_revenu["db.route.revenu<br/>/data-block/:type"]:::route
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
+  indep_route_avs["indep.route.avs<br/>/independants/avs"]:::route
+  indep_route_divsalary["indep.route.divsalary<br/>/independants/dividende-salaire"]:::route
+  indep_route_ijm["indep.route.ijm<br/>/independants/ijm"]:::route
+  indep_route_lpp["indep.route.lpp<br/>/independants/lpp-volontaire"]:::route
+  indep_route_pillar3a["indep.route.pillar3a<br/>/independants/3a"]:::route
   mortgage_route_hypotheque["mortgage.route.hypotheque<br/>/hypotheque"]:::route
 
+  indep_route_avs -->|"tap / push"| db_route_revenu
+  indep_route_divsalary -->|"tap / push"| db_route_revenu
+  indep_route_ijm -->|"tap / push"| db_route_revenu
+  indep_route_lpp -->|"tap / push"| db_route_revenu
+  indep_route_pillar3a -->|"tap / push"| db_route_patrimoine
+  indep_route_pillar3a -->|"tap / push"| db_route_revenu
   db_route_revenu -->|"submit / push"| mortgage_route_hypotheque
 
   db_route_revenu -. "back" .-> home_route_dashboard

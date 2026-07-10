@@ -66,8 +66,8 @@ La cartographie de parcours est active et vérifiée par
 régénère `interactions/INDEX.md` plus
 `.planning/journeys/diagrams/interaction_graph.mmd`.
 `tools/checks/interaction_coverage_audit.py --write` photographie les
-références de navigation Flutter réelles et les compare aux routes cibles déjà
-déclarées dans les edges YAML. Son rapport généré
+références de navigation Flutter littérales et les compare aux routes déjà
+déclarées comme nodes dans les YAML. Son rapport généré
 `.planning/journeys/INTERACTION_COVERAGE_AUDIT.md` sert de backlog objectif pour
 prioriser les prochains flux à migrer ; il ne remplace pas le registry et ne
 bloque pas encore les routes non migrées.
@@ -83,6 +83,11 @@ bloque pas encore les routes non migrées.
 - `interactions/revenu_to_mortgage.yaml` : premier flux piloté, reliant
   `/data-block/:type` à `/hypotheque` avec preuve Maestro
   `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml`.
+- `interactions/independent_missing_facts.yaml` : flux indépendant réel,
+  limité aux CTA prouvées des écrans AVS/IJM/3a/dividende-salaire/LPP vers
+  DataBlock revenu/patrimoine. Il ne déclare pas de hub
+  `/segments/independant -> outils` tant que le code et Maestro ne prouvent pas
+  ces taps.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.

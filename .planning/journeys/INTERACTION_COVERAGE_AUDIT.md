@@ -6,15 +6,20 @@
 
 - Extracted Flutter route references: 350
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry edge targets: 1
-- Known route templates not yet declared as edge targets: 91
+- Covered by declared Interaction Registry route nodes: 5
+- Known route templates not yet declared as route nodes: 87
+- Declared edge target route templates: 2
 - Unknown route literals/templates: 0
 
-## Covered Routes
+## Covered Registry Route Nodes
 
 | Status | Route | References |
 |---|---|---|
-| covered by declared edge target | `/hypotheque` | apps/mobile/lib/app.dart:588, apps/mobile/lib/screens/mortgage/affordability_screen.dart:192, apps/mobile/lib/screens/mortgage/affordability_screen.dart:203, apps/mobile/lib/screens/timeline_screen.dart:148 (+5 more) |
+| covered by declared route node | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1325, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:801, apps/mobile/lib/widgets/coach/confidence_blocks_bar.dart:82, apps/mobile/lib/widgets/coach/indicatif_banner.dart:99 |
+| covered by declared route node | `/home` | apps/mobile/lib/services/navigation/mint_nav.dart:19 |
+| covered by declared route node | `/hypotheque` | apps/mobile/lib/app.dart:588, apps/mobile/lib/screens/mortgage/affordability_screen.dart:192, apps/mobile/lib/screens/mortgage/affordability_screen.dart:203, apps/mobile/lib/screens/timeline_screen.dart:148 (+5 more) |
+| covered by declared route node | `/independants/avs` | apps/mobile/lib/widgets/coach/smart_shortcuts.dart:183 |
+| covered by declared route node | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:403 |
 
 ## Uncovered Known Routes
 
@@ -45,7 +50,6 @@
 | uncovered literal route | `/coach/cockpit` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:507, apps/mobile/lib/widgets/coach/early_retirement_comparison.dart:202, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:48, apps/mobile/lib/widgets/coach/trajectory_card.dart:54 |
 | uncovered literal route | `/concubinage` | apps/mobile/lib/app.dart:561, apps/mobile/lib/screens/timeline_screen.dart:71, apps/mobile/lib/services/cap_engine.dart:835, apps/mobile/lib/services/response_card_service.dart:301 (+1 more) |
 | uncovered literal route | `/couple` | apps/mobile/lib/screens/household/accept_invitation_screen.dart:187, apps/mobile/lib/services/response_card_service.dart:806 |
-| uncovered literal route | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1325, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:801, apps/mobile/lib/widgets/coach/confidence_blocks_bar.dart:82, apps/mobile/lib/widgets/coach/indicatif_banner.dart:99 |
 | uncovered literal route | `/debt/help` | apps/mobile/lib/widgets/common/debt_tools_nav.dart:40 |
 | uncovered literal route | `/debt/ratio` | apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:67, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:78, apps/mobile/lib/services/response_card_service.dart:481, apps/mobile/lib/widgets/common/debt_tools_nav.dart:16 |
 | uncovered literal route | `/debt/repayment` | apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:944, apps/mobile/lib/screens/debt_prevention/repayment_screen.dart:63, apps/mobile/lib/screens/debt_prevention/repayment_screen.dart:74, apps/mobile/lib/services/cap_engine.dart:889 (+1 more) |
@@ -69,10 +73,7 @@
 | uncovered literal route | `/explore/travail` | apps/mobile/lib/screens/explore/explorer_screen.dart:53 |
 | uncovered literal route | `/first-job` | apps/mobile/lib/app.dart:573, apps/mobile/lib/screens/first_job_screen.dart:111, apps/mobile/lib/screens/first_job_screen.dart:122, apps/mobile/lib/screens/timeline_screen.dart:106 (+2 more) |
 | uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:609, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:564, apps/mobile/lib/screens/fiscal_comparator_screen.dart:170 (+8 more) |
-| uncovered literal route | `/home` | apps/mobile/lib/services/navigation/mint_nav.dart:19 |
 | uncovered literal route | `/household/accept` | apps/mobile/lib/screens/household/household_screen.dart:509 |
-| uncovered literal route | `/independants/avs` | apps/mobile/lib/widgets/coach/smart_shortcuts.dart:183 |
-| uncovered literal route | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:403 |
 | uncovered literal route | `/invalidite` | apps/mobile/lib/app.dart:633, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:871 (+2 more) |
 | uncovered literal route | `/libre-passage` | apps/mobile/lib/app.dart:549, apps/mobile/lib/services/response_card_service.dart:113 |
 | uncovered literal route | `/life-event/deces-proche` | apps/mobile/lib/app.dart:622, apps/mobile/lib/services/cap_engine.dart:841 |
@@ -118,8 +119,22 @@
 |---|---|---|
 | unknown route literal | _none_ |  |
 
+## Declared Route Node Routes
+
+| Route |
+|---|
+| `/data-block/:type` |
+| `/home` |
+| `/hypotheque` |
+| `/independants/3a` |
+| `/independants/avs` |
+| `/independants/dividende-salaire` |
+| `/independants/ijm` |
+| `/independants/lpp-volontaire` |
+
 ## Declared Edge Target Routes
 
 | Route |
 |---|
+| `/data-block/:type` |
 | `/hypotheque` |

@@ -212,6 +212,17 @@ def declared_edge_target_routes(root: Path) -> set[str]:
     return routes
 
 
+def declared_route_node_routes(root: Path) -> set[str]:
+    routes: set[str] = set()
+    for doc in _load_interactions(root):
+        for node in doc.get("nodes", []):
+            if isinstance(node, dict) and node.get("kind") == "route":
+                route = node.get("route")
+                if isinstance(route, str):
+                    routes.add(route)
+    return routes
+
+
 def _group_locations(refs: list[RouteReference], root: Path, limit: int = 4) -> str:
     locations = [ref.location(root) for ref in refs[:limit]]
     extra = len(refs) - len(locations)
@@ -223,15 +234,16 @@ def generate_report(root: Path) -> str:
     root = root.resolve()
     route_registry = _route_registry(root)
     refs = extract_references(root)
-    declared = declared_edge_target_routes(root)
+    declared_nodes = declared_route_node_routes(root)
+    declared_targets = declared_edge_target_routes(root)
     refs_by_route: dict[str, list[RouteReference]] = {}
     for ref in refs:
         refs_by_route.setdefault(ref.canonical_route, []).append(ref)
 
     known_routes = set(refs_by_route).intersection(route_registry)
     unknown_routes = set(refs_by_route).difference(route_registry)
-    covered_routes = known_routes.intersection(declared)
-    uncovered_routes = known_routes.difference(declared)
+    covered_routes = known_routes.intersection(declared_nodes)
+    uncovered_routes = known_routes.difference(declared_nodes)
 
     lines = [
         "# Interaction Coverage Audit",
@@ -242,21 +254,22 @@ def generate_report(root: Path) -> str:
         "",
         f"- Extracted Flutter route references: {len(refs)}",
         f"- Distinct known route templates referenced: {len(known_routes)}",
-        f"- Covered by declared Interaction Registry edge targets: {len(covered_routes)}",
-        f"- Known route templates not yet declared as edge targets: {len(uncovered_routes)}",
+        f"- Covered by declared Interaction Registry route nodes: {len(covered_routes)}",
+        f"- Known route templates not yet declared as route nodes: {len(uncovered_routes)}",
+        f"- Declared edge target route templates: {len(declared_targets)}",
         f"- Unknown route literals/templates: {len(unknown_routes)}",
         "",
-        "## Covered Routes",
+        "## Covered Registry Route Nodes",
         "",
         "| Status | Route | References |",
         "|---|---|---|",
     ]
     for route in sorted(covered_routes):
         lines.append(
-            f"| covered by declared edge target | `{route}` | {_group_locations(refs_by_route[route], root)} |",
+            f"| covered by declared route node | `{route}` | {_group_locations(refs_by_route[route], root)} |",
         )
     if not covered_routes:
-        lines.append("| covered by declared edge target | _none_ |  |")
+        lines.append("| covered by declared route node | _none_ |  |")
 
     lines.extend(
         [
@@ -288,15 +301,28 @@ def generate_report(root: Path) -> str:
     lines.extend(
         [
             "",
+            "## Declared Route Node Routes",
+            "",
+            "| Route |",
+            "|---|",
+        ],
+    )
+    for route in sorted(declared_nodes):
+        lines.append(f"| `{route}` |")
+    if not declared_nodes:
+        lines.append("| _none_ |")
+    lines.extend(
+        [
+            "",
             "## Declared Edge Target Routes",
             "",
             "| Route |",
             "|---|",
         ],
     )
-    for route in sorted(declared):
+    for route in sorted(declared_targets):
         lines.append(f"| `{route}` |")
-    if not declared:
+    if not declared_targets:
         lines.append("| _none_ |")
     return "\n".join(lines) + "\n"
 
