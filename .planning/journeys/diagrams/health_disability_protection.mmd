@@ -11,19 +11,20 @@ flowchart LR
   classDef fact fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
   classDef lever fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
   classDef missing fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
-  classDef debt fill:#fff0f0,stroke:#c83d3d,color:#2c0f0f,stroke-width:1px;
   classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
 
   HealthHub["/explore/sante"]:::route
-  LegacyGap["/invalidite<br/>legacy debt: local fact sliders"]:::debt
+  Gap["/invalidite<br/>disability gap explainer"]:::route
   Employee["/disability/insurance<br/>employee coverage detail"]:::route
   SelfEmployed["/disability/self-employed<br/>self-employed gap"]:::route
 
   Salary["q_gross_salary_annual<br/>salary fact"]:::fact
+  BirthYear["q_birth_year<br/>age fact"]:::fact
   Cash["q_cash_total<br/>liquid savings fact"]:::fact
   SelfIncome["q_self_employed_income<br/>independent income fact"]:::fact
 
   DBSalary["/data-block/revenu<br/>?inputKey=q_gross_salary_annual"]:::missing
+  DBBirthYear["/data-block/revenu<br/>?inputKey=q_birth_year"]:::missing
   DBCash["/data-block/patrimoine<br/>?inputKey=q_cash_total"]:::missing
   DBSelfIncome["/data-block/revenu<br/>?inputKey=q_self_employed_income"]:::missing
 
@@ -33,14 +34,19 @@ flowchart LR
 
   Provider["CoachProfileProvider<br/>mergeAnswers/applySaveFact"]:::fact
   Recompute["MintStateProvider<br/>recompute"]:::fact
+  GapResult["disability_gap_result_section<br/>unlocked only with all three facts"]:::proof
   EmployeeResult["disability_insurance_result_section<br/>unlocked only with both facts"]:::proof
   SelfResult["disability_self_result_cards<br/>unlocked only with income fact"]:::proof
   Runtime["Widget tests + Maestro/Patrol ids<br/>no screen-local fact sliders"]:::proof
 
-  HealthHub --> LegacyGap
+  HealthHub --> Gap
   HealthHub --> Employee
   HealthHub --> SelfEmployed
 
+  Gap --> Salary
+  Gap --> BirthYear
+  Gap --> Cash
+  Gap --> IjmToggle
   Employee --> Salary
   Employee --> Cash
   Employee --> IjmToggle
@@ -49,26 +55,33 @@ flowchart LR
   SelfEmployed --> SelfToggle
 
   Salary -- "missing" --> DBSalary
+  BirthYear -- "missing" --> DBBirthYear
   Cash -- "missing" --> DBCash
   SelfIncome -- "missing" --> DBSelfIncome
 
   DBSalary --> Provider
+  DBBirthYear --> Provider
   DBCash --> Provider
   DBSelfIncome --> Provider
   Provider --> Recompute
+  Recompute --> Gap
   Recompute --> Employee
   Recompute --> SelfEmployed
 
+  Salary --> GapResult
+  BirthYear --> GapResult
+  Cash --> GapResult
   Salary --> EmployeeResult
   Cash --> EmployeeResult
   SelfIncome --> SelfResult
+  GapResult --> Runtime
   EmployeeResult --> Runtime
   SelfResult --> Runtime
-  LegacyGap -. "migration target: replace local sliders with same ledger facts" .-> Employee
 
   %% Invariants:
   %% HD-1 /disability/insurance has no MintPremiumSlider for salary or savings.
   %% HD-2 injected profile defaults do not unlock results unless userProvidedFields contains the facts.
-  %% HD-3 missing salary routes to q_gross_salary_annual; missing savings routes to q_cash_total.
+  %% HD-3 missing salary routes to q_gross_salary_annual; missing age routes to q_birth_year; missing savings routes to q_cash_total.
   %% HD-4 /disability/self-employed routes missing income to q_self_employed_income.
   %% HD-5 coverage toggles are scenario/current-coverage levers until persisted as dated facts.
+  %% HD-6 /invalidite has no screen-local salary/age/savings sliders; result unlocks only with q_gross_salary_annual + q_birth_year + q_cash_total.

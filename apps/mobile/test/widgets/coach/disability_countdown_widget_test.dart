@@ -5,7 +5,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
-  Widget buildWidget({double savings = 28000}) => MaterialApp(
+  Widget buildWidget({
+    double savings = 28000,
+    bool allowSavingsAdjustment = true,
+  }) =>
+      MaterialApp(
         locale: const Locale('fr'),
         localizationsDelegates: const [
           S.delegate,
@@ -19,6 +23,7 @@ void main() {
             child: DisabilityCountdownWidget(
               monthlyExpenses: 5200,
               initialSavings: savings,
+              allowSavingsAdjustment: allowSavingsAdjustment,
             ),
           ),
         ),
@@ -54,6 +59,23 @@ void main() {
   testWidgets('shows actions when savings insufficient', (tester) async {
     await tester.pumpWidget(buildWidget(savings: 5000));
     expect(find.textContaining('urgence'), findsWidgets);
+  });
+
+  testWidgets('resyncs read-only savings when the ledger value changes',
+      (tester) async {
+    await tester.pumpWidget(buildWidget(
+      savings: 5000,
+      allowSavingsAdjustment: false,
+    ));
+    expect(find.textContaining('urgence'), findsWidgets);
+
+    await tester.pumpWidget(buildWidget(
+      savings: 100000,
+      allowSavingsAdjustment: false,
+    ));
+
+    expect(find.textContaining('couvrent'), findsOneWidget);
+    expect(find.textContaining('urgence'), findsNothing);
   });
 
   testWidgets('shows disclaimer', (tester) async {

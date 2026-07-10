@@ -7718,9 +7718,6 @@ class SDe extends S {
   String get slmInitEngine => 'Engine initialisieren';
 
   @override
-  String get disabilityYourSituation => 'Deine Situation';
-
-  @override
   String get disabilityGrossMonthly => 'Bruttomonatslohn';
 
   @override
@@ -15264,6 +15261,118 @@ class SDe extends S {
 
   @override
   String get deuxViesTitle => 'Eure zwei Leben';
+
+  @override
+  String get disabilityCountdownApgAction =>
+      'Schliesse eine private Erwerbsausfalldeckung ab (ab CHF 45/Monat)';
+
+  @override
+  String disabilityCountdownDecisionLabel(int months) {
+    return 'Tag 0 → IV-Entscheid: $months Monate';
+  }
+
+  @override
+  String disabilityCountdownDelayLabel(int months) {
+    return 'Durchschnittliche IV-Entscheiddauer: $months Monate (IVG Art. 28)';
+  }
+
+  @override
+  String get disabilityCountdownDisclaimer =>
+      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: IVG Art. 28, ATSG Art. 19.';
+
+  @override
+  String get disabilityCountdownEmergencyAction =>
+      'Baue einen Notgroschen für 6 Monate Ausgaben auf';
+
+  @override
+  String disabilityCountdownGapAmount(String amount) {
+    return 'Dir fehlen CHF $amount, um bis zum IV-Entscheid durchzuhalten.';
+  }
+
+  @override
+  String get disabilityCountdownGapLabel => 'Die Lücke';
+
+  @override
+  String disabilityCountdownGapSpan(String months) {
+    return '◄── $months Monate ──►';
+  }
+
+  @override
+  String get disabilityCountdownHoldLabel => 'Du hältst';
+
+  @override
+  String disabilityCountdownHoldSpan(String months) {
+    return '◄── $months Monate ──►';
+  }
+
+  @override
+  String disabilityCountdownOkDetail(String holdMonths, int delayMonths) {
+    return 'Du hältst $holdMonths Monate, also mehr als die durchschnittlichen $delayMonths Monate.';
+  }
+
+  @override
+  String get disabilityCountdownOkTitle =>
+      'Deine Reserven decken die ganze IV-Wartezeit.';
+
+  @override
+  String get disabilityCountdownSemantics => 'Countdown zur IV-Wartefrist';
+
+  @override
+  String disabilityCountdownShockDetail(String months) {
+    return 'Schockzahl: Nach $months Monaten müsstest du leihen oder verkaufen, um durchzuhalten.';
+  }
+
+  @override
+  String get disabilityCountdownTimelineTitle =>
+      'Tragfähigkeit vs. IV-Wartezeit';
+
+  @override
+  String get disabilityCountdownTitle => 'Wie lange hältst du durch?';
+
+  @override
+  String get disabilityCliffAction => 'Prüfe deine BVG-Invaliditätsdeckung';
+
+  @override
+  String disabilityCliffActTitle(int index, String label) {
+    return 'AKT $index · $label';
+  }
+
+  @override
+  String disabilityCliffCurrentSalary(String amount) {
+    return 'Dein aktueller Lohn: CHF $amount/Monat';
+  }
+
+  @override
+  String get disabilityCliffHeaderTitle =>
+      'Wenn du morgen nicht mehr arbeiten könntest';
+
+  @override
+  String disabilityCliffLostOver15Years(String amount) {
+    return 'Über 15 Jahre = CHF $amount weniger Einkommen.';
+  }
+
+  @override
+  String disabilityCliffLostMonthly(String amount) {
+    return 'Du würdest CHF $amount/Monat verlieren.';
+  }
+
+  @override
+  String get disabilityCliffPerMonth => '/Monat';
+
+  @override
+  String get disabilityCliffSemantics =>
+      'Invaliditäts-Klippe als Timeline in 3 Akten';
+
+  @override
+  String get disabilityCliffShockTitle => 'Schockzahl';
+
+  @override
+  String get disabilityCliffSubtitle => 'Die Invaliditäts-Klippe in 3 Akten';
+
+  @override
+  String disabilityCliffVsBefore(String amount) {
+    return 'vs. CHF $amount/Monat vorher';
+  }
 
   @override
   String get disabilityGapAct1Detail =>

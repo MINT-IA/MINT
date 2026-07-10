@@ -13674,12 +13674,6 @@ abstract class S {
   /// **'Initialiser le moteur'**
   String get slmInitEngine;
 
-  /// No description provided for @disabilityYourSituation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ta situation'**
-  String get disabilityYourSituation;
-
   /// No description provided for @disabilityGrossMonthly.
   ///
   /// In fr, this message translates to:
@@ -26878,6 +26872,168 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Vos deux vies'**
   String get deuxViesTitle;
+
+  /// No description provided for @disabilityCountdownApgAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souscris une APG privée (dès CHF 45/mois)'**
+  String get disabilityCountdownApgAction;
+
+  /// No description provided for @disabilityCountdownDecisionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour J → Décision AI : {months} mois'**
+  String disabilityCountdownDecisionLabel(int months);
+
+  /// No description provided for @disabilityCountdownDelayLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délai moyen de décision AI : {months} mois (LAI art. 28)'**
+  String disabilityCountdownDelayLabel(int months);
+
+  /// No description provided for @disabilityCountdownDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAI art. 28, LPGA art. 19.'**
+  String get disabilityCountdownDisclaimer;
+
+  /// No description provided for @disabilityCountdownEmergencyAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Constitue un fonds d\'urgence de 6 mois de charges'**
+  String get disabilityCountdownEmergencyAction;
+
+  /// No description provided for @disabilityCountdownGapAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te manque CHF {amount} pour tenir jusqu\'à la décision AI.'**
+  String disabilityCountdownGapAmount(String amount);
+
+  /// No description provided for @disabilityCountdownGapLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le vide'**
+  String get disabilityCountdownGapLabel;
+
+  /// No description provided for @disabilityCountdownGapSpan.
+  ///
+  /// In fr, this message translates to:
+  /// **'◄── {months} mois ──►'**
+  String disabilityCountdownGapSpan(String months);
+
+  /// No description provided for @disabilityCountdownHoldLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu tiens'**
+  String get disabilityCountdownHoldLabel;
+
+  /// No description provided for @disabilityCountdownHoldSpan.
+  ///
+  /// In fr, this message translates to:
+  /// **'◄── {months} mois ──►'**
+  String disabilityCountdownHoldSpan(String months);
+
+  /// No description provided for @disabilityCountdownOkDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu tiens {holdMonths} mois, soit plus que le délai moyen de {delayMonths} mois.'**
+  String disabilityCountdownOkDetail(String holdMonths, int delayMonths);
+
+  /// No description provided for @disabilityCountdownOkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réserves couvrent tout le délai AI.'**
+  String get disabilityCountdownOkTitle;
+
+  /// No description provided for @disabilityCountdownSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte à rebours délai carence AI invalidité'**
+  String get disabilityCountdownSemantics;
+
+  /// No description provided for @disabilityCountdownShockDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chiffre-choc : après {months} mois, il te faudrait emprunter ou vendre pour tenir.'**
+  String disabilityCountdownShockDetail(String months);
+
+  /// No description provided for @disabilityCountdownTimelineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée de tenir vs délai AI'**
+  String get disabilityCountdownTimelineTitle;
+
+  /// No description provided for @disabilityCountdownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de temps tu tiens ?'**
+  String get disabilityCountdownTitle;
+
+  /// No description provided for @disabilityCliffAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta couverture LPP invalidité'**
+  String get disabilityCliffAction;
+
+  /// No description provided for @disabilityCliffActTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACTE {index} · {label}'**
+  String disabilityCliffActTitle(int index, String label);
+
+  /// No description provided for @disabilityCliffCurrentSalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire actuel : CHF {amount}/mois'**
+  String disabilityCliffCurrentSalary(String amount);
+
+  /// No description provided for @disabilityCliffHeaderTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu ne pouvais plus travailler demain'**
+  String get disabilityCliffHeaderTitle;
+
+  /// No description provided for @disabilityCliffLostOver15Years.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur 15 ans = CHF {amount} de revenus en moins.'**
+  String disabilityCliffLostOver15Years(String amount);
+
+  /// No description provided for @disabilityCliffLostMonthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu perdrais CHF {amount}/mois.'**
+  String disabilityCliffLostMonthly(String amount);
+
+  /// No description provided for @disabilityCliffPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'/mois'**
+  String get disabilityCliffPerMonth;
+
+  /// No description provided for @disabilityCliffSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'La Falaise timeline invalidité 3 actes'**
+  String get disabilityCliffSemantics;
+
+  /// No description provided for @disabilityCliffShockTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chiffre-choc'**
+  String get disabilityCliffShockTitle;
+
+  /// No description provided for @disabilityCliffSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La falaise d\'invalidité en 3 actes'**
+  String get disabilityCliffSubtitle;
+
+  /// No description provided for @disabilityCliffVsBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'vs CHF {amount}/mois avant'**
+  String disabilityCliffVsBefore(String amount);
 
   /// No description provided for @disabilityGapAct1Detail.
   ///

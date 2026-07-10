@@ -7655,9 +7655,6 @@ class SEn extends S {
   String get slmInitEngine => 'Initialize engine';
 
   @override
-  String get disabilityYourSituation => 'Your situation';
-
-  @override
   String get disabilityGrossMonthly => 'Gross monthly salary';
 
   @override
@@ -15155,6 +15152,116 @@ class SEn extends S {
 
   @override
   String get deuxViesTitle => 'Your two lives';
+
+  @override
+  String get disabilityCountdownApgAction =>
+      'Subscribe to private loss-of-income cover (from CHF 45/month)';
+
+  @override
+  String disabilityCountdownDecisionLabel(int months) {
+    return 'Day 0 → DI decision: $months months';
+  }
+
+  @override
+  String disabilityCountdownDelayLabel(int months) {
+    return 'Average DI decision delay: $months months (DIA art. 28)';
+  }
+
+  @override
+  String get disabilityCountdownDisclaimer =>
+      'Educational tool · not financial advice under FinSA. Source: DIA art. 28, LPGA art. 19.';
+
+  @override
+  String get disabilityCountdownEmergencyAction =>
+      'Build an emergency fund covering 6 months of expenses';
+
+  @override
+  String disabilityCountdownGapAmount(String amount) {
+    return 'You are short CHF $amount to bridge the DI decision delay.';
+  }
+
+  @override
+  String get disabilityCountdownGapLabel => 'The gap';
+
+  @override
+  String disabilityCountdownGapSpan(String months) {
+    return '◄── $months months ──►';
+  }
+
+  @override
+  String get disabilityCountdownHoldLabel => 'You hold';
+
+  @override
+  String disabilityCountdownHoldSpan(String months) {
+    return '◄── $months months ──►';
+  }
+
+  @override
+  String disabilityCountdownOkDetail(String holdMonths, int delayMonths) {
+    return 'You hold $holdMonths months, more than the average $delayMonths-month delay.';
+  }
+
+  @override
+  String get disabilityCountdownOkTitle =>
+      'Your reserves cover the full DI delay.';
+
+  @override
+  String get disabilityCountdownSemantics =>
+      'Disability waiting-period countdown';
+
+  @override
+  String disabilityCountdownShockDetail(String months) {
+    return 'Shock number: after $months months, you would need to borrow or sell to bridge the gap.';
+  }
+
+  @override
+  String get disabilityCountdownTimelineTitle => 'Time covered vs DI delay';
+
+  @override
+  String get disabilityCountdownTitle => 'How long can you hold?';
+
+  @override
+  String get disabilityCliffAction => 'Check your LPP disability cover';
+
+  @override
+  String disabilityCliffActTitle(int index, String label) {
+    return 'ACT $index · $label';
+  }
+
+  @override
+  String disabilityCliffCurrentSalary(String amount) {
+    return 'Your current salary: CHF $amount/month';
+  }
+
+  @override
+  String get disabilityCliffHeaderTitle => 'If you could not work tomorrow';
+
+  @override
+  String disabilityCliffLostOver15Years(String amount) {
+    return 'Over 15 years = CHF $amount less income.';
+  }
+
+  @override
+  String disabilityCliffLostMonthly(String amount) {
+    return 'You would lose CHF $amount/month.';
+  }
+
+  @override
+  String get disabilityCliffPerMonth => '/month';
+
+  @override
+  String get disabilityCliffSemantics => 'Disability cliff timeline in 3 acts';
+
+  @override
+  String get disabilityCliffShockTitle => 'Shock number';
+
+  @override
+  String get disabilityCliffSubtitle => 'The disability cliff in 3 acts';
+
+  @override
+  String disabilityCliffVsBefore(String amount) {
+    return 'vs CHF $amount/month before';
+  }
 
   @override
   String get disabilityGapAct1Detail =>

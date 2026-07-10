@@ -3589,7 +3589,6 @@
   "slmInitError": "Errore di inizializzazione del modello. Verifica che il tuo dispositivo sia compatibile.",
   "slmInitializing": "Inizializzazione...",
   "slmInitEngine": "Inizializzare il motore",
-  "disabilityYourSituation": "La tua situazione",
   "disabilityGrossMonthly": "Stipendio lordo mensile",
   "disabilityYourAge": "La tua età",
   "disabilityAvailableSavings": "Risparmio disponibile",
@@ -8045,6 +8044,123 @@
   "deuxViesGap": "Divario di {amount}/mese a favore di {name}",
   "deuxViesLever": "{lever} colmerebbe {impact} del divario",
   "deuxViesTitle": "Le vostre due vite",
+  "disabilityCountdownApgAction": "Sottoscrivi una copertura privata perdita di guadagno (da CHF 45/mese)",
+  "disabilityCountdownDecisionLabel": "Giorno 0 → decisione AI: {months} mesi",
+  "@disabilityCountdownDecisionLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDelayLabel": "Tempo medio di decisione AI: {months} mesi (LAI art. 28)",
+  "@disabilityCountdownDelayLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDisclaimer": "Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LAI art. 28, LPGA art. 19.",
+  "disabilityCountdownEmergencyAction": "Crea un fondo d'emergenza di 6 mesi di spese",
+  "disabilityCountdownGapAmount": "Ti mancano CHF {amount} per arrivare alla decisione AI.",
+  "@disabilityCountdownGapAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownGapLabel": "Il vuoto",
+  "disabilityCountdownGapSpan": "◄── {months} mesi ──►",
+  "@disabilityCountdownGapSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownHoldLabel": "Resisti",
+  "disabilityCountdownHoldSpan": "◄── {months} mesi ──►",
+  "@disabilityCountdownHoldSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownOkDetail": "Resisti {holdMonths} mesi, più del tempo medio di {delayMonths} mesi.",
+  "@disabilityCountdownOkDetail": {
+    "placeholders": {
+      "holdMonths": {
+        "type": "String"
+      },
+      "delayMonths": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownOkTitle": "Le tue riserve coprono tutto il periodo AI.",
+  "disabilityCountdownSemantics": "Conto alla rovescia del periodo di carenza AI invalidità",
+  "disabilityCountdownShockDetail": "Cifra shock: dopo {months} mesi dovresti prendere in prestito o vendere per resistere.",
+  "@disabilityCountdownShockDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownTimelineTitle": "Durata coperta vs periodo AI",
+  "disabilityCountdownTitle": "Quanto tempo resisti?",
+  "disabilityCliffAction": "Verifica la tua copertura LPP invalidità",
+  "disabilityCliffActTitle": "ATTO {index} · {label}",
+  "@disabilityCliffActTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffCurrentSalary": "Il tuo stipendio attuale: CHF {amount}/mese",
+  "@disabilityCliffCurrentSalary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffHeaderTitle": "Se domani non potessi più lavorare",
+  "disabilityCliffLostOver15Years": "Su 15 anni = CHF {amount} di reddito in meno.",
+  "@disabilityCliffLostOver15Years": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffLostMonthly": "Perderesti CHF {amount}/mese.",
+  "@disabilityCliffLostMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffPerMonth": "/mese",
+  "disabilityCliffSemantics": "Timeline invalidità in 3 atti",
+  "disabilityCliffShockTitle": "Cifra shock",
+  "disabilityCliffSubtitle": "La caduta da invalidità in 3 atti",
+  "disabilityCliffVsBefore": "vs CHF {amount}/mese prima",
+  "@disabilityCliffVsBefore": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "disabilityGapAct1Detail": "80 % del tuo stipendio pagato dal datore di lavoro",
   "disabilityGapAct1Duration": "Settimane 1-26",
   "disabilityGapAct1Label": "ATTO 1 · Datore di lavoro",

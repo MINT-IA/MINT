@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -14,13 +15,16 @@ class DisabilityCountdownWidget extends StatefulWidget {
     super.key,
     required this.monthlyExpenses,
     required this.initialSavings,
+    this.allowSavingsAdjustment = true,
   });
 
   final double monthlyExpenses;
   final double initialSavings;
+  final bool allowSavingsAdjustment;
 
   @override
-  State<DisabilityCountdownWidget> createState() => _DisabilityCountdownWidgetState();
+  State<DisabilityCountdownWidget> createState() =>
+      _DisabilityCountdownWidgetState();
 }
 
 class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
@@ -35,8 +39,19 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     _savings = widget.initialSavings;
   }
 
+  @override
+  void didUpdateWidget(covariant DisabilityCountdownWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.allowSavingsAdjustment &&
+        (oldWidget.initialSavings != widget.initialSavings ||
+            oldWidget.allowSavingsAdjustment)) {
+      _savings = widget.initialSavings;
+    }
+  }
+
   double get _monthsCanHold => _savings / widget.monthlyExpenses;
-  double get _gapMonths => (_aiDelayMonths - _monthsCanHold).clamp(0, _aiDelayMonths.toDouble());
+  double get _gapMonths =>
+      (_aiDelayMonths - _monthsCanHold).clamp(0, _aiDelayMonths.toDouble());
   double get _gapAmount => _gapMonths * widget.monthlyExpenses;
   double get _holdFraction => (_monthsCanHold / _aiDelayMonths).clamp(0.0, 1.0);
 
@@ -52,6 +67,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final hold = _monthsCanHold;
     final gap = _gapMonths;
     final isOk = hold >= _aiDelayMonths;
@@ -62,7 +78,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             : MintColors.scoreCritique;
 
     return Semantics(
-      label: 'Compte à rebours délai carence AI invalidité',
+      label: s.disabilityCountdownSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -72,21 +88,23 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSavingsSlider(),
+                  widget.allowSavingsAdjustment
+                      ? _buildSavingsSlider(context)
+                      : _buildSavingsFact(),
                   const SizedBox(height: 20),
-                  _buildTimeline(hold, gap, color),
+                  _buildTimeline(context, hold, gap, color),
                   const SizedBox(height: 16),
-                  _buildPremierEclairage(hold, gap, color, isOk),
+                  _buildPremierEclairage(context, hold, gap, color, isOk),
                   const SizedBox(height: 16),
-                  if (!isOk) _buildActions(),
+                  if (!isOk) _buildActions(context),
                   if (!isOk) const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(context),
                 ],
               ),
             ),
@@ -96,7 +114,8 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -112,15 +131,17 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Combien de temps tu tiens ?',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+                  s.disabilityCountdownTitle,
+                  style:
+                      MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                          .copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            'Délai moyen de décision AI : $_aiDelayMonths mois (LAI art. 28)',
+            s.disabilityCountdownDelayLabel(_aiDelayMonths),
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
@@ -128,7 +149,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildSavingsSlider() {
+  Widget _buildSavingsSlider(BuildContext context) {
     final maxSavings = _aiDelayMonths * widget.monthlyExpenses * 1.5;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,12 +158,14 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Ton épargne disponible',
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+              S.of(context)!.disabilityAvailableSavings,
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
               'CHF ${_fmt(_savings)}',
-              style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary)
+                  .copyWith(fontWeight: FontWeight.w800),
             ),
           ],
         ),
@@ -157,7 +180,8 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('CHF 0', style: MintTextStyles.micro(color: MintColors.textSecondary)),
+            Text('CHF 0',
+                style: MintTextStyles.micro(color: MintColors.textSecondary)),
             Text(
               'CHF ${_fmt(maxSavings)}',
               style: MintTextStyles.micro(color: MintColors.textSecondary),
@@ -168,13 +192,49 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildTimeline(double hold, double gap, Color color) {
+  Widget _buildSavingsFact() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MintColors.appleSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.account_balance_wallet_outlined,
+              color: MintColors.primary, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              S.of(context)!.disabilityAvailableSavings,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          Text(
+            'CHF ${_fmt(_savings)}',
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeline(
+    BuildContext context,
+    double hold,
+    double gap,
+    Color color,
+  ) {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Durée de tenir vs délai AI',
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+          s.disabilityCountdownTimelineTitle,
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Stack(
@@ -209,11 +269,12 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '◄── ${hold.toStringAsFixed(1)} mois ──►',
-                  style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w700),
+                  s.disabilityCountdownHoldSpan(hold.toStringAsFixed(1)),
+                  style: MintTextStyles.labelSmall(color: color)
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Tu tiens',
+                  s.disabilityCountdownHoldLabel,
                   style: MintTextStyles.micro(color: MintColors.textSecondary),
                 ),
               ],
@@ -223,12 +284,15 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '◄── ${gap.toStringAsFixed(1)} mois ──►',
-                    style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
+                    s.disabilityCountdownGapSpan(gap.toStringAsFixed(1)),
+                    style: MintTextStyles.labelSmall(
+                            color: MintColors.scoreCritique)
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                   Text(
-                    'Le vide',
-                    style: MintTextStyles.micro(color: MintColors.textSecondary),
+                    s.disabilityCountdownGapLabel,
+                    style:
+                        MintTextStyles.micro(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -238,7 +302,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         Align(
           alignment: Alignment.centerRight,
           child: Text(
-            'Jour J → Décision AI : $_aiDelayMonths mois',
+            s.disabilityCountdownDecisionLabel(_aiDelayMonths),
             style: MintTextStyles.micro(color: MintColors.textSecondary),
           ),
         ),
@@ -246,7 +310,14 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildPremierEclairage(double hold, double gap, Color color, bool isOk) {
+  Widget _buildPremierEclairage(
+    BuildContext context,
+    double hold,
+    double gap,
+    Color color,
+    bool isOk,
+  ) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -259,23 +330,30 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         children: [
           if (isOk) ...[
             Text(
-              '✅ Tes réserves couvrent tout le délai AI.',
-              style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
+              '✅ ${s.disabilityCountdownOkTitle}',
+              style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Tu tiens ${hold.toStringAsFixed(1)} mois, soit plus que le délai moyen de $_aiDelayMonths mois.',
-              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+              s.disabilityCountdownOkDetail(
+                hold.toStringAsFixed(1),
+                _aiDelayMonths,
+              ),
+              style:
+                  MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ] else ...[
             Text(
-              '💰 Chiffre-choc : après ${hold.toStringAsFixed(1)} mois, il te faudrait emprunter ou vendre pour tenir.',
-              style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
+              '💰 ${s.disabilityCountdownShockDetail(hold.toStringAsFixed(1))}',
+              style: MintTextStyles.bodySmall(color: MintColors.scoreCritique)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
-              'Il te manque CHF ${_fmt(_gapAmount)} pour tenir jusqu\'à la décision AI.',
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
+              s.disabilityCountdownGapAmount(_fmt(_gapAmount)),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(height: 1.4),
             ),
           ],
         ],
@@ -283,16 +361,17 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildActions() {
+  Widget _buildActions(BuildContext context) {
+    final s = S.of(context)!;
     return Column(
       children: [
         _buildAction(
-          '→ Constitue un fonds d\'urgence de 6 mois de charges',
+          '→ ${s.disabilityCountdownEmergencyAction}',
           MintColors.primary,
         ),
         const SizedBox(height: 8),
         _buildAction(
-          '→ Souscris une APG privée (dès CHF 45/mois)',
+          '→ ${s.disabilityCountdownApgAction}',
           MintColors.info,
         ),
       ],
@@ -309,15 +388,15 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
       ),
       child: Text(
         label,
-        style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
+        style: MintTextStyles.bodySmall(color: color)
+            .copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(BuildContext context) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAI art. 28, LPGA art. 19.',
+      S.of(context)!.disabilityCountdownDisclaimer,
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

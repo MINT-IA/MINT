@@ -60,15 +60,17 @@ def test_health_disability_diagram_pins_ledger_first_boundary() -> None:
     required = (
         "/explore/sante",
         "/invalidite",
-        "legacy debt: local fact sliders",
         "/disability/insurance",
         "/disability/self-employed",
         "q_gross_salary_annual",
+        "q_birth_year",
         "q_cash_total",
         "q_self_employed_income",
         "/data-block/revenu<br/>?inputKey=q_gross_salary_annual",
+        "/data-block/revenu<br/>?inputKey=q_birth_year",
         "/data-block/patrimoine<br/>?inputKey=q_cash_total",
         "/data-block/revenu<br/>?inputKey=q_self_employed_income",
+        "disability_gap_result_section",
         "disability_insurance_result_section",
         "disability_self_result_cards",
         "Scenario lever",
@@ -76,6 +78,7 @@ def test_health_disability_diagram_pins_ledger_first_boundary() -> None:
     )
     for phrase in required:
         assert phrase in diagram
+    assert "legacy debt: local fact sliders" not in diagram
 
 
 def test_workflow_and_registry_reference_active_mermaid_layers() -> None:

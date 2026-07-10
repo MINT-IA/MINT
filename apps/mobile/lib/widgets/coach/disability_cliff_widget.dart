@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -50,12 +51,13 @@ class DisabilityCliffWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final lastIncome = acts.isNotEmpty ? acts.last.monthlyIncome : grossMonthly;
     final lostMonthly = grossMonthly - lastIncome;
     final lostYearly15 = lostMonthly * 12 * 15;
 
     return Semantics(
-      label: 'La Falaise timeline invalidité 3 actes',
+      label: s.disabilityCliffSemantics,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -65,21 +67,25 @@ class DisabilityCliffWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(lostMonthly),
+            _buildHeader(context),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildCurrentIncome(),
+                  _buildCurrentIncome(context),
                   const SizedBox(height: 20),
                   ...acts.asMap().entries.map(
-                    (e) => _buildAct(e.key, e.value),
-                  ),
+                        (e) => _buildAct(context, e.key, e.value),
+                      ),
                   const SizedBox(height: 8),
-                  _buildPremierEclairage(lostMonthly, lostYearly15),
+                  _buildPremierEclairage(
+                    context,
+                    lostMonthly,
+                    lostYearly15,
+                  ),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(context),
                 ],
               ),
             ),
@@ -89,7 +95,8 @@ class DisabilityCliffWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(double lostMonthly) {
+  Widget _buildHeader(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -105,15 +112,17 @@ class DisabilityCliffWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Si tu ne pouvais plus travailler demain',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
+                  s.disabilityCliffHeaderTitle,
+                  style:
+                      MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            'La falaise d\'invalidité en 3 actes',
+            s.disabilityCliffSubtitle,
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
         ],
@@ -121,7 +130,8 @@ class DisabilityCliffWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentIncome() {
+  Widget _buildCurrentIncome(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -133,16 +143,21 @@ class DisabilityCliffWidget extends StatelessWidget {
         children: [
           const Icon(Icons.work_outline, color: MintColors.primary, size: 18),
           const SizedBox(width: 10),
-          Text(
-            'Ton salaire actuel : CHF ${_fmt(grossMonthly)}/mois',
-            style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
+          Expanded(
+            child: Text(
+              s.disabilityCliffCurrentSalary(_fmt(grossMonthly)),
+              style: MintTextStyles.bodyMedium(color: MintColors.primary)
+                  .copyWith(fontWeight: FontWeight.w700),
+              softWrap: true,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAct(int index, DisabilityAct act) {
+  Widget _buildAct(BuildContext context, int index, DisabilityAct act) {
+    final s = S.of(context)!;
     final isLast = index == acts.length - 1;
     return Column(
       children: [
@@ -167,12 +182,16 @@ class DisabilityCliffWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ACTE ${index + 1} · ${act.label}',
-                          style: MintTextStyles.labelMedium(color: act.color).copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                          s.disabilityCliffActTitle(index + 1, act.label),
+                          style: MintTextStyles.labelMedium(color: act.color)
+                              .copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5),
                         ),
                         Text(
                           act.durationLabel,
-                          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+                          style: MintTextStyles.labelMedium(
+                              color: MintColors.textSecondary),
                         ),
                       ],
                     ),
@@ -182,11 +201,13 @@ class DisabilityCliffWidget extends StatelessWidget {
                     children: [
                       Text(
                         'CHF ${_fmt(act.monthlyIncome)}',
-                        style: MintTextStyles.titleLarge(color: act.color).copyWith(fontWeight: FontWeight.w800),
+                        style: MintTextStyles.titleLarge(color: act.color)
+                            .copyWith(fontWeight: FontWeight.w800),
                       ),
                       Text(
-                        '/mois',
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                        s.disabilityCliffPerMonth,
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -196,27 +217,33 @@ class DisabilityCliffWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   act.subtitle,
-                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
+                  style: MintTextStyles.labelMedium(
+                          color: MintColors.textSecondary)
+                      .copyWith(height: 1.4),
                 ),
               ],
               if (act.detail != null) ...[
                 const SizedBox(height: 6),
                 Text(
                   act.detail!,
-                  style: MintTextStyles.labelSmall(color: act.color).copyWith(fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelSmall(color: act.color)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
               if (isLast && acts.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: MintColors.scoreCritique.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'vs CHF ${_fmt(grossMonthly)}/mois avant',
-                    style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
+                    s.disabilityCliffVsBefore(_fmt(grossMonthly)),
+                    style: MintTextStyles.labelMedium(
+                            color: MintColors.scoreCritique)
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -231,50 +258,60 @@ class DisabilityCliffWidget extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 4),
       child: Center(
-        child: Icon(Icons.keyboard_arrow_down, color: MintColors.textSecondary, size: 24),
+        child: Icon(Icons.keyboard_arrow_down,
+            color: MintColors.textSecondary, size: 24),
       ),
     );
   }
 
-  Widget _buildPremierEclairage(double lostMonthly, double lostYearly15) {
+  Widget _buildPremierEclairage(
+    BuildContext context,
+    double lostMonthly,
+    double lostYearly15,
+  ) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MintColors.scoreCritique.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.scoreCritique.withValues(alpha: 0.25)),
+        border:
+            Border.all(color: MintColors.scoreCritique.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💰 Chiffre-choc',
-            style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
+            s.disabilityCliffShockTitle,
+            style: MintTextStyles.labelMedium(color: MintColors.scoreCritique)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
-            'Tu perdrais CHF ${_fmt(lostMonthly)}/mois.',
-            style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
+            s.disabilityCliffLostMonthly(_fmt(lostMonthly)),
+            style: MintTextStyles.titleMedium(color: MintColors.scoreCritique)
+                .copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
-            'Sur 15 ans = CHF ${_fmt(lostYearly15)} de revenus en moins.',
-            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
+            s.disabilityCliffLostOver15Years(_fmt(lostYearly15)),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                .copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
           Text(
-            '→ Action : Vérifie ta couverture LPP invalidité',
-            style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
+            '→ ${s.disabilityCliffAction}',
+            style: MintTextStyles.bodySmall(color: MintColors.primary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(BuildContext context) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LAVS art. 28-29, LPP art. 23-26.',
+      S.of(context)!.disabilityGapDisclaimer,
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

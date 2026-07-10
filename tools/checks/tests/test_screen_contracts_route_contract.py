@@ -79,7 +79,7 @@ def test_disability_insurance_contract_is_ledger_first() -> None:
         for line in screen_contracts.splitlines()
         if line.startswith("| `/disability/insurance`")
     )
-    legacy_row = next(
+    gap_row = next(
         line
         for line in screen_contracts.splitlines()
         if line.startswith("| `/invalidite`")
@@ -96,5 +96,10 @@ def test_disability_insurance_contract_is_ledger_first() -> None:
     assert "/data-block/patrimoine?inputKey=q_cash_total" in insurance_row
     assert "/data-block/lpp" not in insurance_row
     assert "salaireBrutMensuel" not in insurance_row
-    assert "screen-local user fact sliders" in legacy_row
+    assert "`q_gross_salary_annual`" in gap_row
+    assert "`q_birth_year`" in gap_row
+    assert "`q_cash_total`" in gap_row
+    assert "/data-block/revenu?inputKey=q_birth_year" in gap_row
+    assert "screen-local user fact sliders" not in gap_row
+    assert "salaireBrutMensuel" not in gap_row
     assert "/disability/self-employed" in health_hub_row

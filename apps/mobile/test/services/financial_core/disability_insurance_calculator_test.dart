@@ -58,4 +58,52 @@ void main() {
       0,
     );
   });
+
+  test('centralizes disability timeline income assumptions', () {
+    expect(
+      DisabilityInsuranceCalculator.employerContinuationMonthlyIncome(
+        grossMonthlySalary: 8000,
+      ),
+      6400,
+    );
+    expect(
+      DisabilityInsuranceCalculator.ijmMonthlyIncome(
+        grossMonthlySalary: 8000,
+        hasIjm: true,
+      ),
+      6400,
+    );
+    expect(
+      DisabilityInsuranceCalculator.ijmMonthlyIncome(
+        grossMonthlySalary: 8000,
+        hasIjm: false,
+      ),
+      0,
+    );
+  });
+
+  test('projects LPP reset capital before and after reduced earning capacity',
+      () {
+    expect(
+      DisabilityInsuranceCalculator.projectedLppCapitalBeforeDisability(
+        currentAge: 45,
+        grossMonthlySalary: 8000,
+      ),
+      closeTo(289170, 0.001),
+    );
+    expect(
+      DisabilityInsuranceCalculator.projectedLppCapitalAfterDisability(
+        currentAge: 45,
+        grossMonthlySalary: 8000,
+      ),
+      closeTo(96930, 0.001),
+    );
+    expect(
+      DisabilityInsuranceCalculator.projectedLppCapitalBeforeDisability(
+        currentAge: 66,
+        grossMonthlySalary: 8000,
+      ),
+      0,
+    );
+  });
 }

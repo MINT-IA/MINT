@@ -3865,7 +3865,6 @@
   "slmInitError": "Erreur d'initialisation du modèle. Vérifie que ton appareil est compatible.",
   "slmInitializing": "Initialisation...",
   "slmInitEngine": "Initialiser le moteur",
-  "disabilityYourSituation": "Ta situation",
   "disabilityGrossMonthly": "Salaire brut mensuel",
   "disabilityYourAge": "Ton âge",
   "disabilityAvailableSavings": "Épargne disponible",
@@ -8485,6 +8484,123 @@
   "deuxViesGap": "Écart de {amount}/mois en faveur de {name}",
   "deuxViesLever": "{lever} comblerait {impact} de l'écart",
   "deuxViesTitle": "Vos deux vies",
+  "disabilityCountdownApgAction": "Souscris une APG privée (dès CHF 45/mois)",
+  "disabilityCountdownDecisionLabel": "Jour J → Décision AI : {months} mois",
+  "@disabilityCountdownDecisionLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDelayLabel": "Délai moyen de décision AI : {months} mois (LAI art. 28)",
+  "@disabilityCountdownDelayLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAI art. 28, LPGA art. 19.",
+  "disabilityCountdownEmergencyAction": "Constitue un fonds d'urgence de 6 mois de charges",
+  "disabilityCountdownGapAmount": "Il te manque CHF {amount} pour tenir jusqu'à la décision AI.",
+  "@disabilityCountdownGapAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownGapLabel": "Le vide",
+  "disabilityCountdownGapSpan": "◄── {months} mois ──►",
+  "@disabilityCountdownGapSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownHoldLabel": "Tu tiens",
+  "disabilityCountdownHoldSpan": "◄── {months} mois ──►",
+  "@disabilityCountdownHoldSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownOkDetail": "Tu tiens {holdMonths} mois, soit plus que le délai moyen de {delayMonths} mois.",
+  "@disabilityCountdownOkDetail": {
+    "placeholders": {
+      "holdMonths": {
+        "type": "String"
+      },
+      "delayMonths": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownOkTitle": "Tes réserves couvrent tout le délai AI.",
+  "disabilityCountdownSemantics": "Compte à rebours délai carence AI invalidité",
+  "disabilityCountdownShockDetail": "Chiffre-choc : après {months} mois, il te faudrait emprunter ou vendre pour tenir.",
+  "@disabilityCountdownShockDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownTimelineTitle": "Durée de tenir vs délai AI",
+  "disabilityCountdownTitle": "Combien de temps tu tiens ?",
+  "disabilityCliffAction": "Vérifie ta couverture LPP invalidité",
+  "disabilityCliffActTitle": "ACTE {index} · {label}",
+  "@disabilityCliffActTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffCurrentSalary": "Ton salaire actuel : CHF {amount}/mois",
+  "@disabilityCliffCurrentSalary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffHeaderTitle": "Si tu ne pouvais plus travailler demain",
+  "disabilityCliffLostOver15Years": "Sur 15 ans = CHF {amount} de revenus en moins.",
+  "@disabilityCliffLostOver15Years": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffLostMonthly": "Tu perdrais CHF {amount}/mois.",
+  "@disabilityCliffLostMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffPerMonth": "/mois",
+  "disabilityCliffSemantics": "La Falaise timeline invalidité 3 actes",
+  "disabilityCliffShockTitle": "Chiffre-choc",
+  "disabilityCliffSubtitle": "La falaise d'invalidité en 3 actes",
+  "disabilityCliffVsBefore": "vs CHF {amount}/mois avant",
+  "@disabilityCliffVsBefore": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "disabilityGapAct1Detail": "80 % de ton salaire versé par ton employeur",
   "disabilityGapAct1Duration": "Semaines 1-26",
   "disabilityGapAct1Label": "ACTE 1 · Employeur",

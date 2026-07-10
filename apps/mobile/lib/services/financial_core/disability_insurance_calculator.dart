@@ -5,7 +5,12 @@ class DisabilityInsuranceCalculator {
   DisabilityInsuranceCalculator._();
 
   static const double emergencyReserveChargeRatio = 0.70;
+  static const double employerContinuationIncomeRate = 0.80;
+  static const double ijmIncomeRate = 0.80;
   static const double lppInvalidityIncomeRate = 0.40;
+  static const double reducedEarningCapacityRate = 0.50;
+  static const double lppProjectionGrowthFactor = 1.50;
+  static const int lppReferenceRetirementAge = 65;
   static const double monthsPerYear = 12.0;
 
   static double emergencyReserveMonths({
@@ -35,6 +40,47 @@ class DisabilityInsuranceCalculator {
     return coordinatedSalary * lppInvalidityIncomeRate / monthsPerYear;
   }
 
+  static double employerContinuationMonthlyIncome({
+    required double grossMonthlySalary,
+  }) {
+    if (grossMonthlySalary <= 0) return 0;
+    return grossMonthlySalary * employerContinuationIncomeRate;
+  }
+
+  static double ijmMonthlyIncome({
+    required double grossMonthlySalary,
+    required bool hasIjm,
+  }) {
+    if (!hasIjm || grossMonthlySalary <= 0) return 0;
+    return grossMonthlySalary * ijmIncomeRate;
+  }
+
+  static double projectedLppCapitalBeforeDisability({
+    required int currentAge,
+    required double grossMonthlySalary,
+  }) {
+    return _projectedLppCapital(
+      currentAge: currentAge,
+      annualGrossSalary: grossMonthlySalary * monthsPerYear,
+      minCoordinatedSalary: reg(
+        'lpp.min_coordinated_salary',
+        lppSalaireCoordMin,
+      ),
+    );
+  }
+
+  static double projectedLppCapitalAfterDisability({
+    required int currentAge,
+    required double grossMonthlySalary,
+  }) {
+    return _projectedLppCapital(
+      currentAge: currentAge,
+      annualGrossSalary:
+          grossMonthlySalary * monthsPerYear * reducedEarningCapacityRate,
+      minCoordinatedSalary: 0,
+    );
+  }
+
   static bool hasLppInvalidityCoverage({
     required double grossMonthlySalary,
   }) {
@@ -61,5 +107,30 @@ class DisabilityInsuranceCalculator {
 
   static bool _hasLppCoverage(double annualGrossSalary) {
     return annualGrossSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
+  }
+
+  static double _projectedLppCapital({
+    required int currentAge,
+    required double annualGrossSalary,
+    required double minCoordinatedSalary,
+  }) {
+    if (currentAge >= lppReferenceRetirementAge ||
+        currentAge < 0 ||
+        annualGrossSalary <= 0 ||
+        !_hasLppCoverage(annualGrossSalary)) {
+      return 0;
+    }
+    final yearsToRetirement =
+        (lppReferenceRetirementAge - currentAge).clamp(0, 40);
+    final coordinatedSalary = (annualGrossSalary -
+            reg('lpp.coordination_deduction', lppDeductionCoordination))
+        .clamp(
+      minCoordinatedSalary,
+      reg('lpp.max_coordinated_salary', lppSalaireCoordMax),
+    );
+    if (coordinatedSalary <= 0) return 0;
+    final annualContribution =
+        coordinatedSalary * getLppBonificationRate(currentAge);
+    return annualContribution * yearsToRetirement * lppProjectionGrowthFactor;
   }
 }

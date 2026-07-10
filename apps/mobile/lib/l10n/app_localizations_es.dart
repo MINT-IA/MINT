@@ -7703,9 +7703,6 @@ class SEs extends S {
   String get slmInitEngine => 'Inicializar motor';
 
   @override
-  String get disabilityYourSituation => 'Tu situación';
-
-  @override
   String get disabilityGrossMonthly => 'Salario bruto mensual';
 
   @override
@@ -15238,6 +15235,118 @@ class SEs extends S {
 
   @override
   String get deuxViesTitle => 'Vuestras dos vidas';
+
+  @override
+  String get disabilityCountdownApgAction =>
+      'Contrata una cobertura privada de pérdida de ingresos (desde CHF 45/mes)';
+
+  @override
+  String disabilityCountdownDecisionLabel(int months) {
+    return 'Día 0 → decisión AI: $months meses';
+  }
+
+  @override
+  String disabilityCountdownDelayLabel(int months) {
+    return 'Plazo medio de decisión AI: $months meses (LAI art. 28)';
+  }
+
+  @override
+  String get disabilityCountdownDisclaimer =>
+      'Herramienta educativa · no constituye asesoramiento financiero según la LSFin. Fuente: LAI art. 28, LPGA art. 19.';
+
+  @override
+  String get disabilityCountdownEmergencyAction =>
+      'Construye un fondo de emergencia de 6 meses de gastos';
+
+  @override
+  String disabilityCountdownGapAmount(String amount) {
+    return 'Te faltan CHF $amount para aguantar hasta la decisión AI.';
+  }
+
+  @override
+  String get disabilityCountdownGapLabel => 'El vacío';
+
+  @override
+  String disabilityCountdownGapSpan(String months) {
+    return '◄── $months meses ──►';
+  }
+
+  @override
+  String get disabilityCountdownHoldLabel => 'Aguantas';
+
+  @override
+  String disabilityCountdownHoldSpan(String months) {
+    return '◄── $months meses ──►';
+  }
+
+  @override
+  String disabilityCountdownOkDetail(String holdMonths, int delayMonths) {
+    return 'Aguantas $holdMonths meses, más que el plazo medio de $delayMonths meses.';
+  }
+
+  @override
+  String get disabilityCountdownOkTitle =>
+      'Tus reservas cubren todo el plazo AI.';
+
+  @override
+  String get disabilityCountdownSemantics =>
+      'Cuenta atrás del plazo de carencia AI por invalidez';
+
+  @override
+  String disabilityCountdownShockDetail(String months) {
+    return 'Cifra de choque: después de $months meses, tendrías que pedir prestado o vender para aguantar.';
+  }
+
+  @override
+  String get disabilityCountdownTimelineTitle =>
+      'Duración cubierta vs plazo AI';
+
+  @override
+  String get disabilityCountdownTitle => '¿Cuánto tiempo aguantas?';
+
+  @override
+  String get disabilityCliffAction => 'Verifica tu cobertura LPP de invalidez';
+
+  @override
+  String disabilityCliffActTitle(int index, String label) {
+    return 'ACTO $index · $label';
+  }
+
+  @override
+  String disabilityCliffCurrentSalary(String amount) {
+    return 'Tu salario actual: CHF $amount/mes';
+  }
+
+  @override
+  String get disabilityCliffHeaderTitle => 'Si mañana no pudieras trabajar';
+
+  @override
+  String disabilityCliffLostOver15Years(String amount) {
+    return 'En 15 años = CHF $amount menos de ingresos.';
+  }
+
+  @override
+  String disabilityCliffLostMonthly(String amount) {
+    return 'Perderías CHF $amount/mes.';
+  }
+
+  @override
+  String get disabilityCliffPerMonth => '/mes';
+
+  @override
+  String get disabilityCliffSemantics =>
+      'Cronología de la invalidez en 3 actos';
+
+  @override
+  String get disabilityCliffShockTitle => 'Cifra de choque';
+
+  @override
+  String get disabilityCliffSubtitle => 'La caída por invalidez en 3 actos';
+
+  @override
+  String disabilityCliffVsBefore(String amount) {
+    return 'vs CHF $amount/mes antes';
+  }
 
   @override
   String get disabilityGapAct1Detail =>

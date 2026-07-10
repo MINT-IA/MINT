@@ -3589,7 +3589,6 @@
   "slmInitError": "Fehler bei der Modell-Initialisierung. Prüfe, ob dein Gerät kompatibel ist.",
   "slmInitializing": "Initialisierung...",
   "slmInitEngine": "Engine initialisieren",
-  "disabilityYourSituation": "Deine Situation",
   "disabilityGrossMonthly": "Bruttomonatslohn",
   "disabilityYourAge": "Dein Alter",
   "disabilityAvailableSavings": "Verfügbare Ersparnisse",
@@ -8045,6 +8044,123 @@
   "deuxViesGap": "Differenz von {amount}/Monat zugunsten von {name}",
   "deuxViesLever": "{lever} würde {impact} der Lücke schliessen",
   "deuxViesTitle": "Eure zwei Leben",
+  "disabilityCountdownApgAction": "Schliesse eine private Erwerbsausfalldeckung ab (ab CHF 45/Monat)",
+  "disabilityCountdownDecisionLabel": "Tag 0 → IV-Entscheid: {months} Monate",
+  "@disabilityCountdownDecisionLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDelayLabel": "Durchschnittliche IV-Entscheiddauer: {months} Monate (IVG Art. 28)",
+  "@disabilityCountdownDelayLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: IVG Art. 28, ATSG Art. 19.",
+  "disabilityCountdownEmergencyAction": "Baue einen Notgroschen für 6 Monate Ausgaben auf",
+  "disabilityCountdownGapAmount": "Dir fehlen CHF {amount}, um bis zum IV-Entscheid durchzuhalten.",
+  "@disabilityCountdownGapAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownGapLabel": "Die Lücke",
+  "disabilityCountdownGapSpan": "◄── {months} Monate ──►",
+  "@disabilityCountdownGapSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownHoldLabel": "Du hältst",
+  "disabilityCountdownHoldSpan": "◄── {months} Monate ──►",
+  "@disabilityCountdownHoldSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownOkDetail": "Du hältst {holdMonths} Monate, also mehr als die durchschnittlichen {delayMonths} Monate.",
+  "@disabilityCountdownOkDetail": {
+    "placeholders": {
+      "holdMonths": {
+        "type": "String"
+      },
+      "delayMonths": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownOkTitle": "Deine Reserven decken die ganze IV-Wartezeit.",
+  "disabilityCountdownSemantics": "Countdown zur IV-Wartefrist",
+  "disabilityCountdownShockDetail": "Schockzahl: Nach {months} Monaten müsstest du leihen oder verkaufen, um durchzuhalten.",
+  "@disabilityCountdownShockDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownTimelineTitle": "Tragfähigkeit vs. IV-Wartezeit",
+  "disabilityCountdownTitle": "Wie lange hältst du durch?",
+  "disabilityCliffAction": "Prüfe deine BVG-Invaliditätsdeckung",
+  "disabilityCliffActTitle": "AKT {index} · {label}",
+  "@disabilityCliffActTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffCurrentSalary": "Dein aktueller Lohn: CHF {amount}/Monat",
+  "@disabilityCliffCurrentSalary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffHeaderTitle": "Wenn du morgen nicht mehr arbeiten könntest",
+  "disabilityCliffLostOver15Years": "Über 15 Jahre = CHF {amount} weniger Einkommen.",
+  "@disabilityCliffLostOver15Years": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffLostMonthly": "Du würdest CHF {amount}/Monat verlieren.",
+  "@disabilityCliffLostMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffPerMonth": "/Monat",
+  "disabilityCliffSemantics": "Invaliditäts-Klippe als Timeline in 3 Akten",
+  "disabilityCliffShockTitle": "Schockzahl",
+  "disabilityCliffSubtitle": "Die Invaliditäts-Klippe in 3 Akten",
+  "disabilityCliffVsBefore": "vs. CHF {amount}/Monat vorher",
+  "@disabilityCliffVsBefore": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "disabilityGapAct1Detail": "80 % deines Lohns durch den Arbeitgeber bezahlt",
   "disabilityGapAct1Duration": "Wochen 1-26",
   "disabilityGapAct1Label": "AKT 1 · Arbeitgeber",

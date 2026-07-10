@@ -3589,7 +3589,6 @@
   "slmInitError": "Model initialization error. Check that your device is compatible.",
   "slmInitializing": "Initializing...",
   "slmInitEngine": "Initialize engine",
-  "disabilityYourSituation": "Your situation",
   "disabilityGrossMonthly": "Gross monthly salary",
   "disabilityYourAge": "Your age",
   "disabilityAvailableSavings": "Available savings",
@@ -8045,6 +8044,123 @@
   "deuxViesGap": "Gap of {amount}/month in favor of {name}",
   "deuxViesLever": "{lever} would close {impact} of the gap",
   "deuxViesTitle": "Your two lives",
+  "disabilityCountdownApgAction": "Subscribe to private loss-of-income cover (from CHF 45/month)",
+  "disabilityCountdownDecisionLabel": "Day 0 → DI decision: {months} months",
+  "@disabilityCountdownDecisionLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDelayLabel": "Average DI decision delay: {months} months (DIA art. 28)",
+  "@disabilityCountdownDelayLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownDisclaimer": "Educational tool · not financial advice under FinSA. Source: DIA art. 28, LPGA art. 19.",
+  "disabilityCountdownEmergencyAction": "Build an emergency fund covering 6 months of expenses",
+  "disabilityCountdownGapAmount": "You are short CHF {amount} to bridge the DI decision delay.",
+  "@disabilityCountdownGapAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownGapLabel": "The gap",
+  "disabilityCountdownGapSpan": "◄── {months} months ──►",
+  "@disabilityCountdownGapSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownHoldLabel": "You hold",
+  "disabilityCountdownHoldSpan": "◄── {months} months ──►",
+  "@disabilityCountdownHoldSpan": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownOkDetail": "You hold {holdMonths} months, more than the average {delayMonths}-month delay.",
+  "@disabilityCountdownOkDetail": {
+    "placeholders": {
+      "holdMonths": {
+        "type": "String"
+      },
+      "delayMonths": {
+        "type": "int"
+      }
+    }
+  },
+  "disabilityCountdownOkTitle": "Your reserves cover the full DI delay.",
+  "disabilityCountdownSemantics": "Disability waiting-period countdown",
+  "disabilityCountdownShockDetail": "Shock number: after {months} months, you would need to borrow or sell to bridge the gap.",
+  "@disabilityCountdownShockDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCountdownTimelineTitle": "Time covered vs DI delay",
+  "disabilityCountdownTitle": "How long can you hold?",
+  "disabilityCliffAction": "Check your LPP disability cover",
+  "disabilityCliffActTitle": "ACT {index} · {label}",
+  "@disabilityCliffActTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffCurrentSalary": "Your current salary: CHF {amount}/month",
+  "@disabilityCliffCurrentSalary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffHeaderTitle": "If you could not work tomorrow",
+  "disabilityCliffLostOver15Years": "Over 15 years = CHF {amount} less income.",
+  "@disabilityCliffLostOver15Years": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffLostMonthly": "You would lose CHF {amount}/month.",
+  "@disabilityCliffLostMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "disabilityCliffPerMonth": "/month",
+  "disabilityCliffSemantics": "Disability cliff timeline in 3 acts",
+  "disabilityCliffShockTitle": "Shock number",
+  "disabilityCliffSubtitle": "The disability cliff in 3 acts",
+  "disabilityCliffVsBefore": "vs CHF {amount}/month before",
+  "@disabilityCliffVsBefore": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "disabilityGapAct1Detail": "80% of your salary paid by your employer",
   "disabilityGapAct1Duration": "Weeks 1-26",
   "disabilityGapAct1Label": "ACT 1 · Employer",
