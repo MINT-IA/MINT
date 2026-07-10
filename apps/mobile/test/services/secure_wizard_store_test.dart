@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
@@ -8,11 +10,15 @@ void main() {
   const secureStorage =
       MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final secureStorageValues = <String, String>{};
+  var failWrites = false;
+  var hangWrites = false;
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(secureStorage, (call) async {
     final args = Map<String, dynamic>.from(call.arguments as Map? ?? {});
     final key = args['key'] as String?;
     if (call.method == 'write' && key != null) {
+      if (failWrites) throw PlatformException(code: '-34018');
+      if (hangWrites) return Completer<Object?>().future;
       secureStorageValues[key] = args['value'] as String;
       return null;
     }
@@ -24,16 +30,23 @@ void main() {
     return null;
   });
 
-  setUp(secureStorageValues.clear);
+  setUp(() {
+    secureStorageValues.clear();
+    failWrites = false;
+    hangWrites = false;
+  });
 
   group('SecureWizardStore', () {
     test('treats gross salary ledger keys as sensitive', () {
       expect(SecureWizardStore.isSensitive('q_gross_salary'), isTrue);
       expect(SecureWizardStore.isSensitive('q_gross_salary_annual'), isTrue);
+      expect(SecureWizardStore.isSensitive('q_self_employed_income'), isTrue);
+      expect(SecureWizardStore.isSensitive('q_net_income_period_chf'), isTrue);
     });
 
     test('treats broad wealth estimate as sensitive', () {
       expect(SecureWizardStore.isSensitive('q_wealth_estimate'), isTrue);
+      expect(SecureWizardStore.isSensitive('q_cash_total'), isTrue);
     });
 
     test('treats partner income as sensitive but not partner birth year', () {
@@ -71,6 +84,28 @@ void main() {
 
       expect(cleaned['q_has_consumer_debt'], '__secure__');
       expect(restored['q_has_consumer_debt'], true);
+    });
+
+    test('keeps local dev value when secure write throws', () async {
+      failWrites = true;
+
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        'q_net_income_period_chf': 144000,
+      });
+
+      expect(cleaned['q_net_income_period_chf'], 144000);
+      expect(secureStorageValues, isEmpty);
+    });
+
+    test('keeps local dev value when secure write times out', () async {
+      hangWrites = true;
+
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        'q_net_income_period_chf': 144000,
+      });
+
+      expect(cleaned['q_net_income_period_chf'], 144000);
+      expect(secureStorageValues, isEmpty);
     });
 
     test('deletes stale secure debt amount when value is null', () async {

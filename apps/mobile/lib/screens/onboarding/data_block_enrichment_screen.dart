@@ -65,6 +65,8 @@ class _DataBlockEnrichmentScreenState
   bool _hasPensionFundTouched = false;
   bool _isSavingRevenue = false;
   bool _isSavingPatrimoine = false;
+  bool _revenueSaved = false;
+  bool _patrimoineSaved = false;
   String? _revenueError;
   String? _patrimoineError;
 
@@ -280,6 +282,7 @@ class _DataBlockEnrichmentScreenState
         label: l.renteVsCapitalSalary,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+        onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
     if (onlyInputKey == 'q_self_employed_income') {
@@ -290,6 +293,7 @@ class _DataBlockEnrichmentScreenState
         label: l.independantRevenueTitle,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+        onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
     if (_capturesRevenue('q_canton', onlyInputKey)) {
@@ -300,6 +304,7 @@ class _DataBlockEnrichmentScreenState
         label: l.affordabilityCanton,
         textCapitalization: TextCapitalization.characters,
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), LengthLimitingTextInputFormatter(2)],
+        onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
     if (_capturesRevenue('q_birth_year', onlyInputKey)) {
@@ -310,6 +315,7 @@ class _DataBlockEnrichmentScreenState
         label: l.landingBirthYear,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
+        onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
     if (_capturesRevenue('q_has_pension_fund', onlyInputKey)) {
@@ -327,6 +333,7 @@ class _DataBlockEnrichmentScreenState
           onChanged: (value) => setState(() {
             _hasPensionFund = value;
             _hasPensionFundTouched = true;
+            _revenueSaved = false;
           }),
         ),
       ));
@@ -346,6 +353,10 @@ class _DataBlockEnrichmentScreenState
               style: MintTextStyles.labelMedium(color: MintColors.error),
             ),
           ],
+          if (_revenueSaved) ...[
+            const SizedBox(height: 8),
+            _buildSaveSuccess(l),
+          ],
           const SizedBox(height: 12),
           Semantics(
             identifier: 'salary_save_cta',
@@ -362,11 +373,20 @@ class _DataBlockEnrichmentScreenState
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                l.financialSummaryEnregistrer,
-                style: MintTextStyles.titleMedium()
-                    .copyWith(fontWeight: FontWeight.w600),
-              ),
+              child: _isSavingRevenue
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: MintColors.white,
+                      ),
+                    )
+                  : Text(
+                      l.financialSummaryEnregistrer,
+                      style: MintTextStyles.titleMedium()
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
             ),
           ),
         ],
@@ -382,6 +402,7 @@ class _DataBlockEnrichmentScreenState
     TextInputType? keyboardType,
     TextCapitalization textCapitalization = TextCapitalization.none,
     List<TextInputFormatter>? inputFormatters,
+    ValueChanged<String>? onChanged,
   }) {
     return Semantics(
       identifier: semanticsIdentifier,
@@ -391,6 +412,7 @@ class _DataBlockEnrichmentScreenState
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
         inputFormatters: inputFormatters,
+        onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
@@ -441,6 +463,7 @@ class _DataBlockEnrichmentScreenState
     setState(() {
       _isSavingRevenue = true;
       _revenueError = null;
+      _revenueSaved = false;
     });
 
     final answers = <String, dynamic>{
@@ -463,7 +486,10 @@ class _DataBlockEnrichmentScreenState
     }
     if (!mounted) return;
     HapticFeedback.lightImpact();
-    setState(() => _isSavingRevenue = false);
+    setState(() {
+      _isSavingRevenue = false;
+      _revenueSaved = true;
+    });
   }
 
   bool _shouldShowPatrimoineCollector(String canonicalBlockType) {
@@ -485,6 +511,7 @@ class _DataBlockEnrichmentScreenState
             label: l.financialSummaryEditEpargneLiquide,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+            onChanged: (_) => setState(() => _patrimoineSaved = false),
           ),
           if (_patrimoineError != null) ...[
             const SizedBox(height: 8),
@@ -492,6 +519,10 @@ class _DataBlockEnrichmentScreenState
               _patrimoineError!,
               style: MintTextStyles.labelMedium(color: MintColors.error),
             ),
+          ],
+          if (_patrimoineSaved) ...[
+            const SizedBox(height: 8),
+            _buildSaveSuccess(l),
           ],
           const SizedBox(height: 12),
           Semantics(
@@ -509,11 +540,20 @@ class _DataBlockEnrichmentScreenState
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                l.financialSummaryEnregistrer,
-                style: MintTextStyles.titleMedium()
-                    .copyWith(fontWeight: FontWeight.w600),
-              ),
+              child: _isSavingPatrimoine
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: MintColors.white,
+                      ),
+                    )
+                  : Text(
+                      l.financialSummaryEnregistrer,
+                      style: MintTextStyles.titleMedium()
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
             ),
           ),
         ],
@@ -531,13 +571,39 @@ class _DataBlockEnrichmentScreenState
     setState(() {
       _isSavingPatrimoine = true;
       _patrimoineError = null;
+      _patrimoineSaved = false;
     });
     await context.read<CoachProfileProvider>().mergeAnswers({
       'q_cash_total': cash,
     });
     if (!mounted) return;
     HapticFeedback.lightImpact();
-    setState(() => _isSavingPatrimoine = false);
+    setState(() {
+      _isSavingPatrimoine = false;
+      _patrimoineSaved = true;
+    });
+  }
+
+  Widget _buildSaveSuccess(S l) {
+    return Semantics(
+      key: const Key('data_block_save_success'),
+      identifier: 'data_block_save_success',
+      container: true,
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_outline,
+              color: MintColors.success, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l.documentDetailProfileUpdated,
+              style: MintTextStyles.labelMedium(color: MintColors.success)
+                  .copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _digitsOnly(String value) => value.replaceAll(RegExp(r'[^0-9]'), '');

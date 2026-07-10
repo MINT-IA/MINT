@@ -374,7 +374,7 @@ void main() {
         0.30,
       );
       expect(result.tauxBonification, 0.0);
-      expect(result.ageBracketLabel, 'Moins de 25 ans');
+      expect(result.ageBracketLabel, '< 25 ans');
       expect(result.cotisationAnnuelle, 0);
     });
 

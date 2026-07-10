@@ -1,0 +1,71 @@
+appId: ch.mint.app
+---
+# 3a indépendant renders ledger facts, collects missing profile facts through
+# DataBlock, confirms enough liquidity to stay out of SafeMode, then shows
+# scenario results. Core facts are not edited inside the simulator screen.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///independants/3a"
+- assertVisible:
+    text: "3e pilier indépendant"
+- assertVisible:
+    id: "pillar3a_indep_ledger_facts"
+- assertVisible:
+    id: "pillar3a_indep_income_fact"
+- assertVisible:
+    id: "pillar3a_indep_lpp_fact"
+- assertVisible:
+    id: "pillar3a_indep_liquidity_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "self_employed_income_input"
+- tapOn:
+    id: "self_employed_income_input"
+- inputText: "144000"
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///independants/3a"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "has_pension_fund_switch"
+- tapOn:
+    id: "has_pension_fund_switch"
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///independants/3a"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "savings_input"
+- tapOn:
+    id: "savings_input"
+- inputText: "50000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///independants/3a"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible:
+    text: "Données connues"
+- assertVisible:
+    id: "pillar3a_indep_income_fact"
+- assertVisible:
+    id: "pillar3a_indep_liquidity_fact"
+- assertVisible:
+    id: "pillar3a_indep_result_container"
+- assertVisible:
+    id: "pillar3a_indep_plafond_row"

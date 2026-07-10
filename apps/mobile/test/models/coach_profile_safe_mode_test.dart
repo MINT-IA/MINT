@@ -22,6 +22,7 @@ void main() {
     double? mensualiteCreditConso,
     double? mensualiteLeasing,
     double? mensualiteHypotheque,
+    double? selfEmployedNetIncome,
     double epargneLiquide = 20000,
     double totalMensuelDepenses = 3000,
   }) {
@@ -31,6 +32,7 @@ void main() {
       salaireBrutMensuel: salaire,
       nombreDeMois: nombreDeMois,
       employmentStatus: employmentStatus,
+      selfEmployedNetIncome: selfEmployedNetIncome,
       depenses: DepensesProfile(
         loyer: totalMensuelDepenses,
         assuranceMaladie: 0,
@@ -114,6 +116,17 @@ void main() {
       // Expenses 3000/month, liquid 15000 → 5 months
       final p = makeProfile(epargneLiquide: 15000, totalMensuelDepenses: 3000);
       expect(p.isInDebtCrisis, isFalse);
+    });
+
+    test('independent income also feeds liquidity SafeMode', () {
+      final p = makeProfile(
+        salaire: 0,
+        employmentStatus: 'independant',
+        selfEmployedNetIncome: 144000,
+        epargneLiquide: 5000,
+        totalMensuelDepenses: 3000,
+      );
+      expect(p.isInDebtCrisis, isTrue);
     });
   });
 

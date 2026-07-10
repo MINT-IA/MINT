@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // Screens under test
@@ -31,15 +32,16 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 /// Simple wrapper for screens without provider dependencies.
 Widget buildTestable(Widget child) {
   return MaterialApp(
-      locale: const Locale('fr'),
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: S.supportedLocales,
-      home: child);
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    home: child,
+  );
 }
 
 /// Wrapper that provides ProfileProvider + ByokProvider (needed by ExploreTab).
@@ -58,9 +60,7 @@ Widget buildWithExploreProviders(Widget child) {
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(),
         ),
-        ChangeNotifierProvider<ByokProvider>(
-          create: (_) => ByokProvider(),
-        ),
+        ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
         ChangeNotifierProvider<CoachProfileProvider>(
           create: (_) => CoachProfileProvider(),
         ),
@@ -108,6 +108,39 @@ Widget buildWithCoachProfileProvider(
   );
 }
 
+Widget buildWithCoachProfileRouter(CoachProfileProvider provider) {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: provider,
+          child: const Pillar3aIndepScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/data-block/:type',
+        builder: (_, state) => Text(
+          'data-block:${state.pathParameters['type']}:${state.uri.queryParameters['inputKey']}',
+          key: const Key('data_block_route_probe'),
+        ),
+      ),
+    ],
+  );
+
+  return MaterialApp.router(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    routerConfig: router,
+  );
+}
+
 class RecordingCoachProfileProvider extends CoachProfileProvider {
   final Map<String, dynamic> _answers;
   final writes = <Map<String, dynamic>>[];
@@ -139,7 +172,7 @@ Map<String, dynamic> independentAnswers({
   int? birthYear,
   double? cashTotal,
   bool hasConsumerDebt = false,
-  bool voluntaryLpp = false,
+  bool? voluntaryLpp,
 }) {
   return {
     if (birthYear != null) 'q_birth_year': birthYear,
@@ -152,8 +185,10 @@ Map<String, dynamic> independentAnswers({
     },
     if (grossSalary != null) 'q_gross_salary_annual': grossSalary,
     'q_employment_status': 'independant',
-    'q_has_voluntary_lpp': voluntaryLpp ? 'yes' : 'no',
-    'q_has_pension_fund': voluntaryLpp ? 'yes' : 'no',
+    if (voluntaryLpp != null) ...{
+      'q_has_voluntary_lpp': voluntaryLpp ? 'yes' : 'no',
+      'q_has_pension_fund': voluntaryLpp ? 'yes' : 'no',
+    },
   };
 }
 
@@ -198,10 +233,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Indépendant'), findsOneWidget);
-      expect(
-        find.textContaining('Analyse de couverture'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Analyse de couverture'), findsOneWidget);
     });
 
     testWidgets('shows coverage toggles section', (tester) async {
@@ -218,20 +250,14 @@ void main() {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(
-        find.text('PARCOURS INDÉPENDANT'),
-        findsOneWidget,
-      );
+      expect(find.text('PARCOURS INDÉPENDANT'), findsOneWidget);
     });
 
     testWidgets('shows intro info text', (tester) async {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(
-        find.textContaining('indépendant'),
-        findsWidgets,
-      );
+      expect(find.textContaining('indépendant'), findsWidgets);
     });
   });
 
@@ -254,13 +280,16 @@ void main() {
       expect(find.text('LPP volontaire'), findsOneWidget);
     });
 
-    testWidgets('shows missing ledger facts instead of local inputs',
-        (tester) async {
+    testWidgets('shows missing ledger facts instead of local inputs', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-          find.byKey(const Key('lpp_volontaire_ledger_facts')), findsOneWidget);
+        find.byKey(const Key('lpp_volontaire_ledger_facts')),
+        findsOneWidget,
+      );
       expect(find.text('Revenu net annuel'), findsOneWidget);
       expect(find.text('Ton âge'), findsOneWidget);
       expect(find.text('Données manquantes'), findsOneWidget);
@@ -273,30 +302,30 @@ void main() {
       await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(
-        find.textContaining('caisse de pension'),
-        findsWidgets,
-      );
+      expect(find.textContaining('caisse de pension'), findsWidgets);
     });
 
-    testWidgets('shows missing status when ledger facts are absent',
-        (tester) async {
+    testWidgets('shows missing status when ledger facts are absent', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Manquant'), findsNWidgets(2));
     });
 
-    testWidgets('hides scenario slider until ledger facts are complete',
-        (tester) async {
+    testWidgets('hides scenario slider until ledger facts are complete', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestable(const LppVolontaireScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(MintPremiumSlider), findsNothing);
     });
 
-    testWidgets('uses known independent income and age from profile facts',
-        (tester) async {
+    testWidgets('uses known independent income and age from profile facts', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(390, 4000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -311,10 +340,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const LppVolontaireScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -325,14 +351,19 @@ void main() {
       expect(find.byType(MintPickerTile), findsNothing);
       expect(find.byType(MintPremiumSlider), findsOneWidget);
       expect(
-          find.byKey(const Key('lpp_volontaire_result_cards')), findsOneWidget);
-      expect(find.byKey(const Key('lpp_volontaire_retirement_comparison')),
-          findsOneWidget);
+        find.byKey(const Key('lpp_volontaire_result_cards')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('lpp_volontaire_retirement_comparison')),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('lpp_volontaire_age_table')), findsOneWidget);
     });
 
-    testWidgets('keeps contribution planning locked in SafeMode',
-        (tester) async {
+    testWidgets('keeps contribution planning locked in SafeMode', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(
           selfIncome: 140000,
@@ -343,32 +374,31 @@ void main() {
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const LppVolontaireScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.text('Concentration Prioritaire'), findsOneWidget);
       expect(
-          find.byKey(const Key('lpp_volontaire_result_cards')), findsNothing);
-      expect(find.byKey(const Key('lpp_volontaire_retirement_comparison')),
-          findsNothing);
+        find.byKey(const Key('lpp_volontaire_result_cards')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key('lpp_volontaire_retirement_comparison')),
+        findsNothing,
+      );
       expect(find.byKey(const Key('lpp_volontaire_age_table')), findsNothing);
     });
 
-    testWidgets('does not use gross salary fallback as independent income',
-        (tester) async {
+    testWidgets('does not use gross salary fallback as independent income', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(grossSalary: 220000),
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const LppVolontaireScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
@@ -380,39 +410,35 @@ void main() {
     });
 
     testWidgets(
-        'does not clamp ledger income and treats invalid age as missing',
-        (tester) async {
-      final provider = RecordingCoachProfileProvider(
-        independentAnswers(
-          selfIncome: 450000,
-          birthYear: DateTime.now().year - 80,
-        ),
-      );
+      'does not clamp ledger income and treats invalid age as missing',
+      (tester) async {
+        final provider = RecordingCoachProfileProvider(
+          independentAnswers(
+            selfIncome: 450000,
+            birthYear: DateTime.now().year - 80,
+          ),
+        );
 
-      await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const LppVolontaireScreen(),
-        ),
-      );
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pumpWidget(
+          buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text("CHF\u00A0450'000"), findsOneWidget);
-      expect(find.text('Manquant'), findsWidgets);
-      expect(find.byType(MintPremiumSlider), findsNothing);
-    });
+        expect(find.text("CHF\u00A0450'000"), findsOneWidget);
+        expect(find.text('Manquant'), findsWidgets);
+        expect(find.byType(MintPremiumSlider), findsNothing);
+      },
+    );
 
-    testWidgets('does not expose an income editor inside the simulator',
-        (tester) async {
+    testWidgets('does not expose an income editor inside the simulator', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(selfIncome: 90000),
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const LppVolontaireScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -420,8 +446,9 @@ void main() {
       expect(provider.writes, isEmpty);
     });
 
-    testWidgets('does not expose an age editor inside the simulator',
-        (tester) async {
+    testWidgets('does not expose an age editor inside the simulator', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(
           selfIncome: 90000,
@@ -430,10 +457,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const LppVolontaireScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -451,15 +475,18 @@ void main() {
       WidgetTester tester,
       Map<String, dynamic> answers,
     ) async {
-      await tester.pumpWidget(buildWithCoachProfileProvider(
-        RecordingCoachProfileProvider(answers),
-        const AvsCotisationsScreen(),
-      ));
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          RecordingCoachProfileProvider(answers),
+          const AvsCotisationsScreen(),
+        ),
+      );
       await tester.pumpAndSettle(const Duration(seconds: 5));
     }
 
-    testWidgets('uses ledger facts instead of a local income slider',
-        (tester) async {
+    testWidgets('uses ledger facts instead of a local income slider', (
+      tester,
+    ) async {
       await pumpAvs(tester, independentAnswers(selfIncome: 135000));
 
       expect(find.byType(MintPremiumSlider), findsNothing);
@@ -469,8 +496,9 @@ void main() {
       expect(find.byKey(const Key('avs_result_cards')), findsOneWidget);
     });
 
-    testWidgets('does not calculate from a gross salary fallback',
-        (tester) async {
+    testWidgets('does not calculate from a gross salary fallback', (
+      tester,
+    ) async {
       await pumpAvs(tester, independentAnswers(grossSalary: 220000));
 
       expect(find.byType(MintPremiumSlider), findsNothing);
@@ -479,8 +507,9 @@ void main() {
       expect(find.text('Manquant'), findsOneWidget);
     });
 
-    testWidgets('shows missing fact instead of defaulting to 80000',
-        (tester) async {
+    testWidgets('shows missing fact instead of defaulting to 80000', (
+      tester,
+    ) async {
       await pumpAvs(tester, independentAnswers());
 
       expect(find.byType(MintPremiumSlider), findsNothing);
@@ -499,15 +528,18 @@ void main() {
       WidgetTester tester,
       Map<String, dynamic> answers,
     ) async {
-      await tester.pumpWidget(buildWithCoachProfileProvider(
-        RecordingCoachProfileProvider(answers),
-        const IjmScreen(),
-      ));
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          RecordingCoachProfileProvider(answers),
+          const IjmScreen(),
+        ),
+      );
       await tester.pumpAndSettle(const Duration(seconds: 5));
     }
 
-    testWidgets('uses ledger facts instead of local income or age sliders',
-        (tester) async {
+    testWidgets('uses ledger facts instead of local income or age sliders', (
+      tester,
+    ) async {
       await pumpIjm(
         tester,
         independentAnswers(
@@ -523,8 +555,9 @@ void main() {
       expect(find.byKey(const Key('ijm_result_cards')), findsOneWidget);
     });
 
-    testWidgets('does not calculate from a gross salary fallback',
-        (tester) async {
+    testWidgets('does not calculate from a gross salary fallback', (
+      tester,
+    ) async {
       await pumpIjm(
         tester,
         independentAnswers(
@@ -539,15 +572,17 @@ void main() {
       expect(find.text('Manquant'), findsOneWidget);
     });
 
-    testWidgets('shows missing facts instead of defaulting to a monthly value',
-        (tester) async {
-      await pumpIjm(tester, independentAnswers());
+    testWidgets(
+      'shows missing facts instead of defaulting to a monthly value',
+      (tester) async {
+        await pumpIjm(tester, independentAnswers());
 
-      expect(find.byType(MintPremiumSlider), findsNothing);
-      expect(find.text("CHF 6'000"), findsNothing);
-      expect(find.text('Manquant'), findsNWidgets(2));
-      expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
-    });
+        expect(find.byType(MintPremiumSlider), findsNothing);
+        expect(find.text("CHF 6'000"), findsNothing);
+        expect(find.text('Manquant'), findsNWidgets(2));
+        expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+      },
+    );
   });
 
   // ===========================================================================
@@ -559,19 +594,19 @@ void main() {
       WidgetTester tester,
       Map<String, dynamic> answers,
     ) async {
-      await tester.pumpWidget(buildWithCoachProfileProvider(
-        RecordingCoachProfileProvider(answers),
-        const DisabilitySelfEmployedScreen(),
-      ));
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          RecordingCoachProfileProvider(answers),
+          const DisabilitySelfEmployedScreen(),
+        ),
+      );
       await tester.pumpAndSettle(const Duration(seconds: 5));
     }
 
-    testWidgets('uses ledger income instead of a local revenue slider',
-        (tester) async {
-      await pumpDisabilitySelf(
-        tester,
-        independentAnswers(selfIncome: 144000),
-      );
+    testWidgets('uses ledger income instead of a local revenue slider', (
+      tester,
+    ) async {
+      await pumpDisabilitySelf(tester, independentAnswers(selfIncome: 144000));
 
       expect(find.byType(MintPremiumSlider), findsNothing);
       expect(
@@ -579,35 +614,42 @@ void main() {
         findsOneWidget,
       );
       expect(
-          find.byKey(const Key('disability_self_income_fact')), findsOneWidget);
+        find.byKey(const Key('disability_self_income_fact')),
+        findsOneWidget,
+      );
       expect(find.textContaining("144'000"), findsOneWidget);
-      expect(find.byKey(const Key('disability_self_result_cards')),
-          findsOneWidget);
+      expect(
+        find.byKey(const Key('disability_self_result_cards')),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('does not calculate from a gross salary fallback',
-        (tester) async {
-      await pumpDisabilitySelf(
-        tester,
-        independentAnswers(grossSalary: 240000),
-      );
+    testWidgets('does not calculate from a gross salary fallback', (
+      tester,
+    ) async {
+      await pumpDisabilitySelf(tester, independentAnswers(grossSalary: 240000));
 
       expect(find.byType(MintPremiumSlider), findsNothing);
       expect(find.text("CHF 240'000"), findsNothing);
       expect(
-          find.byKey(const Key('disability_self_result_cards')), findsNothing);
+        find.byKey(const Key('disability_self_result_cards')),
+        findsNothing,
+      );
       expect(find.text('Manquant'), findsOneWidget);
     });
 
-    testWidgets('shows missing fact instead of defaulting to a monthly value',
-        (tester) async {
+    testWidgets('shows missing fact instead of defaulting to a monthly value', (
+      tester,
+    ) async {
       await pumpDisabilitySelf(tester, independentAnswers());
 
       expect(find.byType(MintPremiumSlider), findsNothing);
       expect(find.text("CHF 8'000"), findsNothing);
       expect(find.text('Manquant'), findsOneWidget);
       expect(
-          find.byKey(const Key('disability_self_result_cards')), findsNothing);
+        find.byKey(const Key('disability_self_result_cards')),
+        findsNothing,
+      );
     });
   });
 
@@ -630,169 +672,358 @@ void main() {
       expect(find.text('3e pilier indépendant'), findsOneWidget);
     });
 
-    testWidgets('has LPP toggle switch', (tester) async {
+    testWidgets('shows ledger facts instead of local LPP/income editors', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byType(Switch), findsOneWidget);
-      // The phrase "LPP volontaire" appears in both the toggle label AND the
-      // 3a explanation paragraph that references it. Expect at least one match.
       expect(
-        find.textContaining('LPP volontaire'),
-        findsWidgets,
+        find.byKey(const Key('pillar3a_indep_ledger_facts')),
+        findsOneWidget,
       );
+      expect(find.byType(Switch), findsNothing);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.text('Manquant'), findsNWidgets(3));
     });
 
-    testWidgets('has amount field and premium slider (revenu and taux)',
-        (tester) async {
+    testWidgets('hides scenario slider until ledger facts are complete', (
+      tester,
+    ) async {
       await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Revenu uses MintAmountField, taux uses MintPremiumSlider
-      expect(find.byType(MintAmountField), findsOneWidget);
-      expect(find.byType(MintPremiumSlider), findsOneWidget);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key('pillar3a_indep_comparison_bars')),
+        findsNothing,
+      );
     });
 
     testWidgets('shows intro about grand 3a', (tester) async {
       await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(
-        find.textContaining('grand 3a'),
-        findsWidgets,
-      );
+      expect(find.textContaining('grand 3a'), findsWidgets);
     });
 
-    testWidgets('shows taux marginal slider', (tester) async {
-      await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
+    testWidgets(
+      'uses known independent income and LPP choice from ledger facts',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 4000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final provider = RecordingCoachProfileProvider(
+          independentAnswers(
+            selfIncome: 180000,
+            cashTotal: 50000,
+            voluntaryLpp: true,
+          ),
+        );
+
+        await tester.pumpWidget(
+          buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        final header = tester.widget<Text>(
+          find.byKey(const Key('pillar3a_indep_header_info')),
+        );
+        expect(header.data, contains('Avec LPP'));
+        expect(header.data, isNot(contains('sans LPP')));
+        expect(find.text('Données connues'), findsOneWidget);
+        expect(find.textContaining("CHF\u00A0180'000"), findsWidgets);
+        expect(find.text('Épargne liquide'), findsOneWidget);
+        expect(find.textContaining("CHF\u00A050'000"), findsWidgets);
+        expect(find.textContaining('petit 3a'), findsWidgets);
+        expect(find.byType(MintAmountField), findsNothing);
+        expect(find.byType(Switch), findsNothing);
+        expect(find.byType(MintPremiumSlider), findsOneWidget);
+        expect(
+          find.byKey(const Key('pillar3a_indep_result_section')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const Key('pillar3a_indep_comparison_bars')),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('edit known facts opens the independent income collector', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 180000,
+          cashTotal: 50000,
+          voluntaryLpp: true,
+        ),
+      );
+
+      await tester.pumpWidget(buildWithCoachProfileRouter(provider));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.text('Modifier'));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
-        find.textContaining("Taux marginal"),
+        find.text('data-block:revenu:q_self_employed_income'),
         findsOneWidget,
       );
     });
 
-    testWidgets('prefills known independent income and LPP choice',
-        (tester) async {
+    testWidgets('shows taux marginal slider only as a scenario lever', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
-        independentAnswers(selfIncome: 180000, voluntaryLpp: true),
+        independentAnswers(
+          selfIncome: 90000,
+          cashTotal: 50000,
+          voluntaryLpp: false,
+        ),
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const Pillar3aIndepScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-      final lppSwitch = tester.widget<Switch>(find.byType(Switch));
-
-      expect(amountField.value, 180000);
-      expect(lppSwitch.value, isTrue);
+      expect(find.textContaining("Taux marginal"), findsOneWidget);
+      expect(find.byType(MintPremiumSlider), findsOneWidget);
     });
 
-    testWidgets('does not prefill net income from a gross salary fallback',
-        (tester) async {
+    testWidgets('does not prefill net income from a gross salary fallback', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
-        independentAnswers(grossSalary: 240000),
+        independentAnswers(grossSalary: 240000, voluntaryLpp: false),
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const Pillar3aIndepScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-
-      expect(amountField.value, 100000);
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.text("CHF\u00A0240'000"), findsNothing);
+      expect(find.text("CHF\u00A0100'000"), findsNothing);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
     });
 
-    testWidgets('clamps known independent income to the field maximum',
-        (tester) async {
+    testWidgets('does not treat unprovided independent income as known', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
-        independentAnswers(selfIncome: 450000),
+        independentAnswers(cashTotal: 50000, voluntaryLpp: false),
+      );
+      provider._profileOverride = provider.profile!.copyWith(
+        selfEmployedNetIncome: 180000,
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const Pillar3aIndepScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-
-      expect(amountField.value, 300000);
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0180'000"), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
     });
 
-    testWidgets('persists LPP toggle through the profile answer path',
-        (tester) async {
+    testWidgets('does not clamp known independent income from the ledger', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 450000,
+          cashTotal: 50000,
+          voluntaryLpp: false,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("CHF\u00A0450'000"), findsWidgets);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('hides upside framing when grand 3a is below salaried ceiling', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 5000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 30000,
+          cashTotal: 50000,
+          voluntaryLpp: false,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('pillar3a_indep_comparison_bars')),
+        findsOneWidget,
+      );
+      expect(find.textContaining('super-pouvoir'), findsNothing);
+      expect(find.textContaining('Différence'), findsNothing);
+    });
+
+    testWidgets('treats missing LPP affiliation as a missing ledger fact', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
         independentAnswers(selfIncome: 90000),
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const Pillar3aIndepScreen(),
-        ),
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
       );
-      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      await tester.tap(find.byType(Switch));
-      await tester.pump();
-
-      expect(provider.writes, isNotEmpty);
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.byType(Switch), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
       expect(
-        provider.writes.last,
-        containsPair('q_has_voluntary_lpp', 'yes'),
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
       );
-      expect(provider.writes.last, containsPair('q_has_pension_fund', 'yes'));
     });
 
-    testWidgets('persists edited independent income through the profile path',
-        (tester) async {
+    testWidgets('treats missing liquidity as a missing guardrail fact', (
+      tester,
+    ) async {
       final provider = RecordingCoachProfileProvider(
-        independentAnswers(selfIncome: 90000),
+        independentAnswers(selfIncome: 90000, voluntaryLpp: false),
       );
 
       await tester.pumpWidget(
-        buildWithCoachProfileProvider(
-          provider,
-          const Pillar3aIndepScreen(),
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.text('Épargne liquide'), findsOneWidget);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
+      );
+      expect(find.text('Concentration Prioritaire'), findsNothing);
+    });
+
+    testWidgets('keeps result planning locked in SafeMode', (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 90000,
+          cashTotal: 50000,
+          hasConsumerDebt: true,
+          voluntaryLpp: false,
         ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Concentration Prioritaire'), findsOneWidget);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key('pillar3a_indep_comparison_bars')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('keeps result planning locked when liquidity is too low', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 90000,
+          cashTotal: 1000,
+          voluntaryLpp: false,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données connues'), findsOneWidget);
+      expect(find.text('Concentration Prioritaire'), findsOneWidget);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('does not write profile facts from local scenario changes', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 90000,
+          cashTotal: 50000,
+          voluntaryLpp: false,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
       );
       await tester.pump(const Duration(milliseconds: 500));
 
-      final amountField =
-          tester.widget<MintAmountField>(find.byType(MintAmountField));
-      amountField.onChanged(123000);
+      final slider = tester.widget<MintPremiumSlider>(
+        find.byType(MintPremiumSlider),
+      );
+      slider.onChanged(35);
       await tester.pump();
 
-      expect(provider.writes, isNotEmpty);
-      expect(
-        provider.writes.last,
-        containsPair('q_self_employed_income', 123000),
-      );
-      expect(
-        provider.writes.last,
-        containsPair('q_net_income_period_chf', 123000),
-      );
-      expect(provider.writes.last, containsPair('q_pay_frequency', 'yearly'));
-      expect(
-        provider.writes.last,
-        containsPair('q_employment_status', 'independant'),
-      );
+      expect(provider.writes, isEmpty);
     });
   });
 
@@ -841,10 +1072,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
       FlutterError.onError = handler;
 
-      expect(
-        find.textContaining('Ta vie financière'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Ta vie financière'), findsOneWidget);
     });
 
     testWidgets('shows description subtitle', (tester) async {
@@ -855,10 +1083,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
       FlutterError.onError = handler;
 
-      expect(
-        find.textContaining('Outils essentiels'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Outils essentiels'), findsOneWidget);
     });
 
     testWidgets('shows life events section title', (tester) async {
@@ -869,10 +1094,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
       FlutterError.onError = handler;
 
-      expect(
-        find.textContaining('ÉVÉNEMENTS DE VIE'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('ÉVÉNEMENTS DE VIE'), findsOneWidget);
     });
 
     testWidgets('shows event category FAMILLE', (tester) async {
