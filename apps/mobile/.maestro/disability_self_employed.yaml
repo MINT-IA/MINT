@@ -1,6 +1,7 @@
 appId: ch.mint.app
 ---
-# Disability self-employed renders ledger facts, collects missing income through DataBlock, then shows results.
+# Disability self-employed renders ledger facts, collects missing income through
+# the screen CTA, then returns with the canonical income fact filled.
 - stopApp
 - launchApp:
     clearState: true
@@ -14,7 +15,8 @@ appId: ch.mint.app
     id: "disability_self_income_fact"
 - assertVisible:
     text: "Enrichir mon profil"
-- openLink: "mint:///data-block/revenu?inputKey=q_self_employed_income"
+- tapOn:
+    text: "Enrichir mon profil"
 - assertVisible:
     id: "self_employed_income_input"
 - tapOn:
@@ -22,13 +24,10 @@ appId: ch.mint.app
 - inputText: "144000"
 - tapOn:
     id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
 - openLink: "mint:///disability/self-employed"
 - assertVisible:
     id: "disability_self_ledger_facts"
-- scrollUntilVisible:
-    element:
-      id: "disability_self_result_cards"
-    direction: DOWN
-    speed: 5
-    visibilityPercentage: 20
-    centerElement: true
+- assertVisible:
+    id: "disability_self_income_fact"

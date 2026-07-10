@@ -1,0 +1,40 @@
+schema_version: 1
+flow:
+  id: disability_self_employed_missing_facts
+  title: "Self-employed disability screen to missing ledger facts"
+  exits: [db.route.revenu]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: disability.route.self_employed
+    kind: route
+    route: /disability/self-employed
+    widget: screens/disability/disability_self_employed_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: disability.edge.self_employed.enrich_income
+    from: disability.route.self_employed
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect self-employed annual income before showing disability protection results"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_self_employed.yaml

@@ -98,6 +98,11 @@ bloque pas encore les routes non migrées.
   prouvées par Maestro (`r1_scan_review`, `r2_scan_impact`) et ne déclare pas
   encore le pipeline OCR réussi tant que le contrat `extra` domaine
   `ExtractionResult` / `Map` n'est pas remplacé ou explicitement testé.
+- `interactions/disability_self_employed_missing_facts.yaml` : flux invalidité
+  indépendant réel, limité à la CTA prouvée vers DataBlock revenu pour
+  `q_self_employed_income`. Les branches patrimoine/budget restent hors
+  registre tant qu'elles n'ont pas une preuve runtime déclenchée depuis l'écran
+  source.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.
@@ -160,6 +165,7 @@ edges:
     intent: string           # ce que l'utilisateur CROIT faire — revu en PR (D6)
     payload:                 # CONTRAT DE DONNÉES — contraint par SCREEN_CONTRACTS.md §0 HARD RULE (A4)
       path_params: {name: dart_type}?    # ex. {type: EnrichmentType}
+      query_params: {name: dart_type}?   # ex. {inputKey: InputKey}
       extra: dart_type?                  # ids / enums / codes / tokens /
                                          # sélection éphémère UNIQUEMENT (A4)
       # Le codegen vérifie que la cible consomme exactement ce contrat.

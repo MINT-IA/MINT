@@ -5,6 +5,7 @@ flowchart LR
 
   db_route_patrimoine["db.route.patrimoine<br/>/data-block/:type"]:::route
   db_route_revenu["db.route.revenu<br/>/data-block/:type"]:::route
+  disability_route_self_employed["disability.route.self_employed<br/>/disability/self-employed"]:::route
   firstjob_route_first_job["firstjob.route.first_job<br/>/first-job"]:::route
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
   indep_route_avs["indep.route.avs<br/>/independants/avs"]:::route
@@ -17,6 +18,7 @@ flowchart LR
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
   scan_route_review_recovery["scan.route.review_recovery<br/>/scan/review"]:::route
 
+  disability_route_self_employed -->|"tap / push"| db_route_revenu
   scan_route_impact_recovery -->|"tap / go"| home_route_dashboard
   scan_route_review_recovery -->|"tap / go"| scan_route_capture
   firstjob_route_first_job -->|"tap / push"| db_route_revenu

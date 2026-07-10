@@ -39,6 +39,13 @@ BACK_TARGET_RE = re.compile(r"^(?:pop_to|reset_to)\(([^)]+)\)$")
 DATA_BLOCK_NODE_RE = re.compile(r"^db\.route\.([a-z0-9_]+)$")
 
 
+def _payload_type_is_allowed(type_name: str) -> bool:
+    return (
+        type_name in EXTRA_ALLOWLIST_EXACT
+        or bool(EXTRA_ALLOWLIST_RE.match(type_name))
+    )
+
+
 @dataclass(frozen=True)
 class RegistryDocument:
     path: Path
@@ -298,8 +305,7 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
                 or extra_type.startswith("List<")
                 or (
                     bool(extra_type)
-                    and extra_type not in EXTRA_ALLOWLIST_EXACT
-                    and not EXTRA_ALLOWLIST_RE.match(extra_type)
+                    and not _payload_type_is_allowed(extra_type)
                 )
             )
             if extra_is_forbidden:
@@ -307,6 +313,22 @@ def _validate_documents(root: Path, docs: list[RegistryDocument]) -> list[str]:
                     f"{rel_path}: edge {edge_id} payload.extra must be an id, enum, code, "
                     f"token, or ephemeral selection, not {extra_type}",
                 )
+            if isinstance(payload, dict):
+                for payload_key in ("path_params", "query_params"):
+                    payload_params = payload.get(payload_key)
+                    if payload_params is None:
+                        continue
+                    if not isinstance(payload_params, dict):
+                        errors.append(f"{rel_path}: edge {edge_id} payload.{payload_key} must be a map")
+                        continue
+                    for param_name, param_type in payload_params.items():
+                        type_name = param_type.strip() if isinstance(param_type, str) else ""
+                        if not type_name or not _payload_type_is_allowed(type_name):
+                            errors.append(
+                                f"{rel_path}: edge {edge_id} payload.{payload_key}.{param_name} "
+                                "must be an id, enum, code, token, type, or ephemeral selection, "
+                                f"not {param_type}",
+                            )
             validate_back_target(f"edge {edge_id}", edge.get("back"))
             analytics_event = edge.get("analytics")
             if analytics_event and analytics_event not in analytics:

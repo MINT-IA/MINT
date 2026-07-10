@@ -183,6 +183,42 @@ def test_interaction_registry_lint_allows_result_code_extra(tmp_path: Path) -> N
     assert not any("payload.extra" in error for error in errors)
 
 
+def test_interaction_registry_lint_allows_query_param_input_key(tmp_path: Path) -> None:
+    _write_minimal_repo(tmp_path)
+    _write_registry(tmp_path)
+    registry = tmp_path / "interactions/revenu_to_mortgage.yaml"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace(
+            "payload: {}",
+            "payload:\n      path_params: {type: EnrichmentType}\n      query_params: {inputKey: InputKey}",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = interaction_registry_lint.check(tmp_path)
+
+    assert not any("payload.query_params" in error for error in errors)
+
+
+def test_interaction_registry_lint_rejects_domain_object_query_param(tmp_path: Path) -> None:
+    _write_minimal_repo(tmp_path)
+    _write_registry(tmp_path)
+    registry = tmp_path / "interactions/revenu_to_mortgage.yaml"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace(
+            "payload: {}",
+            "payload:\n      query_params: {inputKey: CoachProfile}",
+        ),
+        encoding="utf-8",
+    )
+
+    assert (
+        "interactions/revenu_to_mortgage.yaml: edge db.edge.revenu.submit "
+        "payload.query_params.inputKey must be an id, enum, code, token, type, "
+        "or ephemeral selection, not CoachProfile"
+    ) in interaction_registry_lint.check(tmp_path)
+
+
 def test_interaction_registry_lint_allows_gorouter_go_transition(tmp_path: Path) -> None:
     _write_minimal_repo(tmp_path)
     _write_registry(tmp_path)
