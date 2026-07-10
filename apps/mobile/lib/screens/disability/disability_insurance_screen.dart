@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/disability_insurance_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
 import 'package:mint_mobile/widgets/coach/franchise_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -27,52 +29,69 @@ class DisabilityInsuranceScreen extends StatefulWidget {
 }
 
 class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
-  double _grossMonthly = 8333;
-  double _savings = 30000;
-  bool _hasIjm = true;
+  bool _hasIjm = false;
   bool _hasPrivateInsurance = false;
-  bool _seededFromProfile = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_seededFromProfile) return;
-    _seededFromProfile = true;
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
-    setState(() {
-      final salary = profile.salaireBrutMensuel;
-      if (salary > 0) _grossMonthly = salary.clamp(2000.0, 25000.0);
-      final savings = profile.patrimoine.epargneLiquide;
-      if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
-    });
+  CoachProfileProvider? _profileProvider(BuildContext context) {
+    try {
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  double? _grossMonthlySalary(CoachProfile? profile) {
+    if (profile == null || !profile.userProvidedFields.contains('salary')) {
+      return null;
+    }
+    final salary = profile.salaireBrutMensuel;
+    if (salary <= 0) return null;
+    return salary.toDouble();
+  }
+
+  double? _liquidSavings(CoachProfile? profile) {
+    if (profile == null ||
+        !profile.userProvidedFields.contains('liquidSavings')) {
+      return null;
+    }
+    final savings = profile.patrimoine.epargneLiquide;
+    // A user-provided zero balance is still a real fact: unlock the result.
+    if (savings < 0) return null;
+    return savings.toDouble();
   }
 
   // ── Scorecard items ───────────────────────────────────────
 
-  List<CoverageItem> get _scorecardItems {
-    final annualGross = _grossMonthly * 12;
-    final hasLpp = annualGross >= lppSeuilEntree;
+  List<CoverageItem> _scorecardItems({
+    required double grossMonthly,
+    required double savings,
+  }) {
+    final s = S.of(context)!;
+    final hasLpp = DisabilityInsuranceCalculator.hasLppInvalidityCoverage(
+      grossMonthlySalary: grossMonthly,
+    );
 
     // IJM
     final ijmGrade = _hasIjm ? 'B+' : (_hasPrivateInsurance ? 'B' : 'F');
     final ijmDetail = _hasIjm
-        ? '80% salaire — 720 jours (assurance collective)'
+        ? s.disabilityGapIjmCoverage
         : _hasPrivateInsurance
-            ? 'Assurance privée personnelle (vérifie les conditions)'
-            : '⚠️ Aucune couverture — hors période employeur, c\'est 0 CHF';
+            ? s.disabilityInsPrivateLossInsurance
+            : s.disabilityGapNoIjmCoverage;
 
     // AI
     const aiGrade = 'C';
 
     // LPP
     final lppGrade = hasLpp ? 'A-' : 'D';
-    final lppDetail = hasLpp
-        ? 'Rente ≈ 40% salaire coordonné (LPP art. 23)'
-        : 'Sous le seuil LPP ${_fmtChf(lppSeuilEntree)} CHF/an — pas de couverture 2e pilier';
+    final lppDetail =
+        hasLpp ? s.disabilityGapLppCovered : s.disabilityGapLppNotCovered;
 
     // Épargne
-    final monthsReserve = _savings / (_grossMonthly * 0.7);
+    final monthsReserve = DisabilityInsuranceCalculator.emergencyReserveMonths(
+      grossMonthlySalary: grossMonthly,
+      liquidSavings: savings,
+    );
     final String savingsGrade;
     if (monthsReserve >= 6) {
       savingsGrade = 'A';
@@ -84,32 +103,32 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
       savingsGrade = 'F';
     }
     final savingsDetail =
-        '${monthsReserve.toStringAsFixed(1)} mois de charges (objectif : 6 mois)';
+        s.disabilityGapSavingsDetail(monthsReserve.toStringAsFixed(1));
 
     return [
       CoverageItem(
-        label: 'IJM / Perte de gain',
+        label: s.disabilityGapApgLabel,
         grade: ijmGrade,
         detail: ijmDetail,
         legalRef: 'LAMal art. 67-77',
         emoji: '🛡️',
       ),
       CoverageItem(
-        label: 'AI fédérale',
+        label: s.disabilityGapAiLabel,
         grade: aiGrade,
-        detail: 'Max ${_fmtChf(aiRenteEntiere)} CHF/mois — délai décision ~14 mois',
+        detail: s.disabilityGapAiDetail(_fmtChf(aiRenteEntiere)),
         legalRef: 'LAI art. 28',
         emoji: '🏛️',
       ),
       CoverageItem(
-        label: 'LPP invalidité',
+        label: s.disabilityGapLppLabel,
         grade: lppGrade,
         detail: lppDetail,
         legalRef: 'LPP art. 23-26',
         emoji: '🏦',
       ),
       CoverageItem(
-        label: 'Réserve d\'urgence',
+        label: s.disabilityGapSavingsLabel,
         grade: savingsGrade,
         detail: savingsDetail,
         emoji: '💰',
@@ -117,12 +136,21 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     ];
   }
 
-  String get _overallGrade {
+  String _overallGrade({
+    required double grossMonthly,
+    required double savings,
+  }) {
     int score = 0;
     if (_hasIjm || _hasPrivateInsurance) score += 3;
-    final annualGross = _grossMonthly * 12;
-    if (annualGross >= lppSeuilEntree) score += 2;
-    final monthsReserve = _savings / (_grossMonthly * 0.7);
+    if (DisabilityInsuranceCalculator.hasLppInvalidityCoverage(
+      grossMonthlySalary: grossMonthly,
+    )) {
+      score += 2;
+    }
+    final monthsReserve = DisabilityInsuranceCalculator.emergencyReserveMonths(
+      grossMonthlySalary: grossMonthly,
+      liquidSavings: savings,
+    );
     if (monthsReserve >= 3) score += 2;
     if (monthsReserve >= 6) score += 1;
     if (score >= 7) return 'B+';
@@ -131,17 +159,10 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     return 'D';
   }
 
-  double get _lifeDropPercent {
-    // Act 3 income estimate: AI + LPP
-    final annualGross = _grossMonthly * 12;
-    double lppInvalidity = 0.0;
-    if (annualGross >= lppSeuilEntree) {
-      final coordinated = (annualGross - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
-      lppInvalidity = coordinated * 0.40 / 12;
-    }
-    final act3Income = aiRenteEntiere + lppInvalidity;
-    return ((1 - act3Income / _grossMonthly) * 100).clamp(0, 100);
+  double _lifeDropPercent(double grossMonthly) {
+    return DisabilityInsuranceCalculator.lifeDropPercent(
+      grossMonthlySalary: grossMonthly,
+    );
   }
 
   // ── Franchise options ─────────────────────────────────────
@@ -169,41 +190,67 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = _profileProvider(context);
+    final grossMonthly = _grossMonthlySalary(provider?.profile);
+    final savings = _liquidSavings(provider?.profile);
+    final hasRequiredFacts = grossMonthly != null && savings != null;
+
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 20),
-                _buildInputsCard(),
-                const SizedBox(height: 20),
-                DisabilityScorecardWidget(
-                  items: _scorecardItems,
-                  overallGrade: _overallGrade,
-                  lifeDropPercent: _lifeDropPercent,
-                ),
-                const SizedBox(height: 20),
-                const FranchiseCostWidget(
-                  options: _franchiseOptions,
-                  initialConsultationsPerYear: 3,
-                ),
-                const SizedBox(height: 20),
-                EduDisclaimer(
-                  text: S.of(context)!.disabilityInsDisclaimer,
-                ),
-                const SizedBox(height: 8),
-                EduLegalSources(
-                  sources: S.of(context)!.disabilityInsSources,
-                ),
-              ]),
-            ),
-          ),
-        ],
-      ))),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 20),
+                        _buildLedgerFactsCard(
+                          context,
+                          S.of(context)!,
+                          grossMonthly: grossMonthly,
+                          savings: savings,
+                        ),
+                        const SizedBox(height: 20),
+                        if (hasRequiredFacts) ...[
+                          Semantics(
+                            key: const Key(
+                                'disability_insurance_result_section'),
+                            identifier: 'disability_insurance_result_section',
+                            child: DisabilityScorecardWidget(
+                              items: _scorecardItems(
+                                grossMonthly: grossMonthly,
+                                savings: savings,
+                              ),
+                              overallGrade: _overallGrade(
+                                grossMonthly: grossMonthly,
+                                savings: savings,
+                              ),
+                              lifeDropPercent: _lifeDropPercent(grossMonthly),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                        const FranchiseCostWidget(
+                          options: _franchiseOptions,
+                          initialConsultationsPerYear: 3,
+                        ),
+                        const SizedBox(height: 20),
+                        EduDisclaimer(
+                          text: S.of(context)!.disabilityInsDisclaimer,
+                        ),
+                        const SizedBox(height: 8),
+                        EduLegalSources(
+                          sources: S.of(context)!.disabilityInsSources,
+                        ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ))),
     );
   }
 
@@ -231,7 +278,9 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                 children: [
                   Text(
                     S.of(context)!.disabilityInsTitle,
-                    style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
+                    style:
+                        MintTextStyles.headlineMedium(color: MintColors.white)
+                            .copyWith(fontWeight: FontWeight.w800),
                   ),
                   Text(
                     S.of(context)!.disabilityInsSubtitle,
@@ -247,76 +296,149 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         header: true,
         child: Text(
           S.of(context)!.disabilityInsAppBarTitle,
-          style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleMedium(color: MintColors.white)
+              .copyWith(fontWeight: FontWeight.w700),
         ),
       ),
     );
   }
 
-  Widget _buildInputsCard() {
-    return MintSurface(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MintEntrance(child: Text(
-            S.of(context)!.disabilityInsRefineSituation,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
-          )),
-          const SizedBox(height: 16),
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
-            label: S.of(context)!.disabilityInsGrossSalary,
-            value: _grossMonthly,
-            min: 2000,
-            max: 25000,
-            divisions: 46,
-            format: (v) => "CHF ${_fmtChf(v)}",
-            onChanged: (v) => setState(() => _grossMonthly = v),
-          )),
-          const SizedBox(height: 12),
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
-            label: S.of(context)!.disabilityInsSavings,
-            value: _savings,
-            min: 0,
-            max: 200000,
-            divisions: 40,
-            format: (v) => "CHF ${_fmtChf(v)}",
-            onChanged: (v) => setState(() => _savings = v),
-          )),
-          const SizedBox(height: 16),
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggleRow(
-            label: S.of(context)!.disabilityInsIjmEmployer,
-            value: _hasIjm,
-            onChanged: (v) => setState(() => _hasIjm = v),
-          )),
-          const SizedBox(height: 8),
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggleRow(
-            label: S.of(context)!.disabilityInsPrivateLossInsurance,
-            value: _hasPrivateInsurance,
-            onChanged: (v) => setState(() => _hasPrivateInsurance = v),
-          )),
-        ],
+  Widget _buildLedgerFactsCard(
+    BuildContext context,
+    S s, {
+    required double? grossMonthly,
+    required double? savings,
+  }) {
+    final missingSalary = grossMonthly == null;
+    final missingSavings = savings == null;
+    final hasMissing = missingSalary || missingSavings;
+    final route = missingSalary
+        ? '/data-block/revenu?inputKey=q_gross_salary_annual'
+        : missingSavings
+            ? '/data-block/patrimoine?inputKey=q_cash_total'
+            : '/data-block/revenu?inputKey=q_gross_salary_annual';
+
+    return Semantics(
+      key: const Key('disability_insurance_ledger_facts'),
+      identifier: 'disability_insurance_ledger_facts',
+      container: true,
+      child: MintSurface(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MintEntrance(
+                child: Row(
+              children: [
+                Icon(
+                  hasMissing
+                      ? Icons.manage_search_outlined
+                      : Icons.check_circle_outline,
+                  color: hasMissing ? MintColors.warning : MintColors.success,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    hasMissing
+                        ? s.dataQualityMissingSection
+                        : s.dataQualityKnownSection,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                TextButton.icon(
+                  key: const Key('disability_insurance_enrich_cta'),
+                  onPressed: () => context.push(route),
+                  icon: Icon(
+                    hasMissing ? Icons.add_circle_outline : Icons.edit_outlined,
+                    size: 18,
+                  ),
+                  label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
+                ),
+              ],
+            )),
+            const SizedBox(height: 16),
+            MintEntrance(
+                delay: const Duration(milliseconds: 100),
+                child: _buildFactRow(
+                  key: const Key('disability_insurance_salary_fact'),
+                  identifier: 'disability_insurance_salary_fact',
+                  label: s.disabilityInsGrossSalary,
+                  value: grossMonthly == null
+                      ? s.dataBlockStatusMissing
+                      : 'CHF ${_fmtChf(grossMonthly)}',
+                  missing: missingSalary,
+                )),
+            const SizedBox(height: 12),
+            MintEntrance(
+                delay: const Duration(milliseconds: 200),
+                child: _buildFactRow(
+                  key: const Key('disability_insurance_savings_fact'),
+                  identifier: 'disability_insurance_savings_fact',
+                  label: s.disabilityInsSavings,
+                  value: savings == null
+                      ? s.dataBlockStatusMissing
+                      : 'CHF ${_fmtChf(savings)}',
+                  missing: missingSavings,
+                )),
+            const SizedBox(height: 16),
+            MintEntrance(
+                delay: const Duration(milliseconds: 300),
+                child: _buildToggleRow(
+                  label: S.of(context)!.disabilityInsIjmEmployer,
+                  value: _hasIjm,
+                  onChanged: (v) => setState(() => _hasIjm = v),
+                )),
+            const SizedBox(height: 8),
+            MintEntrance(
+                delay: const Duration(milliseconds: 400),
+                child: _buildToggleRow(
+                  label: S.of(context)!.disabilityInsPrivateLossInsurance,
+                  value: _hasPrivateInsurance,
+                  onChanged: (v) => setState(() => _hasPrivateInsurance = v),
+                )),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSliderRow({
+  Widget _buildFactRow({
+    required Key key,
+    required String identifier,
     required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) format,
-    required void Function(double) onChanged,
+    required String value,
+    required bool missing,
   }) {
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions,
-      formatValue: format,
-      onChanged: onChanged,
+    return Semantics(
+      key: key,
+      identifier: identifier,
+      label: '$label, $value',
+      container: true,
+      child: Row(
+        children: [
+          Icon(
+            missing ? Icons.help_outline : Icons.check_circle_outline,
+            color: missing ? MintColors.warning : MintColors.success,
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          Text(
+            value,
+            style: MintTextStyles.bodySmall(
+              color: missing ? MintColors.warning : MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 

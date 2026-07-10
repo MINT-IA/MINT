@@ -54,6 +54,30 @@ def test_independent_protection_diagram_pins_fact_vs_lever_boundary() -> None:
         assert phrase in diagram
 
 
+def test_health_disability_diagram_pins_ledger_first_boundary() -> None:
+    diagram = _text(DIAGRAM_DIR / "health_disability_protection.mmd")
+
+    required = (
+        "/explore/sante",
+        "/invalidite",
+        "legacy debt: local fact sliders",
+        "/disability/insurance",
+        "/disability/self-employed",
+        "q_gross_salary_annual",
+        "q_cash_total",
+        "q_self_employed_income",
+        "/data-block/revenu<br/>?inputKey=q_gross_salary_annual",
+        "/data-block/patrimoine<br/>?inputKey=q_cash_total",
+        "/data-block/revenu<br/>?inputKey=q_self_employed_income",
+        "disability_insurance_result_section",
+        "disability_self_result_cards",
+        "Scenario lever",
+        "no screen-local fact sliders",
+    )
+    for phrase in required:
+        assert phrase in diagram
+
+
 def test_workflow_and_registry_reference_active_mermaid_layers() -> None:
     workflow = _text(WORKFLOW)
     registry = _text(REGISTRY)
@@ -61,6 +85,7 @@ def test_workflow_and_registry_reference_active_mermaid_layers() -> None:
     for doc in (workflow, registry):
         assert ".planning/journeys/diagrams/data_quest_loop.mmd" in doc
         assert ".planning/journeys/diagrams/independent_protection.mmd" in doc
+        assert ".planning/journeys/diagrams/health_disability_protection.mmd" in doc
         assert "tools/checks/mermaid_render_guard.py" in doc
 
     assert "INTERACTION_REGISTRY.md` executor remains Proposed" in workflow

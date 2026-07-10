@@ -1,0 +1,74 @@
+%% ============================================================================
+%% health_disability_protection.mmd — employee/self-employed disability journeys
+%% ----------------------------------------------------------------------------
+%% Purpose: keep disability screens ledger-first while preserving explicit
+%% scenario/current-coverage levers. User facts never live in local sliders.
+%% Sources: SCREEN_CONTRACTS.md health rows, DATA_QUEST.md, DATA_LEDGER.md.
+%% ============================================================================
+
+flowchart LR
+  classDef route fill:#eaf6f0,stroke:#166b4a,color:#10261d,stroke-width:1px;
+  classDef fact fill:#f6f1e7,stroke:#b48a3b,color:#21180a,stroke-width:1px;
+  classDef lever fill:#eef1ff,stroke:#4f62c6,color:#111836,stroke-width:1px;
+  classDef missing fill:#fff5e6,stroke:#c26f00,color:#201307,stroke-width:1px;
+  classDef debt fill:#fff0f0,stroke:#c83d3d,color:#2c0f0f,stroke-width:1px;
+  classDef proof fill:#f2edf8,stroke:#7b4eb2,color:#1d102a,stroke-width:1px;
+
+  HealthHub["/explore/sante"]:::route
+  LegacyGap["/invalidite<br/>legacy debt: local fact sliders"]:::debt
+  Employee["/disability/insurance<br/>employee coverage detail"]:::route
+  SelfEmployed["/disability/self-employed<br/>self-employed gap"]:::route
+
+  Salary["q_gross_salary_annual<br/>salary fact"]:::fact
+  Cash["q_cash_total<br/>liquid savings fact"]:::fact
+  SelfIncome["q_self_employed_income<br/>independent income fact"]:::fact
+
+  DBSalary["/data-block/revenu<br/>?inputKey=q_gross_salary_annual"]:::missing
+  DBCash["/data-block/patrimoine<br/>?inputKey=q_cash_total"]:::missing
+  DBSelfIncome["/data-block/revenu<br/>?inputKey=q_self_employed_income"]:::missing
+
+  IjmToggle["Scenario lever<br/>IJM / employer daily allowance"]:::lever
+  PrivateToggle["Scenario lever<br/>private loss-of-income insurance"]:::lever
+  SelfToggle["Scenario lever<br/>self-employed loss-of-income insurance"]:::lever
+
+  Provider["CoachProfileProvider<br/>mergeAnswers/applySaveFact"]:::fact
+  Recompute["MintStateProvider<br/>recompute"]:::fact
+  EmployeeResult["disability_insurance_result_section<br/>unlocked only with both facts"]:::proof
+  SelfResult["disability_self_result_cards<br/>unlocked only with income fact"]:::proof
+  Runtime["Widget tests + Maestro/Patrol ids<br/>no screen-local fact sliders"]:::proof
+
+  HealthHub --> LegacyGap
+  HealthHub --> Employee
+  HealthHub --> SelfEmployed
+
+  Employee --> Salary
+  Employee --> Cash
+  Employee --> IjmToggle
+  Employee --> PrivateToggle
+  SelfEmployed --> SelfIncome
+  SelfEmployed --> SelfToggle
+
+  Salary -- "missing" --> DBSalary
+  Cash -- "missing" --> DBCash
+  SelfIncome -- "missing" --> DBSelfIncome
+
+  DBSalary --> Provider
+  DBCash --> Provider
+  DBSelfIncome --> Provider
+  Provider --> Recompute
+  Recompute --> Employee
+  Recompute --> SelfEmployed
+
+  Salary --> EmployeeResult
+  Cash --> EmployeeResult
+  SelfIncome --> SelfResult
+  EmployeeResult --> Runtime
+  SelfResult --> Runtime
+  LegacyGap -. "migration target: replace local sliders with same ledger facts" .-> Employee
+
+  %% Invariants:
+  %% HD-1 /disability/insurance has no MintPremiumSlider for salary or savings.
+  %% HD-2 injected profile defaults do not unlock results unless userProvidedFields contains the facts.
+  %% HD-3 missing salary routes to q_gross_salary_annual; missing savings routes to q_cash_total.
+  %% HD-4 /disability/self-employed routes missing income to q_self_employed_income.
+  %% HD-5 coverage toggles are scenario/current-coverage levers until persisted as dated facts.

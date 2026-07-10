@@ -87,6 +87,10 @@ screen-by-screen encyclopedia.
 - `.planning/journeys/diagrams/independent_protection.mmd` owns the current
   independent-worker protection chain: AVS, IJM, independent 3a,
   dividend-vs-salary, voluntary LPP, and the fact-vs-scenario-lever boundary.
+- `.planning/journeys/diagrams/health_disability_protection.mmd` owns the
+  current employee/self-employed disability chain: salary, liquid savings,
+  self-employed income, missing-data routes, and the remaining `/invalidite`
+  migration debt.
 - Product journeys own their own Mermaid flow when they become P0/P1: data
   collection, decisions, branches, degraded states, PDF handoff, and runtime
   proof links.

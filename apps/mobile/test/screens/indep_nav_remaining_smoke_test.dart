@@ -10,6 +10,7 @@ import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dar
 import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
+import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
@@ -109,14 +110,17 @@ Widget buildWithCoachProfileProvider(
   );
 }
 
-Widget buildWithCoachProfileRouter(CoachProfileProvider provider) {
+Widget buildWithCoachProfileRouter(
+  CoachProfileProvider provider, {
+  Widget child = const Pillar3aIndepScreen(),
+}) {
   final router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
         builder: (_, __) => ChangeNotifierProvider<CoachProfileProvider>.value(
           value: provider,
-          child: const Pillar3aIndepScreen(),
+          child: child,
         ),
       ),
       GoRoute(
@@ -192,6 +196,17 @@ Map<String, dynamic> independentAnswers({
       'q_has_voluntary_lpp': voluntaryLpp ? 'yes' : 'no',
       'q_has_pension_fund': voluntaryLpp ? 'yes' : 'no',
     },
+  };
+}
+
+Map<String, dynamic> disabilityInsuranceAnswers({
+  double? grossSalaryAnnual,
+  double? cashTotal,
+}) {
+  return {
+    if (grossSalaryAnnual != null) 'q_gross_salary_annual': grossSalaryAnnual,
+    if (cashTotal != null) 'q_cash_total': cashTotal,
+    'q_employment_status': 'salarie',
   };
 }
 
@@ -744,7 +759,117 @@ void main() {
   });
 
   // ===========================================================================
-  // 6. DIVIDENDE VS SALAIRE SCREEN
+  // 6. DISABILITY INSURANCE SCREEN
+  // ===========================================================================
+
+  group('DisabilityInsuranceScreen', () {
+    Future<void> pumpDisabilityInsurance(
+      WidgetTester tester,
+      Map<String, dynamic> answers,
+    ) async {
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          RecordingCoachProfileProvider(answers),
+          const DisabilityInsuranceScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+    }
+
+    testWidgets('uses salary and savings ledger facts instead of local sliders',
+        (
+      tester,
+    ) async {
+      await pumpDisabilityInsurance(
+        tester,
+        disabilityInsuranceAnswers(
+          grossSalaryAnnual: 96000,
+          cashTotal: 42000,
+        ),
+      );
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('disability_insurance_ledger_facts')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('disability_insurance_salary_fact')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('disability_insurance_savings_fact')),
+        findsOneWidget,
+      );
+      expect(find.textContaining("8'000"), findsOneWidget);
+      expect(find.textContaining("42'000"), findsOneWidget);
+      expect(
+        find.byKey(const Key('disability_insurance_result_section')),
+        findsOneWidget,
+      );
+      expect(
+          tester.widgetList<Switch>(find.byType(Switch)).first.value, isFalse);
+    });
+
+    testWidgets('does not unlock from unprovided injected profile values', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        disabilityInsuranceAnswers(),
+      );
+      provider._profileOverride = provider.profile!.copyWith(
+        salaireBrutMensuel: 8000,
+        patrimoine: provider.profile!.patrimoine.copyWith(
+          epargneLiquide: 42000,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DisabilityInsuranceScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.textContaining("8'000"), findsNothing);
+      expect(find.textContaining("42'000"), findsNothing);
+      expect(find.text('Manquant'), findsNWidgets(2));
+      expect(
+        find.byKey(const Key('disability_insurance_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('routes the next missing fact to the targeted data block', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        disabilityInsuranceAnswers(grossSalaryAnnual: 96000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(
+          provider,
+          child: const DisabilityInsuranceScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester
+          .tap(find.byKey(const Key('disability_insurance_enrich_cta')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('data-block:patrimoine:q_cash_total'),
+        findsOneWidget,
+      );
+    });
+  });
+
+  // ===========================================================================
+  // 7. DIVIDENDE VS SALAIRE SCREEN
   // ===========================================================================
 
   group('DividendeVsSalaireScreen', () {

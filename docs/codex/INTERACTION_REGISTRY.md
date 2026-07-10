@@ -67,6 +67,9 @@ cartographie de parcours est active et vérifiée par
   `SCREEN_CONTRACTS.reads[] -> ledger -> DataQuest -> write-back -> recompute`.
 - `.planning/journeys/diagrams/independent_protection.mmd` : chaîne
   indépendants et frontière stricte faits utilisateur vs leviers de scénario.
+- `.planning/journeys/diagrams/health_disability_protection.mmd` : chaîne
+  invalidité salarié/indépendant, collecte ciblée des faits manquants et dette
+  explicite de migration `/invalidite`.
 
 La règle opérationnelle immédiate est donc : une interaction critique nouvelle
 est d'abord représentée dans un diagramme de parcours focalisé, puis reliée à

@@ -70,3 +70,31 @@ def test_legacy_redirect_contract_marks_query_preservation_live() -> None:
     for route in ("/ask-mint", "/tools", "/portfolio", "/score-reveal"):
         block = _route_block(app, route)
         assert "_redirectPreservingQuery(state," in block
+
+
+def test_disability_insurance_contract_is_ledger_first() -> None:
+    screen_contracts = SCREEN_CONTRACTS.read_text(encoding="utf-8")
+    insurance_row = next(
+        line
+        for line in screen_contracts.splitlines()
+        if line.startswith("| `/disability/insurance`")
+    )
+    legacy_row = next(
+        line
+        for line in screen_contracts.splitlines()
+        if line.startswith("| `/invalidite`")
+    )
+    health_hub_row = next(
+        line
+        for line in screen_contracts.splitlines()
+        if line.startswith("| `/explore/sante`")
+    )
+
+    assert "`q_gross_salary_annual`" in insurance_row
+    assert "`q_cash_total`" in insurance_row
+    assert "/data-block/revenu?inputKey=q_gross_salary_annual" in insurance_row
+    assert "/data-block/patrimoine?inputKey=q_cash_total" in insurance_row
+    assert "/data-block/lpp" not in insurance_row
+    assert "salaireBrutMensuel" not in insurance_row
+    assert "screen-local user fact sliders" in legacy_row
+    assert "/disability/self-employed" in health_hub_row
