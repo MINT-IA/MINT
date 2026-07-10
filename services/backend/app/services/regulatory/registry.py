@@ -37,6 +37,10 @@ _OFAS_LPP_URL = "https://www.bsv.admin.ch/fr/prevoyance-vieillesse-prevoyance-pr
 _OFAS_AVS_URL = "https://www.bsv.admin.ch/fr/prevoyance-vieillesse"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier"
 _FINMA_URL = "https://www.finma.ch/fr/"
+# 2026-07-10 review: core 2026 AVS/LPP/3a values were checked against
+# current OFAS pages and the OFAS "Chiffres repères 2025-2026" PDF linked
+# from _OFAS_LPP_URL. Rows tagged source_type="estimate" were reviewed as
+# intentional internal modelling assumptions, not official tariff claims.
 _REVIEWED = date(2026, 7, 10)
 
 # ══════════════════════════════════════════════════════════════════════════════
