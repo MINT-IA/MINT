@@ -118,6 +118,13 @@ a focused `.mmd` diagram before changing the screen.
 `interactions/INDEX.md` and
 `.planning/journeys/diagrams/interaction_graph.mmd`. The executor/codegen
 remains Proposed until its own go/no-go threshold is met.
+`python3 tools/checks/interaction_coverage_audit.py --write` snapshots real
+Flutter navigation references and compares them with declared Interaction
+Registry edge targets in
+`.planning/journeys/INTERACTION_COVERAGE_AUDIT.md`. It is intentionally a
+coverage backlog, not a product-failure gate: use it to choose the next journey
+to migrate, and keep it current whenever screens, CTA routes, or registry YAML
+change.
 
 ## Product Spine
 

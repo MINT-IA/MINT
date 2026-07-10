@@ -65,6 +65,12 @@ La cartographie de parcours est active et vérifiée par
 `tools/checks/interaction_registry_lint.py` valide `interactions/*.yaml` et
 régénère `interactions/INDEX.md` plus
 `.planning/journeys/diagrams/interaction_graph.mmd`.
+`tools/checks/interaction_coverage_audit.py --write` photographie les
+références de navigation Flutter réelles et les compare aux routes cibles déjà
+déclarées dans les edges YAML. Son rapport généré
+`.planning/journeys/INTERACTION_COVERAGE_AUDIT.md` sert de backlog objectif pour
+prioriser les prochains flux à migrer ; il ne remplace pas le registry et ne
+bloque pas encore les routes non migrées.
 
 - `docs/codex/WIRING_GRAPH.mmd` : graphe système global.
 - `.planning/journeys/diagrams/data_quest_loop.mmd` : boucle
@@ -80,6 +86,8 @@ régénère `interactions/INDEX.md` plus
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.
+- `.planning/journeys/INTERACTION_COVERAGE_AUDIT.md` : artefact généré par
+  l'audit de couverture, jamais édité à la main.
 
 La règle opérationnelle immédiate est donc : une interaction critique nouvelle
 est d'abord représentée dans un diagramme de parcours focalisé, puis reliée à

@@ -58,6 +58,10 @@ pre-commit:
       run: python3 tools/checks/interaction_registry_lint.py
       glob: "{interactions/*.yaml,interactions/INDEX.md,.planning/journeys/diagrams/interaction_graph.mmd,tools/checks/interaction_registry_lint.py,apps/mobile/lib/routes/route_metadata.dart,apps/mobile/lib/services/analytics_events.dart,apps/mobile/lib/l10n/app_fr.arb,apps/mobile/.maestro/*.yaml,apps/mobile/lib/screens/**/*.dart}"
       tags: [interaction-registry, mermaid, mint]
+    interaction-coverage-audit:
+      run: python3 tools/checks/interaction_coverage_audit.py
+      glob: "{apps/mobile/lib/**/*.dart,interactions/*.yaml,.planning/journeys/INTERACTION_COVERAGE_AUDIT.md,tools/checks/interaction_coverage_audit.py,apps/mobile/lib/routes/route_metadata.dart}"
+      tags: [interaction-registry, navigation, mint]
 
 skip:
   - merge
