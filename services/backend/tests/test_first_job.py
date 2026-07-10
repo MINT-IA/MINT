@@ -23,6 +23,7 @@ from app.services.first_job.onboarding_service import (
     SOURCES,
     AVS_AI_APG_RATE,
     AC_RATE,
+    AC_SALARY_CAP,
     AANP_RATE,
     PILLAR_3A_LIMIT,
     LAMAL_FRANCHISES,
@@ -71,6 +72,15 @@ class TestSalaryBreakdown:
         )
         bd = result["decomposition_salaire"]
         expected = round(5000 * AC_RATE, 2)
+        assert bd["ac"] == expected
+
+    def test_ac_deduction_capped_above_148200(self, service):
+        """AC deduction should be capped and have no solidarity add-on since 2023."""
+        result = service.analyze_salary(
+            salaire_brut_mensuel=13_000, canton="ZH", age=30,
+        )
+        bd = result["decomposition_salaire"]
+        expected = round((AC_SALARY_CAP * AC_RATE) / 12, 2)
         assert bd["ac"] == expected
 
     def test_aanp_deduction(self, service):

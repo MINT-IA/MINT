@@ -166,9 +166,9 @@ AC_TAUX_EMPLOYE = AC_COTISATION_SALARIE               # 1.1%
 AC_TAUX_EMPLOYEUR = AC_COTISATION_SALARIE             # 1.1%
 AC_PLAFOND = AC_PLAFOND_SALAIRE_ASSURE                # CHF (LACI art. 3 al. 2, 2025)
 
-# AC solidarite — sur la tranche depassant le plafond (LACI art. 3 al. 3)
+# AC solidarite — supprimee depuis 2023 sur la tranche depassant le plafond.
 # Source of truth: app.constants.social_insurance
-AC_SOLIDARITE_TAUX = AC_COTISATION_SOLIDARITE_SALARIE  # 0.5%
+AC_SOLIDARITE_TAUX = AC_COTISATION_SOLIDARITE_SALARIE  # 0%
 
 # LPP — estimation simplifiee (LPP art. 8, 16)
 # Source of truth: app.constants.social_insurance
@@ -671,9 +671,8 @@ class FrontalierService:
         ac_employe = round(salaire_ac * AC_COTISATION_SALARIE, 2)
         ac_employeur = round(salaire_ac * AC_COTISATION_SALARIE, 2)
 
-        ac_solidarite = 0.0
-        if salary > AC_PLAFOND_SALAIRE_ASSURE:
-            ac_solidarite = round((salary - AC_PLAFOND_SALAIRE_ASSURE) * AC_COTISATION_SOLIDARITE_SALARIE, 2)
+        excess_salary = max(0.0, salary - AC_PLAFOND_SALAIRE_ASSURE)
+        ac_solidarite = round(excess_salary * AC_COTISATION_SOLIDARITE_SALARIE, 2)
 
         # LPP
         salaire_coordonne = max(0, min(salary, LPP_SALAIRE_MAX + LPP_DEDUCTION_COORDINATION) - LPP_DEDUCTION_COORDINATION)

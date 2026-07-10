@@ -574,7 +574,7 @@ class TestCoachChatRouterRegistration:
 
     def test_route_exists_in_app(self):
         """The /api/v1/coach/chat route must be registered in the FastAPI app."""
-        routes = [r.path for r in app.routes]
+        routes = list(app.openapi().get("paths", {}))
         assert any("coach" in r and "chat" in r for r in routes), (
             f"No /coach/chat route found in registered routes: {routes}"
         )

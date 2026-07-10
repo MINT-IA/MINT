@@ -36,8 +36,56 @@ logger = logging.getLogger(__name__)
 _OFAS_LPP_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html"
 _OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
+_OFAS_CONTRIBUTIONS_URL = "https://www.bsv.admin.ch/fr/cotisations-apercu"
+_AHV_IV_AC_URL = "https://www.ahv-iv.ch/p/2.08.f"
+_FEDLEX_LACI_URL = "https://www.fedlex.admin.ch/eli/cc/1982/2184_2184_2184/fr"
 _FINMA_URL = "https://www.finma.ch/fr/"
-_REVIEWED = date(2026, 3, 26)
+_REVIEWED = date(2026, 7, 10)
+
+REGULATORY_REVIEW_LOG: dict[str, dict[str, str | date]] = {
+    "pillar3a": {
+        "reviewed_at": _REVIEWED,
+        "source_url": _OFAS_3A_URL,
+        "scope": "2025/2026 OPP3 plafonds and 20% self-employed rule.",
+        "result": "Values unchanged.",
+    },
+    "lpp": {
+        "reviewed_at": _REVIEWED,
+        "source_url": _OFAS_LPP_URL,
+        "scope": "LPP thresholds, coordination deduction, max insured salary and minimum rate.",
+        "result": "Values unchanged.",
+    },
+    "avs_ai_apg": {
+        "reviewed_at": _REVIEWED,
+        "source_url": _OFAS_CONTRIBUTIONS_URL,
+        "scope": "AVS/AI/APG contribution rates and AVS/AI pension amounts.",
+        "result": "Values unchanged.",
+    },
+    "ac_laci": {
+        "reviewed_at": _REVIEWED,
+        "source_url": _AHV_IV_AC_URL,
+        "scope": "LACI salary ceiling, employee/total contribution rates and benefit rates.",
+        "result": "AC solidarity contribution removed since 2023; current solidarity rates set to 0.",
+    },
+    "lamal": {
+        "reviewed_at": _REVIEWED,
+        "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+        "scope": "LAMal copay and deductible caps.",
+        "result": "Values unchanged.",
+    },
+    "mortgage": {
+        "reviewed_at": _REVIEWED,
+        "source_url": _FINMA_URL,
+        "scope": "FINMA/ASB affordability and equity practice parameters.",
+        "result": "Values unchanged.",
+    },
+    "capital_tax": {
+        "reviewed_at": _REVIEWED,
+        "source_url": "https://www.estv.admin.ch/",
+        "scope": "Capital withdrawal tax defaults and cantonal proxy rates.",
+        "result": "Values unchanged.",
+    },
+}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # All regulatory parameters — seeded from social_insurance.py
@@ -816,8 +864,8 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=148_200.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        source_url=_AHV_IV_AC_URL,
+        source_title="Mémento AVS/AI 2.08 — LACI art. 3",
         source_type="law",
         description="Plafond du salaire assuré AC.",
         reviewed_at=_REVIEWED,
@@ -827,8 +875,8 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.011,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        source_url=_AHV_IV_AC_URL,
+        source_title="Mémento AVS/AI 2.08 — LACI art. 3",
         source_type="law",
         description="Taux de cotisation AC part salarié : 1.1% (total 2.2%).",
         reviewed_at=_REVIEWED,
@@ -838,32 +886,32 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.022,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        source_url=_AHV_IV_AC_URL,
+        source_title="Mémento AVS/AI 2.08 — LACI art. 3",
         source_type="law",
         description="Taux de cotisation AC total : 2.2%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
         key="ac.solidarity_rate_employee",
-        value=0.005,
+        value=0.0,
         unit="ratio",
-        effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        effective_from=date(2023, 1, 1),
+        source_url=_AHV_IV_AC_URL,
+        source_title="Mémento AVS/AI 2.08 — LACI art. 3",
         source_type="law",
-        description="Cotisation de solidarité AC part salarié : 0.5% (au-dessus du plafond).",
+        description="Cotisation de solidarité AC part salarié : supprimée depuis le 1er janvier 2023.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
         key="ac.solidarity_rate_total",
-        value=0.01,
+        value=0.0,
         unit="ratio",
-        effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        effective_from=date(2023, 1, 1),
+        source_url=_AHV_IV_AC_URL,
+        source_title="Mémento AVS/AI 2.08 — LACI art. 3",
         source_type="law",
-        description="Cotisation de solidarité AC total : 1.0%.",
+        description="Cotisation de solidarité AC totale : supprimée depuis le 1er janvier 2023.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
@@ -871,7 +919,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.70,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
+        source_url=_FEDLEX_LACI_URL,
         source_title="LACI art. 22",
         source_type="law",
         description="Taux d'indemnité chômage standard : 70%.",
@@ -882,7 +930,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.80,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
+        source_url=_FEDLEX_LACI_URL,
         source_title="LACI art. 22",
         source_type="law",
         description="Taux d'indemnité chômage avec charges de famille : 80%.",

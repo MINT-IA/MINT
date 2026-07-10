@@ -319,10 +319,10 @@ AC_COTISATION_TOTAL: float = _get("ac.contribution_rate_total")
 """Taux de cotisation AC total: 2.2%."""
 
 AC_COTISATION_SOLIDARITE_SALARIE: float = _get("ac.solidarity_rate_employee")
-"""Cotisation de solidarite AC part salarie: 0.5% (au-dessus du plafond)."""
+"""Cotisation de solidarite AC part salarie: 0% depuis le 1er janvier 2023."""
 
 AC_COTISATION_SOLIDARITE_TOTAL: float = _get("ac.solidarity_rate_total")
-"""Cotisation de solidarite AC total: 1.0%."""
+"""Cotisation de solidarite AC total: 0% depuis le 1er janvier 2023."""
 
 AC_INDEMNITE_TAUX: float = _get("ac.benefit_rate_standard")
 """Taux d'indemnite chomage standard: 70% (LACI art. 22)."""

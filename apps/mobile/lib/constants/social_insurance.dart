@@ -312,8 +312,8 @@ const double acPlafondSalaireAssure = 148200.0;
 /// Taux de cotisation AC part salarie: 1.1%.
 const double acCotisationSalarie = 0.011;
 
-/// Cotisation de solidarite AC part salarie: 0.5% (au-dessus du plafond).
-const double acCotisationSolidariteSalarie = 0.005;
+/// Cotisation de solidarite AC part salarie: 0% depuis le 1er janvier 2023.
+const double acCotisationSolidariteSalarie = 0;
 
 /// Taux d'indemnite chomage standard: 70%.
 const double acIndemniteTaux = 0.70;

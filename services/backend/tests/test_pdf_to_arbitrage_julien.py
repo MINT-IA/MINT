@@ -21,6 +21,7 @@ extractor output so we can see which fields are weak.
 from __future__ import annotations
 
 import json
+import importlib.util
 import uuid
 from pathlib import Path
 
@@ -60,6 +61,8 @@ def _has_vault_feature_short_circuit():
     """Skip if the real PDF fixture is missing (e.g. shallow clone)."""
     if not JULIEN_CERT_PATH.is_file():
         pytest.skip(f"Real cert fixture missing: {JULIEN_CERT_PATH}")
+    if importlib.util.find_spec("pdfplumber") is None:
+        pytest.skip("pdfplumber not installed — install backend with .[docling]")
 
 
 def test_julien_real_pdf_flows_into_lpp_arbitrage(client: TestClient) -> None:

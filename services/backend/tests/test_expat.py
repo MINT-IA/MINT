@@ -312,14 +312,14 @@ class TestSocialCharges:
         expected_ac = round(AC_PLAFOND * AC_TAUX_EMPLOYE, 2)
         assert result.ac_employe == expected_ac
 
-    def test_ac_solidarite_above_cap(self, frontalier_service):
-        """Salary above 148'200 should have AC solidarite."""
+    def test_ac_solidarite_removed_above_cap(self, frontalier_service):
+        """Salary above 148'200 should not pay AC solidarite since 2023."""
         result = frontalier_service.compare_social_charges(
             salary=200_000, country_of_residence="FR",
         )
         expected_solidarite = round((200_000 - AC_PLAFOND) * AC_SOLIDARITE_TAUX, 2)
         assert result.ac_solidarite == expected_solidarite
-        assert result.ac_solidarite > 0
+        assert result.ac_solidarite == 0.0
 
     def test_no_ac_solidarite_below_cap(self, frontalier_service):
         """Salary below 148'200 should have zero AC solidarite."""

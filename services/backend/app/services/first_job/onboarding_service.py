@@ -13,7 +13,7 @@ Deductions (employee share):
 
 Sources:
     - LAVS art. 5 (cotisation AVS employe: 5.30%)
-    - LACI art. 3 (cotisation chomage: 1.1%, solidarite: 0.5% au-dessus de 148'200)
+    - LACI art. 3 (cotisation chomage: 1.1% jusqu'a 148'200; pas d'AC au-dela depuis 2023)
     - LAA art. 91 (AANP: prime non-professionnel, ~1.0-1.5%)
     - LPP art. 2, 7 (seuil d'acces: 22'680 CHF/an)
     - LPP art. 8 (deduction de coordination: 26'460 CHF)
@@ -48,7 +48,7 @@ from app.constants.social_insurance import (
 # Employee deduction rates
 AVS_AI_APG_RATE = AVS_COTISATION_SALARIE  # 5.30% employee share (LAVS art. 5)
 AC_RATE = AC_COTISATION_SALARIE  # 1.1% employee (up to 148'200/year, LACI art. 3)
-AC_SOLIDARITY_RATE = AC_COTISATION_SOLIDARITE_SALARIE  # 0.5% solidarity above 148'200
+AC_SOLIDARITY_RATE = AC_COTISATION_SOLIDARITE_SALARIE  # 0% above 148'200 since 2023
 AC_SALARY_CAP = AC_PLAFOND_SALAIRE_ASSURE  # CHF/year
 AANP_RATE = 0.013  # ~1.3% estimate (varies by employer/risk class, not in centralized constants)
 
@@ -236,11 +236,10 @@ class FirstJobOnboardingService:
         # Employee deductions
         avs = round(brut * AVS_AI_APG_RATE, 2)
 
-        # AC: 1.1% up to 148'200/year, 0.5% solidarity above
-        if annuel <= AC_SALARY_CAP:
-            ac = round(brut * AC_RATE, 2)
-        else:
-            ac = round(brut * AC_SOLIDARITY_RATE, 2)
+        ac_annual = min(annuel, AC_SALARY_CAP) * AC_RATE
+        if annuel > AC_SALARY_CAP:
+            ac_annual += (annuel - AC_SALARY_CAP) * AC_SOLIDARITY_RATE
+        ac = round(ac_annual / 12, 2)
 
         aanp = round(brut * AANP_RATE, 2)
 
@@ -258,7 +257,7 @@ class FirstJobOnboardingService:
         # Employer invisible contributions (matching + employer-only)
         # Employer pays: AVS 5.3%, AC 1.1%, AANP varies, LPP match, CAF, etc.
         employer_avs = round(brut * AVS_AI_APG_RATE, 2)
-        employer_ac = round(brut * AC_RATE, 2) if annuel <= AC_SALARY_CAP else round(brut * AC_SOLIDARITY_RATE, 2)
+        employer_ac = ac
         employer_aanp = round(brut * 0.008, 2)  # employer AAP + AANP share
         employer_lpp = lpp  # employer matches employee share
         employer_caf = round(brut * 0.005, 2)  # family allowances contribution (~0.5%)

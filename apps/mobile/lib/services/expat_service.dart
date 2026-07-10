@@ -77,16 +77,16 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS/AI/APG employee share (%).
-  static double get avsAiApgRate => reg('avs.employee_rate', avsCotisationSalarie);
+  static double get avsAiApgRate => reg('avs.contribution_rate_employee', avsCotisationSalarie);
 
   /// AC employee share up to CHF 148'200.
-  static double get acRate => reg('ac.employee_rate', acCotisationSalarie);
+  static double get acRate => reg('ac.contribution_rate_employee', acCotisationSalarie);
 
-  /// AC solidarite above CHF 148'200.
-  static double get acSolidariteRate => reg('ac.solidarity_rate', acCotisationSolidariteSalarie);
+  /// AC solidarity contribution above CHF 148'200, removed since 2023.
+  static double get acSolidariteRate => reg('ac.solidarity_rate_employee', acCotisationSolidariteSalarie);
 
   /// AC ceiling.
-  static double get acCeiling => reg('ac.salary_ceiling', acPlafondSalaireAssure);
+  static double get acCeiling => reg('ac.max_insured_salary', acPlafondSalaireAssure);
 
   /// Quasi-resident threshold: 90% of worldwide income in CH.
   static const double quasiResidentThreshold = 0.90;
@@ -154,10 +154,10 @@ class ExpatService {
   // ════════════════════════════════════════════════════════════
 
   /// AVS voluntary minimum contribution per year.
-  static double get avsVoluntaryMin => reg('avs.voluntary_min', avsVolontaireCotisationMin);
+  static double get avsVoluntaryMin => reg('avs.voluntary_contribution_min', avsVolontaireCotisationMin);
 
   /// AVS voluntary maximum contribution per year.
-  static double get avsVoluntaryMax => reg('avs.voluntary_max', avsVolontaireCotisationMax);
+  static double get avsVoluntaryMax => reg('avs.voluntary_contribution_max', avsVolontaireCotisationMax);
 
   /// Rente reduction per missing year (~2.3% per year on 44 years).
   static double get reductionPerMissingYear => 1.0 / reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble());

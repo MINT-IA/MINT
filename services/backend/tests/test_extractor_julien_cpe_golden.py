@@ -13,6 +13,7 @@ about Julien's situation — this is the fixture we can never regress.
 """
 
 from pathlib import Path
+import importlib.util
 
 import pytest
 
@@ -33,6 +34,8 @@ JULIEN_CERT = (
 def extracted():
     if not JULIEN_CERT.is_file():
         pytest.skip("Real CPE cert fixture not present")
+    if importlib.util.find_spec("pdfplumber") is None:
+        pytest.skip("pdfplumber not installed — install backend with .[docling]")
     with open(JULIEN_CERT, "rb") as fh:
         parsed = DocumentParser().parse_pdf(fh.read())
     tables = [t for page in parsed.pages for t in page.tables]

@@ -206,10 +206,10 @@ class IndependantsService {
   ];
 
   /// Cotisation minimale AVS/AI/APG for self-employed — use centralized constant.
-  static double get _cotisationMinimale => reg('avs.min_self_employed_contribution', avsCotisationMinIndependant);
+  static double get _cotisationMinimale => reg('avs.min_contribution_independent', avsCotisationMinIndependant);
 
   /// AVS employee share rate (for comparison) — use centralized constant.
-  static double get _tauxAvsSalarie => reg('avs.employee_rate', avsCotisationSalarie);
+  static double get _tauxAvsSalarie => reg('avs.contribution_rate_employee', avsCotisationSalarie);
 
   /// IJM premium rates: {ageMin-ageMax: {delaiCarence: primeFor1000}}.
   static const Map<String, Map<int, double>> _ijmRates = {

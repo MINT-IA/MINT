@@ -28,7 +28,7 @@ import pytest
 from datetime import date
 
 from app.models.regulatory_parameter import RegulatoryParameter
-from app.services.regulatory.registry import RegulatoryRegistry
+from app.services.regulatory.registry import REGULATORY_REVIEW_LOG, RegulatoryRegistry
 from app.constants import social_insurance as si
 
 
@@ -233,6 +233,35 @@ class TestConstantsPresence:
         param = registry.get("ac.max_insured_salary")
         assert param is not None
         assert param.value == si.AC_PLAFOND_SALAIRE_ASSURE
+
+    def test_ac_solidarity_removed_since_2023(self, registry):
+        employee = registry.get("ac.solidarity_rate_employee")
+        total = registry.get("ac.solidarity_rate_total")
+
+        assert employee is not None
+        assert total is not None
+        assert employee.value == 0.0
+        assert total.value == 0.0
+        assert employee.effective_from == date(2023, 1, 1)
+        assert "2.08" in employee.source_title
+
+    def test_review_log_documents_categories(self):
+        required_categories = {
+            "pillar3a",
+            "lpp",
+            "avs_ai_apg",
+            "ac_laci",
+            "lamal",
+            "mortgage",
+            "capital_tax",
+        }
+
+        assert set(REGULATORY_REVIEW_LOG) == required_categories
+        for category, entry in REGULATORY_REVIEW_LOG.items():
+            assert entry["reviewed_at"] == date(2026, 7, 10), category
+            assert entry["source_url"], category
+            assert entry["scope"], category
+            assert entry["result"], category
 
 
 # ---------------------------------------------------------------------------
