@@ -1,7 +1,7 @@
 appId: ch.mint.app
 ---
-# Disability self-employed renders ledger facts, collects missing income through
-# the screen CTA, then returns with the canonical income fact filled.
+# Disability self-employed renders ledger facts, then collects the missing facts
+# in the same order as the source screen routes them: income, savings, expenses.
 - stopApp
 - launchApp:
     clearState: true
@@ -31,3 +31,46 @@ appId: ch.mint.app
     id: "disability_self_ledger_facts"
 - assertVisible:
     id: "disability_self_income_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "savings_input"
+- tapOn:
+    id: "savings_input"
+- inputText: "36000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///disability/self-employed"
+- assertVisible:
+    id: "disability_self_ledger_facts"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "budget_setup_housing_input"
+- tapOn:
+    id: "budget_setup_housing_input"
+- inputText: "2400"
+- tapOn:
+    id: "budget_setup_lamal_input"
+- inputText: "380"
+- scrollUntilVisible:
+    element:
+      id: "budget_setup_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "budget_setup_save_cta"
+- assertVisible:
+    id: "disability_self_ledger_facts"
+- assertVisible:
+    id: "disability_self_expenses_fact"
+- assertVisible:
+    id: "disability_self_result_cards"

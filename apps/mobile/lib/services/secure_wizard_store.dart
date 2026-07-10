@@ -132,6 +132,7 @@ class SecureWizardStore {
   ) async {
     final restored = Map<String, dynamic>.from(answers);
     for (final key in _sensitiveKeys) {
+      if (restored[key] != '__secure__') continue;
       final value = await read(key);
       if (value != null) {
         if (value == 'true') {

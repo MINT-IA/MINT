@@ -4,7 +4,9 @@
 
 | Flow | Edge | From -> To | Trigger | Transition | Runtime proof |
 |---|---|---|---|---|---|
+| disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_expenses` | `disability.route.self_employed -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |
 | disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_income` | `disability.route.self_employed -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |
+| disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_savings` | `disability.route.self_employed -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |
 | document_scan_recovery | `scan.edge.impact_recovery.home` | `scan.route.impact_recovery -> home.route.dashboard` | `tap` | `go` | `apps/mobile/.maestro/r2_scan_impact.yaml` |
 | document_scan_recovery | `scan.edge.review_recovery.rescan` | `scan.route.review_recovery -> scan.route.capture` | `tap` | `go` | `apps/mobile/.maestro/r1_scan_review.yaml` |
 | first_job_missing_facts | `firstjob.edge.first_job.enrich_revenue` | `firstjob.route.first_job -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/first_job_ledger.yaml` |

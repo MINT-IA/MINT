@@ -90,6 +90,19 @@ void main() {
       expect(restored['q_has_consumer_debt'], true);
     });
 
+    test('does not restore stale secure values absent from answers', () async {
+      await SecureWizardStore.secureSensitiveKeys({
+        'q_cash_total': 36000,
+      });
+
+      final restored = await SecureWizardStore.restoreSensitiveKeys({
+        'q_self_employed_income': 144000,
+      });
+
+      expect(restored, containsPair('q_self_employed_income', 144000));
+      expect(restored.containsKey('q_cash_total'), isFalse);
+    });
+
     test('keeps local dev value when secure write throws', () async {
       failWrites = true;
 

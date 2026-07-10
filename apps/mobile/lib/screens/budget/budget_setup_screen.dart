@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -24,10 +25,9 @@ import 'package:provider/provider.dart';
 /// `TextField` + numeric keyboard, per `feedback_no_sliders_ux` and
 /// `feedback_modern_inputs_no_sliders`.
 ///
-/// Pre-fills each field from `ReportPersistenceService.loadAnswers`
-/// via the current `CoachProfile` so previously captured values
-/// (scan, wizard, coach-chat inline) stay visible and editable
-/// (`feedback_profile_prefill_architecture`).
+/// Pre-fills each field from persisted canonical answers only, so previously
+/// captured values (scan, wizard, coach-chat inline) stay visible and editable
+/// without promoting `CoachProfile` defaults/estimates to user facts.
 ///
 /// The chat remains available as an explicit fallback link at the
 /// bottom — doctrine `chat_is_everything` is respected ("all data
@@ -67,21 +67,23 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill from current profile. mounted guard unnecessary here — widget
-    // is just built. We intentionally use `read` because this is a one-shot
-    // hydration, not a subscription.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Pre-fill from the ledger answers, not from CoachProfile.depenses:
+    // CoachProfile may contain derived/default amounts for calculations, while
+    // this screen must only display facts the user has actually supplied.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
-      final d = profile.depenses;
-      _housing.text = _formatAmount(d.loyer);
-      _lamal.text = _formatAmount(d.assuranceMaladie);
-      _transport.text = _formatAmount(d.transport);
-      _telecom.text = _formatAmount(d.telecom);
-      _electricity.text = _formatAmount(d.electricite);
-      _medical.text = _formatAmount(d.fraisMedicaux);
-      _other.text = _formatAmount(d.autresDepensesFixes);
+      final answers = await ReportPersistenceService.loadAnswers();
+      if (!mounted) return;
+      _housing.text = _formatAnswerAmount(answers['q_housing_cost_period_chf']);
+      _lamal.text = _formatAnswerAmount(answers['q_lamal_premium_monthly_chf']);
+      _transport.text =
+          _formatAnswerAmount(answers['_coach_depenses_transport']);
+      _telecom.text = _formatAnswerAmount(answers['_coach_depenses_telecom']);
+      _electricity.text =
+          _formatAnswerAmount(answers['_coach_depenses_electricite']);
+      _medical.text =
+          _formatAnswerAmount(answers['_coach_depenses_frais_medicaux']);
+      _other.text = _formatAnswerAmount(answers['_coach_depenses_autres']);
     });
 
     // Live total ticker — rebuild on every field change so the user sees
@@ -139,6 +141,15 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   String _formatAmount(double? value) =>
       (value == null || value == 0) ? '' : value.toStringAsFixed(0);
 
+  String _formatAnswerAmount(dynamic value) =>
+      _formatAmount(_coerceAmount(value));
+
+  double? _coerceAmount(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return _parseAmount(value);
+    return null;
+  }
+
   double? _parseAmount(String raw) {
     final cleaned = raw.trim().replaceAll(RegExp(r"[' ]"), '');
     if (cleaned.isEmpty) return null;
@@ -180,7 +191,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     if (!mounted) return;
     // Refresh BudgetProvider so the Mon argent « Ton budget ce mois »
     // card re-derives inputs from the updated CoachProfile.depenses and
-    // swaps from the empty "Définis ton budget" state to the computed
+    // swaps from the empty budget-definition state to the computed
     // plan (revenu / charges fixes / reste). Without this the user
     // enters their charges and the card still shows « Commencer » —
     // silent failure, identical to the save_fact bug.
@@ -206,14 +217,26 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             children: [
               Text(
                 s.budgetSetupSubtitle,
-                style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary),
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               ),
               const SizedBox(height: MintSpacing.lg),
-              _field(s.budgetSetupHousing, _housing,
-                  required: true, placeholder: _placeholderHousing),
-              _field(s.budgetSetupLamal, _lamal,
-                  required: true, placeholder: _placeholderLamal),
+              _field(
+                s.budgetSetupHousing,
+                _housing,
+                required: true,
+                placeholder: _placeholderHousing,
+                fieldKey: const Key('budget_setup_housing_input'),
+                semanticsIdentifier: 'budget_setup_housing_input',
+              ),
+              _field(
+                s.budgetSetupLamal,
+                _lamal,
+                required: true,
+                placeholder: _placeholderLamal,
+                fieldKey: const Key('budget_setup_lamal_input'),
+                semanticsIdentifier: 'budget_setup_lamal_input',
+              ),
               if (_showOptional) ...[
                 _field(s.budgetSetupTransport, _transport,
                     placeholder: _placeholderTransport),
@@ -234,8 +257,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               if (_liveTotal > 0) ...[
                 const SizedBox(height: MintSpacing.md),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.craie,
                     borderRadius: BorderRadius.circular(10),
@@ -248,28 +271,32 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                 ),
               ],
               const SizedBox(height: MintSpacing.lg),
-              FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  minimumSize: const Size.fromHeight(48),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+              Semantics(
+                identifier: 'budget_setup_save_cta',
+                button: true,
+                child: FilledButton(
+                  key: const Key('budget_setup_save_cta'),
+                  onPressed: _saving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : Text(s.budgetSetupSave),
                 ),
-                child: _saving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
-                      )
-                    : Text(s.budgetSetupSave),
               ),
               const SizedBox(height: MintSpacing.md),
               Center(
                 child: TextButton(
-                  onPressed: () =>
-                      context.push('/coach/chat?topic=budget'),
+                  onPressed: () => context.push('/coach/chat?topic=budget'),
                   child: Text(
                     s.budgetSetupChatFallback,
                     style: MintTextStyles.bodyMedium(
@@ -289,6 +316,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     TextEditingController c, {
     bool required = false,
     String? placeholder,
+    Key? fieldKey,
+    String? semanticsIdentifier,
   }) {
     final s = S.of(context)!;
     return Padding(
@@ -299,8 +328,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           Row(
             children: [
               Text(label,
-                  style: MintTextStyles.labelLarge(
-                      color: MintColors.textPrimary)),
+                  style:
+                      MintTextStyles.labelLarge(color: MintColors.textPrimary)),
               if (required) ...[
                 const SizedBox(width: 6),
                 Text('*',
@@ -309,18 +338,23 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          TextField(
-            controller: c,
-            keyboardType: const TextInputType.numberWithOptions(decimal: false),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
-            ],
-            decoration: InputDecoration(
-              hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 12),
+          Semantics(
+            identifier: semanticsIdentifier,
+            child: TextField(
+              key: fieldKey,
+              controller: c,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: false),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
+              ],
+              decoration: InputDecoration(
+                hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
             ),
           ),
         ],
