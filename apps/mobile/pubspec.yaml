@@ -61,7 +61,14 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  patrol: ^4.6.1
   flutter_lints: ^3.0.0
+
+patrol:
+  app_name: Mint
+  test_directory: test/patrol
+  ios:
+    bundle_id: ch.mint.app
 
 flutter:
   generate: true

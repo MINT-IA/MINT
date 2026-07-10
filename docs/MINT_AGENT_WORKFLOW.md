@@ -52,22 +52,52 @@ Every product PR must list:
   dossier/PDF artifacts are touched.
 - Design review for new or materially changed product screens.
 - Maestro runtime proof for touched P0 mobile UI; Patrol is required for real
-  P0 input proof once the Patrol CLI is available in the environment.
+  P0 input proof. The CLI may be at `$HOME/.pub-cache/bin/patrol` even when
+  `patrol` is not exported in `PATH`.
 - Claude CLI audit for architecture, compliance, and pre-merge code review when
   possible.
 - Engram memory after merge.
 
 ## Current Tool Matrix
 
+Run `python3 tools/checks/mint_os_doctor.py --repo-only` to verify checked-in
+MINT OS contracts, and full `python3 tools/checks/mint_os_doctor.py` before any
+runtime claim about a local tool.
+
 | Tool | Status in clean checkout | Gate use |
 |---|---|---|
 | Claude CLI | Available after local login | External audit via `tools/checks/claude_external_audit.sh`; use bounded audits (`opus high`, safe mode, strict empty MCP, `--setting-sources user`) by default |
 | Engram MCP | Available | Memory |
 | Maestro | Available at `~/.maestro/bin/maestro` | Runtime UI proof |
-| Patrol CLI | Not in PATH at G0 base restore | Required gap before Patrol-only gates |
-| Mermaid CLI | Not in PATH at G0 base restore | Optional graph rendering until installed |
-| Beads/bug CLI | Not in PATH at G0 base restore | Use checked-in bug ledger fallback |
+| Patrol CLI | Installed by Dart global tooling; canonical path is `$HOME/.pub-cache/bin/patrol` when not exported in `PATH` | Real mobile input proof for P0 flows; verify with `python3 tools/checks/patrol_tooling_guard.py` before claiming unavailable |
+| Mermaid CLI | Executable through `npx --yes @mermaid-js/mermaid-cli` | Graph render proof via `python3 tools/checks/mermaid_render_guard.py` |
+| Beads/bug CLI | Installed as `bd` via Homebrew | Agent issue graph; initialize `.beads/` only in a dedicated PR because `bd init` adds a Dolt-backed repo artifact |
 | ARB parity | `tools/checks/arb_parity.py` | i18n key parity |
+
+## Interaction Cartography
+
+Mermaid is an executable map, not a decorative diagram and not one giant
+screen-by-screen encyclopedia.
+
+- `docs/codex/WIRING_GRAPH.mmd` owns system wiring: routes, providers, source
+  of truth, live gaps, and machine-checkable invariants.
+- Product journeys own their own Mermaid flow when they become P0/P1: data
+  collection, decisions, branches, degraded states, PDF handoff, and runtime
+  proof links.
+- `SCREEN_CONTRACTS.md` owns per-screen interaction contracts: visible controls,
+  CTA routes, known/estimated/missing states, recovery states, and required
+  ledger facts.
+- Interaction registries own fine-grained control metadata:
+  `screen_id -> control_id -> action -> route/data read/write -> Maestro/Patrol
+  proof`.
+
+Every important button, click, and navigation edge must be traceable through one
+of these layers. Do not stuff every micro-interaction into `WIRING_GRAPH.mmd`;
+that makes the graph unreadable and guarantees drift. Use established mobile
+flow archetypes before inventing a new flow: progressive data collection,
+known-fact review/edit, scenario comparison, document extraction, permission or
+consent, dossier export, specialist handoff, error recovery, and return to the
+ledger.
 
 ## Product Spine
 

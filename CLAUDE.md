@@ -39,6 +39,10 @@ cd services/backend && python3 -m pytest tests/ -q && uvicorn app.main:app --rel
 
 # Mobile
 cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
+
+# MINT OS tooling preflight
+python3 tools/checks/mint_os_doctor.py          # local/runtime session
+python3 tools/checks/mint_os_doctor.py --repo-only  # CI/repo contract
 ```
 
 ### 3.1 EXTERNAL CLAUDE AUDIT (latency policy)
