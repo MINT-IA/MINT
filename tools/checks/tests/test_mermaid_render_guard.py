@@ -21,6 +21,10 @@ def _root(tmp_path: Path) -> Path:
         "flowchart LR\n  Independant-->Ledger\n",
         encoding="utf-8",
     )
+    (journey_diagrams / "interaction_graph.mmd").write_text(
+        "flowchart LR\n  Interaction-->Route\n",
+        encoding="utf-8",
+    )
     return tmp_path
 
 
@@ -113,6 +117,7 @@ def test_mermaid_render_guard_includes_optional_journey_diagrams(monkeypatch, tm
         "docs/codex/WIRING_GRAPH.mmd",
         ".planning/journeys/diagrams/data_quest_loop.mmd",
         ".planning/journeys/diagrams/independent_protection.mmd",
+        ".planning/journeys/diagrams/interaction_graph.mmd",
         ".planning/journeys/diagrams/system_map.mmd",
     ]
 
@@ -166,5 +171,9 @@ def test_mermaid_render_guard_requires_canonical_journey_diagrams(
     )
     assert (
         "missing required MINT Mermaid diagram: .planning/journeys/diagrams/independent_protection.mmd"
+        in errors
+    )
+    assert (
+        "missing required MINT Mermaid diagram: .planning/journeys/diagrams/interaction_graph.mmd"
         in errors
     )

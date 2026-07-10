@@ -1,7 +1,7 @@
 # Interaction Registry — Spécification v1.1
 
-Status: Proposed
-Date: 2026-07-07
+Status: Pilot — YAML/lint/index/Mermaid active; executor/codegen Proposed
+Date: 2026-07-10
 Origine : v1.0-RC (panel 5 experts, 3 itérations) + revue contextuelle repo du 2026-07-07.
 
 > **Principe** : un bouton ne sait pas où il va — la carte le sait.
@@ -44,7 +44,7 @@ les edges). Décision à prendre au moment de l'étape 1, pas avant.
 | # | Décision |
 |---|---|
 | D1 | **Photo d'abord, framework ensuite.** Étapes 1-2 (extracteur + lints sur l'existant) livrées seules. Go/no-go executor : **≥ 8 incohérences nouvelles (A3) → executor justifié ; sinon lints + walker sans executor.** Seuil écrit d'avance, non renégociable. |
-| D2 | `back:` est **documenté + vérifié par walker** en v1, pas imposé par codegen. Le codegen PopScope est un chantier v2 explicite. Champ `enforcement: declared\|walker\|codegen` par propriété. |
+| D2 | `back:` est **déclaré + linté** pour les cibles nommées (`pop_to(...)`, `reset_to(...)`) ; le walker vérifiera l'exécution runtime. Le codegen PopScope reste un chantier v2 explicite. Champ `enforcement: declared\|walker\|codegen` par propriété. |
 | D3 | Guards = **source unique** : le registre GÉNÈRE les redirects GoRouter (ou les remplace). Interdiction de coexistence avec des redirects manuels (lint). |
 | D4 | `test_ref:` n'est **jamais déclaratif** : référence vers un test existant, vérifiée par CI. Les fichiers multi-tests doivent référencer l'edge id ; les fichiers Maestro mono-flow peuvent citer le fichier seul jusqu'à support d'ancres edge par le lint. |
 | D5 | KNOWN-MISSES sous **ratchet** : la liste ne peut que décroître (check CI compare au count committé). |
@@ -55,12 +55,16 @@ les edges). Décision à prendre au moment de l'étape 1, pas avant.
 | D10 | Index généré **une-ligne-par-edge** (`interactions/INDEX.md`) pour la lecture agents ; les YAML par flux restent la source. |
 | D11 | **(v1.1)** Relation aux specs existantes : `SCREEN_CONTRACTS.md` tables par route et `WIRING_GRAPH` deviennent des **artefacts générés** dès qu'un flux est migré ; un flux non migré reste gouverné par les docs actuels. Lint `contract_double_authority` : une route ne peut pas être déclarée à la fois dans un flux migré et éditée à la main dans les docs générés. |
 
-## 0.d Cartographie Mermaid active sans executor
+## 0.d Pilot actif sans executor
 
-Ce registre reste `Status: Proposed`; il ne génère pas encore de routes,
-guards, tables `SCREEN_CONTRACTS.md`, ni `WIRING_GRAPH`. En revanche, la
-cartographie de parcours est active et vérifiée par
-`tools/checks/mermaid_render_guard.py` :
+Ce registre est maintenant `Status: Pilot` pour la couche YAML/lint/index/graphe
+Mermaid. Il ne génère pas encore de routes, guards, tables
+`SCREEN_CONTRACTS.md`, ni `WIRING_GRAPH`; l'executor/codegen reste `Proposed`.
+La cartographie de parcours est active et vérifiée par
+`tools/checks/mermaid_render_guard.py`, tandis que
+`tools/checks/interaction_registry_lint.py` valide `interactions/*.yaml` et
+régénère `interactions/INDEX.md` plus
+`.planning/journeys/diagrams/interaction_graph.mmd`.
 
 - `docs/codex/WIRING_GRAPH.mmd` : graphe système global.
 - `.planning/journeys/diagrams/data_quest_loop.mmd` : boucle
@@ -70,6 +74,12 @@ cartographie de parcours est active et vérifiée par
 - `.planning/journeys/diagrams/health_disability_protection.mmd` : chaîne
   invalidité salarié/indépendant, collecte ciblée des faits manquants et dette
   explicite de migration `/invalidite`.
+- `interactions/revenu_to_mortgage.yaml` : premier flux piloté, reliant
+  `/data-block/:type` à `/hypotheque` avec preuve Maestro
+  `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml`.
+- `interactions/INDEX.md` et
+  `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
+  linter depuis les YAML, jamais édités à la main.
 
 La règle opérationnelle immédiate est donc : une interaction critique nouvelle
 est d'abord représentée dans un diagramme de parcours focalisé, puis reliée à
@@ -95,7 +105,7 @@ schema_version: 1            # OBLIGATOIRE — validé par lint
 flow:
   id: string                 # snake_case, stable, jamais renommé
   title: string
-  exits: [node_id | flow_ref]
+  exits: [node_id]           # Pilot lint : node_id déclaré. flow_ref réservé v1+.
   invariants:
     max_depth: int
     back_never_loses_input: bool     # enforcement: walker (D2)
@@ -122,7 +132,7 @@ nodes:
 edges:
   - id: string               # = interactionId passé au widget CTA (API à créer)
     from: node_id
-    to: node_id | action_ref | flow_ref
+    to: node_id | action_ref # flow_ref réservé v1+.
     trigger: tap | swipe | long_press | submit | system
     intent: string           # ce que l'utilisateur CROIT faire — revu en PR (D6)
     payload:                 # CONTRAT DE DONNÉES — contraint par SCREEN_CONTRACTS.md §0 HARD RULE (A4)
@@ -162,7 +172,7 @@ schema_version: 1
 flow:
   id: revenu_to_mortgage
   title: "Faits de revenu canoniques → capacité d'achat immobilier"
-  exits: [home.route.dashboard, coach.route.chat]
+  exits: [mortgage.route.hypotheque, home.route.dashboard]
   invariants: {max_depth: 4, back_never_loses_input: true, every_scene_has_exit: true}
 
 nodes:
@@ -174,6 +184,15 @@ nodes:
       - {via: flow, back: pop}
       - {via: deeplink, back: reset_to(home.route.dashboard)}   # mint:///data-block/revenu
     states: [content, loading, error.compute]
+
+  - id: home.route.dashboard
+    kind: route
+    route: /home
+    widget: screens/aujourdhui/aujourdhui_screen.dart
+    entries:
+      - {via: tab, back: exits_app}
+      - {via: deeplink, back: reset_to(home.route.dashboard)}
+    states: [content, loading]
 
   - id: mortgage.route.hypotheque
     kind: route
@@ -228,9 +247,11 @@ edges:
 1. `interaction_registry.g.dart` + `InteractionExecutor` — **si et seulement si
    go/no-go D1 positif**. Lint lefthook `no-raw-navigation` avec KNOWN-MISSES
    sous ratchet.
-2. `interactions/INDEX.md` — une ligne par edge (lecture agents, D10).
-3. `.planning/journeys/diagrams/interaction_graph.mmd` — guards en losanges,
-   test_ref waived en pointillé, entries multiples visibles.
+2. `interactions/INDEX.md` — une ligne par edge (lecture agents, D10),
+   généré aujourd'hui par `tools/checks/interaction_registry_lint.py --write`.
+3. `.planning/journeys/diagrams/interaction_graph.mmd` — graphe Mermaid généré
+   depuis les YAML pilotés ; guards en losanges, test_ref waived en pointillé et
+   entries multiples restent des enrichissements v1.
 4. **Tables par route de `SCREEN_CONTRACTS.md` + `WIRING_GRAPH` régénérés** pour
    les flux migrés (D11/A2) — en-tête « GÉNÉRÉ — ne pas éditer » + doc-guard.
 5. Redirects GoRouter générés depuis les guards `generates: gorouter_redirect` (D3).
@@ -244,10 +265,10 @@ edges:
 
 0. **Précondition Interaction Registry uniquement** : trains G1/G2 produit
    (#836–841) et Infra-G1→G8 (#842–#850) verts puis intégrés ou explicitement
-   rebases sur la base choisie. Cette spec reste `Status: Proposed` et ne bloque
-   PAS les G produits restants ; elle se merge en parallèle si son statut proposé
-   est rappelé dans la PR et si `gh pr checks <num>` est vert. #849 ne doit pas
-   devenir une autorité produit implicite avant l'étape 4.
+   rebases sur la base choisie. Cette spec est `Status: Pilot` pour YAML/lint et
+   ne bloque PAS les G produits restants ; elle se merge en parallèle si son
+   statut pilot est rappelé dans la PR et si `gh pr checks <num>` est vert.
+   #849 ne doit pas devenir une autorité produit implicite avant l'étape 4.
 1. **Photo** : extracteur → `interaction_graph_current.json` (+ taps walker pour
    les scènes). Mesurer la couverture d'extraction ; si < 90 %, traiter les
    navigations dynamiques d'abord (réserve n°1). Trancher la source de

@@ -8,9 +8,13 @@ SPEC = ROOT / "docs/codex/INTERACTION_REGISTRY.md"
 def test_interaction_registry_proposed_contract() -> None:
     text = SPEC.read_text(encoding="utf-8")
     required = (
-        "Status: Proposed",
-        "ne bloque\n   PAS les G produits restants",
-        "#849 ne doit pas\n   devenir une autorité produit implicite",
+        "Status: Pilot",
+        "executor/codegen Proposed",
+        "tools/checks/interaction_registry_lint.py",
+        "interactions/revenu_to_mortgage.yaml",
+        ".planning/journeys/diagrams/interaction_graph.mmd",
+        "ne bloque PAS les G produits restants",
+        "#849 ne doit pas devenir une autorité produit implicite",
         "SCREEN_CONTRACTS.md",
         "WIRING_GRAPH",
         "contract_double_authority",

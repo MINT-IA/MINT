@@ -111,9 +111,13 @@ ledger.
 
 `python3 tools/checks/mermaid_render_guard.py` renders the wiring graph and the
 canonical journey diagrams above. A new P0/P1 product path should add or update
-a focused `.mmd` diagram before changing the screen, but the
-`INTERACTION_REGISTRY.md` executor remains Proposed until its own go/no-go
-threshold is met.
+a focused `.mmd` diagram before changing the screen.
+`docs/codex/INTERACTION_REGISTRY.md` is active as a YAML/lint pilot:
+`interactions/revenu_to_mortgage.yaml` is validated by
+`python3 tools/checks/interaction_registry_lint.py`, which generates
+`interactions/INDEX.md` and
+`.planning/journeys/diagrams/interaction_graph.mmd`. The executor/codegen
+remains Proposed until its own go/no-go threshold is met.
 
 ## Product Spine
 

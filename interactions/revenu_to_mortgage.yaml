@@ -1,0 +1,49 @@
+schema_version: 1
+flow:
+  id: revenu_to_mortgage
+  title: "Canonical revenue facts to mortgage affordability"
+  exits: [mortgage.route.hypotheque, home.route.dashboard]
+  invariants:
+    max_depth: 4
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: deeplink, back: reset_to(home.route.dashboard)}
+    states: [content, loading, error.compute]
+
+  - id: home.route.dashboard
+    kind: route
+    route: /home
+    widget: screens/aujourdhui/aujourdhui_screen.dart
+    entries:
+      - {via: tab, back: exits_app}
+      - {via: deeplink, back: reset_to(home.route.dashboard)}
+    states: [content, loading]
+
+  - id: mortgage.route.hypotheque
+    kind: route
+    route: /hypotheque
+    widget: screens/mortgage/affordability_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: tab, back: pop_to(home.route.dashboard)}
+    states: [content, partial, loading, error.compute]
+
+edges:
+  - id: db.edge.revenu.submit
+    from: db.route.revenu
+    to: mortgage.route.hypotheque
+    trigger: submit
+    intent: "Save canonical revenue facts and read mortgage affordability"
+    payload: {}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/f2_datablock_to_mortgage.yaml

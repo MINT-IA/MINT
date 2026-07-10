@@ -13,7 +13,8 @@ critère ci-dessous doit produire une commande, un fichier de preuve, ou un
 - `docs/MINT_AGENT_WORKFLOW.md`.
 - `docs/codex/{DATA_LEDGER,DATA_QUEST,SCREEN_CONTRACTS,MAESTRO_FLOWS}.md`.
 - `docs/codex/SCREEN_CONTRACTS.md` §0 HARD RULE pour `extra`.
-- `docs/codex/INTERACTION_REGISTRY.md` reste Proposed : ne pas implémenter.
+- `docs/codex/INTERACTION_REGISTRY.md` est Pilot pour YAML/lint/index/Mermaid ;
+  ne pas implémenter l'executor/codegen.
 - Mémoire : repo git/docs/ADR/agents = source de vérité ; Engram = rappel,
   jamais source primaire.
 
@@ -21,7 +22,7 @@ critère ci-dessous doit produire une commande, un fichier de preuve, ou un
 
 1. Atterrir ou rebaser les trains avant de coder.
    - Base intégrée minimale à ce prompt : #836 (spec reality), #842 (gitleaks),
-     #868 (Interaction Registry Proposed).
+     #868 (Interaction Registry pilot/executor Proposed).
    - Commande de réalité : `gh pr list --repo MINT-IA/MINT --base claude/mint-swiss-coach-eu33i7`.
    - Les branches draft restantes sont des carrières : inspecter, extraire une
      tranche courte, ne jamais merger en bloc.

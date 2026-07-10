@@ -101,8 +101,10 @@ def test_workflow_and_registry_reference_active_mermaid_layers() -> None:
         assert ".planning/journeys/diagrams/health_disability_protection.mmd" in doc
         assert "tools/checks/mermaid_render_guard.py" in doc
 
-    assert "INTERACTION_REGISTRY.md` executor remains Proposed" in workflow
-    assert "Ce registre reste `Status: Proposed`" in registry
+    assert "`docs/codex/INTERACTION_REGISTRY.md` is active as a YAML/lint pilot" in workflow
+    assert "executor/codegen\nremains Proposed" in workflow
+    assert "Ce registre est maintenant `Status: Pilot`" in registry
+    assert "tools/checks/interaction_registry_lint.py" in workflow
 
 
 def test_ci_renders_mermaid_diagrams_before_contract_tests() -> None:

@@ -14,6 +14,7 @@ REQUIRED_DIAGRAMS = (
     Path("docs/codex/WIRING_GRAPH.mmd"),
     Path(".planning/journeys/diagrams/data_quest_loop.mmd"),
     Path(".planning/journeys/diagrams/independent_protection.mmd"),
+    Path(".planning/journeys/diagrams/interaction_graph.mmd"),
 )
 OPTIONAL_DIAGRAM_DIRS = (Path(".planning/journeys/diagrams"),)
 MERMAID_CLI = "@mermaid-js/mermaid-cli@11.4.2"

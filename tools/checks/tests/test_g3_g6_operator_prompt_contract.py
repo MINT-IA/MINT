@@ -73,10 +73,11 @@ def test_operator_prompt_covers_runtime_and_compliance_evidence() -> None:
         assert phrase in prompt
 
 
-def test_interaction_registry_remains_proposed_and_non_blocking() -> None:
+def test_interaction_registry_pilot_remains_non_blocking() -> None:
     doc = _text(INTERACTION_REGISTRY)
 
-    assert "Status: Proposed" in doc
+    assert "Status: Pilot" in doc
+    assert "executor/codegen Proposed" in doc
     assert "ne bloque" in doc
     assert "SCREEN_CONTRACTS.md` §0 HARD RULE" in doc
     assert "Rule 0" not in doc
