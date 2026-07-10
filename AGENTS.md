@@ -138,20 +138,35 @@ Use what exists, and record missing tools instead of pretending they ran.
 - **Daily loop roadmap** → morning sim walk + Sentry pull + auto-PR
   on P0/P1. **The mechanism that catches « an agent broke something
   overnight ».** Mandatory for solo-dev + AI workflow.
-- **Future MCP/tools** → Swiss constants / banned-terms / Patrol / Beads /
-  Mermaid gates once installed and wired in this checkout
+- **Patrol** → available through Dart global tooling on this Mac. Use
+  `$HOME/.pub-cache/bin/patrol` and `python3 tools/checks/patrol_tooling_guard.py`;
+  do not claim Patrol is unavailable from `command -v patrol` alone.
+- **Mermaid** → render with `python3 tools/checks/mermaid_render_guard.py`
+  (`npx @mermaid-js/mermaid-cli` under the hood). Keep interaction maps
+  layered: system wiring in `docs/codex/WIRING_GRAPH.mmd`, product journey
+  flows in focused `.mmd` files, fine-grained button contracts in
+  `SCREEN_CONTRACTS.md` / interaction registries, and runtime proof in
+  Maestro/Patrol.
+- **Beads** → CLI is `bd` (Homebrew formula `beads`). Use it for an agent issue
+  graph after a dedicated `.beads/` init PR; do not run `bd init` as an
+  incidental side effect because it creates a Dolt-backed repo artifact.
+- **Future MCP/tools** → Swiss constants / banned-terms gates once installed and
+  wired in this checkout.
 
 ## 🤝 Session handshake — run these in order, every time
 
-1. Read curator memory when present; otherwise use Engram context plus checked-in docs.
-2. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
-3. Read this file.
-4. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
-5. Read [`.claude/skills/mint-operating-gates/SKILL.md`](.claude/skills/mint-operating-gates/SKILL.md).
-6. When the user names a subsystem, read the matching `docs/*.md` **before
+1. Run `python3 tools/checks/mint_os_doctor.py --repo-only`; for runtime work
+   run the full `python3 tools/checks/mint_os_doctor.py` before claiming a tool
+   is missing.
+2. Read curator memory when present; otherwise use Engram context plus checked-in docs.
+3. Read [`CLAUDE.md`](CLAUDE.md) (auto-loaded).
+4. Read this file.
+5. Read [`docs/MINT_AGENT_WORKFLOW.md`](docs/MINT_AGENT_WORKFLOW.md).
+6. Read [`.claude/skills/mint-operating-gates/SKILL.md`](.claude/skills/mint-operating-gates/SKILL.md).
+7. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-7. Run the grep verification from the table.
-8. *Only then* propose code.
+8. Run the grep verification from the table.
+9. *Only then* propose code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.

@@ -16,11 +16,14 @@ privacy, persisted profile data, runtime proof, or Swiss financial scenario.
 
 Read, in order:
 
-1. `CLAUDE.md`
-2. `AGENTS.md`
-3. `docs/MINT_AGENT_WORKFLOW.md` when present
-4. the docs named by the relevant `AGENTS.md` pre-flight row
-5. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json` when present
+1. Run `python3 tools/checks/mint_os_doctor.py --repo-only`; for runtime proof,
+   run full `python3 tools/checks/mint_os_doctor.py` before claiming any tool is
+   unavailable.
+2. `CLAUDE.md`
+3. `AGENTS.md`
+4. `docs/MINT_AGENT_WORKFLOW.md` when present
+5. the docs named by the relevant `AGENTS.md` pre-flight row
+6. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json` when present
 
 If a required file is missing, record it as a workflow gap and continue only
 when the task can still be verified from checked-in code and tests.
@@ -31,9 +34,14 @@ Run the smallest relevant set:
 
 ```bash
 python3 tools/checks/arb_parity.py
+python3 tools/checks/mint_os_doctor.py --repo-only
 ./tools/mint-routes reconcile
 lefthook run pre-commit --file <touched-file>
 ```
+
+If `bd`/Beads is initialized for this repository, start work with `bd prime`
+and claim durable tasks with `bd update <id> --claim`. Do not initialize
+`.beads/` opportunistically inside an unrelated product PR.
 
 For external Claude review, use the checked-in wrapper instead of raw
 `claude -p` commands:
