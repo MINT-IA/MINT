@@ -10,6 +10,7 @@ local simulator infrastructure, and the default MINT runtime gate is iOS.
 ```
 apps/mobile/test/patrol/
   mint_runtime_smoke_test.dart  — Minimal Patrol bootstrap and app launch proof
+  *_runtime_test.dart           — Focused runtime proofs for mapped journeys
 ```
 
 ## When to Run
@@ -41,6 +42,12 @@ cd apps/mobile
 # booted iPhone 15+ simulator when needed.
 $HOME/.pub-cache/bin/patrol test \
   -t test/patrol/mint_runtime_smoke_test.dart \
+  -d "iPhone 17 Pro" \
+  --dart-define=MINT_PATROL_CLI=true
+
+# Focused journey proof. Replace the target with the relevant runtime test.
+$HOME/.pub-cache/bin/patrol test \
+  -t test/patrol/disability_insurance_runtime_test.dart \
   -d "iPhone 17 Pro" \
   --dart-define=MINT_PATROL_CLI=true
 

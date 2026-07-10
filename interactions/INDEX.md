@@ -4,6 +4,9 @@
 
 | Flow | Edge | From -> To | Trigger | Transition | Runtime proof |
 |---|---|---|---|---|---|
+| disability_insurance_missing_facts | `disability.edge.insurance.enrich_expenses` | `disability.route.insurance -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/disability_insurance.yaml` |
+| disability_insurance_missing_facts | `disability.edge.insurance.enrich_salary` | `disability.route.insurance -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_insurance.yaml` |
+| disability_insurance_missing_facts | `disability.edge.insurance.enrich_savings` | `disability.route.insurance -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/disability_insurance.yaml` |
 | disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_expenses` | `disability.route.self_employed -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |
 | disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_income` | `disability.route.self_employed -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |
 | disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_savings` | `disability.route.self_employed -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |

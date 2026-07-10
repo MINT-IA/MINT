@@ -103,6 +103,11 @@ bloque pas encore les routes non migrées.
   source pour `q_self_employed_income`, `q_cash_total`, puis les charges fixes
   `q_housing_cost_period_chf` et `q_lamal_premium_monthly_chf` via Budget
   Setup.
+- `interactions/disability_insurance_missing_facts.yaml` : flux assurance
+  invalidité salarié réel, couvrant la collecte progressive déclenchée depuis
+  l'écran source pour `q_gross_salary_annual`, `q_cash_total`, puis les charges
+  fixes `q_housing_cost_period_chf` et `q_lamal_premium_monthly_chf` via Budget
+  Setup.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.

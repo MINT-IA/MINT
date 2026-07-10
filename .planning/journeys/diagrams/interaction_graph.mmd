@@ -6,6 +6,7 @@ flowchart LR
   budget_route_setup["budget.route.setup<br/>/budget/setup"]:::route
   db_route_patrimoine["db.route.patrimoine<br/>/data-block/:type"]:::route
   db_route_revenu["db.route.revenu<br/>/data-block/:type"]:::route
+  disability_route_insurance["disability.route.insurance<br/>/disability/insurance"]:::route
   disability_route_self_employed["disability.route.self_employed<br/>/disability/self-employed"]:::route
   firstjob_route_first_job["firstjob.route.first_job<br/>/first-job"]:::route
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
@@ -19,6 +20,9 @@ flowchart LR
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
   scan_route_review_recovery["scan.route.review_recovery<br/>/scan/review"]:::route
 
+  disability_route_insurance -->|"tap / push"| budget_route_setup
+  disability_route_insurance -->|"tap / push"| db_route_revenu
+  disability_route_insurance -->|"tap / push"| db_route_patrimoine
   disability_route_self_employed -->|"tap / push"| budget_route_setup
   disability_route_self_employed -->|"tap / push"| db_route_revenu
   disability_route_self_employed -->|"tap / push"| db_route_patrimoine

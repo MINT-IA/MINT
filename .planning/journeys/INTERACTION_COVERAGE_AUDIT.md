@@ -6,8 +6,8 @@
 
 - Extracted Flutter route references: 350
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 11
-- Known route templates not yet declared as route nodes: 81
+- Covered by declared Interaction Registry route nodes: 12
+- Known route templates not yet declared as route nodes: 80
 - Declared edge target route templates: 5
 - Unknown route literals/templates: 0
 
@@ -17,6 +17,7 @@
 |---|---|---|
 | covered by declared route node | `/budget/setup` | apps/mobile/lib/screens/budget/budget_container_screen.dart:61, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:115 |
 | covered by declared route node | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1325, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:801, apps/mobile/lib/widgets/coach/confidence_blocks_bar.dart:82, apps/mobile/lib/widgets/coach/indicatif_banner.dart:99 |
+| covered by declared route node | `/disability/insurance` | apps/mobile/lib/app.dart:634 |
 | covered by declared route node | `/disability/self-employed` | apps/mobile/lib/app.dart:635 |
 | covered by declared route node | `/first-job` | apps/mobile/lib/app.dart:573, apps/mobile/lib/screens/first_job_screen.dart:111, apps/mobile/lib/screens/first_job_screen.dart:122, apps/mobile/lib/screens/timeline_screen.dart:106 (+2 more) |
 | covered by declared route node | `/home` | apps/mobile/lib/services/navigation/mint_nav.dart:19 |
@@ -59,7 +60,6 @@
 | uncovered literal route | `/debt/ratio` | apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:67, apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:78, apps/mobile/lib/services/response_card_service.dart:481, apps/mobile/lib/widgets/common/debt_tools_nav.dart:16 |
 | uncovered literal route | `/debt/repayment` | apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart:944, apps/mobile/lib/screens/debt_prevention/repayment_screen.dart:63, apps/mobile/lib/screens/debt_prevention/repayment_screen.dart:74, apps/mobile/lib/services/cap_engine.dart:889 (+1 more) |
 | uncovered literal route | `/decaissement` | apps/mobile/lib/app.dart:548, apps/mobile/lib/screens/coach/optimisation_decaissement_screen.dart:57, apps/mobile/lib/services/arbitrage_summary_service.dart:321, apps/mobile/lib/services/arbitrage_summary_service.dart:534 (+4 more) |
-| uncovered literal route | `/disability/insurance` | apps/mobile/lib/app.dart:634 |
 | uncovered literal route | `/divorce` | apps/mobile/lib/app.dart:562, apps/mobile/lib/screens/timeline_screen.dart:85, apps/mobile/lib/services/cap_engine.dart:799, apps/mobile/lib/services/response_card_service.dart:279 |
 | uncovered literal route | `/document-scan/avs-guide` | apps/mobile/lib/widgets/coach/explore_hub.dart:66, apps/mobile/lib/widgets/dashboard/couple_action_plan.dart:362, apps/mobile/lib/widgets/dashboard/retirement_checklist_card.dart:197 |
 | uncovered literal route | `/documents` | apps/mobile/lib/data/educational_themes.dart:122, apps/mobile/lib/widgets/coach/widget_renderer.dart:577 |
@@ -125,6 +125,7 @@
 |---|
 | `/budget/setup` |
 | `/data-block/:type` |
+| `/disability/insurance` |
 | `/disability/self-employed` |
 | `/first-job` |
 | `/home` |

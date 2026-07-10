@@ -1,0 +1,78 @@
+schema_version: 1
+flow:
+  id: disability_insurance_missing_facts
+  title: "Employee disability insurance screen to missing ledger facts"
+  exits: [db.route.revenu, db.route.patrimoine, budget.route.setup]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: disability.route.insurance
+    kind: route
+    route: /disability/insurance
+    widget: screens/disability/disability_insurance_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: db.route.patrimoine
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: budget.route.setup
+    kind: route
+    route: /budget/setup
+    widget: screens/budget/budget_setup_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: disability.edge.insurance.enrich_salary
+    from: disability.route.insurance
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect annual salary before evaluating employee disability cover"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_insurance.yaml
+
+  - id: disability.edge.insurance.enrich_savings
+    from: disability.route.insurance
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect liquid savings before grading employee disability runway"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_insurance.yaml
+
+  - id: disability.edge.insurance.enrich_expenses
+    from: disability.route.insurance
+    to: budget.route.setup
+    trigger: tap
+    intent: "Collect fixed monthly charges before showing employee disability scorecard"
+    payload: {}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_insurance.yaml
