@@ -90,6 +90,7 @@ flowchart TB
     subgraph FIS["fiscalite"]
       P3A["/pilier-3a"]; C3A["/3a-deep/comparator"]; RR3A["/3a-deep/real-return"]
       SW3A["/3a-deep/staggered-withdrawal"]; RETRO3A["/3a-retroactif"]; FISCAL["/fiscal"]
+      CBENCH["/cantonal-benchmark"]
     end
     subgraph IMMO["logement"]
       HYPO["/hypotheque"]; AMORT["/mortgage/amortization"]; EPLC["/mortgage/epl-combined"]
@@ -114,7 +115,6 @@ flowchart TB
       BUD["/budget"]; BSET["/budget/setup"]; CDEBT["/check/debt"]; DRATIO["/debt/ratio"]
       DHELP["/debt/help"]; DREPAY["/debt/repayment"]; ABILAN["/arbitrage/bilan"]
       AALLOC["/arbitrage/allocation-annuelle"]; DCANT["/life-event/demenagement-cantonal"]
-      CBENCH["/cantonal-benchmark"]
     end
     subgraph DATA["collection / documents / report"]
       SCAN["/scan"]; SCANAVS["/scan/avs-guide"]
@@ -150,17 +150,18 @@ flowchart TB
     HOME --- ARGENT --- COACH --- EXPLORE
     EXPLORE --> H_RET & H_FAM & H_TRA & H_LOG & H_FIS & H_PAT & H_SAN
     H_RET --> RETR & RVC & RACHAT & EPL & DECAI & LIBRE & SUCC
-    H_FIS --> P3A & C3A & RR3A & SW3A & RETRO3A & FISCAL
+    H_FIS --> P3A & C3A & RR3A & SW3A & RETRO3A & FISCAL & CBENCH
     H_LOG --> HYPO & AMORT & EPLC & IMPR & SARON & HSALE & LVP
     H_FAM --> MAR & DIV & NAI & CONC & DON & DECES & SUCC
     H_TRA --> FJOB & JOBC & INDEP & UNEMP & EXPAT & FRONT & GGAP
     H_TRA --> IAVS & IIJM & I3A & IDIV & ILPP
     FISCAL -- "missing q_gross_salary_annual / q_canton" --> DBLOCK
+    CBENCH -- "missing q_gross_salary_annual / q_birth_year / q_canton" --> DBLOCK
     INDEP -- "missing q_self_employed_income / q_birth_year / q_canton" --> DBLOCK
     IIJM -- "missing q_self_employed_income / q_birth_year" --> DBLOCK
     IDIV -- "missing q_company_distributable_profit_annual" --> DBLOCK
     H_SAN --> INVAL & DINS & DSELF & LAMAL & COV
-    H_PAT --> ABILAN & AALLOC & DON & DECES & DCANT & CBENCH
+    H_PAT --> ABILAN & AALLOC & DON & DECES & DCANT
     ARGENT --> BUD --> BSET
     ARGENT --> CDEBT --> DRATIO & DHELP & DREPAY
     COACH --> DBLOCK

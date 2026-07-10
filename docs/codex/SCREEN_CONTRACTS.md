@@ -221,7 +221,7 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 
 `/fiscal` sequence return: `impot_retrait` is computed only when `canton` is an explicit ledger fact; if canton is missing, return `0.0` and let sequence summaries omit the tax line rather than fabricating a default-canton result.
 
-| `/cantonal-benchmark` | enableExplorerFiscalite | Cross-canton tax/benefit benchmark (illustrative). | `canton`, `salaireBrutMensuel` | `/fiscal`, `/coach/chat` |
+| `/cantonal-benchmark` | enableExplorerFiscalite | Cross-canton tax/benefit benchmark. Calculates only after explicit ledger salary/canton/age; missing facts render a ledger-facts card instead of comparing against profile defaults. Metrics without an explicit backing ledger fact stay hidden. | required: `salary`, `canton`, `age` | `/data-block/revenu?inputKey=q_gross_salary_annual`, `/data-block/revenu?inputKey=q_birth_year`, `/data-block/revenu?inputKey=q_canton`, `/fiscal`, `/coach/chat` |
 | `/divorce`, `/mariage`, `/naissance`, `/concubinage` | enableExplorerFamille | Family life events. | `conjoint`, `nombreEnfants`, `patrimoine`, `prevoyance` | `/succession`, `/couple`, `/data-block/compositionMenage`, `/coach/chat` |
 | `/succession`, `/life-event/donation` | enableExplorerFamille | Estate organisation / gifts. | `patrimoine`, `conjoint`, `nombreEnfants`, `canton` | `/succession`, `/coach/chat` |
 | `/life-event/deces-proche` | enableExplorerFamille | Death of a relative: survivor benefits + estate steps. | `conjoint`, `nombreEnfants`, `patrimoine`, `canton` | `/succession`, `/coach/chat` |

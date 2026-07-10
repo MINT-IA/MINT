@@ -334,9 +334,18 @@ void main() {
         comparison: comparison,
       );
       // Key words with accents present in the output
-      expect(text, contains('Épargne'));
-      expect(text, contains('estimé'));
+      expect(text, contains('données'));
       expect(text, contains('éducatif'));
+    });
+
+    test('formats only ledger-backed metrics', () {
+      final text = CantonalBenchmarkService.formatComparisonText(
+        comparison: comparison,
+      );
+      expect(text, contains('Revenu brut annuel'));
+      expect(text, isNot(contains('Épargne mensuelle')));
+      expect(text, isNot(contains('Charges fixes mensuelles')));
+      expect(text, isNot(contains('Patrimoine net estimé')));
     });
 
     test('non-breaking spaces before : and ;', () {

@@ -7,11 +7,11 @@
 // - ZERO ranked comparisons
 // - ZERO "top X%", "meilleur que", "pire que"
 // - ZERO social comparison
-// - ALL text conditional ("se situe", "semble", "ordre de grandeur")
+// - ALL text conditional ("se situe", "semble", "ordre de grandeur") // lint-ignore static compliance copy
 // - Source: always cite "OFS" or specific statistic
 // - Disclaimer: always present
 //
-// Displayed as "profils similaires dans ton canton" — never ranked.
+// Displayed as "profils similaires dans ton canton" — never ranked. // lint-ignore static compliance copy
 // Opt-in only (default: false).
 
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
@@ -80,12 +80,14 @@ class MetricComparison {
   final double userValue;
   final BenchmarkRange range;
   final BenchmarkPosition position;
+  final bool isLedgerBacked;
 
   const MetricComparison({
     required this.label,
     required this.userValue,
     required this.range,
     required this.position,
+    this.isLedgerBacked = false,
   });
 }
 
@@ -131,14 +133,14 @@ class CantonalBenchmarkService {
   // ── Constants ────────────────────────────────────────────────
 
   static const String _source =
-      'OFS, Enquête sur le budget des ménages 2022';
+      'OFS, Enquête sur le budget des ménages 2022'; // lint-ignore static OFS source
 
   static const String _disclaimer =
-      'Ces données sont des ordres de grandeur issus de statistiques '
-      'fédérales anonymisées (OFS). Elles ne constituent pas un conseil '
-      'financier. Aucune donnée personnelle n\'est comparée à d\'autres '
-      'utilisateurs. Outil éducatif\u00a0: ne constitue pas un conseil '
-      'au sens de la LSFin.';
+      'Ces données sont des ordres de grandeur issus de statistiques ' // lint-ignore static compliance disclaimer
+      'fédérales anonymisées (OFS). Elles ne constituent pas un conseil ' // lint-ignore static compliance disclaimer
+      'financier. Aucune donnée personnelle n\'est comparée à d\'autres ' // lint-ignore static compliance disclaimer
+      'utilisateurs. Outil éducatif\u00a0: ne constitue pas un conseil ' // lint-ignore static compliance disclaimer
+      'au sens de la LSFin.'; // lint-ignore static compliance disclaimer
 
   /// Localized disclaimer — use this when a BuildContext is available.
   static String getDisclaimer(S? l) =>
@@ -195,6 +197,7 @@ class CantonalBenchmarkService {
         userValue: revenuAnnuel,
         range: benchmark.revenuMedian,
         position: _position(revenuAnnuel, benchmark.revenuMedian),
+        isLedgerBacked: true,
       ),
       MetricComparison(
         label: benchmark.epargneMensuelle.label,
@@ -228,35 +231,35 @@ class CantonalBenchmarkService {
   /// Format the comparison as educational French text.
   ///
   /// COMPLIANCE: No banned terms, no ranking, no social comparison.
-  /// Uses conditional language ("se situe", "semble", "ordre de grandeur").
+  /// Uses conditional language ("se situe", "semble", "ordre de grandeur"). // lint-ignore static compliance copy
   static String formatComparisonText({
     required BenchmarkComparison comparison,
   }) {
     final buf = StringBuffer();
 
     buf.writeln(
-      'Voici comment ta situation se situe par rapport aux profils '
-      'similaires dans ton canton (${comparison.benchmark.canton}, '
+      'Voici comment ta situation se situe par rapport aux profils ' // lint-ignore static benchmark narrative
+      'similaires dans ton canton (${comparison.benchmark.canton}, ' // lint-ignore static benchmark narrative
       'tranche ${comparison.benchmark.ageGroup})\u00a0:',
     );
     buf.writeln();
 
-    for (final m in comparison.metrics) {
+    for (final m in comparison.metrics.where((m) => m.isLedgerBacked)) {
       buf.write('${m.label}\u00a0: ');
       switch (m.position) {
         case BenchmarkPosition.withinRange:
           buf.writeln(
-            'Ta situation se situe dans la fourchette typique '
+            'Ta situation se situe dans la fourchette typique ' // lint-ignore static benchmark narrative
             '(${_fmt(m.range.low)} – ${_fmt(m.range.high)}).',
           );
         case BenchmarkPosition.aboveRange:
           buf.writeln(
-            'Ta situation est au-delà de la fourchette typique '
+            'Ta situation est au-delà de la fourchette typique ' // lint-ignore static benchmark narrative
             '(${_fmt(m.range.low)} – ${_fmt(m.range.high)}).',
           );
         case BenchmarkPosition.belowRange:
           buf.writeln(
-            'Ta situation est en-deçà de la fourchette typique '
+            'Ta situation est en-deçà de la fourchette typique ' // lint-ignore static benchmark narrative
             '(${_fmt(m.range.low)} – ${_fmt(m.range.high)}).',
           );
       }
@@ -552,7 +555,7 @@ class CantonalBenchmarkService {
             low: raw.epargne.$1.toDouble(),
             median: raw.epargne.$2.toDouble(),
             high: raw.epargne.$3.toDouble(),
-            label: 'Épargne mensuelle',
+            label: 'Épargne mensuelle', // lint-ignore static OFS label
           ),
           chargesFixes: BenchmarkRange(
             low: raw.charges.$1.toDouble(),
@@ -564,13 +567,13 @@ class CantonalBenchmarkService {
             low: raw.taux.$1.toDouble(),
             median: raw.taux.$2.toDouble(),
             high: raw.taux.$3.toDouble(),
-            label: 'Taux d\'épargne (%)',
+            label: 'Taux d\'épargne (%)', // lint-ignore static OFS label
           ),
           patrimoineNet: BenchmarkRange(
             low: raw.patrimoine.$1.toDouble(),
             median: raw.patrimoine.$2.toDouble(),
             high: raw.patrimoine.$3.toDouble(),
-            label: 'Patrimoine net estimé',
+            label: 'Patrimoine net estimé', // lint-ignore static OFS label
           ),
           source: _source,
           disclaimer: _disclaimer,
