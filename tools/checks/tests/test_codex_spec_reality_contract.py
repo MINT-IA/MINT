@@ -19,6 +19,7 @@ WIRING_GRAPH = ROOT / "docs/codex/WIRING_GRAPH.mmd"
 T1_SAVE_FACT_MAPPERS = {
     "goal": "q_main_goal",
     "selfEmployedNetIncome": "q_self_employed_income",
+    "companyProfitAnnual": "q_company_profit_annual_chf",
     "has2ndPillar": "q_has_pension_fund",
     "hasVoluntaryLpp": "q_has_voluntary_lpp",
     "spouseAvsContributionYears": "q_spouse_avs_contribution_years",
@@ -63,10 +64,10 @@ def test_backend_save_fact_allowlist_count_matches_docs() -> None:
     assert match is not None
     keys = re.findall(r'"([^"]+)"', match.group("body"))
 
-    assert len(keys) == 35
+    assert len(keys) == 36
     for doc_path in (ROOT / "docs/codex/DATA_LEDGER.md", WIRING_GRAPH):
         doc = doc_path.read_text(encoding="utf-8")
-        assert "35-key allowlist" in doc or "35 keys" in doc
+        assert "36-key allowlist" in doc or "36 keys" in doc
 
 
 def test_data_ledger_unmapped_save_fact_claims_match_mobile_mapper() -> None:

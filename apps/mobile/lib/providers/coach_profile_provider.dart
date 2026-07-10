@@ -618,6 +618,12 @@ class CoachProfileProvider extends ChangeNotifier {
           'q_pay_frequency': 'yearly',
           'q_employment_status': 'independant',
         };
+      case 'companyProfitAnnual':
+        final profit = _asNum(value);
+        if (profit == null) return const {};
+        return {
+          'q_company_profit_annual_chf': profit < 0 ? 0 : profit,
+        };
       // LPP — align with keys fromWizardAnswers reads for scan data
       case 'avoirLpp':
         return {'_coach_avoir_lpp': value};
@@ -1190,6 +1196,9 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_self_employed_income'] = profile.selfEmployedNetIncome;
       answers['q_net_income_period_chf'] = profile.selfEmployedNetIncome;
       answers['q_pay_frequency'] = 'yearly';
+    }
+    if (profile.companyProfitAnnual != null) {
+      answers['q_company_profit_annual_chf'] = profile.companyProfitAnnual;
     }
     // Prevoyance
     if (profile.prevoyance.hasPensionFund != null) {

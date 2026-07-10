@@ -11098,5 +11098,42 @@
   "scanSummaryMortgageAttestation": "Hypothekenbescheinigung gescannt",
   "scanSummarySalaryCertificate": "Lohnausweis gescannt",
   "lowConfidenceCardTitle": "Nicht genug Daten für eine verlässliche Projektion",
-  "lowConfidenceCardPromptIntro": "Das würde deine Projektionen am stärksten verbessern:"
+  "lowConfidenceCardPromptIntro": "Das würde deine Projektionen am stärksten verbessern:",
+  "dividendeHeaderBody": "Wenn du eine AG oder GmbH besitzt, kannst du dir eine Kombination aus Lohn und Dividenden auszahlen. Die Dividende wird bei qualifizierter Beteiligung zu 50 % besteuert und unterliegt nicht den AHV-Beiträgen. Finde die passende Aufteilung.",
+  "dividendeSavingCaption": "Diese Aufteilung spart dir {amount}/Jahr gegenüber 100 % Lohn",
+  "@dividendeSavingCaption": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeRequalificationTitle": "Risiko einer Umqualifizierung",
+  "dividendeRequalificationBody": "Liegt der Lohnanteil unter ~60 % des Gewinns, kann die Steuerbehörde einen Teil der Dividenden als Lohn umqualifizieren (kantonale Praxis unterschiedlich). Das kann rückwirkende AHV-Beiträge auslösen.",
+  "dividendePartDividende": "Dividendenanteil",
+  "dividendePctBenefice": "{pct} % des Gewinns",
+  "@dividendePctBenefice": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "dividendeChargeDividende": "Belastung auf Dividende",
+  "dividendeChargeTotalSplit": "Gesamtbelastung (Split)",
+  "dividendeChartTitle": "GESAMTBELASTUNG NACH SPLIT",
+  "dividendeChartLegendChargeTotal": "Gesamtbelastung",
+  "dividendeChartLegendSplitAdapte": "Passender Split",
+  "dividendeChartLegendPosition": "Aktuelle Position",
+  "dividendeEducationTitle": "MERKEN",
+  "dividendeEduProfitTaxTitle": "Gewinnsteuer",
+  "dividendeEduProfitTaxBody": "Gewinn, der als Dividende ausgeschüttet wird, wird zuerst auf Unternehmensebene besteuert (Gewinnsteuer) und danach auf persönlicher Ebene (wirtschaftliche Doppelbesteuerung).",
+  "dividendeEduAvsSalaryTitle": "AHV nur auf Lohn",
+  "dividendeEduAvsSalaryBody": "AHV-Beiträge (rund 12.5 % insgesamt) fallen nur auf dem Lohnanteil an. Dividenden umgehen Sozialabgaben, deshalb ist die Aufteilung relevant.",
+  "dividendeEduCantonalPracticeTitle": "Kantonale Praxis",
+  "dividendeEduCantonalPracticeBody": "Steuerbehörden prüfen übermässige Dividendenausschüttungen. Erwartet wird ein marktüblicher Lohn. Die Grenze variiert je nach Kanton.",
+  "dividendeDisclaimerBody": "Vereinfachte Simulation. Gewinnsteuer der Gesellschaft, persönliche Abzüge und kantonale Regeln sind in dieser Berechnung nicht integriert. Konsultiere für eine vollständige Analyse eine Fachperson.",
+  "dividendeCantonalDisclaimer": "Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Die Schwellen für eine Umqualifizierung unterscheiden sich je nach Kanton.",
+  "dividendeComplianceFooter": "Bildungswerkzeug — stellt keine Finanzberatung dar (FIDLEG).",
+  "dividendeSourcesFooter": "Quellen: DBG/LIFD Art. 18, 20, 33; OR Art. 660"
 }

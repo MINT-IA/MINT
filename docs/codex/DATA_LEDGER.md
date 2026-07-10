@@ -20,7 +20,7 @@ The ledger is **not new infrastructure**. It is the formalisation of the spine t
 | Persistence | `report_persistence_service.dart` → SharedPreferences key `wizard_answers_v2`; reconstructed via `CoachProfile.fromWizardAnswers()` | Durable local store; survives restart. |
 | Computed state | `apps/mobile/lib/providers/mint_state_provider.dart` → `MintUserState` (`models/mint_user_state.dart`) | Derived read-model (lifecyclePhase, archetype, budgetGap, caps, confidence, friScore). Recomputed on every profile change via `ChangeNotifierProxyProvider`. |
 | Provenance (mobile) | `CoachProfile.dataSources : Map<String, ProfileDataSource>` + `CoachProfile.dataTimestamps : Map<String, DateTime>` | Per-field {source, updatedAt}. **Today partial — see §6.** |
-| Backend store | `ProfileModel.data : JSON dict`, written by `save_fact` against the **35-key** allowlist `_SAVE_FACT_ALLOWED_KEYS` (`services/backend/app/api/v1/endpoints/coach_chat.py:924`) | Offline-first mirror; sync is fire-and-forget. |
+| Backend store | `ProfileModel.data : JSON dict`, written by `save_fact` against the **36-key** allowlist `_SAVE_FACT_ALLOWED_KEYS` (`services/backend/app/api/v1/endpoints/coach_chat.py:924`) | Offline-first mirror; sync is fire-and-forget. |
 | Decay | `apps/mobile/lib/services/biography/freshness_decay_service.dart` | Two-tier freshness, 0.60 refresh threshold. API is `weight(BiographyFact fact, DateTime now)` — see §5. |
 | Confidence | `services/backend/app/services/confidence/enhanced_confidence_service.py` | 4-axis score; consumes source + freshness. |
 
@@ -38,7 +38,7 @@ These restate §F of the wiring findings. CI must enforce I-1, I-3, I-6, I-7.
 - **I-4 — NO ISLANDS.** Every isolated provider (`BudgetProvider`, `HouseholdProvider`, `TimelineProvider`, documents, conversations) MUST bridge into the recompute so `MintUserState` is never stale. See §7.
 - **I-5 — PROJECTIONS ARE RANGED.** Every consumer that renders a projected number MUST also render a range + `EnhancedConfidence` + "à confirmer". No bare numbers. No promissory terms (CLAUDE.md §5).
 - **I-6 — DIFF NOT FORM.** Collection asks only the missing/stale delta. Freshness < 0.60 ⇒ **re-confirm**, never blank re-ask. Implement on top of `data_block_enrichment_screen.dart` (≈70% built).
-- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (35 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 35 keys; §3.8 keeps the repair history and the parity gate.
+- **I-7 — ALLOWLIST IS THE CONTRACT.** A field is writable via the coach/backend ONLY if its key is in `_SAVE_FACT_ALLOWED_KEYS` (36 keys). Adding a coach-writable field = adding to that set + the mobile `_mapFactKeyToAnswers` switch + a row in this ledger. The backend allowlist, coach tool enum, mobile mapper, and profile reads are now in sync for all 36 keys; §3.8 keeps the repair history and the parity gate.
 
 ---
 
@@ -98,9 +98,9 @@ Backend-only members `document_scan` (.85, unconfirmed OCR), `institutional_api`
 
 ---
 
-## 3. Ledger — coach/backend-writable fields (the 35-key allowlist)
+## 3. Ledger — coach/backend-writable fields (the 36-key allowlist)
 
-These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_chat.py:924`). They are the ONLY keys the coach (`save_fact`) and backend may write. `wizard key` = the target produced by `CoachProfileProvider._mapFactKeyToAnswers`, verbatim from the real switch. §3.8 records the repair history that brought the mobile mapper and `CoachProfile.fromWizardAnswers()` back to 35/35 parity.
+These **36** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_chat.py:924`). They are the ONLY keys the coach (`save_fact`) and backend may write. `wizard key` = the target produced by `CoachProfileProvider._mapFactKeyToAnswers`, verbatim from the real switch. §3.8 records the repair history that brought the mobile mapper and `CoachProfile.fromWizardAnswers()` back to parity.
 
 ### 3.1 Identity / location
 
@@ -129,6 +129,7 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `employmentRate` | `q_employment_rate` | double % (0–100) | income | userInput | annual | .60 | applySaveFact/mergeAnswers | part-time coaching, coordination-deduction alert |
 | `annualBonus` | `q_annual_bonus` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `bonusPourcentage`, `revenuBrutAnnuel` |
 | `selfEmployedNetIncome` | `q_self_employed_income` + `q_net_income_period_chf` + `q_pay_frequency='yearly'` + `q_employment_status='independant'` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | independant archetype, 3a max 36'288, AVS indep |
+| `companyProfitAnnual` | `q_company_profit_annual_chf` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | SA/Sarl dividend-vs-salary envelope; never a fallback for sole-proprietor income |
 
 > Income keys map to a **pay-frequency-consistent pair** so `fromWizardAnswers` computes `salaireBrutMensuel` correctly (the `incomeNetMonthly/Yearly` cases set BOTH `q_net_income_period_chf` and `q_pay_frequency`; the gross cases normalise to `q_gross_salary_annual`). A write to a `Net*` key MUST NOT silently overwrite a `Gross*`-derived value of a different frequency.
 
@@ -184,13 +185,13 @@ These **35** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `hasAvsGaps` | `q_avs_lacunes_status` (`true` → `unknown` unless a precise `arrived_late`/`lived_abroad` status already exists; `false` → `no_gaps`) | bool | prevoyance | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `lacunesAVS` flag, AVS rente reduction warning |
 | `avsContributionYears` | `q_avs_contribution_years` | int (yr) | prevoyance | certificate, userInput | annual | .95 / .60 | applySaveFact/mergeAnswers | `anneesContribuees`, AVS full-rente eligibility (44 yr), RAMD |
 
-**Count check (must match code):** 3.1–3.7 = 9 (identity) + 7 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **35 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 35`.
+**Count check (must match code):** 3.1–3.7 = 9 (identity) + 8 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **36 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 36`.
 
-### 3.8 REPAIR STATUS — save_fact parity complete for 35 allowlist keys
+### 3.8 REPAIR STATUS — save_fact parity complete for 36 allowlist keys
 
 At `095eeaa32`, the mobile `_mapFactKeyToAnswers` switch handled only **24** of the 35 allowlist keys; the other **11** fell through `default: return const {}`, so `applySaveFact` returned `false` and the coach write was silently dropped. G1 found a second gap: **7 mapped keys wrote to wizard keys that `CoachProfile.fromWizardAnswers()` did not read**, so `applySaveFact` returned `true` but the profile still did not reconstruct the intended value.
 
-T-0 and T-1 are now complete: `_mapFactKeyToAnswers` handles all 35 keys and every mapper target is read by `CoachProfile.fromWizardAnswers()`. Total remaining local ineffectiveness is now **0 backend-writable keys**.
+T-0 and T-1 are now complete: `_mapFactKeyToAnswers` handles all 36 keys and every mapper target is read by `CoachProfile.fromWizardAnswers()`. Total remaining local ineffectiveness is now **0 backend-writable keys**.
 
 **The 0 unmapped keys:** none. T-1 is complete.
 
@@ -216,11 +217,12 @@ T-0 and T-1 are now complete: `_mapFactKeyToAnswers` handles all 35 keys and eve
 |---|---|---|
 | `goal` | `q_main_goal` | `goalA` (GoalA.type) |
 | `selfEmployedNetIncome` | `q_self_employed_income` + yearly net-income pair + `q_employment_status='independant'` | `selfEmployedNetIncome`, independent archetype income |
+| `companyProfitAnnual` | `q_company_profit_annual_chf` | `companyProfitAnnual`, SA/Sarl dividend-vs-salary envelope |
 | `has2ndPillar` | `q_has_pension_fund` (`yes`/`no`) | LPP eligibility flag |
 | `hasVoluntaryLpp` | `q_has_voluntary_lpp` (`yes`/`no`) plus conditional `q_has_pension_fund` | `prevoyance.hasVoluntaryLpp`, independent LPP path |
 | `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` | `conjoint.prevoyance.anneesContribuees` |
 
-After T-0 and T-1, `_mapFactKeyToAnswers` handles all 35 keys and every mapper target is actually read by `fromWizardAnswers`; the §8.1 parity test is expected GREEN and gates regressions.
+After T-0 and T-1, `_mapFactKeyToAnswers` handles all 36 keys and every mapper target is actually read by `fromWizardAnswers`; the §8.1 parity test is expected GREEN and gates regressions.
 
 **Task T-2 (done):** `wealthEstimate` has its own wizard key (`q_wealth_estimate`) and a distinct `fromWizardAnswers` read via `PatrimoineProfile.wealthEstimate`. `totalPatrimoine` compares it with the detailed asset sum and uses the higher aggregate total, so `totalSavings` stays on `q_cash_total` without double counting.
 
@@ -431,8 +433,8 @@ Each gate names exact symbols/modules so it is mechanically buildable.
 
 ### 8.1 Allowlist parity (I-7) — new test `test_ledger_parity.py`
 
-- **8.1a** `assert len(_SAVE_FACT_ALLOWED_KEYS) == 35` (import from `app.api.v1.endpoints.coach_chat`).
-- **8.1b** Parse the mobile switch: extract the set of `case '<key>':` labels in `_mapFactKeyToAnswers` (`coach_profile_provider.dart`, between `Map<String, dynamic> _mapFactKeyToAnswers` and its closing `default:`). `assert mapped_keys == _SAVE_FACT_ALLOWED_KEYS`. This assertion is now GREEN and is the gate that prevents regression from 35/35 mapper parity.
+- **8.1a** `assert len(_SAVE_FACT_ALLOWED_KEYS) == 36` (import from `app.api.v1.endpoints.coach_chat`).
+- **8.1b** Parse the mobile switch: extract the set of `case '<key>':` labels in `_mapFactKeyToAnswers` (`coach_profile_provider.dart`, between `Map<String, dynamic> _mapFactKeyToAnswers` and its closing `default:`). `assert mapped_keys == _SAVE_FACT_ALLOWED_KEYS`. This assertion is now GREEN and is the gate that prevents regression from 36/36 mapper parity.
 - **8.1c** Parse §3 of this file: the set of `key` cells (excluding §4). `assert ledger_keys == _SAVE_FACT_ALLOWED_KEYS`.
 - **Do NOT reuse `test_allowlist_count_is_exactly_eight`** — that test targets the DIFFERENT purpose-tagging allowlist `ALLOWED_FACT_KEYS` (`services/backend/app/services/privacy/fact_key_allowlist.py`, **8** entries), not `_SAVE_FACT_ALLOWED_KEYS`. Keep it as-is for its own purpose.
 

@@ -46,6 +46,7 @@
 | id to add | file | element |
 |---|---|---|
 | `salary_input` | `screens/onboarding/data_block_enrichment_screen.dart` | net/gross salary field |
+| `company_profit_input` | `screens/onboarding/data_block_enrichment_screen.dart` | SA/Sarl annual profit field for `/independants/dividende-salaire` |
 | `canton_picker` | same | canton selector |
 | `coach_input` | `widgets/coach/coach_input_bar.dart` | chat text field |
 | `coach_send` | same | send button |
@@ -61,6 +62,8 @@
 | `scan_review_recovery_cta` | `app.dart:903` builder (NEW errorState) | recovery button on `/scan/review` empty |
 | `scan_impact_recovery_cta` | `app.dart:916` builder (NEW errorState) | recovery button on `/scan/impact` empty |
 | `report_investment_card` | `screens/advisor/financial_report_screen_v2.dart:51` | investment action card |
+| `dividende_vs_salaire_result_section` | `screens/independants/dividende_vs_salaire_screen.dart` | dividend-vs-salary result unlocked by `q_company_profit_annual_chf` |
+| `dividende_vs_salaire_curve_chart` | same | charge curve proof for the selected split |
 
 **M-0c — Define the shared subflow file `apps/mobile/.maestro/goto_retirement.yaml`** (referenced by F-1 via `runFlow`):
 ```yaml

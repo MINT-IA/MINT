@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 // Screens under test
 import 'package:mint_mobile/screens/independant_screen.dart';
 import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
+import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dart';
 import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
@@ -168,6 +169,7 @@ class RecordingCoachProfileProvider extends CoachProfileProvider {
 
 Map<String, dynamic> independentAnswers({
   double? selfIncome,
+  double? companyProfit,
   double? grossSalary,
   int? birthYear,
   double? cashTotal,
@@ -183,6 +185,7 @@ Map<String, dynamic> independentAnswers({
       'q_net_income_period_chf': selfIncome,
       'q_pay_frequency': 'yearly',
     },
+    if (companyProfit != null) 'q_company_profit_annual_chf': companyProfit,
     if (grossSalary != null) 'q_gross_salary_annual': grossSalary,
     'q_employment_status': 'independant',
     if (voluntaryLpp != null) ...{
@@ -741,7 +744,169 @@ void main() {
   });
 
   // ===========================================================================
-  // 6. PILLAR 3A INDEPENDANT SCREEN
+  // 6. DIVIDENDE VS SALAIRE SCREEN
+  // ===========================================================================
+
+  group('DividendeVsSalaireScreen', () {
+    testWidgets('shows missing ledger facts instead of defaulting to 200000', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildTestable(const DividendeVsSalaireScreen()));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_ledger_facts')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('dividende_benefice_fact')),
+        findsOneWidget,
+      );
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0200'000"), findsNothing);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('uses provided company profit as the scenario envelope', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 4200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(companyProfit: 200000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données connues'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0200'000"), findsWidgets);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNWidgets(2));
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_result_section')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_curve_chart')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('does not calculate from a gross salary fallback', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(grossSalary: 240000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0240'000"), findsNothing);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('does not calculate from independent income fallback', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 200000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0200'000"), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('does not treat unprovided company profit as known', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+      provider._profileOverride = provider.profile!.copyWith(
+        companyProfitAnnual: 200000,
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0200'000"), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('dividende_vs_salaire_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('does not write profile facts from local scenario changes', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(companyProfit: 200000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final slider = tester.widget<MintPremiumSlider>(
+        find.byType(MintPremiumSlider).first,
+      );
+      slider.onChanged(65);
+      await tester.pump();
+
+      expect(provider.writes, isEmpty);
+    });
+  });
+
+  // ===========================================================================
+  // 7. PILLAR 3A INDEPENDANT SCREEN
   // ===========================================================================
 
   group('Pillar3aIndepScreen', () {
@@ -960,7 +1125,8 @@ void main() {
       );
     });
 
-    testWidgets('hides upside framing when grand 3a is below salaried ceiling', (
+    testWidgets('hides upside framing when grand 3a is below salaried ceiling',
+        (
       tester,
     ) async {
       tester.view.physicalSize = const Size(390, 5000);

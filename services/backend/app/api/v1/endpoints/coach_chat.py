@@ -929,7 +929,8 @@ _SAVE_FACT_ALLOWED_KEYS: set[str] = {
     # Income
     "incomeNetMonthly", "incomeGrossMonthly",
     "incomeNetYearly", "incomeGrossYearly",
-    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    "selfEmployedNetIncome", "companyProfitAnnual",
+    "employmentRate", "annualBonus",
     # LPP
     "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
     "avoirLppSurobligatoire", "lppBuybackMax", "hasVoluntaryLpp",
@@ -948,7 +949,8 @@ _SAVE_FACT_ALLOWED_KEYS: set[str] = {
 _SAVE_FACT_NUMERIC_KEYS: set[str] = {
     "birthYear", "targetRetirementAge", "incomeNetMonthly",
     "incomeGrossMonthly", "incomeNetYearly", "incomeGrossYearly",
-    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    "selfEmployedNetIncome", "companyProfitAnnual",
+    "employmentRate", "annualBonus",
     "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
     "avoirLppSurobligatoire", "lppBuybackMax",
     "pillar3aAnnual", "pillar3aBalance", "savingsMonthly",

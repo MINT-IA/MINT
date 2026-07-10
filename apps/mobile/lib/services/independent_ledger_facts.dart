@@ -18,6 +18,16 @@ class IndependentLedgerFacts {
     return income.toDouble();
   }
 
+  static double? companyProfitAnnual(CoachProfile? profile) {
+    if (profile == null) return null;
+    if (!profile.userProvidedFields.contains('companyProfitAnnual')) {
+      return null;
+    }
+    final profit = profile.companyProfitAnnual;
+    if (profit == null || profit <= 0) return null;
+    return profit.toDouble();
+  }
+
   static int? age(
     CoachProfile? profile, {
     required int min,

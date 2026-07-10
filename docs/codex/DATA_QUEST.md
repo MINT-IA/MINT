@@ -20,7 +20,7 @@ When any surface needs data it does not have, MINT asks **only the missing or st
 | Staleness | `FreshnessDecayService.needsRefresh(BiographyFact, DateTime) → bool` (weight < `0.60`); `weight()` = annual (full 12mo→floor 36mo) / volatile (full 3mo→floor 12mo) (`biography/freshness_decay_service.dart:64,91`) |
 | Fact store | `BiographyRepository` (encrypted SQLite) — immutable `BiographyFact{ fieldPath, value, source, sourceDate, updatedAt, freshnessCategory }`; read via `getLatestFactForField(fieldPath)`, write via `insertFact(fact)` / `recordFact(fact)` (`biography_repository.dart:163,263,276`) |
 | Write path | `CoachProfileProvider.mergeAnswers()` (`:502`) / `applySaveFact()` (`:542`) / `updateProfile()` (`:969`) — the ONLY mutators |
-| Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (35 keys, `coach_chat.py:924`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:557`) |
+| Coach write allow­list | `_SAVE_FACT_ALLOWED_KEYS` (36 keys, `coach_chat.py:924`); mobile map `_mapFactKeyToAnswers` (`coach_profile_provider.dart:557`) |
 | Field→screen mapping | `ScreenRegistry` + `ReadinessGate` (behaviors A–E) + `routes/route_metadata.dart` |
 | Freshness i18n | keys already present: `freshnessConfirm`, `freshnessStale`, `freshnessPrefix` (`confidence_scorer.dart:747-749`) |
 
@@ -110,7 +110,7 @@ Case resolution reuses `ReadinessGate` behaviors A–E to decide when enough is 
 onAnswer(key, value, source):
    assert key in DATA_LEDGER                       // I-7 of DATA_LEDGER
    if source is coach-originated:
-       assert key in _SAVE_FACT_ALLOWED_KEYS       // 35-key contract
+       assert key in _SAVE_FACT_ALLOWED_KEYS       // 36-key contract
        CoachProfileProvider.applySaveFact(key, value)   // maps via _mapFactKeyToAnswers
    else:
        CoachProfileProvider.mergeAnswers({ wizardKeyFor(key): value })

@@ -22932,6 +22932,7 @@ class SEn extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+
   @override
   String get lowConfidenceCardTitle =>
       'Not enough data for a reliable projection';
@@ -22939,4 +22940,86 @@ class SEn extends S {
   @override
   String get lowConfidenceCardPromptIntro =>
       'This would improve your projections the most:';
+
+  @override
+  String get dividendeHeaderBody =>
+      'If you own an AG or GmbH, you can pay yourself through a mix of salary and dividends. The dividend is taxed at 50% for a qualifying participation and is not subject to OASI contributions. Find the suitable split.';
+
+  @override
+  String dividendeSavingCaption(String amount) {
+    return 'This split saves you $amount/year compared with 100% salary';
+  }
+
+  @override
+  String get dividendeRequalificationTitle => 'Reclassification risk';
+
+  @override
+  String get dividendeRequalificationBody =>
+      'If the salary share is below ~60% of profit, the tax authority may reclassify part of the dividends as salary (cantonal practice varies). This can trigger retroactive OASI contributions.';
+
+  @override
+  String get dividendePartDividende => 'Dividend share';
+
+  @override
+  String dividendePctBenefice(int pct) {
+    return '$pct% of profit';
+  }
+
+  @override
+  String get dividendeChargeDividende => 'Dividend charge';
+
+  @override
+  String get dividendeChargeTotalSplit => 'Total charge (split)';
+
+  @override
+  String get dividendeChartTitle => 'TOTAL CHARGE BY SPLIT';
+
+  @override
+  String get dividendeChartLegendChargeTotal => 'Total charge';
+
+  @override
+  String get dividendeChartLegendSplitAdapte => 'Suitable split';
+
+  @override
+  String get dividendeChartLegendPosition => 'Current position';
+
+  @override
+  String get dividendeEducationTitle => 'KEY POINTS';
+
+  @override
+  String get dividendeEduProfitTaxTitle => 'Profit tax';
+
+  @override
+  String get dividendeEduProfitTaxBody =>
+      'Remember that profit distributed as a dividend is taxed first at company level (profit tax), then at personal level (economic double taxation).';
+
+  @override
+  String get dividendeEduAvsSalaryTitle => 'OASI only on salary';
+
+  @override
+  String get dividendeEduAvsSalaryBody =>
+      'OASI contributions (about 12.5% in total) apply only to the salary portion. Dividends avoid social charges, which is why the split matters.';
+
+  @override
+  String get dividendeEduCantonalPracticeTitle => 'Cantonal practice';
+
+  @override
+  String get dividendeEduCantonalPracticeBody =>
+      'Tax authorities monitor excessive dividend distributions. A market-consistent salary is expected. The threshold varies by canton.';
+
+  @override
+  String get dividendeDisclaimerBody =>
+      'Simplified simulation. Company profit tax, personal deductions, and cantonal rules are not included in this calculation. Consult a specialist for a complete analysis.';
+
+  @override
+  String get dividendeCantonalDisclaimer =>
+      'The tax impact depends on cantonal practice. Reclassification thresholds vary from one canton to another.';
+
+  @override
+  String get dividendeComplianceFooter =>
+      'Educational tool — does not constitute financial advice (FinSA).';
+
+  @override
+  String get dividendeSourcesFooter =>
+      'Sources: DBG/LIFD arts. 18, 20, 33; CO art. 660';
 }

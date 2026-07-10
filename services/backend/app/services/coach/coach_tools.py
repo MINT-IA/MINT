@@ -513,6 +513,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "Trigger examples:\n"
             "  - 'mon salaire net c'est 7600' → key='incomeNetMonthly', value=7600\n"
             "  - 'je gagne 120k brut par an' → key='incomeGrossYearly', value=120000\n"
+            "  - 'ma Sàrl fait 200k de bénéfice distribuable' → "
+            "key='companyProfitAnnual', value=200000\n"
             "  - 'j'ai 70k sur mon 2e pilier' → key='avoirLpp', value=70000\n"
             "  - 'j'ai un 3a avec 32000 dessus' → key='pillar3aBalance', value=32000\n"
             "  - 'je mets 7258 par an sur mon 3a' → key='pillar3aAnnual', value=7258\n"
@@ -555,6 +557,7 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "incomeNetYearly",
                         "incomeGrossYearly",
                         "selfEmployedNetIncome",
+                        "companyProfitAnnual",
                         "employmentRate",
                         "annualBonus",
                         # LPP

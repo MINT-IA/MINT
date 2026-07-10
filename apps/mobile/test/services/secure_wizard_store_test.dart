@@ -41,6 +41,10 @@ void main() {
       expect(SecureWizardStore.isSensitive('q_gross_salary'), isTrue);
       expect(SecureWizardStore.isSensitive('q_gross_salary_annual'), isTrue);
       expect(SecureWizardStore.isSensitive('q_self_employed_income'), isTrue);
+      expect(
+        SecureWizardStore.isSensitive('q_company_profit_annual_chf'),
+        isTrue,
+      );
       expect(SecureWizardStore.isSensitive('q_net_income_period_chf'), isTrue);
     });
 

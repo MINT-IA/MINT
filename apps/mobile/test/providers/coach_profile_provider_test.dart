@@ -246,8 +246,7 @@ void main() {
     expect(provider.profile?.prevoyance.lacunesAVS, 4);
   });
 
-  test('save_fact hasAvsGaps true preserves arrived-late AVS status',
-      () async {
+  test('save_fact hasAvsGaps true preserves arrived-late AVS status', () async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers({
       'q_birth_year': 1975,
@@ -270,8 +269,8 @@ void main() {
     ));
     await Future<void>.delayed(Duration.zero);
 
-    expect(await provider.applySaveFact('spouseIncomeNetMonthly', 7000),
-        isTrue);
+    expect(
+        await provider.applySaveFact('spouseIncomeNetMonthly', 7000), isTrue);
     expect(await provider.applySaveFact('spouseBirthYear', 1988), isTrue);
 
     final answers = await ReportPersistenceService.loadAnswers();
@@ -300,15 +299,14 @@ void main() {
     expect(provider.profile?.conjoint?.salaireBrutMensuel, isNull);
   });
 
-  test('save_fact spouse facts are ignored for non-coupled profiles',
-      () async {
+  test('save_fact spouse facts are ignored for non-coupled profiles', () async {
     final provider = CoachProfileProvider();
     provider.updateProfile(CoachProfile.defaults());
     await Future<void>.delayed(Duration.zero);
 
     expect(provider.profile?.etatCivil, CoachCivilStatus.celibataire);
-    expect(await provider.applySaveFact('spouseIncomeNetMonthly', 7000),
-        isFalse);
+    expect(
+        await provider.applySaveFact('spouseIncomeNetMonthly', 7000), isFalse);
     expect(await provider.applySaveFact('spouseBirthYear', 1988), isFalse);
 
     final answers = await ReportPersistenceService.loadAnswers();
@@ -325,8 +323,8 @@ void main() {
     ));
     await Future<void>.delayed(Duration.zero);
     expect(await provider.applySaveFact('spouseBirthYear', 1988), isTrue);
-    expect(await provider.applySaveFact('spouseIncomeNetMonthly', 7000),
-        isTrue);
+    expect(
+        await provider.applySaveFact('spouseIncomeNetMonthly', 7000), isTrue);
     expect(provider.profile?.conjoint, isNotNull);
     expect(secureStorageValues['q_partner_net_income_chf'], isNotNull);
 
@@ -362,8 +360,8 @@ void main() {
       CoachProfile.defaults().copyWith(etatCivil: CoachCivilStatus.marie),
     );
     await Future<void>.delayed(Duration.zero);
-    expect(await provider.applySaveFact('spouseAvsContributionYears', 35),
-        isTrue);
+    expect(
+        await provider.applySaveFact('spouseAvsContributionYears', 35), isTrue);
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_spouse_avs_contribution_years', 35));
     expect(provider.profile?.conjoint?.prevoyance?.anneesContribuees, 35);
@@ -482,8 +480,7 @@ void main() {
     expect(provider.profile?.dettes.totalDettes, 0);
   });
 
-  test('save_fact hasDebt true re-enables debt fallback after false',
-      () async {
+  test('save_fact hasDebt true re-enables debt fallback after false', () async {
     final provider = CoachProfileProvider();
 
     expect(await provider.applySaveFact('incomeGrossYearly', 120000), isTrue);
@@ -508,11 +505,10 @@ void main() {
     expect(provider.profile?.goalA.type, GoalAType.achatImmo);
   });
 
-  test('save_fact selfEmployedNetIncome hydrates independent income',
-      () async {
+  test('save_fact selfEmployedNetIncome hydrates independent income', () async {
     final provider = CoachProfileProvider();
-    expect(await provider.applySaveFact('selfEmployedNetIncome', 120000),
-        isTrue);
+    expect(
+        await provider.applySaveFact('selfEmployedNetIncome', 120000), isTrue);
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_self_employed_income', 120000));
     expect(answers, containsPair('q_net_income_period_chf', 120000));
@@ -522,6 +518,22 @@ void main() {
     expect(provider.profile?.toJson()['selfEmployedNetIncome'], 120000);
     final restored = CoachProfile.fromJson(provider.profile!.toJson());
     expect(restored.toJson()['selfEmployedNetIncome'], 120000);
+  });
+
+  test('save_fact companyProfitAnnual hydrates SA/Sarl profit envelope',
+      () async {
+    final provider = CoachProfileProvider();
+    expect(await provider.applySaveFact('companyProfitAnnual', 200000), isTrue);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_company_profit_annual_chf', 200000));
+    expect(answers.containsKey('q_self_employed_income'), isFalse);
+    expect(provider.profile?.companyProfitAnnual, 200000);
+    expect(
+      provider.profile?.userProvidedFields,
+      contains('companyProfitAnnual'),
+    );
+    final restored = CoachProfile.fromJson(provider.profile!.toJson());
+    expect(restored.companyProfitAnnual, 200000);
   });
 
   test('save_fact has2ndPillar false disables LPP estimation', () async {

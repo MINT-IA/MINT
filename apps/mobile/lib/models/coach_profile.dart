@@ -1379,6 +1379,7 @@ class CoachProfile {
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
   final double? selfEmployedNetIncome; // CHF/year for independants
+  final double? companyProfitAnnual; // CHF/year SA/Sarl distributable envelope
 
   // === DEPENSES ===
   final DepensesProfile depenses;
@@ -1508,6 +1509,7 @@ class CoachProfile {
         IncomeConversionCalculator.fullTimeEmploymentRatePercent,
     this.employmentStatus = 'salarie',
     this.selfEmployedNetIncome,
+    this.companyProfitAnnual,
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
     this.patrimoine = const PatrimoineProfile(),
@@ -1639,6 +1641,7 @@ class CoachProfile {
           employmentRate == other.employmentRate &&
           employmentStatus == other.employmentStatus &&
           selfEmployedNetIncome == other.selfEmployedNetIncome &&
+          companyProfitAnnual == other.companyProfitAnnual &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
@@ -1668,7 +1671,7 @@ class CoachProfile {
         firstName, birthYear, dateOfBirth, canton, commune, nationality,
         etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
         nombreDeMois, bonusPourcentage, employmentRate, employmentStatus,
-        selfEmployedNetIncome,
+        selfEmployedNetIncome, companyProfitAnnual,
         depenses, prevoyance, patrimoine, dettes, goalA,
         goalsB.length, plannedContributions.length, checkIns.length,
         housingStatus, riskTolerance, realEstateProject,
@@ -1978,6 +1981,7 @@ class CoachProfile {
     double? employmentRate,
     String? employmentStatus,
     double? selfEmployedNetIncome,
+    double? companyProfitAnnual,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
     PatrimoineProfile? patrimoine,
@@ -2032,6 +2036,7 @@ class CoachProfile {
       employmentStatus: employmentStatus ?? this.employmentStatus,
       selfEmployedNetIncome:
           selfEmployedNetIncome ?? this.selfEmployedNetIncome,
+      companyProfitAnnual: companyProfitAnnual ?? this.companyProfitAnnual,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
       patrimoine: patrimoine ?? this.patrimoine,
@@ -2215,6 +2220,7 @@ class CoachProfile {
       employmentStatus: json['employmentStatus'] ?? 'salarie',
       selfEmployedNetIncome:
           (json['selfEmployedNetIncome'] as num?)?.toDouble(),
+      companyProfitAnnual: (json['companyProfitAnnual'] as num?)?.toDouble(),
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -2324,6 +2330,7 @@ class CoachProfile {
         'employmentRate': employmentRate,
         'employmentStatus': employmentStatus,
         'selfEmployedNetIncome': selfEmployedNetIncome,
+        'companyProfitAnnual': companyProfitAnnual,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
@@ -2411,6 +2418,8 @@ class CoachProfile {
                 : 'monthly');
     final selfEmployedNetIncome =
         _parseDouble(answers['q_self_employed_income']);
+    final companyProfitAnnual =
+        _parseDouble(answers['q_company_profit_annual_chf']);
     final netIncome = _parseDouble(answers['q_net_income_period_chf']) ??
         selfEmployedNetIncome ??
         5000;
@@ -2988,6 +2997,9 @@ class CoachProfile {
     if (answers.containsKey('q_self_employed_income')) {
       provided.add('selfEmployedNetIncome');
     }
+    if (answers.containsKey('q_company_profit_annual_chf')) {
+      provided.add('companyProfitAnnual');
+    }
     if (answers.containsKey('q_has_pension_fund')) {
       provided.add('hasPensionFund');
     }
@@ -3027,6 +3039,7 @@ class CoachProfile {
       employmentRate: employmentRate,
       employmentStatus: employmentStatus,
       selfEmployedNetIncome: selfEmployedNetIncome,
+      companyProfitAnnual: companyProfitAnnual,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,

@@ -92,6 +92,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 - `q_pay_frequency` (`monthly`|`yearly`|`annuel`),
   `q_net_income_period_chf` (double, amount per period),
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
+  `q_company_profit_annual_chf` (double, SA/Sarl annual distributable envelope;
+  not a substitute for sole-proprietor income),
   `q_nombre_mois` (salary months, defaults to 12),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
@@ -156,7 +158,8 @@ wizard keys.
 `targetRetirementAge`, `gender`
 
 **Income**: `incomeNetMonthly`, `incomeGrossMonthly`, `incomeNetYearly`,
-`incomeGrossYearly`, `selfEmployedNetIncome`, `employmentRate`, `annualBonus`
+`incomeGrossYearly`, `selfEmployedNetIncome`, `companyProfitAnnual`,
+`employmentRate`, `annualBonus`
 
 **LPP**: `lppInsuredSalary`, `avoirLpp`, `avoirLppObligatoire`,
 `avoirLppSurobligatoire`, `lppBuybackMax`, `hasVoluntaryLpp`

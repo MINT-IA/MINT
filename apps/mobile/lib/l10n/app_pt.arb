@@ -11098,5 +11098,42 @@
   "scanSummaryMortgageAttestation": "Atestação hipoteca digitalizada",
   "scanSummarySalaryCertificate": "Certificado de salário digitalizado",
   "lowConfidenceCardTitle": "Dados insuficientes para uma projeção fiável",
-  "lowConfidenceCardPromptIntro": "Isto melhoraria mais as tuas projeções:"
+  "lowConfidenceCardPromptIntro": "Isto melhoraria mais as tuas projeções:",
+  "dividendeHeaderBody": "Se tens uma SA ou Sàrl, podes remunerar-te com uma combinação de salário e dividendos. O dividendo é tributado a 50 % em caso de participação qualificada e não está sujeito a contribuições AVS. Encontra a repartição adequada.",
+  "dividendeSavingCaption": "Esta repartição poupa-te {amount}/ano face a 100 % salário",
+  "@dividendeSavingCaption": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeRequalificationTitle": "Risco de requalificação",
+  "dividendeRequalificationBody": "Se a parte salarial for inferior a ~60 % do lucro, a autoridade fiscal pode requalificar parte dos dividendos como salário (a prática cantonal varia). Isto pode gerar contribuições AVS retroativas.",
+  "dividendePartDividende": "Parte dividendo",
+  "dividendePctBenefice": "{pct} % do lucro",
+  "@dividendePctBenefice": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "dividendeChargeDividende": "Encargo sobre dividendo",
+  "dividendeChargeTotalSplit": "Encargo total (repartição)",
+  "dividendeChartTitle": "ENCARGO TOTAL POR REPARTIÇÃO",
+  "dividendeChartLegendChargeTotal": "Encargo total",
+  "dividendeChartLegendSplitAdapte": "Repartição adequada",
+  "dividendeChartLegendPosition": "Posição atual",
+  "dividendeEducationTitle": "A RETER",
+  "dividendeEduProfitTaxTitle": "Imposto sobre o lucro",
+  "dividendeEduProfitTaxBody": "Lembra-te de que o lucro distribuído como dividendo é tributado primeiro ao nível da sociedade (imposto sobre o lucro) e depois ao nível pessoal (dupla tributação económica).",
+  "dividendeEduAvsSalaryTitle": "AVS apenas sobre salário",
+  "dividendeEduAvsSalaryBody": "As contribuições AVS (cerca de 12.5 % no total) aplicam-se apenas à parte salarial. O dividendo evita encargos sociais, por isso a repartição importa.",
+  "dividendeEduCantonalPracticeTitle": "Prática cantonal",
+  "dividendeEduCantonalPracticeBody": "As autoridades fiscais acompanham distribuições excessivas de dividendos. Espera-se um salário conforme ao mercado. O limite varia conforme o cantão.",
+  "dividendeDisclaimerBody": "Simulação simplificada. O imposto sobre o lucro da sociedade, as deduções pessoais e as regras cantonais não estão integrados neste cálculo. Consulta um especialista para uma análise completa.",
+  "dividendeCantonalDisclaimer": "O impacto fiscal depende da prática cantonal. Os limiares de requalificação variam de um cantão para outro.",
+  "dividendeComplianceFooter": "Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).",
+  "dividendeSourcesFooter": "Fontes: LIFD art. 18, 20, 33; CO art. 660"
 }

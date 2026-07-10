@@ -1,0 +1,49 @@
+appId: ch.mint.app
+---
+# Dividende vs salaire uses a dedicated SA/Sarl profit fact. It must not unlock
+# from generic independent income; the user collects the company-profit envelope
+# through DataBlock, then returns to scenario-only levers in the simulator.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///independants/dividende-salaire"
+- assertVisible:
+    text: "Dividende vs Salaire"
+- assertVisible:
+    id: "dividende_vs_salaire_ledger_facts"
+- assertVisible:
+    id: "dividende_benefice_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- openLink: "mint:///data-block/revenu?inputKey=q_company_profit_annual_chf"
+- assertVisible:
+    id: "company_profit_input"
+- tapOn:
+    id: "company_profit_input"
+- inputText: "200000"
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///independants/dividende-salaire"
+- assertVisible:
+    id: "dividende_vs_salaire_ledger_facts"
+- assertVisible:
+    text: "Données connues"
+- scrollUntilVisible:
+    element:
+      id: "dividende_vs_salaire_result_section"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      id: "dividende_vs_salaire_curve_chart"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true

@@ -43,6 +43,6 @@ def test_backend_mobile_and_data_ledger_save_fact_keys_match() -> None:
     mapper_keys = _mobile_save_fact_mapper_keys()
     ledger_keys = _data_ledger_allowlist_keys()
 
-    assert len(allowlist_keys) == 35
+    assert len(allowlist_keys) == 36
     assert mapper_keys == allowlist_keys
     assert ledger_keys == allowlist_keys

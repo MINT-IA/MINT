@@ -11098,5 +11098,42 @@
   "scanSummaryMortgageAttestation": "Attestato ipoteca scansionato",
   "scanSummarySalaryCertificate": "Certificato di stipendio scansionato",
   "lowConfidenceCardTitle": "Dati insufficienti per una proiezione affidabile",
-  "lowConfidenceCardPromptIntro": "Questi dati migliorerebbero di più le tue proiezioni:"
+  "lowConfidenceCardPromptIntro": "Questi dati migliorerebbero di più le tue proiezioni:",
+  "dividendeHeaderBody": "Se possiedi una SA o Sagl, puoi remunerarti con una combinazione di salario e dividendi. Il dividendo è tassato al 50 % in caso di partecipazione qualificata e non è soggetto ai contributi AVS. Trova la ripartizione adeguata.",
+  "dividendeSavingCaption": "Questa ripartizione ti fa risparmiare {amount}/anno rispetto al 100 % salario",
+  "@dividendeSavingCaption": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeRequalificationTitle": "Rischio di riqualificazione",
+  "dividendeRequalificationBody": "Se la quota salario è inferiore a ~60 % dell'utile, l'autorità fiscale può riqualificare una parte dei dividendi come salario (la pratica cantonale varia). Questo può generare contributi AVS retroattivi.",
+  "dividendePartDividende": "Quota dividendo",
+  "dividendePctBenefice": "{pct} % dell'utile",
+  "@dividendePctBenefice": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "dividendeChargeDividende": "Onere sul dividendo",
+  "dividendeChargeTotalSplit": "Onere totale (ripartizione)",
+  "dividendeChartTitle": "ONERE TOTALE PER RIPARTIZIONE",
+  "dividendeChartLegendChargeTotal": "Onere totale",
+  "dividendeChartLegendSplitAdapte": "Ripartizione adeguata",
+  "dividendeChartLegendPosition": "Posizione attuale",
+  "dividendeEducationTitle": "DA RICORDARE",
+  "dividendeEduProfitTaxTitle": "Imposta sull'utile",
+  "dividendeEduProfitTaxBody": "Ricorda che l'utile distribuito come dividendo è tassato prima a livello societario (imposta sull'utile) e poi a livello personale (doppia imposizione economica).",
+  "dividendeEduAvsSalaryTitle": "AVS solo sul salario",
+  "dividendeEduAvsSalaryBody": "I contributi AVS (circa 12.5 % in totale) si applicano solo alla parte salario. Il dividendo evita gli oneri sociali, per questo la ripartizione conta.",
+  "dividendeEduCantonalPracticeTitle": "Pratica cantonale",
+  "dividendeEduCantonalPracticeBody": "Le autorità fiscali controllano le distribuzioni eccessive di dividendi. È atteso un salario conforme al mercato. Il limite varia secondo il cantone.",
+  "dividendeDisclaimerBody": "Simulazione semplificata. L'imposta sull'utile della società, le deduzioni personali e le regole cantonali non sono integrate in questo calcolo. Consulta uno specialista per un'analisi completa.",
+  "dividendeCantonalDisclaimer": "L'impatto fiscale dipende dalla pratica cantonale. Le soglie di riqualificazione variano da un cantone all'altro.",
+  "dividendeComplianceFooter": "Strumento educativo — non costituisce consulenza finanziaria (LSFin).",
+  "dividendeSourcesFooter": "Fonti: LIFD art. 18, 20, 33; CO art. 660"
 }

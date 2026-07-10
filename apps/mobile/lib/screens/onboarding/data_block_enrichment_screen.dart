@@ -57,6 +57,8 @@ class _DataBlockEnrichmentScreenState
   final TextEditingController _salaryController = TextEditingController();
   final TextEditingController _selfEmployedIncomeController =
       TextEditingController();
+  final TextEditingController _companyProfitController =
+      TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
   bool _revenueInputsSeeded = false;
@@ -79,6 +81,7 @@ class _DataBlockEnrichmentScreenState
     _cantonController.dispose();
     _salaryController.dispose();
     _selfEmployedIncomeController.dispose();
+    _companyProfitController.dispose();
     _birthYearController.dispose();
     _cashController.dispose();
     super.dispose();
@@ -250,6 +253,10 @@ class _DataBlockEnrichmentScreenState
     if (selfEmployedIncome != null && selfEmployedIncome > 0) {
       _selfEmployedIncomeController.text = '${selfEmployedIncome.round()}';
     }
+    final companyProfit = profile.companyProfitAnnual;
+    if (companyProfit != null && companyProfit > 0) {
+      _companyProfitController.text = '${companyProfit.round()}';
+    }
     if (profile.birthYear >= 1900) {
       _birthYearController.text = '${profile.birthYear}';
     }
@@ -291,6 +298,17 @@ class _DataBlockEnrichmentScreenState
         semanticsIdentifier: 'self_employed_income_input',
         controller: _selfEmployedIncomeController,
         label: l.independantRevenueTitle,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+        onChanged: (_) => setState(() => _revenueSaved = false),
+      ));
+    }
+    if (onlyInputKey == 'q_company_profit_annual_chf') {
+      addField(_buildRevenueTextField(
+        key: const Key('company_profit_input'),
+        semanticsIdentifier: 'company_profit_input',
+        controller: _companyProfitController,
+        label: l.dividendeBeneficeTotal,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
         onChanged: (_) => setState(() => _revenueSaved = false),
@@ -430,6 +448,8 @@ class _DataBlockEnrichmentScreenState
         _capturesRevenue('q_gross_salary_annual', onlyInputKey);
     final capturesSelfEmployedIncome =
         onlyInputKey == 'q_self_employed_income';
+    final capturesCompanyProfit =
+        onlyInputKey == 'q_company_profit_annual_chf';
     final capturesCanton = _capturesRevenue('q_canton', onlyInputKey);
     final capturesBirthYear = _capturesRevenue('q_birth_year', onlyInputKey);
     final capturesPensionFund =
@@ -438,6 +458,8 @@ class _DataBlockEnrichmentScreenState
     final salary = int.tryParse(_digitsOnly(_salaryController.text));
     final selfEmployedIncome =
         int.tryParse(_digitsOnly(_selfEmployedIncomeController.text));
+    final companyProfit =
+        int.tryParse(_digitsOnly(_companyProfitController.text));
     final birthText = _birthYearController.text.trim();
     final birthYear = birthText.isEmpty ? null : int.tryParse(birthText);
     final currentYear = DateTime.now().year;
@@ -455,6 +477,8 @@ class _DataBlockEnrichmentScreenState
         (capturesSalary && (salary == null || salary <= 0)) ||
         (capturesSelfEmployedIncome &&
             (selfEmployedIncome == null || selfEmployedIncome <= 0)) ||
+        (capturesCompanyProfit &&
+            (companyProfit == null || companyProfit <= 0)) ||
         invalidBirthYear) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
@@ -474,6 +498,7 @@ class _DataBlockEnrichmentScreenState
         'q_pay_frequency': 'yearly',
         'q_employment_status': 'independant',
       },
+      if (capturesCompanyProfit) 'q_company_profit_annual_chf': companyProfit,
       if (capturesCanton) 'q_canton': canton,
       if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
       if (capturesPensionFund &&
@@ -639,6 +664,12 @@ class _DataBlockEnrichmentScreenState
       'revenuindependant' ||
       'revenunetannuelindependant' =>
         'q_self_employed_income',
+      'qcompanyprofitannualchf' ||
+      'companyprofitannual' ||
+      'companyprofit' ||
+      'beneficeannuelsociete' ||
+      'beneficetotal' =>
+        'q_company_profit_annual_chf',
       'qcanton' || 'canton' => 'q_canton',
       'qbirthyear' || 'birthyear' => 'q_birth_year',
       'qhaspensionfund' || 'has2ndpillar' || 'haspensionfund' =>
