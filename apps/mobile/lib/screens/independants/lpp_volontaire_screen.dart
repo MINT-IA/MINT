@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/services/independent_ledger_facts.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
@@ -46,21 +47,15 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
   }
 
   double? _annualIncome(CoachProfileProvider? provider) {
-    final profile = provider?.profile;
-    final income = profile?.selfEmployedNetIncome;
-    if (income != null && income > 0) {
-      return income.toDouble();
-    }
-    return null;
+    return IndependentLedgerFacts.selfEmployedAnnualIncome(provider?.profile);
   }
 
   int? _age(CoachProfileProvider? provider) {
-    final profile = provider?.profile;
-    final age = profile?.ageOrNull;
-    if (age != null && age >= _ageMin && age <= _ageMax) {
-      return age;
-    }
-    return null;
+    return IndependentLedgerFacts.age(
+      provider?.profile,
+      min: _ageMin,
+      max: _ageMax,
+    );
   }
 
   LppVolontaireResult? _computeResult(double? annualIncome, int? age) {

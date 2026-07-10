@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
+import 'package:mint_mobile/services/independent_ledger_facts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -40,9 +41,7 @@ class _DisabilitySelfEmployedScreenState
   }
 
   double? _annualIncome(CoachProfileProvider? provider) {
-    final income = provider?.profile?.selfEmployedNetIncome;
-    if (income != null && income > 0) return income.toDouble();
-    return null;
+    return IndependentLedgerFacts.selfEmployedAnnualIncome(provider?.profile);
   }
 
   @override

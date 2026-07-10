@@ -430,6 +430,30 @@ void main() {
       },
     );
 
+    testWidgets('does not treat unprovided independent income as known', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(birthYear: DateTime.now().year - 52),
+      );
+      provider._profileOverride = provider.profile!.copyWith(
+        selfEmployedNetIncome: 140000,
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const LppVolontaireScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("140'000"), findsNothing);
+      expect(find.text('Manquant'), findsWidgets);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('lpp_volontaire_result_cards')),
+        findsNothing,
+      );
+    });
+
     testWidgets('does not expose an income editor inside the simulator', (
       tester,
     ) async {
@@ -517,6 +541,24 @@ void main() {
       expect(find.text('Manquant'), findsOneWidget);
       expect(find.byKey(const Key('avs_result_cards')), findsNothing);
     });
+
+    testWidgets('does not treat unprovided independent income as known', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+      provider._profileOverride = provider.profile!.copyWith(
+        selfEmployedNetIncome: 135000,
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const AvsCotisationsScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("135'000"), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byKey(const Key('avs_result_cards')), findsNothing);
+    });
   });
 
   // ===========================================================================
@@ -583,6 +625,27 @@ void main() {
         expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
       },
     );
+
+    testWidgets('does not treat unprovided independent income as known', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(birthYear: DateTime.now().year - 48),
+      );
+      provider._profileOverride = provider.profile!.copyWith(
+        selfEmployedNetIncome: 144000,
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const IjmScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("144'000"), findsNothing);
+      expect(find.text('48 ans'), findsOneWidget);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+    });
   });
 
   // ===========================================================================
@@ -645,6 +708,30 @@ void main() {
 
       expect(find.byType(MintPremiumSlider), findsNothing);
       expect(find.text("CHF 8'000"), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(
+        find.byKey(const Key('disability_self_result_cards')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('does not treat unprovided independent income as known', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+      provider._profileOverride = provider.profile!.copyWith(
+        selfEmployedNetIncome: 144000,
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DisabilitySelfEmployedScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("144'000"), findsNothing);
       expect(find.text('Manquant'), findsOneWidget);
       expect(
         find.byKey(const Key('disability_self_result_cards')),
