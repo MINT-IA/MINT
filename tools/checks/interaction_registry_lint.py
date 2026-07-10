@@ -413,7 +413,10 @@ def generate_mermaid(docs: list[RegistryDocument]) -> str:
         lines.append(f'  {_mermaid_id(node_id)}["{node_id}<br/>{label_suffix}"]:::{node.get("kind", "route")}')
     lines.append("")
     for _, edge in _sorted_edges(docs):
-        edge_label = f'{edge.get("trigger", "")} / {edge.get("transition", "")}'
+        edge_label = (
+            f'{edge.get("id", "")}<br/>'
+            f'{edge.get("trigger", "")} / {edge.get("transition", "")}'
+        )
         lines.append(
             f'  {_mermaid_id(str(edge.get("from", "")))} -->|"{edge_label}"| '
             f'{_mermaid_id(str(edge.get("to", "")))}',

@@ -1,0 +1,90 @@
+schema_version: 1
+flow:
+  id: disability_gap_missing_facts
+  title: "Disability gap screen to missing ledger facts"
+  exits: [db.route.revenu, db.route.patrimoine, budget.route.setup]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: disability.route.gap
+    kind: route
+    route: /invalidite
+    widget: screens/disability/disability_gap_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: db.route.patrimoine
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: budget.route.setup
+    kind: route
+    route: /budget/setup
+    widget: screens/budget/budget_setup_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: disability.edge.gap.enrich_salary
+    from: disability.route.gap
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect annual salary before showing the disability gap"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_gap.yaml
+
+  - id: disability.edge.gap.enrich_age
+    from: disability.route.gap
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect birth year before projecting disability retirement effects"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_gap.yaml
+
+  - id: disability.edge.gap.enrich_savings
+    from: disability.route.gap
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect liquid savings before showing the disability runway"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_gap.yaml
+
+  - id: disability.edge.gap.enrich_expenses
+    from: disability.route.gap
+    to: budget.route.setup
+    trigger: tap
+    intent: "Collect fixed monthly charges before unlocking the disability scorecard"
+    payload: {}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/disability_gap.yaml

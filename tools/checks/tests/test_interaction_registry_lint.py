@@ -130,7 +130,7 @@ def test_interaction_registry_lint_accepts_a_real_flow_and_writes_artifacts(tmp_
     assert "db.edge.revenu.submit" in index
     assert "db.route.revenu -> mortgage.route.hypotheque" in index
     assert '"db.route.revenu<br/>/data-block/:type"' in graph
-    assert '"submit / push"' in graph
+    assert '"db.edge.revenu.submit<br/>submit / push"' in graph
     assert 'db_route_revenu -. "back" .-> home_route_dashboard' in graph
 
 

@@ -4,6 +4,10 @@
 
 | Flow | Edge | From -> To | Trigger | Transition | Runtime proof |
 |---|---|---|---|---|---|
+| disability_gap_missing_facts | `disability.edge.gap.enrich_age` | `disability.route.gap -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |
+| disability_gap_missing_facts | `disability.edge.gap.enrich_expenses` | `disability.route.gap -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |
+| disability_gap_missing_facts | `disability.edge.gap.enrich_salary` | `disability.route.gap -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |
+| disability_gap_missing_facts | `disability.edge.gap.enrich_savings` | `disability.route.gap -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |
 | disability_insurance_missing_facts | `disability.edge.insurance.enrich_expenses` | `disability.route.insurance -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/disability_insurance.yaml` |
 | disability_insurance_missing_facts | `disability.edge.insurance.enrich_salary` | `disability.route.insurance -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_insurance.yaml` |
 | disability_insurance_missing_facts | `disability.edge.insurance.enrich_savings` | `disability.route.insurance -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/disability_insurance.yaml` |

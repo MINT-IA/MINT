@@ -6,8 +6,8 @@
 
 - Extracted Flutter route references: 350
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 12
-- Known route templates not yet declared as route nodes: 80
+- Covered by declared Interaction Registry route nodes: 13
+- Known route templates not yet declared as route nodes: 79
 - Declared edge target route templates: 5
 - Unknown route literals/templates: 0
 
@@ -24,6 +24,7 @@
 | covered by declared route node | `/hypotheque` | apps/mobile/lib/app.dart:588, apps/mobile/lib/screens/mortgage/affordability_screen.dart:192, apps/mobile/lib/screens/mortgage/affordability_screen.dart:203, apps/mobile/lib/screens/timeline_screen.dart:148 (+5 more) |
 | covered by declared route node | `/independants/avs` | apps/mobile/lib/widgets/coach/smart_shortcuts.dart:183 |
 | covered by declared route node | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:403 |
+| covered by declared route node | `/invalidite` | apps/mobile/lib/app.dart:633, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:871 (+2 more) |
 | covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1940, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:465, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+9 more) |
 | covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:745 |
 | covered by declared route node | `/scan/review` | apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1397, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1617, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:645 (+2 more) |
@@ -77,7 +78,6 @@
 | uncovered literal route | `/explore/travail` | apps/mobile/lib/screens/explore/explorer_screen.dart:53 |
 | uncovered literal route | `/fiscal` | apps/mobile/lib/app.dart:609, apps/mobile/lib/data/educational_themes.dart:195, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:564, apps/mobile/lib/screens/fiscal_comparator_screen.dart:170 (+8 more) |
 | uncovered literal route | `/household/accept` | apps/mobile/lib/screens/household/household_screen.dart:509 |
-| uncovered literal route | `/invalidite` | apps/mobile/lib/app.dart:633, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:871 (+2 more) |
 | uncovered literal route | `/libre-passage` | apps/mobile/lib/app.dart:549, apps/mobile/lib/services/response_card_service.dart:113 |
 | uncovered literal route | `/life-event/deces-proche` | apps/mobile/lib/app.dart:622, apps/mobile/lib/services/cap_engine.dart:841 |
 | uncovered literal route | `/life-event/demenagement-cantonal` | apps/mobile/lib/app.dart:623, apps/mobile/lib/services/cap_engine.dart:877 |
@@ -135,6 +135,7 @@
 | `/independants/dividende-salaire` |
 | `/independants/ijm` |
 | `/independants/lpp-volontaire` |
+| `/invalidite` |
 | `/scan` |
 | `/scan/impact` |
 | `/scan/review` |

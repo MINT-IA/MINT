@@ -1,0 +1,108 @@
+appId: ch.mint.app
+---
+# Disability gap collects missing ledger facts in the same order as the source
+# screen routes them: salary, birth year, savings, expenses.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///invalidite"
+- assertVisible:
+    id: "disability_gap_ledger_facts"
+- assertVisible:
+    id: "disability_gap_salary_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///invalidite"
+- assertVisible:
+    id: "disability_gap_ledger_facts"
+- assertVisible:
+    id: "disability_gap_salary_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "birth_year_input"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "1981"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///invalidite"
+- assertVisible:
+    id: "disability_gap_ledger_facts"
+- assertVisible:
+    id: "disability_gap_age_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "savings_input"
+- tapOn:
+    id: "savings_input"
+- inputText: "42000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///invalidite"
+- assertVisible:
+    id: "disability_gap_ledger_facts"
+- assertVisible:
+    text: "Enrichir mon profil"
+- tapOn:
+    text: "Enrichir mon profil"
+- assertVisible:
+    id: "budget_setup_housing_input"
+- tapOn:
+    id: "budget_setup_housing_input"
+- inputText: "2200"
+- tapOn:
+    id: "budget_setup_lamal_input"
+- inputText: "420"
+- scrollUntilVisible:
+    element:
+      id: "budget_setup_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "budget_setup_save_cta"
+- assertVisible:
+    id: "disability_gap_ledger_facts"
+- assertVisible:
+    id: "disability_gap_expenses_fact"
+- assertVisible:
+    id: "disability_gap_result_section"
