@@ -351,7 +351,7 @@ jobs:
           cache-dependency-path: services/backend/pyproject.toml
 
       - name: Install dependencies (app + dev/test)
-        run: pip install ".[dev]" pytest-cov diff-cover
+        run: pip install ".[dev,docling]" pytest-cov diff-cover
 
       - name: Security audit (pip-audit)
         run: |

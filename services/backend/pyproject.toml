@@ -42,7 +42,7 @@ dependencies = [
     "pymupdf>=1.24,<2.0",
     "pyyaml>=6.0,<7.0",
     "sse-starlette>=2.1,<3.0",
-    "cryptography>=42,<47",
+    "cryptography>=48.0.1,<49",
 ]
 
 [project.optional-dependencies]

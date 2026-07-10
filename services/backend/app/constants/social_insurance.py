@@ -1,8 +1,8 @@
 """
 Constantes d'assurances sociales suisses — facade sur RegulatoryRegistry.
 
-Valeurs en vigueur: 2025
-Derniere mise a jour: 2025-01-01
+Valeurs en vigueur: 2025-2026
+Derniere mise a jour: 2026-07-10
 
 Ce fichier est une FACADE (bridge) qui lit toutes les valeurs depuis
 RegulatoryRegistry. Les 43+ consumers existants continuent a importer

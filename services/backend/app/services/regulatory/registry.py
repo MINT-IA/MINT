@@ -33,11 +33,11 @@ logger = logging.getLogger(__name__)
 # OFAS source URLs (used across multiple parameters)
 # ══════════════════════════════════════════════════════════════════════════════
 
-_OFAS_LPP_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html"
-_OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html"
-_OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
+_OFAS_LPP_URL = "https://www.bsv.admin.ch/fr/prevoyance-vieillesse-prevoyance-professionnelle"
+_OFAS_AVS_URL = "https://www.bsv.admin.ch/fr/prevoyance-vieillesse"
+_OFAS_3A_URL = "https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier"
 _FINMA_URL = "https://www.finma.ch/fr/"
-_REVIEWED = date(2026, 3, 26)
+_REVIEWED = date(2026, 7, 10)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # All regulatory parameters — seeded from social_insurance.py
