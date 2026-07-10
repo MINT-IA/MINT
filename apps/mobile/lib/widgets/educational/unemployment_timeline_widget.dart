@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -21,39 +22,81 @@ class UnemploymentTimelineWidget extends StatelessWidget {
   });
 
   /// Get color for urgency level.
-  static Color _getUrgencyColor(String urgence) {
+  static Color _getUrgencyColor(UnemploymentTimelineUrgency urgence) {
     switch (urgence) {
-      case 'immediate':
+      case UnemploymentTimelineUrgency.immediate:
         return MintColors.error;
-      case 'semaine1':
+      case UnemploymentTimelineUrgency.week1:
         return MintColors.warning;
-      case 'mois1':
+      case UnemploymentTimelineUrgency.month1:
         return MintColors.info;
-      case 'mois3':
-        return MintColors.textMuted;
-      default:
+      case UnemploymentTimelineUrgency.months2to3:
         return MintColors.textMuted;
     }
   }
 
   /// Get label for urgency level.
-  static String _getUrgencyLabel(String urgence) {
+  static String _getUrgencyLabel(
+    S l10n,
+    UnemploymentTimelineUrgency urgence,
+  ) {
     switch (urgence) {
-      case 'immediate':
-        return 'Urgent';
-      case 'semaine1':
-        return 'Semaine 1';
-      case 'mois1':
-        return 'Mois 1';
-      case 'mois3':
-        return 'Mois 2-3';
-      default:
-        return '';
+      case UnemploymentTimelineUrgency.immediate:
+        return l10n.unemploymentTimelineUrgent;
+      case UnemploymentTimelineUrgency.week1:
+        return l10n.unemploymentTimelineWeek1;
+      case UnemploymentTimelineUrgency.month1:
+        return l10n.unemploymentTimelineMonth1;
+      case UnemploymentTimelineUrgency.months2to3:
+        return l10n.unemploymentTimelineMonths2to3;
+    }
+  }
+
+  static String _actionLabel(S l10n, UnemploymentTimelineStep step) {
+    switch (step) {
+      case UnemploymentTimelineStep.registerOrp:
+        return l10n.unemploymentTimelineRegisterOrpAction;
+      case UnemploymentTimelineStep.fileClaim:
+        return l10n.unemploymentTimelineFileClaimAction;
+      case UnemploymentTimelineStep.waitingPeriodEnds:
+        return l10n.unemploymentTimelineWaitingPeriodAction;
+      case UnemploymentTimelineStep.budgetReview:
+        return l10n.unemploymentTimelineBudgetAction;
+      case UnemploymentTimelineStep.lppTransfer:
+        return l10n.unemploymentTimelineLppAction;
+      case UnemploymentTimelineStep.pause3a:
+        return l10n.unemploymentTimelinePause3aAction;
+      case UnemploymentTimelineStep.lamalReview:
+        return l10n.unemploymentTimelineLamalAction;
+      case UnemploymentTimelineStep.orpReview:
+        return l10n.unemploymentTimelineOrpReviewAction;
+    }
+  }
+
+  static String _descriptionLabel(S l10n, UnemploymentTimelineStep step) {
+    switch (step) {
+      case UnemploymentTimelineStep.registerOrp:
+        return l10n.unemploymentTimelineRegisterOrpDescription;
+      case UnemploymentTimelineStep.fileClaim:
+        return l10n.unemploymentTimelineFileClaimDescription;
+      case UnemploymentTimelineStep.waitingPeriodEnds:
+        return l10n.unemploymentTimelineWaitingPeriodDescription;
+      case UnemploymentTimelineStep.budgetReview:
+        return l10n.unemploymentTimelineBudgetDescription;
+      case UnemploymentTimelineStep.lppTransfer:
+        return l10n.unemploymentTimelineLppDescription;
+      case UnemploymentTimelineStep.pause3a:
+        return l10n.unemploymentTimelinePause3aDescription;
+      case UnemploymentTimelineStep.lamalReview:
+        return l10n.unemploymentTimelineLamalDescription;
+      case UnemploymentTimelineStep.orpReview:
+        return l10n.unemploymentTimelineOrpReviewDescription;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -69,8 +112,9 @@ class UnemploymentTimelineWidget extends StatelessWidget {
               const Icon(Icons.timeline, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'PLAN D\'ACTION',
-                style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
+                l10n.unemploymentTimelineTitle,
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted)
+                    .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),
@@ -80,10 +124,22 @@ class UnemploymentTimelineWidget extends StatelessWidget {
             spacing: 12,
             runSpacing: 8,
             children: [
-              _buildLegendItem('Urgent', MintColors.error),
-              _buildLegendItem('Semaine 1', MintColors.warning),
-              _buildLegendItem('Mois 1', MintColors.info),
-              _buildLegendItem('Mois 2-3', MintColors.textMuted),
+              _buildLegendItem(
+                l10n.unemploymentTimelineUrgent,
+                MintColors.error,
+              ),
+              _buildLegendItem(
+                l10n.unemploymentTimelineWeek1,
+                MintColors.warning,
+              ),
+              _buildLegendItem(
+                l10n.unemploymentTimelineMonth1,
+                MintColors.info,
+              ),
+              _buildLegendItem(
+                l10n.unemploymentTimelineMonths2to3,
+                MintColors.textMuted,
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -91,7 +147,7 @@ class UnemploymentTimelineWidget extends StatelessWidget {
           ...List.generate(items.length, (index) {
             final item = items[index];
             final isLast = index == items.length - 1;
-            return _buildTimelineItem(item, isLast);
+            return _buildTimelineItem(l10n, item, isLast);
           }),
         ],
       ),
@@ -120,9 +176,13 @@ class UnemploymentTimelineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineItem(UnemploymentTimelineItem item, bool isLast) {
+  Widget _buildTimelineItem(
+    S l10n,
+    UnemploymentTimelineItem item,
+    bool isLast,
+  ) {
     final color = _getUrgencyColor(item.urgence);
-    final urgencyLabel = _getUrgencyLabel(item.urgence);
+    final urgencyLabel = _getUrgencyLabel(l10n, item.urgence);
 
     return IntrinsicHeight(
       child: Row(
@@ -144,8 +204,9 @@ class UnemploymentTimelineWidget extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'J${item.jour}',
-                    style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w700),
+                    l10n.unemploymentTimelineDayBadge(item.jour),
+                    style: MintTextStyles.labelSmall(color: color)
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 // Dotted vertical line
@@ -155,7 +216,8 @@ class UnemploymentTimelineWidget extends StatelessWidget {
                       width: 2,
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       child: CustomPaint(
-                        painter: _DottedLinePainter(color: color.withValues(alpha: 0.3)),
+                        painter: _DottedLinePainter(
+                            color: color.withValues(alpha: 0.3)),
                       ),
                     ),
                   ),
@@ -182,8 +244,10 @@ class UnemploymentTimelineWidget extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          item.action,
-                          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                          _actionLabel(l10n, item.step),
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.textPrimary,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                       Container(
@@ -195,15 +259,20 @@ class UnemploymentTimelineWidget extends StatelessWidget {
                         ),
                         child: Text(
                           urgencyLabel,
-                          style: MintTextStyles.micro(color: color).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+                          style: MintTextStyles.micro(color: color).copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontStyle: FontStyle.normal,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    item.description,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                    _descriptionLabel(l10n, item.step),
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary,
+                    ).copyWith(height: 1.4),
                   ),
                 ],
               ),

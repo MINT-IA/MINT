@@ -8,12 +8,12 @@ The insured gain is capped at CHF 12'350/month (LACI art. 23 al. 1).
 The indemnity rate is 70% (standard) or 80% (children, disability,
 or low salary below CHF 3'797/month — LACI art. 22).
 
-Duration depends on age and contribution months (LACI art. 27):
-    - Under 25, 12+ months: 200 indemnities
-    - 25-54, 12-17 months: 200 indemnities
-    - 25-54, 18+ months: 260 indemnities (18 months effective, can be up to 400 with special conditions)
-    - 55-59, 22+ months: 400 indemnities
-    - 60+, 22+ months: 520 indemnities
+Duration depends on age, contribution months and maintenance obligations
+(LACI art. 27):
+    - Under 25 without dependent children: 200 indemnities
+    - 12-17 contribution months: 260 indemnities
+    - 18+ contribution months: 400 indemnities
+    - 22+ months and age 55+ or IV disability: 520 indemnities
 
 Sources:
     - LACI art. 8 (droit a l'indemnite)
@@ -26,7 +26,7 @@ Sources:
 Sprint S19 — Chomage (LACI) + Premier emploi.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 
 # ---------------------------------------------------------------------------
@@ -40,46 +40,6 @@ SALARY_THRESHOLD_ENHANCED = 3_797.0  # Below this -> 80% (LACI art. 22 al. 2)
 DELAI_CARENCE_STANDARD = 5  # days (OAC art. 37)
 WORKING_DAYS_PER_MONTH = 21.75
 MIN_COTISATION_MONTHS = 12  # Minimum 12 months in 2 years (LACI art. 13)
-
-# Duration table (LACI art. 27)
-# Format: (min_age, max_age, min_months_cotisation, nombre_indemnites)
-# Ordered from most generous to least — we walk and find the best match
-DURATION_TABLE: List[Tuple[int, int, int, int]] = [
-    # 60+: 520 if 22+ months
-    (60, 99, 22, 520),
-    # 55-59: 400 if 22+ months
-    (55, 59, 22, 400),
-    # 25-54: 400 if 22+ months (long cotisation)
-    (25, 54, 18, 400),
-    # 25-54: 260 if 18+ months (standard long)
-    # Actually LACI art. 27 al. 2: 18+ months -> 400 for 25-54
-    # Corrected: 25-54 with 18+ -> 400, 12-17 -> 260
-    # Let's re-check: LACI art. 27:
-    #   al. 1: 260 indemnites (standard with 18+ months, age 25-54)
-    #   al. 2: 400 for 55+
-    #   al. 3: 520 for 60+
-    #   al. 4: Under 25 -> 200
-    # So: 25-54, 12-17 months -> 200, 18+ -> 260 (not 400)
-    # 55-59, 22+ -> 400
-    # 60+, 22+ -> 520
-]
-
-# Clean duration table based on actual LACI art. 27 al. 2
-# CRITICAL: 25-54 with 22+ months = 400 days (lit. c), NOT 260.
-# 260 is for 12-21 months cotisation only.
-DURATION_RULES: List[Tuple[int, int, int, int]] = [
-    # (min_age, max_age, min_months_cotisation, nombre_indemnites)
-    # Under 25: 200 if 12+ months (LACI art. 27 al. 2 lit. a)
-    (16, 24, 12, 200),
-    # 25-54: 200 if 12-17 months
-    (25, 54, 12, 200),
-    # 25-54: 260 if 18-21 months (LACI art. 27 al. 2 lit. b)
-    (25, 54, 18, 260),
-    # 25-54: 400 if 22+ months (LACI art. 27 al. 2 lit. c)
-    (25, 54, 22, 400),
-    # 55+: 520 if 22+ months (LACI art. 27 al. 2 lit. d)
-    (55, 99, 22, 520),
-]
 
 # ORP links per canton
 ORP_LINKS = {
@@ -115,7 +75,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "en matiere de droit du travail ou d'assurances sociales au sens de la LSFin. "
     "Les montants exacts dependent de ta caisse de chomage et de ton ORP cantonal. "
-    "Consulte un ou une specialiste en droit social pour une analyse personnalisee."
+    "Consulte un ou une spécialiste en droit social pour une analyse personnalisée."
 )
 
 SOURCES = [
@@ -202,7 +162,12 @@ class UnemploymentCalculator:
         indemnite_mensuelle = round(indemnite_journaliere * WORKING_DAYS_PER_MONTH, 2)
 
         # 6. Calculate number of indemnities from table (LACI art. 27)
-        nombre_indemnites = self._calculate_duration(age, annees_cotisation)
+        nombre_indemnites = self._calculate_duration(
+            age,
+            annees_cotisation,
+            has_children,
+            has_disability,
+        )
 
         # 7. Estimate duration in months
         duree_mois = round(nombre_indemnites / WORKING_DAYS_PER_MONTH, 1)
@@ -228,10 +193,16 @@ class UnemploymentCalculator:
             )
 
         # 11. Chiffre choc
-        perte_mensuelle = round(gain_retenu - indemnite_mensuelle, 2)
+        perte_mensuelle = round(gain_assure_mensuel - indemnite_mensuelle, 2)
+        basis_note = (
+            f"; indemnite calculee sur le plafond LACI de {gain_retenu:,.0f} CHF"
+            if gain_assure_mensuel > GAIN_ASSURE_MAX
+            else ""
+        )
         premier_eclairage = (
             f"Ton revenu baisse de {perte_mensuelle:,.0f} CHF/mois "
-            f"(de {gain_retenu:,.0f} a {indemnite_mensuelle:,.0f} CHF). "
+            f"(de {gain_assure_mensuel:,.0f} a {indemnite_mensuelle:,.0f} CHF"
+            f"{basis_note}). "
             f"Adapte ton budget des maintenant."
         )
 
@@ -268,17 +239,24 @@ class UnemploymentCalculator:
             return UNEMPLOYMENT_RATE_ENHANCED
         return UNEMPLOYMENT_RATE_BASE
 
-    def _calculate_duration(self, age: int, months_cotisation: int) -> int:
+    def _calculate_duration(
+        self,
+        age: int,
+        months_cotisation: int,
+        has_children: bool,
+        has_disability: bool,
+    ) -> int:
         """Calculate number of daily indemnities (LACI art. 27).
 
-        Walks the duration rules and returns the best (highest) matching count.
+        Eligibility is checked before this method; here months_cotisation >= 12.
         """
-        best = 0
-        for min_age, max_age, min_months, nombre in DURATION_RULES:
-            if min_age <= age <= max_age and months_cotisation >= min_months:
-                best = max(best, nombre)
-        # Fallback: if eligible but no rule matched (shouldn't happen), use 200
-        return best if best > 0 else 200
+        if (age >= 55 or has_disability) and months_cotisation >= 22:
+            return 520
+        if age < 25 and not has_children:
+            return 200
+        if months_cotisation >= 18:
+            return 400
+        return 260
 
     def _build_timeline(self, canton: str) -> List[dict]:
         """Build the post-job-loss timeline with ordered steps."""

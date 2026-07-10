@@ -3007,6 +3007,9 @@ class CoachProfile {
     if (answers.containsKey('q_civil_status')) {
       provided.add('civilStatus');
     }
+    if (answers.containsKey('q_children')) {
+      provided.add('children');
+    }
     if (answers.containsKey('q_nationality')) {
       provided.add('nationality');
     }

@@ -163,6 +163,21 @@ class TestBenefitCalculation:
         )
         assert result_80["indemnite_mensuelle"] > result_70["indemnite_mensuelle"]
 
+    def test_high_earner_monthly_loss_uses_real_income(self, calculator):
+        """Loss compares the benefit with actual income, not the capped gain."""
+        result = calculator.calculate(
+            gain_assure_mensuel=15000,
+            age=35,
+            annees_cotisation=18,
+            has_children=False,
+        )
+
+        expected_loss = round(15000 - result["indemnite_mensuelle"], 2)
+        assert f"{expected_loss:,.0f} CHF/mois" in result["premier_eclairage"]
+        assert "de 15,000 a 8,645 CHF" in result["premier_eclairage"]
+        assert "plafond LACI de 12,350 CHF" in result["premier_eclairage"]
+        assert "3,705 CHF/mois" not in result["premier_eclairage"]
+
 
 # ===========================================================================
 # Duration tests (LACI art. 27)
@@ -179,23 +194,33 @@ class TestDuration:
         assert result["nombre_indemnites"] == 200
 
     def test_duration_age_25_54_12months(self, calculator):
-        """25-54 with 12-17 months -> 200 indemnities."""
+        """25-54 with 12-17 months -> 260 indemnities."""
         result = calculator.calculate(
             gain_assure_mensuel=6000, age=35, annees_cotisation=15,
         )
-        assert result["nombre_indemnites"] == 200
+        assert result["nombre_indemnites"] == 260
 
     def test_duration_age_25_54_18months(self, calculator):
-        """25-54 with 18+ months -> 260 indemnities."""
+        """25-54 with 18+ months -> 400 indemnities."""
         result = calculator.calculate(
             gain_assure_mensuel=6000, age=35, annees_cotisation=18,
         )
-        assert result["nombre_indemnites"] == 260
+        assert result["nombre_indemnites"] == 400
 
     def test_duration_age_25_54_22months(self, calculator):
-        """25-54 with 22+ months -> 400 indemnities (LACI art. 27 al. 2 lit. c)."""
+        """25-54 with 22+ months -> 400 indemnities."""
         result = calculator.calculate(
             gain_assure_mensuel=6000, age=35, annees_cotisation=24,
+        )
+        assert result["nombre_indemnites"] == 400
+
+    def test_duration_under_25_with_children_18months(self, calculator):
+        """Under 25 with children follows the contribution bracket."""
+        result = calculator.calculate(
+            gain_assure_mensuel=4000,
+            age=22,
+            annees_cotisation=18,
+            has_children=True,
         )
         assert result["nombre_indemnites"] == 400
 
@@ -210,6 +235,16 @@ class TestDuration:
         """60+ with 22+ months -> 520 indemnities."""
         result = calculator.calculate(
             gain_assure_mensuel=8000, age=62, annees_cotisation=24,
+        )
+        assert result["nombre_indemnites"] == 520
+
+    def test_duration_disability_22months(self, calculator):
+        """IV disability with 22+ months -> 520 indemnities."""
+        result = calculator.calculate(
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=22,
+            has_disability=True,
         )
         assert result["nombre_indemnites"] == 520
 
@@ -343,8 +378,8 @@ class TestUnemploymentCompliance:
         assert "LSFin" in DISCLAIMER
 
     def test_disclaimer_uses_specialiste(self):
-        """Disclaimer should use 'specialiste' (not 'conseiller')."""
-        assert "specialiste" in DISCLAIMER.lower()
+        """Disclaimer should use 'spécialiste' (not 'conseiller')."""
+        assert "spécialiste" in DISCLAIMER.lower()
         assert "conseiller" not in DISCLAIMER.lower()
 
     def test_sources_contain_legal_refs(self):

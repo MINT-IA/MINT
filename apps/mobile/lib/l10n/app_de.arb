@@ -1187,6 +1187,8 @@
   "unemploymentAgeMin": "18 Jahre",
   "unemploymentAgeMax": "65 Jahre",
   "unemploymentContribTitle": "Beitragsmonate (letzte 2 Jahre)",
+  "unemploymentContribConfirmHint": "Dieser Wert bestimmt die Bezugsdauer. Bestaetige ihn, bevor die Berechnung angezeigt wird.",
+  "unemploymentContribConfirmCta": "Diese Annahme bestaetigen",
   "unemploymentContribValue": "{months} Monate",
   "@unemploymentContribValue": {
     "placeholders": {
@@ -1238,6 +1240,98 @@
   "unemploymentEduLamalBody": "Mit einem niedrigeren Einkommen könntest du Anspruch auf LAMal-Verbilligungen haben. Stelle den Antrag bei deinem Kanton.",
   "unemploymentTsunamiTitle": "Dein finanzieller Tsunami in 3 Wellen",
   "unemploymentDisclaimer": "Pädagogische Schätzungen — keine Beratung im Sinne des FIDLEG — AVIG/BVG/BVV3. Die angegebenen Beträge sind ungefähr und hängen von deiner persönlichen Situation ab. Wende dich an eine Fachperson oder das RAV deines Kantons.",
+  "unemploymentMonthlyLoss": "Geschätzter Verlust /Monat",
+  "unemploymentInvalidMonthlyEarningsReason": "Das monatliche Referenzeinkommen muss höher als CHF 0 sein. Prüfe den im Profil gespeicherten Lohn.",
+  "unemploymentInsufficientContributionsReason": "Mindestens 12 Beitragsmonate erforderlich (du hast {months} Monate).",
+  "@unemploymentInsufficientContributionsReason": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentPremierEclairageLoss": "Du könntest rund {amount}/Monat verlieren, also {percent}% deines Referenzeinkommens.",
+  "@unemploymentPremierEclairageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "unemploymentTimelineTitle": "AKTIONSPLAN",
+  "unemploymentTimelineUrgent": "Dringend",
+  "unemploymentTimelineWeek1": "Woche 1",
+  "unemploymentTimelineMonth1": "Monat 1",
+  "unemploymentTimelineMonths2to3": "Monate 2-3",
+  "unemploymentTimelineDayBadge": "T{day}",
+  "@unemploymentTimelineDayBadge": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentTimelineRegisterOrpAction": "RAV-Anmeldung",
+  "unemploymentTimelineRegisterOrpDescription": "Melde dich ab dem ersten Tag ohne Arbeit beim regionalen Arbeitsvermittlungszentrum an.",
+  "unemploymentTimelineFileClaimAction": "Arbeitslosendossier",
+  "unemploymentTimelineFileClaimDescription": "Reiche die Unterlagen bei deiner Arbeitslosenkasse ein, um den Anspruch zu eröffnen.",
+  "unemploymentTimelineWaitingPeriodAction": "Ende der Wartefrist",
+  "unemploymentTimelineWaitingPeriodDescription": "Die anfängliche Wartefrist wird nicht entschädigt. Plane den passenden Liquiditätspuffer.",
+  "unemploymentTimelineBudgetAction": "Budgetcheck",
+  "unemploymentTimelineBudgetDescription": "Passe die Ausgaben an das geschätzte neue Einkommen an und schütze die Fixkosten.",
+  "unemploymentTimelineLppAction": "BVG-Transfer",
+  "unemploymentTimelineLppDescription": "Übertrage das BVG-Guthaben bei Bedarf auf ein Freizügigkeitskonto.",
+  "unemploymentTimelinePause3aAction": "3a pausieren",
+  "unemploymentTimelinePause3aDescription": "Ohne Erwerbseinkommen müssen Säule-3a-Zahlungen überprüft werden.",
+  "unemploymentTimelineLamalAction": "LAMal-Prüfung",
+  "unemploymentTimelineLamalDescription": "Prüfe beim Kanton den Anspruch auf Prämienverbilligung.",
+  "unemploymentTimelineOrpReviewAction": "RAV-Bilanz",
+  "unemploymentTimelineOrpReviewDescription": "Mache einen strukturierten Zwischenstand mit deiner RAV-Fachperson.",
+  "unemploymentCounterSemantics": "Arbeitslosigkeitstage-Zähler Zeitkapital",
+  "unemploymentCounterTitle": "Dein Zeitkapital",
+  "unemploymentCounterAgeUnder25": "< 25 Jahre",
+  "unemploymentCounterAge25To54": "25–54 Jahre",
+  "unemploymentCounterAge55Plus": "≥ 55 Jahre",
+  "unemploymentCounterBracketUnder25NoChildren": "Unter 25, ohne Unterhaltspflicht",
+  "unemploymentCounterBracket12To17Months": "12–17 Beitragsmonate",
+  "unemploymentCounterBracket18PlusMonths": "18–24 Beitragsmonate",
+  "unemploymentCounterBracketSeniorOrDisability": "≥ 55 oder IV, 22+ Beitragsmonate",
+  "unemploymentCounterMaxDaysSubtitle": "{ageBand} → {days} Taggelder",
+  "@unemploymentCounterMaxDaysSubtitle": {
+    "placeholders": {
+      "ageBand": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterMonthlyBenefitChip": "CHF {amount}/Monat",
+  "@unemploymentCounterMonthlyBenefitChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "unemploymentCounterApproxMonthsChip": "≈ {months} Monate",
+  "unemploymentCounterDaysUsed": "Genutzte Tage: {days}",
+  "unemploymentCounterDaysRemaining": "Verbleibend: {days}",
+  "unemploymentCounterDayStart": "Tag 0",
+  "unemploymentCounterDayEnd": "Tag {days} → CHF 0",
+  "unemploymentCounterRemainingDaysLabel": "Verbleibende Tage",
+  "unemploymentCounterApproxLabel": "Etwa",
+  "unemploymentCounterMonthsValue": "{months} Monate",
+  "unemploymentCounterAgeBracketHeader": "AVIG-Regel",
+  "unemploymentCounterMaxBenefitsHeader": "Taggelder",
+  "unemploymentCounterDaysValue": "{days} Tage",
+  "unemploymentCounterZeroChfTitle": "Nach dem letzten Tag: CHF 0",
+  "unemploymentCounterZeroChfBody": "Keine Verlängerung. Danach folgt Sozialhilfe ohne zusätzliche Schonfrist.",
+  "unemploymentCounterDisclaimer": "Pädagogisches Tool · keine Finanzberatung im Sinne des FIDLEG. Quelle: AVIG Art. 27-30.",
   "firstJobTitle": "Erster Job",
   "firstJobHeaderDesc": "Verstehe deine Gehaltsabrechnung! Wir zeigen dir, wohin deine Beiträge fliessen, was dein Arbeitgeber zusätzlich zahlt und die ersten finanziellen Reflexe.",
   "firstJobSalaryTitle": "Monatlicher Bruttolohn",
@@ -4241,11 +4335,11 @@
   "unemploymentBudgetEpargne3a": "3a-Sparen",
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
-  "unemploymentBracket1": "12–17 Monate Beitrag",
+  "unemploymentBracket1": "Unter 25, keine Kinder",
   "unemploymentBracket1Value": "200 Taggelder",
-  "unemploymentBracket2": "18–21 Monate Beitrag",
+  "unemploymentBracket2": "12–17 Monate Beitrag",
   "unemploymentBracket2Value": "260 Taggelder",
-  "unemploymentBracket3": ">= 22 Monate, < {age} J.",
+  "unemploymentBracket3": ">= 18 Monate, ausser 520 ab {age}",
   "@unemploymentBracket3": {
     "placeholders": {
       "age": {
@@ -4254,7 +4348,7 @@
     }
   },
   "unemploymentBracket3Value": "400 Taggelder",
-  "unemploymentBracket4": ">= 22 Monate, >= {age} J.",
+  "unemploymentBracket4": ">= 22 Monate, ab {age} / IV",
   "@unemploymentBracket4": {
     "placeholders": {
       "age": {

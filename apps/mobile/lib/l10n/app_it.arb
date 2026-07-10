@@ -1187,6 +1187,8 @@
   "unemploymentAgeMin": "18 anni",
   "unemploymentAgeMax": "65 anni",
   "unemploymentContribTitle": "Mesi di contribuzione (ultimi 2 anni)",
+  "unemploymentContribConfirmHint": "Questo valore determina la durata del diritto. Confermalo prima di mostrare il calcolo.",
+  "unemploymentContribConfirmCta": "Conferma questa ipotesi",
   "unemploymentContribValue": "{months} mesi",
   "@unemploymentContribValue": {
     "placeholders": {
@@ -1238,6 +1240,98 @@
   "unemploymentEduLamalBody": "Con un reddito più basso, potresti avere diritto a sussidi LAMal. Fai domanda presso il tuo cantone.",
   "unemploymentTsunamiTitle": "Il tuo tsunami finanziario in 3 ondate",
   "unemploymentDisclaimer": "Stime educative — non costituisce consulenza ai sensi della LSFin — LADI/LPP/OPP3. Gli importi presentati sono approssimativi e dipendono dalla tua situazione personale. Consulta uno·a specialista o l'URC del tuo cantone.",
+  "unemploymentMonthlyLoss": "Perdita stimata /mese",
+  "unemploymentInvalidMonthlyEarningsReason": "Il reddito mensile di riferimento deve essere superiore a CHF 0. Controlla il salario registrato nel profilo.",
+  "unemploymentInsufficientContributionsReason": "Servono almeno 12 mesi di contribuzione (ne hai {months}).",
+  "@unemploymentInsufficientContributionsReason": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentPremierEclairageLoss": "Potresti perdere circa {amount}/mese, pari al {percent}% del reddito di riferimento.",
+  "@unemploymentPremierEclairageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "unemploymentTimelineTitle": "PIANO D'AZIONE",
+  "unemploymentTimelineUrgent": "Urgente",
+  "unemploymentTimelineWeek1": "Settimana 1",
+  "unemploymentTimelineMonth1": "Mese 1",
+  "unemploymentTimelineMonths2to3": "Mesi 2-3",
+  "unemploymentTimelineDayBadge": "G{day}",
+  "@unemploymentTimelineDayBadge": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentTimelineRegisterOrpAction": "Iscrizione URC",
+  "unemploymentTimelineRegisterOrpDescription": "Iscriviti all'ufficio regionale di collocamento dal primo giorno senza lavoro.",
+  "unemploymentTimelineFileClaimAction": "Dossier disoccupazione",
+  "unemploymentTimelineFileClaimDescription": "Presenta i documenti alla cassa di disoccupazione per aprire il diritto.",
+  "unemploymentTimelineWaitingPeriodAction": "Fine periodo di attesa",
+  "unemploymentTimelineWaitingPeriodDescription": "Il periodo iniziale di attesa non è indennizzato. Pianifica la liquidità corrispondente.",
+  "unemploymentTimelineBudgetAction": "Revisione budget",
+  "unemploymentTimelineBudgetDescription": "Adatta le spese al nuovo reddito stimato e proteggi i costi fissi.",
+  "unemploymentTimelineLppAction": "Trasferimento LPP",
+  "unemploymentTimelineLppDescription": "Trasferisci l'avere LPP su un conto di libero passaggio se necessario.",
+  "unemploymentTimelinePause3aAction": "Pausa 3a",
+  "unemploymentTimelinePause3aDescription": "Senza reddito da lavoro, i versamenti al pilastro 3a vanno rivisti.",
+  "unemploymentTimelineLamalAction": "Revisione LAMal",
+  "unemploymentTimelineLamalDescription": "Verifica presso il cantone il diritto alla riduzione del premio.",
+  "unemploymentTimelineOrpReviewAction": "Bilancio URC",
+  "unemploymentTimelineOrpReviewDescription": "Fai un punto strutturato con il tuo o la tua specialista URC.",
+  "unemploymentCounterSemantics": "Contatore giorni di disoccupazione capitale tempo",
+  "unemploymentCounterTitle": "Il tuo capitale tempo",
+  "unemploymentCounterAgeUnder25": "< 25 anni",
+  "unemploymentCounterAge25To54": "25–54 anni",
+  "unemploymentCounterAge55Plus": "≥ 55 anni",
+  "unemploymentCounterBracketUnder25NoChildren": "Meno di 25 anni, senza obbligo di mantenimento",
+  "unemploymentCounterBracket12To17Months": "12–17 mesi di contribuzione",
+  "unemploymentCounterBracket18PlusMonths": "18–24 mesi di contribuzione",
+  "unemploymentCounterBracketSeniorOrDisability": "≥ 55 o AI, 22+ mesi di contribuzione",
+  "unemploymentCounterMaxDaysSubtitle": "{ageBand} → {days} indennità giornaliere",
+  "@unemploymentCounterMaxDaysSubtitle": {
+    "placeholders": {
+      "ageBand": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterMonthlyBenefitChip": "CHF {amount}/mese",
+  "@unemploymentCounterMonthlyBenefitChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "unemploymentCounterApproxMonthsChip": "≈ {months} mesi",
+  "unemploymentCounterDaysUsed": "Giorni usati: {days}",
+  "unemploymentCounterDaysRemaining": "Restanti: {days}",
+  "unemploymentCounterDayStart": "Giorno 0",
+  "unemploymentCounterDayEnd": "Giorno {days} → CHF 0",
+  "unemploymentCounterRemainingDaysLabel": "Giorni restanti",
+  "unemploymentCounterApproxLabel": "Circa",
+  "unemploymentCounterMonthsValue": "{months} mesi",
+  "unemploymentCounterAgeBracketHeader": "Regola LADI",
+  "unemploymentCounterMaxBenefitsHeader": "Indennità",
+  "unemploymentCounterDaysValue": "{days} giorni",
+  "unemploymentCounterZeroChfTitle": "Dopo l'ultimo giorno: CHF 0",
+  "unemploymentCounterZeroChfBody": "Nessuna proroga. Si passa all'aiuto sociale senza periodo di grazia.",
+  "unemploymentCounterDisclaimer": "Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LADI art. 27-30.",
   "firstJobTitle": "Primo impiego",
   "firstJobHeaderDesc": "Comprendi la tua busta paga! Ti mostriamo dove vanno i tuoi contributi, cosa paga il tuo datore di lavoro in più e i primi riflessi finanziari da adottare.",
   "firstJobSalaryTitle": "Salario lordo mensile",
@@ -4241,11 +4335,11 @@
   "unemploymentBudgetEpargne3a": "Risparmio 3a",
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
-  "unemploymentBracket1": "12–17 mesi contrib.",
+  "unemploymentBracket1": "Meno di 25, senza figli",
   "unemploymentBracket1Value": "200 indennità",
-  "unemploymentBracket2": "18–21 mesi contrib.",
+  "unemploymentBracket2": "12–17 mesi contrib.",
   "unemploymentBracket2Value": "260 indennità",
-  "unemploymentBracket3": ">= 22 mesi, < {age} anni",
+  "unemploymentBracket3": ">= 18 mesi, salvo 520 da {age}",
   "@unemploymentBracket3": {
     "placeholders": {
       "age": {
@@ -4254,7 +4348,7 @@
     }
   },
   "unemploymentBracket3Value": "400 indennità",
-  "unemploymentBracket4": ">= 22 mesi, >= {age} anni",
+  "unemploymentBracket4": ">= 22 mesi, da {age} / invalidità",
   "@unemploymentBracket4": {
     "placeholders": {
       "age": {

@@ -231,6 +231,33 @@ void main() {
     expect(provider.profile?.userProvidedFields, contains('liquidSavings'));
   });
 
+  testWidgets('composition menage inputKey collects children count',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'compositionMenage',
+        initialInputKey: 'q_children',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('children_count_input')), findsOneWidget);
+    expect(find.byKey(const Key('household_save_cta')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('children_count_input')), '2');
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_children', 2));
+    expect(provider.profile?.nombreEnfants, 2);
+    expect(provider.profile?.userProvidedFields, contains('children'));
+  });
+
   testWidgets('revenue block seeds pension switch from existing profile',
       (tester) async {
     final provider = CoachProfileProvider()

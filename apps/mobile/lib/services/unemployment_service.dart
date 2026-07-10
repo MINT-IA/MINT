@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/unemployment_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SERVICE — Sprint S19 / Chomage (LACI) + Premier emploi
@@ -9,13 +7,13 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 // Pure Dart service for unemployment benefits (LACI art. 28-30).
 //   1. calculateBenefits — eligibility, rate, duration, timeline
 //
-// All constants match the backend exactly.
-// No banned terms ("garanti", "certain", "assuré", "sans risque").
+// All constants match the backend exactly. UI copy is localized by callers.
 // ────────────────────────────────────────────────────────────
 
 /// Result of unemployment benefits calculation.
 class UnemploymentResult {
   final bool eligible;
+  final UnemploymentIneligibilityReason? ineligibilityReason;
   final String? raisonNonEligible;
   final double tauxIndemnite;
   final double gainAssureRetenu;
@@ -30,6 +28,7 @@ class UnemploymentResult {
 
   const UnemploymentResult({
     required this.eligible,
+    this.ineligibilityReason,
     this.raisonNonEligible,
     required this.tauxIndemnite,
     required this.gainAssureRetenu,
@@ -47,16 +46,32 @@ class UnemploymentResult {
 /// A single step in the unemployment timeline.
 class UnemploymentTimelineItem {
   final int jour;
-  final String action;
-  final String description;
-  final String urgence; // 'immediate', 'semaine1', 'mois1', 'mois3'
+  final UnemploymentTimelineStep step;
+  final UnemploymentTimelineUrgency urgence;
 
   const UnemploymentTimelineItem({
     required this.jour,
-    required this.action,
-    required this.description,
+    required this.step,
     required this.urgence,
   });
+}
+
+enum UnemploymentTimelineStep {
+  registerOrp,
+  fileClaim,
+  waitingPeriodEnds,
+  budgetReview,
+  lppTransfer,
+  pause3a,
+  lamalReview,
+  orpReview,
+}
+
+enum UnemploymentTimelineUrgency {
+  immediate,
+  week1,
+  month1,
+  months2to3,
 }
 
 /// Service for unemployment (LACI) calculations.
@@ -64,33 +79,6 @@ class UnemploymentTimelineItem {
 /// All constants match the backend exactly.
 class UnemploymentService {
   UnemploymentService._();
-
-  // ════════════════════════════════════════════════════════════
-  //  CONSTANTS (LACI)
-  // ════════════════════════════════════════════════════════════
-
-  /// Base indemnity rate (70%).
-  static const double _rateBase = 0.70;
-
-  /// Enhanced indemnity rate (80%).
-  static const double _rateEnhanced = 0.80;
-
-  /// Maximum gain assure mensuel (CHF 12'350).
-  /// Derived from acPlafondSalaireAssure / 12.
-  static double get _gainAssureMax => reg('ac.max_monthly_insured_income', acGainAssureMensuelMax);
-
-  /// Salary threshold for enhanced rate (CHF 3'797).
-  static double get _salaryThresholdEnhanced => reg('ac.enhanced_rate_threshold', acSeuilSalaireMajore);
-
-  /// Standard waiting period (5 days).
-  static const int _delaiCarenceStandard = 5;
-
-  /// Working days per month.
-  static const double _workingDaysPerMonth = 21.75;
-
-  // ════════════════════════════════════════════════════════════
-  //  CALCULATION
-  // ════════════════════════════════════════════════════════════
 
   /// Calculate unemployment benefits (LACI art. 28-30).
   static UnemploymentResult calculateBenefits({
@@ -100,102 +88,65 @@ class UnemploymentService {
     bool hasChildren = false,
     bool hasDisability = false,
   }) {
-    // 0. Validate gain assure > 0 (aligned with backend)
-    if (gainAssureMensuel <= 0) {
+    final core = UnemploymentCalculator.compute(
+      monthlyInsuredEarnings: gainAssureMensuel,
+      age: age,
+      contributionMonths: moisCotisation,
+      hasChildren: hasChildren,
+      hasDisability: hasDisability,
+    );
+
+    if (!core.eligible &&
+        core.ineligibilityReason ==
+            UnemploymentIneligibilityReason.invalidMonthlyEarnings) {
       return UnemploymentResult(
         eligible: false,
-        raisonNonEligible:
-            'Le gain assuré mensuel doit être supérieur à 0 CHF. '
-            'Vérifie le montant de ton dernier salaire.',
+        ineligibilityReason: core.ineligibilityReason,
         tauxIndemnite: 0,
         gainAssureRetenu: 0,
         indemniteJournaliere: 0,
         indemniteMensuelle: 0,
         nombreIndemnites: 0,
         dureeMois: 0,
-        delaiCarenceJours: _delaiCarenceStandard,
+        delaiCarenceJours: core.waitingPeriodDays,
         perteMensuelle: 0,
         premierEclairage: '',
         timeline: _buildTimeline(),
       );
     }
 
-    // 1. Check eligibility: minimum 12 months
-    if (moisCotisation < 12) {
+    if (!core.eligible &&
+        core.ineligibilityReason ==
+            UnemploymentIneligibilityReason.insufficientContributions) {
       return UnemploymentResult(
         eligible: false,
-        raisonNonEligible:
-            'Minimum 12 mois de cotisation requis (tu as $moisCotisation mois)',
+        ineligibilityReason: core.ineligibilityReason,
         tauxIndemnite: 0,
         gainAssureRetenu: 0,
         indemniteJournaliere: 0,
         indemniteMensuelle: 0,
         nombreIndemnites: 0,
         dureeMois: 0,
-        delaiCarenceJours: _delaiCarenceStandard,
+        delaiCarenceJours: core.waitingPeriodDays,
         perteMensuelle: 0,
         premierEclairage: '',
         timeline: _buildTimeline(),
       );
     }
-
-    // 2. Determine rate
-    final taux =
-        _determineRate(gainAssureMensuel, hasChildren, hasDisability);
-
-    // 3. Cap gain assure
-    final gainRetenu = min(gainAssureMensuel, _gainAssureMax);
-
-    // 4. Calculate benefits
-    final indemniteJournaliere =
-        (gainRetenu * taux) / _workingDaysPerMonth;
-    final indemniteMensuelle =
-        indemniteJournaliere * _workingDaysPerMonth;
-
-    // 5. Duration
-    final nombreIndemnites = _calculateDuration(age, moisCotisation);
-    final dureeMois = nombreIndemnites / _workingDaysPerMonth;
-
-    // 6. Chiffre choc
-    final perteMensuelle = gainAssureMensuel - indemniteMensuelle;
-    final pctPerte = ((1 - taux) * 100).toStringAsFixed(0);
-    final premierEclairage =
-        'Tu perdras ~${formatChf(perteMensuelle)}/mois '
-        'soit $pctPerte% de ton salaire';
 
     return UnemploymentResult(
       eligible: true,
-      tauxIndemnite: taux,
-      gainAssureRetenu: gainRetenu,
-      indemniteJournaliere: indemniteJournaliere,
-      indemniteMensuelle: indemniteMensuelle,
-      nombreIndemnites: nombreIndemnites,
-      dureeMois: dureeMois,
-      delaiCarenceJours: _delaiCarenceStandard,
-      perteMensuelle: perteMensuelle,
-      premierEclairage: premierEclairage,
+      tauxIndemnite: core.rate,
+      gainAssureRetenu: core.retainedMonthlyEarnings,
+      indemniteJournaliere: core.dailyBenefit,
+      indemniteMensuelle: core.monthlyBenefit,
+      nombreIndemnites: core.dailyBenefitCount,
+      dureeMois: core.coverageMonths,
+      delaiCarenceJours: core.waitingPeriodDays,
+      perteMensuelle: core.monthlyLoss,
+      premierEclairage: '',
       timeline: _buildTimeline(),
     );
-  }
-
-  /// Determine indemnity rate based on salary, children, disability.
-  static double _determineRate(
-      double gain, bool children, bool disability) {
-    if (children || disability || gain < _salaryThresholdEnhanced) {
-      return _rateEnhanced;
-    }
-    return _rateBase;
-  }
-
-  /// Calculate the number of daily indemnities based on age and contributions.
-  ///
-  /// SECO rules: 55+ with >= 22 months = senior = 520 days (LACI art. 27 al. 2).
-  /// Uses centralized constants from social_insurance.dart.
-  static int _calculateDuration(int age, int moisCotisation) {
-    if (age >= reg('ac.senior_age_threshold', acAgeSeuillSenior.toDouble()).toInt() && moisCotisation >= 22) return reg('ac.senior_days', acJoursSenior.toDouble()).toInt(); // 55+ = 520
-    if (age >= 25 && moisCotisation >= 18) return reg('ac.intermediate_days', acJoursIntermediaireCotisation.toDouble()).toInt(); // 260
-    if (moisCotisation >= 12) return reg('ac.min_days', acJoursMinCotisation.toDouble()).toInt(); // 200
-    return 0;
   }
 
   /// Build the unemployment action timeline.
@@ -203,57 +154,43 @@ class UnemploymentService {
     return const [
       UnemploymentTimelineItem(
         jour: 0,
-        action: 'Inscription ORP',
-        description:
-            'S\'inscrire a l\'Office regional de placement',
-        urgence: 'immediate',
+        step: UnemploymentTimelineStep.registerOrp,
+        urgence: UnemploymentTimelineUrgency.immediate,
       ),
       UnemploymentTimelineItem(
         jour: 1,
-        action: 'Demande d\'indemnites',
-        description:
-            'Deposer le dossier aupres de la caisse de chomage',
-        urgence: 'immediate',
+        step: UnemploymentTimelineStep.fileClaim,
+        urgence: UnemploymentTimelineUrgency.immediate,
       ),
       UnemploymentTimelineItem(
         jour: 5,
-        action: 'Fin delai de carence',
-        description:
-            'Les 5 premiers jours ne sont pas indemnises',
-        urgence: 'semaine1',
+        step: UnemploymentTimelineStep.waitingPeriodEnds,
+        urgence: UnemploymentTimelineUrgency.week1,
       ),
       UnemploymentTimelineItem(
         jour: 7,
-        action: 'Bilan budgetaire',
-        description: 'Adapter ton budget au nouveau revenu',
-        urgence: 'semaine1',
+        step: UnemploymentTimelineStep.budgetReview,
+        urgence: UnemploymentTimelineUrgency.week1,
       ),
       UnemploymentTimelineItem(
         jour: 30,
-        action: 'Transfert LPP',
-        description:
-            'Transferer ton avoir LPP sur un compte de libre passage',
-        urgence: 'mois1',
+        step: UnemploymentTimelineStep.lppTransfer,
+        urgence: UnemploymentTimelineUrgency.month1,
       ),
       UnemploymentTimelineItem(
         jour: 30,
-        action: 'Pause 3a',
-        description:
-            'Plus de cotisation 3a sans revenu lucratif',
-        urgence: 'mois1',
+        step: UnemploymentTimelineStep.pause3a,
+        urgence: UnemploymentTimelineUrgency.month1,
       ),
       UnemploymentTimelineItem(
         jour: 60,
-        action: 'Revision LAMal',
-        description:
-            'Verifier tes droits a une reduction de prime',
-        urgence: 'mois3',
+        step: UnemploymentTimelineStep.lamalReview,
+        urgence: UnemploymentTimelineUrgency.months2to3,
       ),
       UnemploymentTimelineItem(
         jour: 90,
-        action: 'Bilan ORP',
-        description: 'Premier bilan avec ton ou ta spécialiste ORP',
-        urgence: 'mois3',
+        step: UnemploymentTimelineStep.orpReview,
+        urgence: UnemploymentTimelineUrgency.months2to3,
       ),
     ];
   }

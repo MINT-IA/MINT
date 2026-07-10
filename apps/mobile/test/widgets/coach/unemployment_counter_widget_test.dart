@@ -5,7 +5,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
-  Widget buildWidget({int age = 35, int daysConsumed = 0}) => MaterialApp(
+  Widget buildWidget({
+    int age = 35,
+    int daysConsumed = 0,
+    int? totalBenefitDays,
+    double? coverageMonths,
+  }) =>
+      MaterialApp(
         locale: const Locale('fr'),
         localizationsDelegates: const [
           S.delegate,
@@ -20,6 +26,8 @@ void main() {
               age: age,
               monthlyBenefit: 4200,
               daysConsumed: daysConsumed,
+              totalBenefitDays: totalBenefitDays,
+              coverageMonths: coverageMonths,
             ),
           ),
         ),
@@ -53,9 +61,37 @@ void main() {
     expect(find.textContaining('350'), findsWidgets); // 400-50
   });
 
+  testWidgets('uses contribution-aware benefit days when provided',
+      (tester) async {
+    await tester.pumpWidget(
+      buildWidget(
+        age: 35,
+        totalBenefitDays: 260,
+        coverageMonths: 260 / 21.75,
+      ),
+    );
+    expect(find.textContaining('260'), findsWidgets);
+    expect(find.textContaining('12.0'), findsWidgets);
+  });
+
+  testWidgets('does not label under-25 with children as a 200-day case',
+      (tester) async {
+    await tester.pumpWidget(
+      buildWidget(
+        age: 22,
+        totalBenefitDays: 400,
+        coverageMonths: 400 / 21.75,
+      ),
+    );
+
+    expect(find.textContaining('18–24 mois cotisés'), findsWidgets);
+    expect(find.textContaining("sans obligation d'entretien"), findsWidgets);
+    expect(find.textContaining("< 25 ans → 400"), findsNothing);
+  });
+
   testWidgets('shows age table', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('25'), findsWidgets);
+    expect(find.textContaining('Repère LACI'), findsOneWidget);
     expect(find.textContaining('55'), findsWidgets);
   });
 

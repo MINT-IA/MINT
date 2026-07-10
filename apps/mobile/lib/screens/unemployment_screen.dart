@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/services/financial_core/unemployment_calculator.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
-import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
+import 'package:provider/provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SCREEN — Sprint S19 / Chomage (LACI)
@@ -33,14 +35,41 @@ class UnemploymentScreen extends StatefulWidget {
   State<UnemploymentScreen> createState() => _UnemploymentScreenState();
 }
 
-class _UnemploymentScreenState extends State<UnemploymentScreen>
-    with ProfileAutoFillMixin {
-  double _gainAssure = 6000;
-  int _age = 35;
+class _UnemploymentLedgerFacts {
+  const _UnemploymentLedgerFacts({
+    required this.monthlyGain,
+    required this.age,
+    required this.childrenCount,
+  });
+
+  const _UnemploymentLedgerFacts.empty()
+      : monthlyGain = null,
+        age = null,
+        childrenCount = null;
+
+  final double? monthlyGain;
+  final int? age;
+  final int? childrenCount;
+
+  bool get isComplete =>
+      monthlyGain != null && age != null && childrenCount != null;
+
+  bool hasSameValuesAs(_UnemploymentLedgerFacts other) {
+    return monthlyGain == other.monthlyGain &&
+        age == other.age &&
+        childrenCount == other.childrenCount;
+  }
+}
+
+class _UnemploymentScreenState extends State<UnemploymentScreen> {
+  double _gainAssure = 0;
+  int _age = 0;
   int _moisCotisation = 18;
+  bool _hasConfirmedMoisCotisation = false;
   bool _hasChildren = false;
   bool _hasDisability = false;
   UnemploymentResult? _result;
+  _UnemploymentLedgerFacts _facts = const _UnemploymentLedgerFacts.empty();
 
   // Checklist tracking
   final Set<int> _checkedItems = {};
@@ -48,34 +77,72 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   @override
   void initState() {
     super.initState();
-    _calculate();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    autoFillFromProfile(context, (p) {
-      final salaireMensuel = p.revenuBrutAnnuel > 0
-          ? (p.revenuBrutAnnuel / 12).clamp(1500.0, 12646.0)
-          : 6000.0;
-      final age = p.age > 0 ? p.age.clamp(18, 65) : 35;
-      setState(() {
-        _gainAssure = salaireMensuel.roundToDouble();
-        _age = age;
-      });
-      _calculate();
-    });
+    final facts = _ledgerFactsFromProfile(_profileProvider(context));
+    final factsChanged = !_facts.hasSameValuesAs(facts);
+    _facts = facts;
+    if (!facts.isComplete) {
+      _result = null;
+      return;
+    }
+    if (factsChanged) {
+      _gainAssure = facts.monthlyGain!;
+      _age = facts.age!;
+      _hasChildren = facts.childrenCount! > 0;
+    }
+    _result = _hasConfirmedMoisCotisation ? _calculateCurrentFacts() : null;
+  }
+
+  CoachProfileProvider? _profileProvider(BuildContext context) {
+    try {
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  _UnemploymentLedgerFacts _ledgerFactsFromProfile(
+    CoachProfileProvider? provider,
+  ) {
+    final profile = provider?.profile;
+    if (profile == null) return const _UnemploymentLedgerFacts.empty();
+    final provided = profile.userProvidedFields;
+    final monthlyGain =
+        provided.contains('salary') && profile.revenuBrutAnnuel > 0
+            ? profile.revenuBrutAnnuel / 12
+            : null;
+    final age =
+        provided.contains('age') && profile.age > 0 ? profile.age : null;
+    final childrenCount =
+        provided.contains('children') ? profile.nombreEnfants : null;
+    return _UnemploymentLedgerFacts(
+      monthlyGain: monthlyGain,
+      age: age,
+      childrenCount: childrenCount,
+    );
+  }
+
+  UnemploymentResult _calculateCurrentFacts() {
+    return UnemploymentService.calculateBenefits(
+      gainAssureMensuel: _gainAssure,
+      age: _age,
+      moisCotisation: _moisCotisation,
+      hasChildren: _hasChildren,
+      hasDisability: _hasDisability,
+    );
   }
 
   void _calculate() {
+    if (!_facts.isComplete || !_hasConfirmedMoisCotisation) {
+      setState(() => _result = null);
+      return;
+    }
     setState(() {
-      _result = UnemploymentService.calculateBenefits(
-        gainAssureMensuel: _gainAssure,
-        age: _age,
-        moisCotisation: _moisCotisation,
-        hasChildren: _hasChildren,
-        hasDisability: _hasDisability,
-      );
+      _result = _calculateCurrentFacts();
     });
   }
 
@@ -98,7 +165,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
-          MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.lg,
+          MintSpacing.lg,
+          MintSpacing.md,
+          MintSpacing.lg,
+          MintSpacing.lg,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,14 +193,14 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               _buildHeader(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            _buildGainSlider(),
+            _buildLedgerFactsCard(context),
             const SizedBox(height: MintSpacing.md),
-            _buildAgeSlider(),
-            const SizedBox(height: MintSpacing.md),
-            _buildMoisCotisationSlider(),
-            const SizedBox(height: MintSpacing.md),
-            _buildToggles(),
-            const SizedBox(height: MintSpacing.xl),
+            if (_facts.isComplete) ...[
+              _buildMoisCotisationSlider(),
+              const SizedBox(height: MintSpacing.md),
+              _buildToggles(),
+              const SizedBox(height: MintSpacing.xl),
+            ],
             if (_result != null && _result!.eligible) ...[
               _buildTauxCard(),
               const SizedBox(height: MintSpacing.xl),
@@ -141,6 +211,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               UnemploymentCounterWidget(
                 age: _age,
                 monthlyBenefit: _result!.indemniteMensuelle,
+                totalBenefitDays: _result!.nombreIndemnites,
+                coverageMonths: _result!.dureeMois,
               ),
               const SizedBox(height: MintSpacing.xl),
               _buildTroisVagues(),
@@ -193,40 +265,123 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   // ── Inputs ────────────────────────────────────────────────
 
-  Widget _buildGainSlider() {
+  Widget _buildLedgerFactsCard(BuildContext context) {
+    final s = S.of(context)!;
+    final hasMissing = !_facts.isComplete;
+    final editRoute = _facts.monthlyGain == null
+        ? '/data-block/revenu?inputKey=q_gross_salary_annual'
+        : _facts.age == null
+            ? '/data-block/revenu?inputKey=q_birth_year'
+            : _facts.childrenCount == null
+                ? '/data-block/compositionMenage?inputKey=q_children'
+                : '/data-block/revenu';
+
     return MintSurface(
       tone: MintSurfaceTone.blanc,
-      child: MintAmountField(
-        label: S.of(context)!.unemploymentGainSliderTitle,
-        value: _gainAssure,
-        formatValue: (v) => UnemploymentService.formatChf(v),
-        onChanged: (v) {
-          setState(() {
-            _gainAssure = v;
-            _calculate();
-          });
-        },
-        min: 0,
-        max: 12350,
+      child: Semantics(
+        key: const Key('unemployment_ledger_facts'),
+        identifier: 'unemployment_ledger_facts',
+        container: true,
+        explicitChildNodes: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  hasMissing
+                      ? Icons.manage_search_outlined
+                      : Icons.check_circle_outline,
+                  color: hasMissing ? MintColors.warning : MintColors.success,
+                  size: 20,
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    hasMissing
+                        ? s.dataQualityMissingSection
+                        : s.dataQualityKnownSection,
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                TextButton.icon(
+                  key: const Key('unemployment_enrich_profile_cta'),
+                  onPressed: () => context.push(editRoute),
+                  icon: Icon(
+                    hasMissing ? Icons.add_circle_outline : Icons.edit_outlined,
+                    size: 18,
+                  ),
+                  label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm + 4),
+            _buildFactRow(
+              identifier: 'unemployment_gain_fact',
+              label: s.unemploymentGainSliderTitle,
+              value: _facts.monthlyGain == null
+                  ? s.dataBlockStatusMissing
+                  : UnemploymentService.formatChf(_facts.monthlyGain!),
+              isMissing: _facts.monthlyGain == null,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _buildFactRow(
+              identifier: 'unemployment_age_fact',
+              label: s.unemploymentAgeSliderTitle,
+              value: _facts.age == null
+                  ? s.dataBlockStatusMissing
+                  : s.unemploymentAgeValue(_facts.age!),
+              isMissing: _facts.age == null,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _buildFactRow(
+              identifier: 'unemployment_children_fact',
+              label: s.unemploymentChildrenToggle,
+              value: _facts.childrenCount == null
+                  ? s.dataBlockStatusMissing
+                  : '${_facts.childrenCount}',
+              isMissing: _facts.childrenCount == null,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildAgeSlider() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      child: MintPickerTile(
-        label: S.of(context)!.unemploymentAgeSliderTitle,
-        value: _age,
-        minValue: 18,
-        maxValue: 65,
-        formatValue: (v) => S.of(context)!.unemploymentAgeValue(v),
-        onChanged: (v) {
-          setState(() {
-            _age = v;
-            _calculate();
-          });
-        },
+  Widget _buildFactRow({
+    required String identifier,
+    required String label,
+    required String value,
+    required bool isMissing,
+  }) {
+    return Semantics(
+      key: Key(identifier),
+      identifier: identifier,
+      label: '$label, $value',
+      container: true,
+      child: Row(
+        children: [
+          Icon(
+            isMissing ? Icons.help_outline : Icons.check_circle_outline,
+            color: isMissing ? MintColors.warning : MintColors.success,
+            size: 16,
+          ),
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          Text(
+            value,
+            style: MintTextStyles.bodySmall(
+              color: isMissing ? MintColors.warning : MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }
@@ -234,18 +389,44 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   Widget _buildMoisCotisationSlider() {
     return MintSurface(
       tone: MintSurfaceTone.blanc,
-      child: MintPickerTile(
-        label: S.of(context)!.unemploymentContribTitle,
-        value: _moisCotisation,
-        minValue: 0,
-        maxValue: 24,
-        formatValue: (v) => S.of(context)!.unemploymentContribValue(v),
-        onChanged: (v) {
-          setState(() {
-            _moisCotisation = v;
-            _calculate();
-          });
-        },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          MintPickerTile(
+            label: S.of(context)!.unemploymentContribTitle,
+            value: _moisCotisation,
+            minValue: 0,
+            maxValue: 24,
+            formatValue: (v) => S.of(context)!.unemploymentContribValue(v),
+            onChanged: (v) {
+              setState(() {
+                _moisCotisation = v;
+                _hasConfirmedMoisCotisation = true;
+                _result = _calculateCurrentFacts();
+              });
+            },
+          ),
+          if (!_hasConfirmedMoisCotisation) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              S.of(context)!.unemploymentContribConfirmHint,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ).copyWith(height: 1.4),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            FilledButton(
+              key: const Key('unemployment_confirm_contribution_months_cta'),
+              onPressed: () {
+                setState(() {
+                  _hasConfirmedMoisCotisation = true;
+                  _result = _calculateCurrentFacts();
+                });
+              },
+              child: Text(S.of(context)!.unemploymentContribConfirmCta),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -272,16 +453,6 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             ),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildToggleRow(
-            icon: Icons.child_care,
-            label: S.of(context)!.unemploymentChildrenToggle,
-            value: _hasChildren,
-            onChanged: (v) {
-              _hasChildren = v;
-              _calculate();
-            },
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
           _buildToggleRow(
             icon: Icons.accessible,
             label: S.of(context)!.unemploymentDisabilityToggle,
@@ -350,7 +521,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
-                  _result!.raisonNonEligible ?? '',
+                  _notEligibleReason(S.of(context)!, _result!),
                   style: MintTextStyles.bodySmall(
                     color: MintColors.textSecondary,
                   ).copyWith(height: 1.5),
@@ -367,16 +538,40 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildPremierEclairage() {
     final r = _result!;
+    final l10n = S.of(context)!;
+    final referenceMonthlyIncome =
+        _gainAssure > 0 ? _gainAssure : r.gainAssureRetenu;
+    final lossPct = referenceMonthlyIncome > 0
+        ? ((r.perteMensuelle / referenceMonthlyIncome) * 100)
+            .clamp(0, 1000)
+            .toStringAsFixed(0)
+        : '0';
     return MintResultHeroCard(
-      eyebrow: S.of(context)!.unemploymentTitle,
+      eyebrow: l10n.unemploymentTitle,
       primaryValue: UnemploymentService.formatChf(r.perteMensuelle),
-      primaryLabel: S.of(context)!.unemploymentMonthlyBenefit,
+      primaryLabel: l10n.unemploymentMonthlyLoss,
       secondaryValue: UnemploymentService.formatChf(r.indemniteMensuelle),
-      secondaryLabel: S.of(context)!.unemploymentInsuredEarnings,
-      narrative: r.premierEclairage,
+      secondaryLabel: l10n.unemploymentMonthlyBenefit,
+      narrative: l10n.unemploymentPremierEclairageLoss(
+        UnemploymentService.formatChf(r.perteMensuelle),
+        lossPct,
+      ),
       accentColor: MintColors.error,
       tone: MintSurfaceTone.peche,
     );
+  }
+
+  String _notEligibleReason(S l10n, UnemploymentResult result) {
+    switch (result.ineligibilityReason) {
+      case UnemploymentIneligibilityReason.invalidMonthlyEarnings:
+        return l10n.unemploymentInvalidMonthlyEarningsReason;
+      case UnemploymentIneligibilityReason.insufficientContributions:
+        return l10n.unemploymentInsufficientContributionsReason(
+          _moisCotisation,
+        );
+      case null:
+        return '';
+    }
   }
 
   // ── Taux Card ──────────────────────────────────────────────
@@ -539,7 +734,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             children: [
               Expanded(
                 child: Semantics(
-                  label: '${r.nombreIndemnites} ${S.of(context)!.unemploymentDailyBenefits}',
+                  label:
+                      '${r.nombreIndemnites} ${S.of(context)!.unemploymentDailyBenefits}',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -567,7 +763,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               const SizedBox(width: MintSpacing.md + 4),
               Expanded(
                 child: Semantics(
-                  label: '~${r.dureeMois.toStringAsFixed(0)} ${S.of(context)!.unemploymentCoverageMonths}',
+                  label:
+                      '~${r.dureeMois.toStringAsFixed(0)} ${S.of(context)!.unemploymentCoverageMonths}',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -598,13 +795,30 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildDurationTable() {
     // Source : LACI art. 27 al. 2 — durées maximales d'indemnités
-    // Miroir de social_insurance.dart (acJoursMinCotisation, acJoursStandard, acJoursSenior)
+    // Miroir de social_insurance.dart.
     final l10n = S.of(context)!;
+    final activeDays = _result?.nombreIndemnites;
     final brackets = [
-      (l10n.unemploymentBracket1, l10n.unemploymentBracket1Value, _moisCotisation >= 12 && _moisCotisation < 18),
-      (l10n.unemploymentBracket2, l10n.unemploymentBracket2Value, _moisCotisation >= 18 && _moisCotisation < 22),
-      (l10n.unemploymentBracket3(acAgeSeuillSenior), l10n.unemploymentBracket3Value, _moisCotisation >= 22 && _age < acAgeSeuillSenior),
-      (l10n.unemploymentBracket4(acAgeSeuillSenior), l10n.unemploymentBracket4Value, _moisCotisation >= 22 && _age >= acAgeSeuillSenior),
+      (
+        l10n.unemploymentBracket1,
+        l10n.unemploymentBracket1Value,
+        activeDays == acJoursMinCotisation
+      ),
+      (
+        l10n.unemploymentBracket2,
+        l10n.unemploymentBracket2Value,
+        activeDays == acJoursIntermediaireCotisation
+      ),
+      (
+        l10n.unemploymentBracket3(acAgeSeuillSenior),
+        l10n.unemploymentBracket3Value,
+        activeDays == acJoursStandard
+      ),
+      (
+        l10n.unemploymentBracket4(acAgeSeuillSenior),
+        l10n.unemploymentBracket4Value,
+        activeDays == acJoursSenior
+      ),
     ];
 
     return Column(
@@ -612,15 +826,15 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         final isCurrent = b.$3;
         return Container(
           margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: 10),
+          padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.sm + 4, vertical: 10),
           decoration: BoxDecoration(
             color: isCurrent
                 ? MintColors.primary.withValues(alpha: 0.06)
                 : MintColors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: isCurrent
-                ? Border.all(
-                    color: MintColors.primary.withValues(alpha: 0.3))
+                ? Border.all(color: MintColors.primary.withValues(alpha: 0.3))
                 : null,
           ),
           child: Row(
@@ -652,8 +866,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                           : MintColors.textSecondary,
                     ).copyWith(
                       fontSize: 12,
-                      fontWeight:
-                          isCurrent ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
                 ],
@@ -661,9 +874,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               Text(
                 b.$2,
                 style: MintTextStyles.labelMedium(
-                  color: isCurrent
-                      ? MintColors.primary
-                      : MintColors.textSecondary,
+                  color:
+                      isCurrent ? MintColors.primary : MintColors.textSecondary,
                 ).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
@@ -704,60 +916,59 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               label: items[index],
               toggled: checked,
               child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (checked) {
-                    _checkedItems.remove(index);
-                  } else {
-                    _checkedItems.add(index);
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: checked
-                            ? MintColors.success
-                            : MintColors.transparent,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
+                onTap: () {
+                  setState(() {
+                    if (checked) {
+                      _checkedItems.remove(index);
+                    } else {
+                      _checkedItems.add(index);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
                           color: checked
                               ? MintColors.success
-                              : MintColors.border,
-                          width: 1.5,
+                              : MintColors.transparent,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: checked
+                                ? MintColors.success
+                                : MintColors.border,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: checked
+                            ? const Icon(Icons.check,
+                                size: 14, color: MintColors.white)
+                            : null,
+                      ),
+                      const SizedBox(width: MintSpacing.sm + 4),
+                      Expanded(
+                        child: Text(
+                          items[index],
+                          style: MintTextStyles.bodyMedium(
+                            color: checked
+                                ? MintColors.textMuted
+                                : MintColors.textPrimary,
+                          ).copyWith(
+                            decoration:
+                                checked ? TextDecoration.lineThrough : null,
+                            height: 1.4,
+                          ),
                         ),
                       ),
-                      child: checked
-                          ? const Icon(Icons.check,
-                              size: 14, color: MintColors.white)
-                          : null,
-                    ),
-                    const SizedBox(width: MintSpacing.sm + 4),
-                    Expanded(
-                      child: Text(
-                        items[index],
-                        style: MintTextStyles.bodyMedium(
-                          color: checked
-                              ? MintColors.textMuted
-                              : MintColors.textPrimary,
-                        ).copyWith(
-                          decoration: checked
-                              ? TextDecoration.lineThrough
-                              : null,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
             );
           }),
         ],
@@ -875,7 +1086,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(MintSpacing.md, MintSpacing.md, MintSpacing.md, MintSpacing.sm + 4),
+            padding: const EdgeInsets.fromLTRB(MintSpacing.md, MintSpacing.md,
+                MintSpacing.md, MintSpacing.sm + 4),
             child: Row(
               children: [
                 const Icon(Icons.waves, size: 22, color: MintColors.info),
@@ -894,7 +1106,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           const Divider(height: 1),
           ...vagues.map(
             (v) => Padding(
-              padding: const EdgeInsets.fromLTRB(MintSpacing.md, MintSpacing.sm + 4, MintSpacing.md, MintSpacing.xs),
+              padding: const EdgeInsets.fromLTRB(MintSpacing.md,
+                  MintSpacing.sm + 4, MintSpacing.md, MintSpacing.xs),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -941,14 +1154,16 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildMintCrashTestSection() {
     final l10n = S.of(context)!;
-    final survivalIncome = _gainAssure * acIndemniteTaux; // taux LACI standard (LACI art. 22) — from social_insurance.dart
+    final survivalIncome = _gainAssure *
+        acIndemniteTaux; // taux LACI standard (LACI art. 22) — from social_insurance.dart
 
     // Derive budget lines proportionally from gainAssure
     final loyer = (_gainAssure * 0.30).roundToDouble(); // ~30% du revenu
     final lamal = (_gainAssure * 0.075).roundToDouble(); // ~7.5%
     final transport = (_gainAssure * 0.033).roundToDouble(); // ~3.3%
     final loisirs = (_gainAssure * 0.067).roundToDouble(); // ~6.7%
-    final epargne3a = (pilier3aPlafondAvecLpp / 12).roundToDouble(); // plafond mensuel
+    final epargne3a =
+        (pilier3aPlafondAvecLpp / 12).roundToDouble(); // plafond mensuel
 
     return CrashTestBudgetWidget(
       monthlyIncome: _gainAssure,
@@ -1004,7 +1219,8 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.info_outline, color: MintColors.corailDiscret, size: 18),
+            const Icon(Icons.info_outline,
+                color: MintColors.corailDiscret, size: 18),
             const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
               child: Text(

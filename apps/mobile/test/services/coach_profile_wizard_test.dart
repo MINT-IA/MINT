@@ -310,6 +310,7 @@ void main() {
       expect(profile.canton, 'GE');
       expect(profile.etatCivil, CoachCivilStatus.marie);
       expect(profile.nombreEnfants, 2);
+      expect(profile.userProvidedFields, contains('children'));
       expect(profile.salaireBrutMensuel, greaterThan(8000));
       expect(profile.employmentStatus, 'salarie');
       expect(profile.depenses.loyer, 2200);
@@ -371,7 +372,8 @@ void main() {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      answers['q_avs_arrival_year'] = 2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
+      answers['q_avs_arrival_year'] =
+          2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, 7);
     });
@@ -380,7 +382,8 @@ void main() {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      answers['q_avs_arrival_year'] = 2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
+      answers['q_avs_arrival_year'] =
+          2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, isNull); // 0 → null (pas de lacune)
     });

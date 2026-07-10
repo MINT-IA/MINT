@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +26,10 @@ import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 
 // ---------------------------------------------------------------------------
 //  Shared helpers
@@ -73,6 +77,39 @@ class RecordingCoachProfileProvider extends CoachProfileProvider {
     _profileOverride = CoachProfile.fromWizardAnswers(_answers);
     notifyListeners();
   }
+}
+
+Widget _buildUnemploymentRouter(CoachProfileProvider provider) {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: provider,
+          child: const UnemploymentScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/data-block/:type',
+        builder: (_, state) => Text(
+          'data-block:${state.pathParameters['type']}:${state.uri.queryParameters['inputKey']}',
+          key: const Key('data_block_route_probe'),
+        ),
+      ),
+    ],
+  );
+
+  return MaterialApp.router(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    routerConfig: router,
+  );
 }
 
 /// Wraps screen with French i18n only (no provider needed).
@@ -288,18 +325,98 @@ void main() {
       expect(find.textContaining("emploi"), findsWidgets);
     });
 
-    testWidgets('shows gain assure slider', (tester) async {
-      await tester.pumpWidget(buildScreen());
+    testWidgets('shows missing ledger facts instead of local salary editor',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider({});
+      await tester.pumpWidget(_buildUnemploymentRouter(provider));
       await tester.pump();
-      // i18n: unemploymentGainSliderTitle = "Gain assuré mensuel"
-      expect(find.textContaining('assuré'), findsWidgets);
+
+      expect(
+          find.byKey(const Key('unemployment_ledger_facts')), findsOneWidget);
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.byType(MintAmountField), findsNothing);
+
+      await tester
+          .tap(find.byKey(const Key('unemployment_enrich_profile_cta')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('data-block:revenu:q_gross_salary_annual'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('shows result after initial calculation', (tester) async {
-      await tester.pumpWidget(buildScreen());
+    testWidgets('routes to birth year collection when salary is known',
+        (tester) async {
+      final provider = RecordingCoachProfileProvider({
+        'q_gross_salary_annual': 96000,
+      });
+      await tester.pumpWidget(_buildUnemploymentRouter(provider));
       await tester.pump();
-      // initState calls _calculate(), result should be non-null
-      // Result renders CHF amount
+
+      await tester
+          .tap(find.byKey(const Key('unemployment_enrich_profile_cta')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('data-block:revenu:q_birth_year'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('routes to household composition when salary and age are known',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      final provider = RecordingCoachProfileProvider({
+        'q_gross_salary_annual': 96000,
+        'q_birth_year': currentYear - 42,
+      });
+      await tester.pumpWidget(_buildUnemploymentRouter(provider));
+      await tester.pump();
+
+      await tester
+          .tap(find.byKey(const Key('unemployment_enrich_profile_cta')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('data-block:compositionMenage:q_children'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('uses salary and age from ledger facts', (tester) async {
+      final currentYear = DateTime.now().year;
+      final provider = RecordingCoachProfileProvider({
+        'q_gross_salary_annual': 96000,
+        'q_birth_year': currentYear - 42,
+        'q_children': 0,
+      });
+      await tester.pumpWidget(_buildUnemploymentRouter(provider));
+      await tester.pump();
+
+      expect(
+          find.byKey(const Key('unemployment_ledger_facts')), findsOneWidget);
+      expect(find.text('Données connues'), findsOneWidget);
+      expect(find.textContaining("8'000"), findsWidgets);
+      expect(find.textContaining('42 ans'), findsWidgets);
+      expect(
+          find.byKey(const Key('unemployment_children_fact')), findsOneWidget);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPickerTile), findsOneWidget);
+      expect(
+        find.byKey(const Key('unemployment_confirm_contribution_months_cta')),
+        findsOneWidget,
+      );
+      expect(find.byType(UnemploymentCounterWidget), findsNothing);
+
+      final confirmContribution = find.byKey(
+        const Key('unemployment_confirm_contribution_months_cta'),
+      );
+      await tester.ensureVisible(confirmContribution);
+      await tester.tap(confirmContribution);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(UnemploymentCounterWidget), findsOneWidget);
       expect(find.textContaining('CHF'), findsWidgets);
     });
   });

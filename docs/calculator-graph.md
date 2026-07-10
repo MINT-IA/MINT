@@ -7,8 +7,9 @@ you change `CoachProfile`, or add a field, or swap a derived value, you
 don't know which UI surface will notice — unless this map is fresh.
 
 **Invariant (CLAUDE.md §4).** Every financial calculation **must** live
-under `apps/mobile/lib/services/financial_core/`. The backend mirrors
-via `services/backend/app/services/rules_engine/`. Never duplicate a
+under `apps/mobile/lib/services/financial_core/`. Backend mirrors live
+under `services/backend/app/services/rules_engine/` or feature calculators
+such as `services/backend/app/services/unemployment/`. Never duplicate a
 calculation in a feature directory — it drifts, Julien + Lauren golden
 values stop matching, and two calculators with different rounding
 arrive in prod.
@@ -40,6 +41,7 @@ flowchart LR
 
     PROFILE --> COUPLE[CoupleOptimizer]:::calc
     PROFILE --> CROSS[CrossPillarCalculator]:::calc
+    PROFILE --> UNEMP[UnemploymentCalculator]:::calc
     PROFILE --> ARB[ArbitrageEngine]:::composer
     CROSS --> ARB
     TAX --> ARB
@@ -89,6 +91,7 @@ Julien + Lauren golden values.
 | **WithdrawalSequencingService** | `withdrawal_sequencing_service.dart` | retirement params | sequencing plan | DecaissementScreen |
 | **TornadoSensitivityService** | `tornado_sensitivity_service.dart` | FRI inputs | sensitivity chart data | FinancialSummaryScreen tornado chart |
 | **CompoundContributionProjectionCalculator** | `compound_contribution_projection_calculator.dart` | annual contribution, years, annual return | future value of repeated contributions | IndependantsService 3a projection bridge |
+| **UnemploymentCalculator** | `unemployment_calculator.dart` | monthly insured earnings, age, contribution months, children/disability flags | LACI eligibility, rate, retained earnings, benefit, duration | UnemploymentService, UnemploymentScreen |
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 
 ---
@@ -109,6 +112,7 @@ for a specific UI surface. Found under `apps/mobile/lib/services/`.
 | **EnhancedConfidenceService** | `confidence/enhanced_confidence_service.dart` | Per-field confidence + enrichment prompts | CoachProfile | Extraction review, Retirement dashboard |
 | **SnapshotService** | `snapshot_service.dart` | Persists daily/scan/life-event snapshots | CoachProfile | `updateFromRefresh`, `createSnapshotFromProfile` |
 | **SessionSnapshotService** | `session_snapshot_service.dart` | In-session delta | Snapshot + current profile | MintStateEngine |
+| **UnemploymentService** | `unemployment_service.dart` | Adds LACI timeline, formatted narrative and UI-facing result around `UnemploymentCalculator` | salary/age/contribution months from screen state | UnemploymentScreen |
 
 ---
 

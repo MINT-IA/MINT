@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/financial_core/unemployment_calculator.dart';
 import 'package:mint_mobile/services/unemployment_service.dart';
 
 /// Unit tests for UnemploymentService — Sprint S19 (Chomage / LACI)
@@ -27,8 +28,10 @@ void main() {
       );
 
       expect(result.eligible, isFalse);
-      expect(result.raisonNonEligible, contains('12 mois'));
-      expect(result.raisonNonEligible, contains('11 mois'));
+      expect(
+        result.ineligibilityReason,
+        UnemploymentIneligibilityReason.insufficientContributions,
+      );
       expect(result.tauxIndemnite, 0);
       expect(result.indemniteJournaliere, 0);
       expect(result.indemniteMensuelle, 0);
@@ -44,6 +47,7 @@ void main() {
       );
 
       expect(result.eligible, isTrue);
+      expect(result.ineligibilityReason, isNull);
       expect(result.raisonNonEligible, isNull);
       expect(result.nombreIndemnites, greaterThan(0));
     });
@@ -56,7 +60,10 @@ void main() {
       );
 
       expect(result.eligible, isFalse);
-      expect(result.raisonNonEligible, contains('0 mois'));
+      expect(
+        result.ineligibilityReason,
+        UnemploymentIneligibilityReason.insufficientContributions,
+      );
     });
   });
 
@@ -217,7 +224,8 @@ void main() {
       expect(result.nombreIndemnites, 520);
     });
 
-    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)', () {
+    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)',
+        () {
       // SECO rules: 55+ = senior = 520 days (LACI art. 27 al. 2)
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
@@ -228,17 +236,27 @@ void main() {
       expect(result.nombreIndemnites, 520);
     });
 
-    test('age >= 25, cotisation >= 18 mois => 260 indemnites', () {
+    test('12-17 mois de cotisation => 260 indemnites', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 30,
+        moisCotisation: 17,
+      );
+
+      expect(result.nombreIndemnites, 260);
+    });
+
+    test('18 mois de cotisation => 400 indemnites', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 25,
         moisCotisation: 18,
       );
 
-      expect(result.nombreIndemnites, 260);
+      expect(result.nombreIndemnites, 400);
     });
 
-    test('age < 25, cotisation >= 12 mois => 200 indemnites', () {
+    test('age < 25 sans enfant, cotisation >= 12 mois => 200 indemnites', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 4000,
         age: 24,
@@ -248,6 +266,17 @@ void main() {
       expect(result.nombreIndemnites, 200);
     });
 
+    test('age < 25 avec enfant, cotisation >= 18 mois => 400 indemnites', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 4000,
+        age: 24,
+        moisCotisation: 18,
+        hasChildren: true,
+      );
+
+      expect(result.nombreIndemnites, 400);
+    });
+
     test('duree en mois = nombreIndemnites / 21.75', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
@@ -255,18 +284,29 @@ void main() {
         moisCotisation: 18,
       );
 
-      expect(result.dureeMois, closeTo(260 / 21.75, 0.01));
+      expect(result.dureeMois, closeTo(400 / 21.75, 0.01));
     });
 
-    test('age 55 avec seulement 18 mois cotisation => 260 (pas 520)', () {
-      // 55+ needs >= 22 mois for senior 520, with only 18 falls to age>=25 bracket
+    test('age 55 avec seulement 18 mois cotisation => 400 (pas 520)', () {
+      // 55+ needs >= 22 mois for senior 520.
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 55,
         moisCotisation: 18,
       );
 
-      expect(result.nombreIndemnites, 260);
+      expect(result.nombreIndemnites, 400);
+    });
+
+    test('rente AI avec 22 mois cotisation => 520 indemnites', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 35,
+        moisCotisation: 22,
+        hasDisability: true,
+      );
+
+      expect(result.nombreIndemnites, 520);
     });
   });
 
@@ -303,8 +343,9 @@ void main() {
       );
 
       expect(result.timeline.first.jour, 0);
-      expect(result.timeline.first.action, 'Inscription ORP');
-      expect(result.timeline.first.urgence, 'immediate');
+      expect(result.timeline.first.step, UnemploymentTimelineStep.registerOrp);
+      expect(
+          result.timeline.first.urgence, UnemploymentTimelineUrgency.immediate);
     });
 
     test('timeline contient toutes les urgences', () {
@@ -315,7 +356,15 @@ void main() {
       );
 
       final urgences = result.timeline.map((e) => e.urgence).toSet();
-      expect(urgences, containsAll(['immediate', 'semaine1', 'mois1', 'mois3']));
+      expect(
+        urgences,
+        containsAll([
+          UnemploymentTimelineUrgency.immediate,
+          UnemploymentTimelineUrgency.week1,
+          UnemploymentTimelineUrgency.month1,
+          UnemploymentTimelineUrgency.months2to3,
+        ]),
+      );
     });
 
     test('non eligible retourne quand meme une timeline', () {
@@ -361,15 +410,15 @@ void main() {
       expect(result.indemniteJournaliere, closeTo(expectedDaily, 0.01));
     });
 
-    test('premier éclairage mentionne la perte mensuelle', () {
+    test('premier éclairage reste localisé hors du service', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
         moisCotisation: 18,
       );
 
-      expect(result.premierEclairage, contains('mois'));
-      expect(result.premierEclairage, contains('salaire'));
+      expect(result.premierEclairage, isEmpty);
+      expect(result.perteMensuelle, greaterThan(0));
     });
 
     test('formatChf formate avec apostrophe suisse', () {

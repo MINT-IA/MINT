@@ -2625,6 +2625,13 @@ class SFr extends S {
       'Mois de cotisation (2 dernières années)';
 
   @override
+  String get unemploymentContribConfirmHint =>
+      'Cette valeur détermine la durée du droit. Confirme-la avant d\'afficher le calcul.';
+
+  @override
+  String get unemploymentContribConfirmCta => 'Confirmer cette hypothèse';
+
+  @override
   String unemploymentContribValue(int months) {
     return '$months mois';
   }
@@ -2751,6 +2758,196 @@ class SFr extends S {
   @override
   String get unemploymentDisclaimer =>
       'Estimations éducatives — ne constitue pas un conseil au sens de la LSFin — LACI/LPP/OPP3. Les montants présentés sont approximatifs et dépendent de ta situation personnelle. Consulte un·e spécialiste ou l\'ORP de ton canton.';
+
+  @override
+  String get unemploymentMonthlyLoss => 'Perte estimée /mois';
+
+  @override
+  String get unemploymentInvalidMonthlyEarningsReason =>
+      'Le revenu mensuel de référence doit être supérieur à CHF 0. Vérifie le salaire enregistré dans ton profil.';
+
+  @override
+  String unemploymentInsufficientContributionsReason(int months) {
+    return 'Minimum 12 mois de cotisation requis (tu as $months mois).';
+  }
+
+  @override
+  String unemploymentPremierEclairageLoss(String amount, String percent) {
+    return 'Tu pourrais perdre environ $amount/mois, soit $percent% de ton revenu de référence.';
+  }
+
+  @override
+  String get unemploymentTimelineTitle => 'PLAN D\'ACTION';
+
+  @override
+  String get unemploymentTimelineUrgent => 'Urgent';
+
+  @override
+  String get unemploymentTimelineWeek1 => 'Semaine 1';
+
+  @override
+  String get unemploymentTimelineMonth1 => 'Mois 1';
+
+  @override
+  String get unemploymentTimelineMonths2to3 => 'Mois 2-3';
+
+  @override
+  String unemploymentTimelineDayBadge(int day) {
+    return 'J$day';
+  }
+
+  @override
+  String get unemploymentTimelineRegisterOrpAction => 'Inscription ORP';
+
+  @override
+  String get unemploymentTimelineRegisterOrpDescription =>
+      'Inscris-toi à l\'office régional de placement dès le premier jour sans emploi.';
+
+  @override
+  String get unemploymentTimelineFileClaimAction => 'Dossier chômage';
+
+  @override
+  String get unemploymentTimelineFileClaimDescription =>
+      'Dépose les pièces auprès de ta caisse de chômage pour ouvrir le droit.';
+
+  @override
+  String get unemploymentTimelineWaitingPeriodAction =>
+      'Fin du délai de carence';
+
+  @override
+  String get unemploymentTimelineWaitingPeriodDescription =>
+      'Le délai initial n\'est pas indemnisé. Prévois la trésorerie correspondante.';
+
+  @override
+  String get unemploymentTimelineBudgetAction => 'Bilan budget';
+
+  @override
+  String get unemploymentTimelineBudgetDescription =>
+      'Ajuste les dépenses au nouveau revenu estimé et protège les charges fixes.';
+
+  @override
+  String get unemploymentTimelineLppAction => 'Transfert LPP';
+
+  @override
+  String get unemploymentTimelineLppDescription =>
+      'Transfère l\'avoir LPP sur un compte de libre passage si nécessaire.';
+
+  @override
+  String get unemploymentTimelinePause3aAction => 'Pause 3a';
+
+  @override
+  String get unemploymentTimelinePause3aDescription =>
+      'Sans revenu lucratif, les versements 3a doivent être revus.';
+
+  @override
+  String get unemploymentTimelineLamalAction => 'Révision LAMal';
+
+  @override
+  String get unemploymentTimelineLamalDescription =>
+      'Vérifie les droits à une réduction de prime auprès du canton.';
+
+  @override
+  String get unemploymentTimelineOrpReviewAction => 'Bilan ORP';
+
+  @override
+  String get unemploymentTimelineOrpReviewDescription =>
+      'Fais un point structuré avec ton ou ta spécialiste ORP.';
+
+  @override
+  String get unemploymentCounterSemantics =>
+      'Compteur jours chômage capital temps';
+
+  @override
+  String get unemploymentCounterTitle => 'Ton capital temps';
+
+  @override
+  String get unemploymentCounterAgeUnder25 => '< 25 ans';
+
+  @override
+  String get unemploymentCounterAge25To54 => '25–54 ans';
+
+  @override
+  String get unemploymentCounterAge55Plus => '≥ 55 ans';
+
+  @override
+  String get unemploymentCounterBracketUnder25NoChildren =>
+      '< 25 ans, sans obligation d\'entretien';
+
+  @override
+  String get unemploymentCounterBracket12To17Months => '12–17 mois cotisés';
+
+  @override
+  String get unemploymentCounterBracket18PlusMonths => '18–24 mois cotisés';
+
+  @override
+  String get unemploymentCounterBracketSeniorOrDisability =>
+      '≥ 55 ans ou AI, 22+ mois cotisés';
+
+  @override
+  String unemploymentCounterMaxDaysSubtitle(String ageBand, int days) {
+    return '$ageBand → $days indemnités journalières';
+  }
+
+  @override
+  String unemploymentCounterMonthlyBenefitChip(String amount) {
+    return 'CHF $amount/mois';
+  }
+
+  @override
+  String unemploymentCounterApproxMonthsChip(Object months) {
+    return '≈ $months mois';
+  }
+
+  @override
+  String unemploymentCounterDaysUsed(Object days) {
+    return 'Jours utilisés : $days';
+  }
+
+  @override
+  String unemploymentCounterDaysRemaining(Object days) {
+    return 'Restants : $days';
+  }
+
+  @override
+  String get unemploymentCounterDayStart => 'Jour 0';
+
+  @override
+  String unemploymentCounterDayEnd(Object days) {
+    return 'Jour $days → 0 CHF';
+  }
+
+  @override
+  String get unemploymentCounterRemainingDaysLabel => 'Jours restants';
+
+  @override
+  String get unemploymentCounterApproxLabel => 'Soit environ';
+
+  @override
+  String unemploymentCounterMonthsValue(Object months) {
+    return '$months mois';
+  }
+
+  @override
+  String get unemploymentCounterAgeBracketHeader => 'Repère LACI';
+
+  @override
+  String get unemploymentCounterMaxBenefitsHeader => 'Indemnités';
+
+  @override
+  String unemploymentCounterDaysValue(Object days) {
+    return '$days jours';
+  }
+
+  @override
+  String get unemploymentCounterZeroChfTitle => 'Après le dernier jour : 0 CHF';
+
+  @override
+  String get unemploymentCounterZeroChfBody =>
+      'Pas de prolongation. Tu passes à l\'aide sociale — sans délai de grâce.';
+
+  @override
+  String get unemploymentCounterDisclaimer =>
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30.';
 
   @override
   String get firstJobTitle => 'Premier emploi';
@@ -9085,20 +9282,20 @@ class SFr extends S {
   String get unemploymentGainMax => 'CHF 12\'350';
 
   @override
-  String get unemploymentBracket1 => '12–17 mois cotis.';
+  String get unemploymentBracket1 => 'Moins de 25 ans, sans enfant';
 
   @override
   String get unemploymentBracket1Value => '200 indemnités';
 
   @override
-  String get unemploymentBracket2 => '18–21 mois cotis.';
+  String get unemploymentBracket2 => '12–17 mois cotis.';
 
   @override
   String get unemploymentBracket2Value => '260 indemnités';
 
   @override
   String unemploymentBracket3(int age) {
-    return '>= 22 mois, < $age ans';
+    return '>= 18 mois, hors 520 dès $age ans';
   }
 
   @override
@@ -9106,7 +9303,7 @@ class SFr extends S {
 
   @override
   String unemploymentBracket4(int age) {
-    return '>= 22 mois, >= $age ans';
+    return '>= 22 mois, dès $age ans / AI';
   }
 
   @override
@@ -23044,6 +23241,7 @@ class SFr extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificat de salaire scanné';
+
   @override
   String get lowConfidenceCardTitle =>
       'Pas assez de données pour une projection fiable';

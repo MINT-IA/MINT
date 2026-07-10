@@ -1187,6 +1187,8 @@
   "unemploymentAgeMin": "18 years",
   "unemploymentAgeMax": "65 years",
   "unemploymentContribTitle": "Contribution months (last 2 years)",
+  "unemploymentContribConfirmHint": "This value determines benefit duration. Confirm it before showing the calculation.",
+  "unemploymentContribConfirmCta": "Confirm this assumption",
   "unemploymentContribValue": "{months} months",
   "@unemploymentContribValue": {
     "placeholders": {
@@ -1238,6 +1240,98 @@
   "unemploymentEduLamalBody": "With a lower income, you may be entitled to LAMal subsidies. Apply through your canton.",
   "unemploymentTsunamiTitle": "Your financial tsunami in 3 waves",
   "unemploymentDisclaimer": "Educational estimates — not financial advice under LSFin — LACI/LPP/OPP3. The amounts shown are approximate and depend on your personal situation. Consult a specialist or your canton's ORP.",
+  "unemploymentMonthlyLoss": "Estimated loss /month",
+  "unemploymentInvalidMonthlyEarningsReason": "The monthly reference income must be greater than CHF 0. Check the salary stored in your profile.",
+  "unemploymentInsufficientContributionsReason": "Minimum 12 contribution months required (you have {months} months).",
+  "@unemploymentInsufficientContributionsReason": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentPremierEclairageLoss": "You could lose about {amount}/month, or {percent}% of your reference income.",
+  "@unemploymentPremierEclairageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "unemploymentTimelineTitle": "ACTION PLAN",
+  "unemploymentTimelineUrgent": "Urgent",
+  "unemploymentTimelineWeek1": "Week 1",
+  "unemploymentTimelineMonth1": "Month 1",
+  "unemploymentTimelineMonths2to3": "Months 2-3",
+  "unemploymentTimelineDayBadge": "D{day}",
+  "@unemploymentTimelineDayBadge": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentTimelineRegisterOrpAction": "ORP registration",
+  "unemploymentTimelineRegisterOrpDescription": "Register with the regional employment office from the first day without work.",
+  "unemploymentTimelineFileClaimAction": "Unemployment file",
+  "unemploymentTimelineFileClaimDescription": "Submit the documents to your unemployment fund to open the claim.",
+  "unemploymentTimelineWaitingPeriodAction": "Waiting period ends",
+  "unemploymentTimelineWaitingPeriodDescription": "The initial waiting period is not compensated. Plan the matching cash buffer.",
+  "unemploymentTimelineBudgetAction": "Budget review",
+  "unemploymentTimelineBudgetDescription": "Adjust spending to the estimated new income and protect fixed costs.",
+  "unemploymentTimelineLppAction": "LPP transfer",
+  "unemploymentTimelineLppDescription": "Transfer the LPP assets to a vested benefits account if needed.",
+  "unemploymentTimelinePause3aAction": "Pause 3a",
+  "unemploymentTimelinePause3aDescription": "Without earned income, pillar 3a payments need to be reviewed.",
+  "unemploymentTimelineLamalAction": "LAMal review",
+  "unemploymentTimelineLamalDescription": "Check premium-reduction eligibility with the canton.",
+  "unemploymentTimelineOrpReviewAction": "ORP review",
+  "unemploymentTimelineOrpReviewDescription": "Do a structured checkpoint with your ORP specialist.",
+  "unemploymentCounterSemantics": "Unemployment days counter time capital",
+  "unemploymentCounterTitle": "Your time capital",
+  "unemploymentCounterAgeUnder25": "< 25 years",
+  "unemploymentCounterAge25To54": "25–54 years",
+  "unemploymentCounterAge55Plus": "≥ 55 years",
+  "unemploymentCounterBracketUnder25NoChildren": "Under 25, no maintenance obligation",
+  "unemploymentCounterBracket12To17Months": "12–17 contribution months",
+  "unemploymentCounterBracket18PlusMonths": "18–24 contribution months",
+  "unemploymentCounterBracketSeniorOrDisability": "≥ 55 or disability, 22+ contribution months",
+  "unemploymentCounterMaxDaysSubtitle": "{ageBand} → {days} daily benefits",
+  "@unemploymentCounterMaxDaysSubtitle": {
+    "placeholders": {
+      "ageBand": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterMonthlyBenefitChip": "CHF {amount}/month",
+  "@unemploymentCounterMonthlyBenefitChip": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "unemploymentCounterApproxMonthsChip": "≈ {months} months",
+  "unemploymentCounterDaysUsed": "Days used: {days}",
+  "unemploymentCounterDaysRemaining": "Remaining: {days}",
+  "unemploymentCounterDayStart": "Day 0",
+  "unemploymentCounterDayEnd": "Day {days} → CHF 0",
+  "unemploymentCounterRemainingDaysLabel": "Days remaining",
+  "unemploymentCounterApproxLabel": "About",
+  "unemploymentCounterMonthsValue": "{months} months",
+  "unemploymentCounterAgeBracketHeader": "LACI bracket",
+  "unemploymentCounterMaxBenefitsHeader": "Benefits",
+  "unemploymentCounterDaysValue": "{days} days",
+  "unemploymentCounterZeroChfTitle": "After the last day: CHF 0",
+  "unemploymentCounterZeroChfBody": "No extension. You move to social assistance with no grace period.",
+  "unemploymentCounterDisclaimer": "Educational tool · not financial advice under FinSA. Source: LACI art. 27-30.",
   "firstJobTitle": "First job",
   "firstJobHeaderDesc": "Understand your payslip! We show you where your contributions go, what your employer pays on top, and the first financial reflexes to adopt.",
   "firstJobSalaryTitle": "Monthly gross salary",
@@ -4241,11 +4335,11 @@
   "unemploymentBudgetEpargne3a": "3a savings",
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12,350",
-  "unemploymentBracket1": "12–17 months contrib.",
+  "unemploymentBracket1": "Under 25, no dependants",
   "unemploymentBracket1Value": "200 benefits",
-  "unemploymentBracket2": "18–21 months contrib.",
+  "unemploymentBracket2": "12–17 months contrib.",
   "unemploymentBracket2Value": "260 benefits",
-  "unemploymentBracket3": ">= 22 months, < {age} yrs",
+  "unemploymentBracket3": ">= 18 months, except 520 from {age}",
   "@unemploymentBracket3": {
     "placeholders": {
       "age": {
@@ -4254,7 +4348,7 @@
     }
   },
   "unemploymentBracket3Value": "400 benefits",
-  "unemploymentBracket4": ">= 22 months, >= {age} yrs",
+  "unemploymentBracket4": ">= 22 months, from {age} / IV",
   "@unemploymentBracket4": {
     "placeholders": {
       "age": {

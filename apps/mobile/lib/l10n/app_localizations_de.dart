@@ -2640,6 +2640,13 @@ class SDe extends S {
   String get unemploymentContribTitle => 'Beitragsmonate (letzte 2 Jahre)';
 
   @override
+  String get unemploymentContribConfirmHint =>
+      'Dieser Wert bestimmt die Bezugsdauer. Bestaetige ihn, bevor die Berechnung angezeigt wird.';
+
+  @override
+  String get unemploymentContribConfirmCta => 'Diese Annahme bestaetigen';
+
+  @override
   String unemploymentContribValue(int months) {
     return '$months Monate';
   }
@@ -2768,6 +2775,195 @@ class SDe extends S {
   @override
   String get unemploymentDisclaimer =>
       'Pädagogische Schätzungen — keine Beratung im Sinne des FIDLEG — AVIG/BVG/BVV3. Die angegebenen Beträge sind ungefähr und hängen von deiner persönlichen Situation ab. Wende dich an eine Fachperson oder das RAV deines Kantons.';
+
+  @override
+  String get unemploymentMonthlyLoss => 'Geschätzter Verlust /Monat';
+
+  @override
+  String get unemploymentInvalidMonthlyEarningsReason =>
+      'Das monatliche Referenzeinkommen muss höher als CHF 0 sein. Prüfe den im Profil gespeicherten Lohn.';
+
+  @override
+  String unemploymentInsufficientContributionsReason(int months) {
+    return 'Mindestens 12 Beitragsmonate erforderlich (du hast $months Monate).';
+  }
+
+  @override
+  String unemploymentPremierEclairageLoss(String amount, String percent) {
+    return 'Du könntest rund $amount/Monat verlieren, also $percent% deines Referenzeinkommens.';
+  }
+
+  @override
+  String get unemploymentTimelineTitle => 'AKTIONSPLAN';
+
+  @override
+  String get unemploymentTimelineUrgent => 'Dringend';
+
+  @override
+  String get unemploymentTimelineWeek1 => 'Woche 1';
+
+  @override
+  String get unemploymentTimelineMonth1 => 'Monat 1';
+
+  @override
+  String get unemploymentTimelineMonths2to3 => 'Monate 2-3';
+
+  @override
+  String unemploymentTimelineDayBadge(int day) {
+    return 'T$day';
+  }
+
+  @override
+  String get unemploymentTimelineRegisterOrpAction => 'RAV-Anmeldung';
+
+  @override
+  String get unemploymentTimelineRegisterOrpDescription =>
+      'Melde dich ab dem ersten Tag ohne Arbeit beim regionalen Arbeitsvermittlungszentrum an.';
+
+  @override
+  String get unemploymentTimelineFileClaimAction => 'Arbeitslosendossier';
+
+  @override
+  String get unemploymentTimelineFileClaimDescription =>
+      'Reiche die Unterlagen bei deiner Arbeitslosenkasse ein, um den Anspruch zu eröffnen.';
+
+  @override
+  String get unemploymentTimelineWaitingPeriodAction => 'Ende der Wartefrist';
+
+  @override
+  String get unemploymentTimelineWaitingPeriodDescription =>
+      'Die anfängliche Wartefrist wird nicht entschädigt. Plane den passenden Liquiditätspuffer.';
+
+  @override
+  String get unemploymentTimelineBudgetAction => 'Budgetcheck';
+
+  @override
+  String get unemploymentTimelineBudgetDescription =>
+      'Passe die Ausgaben an das geschätzte neue Einkommen an und schütze die Fixkosten.';
+
+  @override
+  String get unemploymentTimelineLppAction => 'BVG-Transfer';
+
+  @override
+  String get unemploymentTimelineLppDescription =>
+      'Übertrage das BVG-Guthaben bei Bedarf auf ein Freizügigkeitskonto.';
+
+  @override
+  String get unemploymentTimelinePause3aAction => '3a pausieren';
+
+  @override
+  String get unemploymentTimelinePause3aDescription =>
+      'Ohne Erwerbseinkommen müssen Säule-3a-Zahlungen überprüft werden.';
+
+  @override
+  String get unemploymentTimelineLamalAction => 'LAMal-Prüfung';
+
+  @override
+  String get unemploymentTimelineLamalDescription =>
+      'Prüfe beim Kanton den Anspruch auf Prämienverbilligung.';
+
+  @override
+  String get unemploymentTimelineOrpReviewAction => 'RAV-Bilanz';
+
+  @override
+  String get unemploymentTimelineOrpReviewDescription =>
+      'Mache einen strukturierten Zwischenstand mit deiner RAV-Fachperson.';
+
+  @override
+  String get unemploymentCounterSemantics =>
+      'Arbeitslosigkeitstage-Zähler Zeitkapital';
+
+  @override
+  String get unemploymentCounterTitle => 'Dein Zeitkapital';
+
+  @override
+  String get unemploymentCounterAgeUnder25 => '< 25 Jahre';
+
+  @override
+  String get unemploymentCounterAge25To54 => '25–54 Jahre';
+
+  @override
+  String get unemploymentCounterAge55Plus => '≥ 55 Jahre';
+
+  @override
+  String get unemploymentCounterBracketUnder25NoChildren =>
+      'Unter 25, ohne Unterhaltspflicht';
+
+  @override
+  String get unemploymentCounterBracket12To17Months => '12–17 Beitragsmonate';
+
+  @override
+  String get unemploymentCounterBracket18PlusMonths => '18–24 Beitragsmonate';
+
+  @override
+  String get unemploymentCounterBracketSeniorOrDisability =>
+      '≥ 55 oder IV, 22+ Beitragsmonate';
+
+  @override
+  String unemploymentCounterMaxDaysSubtitle(String ageBand, int days) {
+    return '$ageBand → $days Taggelder';
+  }
+
+  @override
+  String unemploymentCounterMonthlyBenefitChip(String amount) {
+    return 'CHF $amount/Monat';
+  }
+
+  @override
+  String unemploymentCounterApproxMonthsChip(Object months) {
+    return '≈ $months Monate';
+  }
+
+  @override
+  String unemploymentCounterDaysUsed(Object days) {
+    return 'Genutzte Tage: $days';
+  }
+
+  @override
+  String unemploymentCounterDaysRemaining(Object days) {
+    return 'Verbleibend: $days';
+  }
+
+  @override
+  String get unemploymentCounterDayStart => 'Tag 0';
+
+  @override
+  String unemploymentCounterDayEnd(Object days) {
+    return 'Tag $days → CHF 0';
+  }
+
+  @override
+  String get unemploymentCounterRemainingDaysLabel => 'Verbleibende Tage';
+
+  @override
+  String get unemploymentCounterApproxLabel => 'Etwa';
+
+  @override
+  String unemploymentCounterMonthsValue(Object months) {
+    return '$months Monate';
+  }
+
+  @override
+  String get unemploymentCounterAgeBracketHeader => 'AVIG-Regel';
+
+  @override
+  String get unemploymentCounterMaxBenefitsHeader => 'Taggelder';
+
+  @override
+  String unemploymentCounterDaysValue(Object days) {
+    return '$days Tage';
+  }
+
+  @override
+  String get unemploymentCounterZeroChfTitle => 'Nach dem letzten Tag: CHF 0';
+
+  @override
+  String get unemploymentCounterZeroChfBody =>
+      'Keine Verlängerung. Danach folgt Sozialhilfe ohne zusätzliche Schonfrist.';
+
+  @override
+  String get unemploymentCounterDisclaimer =>
+      'Pädagogisches Tool · keine Finanzberatung im Sinne des FIDLEG. Quelle: AVIG Art. 27-30.';
 
   @override
   String get firstJobTitle => 'Erster Job';
@@ -9101,20 +9297,20 @@ class SDe extends S {
   String get unemploymentGainMax => 'CHF 12\'350';
 
   @override
-  String get unemploymentBracket1 => '12–17 Monate Beitrag';
+  String get unemploymentBracket1 => 'Unter 25, keine Kinder';
 
   @override
   String get unemploymentBracket1Value => '200 Taggelder';
 
   @override
-  String get unemploymentBracket2 => '18–21 Monate Beitrag';
+  String get unemploymentBracket2 => '12–17 Monate Beitrag';
 
   @override
   String get unemploymentBracket2Value => '260 Taggelder';
 
   @override
   String unemploymentBracket3(int age) {
-    return '>= 22 Monate, < $age J.';
+    return '>= 18 Monate, ausser 520 ab $age';
   }
 
   @override
@@ -9122,7 +9318,7 @@ class SDe extends S {
 
   @override
   String unemploymentBracket4(int age) {
-    return '>= 22 Monate, >= $age J.';
+    return '>= 22 Monate, ab $age / IV';
   }
 
   @override
@@ -23099,6 +23295,7 @@ class SDe extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+
   @override
   String get lowConfidenceCardTitle =>
       'Nicht genug Daten für eine verlässliche Projektion';

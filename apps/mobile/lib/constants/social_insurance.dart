@@ -85,7 +85,7 @@ const double lppTauxConversionSurobligDecimal = 0.058;
 /// Le taux reel varie significativement par caisse (0.1% a 0.5%/an).
 /// Cette valeur est une estimation educative (moyenne observee).
 /// Source: CHS PP - Rapport sur la situation financiere des caisses LPP.
-/// Note: toujours afficher "confirme avec ta caisse" dans les projections.
+/// Note: projections must ask users to confirm with their pension fund.
 const double lppEarlyRetirementRateReduction = 0.002;
 
 /// Taux d'interet minimum LPP en % (fixe par le Conseil federal).
@@ -321,22 +321,25 @@ const double acIndemniteTaux = 0.70;
 /// Taux d'indemnite chomage avec charges de famille: 80%.
 const double acIndemniteTauxChargeFamille = 0.80;
 
+/// Nombre moyen de jours ouvrables indemnises par mois.
+const double acJoursOuvrablesMoisMoyen = 21.75;
+
 /// Duree maximale des indemnites de chomage (LACI art. 27 al. 2).
 ///
-/// La duree depend de la periode de cotisation ET de l'age.
-/// Les valeurs ci-dessous correspondent au cas standard (>= 22 mois de cotisation).
-/// Pour des periodes courtes (12-17 mois → 200j, 18-21 mois → 260j).
+/// La duree depend de la periode de cotisation, de l'age et des obligations
+/// d'entretien. Grille SECO actuelle: 12-17 mois -> 260j, des 18 mois -> 400j,
+/// 22 mois + 55 ans/AI -> 520j, exception <25 ans sans enfant -> 200j.
 
-/// < 22 mois de cotisation (typiquement < 25 ans en debut de carriere).
+/// Moins de 25 ans sans obligation d'entretien.
 const int acJoursMinCotisation = 200;
 
-/// 18-21 mois de cotisation (cas intermediaire).
+/// 12-17 mois de cotisation, hors exception moins de 25 ans sans enfant.
 const int acJoursIntermediaireCotisation = 260;
 
-/// >= 22 mois de cotisation, age < 55 ans (LACI art. 27 al. 2 lit. c).
+/// Des 18 mois de cotisation, hors cas senior/AI a 520.
 const int acJoursStandard = 400;
 
-/// >= 22 mois de cotisation, age >= 55 ans (LACI art. 27 al. 2 lit. d).
+/// >= 22 mois de cotisation, age >= 55 ans ou rente AI >= 40%.
 const int acJoursSenior = 520;
 
 /// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. d).
@@ -598,14 +601,13 @@ const double lamalQuotePartMaxJeunesAdultes = 350.0;
 //     (art. 7a al. 2), pas de l'année manquée.
 // ══════════════════════════════════════════════════════════════════════════════
 
-/// Plafond 3a salarié avec LPP — déjà défini plus haut (7258 CHF en 2026).
-/// C'est ce plafond (de l'année du rachat) qui s'applique à chaque année
-/// rachetée, PAS un plafond historique.
+/// 3a ceiling for employees with LPP, already defined above (7258 CHF in 2026).
+/// The ceiling from the buyback year applies to every bought-back year, not a
+/// historical ceiling.
 ///
-/// Map conservée pour compat code mais réduite aux années 2025+ (seules
-/// rachetables). Les valeurs 2025 et 2026 sont identiques par design
-/// fédéral (le plafond suit l'indexation OFAS mais n'a pas changé sur
-/// la courte fenêtre). À jour au 06.11.2024.
+/// Kept for compatibility, but reduced to 2025+ because only those years can be
+/// bought back. The 2025 and 2026 values intentionally match; the ceiling follows
+/// OFAS indexation but did not change in this short window. Current at 2024-11-06.
 const Map<int, double> pilier3aHistoricalLimits = {
   2025: 7258.0,
   2026: 7258.0,

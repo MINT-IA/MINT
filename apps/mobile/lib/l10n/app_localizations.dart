@@ -4875,6 +4875,18 @@ abstract class S {
   /// **'Mois de cotisation (2 dernières années)'**
   String get unemploymentContribTitle;
 
+  /// No description provided for @unemploymentContribConfirmHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette valeur détermine la durée du droit. Confirme-la avant d\'afficher le calcul.'**
+  String get unemploymentContribConfirmHint;
+
+  /// No description provided for @unemploymentContribConfirmCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer cette hypothèse'**
+  String get unemploymentContribConfirmCta;
+
   /// No description provided for @unemploymentContribValue.
   ///
   /// In fr, this message translates to:
@@ -5096,6 +5108,312 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Estimations éducatives — ne constitue pas un conseil au sens de la LSFin — LACI/LPP/OPP3. Les montants présentés sont approximatifs et dépendent de ta situation personnelle. Consulte un·e spécialiste ou l\'ORP de ton canton.'**
   String get unemploymentDisclaimer;
+
+  /// No description provided for @unemploymentMonthlyLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte estimée /mois'**
+  String get unemploymentMonthlyLoss;
+
+  /// No description provided for @unemploymentInvalidMonthlyEarningsReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu mensuel de référence doit être supérieur à CHF 0. Vérifie le salaire enregistré dans ton profil.'**
+  String get unemploymentInvalidMonthlyEarningsReason;
+
+  /// No description provided for @unemploymentInsufficientContributionsReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 12 mois de cotisation requis (tu as {months} mois).'**
+  String unemploymentInsufficientContributionsReason(int months);
+
+  /// No description provided for @unemploymentPremierEclairageLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pourrais perdre environ {amount}/mois, soit {percent}% de ton revenu de référence.'**
+  String unemploymentPremierEclairageLoss(String amount, String percent);
+
+  /// No description provided for @unemploymentTimelineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'PLAN D\'ACTION'**
+  String get unemploymentTimelineTitle;
+
+  /// No description provided for @unemploymentTimelineUrgent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Urgent'**
+  String get unemploymentTimelineUrgent;
+
+  /// No description provided for @unemploymentTimelineWeek1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine 1'**
+  String get unemploymentTimelineWeek1;
+
+  /// No description provided for @unemploymentTimelineMonth1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois 1'**
+  String get unemploymentTimelineMonth1;
+
+  /// No description provided for @unemploymentTimelineMonths2to3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois 2-3'**
+  String get unemploymentTimelineMonths2to3;
+
+  /// No description provided for @unemploymentTimelineDayBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'J{day}'**
+  String unemploymentTimelineDayBadge(int day);
+
+  /// No description provided for @unemploymentTimelineRegisterOrpAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription ORP'**
+  String get unemploymentTimelineRegisterOrpAction;
+
+  /// No description provided for @unemploymentTimelineRegisterOrpDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscris-toi à l\'office régional de placement dès le premier jour sans emploi.'**
+  String get unemploymentTimelineRegisterOrpDescription;
+
+  /// No description provided for @unemploymentTimelineFileClaimAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier chômage'**
+  String get unemploymentTimelineFileClaimAction;
+
+  /// No description provided for @unemploymentTimelineFileClaimDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépose les pièces auprès de ta caisse de chômage pour ouvrir le droit.'**
+  String get unemploymentTimelineFileClaimDescription;
+
+  /// No description provided for @unemploymentTimelineWaitingPeriodAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin du délai de carence'**
+  String get unemploymentTimelineWaitingPeriodAction;
+
+  /// No description provided for @unemploymentTimelineWaitingPeriodDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le délai initial n\'est pas indemnisé. Prévois la trésorerie correspondante.'**
+  String get unemploymentTimelineWaitingPeriodDescription;
+
+  /// No description provided for @unemploymentTimelineBudgetAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan budget'**
+  String get unemploymentTimelineBudgetAction;
+
+  /// No description provided for @unemploymentTimelineBudgetDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuste les dépenses au nouveau revenu estimé et protège les charges fixes.'**
+  String get unemploymentTimelineBudgetDescription;
+
+  /// No description provided for @unemploymentTimelineLppAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transfert LPP'**
+  String get unemploymentTimelineLppAction;
+
+  /// No description provided for @unemploymentTimelineLppDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transfère l\'avoir LPP sur un compte de libre passage si nécessaire.'**
+  String get unemploymentTimelineLppDescription;
+
+  /// No description provided for @unemploymentTimelinePause3aAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause 3a'**
+  String get unemploymentTimelinePause3aAction;
+
+  /// No description provided for @unemploymentTimelinePause3aDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans revenu lucratif, les versements 3a doivent être revus.'**
+  String get unemploymentTimelinePause3aDescription;
+
+  /// No description provided for @unemploymentTimelineLamalAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révision LAMal'**
+  String get unemploymentTimelineLamalAction;
+
+  /// No description provided for @unemploymentTimelineLamalDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie les droits à une réduction de prime auprès du canton.'**
+  String get unemploymentTimelineLamalDescription;
+
+  /// No description provided for @unemploymentTimelineOrpReviewAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilan ORP'**
+  String get unemploymentTimelineOrpReviewAction;
+
+  /// No description provided for @unemploymentTimelineOrpReviewDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais un point structuré avec ton ou ta spécialiste ORP.'**
+  String get unemploymentTimelineOrpReviewDescription;
+
+  /// No description provided for @unemploymentCounterSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compteur jours chômage capital temps'**
+  String get unemploymentCounterSemantics;
+
+  /// No description provided for @unemploymentCounterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton capital temps'**
+  String get unemploymentCounterTitle;
+
+  /// No description provided for @unemploymentCounterAgeUnder25.
+  ///
+  /// In fr, this message translates to:
+  /// **'< 25 ans'**
+  String get unemploymentCounterAgeUnder25;
+
+  /// No description provided for @unemploymentCounterAge25To54.
+  ///
+  /// In fr, this message translates to:
+  /// **'25–54 ans'**
+  String get unemploymentCounterAge25To54;
+
+  /// No description provided for @unemploymentCounterAge55Plus.
+  ///
+  /// In fr, this message translates to:
+  /// **'≥ 55 ans'**
+  String get unemploymentCounterAge55Plus;
+
+  /// No description provided for @unemploymentCounterBracketUnder25NoChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'< 25 ans, sans obligation d\'entretien'**
+  String get unemploymentCounterBracketUnder25NoChildren;
+
+  /// No description provided for @unemploymentCounterBracket12To17Months.
+  ///
+  /// In fr, this message translates to:
+  /// **'12–17 mois cotisés'**
+  String get unemploymentCounterBracket12To17Months;
+
+  /// No description provided for @unemploymentCounterBracket18PlusMonths.
+  ///
+  /// In fr, this message translates to:
+  /// **'18–24 mois cotisés'**
+  String get unemploymentCounterBracket18PlusMonths;
+
+  /// No description provided for @unemploymentCounterBracketSeniorOrDisability.
+  ///
+  /// In fr, this message translates to:
+  /// **'≥ 55 ans ou AI, 22+ mois cotisés'**
+  String get unemploymentCounterBracketSeniorOrDisability;
+
+  /// No description provided for @unemploymentCounterMaxDaysSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{ageBand} → {days} indemnités journalières'**
+  String unemploymentCounterMaxDaysSubtitle(String ageBand, int days);
+
+  /// No description provided for @unemploymentCounterMonthlyBenefitChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {amount}/mois'**
+  String unemploymentCounterMonthlyBenefitChip(String amount);
+
+  /// No description provided for @unemploymentCounterApproxMonthsChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'≈ {months} mois'**
+  String unemploymentCounterApproxMonthsChip(Object months);
+
+  /// No description provided for @unemploymentCounterDaysUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours utilisés : {days}'**
+  String unemploymentCounterDaysUsed(Object days);
+
+  /// No description provided for @unemploymentCounterDaysRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restants : {days}'**
+  String unemploymentCounterDaysRemaining(Object days);
+
+  /// No description provided for @unemploymentCounterDayStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour 0'**
+  String get unemploymentCounterDayStart;
+
+  /// No description provided for @unemploymentCounterDayEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour {days} → 0 CHF'**
+  String unemploymentCounterDayEnd(Object days);
+
+  /// No description provided for @unemploymentCounterRemainingDaysLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours restants'**
+  String get unemploymentCounterRemainingDaysLabel;
+
+  /// No description provided for @unemploymentCounterApproxLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soit environ'**
+  String get unemploymentCounterApproxLabel;
+
+  /// No description provided for @unemploymentCounterMonthsValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{months} mois'**
+  String unemploymentCounterMonthsValue(Object months);
+
+  /// No description provided for @unemploymentCounterAgeBracketHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repère LACI'**
+  String get unemploymentCounterAgeBracketHeader;
+
+  /// No description provided for @unemploymentCounterMaxBenefitsHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indemnités'**
+  String get unemploymentCounterMaxBenefitsHeader;
+
+  /// No description provided for @unemploymentCounterDaysValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours'**
+  String unemploymentCounterDaysValue(Object days);
+
+  /// No description provided for @unemploymentCounterZeroChfTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après le dernier jour : 0 CHF'**
+  String get unemploymentCounterZeroChfTitle;
+
+  /// No description provided for @unemploymentCounterZeroChfBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de prolongation. Tu passes à l\'aide sociale — sans délai de grâce.'**
+  String get unemploymentCounterZeroChfBody;
+
+  /// No description provided for @unemploymentCounterDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LACI art. 27-30.'**
+  String get unemploymentCounterDisclaimer;
 
   /// No description provided for @firstJobTitle.
   ///
@@ -16120,7 +16438,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket1.
   ///
   /// In fr, this message translates to:
-  /// **'12–17 mois cotis.'**
+  /// **'Moins de 25 ans, sans enfant'**
   String get unemploymentBracket1;
 
   /// No description provided for @unemploymentBracket1Value.
@@ -16132,7 +16450,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket2.
   ///
   /// In fr, this message translates to:
-  /// **'18–21 mois cotis.'**
+  /// **'12–17 mois cotis.'**
   String get unemploymentBracket2;
 
   /// No description provided for @unemploymentBracket2Value.
@@ -16144,7 +16462,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket3.
   ///
   /// In fr, this message translates to:
-  /// **'>= 22 mois, < {age} ans'**
+  /// **'>= 18 mois, hors 520 dès {age} ans'**
   String unemploymentBracket3(int age);
 
   /// No description provided for @unemploymentBracket3Value.
@@ -16156,7 +16474,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket4.
   ///
   /// In fr, this message translates to:
-  /// **'>= 22 mois, >= {age} ans'**
+  /// **'>= 22 mois, dès {age} ans / AI'**
   String unemploymentBracket4(int age);
 
   /// No description provided for @unemploymentBracket4Value.
