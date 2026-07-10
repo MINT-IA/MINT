@@ -130,6 +130,13 @@ Widget buildWithCoachProfileRouter(
           key: const Key('data_block_route_probe'),
         ),
       ),
+      GoRoute(
+        path: '/budget/setup',
+        builder: (_, __) => const Text(
+          'budget-setup',
+          key: Key('budget_setup_route_probe'),
+        ),
+      ),
     ],
   );
 
@@ -206,10 +213,14 @@ Map<String, dynamic> independentAnswers({
 Map<String, dynamic> disabilityInsuranceAnswers({
   double? grossSalaryAnnual,
   double? cashTotal,
+  double? monthlyHousing,
+  double? monthlyLamal,
 }) {
   return {
     if (grossSalaryAnnual != null) 'q_gross_salary_annual': grossSalaryAnnual,
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
+    if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     'q_employment_status': 'salarie',
   };
 }
@@ -805,6 +816,8 @@ void main() {
         disabilityInsuranceAnswers(
           grossSalaryAnnual: 96000,
           cashTotal: 42000,
+          monthlyHousing: 2200,
+          monthlyLamal: 420,
         ),
       );
 
@@ -821,8 +834,13 @@ void main() {
         find.byKey(const Key('disability_insurance_savings_fact')),
         findsOneWidget,
       );
+      expect(
+        find.byKey(const Key('disability_insurance_expenses_fact')),
+        findsOneWidget,
+      );
       expect(find.textContaining("8'000"), findsOneWidget);
       expect(find.textContaining("42'000"), findsOneWidget);
+      expect(find.textContaining("2'620"), findsOneWidget);
       expect(
         find.byKey(const Key('disability_insurance_result_section')),
         findsOneWidget,
@@ -855,7 +873,7 @@ void main() {
       expect(find.byType(MintPremiumSlider), findsNothing);
       expect(find.textContaining("8'000"), findsNothing);
       expect(find.textContaining("42'000"), findsNothing);
-      expect(find.text('Manquant'), findsNWidgets(2));
+      expect(find.text('Manquant'), findsNWidgets(3));
       expect(
         find.byKey(const Key('disability_insurance_result_section')),
         findsNothing,
@@ -885,6 +903,29 @@ void main() {
         find.text('data-block:patrimoine:q_cash_total'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('routes missing expenses to budget setup', (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        disabilityInsuranceAnswers(
+          grossSalaryAnnual: 96000,
+          cashTotal: 42000,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(
+          provider,
+          child: const DisabilityInsuranceScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester
+          .tap(find.byKey(const Key('disability_insurance_enrich_cta')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('budget-setup'), findsOneWidget);
     });
   });
 

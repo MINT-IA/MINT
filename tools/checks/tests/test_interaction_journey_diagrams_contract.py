@@ -78,6 +78,8 @@ def test_health_disability_diagram_pins_ledger_first_boundary() -> None:
         "Cash --> SelfResult",
         "FixedCharges --> SelfResult",
         "FixedCharges --> GapResult",
+        "Employee --> FixedCharges",
+        "FixedCharges --> EmployeeResult",
         "disability_gap_result_section",
         "disability_insurance_result_section",
         "disability_self_result_cards",

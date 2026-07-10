@@ -97,8 +97,12 @@ def test_disability_insurance_contract_is_ledger_first() -> None:
 
     assert "`q_gross_salary_annual`" in insurance_row
     assert "`q_cash_total`" in insurance_row
+    assert "`q_housing_cost_period_chf`" in insurance_row
+    assert "`q_lamal_premium_monthly_chf`" in insurance_row
+    assert "`depenses.*`" in insurance_row
     assert "/data-block/revenu?inputKey=q_gross_salary_annual" in insurance_row
     assert "/data-block/patrimoine?inputKey=q_cash_total" in insurance_row
+    assert "/budget/setup" in insurance_row
     assert "/data-block/lpp" not in insurance_row
     assert "salaireBrutMensuel" not in insurance_row
     assert "`q_gross_salary_annual`" in gap_row

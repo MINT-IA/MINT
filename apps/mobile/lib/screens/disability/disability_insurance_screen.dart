@@ -60,11 +60,22 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     return savings.toDouble();
   }
 
+  double? _monthlyExpenses(CoachProfile? profile) {
+    if (profile == null ||
+        !profile.userProvidedFields.contains('monthlyExpenses')) {
+      return null;
+    }
+    final expenses = profile.depenses.totalMensuel;
+    if (expenses <= 0) return null;
+    return expenses.toDouble();
+  }
+
   // ── Scorecard items ───────────────────────────────────────
 
   List<CoverageItem> _scorecardItems({
     required double grossMonthly,
     required double savings,
+    required double monthlyExpenses,
   }) {
     final s = S.of(context)!;
     final hasLpp = DisabilityInsuranceCalculator.hasLppInvalidityCoverage(
@@ -88,8 +99,9 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
         hasLpp ? s.disabilityGapLppCovered : s.disabilityGapLppNotCovered;
 
     // Épargne
-    final monthsReserve = DisabilityInsuranceCalculator.emergencyReserveMonths(
-      grossMonthlySalary: grossMonthly,
+    final monthsReserve =
+        DisabilityInsuranceCalculator.emergencyReserveMonthsFromExpenses(
+      monthlyExpenses: monthlyExpenses,
       liquidSavings: savings,
     );
     final String savingsGrade;
@@ -139,6 +151,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
   String _overallGrade({
     required double grossMonthly,
     required double savings,
+    required double monthlyExpenses,
   }) {
     int score = 0;
     if (_hasIjm || _hasPrivateInsurance) score += 3;
@@ -147,8 +160,9 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     )) {
       score += 2;
     }
-    final monthsReserve = DisabilityInsuranceCalculator.emergencyReserveMonths(
-      grossMonthlySalary: grossMonthly,
+    final monthsReserve =
+        DisabilityInsuranceCalculator.emergencyReserveMonthsFromExpenses(
+      monthlyExpenses: monthlyExpenses,
       liquidSavings: savings,
     );
     if (monthsReserve >= 3) score += 2;
@@ -191,9 +205,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = _profileProvider(context);
-    final grossMonthly = _grossMonthlySalary(provider?.profile);
-    final savings = _liquidSavings(provider?.profile);
-    final hasRequiredFacts = grossMonthly != null && savings != null;
+    final profile = provider?.profile;
+    final grossMonthly = _grossMonthlySalary(profile);
+    final savings = _liquidSavings(profile);
+    final monthlyExpenses = _monthlyExpenses(profile);
+    final hasRequiredFacts =
+        grossMonthly != null && savings != null && monthlyExpenses != null;
 
     return Scaffold(
       backgroundColor: MintColors.background,
@@ -213,6 +230,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                           S.of(context)!,
                           grossMonthly: grossMonthly,
                           savings: savings,
+                          monthlyExpenses: monthlyExpenses,
                         ),
                         const SizedBox(height: 20),
                         if (hasRequiredFacts) ...[
@@ -224,10 +242,12 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                               items: _scorecardItems(
                                 grossMonthly: grossMonthly,
                                 savings: savings,
+                                monthlyExpenses: monthlyExpenses,
                               ),
                               overallGrade: _overallGrade(
                                 grossMonthly: grossMonthly,
                                 savings: savings,
+                                monthlyExpenses: monthlyExpenses,
                               ),
                               lifeDropPercent: _lifeDropPercent(grossMonthly),
                             ),
@@ -308,15 +328,19 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     S s, {
     required double? grossMonthly,
     required double? savings,
+    required double? monthlyExpenses,
   }) {
     final missingSalary = grossMonthly == null;
     final missingSavings = savings == null;
-    final hasMissing = missingSalary || missingSavings;
+    final missingExpenses = monthlyExpenses == null;
+    final hasMissing = missingSalary || missingSavings || missingExpenses;
     final route = missingSalary
         ? '/data-block/revenu?inputKey=q_gross_salary_annual'
         : missingSavings
             ? '/data-block/patrimoine?inputKey=q_cash_total'
-            : '/data-block/revenu?inputKey=q_gross_salary_annual';
+            : missingExpenses
+                ? '/budget/setup'
+                : '/data-block/revenu?inputKey=q_gross_salary_annual';
 
     return Semantics(
       key: const Key('disability_insurance_ledger_facts'),
@@ -386,6 +410,18 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             const SizedBox(height: 16),
             MintEntrance(
                 delay: const Duration(milliseconds: 300),
+                child: _buildFactRow(
+                  key: const Key('disability_insurance_expenses_fact'),
+                  identifier: 'disability_insurance_expenses_fact',
+                  label: s.emergencyFundChargesLabel,
+                  value: monthlyExpenses == null
+                      ? s.dataBlockStatusMissing
+                      : 'CHF ${_fmtChf(monthlyExpenses)}',
+                  missing: missingExpenses,
+                )),
+            const SizedBox(height: 16),
+            MintEntrance(
+                delay: const Duration(milliseconds: 400),
                 child: _buildToggleRow(
                   label: S.of(context)!.disabilityInsIjmEmployer,
                   value: _hasIjm,
@@ -393,7 +429,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
                 )),
             const SizedBox(height: 8),
             MintEntrance(
-                delay: const Duration(milliseconds: 400),
+                delay: const Duration(milliseconds: 500),
                 child: _buildToggleRow(
                   label: S.of(context)!.disabilityInsPrivateLossInsurance,
                   value: _hasPrivateInsurance,
