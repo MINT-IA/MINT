@@ -11859,6 +11859,10 @@ class SFr extends S {
       'Assurance perte de gain privée';
 
   @override
+  String get disabilityInsPrivateInsuranceDetail =>
+      'Couverture personnelle à confirmer dans le contrat: délai d\'attente, montant assuré et durée des prestations.';
+
+  @override
   String get disabilityInsDisclaimer =>
       'Outil éducatif — ne constitue pas un conseil en assurance. Les montants de franchise et primes sont indicatifs. Compare les offres sur comparaison.ch ou via un·e courtier·ère indépendant·e.';
 

@@ -11876,6 +11876,10 @@ class SIt extends S {
       'Assicurazione privata perdita di guadagno';
 
   @override
+  String get disabilityInsPrivateInsuranceDetail =>
+      'Copertura personale da confermare nella polizza: periodo di attesa, importo assicurato e durata delle prestazioni.';
+
+  @override
   String get disabilityInsDisclaimer =>
       'Strumento educativo — non costituisce consulenza assicurativa. Gli importi di franchigia e premi sono indicativi. Confronta le offerte su comparaison.ch o tramite un·a broker·a indipendente.';
 

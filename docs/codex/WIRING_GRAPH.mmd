@@ -160,6 +160,9 @@ flowchart TB
     ARGENT --> BUD --> BSET
     ARGENT --> CDEBT --> DRATIO & DHELP & DREPAY
     COACH --> DBLOCK
+    INVAL -- "missing q_gross_salary_annual / q_birth_year / q_cash_total" --> DBLOCK
+    DINS -- "missing q_gross_salary_annual / q_cash_total" --> DBLOCK
+    DSELF -- "missing q_self_employed_income" --> DBLOCK
     COACH --> SCAN --> SCANAVS
     SCAN --> SREVIEW --> SIMPACT
     COACH --> RAPPORT --> CONF

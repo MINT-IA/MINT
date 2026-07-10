@@ -5695,6 +5695,7 @@
   "disabilityInsSavings": "Poupança disponível",
   "disabilityInsIjmEmployer": "Subsídio de doença via empregador",
   "disabilityInsPrivateLossInsurance": "Seguro privado de perda de rendimento",
+  "disabilityInsPrivateInsuranceDetail": "Cobertura pessoal a confirmar na apólice: período de espera, montante segurado e duração das prestações.",
   "disabilityInsDisclaimer": "Ferramenta educativa — não constitui aconselhamento em seguros. Os montantes de franquia e prémios são indicativos. Compara as ofertas em comparaison.ch ou através de um·a corretor·a independente.",
   "disabilityInsSources": "• LAMal art. 64-64a (franquia)\n• OAMal art. 93 (prémios)\n• LAI art. 28 (pensão de invalidez)\n• LPP art. 23-26 (invalidez 2.º pilar)",
   "repaymentDiffStrategies": "Diferença entre as duas estratégias: CHF {amount}",

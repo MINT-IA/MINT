@@ -11877,6 +11877,10 @@ class SDe extends S {
       'Private Erwerbsausfallversicherung';
 
   @override
+  String get disabilityInsPrivateInsuranceDetail =>
+      'Persönliche Deckung im Vertrag bestätigen: Wartefrist, versicherter Betrag und Leistungsdauer.';
+
+  @override
   String get disabilityInsDisclaimer =>
       'Bildungstool — kein Versicherungsrat. Franchise- und Prämienbeträge sind indikativ. Angebote auf comparaison.ch oder via unabhängige·n Broker·in vergleichen.';
 

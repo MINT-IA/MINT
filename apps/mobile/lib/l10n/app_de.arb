@@ -5700,6 +5700,7 @@
   "disabilityInsSavings": "Verfügbare Ersparnisse",
   "disabilityInsIjmEmployer": "Krankentaggeld über Arbeitgeber",
   "disabilityInsPrivateLossInsurance": "Private Erwerbsausfallversicherung",
+  "disabilityInsPrivateInsuranceDetail": "Persönliche Deckung im Vertrag bestätigen: Wartefrist, versicherter Betrag und Leistungsdauer.",
   "disabilityInsDisclaimer": "Bildungstool — kein Versicherungsrat. Franchise- und Prämienbeträge sind indikativ. Angebote auf comparaison.ch oder via unabhängige·n Broker·in vergleichen.",
   "disabilityInsSources": "• KVG Art. 64-64a (Franchise)\n• KVV Art. 93 (Prämien)\n• IVG Art. 28 (IV-Rente)\n• BVG Art. 23-26 (Invalidität 2. Säule)",
   "repaymentDiffStrategies": "Unterschied zwischen den Strategien: CHF {amount}",

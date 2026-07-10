@@ -40,6 +40,7 @@ flowchart LR
 
     PROFILE --> COUPLE[CoupleOptimizer]:::calc
     PROFILE --> CROSS[CrossPillarCalculator]:::calc
+    PROFILE --> DIS[DisabilityCalculator]:::calc
     PROFILE --> ARB[ArbitrageEngine]:::composer
     CROSS --> ARB
     TAX --> ARB
@@ -89,6 +90,7 @@ Julien + Lauren golden values.
 | **WithdrawalSequencingService** | `withdrawal_sequencing_service.dart` | retirement params | sequencing plan | DecaissementScreen |
 | **TornadoSensitivityService** | `tornado_sensitivity_service.dart` | FRI inputs | sensitivity chart data | FinancialSummaryScreen tornado chart |
 | **CompoundContributionProjectionCalculator** | `compound_contribution_projection_calculator.dart` | annual contribution, years, annual return | future value of repeated contributions | IndependantsService 3a projection bridge |
+| **DisabilityCalculator** | `disability_calculator.dart` | monthly salary, age, IJM/private coverage, liquid savings | disability income acts, LPP reset estimates, reserve grades, life-drop % | DisabilityGapScreen, DisabilityInsuranceScreen |
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 
 ---

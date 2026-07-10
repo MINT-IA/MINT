@@ -11795,6 +11795,10 @@ class SEn extends S {
       'Private loss of earnings insurance';
 
   @override
+  String get disabilityInsPrivateInsuranceDetail =>
+      'Personal coverage to confirm in the policy: waiting period, insured amount, and benefit duration.';
+
+  @override
   String get disabilityInsDisclaimer =>
       'Educational tool — does not constitute insurance advice. Deductible and premium amounts are indicative. Compare offers at comparaison.ch or via an independent broker.';
 

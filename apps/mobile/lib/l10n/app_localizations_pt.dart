@@ -11849,6 +11849,10 @@ class SPt extends S {
       'Seguro privado de perda de rendimento';
 
   @override
+  String get disabilityInsPrivateInsuranceDetail =>
+      'Cobertura pessoal a confirmar na apólice: período de espera, montante segurado e duração das prestações.';
+
+  @override
   String get disabilityInsDisclaimer =>
       'Ferramenta educativa — não constitui aconselhamento em seguros. Os montantes de franquia e prémios são indicativos. Compara as ofertas em comparaison.ch ou através de um·a corretor·a independente.';
 

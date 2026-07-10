@@ -5695,6 +5695,7 @@
   "disabilityInsSavings": "Risparmio disponibile",
   "disabilityInsIjmEmployer": "Indennità giornaliera tramite datore di lavoro",
   "disabilityInsPrivateLossInsurance": "Assicurazione privata perdita di guadagno",
+  "disabilityInsPrivateInsuranceDetail": "Copertura personale da confermare nella polizza: periodo di attesa, importo assicurato e durata delle prestazioni.",
   "disabilityInsDisclaimer": "Strumento educativo — non costituisce consulenza assicurativa. Gli importi di franchigia e premi sono indicativi. Confronta le offerte su comparaison.ch o tramite un·a broker·a indipendente.",
   "disabilityInsSources": "• LAMal art. 64-64a (franchigia)\n• OAMal art. 93 (premi)\n• LAI art. 28 (rendita AI)\n• LPP art. 23-26 (invalidità 2° pilastro)",
   "repaymentDiffStrategies": "Differenza tra le due strategie: CHF {amount}",

@@ -21037,6 +21037,12 @@ abstract class S {
   /// **'Assurance perte de gain privée'**
   String get disabilityInsPrivateLossInsurance;
 
+  /// No description provided for @disabilityInsPrivateInsuranceDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture personnelle à confirmer dans le contrat: délai d'attente, montant assuré et durée des prestations.'**
+  String get disabilityInsPrivateInsuranceDetail;
+
   /// No description provided for @disabilityInsDisclaimer.
   ///
   /// In fr, this message translates to:

@@ -11857,6 +11857,10 @@ class SEs extends S {
       'Seguro privado de pérdida de ganancias';
 
   @override
+  String get disabilityInsPrivateInsuranceDetail =>
+      'Cobertura personal que debe confirmarse en la póliza: periodo de espera, importe asegurado y duración de las prestaciones.';
+
+  @override
   String get disabilityInsDisclaimer =>
       'Herramienta educativa — no constituye asesoramiento en seguros. Los importes de franquicia y primas son indicativos. Compara ofertas en comparaison.ch o a través de un·a corredor·a independiente.';
 

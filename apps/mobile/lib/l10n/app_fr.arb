@@ -6002,6 +6002,7 @@
   "disabilityInsSavings": "Épargne disponible",
   "disabilityInsIjmEmployer": "IJM via mon employeur",
   "disabilityInsPrivateLossInsurance": "Assurance perte de gain privée",
+  "disabilityInsPrivateInsuranceDetail": "Couverture personnelle à confirmer dans le contrat: délai d'attente, montant assuré et durée des prestations.",
   "disabilityInsDisclaimer": "Outil éducatif — ne constitue pas un conseil en assurance. Les montants de franchise et primes sont indicatifs. Compare les offres sur comparaison.ch ou via un·e courtier·ère indépendant·e.",
   "disabilityInsSources": "• LAMal art. 64-64a (franchise)\n• OAMal art. 93 (primes)\n• LAI art. 28 (rente AI)\n• LPP art. 23-26 (invalidité 2e pilier)",
   "repaymentDiffStrategies": "Différence entre les deux stratégies : CHF {amount}",

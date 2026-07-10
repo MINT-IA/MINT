@@ -5700,6 +5700,7 @@
   "disabilityInsSavings": "Ahorro disponible",
   "disabilityInsIjmEmployer": "Seguro de pérdida de ganancias vía empleador",
   "disabilityInsPrivateLossInsurance": "Seguro privado de pérdida de ganancias",
+  "disabilityInsPrivateInsuranceDetail": "Cobertura personal que debe confirmarse en la póliza: periodo de espera, importe asegurado y duración de las prestaciones.",
   "disabilityInsDisclaimer": "Herramienta educativa — no constituye asesoramiento en seguros. Los importes de franquicia y primas son indicativos. Compara ofertas en comparaison.ch o a través de un·a corredor·a independiente.",
   "disabilityInsSources": "• LAMal art. 64-64a (franquicia)\n• OAMal art. 93 (primas)\n• LAI art. 28 (pensión de invalidez)\n• LPP art. 23-26 (invalidez 2° pilar)",
   "repaymentDiffStrategies": "Diferencia entre las dos estrategias: CHF {amount}",
