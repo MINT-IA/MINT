@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "flow": {
+    "id": "revenu_to_mortgage",
+    "title": "Faits de revenu canoniques vers capacité d'achat immobilier",
+    "exits": ["mortgage.route.hypotheque"],
+    "invariants": {
+      "max_depth": 4,
+      "back_never_loses_input": true,
+      "every_scene_has_exit": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "db.route.revenu",
+      "kind": "route",
+      "route": "/data-block/:type",
+      "widget": "screens/onboarding/data_block_enrichment_screen.dart",
+      "platforms": ["mobile"],
+      "entries": [
+        {"via": "flow", "back": "pop"},
+        {"via": "deeplink", "back": "reset_to(home.route.dashboard)"}
+      ],
+      "states": ["content", "loading", "error.compute"]
+    },
+    {
+      "id": "mortgage.route.hypotheque",
+      "kind": "route",
+      "route": "/hypotheque",
+      "widget": "screens/mortgage/affordability_screen.dart",
+      "platforms": ["mobile"],
+      "entries": [
+        {"via": "flow", "back": "pop"},
+        {"via": "tab", "back": "pop_to(home.route.dashboard)"}
+      ],
+      "states": ["content", "partial", "loading", "error.compute"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "db.edge.revenu.save_facts",
+      "from": "db.route.revenu",
+      "to": "db.route.revenu",
+      "trigger": "submit",
+      "intent": "Enregistrer mes faits de revenu dans le ledger",
+      "payload": {},
+      "transition": "in_shell",
+      "back": "pop",
+      "analytics": "cta_clicked",
+      "a11y_label": "financialSummaryEnregistrer",
+      "test_ref": "apps/mobile/.maestro/f2_datablock_to_mortgage.yaml"
+    },
+    {
+      "id": "db.edge.revenu.open_mortgage_deeplink",
+      "from": "db.route.revenu",
+      "to": "mortgage.route.hypotheque",
+      "trigger": "system",
+      "intent": "Ouvrir l'écran hypothèque et vérifier qu'il lit les faits de revenu persistés",
+      "payload": {},
+      "transition": "reset_stack",
+      "back": "pop",
+      "test_ref": "apps/mobile/.maestro/f2_datablock_to_mortgage.yaml"
+    }
+  ]
+}

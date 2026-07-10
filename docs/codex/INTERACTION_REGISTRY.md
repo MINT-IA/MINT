@@ -55,6 +55,22 @@ les edges). Décision à prendre au moment de l'étape 1, pas avant.
 | D10 | Index généré **une-ligne-par-edge** (`interactions/INDEX.md`) pour la lecture agents ; les YAML par flux restent la source. |
 | D11 | **(v1.1)** Relation aux specs existantes : `SCREEN_CONTRACTS.md` tables par route et `WIRING_GRAPH` deviennent des **artefacts générés** dès qu'un flux est migré ; un flux non migré reste gouverné par les docs actuels. Lint `contract_double_authority` : une route ne peut pas être déclarée à la fois dans un flux migré et éditée à la main dans les docs générés. |
 
+## 0.d Première tranche exécutable, sans executor
+
+Le registre reste `Status: Proposed` et ne génère pas encore de navigation
+Flutter. La première tranche active est volontairement bornée :
+
+- source : `interactions/revenu_to_mortgage.yaml`;
+- vue agents : `interactions/INDEX.md`;
+- vérification : `python3 tools/checks/interaction_registry_lint.py`;
+- preuve runtime référencée : `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml`.
+
+Le lint vérifie uniquement que les edges déclarées pointent vers des routes,
+widgets, clés ARB, events analytics et preuves de test existants, et que
+`payload.extra` ne transporte pas d'objet domaine. Cette tranche ne remplace pas
+encore `SCREEN_CONTRACTS.md` ni `WIRING_GRAPH.mmd`; elle matérialise l'étape 1
+("Photo") et prépare le ratchet flux par flux.
+
 ## 1. Modèle
 
 Trois entités : **node** (écran ou scène), **edge** (interaction), **flow**
