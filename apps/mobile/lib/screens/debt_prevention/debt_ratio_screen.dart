@@ -3,20 +3,24 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/debt_prevention_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:provider/provider.dart';
 
 /// Ecran de diagnostic du ratio d'endettement.
 ///
@@ -30,8 +34,58 @@ class DebtRatioScreen extends StatefulWidget {
   State<DebtRatioScreen> createState() => _DebtRatioScreenState();
 }
 
+class _DebtRatioIncomeFacts {
+  final double? netMonthly;
+  final bool isEstimated;
+  final String inputKey;
+
+  const _DebtRatioIncomeFacts({
+    this.netMonthly,
+    this.isEstimated = false,
+    this.inputKey = 'q_gross_salary_annual',
+  });
+
+  bool get hasIncome => netMonthly != null && netMonthly! > 0;
+
+  factory _DebtRatioIncomeFacts.fromProfile(CoachProfile? profile) {
+    if (profile == null) {
+      return const _DebtRatioIncomeFacts();
+    }
+
+    final hasSalary = profile.userProvidedFields.contains('salary') &&
+        profile.salaireBrutMensuel > 0;
+    final hasSelfEmployedIncome =
+        profile.userProvidedFields.contains('selfEmployedNetIncome') &&
+            (profile.selfEmployedNetIncome ?? 0) > 0;
+    if (!hasSalary && !hasSelfEmployedIncome) {
+      return _DebtRatioIncomeFacts(
+        inputKey: profile.employmentStatus == 'independant'
+            ? 'q_self_employed_income'
+            : 'q_gross_salary_annual',
+      );
+    }
+
+    final age = profile.ageOrNull ?? 40;
+    final netMonthly = hasSelfEmployedIncome
+        ? profile.selfEmployedNetIncome! / 12
+        : NetIncomeBreakdown.compute(
+            grossSalary: profile.revenuBrutAnnuel,
+            canton: profile.canton,
+            age: age,
+            etatCivil: profile.etatCivil.name,
+            nombreEnfants: profile.nombreEnfants,
+          ).monthlyNetPayslip;
+    return _DebtRatioIncomeFacts(
+      netMonthly: netMonthly,
+      isEstimated: hasSalary,
+      inputKey: hasSelfEmployedIncome
+          ? 'q_self_employed_income'
+          : 'q_gross_salary_annual',
+    );
+  }
+}
+
 class _DebtRatioScreenState extends State<DebtRatioScreen> {
-  bool _hasUserInteracted = false;
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
@@ -57,23 +111,25 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     }
   }
 
-  void _emitFinalReturn() {
+  Future<void> _emitFinalReturn() async {
     if (_finalReturnEmitted) return;
     if (_seqRunId == null || _seqStepId == null) return;
     _finalReturnEmitted = true;
 
-    if (!_hasUserInteracted) {
+    final provider = _coachProvider(context, listen: false);
+    final incomeFacts = _DebtRatioIncomeFacts.fromProfile(provider?.profile);
+    final result = _resultFor(incomeFacts);
+    if (result == null) {
       final screenReturn = ScreenReturn.abandoned(
         route: '/debt/ratio',
         runId: _seqRunId,
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
       );
-      ScreenCompletionTracker.markCompletedWithReturn('debt_ratio', screenReturn);
+      await ScreenCompletionTracker.markCompletedWithReturn(
+          'debt_ratio', screenReturn);
       return;
     }
-
-    final result = _result;
     final screenReturn = ScreenReturn.completed(
       route: '/debt/ratio',
       stepOutputs: {
@@ -84,109 +140,145 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       stepId: _seqStepId,
       eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
     );
-    ScreenCompletionTracker.markCompletedWithReturn('debt_ratio', screenReturn);
+    await ScreenCompletionTracker.markCompletedWithReturn(
+        'debt_ratio', screenReturn);
   }
 
-  double _revenusMensuels = 6000;
   double _chargesDetteMensuelles = 500;
   double _loyer = 1500;
   double _autresCharges = 300;
   bool _estCelibataire = true;
   int _nombreEnfants = 0;
+  String? _familyDefaultsSeed;
+  bool _familyDefaultsTouched = false;
 
-  DebtRatioResult get _result => DebtRatioCalculator.calculate(
-        revenusMensuels: _revenusMensuels,
-        chargesDetteMensuelles: _chargesDetteMensuelles,
-        loyer: _loyer,
-        autresChargesFixes: _autresCharges,
-        estCelibataire: _estCelibataire,
-        nombreEnfants: _nombreEnfants,
-      );
+  CoachProfileProvider? _coachProvider(BuildContext context,
+      {bool listen = true}) {
+    try {
+      return Provider.of<CoachProfileProvider>(context, listen: listen);
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  void _syncFamilyDefaultsFromProfile(CoachProfile? profile) {
+    if (profile == null || _familyDefaultsTouched) return;
+    final seed = '${profile.etatCivil.name}:${profile.nombreEnfants}';
+    if (_familyDefaultsSeed == seed) return;
+    _familyDefaultsSeed = seed;
+    _estCelibataire = switch (profile.etatCivil) {
+      CoachCivilStatus.marie || CoachCivilStatus.concubinage => false,
+      _ => true,
+    };
+    _nombreEnfants = max(0, profile.nombreEnfants);
+  }
+
+  DebtRatioResult? _resultFor(_DebtRatioIncomeFacts incomeFacts) {
+    if (!incomeFacts.hasIncome) return null;
+    return DebtRatioCalculator.calculate(
+      revenusMensuels: incomeFacts.netMonthly!,
+      chargesDetteMensuelles: _chargesDetteMensuelles,
+      loyer: _loyer,
+      autresChargesFixes: _autresCharges,
+      estCelibataire: _estCelibataire,
+      nombreEnfants: _nombreEnfants,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final provider = _coachProvider(context);
+    _syncFamilyDefaultsFromProfile(provider?.profile);
+    final incomeFacts = _DebtRatioIncomeFacts.fromProfile(provider?.profile);
+    final result = _resultFor(incomeFacts);
 
     return PopScope(
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _emitFinalReturn();
-      },
-      child: Scaffold(
-      backgroundColor: MintColors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: MintColors.white,
-            surfaceTintColor: MintColors.white,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            foregroundColor: MintColors.textPrimary,
-            title: Text(
-              S.of(context)!.debtRatioTitle,
-              style: MintTextStyles.titleMedium(),
-            ),
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop) await _emitFinalReturn();
+        },
+        child: Scaffold(
+          backgroundColor: MintColors.white,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                backgroundColor: MintColors.white,
+                surfaceTintColor: MintColors.white,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                foregroundColor: MintColors.textPrimary,
+                title: Text(
+                  S.of(context)!.debtRatioTitle,
+                  style: MintTextStyles.titleMedium(),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.all(MintSpacing.md),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    if (result == null) ...[
+                      MintEntrance(child: _buildMissingIncomeGate(incomeFacts)),
+                      const SizedBox(height: MintSpacing.lg),
+                      const DebtToolsNav(currentRoute: '/debt/ratio'),
+                      const SizedBox(height: MintSpacing.xxl),
+                    ] else ...[
+                      // Chiffre choc gauge
+                      MintEntrance(child: _buildGaugeSection(result)),
+                      const SizedBox(height: MintSpacing.lg),
+
+                      // Sliders
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 100),
+                        child: _buildSlidersSection(incomeFacts, result),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+
+                      // Minimum vital
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 200),
+                        child: _buildMinimumVitalCard(result),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+
+                      // Recommandations
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 300),
+                        child: _buildRecommandationsSection(result),
+                      ),
+                      const SizedBox(height: MintSpacing.md),
+
+                      // CTA contextuel → Plan de remboursement
+                      if (result.niveau != DebtRiskLevel.vert)
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 400),
+                          child: _buildRepaymentCta(result),
+                        ),
+                      if (result.niveau != DebtRiskLevel.vert)
+                        const SizedBox(height: MintSpacing.lg),
+
+                      // Aide professionnelle
+                      if (result.niveau == DebtRiskLevel.rouge) ...[
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 450),
+                          child: _buildAideProfessionnelleSection(),
+                        ),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+
+                      // Disclaimer
+                      _buildDisclaimer(result.disclaimer),
+                      const SizedBox(height: MintSpacing.lg),
+
+                      // Navigation croisée dette
+                      const DebtToolsNav(currentRoute: '/debt/ratio'),
+                      const SizedBox(height: MintSpacing.xxl),
+                    ],
+                  ]),
+                ),
+              ),
+            ],
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(MintSpacing.md),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Chiffre choc gauge
-                MintEntrance(child: _buildGaugeSection(result)),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Sliders
-                MintEntrance(
-                  delay: const Duration(milliseconds: 100),
-                  child: _buildSlidersSection(),
-                ),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Minimum vital
-                MintEntrance(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildMinimumVitalCard(result),
-                ),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Recommandations
-                MintEntrance(
-                  delay: const Duration(milliseconds: 300),
-                  child: _buildRecommandationsSection(result),
-                ),
-                const SizedBox(height: MintSpacing.md),
-
-                // CTA contextuel → Plan de remboursement
-                if (result.niveau != DebtRiskLevel.vert)
-                  MintEntrance(
-                    delay: const Duration(milliseconds: 400),
-                    child: _buildRepaymentCta(result),
-                  ),
-                if (result.niveau != DebtRiskLevel.vert)
-                  const SizedBox(height: MintSpacing.lg),
-
-                // Aide professionnelle
-                if (result.niveau == DebtRiskLevel.rouge) ...[
-                  MintEntrance(
-                    delay: const Duration(milliseconds: 450),
-                    child: _buildAideProfessionnelleSection(),
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
-
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Navigation croisée dette
-                const DebtToolsNav(currentRoute: '/debt/ratio'),
-                const SizedBox(height: MintSpacing.xxl),
-              ]),
-            ),
-          ),
-        ],
-      ),
-    ));
+        ));
   }
 
   Widget _buildGaugeSection(DebtRatioResult result) {
@@ -230,7 +322,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
+            padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
@@ -280,7 +373,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
 
   bool _showDetails = false;
 
-  Widget _buildSlidersSection() {
+  Widget _buildSlidersSection(
+    _DebtRatioIncomeFacts incomeFacts,
+    DebtRatioResult result,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,16 +384,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         Row(
           children: [
             Expanded(
-              child: _buildValueCard(
-                label: S.of(context)!.debtRatioRevenuNet,
-                value: _revenusMensuels,
-                prefix: 'CHF',
-                step: 500,
-                min: 2000,
-                max: 20000,
-                icon: Icons.account_balance_wallet_outlined,
-                onChanged: (v) => setState(() { _hasUserInteracted = true; _revenusMensuels = v; }),
-              ),
+              child: _buildIncomeFactCard(incomeFacts),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -309,11 +396,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 min: 0,
                 max: 10000,
                 icon: Icons.credit_card_outlined,
-                accentColor: _chargesDetteMensuelles > _revenusMensuels * 0.3
+                accentColor: result.niveau == DebtRiskLevel.rouge
                     ? MintColors.error
                     : null,
-                onChanged: (v) =>
-                    setState(() { _hasUserInteracted = true; _chargesDetteMensuelles = v; }),
+                onChanged: (v) => setState(() {
+                  _chargesDetteMensuelles = v;
+                }),
               ),
             ),
           ],
@@ -333,9 +421,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             child: Row(
               children: [
                 Icon(
-                  _showDetails
-                      ? Icons.tune
-                      : Icons.tune,
+                  _showDetails ? Icons.tune : Icons.tune,
                   color: MintColors.primary,
                   size: 18,
                 ),
@@ -343,7 +429,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 Expanded(
                   child: Text(
                     S.of(context)!.debtRatioRefineLabel,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary),
                   ),
                 ),
                 Text(
@@ -386,7 +473,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         min: 0,
                         max: 5000,
                         icon: Icons.home_outlined,
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _loyer = v; }),
+                        onChanged: (v) => setState(() {
+                          _loyer = v;
+                        }),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -399,7 +488,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         min: 0,
                         max: 3000,
                         icon: Icons.receipt_long_outlined,
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _autresCharges = v; }),
+                        onChanged: (v) => setState(() {
+                          _autresCharges = v;
+                        }),
                       ),
                     ),
                   ],
@@ -410,10 +501,15 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     Expanded(
                       child: _buildToggleCard(
                         label: S.of(context)!.debtRatioSituation,
-                        options: [S.of(context)!.debtRatioSeul, S.of(context)!.debtRatioEnCouple],
+                        options: [
+                          S.of(context)!.debtRatioSeul,
+                          S.of(context)!.debtRatioEnCouple
+                        ],
                         selectedIndex: _estCelibataire ? 0 : 1,
-                        onChanged: (i) =>
-                            setState(() { _hasUserInteracted = true; _estCelibataire = i == 0; }),
+                        onChanged: (i) => setState(() {
+                          _familyDefaultsTouched = true;
+                          _estCelibataire = i == 0;
+                        }),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -422,8 +518,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                         label: S.of(context)!.debtRatioEnfants,
                         value: _nombreEnfants,
                         options: const [0, 1, 2, 3, 4],
-                        onChanged: (v) =>
-                            setState(() { _hasUserInteracted = true; _nombreEnfants = v; }),
+                        onChanged: (v) => setState(() {
+                          _familyDefaultsTouched = true;
+                          _nombreEnfants = v;
+                        }),
                       ),
                     ),
                   ],
@@ -437,6 +535,152 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           duration: const Duration(milliseconds: 250),
         ),
       ],
+    );
+  }
+
+  Widget _buildMissingIncomeGate(_DebtRatioIncomeFacts incomeFacts) {
+    return MintSurface(
+      key: const Key('debt_ratio_missing_income_gate'),
+      tone: MintSurfaceTone.bleu,
+      elevated: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.account_balance_wallet_outlined,
+                  color: MintColors.info, size: 20),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  S.of(context)!.dataQualityMissingSection,
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              _buildStatusChip(
+                S.of(context)!.dataBlockStatusMissing,
+                MintColors.warning,
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.md),
+          _buildInfoRow(
+            S.of(context)!.debtRatioRevenuNet,
+            S.of(context)!.dataBlockStatusMissing,
+            color: MintColors.warning,
+            isBold: true,
+          ),
+          const SizedBox(height: MintSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              key: const Key('debt_ratio_missing_income_cta'),
+              onPressed: () => context.push(
+                '/data-block/revenu?inputKey=${incomeFacts.inputKey}',
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(S.of(context)!.dataQualityEnrich),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeFactCard(_DebtRatioIncomeFacts incomeFacts) {
+    return Container(
+      key: const Key('debt_ratio_income_fact_card'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.account_balance_wallet_outlined,
+                color: MintColors.primary,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  S.of(context)!.debtRatioRevenuNet,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.primary,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Center(
+            child: Text(
+              'CHF\u00a0${formatChf(incomeFacts.netMonthly ?? 0)}',
+              style: MintTextStyles.headlineMedium(
+                color: MintColors.textPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatusChip(
+                  incomeFacts.isEstimated
+                      ? S.of(context)!.agentFormEstimated
+                      : S.of(context)!.dataQualityKnownSection,
+                  incomeFacts.isEstimated
+                      ? MintColors.warning
+                      : MintColors.success,
+                ),
+              ),
+              TextButton(
+                key: const Key('debt_ratio_edit_income_cta'),
+                onPressed: () => context.push(
+                  '/data-block/revenu?inputKey=${incomeFacts.inputKey}',
+                ),
+                child: Text(S.of(context)!.commonEdit),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.sm,
+        vertical: MintSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        overflow: TextOverflow.ellipsis,
+        style: MintTextStyles.labelSmall(color: color)
+            .copyWith(fontWeight: FontWeight.w700),
+      ),
     );
   }
 
@@ -500,8 +744,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             child: Center(
               child: Text(
                 '$prefix\u00a0${formatChf(value)}',
-                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
-                    ,
+                style: MintTextStyles.headlineMedium(
+                    color: MintColors.textPrimary),
               ),
             ),
           ),
@@ -656,7 +900,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: options.map((opt) {
-              final isSelected = opt == value;
+              final isSelected = opt >= 4 ? value >= 4 : opt == value;
               final display = opt >= 4 ? '4+' : '$opt';
               return GestureDetector(
                 onTap: () => onChanged(opt),
@@ -665,9 +909,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? MintColors.primary
-                        : MintColors.surface,
+                    color: isSelected ? MintColors.primary : MintColors.surface,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -676,9 +918,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: isSelected
-                          ? MintColors.white
-                          : MintColors.textMuted,
+                      color:
+                          isSelected ? MintColors.white : MintColors.textMuted,
                     ),
                   ),
                 ),
@@ -735,8 +976,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               const SizedBox(height: 20),
               Text(
                 label,
-                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)
-                    .copyWith(fontWeight: FontWeight.w600),
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary)
+                        .copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: MintSpacing.md),
               Row(
@@ -744,8 +986,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 children: [
                   Text(
                     '$prefix ',
-                    style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                        ,
+                    style: MintTextStyles.headlineMedium(
+                        color: MintColors.textMuted),
                   ),
                   SizedBox(
                     width: 150,
@@ -754,7 +996,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       keyboardType: TextInputType.number,
                       autofocus: true,
                       textAlign: TextAlign.center,
-                      style: MintTextStyles.displayMedium(color: MintColors.textPrimary),
+                      style: MintTextStyles.displayMedium(
+                          color: MintColors.textPrimary),
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
@@ -765,7 +1008,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                S.of(context)!.debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
+                S
+                    .of(context)!
+                    .debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
                 style: const TextStyle(
                   fontSize: 11,
                   color: MintColors.textMuted,
@@ -830,6 +1075,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           _buildInfoRow(
             S.of(context)!.debtRatioMinimumVitalLabel,
             'CHF ${formatChf(result.minimumVital)} / mois',
+            valueKey: const Key('debt_ratio_minimum_vital_value'),
           ),
           const Divider(height: 20),
           _buildInfoRow(
@@ -872,8 +1118,13 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value,
-      {Color? color, bool isBold = false}) {
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    Color? color,
+    bool isBold = false,
+    Key? valueKey,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
@@ -886,9 +1137,12 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                 : MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           Text(
+            key: valueKey,
             value,
-            style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
-                .copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
+            style:
+                MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                    .copyWith(
+                        fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
         ],
       ),
@@ -919,7 +1173,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   Expanded(
                     child: Text(
                       reco,
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary),
                     ),
                   ),
                 ],
@@ -971,7 +1226,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                           ? S.of(context)!.debtRatioCtaRouge
                           : S.of(context)!.debtRatioCtaOrange,
                       style: MintTextStyles.bodyMedium(
-                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
+                        color: isRouge
+                            ? MintColors.redDark
+                            : MintColors.deepOrange,
                       ).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
@@ -979,7 +1236,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       S.of(context)!.debtRatioCtaDescription,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
+                        color: isRouge
+                            ? MintColors.redDark
+                            : MintColors.deepOrange,
                         height: 1.3,
                       ),
                     ),
@@ -1013,7 +1272,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
+              const Icon(Icons.support_agent,
+                  color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
                 S.of(context)!.debtRatioAidePro,
@@ -1055,47 +1315,49 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       label: nom,
       button: true,
       child: InkWell(
-      onTap: () => _launchUrl(url),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    nom,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-                        .copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-                  ),
-                  if (telephone != null) ...[
-                    const SizedBox(height: MintSpacing.xs),
+        onTap: () => _launchUrl(url),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.border),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      telephone,
-                      style: MintTextStyles.labelSmall(color: MintColors.info)
+                      nom,
+                      style: MintTextStyles.bodyMedium(
+                              color: MintColors.textPrimary)
                           .copyWith(fontWeight: FontWeight.w600),
                     ),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
+                    ),
+                    if (telephone != null) ...[
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        telephone,
+                        style: MintTextStyles.labelSmall(color: MintColors.info)
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            const Icon(Icons.open_in_new,
-                color: MintColors.textMuted, size: 18),
-          ],
+              const Icon(Icons.open_in_new,
+                  color: MintColors.textMuted, size: 18),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
