@@ -18,12 +18,16 @@ Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
       ),
       ChangeNotifierProvider(create: (_) => SlmProvider()),
     ],
-    child: MaterialApp(locale: const Locale('fr'), localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ], supportedLocales: S.supportedLocales, home: child),
+    child: MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: child),
   );
 }
 
@@ -122,6 +126,7 @@ void main() {
     await tester.tap(find.byKey(const Key('salary_save_cta')));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_self_employed_income', 144000));
     expect(answers, containsPair('q_net_income_period_chf', 144000));
@@ -169,7 +174,8 @@ void main() {
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers.containsKey('q_birth_year'), isFalse);
     expect(provider.profile, isNull);
-    expect(find.text('Les informations saisies sont invalides.'), findsOneWidget);
+    expect(
+        find.text('Les informations saisies sont invalides.'), findsOneWidget);
   });
 
   testWidgets('revenue block pension inputKey can persist default false',
@@ -191,6 +197,7 @@ void main() {
     await tester.tap(find.byKey(const Key('salary_save_cta')));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_has_pension_fund', 'no'));
     expect(provider.profile, isNotNull);
@@ -216,10 +223,12 @@ void main() {
     await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_cash_total', 120000));
     expect(answers.containsKey('q_epargne_liquide'), isFalse);
     expect(provider.profile?.patrimoine.epargneLiquide, 120000);
+    expect(provider.profile?.userProvidedFields, contains('liquidSavings'));
   });
 
   testWidgets('revenue block seeds pension switch from existing profile',

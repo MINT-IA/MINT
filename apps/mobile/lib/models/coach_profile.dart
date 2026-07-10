@@ -1913,6 +1913,10 @@ class CoachProfile {
         age: age,
       );
       netMensuel = breakdown.monthlyNetPayslip;
+    } else if (employmentStatus == 'independant' &&
+        selfEmployedNetIncome != null &&
+        selfEmployedNetIncome! > 0) {
+      netMensuel = selfEmployedNetIncome! / 12.0;
     } else if (employmentStatus == 'retraite') {
       // E1 — retiree: use rente estimates as income denominator
       final renteAvs = prevoyance.renteAVSEstimeeMensuelle ?? 0.0;
@@ -2990,10 +2994,22 @@ class CoachProfile {
     if (answers.containsKey('q_has_voluntary_lpp')) {
       provided.add('hasVoluntaryLpp');
     }
-    if (answers.containsKey('q_employment_rate')) provided.add('employmentRate');
-    if (answers.containsKey('q_annual_bonus')) provided.add('bonusPourcentage');
-    if (answers.containsKey('q_civil_status')) provided.add('civilStatus');
-    if (answers.containsKey('q_nationality')) provided.add('nationality');
+    if (answers.containsKey('q_cash_total') ||
+        answers.containsKey('q_emergency_fund')) {
+      provided.add('liquidSavings');
+    }
+    if (answers.containsKey('q_employment_rate')) {
+      provided.add('employmentRate');
+    }
+    if (answers.containsKey('q_annual_bonus')) {
+      provided.add('bonusPourcentage');
+    }
+    if (answers.containsKey('q_civil_status')) {
+      provided.add('civilStatus');
+    }
+    if (answers.containsKey('q_nationality')) {
+      provided.add('nationality');
+    }
 
     return CoachProfile(
       firstName: firstName,

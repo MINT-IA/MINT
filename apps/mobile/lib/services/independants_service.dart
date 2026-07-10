@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/compound_contribution_projection_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  INDEPENDANTS SERVICE — Sprint S18 / Indépendants complet
@@ -15,7 +16,6 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 //   5. calculateLppVolontaire   — Voluntary LPP
 //
 // All constants match the backend exactly.
-// No banned terms ("garanti", "certain", "assuré", "sans risque").
 // ────────────────────────────────────────────────────────────
 
 /// Result of AVS cotisation calculation.
@@ -88,6 +88,19 @@ class Pillar3aIndepResult {
     required this.economieSalarie,
     required this.avantageSurSalarie,
     required this.tauxMarginal,
+  });
+}
+
+/// 20-year projection comparison for repeated 3a contributions.
+class Pillar3aIndepProjectionResult {
+  final double projectionIndependant;
+  final double projectionSalarie;
+  final double difference;
+
+  const Pillar3aIndepProjectionResult({
+    required this.projectionIndependant,
+    required this.projectionSalarie,
+    required this.difference,
   });
 }
 
@@ -212,6 +225,10 @@ class IndependantsService {
 
   /// 3a ceiling for self-employed with LPP (same as salaried).
   static double get _plafond3aPetit => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+
+  static double get plafond3aGrand => _plafond3aGrand;
+
+  static double get plafond3aPetit => _plafond3aPetit;
 
   /// LPP coordination deduction (2025).
   static double get _deductionCoordination => reg('lpp.coordination_deduction', lppDeductionCoordination);
@@ -430,6 +447,24 @@ class IndependantsService {
     );
   }
 
+  static Pillar3aIndepProjectionResult project3aIndependant20Years(
+    Pillar3aIndepResult result,
+  ) {
+    final projectionIndependant =
+        CompoundContributionProjectionCalculator.futureValueOfAnnualContributions(
+      result.plafond,
+    );
+    final projectionSalarie =
+        CompoundContributionProjectionCalculator.futureValueOfAnnualContributions(
+      result.plafondSalarie,
+    );
+    return Pillar3aIndepProjectionResult(
+      projectionIndependant: projectionIndependant,
+      projectionSalarie: projectionSalarie,
+      difference: projectionIndependant - projectionSalarie,
+    );
+  }
+
   // ════════════════════════════════════════════════════════════
   //  4. DIVIDENDE VS SALAIRE
   // ════════════════════════════════════════════════════════════
@@ -572,7 +607,7 @@ class IndependantsService {
     } else if (age >= 25) {
       ageBracketLabel = '25-34 ans';
     } else {
-      ageBracketLabel = 'Moins de 25 ans';
+      ageBracketLabel = '< 25 ans';
     }
 
     final cotisationAnnuelle = salaireCoordonne * tauxBonification;

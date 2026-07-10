@@ -9,12 +9,16 @@
 ///   - FINMA circular 2023/1 (operational risk)
 library;
 
+import 'dart:async';
+
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureWizardStore {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
+  static const _operationTimeout = Duration(seconds: 2);
 
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
@@ -22,6 +26,7 @@ class SecureWizardStore {
     // Legacy key retained so old secure placeholders do not leak as plain JSON.
     'q_gross_salary',
     'q_gross_salary_annual',
+    'q_self_employed_income',
     'q_net_income_period_chf',
     'q_lpp_avoir',
     'q_3a_capital',
@@ -34,6 +39,7 @@ class SecureWizardStore {
     '_coach_dettes_credit',
     '_coach_dettes_leasing',
     '_coach_dettes_autres',
+    'q_cash_total',
     'q_wealth_estimate',
   };
 
@@ -41,9 +47,17 @@ class SecureWizardStore {
   static bool isSensitive(String key) => _sensitiveKeys.contains(key);
 
   /// Write a sensitive value to encrypted storage.
-  static Future<void> write(String key, String value) async {
-    if (_sensitiveKeys.contains(key)) {
-      await _storage.write(key: key, value: value);
+  ///
+  /// Returns false when platform secure storage is unavailable or does not
+  /// answer. Dev/local iOS simulators can hit Keychain entitlement failures;
+  /// those must never leave the profile save button spinning forever.
+  static Future<bool> write(String key, String value) async {
+    if (!_sensitiveKeys.contains(key)) return true;
+    try {
+      await _storage.write(key: key, value: value).timeout(_operationTimeout);
+      return true;
+    } on Object {
+      return false;
     }
   }
 
@@ -60,21 +74,34 @@ class SecureWizardStore {
   static Future<String?> read(String key) async {
     if (!_sensitiveKeys.contains(key)) return null;
     try {
-      return await _storage.read(key: key);
-    } on Exception {
+      return await _storage.read(key: key).timeout(_operationTimeout);
+    } on Object {
       return null;
+    }
+  }
+
+  static Future<void> _delete(String key) async {
+    try {
+      await _storage.delete(key: key).timeout(_operationTimeout);
+    } on Object {
+      // Best effort: callers still remove the plain placeholder from local
+      // answers so stale secure storage cannot block the visible profile.
     }
   }
 
   /// Delete all sensitive keys from encrypted storage.
   static Future<void> deleteAll() async {
     for (final key in _sensitiveKeys) {
-      await _storage.delete(key: key);
+      await _delete(key);
     }
   }
 
   /// Extract sensitive values from an answers map and store them securely.
   /// Returns the map with sensitive values replaced by a placeholder.
+  ///
+  /// Local simulator/dev builds keep the plain value when secure storage is
+  /// unavailable so product QA can continue. Release builds fail closed: the
+  /// sensitive key is not persisted in plain SharedPreferences.
   static Future<Map<String, dynamic>> secureSensitiveKeys(
     Map<String, dynamic> answers,
   ) async {
@@ -82,13 +109,17 @@ class SecureWizardStore {
     for (final key in _sensitiveKeys) {
       if (cleaned.containsKey(key)) {
         if (cleaned[key] == null) {
-          await _storage.delete(key: key);
+          await _delete(key);
           cleaned.remove(key);
           continue;
         }
         if (cleaned[key] == '__secure__') continue;
-        await write(key, cleaned[key].toString());
-        cleaned[key] = '__secure__';
+        final stored = await write(key, cleaned[key].toString());
+        if (stored) {
+          cleaned[key] = '__secure__';
+        } else if (kReleaseMode) {
+          cleaned.remove(key);
+        }
       }
     }
     return cleaned;

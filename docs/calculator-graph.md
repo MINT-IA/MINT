@@ -56,6 +56,7 @@ flowchart LR
 
     MC[MonteCarloService]:::calc --> ARB
     WITHDRAW[WithdrawalSequencingService]:::calc --> ARB
+    COMPOUND[CompoundContributionProjectionCalculator]:::calc --> INDEP[IndependantsService]:::composer
 
     classDef profile fill:#E0F2F1,stroke:#00382E
     classDef calc fill:#FFF,stroke:#1D1D1F
@@ -87,6 +88,7 @@ Julien + Lauren golden values.
 | **MonteCarloService** | `monte_carlo_service.dart` | profile + scenarios | probability distributions | RetirementDashboard scenarios (Prudent/Base/Optimiste) |
 | **WithdrawalSequencingService** | `withdrawal_sequencing_service.dart` | retirement params | sequencing plan | DecaissementScreen |
 | **TornadoSensitivityService** | `tornado_sensitivity_service.dart` | FRI inputs | sensitivity chart data | FinancialSummaryScreen tornado chart |
+| **CompoundContributionProjectionCalculator** | `compound_contribution_projection_calculator.dart` | annual contribution, years, annual return | future value of repeated contributions | IndependantsService 3a projection bridge |
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 
 ---
