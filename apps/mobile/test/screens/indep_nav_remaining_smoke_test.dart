@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 // Screens under test
 import 'package:mint_mobile/screens/independant_screen.dart';
 import 'package:mint_mobile/screens/independants/avs_cotisations_screen.dart';
+import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dart';
 import 'package:mint_mobile/screens/independants/ijm_screen.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
@@ -108,14 +109,17 @@ Widget buildWithCoachProfileProvider(
   );
 }
 
-Widget buildWithCoachProfileRouter(CoachProfileProvider provider) {
+Widget buildWithCoachProfileRouter(
+  CoachProfileProvider provider, {
+  Widget child = const Pillar3aIndepScreen(),
+}) {
   final router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
         builder: (_, __) => ChangeNotifierProvider<CoachProfileProvider>.value(
           value: provider,
-          child: const Pillar3aIndepScreen(),
+          child: child,
         ),
       ),
       GoRoute(
@@ -171,6 +175,7 @@ Map<String, dynamic> independentAnswers({
   double? grossSalary,
   int? birthYear,
   double? cashTotal,
+  double? companyProfit,
   bool hasConsumerDebt = false,
   bool? voluntaryLpp,
 }) {
@@ -183,6 +188,8 @@ Map<String, dynamic> independentAnswers({
       'q_net_income_period_chf': selfIncome,
       'q_pay_frequency': 'yearly',
     },
+    if (companyProfit != null)
+      'q_company_distributable_profit_annual': companyProfit,
     if (grossSalary != null) 'q_gross_salary_annual': grossSalary,
     'q_employment_status': 'independant',
     if (voluntaryLpp != null) ...{
@@ -873,7 +880,8 @@ void main() {
       );
     });
 
-    testWidgets('hides upside framing when grand 3a is below salaried ceiling', (
+    testWidgets('hides upside framing when grand 3a is below salaried ceiling',
+        (
       tester,
     ) async {
       tester.view.physicalSize = const Size(390, 5000);
@@ -1027,10 +1035,134 @@ void main() {
     });
   });
 
+  // ===========================================================================
+  // 7. DIVIDENDE VS SALAIRE SCREEN
+  // ===========================================================================
+
+  group('DividendeVsSalaireScreen', () {
+    testWidgets('shows missing ledger facts instead of a local profit editor', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 180000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.byKey(const Key('dividend_salary_ledger_facts')),
+        findsOneWidget,
+      );
+      expect(find.text('Données manquantes'), findsOneWidget);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('dividend_salary_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('uses company profit from ledger facts for the scenario', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 180000,
+          companyProfit: 220000,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Données connues'), findsOneWidget);
+      expect(find.textContaining("CHF\u00A0220'000"), findsWidgets);
+      expect(find.byType(MintAmountField), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsNWidgets(2));
+      expect(
+        find.byKey(const Key('dividend_salary_result_section')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('edit missing profit opens the targeted revenue collector', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 3000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 180000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(
+          provider,
+          child: const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.text('Enrichir mon profil'));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('data-block:revenu:q_company_distributable_profit_annual'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('does not write profile facts from scenario lever changes', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 180000,
+          companyProfit: 220000,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(
+          provider,
+          const DividendeVsSalaireScreen(),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final slider = tester.widget<MintPremiumSlider>(
+        find.byType(MintPremiumSlider).first,
+      );
+      slider.onChanged(55);
+      await tester.pump();
+
+      expect(provider.writes, isEmpty);
+    });
+  });
+
   // ExploreTab tests removed — screen deleted in S49 Phase 5
 
   // ===========================================================================
-  // 6. TIMELINE SCREEN
+  // 8. TIMELINE SCREEN
   //    Uses a larger surface size to prevent overflow in quick-action cards.
   // ===========================================================================
 

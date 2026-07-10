@@ -12525,6 +12525,88 @@ class SDe extends S {
   String get dividendeTauxMarginal => 'Grenzsteuersatz';
 
   @override
+  String get dividendeHeaderInfo =>
+      'Wenn du eine AG oder GmbH besitzt, kannst du dir eine Kombination aus Lohn und Dividenden auszahlen. Dividenden werden bei qualifizierender Beteiligung zu 50 % besteuert und unterliegen keinen AHV-Beiträgen. Finde den passenden Split.';
+
+  @override
+  String dividendePremierEclairageSaving(String amount) {
+    return 'Der passende Split spart dir $amount/Jahr gegenüber 100 % Lohn';
+  }
+
+  @override
+  String get dividendeRequalificationTitle => 'Risiko der Umqualifizierung';
+
+  @override
+  String get dividendeRequalificationBody =>
+      'Liegt der Lohnanteil unter etwa 60 % des Gewinns, kann die Steuerbehörde je nach kantonaler Praxis einen Teil der Dividenden als Lohn umqualifizieren. Das kann rückwirkende AHV-Beiträge auslösen.';
+
+  @override
+  String get dividendePartDividende => 'Dividendenanteil';
+
+  @override
+  String dividendePctBenefice(String percent) {
+    return '$percent % des Gewinns';
+  }
+
+  @override
+  String get dividendeChargeDividende => 'Belastung auf Dividende';
+
+  @override
+  String get dividendeChargeTotalSplit => 'Gesamtbelastung (Split)';
+
+  @override
+  String get dividendeChartTitle => 'GESAMTBELASTUNG NACH SPLIT';
+
+  @override
+  String get dividendeChartLegendTotal => 'Gesamtbelastung';
+
+  @override
+  String get dividendeChartLegendOptimal => 'Passender Split';
+
+  @override
+  String get dividendeChartLegendCurrent => 'Aktuelle Position';
+
+  @override
+  String get dividendeEducationTitle => 'MERKEN';
+
+  @override
+  String get dividendeEduProfitTitle => 'Gewinnsteuer';
+
+  @override
+  String get dividendeEduProfitBody =>
+      'Als Dividende ausgeschütteter Gewinn wird zuerst auf Unternehmensebene und danach auf persönlicher Ebene besteuert. Das ist die wirtschaftliche Doppelbesteuerung.';
+
+  @override
+  String get dividendeEduAvsTitle => 'AHV nur auf dem Lohn';
+
+  @override
+  String get dividendeEduAvsBody =>
+      'AHV-Beiträge fallen nur auf den Lohnanteil an. Dividenden umgehen Sozialabgaben, deshalb lohnt es sich, mehrere Splits zu testen.';
+
+  @override
+  String get dividendeEduCantonTitle => 'Kantonale Praxis';
+
+  @override
+  String get dividendeEduCantonBody =>
+      'Steuerbehörden prüfen übermässige Dividendenausschüttungen. Ein marktüblicher Lohn wird erwartet und die Grenze variiert je nach Kanton.';
+
+  @override
+  String get dividendeDisclaimer =>
+      'Vereinfachte Simulation. Unternehmensgewinnsteuer, persönliche Abzüge und kantonale Regeln sind in dieser Berechnung nicht enthalten. Konsultiere eine Fachperson für eine vollständige Analyse.';
+
+  @override
+  String get dividendeCantonalDisclaimer =>
+      'Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Schwellen für Umqualifizierungen variieren von Kanton zu Kanton.';
+
+  @override
+  String get dividendeComplianceFooter =>
+      'Bildungsinstrument - keine Finanzberatung (FIDLEG).';
+
+  @override
+  String get dividendeComplianceSources =>
+      'Quellen: DBG Art. 18, 20, 33; OR Art. 660';
+
+  @override
   String get successionUrgence => 'Sofortiger Handlungsbedarf';
 
   @override
@@ -23099,6 +23181,7 @@ class SDe extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+
   @override
   String get lowConfidenceCardTitle =>
       'Nicht genug Daten für eine verlässliche Projektion';

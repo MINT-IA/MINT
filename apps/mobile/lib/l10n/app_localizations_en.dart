@@ -12441,6 +12441,88 @@ class SEn extends S {
   String get dividendeTauxMarginal => 'Marginal tax rate';
 
   @override
+  String get dividendeHeaderInfo =>
+      'If you own an AG or GmbH, you can pay yourself a mix of salary and dividends. Dividends are taxed at 50% for qualifying participations and are not subject to AHV contributions. Find the split that fits best.';
+
+  @override
+  String dividendePremierEclairageSaving(String amount) {
+    return 'The adapted split saves you $amount/year compared with 100% salary';
+  }
+
+  @override
+  String get dividendeRequalificationTitle => 'Requalification risk';
+
+  @override
+  String get dividendeRequalificationBody =>
+      'If the salary share is below about 60% of profit, the tax authority may requalify part of the dividends as salary depending on cantonal practice. This can trigger retroactive AHV contributions.';
+
+  @override
+  String get dividendePartDividende => 'Dividend share';
+
+  @override
+  String dividendePctBenefice(String percent) {
+    return '$percent% of profit';
+  }
+
+  @override
+  String get dividendeChargeDividende => 'Dividend charge';
+
+  @override
+  String get dividendeChargeTotalSplit => 'Total charge (split)';
+
+  @override
+  String get dividendeChartTitle => 'TOTAL CHARGE BY SPLIT';
+
+  @override
+  String get dividendeChartLegendTotal => 'Total charge';
+
+  @override
+  String get dividendeChartLegendOptimal => 'Adapted split';
+
+  @override
+  String get dividendeChartLegendCurrent => 'Current position';
+
+  @override
+  String get dividendeEducationTitle => 'KEY POINTS';
+
+  @override
+  String get dividendeEduProfitTitle => 'Profit tax';
+
+  @override
+  String get dividendeEduProfitBody =>
+      'Profit distributed as dividends is taxed first at company level, then at personal level. This is economic double taxation.';
+
+  @override
+  String get dividendeEduAvsTitle => 'AHV only on salary';
+
+  @override
+  String get dividendeEduAvsBody =>
+      'AHV contributions apply only to the salary share. Dividends avoid social contributions, which is why testing several splits matters.';
+
+  @override
+  String get dividendeEduCantonTitle => 'Cantonal practice';
+
+  @override
+  String get dividendeEduCantonBody =>
+      'Tax authorities monitor excessive dividend distributions. A market-compliant salary is expected and the limit varies by canton.';
+
+  @override
+  String get dividendeDisclaimer =>
+      'Simplified simulation. Company profit tax, personal deductions, and cantonal rules are not included in this calculation. Consult a specialist for a complete analysis.';
+
+  @override
+  String get dividendeCantonalDisclaimer =>
+      'The tax impact depends on cantonal practice. Requalification thresholds vary from one canton to another.';
+
+  @override
+  String get dividendeComplianceFooter =>
+      'Educational tool - not financial advice (FinSA).';
+
+  @override
+  String get dividendeComplianceSources =>
+      'Sources: DBG art. 18, 20, 33; CO art. 660';
+
+  @override
   String get successionUrgence => 'Immediate urgency';
 
   @override
@@ -22932,6 +23014,7 @@ class SEn extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+
   @override
   String get lowConfidenceCardTitle =>
       'Not enough data for a reliable projection';

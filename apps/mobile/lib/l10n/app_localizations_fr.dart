@@ -12505,6 +12505,88 @@ class SFr extends S {
   String get dividendeTauxMarginal => 'Taux marginal d\'imposition';
 
   @override
+  String get dividendeHeaderInfo =>
+      'Si tu possèdes une SA ou Sàrl, tu peux te verser une combinaison de salaire et de dividendes. Le dividende est imposé à 50 % (participation qualifiante) et échappe aux cotisations AVS. Trouve le split le plus adapté.';
+
+  @override
+  String dividendePremierEclairageSaving(String amount) {
+    return 'Le split adapté te fait économiser $amount/an par rapport à 100 % salaire';
+  }
+
+  @override
+  String get dividendeRequalificationTitle => 'Risque de requalification';
+
+  @override
+  String get dividendeRequalificationBody =>
+      'Si la part salaire est inférieure à environ 60 % du bénéfice, l\'administration fiscale peut requalifier une partie des dividendes en salaire selon la pratique cantonale. Cela entraîne des cotisations AVS rétroactives.';
+
+  @override
+  String get dividendePartDividende => 'Part dividende';
+
+  @override
+  String dividendePctBenefice(String percent) {
+    return '$percent % du bénéfice';
+  }
+
+  @override
+  String get dividendeChargeDividende => 'Charge sur dividende';
+
+  @override
+  String get dividendeChargeTotalSplit => 'Charge totale (split)';
+
+  @override
+  String get dividendeChartTitle => 'CHARGE TOTALE PAR SPLIT';
+
+  @override
+  String get dividendeChartLegendTotal => 'Charge totale';
+
+  @override
+  String get dividendeChartLegendOptimal => 'Split adapté';
+
+  @override
+  String get dividendeChartLegendCurrent => 'Position actuelle';
+
+  @override
+  String get dividendeEducationTitle => 'À RETENIR';
+
+  @override
+  String get dividendeEduProfitTitle => 'Impôt sur le bénéfice';
+
+  @override
+  String get dividendeEduProfitBody =>
+      'Le bénéfice distribué en dividende est imposé d\'abord au niveau de la société, puis au niveau personnel. C\'est la double imposition économique.';
+
+  @override
+  String get dividendeEduAvsTitle => 'AVS uniquement sur le salaire';
+
+  @override
+  String get dividendeEduAvsBody =>
+      'Les cotisations AVS ne s\'appliquent qu\'à la part salaire. Le dividende échappe aux charges sociales, d\'où l\'intérêt de tester plusieurs splits.';
+
+  @override
+  String get dividendeEduCantonTitle => 'Pratique cantonale';
+
+  @override
+  String get dividendeEduCantonBody =>
+      'Les autorités fiscales surveillent les distributions excessives de dividendes. Un salaire conforme au marché est attendu et la limite varie selon les cantons.';
+
+  @override
+  String get dividendeDisclaimer =>
+      'Simulation simplifiée. L\'impôt sur le bénéfice de la société, les déductions personnelles et les règles cantonales ne sont pas intégrés dans ce calcul. Consulte un ou une spécialiste pour une analyse complète.';
+
+  @override
+  String get dividendeCantonalDisclaimer =>
+      'L\'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d\'un canton à l\'autre.';
+
+  @override
+  String get dividendeComplianceFooter =>
+      'Outil éducatif - ne constitue pas un conseil financier (LSFin).';
+
+  @override
+  String get dividendeComplianceSources =>
+      'Sources : LIFD art. 18, 20, 33 ; CO art. 660';
+
+  @override
   String get successionUrgence => 'Urgence immédiate';
 
   @override
@@ -23044,6 +23126,7 @@ class SFr extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificat de salaire scanné';
+
   @override
   String get lowConfidenceCardTitle =>
       'Pas assez de données pour une projection fiable';

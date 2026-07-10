@@ -54,7 +54,7 @@ flowchart LR
 
 ---
 
-## The 6 writers — who mutates `wizard_answers_v2`
+## The 8 writers — who mutates `wizard_answers_v2`
 
 Every writer persists via `ReportPersistenceService.saveAnswers(answers)`
 which encrypts sensitive keys via `SecureWizardStore` (Keychain) and
@@ -69,6 +69,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
+| 8 | **Data block enrichment** | `data_block_enrichment_screen.dart` → `CoachProfileProvider.mergeAnswers()` | `q_gross_salary_annual`, `q_self_employed_income`, `q_company_distributable_profit_annual`, `q_canton`, `q_birth_year`, `q_has_pension_fund`, `q_cash_total` | Missing/stale ledger fact CTA from screens |
 
 **Legend.** Keys prefixed `q_*` come from wizard-style answers
 (`fromWizardAnswers` reads them natively). Keys prefixed `_coach_*` come
@@ -94,8 +95,12 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_nombre_mois` (salary months, defaults to 12),
   `q_employment_status` (salarie/independant/retraite/etc.),
-  `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,
-  `q_partner_birth_year`, `q_partner_employment_status`
+  `q_employment_rate` (%), `q_annual_bonus` (CHF),
+  `q_self_employed_income` (personal independent net income, CHF/year),
+  `q_company_distributable_profit_annual` (SA/Sàrl distributable profit,
+  CHF/year; not a fallback for personal independent income),
+  `q_partner_net_income_chf`, `q_partner_birth_year`,
+  `q_partner_employment_status`
 
 **Housing & fixed charges**
 - `q_housing_cost_period_chf` (double — rent OR mortgage),

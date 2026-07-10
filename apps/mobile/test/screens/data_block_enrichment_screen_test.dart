@@ -136,6 +136,49 @@ void main() {
     expect(provider.profile?.selfEmployedNetIncome, 144000);
   });
 
+  testWidgets(
+      'revenue block inputKey collects distributable company profit only',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'q_company_distributable_profit_annual',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('company_profit_input')), findsOneWidget);
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('self_employed_income_input')), findsNothing);
+    expect(find.byKey(const Key('canton_picker')), findsNothing);
+    expect(find.byKey(const Key('birth_year_input')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('company_profit_input')),
+      '220000',
+    );
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(
+      answers,
+      containsPair('q_company_distributable_profit_annual', 220000),
+    );
+    expect(answers.containsKey('q_self_employed_income'), isFalse);
+    expect(answers.containsKey('q_net_income_period_chf'), isFalse);
+    expect(answers.containsKey('q_gross_salary_annual'), isFalse);
+    expect(provider.profile?.companyDistributableProfitAnnual, 220000);
+    expect(
+      provider.profile?.userProvidedFields,
+      contains('companyDistributableProfitAnnual'),
+    );
+  });
+
   testWidgets('revenue block does not treat monthly income as annual input',
       (tester) async {
     await tester.pumpWidget(_wrap(

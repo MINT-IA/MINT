@@ -197,8 +197,10 @@ class ConjointProfile {
     final isFatca = json['isFatcaResident'] ?? false;
     // FIX-089: FATCA doesn't block 3a if the person has Swiss employment income
     // (AVS-contributing salary in Switzerland). Only block if purely non-Swiss income.
-    final hasSwissIncome = ((json['revenuBrutAnnuel'] as num?)?.toDouble() ?? 0) > 0;
-    final topCanContribute = json['canContribute3a'] ?? (!isFatca || hasSwissIncome);
+    final hasSwissIncome =
+        ((json['revenuBrutAnnuel'] as num?)?.toDouble() ?? 0) > 0;
+    final topCanContribute =
+        json['canContribute3a'] ?? (!isFatca || hasSwissIncome);
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -329,11 +331,13 @@ class PrevoyanceProfile {
   final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
   final double? salaireAssure; // salaire assure LPP (from certificate)
-  final double? bonificationRate; // taux bonification total (from certificate, e.g. CPE 24%)
+  final double?
+      bonificationRate; // taux bonification total (from certificate, e.g. CPE 24%)
 
   // --- AVS (from extraction) ---
   final double? ramd; // revenu annuel moyen determinant (AVS)
-  final int? bonificationsEducatives; // LAVS art. 29sexies (years of child-rearing credits)
+  final int?
+      bonificationsEducatives; // LAVS art. 29sexies (years of child-rearing credits)
 
   // --- LPP certificate projections (from extraction, not computed) ---
   final double? projectedRenteLpp; // Rente projetée à 65 (from certificate)
@@ -441,7 +445,8 @@ class PrevoyanceProfile {
               ?.map((s) => DateTime.parse(s as String))
               .toList() ??
           const [],
-      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? lppTauxConversionMinDecimal,
+      tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ??
+          lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
@@ -500,23 +505,27 @@ class PrevoyanceProfile {
     return PrevoyanceProfile(
       anneesContribuees: anneesContribuees ?? this.anneesContribuees,
       lacunesAVS: lacunesAVS ?? this.lacunesAVS,
-      renteAVSEstimeeMensuelle: renteAVSEstimeeMensuelle ?? this.renteAVSEstimeeMensuelle,
+      renteAVSEstimeeMensuelle:
+          renteAVSEstimeeMensuelle ?? this.renteAVSEstimeeMensuelle,
       nomCaisse: nomCaisse ?? this.nomCaisse,
       avoirLppTotal: avoirLppTotal ?? this.avoirLppTotal,
       avoirLppObligatoire: avoirLppObligatoire ?? this.avoirLppObligatoire,
-      avoirLppSurobligatoire: avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
+      avoirLppSurobligatoire:
+          avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
       rachatMaximum: rachatMaximum ?? this.rachatMaximum,
       rachatEffectue: rachatEffectue ?? this.rachatEffectue,
       hasPensionFund: hasPensionFund ?? this.hasPensionFund,
       hasVoluntaryLpp: hasVoluntaryLpp ?? this.hasVoluntaryLpp,
       dateRachats: dateRachats ?? this.dateRachats,
       tauxConversion: tauxConversion ?? this.tauxConversion,
-      tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
+      tauxConversionSuroblig:
+          tauxConversionSuroblig ?? this.tauxConversionSuroblig,
       rendementCaisse: rendementCaisse ?? this.rendementCaisse,
       salaireAssure: salaireAssure ?? this.salaireAssure,
       bonificationRate: bonificationRate ?? this.bonificationRate,
       ramd: ramd ?? this.ramd,
-      bonificationsEducatives: bonificationsEducatives ?? this.bonificationsEducatives,
+      bonificationsEducatives:
+          bonificationsEducatives ?? this.bonificationsEducatives,
       projectedRenteLpp: projectedRenteLpp ?? this.projectedRenteLpp,
       projectedCapital65: projectedCapital65 ?? this.projectedCapital65,
       disabilityCoverage: disabilityCoverage ?? this.disabilityCoverage,
@@ -541,8 +550,7 @@ class PrevoyanceProfile {
         'rachatEffectue': rachatEffectue,
         'hasPensionFund': hasPensionFund,
         'hasVoluntaryLpp': hasVoluntaryLpp,
-        'dateRachats':
-            dateRachats.map((d) => d.toIso8601String()).toList(),
+        'dateRachats': dateRachats.map((d) => d.toIso8601String()).toList(),
         'tauxConversion': tauxConversion,
         'tauxConversionSuroblig': tauxConversionSuroblig,
         'rendementCaisse': rendementCaisse,
@@ -730,8 +738,10 @@ class PatrimoineProfile {
   final String? propertyDescription; // "Appt 4.5p, Sion (VS)"
 
   // CAL-03: Calculator write-back fields (from /hypotheque calculator)
-  final double? mortgageCapacity; // Computed max mortgage capacity from calculator
-  final double? estimatedMonthlyPayment; // Computed monthly payment from calculator
+  final double?
+      mortgageCapacity; // Computed max mortgage capacity from calculator
+  final double?
+      estimatedMonthlyPayment; // Computed monthly payment from calculator
 
   const PatrimoineProfile({
     this.epargneLiquide = 0,
@@ -750,8 +760,7 @@ class PatrimoineProfile {
   });
 
   /// Valeur immobilière effective (propertyMarketValue si renseigné, sinon legacy immobilier).
-  double get immobilierEffectif =>
-      propertyMarketValue ?? immobilier ?? 0;
+  double get immobilierEffectif => propertyMarketValue ?? immobilier ?? 0;
 
   /// Valeur nette immobilière = valeur marché - hypothèque restante.
   double get immobilierNet =>
@@ -762,9 +771,7 @@ class PatrimoineProfile {
       immobilierEffectif > 0 ? (mortgageBalance ?? 0) / immobilierEffectif : 0;
 
   double get detailedAssetTotal =>
-      epargneLiquide +
-      investissements +
-      immobilierEffectif;
+      epargneLiquide + investissements + immobilierEffectif;
 
   /// Patrimoine brut total. Use the broad estimate as an aggregate total, not
   /// as an asset component, so it never double-counts detailed values.
@@ -796,7 +803,8 @@ class PatrimoineProfile {
       monthlyRent: (json['monthlyRent'] as num?)?.toDouble(),
       propertyDescription: json['propertyDescription'] as String?,
       mortgageCapacity: (json['mortgageCapacity'] as num?)?.toDouble(),
-      estimatedMonthlyPayment: (json['estimatedMonthlyPayment'] as num?)?.toDouble(),
+      estimatedMonthlyPayment:
+          (json['estimatedMonthlyPayment'] as num?)?.toDouble(),
     );
   }
 
@@ -830,7 +838,8 @@ class PatrimoineProfile {
       monthlyRent: monthlyRent ?? this.monthlyRent,
       propertyDescription: propertyDescription ?? this.propertyDescription,
       mortgageCapacity: mortgageCapacity ?? this.mortgageCapacity,
-      estimatedMonthlyPayment: estimatedMonthlyPayment ?? this.estimatedMonthlyPayment,
+      estimatedMonthlyPayment:
+          estimatedMonthlyPayment ?? this.estimatedMonthlyPayment,
     );
   }
 
@@ -974,8 +983,7 @@ class DetteProfile {
       tauxHypotheque: (json['tauxHypotheque'] as num?)?.toDouble(),
       tauxCreditConso: (json['tauxCreditConso'] as num?)?.toDouble(),
       tauxLeasing: (json['tauxLeasing'] as num?)?.toDouble(),
-      mensualiteHypotheque:
-          (json['mensualiteHypotheque'] as num?)?.toDouble(),
+      mensualiteHypotheque: (json['mensualiteHypotheque'] as num?)?.toDouble(),
       mensualiteCreditConso:
           (json['mensualiteCreditConso'] as num?)?.toDouble(),
       mensualiteLeasing: (json['mensualiteLeasing'] as num?)?.toDouble(),
@@ -1018,8 +1026,7 @@ class DetteProfile {
       tauxHypotheque: tauxHypotheque ?? this.tauxHypotheque,
       tauxCreditConso: tauxCreditConso ?? this.tauxCreditConso,
       tauxLeasing: tauxLeasing ?? this.tauxLeasing,
-      mensualiteHypotheque:
-          mensualiteHypotheque ?? this.mensualiteHypotheque,
+      mensualiteHypotheque: mensualiteHypotheque ?? this.mensualiteHypotheque,
       mensualiteCreditConso:
           mensualiteCreditConso ?? this.mensualiteCreditConso,
       mensualiteLeasing: mensualiteLeasing ?? this.mensualiteLeasing,
@@ -1263,7 +1270,8 @@ class MonthlyCheckIn {
           (json['depensesExceptionnelles'] as num?)?.toDouble(),
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
-      completedAt: DateTime.tryParse(json['completedAt'] ?? '') ?? DateTime.now(),
+      completedAt:
+          DateTime.tryParse(json['completedAt'] ?? '') ?? DateTime.now(),
       friScore: (json['friScore'] as num?)?.toDouble(),
       fitnessScore: json['fitnessScore'] as int?,
     );
@@ -1300,7 +1308,8 @@ class PlannedMonthlyContribution {
 
   factory PlannedMonthlyContribution.fromJson(Map<String, dynamic> json) {
     return PlannedMonthlyContribution(
-      id: (json['id'] as String?) ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
+      id: (json['id'] as String?) ??
+          'unknown_${DateTime.now().millisecondsSinceEpoch}',
       label: (json['label'] as String?) ?? '',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       category: (json['category'] as String?) ?? 'other',
@@ -1379,6 +1388,8 @@ class CoachProfile {
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
   final double? selfEmployedNetIncome; // CHF/year for independants
+  final double?
+      companyDistributableProfitAnnual; // CHF/year for SA/Sarl split scenarios
 
   // === DEPENSES ===
   final DepensesProfile depenses;
@@ -1508,6 +1519,7 @@ class CoachProfile {
         IncomeConversionCalculator.fullTimeEmploymentRatePercent,
     this.employmentStatus = 'salarie',
     this.selfEmployedNetIncome,
+    this.companyDistributableProfitAnnual,
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
     this.patrimoine = const PatrimoineProfile(),
@@ -1639,6 +1651,8 @@ class CoachProfile {
           employmentRate == other.employmentRate &&
           employmentStatus == other.employmentStatus &&
           selfEmployedNetIncome == other.selfEmployedNetIncome &&
+          companyDistributableProfitAnnual ==
+              other.companyDistributableProfitAnnual &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
@@ -1665,18 +1679,45 @@ class CoachProfile {
 
   @override
   int get hashCode => Object.hashAll([
-        firstName, birthYear, dateOfBirth, canton, commune, nationality,
-        etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
-        nombreDeMois, bonusPourcentage, employmentRate, employmentStatus,
+        firstName,
+        birthYear,
+        dateOfBirth,
+        canton,
+        commune,
+        nationality,
+        etatCivil,
+        nombreEnfants,
+        conjoint,
+        salaireBrutMensuel,
+        nombreDeMois,
+        bonusPourcentage,
+        employmentRate,
+        employmentStatus,
         selfEmployedNetIncome,
-        depenses, prevoyance, patrimoine, dettes, goalA,
-        goalsB.length, plannedContributions.length, checkIns.length,
-        housingStatus, riskTolerance, realEstateProject,
-        providers3a.length, arrivalAge, residencePermit, familyChange,
-        gender, targetRetirementAge,
-        voiceCursorPreference, n5IssuedThisWeek, fragileModeEnteredAt,
+        companyDistributableProfitAnnual,
+        depenses,
+        prevoyance,
+        patrimoine,
+        dettes,
+        goalA,
+        goalsB.length,
+        plannedContributions.length,
+        checkIns.length,
+        housingStatus,
+        riskTolerance,
+        realEstateProject,
+        providers3a.length,
+        arrivalAge,
+        residencePermit,
+        familyChange,
+        gender,
+        targetRetirementAge,
+        voiceCursorPreference,
+        n5IssuedThisWeek,
+        fragileModeEnteredAt,
         recentGravityEvents.length,
-        createdAt, updatedAt,
+        createdAt,
+        updatedAt,
       ]);
 
   // ════════════════════════════════════════════════════════════════
@@ -1755,8 +1796,7 @@ class CoachProfile {
 
   /// P2-19: True when user declares married/concubinage but has no spouse data.
   /// Consumers should show a warning and avoid assuming spouse income/AVS rights.
-  bool get isMissingConjointData =>
-      isCouple && conjoint == null;
+  bool get isMissingConjointData => isCouple && conjoint == null;
 
   /// FIX-101: Cross-border worker detection (permis G).
   bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
@@ -1831,8 +1871,8 @@ class CoachProfile {
 
     // Independent (check LPP status)
     if (employmentStatus == 'independant') {
-      final hasLpp = prevoyance.avoirLppTotal != null &&
-          prevoyance.avoirLppTotal! > 0;
+      final hasLpp =
+          prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0;
       return hasLpp
           ? FinancialArchetype.independentWithLpp
           : FinancialArchetype.independentNoLpp;
@@ -1849,9 +1889,36 @@ class CoachProfile {
 
     // EU/AELE expat
     const euCountries = {
-      'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
-      'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU',
-      'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+      'AT',
+      'BE',
+      'BG',
+      'HR',
+      'CY',
+      'CZ',
+      'DK',
+      'EE',
+      'FI',
+      'FR',
+      'DE',
+      'GR',
+      'HU',
+      'IS',
+      'IE',
+      'IT',
+      'LV',
+      'LI',
+      'LT',
+      'LU',
+      'MT',
+      'NL',
+      'NO',
+      'PL',
+      'PT',
+      'RO',
+      'SK',
+      'SI',
+      'ES',
+      'SE',
     };
     if (nationality != null && euCountries.contains(nationality)) {
       return FinancialArchetype.expatEu;
@@ -1898,10 +1965,10 @@ class CoachProfile {
   ///   E4: student (zero income, no debt, no housing) → false (vacuous).
   bool get isInDebtCrisis {
     // ── Signal A — consumer debt present (structural proxy) ──────────────────
-    final hasConsumerDebt = (dettes.creditConsommation != null &&
-            dettes.creditConsommation! > 0) ||
-        (dettes.leasing != null && dettes.leasing! > 0) ||
-        (dettes.autresDettes != null && dettes.autresDettes! > 0);
+    final hasConsumerDebt =
+        (dettes.creditConsommation != null && dettes.creditConsommation! > 0) ||
+            (dettes.leasing != null && dettes.leasing! > 0) ||
+            (dettes.autresDettes != null && dettes.autresDettes! > 0);
     if (hasConsumerDebt) return true;
 
     // ── Net monthly income (E1: retiree, E4: student guard) ─────────────────
@@ -1978,6 +2045,7 @@ class CoachProfile {
     double? employmentRate,
     String? employmentStatus,
     double? selfEmployedNetIncome,
+    double? companyDistributableProfitAnnual,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
     PatrimoineProfile? patrimoine,
@@ -2032,6 +2100,8 @@ class CoachProfile {
       employmentStatus: employmentStatus ?? this.employmentStatus,
       selfEmployedNetIncome:
           selfEmployedNetIncome ?? this.selfEmployedNetIncome,
+      companyDistributableProfitAnnual: companyDistributableProfitAnnual ??
+          this.companyDistributableProfitAnnual,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
       patrimoine: patrimoine ?? this.patrimoine,
@@ -2215,6 +2285,8 @@ class CoachProfile {
       employmentStatus: json['employmentStatus'] ?? 'salarie',
       selfEmployedNetIncome:
           (json['selfEmployedNetIncome'] as num?)?.toDouble(),
+      companyDistributableProfitAnnual:
+          (json['companyDistributableProfitAnnual'] as num?)?.toDouble(),
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -2229,7 +2301,8 @@ class CoachProfile {
           : const DetteProfile(),
       goalA: json['goalA'] != null
           ? GoalA.fromJson(json['goalA'])
-          : GoalA(type: GoalAType.retraite, targetDate: DateTime(2035), label: ''),
+          : GoalA(
+              type: GoalAType.retraite, targetDate: DateTime(2035), label: ''),
       goalsB:
           (json['goalsB'] as List?)?.map((g) => GoalB.fromJson(g)).toList() ??
               const [],
@@ -2271,16 +2344,19 @@ class CoachProfile {
             },
           ) ??
           const {},
-      createdAt:
-          json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'] as String) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
       financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
         (e) => e.name == json['financialLiteracyLevel'],
         orElse: () => FinancialLiteracyLevel.beginner,
       ),
       primaryFocus: json['primaryFocus'] as String?,
-      voiceCursorPreference: _parseVoicePreference(json['voiceCursorPreference']),
+      voiceCursorPreference:
+          _parseVoicePreference(json['voiceCursorPreference']),
       n5IssuedThisWeek: (json['n5IssuedThisWeek'] as int?) ?? 0,
       fragileModeEnteredAt: json['fragileModeEnteredAt'] != null
           ? DateTime.tryParse(json['fragileModeEnteredAt'] as String)
@@ -2324,6 +2400,7 @@ class CoachProfile {
         'employmentRate': employmentRate,
         'employmentStatus': employmentStatus,
         'selfEmployedNetIncome': selfEmployedNetIncome,
+        'companyDistributableProfitAnnual': companyDistributableProfitAnnual,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
@@ -2344,8 +2421,8 @@ class CoachProfile {
         'targetRetirementAge': targetRetirementAge,
         'initialProjectionSnapshot': initialProjectionSnapshot,
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
-        'dataTimestamps': dataTimestamps.map(
-            (k, v) => MapEntry(k, v.toIso8601String())),
+        'dataTimestamps':
+            dataTimestamps.map((k, v) => MapEntry(k, v.toIso8601String())),
         'userProvidedFields': userProvidedFields.toList(),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
@@ -2381,7 +2458,8 @@ class CoachProfile {
     final int age;
     if (dateOfBirth != null) {
       final now = DateTime.now();
-      age = now.year - dateOfBirth.year -
+      age = now.year -
+          dateOfBirth.year -
           ((now.month < dateOfBirth.month ||
                   (now.month == dateOfBirth.month && now.day < dateOfBirth.day))
               ? 1
@@ -2404,13 +2482,13 @@ class CoachProfile {
     // ── Revenus ─────────────────────────────────────────────
     // FIX-P0-2: Normalize to lowercase — "Yearly" (capitalized) was not
     // recognized, causing annual salary to be treated as monthly.
-    final payFrequency =
-        (answers['q_pay_frequency'] as String?)?.toLowerCase() ??
-            (answers.containsKey('q_self_employed_income')
-                ? 'yearly'
-                : 'monthly');
+    final payFrequency = (answers['q_pay_frequency'] as String?)
+            ?.toLowerCase() ??
+        (answers.containsKey('q_self_employed_income') ? 'yearly' : 'monthly');
     final selfEmployedNetIncome =
         _parseDouble(answers['q_self_employed_income']);
+    final companyDistributableProfitAnnual =
+        _parseDouble(answers['q_company_distributable_profit_annual']);
     final netIncome = _parseDouble(answers['q_net_income_period_chf']) ??
         selfEmployedNetIncome ??
         5000;
@@ -2440,7 +2518,8 @@ class CoachProfile {
             months: nombreDeMois,
           )
         : monthlyNetIncome / (1 - socialChargesRate);
-    final employmentRate = IncomeConversionCalculator.clampEmploymentRatePercent(
+    final employmentRate =
+        IncomeConversionCalculator.clampEmploymentRatePercent(
       _parseDouble(answers['q_employment_rate']),
     );
     final annualBonus = _parseDouble(answers['q_annual_bonus']);
@@ -2786,8 +2865,7 @@ class CoachProfile {
     final coachRachatLppMensuel =
         _parseDouble(answers['_coach_rachat_lpp_mensuel']);
     if (coachRachatLppMensuel != null && coachRachatLppMensuel > 0) {
-      final idx =
-          contributions.indexWhere((c) => c.id == 'lpp_buyback_user');
+      final idx = contributions.indexWhere((c) => c.id == 'lpp_buyback_user');
       if (idx >= 0) {
         contributions[idx] =
             contributions[idx].copyWith(amount: coachRachatLppMensuel);
@@ -2952,6 +3030,9 @@ class CoachProfile {
       // tauxConversion is always set (non-null double with default)
       'prevoyance.tauxConversion': baseTimestamp,
       'patrimoine.epargneLiquide': baseTimestamp,
+      if (companyDistributableProfitAnnual != null &&
+          companyDistributableProfitAnnual > 0)
+        'companyDistributableProfitAnnual': baseTimestamp,
       if (patrimoine.investissements > 0)
         'patrimoine.investissements': baseTimestamp,
       if (depenses.loyer > 0) 'depenses.loyer': baseTimestamp,
@@ -2987,6 +3068,9 @@ class CoachProfile {
     }
     if (answers.containsKey('q_self_employed_income')) {
       provided.add('selfEmployedNetIncome');
+    }
+    if (answers.containsKey('q_company_distributable_profit_annual')) {
+      provided.add('companyDistributableProfitAnnual');
     }
     if (answers.containsKey('q_has_pension_fund')) {
       provided.add('hasPensionFund');
@@ -3027,6 +3111,7 @@ class CoachProfile {
       employmentRate: employmentRate,
       employmentStatus: employmentStatus,
       selfEmployedNetIncome: selfEmployedNetIncome,
+      companyDistributableProfitAnnual: companyDistributableProfitAnnual,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,
@@ -3052,9 +3137,7 @@ class CoachProfile {
       dataTimestamps: initialTimestamps,
       userProvidedFields: provided,
       financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
-        (e) =>
-            e.name ==
-            answers['_coach_financial_literacy_level'],
+        (e) => e.name == answers['_coach_financial_literacy_level'],
         orElse: () => FinancialLiteracyLevel.beginner,
       ),
       primaryFocus: answers['q_primary_focus'] as String?,
@@ -3152,7 +3235,8 @@ class CoachProfile {
 
   /// Map canonical English employment status (backend Profile API) to internal French.
   /// Use when receiving data from the backend Profile endpoint.
-  static String employmentStatusFromCanonical(String status) => switch (status) {
+  static String employmentStatusFromCanonical(String status) =>
+      switch (status) {
         'employee' => 'salarie',
         'self_employed' => 'independant',
         'retired' => 'retraite',

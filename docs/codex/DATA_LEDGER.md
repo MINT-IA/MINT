@@ -230,6 +230,14 @@ After T-0 and T-1, `_mapFactKeyToAnswers` handles all 35 keys and every mapper t
 
 These exist on `CoachProfile` sub-models and are written by wizard / scan extraction / simulator write-back via `mergeAnswers`/`updateProfile`. They are **not** in the allowlist (the coach cannot set them by chat today). Listed because computations consume them and the provenance contract (§6) applies.
 
+### 4.0 Income / company scenario facts
+
+| key (field path) | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
+|---|---|---|---|---|---|---|---|---|
+| `companyDistributableProfitAnnual` | `q_company_distributable_profit_annual` | double CHF/yr | income | userInput, certificate | annual | .60 | mergeAnswers (`/data-block/revenu?inputKey=q_company_distributable_profit_annual`) | `/independants/dividende-salaire`, SA/Sàrl salary-dividend scenario |
+
+> `companyDistributableProfitAnnual` is intentionally distinct from `selfEmployedNetIncome`: the former is a company-level distributable-profit fact for SA/Sàrl split scenarios, while the latter is personal net income for an independent person. Do not reuse one as a fallback for the other.
+
 ### 4.1 AVS / LPP detail (from certificate extraction)
 
 | key (field path) | type+unit | domain | sources | fresh | wconf | write | consumers |

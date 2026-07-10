@@ -42,6 +42,12 @@ void main() {
       expect(SecureWizardStore.isSensitive('q_gross_salary_annual'), isTrue);
       expect(SecureWizardStore.isSensitive('q_self_employed_income'), isTrue);
       expect(SecureWizardStore.isSensitive('q_net_income_period_chf'), isTrue);
+      expect(
+        SecureWizardStore.isSensitive(
+          'q_company_distributable_profit_annual',
+        ),
+        isTrue,
+      );
     });
 
     test('treats broad wealth estimate as sensitive', () {

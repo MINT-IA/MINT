@@ -22201,6 +22201,144 @@ abstract class S {
   /// **'Taux marginal d\'imposition'**
   String get dividendeTauxMarginal;
 
+  /// No description provided for @dividendeHeaderInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu possèdes une SA ou Sàrl, tu peux te verser une combinaison de salaire et de dividendes. Le dividende est imposé à 50 % (participation qualifiante) et échappe aux cotisations AVS. Trouve le split le plus adapté.'**
+  String get dividendeHeaderInfo;
+
+  /// No description provided for @dividendePremierEclairageSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le split adapté te fait économiser {amount}/an par rapport à 100 % salaire'**
+  String dividendePremierEclairageSaving(String amount);
+
+  /// No description provided for @dividendeRequalificationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Risque de requalification'**
+  String get dividendeRequalificationTitle;
+
+  /// No description provided for @dividendeRequalificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si la part salaire est inférieure à environ 60 % du bénéfice, l\'administration fiscale peut requalifier une partie des dividendes en salaire selon la pratique cantonale. Cela entraîne des cotisations AVS rétroactives.'**
+  String get dividendeRequalificationBody;
+
+  /// No description provided for @dividendePartDividende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part dividende'**
+  String get dividendePartDividende;
+
+  /// No description provided for @dividendePctBenefice.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % du bénéfice'**
+  String dividendePctBenefice(String percent);
+
+  /// No description provided for @dividendeChargeDividende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge sur dividende'**
+  String get dividendeChargeDividende;
+
+  /// No description provided for @dividendeChargeTotalSplit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale (split)'**
+  String get dividendeChargeTotalSplit;
+
+  /// No description provided for @dividendeChartTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHARGE TOTALE PAR SPLIT'**
+  String get dividendeChartTitle;
+
+  /// No description provided for @dividendeChartLegendTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale'**
+  String get dividendeChartLegendTotal;
+
+  /// No description provided for @dividendeChartLegendOptimal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Split adapté'**
+  String get dividendeChartLegendOptimal;
+
+  /// No description provided for @dividendeChartLegendCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position actuelle'**
+  String get dividendeChartLegendCurrent;
+
+  /// No description provided for @dividendeEducationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À RETENIR'**
+  String get dividendeEducationTitle;
+
+  /// No description provided for @dividendeEduProfitTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt sur le bénéfice'**
+  String get dividendeEduProfitTitle;
+
+  /// No description provided for @dividendeEduProfitBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le bénéfice distribué en dividende est imposé d\'abord au niveau de la société, puis au niveau personnel. C\'est la double imposition économique.'**
+  String get dividendeEduProfitBody;
+
+  /// No description provided for @dividendeEduAvsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS uniquement sur le salaire'**
+  String get dividendeEduAvsTitle;
+
+  /// No description provided for @dividendeEduAvsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les cotisations AVS ne s\'appliquent qu\'à la part salaire. Le dividende échappe aux charges sociales, d\'où l\'intérêt de tester plusieurs splits.'**
+  String get dividendeEduAvsBody;
+
+  /// No description provided for @dividendeEduCantonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratique cantonale'**
+  String get dividendeEduCantonTitle;
+
+  /// No description provided for @dividendeEduCantonBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les autorités fiscales surveillent les distributions excessives de dividendes. Un salaire conforme au marché est attendu et la limite varie selon les cantons.'**
+  String get dividendeEduCantonBody;
+
+  /// No description provided for @dividendeDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulation simplifiée. L\'impôt sur le bénéfice de la société, les déductions personnelles et les règles cantonales ne sont pas intégrés dans ce calcul. Consulte un ou une spécialiste pour une analyse complète.'**
+  String get dividendeDisclaimer;
+
+  /// No description provided for @dividendeCantonalDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d\'un canton à l\'autre.'**
+  String get dividendeCantonalDisclaimer;
+
+  /// No description provided for @dividendeComplianceFooter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif - ne constitue pas un conseil financier (LSFin).'**
+  String get dividendeComplianceFooter;
+
+  /// No description provided for @dividendeComplianceSources.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources : LIFD art. 18, 20, 33 ; CO art. 660'**
+  String get dividendeComplianceSources;
+
   /// No description provided for @successionUrgence.
   ///
   /// In fr, this message translates to:

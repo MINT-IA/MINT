@@ -27,6 +27,7 @@ class SecureWizardStore {
     'q_gross_salary',
     'q_gross_salary_annual',
     'q_self_employed_income',
+    'q_company_distributable_profit_annual',
     'q_net_income_period_chf',
     'q_lpp_avoir',
     'q_3a_capital',

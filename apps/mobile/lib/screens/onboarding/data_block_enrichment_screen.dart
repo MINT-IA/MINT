@@ -47,8 +47,7 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
       _DataBlockEnrichmentScreenState();
 }
 
-class _DataBlockEnrichmentScreenState
-    extends State<DataBlockEnrichmentScreen> {
+class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   static const _swissCantonCodes =
       ' AG AI AR BE BL BS FR GE GL GR JU LU NE NW OW SG SH SO SZ TG TI UR VD VS ZG ZH ';
 
@@ -56,6 +55,8 @@ class _DataBlockEnrichmentScreenState
   final TextEditingController _cantonController = TextEditingController();
   final TextEditingController _salaryController = TextEditingController();
   final TextEditingController _selfEmployedIncomeController =
+      TextEditingController();
+  final TextEditingController _companyProfitController =
       TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
@@ -79,6 +80,7 @@ class _DataBlockEnrichmentScreenState
     _cantonController.dispose();
     _salaryController.dispose();
     _selfEmployedIncomeController.dispose();
+    _companyProfitController.dispose();
     _birthYearController.dispose();
     _cashController.dispose();
     super.dispose();
@@ -103,8 +105,8 @@ class _DataBlockEnrichmentScreenState
     } else if (canonicalBlockType == 'patrimoine') {
       _seedPatrimoineInputs(profile);
     }
-    final isKnownBlock =
-        DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
+    final isKnownBlock = DataBlockEnrichmentScreen._supportedBlockTypes
+        .contains(canonicalBlockType);
     final blocs = profile != null
         ? ConfidenceScorer.scoreAsBlocs(profile)
         : <String, BlockScore>{};
@@ -128,114 +130,136 @@ class _DataBlockEnrichmentScreenState
         ),
         title: Text(
           meta.title,
-          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 16),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 16),
 
-              // ── Block score indicator ────────────────────────────
-              if (bloc != null) MintEntrance(child: _BlockScoreBar(bloc: bloc)),
-              const SizedBox(height: 24),
+                      // ── Block score indicator ────────────────────────────
+                      if (bloc != null)
+                        MintEntrance(child: _BlockScoreBar(bloc: bloc)),
+                      const SizedBox(height: 24),
 
-              // ── Coach mode toggle ───────────────────────────────
-              MintEntrance(delay: const Duration(milliseconds: 100), child: _CoachModeToggle(
-                isCoachMode: _showCoachMode,
-                coachAvailable: coachAvailable,
-                onToggle: (value) {
-                  if (value) {
-                    // Navigate to coach chat with structured topic
-                    context.go('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
-                  } else {
-                    setState(() => _showCoachMode = false);
-                  }
-                },
-              )),
-              const SizedBox(height: 16),
+                      // ── Coach mode toggle ───────────────────────────────
+                      MintEntrance(
+                          delay: const Duration(milliseconds: 100),
+                          child: _CoachModeToggle(
+                            isCoachMode: _showCoachMode,
+                            coachAvailable: coachAvailable,
+                            onToggle: (value) {
+                              if (value) {
+                                // Navigate to coach chat with structured topic
+                                context.go(
+                                    '/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
+                              } else {
+                                setState(() => _showCoachMode = false);
+                              }
+                            },
+                          )),
+                      const SizedBox(height: 16),
 
-              // ── Description ─────────────────────────────────────
-              ...[
-                MintEntrance(delay: const Duration(milliseconds: 150), child: Text(
-                  meta.description,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
-                )),
-                const SizedBox(height: 24),
-              ],
+                      // ── Description ─────────────────────────────────────
+                      ...[
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 150),
+                            child: Text(
+                              meta.description,
+                              style: MintTextStyles.bodyMedium(
+                                      color: MintColors.textSecondary)
+                                  .copyWith(height: 1.5),
+                            )),
+                        const SizedBox(height: 24),
+                      ],
 
-              // ── Enrichment prompts for this block ────────────────
-              if (_shouldShowPatrimoineCollector(canonicalBlockType)) ...[
-                MintEntrance(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildPatrimoineCollector(l),
-                ),
-              ] else if (profile != null && canonicalBlockType != 'revenu') ...[
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
-              ],
-              if (canonicalBlockType == 'revenu') ...[
-                MintEntrance(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildRevenueCollector(l),
-                ),
-              ],
+                      // ── Enrichment prompts for this block ────────────────
+                      if (_shouldShowPatrimoineCollector(
+                          canonicalBlockType)) ...[
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: _buildPatrimoineCollector(l),
+                        ),
+                      ] else if (profile != null &&
+                          canonicalBlockType != 'revenu') ...[
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 200),
+                            child: _buildPrompts(
+                                profile, canonicalBlockType, bloc)),
+                      ],
+                      if (canonicalBlockType == 'revenu') ...[
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: _buildRevenueCollector(l),
+                        ),
+                      ],
 
-              // ── Cross-validation alerts ────────────────────────────
-              if (profile != null) ...[
-                _buildValidationAlerts(profile, canonicalBlockType),
-              ],
+                      // ── Cross-validation alerts ────────────────────────────
+                      if (profile != null) ...[
+                        _buildValidationAlerts(profile, canonicalBlockType),
+                      ],
 
-              const SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
-              // ── CTA ──────────────────────────────────────────────
-              if (canonicalBlockType != 'revenu' &&
-                  !_shouldShowPatrimoineCollector(canonicalBlockType))
-                Semantics(
-                  button: true,
-                  label: meta.ctaLabel,
-                  child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      // Navigate to the appropriate enrichment flow
-                      final route = _enrichmentRoute(canonicalBlockType);
-                      if (route != null) {
-                        context.push(route);
-                      } else {
-                        safePop(context);
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.primary,
-                      foregroundColor: MintColors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      meta.ctaLabel,
-                      style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
-                    ),
+                      // ── CTA ──────────────────────────────────────────────
+                      if (canonicalBlockType != 'revenu' &&
+                          !_shouldShowPatrimoineCollector(canonicalBlockType))
+                        Semantics(
+                            button: true,
+                            label: meta.ctaLabel,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: FilledButton(
+                                onPressed: () {
+                                  HapticFeedback.lightImpact();
+                                  // Navigate to the appropriate enrichment flow
+                                  final route =
+                                      _enrichmentRoute(canonicalBlockType);
+                                  if (route != null) {
+                                    context.push(route);
+                                  } else {
+                                    safePop(context);
+                                  }
+                                },
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: MintColors.primary,
+                                  foregroundColor: MintColors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  meta.ctaLabel,
+                                  style: MintTextStyles.titleMedium()
+                                      .copyWith(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            )),
+                      const SizedBox(height: 16),
+
+                      // ── Disclaimer ───────────────────────────────────────
+                      MintEntrance(
+                          child: Text(
+                        S.of(context)!.dataBlockDisclaimer,
+                        style: MintTextStyles.micro(color: MintColors.textMuted)
+                            .copyWith(height: 1.4),
+                        textAlign: TextAlign.center,
+                      )),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                )),
-              const SizedBox(height: 16),
-
-              // ── Disclaimer ───────────────────────────────────────
-              MintEntrance(child: Text(
-                S.of(context)!.dataBlockDisclaimer,
-                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
-                textAlign: TextAlign.center,
-              )),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ))),
+                ),
+              ))),
     );
   }
 
@@ -249,6 +273,10 @@ class _DataBlockEnrichmentScreenState
     final selfEmployedIncome = profile.selfEmployedNetIncome;
     if (selfEmployedIncome != null && selfEmployedIncome > 0) {
       _selfEmployedIncomeController.text = '${selfEmployedIncome.round()}';
+    }
+    final companyProfit = profile.companyDistributableProfitAnnual;
+    if (companyProfit != null && companyProfit > 0) {
+      _companyProfitController.text = '${companyProfit.round()}';
     }
     if (profile.birthYear >= 1900) {
       _birthYearController.text = '${profile.birthYear}';
@@ -281,7 +309,9 @@ class _DataBlockEnrichmentScreenState
         controller: _salaryController,
         label: l.renteVsCapitalSalary,
         keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+        ],
         onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
@@ -292,7 +322,22 @@ class _DataBlockEnrichmentScreenState
         controller: _selfEmployedIncomeController,
         label: l.independantRevenueTitle,
         keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+        ],
+        onChanged: (_) => setState(() => _revenueSaved = false),
+      ));
+    }
+    if (onlyInputKey == 'q_company_distributable_profit_annual') {
+      addField(_buildRevenueTextField(
+        key: const Key('company_profit_input'),
+        semanticsIdentifier: 'company_profit_input',
+        controller: _companyProfitController,
+        label: l.dividendeBeneficeTotal,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+        ],
         onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
@@ -303,7 +348,10 @@ class _DataBlockEnrichmentScreenState
         controller: _cantonController,
         label: l.affordabilityCanton,
         textCapitalization: TextCapitalization.characters,
-        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')), LengthLimitingTextInputFormatter(2)],
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+          LengthLimitingTextInputFormatter(2)
+        ],
         onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
@@ -314,7 +362,10 @@ class _DataBlockEnrichmentScreenState
         controller: _birthYearController,
         label: l.landingBirthYear,
         keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(4)
+        ],
         onChanged: (_) => setState(() => _revenueSaved = false),
       ));
     }
@@ -428,8 +479,9 @@ class _DataBlockEnrichmentScreenState
     final onlyInputKey = _canonicalRevenueInputKey(widget.initialInputKey);
     final capturesSalary =
         _capturesRevenue('q_gross_salary_annual', onlyInputKey);
-    final capturesSelfEmployedIncome =
-        onlyInputKey == 'q_self_employed_income';
+    final capturesSelfEmployedIncome = onlyInputKey == 'q_self_employed_income';
+    final capturesCompanyProfit =
+        onlyInputKey == 'q_company_distributable_profit_annual';
     final capturesCanton = _capturesRevenue('q_canton', onlyInputKey);
     final capturesBirthYear = _capturesRevenue('q_birth_year', onlyInputKey);
     final capturesPensionFund =
@@ -438,6 +490,8 @@ class _DataBlockEnrichmentScreenState
     final salary = int.tryParse(_digitsOnly(_salaryController.text));
     final selfEmployedIncome =
         int.tryParse(_digitsOnly(_selfEmployedIncomeController.text));
+    final companyProfit =
+        int.tryParse(_digitsOnly(_companyProfitController.text));
     final birthText = _birthYearController.text.trim();
     final birthYear = birthText.isEmpty ? null : int.tryParse(birthText);
     final currentYear = DateTime.now().year;
@@ -455,6 +509,8 @@ class _DataBlockEnrichmentScreenState
         (capturesSalary && (salary == null || salary <= 0)) ||
         (capturesSelfEmployedIncome &&
             (selfEmployedIncome == null || selfEmployedIncome <= 0)) ||
+        (capturesCompanyProfit &&
+            (companyProfit == null || companyProfit <= 0)) ||
         invalidBirthYear) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
@@ -474,6 +530,8 @@ class _DataBlockEnrichmentScreenState
         'q_pay_frequency': 'yearly',
         'q_employment_status': 'independant',
       },
+      if (capturesCompanyProfit)
+        'q_company_distributable_profit_annual': companyProfit,
       if (capturesCanton) 'q_canton': canton,
       if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
       if (capturesPensionFund &&
@@ -510,7 +568,9 @@ class _DataBlockEnrichmentScreenState
             controller: _cashController,
             label: l.financialSummaryEditEpargneLiquide,
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))],
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+            ],
             onChanged: (_) => setState(() => _patrimoineSaved = false),
           ),
           if (_patrimoineError != null) ...[
@@ -639,9 +699,17 @@ class _DataBlockEnrichmentScreenState
       'revenuindependant' ||
       'revenunetannuelindependant' =>
         'q_self_employed_income',
+      'qcompanydistributableprofitannual' ||
+      'companydistributableprofitannual' ||
+      'companyprofit' ||
+      'beneficesociete' ||
+      'beneficedistribuable' =>
+        'q_company_distributable_profit_annual',
       'qcanton' || 'canton' => 'q_canton',
       'qbirthyear' || 'birthyear' => 'q_birth_year',
-      'qhaspensionfund' || 'has2ndpillar' || 'haspensionfund' =>
+      'qhaspensionfund' ||
+      'has2ndpillar' ||
+      'haspensionfund' =>
         'q_has_pension_fund',
       _ => null,
     };
@@ -671,7 +739,9 @@ class _DataBlockEnrichmentScreenState
               Expanded(
                 child: Text(
                   S.of(context)!.dataBlockIncomplete,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -721,7 +791,9 @@ class _DataBlockEnrichmentScreenState
                   child: Center(
                     child: Text(
                       '+${prompt.impact}',
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
+                      style:
+                          MintTextStyles.labelSmall(color: MintColors.primary)
+                              .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -732,12 +804,15 @@ class _DataBlockEnrichmentScreenState
                     children: [
                       Text(
                         prompt.label,
-                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                        style: MintTextStyles.bodyMedium(
+                                color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: MintSpacing.xs),
                       Text(
                         prompt.action,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -790,7 +865,9 @@ class _DataBlockEnrichmentScreenState
                       Expanded(
                         child: Text(
                           alert.message,
-                          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
+                          style: MintTextStyles.bodySmall(
+                                  color: MintColors.textPrimary)
+                              .copyWith(height: 1.4),
                         ),
                       ),
                     ],
@@ -801,7 +878,9 @@ class _DataBlockEnrichmentScreenState
                       padding: const EdgeInsets.only(left: 32),
                       child: Text(
                         alert.suggestion!,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                        style: MintTextStyles.labelSmall(
+                                color: MintColors.textSecondary)
+                            .copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -1015,14 +1094,16 @@ class _BlockScoreBar extends StatelessWidget {
           children: [
             Text(
               '${bloc.score.round()} / ${bloc.maxScore.round()} pts',
-              style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w700),
+              style: MintTextStyles.titleMedium(color: color)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
             Semantics(
               key: Key('data_block_status_${bloc.status}'),
               identifier: 'data_block_status_${bloc.status}',
               container: true,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: color.withAlpha(20),
                   borderRadius: BorderRadius.circular(8),
@@ -1129,9 +1210,8 @@ class _ModeChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? MintColors.primary.withAlpha(15)
-                : MintColors.card,
+            color:
+                isSelected ? MintColors.primary.withAlpha(15) : MintColors.card,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
@@ -1146,7 +1226,8 @@ class _ModeChip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500),
+                style: MintTextStyles.bodySmall(color: color).copyWith(
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500),
               ),
             ],
           ),

@@ -5991,6 +5991,43 @@
   "dividendeBeneficeTotal": "Gesamtgewinn",
   "dividendePartSalaire": "Lohnanteil",
   "dividendeTauxMarginal": "Grenzsteuersatz",
+  "dividendeHeaderInfo": "Wenn du eine AG oder GmbH besitzt, kannst du dir eine Kombination aus Lohn und Dividenden auszahlen. Dividenden werden bei qualifizierender Beteiligung zu 50 % besteuert und unterliegen keinen AHV-Beiträgen. Finde den passenden Split.",
+  "dividendePremierEclairageSaving": "Der passende Split spart dir {amount}/Jahr gegenüber 100 % Lohn",
+  "@dividendePremierEclairageSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeRequalificationTitle": "Risiko der Umqualifizierung",
+  "dividendeRequalificationBody": "Liegt der Lohnanteil unter etwa 60 % des Gewinns, kann die Steuerbehörde je nach kantonaler Praxis einen Teil der Dividenden als Lohn umqualifizieren. Das kann rückwirkende AHV-Beiträge auslösen.",
+  "dividendePartDividende": "Dividendenanteil",
+  "dividendePctBenefice": "{percent} % des Gewinns",
+  "@dividendePctBenefice": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeChargeDividende": "Belastung auf Dividende",
+  "dividendeChargeTotalSplit": "Gesamtbelastung (Split)",
+  "dividendeChartTitle": "GESAMTBELASTUNG NACH SPLIT",
+  "dividendeChartLegendTotal": "Gesamtbelastung",
+  "dividendeChartLegendOptimal": "Passender Split",
+  "dividendeChartLegendCurrent": "Aktuelle Position",
+  "dividendeEducationTitle": "MERKEN",
+  "dividendeEduProfitTitle": "Gewinnsteuer",
+  "dividendeEduProfitBody": "Als Dividende ausgeschütteter Gewinn wird zuerst auf Unternehmensebene und danach auf persönlicher Ebene besteuert. Das ist die wirtschaftliche Doppelbesteuerung.",
+  "dividendeEduAvsTitle": "AHV nur auf dem Lohn",
+  "dividendeEduAvsBody": "AHV-Beiträge fallen nur auf den Lohnanteil an. Dividenden umgehen Sozialabgaben, deshalb lohnt es sich, mehrere Splits zu testen.",
+  "dividendeEduCantonTitle": "Kantonale Praxis",
+  "dividendeEduCantonBody": "Steuerbehörden prüfen übermässige Dividendenausschüttungen. Ein marktüblicher Lohn wird erwartet und die Grenze variiert je nach Kanton.",
+  "dividendeDisclaimer": "Vereinfachte Simulation. Unternehmensgewinnsteuer, persönliche Abzüge und kantonale Regeln sind in dieser Berechnung nicht enthalten. Konsultiere eine Fachperson für eine vollständige Analyse.",
+  "dividendeCantonalDisclaimer": "Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Schwellen für Umqualifizierungen variieren von Kanton zu Kanton.",
+  "dividendeComplianceFooter": "Bildungsinstrument - keine Finanzberatung (FIDLEG).",
+  "dividendeComplianceSources": "Quellen: DBG Art. 18, 20, 33; OR Art. 660",
   "successionUrgence": "Sofortiger Handlungsbedarf",
   "successionDemarches": "Verwaltungsschritte",
   "successionLegale": "Gesetzliche Erbfolge",

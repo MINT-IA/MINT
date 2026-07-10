@@ -5991,6 +5991,43 @@
   "dividendeBeneficeTotal": "Total profit",
   "dividendePartSalaire": "Salary share",
   "dividendeTauxMarginal": "Marginal tax rate",
+  "dividendeHeaderInfo": "If you own an AG or GmbH, you can pay yourself a mix of salary and dividends. Dividends are taxed at 50% for qualifying participations and are not subject to AHV contributions. Find the split that fits best.",
+  "dividendePremierEclairageSaving": "The adapted split saves you {amount}/year compared with 100% salary",
+  "@dividendePremierEclairageSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeRequalificationTitle": "Requalification risk",
+  "dividendeRequalificationBody": "If the salary share is below about 60% of profit, the tax authority may requalify part of the dividends as salary depending on cantonal practice. This can trigger retroactive AHV contributions.",
+  "dividendePartDividende": "Dividend share",
+  "dividendePctBenefice": "{percent}% of profit",
+  "@dividendePctBenefice": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeChargeDividende": "Dividend charge",
+  "dividendeChargeTotalSplit": "Total charge (split)",
+  "dividendeChartTitle": "TOTAL CHARGE BY SPLIT",
+  "dividendeChartLegendTotal": "Total charge",
+  "dividendeChartLegendOptimal": "Adapted split",
+  "dividendeChartLegendCurrent": "Current position",
+  "dividendeEducationTitle": "KEY POINTS",
+  "dividendeEduProfitTitle": "Profit tax",
+  "dividendeEduProfitBody": "Profit distributed as dividends is taxed first at company level, then at personal level. This is economic double taxation.",
+  "dividendeEduAvsTitle": "AHV only on salary",
+  "dividendeEduAvsBody": "AHV contributions apply only to the salary share. Dividends avoid social contributions, which is why testing several splits matters.",
+  "dividendeEduCantonTitle": "Cantonal practice",
+  "dividendeEduCantonBody": "Tax authorities monitor excessive dividend distributions. A market-compliant salary is expected and the limit varies by canton.",
+  "dividendeDisclaimer": "Simplified simulation. Company profit tax, personal deductions, and cantonal rules are not included in this calculation. Consult a specialist for a complete analysis.",
+  "dividendeCantonalDisclaimer": "The tax impact depends on cantonal practice. Requalification thresholds vary from one canton to another.",
+  "dividendeComplianceFooter": "Educational tool - not financial advice (FinSA).",
+  "dividendeComplianceSources": "Sources: DBG art. 18, 20, 33; CO art. 660",
   "successionUrgence": "Immediate urgency",
   "successionDemarches": "Administrative steps",
   "successionLegale": "Legal succession",

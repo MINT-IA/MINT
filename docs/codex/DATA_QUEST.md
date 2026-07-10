@@ -68,6 +68,7 @@ List<Ask> planQuest(DataQuest q, CoachProfile profile, DateTime now):
 - The target screen renders **immediately** with whatever is known, using its `partialState` (SCREEN_CONTRACTS) — result shown as a **range + `EnhancedConfidence`** (compliance I-5). No "complete to continue" gate.
 - Outstanding `Ask`s appear as **inline, dismissible prompts** ("pour préciser : …"), ordered by rank, at most **one primary Ask visible at a time** (north-star: one true thing).
 - Each answered `Ask` → write-back (§6) → recompute → the range tightens visibly. This is the payoff loop.
+- Example now live: `/independants/dividende-salaire` reads `companyDistributableProfitAnnual` and routes its missing-fact CTA to `/data-block/revenu?inputKey=q_company_distributable_profit_annual`; the screen does not reopen a generic revenue form and does not use `selfEmployedNetIncome` as a fallback.
 
 ## 3. Stale = re-confirm, not re-ask (`AskMode.reconfirm`)
 

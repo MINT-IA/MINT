@@ -6293,6 +6293,43 @@
   "dividendeBeneficeTotal": "Bénéfice total",
   "dividendePartSalaire": "Part salaire",
   "dividendeTauxMarginal": "Taux marginal d'imposition",
+  "dividendeHeaderInfo": "Si tu possèdes une SA ou Sàrl, tu peux te verser une combinaison de salaire et de dividendes. Le dividende est imposé à 50 % (participation qualifiante) et échappe aux cotisations AVS. Trouve le split le plus adapté.",
+  "dividendePremierEclairageSaving": "Le split adapté te fait économiser {amount}/an par rapport à 100 % salaire",
+  "@dividendePremierEclairageSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeRequalificationTitle": "Risque de requalification",
+  "dividendeRequalificationBody": "Si la part salaire est inférieure à environ 60 % du bénéfice, l'administration fiscale peut requalifier une partie des dividendes en salaire selon la pratique cantonale. Cela entraîne des cotisations AVS rétroactives.",
+  "dividendePartDividende": "Part dividende",
+  "dividendePctBenefice": "{percent} % du bénéfice",
+  "@dividendePctBenefice": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeChargeDividende": "Charge sur dividende",
+  "dividendeChargeTotalSplit": "Charge totale (split)",
+  "dividendeChartTitle": "CHARGE TOTALE PAR SPLIT",
+  "dividendeChartLegendTotal": "Charge totale",
+  "dividendeChartLegendOptimal": "Split adapté",
+  "dividendeChartLegendCurrent": "Position actuelle",
+  "dividendeEducationTitle": "À RETENIR",
+  "dividendeEduProfitTitle": "Impôt sur le bénéfice",
+  "dividendeEduProfitBody": "Le bénéfice distribué en dividende est imposé d'abord au niveau de la société, puis au niveau personnel. C'est la double imposition économique.",
+  "dividendeEduAvsTitle": "AVS uniquement sur le salaire",
+  "dividendeEduAvsBody": "Les cotisations AVS ne s'appliquent qu'à la part salaire. Le dividende échappe aux charges sociales, d'où l'intérêt de tester plusieurs splits.",
+  "dividendeEduCantonTitle": "Pratique cantonale",
+  "dividendeEduCantonBody": "Les autorités fiscales surveillent les distributions excessives de dividendes. Un salaire conforme au marché est attendu et la limite varie selon les cantons.",
+  "dividendeDisclaimer": "Simulation simplifiée. L'impôt sur le bénéfice de la société, les déductions personnelles et les règles cantonales ne sont pas intégrés dans ce calcul. Consulte un ou une spécialiste pour une analyse complète.",
+  "dividendeCantonalDisclaimer": "L'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d'un canton à l'autre.",
+  "dividendeComplianceFooter": "Outil éducatif - ne constitue pas un conseil financier (LSFin).",
+  "dividendeComplianceSources": "Sources : LIFD art. 18, 20, 33 ; CO art. 660",
   "successionUrgence": "Urgence immédiate",
   "successionDemarches": "Démarches administratives",
   "successionLegale": "Succession légale",
