@@ -58,4 +58,29 @@ void main() {
       await $(#household_save_cta).waitUntilVisible();
     },
   );
+
+  patrolTest(
+    'routes missing owner mortgage balance to patrimoine collector',
+    skip: !_runningFromPatrolCli,
+    timeout: const Timeout(Duration(minutes: 4)),
+    ($) async {
+      await ReportPersistenceService.saveAnswers(const {
+        'q_canton': 'VD',
+        'q_employment_status': 'independant',
+        'q_children': 0,
+        'q_housing_status': 'owner',
+      });
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+      await $.pumpWidgetAndSettle(const MintApp());
+
+      await $.platformAutomator.mobile.openUrl('mint:///assurances/coverage');
+      await $.pumpAndSettle();
+
+      await $(#coverage_ledger_facts).waitUntilVisible();
+      await $(#coverage_profile_enrich_cta).tap();
+      await $.pumpAndSettle();
+      await $(#mortgage_balance_input).waitUntilVisible();
+      await $(#patrimoine_save_cta).waitUntilVisible();
+    },
+  );
 }

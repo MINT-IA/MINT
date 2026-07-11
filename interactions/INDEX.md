@@ -6,7 +6,8 @@
 |---|---|---|---|---|---|
 | coverage_missing_facts | `coverage.edge.check.enrich_canton` | `coverage.route.check -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/coverage_check.yaml` |
 | coverage_missing_facts | `coverage.edge.check.enrich_household` | `coverage.route.check -> db.route.composition_menage` | `tap` | `push` | `apps/mobile/test/patrol/coverage_check_runtime_test.dart` |
-| coverage_missing_facts | `coverage.edge.check.enrich_work_or_mortgage` | `coverage.route.check -> coach.route.chat` | `tap` | `push` | `apps/mobile/test/screens/coverage_check_ledger_test.dart` |
+| coverage_missing_facts | `coverage.edge.check.enrich_mortgage_balance` | `coverage.route.check -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/test/patrol/coverage_check_runtime_test.dart` |
+| coverage_missing_facts | `coverage.edge.check.enrich_work` | `coverage.route.check -> coach.route.chat` | `tap` | `push` | `apps/mobile/test/screens/coverage_check_ledger_test.dart` |
 | disability_gap_missing_facts | `disability.edge.gap.enrich_age` | `disability.route.gap -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |
 | disability_gap_missing_facts | `disability.edge.gap.enrich_expenses` | `disability.route.gap -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |
 | disability_gap_missing_facts | `disability.edge.gap.enrich_salary` | `disability.route.gap -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/disability_gap.yaml` |

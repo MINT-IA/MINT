@@ -27,7 +27,8 @@ flowchart LR
 
   coverage_route_check -->|"coverage.edge.check.enrich_canton<br/>tap / push"| db_route_revenu
   coverage_route_check -->|"coverage.edge.check.enrich_household<br/>tap / push"| db_route_composition_menage
-  coverage_route_check -->|"coverage.edge.check.enrich_work_or_mortgage<br/>tap / push"| coach_route_chat
+  coverage_route_check -->|"coverage.edge.check.enrich_mortgage_balance<br/>tap / push"| db_route_patrimoine
+  coverage_route_check -->|"coverage.edge.check.enrich_work<br/>tap / push"| coach_route_chat
   disability_route_gap -->|"disability.edge.gap.enrich_age<br/>tap / push"| db_route_revenu
   disability_route_gap -->|"disability.edge.gap.enrich_expenses<br/>tap / push"| budget_route_setup
   disability_route_gap -->|"disability.edge.gap.enrich_salary<br/>tap / push"| db_route_revenu

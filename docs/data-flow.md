@@ -1,11 +1,12 @@
 # MINT Data Flow — the authoritative map
 
 **Why this file exists.** MINT data capture lives in three storage layers
-(SharedPreferences, Keychain fallback, backend Postgres) mutated by seven
+(SharedPreferences, Keychain fallback, backend Postgres) mutated by eight
 write paths (wizard, scan, coach save_fact, Dart regex fallback, inline
-coach pickers, budget form, tax annual refresh). Drifting between them is
-the #1 source of « the UI says captured, the profile is empty at
-relaunch » bugs — the exact bug class that killed the MVP walkthrough
+coach pickers, budget form, DataBlock enrichment, tax annual refresh).
+Drifting between them is the #1 source of « the UI says captured, the
+profile is empty at relaunch » bugs — the exact bug class that killed the
+MVP walkthrough
 2026-04-20.
 
 This doc gives every writer + every reader explicit ownership of every
@@ -23,12 +24,14 @@ flowchart LR
     U --> W3[Budget setup form]
     U --> W4[Wizard inline picker]
     U --> W5[Annual refresh]
+    U --> W6[DataBlock enrichment]
 
     W1 --> PROV[CoachProfileProvider]
     W2 --> PROV
     W3 --> PROV
     W4 --> PROV
     W5 --> PROV
+    W6 --> PROV
 
     PROV -- mergeAnswers --> SP[(SharedPreferences<br/>wizard_answers_v2)]
     PROV -- syncToBackend --> BE[(Backend Postgres<br/>ProfileModel.data)]
@@ -54,7 +57,7 @@ flowchart LR
 
 ---
 
-## The 6 writers — who mutates `wizard_answers_v2`
+## The 8 writers — who mutates `wizard_answers_v2`
 
 Every writer persists via `ReportPersistenceService.saveAnswers(answers)`
 which encrypts sensitive keys via `SecureWizardStore` (Keychain) and
@@ -69,6 +72,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 | 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
+| 8 | **DataBlock enrichment** | `data_block_enrichment_screen.dart` → `coachProvider.mergeAnswers` | `q_canton`, `q_gross_salary_annual`, `q_self_employed_income`, `q_company_profit_annual_chf`, `q_birth_year`, `q_has_pension_fund`, `q_cash_total`, `_coach_dettes_hypotheque`, `q_children`, `q_housing_status` | Missing-fact collector from scenario/Data Quest flows |
 
 **Legend.** Keys prefixed `q_*` come from wizard-style answers
 (`fromWizardAnswers` reads them natively). Keys prefixed `_coach_*` come

@@ -3019,6 +3019,10 @@ class CoachProfile {
         answers.containsKey('q_emergency_fund')) {
       provided.add('liquidSavings');
     }
+    if (answers.containsKey('_coach_dettes_hypotheque') ||
+        answers.containsKey('q_mortgage_balance')) {
+      provided.add('mortgageBalance');
+    }
     if (answers.containsKey('q_housing_cost_period_chf') &&
         answers.containsKey('q_lamal_premium_monthly_chf')) {
       provided.add('monthlyExpenses');

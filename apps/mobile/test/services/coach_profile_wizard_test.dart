@@ -290,6 +290,16 @@ void main() {
       expect(profile.userProvidedFields, contains('housingStatus'));
     });
 
+    test('marque le solde hypothécaire quand il est fourni', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        ...baseAnswers(housingStatus: 'owner'),
+        '_coach_dettes_hypotheque': 0,
+      });
+
+      expect(profile.dettes.hypotheque, 0);
+      expect(profile.userProvidedFields, contains('mortgageBalance'));
+    });
+
     test('marque employmentStatus quand le revenu indépendant le déduit', () {
       final answers = {...baseAnswers(), 'q_self_employed_income': 84000}
         ..remove('q_employment_status');

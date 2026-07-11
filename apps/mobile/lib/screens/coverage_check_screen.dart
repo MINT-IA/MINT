@@ -948,7 +948,9 @@ class _CoverageProfileFacts {
     if (!knownChildren || !knownHousing) {
       return '/data-block/composition_menage';
     }
-    if (hasMortgage == null) return '/coach/chat?topic=hypotheque';
+    if (hasMortgage == null) {
+      return '/data-block/patrimoine?inputKey=_coach_dettes_hypotheque';
+    }
     return '/data-block/revenu?inputKey=q_canton';
   }
 }

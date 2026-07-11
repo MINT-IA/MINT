@@ -176,7 +176,7 @@ void main() {
     expect(find.text('data-block:composition_menage:none'), findsOneWidget);
   });
 
-  testWidgets('routes missing owner mortgage context to coach topic',
+  testWidgets('routes missing owner mortgage context to patrimoine collector',
       (tester) async {
     _setReliableViewport(tester);
     final provider = _RecordingCoachProfileProvider(const {
@@ -192,7 +192,8 @@ void main() {
     await tester.tap(find.byKey(const Key('coverage_profile_enrich_cta')));
     await tester.pumpAndSettle();
 
-    expect(find.text('coach:hypotheque'), findsOneWidget);
+    expect(find.text('data-block:patrimoine:_coach_dettes_hypotheque'),
+        findsOneWidget);
   });
 
   testWidgets(
@@ -251,6 +252,33 @@ void main() {
         matching: find.byType(Switch),
       ),
       findsNothing,
+    );
+  });
+
+  testWidgets('owner with explicit zero mortgage balance is complete',
+      (tester) async {
+    _setReliableViewport(tester);
+    final provider = _RecordingCoachProfileProvider(const {
+      'q_canton': 'VD',
+      'q_employment_status': 'independant',
+      'q_children': 0,
+      'q_housing_status': 'owner',
+      '_coach_dettes_hypotheque': 0,
+    });
+
+    await tester.pumpWidget(_buildWithRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('coverage_ledger_facts')), findsOneWidget);
+    expect(
+        find.byKey(const Key('coverage_missing_profile_facts')), findsNothing);
+    expect(find.byKey(const Key('coverage_result_section')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: _rowForText('Hypothèque en cours'),
+        matching: find.text('CHF\u00a00'),
+      ),
+      findsOneWidget,
     );
   });
 
