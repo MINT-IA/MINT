@@ -1438,6 +1438,7 @@
   "donationFortuneTotale": "Donor's total wealth",
   "donationEstateBaseLabel": "Estimated net estate base",
   "donationEstateBaseDerivedHint": "Base rebuilt from confirmed wealth facts.",
+  "donationEstateBasePartialHint": "Partial rebuilt base: other assets may still be missing.",
   "donationEstateReconcileHint": "Estimate and wealth details differ: decompose before deciding.",
   "donationEstateMortgageMissingHint": "Property is known, but mortgage is missing: the estate base stays conservative.",
   "donationEstateMortgageCta": "Add mortgage",
@@ -1471,6 +1472,8 @@
       }
     }
   },
+  "donationPartialReductionRisk": "Partial base: possible excess of {amount}, to confirm with a complete estate mass.",
+  "@donationPartialReductionRisk": {"placeholders": {"amount": {"type": "String"}}},
   "donationImpactTitle": "IMPACT ON SUCCESSION",
   "donationAvancementNote": "Advancement of inheritance: the donation will be reported to the estate.",
   "donationHorsPartNote": "Donation outside share: it is charged only to the disposable portion.",
@@ -11482,6 +11485,7 @@
   "donationAlertRealEstate": "For a real-estate gift, notarial deed, land register and local tax consequences must be confirmed.",
   "donationAlertOlderDonor": "At this age, planning should document liquidity, future needs, capacity of judgment and the chronology of acts.",
   "donationAlertLargeDonation": "This gift represents more than 50% of total wealth. Verify that enough reserves remain for personal needs.",
+  "donationAlertLargeDonationPartial": "This gift exceeds 50% of currently known assets. Confirm against a complete estate mass and future needs.",
   "donationChecklistVerifyQuotite": "Verify the disposable portion with a notary",
   "donationChecklistDocumentAdvancement": "Document whether the gift is an advancement of inheritance or outside share",
   "donationChecklistConfirmTax": "Confirm tax treatment with the cantonal tax authority",

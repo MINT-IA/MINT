@@ -3253,6 +3253,10 @@ class SFr extends S {
       'Base reconstruite avec les faits patrimoniaux confirmés.';
 
   @override
+  String get donationEstateBasePartialHint =>
+      'Base partielle reconstruite : d’autres actifs peuvent encore manquer.';
+
+  @override
   String get donationEstateReconcileHint =>
       'Estimation et détails patrimoniaux divergent : à décomposer avant décision.';
 
@@ -3306,6 +3310,11 @@ class SFr extends S {
   @override
   String donationDepassement(String amount) {
     return 'Dépassement de $amount — risque d\'action en réduction';
+  }
+
+  @override
+  String donationPartialReductionRisk(String amount) {
+    return 'Base partielle : dépassement possible de $amount, à confirmer avec une masse successorale complète.';
   }
 
   @override
@@ -23645,6 +23654,10 @@ class SFr extends S {
   @override
   String get donationAlertLargeDonation =>
       'Cette donation représente plus de 50 % de ta fortune totale. Vérifie que tu conserves assez de réserves pour tes propres besoins.';
+
+  @override
+  String get donationAlertLargeDonationPartial =>
+      'Cette donation dépasse 50 % des actifs actuellement connus. À confirmer avec une masse successorale complète et tes besoins futurs.';
 
   @override
   String get donationChecklistVerifyQuotite =>

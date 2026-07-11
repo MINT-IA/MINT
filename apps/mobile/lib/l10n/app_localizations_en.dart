@@ -3239,6 +3239,10 @@ class SEn extends S {
       'Base rebuilt from confirmed wealth facts.';
 
   @override
+  String get donationEstateBasePartialHint =>
+      'Partial rebuilt base: other assets may still be missing.';
+
+  @override
   String get donationEstateReconcileHint =>
       'Estimate and wealth details differ: decompose before deciding.';
 
@@ -3291,6 +3295,11 @@ class SEn extends S {
   @override
   String donationDepassement(String amount) {
     return 'Exceeded by $amount — risk of reduction claim';
+  }
+
+  @override
+  String donationPartialReductionRisk(String amount) {
+    return 'Partial base: possible excess of $amount, to confirm with a complete estate mass.';
   }
 
   @override
@@ -23529,6 +23538,10 @@ class SEn extends S {
   @override
   String get donationAlertLargeDonation =>
       'This gift represents more than 50% of total wealth. Verify that enough reserves remain for personal needs.';
+
+  @override
+  String get donationAlertLargeDonationPartial =>
+      'This gift exceeds 50% of currently known assets. Confirm against a complete estate mass and future needs.';
 
   @override
   String get donationChecklistVerifyQuotite =>

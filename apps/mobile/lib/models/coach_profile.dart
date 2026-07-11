@@ -3183,6 +3183,12 @@ class CoachProfile {
         answers.containsKey('q_emergency_fund')) {
       provided.add('liquidSavings');
     }
+    // Some high-stakes estate flows need an explicit cash amount, not the
+    // emergency-fund heuristic covered by the broader liquidSavings marker.
+    final explicitCashTotal = _parseDouble(answers['q_cash_total']);
+    if (explicitCashTotal != null && explicitCashTotal > 0) {
+      provided.add('liquidSavingsAmount');
+    }
     final explicitInvestmentsTotal =
         _parseDouble(answers['q_investments_total']);
     if (explicitInvestmentsTotal != null && explicitInvestmentsTotal > 0) {

@@ -197,6 +197,105 @@ void main() {
     expect(find.textContaining("500'000", skipOffstage: false), findsNothing);
   });
 
+  testWidgets('uses detailed net estate facts without a broad estimate',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider({
+      'q_birth_year': DateTime.now().year - 62,
+      'q_canton': 'GE',
+      'q_children': 2,
+      'q_civil_status': 'marie',
+      'q_cash_total': 200000,
+      'q_investments_total': 300000,
+      'q_property_market_value': 900000,
+      '_coach_dettes_hypotheque': 100000,
+    });
+
+    await tester.pumpWidget(_buildDonationRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("1'300'000", skipOffstage: false), findsWidgets);
+    expect(
+      find.textContaining('Base partielle', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('donation_wealth_missing_cta')), findsNothing);
+
+    await tester.ensureVisible(find.byKey(const Key('donation_simulate_cta')));
+    await tester.tap(find.byKey(const Key('donation_simulate_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('donation_result_cards')), findsOneWidget);
+  });
+
+  testWidgets('does not use emergency-fund heuristics as estate cash',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider({
+      'q_birth_year': DateTime.now().year - 62,
+      'q_canton': 'GE',
+      'q_children': 2,
+      'q_civil_status': 'marie',
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2000,
+      'q_lamal_premium_monthly_chf': 500,
+    });
+
+    await tester.pumpWidget(_buildDonationRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('donation_wealth_missing_cta')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Base reconstruite', skipOffstage: false),
+      findsNothing,
+    );
+
+    await tester.ensureVisible(find.byKey(const Key('donation_simulate_cta')));
+    await tester.tap(find.byKey(const Key('donation_simulate_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('donation_result_cards')), findsNothing);
+  });
+
+  testWidgets('marks a single-asset detailed estate base as partial',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider({
+      'q_birth_year': DateTime.now().year - 62,
+      'q_canton': 'GE',
+      'q_children': 2,
+      'q_civil_status': 'celibataire',
+      'q_cash_total': 100000,
+    });
+
+    await tester.pumpWidget(_buildDonationRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("100'000", skipOffstage: false), findsWidgets);
+    expect(
+      find.textContaining('Base partielle', skipOffstage: false),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(find.byKey(const Key('donation_simulate_cta')));
+    await tester.tap(find.byKey(const Key('donation_simulate_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('donation_result_cards')), findsOneWidget);
+    expect(
+      find.textContaining('dépassement possible', skipOffstage: false),
+      findsWidgets,
+    );
+    expect(
+      find.textContaining('actifs actuellement connus', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Dépassement de', skipOffstage: false),
+      findsNothing,
+    );
+  });
+
   testWidgets('includes user-provided investments in the net estate base',
       (tester) async {
     final provider = _RecordingCoachProfileProvider({

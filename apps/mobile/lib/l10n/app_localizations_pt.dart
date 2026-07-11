@@ -3256,6 +3256,10 @@ class SPt extends S {
       'Base reconstruída com os dados patrimoniais confirmados.';
 
   @override
+  String get donationEstateBasePartialHint =>
+      'Base parcial reconstruída: outros ativos ainda podem faltar.';
+
+  @override
   String get donationEstateReconcileHint =>
       'A estimativa e os detalhes patrimoniais divergem: decompor antes de decidir.';
 
@@ -3308,6 +3312,11 @@ class SPt extends S {
   @override
   String donationDepassement(String amount) {
     return 'Excesso de $amount — risco de ação de redução';
+  }
+
+  @override
+  String donationPartialReductionRisk(String amount) {
+    return 'Base parcial: possível excesso de $amount, a confirmar com uma massa sucessória completa.';
   }
 
   @override
@@ -23652,6 +23661,10 @@ class SPt extends S {
   @override
   String get donationAlertLargeDonation =>
       'This gift represents more than 50% of total wealth. Verify that enough reserves remain for personal needs.';
+
+  @override
+  String get donationAlertLargeDonationPartial =>
+      'Esta doação excede 50% dos ativos atualmente conhecidos. Confirma com uma massa sucessória completa e necessidades futuras.';
 
   @override
   String get donationChecklistVerifyQuotite =>

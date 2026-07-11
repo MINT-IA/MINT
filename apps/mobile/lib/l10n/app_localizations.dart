@@ -5967,6 +5967,12 @@ abstract class S {
   /// **'Base reconstruite avec les faits patrimoniaux confirmés.'**
   String get donationEstateBaseDerivedHint;
 
+  /// No description provided for @donationEstateBasePartialHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base partielle reconstruite : d’autres actifs peuvent encore manquer.'**
+  String get donationEstateBasePartialHint;
+
   /// No description provided for @donationEstateReconcileHint.
   ///
   /// In fr, this message translates to:
@@ -6062,6 +6068,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Dépassement de {amount} — risque d\'action en réduction'**
   String donationDepassement(String amount);
+
+  /// No description provided for @donationPartialReductionRisk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base partielle : dépassement possible de {amount}, à confirmer avec une masse successorale complète.'**
+  String donationPartialReductionRisk(String amount);
 
   /// No description provided for @donationImpactTitle.
   ///
@@ -41362,6 +41374,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Cette donation représente plus de 50 % de ta fortune totale. Vérifie que tu conserves assez de réserves pour tes propres besoins.'**
   String get donationAlertLargeDonation;
+
+  /// No description provided for @donationAlertLargeDonationPartial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette donation dépasse 50 % des actifs actuellement connus. À confirmer avec une masse successorale complète et tes besoins futurs.'**
+  String get donationAlertLargeDonationPartial;
 
   /// No description provided for @donationChecklistVerifyQuotite.
   ///

@@ -3270,6 +3270,10 @@ class SDe extends S {
       'Basis aus bestätigten Vermögensdaten neu aufgebaut.';
 
   @override
+  String get donationEstateBasePartialHint =>
+      'Teilweise neu aufgebaute Basis: weitere Vermögenswerte können noch fehlen.';
+
+  @override
   String get donationEstateReconcileHint =>
       'Schätzung und Vermögensdetails weichen ab: vor einer Entscheidung aufschlüsseln.';
 
@@ -3323,6 +3327,11 @@ class SDe extends S {
   @override
   String donationDepassement(String amount) {
     return 'Überschreitung von $amount — Risiko einer Herabsetzungsklage';
+  }
+
+  @override
+  String donationPartialReductionRisk(String amount) {
+    return 'Teilbasis: mögliche Überschreitung von $amount, mit vollständiger Erbmasse zu bestätigen.';
   }
 
   @override
@@ -23702,6 +23711,10 @@ class SDe extends S {
   @override
   String get donationAlertLargeDonation =>
       'This gift represents more than 50% of total wealth. Verify that enough reserves remain for personal needs.';
+
+  @override
+  String get donationAlertLargeDonationPartial =>
+      'Diese Schenkung übersteigt 50% der derzeit bekannten Vermögenswerte. Mit vollständiger Erbmasse und künftigen Bedürfnissen bestätigen.';
 
   @override
   String get donationChecklistVerifyQuotite =>

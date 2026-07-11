@@ -167,12 +167,12 @@ class _DonationScreenState extends State<DonationScreen> {
                   const SizedBox(height: 24),
                   MintEntrance(
                     delay: const Duration(milliseconds: 200),
-                    child: _buildQuotiteCard(),
+                    child: _buildQuotiteCard(facts),
                   ),
                   const SizedBox(height: 24),
                   MintEntrance(
                     delay: const Duration(milliseconds: 300),
-                    child: _buildImpactSuccessionCard(),
+                    child: _buildImpactSuccessionCard(facts),
                   ),
                   const SizedBox(height: 24),
                   if (_result!.alerts.isNotEmpty) ...[
@@ -394,8 +394,9 @@ class _DonationScreenState extends State<DonationScreen> {
             value: facts.wealthReference == null
                 ? null
                 : _chfFmt(facts.wealthReference!),
-            needsAttention:
-                facts.estateMortgageMissing || facts.estateNeedsReconciliation,
+            needsAttention: facts.estateMortgageMissing ||
+                facts.estateNeedsReconciliation ||
+                facts.estateDetailedBasePartial,
             supportingText: _wealthReferenceSupportText(facts),
             route: '/data-block/patrimoine?inputKey=q_wealth_estimate',
             ctaKey: const Key('donation_wealth_missing_cta'),
@@ -531,6 +532,9 @@ class _DonationScreenState extends State<DonationScreen> {
     }
     if (facts.estateNeedsReconciliation) {
       return l.donationEstateReconcileHint;
+    }
+    if (facts.estateDetailedBasePartial) {
+      return l.donationEstateBasePartialHint;
     }
     if (facts.estateUsesDetailedFacts) {
       return l.donationEstateBaseDerivedHint;
@@ -741,12 +745,15 @@ class _DonationScreenState extends State<DonationScreen> {
     }
   }
 
-  String _impactSuccessionText(DonationResult r) {
+  String _impactSuccessionText(DonationResult r, _DonationLedgerFacts facts) {
     final l = S.of(context)!;
     switch (r.impactSuccession) {
       case DonationMessageCode.impactAdvancement:
         return l.donationImpactAdvancement;
       case DonationMessageCode.impactReductionRisk:
+        if (facts.estateDetailedBasePartial) {
+          return l.donationPartialReductionRisk(_chfFmt(r.montantDepassement));
+        }
         return l.donationImpactReductionRisk(_chfFmt(r.montantDepassement));
       case DonationMessageCode.impactOutsidePart:
         return l.donationImpactOutsidePart(_chfFmt(r.quotiteDisponible));
@@ -774,6 +781,9 @@ class _DonationScreenState extends State<DonationScreen> {
       case DonationMessageCode.alertSpouseLargeGift:
         return l.donationAlertSpouseLargeGift;
       case DonationMessageCode.alertReductionRisk:
+        if (facts.estateDetailedBasePartial) {
+          return l.donationPartialReductionRisk(_chfFmt(r.montantDepassement));
+        }
         return l.donationAlertReductionRisk(_chfFmt(r.montantDepassement));
       case DonationMessageCode.alertConcubinage:
         return l.donationAlertConcubinage;
@@ -782,6 +792,9 @@ class _DonationScreenState extends State<DonationScreen> {
       case DonationMessageCode.alertOlderDonor:
         return l.donationAlertOlderDonor;
       case DonationMessageCode.alertLargeDonation:
+        if (facts.estateDetailedBasePartial) {
+          return l.donationAlertLargeDonationPartial;
+        }
         return l.donationAlertLargeDonation;
       default:
         return l.lifeEventPointsAttention;
@@ -852,6 +865,13 @@ class _DonationScreenState extends State<DonationScreen> {
             S.of(context)!.agentFormEstimated,
             style: MintTextStyles.labelSmall(color: MintColors.warning),
           ),
+          if (facts.estateDetailedBasePartial) ...[
+            const SizedBox(height: 4),
+            Text(
+              S.of(context)!.donationEstateBasePartialHint,
+              style: MintTextStyles.labelSmall(color: MintColors.warning),
+            ),
+          ],
           const SizedBox(height: 4),
           Text(
             S.of(context)!.donationReserveProtege,
@@ -930,11 +950,13 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Quotite Disponible Card ──
-  Widget _buildQuotiteCard() {
+  Widget _buildQuotiteCard(_DonationLedgerFacts facts) {
     final r = _result!;
     final requiresConfirmation = r.quotiteRequiresSpecialistConfirmation;
     final statusColor = r.donationDepasseQuotite
-        ? MintColors.error
+        ? facts.estateDetailedBasePartial
+            ? MintColors.warning
+            : MintColors.error
         : requiresConfirmation
             ? MintColors.warning
             : MintColors.success;
@@ -964,13 +986,7 @@ class _DonationScreenState extends State<DonationScreen> {
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.donationQuotiteTitle,
-                style: MintTextStyles.micro(
-                  color: r.donationDepasseQuotite
-                      ? MintColors.error
-                      : requiresConfirmation
-                          ? MintColors.warning
-                          : MintColors.success,
-                ).copyWith(
+                style: MintTextStyles.micro(color: statusColor).copyWith(
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1,
                 ),
@@ -989,6 +1005,13 @@ class _DonationScreenState extends State<DonationScreen> {
               color: statusColor,
             ),
           ),
+          if (facts.estateDetailedBasePartial) ...[
+            const SizedBox(height: 4),
+            Text(
+              S.of(context)!.donationEstateBasePartialHint,
+              style: MintTextStyles.labelSmall(color: MintColors.warning),
+            ),
+          ],
           const SizedBox(height: 4),
           Text(
             S.of(context)!.donationQuotiteDesc,
@@ -999,20 +1022,23 @@ class _DonationScreenState extends State<DonationScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: MintColors.error.withValues(alpha: 0.08),
+                color: statusColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline,
-                      size: 16, color: MintColors.error),
+                  Icon(Icons.error_outline, size: 16, color: statusColor),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      S
-                          .of(context)!
-                          .donationDepassement(_chfFmt(r.montantDepassement)),
-                      style: MintTextStyles.bodySmall(color: MintColors.error)
+                      facts.estateDetailedBasePartial
+                          ? S.of(context)!.donationPartialReductionRisk(
+                                _chfFmt(r.montantDepassement),
+                              )
+                          : S.of(context)!.donationDepassement(
+                                _chfFmt(r.montantDepassement),
+                              ),
+                      style: MintTextStyles.bodySmall(color: statusColor)
                           .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -1026,7 +1052,7 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Impact Succession Card ──
-  Widget _buildImpactSuccessionCard() {
+  Widget _buildImpactSuccessionCard(_DonationLedgerFacts facts) {
     final r = _result!;
     return MintSurface(
       tone: MintSurfaceTone.bleu,
@@ -1049,7 +1075,7 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _impactSuccessionText(r),
+            _impactSuccessionText(r, facts),
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
                 .copyWith(height: 1.5),
           ),
@@ -1328,6 +1354,7 @@ class _DonationLedgerFacts {
   final double? propertyMarketValue;
   final double? mortgageBalance;
   final bool estateUsesDetailedFacts;
+  final bool estateDetailedBasePartial;
   final bool estateNeedsReconciliation;
   final bool estateMortgageMissing;
 
@@ -1340,6 +1367,7 @@ class _DonationLedgerFacts {
     required this.propertyMarketValue,
     required this.mortgageBalance,
     required this.estateUsesDetailedFacts,
+    required this.estateDetailedBasePartial,
     required this.estateNeedsReconciliation,
     required this.estateMortgageMissing,
   });
@@ -1375,7 +1403,7 @@ class _DonationLedgerFacts {
               )
             : 0.0;
     final estateReference = WealthFinancialFacts.reconcileAggregate(
-      cash: provided.contains('liquidSavings')
+      cash: provided.contains('liquidSavingsAmount')
           ? profile.patrimoine.epargneLiquide
           : 0,
       investments: provided.contains('investments')
@@ -1384,14 +1412,19 @@ class _DonationLedgerFacts {
       propertyValue: estatePropertyNet,
       wealthEstimate: profile.patrimoine.wealthEstimate,
     );
-    final estateUsesDetailedFacts = estatePropertyNet > 0 ||
-        (provided.contains('liquidSavings') &&
-            profile.patrimoine.epargneLiquide > 0) ||
-        (provided.contains('investments') &&
-            profile.patrimoine.investissements > 0);
-    final wealthReference = provided.contains('wealthEstimate') &&
-            estateReference.hasEstimate &&
-            estateReference.resolvedTotal > 0
+    final hasCashFact = provided.contains('liquidSavingsAmount') &&
+        profile.patrimoine.epargneLiquide > 0;
+    final hasInvestmentFact = provided.contains('investments') &&
+        profile.patrimoine.investissements > 0;
+    final hasPropertyNetFact = estatePropertyNet > 0;
+    final estateUsesDetailedFacts =
+        hasCashFact || hasInvestmentFact || hasPropertyNetFact;
+    final hasBroadEstimate =
+        provided.contains('wealthEstimate') && estateReference.hasEstimate;
+    final estateDetailedBasePartial =
+        !hasBroadEstimate && estateUsesDetailedFacts;
+    final wealthReference = estateReference.resolvedTotal > 0 &&
+            (hasBroadEstimate || estateUsesDetailedFacts)
         ? estateReference.resolvedTotal
         : null;
 
@@ -1404,6 +1437,7 @@ class _DonationLedgerFacts {
       propertyMarketValue: propertyMarketValue,
       mortgageBalance: mortgageBalance,
       estateUsesDetailedFacts: estateUsesDetailedFacts,
+      estateDetailedBasePartial: estateDetailedBasePartial,
       estateNeedsReconciliation: estateReference.needsReconciliation,
       estateMortgageMissing:
           propertyMarketValue != null && mortgageBalance == null,
@@ -1419,6 +1453,7 @@ class _DonationLedgerFacts {
         propertyMarketValue = null,
         mortgageBalance = null,
         estateUsesDetailedFacts = false,
+        estateDetailedBasePartial = false,
         estateNeedsReconciliation = false,
         estateMortgageMissing = false;
 

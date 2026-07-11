@@ -1438,6 +1438,7 @@
   "donationFortuneTotale": "Fortune totale du donateur",
   "donationEstateBaseLabel": "Assiette successorale nette estimée",
   "donationEstateBaseDerivedHint": "Base reconstruite avec les faits patrimoniaux confirmés.",
+  "donationEstateBasePartialHint": "Base partielle reconstruite\u00a0: d’autres actifs peuvent encore manquer.",
   "donationEstateReconcileHint": "Estimation et détails patrimoniaux divergent\u00a0: à décomposer avant décision.",
   "donationEstateMortgageMissingHint": "Bien immobilier connu, mais hypothèque manquante\u00a0: l’assiette reste prudente.",
   "donationEstateMortgageCta": "Ajouter l’hypothèque",
@@ -1471,6 +1472,8 @@
       }
     }
   },
+  "donationPartialReductionRisk": "Base partielle\u00a0: dépassement possible de {amount}, à confirmer avec une masse successorale complète.",
+  "@donationPartialReductionRisk": {"placeholders": {"amount": {"type": "String"}}},
   "donationImpactTitle": "IMPACT SUR LA SUCCESSION",
   "donationAvancementNote": "Avancement d'hoirie : la donation sera rapportée à la masse successorale.",
   "donationHorsPartNote": "Donation hors part : elle est imputée sur la quotité disponible uniquement.",
@@ -12281,6 +12284,7 @@
   "donationAlertRealEstate": "Pour une donation immobilière, le passage devant notaire, le registre foncier et les conséquences fiscales locales doivent être confirmés.",
   "donationAlertOlderDonor": "À cet âge, la planification doit documenter la liquidité, les besoins futurs, la capacité de discernement et la chronologie des actes.",
   "donationAlertLargeDonation": "Cette donation représente plus de 50 % de ta fortune totale. Vérifie que tu conserves assez de réserves pour tes propres besoins.",
+  "donationAlertLargeDonationPartial": "Cette donation dépasse 50 % des actifs actuellement connus. À confirmer avec une masse successorale complète et tes besoins futurs.",
   "donationChecklistVerifyQuotite": "Vérifier la quotité disponible avec un notaire",
   "donationChecklistDocumentAdvancement": "Documenter si la donation est en avancement d’hoirie ou hors part",
   "donationChecklistConfirmTax": "Confirmer le traitement fiscal avec les autorités fiscales cantonales",
