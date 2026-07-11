@@ -214,7 +214,7 @@
   "jobCompareDelta": "Differenza",
   "jobCompareSalaireNet": "Stipendio netto",
   "jobCompareCotisLpp": "Contributi LPP",
-  "jobCompareCapitalRetraite": "Capitale pensionistico",
+  "jobCompareCapitalRetraite": "Capitale di previdenza",
   "jobCompareRenteMois": "Rendita/mese",
   "jobCompareCouvertureDeces": "Copertura decesso",
   "jobCompareInvalidite": "Copertura invalidità",
@@ -223,7 +223,7 @@
   "jobCompareDetailedSubtitle": "7 assi previdenziali",
   "jobCompareReduce": "Riduci",
   "jobCompareShowDetails": "Vedi dettagli",
-  "jobCompareDisclaimer": "I risultati presentati sono stime indicative. Non costituiscono consulenza finanziaria personalizzata. Consulta la tua cassa pensioni e uno·a specialista qualificato·a prima di qualsiasi decisione.",
+  "jobCompareDisclaimer": "I risultati presentati sono stime indicative. Non costituiscono consulenza finanziaria personalizzata. Consulta la tua cassa pensione e uno·a specialista qualificato·a prima di qualsiasi decisione.",
   "jobCompareVerdictNewBetter": "Il nuovo impiego è più solido su diversi criteri",
   "jobCompareVerdictCurrentBetter": "L'impiego attuale offre una protezione più solida",
   "jobCompareVerdictComparable": "I due impieghi sono comparabili",
@@ -236,7 +236,7 @@
       }
     }
   },
-  "jobCompareAlertCapitalLoss": "Perdita significativa di capitale pensionistico: {amount}",
+  "jobCompareAlertCapitalLoss": "Perdita significativa di capitale di previdenza: {amount}",
   "@jobCompareAlertCapitalLoss": {
     "placeholders": {
       "amount": {
@@ -271,7 +271,7 @@
       }
     }
   },
-  "jobCompareChecklistAskPensionReglement": "Richiedere il regolamento della cassa pensioni",
+  "jobCompareChecklistAskPensionReglement": "Richiedere il regolamento della cassa pensione",
   "jobCompareChecklistVerifyConversionRate": "Verificare il tasso di conversione sovraobbligatorio",
   "jobCompareChecklistCompareEmployerShare": "Confrontare la quota del datore di lavoro (50%? 60%? 65%?)",
   "jobCompareChecklistVerifyCoordinationDeduction": "Verificare la deduzione di coordinamento",
@@ -372,8 +372,8 @@
   "eduTheme3aQuestion": "Cos'è il 3a e perché tutti ne parlano?",
   "eduTheme3aAction": "Stimare il mio risparmio fiscale",
   "eduTheme3aReminder": "Dicembre → Ultimo momento per versare quest'anno",
-  "eduThemeLppTitle": "La cassa pensioni (LPP)",
-  "eduThemeLppQuestion": "Ho una cassa pensioni?",
+  "eduThemeLppTitle": "La cassa pensione (LPP)",
+  "eduThemeLppQuestion": "Ho una cassa pensione?",
   "eduThemeLppAction": "Analizzare il mio certificato LPP",
   "eduThemeLppReminder": "Richiedere il mio certificato LPP al datore di lavoro",
   "eduThemeAvsTitle": "Les lacunes AVS",

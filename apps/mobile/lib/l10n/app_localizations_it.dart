@@ -625,7 +625,7 @@ class SIt extends S {
   String get jobCompareCotisLpp => 'Contributi LPP';
 
   @override
-  String get jobCompareCapitalRetraite => 'Capitale pensionistico';
+  String get jobCompareCapitalRetraite => 'Capitale di previdenza';
 
   @override
   String get jobCompareRenteMois => 'Rendita/mese';
@@ -653,7 +653,7 @@ class SIt extends S {
 
   @override
   String get jobCompareDisclaimer =>
-      'I risultati presentati sono stime indicative. Non costituiscono consulenza finanziaria personalizzata. Consulta la tua cassa pensioni e uno·a specialista qualificato·a prima di qualsiasi decisione.';
+      'I risultati presentati sono stime indicative. Non costituiscono consulenza finanziaria personalizzata. Consulta la tua cassa pensione e uno·a specialista qualificato·a prima di qualsiasi decisione.';
 
   @override
   String get jobCompareVerdictNewBetter =>
@@ -677,7 +677,7 @@ class SIt extends S {
 
   @override
   String jobCompareAlertCapitalLoss(String amount) {
-    return 'Perdita significativa di capitale pensionistico: $amount';
+    return 'Perdita significativa di capitale di previdenza: $amount';
   }
 
   @override
@@ -698,7 +698,7 @@ class SIt extends S {
 
   @override
   String get jobCompareChecklistAskPensionReglement =>
-      'Richiedere il regolamento della cassa pensioni';
+      'Richiedere il regolamento della cassa pensione';
 
   @override
   String get jobCompareChecklistVerifyConversionRate =>
@@ -1027,10 +1027,10 @@ class SIt extends S {
       'Dicembre → Ultimo momento per versare quest\'anno';
 
   @override
-  String get eduThemeLppTitle => 'La cassa pensioni (LPP)';
+  String get eduThemeLppTitle => 'La cassa pensione (LPP)';
 
   @override
-  String get eduThemeLppQuestion => 'Ho una cassa pensioni?';
+  String get eduThemeLppQuestion => 'Ho una cassa pensione?';
 
   @override
   String get eduThemeLppAction => 'Analizzare il mio certificato LPP';
