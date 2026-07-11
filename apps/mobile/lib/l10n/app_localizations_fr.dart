@@ -20650,6 +20650,15 @@ class SFr extends S {
       'Mettre à jour les bénéficiaires de vos propres contrats';
 
   @override
+  String get successionTimeframeDemarches => 'J+8 à J+30';
+
+  @override
+  String get successionTimeframeLegale => 'J+31 à J+365';
+
+  @override
+  String get successionTimeframeUrgence => 'J+1 à J+7';
+
+  @override
   String get successionUrgenceAction1 =>
       'Déclarer le décès à l’état civil dans les 2 jours';
 

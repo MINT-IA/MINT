@@ -36221,6 +36221,24 @@ abstract class S {
   /// **'Mettre à jour les bénéficiaires de vos propres contrats'**
   String get successionLegaleAction4;
 
+  /// No description provided for @successionTimeframeDemarches.
+  ///
+  /// In fr, this message translates to:
+  /// **'J+8 à J+30'**
+  String get successionTimeframeDemarches;
+
+  /// No description provided for @successionTimeframeLegale.
+  ///
+  /// In fr, this message translates to:
+  /// **'J+31 à J+365'**
+  String get successionTimeframeLegale;
+
+  /// No description provided for @successionTimeframeUrgence.
+  ///
+  /// In fr, this message translates to:
+  /// **'J+1 à J+7'**
+  String get successionTimeframeUrgence;
+
   /// No description provided for @successionUrgenceAction1.
   ///
   /// In fr, this message translates to:

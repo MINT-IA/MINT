@@ -20549,6 +20549,15 @@ class SEn extends S {
       'Update the beneficiaries of your own contracts';
 
   @override
+  String get successionTimeframeDemarches => 'D+8 to D+30';
+
+  @override
+  String get successionTimeframeLegale => 'D+31 to D+365';
+
+  @override
+  String get successionTimeframeUrgence => 'D+1 to D+7';
+
+  @override
   String get successionUrgenceAction1 =>
       'Declare the death at the civil registry within 2 days';
 

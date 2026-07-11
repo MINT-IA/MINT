@@ -108,6 +108,11 @@ bloque pas encore les routes non migrées.
   l'écran source pour `q_gross_salary_annual`, `q_cash_total`, puis les charges
   fixes `q_housing_cost_period_chf` et `q_lamal_premium_monthly_chf` via Budget
   Setup.
+- `interactions/succession_transmission_missing_facts.yaml` : flux succession
+  / transmission logement réel, couvrant la collecte ciblée de
+  `q_property_market_value` puis `_coach_dettes_hypotheque` depuis
+  `/succession` vers `/data-block/patrimoine`. Il impose que l'écran ne rende
+  pas de cas immobilier fictif avant les faits utilisateur.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.

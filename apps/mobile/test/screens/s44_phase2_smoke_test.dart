@@ -8,27 +8,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/age_band_policy.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
+import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-Widget _wrap(Widget child) {
+Widget _wrap(Widget child, {CoachProfileProvider? coachProfileProvider}) {
   final router = GoRouter(routes: [
     GoRoute(path: '/', builder: (_, __) => child),
+    GoRoute(
+      path: '/data-block/:type',
+      builder: (_, state) => DataBlockEnrichmentScreen(
+        blockType: state.pathParameters['type']!,
+        initialInputKey: state.uri.queryParameters['inputKey'],
+      ),
+    ),
   ]);
-  return MaterialApp.router(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => coachProfileProvider ?? CoachProfileProvider(),
+      ),
+      ChangeNotifierProvider(create: (_) => SlmProvider()),
     ],
-    supportedLocales: S.supportedLocales,
-    routerConfig: router,
+    child: MaterialApp.router(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      routerConfig: router,
+    ),
   );
 }
 
@@ -205,6 +225,92 @@ void main() {
       await tester.pump();
       // "spécialiste" should appear in the CTA
       expect(find.textContaining('spécialiste'), findsWidgets);
+    });
+
+    testWidgets('asks for property value before rendering a fictive case',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 16000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
+      await tester.pump();
+
+      expect(find.byKey(const Key('succession_property_missing')), findsOneWidget);
+      expect(find.byKey(const Key('succession_parents_note')), findsNothing);
+      expect(find.byType(TestamentInvisibleWidget), findsNothing);
+      expect(find.textContaining("500'000"), findsNothing);
+      expect(find.textContaining("50'000"), findsNothing);
+      expect(find.textContaining('Enfant 1'), findsNothing);
+    });
+
+    testWidgets('property missing CTA opens targeted property DataBlock',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 16000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(_wrap(const SuccessionPatrimoineScreen()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Renseigner mon patrimoine').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('property_market_value_input')), findsOneWidget);
+      expect(find.byKey(const Key('savings_input')), findsNothing);
+      expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
+    });
+
+    testWidgets('renders transmission note from ledger property facts',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 16000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers({
+          'q_property_market_value': 950000,
+          '_coach_dettes_hypotheque': 320000,
+          'q_children': 2,
+          'q_civil_status': 'marie',
+        });
+
+      await tester.pumpWidget(_wrap(
+        const SuccessionPatrimoineScreen(),
+        coachProfileProvider: provider,
+      ));
+      await tester.pump();
+
+      expect(find.byKey(const Key('succession_property_missing')), findsNothing);
+      expect(find.byKey(const Key('succession_parents_note')), findsOneWidget);
+      expect(find.byKey(const Key('succession_mortgage_missing')), findsNothing);
+      expect(find.byType(TestamentInvisibleWidget), findsOneWidget);
+      expect(find.textContaining("950'000"), findsWidgets);
+      expect(find.textContaining("320'000"), findsWidgets);
+      expect(find.textContaining("630'000"), findsWidgets);
+    });
+
+    testWidgets('missing mortgage CTA opens targeted mortgage DataBlock',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 16000);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers({
+          'q_property_market_value': 950000,
+        });
+
+      await tester.pumpWidget(_wrap(
+        const SuccessionPatrimoineScreen(),
+        coachProfileProvider: provider,
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Renseigner mon patrimoine').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('mortgage_balance_input')), findsOneWidget);
+      expect(find.byKey(const Key('savings_input')), findsNothing);
+      expect(find.byKey(const Key('property_market_value_input')), findsNothing);
     });
   });
 }

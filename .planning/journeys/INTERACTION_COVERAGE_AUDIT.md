@@ -6,8 +6,8 @@
 
 - Extracted Flutter route references: 351
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 19
-- Known route templates not yet declared as route nodes: 73
+- Covered by declared Interaction Registry route nodes: 20
+- Known route templates not yet declared as route nodes: 72
 - Declared edge target route templates: 6
 - Unknown route literals/templates: 0
 
@@ -33,6 +33,7 @@
 | covered by declared route node | `/scan/review` | apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1397, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1617, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:645 (+2 more) |
 | covered by declared route node | `/segments/independant` | apps/mobile/lib/app.dart:576, apps/mobile/lib/screens/timeline_screen.dart:120, apps/mobile/lib/services/cap_engine.dart:823, apps/mobile/lib/widgets/life_event_suggestions.dart:128 |
 | covered by declared route node | `/simulator/job-comparison` | apps/mobile/lib/app.dart:575, apps/mobile/lib/screens/timeline_screen.dart:113, apps/mobile/lib/services/cap_engine.dart:847, apps/mobile/lib/services/response_card_service.dart:392 (+1 more) |
+| covered by declared route node | `/succession` | apps/mobile/lib/app.dart:563, apps/mobile/lib/screens/timeline_screen.dart:162, apps/mobile/lib/screens/timeline_screen.dart:92, apps/mobile/lib/services/response_card_service.dart:313 (+1 more) |
 | covered by declared route node | `/unemployment` | apps/mobile/lib/app.dart:574, apps/mobile/lib/screens/timeline_screen.dart:127, apps/mobile/lib/services/cap_engine.dart:817, apps/mobile/lib/services/response_card_service.dart:344 |
 
 ## Uncovered Known Routes
@@ -110,7 +111,6 @@
 | uncovered literal route | `/simulator/compound` | apps/mobile/lib/services/response_card_service.dart:495 |
 | uncovered literal route | `/simulator/credit` | apps/mobile/lib/data/educational_themes.dart:153, apps/mobile/lib/services/response_card_service.dart:515, apps/mobile/lib/widgets/common/debt_tools_nav.dart:34 |
 | uncovered literal route | `/simulator/leasing` | apps/mobile/lib/services/response_card_service.dart:505, apps/mobile/lib/widgets/educational/stress_check_insert_widget.dart:37 |
-| uncovered literal route | `/succession` | apps/mobile/lib/app.dart:563, apps/mobile/lib/screens/timeline_screen.dart:162, apps/mobile/lib/screens/timeline_screen.dart:92, apps/mobile/lib/services/response_card_service.dart:313 (+1 more) |
 | uncovered literal route | `/tools` | apps/mobile/lib/widgets/mentor_fab.dart:62 |
 
 ## Unknown Route Literals
@@ -144,6 +144,7 @@
 | `/scan/review` |
 | `/segments/independant` |
 | `/simulator/job-comparison` |
+| `/succession` |
 | `/unemployment` |
 
 ## Declared Edge Target Routes

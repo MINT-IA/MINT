@@ -20698,6 +20698,15 @@ class SDe extends S {
       'Begünstigte Ihrer eigenen Verträge aktualisieren';
 
   @override
+  String get successionTimeframeDemarches => 'T+8 bis T+30';
+
+  @override
+  String get successionTimeframeLegale => 'T+31 bis T+365';
+
+  @override
+  String get successionTimeframeUrgence => 'T+1 bis T+7';
+
+  @override
   String get successionUrgenceAction1 =>
       'Todesfall beim Zivilstandsamt innerhalb von 2 Tagen melden';
 

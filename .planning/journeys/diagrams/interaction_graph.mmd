@@ -26,6 +26,7 @@ flowchart LR
   scan_route_capture["scan.route.capture<br/>/scan"]:::route
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
   scan_route_review_recovery["scan.route.review_recovery<br/>/scan/review"]:::route
+  succession_route_overview["succession.route.overview<br/>/succession"]:::route
   unemployment_route_overview["unemployment.route.overview<br/>/unemployment"]:::route
 
   coverage_route_check -->|"coverage.edge.check.enrich_canton<br/>tap / push"| db_route_revenu
@@ -56,9 +57,12 @@ flowchart LR
   jobcompare_route_comparison -->|"jobcompare.edge.comparison.enrich_salary<br/>tap / push"| db_route_revenu
   lamal_route_franchise -->|"lamal.edge.franchise.enrich_health_costs<br/>tap / push"| budget_route_setup
   db_route_revenu -->|"db.edge.revenu.submit<br/>submit / push"| mortgage_route_hypotheque
+  succession_route_overview -->|"succession.edge.transmission.enrich_mortgage_balance<br/>tap / push"| db_route_patrimoine
+  succession_route_overview -->|"succession.edge.transmission.enrich_property_value<br/>tap / push"| db_route_patrimoine
   unemployment_route_overview -->|"unemployment.edge.enrich_budget<br/>tap / push"| budget_route_setup
   unemployment_route_overview -->|"unemployment.edge.enrich_salary_age_contributions<br/>tap / push"| db_route_revenu
 
+  db_route_patrimoine -. "back" .-> succession_route_overview
   mortgage_route_hypotheque -. "back" .-> home_route_dashboard
   scan_route_impact_recovery -. "back" .-> home_route_dashboard
   scan_route_review_recovery -. "back" .-> scan_route_capture

@@ -11,7 +11,8 @@
 
 - `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` exists at `095eeaa32`; R-1/R-2 scan recovery flows are checked in by the G1 repair slice.
 - The F-2 stable ids are present: `salary_input`, `canton_picker`, `birth_year_input`, `has_pension_fund_switch`, `salary_save_cta`, `mortgage_afford_result`, `mortgage_income_amount`.
-- IDs for F-1/F-3/F-5/F-6 are still missing or not fully wired (`coach_input`, `coach_send`, `retirement_gap_value`, `property_value_input`, `succession_parents_note`, `divorce_regime_picker`, `divorce_lpp_split_result`, `report_investment_card`).
+- The F-5 stable ids are present: `succession_property_missing`, `property_market_value_input`, `patrimoine_save_cta`, `succession_parents_note`.
+- IDs for F-1/F-3/F-6 are still missing or not fully wired (`coach_input`, `coach_send`, `retirement_gap_value`, `divorce_regime_picker`, `divorce_lpp_split_result`, `report_investment_card`).
 - **Deep links are partial.** iOS has `CFBundleURLSchemes` with `mint` (`ios/Runner/Info.plist:21-29`). Android still has no `mint://` intent-filter on `MainActivity` (only `MAIN`/`LAUNCHER`, `AndroidManifest.xml:25-28`; `https` appears only under `<queries>`, `:34-38`). Android `openLink: "mint:///..."` is dead until Task M-0a registers the scheme.
 
 ### Task M-0 — Setup, deep-link scheme, and required ids to ADD (file : what)
@@ -55,8 +56,9 @@
 | `lpp_balance_input` | `widgets/coach/coach_input_bar.dart` (chat) or data-block `lpp` field | LPP balance entry |
 | `rente_capital_uses_lpp` | `/rente-vs-capital` result screen | value derived from LPP balance |
 | `savings_input` | `screens/onboarding/data_block_enrichment_screen.dart` | savings/patrimoine field |
-| `property_value_input` | `screens/coach/succession_patrimoine_screen.dart` | property value entry |
-| `succession_parents_note` | `screens/coach/succession_patrimoine_screen.dart` | parents' retirement-affordability CASE note |
+| `property_market_value_input` | `screens/onboarding/data_block_enrichment_screen.dart` (`/data-block/patrimoine?inputKey=q_property_market_value`) | property market value entry |
+| `succession_property_missing` | `screens/coach/succession_patrimoine_screen.dart` | missing property-value state before any CASE output |
+| `succession_parents_note` | `screens/coach/succession_patrimoine_screen.dart` | transmission note rendered from ledger property facts |
 | `divorce_regime_picker` | `screens/divorce_simulator_screen.dart` | matrimonial regime selector |
 | `divorce_lpp_split_result` | `screens/divorce_simulator_screen.dart` | LPP-split outcome value |
 | `scan_review_recovery_cta` | `app.dart:903` builder (NEW errorState) | recovery button on `/scan/review` empty |
@@ -155,7 +157,7 @@ appId: ch.mint.app
 - assertNotVisible: { text: "${copiedText}" }  # verdict text changed after savings added
 ```
 
-### F-5 transmitting property — property value drives the CASE, parents' note shows FIRST
+### F-5 transmitting property — ledger property value drives the note
 File: `apps/mobile/.maestro/f5_transmitting_property.yaml`
 ```yaml
 appId: ch.mint.app
@@ -163,11 +165,15 @@ appId: ch.mint.app
 - launchApp: { clearState: true }
 - openLink: "mint:///succession"               # /succession
 - assertVisible: { text: "Succession et transmission" }  # successionTitle (app_fr.arb:288)
-- tapOn: { id: "property_value_input" }
+- assertVisible: { id: "succession_property_missing" }
+- tapOn: { text: "Renseigner mon patrimoine" }
+- assertVisible: { id: "property_market_value_input" }
+- tapOn: { id: "property_market_value_input" }
 - inputText: "1200000"
-- assertVisible: { id: "property_value_input" }
-# PROOF: the CASE guardQuest (DATA_QUEST §5) surfaces the parents'
-# retirement-affordability note BEFORE any gift/transmission result
+- tapOn: { id: "patrimoine_save_cta" }
+- openLink: "mint:///succession"
+# PROOF: /succession now renders from the saved user ledger fact instead of a
+# fictive property CASE.
 - assertVisible: { id: "succession_parents_note" }
 ```
 

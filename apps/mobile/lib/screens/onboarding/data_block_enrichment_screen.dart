@@ -62,6 +62,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
+  final TextEditingController _propertyMarketValueController =
+      TextEditingController();
   final TextEditingController _mortgageBalanceController =
       TextEditingController();
   final TextEditingController _childrenController = TextEditingController();
@@ -94,6 +96,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _unemploymentContributionMonthsController.dispose();
     _birthYearController.dispose();
     _cashController.dispose();
+    _propertyMarketValueController.dispose();
     _mortgageBalanceController.dispose();
     _childrenController.dispose();
     super.dispose();
@@ -318,6 +321,11 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _patrimoineInputsSeeded = true;
     if (profile.patrimoine.epargneLiquide > 0) {
       _cashController.text = '${profile.patrimoine.epargneLiquide.round()}';
+    }
+    final propertyMarketValue = profile.patrimoine.propertyMarketValue ??
+        profile.patrimoine.immobilier;
+    if (propertyMarketValue != null && propertyMarketValue > 0) {
+      _propertyMarketValueController.text = '${propertyMarketValue.round()}';
     }
     final mortgageBalance = profile.dettes.hypotheque;
     if (mortgageBalance != null && mortgageBalance >= 0) {
@@ -774,6 +782,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   Widget _buildPatrimoineCollector(S l) {
     final onlyInputKey = _canonicalPatrimoineInputKey(widget.initialInputKey);
     final collectsCash = onlyInputKey == null || onlyInputKey == 'q_cash_total';
+    final collectsPropertyValue = onlyInputKey == 'q_property_market_value';
     final collectsMortgageBalance = onlyInputKey == '_coach_dettes_hypotheque';
 
     return MintSurface(
@@ -788,6 +797,18 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
               semanticsIdentifier: 'savings_input',
               controller: _cashController,
               label: l.financialSummaryEditEpargneLiquide,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+              ],
+              onChanged: (_) => setState(() => _patrimoineSaved = false),
+            ),
+          if (collectsPropertyValue)
+            _buildRevenueTextField(
+              key: const Key('property_market_value_input'),
+              semanticsIdentifier: 'property_market_value_input',
+              controller: _propertyMarketValueController,
+              label: l.locationPrixBien,
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
@@ -858,14 +879,20 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     final l = S.of(context)!;
     final onlyInputKey = _canonicalPatrimoineInputKey(widget.initialInputKey);
     final collectsCash = onlyInputKey == null || onlyInputKey == 'q_cash_total';
+    final collectsPropertyValue = onlyInputKey == 'q_property_market_value';
     final collectsMortgageBalance = onlyInputKey == '_coach_dettes_hypotheque';
     final cash =
         collectsCash ? int.tryParse(_digitsOnly(_cashController.text)) : null;
+    final propertyMarketValue = collectsPropertyValue
+        ? int.tryParse(_digitsOnly(_propertyMarketValueController.text))
+        : null;
     final mortgageBalance = collectsMortgageBalance
         ? int.tryParse(_digitsOnly(_mortgageBalanceController.text))
         : null;
 
     if ((collectsCash && (cash == null || cash < 0)) ||
+        (collectsPropertyValue &&
+            (propertyMarketValue == null || propertyMarketValue <= 0)) ||
         (collectsMortgageBalance &&
             (mortgageBalance == null || mortgageBalance < 0))) {
       setState(() => _patrimoineError = l.authErrorInvalid);
@@ -878,6 +905,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     });
     await context.read<CoachProfileProvider>().mergeAnswers({
       if (collectsCash) 'q_cash_total': cash,
+      if (collectsPropertyValue) 'q_property_market_value': propertyMarketValue,
       if (collectsMortgageBalance) '_coach_dettes_hypotheque': mortgageBalance,
     });
     if (!mounted) return;
@@ -930,6 +958,14 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       'hypothequerestante' ||
       'coachdetteshypotheque' =>
         '_coach_dettes_hypotheque',
+      'qpropertymarketvalue' ||
+      'propertymarketvalue' ||
+      'propertyvalue' ||
+      'realestatevalue' ||
+      'valeurimmobiliere' ||
+      'valeurbien' ||
+      'prixbien' =>
+        'q_property_market_value',
       _ => null,
     };
   }

@@ -364,6 +364,42 @@ void main() {
     expect(provider.profile?.userProvidedFields, contains('mortgageBalance'));
   });
 
+  testWidgets('patrimoine block inputKey collects only property market value',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'patrimoine',
+        initialInputKey: 'q_property_market_value',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('property_market_value_input')), findsOneWidget);
+    expect(find.byKey(const Key('savings_input')), findsNothing);
+    expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('property_market_value_input')),
+      '950000',
+    );
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_property_market_value', 950000));
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(answers.containsKey('_coach_dettes_hypotheque'), isFalse);
+    expect(provider.profile?.patrimoine.propertyMarketValue, 950000);
+    expect(
+      provider.profile?.userProvidedFields,
+      contains('propertyMarketValue'),
+    );
+  });
+
   testWidgets('composition menage block collects children and housing status',
       (tester) async {
     final provider = CoachProfileProvider();

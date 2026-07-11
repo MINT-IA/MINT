@@ -1,0 +1,53 @@
+schema_version: 1
+flow:
+  id: succession_transmission_missing_facts
+  title: "Succession property transmission to missing ledger facts"
+  exits: [db.route.patrimoine, succession.route.overview]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: succession.route.overview
+    kind: route
+    route: /succession
+    widget: screens/coach/succession_patrimoine_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.patrimoine
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+      - {via: deeplink, back: reset_to(succession.route.overview)}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: succession.edge.transmission.enrich_property_value
+    from: succession.route.overview
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect property market value before rendering any property-transmission case"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/f5_transmitting_property.yaml
+
+  - id: succession.edge.transmission.enrich_mortgage_balance
+    from: succession.route.overview
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect remaining mortgage balance before discussing net transferable property value"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/patrol/succession_transmission_runtime_test.dart

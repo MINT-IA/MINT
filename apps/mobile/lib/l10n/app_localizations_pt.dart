@@ -20658,6 +20658,15 @@ class SPt extends S {
       'Atualizar beneficiários dos teus próprios contratos';
 
   @override
+  String get successionTimeframeDemarches => 'D+8 a D+30';
+
+  @override
+  String get successionTimeframeLegale => 'D+31 a D+365';
+
+  @override
+  String get successionTimeframeUrgence => 'D+1 a D+7';
+
+  @override
   String get successionUrgenceAction1 =>
       'Declarar o óbito no registo civil em 2 dias';
 

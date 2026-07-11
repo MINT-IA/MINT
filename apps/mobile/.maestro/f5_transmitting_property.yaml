@@ -1,0 +1,30 @@
+appId: ch.mint.app
+---
+# F-5: /succession reads property-transmission facts from the ledger. It first
+# asks for a missing property value, collects it in /data-block/patrimoine, then
+# renders the transmission note from that saved user fact.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///succession"
+- assertVisible:
+    text: "Succession et transmission"
+- assertVisible:
+    id: "succession_property_missing"
+- tapOn:
+    text: "Renseigner mon patrimoine"
+- assertVisible:
+    id: "property_market_value_input"
+- tapOn:
+    id: "property_market_value_input"
+- inputText: "1200000"
+- tapOn:
+    id: "patrimoine_save_cta"
+- openLink: "mint:///succession"
+- assertVisible:
+    id: "succession_parents_note"
+- assertVisible:
+    text: ".*CHF.*1'200'000.*"

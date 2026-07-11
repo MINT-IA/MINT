@@ -8,16 +8,20 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
-import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
 import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:provider/provider.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -25,6 +29,13 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+    final profile = context.watch<CoachProfileProvider>().profile;
+    final propertyValue = profile?.patrimoine.immobilierEffectif ?? 0;
+    final mortgageBalance =
+        profile?.dettes.hypotheque ?? profile?.patrimoine.mortgageBalance;
+    final hasPropertyValue = propertyValue > 0;
+    final hasMortgageBalance = mortgageBalance != null && mortgageBalance >= 0;
+    final initialFamilyStatus = _familyStatusFromProfile(profile);
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -59,24 +70,49 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: MintSpacing.lg),
 
-                // ── P8-A : Testament invisible ───────────────
-                const TestamentInvisibleWidget(
-                  patrimoine: 500000,
-                  initialStatus: FamilyStatus.concubin,
-                ),
-                const SizedBox(height: MintSpacing.lg),
-
-                // ── P8-E : Avancement d'hoirie ────────────────
-                const AvancementHoirieWidget(
-                  totalPatrimoine: 500000,
-                  donationAmount: 50000,
-                  donationRecipientIndex: 0,
-                  children: [
-                    HoirieChild(name: 'Enfant 1', emoji: ''),
-                    HoirieChild(name: 'Enfant 2', emoji: ''),
+                if (!hasPropertyValue) ...[
+                  _MissingFactCard(
+                    key: const Key('succession_property_missing'),
+                    semanticsIdentifier: 'succession_property_missing',
+                    icon: Icons.home_work_outlined,
+                    title: l.dataBlockPatrimoineTitle,
+                    body: l.dataBlockPatrimoineDesc,
+                    ctaLabel: l.dataBlockPatrimoineCta,
+                    onPressed: () => context.push(
+                      '/data-block/patrimoine?inputKey=q_property_market_value',
+                    ),
+                  ),
+                  const SizedBox(height: MintSpacing.lg),
+                ] else ...[
+                  _PropertyTransmissionNote(
+                    propertyValue: propertyValue,
+                    mortgageBalance: mortgageBalance,
+                  ),
+                  const SizedBox(height: MintSpacing.lg),
+                  if (!hasMortgageBalance) ...[
+                    _MissingFactCard(
+                      key: const Key('succession_mortgage_missing'),
+                      semanticsIdentifier: 'succession_mortgage_missing',
+                      icon: Icons.account_balance_outlined,
+                      title: l.financialSummaryHypothequeRestante,
+                      body: l.dataBlockPatrimoineDesc,
+                      ctaLabel: l.dataBlockPatrimoineCta,
+                      onPressed: () => context.push(
+                        '/data-block/patrimoine?inputKey=_coach_dettes_hypotheque',
+                      ),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
                   ],
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                ],
+
+                // ── P8-A : Testament invisible ───────────────
+                if (hasPropertyValue) ...[
+                  TestamentInvisibleWidget(
+                    patrimoine: propertyValue,
+                    initialStatus: initialFamilyStatus,
+                  ),
+                  const SizedBox(height: MintSpacing.lg),
+                ],
 
                 // ── Concepts clés ────────────────────────────
                 MintEntrance(child: EduSectionTitle(text: l.successionNotionsCles)),
@@ -133,7 +169,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 MintEntrance(delay: const Duration(milliseconds: 200), child: DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
-                      timeframe: 'J+1 à J+7',
+                      timeframe: l.successionTimeframeUrgence,
                       emoji: '',
                       title: S.of(context)!.successionUrgence,
                       color: MintColors.urgentOrange,
@@ -145,7 +181,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       ],
                     ),
                     UrgencyPhase(
-                      timeframe: 'J+8 à J+30',
+                      timeframe: l.successionTimeframeDemarches,
                       emoji: '',
                       title: S.of(context)!.successionDemarches,
                       color: MintColors.orangeDarkDeep,
@@ -158,7 +194,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       ],
                     ),
                     UrgencyPhase(
-                      timeframe: 'J+31 à J+365',
+                      timeframe: l.successionTimeframeLegale,
                       emoji: '',
                       title: S.of(context)!.successionLegale,
                       color: MintColors.successDeep,
@@ -212,7 +248,168 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
   }
 }
 
+FamilyStatus _familyStatusFromProfile(CoachProfile? profile) {
+  return switch (profile?.etatCivil) {
+    CoachCivilStatus.marie => FamilyStatus.married,
+    CoachCivilStatus.concubinage => FamilyStatus.concubin,
+    _ => FamilyStatus.single,
+  };
+}
+
 // ── Widgets internes ─────────────────────────────────────────
+
+class _PropertyTransmissionNote extends StatelessWidget {
+  final double propertyValue;
+  final double? mortgageBalance;
+
+  const _PropertyTransmissionNote({
+    required this.propertyValue,
+    required this.mortgageBalance,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final mortgage = mortgageBalance ?? 0;
+    final netValue =
+        (propertyValue - mortgage).clamp(0, double.infinity).toDouble();
+    return Semantics(
+      key: const Key('succession_parents_note'),
+      identifier: 'succession_parents_note',
+      container: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.bleu,
+        radius: 12,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.fact_check_outlined,
+                  color: MintColors.info,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l.dataBlockStatusPartial,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _FactRow(label: l.patrimoineValeur, value: propertyValue),
+            const SizedBox(height: 8),
+            _FactRow(
+              label: l.financialSummaryHypothequeRestante,
+              value: mortgage,
+            ),
+            const SizedBox(height: 8),
+            _FactRow(label: l.patrimoineNetLabel, value: netValue),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FactRow extends StatelessWidget {
+  final String label;
+  final double value;
+
+  const _FactRow({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+        ),
+        Text(
+          formatChfWithPrefix(value),
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
+}
+
+class _MissingFactCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String body;
+  final String ctaLabel;
+  final VoidCallback onPressed;
+  final String? semanticsIdentifier;
+
+  const _MissingFactCard({
+    super.key,
+    this.semanticsIdentifier,
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.ctaLabel,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      identifier: semanticsIdentifier,
+      container: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.craie,
+        radius: 12,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: MintColors.primary, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              body,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(Icons.add_circle_outline, size: 18),
+                label: Text(ctaLabel),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _AlertCard extends StatelessWidget {
   final IconData icon;

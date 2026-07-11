@@ -20653,6 +20653,15 @@ class SEs extends S {
       'Actualizar beneficiarios de tus propios contratos';
 
   @override
+  String get successionTimeframeDemarches => 'D+8 a D+30';
+
+  @override
+  String get successionTimeframeLegale => 'D+31 a D+365';
+
+  @override
+  String get successionTimeframeUrgence => 'D+1 a D+7';
+
+  @override
   String get successionUrgenceAction1 =>
       'Declarar el fallecimiento en el registro civil en 2 días';
 

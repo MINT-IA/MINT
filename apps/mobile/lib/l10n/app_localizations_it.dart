@@ -20704,6 +20704,15 @@ class SIt extends S {
       'Aggiornare i beneficiari dei propri contratti';
 
   @override
+  String get successionTimeframeDemarches => 'G+8 a G+30';
+
+  @override
+  String get successionTimeframeLegale => 'G+31 a G+365';
+
+  @override
+  String get successionTimeframeUrgence => 'G+1 a G+7';
+
+  @override
   String get successionUrgenceAction1 =>
       'Dichiarare il decesso all\'ufficio di stato civile entro 2 giorni';
 
