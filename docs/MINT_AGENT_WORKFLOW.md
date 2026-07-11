@@ -61,7 +61,8 @@ Every product PR must list:
   product change. It is the independent product-lead + Swiss domain lens:
   life-event fit, law/tax/insurance/prevention assumptions, no-advice framing,
   missing variables, duplicated ledger facts, specialist handoff, and user
-  lucidity.
+  lucidity. This is a Swiss métier gate, not a system-only gate: domain
+  incoherence blocks acceptance even when routing, tests, and UI wiring pass.
 - Engram memory after merge.
 
 ## Current Tool Matrix
@@ -168,4 +169,7 @@ the external adversarial pass. It must reject work that is technically wired but
 product-stupid: a screen that asks for already-known facts, a Swiss scenario
 that misses mandatory variables, a result that hides legal uncertainty, a
 comparison that becomes advice/ranking, or a flow that cannot produce a useful
-specialist-ready dossier.
+specialist-ready dossier. It must also reject Swiss métier errors: wrong legal
+references, stale thresholds, impossible insurance assumptions, missing
+succession/hypotheque/prevention variables, or any flow that could make the user
+misunderstand the Swiss financial system.
