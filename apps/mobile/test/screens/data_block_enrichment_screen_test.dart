@@ -174,6 +174,46 @@ void main() {
     );
   });
 
+  testWidgets(
+      'revenue block inputKey collects LACI contribution months as a ledger fact',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'revenu',
+        initialInputKey: 'q_unemployment_contribution_months',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('unemployment_contribution_months_input')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('salary_input')), findsNothing);
+    expect(find.byKey(const Key('birth_year_input')), findsNothing);
+    expect(find.byKey(const Key('canton_picker')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('unemployment_contribution_months_input')),
+      '22',
+    );
+    await tester.tap(find.byKey(const Key('salary_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_unemployment_contribution_months', 22));
+    expect(answers.containsKey('q_gross_salary_annual'), isFalse);
+    expect(provider.profile?.unemploymentContributionMonths, 22);
+    expect(
+      provider.profile?.userProvidedFields,
+      contains('unemploymentContributionMonths'),
+    );
+  });
+
   testWidgets('revenue block does not treat monthly income as annual input',
       (tester) async {
     await tester.pumpWidget(_wrap(

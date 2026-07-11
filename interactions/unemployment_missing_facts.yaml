@@ -1,0 +1,58 @@
+schema_version: 1
+flow:
+  id: unemployment_missing_facts
+  title: "Unemployment screen to missing ledger facts"
+  exits: [db.route.revenu, budget.route.setup]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: unemployment.route.overview
+    kind: route
+    route: /unemployment
+    widget: screens/unemployment_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: budget.route.setup
+    kind: route
+    route: /budget/setup
+    widget: screens/budget/budget_setup_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: unemployment.edge.enrich_salary_age_contributions
+    from: unemployment.route.overview
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect annual salary, birth year, or LACI contribution months before calculating Swiss unemployment benefits"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart
+
+  - id: unemployment.edge.enrich_budget
+    from: unemployment.route.overview
+    to: budget.route.setup
+    trigger: tap
+    intent: "Collect actual housing, LAMal, and optional transport facts before rendering the unemployment budget crash-test"
+    payload: {path_params: {}, extra: null}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart

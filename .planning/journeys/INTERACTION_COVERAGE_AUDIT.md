@@ -4,10 +4,10 @@
 
 ## Summary
 
-- Extracted Flutter route references: 350
+- Extracted Flutter route references: 351
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 16
-- Known route templates not yet declared as route nodes: 76
+- Covered by declared Interaction Registry route nodes: 17
+- Known route templates not yet declared as route nodes: 75
 - Declared edge target route templates: 6
 - Unknown route literals/templates: 0
 
@@ -17,7 +17,7 @@
 |---|---|---|
 | covered by declared route node | `/assurances/coverage` | apps/mobile/lib/app.dart:637, apps/mobile/lib/services/response_card_service.dart:429 |
 | covered by declared route node | `/assurances/lamal` | apps/mobile/lib/app.dart:636, apps/mobile/lib/data/educational_themes.dart:185, apps/mobile/lib/services/response_card_service.dart:417 |
-| covered by declared route node | `/budget/setup` | apps/mobile/lib/screens/budget/budget_container_screen.dart:61, apps/mobile/lib/screens/lamal_franchise_screen.dart:119, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:115 |
+| covered by declared route node | `/budget/setup` | apps/mobile/lib/screens/budget/budget_container_screen.dart:61, apps/mobile/lib/screens/lamal_franchise_screen.dart:119, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:115, apps/mobile/lib/screens/unemployment_screen.dart:1236 |
 | covered by declared route node | `/coach/chat` | apps/mobile/lib/app.dart:1811, apps/mobile/lib/app.dart:1814, apps/mobile/lib/app.dart:1903, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:70 (+26 more) |
 | covered by declared route node | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1325, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:801, apps/mobile/lib/widgets/coach/confidence_blocks_bar.dart:82, apps/mobile/lib/widgets/coach/indicatif_banner.dart:99 |
 | covered by declared route node | `/disability/insurance` | apps/mobile/lib/app.dart:634 |
@@ -31,6 +31,7 @@
 | covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1940, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:465, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+9 more) |
 | covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:745 |
 | covered by declared route node | `/scan/review` | apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1397, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1617, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:645 (+2 more) |
+| covered by declared route node | `/unemployment` | apps/mobile/lib/app.dart:574, apps/mobile/lib/screens/timeline_screen.dart:127, apps/mobile/lib/services/cap_engine.dart:817, apps/mobile/lib/services/response_card_service.dart:344 |
 
 ## Uncovered Known Routes
 
@@ -111,7 +112,6 @@
 | uncovered literal route | `/simulator/leasing` | apps/mobile/lib/services/response_card_service.dart:505, apps/mobile/lib/widgets/educational/stress_check_insert_widget.dart:37 |
 | uncovered literal route | `/succession` | apps/mobile/lib/app.dart:563, apps/mobile/lib/screens/timeline_screen.dart:162, apps/mobile/lib/screens/timeline_screen.dart:92, apps/mobile/lib/services/response_card_service.dart:313 (+1 more) |
 | uncovered literal route | `/tools` | apps/mobile/lib/widgets/mentor_fab.dart:62 |
-| uncovered literal route | `/unemployment` | apps/mobile/lib/app.dart:574, apps/mobile/lib/screens/timeline_screen.dart:127, apps/mobile/lib/services/cap_engine.dart:817, apps/mobile/lib/services/response_card_service.dart:344 |
 
 ## Unknown Route Literals
 
@@ -142,6 +142,7 @@
 | `/scan` |
 | `/scan/impact` |
 | `/scan/review` |
+| `/unemployment` |
 
 ## Declared Edge Target Routes
 

@@ -1200,10 +1200,10 @@
   "unemploymentSituationTitle": "Situación personal",
   "unemploymentSituationSubtitle": "Influye en la tasa de indemnización (70% u 80%)",
   "unemploymentChildrenToggle": "Obligación de manutención (hijos)",
-  "unemploymentDisabilityToggle": "Discapacidad reconocida",
+  "unemploymentDisabilityToggle": "Pensión de invalidez >= 40%",
   "unemploymentNotEligible": "No elegible",
   "unemploymentCompensationRate": "Tasa de indemnización",
-  "unemploymentRateEnhanced": "Tasa aumentada (80%): obligación de manutención, discapacidad o salario < CHF 3'797",
+  "unemploymentRateEnhanced": "Tasa aumentada (80%): obligación de manutención, pensión de invalidez >= 40% o salario < CHF 3'797",
   "unemploymentRateStandard": "Tasa estándar (70%): aplicable en otras situaciones",
   "unemploymentDailyBenefit": "Indemnización /día",
   "unemploymentMonthlyBenefit": "Indemnización /mes",
@@ -1238,7 +1238,7 @@
   "unemploymentEduLamalTitle": "Reducción de prima LAMal",
   "unemploymentEduLamalBody": "Con un ingreso más bajo, podrías tener derecho a subsidios LAMal. Haz la solicitud en tu cantón.",
   "unemploymentTsunamiTitle": "Tu tsunami financiero en 3 olas",
-  "unemploymentDisclaimer": "Estimaciones educativas — no constituye asesoramiento según la LSFin — LACI/LPP/OPP3. Los montos presentados son aproximados y dependen de tu situación personal. Consulta a un·a especialista o la ORP de tu cantón.",
+  "unemploymentDisclaimer": "Estimaciones educativas — no constituyen asesoramiento jurídico ni una decisión del seguro social — LACI/LPP/OPP3. Los montos presentados son aproximados y dependen de tu situación personal. Consulta a un·a especialista o la ORP de tu cantón.",
   "firstJobTitle": "Primer empleo",
   "firstJobHeaderDesc": "¡Comprende tu nómina! Te mostramos a dónde van tus cotizaciones, lo que paga tu empleador además, y los primeros reflejos financieros a adoptar.",
   "firstJobSalaryTitle": "Salario bruto mensual",
@@ -4241,11 +4241,11 @@
   "unemploymentBudgetEpargne3a": "Ahorro 3a",
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
-  "unemploymentBracket1": "12–17 meses cotiz.",
+  "unemploymentBracket1": "< 25 sin cargas",
   "unemploymentBracket1Value": "200 prestaciones",
-  "unemploymentBracket2": "18–21 meses cotiz.",
+  "unemploymentBracket2": "12–17 meses cotiz.",
   "unemploymentBracket2Value": "260 prestaciones",
-  "unemploymentBracket3": ">= 22 meses, < {age} años",
+  "unemploymentBracket3": "18–24 meses cotiz.",
   "@unemploymentBracket3": {
     "placeholders": {
       "age": {
@@ -4254,7 +4254,7 @@
     }
   },
   "unemploymentBracket3Value": "400 prestaciones",
-  "unemploymentBracket4": ">= 22 meses, >= {age} años",
+  "unemploymentBracket4": "22–24 meses, >= {age} años / invalidez >= 40%",
   "@unemploymentBracket4": {
     "placeholders": {
       "age": {
@@ -4263,6 +4263,72 @@
     }
   },
   "unemploymentBracket4Value": "520 prestaciones",
+  "unemploymentBracketNearAvs": "Dentro de los 4 años antes del AVS",
+  "unemploymentSurvivalEstimatedLabel": "Supervivencia estimada",
+  "unemploymentNetBenefitFootnote": "Prestación LACI convertida en flujo de caja neto estimado tras cotizaciones sociales, antes del impuesto personal.",
+  "unemploymentCounterResultLabel": "Resultado LACI → {days} prestaciones diarias",
+  "@unemploymentCounterResultLabel": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterAgeResultLabel": "{ageLabel} → {days} prestaciones diarias",
+  "@unemploymentCounterAgeResultLabel": {
+    "placeholders": {
+      "ageLabel": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterSemanticLabel": "Contador de días de desempleo",
+  "unemploymentCounterCapitalTitle": "Tu capital de tiempo",
+  "unemploymentCounterDaysUsed": "Días usados: {days}",
+  "@unemploymentCounterDaysUsed": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterRuleHeader": "Regla LACI",
+  "unemploymentCounterMaxHeader": "Prestaciones máx.",
+  "unemploymentCounterSeniorAiRow": ">= 55 años o pensión IV >= 40%",
+  "unemploymentCounterNearAvsRow": "Dentro de los 4 años antes del AVS con 22 meses cotizados",
+  "unemploymentCounterAfterLastDayTitle": "Después del último día: CHF 0",
+  "unemploymentCounterNoGraceBody": "Sin prórroga. Pasas a asistencia social sin periodo de gracia.",
+  "unemploymentCounterDisclaimer": "Herramienta educativa · no es asesoramiento jurídico ni decisión de seguro social. Fuente: LACI art. 27-30.",
+  "crashTestBudgetSemanticLabel": "Prueba de estrés del presupuesto de desempleo",
+  "crashTestBudgetTitle": "Prueba de estrés del presupuesto",
+  "crashTestBudgetSubtitle": "Modo normal vs modo supervivencia",
+  "crashTestBudgetNormalHeader": "Normal",
+  "crashTestBudgetTotalCharges": "TOTAL gastos",
+  "crashTestBudgetMonthlyMargin": "Margen mensual",
+  "crashTestBudgetSavingLabel": "Ahorras CHF {saving}/mes en modo supervivencia",
+  "@crashTestBudgetSavingLabel": {
+    "placeholders": {
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "crashTestBudgetNoAutomaticCuts": "Gastos fijos: sin recorte automático",
+  "crashTestBudgetReserveMonths": "Tus reservas: {months} meses",
+  "@crashTestBudgetReserveMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "crashTestBudgetReserveSafe": "Tus reservas aguantan — tienes margen de seguridad.",
+  "crashTestBudgetReserveWarning": "Atención: menos de 6 meses de reservas.",
+  "crashTestBudgetReserveDanger": "Peligro: menos de 3 meses de reservas.",
+  "crashTestBudgetDisclaimer": "Herramienta educativa · no es asesoramiento jurídico ni decisión de seguro social.",
   "allocAnnuelleTitle": "¿Dónde colocar tus CHF?",
   "allocAnnuelleBudgetTitle": "Tu presupuesto anual",
   "allocAnnuelleMontantLabel": "Importe disponible al año (CHF)",

@@ -9,7 +9,7 @@ Sources principales:
     - LACI art. 13 (periode de cotisation)
     - LACI art. 22 (montant de l'indemnite journaliere)
     - LACI art. 27 (nombre maximum d'indemnites journalieres)
-    - OAC art. 37 (jours de carence)
+    - OACI art. 6a / LACI art. 18 (delai d'attente general)
 """
 
 from app.services.unemployment.calculator import (
@@ -20,7 +20,6 @@ from app.services.unemployment.calculator import (
     UNEMPLOYMENT_RATE_BASE,
     UNEMPLOYMENT_RATE_ENHANCED,
     SALARY_THRESHOLD_ENHANCED,
-    DELAI_CARENCE_STANDARD,
     WORKING_DAYS_PER_MONTH,
 )
 
@@ -32,6 +31,5 @@ __all__ = [
     "UNEMPLOYMENT_RATE_BASE",
     "UNEMPLOYMENT_RATE_ENHANCED",
     "SALARY_THRESHOLD_ENHANCED",
-    "DELAI_CARENCE_STANDARD",
     "WORKING_DAYS_PER_MONTH",
 ]

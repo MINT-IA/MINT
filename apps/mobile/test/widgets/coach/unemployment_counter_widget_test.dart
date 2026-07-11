@@ -5,7 +5,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 void main() {
-  Widget buildWidget({int age = 35, int daysConsumed = 0}) => MaterialApp(
+  Widget buildWidget({
+    int age = 35,
+    int daysConsumed = 0,
+    int? maxDays,
+  }) =>
+      MaterialApp(
         locale: const Locale('fr'),
         localizationsDelegates: const [
           S.delegate,
@@ -20,6 +25,7 @@ void main() {
               age: age,
               monthlyBenefit: 4200,
               daysConsumed: daysConsumed,
+              maxDays: maxDays,
             ),
           ),
         ),
@@ -39,6 +45,16 @@ void main() {
   testWidgets('shows 200 days for age under 25', (tester) async {
     await tester.pumpWidget(buildWidget(age: 22));
     expect(find.textContaining('200'), findsWidgets);
+  });
+
+  testWidgets('uses explicit result duration when provided', (tester) async {
+    await tester.pumpWidget(buildWidget(age: 35, maxDays: 260));
+    expect(find.textContaining('Résultat LACI → 260'), findsOneWidget);
+    expect(find.text('12–17 mois cotis.'), findsOneWidget);
+    expect(
+      find.byKey(const Key('unemployment_duration_row_260')),
+      findsOneWidget,
+    );
   });
 
   // LACI art. 27 al. 2 lit. d : âge >= 55 + >= 22 mois cotisation = 520 jours

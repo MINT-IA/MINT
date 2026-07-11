@@ -58,6 +58,18 @@ void main() {
       expect(result.eligible, isFalse);
       expect(result.raisonNonEligible, contains('0 mois'));
     });
+
+    test('apres age de reference AVS => pas de calcul LACI ordinaire', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 65,
+        moisCotisation: 24,
+      );
+
+      expect(result.eligible, isFalse);
+      expect(result.raisonNonEligible, contains('âge de référence AVS'));
+      expect(result.nombreIndemnites, 0);
+    });
   });
 
   // ════════════════════════════════════════════════════════════
@@ -164,7 +176,7 @@ void main() {
       expect(result.gainAssureRetenu, 6000.0);
     });
 
-    test('indemnite journaliere = gain retenu * taux / 21.75', () {
+    test('indemnite journaliere = gain retenu * taux / 21.7', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
@@ -173,12 +185,12 @@ void main() {
         hasDisability: false,
       );
 
-      // 6000 * 0.70 / 21.75
-      const expected = 6000.0 * 0.70 / 21.75;
+      // 6000 * 0.70 / 21.7
+      const expected = 6000.0 * 0.70 / 21.7;
       expect(result.indemniteJournaliere, closeTo(expected, 0.01));
     });
 
-    test('indemnite mensuelle = indemnite journaliere * 21.75', () {
+    test('indemnite mensuelle = indemnite journaliere * 21.7', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
@@ -186,7 +198,7 @@ void main() {
       );
 
       // indemniteMensuelle should be gainRetenu * taux (round-trip)
-      final expectedMensuelle = result.indemniteJournaliere * 21.75;
+      final expectedMensuelle = result.indemniteJournaliere * 21.7;
       expect(result.indemniteMensuelle, closeTo(expectedMensuelle, 0.01));
     });
 
@@ -217,7 +229,8 @@ void main() {
       expect(result.nombreIndemnites, 520);
     });
 
-    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)', () {
+    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)',
+        () {
       // SECO rules: 55+ = senior = 520 days (LACI art. 27 al. 2)
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
@@ -228,14 +241,24 @@ void main() {
       expect(result.nombreIndemnites, 520);
     });
 
-    test('age >= 25, cotisation >= 18 mois => 260 indemnites', () {
+    test('age >= 25, cotisation 12-17 mois => 260 indemnites', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 25,
+        moisCotisation: 12,
+      );
+
+      expect(result.nombreIndemnites, 260);
+    });
+
+    test('age >= 25, cotisation >= 18 mois => 400 indemnites', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 25,
         moisCotisation: 18,
       );
 
-      expect(result.nombreIndemnites, 260);
+      expect(result.nombreIndemnites, 400);
     });
 
     test('age < 25, cotisation >= 12 mois => 200 indemnites', () {
@@ -248,25 +271,70 @@ void main() {
       expect(result.nombreIndemnites, 200);
     });
 
-    test('duree en mois = nombreIndemnites / 21.75', () {
+    test('age < 25 avec enfant, cotisation >= 18 mois => 400 indemnites', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 4000,
+        age: 24,
+        moisCotisation: 18,
+        hasChildren: true,
+      );
+
+      expect(result.nombreIndemnites, 400);
+    });
+
+    test('rente invalidite reconnue et 22 mois => 520 indemnites', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 35,
+        moisCotisation: 22,
+        hasDisability: true,
+      );
+
+      expect(result.nombreIndemnites, 520);
+    });
+
+    test('duree en mois = nombreIndemnites / 21.7', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
         moisCotisation: 18,
       );
 
-      expect(result.dureeMois, closeTo(260 / 21.75, 0.01));
+      expect(result.dureeMois, closeTo(400 / 21.7, 0.01));
     });
 
-    test('age 55 avec seulement 18 mois cotisation => 260 (pas 520)', () {
-      // 55+ needs >= 22 mois for senior 520, with only 18 falls to age>=25 bracket
+    test('quatre ans avant age AVS => 120 indemnites supplementaires', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 62,
+        moisCotisation: 22,
+        isWithinFourYearsOfAvsReferenceAge: true,
+      );
+
+      expect(result.nombreIndemnites, 640);
+    });
+
+    test('quatre ans avant AVS avec 18 mois cotisation => pas de supplement',
+        () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 62,
+        moisCotisation: 18,
+        isWithinFourYearsOfAvsReferenceAge: true,
+      );
+
+      expect(result.nombreIndemnites, 400);
+    });
+
+    test('age 55 avec seulement 18 mois cotisation => 400 (pas 520)', () {
+      // 55+ needs >= 22 mois for senior 520, with only 18 falls to the 18-24 band.
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 55,
         moisCotisation: 18,
       );
 
-      expect(result.nombreIndemnites, 260);
+      expect(result.nombreIndemnites, 400);
     });
   });
 
@@ -275,14 +343,44 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('UnemploymentService - Delai de carence et timeline', () {
-    test('delai de carence = 5 jours', () {
+    test('delai de carence varie selon revenu et obligation entretien', () {
+      // OACI art. 6a / LACI art. 18:
+      // sans obligation d'entretien: 0/5/10/15/20 jours;
+      // avec obligation d'entretien envers enfant <25 ans: 0 jusqu'a
+      // CHF 60k/an, puis 5 jours.
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
         moisCotisation: 18,
       );
+      final lowWithoutChildren = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 2500,
+        age: 30,
+        moisCotisation: 18,
+      );
+      final lowWithChildren = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 4000,
+        age: 30,
+        moisCotisation: 18,
+        hasChildren: true,
+      );
+      final highWithoutChildren = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 11000,
+        age: 30,
+        moisCotisation: 18,
+      );
+      final highWithChildren = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 8333,
+        age: 30,
+        moisCotisation: 18,
+        hasChildren: true,
+      );
 
-      expect(result.delaiCarenceJours, 5);
+      expect(result.delaiCarenceJours, 10);
+      expect(lowWithoutChildren.delaiCarenceJours, 0);
+      expect(lowWithChildren.delaiCarenceJours, 0);
+      expect(highWithoutChildren.delaiCarenceJours, 20);
+      expect(highWithChildren.delaiCarenceJours, 5);
     });
 
     test('timeline contient 8 etapes', () {
@@ -315,7 +413,8 @@ void main() {
       );
 
       final urgences = result.timeline.map((e) => e.urgence).toSet();
-      expect(urgences, containsAll(['immediate', 'semaine1', 'mois1', 'mois3']));
+      expect(
+          urgences, containsAll(['immediate', 'semaine1', 'mois1', 'mois3']));
     });
 
     test('non eligible retourne quand meme une timeline', () {
@@ -357,8 +456,13 @@ void main() {
 
       expect(result.gainAssureRetenu, 12350.0);
       // indemnite basee sur le plafond, pas le salaire reel
-      const expectedDaily = 12350.0 * 0.70 / 21.75;
+      const expectedDaily = 12350.0 * 0.70 / 21.7;
       expect(result.indemniteJournaliere, closeTo(expectedDaily, 0.01));
+      expect(
+        result.perteMensuelle,
+        closeTo(50000 - result.indemniteMensuelle, 0.01),
+      );
+      expect(result.premierEclairage, contains('83%'));
     });
 
     test('premier éclairage mentionne la perte mensuelle', () {

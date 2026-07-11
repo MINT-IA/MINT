@@ -85,7 +85,7 @@ const double lppTauxConversionSurobligDecimal = 0.058;
 /// Le taux reel varie significativement par caisse (0.1% a 0.5%/an).
 /// Cette valeur est une estimation educative (moyenne observee).
 /// Source: CHS PP - Rapport sur la situation financiere des caisses LPP.
-/// Note: toujours afficher "confirme avec ta caisse" dans les projections.
+/// Note: projections must always ask the user to confirm with their pension fund.
 const double lppEarlyRetirementRateReduction = 0.002;
 
 /// Taux d'interet minimum LPP en % (fixe par le Conseil federal).
@@ -323,20 +323,19 @@ const double acIndemniteTauxChargeFamille = 0.80;
 
 /// Duree maximale des indemnites de chomage (LACI art. 27 al. 2).
 ///
-/// La duree depend de la periode de cotisation ET de l'age.
-/// Les valeurs ci-dessous correspondent au cas standard (>= 22 mois de cotisation).
-/// Pour des periodes courtes (12-17 mois → 200j, 18-21 mois → 260j).
+/// Duration depends on contribution months, age, maintenance duty and an
+/// optional disability pension >= 40%.
 
-/// < 22 mois de cotisation (typiquement < 25 ans en debut de carriere).
+/// < 25 ans sans devoir d'entretien, 12-24 mois de cotisation.
 const int acJoursMinCotisation = 200;
 
-/// 18-21 mois de cotisation (cas intermediaire).
+/// 12-17 mois de cotisation, des 25 ans ou avec devoir d'entretien.
 const int acJoursIntermediaireCotisation = 260;
 
-/// >= 22 mois de cotisation, age < 55 ans (LACI art. 27 al. 2 lit. c).
+/// 18-24 mois de cotisation, hors cas senior/invalidite.
 const int acJoursStandard = 400;
 
-/// >= 22 mois de cotisation, age >= 55 ans (LACI art. 27 al. 2 lit. d).
+/// 22-24 mois de cotisation, age >= 55 ans ou rente d'invalidite >= 40%.
 const int acJoursSenior = 520;
 
 /// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. d).
@@ -599,13 +598,12 @@ const double lamalQuotePartMaxJeunesAdultes = 350.0;
 // ══════════════════════════════════════════════════════════════════════════════
 
 /// Plafond 3a salarié avec LPP — déjà défini plus haut (7258 CHF en 2026).
-/// C'est ce plafond (de l'année du rachat) qui s'applique à chaque année
-/// rachetée, PAS un plafond historique.
+/// The buyback-year limit applies to every bought-back year, not a historical
+/// limit for the missed year.
 ///
-/// Map conservée pour compat code mais réduite aux années 2025+ (seules
-/// rachetables). Les valeurs 2025 et 2026 sont identiques par design
-/// fédéral (le plafond suit l'indexation OFAS mais n'a pas changé sur
-/// la courte fenêtre). À jour au 06.11.2024.
+/// Kept for compatibility, reduced to buyback-eligible years 2025+.
+/// Values for 2025 and 2026 are identical; the federal ceiling follows OFAS
+/// indexation but did not change over this short window. Current on 2024-11-06.
 const Map<int, double> pilier3aHistoricalLimits = {
   2025: 7258.0,
   2026: 7258.0,

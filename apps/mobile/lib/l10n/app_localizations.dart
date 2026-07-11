@@ -4914,7 +4914,7 @@ abstract class S {
   /// No description provided for @unemploymentDisabilityToggle.
   ///
   /// In fr, this message translates to:
-  /// **'Handicap reconnu'**
+  /// **'Rente d’invalidité >= 40%'**
   String get unemploymentDisabilityToggle;
 
   /// No description provided for @unemploymentNotEligible.
@@ -4932,7 +4932,7 @@ abstract class S {
   /// No description provided for @unemploymentRateEnhanced.
   ///
   /// In fr, this message translates to:
-  /// **'Taux majoré (80 %) : obligation d\'entretien, handicap, ou salaire < CHF 3\'797'**
+  /// **'Taux majoré (80 %) : obligation d\'entretien, rente d’invalidité >= 40 %, ou salaire < CHF 3\'797'**
   String get unemploymentRateEnhanced;
 
   /// No description provided for @unemploymentRateStandard.
@@ -5100,7 +5100,7 @@ abstract class S {
   /// No description provided for @unemploymentDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Estimations éducatives — ne constitue pas un conseil au sens de la LSFin — LACI/LPP/OPP3. Les montants présentés sont approximatifs et dépendent de ta situation personnelle. Consulte un·e spécialiste ou l\'ORP de ton canton.'**
+  /// **'Estimations éducatives — ne constitue pas un conseil juridique ni une décision d’assurance sociale — LACI/LPP/OPP3. Les montants présentés sont approximatifs et dépendent de ta situation personnelle. Consulte un·e spécialiste ou l\'ORP de ton canton.'**
   String get unemploymentDisclaimer;
 
   /// No description provided for @firstJobTitle.
@@ -16120,7 +16120,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket1.
   ///
   /// In fr, this message translates to:
-  /// **'12–17 mois cotis.'**
+  /// **'< 25 ans sans entretien'**
   String get unemploymentBracket1;
 
   /// No description provided for @unemploymentBracket1Value.
@@ -16132,7 +16132,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket2.
   ///
   /// In fr, this message translates to:
-  /// **'18–21 mois cotis.'**
+  /// **'12–17 mois cotis.'**
   String get unemploymentBracket2;
 
   /// No description provided for @unemploymentBracket2Value.
@@ -16144,7 +16144,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket3.
   ///
   /// In fr, this message translates to:
-  /// **'>= 22 mois, < {age} ans'**
+  /// **'18–24 mois cotis.'**
   String unemploymentBracket3(int age);
 
   /// No description provided for @unemploymentBracket3Value.
@@ -16156,7 +16156,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket4.
   ///
   /// In fr, this message translates to:
-  /// **'>= 22 mois, >= {age} ans'**
+  /// **'22–24 mois, >= {age} ans / AI >= 40%'**
   String unemploymentBracket4(int age);
 
   /// No description provided for @unemploymentBracket4Value.
@@ -16164,6 +16164,174 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'520 indemnités'**
   String get unemploymentBracket4Value;
+
+  /// No description provided for @unemploymentBracketNearAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans les 4 ans avant AVS'**
+  String get unemploymentBracketNearAvs;
+
+  /// No description provided for @unemploymentSurvivalEstimatedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Survie estimée'**
+  String get unemploymentSurvivalEstimatedLabel;
+
+  /// No description provided for @unemploymentNetBenefitFootnote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indemnité LACI transformée en cash-flow net estimé après cotisations sociales, avant impôt personnel.'**
+  String get unemploymentNetBenefitFootnote;
+
+  /// No description provided for @unemploymentCounterResultLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat LACI → {days} indemnités journalières'**
+  String unemploymentCounterResultLabel(int days);
+
+  /// No description provided for @unemploymentCounterAgeResultLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{ageLabel} → {days} indemnités journalières'**
+  String unemploymentCounterAgeResultLabel(String ageLabel, int days);
+
+  /// No description provided for @unemploymentCounterSemanticLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compteur jours chômage capital temps'**
+  String get unemploymentCounterSemanticLabel;
+
+  /// No description provided for @unemploymentCounterCapitalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton capital temps'**
+  String get unemploymentCounterCapitalTitle;
+
+  /// No description provided for @unemploymentCounterDaysUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours utilisés : {days}'**
+  String unemploymentCounterDaysUsed(int days);
+
+  /// No description provided for @unemploymentCounterRuleHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Règle LACI'**
+  String get unemploymentCounterRuleHeader;
+
+  /// No description provided for @unemploymentCounterMaxHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indemnités max'**
+  String get unemploymentCounterMaxHeader;
+
+  /// No description provided for @unemploymentCounterSeniorAiRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'>= 55 ans ou rente AI >= 40 %'**
+  String get unemploymentCounterSeniorAiRow;
+
+  /// No description provided for @unemploymentCounterNearAvsRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans les 4 ans avant AVS avec 22 mois cotisés'**
+  String get unemploymentCounterNearAvsRow;
+
+  /// No description provided for @unemploymentCounterAfterLastDayTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après le dernier jour : 0 CHF'**
+  String get unemploymentCounterAfterLastDayTitle;
+
+  /// No description provided for @unemploymentCounterNoGraceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de prolongation. Tu passes à l\'aide sociale — sans délai de grâce.'**
+  String get unemploymentCounterNoGraceBody;
+
+  /// No description provided for @unemploymentCounterDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil juridique ni une décision d’assurance sociale. Source : LACI art. 27-30.'**
+  String get unemploymentCounterDisclaimer;
+
+  /// No description provided for @crashTestBudgetSemanticLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crash-test budget chômage'**
+  String get crashTestBudgetSemanticLabel;
+
+  /// No description provided for @crashTestBudgetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crash-test budget'**
+  String get crashTestBudgetTitle;
+
+  /// No description provided for @crashTestBudgetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode normal vs mode survie'**
+  String get crashTestBudgetSubtitle;
+
+  /// No description provided for @crashTestBudgetNormalHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Normal'**
+  String get crashTestBudgetNormalHeader;
+
+  /// No description provided for @crashTestBudgetTotalCharges.
+  ///
+  /// In fr, this message translates to:
+  /// **'TOTAL charges'**
+  String get crashTestBudgetTotalCharges;
+
+  /// No description provided for @crashTestBudgetMonthlyMargin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge mensuelle'**
+  String get crashTestBudgetMonthlyMargin;
+
+  /// No description provided for @crashTestBudgetSavingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu économises CHF {saving}/mois en mode survie'**
+  String crashTestBudgetSavingLabel(String saving);
+
+  /// No description provided for @crashTestBudgetNoAutomaticCuts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges fixes: aucune coupe automatique'**
+  String get crashTestBudgetNoAutomaticCuts;
+
+  /// No description provided for @crashTestBudgetReserveMonths.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réserves : {months} mois'**
+  String crashTestBudgetReserveMonths(String months);
+
+  /// No description provided for @crashTestBudgetReserveSafe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réserves tiennent — tu as une marge de sécurité.'**
+  String get crashTestBudgetReserveSafe;
+
+  /// No description provided for @crashTestBudgetReserveWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention : moins de 6 mois de réserve.'**
+  String get crashTestBudgetReserveWarning;
+
+  /// No description provided for @crashTestBudgetReserveDanger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Danger : moins de 3 mois de réserve !'**
+  String get crashTestBudgetReserveDanger;
+
+  /// No description provided for @crashTestBudgetDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil juridique ni une décision d’assurance sociale.'**
+  String get crashTestBudgetDisclaimer;
 
   /// No description provided for @allocAnnuelleTitle.
   ///

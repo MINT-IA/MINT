@@ -22,7 +22,6 @@ from app.services.unemployment.calculator import (
     GAIN_ASSURE_MAX,
     UNEMPLOYMENT_RATE_BASE,
     UNEMPLOYMENT_RATE_ENHANCED,
-    DELAI_CARENCE_STANDARD,
     WORKING_DAYS_PER_MONTH,
     get_orp_link,
 )
@@ -31,6 +30,7 @@ from app.services.unemployment.calculator import (
 # ===========================================================================
 # Fixtures
 # ===========================================================================
+
 
 @pytest.fixture
 def calculator():
@@ -41,14 +41,18 @@ def calculator():
 # Rate determination tests
 # ===========================================================================
 
+
 class TestUnemploymentRate:
     """Tests for LACI art. 22: indemnity rate (70% or 80%)."""
 
     def test_standard_rate_70_percent(self, calculator):
         """No children, salary > 3797 -> 70%."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
-            has_children=False, has_disability=False,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
+            has_children=False,
+            has_disability=False,
         )
         assert result["taux_indemnite"] == UNEMPLOYMENT_RATE_BASE
         assert result["taux_indemnite"] == 0.70
@@ -56,8 +60,11 @@ class TestUnemploymentRate:
     def test_enhanced_rate_80_children(self, calculator):
         """has_children=True -> 80%."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
-            has_children=True, has_disability=False,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
+            has_children=True,
+            has_disability=False,
         )
         assert result["taux_indemnite"] == UNEMPLOYMENT_RATE_ENHANCED
         assert result["taux_indemnite"] == 0.80
@@ -65,24 +72,33 @@ class TestUnemploymentRate:
     def test_enhanced_rate_80_disability(self, calculator):
         """has_disability=True -> 80%."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
-            has_children=False, has_disability=True,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
+            has_children=False,
+            has_disability=True,
         )
         assert result["taux_indemnite"] == UNEMPLOYMENT_RATE_ENHANCED
 
     def test_enhanced_rate_80_low_salary(self, calculator):
         """gain < 3797 -> 80% (LACI art. 22 al. 2)."""
         result = calculator.calculate(
-            gain_assure_mensuel=3500, age=35, annees_cotisation=18,
-            has_children=False, has_disability=False,
+            gain_assure_mensuel=3500,
+            age=35,
+            annees_cotisation=18,
+            has_children=False,
+            has_disability=False,
         )
         assert result["taux_indemnite"] == UNEMPLOYMENT_RATE_ENHANCED
 
     def test_rate_at_threshold_boundary(self, calculator):
         """gain exactly at 3797 -> should be 70% (not strictly below)."""
         result = calculator.calculate(
-            gain_assure_mensuel=3797, age=35, annees_cotisation=18,
-            has_children=False, has_disability=False,
+            gain_assure_mensuel=3797,
+            age=35,
+            annees_cotisation=18,
+            has_children=False,
+            has_disability=False,
         )
         # 3797 is NOT < 3797, so standard rate applies
         assert result["taux_indemnite"] == UNEMPLOYMENT_RATE_BASE
@@ -92,34 +108,43 @@ class TestUnemploymentRate:
 # Gain assuré cap tests
 # ===========================================================================
 
+
 class TestGainAssureCap:
     """Tests for LACI art. 23: gain assuré capped at 12'350 CHF/month."""
 
     def test_gain_assure_capped_at_12350(self, calculator):
         """High earner -> cap at 12'350."""
         result = calculator.calculate(
-            gain_assure_mensuel=20000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=20000,
+            age=35,
+            annees_cotisation=18,
         )
         assert result["gain_assure_retenu"] == GAIN_ASSURE_MAX
 
     def test_gain_assure_below_cap(self, calculator):
         """Normal salary -> use actual gain."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
         assert result["gain_assure_retenu"] == 6000.0
 
     def test_gain_assure_exactly_at_cap(self, calculator):
         """Gain exactly at cap -> use cap value."""
         result = calculator.calculate(
-            gain_assure_mensuel=12350, age=35, annees_cotisation=18,
+            gain_assure_mensuel=12350,
+            age=35,
+            annees_cotisation=18,
         )
         assert result["gain_assure_retenu"] == GAIN_ASSURE_MAX
 
     def test_high_earner_alert(self, calculator):
         """High earner should get an alert about the cap."""
         result = calculator.calculate(
-            gain_assure_mensuel=20000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=20000,
+            age=35,
+            annees_cotisation=18,
         )
         assert any("depasse" in a for a in result["alertes"])
 
@@ -128,22 +153,27 @@ class TestGainAssureCap:
 # Benefit calculation tests
 # ===========================================================================
 
+
 class TestBenefitCalculation:
     """Tests for daily and monthly benefit amounts."""
 
     def test_daily_benefit_calculation(self, calculator):
-        """daily = gain_retenu * rate / 21.75."""
+        """daily = gain_retenu * rate / 21.7."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
             has_children=False,
         )
         expected_daily = round(6000 * 0.70 / WORKING_DAYS_PER_MONTH, 2)
         assert result["indemnite_journaliere"] == expected_daily
 
     def test_monthly_benefit_calculation(self, calculator):
-        """monthly = daily * 21.75."""
+        """monthly = daily * 21.7."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
             has_children=False,
         )
         expected_monthly = round(
@@ -154,11 +184,15 @@ class TestBenefitCalculation:
     def test_monthly_benefit_with_80_percent(self, calculator):
         """Monthly benefit at 80% should be higher than at 70%."""
         result_70 = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
             has_children=False,
         )
         result_80 = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
             has_children=True,
         )
         assert result_80["indemnite_mensuelle"] > result_70["indemnite_mensuelle"]
@@ -168,55 +202,90 @@ class TestBenefitCalculation:
 # Duration tests (LACI art. 27)
 # ===========================================================================
 
+
 class TestDuration:
     """Tests for number of indemnities based on age and contribution months."""
 
     def test_duration_age_under_25(self, calculator):
         """Under 25 with 12+ months -> 200 indemnities."""
         result = calculator.calculate(
-            gain_assure_mensuel=4000, age=22, annees_cotisation=12,
+            gain_assure_mensuel=4000,
+            age=22,
+            annees_cotisation=12,
         )
         assert result["nombre_indemnites"] == 200
 
     def test_duration_age_25_54_12months(self, calculator):
-        """25-54 with 12-17 months -> 200 indemnities."""
+        """25-54 with 12-17 months -> 260 indemnities."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=15,
-        )
-        assert result["nombre_indemnites"] == 200
-
-    def test_duration_age_25_54_18months(self, calculator):
-        """25-54 with 18+ months -> 260 indemnities."""
-        result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=15,
         )
         assert result["nombre_indemnites"] == 260
+
+    def test_duration_age_25_54_18months(self, calculator):
+        """25-54 with 18+ months -> 400 indemnities."""
+        result = calculator.calculate(
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
+        )
+        assert result["nombre_indemnites"] == 400
 
     def test_duration_age_25_54_22months(self, calculator):
         """25-54 with 22+ months -> 400 indemnities (LACI art. 27 al. 2 lit. c)."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=24,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=24,
         )
         assert result["nombre_indemnites"] == 400
 
     def test_duration_age_55_59(self, calculator):
         """55+ with 22+ months -> 520 indemnities (LACI art. 27 al. 2 lit. d)."""
         result = calculator.calculate(
-            gain_assure_mensuel=8000, age=57, annees_cotisation=22,
+            gain_assure_mensuel=8000,
+            age=57,
+            annees_cotisation=22,
+        )
+        assert result["nombre_indemnites"] == 520
+
+    def test_duration_under_25_with_dependents(self, calculator):
+        """Under 25 with maintenance duty follows the 18-month 400-day band."""
+        result = calculator.calculate(
+            gain_assure_mensuel=5000,
+            age=24,
+            annees_cotisation=18,
+            has_children=True,
+        )
+        assert result["nombre_indemnites"] == 400
+
+    def test_duration_disability_pension_40_percent(self, calculator):
+        """Disability pension >=40% with 22+ months -> 520 indemnities."""
+        result = calculator.calculate(
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=22,
+            has_disability=True,
         )
         assert result["nombre_indemnites"] == 520
 
     def test_duration_age_60_plus(self, calculator):
         """60+ with 22+ months -> 520 indemnities."""
         result = calculator.calculate(
-            gain_assure_mensuel=8000, age=62, annees_cotisation=24,
+            gain_assure_mensuel=8000,
+            age=62,
+            annees_cotisation=24,
         )
         assert result["nombre_indemnites"] == 520
 
     def test_duration_mois_calculated(self, calculator):
-        """duree_mois = nombre_indemnites / 21.75."""
+        """duree_mois = nombre_indemnites / 21.7."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
         expected = round(result["nombre_indemnites"] / WORKING_DAYS_PER_MONTH, 1)
         assert result["duree_mois"] == expected
@@ -224,21 +293,46 @@ class TestDuration:
     def test_edge_case_age_55_boundary(self, calculator):
         """Age exactly 55 with 22+ months -> 520 (LACI art. 27 al. 2 lit. d)."""
         result = calculator.calculate(
-            gain_assure_mensuel=8000, age=55, annees_cotisation=22,
+            gain_assure_mensuel=8000,
+            age=55,
+            annees_cotisation=22,
         )
         assert result["nombre_indemnites"] == 520
 
     def test_edge_case_max_duration_520(self, calculator):
         """Maximum duration should be 520 indemnities."""
         result = calculator.calculate(
-            gain_assure_mensuel=8000, age=64, annees_cotisation=24,
+            gain_assure_mensuel=8000,
+            age=64,
+            annees_cotisation=24,
         )
         assert result["nombre_indemnites"] == 520
+
+    def test_near_avs_reference_age_adds_120_indemnities(self, calculator):
+        """SECO table grants +120 days within 4 years before AVS reference age."""
+        result = calculator.calculate(
+            gain_assure_mensuel=8000,
+            age=62,
+            annees_cotisation=22,
+            is_within_four_years_of_avs_reference_age=True,
+        )
+        assert result["nombre_indemnites"] == 640
+
+    def test_near_avs_reference_age_requires_22_contribution_months(self, calculator):
+        """The +120 near-AVS supplement does not apply below 22 contribution months."""
+        result = calculator.calculate(
+            gain_assure_mensuel=8000,
+            age=62,
+            annees_cotisation=18,
+            is_within_four_years_of_avs_reference_age=True,
+        )
+        assert result["nombre_indemnites"] == 400
 
 
 # ===========================================================================
 # Eligibility tests
 # ===========================================================================
+
 
 class TestEligibility:
     """Tests for eligibility rules (LACI art. 13)."""
@@ -246,7 +340,9 @@ class TestEligibility:
     def test_not_eligible_under_12_months(self, calculator):
         """Less than 12 months contributions -> not eligible."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=10,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=10,
         )
         assert result["eligible"] is False
         assert result["raison_non_eligible"] is not None
@@ -255,37 +351,82 @@ class TestEligibility:
     def test_eligible_at_12_months(self, calculator):
         """Exactly 12 months -> eligible."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=12,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=12,
         )
         assert result["eligible"] is True
 
     def test_edge_case_gain_zero(self, calculator):
         """Zero gain -> not eligible."""
         result = calculator.calculate(
-            gain_assure_mensuel=0, age=35, annees_cotisation=18,
+            gain_assure_mensuel=0,
+            age=35,
+            annees_cotisation=18,
         )
         assert result["eligible"] is False
+
+    def test_after_avs_reference_age_no_ordinary_laci_calculation(self, calculator):
+        """After AVS reference age, route to transition analysis instead."""
+        result = calculator.calculate(
+            gain_assure_mensuel=6000,
+            age=65,
+            annees_cotisation=24,
+        )
+        assert result["eligible"] is False
+        assert result["nombre_indemnites"] == 0
+        assert "age de reference AVS" in result["raison_non_eligible"]
 
 
 # ===========================================================================
 # Délai de carence
 # ===========================================================================
 
+
 class TestDelaiCarence:
     """Tests for waiting period."""
 
-    def test_delai_carence_5_days(self, calculator):
-        """Standard waiting period is always 5 days."""
+    def test_delai_carence_variable_by_income_and_maintenance_duty(self, calculator):
+        """OACI art. 6a / LACI art. 18 table is income + maintenance-duty based."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
-        assert result["delai_carence_jours"] == DELAI_CARENCE_STANDARD
-        assert result["delai_carence_jours"] == 5
+        low_without_children = calculator.calculate(
+            gain_assure_mensuel=2500,
+            age=35,
+            annees_cotisation=18,
+        )
+        low_with_children = calculator.calculate(
+            gain_assure_mensuel=4000,
+            age=35,
+            annees_cotisation=18,
+            has_children=True,
+        )
+        high_without_children = calculator.calculate(
+            gain_assure_mensuel=11000,
+            age=35,
+            annees_cotisation=18,
+        )
+        high_with_children = calculator.calculate(
+            gain_assure_mensuel=8333,
+            age=35,
+            annees_cotisation=18,
+            has_children=True,
+        )
+
+        assert result["delai_carence_jours"] == 10
+        assert low_without_children["delai_carence_jours"] == 0
+        assert low_with_children["delai_carence_jours"] == 0
+        assert high_without_children["delai_carence_jours"] == 20
+        assert high_with_children["delai_carence_jours"] == 5
 
 
 # ===========================================================================
 # Timeline and checklist
 # ===========================================================================
+
 
 class TestTimelineChecklist:
     """Tests for timeline and checklist generation."""
@@ -293,7 +434,9 @@ class TestTimelineChecklist:
     def test_timeline_contains_orp(self, calculator):
         """First timeline step should be ORP registration."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
         assert len(result["timeline"]) > 0
         assert "ORP" in result["timeline"][0]["action"]
@@ -301,15 +444,21 @@ class TestTimelineChecklist:
     def test_timeline_contains_libre_passage(self, calculator):
         """Timeline should contain LPP transfer at day 30."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
-        lpp_steps = [s for s in result["timeline"] if s["jour"] == 30 and "LPP" in s["action"]]
+        lpp_steps = [
+            s for s in result["timeline"] if s["jour"] == 30 and "LPP" in s["action"]
+        ]
         assert len(lpp_steps) >= 1
 
     def test_timeline_ordered_by_day(self, calculator):
         """Timeline steps should be ordered by day number."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
         days = [step["jour"] for step in result["timeline"]]
         assert days == sorted(days)
@@ -317,7 +466,9 @@ class TestTimelineChecklist:
     def test_checklist_non_empty(self, calculator):
         """Checklist should be non-empty for eligible person."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
         assert len(result["checklist"]) >= 5
 
@@ -325,6 +476,7 @@ class TestTimelineChecklist:
 # ===========================================================================
 # Compliance
 # ===========================================================================
+
 
 class TestUnemploymentCompliance:
     """Tests for compliance rules: disclaimer, sources, banned terms."""
@@ -340,26 +492,44 @@ class TestUnemploymentCompliance:
     def test_disclaimer_contains_laci(self):
         """Disclaimer should reference the legal context."""
         assert "educatif" in DISCLAIMER.lower()
-        assert "LSFin" in DISCLAIMER
+        assert "assurance sociale" in DISCLAIMER.lower()
+        assert "LSFin" not in DISCLAIMER
 
     def test_disclaimer_uses_specialiste(self):
-        """Disclaimer should use 'specialiste' (not 'conseiller')."""
-        assert "specialiste" in DISCLAIMER.lower()
+        """Disclaimer should use 'spécialiste' (not 'conseiller')."""
+        assert "spécialiste" in DISCLAIMER.lower()
         assert "conseiller" not in DISCLAIMER.lower()
 
     def test_sources_contain_legal_refs(self):
-        """Sources should cite specific LACI/OAC articles."""
+        """Sources should cite specific LACI/OACI articles."""
         assert len(SOURCES) >= 4
         source_text = " ".join(SOURCES)
         assert "LACI" in source_text
-        assert "OAC" in source_text
+        assert "OACI" in source_text
+        assert "art. 6a" in source_text
 
     def test_premier_eclairage_non_empty(self, calculator):
         """Chiffre choc should be a non-empty string."""
         result = calculator.calculate(
-            gain_assure_mensuel=6000, age=35, annees_cotisation=18,
+            gain_assure_mensuel=6000,
+            age=35,
+            annees_cotisation=18,
         )
         assert len(result["premier_eclairage"]) > 20
+
+    def test_premier_eclairage_uses_real_salary_when_benefit_is_capped(
+        self, calculator
+    ):
+        """High earners should see the drop from real salary, not only capped earnings."""
+        result = calculator.calculate(
+            gain_assure_mensuel=50_000,
+            age=35,
+            annees_cotisation=18,
+        )
+
+        assert result["gain_assure_retenu"] == 12_350
+        assert "50,000" in result["premier_eclairage"]
+        assert "41,355" in result["premier_eclairage"]
 
     def test_no_banned_terms_in_disclaimer(self):
         """Disclaimer should not contain banned terms."""
@@ -373,6 +543,7 @@ class TestUnemploymentCompliance:
 # ===========================================================================
 # ORP link helper
 # ===========================================================================
+
 
 class TestOrpLinks:
     """Tests for ORP link retrieval."""
@@ -398,6 +569,7 @@ class TestOrpLinks:
 # API endpoints (integration)
 # ===========================================================================
 
+
 class TestUnemploymentEndpoints:
     """Tests for the Unemployment FastAPI endpoints."""
 
@@ -422,6 +594,27 @@ class TestUnemploymentEndpoints:
         assert "disclaimer" in data
         assert "sources" in data
         assert data["eligible"] is True
+
+    def test_calculate_endpoint_after_avs_reference_age_returns_transition_state(
+        self, client
+    ):
+        """Known age >=65 is valid input, but not an ordinary LACI benefit."""
+        response = client.post(
+            "/api/v1/unemployment/calculate",
+            json={
+                "gainAssureMensuel": 6000,
+                "age": 65,
+                "anneesCotisation": 24,
+                "hasChildren": False,
+                "hasDisability": False,
+                "canton": "ZH",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["eligible"] is False
+        assert data["nombreIndemnites"] == 0
+        assert "age de reference AVS" in data["raisonNonEligible"]
 
     def test_checklist_endpoint(self, client):
         """GET /unemployment/checklist should return 200."""

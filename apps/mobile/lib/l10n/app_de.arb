@@ -1200,10 +1200,10 @@
   "unemploymentSituationTitle": "Persönliche Situation",
   "unemploymentSituationSubtitle": "Beeinflusst den Entschädigungssatz (70% oder 80%)",
   "unemploymentChildrenToggle": "Unterhaltspflicht (Kinder)",
-  "unemploymentDisabilityToggle": "Anerkannte Behinderung",
+  "unemploymentDisabilityToggle": "Invalidenrente >= 40%",
   "unemploymentNotEligible": "Nicht berechtigt",
   "unemploymentCompensationRate": "Entschädigungssatz",
-  "unemploymentRateEnhanced": "Erhöhter Satz (80%): Unterhaltspflicht, Behinderung oder Lohn < CHF 3'797",
+  "unemploymentRateEnhanced": "Erhöhter Satz (80%): Unterhaltspflicht, Invalidenrente >= 40% oder Lohn < CHF 3'797",
   "unemploymentRateStandard": "Standardsatz (70%): anwendbar in anderen Situationen",
   "unemploymentDailyBenefit": "Tagesentschädigung",
   "unemploymentMonthlyBenefit": "Monatliche Entschädigung",
@@ -1238,7 +1238,7 @@
   "unemploymentEduLamalTitle": "LAMal-Prämienverbilligung",
   "unemploymentEduLamalBody": "Mit einem niedrigeren Einkommen könntest du Anspruch auf LAMal-Verbilligungen haben. Stelle den Antrag bei deinem Kanton.",
   "unemploymentTsunamiTitle": "Dein finanzieller Tsunami in 3 Wellen",
-  "unemploymentDisclaimer": "Pädagogische Schätzungen — keine Beratung im Sinne des FIDLEG — AVIG/BVG/BVV3. Die angegebenen Beträge sind ungefähr und hängen von deiner persönlichen Situation ab. Wende dich an eine Fachperson oder das RAV deines Kantons.",
+  "unemploymentDisclaimer": "Pädagogische Schätzungen — keine Rechtsberatung und kein Entscheid einer Sozialversicherung — AVIG/BVG/BVV3. Die angegebenen Beträge sind ungefähr und hängen von deiner persönlichen Situation ab. Wende dich an eine Fachperson oder das RAV deines Kantons.",
   "firstJobTitle": "Erster Job",
   "firstJobHeaderDesc": "Verstehe deine Gehaltsabrechnung! Wir zeigen dir, wohin deine Beiträge fliessen, was dein Arbeitgeber zusätzlich zahlt und die ersten finanziellen Reflexe.",
   "firstJobSalaryTitle": "Monatlicher Bruttolohn",
@@ -4241,11 +4241,11 @@
   "unemploymentBudgetEpargne3a": "3a-Sparen",
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
-  "unemploymentBracket1": "12–17 Monate Beitrag",
+  "unemploymentBracket1": "< 25 ohne Unterhaltspflicht",
   "unemploymentBracket1Value": "200 Taggelder",
-  "unemploymentBracket2": "18–21 Monate Beitrag",
+  "unemploymentBracket2": "12–17 Monate Beitrag",
   "unemploymentBracket2Value": "260 Taggelder",
-  "unemploymentBracket3": ">= 22 Monate, < {age} J.",
+  "unemploymentBracket3": "18–24 Monate Beitrag",
   "@unemploymentBracket3": {
     "placeholders": {
       "age": {
@@ -4254,7 +4254,7 @@
     }
   },
   "unemploymentBracket3Value": "400 Taggelder",
-  "unemploymentBracket4": ">= 22 Monate, >= {age} J.",
+  "unemploymentBracket4": "22–24 Monate, >= {age} J. / IV >= 40%",
   "@unemploymentBracket4": {
     "placeholders": {
       "age": {
@@ -4263,6 +4263,72 @@
     }
   },
   "unemploymentBracket4Value": "520 Taggelder",
+  "unemploymentBracketNearAvs": "Innerhalb von 4 Jahren vor AHV",
+  "unemploymentSurvivalEstimatedLabel": "Geschätzte Überlebensphase",
+  "unemploymentNetBenefitFootnote": "LACI-Leistung als geschätzter Netto-Cashflow nach Sozialabgaben, vor persönlicher Steuer.",
+  "unemploymentCounterResultLabel": "LACI-Ergebnis → {days} Taggelder",
+  "@unemploymentCounterResultLabel": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterAgeResultLabel": "{ageLabel} → {days} Taggelder",
+  "@unemploymentCounterAgeResultLabel": {
+    "placeholders": {
+      "ageLabel": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterSemanticLabel": "Zähler der Arbeitslosentage",
+  "unemploymentCounterCapitalTitle": "Dein Zeitkapital",
+  "unemploymentCounterDaysUsed": "Verbrauchte Tage: {days}",
+  "@unemploymentCounterDaysUsed": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterRuleHeader": "LACI-Regel",
+  "unemploymentCounterMaxHeader": "Max. Taggelder",
+  "unemploymentCounterSeniorAiRow": ">= 55 Jahre oder IV-Rente >= 40%",
+  "unemploymentCounterNearAvsRow": "Innerhalb von 4 Jahren vor AHV mit 22 Beitragsmonaten",
+  "unemploymentCounterAfterLastDayTitle": "Nach dem letzten Tag: CHF 0",
+  "unemploymentCounterNoGraceBody": "Keine Verlängerung. Danach folgt Sozialhilfe ohne Schonfrist.",
+  "unemploymentCounterDisclaimer": "Bildungsinstrument · keine Rechtsberatung und kein Sozialversicherungsentscheid. Quelle: AVIG Art. 27-30.",
+  "crashTestBudgetSemanticLabel": "Budget-Crash-Test Arbeitslosigkeit",
+  "crashTestBudgetTitle": "Budget-Crash-Test",
+  "crashTestBudgetSubtitle": "Normalmodus vs. Überlebensmodus",
+  "crashTestBudgetNormalHeader": "Normal",
+  "crashTestBudgetTotalCharges": "TOTAL Kosten",
+  "crashTestBudgetMonthlyMargin": "Monatliche Marge",
+  "crashTestBudgetSavingLabel": "Du sparst CHF {saving}/Monat im Überlebensmodus",
+  "@crashTestBudgetSavingLabel": {
+    "placeholders": {
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "crashTestBudgetNoAutomaticCuts": "Fixkosten: keine automatische Kürzung",
+  "crashTestBudgetReserveMonths": "Deine Reserven: {months} Monate",
+  "@crashTestBudgetReserveMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "crashTestBudgetReserveSafe": "Deine Reserven halten — du hast einen Sicherheitspuffer.",
+  "crashTestBudgetReserveWarning": "Achtung: weniger als 6 Monate Reserve.",
+  "crashTestBudgetReserveDanger": "Gefahr: weniger als 3 Monate Reserve!",
+  "crashTestBudgetDisclaimer": "Bildungsinstrument · keine Rechtsberatung und kein Sozialversicherungsentscheid.",
   "allocAnnuelleTitle": "Wohin mit deinen CHF?",
   "allocAnnuelleBudgetTitle": "Dein Jahresbudget",
   "allocAnnuelleMontantLabel": "Verfügbarer Betrag pro Jahr (CHF)",

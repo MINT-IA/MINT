@@ -24,6 +24,7 @@ flowchart LR
   scan_route_capture["scan.route.capture<br/>/scan"]:::route
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
   scan_route_review_recovery["scan.route.review_recovery<br/>/scan/review"]:::route
+  unemployment_route_overview["unemployment.route.overview<br/>/unemployment"]:::route
 
   coverage_route_check -->|"coverage.edge.check.enrich_canton<br/>tap / push"| db_route_revenu
   coverage_route_check -->|"coverage.edge.check.enrich_household<br/>tap / push"| db_route_composition_menage
@@ -50,8 +51,9 @@ flowchart LR
   indep_route_pillar3a -->|"indep.edge.pillar3a.enrich_income_or_pension<br/>tap / push"| db_route_revenu
   lamal_route_franchise -->|"lamal.edge.franchise.enrich_health_costs<br/>tap / push"| budget_route_setup
   db_route_revenu -->|"db.edge.revenu.submit<br/>submit / push"| mortgage_route_hypotheque
+  unemployment_route_overview -->|"unemployment.edge.enrich_budget<br/>tap / push"| budget_route_setup
+  unemployment_route_overview -->|"unemployment.edge.enrich_salary_age_contributions<br/>tap / push"| db_route_revenu
 
-  db_route_revenu -. "back" .-> home_route_dashboard
   mortgage_route_hypotheque -. "back" .-> home_route_dashboard
   scan_route_impact_recovery -. "back" .-> home_route_dashboard
   scan_route_review_recovery -. "back" .-> scan_route_capture

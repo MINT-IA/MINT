@@ -31,6 +31,7 @@ router = APIRouter()
 # Calculate unemployment benefits
 # ---------------------------------------------------------------------------
 
+
 @router.post("/calculate", response_model=UnemploymentBenefitsResponse)
 def calculate_unemployment_benefits(
     request: UnemploymentBenefitsRequest,
@@ -40,7 +41,7 @@ def calculate_unemployment_benefits(
     Computes daily/monthly indemnities, duration, eligibility status,
     and provides a timeline + checklist for post-job-loss actions.
 
-    Sources: LACI art. 8, 13, 22, 23, 27. OAC art. 37.
+    Sources: LACI art. 8, 13, 18, 22, 23, 27. OACI art. 6a.
     """
     calculator = UnemploymentCalculator()
     result = calculator.calculate(
@@ -49,14 +50,16 @@ def calculate_unemployment_benefits(
         annees_cotisation=request.annees_cotisation,
         has_children=request.has_children,
         has_disability=request.has_disability,
+        has_reached_avs_reference_age=request.has_reached_avs_reference_age,
+        is_within_four_years_of_avs_reference_age=(
+            request.is_within_four_years_of_avs_reference_age
+        ),
         canton=request.canton,
         date_licenciement=request.date_licenciement,
     )
 
     # Convert timeline dicts to TimelineStep models
-    timeline_steps = [
-        TimelineStep(**step) for step in result.get("timeline", [])
-    ]
+    timeline_steps = [TimelineStep(**step) for step in result.get("timeline", [])]
 
     return UnemploymentBenefitsResponse(
         taux_indemnite=result["taux_indemnite"],
@@ -81,6 +84,7 @@ def calculate_unemployment_benefits(
 # Generic checklist + timeline
 # ---------------------------------------------------------------------------
 
+
 @router.get("/checklist", response_model=UnemploymentChecklistResponse)
 def unemployment_checklist() -> UnemploymentChecklistResponse:
     """Get the generic unemployment checklist and timeline.
@@ -98,6 +102,7 @@ def unemployment_checklist() -> UnemploymentChecklistResponse:
 # ---------------------------------------------------------------------------
 # ORP link by canton
 # ---------------------------------------------------------------------------
+
 
 @router.get("/orp-link/{canton}", response_model=OrpLinkResponse)
 def orp_link(canton: str) -> OrpLinkResponse:

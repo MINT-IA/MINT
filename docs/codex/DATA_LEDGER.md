@@ -122,7 +122,7 @@ These **36** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `incomeNetMonthly` | `q_net_income_period_chf` + `q_pay_frequency='monthly'` | double CHF/mo | income | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget, `resteAVivreMensuel`, SafeMode |
+| `incomeNetMonthly` | `q_net_income_period_chf` + `q_pay_frequency='monthly'` | double CHF/mo | income | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget, `resteAVivreMensuel`, SafeMode, unemployment crash-test normal income |
 | `incomeNetYearly` | `q_net_income_period_chf` + `q_pay_frequency='yearly'` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | tax, affordability ~33% |
 | `incomeGrossMonthly` | `q_gross_salary_annual` (= value × 12) | double CHF/mo | income | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `salaireBrutMensuel`, `revenuBrutAnnuel`, LPP coordination, AVS RAMD |
 | `incomeGrossYearly` | `q_gross_salary_annual` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuel`, tax tiers, LPP insured salary inference |
@@ -132,6 +132,23 @@ These **36** keys are the exact contents of `_SAVE_FACT_ALLOWED_KEYS` (`coach_ch
 | `companyProfitAnnual` | `q_company_profit_annual_chf` | double CHF/yr | income | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | SA/Sarl dividend-vs-salary envelope; never a fallback for sole-proprietor income |
 
 > Income keys map to a **pay-frequency-consistent pair** so `fromWizardAnswers` computes `salaireBrutMensuel` correctly (the `incomeNetMonthly/Yearly` cases set BOTH `q_net_income_period_chf` and `q_pay_frequency`; the gross cases normalise to `q_gross_salary_annual`). A write to a `Net*` key MUST NOT silently overwrite a `Gross*`-derived value of a different frequency.
+
+#### Mobile-only career facts
+
+These facts are collected through `mergeAnswers` and reconstructed by
+`CoachProfile.fromWizardAnswers()`, but they are **not** part of the backend
+`save_fact` allowlist counted in §3.8.
+
+| key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
+|---|---|---|---|---|---|---|---|---|
+| `unemploymentContributionMonths` | `q_unemployment_contribution_months` | int months, clamped 0-24 | income / work | userInput, certificate | event-scoped / annual | .60 / .95 | mergeAnswers via `/data-block/revenu` | `/unemployment` LACI eligibility and benefit-duration explanation |
+
+> Swiss-domain invariant: LACI contribution months are an eligibility fact for
+> unemployment insurance. UI screens may use children/disability switches as
+> scenario/current-situation levers, but they must not invent a default
+> contribution history or collect it as a local slider. Budget crash-tests may
+> derive a labelled estimated net LACI cash-flow from the gross benefit, but the
+> derived estimate is calculation output, not a persisted ledger fact.
 
 ### 3.3 LPP (2nd pillar)
 

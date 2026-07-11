@@ -249,6 +249,40 @@ void main() {
       expect(profile.realEstateProject, 'yes_main');
     });
 
+    test('unemploymentContributionMonths est borne entre 0 et 24', () {
+      final answersHigh = baseAnswers()
+        ..['q_unemployment_contribution_months'] = 99;
+      final answersLow = baseAnswers()
+        ..['q_unemployment_contribution_months'] = -3;
+
+      expect(
+        CoachProfile.fromWizardAnswers(answersHigh)
+            .unemploymentContributionMonths,
+        24,
+      );
+      expect(
+        CoachProfile.fromWizardAnswers(answersLow)
+            .unemploymentContributionMonths,
+        0,
+      );
+    });
+
+    test('distingue revenu brut explicite et revenu net estime', () {
+      final netOnly =
+          CoachProfile.fromWizardAnswers(baseAnswers(netIncome: 6000));
+      final gross = CoachProfile.fromWizardAnswers({
+        ...baseAnswers(netIncome: 6000),
+        'q_gross_salary_annual': 96000,
+      });
+
+      expect(netOnly.userProvidedFields, contains('salary'));
+      expect(netOnly.userProvidedFields, contains('netIncome'));
+      expect(netOnly.userProvidedFields, isNot(contains('grossSalaryAnnual')));
+      expect(netOnly.monthlyNetIncomeDeclared, 6000);
+      expect(gross.userProvidedFields, contains('grossSalaryAnnual'));
+      expect(gross.monthlyNetIncomeDeclared, 6000);
+    });
+
     test('providers3a est peuple depuis une liste', () {
       final answers = baseAnswers(providers3a: ['bank', 'fintech']);
       final profile = CoachProfile.fromWizardAnswers(answers);

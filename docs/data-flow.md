@@ -98,6 +98,8 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_gross_salary_annual` (preferred when known — avoids net↔brut roundtrip),
   `q_company_profit_annual_chf` (double, SA/Sarl annual distributable envelope;
   not a substitute for sole-proprietor income),
+  `q_unemployment_contribution_months` (int 0-24, LACI contribution months over
+  the last 24 months),
   `q_nombre_mois` (salary months, defaults to 12),
   `q_employment_status` (salarie/independant/retraite/etc.),
   `q_employment_rate` (%), `q_annual_bonus` (CHF), `q_partner_net_income_chf`,

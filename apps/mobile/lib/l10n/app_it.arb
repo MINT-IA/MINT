@@ -1200,10 +1200,10 @@
   "unemploymentSituationTitle": "Situazione personale",
   "unemploymentSituationSubtitle": "Influenza il tasso di indennità (70% o 80%)",
   "unemploymentChildrenToggle": "Obbligo di mantenimento (figli)",
-  "unemploymentDisabilityToggle": "Handicap riconosciuto",
+  "unemploymentDisabilityToggle": "Rendita d’invalidità >= 40%",
   "unemploymentNotEligible": "Non idoneo",
   "unemploymentCompensationRate": "Tasso di indennità",
-  "unemploymentRateEnhanced": "Tasso maggiorato (80%): obbligo di mantenimento, handicap o salario < CHF 3'797",
+  "unemploymentRateEnhanced": "Tasso maggiorato (80%): obbligo di mantenimento, rendita d’invalidità >= 40% o salario < CHF 3'797",
   "unemploymentRateStandard": "Tasso standard (70%): applicabile nelle altre situazioni",
   "unemploymentDailyBenefit": "Indennità /giorno",
   "unemploymentMonthlyBenefit": "Indennità /mese",
@@ -1238,7 +1238,7 @@
   "unemploymentEduLamalTitle": "Riduzione del premio LAMal",
   "unemploymentEduLamalBody": "Con un reddito più basso, potresti avere diritto a sussidi LAMal. Fai domanda presso il tuo cantone.",
   "unemploymentTsunamiTitle": "Il tuo tsunami finanziario in 3 ondate",
-  "unemploymentDisclaimer": "Stime educative — non costituisce consulenza ai sensi della LSFin — LADI/LPP/OPP3. Gli importi presentati sono approssimativi e dipendono dalla tua situazione personale. Consulta uno·a specialista o l'URC del tuo cantone.",
+  "unemploymentDisclaimer": "Stime educative — non costituisce consulenza legale né una decisione di assicurazione sociale — LADI/LPP/OPP3. Gli importi presentati sono approssimativi e dipendono dalla tua situazione personale. Consulta uno·a specialista o l'URC del tuo cantone.",
   "firstJobTitle": "Primo impiego",
   "firstJobHeaderDesc": "Comprendi la tua busta paga! Ti mostriamo dove vanno i tuoi contributi, cosa paga il tuo datore di lavoro in più e i primi riflessi finanziari da adottare.",
   "firstJobSalaryTitle": "Salario lordo mensile",
@@ -4241,11 +4241,11 @@
   "unemploymentBudgetEpargne3a": "Risparmio 3a",
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
-  "unemploymentBracket1": "12–17 mesi contrib.",
+  "unemploymentBracket1": "< 25 senza mantenimento",
   "unemploymentBracket1Value": "200 indennità",
-  "unemploymentBracket2": "18–21 mesi contrib.",
+  "unemploymentBracket2": "12–17 mesi contrib.",
   "unemploymentBracket2Value": "260 indennità",
-  "unemploymentBracket3": ">= 22 mesi, < {age} anni",
+  "unemploymentBracket3": "18–24 mesi contrib.",
   "@unemploymentBracket3": {
     "placeholders": {
       "age": {
@@ -4254,7 +4254,7 @@
     }
   },
   "unemploymentBracket3Value": "400 indennità",
-  "unemploymentBracket4": ">= 22 mesi, >= {age} anni",
+  "unemploymentBracket4": "22–24 mesi, >= {age} anni / invalidità >= 40%",
   "@unemploymentBracket4": {
     "placeholders": {
       "age": {
@@ -4263,6 +4263,72 @@
     }
   },
   "unemploymentBracket4Value": "520 indennità",
+  "unemploymentBracketNearAvs": "Nei 4 anni prima dell'AVS",
+  "unemploymentSurvivalEstimatedLabel": "Sopravvivenza stimata",
+  "unemploymentNetBenefitFootnote": "Indennità LADI convertita in cash-flow netto stimato dopo contributi sociali, prima dell'imposta personale.",
+  "unemploymentCounterResultLabel": "Risultato LADI → {days} indennità giornaliere",
+  "@unemploymentCounterResultLabel": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterAgeResultLabel": "{ageLabel} → {days} indennità giornaliere",
+  "@unemploymentCounterAgeResultLabel": {
+    "placeholders": {
+      "ageLabel": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterSemanticLabel": "Contatore dei giorni di disoccupazione",
+  "unemploymentCounterCapitalTitle": "Il tuo capitale tempo",
+  "unemploymentCounterDaysUsed": "Giorni usati: {days}",
+  "@unemploymentCounterDaysUsed": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "unemploymentCounterRuleHeader": "Regola LADI",
+  "unemploymentCounterMaxHeader": "Indennità max",
+  "unemploymentCounterSeniorAiRow": ">= 55 anni o rendita AI >= 40%",
+  "unemploymentCounterNearAvsRow": "Nei 4 anni prima dell'AVS con 22 mesi contributivi",
+  "unemploymentCounterAfterLastDayTitle": "Dopo l'ultimo giorno: CHF 0",
+  "unemploymentCounterNoGraceBody": "Nessuna proroga. Passi all'assistenza sociale senza periodo di grazia.",
+  "unemploymentCounterDisclaimer": "Strumento educativo · non è consulenza legale né decisione di assicurazione sociale. Fonte: LADI art. 27-30.",
+  "crashTestBudgetSemanticLabel": "Crash test budget disoccupazione",
+  "crashTestBudgetTitle": "Crash test budget",
+  "crashTestBudgetSubtitle": "Modalità normale vs modalità sopravvivenza",
+  "crashTestBudgetNormalHeader": "Normale",
+  "crashTestBudgetTotalCharges": "TOTALE spese",
+  "crashTestBudgetMonthlyMargin": "Margine mensile",
+  "crashTestBudgetSavingLabel": "Risparmi CHF {saving}/mese in modalità sopravvivenza",
+  "@crashTestBudgetSavingLabel": {
+    "placeholders": {
+      "saving": {
+        "type": "String"
+      }
+    }
+  },
+  "crashTestBudgetNoAutomaticCuts": "Costi fissi: nessun taglio automatico",
+  "crashTestBudgetReserveMonths": "Le tue riserve: {months} mesi",
+  "@crashTestBudgetReserveMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "crashTestBudgetReserveSafe": "Le tue riserve tengono — hai un margine di sicurezza.",
+  "crashTestBudgetReserveWarning": "Attenzione: meno di 6 mesi di riserve.",
+  "crashTestBudgetReserveDanger": "Pericolo: meno di 3 mesi di riserve.",
+  "crashTestBudgetDisclaimer": "Strumento educativo · non è consulenza legale né decisione di assicurazione sociale.",
   "allocAnnuelleTitle": "Dove mettere i tuoi CHF?",
   "allocAnnuelleBudgetTitle": "Il tuo budget annuale",
   "allocAnnuelleMontantLabel": "Importo disponibile all'anno (CHF)",

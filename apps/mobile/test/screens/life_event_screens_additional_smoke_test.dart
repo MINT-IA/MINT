@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +26,7 @@ import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 
 // ---------------------------------------------------------------------------
@@ -272,8 +274,11 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('UnemploymentScreen', () {
-    Widget buildScreen() =>
-        _buildWrappedWithProvider(const UnemploymentScreen());
+    Widget buildScreen({CoachProfileProvider? provider}) =>
+        _buildWrappedWithProvider(
+          const UnemploymentScreen(),
+          provider: provider,
+        );
 
     testWidgets('renders without crash', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -288,19 +293,280 @@ void main() {
       expect(find.textContaining("emploi"), findsWidgets);
     });
 
-    testWidgets('shows gain assure slider', (tester) async {
+    testWidgets('shows missing ledger facts instead of local defaults',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: unemploymentGainSliderTitle = "Gain assuré mensuel"
-      expect(find.textContaining('assuré'), findsWidgets);
+
+      expect(
+          find.byKey(const Key('unemployment_ledger_facts')), findsOneWidget);
+      expect(find.byKey(const Key('unemployment_income_fact')), findsOneWidget);
+      expect(find.byKey(const Key('unemployment_age_fact')), findsOneWidget);
+      expect(
+        find.byKey(const Key('unemployment_contribution_months_fact')),
+        findsOneWidget,
+      );
+      expect(find.text('Manquant'), findsNWidgets(3));
+      expect(find.textContaining("6'000"), findsNothing);
+      expect(find.byKey(const Key('unemployment_result_cards')), findsNothing);
     });
 
-    testWidgets('shows result after initial calculation', (tester) async {
-      await tester.pumpWidget(buildScreen());
+    testWidgets('uses salary age and contribution months from ledger facts',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_net_income_period_chf': 6900,
+          'q_gross_salary_annual': 96000,
+          'q_birth_year': currentYear - 56,
+          'q_unemployment_contribution_months': 22,
+        }),
+      ));
       await tester.pump();
-      // initState calls _calculate(), result should be non-null
-      // Result renders CHF amount
-      expect(find.textContaining('CHF'), findsWidgets);
+
+      expect(
+          find.byKey(const Key('unemployment_ledger_facts')), findsOneWidget);
+      expect(find.textContaining("8'000"), findsWidgets);
+      expect(find.text('56 ans'), findsWidgets);
+      expect(find.text('22 mois'), findsWidgets);
+      expect(
+          find.byKey(const Key('unemployment_result_cards')), findsOneWidget);
+      expect(find.textContaining("6'000"), findsNothing);
+    });
+
+    testWidgets('does not derive LACI insured earnings from net income',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_net_income_period_chf': 6000,
+          'q_birth_year': currentYear - 35,
+          'q_unemployment_contribution_months': 18,
+        }),
+      ));
+      await tester.pump();
+
+      expect(
+          find.byKey(const Key('unemployment_ledger_facts')), findsOneWidget);
+      expect(find.byKey(const Key('unemployment_income_fact')), findsOneWidget);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byKey(const Key('unemployment_result_cards')), findsNothing);
+      expect(find.textContaining("6'897"), findsNothing);
+    });
+
+    testWidgets('uses annual insured earnings instead of base monthly salary',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_gross_salary_annual': 104000,
+          'q_nombre_mois': 13,
+          'q_birth_year': currentYear - 35,
+          'q_unemployment_contribution_months': 18,
+        }),
+      ));
+      await tester.pump();
+
+      expect(
+        find.byKey(const Key('unemployment_ledger_facts')),
+        findsOneWidget,
+      );
+      expect(find.textContaining("8'667"), findsWidgets);
+      expect(find.textContaining("8'000"), findsNothing);
+      expect(
+        find.byKey(const Key('unemployment_result_cards')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('known age at AVS fallback age is not treated as missing',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_gross_salary_annual': 96000,
+          'q_birth_year': currentYear - 65,
+          'q_unemployment_contribution_months': 24,
+        }),
+      ));
+      await tester.pump();
+
+      expect(
+        find.byKey(const Key('unemployment_age_fact')),
+        findsOneWidget,
+      );
+      expect(find.text('65 ans'), findsWidgets);
+      expect(find.text('Manquant'), findsNothing);
+      expect(find.textContaining('âge de référence AVS'), findsOneWidget);
+      expect(find.byKey(const Key('unemployment_result_cards')), findsNothing);
+    });
+
+    testWidgets('uses AVS21 reference age for transitional female cohorts',
+        (tester) async {
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_gross_salary_annual': 96000,
+          'q_date_of_birth': '1961-01-01',
+          'q_gender': 'F',
+          'q_unemployment_contribution_months': 24,
+        }),
+      ));
+      await tester.pump();
+
+      expect(find.textContaining('âge de référence AVS'), findsOneWidget);
+      expect(find.byKey(const Key('unemployment_result_cards')), findsNothing);
+    });
+
+    testWidgets('shows budget collection card when budget ledger facts miss',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      final provider = RecordingCoachProfileProvider({
+        'q_gross_salary_annual': 96000,
+        'q_birth_year': currentYear - 56,
+        'q_unemployment_contribution_months': 22,
+      });
+      final router = GoRouter(
+        initialLocation: '/unemployment',
+        routes: [
+          GoRoute(
+            path: '/unemployment',
+            builder: (context, state) => const UnemploymentScreen(),
+          ),
+          GoRoute(
+            path: '/budget/setup',
+            builder: (context, state) => const Scaffold(
+              body: Text(
+                'budget setup',
+                key: Key('budget_setup_stub'),
+              ),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: provider,
+          child: MaterialApp.router(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('unemployment_budget_missing')),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(
+        find.byKey(const Key('unemployment_budget_missing')),
+        findsOneWidget,
+      );
+      expect(find.byType(CrashTestBudgetWidget), findsNothing);
+
+      await tester.tap(find.text('Poser mes charges'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('budget_setup_stub')), findsOneWidget);
+    });
+
+    testWidgets('crash-test budget uses ledger expenses and net LACI estimate',
+        (tester) async {
+      final currentYear = DateTime.now().year;
+      await tester.pumpWidget(buildScreen(
+        provider: RecordingCoachProfileProvider({
+          'q_net_income_period_chf': 6900,
+          'q_gross_salary_annual': 96000,
+          'q_birth_year': currentYear - 56,
+          'q_unemployment_contribution_months': 22,
+          'q_housing_cost_period_chf': 2200,
+          'q_lamal_premium_monthly_chf': 410,
+          '_coach_depenses_transport': 180,
+        }),
+      ));
+      await tester.pump();
+
+      await tester.scrollUntilVisible(
+        find.byType(CrashTestBudgetWidget),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+
+      expect(find.byType(CrashTestBudgetWidget), findsOneWidget);
+      expect(
+          find.byKey(const Key('unemployment_budget_missing')), findsNothing);
+      expect(find.text('2\'200', skipOffstage: false), findsWidgets);
+      expect(find.text('410', skipOffstage: false), findsWidgets);
+      expect(find.text('180', skipOffstage: false), findsWidgets);
+      expect(find.textContaining('Survie estimée', skipOffstage: false),
+          findsOneWidget);
+      expect(find.textContaining('cash-flow net estimé', skipOffstage: false),
+          findsOneWidget);
+      expect(
+          find.textContaining('aucune coupe automatique', skipOffstage: false),
+          findsOneWidget);
+      expect(find.textContaining("2'250", skipOffstage: false), findsWidgets);
+    });
+
+    testWidgets('enrich CTA routes to the missing ledger fact', (tester) async {
+      final currentYear = DateTime.now().year;
+      final provider = RecordingCoachProfileProvider({
+        'q_gross_salary_annual': 96000,
+        'q_birth_year': currentYear - 35,
+      });
+      final router = GoRouter(
+        initialLocation: '/unemployment',
+        routes: [
+          GoRoute(
+            path: '/unemployment',
+            builder: (context, state) => const UnemploymentScreen(),
+          ),
+          GoRoute(
+            path: '/data-block/:type',
+            builder: (context, state) => Scaffold(
+              body: Text(
+                'inputKey:${state.uri.queryParameters['inputKey']}',
+                key: const Key('data_block_stub'),
+              ),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: provider,
+          child: MaterialApp.router(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.add_circle_outline));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('inputKey:q_unemployment_contribution_months'),
+        findsOneWidget,
+      );
     });
   });
 

@@ -2661,7 +2661,7 @@ class SDe extends S {
   String get unemploymentChildrenToggle => 'Unterhaltspflicht (Kinder)';
 
   @override
-  String get unemploymentDisabilityToggle => 'Anerkannte Behinderung';
+  String get unemploymentDisabilityToggle => 'Invalidenrente >= 40%';
 
   @override
   String get unemploymentNotEligible => 'Nicht berechtigt';
@@ -2671,7 +2671,7 @@ class SDe extends S {
 
   @override
   String get unemploymentRateEnhanced =>
-      'Erhöhter Satz (80%): Unterhaltspflicht, Behinderung oder Lohn < CHF 3\'797';
+      'Erhöhter Satz (80%): Unterhaltspflicht, Invalidenrente >= 40% oder Lohn < CHF 3\'797';
 
   @override
   String get unemploymentRateStandard =>
@@ -2770,7 +2770,7 @@ class SDe extends S {
 
   @override
   String get unemploymentDisclaimer =>
-      'Pädagogische Schätzungen — keine Beratung im Sinne des FIDLEG — AVIG/BVG/BVV3. Die angegebenen Beträge sind ungefähr und hängen von deiner persönlichen Situation ab. Wende dich an eine Fachperson oder das RAV deines Kantons.';
+      'Pädagogische Schätzungen — keine Rechtsberatung und kein Entscheid einer Sozialversicherung — AVIG/BVG/BVV3. Die angegebenen Beträge sind ungefähr und hängen von deiner persönlichen Situation ab. Wende dich an eine Fachperson oder das RAV deines Kantons.';
 
   @override
   String get firstJobTitle => 'Erster Job';
@@ -9101,20 +9101,20 @@ class SDe extends S {
   String get unemploymentGainMax => 'CHF 12\'350';
 
   @override
-  String get unemploymentBracket1 => '12–17 Monate Beitrag';
+  String get unemploymentBracket1 => '< 25 ohne Unterhaltspflicht';
 
   @override
   String get unemploymentBracket1Value => '200 Taggelder';
 
   @override
-  String get unemploymentBracket2 => '18–21 Monate Beitrag';
+  String get unemploymentBracket2 => '12–17 Monate Beitrag';
 
   @override
   String get unemploymentBracket2Value => '260 Taggelder';
 
   @override
   String unemploymentBracket3(int age) {
-    return '>= 22 Monate, < $age J.';
+    return '18–24 Monate Beitrag';
   }
 
   @override
@@ -9122,11 +9122,117 @@ class SDe extends S {
 
   @override
   String unemploymentBracket4(int age) {
-    return '>= 22 Monate, >= $age J.';
+    return '22–24 Monate, >= $age J. / IV >= 40%';
   }
 
   @override
   String get unemploymentBracket4Value => '520 Taggelder';
+
+  @override
+  String get unemploymentBracketNearAvs => 'Innerhalb von 4 Jahren vor AHV';
+
+  @override
+  String get unemploymentSurvivalEstimatedLabel => 'Geschätzte Überlebensphase';
+
+  @override
+  String get unemploymentNetBenefitFootnote =>
+      'LACI-Leistung als geschätzter Netto-Cashflow nach Sozialabgaben, vor persönlicher Steuer.';
+
+  @override
+  String unemploymentCounterResultLabel(int days) {
+    return 'LACI-Ergebnis → $days Taggelder';
+  }
+
+  @override
+  String unemploymentCounterAgeResultLabel(String ageLabel, int days) {
+    return '$ageLabel → $days Taggelder';
+  }
+
+  @override
+  String get unemploymentCounterSemanticLabel => 'Zähler der Arbeitslosentage';
+
+  @override
+  String get unemploymentCounterCapitalTitle => 'Dein Zeitkapital';
+
+  @override
+  String unemploymentCounterDaysUsed(int days) {
+    return 'Verbrauchte Tage: $days';
+  }
+
+  @override
+  String get unemploymentCounterRuleHeader => 'LACI-Regel';
+
+  @override
+  String get unemploymentCounterMaxHeader => 'Max. Taggelder';
+
+  @override
+  String get unemploymentCounterSeniorAiRow =>
+      '>= 55 Jahre oder IV-Rente >= 40%';
+
+  @override
+  String get unemploymentCounterNearAvsRow =>
+      'Innerhalb von 4 Jahren vor AHV mit 22 Beitragsmonaten';
+
+  @override
+  String get unemploymentCounterAfterLastDayTitle =>
+      'Nach dem letzten Tag: CHF 0';
+
+  @override
+  String get unemploymentCounterNoGraceBody =>
+      'Keine Verlängerung. Danach folgt Sozialhilfe ohne Schonfrist.';
+
+  @override
+  String get unemploymentCounterDisclaimer =>
+      'Bildungsinstrument · keine Rechtsberatung und kein Sozialversicherungsentscheid. Quelle: AVIG Art. 27-30.';
+
+  @override
+  String get crashTestBudgetSemanticLabel =>
+      'Budget-Crash-Test Arbeitslosigkeit';
+
+  @override
+  String get crashTestBudgetTitle => 'Budget-Crash-Test';
+
+  @override
+  String get crashTestBudgetSubtitle => 'Normalmodus vs. Überlebensmodus';
+
+  @override
+  String get crashTestBudgetNormalHeader => 'Normal';
+
+  @override
+  String get crashTestBudgetTotalCharges => 'TOTAL Kosten';
+
+  @override
+  String get crashTestBudgetMonthlyMargin => 'Monatliche Marge';
+
+  @override
+  String crashTestBudgetSavingLabel(String saving) {
+    return 'Du sparst CHF $saving/Monat im Überlebensmodus';
+  }
+
+  @override
+  String get crashTestBudgetNoAutomaticCuts =>
+      'Fixkosten: keine automatische Kürzung';
+
+  @override
+  String crashTestBudgetReserveMonths(String months) {
+    return 'Deine Reserven: $months Monate';
+  }
+
+  @override
+  String get crashTestBudgetReserveSafe =>
+      'Deine Reserven halten — du hast einen Sicherheitspuffer.';
+
+  @override
+  String get crashTestBudgetReserveWarning =>
+      'Achtung: weniger als 6 Monate Reserve.';
+
+  @override
+  String get crashTestBudgetReserveDanger =>
+      'Gefahr: weniger als 3 Monate Reserve!';
+
+  @override
+  String get crashTestBudgetDisclaimer =>
+      'Bildungsinstrument · keine Rechtsberatung und kein Sozialversicherungsentscheid.';
 
   @override
   String get allocAnnuelleTitle => 'Wohin mit deinen CHF?';

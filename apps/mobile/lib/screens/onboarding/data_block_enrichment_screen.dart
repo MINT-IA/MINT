@@ -58,6 +58,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       TextEditingController();
   final TextEditingController _companyProfitController =
       TextEditingController();
+  final TextEditingController _unemploymentContributionMonthsController =
+      TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
   final TextEditingController _mortgageBalanceController =
@@ -89,6 +91,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _salaryController.dispose();
     _selfEmployedIncomeController.dispose();
     _companyProfitController.dispose();
+    _unemploymentContributionMonthsController.dispose();
     _birthYearController.dispose();
     _cashController.dispose();
     _mortgageBalanceController.dispose();
@@ -297,6 +300,12 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     if (companyProfit != null && companyProfit > 0) {
       _companyProfitController.text = '${companyProfit.round()}';
     }
+    final unemploymentContributionMonths =
+        profile.unemploymentContributionMonths;
+    if (unemploymentContributionMonths != null) {
+      _unemploymentContributionMonthsController.text =
+          '$unemploymentContributionMonths';
+    }
     if (profile.birthYear >= 1900) {
       _birthYearController.text = '${profile.birthYear}';
     }
@@ -377,6 +386,20 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         keyboardType: TextInputType.number,
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+        ],
+        onChanged: (_) => setState(() => _revenueSaved = false),
+      ));
+    }
+    if (onlyInputKey == 'q_unemployment_contribution_months') {
+      addField(_buildRevenueTextField(
+        key: const Key('unemployment_contribution_months_input'),
+        semanticsIdentifier: 'unemployment_contribution_months_input',
+        controller: _unemploymentContributionMonthsController,
+        label: l.unemploymentContribTitle,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(2),
         ],
         onChanged: (_) => setState(() => _revenueSaved = false),
       ));
@@ -521,6 +544,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         _capturesRevenue('q_gross_salary_annual', onlyInputKey);
     final capturesSelfEmployedIncome = onlyInputKey == 'q_self_employed_income';
     final capturesCompanyProfit = onlyInputKey == 'q_company_profit_annual_chf';
+    final capturesUnemploymentContributionMonths =
+        onlyInputKey == 'q_unemployment_contribution_months';
     final capturesCanton = _capturesRevenue('q_canton', onlyInputKey);
     final capturesBirthYear = _capturesRevenue('q_birth_year', onlyInputKey);
     final capturesPensionFund =
@@ -531,6 +556,9 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         int.tryParse(_digitsOnly(_selfEmployedIncomeController.text));
     final companyProfit =
         int.tryParse(_digitsOnly(_companyProfitController.text));
+    final unemploymentContributionMonths = int.tryParse(
+      _digitsOnly(_unemploymentContributionMonthsController.text),
+    );
     final birthText = _birthYearController.text.trim();
     final birthYear = birthText.isEmpty ? null : int.tryParse(birthText);
     final currentYear = DateTime.now().year;
@@ -550,6 +578,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
             (selfEmployedIncome == null || selfEmployedIncome <= 0)) ||
         (capturesCompanyProfit &&
             (companyProfit == null || companyProfit <= 0)) ||
+        (capturesUnemploymentContributionMonths &&
+            (unemploymentContributionMonths == null ||
+                unemploymentContributionMonths < 0 ||
+                unemploymentContributionMonths > 24)) ||
         invalidBirthYear) {
       setState(() => _revenueError = l.authErrorInvalid);
       return;
@@ -570,6 +602,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         'q_employment_status': 'independant',
       },
       if (capturesCompanyProfit) 'q_company_profit_annual_chf': companyProfit,
+      if (capturesUnemploymentContributionMonths)
+        'q_unemployment_contribution_months': unemploymentContributionMonths,
       if (capturesCanton) 'q_canton': canton,
       if (capturesBirthYear && birthYear != null) 'q_birth_year': birthYear,
       if (capturesPensionFund &&
@@ -922,6 +956,12 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       'beneficeannuelsociete' ||
       'beneficetotal' =>
         'q_company_profit_annual_chf',
+      'qunemploymentcontributionmonths' ||
+      'unemploymentcontributionmonths' ||
+      'unemploymentmonths' ||
+      'moiscotisationchomage' ||
+      'moisdecotisationchomage' =>
+        'q_unemployment_contribution_months',
       'qcanton' || 'canton' => 'q_canton',
       'qbirthyear' || 'birthyear' => 'q_birth_year',
       'qhaspensionfund' ||
