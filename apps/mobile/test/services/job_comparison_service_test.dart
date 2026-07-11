@@ -9,6 +9,7 @@ void main() {
 
   /// Builds a default LPPPlanInput for a mid-career employee (age ~35-44).
   LPPPlanInput makePlan({
+    int age = 40,
     double salaireBrut = 90000,
     double? salaireAssure,
     double? deductionCoordination,
@@ -24,6 +25,7 @@ void main() {
     bool hasIjm = true,
   }) =>
       LPPPlanInput(
+        age: age,
         salaireBrut: salaireBrut,
         salaireAssure: salaireAssure,
         deductionCoordination: deductionCoordination,
@@ -55,26 +57,30 @@ void main() {
       expect(plan.effectiveSalaireAssure, closeTo(63540, 0.01));
     });
 
-    test('applies custom coordination deduction, capped at max (LPP art. 8)', () {
+    test('applies custom coordination deduction, capped at max (LPP art. 8)',
+        () {
       final plan = makePlan(salaireBrut: 90000, deductionCoordination: 20000);
       // 90000 - 20000 = 70000, capped at lppSalaireCoordMax = 64260
       expect(plan.effectiveSalaireAssure, closeTo(lppSalaireCoordMax, 0.01));
     });
 
-    test('floors to zero when salary below LPP entry threshold (LPP art. 7)', () {
+    test('floors to zero when salary below LPP entry threshold (LPP art. 7)',
+        () {
       final plan = makePlan(salaireBrut: 20000);
       // 20000 < lppSeuilEntree (22680) -> no LPP coverage -> 0
       expect(plan.effectiveSalaireAssure, 0.0);
     });
 
-    test('minimum coordinated salary edge — exactly at coordination deduction', () {
+    test('minimum coordinated salary edge — exactly at coordination deduction',
+        () {
       // Salary exactly equals coordination deduction (26460 > 22680 seuil)
       // 26460 - 26460 = 0, but clamped to lppSalaireCoordMin = 3780 (LPP art. 8 al. 2)
       final plan = makePlan(salaireBrut: lppDeductionCoordination);
       expect(plan.effectiveSalaireAssure, lppSalaireCoordMin);
     });
 
-    test('salary just above coordination deduction clamps to min coordinated', () {
+    test('salary just above coordination deduction clamps to min coordinated',
+        () {
       final plan = makePlan(salaireBrut: lppDeductionCoordination + 100);
       // 26560 - 26460 = 100, but clamped to lppSalaireCoordMin = 3780
       expect(plan.effectiveSalaireAssure, lppSalaireCoordMin);
@@ -115,6 +121,17 @@ void main() {
       // Employee rate estimated at 5%, employer also 5% (50/50 split)
       // Total = 63540 * 10% = 6354
       expect(plan.totalCotisationAnnuelle, closeTo(6354, 0.01));
+    });
+
+    test('estimated cotisation follows LPP age bands', () {
+      final young = makePlan(age: 30, salaireBrut: 90000);
+      final senior = makePlan(age: 58, salaireBrut: 90000);
+      final insured = young.effectiveSalaireAssure;
+
+      expect(young.totalCotisationAnnuelle,
+          closeTo(insured * getLppBonificationRate(30), 0.01));
+      expect(senior.totalCotisationAnnuelle,
+          closeTo(insured * getLppBonificationRate(58), 0.01));
     });
 
     test('employer pays 60% of contribution', () {
@@ -180,8 +197,8 @@ void main() {
         capitalDeces: 200000,
         rachatMaximum: 80000,
       );
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 40);
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 40);
       expect(result.verdict, ComparisonVerdict.nouveauMeilleur);
     });
 
@@ -198,18 +215,17 @@ void main() {
         capitalDeces: 50000,
         rachatMaximum: 10000,
       );
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 40);
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 40);
       expect(result.verdict, ComparisonVerdict.actuelMeilleur);
     });
 
-    test('identical plans yields nouveauMeilleur (zero deltas count as positive)', () {
-      // When all deltas are exactly 0, isPositive = (0 >= 0) = true for all 7 axes,
-      // so positiveCount = 7 >= 5 => nouveauMeilleur.
+    test('identical plans are comparable, not a false improvement', () {
       final plan = makePlan();
       final result =
           JobComparisonService.compare(current: plan, newJob: plan, age: 40);
-      expect(result.verdict, ComparisonVerdict.nouveauMeilleur);
+      expect(result.verdict, ComparisonVerdict.comparable);
+      expect(result.axes.every((axis) => axis.delta == 0), isTrue);
     });
 
     test('comparable when some axes better, some worse, no clear winner', () {
@@ -231,8 +247,8 @@ void main() {
         tauxConversionSurobligatoire: 5.2,
         renteInvaliditePct: 35.0,
       );
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 40);
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 40);
       // Axes expected positive: salaire net, capital retraite, rente/mois
       // (higher salary -> higher insured -> more contributions -> more capital -> more rente)
       // Cotis LPP: deltaCotisation = current-new, new pays more -> negative
@@ -261,10 +277,9 @@ void main() {
     test('alert when losing IJM coverage', () {
       final current = makePlan(hasIjm: true);
       final newJob = makePlan(hasIjm: false);
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 40);
-      expect(result.alerts,
-          contains(contains('IJM')));
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 40);
+      expect(result.alerts, contains(JobComparisonCopy.alertLostIjm));
     });
 
     test('alert when salary gain hides pension loss', () {
@@ -279,15 +294,18 @@ void main() {
         avoirVieillesse: 200000,
         tauxConversionSurobligatoire: 4.0,
       );
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 50);
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 50);
 
       // The net salary should be higher for new job, but rente lower
-      final salaireAxis = result.axes.firstWhere((a) => a.nameKey == 'jobCompareSalaireNet');
+      final salaireAxis =
+          result.axes.firstWhere((a) => a.nameKey == 'jobCompareSalaireNet');
       expect(salaireAxis.delta, greaterThan(0));
 
-      // Should trigger the "gain salarial cache une perte de rente" alert
-      expect(result.alerts, contains(contains('perte de rente')));
+      expect(
+        result.alerts,
+        contains(startsWith('${JobComparisonCopy.alertPensionLoss}|')),
+      );
     });
 
     test('alert when capital loss exceeds 50k', () {
@@ -299,12 +317,15 @@ void main() {
         salaireBrut: 90000,
         avoirVieillesse: 100000,
       );
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 55);
-      expect(result.alerts, contains(contains('capital retraite')));
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 55);
+      expect(
+        result.alerts,
+        contains(startsWith('${JobComparisonCopy.alertCapitalLoss}|')),
+      );
     });
 
-    test('alert when invalidite coverage is reduced', () {
+    test('alert when disability coverage is reduced', () {
       final current = makePlan(
         salaireBrut: 100000,
         renteInvaliditePct: 60.0,
@@ -313,17 +334,24 @@ void main() {
         salaireBrut: 100000,
         renteInvaliditePct: 30.0,
       );
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 40);
-      expect(result.alerts, contains(contains('invalidite')));
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 40);
+      expect(
+        result.alerts,
+        contains(
+            startsWith('${JobComparisonCopy.alertDisabilityCoverageLoss}|')),
+      );
     });
 
     test('alert when conversion rate is lower', () {
       final current = makePlan(tauxConversionSurobligatoire: 5.8);
       final newJob = makePlan(tauxConversionSurobligatoire: 4.5);
-      final result =
-          JobComparisonService.compare(current: current, newJob: newJob, age: 40);
-      expect(result.alerts, contains(contains('Taux de conversion')));
+      final result = JobComparisonService.compare(
+          current: current, newJob: newJob, age: 40);
+      expect(
+        result.alerts,
+        contains(startsWith('${JobComparisonCopy.alertLowerConversionRate}|')),
+      );
     });
 
     test('no alerts when both plans identical', () {
@@ -346,8 +374,8 @@ void main() {
         age: 65,
       );
       // With 0 years to retirement, capital = just avoirVieillesse
-      final capitalAxis =
-          result.axes.firstWhere((a) => a.nameKey == 'jobCompareCapitalRetraite');
+      final capitalAxis = result.axes
+          .firstWhere((a) => a.nameKey == 'jobCompareCapitalRetraite');
       expect(capitalAxis.currentValue, closeTo(300000, 1));
       expect(capitalAxis.newValue, closeTo(400000, 1));
     });
@@ -370,8 +398,10 @@ void main() {
     });
 
     test('pension delta computed over 20 years', () {
-      final current = makePlan(avoirVieillesse: 100000, tauxConversionSurobligatoire: 5.0);
-      final newJob = makePlan(avoirVieillesse: 200000, tauxConversionSurobligatoire: 5.0);
+      final current =
+          makePlan(avoirVieillesse: 100000, tauxConversionSurobligatoire: 5.0);
+      final newJob =
+          makePlan(avoirVieillesse: 200000, tauxConversionSurobligatoire: 5.0);
       final result = JobComparisonService.compare(
         current: current,
         newJob: newJob,
@@ -380,9 +410,11 @@ void main() {
       // With age 65, capital = avoir itself. Rente monthly = capital * 5% / 12
       // Delta rente annual = deltaRente * 12
       // Lifetime = annual * 20
-      final renteAxis = result.axes.firstWhere((a) => a.nameKey == 'jobCompareRenteMois');
+      final renteAxis =
+          result.axes.firstWhere((a) => a.nameKey == 'jobCompareRenteMois');
       expect(result.annualPensionDelta, closeTo(renteAxis.delta * 12, 0.01));
-      expect(result.lifetimePensionDelta, closeTo(result.annualPensionDelta * 20, 0.01));
+      expect(result.lifetimePensionDelta,
+          closeTo(result.annualPensionDelta * 20, 0.01));
     });
   });
 
@@ -391,32 +423,27 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('JobComparisonService — compliance', () {
-    test('disclaimer is present and mentions outil educatif', () {
-      expect(JobComparisonService.disclaimer, contains('outil'));
-      expect(JobComparisonService.disclaimer, contains('ducatif'));
+    test('disclaimer is a stable localization key', () {
+      expect(JobComparisonService.disclaimer, JobComparisonCopy.disclaimer);
     });
 
-    test('disclaimer mentions ne constitue pas un conseil', () {
-      expect(JobComparisonService.disclaimer, contains('ne constitue pas un conseil'));
+    test('sources list references LPP article source codes', () {
+      expect(JobComparisonService.sources,
+          contains(JobComparisonCopy.sourceLppAgingCredits));
+      expect(JobComparisonService.sources,
+          contains(JobComparisonCopy.sourceLppBuyback));
+      expect(JobComparisonService.sources,
+          contains(JobComparisonCopy.sourceLppCoverage));
     });
 
-    test('disclaimer uses inclusive language (un-e specialiste)', () {
-      expect(JobComparisonService.disclaimer, contains('un\u00B7e sp'));
+    test('sources list references LIFD deduction source code', () {
+      expect(JobComparisonService.sources,
+          contains(JobComparisonCopy.sourceLifdDeduction));
     });
 
-    test('sources list references LPP articles', () {
-      expect(
-          JobComparisonService.sources.any((s) => s.contains('LPP art.')), true);
-    });
-
-    test('sources list references LIFD', () {
-      expect(
-          JobComparisonService.sources.any((s) => s.contains('LIFD')), true);
-    });
-
-    test('sources list references LFLP (libre passage)', () {
-      expect(
-          JobComparisonService.sources.any((s) => s.contains('LFLP')), true);
+    test('sources list references vested-benefits source code', () {
+      expect(JobComparisonService.sources,
+          contains(JobComparisonCopy.sourceLflpVestedBenefits));
     });
 
     test('checklist always has 8 items', () {

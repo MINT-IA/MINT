@@ -224,6 +224,61 @@
   "jobCompareReduce": "Riduci",
   "jobCompareShowDetails": "Vedi dettagli",
   "jobCompareDisclaimer": "I risultati presentati sono stime indicative. Non costituiscono consulenza finanziaria personalizzata. Consulta la tua cassa pensioni e uno·a specialista qualificato·a prima di qualsiasi decisione.",
+  "jobCompareVerdictNewBetter": "Il nuovo impiego è più solido su diversi criteri",
+  "jobCompareVerdictCurrentBetter": "L'impiego attuale offre una protezione più solida",
+  "jobCompareVerdictComparable": "I due impieghi sono comparabili",
+  "jobCompareAlertLostIjm": "Perdi la copertura IJM (indennità giornaliera malattia)",
+  "jobCompareAlertPensionLoss": "Attenzione: il guadagno salariale nasconde una perdita di rendita di {amount}/mese",
+  "@jobCompareAlertPensionLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertCapitalLoss": "Perdita significativa di capitale pensionistico: {amount}",
+  "@jobCompareAlertCapitalLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDeathCoverageLoss": "Capitale in caso di decesso ridotto di {amount}",
+  "@jobCompareAlertDeathCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDisabilityCoverageLoss": "Copertura invalidità ridotta di {amount}/anno",
+  "@jobCompareAlertDisabilityCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertLowerConversionRate": "Tasso di conversione più basso: {newRate}% vs {currentRate}%",
+  "@jobCompareAlertLowerConversionRate": {
+    "placeholders": {
+      "newRate": {
+        "type": "String"
+      },
+      "currentRate": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareChecklistAskPensionReglement": "Richiedere il regolamento della cassa pensioni",
+  "jobCompareChecklistVerifyConversionRate": "Verificare il tasso di conversione sovraobbligatorio",
+  "jobCompareChecklistCompareEmployerShare": "Confrontare la quota del datore di lavoro (50%? 60%? 65%?)",
+  "jobCompareChecklistVerifyCoordinationDeduction": "Verificare la deduzione di coordinamento",
+  "jobCompareChecklistAskCollectiveIjm": "Chiedere se è inclusa un'IJM collettiva",
+  "jobCompareChecklistVerifyBuybackDelay": "Verificare il periodo di blocco dei riscatti",
+  "jobCompareChecklistCalculateRiskBenefits": "Calcolare l'impatto sulle prestazioni di rischio",
+  "jobCompareChecklistVerifyVestedBenefits": "Verificare il libero passaggio: trasferimento alla nuova cassa pensioni",
   "divorceIntro": "Un divorzio ha conseguenze finanziarie spesso sottovalutate: divisione del patrimonio, della previdenza (LPP/3a), impatto fiscale e assegno alimentare.",
   "divorceSituationFamiliale": "SITUAZIONE FAMILIARE",
   "divorceSituationSubtitle": "Durata del matrimonio, figli, regime",

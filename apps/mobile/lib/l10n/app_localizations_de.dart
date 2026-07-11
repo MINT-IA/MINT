@@ -657,6 +657,80 @@ class SDe extends S {
       'Die dargestellten Ergebnisse sind unverbindliche Schätzungen. Sie stellen keine persönliche Finanzberatung dar. Wende dich an deine Pensionskasse und eine qualifizierte Fachperson.';
 
   @override
+  String get jobCompareVerdictNewBetter =>
+      'Die neue Stelle ist in mehreren Kriterien stärker';
+
+  @override
+  String get jobCompareVerdictCurrentBetter =>
+      'Die aktuelle Stelle bietet stärkeren Schutz';
+
+  @override
+  String get jobCompareVerdictComparable =>
+      'Die zwei Stellen sind vergleichbar';
+
+  @override
+  String get jobCompareAlertLostIjm =>
+      'Du verlierst die IJM-Deckung (Krankentaggeld)';
+
+  @override
+  String jobCompareAlertPensionLoss(String amount) {
+    return 'Achtung: Der Lohngewinn verdeckt einen Rentenverlust von $amount/Monat';
+  }
+
+  @override
+  String jobCompareAlertCapitalLoss(String amount) {
+    return 'Erheblicher Verlust an Alterskapital: $amount';
+  }
+
+  @override
+  String jobCompareAlertDeathCoverageLoss(String amount) {
+    return 'Todesfallkapital um $amount reduziert';
+  }
+
+  @override
+  String jobCompareAlertDisabilityCoverageLoss(String amount) {
+    return 'Invaliditätsdeckung um $amount/Jahr reduziert';
+  }
+
+  @override
+  String jobCompareAlertLowerConversionRate(
+      String newRate, String currentRate) {
+    return 'Tieferer Umwandlungssatz: $newRate% vs. $currentRate%';
+  }
+
+  @override
+  String get jobCompareChecklistAskPensionReglement =>
+      'Reglement der Pensionskasse verlangen';
+
+  @override
+  String get jobCompareChecklistVerifyConversionRate =>
+      'Überobligatorischen Umwandlungssatz prüfen';
+
+  @override
+  String get jobCompareChecklistCompareEmployerShare =>
+      'Arbeitgeberanteil vergleichen (50%? 60%? 65%?)';
+
+  @override
+  String get jobCompareChecklistVerifyCoordinationDeduction =>
+      'Koordinationsabzug prüfen';
+
+  @override
+  String get jobCompareChecklistAskCollectiveIjm =>
+      'Fragen, ob kollektives IJM enthalten ist';
+
+  @override
+  String get jobCompareChecklistVerifyBuybackDelay =>
+      'Sperrfrist für Einkäufe prüfen';
+
+  @override
+  String get jobCompareChecklistCalculateRiskBenefits =>
+      'Auswirkung auf Risikoleistungen berechnen';
+
+  @override
+  String get jobCompareChecklistVerifyVestedBenefits =>
+      'Freizügigkeit prüfen: Übertrag an die neue Pensionskasse';
+
+  @override
   String get divorceIntro =>
       'Eine Scheidung hat oft unterschätzte finanzielle Folgen: Vermögensaufteilung, Vorsorge (BVG/Säule 3a), steuerliche Auswirkungen und Unterhaltszahlungen.';
 

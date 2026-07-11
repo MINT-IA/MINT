@@ -28,6 +28,8 @@
 | independent_missing_facts | `indep.edge.lpp.enrich_income_or_age` | `indep.route.lpp -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_lpp_volontaire.yaml` |
 | independent_missing_facts | `indep.edge.pillar3a.enrich_cash` | `indep.route.pillar3a -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/indep_pillar3a.yaml` |
 | independent_missing_facts | `indep.edge.pillar3a.enrich_income_or_pension` | `indep.route.pillar3a -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_pillar3a.yaml` |
+| job_comparison_missing_facts | `jobcompare.edge.comparison.enrich_birth_year` | `jobcompare.route.comparison -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/job_comparison.yaml` |
+| job_comparison_missing_facts | `jobcompare.edge.comparison.enrich_salary` | `jobcompare.route.comparison -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/job_comparison.yaml` |
 | lamal_missing_facts | `lamal.edge.franchise.enrich_health_costs` | `lamal.route.franchise -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/lamal_franchise.yaml` |
 | revenu_to_mortgage | `db.edge.revenu.submit` | `db.route.revenu -> mortgage.route.hypotheque` | `submit` | `push` | `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` |
 | unemployment_missing_facts | `unemployment.edge.enrich_budget` | `unemployment.route.overview -> budget.route.setup` | `tap` | `push` | `apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart` |

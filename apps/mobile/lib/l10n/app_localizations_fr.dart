@@ -654,6 +654,79 @@ class SFr extends S {
       'Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.';
 
   @override
+  String get jobCompareVerdictNewBetter =>
+      'Le nouvel emploi présente des avantages sur plusieurs critères';
+
+  @override
+  String get jobCompareVerdictCurrentBetter =>
+      'L\'emploi actuel offre une protection plus solide';
+
+  @override
+  String get jobCompareVerdictComparable => 'Les deux emplois sont comparables';
+
+  @override
+  String get jobCompareAlertLostIjm =>
+      'Tu perds la couverture IJM (indemnité journalière maladie)';
+
+  @override
+  String jobCompareAlertPensionLoss(String amount) {
+    return 'Attention : le gain salarial cache une perte de rente de $amount/mois';
+  }
+
+  @override
+  String jobCompareAlertCapitalLoss(String amount) {
+    return 'Perte de capital retraite significative : $amount';
+  }
+
+  @override
+  String jobCompareAlertDeathCoverageLoss(String amount) {
+    return 'Couverture décès réduite de $amount';
+  }
+
+  @override
+  String jobCompareAlertDisabilityCoverageLoss(String amount) {
+    return 'Couverture invalidité réduite de $amount/an';
+  }
+
+  @override
+  String jobCompareAlertLowerConversionRate(
+      String newRate, String currentRate) {
+    return 'Taux de conversion inférieur : $newRate% vs $currentRate%';
+  }
+
+  @override
+  String get jobCompareChecklistAskPensionReglement =>
+      'Demander le règlement de la caisse de pension';
+
+  @override
+  String get jobCompareChecklistVerifyConversionRate =>
+      'Vérifier le taux de conversion surobligatoire';
+
+  @override
+  String get jobCompareChecklistCompareEmployerShare =>
+      'Comparer la part employeur (50% ? 60% ? 65% ?)';
+
+  @override
+  String get jobCompareChecklistVerifyCoordinationDeduction =>
+      'Vérifier la déduction de coordination';
+
+  @override
+  String get jobCompareChecklistAskCollectiveIjm =>
+      'Demander si l\'IJM collective est incluse';
+
+  @override
+  String get jobCompareChecklistVerifyBuybackDelay =>
+      'Vérifier le délai de carence pour le rachat';
+
+  @override
+  String get jobCompareChecklistCalculateRiskBenefits =>
+      'Calculer l\'impact sur les prestations de risque';
+
+  @override
+  String get jobCompareChecklistVerifyVestedBenefits =>
+      'Vérifier le libre passage : transfert vers la nouvelle caisse';
+
+  @override
   String get divorceIntro =>
       'Un divorce a des conséquences financières souvent sous-estimées : partage du patrimoine, de la prévoyance (LPP/3a), impact fiscal et pension alimentaire.';
 

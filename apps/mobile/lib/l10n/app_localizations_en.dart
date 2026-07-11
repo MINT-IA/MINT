@@ -651,6 +651,79 @@ class SEn extends S {
       'The results shown are indicative estimates. They do not constitute personalized financial advice. Consult your pension fund and a qualified specialist before any decision.';
 
   @override
+  String get jobCompareVerdictNewBetter =>
+      'The prospective job is stronger on several criteria';
+
+  @override
+  String get jobCompareVerdictCurrentBetter =>
+      'The current job offers stronger protection';
+
+  @override
+  String get jobCompareVerdictComparable => 'The two jobs are comparable';
+
+  @override
+  String get jobCompareAlertLostIjm =>
+      'You lose IJM coverage (daily sickness allowance)';
+
+  @override
+  String jobCompareAlertPensionLoss(String amount) {
+    return 'Warning: the salary gain hides a pension loss of $amount/month';
+  }
+
+  @override
+  String jobCompareAlertCapitalLoss(String amount) {
+    return 'Significant retirement capital loss: $amount';
+  }
+
+  @override
+  String jobCompareAlertDeathCoverageLoss(String amount) {
+    return 'Death coverage reduced by $amount';
+  }
+
+  @override
+  String jobCompareAlertDisabilityCoverageLoss(String amount) {
+    return 'Disability coverage reduced by $amount/year';
+  }
+
+  @override
+  String jobCompareAlertLowerConversionRate(
+      String newRate, String currentRate) {
+    return 'Lower conversion rate: $newRate% vs $currentRate%';
+  }
+
+  @override
+  String get jobCompareChecklistAskPensionReglement =>
+      'Request the pension fund regulations';
+
+  @override
+  String get jobCompareChecklistVerifyConversionRate =>
+      'Verify the extra-mandatory conversion rate';
+
+  @override
+  String get jobCompareChecklistCompareEmployerShare =>
+      'Compare the employer share (50%? 60%? 65%?)';
+
+  @override
+  String get jobCompareChecklistVerifyCoordinationDeduction =>
+      'Verify the coordination deduction';
+
+  @override
+  String get jobCompareChecklistAskCollectiveIjm =>
+      'Ask whether collective IJM is included';
+
+  @override
+  String get jobCompareChecklistVerifyBuybackDelay =>
+      'Verify the waiting period for buybacks';
+
+  @override
+  String get jobCompareChecklistCalculateRiskBenefits =>
+      'Calculate the impact on risk benefits';
+
+  @override
+  String get jobCompareChecklistVerifyVestedBenefits =>
+      'Verify vested-benefits transfer to the new pension fund';
+
+  @override
   String get divorceIntro =>
       'A divorce has often underestimated financial consequences: asset division, pension fund (LPP/3a) splitting, tax impact and alimony.';
 

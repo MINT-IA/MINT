@@ -6,6 +6,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// Input data for one LPP plan (current or new job).
 class LPPPlanInput {
+  final int age;
   final double salaireBrut;
   final double? salaireAssure;
   final double? deductionCoordination;
@@ -21,6 +22,7 @@ class LPPPlanInput {
   final bool hasIjm;
 
   const LPPPlanInput({
+    required this.age,
     required this.salaireBrut,
     this.salaireAssure,
     this.deductionCoordination,
@@ -42,11 +44,15 @@ class LPPPlanInput {
     if (salaireAssure != null) return salaireAssure!;
     // Below LPP entry threshold: no coverage (LPP art. 7)
     if (salaireBrut < reg('lpp.entry_threshold', lppSeuilEntree)) return 0.0;
-    final coordination = deductionCoordination ?? reg('lpp.coordination_deduction', lppDeductionCoordination);
+    final coordination = deductionCoordination ??
+        reg('lpp.coordination_deduction', lppDeductionCoordination);
     final insured = salaireBrut - coordination;
     // Apply min/max coordinated salary (LPP art. 8 al. 2)
-    if (insured <= 0) return reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
-    return insured.clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
+    if (insured <= 0) {
+      return reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
+    }
+    return insured.clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+        reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
   }
 
   /// Total annual LPP contribution (employee + employer).
@@ -80,27 +86,18 @@ class LPPPlanInput {
 
   /// Estimated net monthly salary (gross - social charges - LPP employee).
   double get salaireNetMensuel {
-    // AVS/AI/APG: 5.3% employee share
-    // AC: 1.1% employee share (up to 148'200)
-    // AANP: ~0% for employee (paid by employer for occupational)
-    // Total social charges: ~6.4%
-    const socialChargesRate = 0.064;
     final grossMonthly = salaireBrut / 12;
-    final socialCharges = grossMonthly * socialChargesRate;
+    final socialCharges = grossMonthly * cotisationsSalarieTotal;
     final lppMonthly = cotisationEmployeAnnuelle / 12;
     return grossMonthly - socialCharges - lppMonthly;
   }
 
   /// Estimate contribution rate based on age bands (LPP art. 16).
   double _estimateCotisationRate() {
-    // Default employee rate assuming 50% split:
-    // 25-34: 7% total -> 3.5% employee
-    // 35-44: 10% total -> 5% employee
-    // 45-54: 15% total -> 7.5% employee
-    // 55-65: 18% total -> 9% employee
-    // Use a middle-of-range default of 5% for MVP.
-    const totalRate = 10.0; // mid-career default
-    return totalRate * (100 - partEmployeurPct) / 100;
+    return LppContributionCalculator.estimateEmployeeRatePct(
+      age: age,
+      employerSharePct: partEmployeurPct,
+    );
   }
 }
 
@@ -132,6 +129,46 @@ enum ComparisonVerdict {
   comparable,
 }
 
+class JobComparisonCopy {
+  const JobComparisonCopy._();
+
+  static const disclaimer = 'jobCompareDisclaimer';
+  static const sourceLppAgingCredits = 'LPP_ART_15_16';
+  static const sourceLppBuyback = 'LPP_ART_79B';
+  static const sourceLppCoverage = 'LPP_ART_2_7_8';
+  static const sourceLifdDeduction = 'LIFD_ART_33_1_D';
+  static const sourceLflpVestedBenefits = 'LFLP_ART_17_18';
+
+  static const verdictNewBetter = 'jobCompareVerdictNewBetter';
+  static const verdictCurrentBetter = 'jobCompareVerdictCurrentBetter';
+  static const verdictComparable = 'jobCompareVerdictComparable';
+
+  static const alertLostIjm = 'jobCompareAlertLostIjm';
+  static const alertPensionLoss = 'jobCompareAlertPensionLoss';
+  static const alertCapitalLoss = 'jobCompareAlertCapitalLoss';
+  static const alertDeathCoverageLoss = 'jobCompareAlertDeathCoverageLoss';
+  static const alertDisabilityCoverageLoss =
+      'jobCompareAlertDisabilityCoverageLoss';
+  static const alertLowerConversionRate = 'jobCompareAlertLowerConversionRate';
+
+  static const checklistAskPensionReglement =
+      'jobCompareChecklistAskPensionReglement';
+  static const checklistVerifyConversionRate =
+      'jobCompareChecklistVerifyConversionRate';
+  static const checklistCompareEmployerShare =
+      'jobCompareChecklistCompareEmployerShare';
+  static const checklistVerifyCoordinationDeduction =
+      'jobCompareChecklistVerifyCoordinationDeduction';
+  static const checklistAskCollectiveIjm =
+      'jobCompareChecklistAskCollectiveIjm';
+  static const checklistVerifyBuybackDelay =
+      'jobCompareChecklistVerifyBuybackDelay';
+  static const checklistCalculateRiskBenefits =
+      'jobCompareChecklistCalculateRiskBenefits';
+  static const checklistVerifyVestedBenefits =
+      'jobCompareChecklistVerifyVestedBenefits';
+}
+
 /// Full comparison result.
 class JobComparisonResult {
   final List<ComparisonAxis> axes;
@@ -155,19 +192,16 @@ class JobComparisonResult {
 
 /// Service for comparing two LPP plans (job change scenario).
 class JobComparisonService {
-  static const String disclaimer =
-      'Comparaison indicative entre deux plans LPP — outil éducatif '
-      'qui ne constitue pas un conseil en prévoyance professionnelle. '
-      'Les projections reposent sur des hypothèses simplifiées. '
-      'Consultez un·e spécialiste LPP pour une analyse personnalisée.';
+  static const String disclaimer = JobComparisonCopy.disclaimer;
 
   static const List<String> sources = [
-    'LPP art. 15-16 (Bonifications de vieillesse)',
-    'LPP art. 79b (Rachat de prestations)',
-    'LPP art. 2, 7, 8 (Assujettissement et salaire coordonné)',
-    'LIFD art. 33 al. 1 let. d (Déduction des cotisations LPP)',
-    'LFLP art. 17-18 (Libre passage — transfert de l\'avoir)',
+    JobComparisonCopy.sourceLppAgingCredits,
+    JobComparisonCopy.sourceLppBuyback,
+    JobComparisonCopy.sourceLppCoverage,
+    JobComparisonCopy.sourceLifdDeduction,
+    JobComparisonCopy.sourceLflpVestedBenefits,
   ];
+
   /// Compare current job vs new job across 7 axes.
   static JobComparisonResult compare({
     required LPPPlanInput current,
@@ -192,14 +226,10 @@ class JobComparisonService {
     final deltaCapital = capitalNew - capitalCurrent;
 
     // ---- Axis 4: Rente mensuelle projetee ----
-    final renteCurrent = capitalCurrent *
-        current.tauxConversionSurobligatoire /
-        100 /
-        12;
-    final renteNew = capitalNew *
-        newJob.tauxConversionSurobligatoire /
-        100 /
-        12;
+    final renteCurrent =
+        capitalCurrent * current.tauxConversionSurobligatoire / 100 / 12;
+    final renteNew =
+        capitalNew * newJob.tauxConversionSurobligatoire / 100 / 12;
     final deltaRente = renteNew - renteCurrent;
 
     // ---- Axis 5: Couverture deces ----
@@ -291,77 +321,79 @@ class JobComparisonService {
     // Assume 20 years of retirement (avsAgeReferenceHomme to 85)
     final lifetimePensionDelta = annualPensionDelta * 20;
 
-    // Determine verdict
-    final positiveCount = axes.where((a) => a.isPositive).length;
-    final negativeCount = axes.where((a) => !a.isPositive).length;
+    // Determine verdict. Neutral zero-delta axes must not turn an identical
+    // plan into a false "new job is better" recommendation.
+    final positiveCount = axes.where((a) => a.delta > 0).length;
+    final negativeCount = axes.where((a) => a.delta < 0).length;
 
     ComparisonVerdict verdict;
     String verdictDetail;
 
     if (positiveCount >= 5) {
       verdict = ComparisonVerdict.nouveauMeilleur;
-      verdictDetail = 'Le nouveau poste presente des avantages sur plusieurs criteres';
+      verdictDetail = JobComparisonCopy.verdictNewBetter;
     } else if (negativeCount >= 5) {
       verdict = ComparisonVerdict.actuelMeilleur;
-      verdictDetail = 'Le poste actuel offre une protection plus solide';
+      verdictDetail = JobComparisonCopy.verdictCurrentBetter;
     } else {
       verdict = ComparisonVerdict.comparable;
-      verdictDetail = 'Les deux postes sont comparables';
+      verdictDetail = JobComparisonCopy.verdictComparable;
     }
 
     // Generate alerts
     final alerts = <String>[];
 
     if (current.hasIjm && !newJob.hasIjm) {
-      alerts.add('Tu perds la couverture IJM (indemnite journaliere maladie)');
+      alerts.add(JobComparisonCopy.alertLostIjm);
     }
 
     if (deltaRente < 0 && deltaSalaireNet > 0) {
       alerts.add(
-        'Attention : le gain salarial cache une perte de rente de '
-        '${chf.formatChfWithPrefix(deltaRente.abs())}/mois',
+        '${JobComparisonCopy.alertPensionLoss}|'
+        '${chf.formatChfWithPrefix(deltaRente.abs())}',
       );
     }
 
     if (deltaCapital < -50000) {
       alerts.add(
-        'Perte de capital retraite significative : '
+        '${JobComparisonCopy.alertCapitalLoss}|'
         '${chf.formatChfWithPrefix(deltaCapital.abs())}',
       );
     }
 
     if (deltaDeces < -50000) {
       alerts.add(
-        'Couverture deces reduite de ${chf.formatChfWithPrefix(deltaDeces.abs())}',
+        '${JobComparisonCopy.alertDeathCoverageLoss}|'
+        '${chf.formatChfWithPrefix(deltaDeces.abs())}',
       );
     }
 
     if (deltaInvalidite < 0) {
       alerts.add(
-        'Couverture invalidite reduite de '
-        '${chf.formatChfWithPrefix(deltaInvalidite.abs())}/an',
+        '${JobComparisonCopy.alertDisabilityCoverageLoss}|'
+        '${chf.formatChfWithPrefix(deltaInvalidite.abs())}',
       );
     }
 
     if (newJob.tauxConversionSurobligatoire <
         current.tauxConversionSurobligatoire) {
       alerts.add(
-        'Taux de conversion inferieur : '
-        '${newJob.tauxConversionSurobligatoire}% vs '
-        '${current.tauxConversionSurobligatoire}%',
+        '${JobComparisonCopy.alertLowerConversionRate}|'
+        '${newJob.tauxConversionSurobligatoire}|'
+        '${current.tauxConversionSurobligatoire}',
       );
     }
 
     // Checklist
     final checklist = [
-      'Demander le reglement de la caisse de pension',
-      'Verifier le taux de conversion surobligatoire',
-      'Comparer la part employeur (50%? 60%? 65%?)',
-      'Verifier la deduction de coordination',
-      'Demander si IJM collective incluse',
-      'Verifier le delai de carence pour le rachat',
-      'Calculer l\'impact sur les prestations de risque',
-      'Verifier le libre passage : transfert en 30 jours max',
+      JobComparisonCopy.checklistAskPensionReglement,
+      JobComparisonCopy.checklistVerifyConversionRate,
+      JobComparisonCopy.checklistCompareEmployerShare,
+      JobComparisonCopy.checklistVerifyCoordinationDeduction,
+      JobComparisonCopy.checklistAskCollectiveIjm,
+      JobComparisonCopy.checklistVerifyBuybackDelay,
+      JobComparisonCopy.checklistCalculateRiskBenefits,
+      JobComparisonCopy.checklistVerifyVestedBenefits,
     ];
 
     return JobComparisonResult(
@@ -378,14 +410,14 @@ class JobComparisonService {
   /// Project retirement capital at retirement age with annual contributions.
   /// Delegates to LppCalculator.projectToRetirement() from financial_core.
   static double _projectCapital(LPPPlanInput plan, int yearsToRetirement) {
-    final refAgeJob = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final refAgeJob =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final currentAge = refAgeJob - yearsToRetirement;
     final salaireAssure = plan.effectiveSalaireAssure;
     // Compute effective bonification rate from plan's total contribution
     // (employee + employer) relative to the insured salary.
-    final bonificationRate = salaireAssure > 0
-        ? plan.totalCotisationAnnuelle / salaireAssure
-        : 0.0;
+    final bonificationRate =
+        salaireAssure > 0 ? plan.totalCotisationAnnuelle / salaireAssure : 0.0;
 
     // Use conversionRate=1.0 to get raw projected capital (not rente).
     return LppCalculator.projectToRetirement(
@@ -399,5 +431,4 @@ class JobComparisonService {
       salaireAssureOverride: salaireAssure,
     );
   }
-
 }

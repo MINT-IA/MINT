@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
-import 'package:mint_mobile/widgets/coach/job_change_comparison_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
+import 'package:provider/provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -40,6 +42,10 @@ String _deltaFmt(double value) {
   return '$prefix${_formatChfSwiss(value)}';
 }
 
+String _messageArg(List<String> parts, int index) {
+  return parts.length > index ? parts[index] : '';
+}
+
 class JobComparisonScreen extends StatefulWidget {
   const JobComparisonScreen({super.key});
 
@@ -47,19 +53,31 @@ class JobComparisonScreen extends StatefulWidget {
   State<JobComparisonScreen> createState() => _JobComparisonScreenState();
 }
 
+class _JobComparisonLedgerFacts {
+  const _JobComparisonLedgerFacts({
+    required this.salaryAnnual,
+    required this.age,
+  });
+
+  const _JobComparisonLedgerFacts.empty()
+      : salaryAnnual = null,
+        age = null;
+
+  final double? salaryAnnual;
+  final int? age;
+
+  bool get isComplete => salaryAnnual != null && age != null;
+}
+
 class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // Scroll controller for smooth scroll to results
   final _scrollController = ScrollController();
   final _resultsKey = GlobalKey();
 
-  // Shared
-  int _age = 35;
-
   // Current job inputs
-  double _currentSalaireBrut = 85000;
   double _currentPartEmployeur = 50;
   double _currentTauxConversion = 5.2;
-  double _currentAvoirVieillesse = 120000;
+  double _currentAvoirVieillesse = 0;
   double _currentCouvertureInvalidite = 40;
   double _currentCapitalDeces = 200000;
   double _currentRachatMax = 80000;
@@ -91,9 +109,40 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     super.dispose();
   }
 
-  void _compare() {
+  CoachProfileProvider? _profileProvider(BuildContext context) {
+    try {
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  _JobComparisonLedgerFacts _ledgerFactsFromProfile(CoachProfile? profile) {
+    if (profile == null) return const _JobComparisonLedgerFacts.empty();
+    final provided = profile.userProvidedFields;
+    final salaryAnnual =
+        provided.contains('grossSalaryAnnual') && profile.revenuBrutAnnuel > 0
+            ? profile.revenuBrutAnnuel
+            : null;
+    final age =
+        provided.contains('age') && profile.age > 0 ? profile.age : null;
+    return _JobComparisonLedgerFacts(salaryAnnual: salaryAnnual, age: age);
+  }
+
+  void _compare(_JobComparisonLedgerFacts facts) {
+    final salaryAnnual = facts.salaryAnnual;
+    final age = facts.age;
+    if (salaryAnnual == null || age == null) {
+      setState(() {
+        _result = null;
+        _checklistState = [];
+      });
+      return;
+    }
+
     final current = LPPPlanInput(
-      salaireBrut: _currentSalaireBrut,
+      age: age,
+      salaireBrut: salaryAnnual,
       partEmployeurPct: _currentPartEmployeur,
       tauxConversionSurobligatoire: _currentTauxConversion,
       avoirVieillesse: _currentAvoirVieillesse,
@@ -104,6 +153,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     );
 
     final newJob = LPPPlanInput(
+      age: age,
       salaireBrut: _newSalaireBrut,
       partEmployeurPct: _newPartEmployeur,
       tauxConversionSurobligatoire: _newTauxConversion,
@@ -118,7 +168,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       _result = JobComparisonService.compare(
         current: current,
         newJob: newJob,
-        age: _age,
+        age: age,
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
@@ -137,6 +187,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final facts = _ledgerFactsFromProfile(_profileProvider(context)?.profile);
+
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
@@ -167,78 +219,78 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             const SizedBox(height: MintSpacing.lg),
             MintEntrance(
               delay: const Duration(milliseconds: 150),
-              child: _buildAgeSlider(),
+              child: _buildLedgerFactsCard(facts),
             ),
             const SizedBox(height: MintSpacing.lg),
             MintEntrance(
-              delay: const Duration(milliseconds: 200),
-              child: _buildJobSection(
-              title: S.of(context)!.jobCompareCurrentJob,
-              expanded: _currentJobExpanded,
-              onToggle: () =>
-                  setState(() => _currentJobExpanded = !_currentJobExpanded),
-              salaireBrut: _currentSalaireBrut,
-              onSalaireBrutChanged: (v) =>
-                  setState(() => _currentSalaireBrut = v),
-              partEmployeur: _currentPartEmployeur,
-              onPartEmployeurChanged: (v) =>
-                  setState(() => _currentPartEmployeur = v),
-              tauxConversion: _currentTauxConversion,
-              onTauxConversionChanged: (v) =>
-                  setState(() => _currentTauxConversion = v),
-              avoirVieillesse: _currentAvoirVieillesse,
-              onAvoirVieillesseChanged: (v) =>
-                  setState(() => _currentAvoirVieillesse = v),
-              couvertureInvalidite: _currentCouvertureInvalidite,
-              onCouvertureInvaliditeChanged: (v) =>
-                  setState(() => _currentCouvertureInvalidite = v),
-              capitalDeces: _currentCapitalDeces,
-              onCapitalDecesChanged: (v) =>
-                  setState(() => _currentCapitalDeces = v),
-              rachatMax: _currentRachatMax,
-              onRachatMaxChanged: (v) =>
-                  setState(() => _currentRachatMax = v),
-              hasIjm: _currentHasIjm,
-              onIjmChanged: (v) => setState(() => _currentHasIjm = v),
-              accentColor: MintColors.primary,
-              icon: Icons.business,
-            )),
+                delay: const Duration(milliseconds: 200),
+                child: _buildJobSection(
+                  title: S.of(context)!.jobCompareCurrentJob,
+                  expanded: _currentJobExpanded,
+                  onToggle: () => setState(
+                      () => _currentJobExpanded = !_currentJobExpanded),
+                  salaireBrut: facts.salaryAnnual ?? 0,
+                  salaryEditable: false,
+                  onSalaireBrutChanged: null,
+                  partEmployeur: _currentPartEmployeur,
+                  onPartEmployeurChanged: (v) =>
+                      setState(() => _currentPartEmployeur = v),
+                  tauxConversion: _currentTauxConversion,
+                  onTauxConversionChanged: (v) =>
+                      setState(() => _currentTauxConversion = v),
+                  avoirVieillesse: _currentAvoirVieillesse,
+                  onAvoirVieillesseChanged: (v) =>
+                      setState(() => _currentAvoirVieillesse = v),
+                  couvertureInvalidite: _currentCouvertureInvalidite,
+                  onCouvertureInvaliditeChanged: (v) =>
+                      setState(() => _currentCouvertureInvalidite = v),
+                  capitalDeces: _currentCapitalDeces,
+                  onCapitalDecesChanged: (v) =>
+                      setState(() => _currentCapitalDeces = v),
+                  rachatMax: _currentRachatMax,
+                  onRachatMaxChanged: (v) =>
+                      setState(() => _currentRachatMax = v),
+                  hasIjm: _currentHasIjm,
+                  onIjmChanged: (v) => setState(() => _currentHasIjm = v),
+                  accentColor: MintColors.primary,
+                  icon: Icons.business,
+                )),
             const SizedBox(height: MintSpacing.lg),
             MintEntrance(
-              delay: const Duration(milliseconds: 250),
-              child: _buildJobSection(
-              title: S.of(context)!.jobCompareNewJob,
-              expanded: _newJobExpanded,
-              onToggle: () =>
-                  setState(() => _newJobExpanded = !_newJobExpanded),
-              salaireBrut: _newSalaireBrut,
-              onSalaireBrutChanged: (v) =>
-                  setState(() => _newSalaireBrut = v),
-              partEmployeur: _newPartEmployeur,
-              onPartEmployeurChanged: (v) =>
-                  setState(() => _newPartEmployeur = v),
-              tauxConversion: _newTauxConversion,
-              onTauxConversionChanged: (v) =>
-                  setState(() => _newTauxConversion = v),
-              avoirVieillesse: _newAvoirVieillesse,
-              onAvoirVieillesseChanged: (v) =>
-                  setState(() => _newAvoirVieillesse = v),
-              couvertureInvalidite: _newCouvertureInvalidite,
-              onCouvertureInvaliditeChanged: (v) =>
-                  setState(() => _newCouvertureInvalidite = v),
-              capitalDeces: _newCapitalDeces,
-              onCapitalDecesChanged: (v) =>
-                  setState(() => _newCapitalDeces = v),
-              rachatMax: _newRachatMax,
-              onRachatMaxChanged: (v) =>
-                  setState(() => _newRachatMax = v),
-              hasIjm: _newHasIjm,
-              onIjmChanged: (v) => setState(() => _newHasIjm = v),
-              accentColor: MintColors.deepOrange,
-              icon: Icons.work_outline,
-            )),
+                delay: const Duration(milliseconds: 250),
+                child: _buildJobSection(
+                  title: S.of(context)!.jobCompareNewJob,
+                  expanded: _newJobExpanded,
+                  onToggle: () =>
+                      setState(() => _newJobExpanded = !_newJobExpanded),
+                  salaireBrut: _newSalaireBrut,
+                  salaryEditable: true,
+                  onSalaireBrutChanged: (v) =>
+                      setState(() => _newSalaireBrut = v),
+                  partEmployeur: _newPartEmployeur,
+                  onPartEmployeurChanged: (v) =>
+                      setState(() => _newPartEmployeur = v),
+                  tauxConversion: _newTauxConversion,
+                  onTauxConversionChanged: (v) =>
+                      setState(() => _newTauxConversion = v),
+                  avoirVieillesse: _newAvoirVieillesse,
+                  onAvoirVieillesseChanged: (v) =>
+                      setState(() => _newAvoirVieillesse = v),
+                  couvertureInvalidite: _newCouvertureInvalidite,
+                  onCouvertureInvaliditeChanged: (v) =>
+                      setState(() => _newCouvertureInvalidite = v),
+                  capitalDeces: _newCapitalDeces,
+                  onCapitalDecesChanged: (v) =>
+                      setState(() => _newCapitalDeces = v),
+                  rachatMax: _newRachatMax,
+                  onRachatMaxChanged: (v) => setState(() => _newRachatMax = v),
+                  hasIjm: _newHasIjm,
+                  onIjmChanged: (v) => setState(() => _newHasIjm = v),
+                  accentColor: MintColors.deepOrange,
+                  icon: Icons.work_outline,
+                )),
             const SizedBox(height: MintSpacing.lg),
-            _buildCompareButton(),
+            _buildCompareButton(facts),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               Container(key: _resultsKey),
@@ -268,51 +320,6 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               const SizedBox(height: MintSpacing.lg),
             ],
             _buildEducationalFooter(),
-            const SizedBox(height: MintSpacing.lg),
-            // P11-A : Le prix du changement
-            JobChangeComparisonWidget(
-              currentJobLabel: S.of(context)!.jobCompareCurrentJobWidget,
-              newJobLabel: S.of(context)!.jobCompareNewJobWidget,
-              axes: [
-                JobAxis(
-                  label: S.of(context)!.jobCompareAxisSalary,
-                  emoji: '\u{1F4B0}',
-                  currentValue: _currentSalaireBrut / 12,
-                  newValue: _newSalaireBrut / 12,
-                  unit: 'CHF/mois',
-                ),
-                JobAxis(
-                  label: S.of(context)!.jobCompareAxisLpp,
-                  emoji: '\u{1F3E6}',
-                  currentValue: _currentSalaireBrut * 0.18 / 12,
-                  newValue: _newSalaireBrut * 0.18 / 12,
-                  unit: 'CHF/mois',
-                ),
-                JobAxis(
-                  label: S.of(context)!.jobCompareAxisDistance,
-                  emoji: '\u{1F686}',
-                  currentValue: 15,
-                  newValue: 30,
-                  unit: 'km',
-                  higherIsBetter: false,
-                ),
-                JobAxis(
-                  label: S.of(context)!.jobCompareAxisVacation,
-                  emoji: '\u{1F3D6}\u{FE0F}',
-                  currentValue: 20,
-                  newValue: 25,
-                  unit: 'jours',
-                ),
-                JobAxis(
-                  label: S.of(context)!.jobCompareAxisWeeklyHours,
-                  emoji: '\u{23F0}',
-                  currentValue: 42,
-                  newValue: 40,
-                  unit: 'h',
-                  higherIsBetter: false,
-                ),
-              ],
-            ),
             const SizedBox(height: MintSpacing.lg),
             _buildDisclaimer(),
             const SizedBox(height: MintSpacing.xl),
@@ -353,7 +360,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 const SizedBox(height: MintSpacing.xs),
                 Text(
                   S.of(context)!.jobCompareSubtitle,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -391,19 +399,152 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     );
   }
 
-  // --- Age Slider ---
-  Widget _buildAgeSlider() {
-    return SimulatorCard(
-      title: S.of(context)!.jobCompareAgeTitle,
-      subtitle: S.of(context)!.jobCompareAgeSubtitle,
-      icon: Icons.person_outline,
-      child: MintPickerTile(
-        label: 'Age',
-        value: _age,
-        minValue: 25,
-        maxValue: 64,
-        formatValue: (v) => '$v ans',
-        onChanged: (v) => setState(() => _age = v),
+  String _nextMissingFactRoute(_JobComparisonLedgerFacts facts) {
+    if (facts.salaryAnnual == null) {
+      return '/data-block/revenu?inputKey=q_gross_salary_annual';
+    }
+    return '/data-block/revenu?inputKey=q_birth_year';
+  }
+
+  String _jobComparisonCopy(String encoded) {
+    final s = S.of(context)!;
+    final parts = encoded.split('|');
+    final key = parts.first;
+    switch (key) {
+      case JobComparisonCopy.verdictNewBetter:
+        return s.jobCompareVerdictNewBetter;
+      case JobComparisonCopy.verdictCurrentBetter:
+        return s.jobCompareVerdictCurrentBetter;
+      case JobComparisonCopy.verdictComparable:
+        return s.jobCompareVerdictComparable;
+      case JobComparisonCopy.alertLostIjm:
+        return s.jobCompareAlertLostIjm;
+      case JobComparisonCopy.alertPensionLoss:
+        return s.jobCompareAlertPensionLoss(_messageArg(parts, 1));
+      case JobComparisonCopy.alertCapitalLoss:
+        return s.jobCompareAlertCapitalLoss(_messageArg(parts, 1));
+      case JobComparisonCopy.alertDeathCoverageLoss:
+        return s.jobCompareAlertDeathCoverageLoss(_messageArg(parts, 1));
+      case JobComparisonCopy.alertDisabilityCoverageLoss:
+        return s.jobCompareAlertDisabilityCoverageLoss(_messageArg(parts, 1));
+      case JobComparisonCopy.alertLowerConversionRate:
+        return s.jobCompareAlertLowerConversionRate(
+          _messageArg(parts, 1),
+          _messageArg(parts, 2),
+        );
+      case JobComparisonCopy.checklistAskPensionReglement:
+        return s.jobCompareChecklistAskPensionReglement;
+      case JobComparisonCopy.checklistVerifyConversionRate:
+        return s.jobCompareChecklistVerifyConversionRate;
+      case JobComparisonCopy.checklistCompareEmployerShare:
+        return s.jobCompareChecklistCompareEmployerShare;
+      case JobComparisonCopy.checklistVerifyCoordinationDeduction:
+        return s.jobCompareChecklistVerifyCoordinationDeduction;
+      case JobComparisonCopy.checklistAskCollectiveIjm:
+        return s.jobCompareChecklistAskCollectiveIjm;
+      case JobComparisonCopy.checklistVerifyBuybackDelay:
+        return s.jobCompareChecklistVerifyBuybackDelay;
+      case JobComparisonCopy.checklistCalculateRiskBenefits:
+        return s.jobCompareChecklistCalculateRiskBenefits;
+      case JobComparisonCopy.checklistVerifyVestedBenefits:
+        return s.jobCompareChecklistVerifyVestedBenefits;
+    }
+    return encoded;
+  }
+
+  // --- Ledger facts ---
+  Widget _buildLedgerFactsCard(_JobComparisonLedgerFacts facts) {
+    final s = S.of(context)!;
+    return Semantics(
+      key: const Key('job_compare_ledger_facts'),
+      identifier: 'job_compare_ledger_facts',
+      container: true,
+      child: SimulatorCard(
+        title: s.jobCompareCurrentJob,
+        subtitle: s.independantLedgerFactsSubtitle,
+        icon: Icons.fact_check_outlined,
+        child: Column(
+          children: [
+            _buildFactRow(
+              key: const Key('job_compare_salary_fact'),
+              identifier: 'job_compare_salary_fact',
+              label: s.jobCompareSalaryLabel,
+              value: facts.salaryAnnual == null
+                  ? s.dataBlockStatusMissing
+                  : _chfFmt(facts.salaryAnnual!),
+              missing: facts.salaryAnnual == null,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _buildFactRow(
+              key: const Key('job_compare_age_fact'),
+              identifier: 'job_compare_age_fact',
+              label: s.jobCompareAge,
+              value: facts.age == null
+                  ? s.dataBlockStatusMissing
+                  : s.unemploymentAgeValue(facts.age!),
+              missing: facts.age == null,
+            ),
+            if (!facts.isComplete) ...[
+              const SizedBox(height: MintSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(_nextMissingFactRoute(facts)),
+                  icon: const Icon(Icons.add_circle_outline, size: 18),
+                  label: Text(s.dataQualityEnrich),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFactRow({
+    required Key key,
+    required String identifier,
+    required String label,
+    required String value,
+    required bool missing,
+  }) {
+    return Semantics(
+      key: key,
+      identifier: identifier,
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: MintSpacing.md,
+          vertical: MintSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: missing
+              ? MintColors.warning.withValues(alpha: 0.08)
+              : MintColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: missing
+                ? MintColors.warning.withValues(alpha: 0.30)
+                : MintColors.border,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style:
+                    MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
+            ),
+            Text(
+              value,
+              style: MintTextStyles.bodySmall(
+                color: missing ? MintColors.warning : MintColors.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -414,7 +555,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
     required bool expanded,
     required VoidCallback onToggle,
     required double salaireBrut,
-    required ValueChanged<double> onSalaireBrutChanged,
+    required bool salaryEditable,
+    required ValueChanged<double>? onSalaireBrutChanged,
     required double partEmployeur,
     required ValueChanged<double> onPartEmployeurChanged,
     required double tauxConversion,
@@ -441,7 +583,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         children: [
           // Collapse toggle
           Semantics(
-            label: expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
+            label: expanded
+                ? S.of(context)!.jobCompareReduce
+                : S.of(context)!.jobCompareShowDetails,
             button: true,
             child: InkWell(
               onTap: onToggle,
@@ -449,31 +593,36 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    expanded ? S.of(context)!.jobCompareReduce : S.of(context)!.jobCompareShowDetails,
-                  style: MintTextStyles.labelSmall(color: accentColor),
-                ),
-                const SizedBox(width: MintSpacing.xs),
-                Icon(
-                  expanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: accentColor,
-                ),
-              ],
+                    expanded
+                        ? S.of(context)!.jobCompareReduce
+                        : S.of(context)!.jobCompareShowDetails,
+                    style: MintTextStyles.labelSmall(color: accentColor),
+                  ),
+                  const SizedBox(width: MintSpacing.xs),
+                  Icon(
+                    expanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size: 18,
+                    color: accentColor,
+                  ),
+                ],
+              ),
             ),
-          ),
           ),
           if (expanded) ...[
             const SizedBox(height: MintSpacing.md),
-            MintAmountField(
-              label: S.of(context)!.jobCompareSalaryLabel,
-              value: salaireBrut,
-              formatValue: (v) => _chfFmt(v),
-              onChanged: (v) => setState(() => onSalaireBrutChanged(v)),
-              min: 40000,
-              max: 250000,
-            ),
+            if (salaryEditable)
+              MintAmountField(
+                label: S.of(context)!.jobCompareSalaryLabel,
+                value: salaireBrut,
+                formatValue: (v) => _chfFmt(v),
+                onChanged: (v) => setState(() => onSalaireBrutChanged?.call(v)),
+                min: 40000,
+                max: 250000,
+              )
+            else
+              _buildReadOnlySalaryRow(salaireBrut),
             const SizedBox(height: MintSpacing.md),
             _buildPartEmployeurChips(
               value: partEmployeur,
@@ -507,7 +656,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               max: 80,
               divisions: 16,
               formatValue: (v) => '${v.toInt()}\u00A0%',
-              onChanged: (v) => setState(() => onCouvertureInvaliditeChanged(v)),
+              onChanged: (v) =>
+                  setState(() => onCouvertureInvaliditeChanged(v)),
             ),
             const SizedBox(height: MintSpacing.md),
             MintAmountField(
@@ -533,6 +683,37 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               onChanged: onIjmChanged,
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadOnlySalaryRow(double salaryAnnual) {
+    final s = S.of(context)!;
+    return Container(
+      key: const Key('job_compare_current_salary_readonly'),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.md,
+        vertical: MintSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              s.jobCompareSalaryLabel,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          Text(
+            salaryAnnual > 0 ? _chfFmt(salaryAnnual) : s.dataBlockStatusMissing,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );
@@ -577,32 +758,29 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                   child: GestureDetector(
                     onTap: () => onChanged(opt),
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? accentColor.withValues(alpha: 0.1)
-                          : MintColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
                         color: selected
-                            ? accentColor
-                            : MintColors.border,
-                        width: selected ? 1.5 : 1,
+                            ? accentColor.withValues(alpha: 0.1)
+                            : MintColors.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: selected ? accentColor : MintColors.border,
+                          width: selected ? 1.5 : 1,
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${opt.toInt()}%',
-                        style: MintTextStyles.bodySmall(
-                          color: selected
-                              ? accentColor
-                              : MintColors.textSecondary,
+                      child: Center(
+                        child: Text(
+                          '${opt.toInt()}%',
+                          style: MintTextStyles.bodySmall(
+                            color: selected
+                                ? accentColor
+                                : MintColors.textSecondary,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
                 ),
               ),
             );
@@ -640,17 +818,21 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   }
 
   // --- Compare Button ---
-  Widget _buildCompareButton() {
+  Widget _buildCompareButton(_JobComparisonLedgerFacts facts) {
     return Semantics(
+      key: const Key('job_compare_compare_cta'),
       label: S.of(context)!.jobCompareButton,
+      identifier: 'job_compare_compare_cta',
       button: true,
       child: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            _compare();
-          },
+          onPressed: facts.isComplete
+              ? () {
+                  HapticFeedback.lightImpact();
+                  _compare(facts);
+                }
+              : null,
           icon: const Icon(Icons.compare_arrows, size: 20),
           label: Text(
             S.of(context)!.jobCompareButton,
@@ -672,6 +854,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // --- Verdict Card ---
   Widget _buildVerdictCard() {
     final r = _result!;
+    final verdictDetail = _jobComparisonCopy(r.verdictDetail);
     Color verdictColor;
     IconData verdictIcon;
 
@@ -687,10 +870,14 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         verdictIcon = Icons.balance;
     }
 
-    final salaryDelta = _newSalaireBrut - _currentSalaireBrut;
+    final salaryDelta = r.axes
+        .firstWhere((axis) => axis.nameKey == 'jobCompareSalaireNet')
+        .delta;
 
     return Semantics(
-      label: r.verdictDetail,
+      key: const Key('job_compare_result'),
+      identifier: 'job_compare_result',
+      label: verdictDetail,
       child: MintSurface(
         tone: MintSurfaceTone.porcelaine,
         elevated: true,
@@ -713,7 +900,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                       const SizedBox(width: 6),
                       Text(
                         S.of(context)!.jobCompareVerdictLabel,
-                        style: MintTextStyles.labelSmall(color: MintColors.white),
+                        style:
+                            MintTextStyles.labelSmall(color: MintColors.white),
                       ),
                     ],
                   ),
@@ -727,20 +915,20 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               color: verdictColor,
               showLigne: false,
               contextText: S.of(context)!.jobCompareAxisSalary,
-              semanticsLabel: '${_deltaFmt(salaryDelta)} CHF — ${r.verdictDetail}',
+              semanticsLabel: '${_deltaFmt(salaryDelta)} CHF — $verdictDetail',
             ),
             const SizedBox(height: MintSpacing.md),
             Text(
-              r.verdictDetail,
+              verdictDetail,
               style: MintTextStyles.bodyLarge(color: MintColors.textPrimary)
                   .copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
               S.of(context)!.jobCompareAxesFavorable(
-                '${r.axes.where((a) => a.isPositive).length}',
-                '${r.axes.length}',
-              ),
+                    '${r.axes.where((a) => a.delta > 0).length}',
+                    '${r.axes.length}',
+                  ),
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ],
@@ -760,7 +948,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         children: [
           // Header row
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.sm, vertical: 10),
             decoration: BoxDecoration(
               color: MintColors.surface,
               borderRadius: BorderRadius.circular(8),
@@ -806,8 +995,15 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           ...List.generate(r.axes.length, (index) {
             final axis = r.axes[index];
             final isEven = index % 2 == 0;
+            final isNeutral = axis.delta == 0;
+            final axisColor = isNeutral
+                ? MintColors.textSecondary
+                : axis.isPositive
+                    ? MintColors.success
+                    : MintColors.error;
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.sm, vertical: 12),
               decoration: BoxDecoration(
                 color: isEven
                     ? MintColors.transparent
@@ -815,9 +1011,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                 borderRadius: BorderRadius.circular(6),
                 border: Border(
                   left: BorderSide(
-                    color: axis.isPositive
-                        ? MintColors.success.withValues(alpha: 0.5)
-                        : MintColors.error.withValues(alpha: 0.5),
+                    color: axisColor.withValues(alpha: 0.5),
                     width: 3,
                   ),
                 ),
@@ -829,19 +1023,20 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          axis.isPositive
-                              ? Icons.check_circle_outline
-                              : Icons.cancel_outlined,
+                          isNeutral
+                              ? Icons.remove_circle_outline
+                              : axis.isPositive
+                                  ? Icons.check_circle_outline
+                                  : Icons.cancel_outlined,
                           size: 14,
-                          color: axis.isPositive
-                              ? MintColors.success
-                              : MintColors.error,
+                          color: axisColor,
                         ),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
                             axis.name,
-                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
+                            style: MintTextStyles.labelSmall(
+                                color: MintColors.textPrimary),
                           ),
                         ),
                       ],
@@ -852,7 +1047,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Text(
                       _formatChfSwiss(axis.currentValue),
                       textAlign: TextAlign.right,
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
                     ),
                   ),
                   Expanded(
@@ -860,7 +1056,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                     child: Text(
                       _formatChfSwiss(axis.newValue),
                       textAlign: TextAlign.right,
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
                     ),
                   ),
                   Expanded(
@@ -869,9 +1066,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                       _deltaFmt(axis.delta),
                       textAlign: TextAlign.right,
                       style: MintTextStyles.labelSmall(
-                        color: axis.isPositive
-                            ? MintColors.success
-                            : MintColors.error,
+                        color: axisColor,
                       ),
                     ),
                   ),
@@ -911,15 +1106,18 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             const SizedBox(height: MintSpacing.md),
             Text(
               S.of(context)!.jobCompareRetirementBody(
-                isPositive ? S.of(context)!.jobCompareNewJob : S.of(context)!.jobCompareCurrentJob,
-                _chfFmt(annualDelta.abs()),
-                _chfFmt(monthlyDelta.abs()),
-              ),
+                    isPositive
+                        ? S.of(context)!.jobCompareNewJob
+                        : S.of(context)!.jobCompareCurrentJob,
+                    _chfFmt(annualDelta.abs()),
+                    _chfFmt(monthlyDelta.abs()),
+                  ),
               style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.jobCompareLifetime20Years(_chfFmt(r.lifetimePensionDelta.abs())),
+              S.of(context)!.jobCompareLifetime20Years(
+                  _chfFmt(r.lifetimePensionDelta.abs())),
               style: MintTextStyles.titleLarge(color: MintColors.info),
             ),
           ],
@@ -939,33 +1137,37 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
           style: MintTextStyles.labelSmall(),
         ),
         const SizedBox(height: MintSpacing.sm),
-        ...r.alerts.map((alert) => Padding(
-              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: MintColors.warning.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: MintColors.warning.withValues(alpha: 0.15),
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.warning_amber_rounded,
-                        size: 16, color: MintColors.warning),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        alert,
-                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-                      ),
-                    ),
-                  ],
+        ...r.alerts.map((alert) {
+          final alertText = _jobComparisonCopy(alert);
+          return Padding(
+            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: MintColors.warning.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: MintColors.warning.withValues(alpha: 0.15),
                 ),
               ),
-            )),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.warning_amber_rounded,
+                      size: 16, color: MintColors.warning),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      alertText,
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ],
     );
   }
@@ -980,10 +1182,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       accentColor: MintColors.primary,
       child: Column(
         children: List.generate(r.checklist.length, (index) {
+          final itemText = _jobComparisonCopy(r.checklist[index]);
           return Padding(
             padding: const EdgeInsets.only(bottom: MintSpacing.sm),
             child: Semantics(
-              label: r.checklist[index],
+              label: itemText,
               button: true,
               toggled: _checklistState[index],
               child: InkWell(
@@ -1023,7 +1226,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          r.checklist[index],
+                          itemText,
                           style: MintTextStyles.bodySmall(
                             color: _checklistState[index]
                                 ? MintColors.textSecondary
@@ -1037,8 +1240,8 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
                       ),
                     ],
                   ),
+                ),
               ),
-            ),
             ),
           );
         }),
@@ -1080,8 +1283,10 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.xs),
-          childrenPadding: const EdgeInsets.fromLTRB(MintSpacing.md, 0, MintSpacing.md, MintSpacing.md),
+          tilePadding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md, vertical: MintSpacing.xs),
+          childrenPadding: const EdgeInsets.fromLTRB(
+              MintSpacing.md, 0, MintSpacing.md, MintSpacing.md),
           title: Text(
             title,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
@@ -1121,5 +1326,4 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       ),
     );
   }
-
 }

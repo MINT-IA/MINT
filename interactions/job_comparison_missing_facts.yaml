@@ -1,0 +1,52 @@
+schema_version: 1
+flow:
+  id: job_comparison_missing_facts
+  title: "Job comparison screen to missing ledger facts"
+  exits: [db.route.revenu]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: jobcompare.route.comparison
+    kind: route
+    route: /simulator/job-comparison
+    widget: screens/job_comparison_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: jobcompare.edge.comparison.enrich_salary
+    from: jobcompare.route.comparison
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect explicit annual gross salary before comparing current-job LPP and IJM consequences"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/job_comparison.yaml
+
+  - id: jobcompare.edge.comparison.enrich_birth_year
+    from: jobcompare.route.comparison
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect birth year before projecting LPP retirement effects for a job-change scenario"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/job_comparison.yaml

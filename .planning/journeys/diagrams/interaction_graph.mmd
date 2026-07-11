@@ -20,6 +20,7 @@ flowchart LR
   indep_route_ijm["indep.route.ijm<br/>/independants/ijm"]:::route
   indep_route_lpp["indep.route.lpp<br/>/independants/lpp-volontaire"]:::route
   indep_route_pillar3a["indep.route.pillar3a<br/>/independants/3a"]:::route
+  jobcompare_route_comparison["jobcompare.route.comparison<br/>/simulator/job-comparison"]:::route
   lamal_route_franchise["lamal.route.franchise<br/>/assurances/lamal"]:::route
   mortgage_route_hypotheque["mortgage.route.hypotheque<br/>/hypotheque"]:::route
   scan_route_capture["scan.route.capture<br/>/scan"]:::route
@@ -51,6 +52,8 @@ flowchart LR
   indep_route_lpp -->|"indep.edge.lpp.enrich_income_or_age<br/>tap / push"| db_route_revenu
   indep_route_pillar3a -->|"indep.edge.pillar3a.enrich_cash<br/>tap / push"| db_route_patrimoine
   indep_route_pillar3a -->|"indep.edge.pillar3a.enrich_income_or_pension<br/>tap / push"| db_route_revenu
+  jobcompare_route_comparison -->|"jobcompare.edge.comparison.enrich_birth_year<br/>tap / push"| db_route_revenu
+  jobcompare_route_comparison -->|"jobcompare.edge.comparison.enrich_salary<br/>tap / push"| db_route_revenu
   lamal_route_franchise -->|"lamal.edge.franchise.enrich_health_costs<br/>tap / push"| budget_route_setup
   db_route_revenu -->|"db.edge.revenu.submit<br/>submit / push"| mortgage_route_hypotheque
   unemployment_route_overview -->|"unemployment.edge.enrich_budget<br/>tap / push"| budget_route_setup

@@ -653,6 +653,79 @@ class SPt extends S {
       'Os resultados apresentados são estimativas indicativas. Não constituem aconselhamento financeiro personalizado. Consulta o teu fundo de pensões e um·a especialista qualificado·a antes de qualquer decisão.';
 
   @override
+  String get jobCompareVerdictNewBetter =>
+      'O novo emprego é mais sólido em vários critérios';
+
+  @override
+  String get jobCompareVerdictCurrentBetter =>
+      'O emprego atual oferece uma proteção mais sólida';
+
+  @override
+  String get jobCompareVerdictComparable => 'Os dois empregos são comparáveis';
+
+  @override
+  String get jobCompareAlertLostIjm =>
+      'Perdes a cobertura IJM (indemnização diária por doença)';
+
+  @override
+  String jobCompareAlertPensionLoss(String amount) {
+    return 'Atenção: o ganho salarial esconde uma perda de renda de $amount/mês';
+  }
+
+  @override
+  String jobCompareAlertCapitalLoss(String amount) {
+    return 'Perda significativa de capital de reforma: $amount';
+  }
+
+  @override
+  String jobCompareAlertDeathCoverageLoss(String amount) {
+    return 'Capital em caso de morte reduzido em $amount';
+  }
+
+  @override
+  String jobCompareAlertDisabilityCoverageLoss(String amount) {
+    return 'Cobertura de invalidez reduzida em $amount/ano';
+  }
+
+  @override
+  String jobCompareAlertLowerConversionRate(
+      String newRate, String currentRate) {
+    return 'Taxa de conversão mais baixa: $newRate% vs $currentRate%';
+  }
+
+  @override
+  String get jobCompareChecklistAskPensionReglement =>
+      'Pedir o regulamento do fundo de pensões';
+
+  @override
+  String get jobCompareChecklistVerifyConversionRate =>
+      'Verificar a taxa de conversão supraobrigatória';
+
+  @override
+  String get jobCompareChecklistCompareEmployerShare =>
+      'Comparar a quota do empregador (50%? 60%? 65%?)';
+
+  @override
+  String get jobCompareChecklistVerifyCoordinationDeduction =>
+      'Verificar a dedução de coordenação';
+
+  @override
+  String get jobCompareChecklistAskCollectiveIjm =>
+      'Perguntar se uma IJM coletiva está incluída';
+
+  @override
+  String get jobCompareChecklistVerifyBuybackDelay =>
+      'Verificar o prazo de bloqueio dos resgates';
+
+  @override
+  String get jobCompareChecklistCalculateRiskBenefits =>
+      'Calcular o impacto nas prestações de risco';
+
+  @override
+  String get jobCompareChecklistVerifyVestedBenefits =>
+      'Verificar a livre passagem: transferência para o novo fundo de pensões';
+
+  @override
   String get divorceIntro =>
       'Um divórcio tem consequências financeiras frequentemente subestimadas: divisão do património, da previdência (LPP/3a), impacto fiscal e pensão de alimentos.';
 

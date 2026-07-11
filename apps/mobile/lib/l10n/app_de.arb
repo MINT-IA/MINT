@@ -224,6 +224,61 @@
   "jobCompareReduce": "Einklappen",
   "jobCompareShowDetails": "Details anzeigen",
   "jobCompareDisclaimer": "Die dargestellten Ergebnisse sind unverbindliche Schätzungen. Sie stellen keine persönliche Finanzberatung dar. Wende dich an deine Pensionskasse und eine qualifizierte Fachperson.",
+  "jobCompareVerdictNewBetter": "Die neue Stelle ist in mehreren Kriterien stärker",
+  "jobCompareVerdictCurrentBetter": "Die aktuelle Stelle bietet stärkeren Schutz",
+  "jobCompareVerdictComparable": "Die zwei Stellen sind vergleichbar",
+  "jobCompareAlertLostIjm": "Du verlierst die IJM-Deckung (Krankentaggeld)",
+  "jobCompareAlertPensionLoss": "Achtung: Der Lohngewinn verdeckt einen Rentenverlust von {amount}/Monat",
+  "@jobCompareAlertPensionLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertCapitalLoss": "Erheblicher Verlust an Alterskapital: {amount}",
+  "@jobCompareAlertCapitalLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDeathCoverageLoss": "Todesfallkapital um {amount} reduziert",
+  "@jobCompareAlertDeathCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDisabilityCoverageLoss": "Invaliditätsdeckung um {amount}/Jahr reduziert",
+  "@jobCompareAlertDisabilityCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertLowerConversionRate": "Tieferer Umwandlungssatz: {newRate}% vs. {currentRate}%",
+  "@jobCompareAlertLowerConversionRate": {
+    "placeholders": {
+      "newRate": {
+        "type": "String"
+      },
+      "currentRate": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareChecklistAskPensionReglement": "Reglement der Pensionskasse verlangen",
+  "jobCompareChecklistVerifyConversionRate": "Überobligatorischen Umwandlungssatz prüfen",
+  "jobCompareChecklistCompareEmployerShare": "Arbeitgeberanteil vergleichen (50%? 60%? 65%?)",
+  "jobCompareChecklistVerifyCoordinationDeduction": "Koordinationsabzug prüfen",
+  "jobCompareChecklistAskCollectiveIjm": "Fragen, ob kollektives IJM enthalten ist",
+  "jobCompareChecklistVerifyBuybackDelay": "Sperrfrist für Einkäufe prüfen",
+  "jobCompareChecklistCalculateRiskBenefits": "Auswirkung auf Risikoleistungen berechnen",
+  "jobCompareChecklistVerifyVestedBenefits": "Freizügigkeit prüfen: Übertrag an die neue Pensionskasse",
   "divorceIntro": "Eine Scheidung hat oft unterschätzte finanzielle Folgen: Vermögensaufteilung, Vorsorge (BVG/Säule 3a), steuerliche Auswirkungen und Unterhaltszahlungen.",
   "divorceSituationFamiliale": "FAMILIENSITUATION",
   "divorceSituationSubtitle": "Ehedauer, Kinder, Güterstand",

@@ -1,0 +1,64 @@
+appId: ch.mint.app
+---
+# Job comparison consumes current salary and age from the Data Ledger, then
+# keeps the prospective job as the editable scenario.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///simulator/job-comparison"
+- assertVisible:
+    id: "job_compare_ledger_facts"
+- assertVisible:
+    id: "job_compare_salary_fact"
+- assertVisible:
+    id: "job_compare_age_fact"
+- assertVisible:
+    text: "Enrichir mon profil"
+- openLink: "mint:///data-block/revenu?inputKey=q_gross_salary_annual"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///data-block/revenu?inputKey=q_birth_year"
+- assertVisible:
+    id: "birth_year_input"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "1986"
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///simulator/job-comparison"
+- assertVisible:
+    id: "job_compare_ledger_facts"
+- assertVisible:
+    id: "job_compare_salary_fact"
+- assertVisible:
+    id: "job_compare_age_fact"
+- scrollUntilVisible:
+    element:
+      id: "job_compare_compare_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "job_compare_compare_cta"
+- scrollUntilVisible:
+    element:
+      id: "job_compare_result"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "job_compare_result"

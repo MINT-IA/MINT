@@ -1311,6 +1311,108 @@ abstract class S {
   /// **'Les résultats présentés sont des estimations à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.'**
   String get jobCompareDisclaimer;
 
+  /// No description provided for @jobCompareVerdictNewBetter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nouvel emploi présente des avantages sur plusieurs critères'**
+  String get jobCompareVerdictNewBetter;
+
+  /// No description provided for @jobCompareVerdictCurrentBetter.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'emploi actuel offre une protection plus solide'**
+  String get jobCompareVerdictCurrentBetter;
+
+  /// No description provided for @jobCompareVerdictComparable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les deux emplois sont comparables'**
+  String get jobCompareVerdictComparable;
+
+  /// No description provided for @jobCompareAlertLostIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu perds la couverture IJM (indemnité journalière maladie)'**
+  String get jobCompareAlertLostIjm;
+
+  /// No description provided for @jobCompareAlertPensionLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention : le gain salarial cache une perte de rente de {amount}/mois'**
+  String jobCompareAlertPensionLoss(String amount);
+
+  /// No description provided for @jobCompareAlertCapitalLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Perte de capital retraite significative : {amount}'**
+  String jobCompareAlertCapitalLoss(String amount);
+
+  /// No description provided for @jobCompareAlertDeathCoverageLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture décès réduite de {amount}'**
+  String jobCompareAlertDeathCoverageLoss(String amount);
+
+  /// No description provided for @jobCompareAlertDisabilityCoverageLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture invalidité réduite de {amount}/an'**
+  String jobCompareAlertDisabilityCoverageLoss(String amount);
+
+  /// No description provided for @jobCompareAlertLowerConversionRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de conversion inférieur : {newRate}% vs {currentRate}%'**
+  String jobCompareAlertLowerConversionRate(String newRate, String currentRate);
+
+  /// No description provided for @jobCompareChecklistAskPensionReglement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander le règlement de la caisse de pension'**
+  String get jobCompareChecklistAskPensionReglement;
+
+  /// No description provided for @jobCompareChecklistVerifyConversionRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le taux de conversion surobligatoire'**
+  String get jobCompareChecklistVerifyConversionRate;
+
+  /// No description provided for @jobCompareChecklistCompareEmployerShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparer la part employeur (50% ? 60% ? 65% ?)'**
+  String get jobCompareChecklistCompareEmployerShare;
+
+  /// No description provided for @jobCompareChecklistVerifyCoordinationDeduction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier la déduction de coordination'**
+  String get jobCompareChecklistVerifyCoordinationDeduction;
+
+  /// No description provided for @jobCompareChecklistAskCollectiveIjm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander si l\'IJM collective est incluse'**
+  String get jobCompareChecklistAskCollectiveIjm;
+
+  /// No description provided for @jobCompareChecklistVerifyBuybackDelay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le délai de carence pour le rachat'**
+  String get jobCompareChecklistVerifyBuybackDelay;
+
+  /// No description provided for @jobCompareChecklistCalculateRiskBenefits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer l\'impact sur les prestations de risque'**
+  String get jobCompareChecklistCalculateRiskBenefits;
+
+  /// No description provided for @jobCompareChecklistVerifyVestedBenefits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le libre passage : transfert vers la nouvelle caisse'**
+  String get jobCompareChecklistVerifyVestedBenefits;
+
   /// No description provided for @divorceIntro.
   ///
   /// In fr, this message translates to:

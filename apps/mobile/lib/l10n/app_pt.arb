@@ -224,6 +224,61 @@
   "jobCompareReduce": "Reduzir",
   "jobCompareShowDetails": "Ver detalhes",
   "jobCompareDisclaimer": "Os resultados apresentados são estimativas indicativas. Não constituem aconselhamento financeiro personalizado. Consulta o teu fundo de pensões e um·a especialista qualificado·a antes de qualquer decisão.",
+  "jobCompareVerdictNewBetter": "O novo emprego é mais sólido em vários critérios",
+  "jobCompareVerdictCurrentBetter": "O emprego atual oferece uma proteção mais sólida",
+  "jobCompareVerdictComparable": "Os dois empregos são comparáveis",
+  "jobCompareAlertLostIjm": "Perdes a cobertura IJM (indemnização diária por doença)",
+  "jobCompareAlertPensionLoss": "Atenção: o ganho salarial esconde uma perda de renda de {amount}/mês",
+  "@jobCompareAlertPensionLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertCapitalLoss": "Perda significativa de capital de reforma: {amount}",
+  "@jobCompareAlertCapitalLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDeathCoverageLoss": "Capital em caso de morte reduzido em {amount}",
+  "@jobCompareAlertDeathCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDisabilityCoverageLoss": "Cobertura de invalidez reduzida em {amount}/ano",
+  "@jobCompareAlertDisabilityCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertLowerConversionRate": "Taxa de conversão mais baixa: {newRate}% vs {currentRate}%",
+  "@jobCompareAlertLowerConversionRate": {
+    "placeholders": {
+      "newRate": {
+        "type": "String"
+      },
+      "currentRate": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareChecklistAskPensionReglement": "Pedir o regulamento do fundo de pensões",
+  "jobCompareChecklistVerifyConversionRate": "Verificar a taxa de conversão supraobrigatória",
+  "jobCompareChecklistCompareEmployerShare": "Comparar a quota do empregador (50%? 60%? 65%?)",
+  "jobCompareChecklistVerifyCoordinationDeduction": "Verificar a dedução de coordenação",
+  "jobCompareChecklistAskCollectiveIjm": "Perguntar se uma IJM coletiva está incluída",
+  "jobCompareChecklistVerifyBuybackDelay": "Verificar o prazo de bloqueio dos resgates",
+  "jobCompareChecklistCalculateRiskBenefits": "Calcular o impacto nas prestações de risco",
+  "jobCompareChecklistVerifyVestedBenefits": "Verificar a livre passagem: transferência para o novo fundo de pensões",
   "divorceIntro": "Um divórcio tem consequências financeiras frequentemente subestimadas: divisão do património, da previdência (LPP/3a), impacto fiscal e pensão de alimentos.",
   "divorceSituationFamiliale": "SITUAÇÃO FAMILIAR",
   "divorceSituationSubtitle": "Duração do casamento, filhos, regime",

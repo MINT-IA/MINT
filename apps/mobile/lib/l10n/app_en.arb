@@ -224,6 +224,61 @@
   "jobCompareReduce": "Collapse",
   "jobCompareShowDetails": "Show details",
   "jobCompareDisclaimer": "The results shown are indicative estimates. They do not constitute personalized financial advice. Consult your pension fund and a qualified specialist before any decision.",
+  "jobCompareVerdictNewBetter": "The prospective job is stronger on several criteria",
+  "jobCompareVerdictCurrentBetter": "The current job offers stronger protection",
+  "jobCompareVerdictComparable": "The two jobs are comparable",
+  "jobCompareAlertLostIjm": "You lose IJM coverage (daily sickness allowance)",
+  "jobCompareAlertPensionLoss": "Warning: the salary gain hides a pension loss of {amount}/month",
+  "@jobCompareAlertPensionLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertCapitalLoss": "Significant retirement capital loss: {amount}",
+  "@jobCompareAlertCapitalLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDeathCoverageLoss": "Death coverage reduced by {amount}",
+  "@jobCompareAlertDeathCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertDisabilityCoverageLoss": "Disability coverage reduced by {amount}/year",
+  "@jobCompareAlertDisabilityCoverageLoss": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareAlertLowerConversionRate": "Lower conversion rate: {newRate}% vs {currentRate}%",
+  "@jobCompareAlertLowerConversionRate": {
+    "placeholders": {
+      "newRate": {
+        "type": "String"
+      },
+      "currentRate": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCompareChecklistAskPensionReglement": "Request the pension fund regulations",
+  "jobCompareChecklistVerifyConversionRate": "Verify the extra-mandatory conversion rate",
+  "jobCompareChecklistCompareEmployerShare": "Compare the employer share (50%? 60%? 65%?)",
+  "jobCompareChecklistVerifyCoordinationDeduction": "Verify the coordination deduction",
+  "jobCompareChecklistAskCollectiveIjm": "Ask whether collective IJM is included",
+  "jobCompareChecklistVerifyBuybackDelay": "Verify the waiting period for buybacks",
+  "jobCompareChecklistCalculateRiskBenefits": "Calculate the impact on risk benefits",
+  "jobCompareChecklistVerifyVestedBenefits": "Verify vested-benefits transfer to the new pension fund",
   "divorceIntro": "A divorce has often underestimated financial consequences: asset division, pension fund (LPP/3a) splitting, tax impact and alimony.",
   "divorceSituationFamiliale": "FAMILY SITUATION",
   "divorceSituationSubtitle": "Duration of marriage, children, regime",

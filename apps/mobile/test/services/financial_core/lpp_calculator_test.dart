@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 void main() {
   group('LppCalculator.projectToRetirement', () {
@@ -14,7 +14,8 @@ void main() {
         conversionRate: 0.068,
       );
       // 20 years of return + bonifications on coordonne salary
-      expect(annualRente, greaterThan(200000 * 0.068)); // More than just current balance
+      expect(annualRente,
+          greaterThan(200000 * 0.068)); // More than just current balance
       expect(annualRente, greaterThan(0));
     });
 
@@ -219,12 +220,38 @@ void main() {
     });
   });
 
+  group('LppContributionCalculator.estimateEmployeeRatePct', () {
+    test('uses LPP age bands and employer share', () {
+      final young = LppContributionCalculator.estimateEmployeeRatePct(
+        age: 30,
+        employerSharePct: 50,
+      );
+      final senior = LppContributionCalculator.estimateEmployeeRatePct(
+        age: 58,
+        employerSharePct: 50,
+      );
+
+      expect(young, closeTo(getLppBonificationRate(30) * 50, 0.01));
+      expect(senior, closeTo(getLppBonificationRate(58) * 50, 0.01));
+    });
+
+    test('returns zero before LPP retirement-saving age', () {
+      final rate = LppContributionCalculator.estimateEmployeeRatePct(
+        age: 24,
+        employerSharePct: 50,
+      );
+
+      expect(rate, 0);
+    });
+  });
+
   // ═══════════════════════════════════════════════════════════════
   //  PHASE 2: Survivor Pension (LPP art. 19-20)
   // ═══════════════════════════════════════════════════════════════
 
   group('LppCalculator.computeSurvivorPension', () {
-    test('married 50yo, 10y marriage, 2 children → conjoint 60% + orphan 20%', () {
+    test('married 50yo, 10y marriage, 2 children → conjoint 60% + orphan 20%',
+        () {
       final result = LppCalculator.computeSurvivorPension(
         projectedAnnualRente: 36000,
         isMarried: true,
@@ -278,7 +305,9 @@ void main() {
       expect(result.totalMonthly, closeTo(1200, 1));
     });
 
-    test('LPP art. 19 al. 2: young spouse, short marriage, no children → lump sum', () {
+    test(
+        'LPP art. 19 al. 2: young spouse, short marriage, no children → lump sum',
+        () {
       final result = LppCalculator.computeSurvivorPension(
         projectedAnnualRente: 36000,
         isMarried: true,
@@ -293,7 +322,8 @@ void main() {
       expect(result.totalMonthly, equals(0));
     });
 
-    test('LPP art. 19 al. 2: young spouse BUT has children → rente (exception)', () {
+    test('LPP art. 19 al. 2: young spouse BUT has children → rente (exception)',
+        () {
       final result = LppCalculator.computeSurvivorPension(
         projectedAnnualRente: 36000,
         isMarried: true,
@@ -330,7 +360,9 @@ void main() {
       expect(result.totalMonthly, equals(0));
     });
 
-    test('golden couple Julien → Lauren at 43, 15y marriage → lump sum (age < 45)', () {
+    test(
+        'golden couple Julien → Lauren at 43, 15y marriage → lump sum (age < 45)',
+        () {
       // Lauren is 43 < 45: does NOT meet art. 19 al. 2 age condition
       // despite 15y marriage. No children → lump sum, not rente.
       final result = LppCalculator.computeSurvivorPension(
@@ -359,7 +391,9 @@ void main() {
       expect(result.conjointMonthly, closeTo(1694.6, 5));
     });
 
-    test('default conjointAge/marriageDuration → meets conditions (backward compat)', () {
+    test(
+        'default conjointAge/marriageDuration → meets conditions (backward compat)',
+        () {
       // When not provided, defaults are 45 and 5 → meets art. 19 al. 2
       final result = LppCalculator.computeSurvivorPension(
         projectedAnnualRente: 36000,
@@ -387,7 +421,8 @@ void main() {
         caisseReturn: 0.02,
         conversionRate: 0.068,
       );
-      expect(result.renteWithoutEpl, greaterThan(result.renteWithEplOutstanding));
+      expect(
+          result.renteWithoutEpl, greaterThan(result.renteWithEplOutstanding));
       expect(result.monthlyGapFromEpl, greaterThan(0));
     });
 
@@ -402,7 +437,8 @@ void main() {
         caisseReturn: 0.02,
         conversionRate: 0.068,
       );
-      expect(result.renteWithoutEpl, closeTo(result.renteWithEplOutstanding, 0.01));
+      expect(result.renteWithoutEpl,
+          closeTo(result.renteWithEplOutstanding, 0.01));
       expect(result.monthlyGapFromEpl, closeTo(0, 0.01));
     });
 
@@ -449,7 +485,8 @@ void main() {
       expect(result.renteWithoutEpl, greaterThan(result.renteIfFullyRepaid));
     });
 
-    test('no eplAge → renteIfFullyRepaid == renteWithoutEpl (backward compat)', () {
+    test('no eplAge → renteIfFullyRepaid == renteWithoutEpl (backward compat)',
+        () {
       final result = LppCalculator.computeEplImpact(
         currentBalance: 200000,
         eplAmount: 50000,
