@@ -48,6 +48,7 @@ For external Claude review, use the checked-in wrapper instead of raw
 
 ```bash
 tools/checks/claude_external_audit.sh code <base-ref>
+tools/checks/claude_external_audit.sh product-domain <base-ref>
 tools/checks/claude_external_audit.sh specs
 tools/checks/claude_external_audit.sh architecture
 ```
@@ -70,6 +71,13 @@ non-Sonnet reruns unless `CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1` is explicitly s
 final confirmation or P0 dispute.
 No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
 if still blocked, fix or triage the findings instead of relaunching the same gate.
+
+Run `product-domain <base-ref>` for any Swiss financial journey, Data Ledger/
+Data Quest collection change, scenario result, PDF/dossier handoff, or
+compliance-sensitive product copy. Treat it as the external MINT product lead
+plus Swiss domain audit: it must catch flows that are technically wired but
+business-wrong, law-ambiguous, advice-shaped, missing mandatory variables,
+duplicating user facts, or not increasing user lucidity.
 
 For `docs/codex/` contract work, run the contract tests that exist in this
 checkout:

@@ -29,6 +29,9 @@ Spec drift audit:
 Code audit against a base branch:
 `tools/checks/claude_external_audit.sh code <base-branch>`.
 
+Product/domain audit against a base branch:
+`tools/checks/claude_external_audit.sh product-domain <base-branch>`.
+
 Same-gate rerun after a first finding pass:
 `CLAUDE_AUDIT_RERUN=1 tools/checks/claude_external_audit.sh code <base-branch>`.
 
@@ -51,6 +54,16 @@ injection, skill inventory, and max reasoning on every tool turn.
 No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
 if still blocked, fix or triage the findings instead of relaunching the same gate.
 
+For any PR that touches a Swiss financial user journey, scenario, data
+collection, PDF/dossier handoff, or compliance-sensitive copy, run both:
+
+1. `code <base-branch>` for implementation, routing, privacy, tests, and
+   facade-without-wiring risks.
+2. `product-domain <base-branch>` for MINT product logic plus Swiss domain
+   correctness: AVS/LPP/3a/tax/mortgage/insurance/succession fit, missing or
+   duplicated variables, no-advice compliance, specialist handoff, and whether
+   the flow actually improves user lucidity.
+
 Do not replace safe mode with ad hoc minimal settings. Do not add
 `--max-turns`: the installed Claude CLI does not expose it, and the wrapper
 rejects `CLAUDE_AUDIT_MAX_TURNS` to prevent fake safety knobs. Do not use
@@ -65,6 +78,9 @@ default: they can reload repo hooks. The wrapper rejects them unless
 - Critical/high findings are hard blockers until fixed or downgraded with
   concrete code/spec evidence. `mint-lead` cannot accept a phase while this
   agent reports unresolved critical/high findings.
+- Product/domain P0/P1 findings block acceptance even when the code audit
+  passes. A technically correct change can still be a MINT NO-GO if it is
+  Swiss-domain wrong, advice-shaped, or product-stupid.
 - If Claude CLI is unavailable, `mint-lead` must log the command, failure mode,
   and retry plan in the scorecard. That exception can defer one phase gate at
   most and cannot be used for final acceptance.

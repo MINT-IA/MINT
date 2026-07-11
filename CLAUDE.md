@@ -51,6 +51,7 @@ Use the checked-in wrapper, never raw `claude -p`, for external reviews:
 
 ```bash
 tools/checks/claude_external_audit.sh code <base-ref>
+tools/checks/claude_external_audit.sh product-domain <base-ref>
 tools/checks/claude_external_audit.sh specs
 tools/checks/claude_external_audit.sh architecture
 ```
@@ -69,6 +70,13 @@ Claude CLI does not expose it, and the wrapper rejects `CLAUDE_AUDIT_MAX_TURNS`
 so agents cannot rely on a fake safety knob.
 No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
 if still blocked, fix or triage the findings instead of relaunching the same gate.
+For any change touching a Swiss financial journey, user data collection,
+scenario output, PDF/dossier handoff, or compliance-sensitive copy, run
+`product-domain <base-ref>` as well as code review. That mode asks Claude to
+act as MINT product lead plus Swiss finance/legal domain auditor: it must hunt
+for illogical flows, duplicated sources of truth, wrong Swiss-system
+assumptions, missing variables, advice/compliance violations, and user-value
+dead ends.
 
 ## 4. ROLE ROUTING
 

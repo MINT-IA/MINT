@@ -46,6 +46,14 @@ For every life-event case, produce:
 - privacy/data-protection boundaries for user variables and handoff documents
 </output_contract>
 
+<external_audit_contract>
+Before acceptance of a Swiss financial product change, expect
+`tools/checks/claude_external_audit.sh product-domain <base-ref>` to challenge
+your work as an external product/domain auditor. Treat its P0/P1 findings as
+blockers unless you can downgrade them with code, spec, legal-source, or test
+evidence.
+</external_audit_contract>
+
 <forbidden>
 - Do not use banned words from `CLAUDE.md`.
 - Do not frame MINT as retirement-only.

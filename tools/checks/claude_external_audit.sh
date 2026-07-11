@@ -4,6 +4,7 @@ usage() {
   cat <<'EOF'
 Usage:
   tools/checks/claude_external_audit.sh code <base-ref>
+  tools/checks/claude_external_audit.sh product-domain <base-ref>
   tools/checks/claude_external_audit.sh specs
   tools/checks/claude_external_audit.sh architecture
 
@@ -26,7 +27,7 @@ case "$mode" in
     usage
     exit 0
     ;;
-  code|specs|architecture)
+  code|product-domain|specs|architecture)
     ;;
   *)
     usage >&2
@@ -135,6 +136,10 @@ enforce_code_diff_budget() {
 
 write_header() {
   local audit_mode="$1"
+  local verdict_rule="- Return exactly one verdict: PASS or NO-GO."
+  if [[ "$audit_mode" == "product-domain" ]]; then
+    verdict_rule="- Return exactly one verdict line: Product/domain verdict: PASS or Product/domain verdict: NO-GO."
+  fi
   cat >"$prompt_file" <<EOF
 You are the MINT external auditor.
 
@@ -143,7 +148,7 @@ Repo root: ${repo_root}
 
 Hard rules:
 - Treat checked-in code and tests as source of truth; do not trust docs blindly.
-- Return exactly one verdict: PASS or NO-GO.
+${verdict_rule}
 - Findings must be grouped as P0/P1/P2 with file:line evidence when possible.
 - P0/P1 findings must include a concrete reproduction or code path.
 - Ignore speculative rewrites; focus on correctness, privacy, compliance, routing, tests, and facade-without-wiring risks.
@@ -163,6 +168,92 @@ case "$mode" in
       echo "Base ref: ${base_ref}"
       echo "Diff line budget: ${max_diff_lines} lines (override requires CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1)."
       echo
+      echo "Current branch/status:"
+      echo '```text'
+      git -C "$repo_root" status --short --branch
+      echo '```'
+      echo
+      echo "Diff stat:"
+      echo '```text'
+      git -C "$repo_root" diff --stat "${base_ref}...HEAD"
+      echo '```'
+      echo
+      echo "Full diff:"
+      echo '```diff'
+      git -C "$repo_root" diff --no-ext-diff --unified=80 "${base_ref}...HEAD"
+      echo '```'
+      echo
+      echo "Staged worktree diff:"
+      echo '```diff'
+      git -C "$repo_root" diff --cached --no-ext-diff --unified=80
+      echo '```'
+      echo
+      echo "Unstaged worktree diff:"
+      echo '```diff'
+      git -C "$repo_root" diff --no-ext-diff --unified=80
+      echo '```'
+    } >>"$prompt_file"
+    ;;
+  product-domain)
+    base_ref="${2:-}"
+    [[ -n "$base_ref" ]] || die "product-domain mode requires a base ref"
+    git -C "$repo_root" rev-parse --verify --quiet "${base_ref}^{commit}" >/dev/null || die "unknown base ref '$base_ref'"
+    enforce_code_diff_budget "$base_ref"
+    write_header "product-domain"
+    {
+      echo "Base ref: ${base_ref}"
+      echo "Diff line budget: ${max_diff_lines} lines (override requires CLAUDE_AUDIT_ALLOW_LARGE_DIFF=1)."
+      cat <<'EOF'
+
+You are the MINT Product + Swiss Domain Lead auditor, not only a code reviewer.
+
+Read the diff against the live repo and challenge it against:
+- MINT product identity: Swiss financial lucidity, not a chatbot, not retirement-only.
+- Data Ledger / Data Quest: one source of truth, no duplicated user variables,
+  progressive data collection, no asking again for fresh known facts.
+- Swiss financial domain correctness: AVS, LPP, 3a, tax, mortgage, insurance,
+  inheritance/donation/succession, disability, family status, canton differences.
+- Swiss legal/compliance boundaries: no personalized legal/tax/financial advice,
+  no product recommendations, no banned promise language, clear uncertainty and
+  specialist handoff.
+- User value: every screen/route/button should unlock understanding, a decision
+  frame, a missing-data question, or a dossier/PDF handoff.
+
+Required checks:
+1. Identify the user life event(s) touched and the Swiss decision the flow is
+   supposed to clarify.
+2. Verify whether the collected variables are the right minimum variables for
+   that life event; flag missing, premature, duplicated, stale, or irrelevant
+   variables.
+3. Verify whether results distinguish known / missing / estimated / stale /
+   specialist-only facts, and whether confidence is justified.
+4. Challenge business logic against Swiss rules and legal boundaries. If a rule
+   or constant could be current-law sensitive and the diff does not prove a
+   source, mark it unverified instead of assuming it is correct.
+5. Check that compliance language avoids advice, ranking, guarantees, product
+   recommendations, and hidden legal/tax conclusions.
+6. Check the interaction model: route, CTA, back behavior, degraded state,
+   write-back to ledger, and return to the originating scenario.
+7. Check whether a specialist-ready PDF/dossier would receive the facts,
+   assumptions, caveats, and open questions it needs.
+
+Severity:
+- P0: illegal/misleading advice, confident wrong Swiss law/tax/insurance logic,
+  privacy exposure, or a flow that can drive a harmful decision.
+- P1: product/domain incoherence, wrong or duplicated source of truth, missing
+  mandatory Swiss variables, no missing-data state, no specialist handoff for a
+  specialist-only decision, or a route that does not deliver user value.
+- P2: polish, naming, documentation, or useful next-step improvements.
+
+Output contract:
+- Start with "Product/domain verdict: PASS" or "Product/domain verdict: NO-GO".
+- Then list P0/P1/P2 findings with file:line evidence when possible.
+- Include a short "Swiss domain review" section: AVS/LPP/3a/tax/mortgage/
+  insurance/succession items that are affected or explicitly not affected.
+- Include a short "Mint product logic review" section: whether the change moves
+  Mint toward the ledger -> DataQuest -> scenario -> dossier spine.
+
+EOF
       echo "Current branch/status:"
       echo '```text'
       git -C "$repo_root" status --short --branch

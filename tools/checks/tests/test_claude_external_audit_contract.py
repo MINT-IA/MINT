@@ -33,7 +33,11 @@ RAW_CLAUDE_PRINT_ALLOWLIST = {
 
 
 def _run(*args: str, **env_overrides: str) -> subprocess.CompletedProcess[str]:
-    env = os.environ.copy()
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if not key.startswith("CLAUDE_AUDIT_")
+    }
     env.update(env_overrides)
     return subprocess.run(
         ["bash", str(SCRIPT), *args],
@@ -165,7 +169,43 @@ def test_wrapper_defaults_are_bounded() -> None:
         assert needle in result.stdout
 
 
+def test_product_domain_prompt_is_wired() -> None:
+    result = _run("product-domain", "HEAD", CLAUDE_AUDIT_DRY_RUN="1")
+
+    assert result.returncode == 0, result.stderr
+    for needle in (
+        "Audit mode: product-domain",
+        "MINT Product + Swiss Domain Lead auditor",
+        "Swiss financial lucidity",
+        "Data Ledger / Data Quest",
+        "AVS, LPP, 3a, tax, mortgage, insurance",
+        "inheritance/donation/succession",
+        "no personalized legal/tax/financial advice",
+        "known / missing / estimated / stale",
+        "Product/domain verdict: PASS",
+        "Product/domain verdict: NO-GO",
+        "Swiss domain review",
+        "Mint product logic review",
+        "Staged worktree diff:",
+        "Unstaged worktree diff:",
+    ):
+        assert needle in result.stdout
+    prompt_header = result.stdout.split("Base ref:", maxsplit=1)[0]
+    assert "Return exactly one verdict line: Product/domain verdict: PASS" in prompt_header
+    assert "Return exactly one verdict: PASS or NO-GO." not in prompt_header
+
+
 def test_rerun_mode_defaults_to_sonnet_high() -> None:
+    result = _run("code", "HEAD", CLAUDE_AUDIT_DRY_RUN="1", CLAUDE_AUDIT_RERUN="1")
+
+    assert result.returncode == 0, result.stderr
+    assert "--model sonnet" in result.stdout
+    assert "--effort high" in result.stdout
+
+
+def test_run_helper_scrubs_shell_audit_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CLAUDE_AUDIT_MODEL", "opus")
+
     result = _run("code", "HEAD", CLAUDE_AUDIT_DRY_RUN="1", CLAUDE_AUDIT_RERUN="1")
 
     assert result.returncode == 0, result.stderr
@@ -177,8 +217,18 @@ def test_rerun_mode_defaults_to_sonnet_high() -> None:
     ("args", "env", "stderr"),
     (
         (("code",), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "code mode requires a base ref"),
+        (
+            ("product-domain",),
+            {"CLAUDE_AUDIT_DRY_RUN": "1"},
+            "product-domain mode requires a base ref",
+        ),
         (("unknown",), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "unknown mode"),
         (("code", "no-such-ref-xyz"), {"CLAUDE_AUDIT_DRY_RUN": "1"}, "unknown base ref"),
+        (
+            ("product-domain", "no-such-ref-xyz"),
+            {"CLAUDE_AUDIT_DRY_RUN": "1"},
+            "unknown base ref",
+        ),
         (
             ("code", "HEAD"),
             {"CLAUDE_AUDIT_DRY_RUN": "1", "CLAUDE_AUDIT_EFFORT": "max"},
@@ -330,6 +380,13 @@ def test_auditor_docs_point_to_wrapper_policy() -> None:
     ):
         lowered = text.lower()
         assert "tools/checks/claude_external_audit.sh" in text
+        assert "product-domain" in text
+        assert (
+            "Swiss domain" in text
+            or "swiss domain" in lowered
+            or "Swiss financial" in text
+            or "swiss financial" in lowered
+        )
         assert "opus high" in lowered
         assert "Sonnet high" in text
         assert "CLAUDE_AUDIT_RERUN=1" in text
@@ -364,6 +421,7 @@ def test_claude_md_anchors_external_audit_latency_policy() -> None:
 
     for needle in (
         "tools/checks/claude_external_audit.sh",
+        "product-domain <base-ref>",
         "Opus high",
         "Sonnet high",
         "CLAUDE_AUDIT_RERUN=1",

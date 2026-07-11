@@ -54,8 +54,14 @@ Every product PR must list:
 - Maestro runtime proof for touched P0 mobile UI; Patrol is required for real
   P0 input proof. The CLI may be at `$HOME/.pub-cache/bin/patrol` even when
   `patrol` is not exported in `PATH`.
-- Claude CLI audit for architecture, compliance, and pre-merge code review when
+- Claude CLI `code <base-ref>` audit for pre-merge implementation review when
   possible.
+- Claude CLI `product-domain <base-ref>` audit for every Swiss financial
+  journey, data-collection, scenario, PDF/dossier, or compliance-sensitive
+  product change. It is the independent product-lead + Swiss domain lens:
+  life-event fit, law/tax/insurance/prevention assumptions, no-advice framing,
+  missing variables, duplicated ledger facts, specialist handoff, and user
+  lucidity.
 - Engram memory after merge.
 
 ## Current Tool Matrix
@@ -156,3 +162,10 @@ Code audits refuse large diff prompts by default
 overriding except for a named final-release/P0 dispute.
 No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
 if still blocked, fix or triage the findings instead of relaunching the same gate.
+
+`product-domain <base-ref>` is not a replacement for `mint-swiss-brain`; it is
+the external adversarial pass. It must reject work that is technically wired but
+product-stupid: a screen that asks for already-known facts, a Swiss scenario
+that misses mandatory variables, a result that hides legal uncertainty, a
+comparison that becomes advice/ranking, or a flow that cannot produce a useful
+specialist-ready dossier.

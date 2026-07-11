@@ -66,6 +66,16 @@ rejects `CLAUDE_AUDIT_MAX_TURNS` so agents cannot rely on a fake safety knob.
 No audit carousel: one first pass, one Sonnet rerun, one Opus final confirmation;
 if still blocked, fix or triage the findings instead of relaunching the same gate.
 
+Use two Claude audit lenses when a PR changes a financial product path:
+
+- `code <base-ref>`: implementation correctness, privacy, routing, tests, and
+  facade-without-wiring risks.
+- `product-domain <base-ref>`: MINT product logic plus Swiss financial/legal
+  correctness. This audit must challenge life-event fit, Swiss law/tax/
+  insurance/prevention assumptions, missing variables, duplicated Data Ledger
+  facts, no-advice compliance, specialist handoff, and whether the flow actually
+  increases user lucidity.
+
 ## 🗺 Before you edit X, read Y, grep Z
 
 Pre-flight for any code change. If the agent can't state which row applies
