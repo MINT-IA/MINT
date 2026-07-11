@@ -18775,6 +18775,12 @@ abstract class S {
   /// **'Sans emploi'**
   String get coverageCheckSansEmploi;
 
+  /// No description provided for @coverageCheckEtudiant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étudiant·e'**
+  String get coverageCheckEtudiant;
+
   /// No description provided for @coverageCheckHypotheque.
   ///
   /// In fr, this message translates to:
@@ -40748,6 +40754,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sources : LIFD art. 18, 20, 33 ; CO art. 660'**
   String get dividendeSourcesFooter;
+
+  /// No description provided for @dataBlockMenageHousingStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut de logement'**
+  String get dataBlockMenageHousingStatus;
+
+  /// No description provided for @dataBlockMenageHousingFamily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chez famille/parents'**
+  String get dataBlockMenageHousingFamily;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

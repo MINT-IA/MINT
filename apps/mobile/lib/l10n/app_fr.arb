@@ -5431,6 +5431,7 @@
   "coverageCheckSalarie": "Salarié·e",
   "coverageCheckIndependant": "Indépendant·e",
   "coverageCheckSansEmploi": "Sans emploi",
+  "coverageCheckEtudiant": "Étudiant·e",
   "coverageCheckHypotheque": "Hypothèque en cours",
   "coverageCheckPersonnesCharge": "Personnes à charge",
   "coverageCheckLocataire": "Locataire",
@@ -12068,5 +12069,7 @@
   "dividendeDisclaimerBody": "Simulation simplifiée. L'impôt sur le bénéfice de la société, les déductions personnelles et les règles cantonales ne sont pas intégrés dans ce calcul. Consulte un·e spécialiste pour une analyse complète.",
   "dividendeCantonalDisclaimer": "L'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d'un canton à l'autre.",
   "dividendeComplianceFooter": "Outil éducatif — ne constitue pas un conseil financier (LSFin).",
-  "dividendeSourcesFooter": "Sources : LIFD art. 18, 20, 33 ; CO art. 660"
+  "dividendeSourcesFooter": "Sources : LIFD art. 18, 20, 33 ; CO art. 660",
+  "dataBlockMenageHousingStatus": "Statut de logement",
+  "dataBlockMenageHousingFamily": "Chez famille/parents"
 }

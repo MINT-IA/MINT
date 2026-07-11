@@ -10600,6 +10600,9 @@ class SEs extends S {
   String get coverageCheckSansEmploi => 'Sin empleo';
 
   @override
+  String get coverageCheckEtudiant => 'Estudiante';
+
+  @override
   String get coverageCheckHypotheque => 'Hipoteca en curso';
 
   @override
@@ -23250,4 +23253,10 @@ class SEs extends S {
   @override
   String get dividendeSourcesFooter =>
       'Fuentes: LIFD art. 18, 20, 33; CO art. 660';
+
+  @override
+  String get dataBlockMenageHousingStatus => 'Situación de vivienda';
+
+  @override
+  String get dataBlockMenageHousingFamily => 'Con familia/padres';
 }

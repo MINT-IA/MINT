@@ -217,6 +217,7 @@
 				331C807D294A63A400263BE5 /* Sources */,
 				331C807F294A63A400263BE5 /* Resources */,
 				03D193FB2ECE94E739F22C35 /* Frameworks */,
+				D4F1A0C02026071100010001 /* Strip xattrs before codesign */,
 			);
 			buildRules = (
 			);
@@ -238,6 +239,7 @@
 				265303002FC00A4AA35BDB94 /* Resources */,
 				7B8F89AC66FF1E6055254ECA /* [CP] Copy Pods Resources */,
 				EBDAB82AEB75F5D06717D52A /* Embed Flutter framework for Patrol */,
+				D4F1A0C02026071100010002 /* Strip xattrs before codesign */,
 			);
 			buildRules = (
 			);
@@ -452,6 +454,44 @@
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
 		};
 		E30884E87B8637E245C49191 /* Strip xattrs before codesign */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Strip xattrs before codesign";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"${SRCROOT}/scripts/strip_xattrs_before_codesign.sh\"";
+		};
+		D4F1A0C02026071100010001 /* Strip xattrs before codesign */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Strip xattrs before codesign";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"${SRCROOT}/scripts/strip_xattrs_before_codesign.sh\"";
+		};
+		D4F1A0C02026071100010002 /* Strip xattrs before codesign */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;

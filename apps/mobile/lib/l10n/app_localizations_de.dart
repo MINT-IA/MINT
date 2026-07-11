@@ -10625,6 +10625,9 @@ class SDe extends S {
   String get coverageCheckSansEmploi => 'Arbeitslos';
 
   @override
+  String get coverageCheckEtudiant => 'Studierend';
+
+  @override
   String get coverageCheckHypotheque => 'Laufende Hypothek';
 
   @override
@@ -23306,4 +23309,10 @@ class SDe extends S {
   @override
   String get dividendeSourcesFooter =>
       'Quellen: DBG/LIFD Art. 18, 20, 33; OR Art. 660';
+
+  @override
+  String get dataBlockMenageHousingStatus => 'Wohnstatus';
+
+  @override
+  String get dataBlockMenageHousingFamily => 'Bei Familie/Eltern';
 }

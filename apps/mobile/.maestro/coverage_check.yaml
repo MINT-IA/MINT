@@ -1,0 +1,21 @@
+appId: ch.mint.app
+---
+# Coverage check reads profile facts from the ledger and sends missing canton
+# to the DataBlock collector instead of exposing profile switches.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///assurances/coverage"
+- assertVisible:
+    id: "coverage_ledger_facts"
+- assertVisible:
+    id: "coverage_missing_profile_facts"
+- assertNotVisible:
+    text: "MODE DÉMO"
+- tapOn:
+    id: "coverage_profile_enrich_cta"
+- assertVisible:
+    id: "canton_picker"

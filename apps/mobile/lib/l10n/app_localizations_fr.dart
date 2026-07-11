@@ -10606,6 +10606,9 @@ class SFr extends S {
   String get coverageCheckSansEmploi => 'Sans emploi';
 
   @override
+  String get coverageCheckEtudiant => 'Étudiant·e';
+
+  @override
   String get coverageCheckHypotheque => 'Hypothèque en cours';
 
   @override
@@ -23250,4 +23253,10 @@ class SFr extends S {
   @override
   String get dividendeSourcesFooter =>
       'Sources : LIFD art. 18, 20, 33 ; CO art. 660';
+
+  @override
+  String get dataBlockMenageHousingStatus => 'Statut de logement';
+
+  @override
+  String get dataBlockMenageHousingFamily => 'Chez famille/parents';
 }

@@ -10544,6 +10544,9 @@ class SEn extends S {
   String get coverageCheckSansEmploi => 'Unemployed';
 
   @override
+  String get coverageCheckEtudiant => 'Student';
+
+  @override
   String get coverageCheckHypotheque => 'Current mortgage';
 
   @override
@@ -23136,4 +23139,10 @@ class SEn extends S {
   @override
   String get dividendeSourcesFooter =>
       'Sources: DBG/LIFD arts. 18, 20, 33; CO art. 660';
+
+  @override
+  String get dataBlockMenageHousingStatus => 'Housing status';
+
+  @override
+  String get dataBlockMenageHousingFamily => 'With family/parents';
 }

@@ -4,6 +4,9 @@ flowchart LR
   classDef scene fill:#fff7e8,stroke:#b7791f,stroke-width:1px,color:#2b2112;
 
   budget_route_setup["budget.route.setup<br/>/budget/setup"]:::route
+  coach_route_chat["coach.route.chat<br/>/coach/chat"]:::route
+  coverage_route_check["coverage.route.check<br/>/assurances/coverage"]:::route
+  db_route_composition_menage["db.route.composition_menage<br/>/data-block/:type"]:::route
   db_route_patrimoine["db.route.patrimoine<br/>/data-block/:type"]:::route
   db_route_revenu["db.route.revenu<br/>/data-block/:type"]:::route
   disability_route_gap["disability.route.gap<br/>/invalidite"]:::route
@@ -22,6 +25,9 @@ flowchart LR
   scan_route_impact_recovery["scan.route.impact_recovery<br/>/scan/impact"]:::route
   scan_route_review_recovery["scan.route.review_recovery<br/>/scan/review"]:::route
 
+  coverage_route_check -->|"coverage.edge.check.enrich_canton<br/>tap / push"| db_route_revenu
+  coverage_route_check -->|"coverage.edge.check.enrich_household<br/>tap / push"| db_route_composition_menage
+  coverage_route_check -->|"coverage.edge.check.enrich_work_or_mortgage<br/>tap / push"| coach_route_chat
   disability_route_gap -->|"disability.edge.gap.enrich_age<br/>tap / push"| db_route_revenu
   disability_route_gap -->|"disability.edge.gap.enrich_expenses<br/>tap / push"| budget_route_setup
   disability_route_gap -->|"disability.edge.gap.enrich_salary<br/>tap / push"| db_route_revenu

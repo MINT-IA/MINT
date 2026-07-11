@@ -5129,6 +5129,7 @@
   "coverageCheckSalarie": "Employee",
   "coverageCheckIndependant": "Self-employed",
   "coverageCheckSansEmploi": "Unemployed",
+  "coverageCheckEtudiant": "Student",
   "coverageCheckHypotheque": "Current mortgage",
   "coverageCheckPersonnesCharge": "Dependents",
   "coverageCheckLocataire": "Tenant",
@@ -11269,5 +11270,7 @@
   "dividendeDisclaimerBody": "Simplified simulation. Company profit tax, personal deductions, and cantonal rules are not included in this calculation. Consult a specialist for a complete analysis.",
   "dividendeCantonalDisclaimer": "The tax impact depends on cantonal practice. Reclassification thresholds vary from one canton to another.",
   "dividendeComplianceFooter": "Educational tool — does not constitute financial advice (FinSA).",
-  "dividendeSourcesFooter": "Sources: DBG/LIFD arts. 18, 20, 33; CO art. 660"
+  "dividendeSourcesFooter": "Sources: DBG/LIFD arts. 18, 20, 33; CO art. 660",
+  "dataBlockMenageHousingStatus": "Housing status",
+  "dataBlockMenageHousingFamily": "With family/parents"
 }

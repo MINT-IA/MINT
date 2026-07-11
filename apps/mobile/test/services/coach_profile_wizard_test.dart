@@ -275,6 +275,31 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('fromWizardAnswers — profil complet', () {
+    test('marque les facts profil utilisés par les parcours ledger-first', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        ...baseAnswers(housingStatus: 'owner'),
+        'q_employment_status': 'self_employed',
+        'q_children': 2,
+      });
+
+      expect(profile.employmentStatus, 'independant');
+      expect(profile.nombreEnfants, 2);
+      expect(profile.housingStatus, 'owner');
+      expect(profile.userProvidedFields, contains('employmentStatus'));
+      expect(profile.userProvidedFields, contains('children'));
+      expect(profile.userProvidedFields, contains('housingStatus'));
+    });
+
+    test('marque employmentStatus quand le revenu indépendant le déduit', () {
+      final answers = {...baseAnswers(), 'q_self_employed_income': 84000}
+        ..remove('q_employment_status');
+      final profile = CoachProfile.fromWizardAnswers(answers);
+
+      expect(profile.employmentStatus, 'independant');
+      expect(profile.userProvidedFields, contains('employmentStatus'));
+      expect(profile.userProvidedFields, contains('selfEmployedNetIncome'));
+    });
+
     test('produit un CoachProfile valide avec toutes les reponses', () {
       final answers = {
         'q_firstname': 'Marie',
@@ -371,7 +396,8 @@ void main() {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      answers['q_avs_arrival_year'] = 2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
+      answers['q_avs_arrival_year'] =
+          2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, 7);
     });
@@ -380,7 +406,8 @@ void main() {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      answers['q_avs_arrival_year'] = 2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
+      answers['q_avs_arrival_year'] =
+          2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, isNull); // 0 → null (pas de lacune)
     });

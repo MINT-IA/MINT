@@ -16,7 +16,7 @@ strip_bundle() {
 
   base_name="$(basename "$path")"
   case "$base_name" in
-    *.app|*.framework) ;;
+    *.app|*.framework|*.xctest) ;;
     *) exit 1 ;;
   esac
 

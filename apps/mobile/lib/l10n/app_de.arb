@@ -5129,6 +5129,7 @@
   "coverageCheckSalarie": "Angestellt",
   "coverageCheckIndependant": "Selbstständig",
   "coverageCheckSansEmploi": "Arbeitslos",
+  "coverageCheckEtudiant": "Studierend",
   "coverageCheckHypotheque": "Laufende Hypothek",
   "coverageCheckPersonnesCharge": "Unterhaltsberechtigte",
   "coverageCheckLocataire": "Mieter·in",
@@ -11269,5 +11270,7 @@
   "dividendeDisclaimerBody": "Vereinfachte Simulation. Gewinnsteuer der Gesellschaft, persönliche Abzüge und kantonale Regeln sind in dieser Berechnung nicht integriert. Konsultiere für eine vollständige Analyse eine Fachperson.",
   "dividendeCantonalDisclaimer": "Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Die Schwellen für eine Umqualifizierung unterscheiden sich je nach Kanton.",
   "dividendeComplianceFooter": "Bildungswerkzeug — stellt keine Finanzberatung dar (FIDLEG).",
-  "dividendeSourcesFooter": "Quellen: DBG/LIFD Art. 18, 20, 33; OR Art. 660"
+  "dividendeSourcesFooter": "Quellen: DBG/LIFD Art. 18, 20, 33; OR Art. 660",
+  "dataBlockMenageHousingStatus": "Wohnstatus",
+  "dataBlockMenageHousingFamily": "Bei Familie/Eltern"
 }

@@ -1,0 +1,78 @@
+schema_version: 1
+flow:
+  id: coverage_missing_facts
+  title: "Coverage check screen to missing profile ledger facts"
+  exits: [db.route.revenu, db.route.composition_menage, coach.route.chat]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: coverage.route.check
+    kind: route
+    route: /assurances/coverage
+    widget: screens/coverage_check_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: db.route.composition_menage
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: coach.route.chat
+    kind: route
+    route: /coach/chat
+    widget: screens/coach/coach_chat_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.network]
+
+edges:
+  - id: coverage.edge.check.enrich_canton
+    from: coverage.route.check
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect canton before applying cantonal household-insurance rules"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/coverage_check.yaml
+
+  - id: coverage.edge.check.enrich_household
+    from: coverage.route.check
+    to: db.route.composition_menage
+    trigger: tap
+    intent: "Collect household and housing status before evaluating coverage gaps"
+    payload:
+      path_params: {type: EnrichmentType}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/patrol/coverage_check_runtime_test.dart
+
+  - id: coverage.edge.check.enrich_work_or_mortgage
+    from: coverage.route.check
+    to: coach.route.chat
+    trigger: tap
+    intent: "Collect employment status or mortgage context when no structured DataBlock collector exists yet"
+    payload:
+      query_params: {topic: TopicKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/coverage_check_ledger_test.dart

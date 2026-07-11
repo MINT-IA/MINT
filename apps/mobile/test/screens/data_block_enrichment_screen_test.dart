@@ -269,6 +269,35 @@ void main() {
     expect(provider.profile?.userProvidedFields, contains('liquidSavings'));
   });
 
+  testWidgets('composition menage block collects children and housing status',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(blockType: 'composition_menage'),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('children_count_input')), findsOneWidget);
+    expect(
+        find.byKey(const Key('housing_status_renter_choice')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('children_count_input')), '2');
+    await tester.tap(find.byKey(const Key('housing_status_owner_choice')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_children', 2));
+    expect(answers, containsPair('q_housing_status', 'owner'));
+    expect(provider.profile?.nombreEnfants, 2);
+    expect(provider.profile?.housingStatus, 'owner');
+    expect(provider.profile?.userProvidedFields, contains('children'));
+    expect(provider.profile?.userProvidedFields, contains('housingStatus'));
+  });
+
   testWidgets('revenue block seeds pension switch from existing profile',
       (tester) async {
     final provider = CoachProfileProvider()

@@ -10597,6 +10597,9 @@ class SPt extends S {
   String get coverageCheckSansEmploi => 'Sem emprego';
 
   @override
+  String get coverageCheckEtudiant => 'Estudante';
+
+  @override
   String get coverageCheckHypotheque => 'Hipoteca em curso';
 
   @override
@@ -23258,4 +23261,10 @@ class SPt extends S {
   @override
   String get dividendeSourcesFooter =>
       'Fontes: LIFD art. 18, 20, 33; CO art. 660';
+
+  @override
+  String get dataBlockMenageHousingStatus => 'Situação de habitação';
+
+  @override
+  String get dataBlockMenageHousingFamily => 'Com família/pais';
 }

@@ -10616,6 +10616,9 @@ class SIt extends S {
   String get coverageCheckSansEmploi => 'Disoccupato';
 
   @override
+  String get coverageCheckEtudiant => 'Studente';
+
+  @override
   String get coverageCheckHypotheque => 'Ipoteca in corso';
 
   @override
@@ -23310,4 +23313,10 @@ class SIt extends S {
   @override
   String get dividendeSourcesFooter =>
       'Fonti: LIFD art. 18, 20, 33; CO art. 660';
+
+  @override
+  String get dataBlockMenageHousingStatus => 'Situazione abitativa';
+
+  @override
+  String get dataBlockMenageHousingFamily => 'Da famiglia/genitori';
 }

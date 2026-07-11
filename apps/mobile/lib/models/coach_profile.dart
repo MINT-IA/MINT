@@ -2991,6 +2991,14 @@ class CoachProfile {
     if (answers.containsKey('q_canton')) provided.add('canton');
     if (answers.containsKey('q_commune')) provided.add('commune');
     if (answers.containsKey('q_gender')) provided.add('gender');
+    if (answers.containsKey('q_employment_status') ||
+        answers.containsKey('q_self_employed_income')) {
+      provided.add('employmentStatus');
+    }
+    if (answers.containsKey('q_children')) provided.add('children');
+    if (answers.containsKey('q_housing_status')) {
+      provided.add('housingStatus');
+    }
     if (answers.containsKey('q_net_income_period_chf') ||
         answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
