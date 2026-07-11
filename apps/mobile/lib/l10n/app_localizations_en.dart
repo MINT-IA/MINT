@@ -1624,6 +1624,9 @@ class SEn extends S {
   String get budgetSetupLamal => 'Health insurance';
 
   @override
+  String get budgetSetupLamalFranchise => 'Current LAMal deductible';
+
+  @override
   String get budgetSetupTransport => 'Transport';
 
   @override
@@ -9591,38 +9594,21 @@ class SEn extends S {
   String get lamalFranchiseAppBarTitle => 'LAMal Deductible';
 
   @override
-  String get lamalFranchiseDemoMode => 'DEMO MODE';
-
-  @override
   String get lamalFranchiseHeaderTitle => 'Your LAMal deductible';
 
   @override
   String get lamalFranchiseHeaderSubtitle =>
-      'Find the right deductible for your health costs';
+      'Compare deductible scenarios from your known health costs';
 
   @override
   String get lamalFranchiseIntro =>
-      'A higher deductible lowers your monthly premium but increases your out-of-pocket costs when you see a doctor. Adjust the sliders to find the right balance.';
-
-  @override
-  String get lamalFranchiseToggleAdulte => 'Adult';
-
-  @override
-  String get lamalFranchiseToggleEnfant => 'Child';
-
-  @override
-  String get lamalFranchisePrimeSliderLabel =>
-      'Monthly premium (deductible 300)';
-
-  @override
-  String get lamalFranchiseDepensesSliderLabel =>
-      'Estimated annual health costs';
+      'MINT uses your LAMal premium, current deductible and medical costs saved in your budget. If a fact is missing, add it once to your profile.';
 
   @override
   String get lamalFranchiseComparisonHeader => 'DEDUCTIBLE COMPARISON';
 
   @override
-  String get lamalFranchiseRecommandee => 'RECOMMENDED';
+  String get lamalFranchiseRecommandee => 'TO REVIEW';
 
   @override
   String lamalFranchiseTotalPrefix(String amount) {
@@ -9647,7 +9633,7 @@ class SEn extends S {
   }
 
   @override
-  String get lamalFranchiseRecommandationsHeader => 'RECOMMENDATIONS';
+  String get lamalFranchiseRecommandationsHeader => 'POINTS TO DISCUSS';
 
   @override
   String get lamalFranchiseAlertText =>
@@ -9665,22 +9651,43 @@ class SEn extends S {
       'KVG art. 62-64 (deductible and co-pay) / KVV (ordinance) / priminfo.admin.ch (official comparator) / KVG art. 7 (free choice of insurer) / KVG art. 41a (alternative models)';
 
   @override
-  String get lamalFranchisePrimeMin => 'CHF 200';
+  String get lamalFranchiseLedgerTitle => 'Data used';
 
   @override
-  String get lamalFranchisePrimeMax => 'CHF 600';
+  String get lamalFranchiseLedgerBody =>
+      'These amounts come from your data library. They are not entered again here.';
 
   @override
-  String get lamalFranchiseDepensesMin => 'CHF 0';
+  String get lamalFranchiseFactKnown => 'Known';
 
   @override
-  String get lamalFranchiseDepensesMax => 'CHF 10,000';
+  String get lamalFranchiseFactMissing => 'Missing';
 
   @override
-  String get lamalFranchiseSelectAdulte => 'Select adult';
+  String get lamalFranchiseCurrentFactLabel => 'Current deductible';
 
   @override
-  String get lamalFranchiseSelectEnfant => 'Select child';
+  String lamalFranchiseMonthlyValue(String amount) {
+    return '$amount / month';
+  }
+
+  @override
+  String lamalFranchiseMedicalFactValue(String monthly, String annual) {
+    return '$monthly / month · $annual / year';
+  }
+
+  @override
+  String get lamalFranchiseMissingTitle => 'Data to complete';
+
+  @override
+  String get lamalFranchiseMissingBody =>
+      'To compare LAMal deductibles, MINT needs your monthly premium, current deductible and monthly medical costs.';
+
+  @override
+  String get lamalFranchiseEnrichCta => 'Complete these facts';
+
+  @override
+  String get lamalFranchiseModifyCta => 'Edit in budget';
 
   @override
   String get firstJobCantonLabel => 'Canton';

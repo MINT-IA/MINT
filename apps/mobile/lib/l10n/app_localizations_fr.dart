@@ -1633,6 +1633,9 @@ class SFr extends S {
   String get budgetSetupLamal => 'Assurance maladie';
 
   @override
+  String get budgetSetupLamalFranchise => 'Franchise LAMal actuelle';
+
+  @override
   String get budgetSetupTransport => 'Transport';
 
   @override
@@ -9647,38 +9650,21 @@ class SFr extends S {
   String get lamalFranchiseAppBarTitle => 'Franchise LAMal';
 
   @override
-  String get lamalFranchiseDemoMode => 'MODE DÉMO';
-
-  @override
   String get lamalFranchiseHeaderTitle => 'Ta franchise LAMal';
 
   @override
   String get lamalFranchiseHeaderSubtitle =>
-      'Trouve la franchise idéale selon tes frais de santé';
+      'Compare des scénarios de franchise à partir de tes frais connus';
 
   @override
   String get lamalFranchiseIntro =>
-      'Une franchise élevée réduit ta prime mensuelle, mais augmente tes frais en cas de maladie. Déplace les curseurs pour trouver l\'équilibre.';
-
-  @override
-  String get lamalFranchiseToggleAdulte => 'Adulte';
-
-  @override
-  String get lamalFranchiseToggleEnfant => 'Enfant';
-
-  @override
-  String get lamalFranchisePrimeSliderLabel =>
-      'Prime mensuelle (franchise 300)';
-
-  @override
-  String get lamalFranchiseDepensesSliderLabel =>
-      'Frais de santé annuels estimés';
+      'MINT utilise ta prime LAMal, ta franchise actuelle et tes frais médicaux saisis dans ton budget. Si une donnée manque, complète-la une seule fois dans ton profil.';
 
   @override
   String get lamalFranchiseComparisonHeader => 'COMPARAISON DES FRANCHISES';
 
   @override
-  String get lamalFranchiseRecommandee => 'RECOMMANDÉE';
+  String get lamalFranchiseRecommandee => 'À EXAMINER';
 
   @override
   String lamalFranchiseTotalPrefix(String amount) {
@@ -9703,7 +9689,7 @@ class SFr extends S {
   }
 
   @override
-  String get lamalFranchiseRecommandationsHeader => 'RECOMMANDATIONS';
+  String get lamalFranchiseRecommandationsHeader => 'PISTES À DISCUTER';
 
   @override
   String get lamalFranchiseAlertText =>
@@ -9721,22 +9707,43 @@ class SFr extends S {
       'LAMal art. 62-64 (franchise et quote-part) / OAMal (ordonnance) / priminfo.admin.ch (comparateur officiel) / LAMal art. 7 (libre choix de l\'assureur) / LAMal art. 41a (modèles alternatifs)';
 
   @override
-  String get lamalFranchisePrimeMin => 'CHF 200';
+  String get lamalFranchiseLedgerTitle => 'Données utilisées';
 
   @override
-  String get lamalFranchisePrimeMax => 'CHF 600';
+  String get lamalFranchiseLedgerBody =>
+      'Ces montants viennent de ta bibliothèque de données. Ils ne sont pas ressaisis ici.';
 
   @override
-  String get lamalFranchiseDepensesMin => 'CHF 0';
+  String get lamalFranchiseFactKnown => 'Connu';
 
   @override
-  String get lamalFranchiseDepensesMax => 'CHF 10\'000';
+  String get lamalFranchiseFactMissing => 'Manquant';
 
   @override
-  String get lamalFranchiseSelectAdulte => 'Sélectionner adulte';
+  String get lamalFranchiseCurrentFactLabel => 'Franchise actuelle';
 
   @override
-  String get lamalFranchiseSelectEnfant => 'Sélectionner enfant';
+  String lamalFranchiseMonthlyValue(String amount) {
+    return '$amount / mois';
+  }
+
+  @override
+  String lamalFranchiseMedicalFactValue(String monthly, String annual) {
+    return '$monthly / mois · $annual / an';
+  }
+
+  @override
+  String get lamalFranchiseMissingTitle => 'Données à compléter';
+
+  @override
+  String get lamalFranchiseMissingBody =>
+      'Pour comparer les franchises LAMal, MINT a besoin de ta prime mensuelle, de ta franchise actuelle et de tes frais médicaux mensuels.';
+
+  @override
+  String get lamalFranchiseEnrichCta => 'Compléter ces données';
+
+  @override
+  String get lamalFranchiseModifyCta => 'Modifier dans le budget';
 
   @override
   String get firstJobCantonLabel => 'Canton';

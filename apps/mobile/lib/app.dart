@@ -834,7 +834,9 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/budget/setup',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const BudgetSetupScreen(),
+      builder: (context, state) => BudgetSetupScreen(
+        initialFocus: state.uri.queryParameters['focus'],
+      ),
     ),
     ScopedGoRoute(
       path: '/check/debt',

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
-import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/services/financial_core/lamal_premium_normalizer.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -27,33 +28,105 @@ class LamalFranchiseScreen extends StatefulWidget {
 
 class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   // ── State ──────────────────────────────────────────────────
-  double _primeMensuelle = 350;
-  double _depensesSante = 2000;
-  bool _isChild = false;
-
-  LamalFranchiseResult? _result;
+  Map<String, dynamic> _ledgerAnswers = const {};
+  bool _ledgerLoaded = false;
 
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('lamal');
-    _compute();
   }
 
-  void _compute() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_ledgerLoaded) {
+      _refreshLedgerFacts();
+    }
+  }
+
+  Future<void> _refreshLedgerFacts() async {
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (!mounted) return;
     setState(() {
-      _result = LamalFranchiseService.analyzeAllFranchises(
-        _primeMensuelle,
-        _depensesSante,
-        isChild: _isChild,
-      );
+      _ledgerAnswers = Map<String, dynamic>.from(answers);
+      _ledgerLoaded = true;
     });
+  }
+
+  double? _amountFact(String key) {
+    final value = _ledgerAnswers[key];
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      final cleaned = value.trim().replaceAll(RegExp(r"[' ]"), '');
+      if (cleaned.isEmpty) return null;
+      return double.tryParse(cleaned);
+    }
+    return null;
+  }
+
+  int? _integerFact(String key) {
+    final value = _ledgerAnswers[key];
+    if (value is int) return value;
+    if (value is num) return value.round();
+    if (value is String) {
+      final cleaned = value.trim().replaceAll(RegExp(r"[' ]"), '');
+      if (cleaned.isEmpty) return null;
+      return int.tryParse(cleaned);
+    }
+    return null;
+  }
+
+  double? get _primeMensuelleFact => _amountFact('q_lamal_premium_monthly_chf');
+
+  int? get _currentFranchiseFact => _integerFact('q_lamal_franchise');
+
+  double? get _depensesSanteMensuellesFact =>
+      _amountFact('_coach_depenses_frais_medicaux');
+
+  double? get _depensesSanteAnnuellesFact {
+    final monthly = _depensesSanteMensuellesFact;
+    return monthly == null ? null : monthly * 12;
+  }
+
+  bool get _hasRequiredLedgerFacts =>
+      _primeMensuelleFact != null &&
+      _currentFranchiseFact != null &&
+      _depensesSanteAnnuellesFact != null;
+
+  LamalFranchiseResult? _resultFromLedger(S s) {
+    final prime = _primeMensuelleFact;
+    final currentFranchise = _currentFranchiseFact;
+    final depenses = _depensesSanteAnnuellesFact;
+    if (prime == null || currentFranchise == null || depenses == null) {
+      return null;
+    }
+    final normalizedPrime = LamalPremiumNormalizer.toFranchise300MonthlyPremium(
+      monthlyPremium: prime,
+      currentFranchise: currentFranchise,
+      isChild: false,
+      premiumSavingsVs300: LamalFranchiseService.premiumSavingsVs300,
+    );
+    return LamalFranchiseService.analyzeAllFranchises(
+      normalizedPrime,
+      depenses,
+      isChild: false,
+      l: s,
+    );
+  }
+
+  Future<void> _openBudgetSetup() async {
+    await context.push('/budget/setup?focus=lamal');
+    if (!mounted) return;
+    await _refreshLedgerFacts();
   }
 
   // ── Build ──────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final result = _resultFromLedger(s);
     return Scaffold(
       backgroundColor: MintColors.background,
       body: CustomScrollView(
@@ -64,30 +137,42 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildDemoModeBadge(),
-                const SizedBox(height: MintSpacing.sm + 4),
                 MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro()),
+                MintEntrance(
+                    delay: const Duration(milliseconds: 100),
+                    child: _buildIntro()),
+                const SizedBox(height: MintSpacing.lg),
+                MintEntrance(child: _buildLedgerFacts(s)),
                 const SizedBox(height: MintSpacing.lg),
 
-                // Toggle Adult / Child
-                _buildToggle(),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Input sliders
-                _buildPrimeSlider(),
-                const SizedBox(height: MintSpacing.md),
-                _buildDepensesSlider(),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Results
-                if (_result != null) ...[
-                  MintEntrance(child: _buildComparisonCards()),
+                if (result != null) ...[
+                  KeyedSubtree(
+                    key: const Key('lamal_result_section'),
+                    child: Semantics(
+                      identifier: 'lamal_result_section',
+                      container: true,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          MintEntrance(child: _buildComparisonCards(result)),
+                          const SizedBox(height: MintSpacing.md + 4),
+                          MintEntrance(
+                            delay: const Duration(milliseconds: 100),
+                            child: _buildBreakEvenInfo(result),
+                          ),
+                          const SizedBox(height: MintSpacing.md + 4),
+                          MintEntrance(
+                            delay: const Duration(milliseconds: 150),
+                            child: _buildRecommendations(result),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: MintSpacing.md + 4),
-                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBreakEvenInfo()),
-                  const SizedBox(height: MintSpacing.md + 4),
-                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRecommendations()),
+                ] else if (_ledgerLoaded) ...[
+                  _buildMissingFactsCard(s),
                   const SizedBox(height: MintSpacing.md + 4),
                 ],
 
@@ -129,27 +214,6 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       title: Text(
         S.of(context)!.lamalFranchiseAppBarTitle,
         style: MintTextStyles.headlineMedium(),
-      ),
-    );
-  }
-
-  // ── Demo mode badge ──────────────────────────────────────
-
-  Widget _buildDemoModeBadge() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.sm + 2, vertical: MintSpacing.xs),
-        decoration: BoxDecoration(
-          color: MintColors.info.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: MintColors.info.withValues(alpha: 0.15)),
-        ),
-        child: Text(
-          S.of(context)!.lamalFranchiseDemoMode,
-          style: MintTextStyles.labelSmall(color: MintColors.info),
-        ),
       ),
     );
   }
@@ -218,159 +282,209 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     );
   }
 
-  // ── Toggle ─────────────────────────────────────────────────
+  // ── Ledger facts ─────────────────────────────────────────────
 
-  Widget _buildToggle() {
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.xs),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Semantics(
-              label: S.of(context)!.lamalFranchiseSelectAdulte,
-              button: true,
-              selected: !_isChild,
-              child: GestureDetector(
-                onTap: () {
-                  if (_isChild) {
-                    _isChild = false;
-                    _compute();
-                  }
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: MintSpacing.sm + 2),
-                  decoration: BoxDecoration(
-                    color:
-                        !_isChild ? MintColors.white : MintColors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: !_isChild
-                        ? [
-                            BoxShadow(
-                              color:
-                                  MintColors.textPrimary.withValues(alpha: 0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(
-                      S.of(context)!.lamalFranchiseToggleAdulte,
-                      style: MintTextStyles.bodyMedium(
-                        color: !_isChild
-                            ? MintColors.textPrimary
-                            : MintColors.textMuted,
-                      ),
+  Widget _buildLedgerFacts(S s) {
+    final prime = _primeMensuelleFact;
+    final currentFranchise = _currentFranchiseFact;
+    final medicalMonthly = _depensesSanteMensuellesFact;
+    final medicalAnnual = _depensesSanteAnnuellesFact;
+    return Semantics(
+      identifier: 'lamal_ledger_facts',
+      container: true,
+      child: MintSurface(
+        key: const Key('lamal_ledger_facts'),
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.all(MintSpacing.md + 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.dataset_outlined,
+                    color: MintColors.primary, size: 18),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  s.lamalFranchiseLedgerTitle,
+                  style: MintTextStyles.titleMedium(),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.xs + 2),
+            Text(
+              s.lamalFranchiseLedgerBody,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            _buildFactRow(
+              key: const Key('lamal_premium_fact'),
+              semanticsIdentifier: 'lamal_premium_fact',
+              label: s.budgetSetupLamal,
+              value: prime == null
+                  ? s.lamalFranchiseFactMissing
+                  : s.lamalFranchiseMonthlyValue(
+                      LamalFranchiseService.formatChf(prime),
                     ),
+              known: prime != null,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _buildFactRow(
+              key: const Key('lamal_current_franchise_fact'),
+              semanticsIdentifier: 'lamal_current_franchise_fact',
+              label: s.lamalFranchiseCurrentFactLabel,
+              value: currentFranchise == null
+                  ? s.lamalFranchiseFactMissing
+                  : LamalFranchiseService.formatChf(
+                      currentFranchise.toDouble(),
+                    ),
+              known: currentFranchise != null,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _buildFactRow(
+              key: const Key('lamal_medical_fact'),
+              semanticsIdentifier: 'lamal_medical_fact',
+              label: s.budgetSetupMedical,
+              value: medicalMonthly == null || medicalAnnual == null
+                  ? s.lamalFranchiseFactMissing
+                  : s.lamalFranchiseMedicalFactValue(
+                      LamalFranchiseService.formatChf(medicalMonthly),
+                      LamalFranchiseService.formatChf(medicalAnnual),
+                    ),
+              known: medicalMonthly != null,
+            ),
+            if (_hasRequiredLedgerFacts) ...[
+              const SizedBox(height: MintSpacing.md),
+              Semantics(
+                identifier: 'lamal_enrich_cta',
+                container: true,
+                button: true,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    key: const Key('lamal_enrich_cta'),
+                    onPressed: _openBudgetSetup,
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    label: Text(s.lamalFranchiseModifyCta),
                   ),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            child: Semantics(
-              label: S.of(context)!.lamalFranchiseSelectEnfant,
-              button: true,
-              selected: _isChild,
-              child: GestureDetector(
-                onTap: () {
-                  if (!_isChild) {
-                    _isChild = true;
-                    _compute();
-                  }
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: MintSpacing.sm + 2),
-                  decoration: BoxDecoration(
-                    color: _isChild ? MintColors.white : MintColors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: _isChild
-                        ? [
-                            BoxShadow(
-                              color:
-                                  MintColors.textPrimary.withValues(alpha: 0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(
-                      S.of(context)!.lamalFranchiseToggleEnfant,
-                      style: MintTextStyles.bodyMedium(
-                        color: _isChild
-                            ? MintColors.textPrimary
-                            : MintColors.textMuted,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  // ── Prime slider ───────────────────────────────────────────
-
-  Widget _buildPrimeSlider() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      child: MintAmountField(
-        label: S.of(context)!.lamalFranchisePrimeSliderLabel,
-        value: _primeMensuelle,
-        formatValue: (v) => LamalFranchiseService.formatChf(v),
-        onChanged: (v) {
-          setState(() {
-            _primeMensuelle = v;
-            _compute();
-          });
-        },
-        min: 200,
-        max: 600,
+  Widget _buildFactRow({
+    required Key key,
+    required String semanticsIdentifier,
+    required String label,
+    required String value,
+    required bool known,
+  }) {
+    final color = known ? MintColors.success : MintColors.warning;
+    return Semantics(
+      identifier: semanticsIdentifier,
+      container: true,
+      child: Container(
+        key: key,
+        padding: const EdgeInsets.all(MintSpacing.sm + 2),
+        decoration: BoxDecoration(
+          color: MintColors.craie,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: MintColors.border.withValues(alpha: 0.45)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              known ? Icons.check_circle_outline : Icons.help_outline,
+              color: color,
+              size: 18,
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: MintTextStyles.labelSmall()),
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style:
+                        MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            Text(
+              known
+                  ? S.of(context)!.lamalFranchiseFactKnown
+                  : S.of(context)!.lamalFranchiseFactMissing,
+              style: MintTextStyles.micro(color: color)
+                  .copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // ── Depenses input ────────────────────────────────────────
-
-  Widget _buildDepensesSlider() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
-      child: MintAmountField(
-        label: S.of(context)!.lamalFranchiseDepensesSliderLabel,
-        value: _depensesSante,
-        formatValue: (v) => LamalFranchiseService.formatChf(v),
-        onChanged: (v) {
-          setState(() {
-            _depensesSante = v;
-            _compute();
-          });
-        },
-        min: 0,
-        max: 10000,
+  Widget _buildMissingFactsCard(S s) {
+    return Semantics(
+      identifier: 'lamal_missing_facts_card',
+      container: true,
+      child: MintSurface(
+        key: const Key('lamal_missing_facts_card'),
+        tone: MintSurfaceTone.bleu,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.add_task, color: MintColors.info, size: 18),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  s.lamalFranchiseMissingTitle,
+                  style: MintTextStyles.titleMedium(),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              s.lamalFranchiseMissingBody,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Semantics(
+              identifier: 'lamal_enrich_cta',
+              container: true,
+              button: true,
+              child: FilledButton.icon(
+                key: const Key('lamal_enrich_cta'),
+                onPressed: _openBudgetSetup,
+                icon: const Icon(Icons.arrow_forward),
+                label: Text(s.lamalFranchiseEnrichCta),
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.background,
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   // ── Comparison cards ───────────────────────────────────────
 
-  Widget _buildComparisonCards() {
-    final result = _result!;
+  Widget _buildComparisonCards(LamalFranchiseResult result) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -430,11 +544,11 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                       ),
                       child: Text(
                         S.of(context)!.lamalFranchiseRecommandee,
-                        style: MintTextStyles.labelSmall(
-                                color: MintColors.success)
-                            .copyWith(
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5),
+                        style:
+                            MintTextStyles.labelSmall(color: MintColors.success)
+                                .copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5),
                       ),
                     ),
                   ],
@@ -485,8 +599,9 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
         const SizedBox(height: 2),
         Text(
           value,
-          style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
-              .copyWith(fontWeight: FontWeight.w600),
+          style:
+              MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -494,8 +609,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
 
   // ── Break-even info ────────────────────────────────────────
 
-  Widget _buildBreakEvenInfo() {
-    final result = _result!;
+  Widget _buildBreakEvenInfo(LamalFranchiseResult result) {
     if (result.breakEvenPoints.isEmpty) return const SizedBox.shrink();
 
     return MintSurface(
@@ -510,8 +624,8 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.lamalFranchiseBreakEvenTitle,
-                style: MintTextStyles.titleMedium(
-                    color: MintColors.textPrimary),
+                style:
+                    MintTextStyles.titleMedium(color: MintColors.textPrimary),
               ),
             ],
           ),
@@ -534,10 +648,10 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                     Expanded(
                       child: Text(
                         S.of(context)!.lamalFranchiseBreakEvenItem(
-                          LamalFranchiseService.formatChf(bp.seuilDepenses),
-                          bp.franchiseBasse.toString(),
-                          bp.franchiseHaute.toString(),
-                        ),
+                              LamalFranchiseService.formatChf(bp.seuilDepenses),
+                              bp.franchiseBasse.toString(),
+                              bp.franchiseHaute.toString(),
+                            ),
                         style: MintTextStyles.bodySmall(
                             color: MintColors.textSecondary),
                       ),
@@ -552,8 +666,7 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
 
   // ── Recommendations ────────────────────────────────────────
 
-  Widget _buildRecommendations() {
-    final result = _result!;
+  Widget _buildRecommendations(LamalFranchiseResult result) {
     if (result.recommandations.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -584,8 +697,8 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
                 ),
                 child: Text(
                   rec,
-                  style: MintTextStyles.bodySmall(
-                      color: MintColors.textSecondary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ),
             )),

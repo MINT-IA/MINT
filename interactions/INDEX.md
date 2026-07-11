@@ -23,4 +23,5 @@
 | independent_missing_facts | `indep.edge.lpp.enrich_income_or_age` | `indep.route.lpp -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_lpp_volontaire.yaml` |
 | independent_missing_facts | `indep.edge.pillar3a.enrich_cash` | `indep.route.pillar3a -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/indep_pillar3a.yaml` |
 | independent_missing_facts | `indep.edge.pillar3a.enrich_income_or_pension` | `indep.route.pillar3a -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_pillar3a.yaml` |
+| lamal_missing_facts | `lamal.edge.franchise.enrich_health_costs` | `lamal.route.franchise -> budget.route.setup` | `tap` | `push` | `apps/mobile/.maestro/lamal_franchise.yaml` |
 | revenu_to_mortgage | `db.edge.revenu.submit` | `db.route.revenu -> mortgage.route.hypotheque` | `submit` | `push` | `apps/mobile/.maestro/f2_datablock_to_mortgage.yaml` |

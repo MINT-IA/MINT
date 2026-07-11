@@ -1,0 +1,39 @@
+schema_version: 1
+flow:
+  id: lamal_missing_facts
+  title: "LAMal franchise screen to budget ledger facts"
+  exits: [budget.route.setup]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: lamal.route.franchise
+    kind: route
+    route: /assurances/lamal
+    widget: screens/lamal_franchise_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: budget.route.setup
+    kind: route
+    route: /budget/setup
+    widget: screens/budget/budget_setup_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: lamal.edge.franchise.enrich_health_costs
+    from: lamal.route.franchise
+    to: budget.route.setup
+    trigger: tap
+    intent: "Collect LAMal premium, current deductible, and recurring medical costs before comparing deductible scenarios"
+    payload:
+      query_params: {focus: FocusKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/lamal_franchise.yaml

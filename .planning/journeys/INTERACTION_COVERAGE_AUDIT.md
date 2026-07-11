@@ -4,10 +4,10 @@
 
 ## Summary
 
-- Extracted Flutter route references: 350
+- Extracted Flutter route references: 351
 - Distinct known route templates referenced: 92
-- Covered by declared Interaction Registry route nodes: 13
-- Known route templates not yet declared as route nodes: 79
+- Covered by declared Interaction Registry route nodes: 14
+- Known route templates not yet declared as route nodes: 78
 - Declared edge target route templates: 5
 - Unknown route literals/templates: 0
 
@@ -15,7 +15,8 @@
 
 | Status | Route | References |
 |---|---|---|
-| covered by declared route node | `/budget/setup` | apps/mobile/lib/screens/budget/budget_container_screen.dart:61, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:115 |
+| covered by declared route node | `/assurances/lamal` | apps/mobile/lib/app.dart:636, apps/mobile/lib/data/educational_themes.dart:185, apps/mobile/lib/services/response_card_service.dart:417 |
+| covered by declared route node | `/budget/setup` | apps/mobile/lib/screens/budget/budget_container_screen.dart:61, apps/mobile/lib/screens/lamal_franchise_screen.dart:119, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:115 |
 | covered by declared route node | `/data-block/:type` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1325, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:801, apps/mobile/lib/widgets/coach/confidence_blocks_bar.dart:82, apps/mobile/lib/widgets/coach/indicatif_banner.dart:99 |
 | covered by declared route node | `/disability/insurance` | apps/mobile/lib/app.dart:634 |
 | covered by declared route node | `/disability/self-employed` | apps/mobile/lib/app.dart:635 |
@@ -44,15 +45,14 @@
 | uncovered literal route | `/arbitrage/location-vs-propriete` | apps/mobile/lib/app.dart:594, apps/mobile/lib/services/arbitrage_summary_service.dart:468, apps/mobile/lib/services/response_card_service.dart:201 |
 | uncovered literal route | `/ask-mint` | apps/mobile/lib/screens/byok_settings_screen.dart:446 |
 | uncovered literal route | `/assurances/coverage` | apps/mobile/lib/app.dart:637, apps/mobile/lib/services/response_card_service.dart:429 |
-| uncovered literal route | `/assurances/lamal` | apps/mobile/lib/app.dart:636, apps/mobile/lib/data/educational_themes.dart:185, apps/mobile/lib/services/response_card_service.dart:417 |
 | uncovered literal route | `/auth/forgot-password` | apps/mobile/lib/screens/auth/login_screen.dart:522 |
-| uncovered literal route | `/auth/login` | apps/mobile/lib/app.dart:1860, apps/mobile/lib/screens/auth/forgot_password_screen.dart:89, apps/mobile/lib/screens/auth/register_screen.dart:635, apps/mobile/lib/screens/auth/verify_email_screen.dart:86 (+7 more) |
+| uncovered literal route | `/auth/login` | apps/mobile/lib/app.dart:1862, apps/mobile/lib/screens/auth/forgot_password_screen.dart:89, apps/mobile/lib/screens/auth/register_screen.dart:635, apps/mobile/lib/screens/auth/verify_email_screen.dart:86 (+7 more) |
 | uncovered literal route | `/auth/register` | apps/mobile/lib/screens/auth/login_screen.dart:560, apps/mobile/lib/screens/coach/coach_chat_screen.dart:1611, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1098, apps/mobile/lib/widgets/auth/auth_gate_bottom_sheet.dart:86 |
 | uncovered literal route | `/auth/verify-email` | apps/mobile/lib/screens/auth/login_screen.dart:537, apps/mobile/lib/screens/auth/register_screen.dart:109, apps/mobile/lib/screens/auth/register_screen.dart:111 |
 | uncovered literal route | `/bank-import` | apps/mobile/lib/screens/documents_screen.dart:935 |
 | uncovered literal route | `/budget` | apps/mobile/lib/data/educational_themes.dart:143, apps/mobile/lib/data/educational_themes.dart:174, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:348, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:441 (+10 more) |
 | uncovered literal route | `/check/debt` | apps/mobile/lib/screens/timeline_screen.dart:218, apps/mobile/lib/widgets/common/debt_tools_nav.dart:28 |
-| uncovered literal route | `/coach/chat` | apps/mobile/lib/app.dart:1809, apps/mobile/lib/app.dart:1812, apps/mobile/lib/app.dart:1901, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:70 (+27 more) |
+| uncovered literal route | `/coach/chat` | apps/mobile/lib/app.dart:1811, apps/mobile/lib/app.dart:1814, apps/mobile/lib/app.dart:1903, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:70 (+27 more) |
 | uncovered literal route | `/coach/checkin` | apps/mobile/lib/widgets/coach/explore_hub.dart:54 |
 | uncovered literal route | `/coach/cockpit` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:507, apps/mobile/lib/widgets/coach/early_retirement_comparison.dart:202, apps/mobile/lib/widgets/coach/smart_shortcuts.dart:48, apps/mobile/lib/widgets/coach/trajectory_card.dart:54 |
 | uncovered literal route | `/concubinage` | apps/mobile/lib/app.dart:561, apps/mobile/lib/screens/timeline_screen.dart:71, apps/mobile/lib/services/cap_engine.dart:835, apps/mobile/lib/services/response_card_service.dart:301 (+1 more) |
@@ -123,6 +123,7 @@
 
 | Route |
 |---|
+| `/assurances/lamal` |
 | `/budget/setup` |
 | `/data-block/:type` |
 | `/disability/insurance` |

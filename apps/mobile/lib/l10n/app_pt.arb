@@ -697,6 +697,7 @@
   "@budgetSetupLamal": {
     "description": "Budget setup label."
   },
+  "budgetSetupLamalFranchise": "Franquia LAMal atual",
   "budgetSetupTransport": "Transport",
   "@budgetSetupTransport": {
     "description": "Budget setup label."
@@ -4610,16 +4611,11 @@
     }
   },
   "lamalFranchiseAppBarTitle": "Franquia LAMal",
-  "lamalFranchiseDemoMode": "MODO DEMO",
   "lamalFranchiseHeaderTitle": "A tua franquia LAMal",
-  "lamalFranchiseHeaderSubtitle": "Encontra a franquia ideal segundo os teus custos de saúde",
-  "lamalFranchiseIntro": "Uma franquia alta reduz o teu prémio mensal, mas aumenta os custos em caso de doença. Desloca os cursores para encontrar o equilíbrio.",
-  "lamalFranchiseToggleAdulte": "Adulto",
-  "lamalFranchiseToggleEnfant": "Criança",
-  "lamalFranchisePrimeSliderLabel": "Prémio mensal (franquia 300)",
-  "lamalFranchiseDepensesSliderLabel": "Custos de saúde anuais estimados",
+  "lamalFranchiseHeaderSubtitle": "Compara cenários de franquia a partir dos teus custos de saúde conhecidos",
+  "lamalFranchiseIntro": "MINT usa o teu prémio LAMal, a franquia atual e os custos médicos guardados no teu orçamento. Se faltar um dado, completa-o uma só vez no teu perfil.",
   "lamalFranchiseComparisonHeader": "COMPARAÇÃO DE FRANQUIAS",
-  "lamalFranchiseRecommandee": "RECOMENDADA",
+  "lamalFranchiseRecommandee": "A REVER",
   "lamalFranchiseTotalPrefix": "Total: {amount}",
   "@lamalFranchiseTotalPrefix": {
     "placeholders": {
@@ -4646,17 +4642,39 @@
       }
     }
   },
-  "lamalFranchiseRecommandationsHeader": "RECOMENDAÇÕES",
+  "lamalFranchiseRecommandationsHeader": "PONTOS A DISCUTIR",
   "lamalFranchiseAlertText": "Lembrete: podes mudar a tua franquia antes de 30 de novembro de cada ano para o ano seguinte.",
   "lamalFranchiseDisclaimer": "Estimativa educativa. Os prémios variam conforme a seguradora, a região e o modelo. Não constitui aconselhamento financeiro (LSFin).",
   "lamalFranchiseSourcesHeader": "Fontes",
   "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franquia e copagamento) / OAMal (regulamento) / priminfo.admin.ch (comparador oficial) / LAMal art. 7 (livre escolha do segurador) / LAMal art. 41a (modelos alternativos)",
-  "lamalFranchisePrimeMin": "CHF 200",
-  "lamalFranchisePrimeMax": "CHF 600",
-  "lamalFranchiseDepensesMin": "CHF 0",
-  "lamalFranchiseDepensesMax": "CHF 10'000",
-  "lamalFranchiseSelectAdulte": "Selecionar adulto",
-  "lamalFranchiseSelectEnfant": "Selecionar criança",
+  "lamalFranchiseLedgerTitle": "Dados usados",
+  "lamalFranchiseLedgerBody": "Estes montantes vêm da tua biblioteca de dados. Não são introduzidos de novo aqui.",
+  "lamalFranchiseFactKnown": "Conhecido",
+  "lamalFranchiseFactMissing": "Em falta",
+  "lamalFranchiseCurrentFactLabel": "Franquia atual",
+  "lamalFranchiseMonthlyValue": "{amount} / mês",
+  "@lamalFranchiseMonthlyValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMedicalFactValue": "{monthly} / mês · {annual} / ano",
+  "@lamalFranchiseMedicalFactValue": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      },
+      "annual": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMissingTitle": "Dados a completar",
+  "lamalFranchiseMissingBody": "Para comparar franquias LAMal, MINT precisa do teu prémio mensal, da franquia atual e dos teus custos médicos mensais.",
+  "lamalFranchiseEnrichCta": "Completar estes dados",
+  "lamalFranchiseModifyCta": "Editar no orçamento",
   "firstJobCantonLabel": "Cantão",
   "firstJobSalaryMin": "CHF 2'000",
   "firstJobSalaryMax": "CHF 15'000",

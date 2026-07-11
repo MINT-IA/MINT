@@ -1,0 +1,59 @@
+appId: ch.mint.app
+---
+# LAMal franchise reads profile facts only. Missing premium/medical costs route
+# to Budget setup, then the screen recomputes from the canonical ledger facts.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///assurances/lamal"
+- assertVisible:
+    id: "lamal_ledger_facts"
+- assertVisible:
+    id: "lamal_missing_facts_card"
+- tapOn:
+    id: "lamal_enrich_cta"
+- assertVisible:
+    id: "budget_setup_housing_input"
+- tapOn:
+    id: "budget_setup_housing_input"
+- inputText: "2200"
+- tapOn:
+    id: "budget_setup_lamal_input"
+- inputText: "390"
+- tapOn:
+    id: "budget_setup_lamal_franchise_input"
+- tapOn: "CHF 2'500"
+- scrollUntilVisible:
+    element:
+      id: "budget_setup_medical_input"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "budget_setup_medical_input"
+- tapOn:
+    id: "budget_setup_medical_input"
+- inputText: "120"
+- scrollUntilVisible:
+    element:
+      id: "budget_setup_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "budget_setup_save_cta"
+- assertVisible:
+    id: "lamal_ledger_facts"
+- assertVisible:
+    id: "lamal_premium_fact"
+- assertVisible:
+    id: "lamal_current_franchise_fact"
+- assertVisible:
+    id: "lamal_medical_fact"
+- assertVisible:
+    id: "lamal_result_section"

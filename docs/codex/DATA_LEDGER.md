@@ -291,8 +291,9 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 | key (field path) | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|
 | `depenses.loyer` | double CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | budget, `resteAVivreMensuel` |
-| `depenses.assuranceMaladie` | double CHF/mo | expenses | userInput, certificate | annual | .60 | mergeAnswers | budget, LAMal |
-| `depenses.{electricite,transport,telecom,fraisMedicaux,autresDepensesFixes}` | double? CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | `totalMensuel`, budget gap |
+| `depenses.assuranceMaladie` | double CHF/mo | expenses | userInput, certificate, openBanking | annual | .60 | mergeAnswers, `_coach_depenses_assurance` bridge | budget |
+| `q_lamal_franchise` | enum CHF | insurance | userInput, certificate | annual | .80 | mergeAnswers | LAMal |
+| `depenses.{electricite,transport,telecom,fraisMedicaux,autresDepensesFixes}` | double? CHF/mo | expenses | userInput | volatile | .60 | mergeAnswers | `totalMensuel`, budget gap; `fraisMedicaux` also feeds LAMal as annualized health-cost fact |
 
 > `depenses.*` field paths are NOT allowlist keys and have NO `_mapFactKeyToAnswers` case. The BudgetProvider bridge (§7) therefore writes them via the **field-path payload shape** defined in §7B, not via a `q_*` mapping.
 > `monthlyExpenses` is a **completion marker**, not a stored ledger value. Mobile may add it to `CoachProfile.userProvidedFields` only when both base monthly-charge keys `q_housing_cost_period_chf` and `q_lamal_premium_monthly_chf` are present. Screens such as `/disability/self-employed` must not unlock expense-sensitive projections from the default rent (`1500`) or estimated LAMal fallback.

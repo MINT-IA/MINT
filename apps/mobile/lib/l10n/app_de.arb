@@ -697,6 +697,7 @@
   "@budgetSetupLamal": {
     "description": "Budget setup label."
   },
+  "budgetSetupLamalFranchise": "Aktuelle KVG-Franchise",
   "budgetSetupTransport": "Transport",
   "@budgetSetupTransport": {
     "description": "Budget setup label."
@@ -4610,16 +4611,11 @@
     }
   },
   "lamalFranchiseAppBarTitle": "KVG-Franchise",
-  "lamalFranchiseDemoMode": "DEMOMODUS",
   "lamalFranchiseHeaderTitle": "Deine KVG-Franchise",
-  "lamalFranchiseHeaderSubtitle": "Finde die ideale Franchise je nach deinen Gesundheitskosten",
-  "lamalFranchiseIntro": "Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Regler, um das richtige Gleichgewicht zu finden.",
-  "lamalFranchiseToggleAdulte": "Erwachsene",
-  "lamalFranchiseToggleEnfant": "Kind",
-  "lamalFranchisePrimeSliderLabel": "Monatsprämie (Franchise 300)",
-  "lamalFranchiseDepensesSliderLabel": "Geschätzte jährliche Gesundheitskosten",
+  "lamalFranchiseHeaderSubtitle": "Vergleiche Franchise-Szenarien anhand deiner bekannten Gesundheitskosten",
+  "lamalFranchiseIntro": "MINT verwendet deine KVG-Prämie, aktuelle Franchise und Gesundheitskosten aus deinem Budget. Wenn ein Wert fehlt, ergänzt du ihn einmal in deinem Profil.",
   "lamalFranchiseComparisonHeader": "FRANCHISEVERGLEICH",
-  "lamalFranchiseRecommandee": "EMPFOHLEN",
+  "lamalFranchiseRecommandee": "ZU PRÜFEN",
   "lamalFranchiseTotalPrefix": "Total: {amount}",
   "@lamalFranchiseTotalPrefix": {
     "placeholders": {
@@ -4646,17 +4642,39 @@
       }
     }
   },
-  "lamalFranchiseRecommandationsHeader": "EMPFEHLUNGEN",
+  "lamalFranchiseRecommandationsHeader": "PUNKTE ZUR BESPRECHUNG",
   "lamalFranchiseAlertText": "Erinnerung: Du kannst deine Franchise vor dem 30. November jedes Jahres für das Folgejahr ändern.",
   "lamalFranchiseDisclaimer": "Bildungsschätzung. Die Prämien variieren je nach Versicherer, Region und Modell. Keine Finanzberatung (FIDLEG).",
   "lamalFranchiseSourcesHeader": "Quellen",
   "lamalFranchiseSourcesBody": "KVG Art. 62-64 (Franchise und Selbstbehalt) / KVV (Verordnung) / priminfo.admin.ch (offizieller Vergleich) / KVG Art. 7 (freie Wahl des Versicherers) / KVG Art. 41a (alternative Modelle)",
-  "lamalFranchisePrimeMin": "CHF 200",
-  "lamalFranchisePrimeMax": "CHF 600",
-  "lamalFranchiseDepensesMin": "CHF 0",
-  "lamalFranchiseDepensesMax": "CHF 10'000",
-  "lamalFranchiseSelectAdulte": "Erwachsene wählen",
-  "lamalFranchiseSelectEnfant": "Kind wählen",
+  "lamalFranchiseLedgerTitle": "Verwendete Daten",
+  "lamalFranchiseLedgerBody": "Diese Beträge kommen aus deiner Datenbibliothek. Sie werden hier nicht nochmals erfasst.",
+  "lamalFranchiseFactKnown": "Bekannt",
+  "lamalFranchiseFactMissing": "Fehlt",
+  "lamalFranchiseCurrentFactLabel": "Aktuelle Franchise",
+  "lamalFranchiseMonthlyValue": "{amount} / Monat",
+  "@lamalFranchiseMonthlyValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMedicalFactValue": "{monthly} / Monat · {annual} / Jahr",
+  "@lamalFranchiseMedicalFactValue": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      },
+      "annual": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMissingTitle": "Daten ergänzen",
+  "lamalFranchiseMissingBody": "Um KVG-Franchisen zu vergleichen, braucht MINT deine Monatsprämie, aktuelle Franchise und monatlichen Gesundheitskosten.",
+  "lamalFranchiseEnrichCta": "Diese Daten ergänzen",
+  "lamalFranchiseModifyCta": "Im Budget ändern",
   "firstJobCantonLabel": "Kanton",
   "firstJobSalaryMin": "CHF 2'000",
   "firstJobSalaryMax": "CHF 15'000",

@@ -18,6 +18,7 @@ export 'couple_optimizer.dart';
 export 'disability_insurance_calculator.dart';
 export 'fri_calculator.dart';
 export 'housing_cost_calculator.dart';
+export 'lamal_premium_normalizer.dart';
 export 'lpp_calculator.dart';
 export 'monte_carlo_models.dart';
 export 'monte_carlo_service.dart';

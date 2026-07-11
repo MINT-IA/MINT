@@ -697,6 +697,7 @@
   "@budgetSetupLamal": {
     "description": "Budget setup label."
   },
+  "budgetSetupLamalFranchise": "Current LAMal deductible",
   "budgetSetupTransport": "Transport",
   "@budgetSetupTransport": {
     "description": "Budget setup label."
@@ -4610,16 +4611,11 @@
     }
   },
   "lamalFranchiseAppBarTitle": "LAMal Deductible",
-  "lamalFranchiseDemoMode": "DEMO MODE",
   "lamalFranchiseHeaderTitle": "Your LAMal deductible",
-  "lamalFranchiseHeaderSubtitle": "Find the right deductible for your health costs",
-  "lamalFranchiseIntro": "A higher deductible lowers your monthly premium but increases your out-of-pocket costs when you see a doctor. Adjust the sliders to find the right balance.",
-  "lamalFranchiseToggleAdulte": "Adult",
-  "lamalFranchiseToggleEnfant": "Child",
-  "lamalFranchisePrimeSliderLabel": "Monthly premium (deductible 300)",
-  "lamalFranchiseDepensesSliderLabel": "Estimated annual health costs",
+  "lamalFranchiseHeaderSubtitle": "Compare deductible scenarios from your known health costs",
+  "lamalFranchiseIntro": "MINT uses your LAMal premium, current deductible and medical costs saved in your budget. If a fact is missing, add it once to your profile.",
   "lamalFranchiseComparisonHeader": "DEDUCTIBLE COMPARISON",
-  "lamalFranchiseRecommandee": "RECOMMENDED",
+  "lamalFranchiseRecommandee": "TO REVIEW",
   "lamalFranchiseTotalPrefix": "Total: {amount}",
   "@lamalFranchiseTotalPrefix": {
     "placeholders": {
@@ -4646,17 +4642,39 @@
       }
     }
   },
-  "lamalFranchiseRecommandationsHeader": "RECOMMENDATIONS",
+  "lamalFranchiseRecommandationsHeader": "POINTS TO DISCUSS",
   "lamalFranchiseAlertText": "Reminder: you can change your deductible before November 30 each year for the following year.",
   "lamalFranchiseDisclaimer": "Educational estimate. Premiums vary by insurer, region, and plan. Not financial advice (FinSA).",
   "lamalFranchiseSourcesHeader": "Sources",
   "lamalFranchiseSourcesBody": "KVG art. 62-64 (deductible and co-pay) / KVV (ordinance) / priminfo.admin.ch (official comparator) / KVG art. 7 (free choice of insurer) / KVG art. 41a (alternative models)",
-  "lamalFranchisePrimeMin": "CHF 200",
-  "lamalFranchisePrimeMax": "CHF 600",
-  "lamalFranchiseDepensesMin": "CHF 0",
-  "lamalFranchiseDepensesMax": "CHF 10,000",
-  "lamalFranchiseSelectAdulte": "Select adult",
-  "lamalFranchiseSelectEnfant": "Select child",
+  "lamalFranchiseLedgerTitle": "Data used",
+  "lamalFranchiseLedgerBody": "These amounts come from your data library. They are not entered again here.",
+  "lamalFranchiseFactKnown": "Known",
+  "lamalFranchiseFactMissing": "Missing",
+  "lamalFranchiseCurrentFactLabel": "Current deductible",
+  "lamalFranchiseMonthlyValue": "{amount} / month",
+  "@lamalFranchiseMonthlyValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMedicalFactValue": "{monthly} / month · {annual} / year",
+  "@lamalFranchiseMedicalFactValue": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      },
+      "annual": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMissingTitle": "Data to complete",
+  "lamalFranchiseMissingBody": "To compare LAMal deductibles, MINT needs your monthly premium, current deductible and monthly medical costs.",
+  "lamalFranchiseEnrichCta": "Complete these facts",
+  "lamalFranchiseModifyCta": "Edit in budget",
   "firstJobCantonLabel": "Canton",
   "firstJobSalaryMin": "CHF 2,000",
   "firstJobSalaryMax": "CHF 15,000",

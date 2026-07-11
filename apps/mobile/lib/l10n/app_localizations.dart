@@ -3045,6 +3045,12 @@ abstract class S {
   /// **'Assurance maladie'**
   String get budgetSetupLamal;
 
+  /// No description provided for @budgetSetupLamalFranchise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Franchise LAMal actuelle'**
+  String get budgetSetupLamalFranchise;
+
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
@@ -17083,12 +17089,6 @@ abstract class S {
   /// **'Franchise LAMal'**
   String get lamalFranchiseAppBarTitle;
 
-  /// No description provided for @lamalFranchiseDemoMode.
-  ///
-  /// In fr, this message translates to:
-  /// **'MODE DÉMO'**
-  String get lamalFranchiseDemoMode;
-
   /// No description provided for @lamalFranchiseHeaderTitle.
   ///
   /// In fr, this message translates to:
@@ -17098,38 +17098,14 @@ abstract class S {
   /// No description provided for @lamalFranchiseHeaderSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Trouve la franchise idéale selon tes frais de santé'**
+  /// **'Compare des scénarios de franchise à partir de tes frais connus'**
   String get lamalFranchiseHeaderSubtitle;
 
   /// No description provided for @lamalFranchiseIntro.
   ///
   /// In fr, this message translates to:
-  /// **'Une franchise élevée réduit ta prime mensuelle, mais augmente tes frais en cas de maladie. Déplace les curseurs pour trouver l\'équilibre.'**
+  /// **'MINT utilise ta prime LAMal, ta franchise actuelle et tes frais médicaux saisis dans ton budget. Si une donnée manque, complète-la une seule fois dans ton profil.'**
   String get lamalFranchiseIntro;
-
-  /// No description provided for @lamalFranchiseToggleAdulte.
-  ///
-  /// In fr, this message translates to:
-  /// **'Adulte'**
-  String get lamalFranchiseToggleAdulte;
-
-  /// No description provided for @lamalFranchiseToggleEnfant.
-  ///
-  /// In fr, this message translates to:
-  /// **'Enfant'**
-  String get lamalFranchiseToggleEnfant;
-
-  /// No description provided for @lamalFranchisePrimeSliderLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Prime mensuelle (franchise 300)'**
-  String get lamalFranchisePrimeSliderLabel;
-
-  /// No description provided for @lamalFranchiseDepensesSliderLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Frais de santé annuels estimés'**
-  String get lamalFranchiseDepensesSliderLabel;
 
   /// No description provided for @lamalFranchiseComparisonHeader.
   ///
@@ -17140,7 +17116,7 @@ abstract class S {
   /// No description provided for @lamalFranchiseRecommandee.
   ///
   /// In fr, this message translates to:
-  /// **'RECOMMANDÉE'**
+  /// **'À EXAMINER'**
   String get lamalFranchiseRecommandee;
 
   /// No description provided for @lamalFranchiseTotalPrefix.
@@ -17182,7 +17158,7 @@ abstract class S {
   /// No description provided for @lamalFranchiseRecommandationsHeader.
   ///
   /// In fr, this message translates to:
-  /// **'RECOMMANDATIONS'**
+  /// **'PISTES À DISCUTER'**
   String get lamalFranchiseRecommandationsHeader;
 
   /// No description provided for @lamalFranchiseAlertText.
@@ -17209,41 +17185,71 @@ abstract class S {
   /// **'LAMal art. 62-64 (franchise et quote-part) / OAMal (ordonnance) / priminfo.admin.ch (comparateur officiel) / LAMal art. 7 (libre choix de l\'assureur) / LAMal art. 41a (modèles alternatifs)'**
   String get lamalFranchiseSourcesBody;
 
-  /// No description provided for @lamalFranchisePrimeMin.
+  /// No description provided for @lamalFranchiseLedgerTitle.
   ///
   /// In fr, this message translates to:
-  /// **'CHF 200'**
-  String get lamalFranchisePrimeMin;
+  /// **'Données utilisées'**
+  String get lamalFranchiseLedgerTitle;
 
-  /// No description provided for @lamalFranchisePrimeMax.
+  /// No description provided for @lamalFranchiseLedgerBody.
   ///
   /// In fr, this message translates to:
-  /// **'CHF 600'**
-  String get lamalFranchisePrimeMax;
+  /// **'Ces montants viennent de ta bibliothèque de données. Ils ne sont pas ressaisis ici.'**
+  String get lamalFranchiseLedgerBody;
 
-  /// No description provided for @lamalFranchiseDepensesMin.
+  /// No description provided for @lamalFranchiseFactKnown.
   ///
   /// In fr, this message translates to:
-  /// **'CHF 0'**
-  String get lamalFranchiseDepensesMin;
+  /// **'Connu'**
+  String get lamalFranchiseFactKnown;
 
-  /// No description provided for @lamalFranchiseDepensesMax.
+  /// No description provided for @lamalFranchiseFactMissing.
   ///
   /// In fr, this message translates to:
-  /// **'CHF 10\'000'**
-  String get lamalFranchiseDepensesMax;
+  /// **'Manquant'**
+  String get lamalFranchiseFactMissing;
 
-  /// No description provided for @lamalFranchiseSelectAdulte.
+  /// No description provided for @lamalFranchiseCurrentFactLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Sélectionner adulte'**
-  String get lamalFranchiseSelectAdulte;
+  /// **'Franchise actuelle'**
+  String get lamalFranchiseCurrentFactLabel;
 
-  /// No description provided for @lamalFranchiseSelectEnfant.
+  /// No description provided for @lamalFranchiseMonthlyValue.
   ///
   /// In fr, this message translates to:
-  /// **'Sélectionner enfant'**
-  String get lamalFranchiseSelectEnfant;
+  /// **'{amount} / mois'**
+  String lamalFranchiseMonthlyValue(String amount);
+
+  /// No description provided for @lamalFranchiseMedicalFactValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{monthly} / mois · {annual} / an'**
+  String lamalFranchiseMedicalFactValue(String monthly, String annual);
+
+  /// No description provided for @lamalFranchiseMissingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données à compléter'**
+  String get lamalFranchiseMissingTitle;
+
+  /// No description provided for @lamalFranchiseMissingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour comparer les franchises LAMal, MINT a besoin de ta prime mensuelle, de ta franchise actuelle et de tes frais médicaux mensuels.'**
+  String get lamalFranchiseMissingBody;
+
+  /// No description provided for @lamalFranchiseEnrichCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter ces données'**
+  String get lamalFranchiseEnrichCta;
+
+  /// No description provided for @lamalFranchiseModifyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier dans le budget'**
+  String get lamalFranchiseModifyCta;
 
   /// No description provided for @firstJobCantonLabel.
   ///

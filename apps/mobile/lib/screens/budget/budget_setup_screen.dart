@@ -33,7 +33,9 @@ import 'package:provider/provider.dart';
 /// bottom — doctrine `chat_is_everything` is respected ("all data
 /// *can* go through chat"), not bent into "must".
 class BudgetSetupScreen extends StatefulWidget {
-  const BudgetSetupScreen({super.key});
+  final String? initialFocus;
+
+  const BudgetSetupScreen({super.key, this.initialFocus});
 
   @override
   State<BudgetSetupScreen> createState() => _BudgetSetupScreenState();
@@ -47,6 +49,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   final _electricity = TextEditingController();
   final _medical = TextEditingController();
   final _other = TextEditingController();
+  int? _lamalFranchise;
   bool _showOptional = false;
   bool _saving = false;
 
@@ -63,10 +66,12 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   static const _placeholderElectricity = '90';
   static const _placeholderMedical = '120';
   static const _placeholderOther = '250';
+  static const _lamalFranchiseLevels = [300, 500, 1000, 1500, 2000, 2500];
 
   @override
   void initState() {
     super.initState();
+    _showOptional = widget.initialFocus == 'lamal';
     // Pre-fill from the ledger answers, not from CoachProfile.depenses:
     // CoachProfile may contain derived/default amounts for calculations, while
     // this screen must only display facts the user has actually supplied.
@@ -84,6 +89,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       _medical.text =
           _formatAnswerAmount(answers['_coach_depenses_frais_medicaux']);
       _other.text = _formatAnswerAmount(answers['_coach_depenses_autres']);
+      setState(() {
+        _lamalFranchise = _coerceFranchise(answers['q_lamal_franchise']);
+      });
     });
 
     // Live total ticker — rebuild on every field change so the user sees
@@ -150,6 +158,28 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     return null;
   }
 
+  int? _coerceFranchise(dynamic value) {
+    if (value is int && _lamalFranchiseLevels.contains(value)) return value;
+    if (value is num) {
+      final parsed = value.round();
+      return _lamalFranchiseLevels.contains(parsed) ? parsed : null;
+    }
+    if (value is String) {
+      final cleaned = value.trim().replaceAll(RegExp(r"[' ]"), '');
+      final parsed = int.tryParse(cleaned);
+      return _lamalFranchiseLevels.contains(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
+  String _formatFranchise(int value) {
+    final amount = value.toString().replaceAllMapped(
+          RegExp(r'\B(?=(\d{3})+(?!\d))'),
+          (_) => "'",
+        );
+    return 'CHF $amount';
+  }
+
   double? _parseAmount(String raw) {
     final cleaned = raw.trim().replaceAll(RegExp(r"[' ]"), '');
     if (cleaned.isEmpty) return null;
@@ -159,7 +189,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   Future<void> _save() async {
     final housing = _parseAmount(_housing.text);
     final lamal = _parseAmount(_lamal.text);
-    if (housing == null || lamal == null) {
+    final requiresHousing = widget.initialFocus != 'lamal';
+    if (lamal == null || (requiresHousing && housing == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(S.of(context)!.budgetSetupRequired)),
       );
@@ -168,10 +199,15 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     setState(() => _saving = true);
     final provider = context.read<CoachProfileProvider>();
     final answers = <String, dynamic>{
-      'q_housing_cost_period_chf': housing,
-      'q_pay_frequency': 'monthly',
       'q_lamal_premium_monthly_chf': lamal,
     };
+    if (housing != null) {
+      answers['q_housing_cost_period_chf'] = housing;
+      answers['q_pay_frequency'] = 'monthly';
+    }
+    if (_lamalFranchise != null) {
+      answers['q_lamal_franchise'] = _lamalFranchise.toString();
+    }
     final transport = _parseAmount(_transport.text);
     if (transport != null) answers['_coach_depenses_transport'] = transport;
     final telecom = _parseAmount(_telecom.text);
@@ -224,7 +260,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               _field(
                 s.budgetSetupHousing,
                 _housing,
-                required: true,
+                required: widget.initialFocus != 'lamal',
                 placeholder: _placeholderHousing,
                 fieldKey: const Key('budget_setup_housing_input'),
                 semanticsIdentifier: 'budget_setup_housing_input',
@@ -237,6 +273,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                 fieldKey: const Key('budget_setup_lamal_input'),
                 semanticsIdentifier: 'budget_setup_lamal_input',
               ),
+              _franchiseField(s),
               if (_showOptional) ...[
                 _field(s.budgetSetupTransport, _transport,
                     placeholder: _placeholderTransport),
@@ -244,15 +281,25 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                     placeholder: _placeholderTelecom),
                 _field(s.budgetSetupElectricity, _electricity,
                     placeholder: _placeholderElectricity),
-                _field(s.budgetSetupMedical, _medical,
-                    placeholder: _placeholderMedical),
+                _field(
+                  s.budgetSetupMedical,
+                  _medical,
+                  placeholder: _placeholderMedical,
+                  fieldKey: const Key('budget_setup_medical_input'),
+                  semanticsIdentifier: 'budget_setup_medical_input',
+                ),
                 _field(s.budgetSetupOther, _other,
                     placeholder: _placeholderOther),
               ] else
-                TextButton.icon(
-                  onPressed: () => setState(() => _showOptional = true),
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text(s.budgetSetupAddOthers),
+                Semantics(
+                  identifier: 'budget_setup_add_optional_cta',
+                  button: true,
+                  child: TextButton.icon(
+                    key: const Key('budget_setup_add_optional_cta'),
+                    onPressed: () => setState(() => _showOptional = true),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(s.budgetSetupAddOthers),
+                  ),
                 ),
               if (_liveTotal > 0) ...[
                 const SizedBox(height: MintSpacing.md),
@@ -355,6 +402,55 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _franchiseField(S s) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(s.budgetSetupLamalFranchise,
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary)),
+          const SizedBox(height: 8),
+          Semantics(
+            identifier: 'budget_setup_lamal_franchise_input',
+            container: true,
+            child: DropdownButtonFormField<int>(
+              key: const Key('budget_setup_lamal_franchise_input'),
+              initialValue: _lamalFranchise,
+              isExpanded: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: MintColors.white,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: MintColors.border.withValues(alpha: 0.6),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: MintColors.border.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+              items: [
+                for (final level in _lamalFranchiseLevels)
+                  DropdownMenuItem<int>(
+                    value: level,
+                    child: Text(_formatFranchise(level)),
+                  ),
+              ],
+              onChanged: (value) => setState(() => _lamalFranchise = value),
             ),
           ),
         ],

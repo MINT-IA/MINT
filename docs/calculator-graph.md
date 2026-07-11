@@ -44,6 +44,7 @@ flowchart LR
     CROSS --> ARB
     TAX --> ARB
     PROFILE --> DISABILITY[DisabilityInsuranceCalculator]:::calc
+    LAMAL_FACTS[LAMal Ledger Facts]:::profile --> LAMAL[LamalPremiumNormalizer]:::calc
 
     PROFILE --> CONF[ConfidenceScorer]:::score
     PROFILE --> CONF_ENH[EnhancedConfidenceService]:::score
@@ -92,6 +93,7 @@ Julien + Lauren golden values.
 | **CompoundContributionProjectionCalculator** | `compound_contribution_projection_calculator.dart` | annual contribution, years, annual return | future value of repeated contributions | IndependantsService 3a projection bridge |
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 | **DisabilityInsuranceCalculator** | `disability_insurance_calculator.dart` | gross monthly salary, age, liquid savings, monthly fixed charges, IJM scenario flag | reserve months, employer/IJM/AI+LPP timeline income, LPP reset capital, life-drop % | DisabilityGapScreen, DisabilityInsuranceScreen |
+| **LamalPremiumNormalizer** | `lamal_premium_normalizer.dart` | actual monthly premium, current franchise, adult/child flag, franchise savings table | monthly premium normalized to CHF 300 franchise baseline | LamalFranchiseService, LamalFranchiseScreen |
 
 ---
 

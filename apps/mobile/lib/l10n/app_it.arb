@@ -697,6 +697,7 @@
   "@budgetSetupLamal": {
     "description": "Budget setup label."
   },
+  "budgetSetupLamalFranchise": "Franchigia LAMal attuale",
   "budgetSetupTransport": "Transport",
   "@budgetSetupTransport": {
     "description": "Budget setup label."
@@ -4610,16 +4611,11 @@
     }
   },
   "lamalFranchiseAppBarTitle": "Franchigia LAMal",
-  "lamalFranchiseDemoMode": "MODALITÀ DEMO",
   "lamalFranchiseHeaderTitle": "La tua franchigia LAMal",
-  "lamalFranchiseHeaderSubtitle": "Trova la franchigia ideale in base alle tue spese sanitarie",
-  "lamalFranchiseIntro": "Una franchigia alta riduce il tuo premio mensile, ma aumenta le spese in caso di malattia. Sposta i cursori per trovare l'equilibrio.",
-  "lamalFranchiseToggleAdulte": "Adulto",
-  "lamalFranchiseToggleEnfant": "Bambino",
-  "lamalFranchisePrimeSliderLabel": "Premio mensile (franchigia 300)",
-  "lamalFranchiseDepensesSliderLabel": "Spese sanitarie annuali stimate",
+  "lamalFranchiseHeaderSubtitle": "Confronta scenari di franchigia dai tuoi costi sanitari noti",
+  "lamalFranchiseIntro": "MINT usa il tuo premio LAMal, la franchigia attuale e i costi medici salvati nel tuo budget. Se manca un dato, completalo una sola volta nel profilo.",
   "lamalFranchiseComparisonHeader": "CONFRONTO FRANCHIGIE",
-  "lamalFranchiseRecommandee": "RACCOMANDATA",
+  "lamalFranchiseRecommandee": "DA VALUTARE",
   "lamalFranchiseTotalPrefix": "Totale: {amount}",
   "@lamalFranchiseTotalPrefix": {
     "placeholders": {
@@ -4646,17 +4642,39 @@
       }
     }
   },
-  "lamalFranchiseRecommandationsHeader": "RACCOMANDAZIONI",
+  "lamalFranchiseRecommandationsHeader": "PUNTI DA DISCUTERE",
   "lamalFranchiseAlertText": "Promemoria: puoi cambiare la franchigia prima del 30 novembre di ogni anno per l'anno successivo.",
   "lamalFranchiseDisclaimer": "Stima educativa. I premi variano in base all'assicuratore, alla regione e al modello. Non costituisce consulenza finanziaria (LSFin).",
   "lamalFranchiseSourcesHeader": "Fonti",
   "lamalFranchiseSourcesBody": "LAMal art. 62-64 (franchigia e partecipazione) / OAMal (ordinanza) / priminfo.admin.ch (comparatore ufficiale) / LAMal art. 7 (libera scelta dell'assicuratore) / LAMal art. 41a (modelli alternativi)",
-  "lamalFranchisePrimeMin": "CHF 200",
-  "lamalFranchisePrimeMax": "CHF 600",
-  "lamalFranchiseDepensesMin": "CHF 0",
-  "lamalFranchiseDepensesMax": "CHF 10'000",
-  "lamalFranchiseSelectAdulte": "Selezionare adulto",
-  "lamalFranchiseSelectEnfant": "Selezionare bambino",
+  "lamalFranchiseLedgerTitle": "Dati usati",
+  "lamalFranchiseLedgerBody": "Questi importi vengono dalla tua biblioteca dati. Non vengono inseriti di nuovo qui.",
+  "lamalFranchiseFactKnown": "Noto",
+  "lamalFranchiseFactMissing": "Manca",
+  "lamalFranchiseCurrentFactLabel": "Franchigia attuale",
+  "lamalFranchiseMonthlyValue": "{amount} / mese",
+  "@lamalFranchiseMonthlyValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMedicalFactValue": "{monthly} / mese · {annual} / anno",
+  "@lamalFranchiseMedicalFactValue": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      },
+      "annual": {
+        "type": "String"
+      }
+    }
+  },
+  "lamalFranchiseMissingTitle": "Dati da completare",
+  "lamalFranchiseMissingBody": "Per confrontare le franchigie LAMal, MINT ha bisogno del tuo premio mensile, della franchigia attuale e dei tuoi costi medici mensili.",
+  "lamalFranchiseEnrichCta": "Completare questi dati",
+  "lamalFranchiseModifyCta": "Modificare nel budget",
   "firstJobCantonLabel": "Cantone",
   "firstJobSalaryMin": "CHF 2'000",
   "firstJobSalaryMax": "CHF 15'000",

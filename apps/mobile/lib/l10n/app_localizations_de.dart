@@ -1638,6 +1638,9 @@ class SDe extends S {
   String get budgetSetupLamal => 'Assurance maladie';
 
   @override
+  String get budgetSetupLamalFranchise => 'Aktuelle KVG-Franchise';
+
+  @override
   String get budgetSetupTransport => 'Transport';
 
   @override
@@ -9663,37 +9666,21 @@ class SDe extends S {
   String get lamalFranchiseAppBarTitle => 'KVG-Franchise';
 
   @override
-  String get lamalFranchiseDemoMode => 'DEMOMODUS';
-
-  @override
   String get lamalFranchiseHeaderTitle => 'Deine KVG-Franchise';
 
   @override
   String get lamalFranchiseHeaderSubtitle =>
-      'Finde die ideale Franchise je nach deinen Gesundheitskosten';
+      'Vergleiche Franchise-Szenarien anhand deiner bekannten Gesundheitskosten';
 
   @override
   String get lamalFranchiseIntro =>
-      'Eine hohe Franchise senkt deine monatliche Prämie, erhöht aber die Kosten im Krankheitsfall. Verschiebe die Regler, um das richtige Gleichgewicht zu finden.';
-
-  @override
-  String get lamalFranchiseToggleAdulte => 'Erwachsene';
-
-  @override
-  String get lamalFranchiseToggleEnfant => 'Kind';
-
-  @override
-  String get lamalFranchisePrimeSliderLabel => 'Monatsprämie (Franchise 300)';
-
-  @override
-  String get lamalFranchiseDepensesSliderLabel =>
-      'Geschätzte jährliche Gesundheitskosten';
+      'MINT verwendet deine KVG-Prämie, aktuelle Franchise und Gesundheitskosten aus deinem Budget. Wenn ein Wert fehlt, ergänzt du ihn einmal in deinem Profil.';
 
   @override
   String get lamalFranchiseComparisonHeader => 'FRANCHISEVERGLEICH';
 
   @override
-  String get lamalFranchiseRecommandee => 'EMPFOHLEN';
+  String get lamalFranchiseRecommandee => 'ZU PRÜFEN';
 
   @override
   String lamalFranchiseTotalPrefix(String amount) {
@@ -9718,7 +9705,7 @@ class SDe extends S {
   }
 
   @override
-  String get lamalFranchiseRecommandationsHeader => 'EMPFEHLUNGEN';
+  String get lamalFranchiseRecommandationsHeader => 'PUNKTE ZUR BESPRECHUNG';
 
   @override
   String get lamalFranchiseAlertText =>
@@ -9736,22 +9723,43 @@ class SDe extends S {
       'KVG Art. 62-64 (Franchise und Selbstbehalt) / KVV (Verordnung) / priminfo.admin.ch (offizieller Vergleich) / KVG Art. 7 (freie Wahl des Versicherers) / KVG Art. 41a (alternative Modelle)';
 
   @override
-  String get lamalFranchisePrimeMin => 'CHF 200';
+  String get lamalFranchiseLedgerTitle => 'Verwendete Daten';
 
   @override
-  String get lamalFranchisePrimeMax => 'CHF 600';
+  String get lamalFranchiseLedgerBody =>
+      'Diese Beträge kommen aus deiner Datenbibliothek. Sie werden hier nicht nochmals erfasst.';
 
   @override
-  String get lamalFranchiseDepensesMin => 'CHF 0';
+  String get lamalFranchiseFactKnown => 'Bekannt';
 
   @override
-  String get lamalFranchiseDepensesMax => 'CHF 10\'000';
+  String get lamalFranchiseFactMissing => 'Fehlt';
 
   @override
-  String get lamalFranchiseSelectAdulte => 'Erwachsene wählen';
+  String get lamalFranchiseCurrentFactLabel => 'Aktuelle Franchise';
 
   @override
-  String get lamalFranchiseSelectEnfant => 'Kind wählen';
+  String lamalFranchiseMonthlyValue(String amount) {
+    return '$amount / Monat';
+  }
+
+  @override
+  String lamalFranchiseMedicalFactValue(String monthly, String annual) {
+    return '$monthly / Monat · $annual / Jahr';
+  }
+
+  @override
+  String get lamalFranchiseMissingTitle => 'Daten ergänzen';
+
+  @override
+  String get lamalFranchiseMissingBody =>
+      'Um KVG-Franchisen zu vergleichen, braucht MINT deine Monatsprämie, aktuelle Franchise und monatlichen Gesundheitskosten.';
+
+  @override
+  String get lamalFranchiseEnrichCta => 'Diese Daten ergänzen';
+
+  @override
+  String get lamalFranchiseModifyCta => 'Im Budget ändern';
 
   @override
   String get firstJobCantonLabel => 'Kanton';
