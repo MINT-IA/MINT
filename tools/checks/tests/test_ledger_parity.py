@@ -35,7 +35,15 @@ def _data_ledger_allowlist_keys() -> set[str]:
     ledger = DATA_LEDGER.read_text(encoding="utf-8")
     match = re.search(r"### 3\.1 .*?(?=\n### 3\.8 )", ledger, flags=re.DOTALL)
     assert match is not None
-    return set(re.findall(r"^\| `([^`]+)` \|", match.group(0), flags=re.MULTILINE))
+    return {
+        key
+        for key, row in re.findall(
+            r"^\| `([^`]+)` \|(?P<row>.*)$",
+            match.group(0),
+            flags=re.MULTILINE,
+        )
+        if "applySaveFact" in row
+    }
 
 
 def test_backend_mobile_and_data_ledger_save_fact_keys_match() -> None:
