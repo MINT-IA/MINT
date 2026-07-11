@@ -23553,4 +23553,110 @@ class SFr extends S {
 
   @override
   String get dataBlockMenageCivilWidowed => 'Veuf·ve';
+
+  @override
+  String get donationTaxStatusUnknownCanton =>
+      'Canton non reconnu: confirme le canton fiscal avant d’estimer l’impôt.';
+
+  @override
+  String get donationTaxStatusUsualExemption =>
+      'Exonération usuelle pour ce lien de parenté dans la plupart des cantons; déclaration et exceptions à confirmer.';
+
+  @override
+  String donationTaxStatusDescendantConfirm(String canton) {
+    return 'Exonération usuelle des descendants à confirmer avec le canton $canton avant toute décision.';
+  }
+
+  @override
+  String donationTaxStatusConfirm(String canton) {
+    return 'Barème cantonal à confirmer dans le canton $canton.';
+  }
+
+  @override
+  String get donationImpactAdvancement =>
+      'Cette donation en avancement d’hoirie sera rapportée à la masse successorale. La part du donataire sera réduite d’autant lors de la succession.';
+
+  @override
+  String donationImpactReductionRisk(String montant) {
+    return 'Cette donation hors avancement d’hoirie dépasse la quotité disponible de $montant. Les héritiers réservataires pourraient la contester par action en réduction (CC art. 522 ss).';
+  }
+
+  @override
+  String donationImpactOutsidePart(String quotite) {
+    return 'Cette donation hors avancement peut être imputée sur la quotité disponible ($quotite) si l’acte le documente clairement. À confirmer avec un notaire.';
+  }
+
+  @override
+  String get donationAlertUnknownCanton =>
+      'Canton non reconnu: MINT ne remplace pas ce canton par un autre canton par défaut.';
+
+  @override
+  String donationAlertTaxConfirm(String canton) {
+    return 'Le barème cantonal des donations dans le canton $canton doit être confirmé avec les autorités fiscales.';
+  }
+
+  @override
+  String get donationAlertMissingParentela =>
+      'Sans enfants, il manque encore le contexte parents/fratrie pour affiner la part légale du conjoint survivant.';
+
+  @override
+  String get donationAlertMatrimonialRegime =>
+      'Le patrimoine de référence ne remplace pas la liquidation du régime matrimonial. La masse successorale exacte doit être confirmée avec un notaire.';
+
+  @override
+  String get donationAlertSpouseLargeGift =>
+      'Un don important hors part peut toucher la réserve des enfants après liquidation du régime matrimonial: à vérifier avec un notaire.';
+
+  @override
+  String donationAlertReductionRisk(String montant) {
+    return 'La donation dépasse la quotité disponible de $montant. Les héritiers réservataires pourraient exercer une action en réduction (CC art. 522 ss).';
+  }
+
+  @override
+  String get donationAlertConcubinage =>
+      'Le concubinage ne crée pas de droit successoral légal: prépare les questions de testament, pacte successoral et fiscalité.';
+
+  @override
+  String get donationAlertRealEstate =>
+      'Pour une donation immobilière, le passage devant notaire, le registre foncier et les conséquences fiscales locales doivent être confirmés.';
+
+  @override
+  String get donationAlertOlderDonor =>
+      'À cet âge, la planification doit documenter la liquidité, les besoins futurs, la capacité de discernement et la chronologie des actes.';
+
+  @override
+  String get donationAlertLargeDonation =>
+      'Cette donation représente plus de 50 % de ta fortune totale. Vérifie que tu conserves assez de réserves pour tes propres besoins.';
+
+  @override
+  String get donationChecklistVerifyQuotite =>
+      'Vérifier la quotité disponible avec un notaire';
+
+  @override
+  String get donationChecklistDocumentAdvancement =>
+      'Documenter si la donation est en avancement d’hoirie ou hors part';
+
+  @override
+  String get donationChecklistConfirmTax =>
+      'Confirmer le traitement fiscal avec les autorités fiscales cantonales';
+
+  @override
+  String get donationChecklistInformReservedHeirs =>
+      'Informer les héritiers réservataires si nécessaire';
+
+  @override
+  String get donationChecklistKeepDeed =>
+      'Conserver une copie de l’acte dans tes documents';
+
+  @override
+  String get donationChecklistLandRegister =>
+      'Procéder à l’inscription au registre foncier';
+
+  @override
+  String get donationChecklistFutureCollation =>
+      'Documenter le montant pour le rapport successoral futur';
+
+  @override
+  String get donationChecklistConcubinageQuestions =>
+      'Préparer les questions testamentaires à poser au notaire';
 }

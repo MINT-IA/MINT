@@ -94,8 +94,7 @@ void main() {
       expect(find.textContaining('ne constitue pas'), findsWidgets);
     });
 
-    testWidgets('Tab 1 (Impots) shows fiscal comparison card',
-        (tester) async {
+    testWidgets('Tab 1 (Impots) shows fiscal comparison card', (tester) async {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
       expect(find.text('COMPARAISON FISCALE'), findsOneWidget);
@@ -200,8 +199,7 @@ void main() {
       expect(find.text('Père'), findsOneWidget);
     });
 
-    testWidgets('Tab 1 (Conge) has disclaimer after scrolling',
-        (tester) async {
+    testWidgets('Tab 1 (Conge) has disclaimer after scrolling', (tester) async {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
       // Drag Tab 1 ListView to the bottom to force-build the lazy disclaimer.
@@ -302,8 +300,7 @@ void main() {
         scrollable: listFinder,
       );
       await tester.pumpAndSettle();
-      expect(
-          find.textContaining('Comparaison des droits'), findsOneWidget);
+      expect(find.textContaining('Comparaison des droits'), findsOneWidget);
     });
 
     testWidgets('Tab 1 (Comparateur) shows input sliders', (tester) async {
@@ -349,7 +346,8 @@ void main() {
       await tester.pumpAndSettle();
       // Protection tab should show the married vs concubin comparison
       expect(
-        find.textContaining('la Suisse ne prot\u00e8ge pas', skipOffstage: false),
+        find.textContaining('la Suisse ne prot\u00e8ge pas',
+            skipOffstage: false),
         findsWidgets,
       );
     });
@@ -372,16 +370,19 @@ void main() {
 
   group('DonationScreen', () {
     Widget buildDonationScreen() {
-      return const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        home: DonationScreen(),
+      return ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: DonationScreen(),
+        ),
       );
     }
 
@@ -469,37 +470,26 @@ void main() {
       expect(find.text('Enfant / Descendant(e)'), findsOneWidget);
     });
 
-    testWidgets('tapping Calculer produces results without crash',
+    testWidgets('keeps results hidden until ledger facts are collected',
         (tester) async {
       await tester.pumpWidget(buildDonationScreen());
       await tester.pumpAndSettle();
 
-      // Scroll down to make Calculer button visible, then tap
-      await tester.scrollUntilVisible(
-        find.text('Calculer'),
-        200,
-        scrollable: find.byType(Scrollable).first,
+      expect(
+        find.byKey(const Key('donation_ledger_facts')),
+        findsOneWidget,
       );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Calculer'));
-      await tester.pumpAndSettle();
-
-      // After calculation, result cards should appear in widget tree
+      expect(
+        find.text('Manquant', skipOffstage: false),
+        findsWidgets,
+      );
+      expect(
+        find.byKey(const Key('donation_result_cards')),
+        findsNothing,
+      );
       expect(
         find.text('IMPÔT SUR LA DONATION', skipOffstage: false),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('RÉSERVE HÉRÉDITAIRE', skipOffstage: false),
-        findsOneWidget,
-      );
-      expect(
-        find.text('QUOTITÉ DISPONIBLE', skipOffstage: false),
-        findsOneWidget,
-      );
-      expect(
-        find.text('IMPACT SUR LA SUCCESSION', skipOffstage: false),
-        findsOneWidget,
+        findsNothing,
       );
     });
   });
@@ -598,7 +588,8 @@ void main() {
       await tester.pumpWidget(buildHousingSaleScreen());
       await tester.pumpAndSettle();
       // Multiple Scrollables may exist (nested widgets). Use skipOffstage to avoid scroll issues.
-      expect(find.textContaining('ne constitue pas', skipOffstage: false), findsWidgets);
+      expect(find.textContaining('ne constitue pas', skipOffstage: false),
+          findsWidgets);
     });
 
     testWidgets('has educational footer in widget tree', (tester) async {

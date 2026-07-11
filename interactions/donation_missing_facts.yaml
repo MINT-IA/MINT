@@ -1,0 +1,128 @@
+schema_version: 1
+flow:
+  id: donation_missing_facts
+  title: "Donation screen to Swiss succession ledger facts"
+  exits: [db.route.revenu, db.route.composition_menage, db.route.patrimoine]
+  invariants:
+    max_depth: 2
+    back_never_loses_input: true
+    every_scene_has_exit: true
+
+nodes:
+  - id: donation.route.life_event
+    kind: route
+    route: /life-event/donation
+    widget: screens/donation_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
+  - id: db.route.revenu
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: db.route.composition_menage
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+  - id: db.route.patrimoine
+    kind: route
+    route: /data-block/:type
+    widget: screens/onboarding/data_block_enrichment_screen.dart
+    entries:
+      - {via: flow, back: pop}
+    states: [content, loading, error.compute]
+
+edges:
+  - id: donation.edge.life_event.enrich_age
+    from: donation.route.life_event
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect birth year before estimating Swiss succession reserve and donation context"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/donation_ledger_test.dart
+
+  - id: donation.edge.life_event.enrich_canton
+    from: donation.route.life_event
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect canton before showing exemption status or a cantonal tax-to-confirm state"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/donation_ledger_test.dart
+
+  - id: donation.edge.life_event.enrich_civil_status
+    from: donation.route.life_event
+    to: db.route.composition_menage
+    trigger: tap
+    intent: "Collect civil status before discussing spouse reserve context"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/donation_ledger_test.dart
+
+  - id: donation.edge.life_event.enrich_children
+    from: donation.route.life_event
+    to: db.route.composition_menage
+    trigger: tap
+    intent: "Collect number of children before estimating compulsory-heir reserve context"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/donation_ledger_test.dart
+
+  - id: donation.edge.life_event.enrich_wealth
+    from: donation.route.life_event
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect broad wealth estimate before comparing the donation with the estate context"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/.maestro/donation_ledger.yaml
+
+  - id: donation.edge.life_event.enrich_property_value
+    from: donation.route.life_event
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect property market value before rendering a real-estate donation scenario"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/donation_ledger_test.dart
+
+  - id: donation.edge.life_event.enrich_mortgage_balance
+    from: donation.route.life_event
+    to: db.route.patrimoine
+    trigger: tap
+    intent: "Collect mortgage balance before rendering the net value of a real-estate gift"
+    payload:
+      path_params: {type: EnrichmentType}
+      query_params: {inputKey: InputKey}
+    transition: push
+    back: pop
+    test_ref: apps/mobile/test/screens/donation_ledger_test.dart

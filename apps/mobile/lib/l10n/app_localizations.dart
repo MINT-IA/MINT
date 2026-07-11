@@ -41230,6 +41230,156 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Veuf·ve'**
   String get dataBlockMenageCivilWidowed;
+
+  /// No description provided for @donationTaxStatusUnknownCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton non reconnu: confirme le canton fiscal avant d’estimer l’impôt.'**
+  String get donationTaxStatusUnknownCanton;
+
+  /// No description provided for @donationTaxStatusUsualExemption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exonération usuelle pour ce lien de parenté dans la plupart des cantons; déclaration et exceptions à confirmer.'**
+  String get donationTaxStatusUsualExemption;
+
+  /// No description provided for @donationTaxStatusDescendantConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exonération usuelle des descendants à confirmer avec le canton {canton} avant toute décision.'**
+  String donationTaxStatusDescendantConfirm(String canton);
+
+  /// No description provided for @donationTaxStatusConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Barème cantonal à confirmer dans le canton {canton}.'**
+  String donationTaxStatusConfirm(String canton);
+
+  /// No description provided for @donationImpactAdvancement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette donation en avancement d’hoirie sera rapportée à la masse successorale. La part du donataire sera réduite d’autant lors de la succession.'**
+  String get donationImpactAdvancement;
+
+  /// No description provided for @donationImpactReductionRisk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette donation hors avancement d’hoirie dépasse la quotité disponible de {montant}. Les héritiers réservataires pourraient la contester par action en réduction (CC art. 522 ss).'**
+  String donationImpactReductionRisk(String montant);
+
+  /// No description provided for @donationImpactOutsidePart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette donation hors avancement peut être imputée sur la quotité disponible ({quotite}) si l’acte le documente clairement. À confirmer avec un notaire.'**
+  String donationImpactOutsidePart(String quotite);
+
+  /// No description provided for @donationAlertUnknownCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton non reconnu: MINT ne remplace pas ce canton par un autre canton par défaut.'**
+  String get donationAlertUnknownCanton;
+
+  /// No description provided for @donationAlertTaxConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le barème cantonal des donations dans le canton {canton} doit être confirmé avec les autorités fiscales.'**
+  String donationAlertTaxConfirm(String canton);
+
+  /// No description provided for @donationAlertMissingParentela.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans enfants, il manque encore le contexte parents/fratrie pour affiner la part légale du conjoint survivant.'**
+  String get donationAlertMissingParentela;
+
+  /// No description provided for @donationAlertMatrimonialRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le patrimoine de référence ne remplace pas la liquidation du régime matrimonial. La masse successorale exacte doit être confirmée avec un notaire.'**
+  String get donationAlertMatrimonialRegime;
+
+  /// No description provided for @donationAlertSpouseLargeGift.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un don important hors part peut toucher la réserve des enfants après liquidation du régime matrimonial: à vérifier avec un notaire.'**
+  String get donationAlertSpouseLargeGift;
+
+  /// No description provided for @donationAlertReductionRisk.
+  ///
+  /// In fr, this message translates to:
+  /// **'La donation dépasse la quotité disponible de {montant}. Les héritiers réservataires pourraient exercer une action en réduction (CC art. 522 ss).'**
+  String donationAlertReductionRisk(String montant);
+
+  /// No description provided for @donationAlertConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le concubinage ne crée pas de droit successoral légal: prépare les questions de testament, pacte successoral et fiscalité.'**
+  String get donationAlertConcubinage;
+
+  /// No description provided for @donationAlertRealEstate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour une donation immobilière, le passage devant notaire, le registre foncier et les conséquences fiscales locales doivent être confirmés.'**
+  String get donationAlertRealEstate;
+
+  /// No description provided for @donationAlertOlderDonor.
+  ///
+  /// In fr, this message translates to:
+  /// **'À cet âge, la planification doit documenter la liquidité, les besoins futurs, la capacité de discernement et la chronologie des actes.'**
+  String get donationAlertOlderDonor;
+
+  /// No description provided for @donationAlertLargeDonation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette donation représente plus de 50 % de ta fortune totale. Vérifie que tu conserves assez de réserves pour tes propres besoins.'**
+  String get donationAlertLargeDonation;
+
+  /// No description provided for @donationChecklistVerifyQuotite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier la quotité disponible avec un notaire'**
+  String get donationChecklistVerifyQuotite;
+
+  /// No description provided for @donationChecklistDocumentAdvancement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documenter si la donation est en avancement d’hoirie ou hors part'**
+  String get donationChecklistDocumentAdvancement;
+
+  /// No description provided for @donationChecklistConfirmTax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le traitement fiscal avec les autorités fiscales cantonales'**
+  String get donationChecklistConfirmTax;
+
+  /// No description provided for @donationChecklistInformReservedHeirs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informer les héritiers réservataires si nécessaire'**
+  String get donationChecklistInformReservedHeirs;
+
+  /// No description provided for @donationChecklistKeepDeed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conserver une copie de l’acte dans tes documents'**
+  String get donationChecklistKeepDeed;
+
+  /// No description provided for @donationChecklistLandRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Procéder à l’inscription au registre foncier'**
+  String get donationChecklistLandRegister;
+
+  /// No description provided for @donationChecklistFutureCollation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Documenter le montant pour le rapport successoral futur'**
+  String get donationChecklistFutureCollation;
+
+  /// No description provided for @donationChecklistConcubinageQuestions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer les questions testamentaires à poser au notaire'**
+  String get donationChecklistConcubinageQuestions;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

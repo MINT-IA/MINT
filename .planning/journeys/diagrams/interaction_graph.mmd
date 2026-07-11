@@ -13,6 +13,7 @@ flowchart LR
   disability_route_gap["disability.route.gap<br/>/invalidite"]:::route
   disability_route_insurance["disability.route.insurance<br/>/disability/insurance"]:::route
   disability_route_self_employed["disability.route.self_employed<br/>/disability/self-employed"]:::route
+  donation_route_life_event["donation.route.life_event<br/>/life-event/donation"]:::route
   firstjob_route_first_job["firstjob.route.first_job<br/>/first-job"]:::route
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
   indep_route_avs["indep.route.avs<br/>/independants/avs"]:::route
@@ -51,6 +52,13 @@ flowchart LR
   disability_route_self_employed -->|"disability.edge.self_employed.enrich_savings<br/>tap / push"| db_route_patrimoine
   scan_route_impact_recovery -->|"scan.edge.impact_recovery.home<br/>tap / go"| home_route_dashboard
   scan_route_review_recovery -->|"scan.edge.review_recovery.rescan<br/>tap / go"| scan_route_capture
+  donation_route_life_event -->|"donation.edge.life_event.enrich_age<br/>tap / push"| db_route_revenu
+  donation_route_life_event -->|"donation.edge.life_event.enrich_canton<br/>tap / push"| db_route_revenu
+  donation_route_life_event -->|"donation.edge.life_event.enrich_children<br/>tap / push"| db_route_composition_menage
+  donation_route_life_event -->|"donation.edge.life_event.enrich_civil_status<br/>tap / push"| db_route_composition_menage
+  donation_route_life_event -->|"donation.edge.life_event.enrich_mortgage_balance<br/>tap / push"| db_route_patrimoine
+  donation_route_life_event -->|"donation.edge.life_event.enrich_property_value<br/>tap / push"| db_route_patrimoine
+  donation_route_life_event -->|"donation.edge.life_event.enrich_wealth<br/>tap / push"| db_route_patrimoine
   firstjob_route_first_job -->|"firstjob.edge.first_job.enrich_revenue<br/>tap / push"| db_route_revenu
   indep_route_avs -->|"indep.edge.avs.enrich_income<br/>tap / push"| db_route_revenu
   indep_route_divsalary -->|"indep.edge.divsalary.enrich_profit<br/>tap / push"| db_route_revenu

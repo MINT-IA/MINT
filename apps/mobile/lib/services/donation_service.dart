@@ -1,18 +1,16 @@
-import 'dart:math';
-
-// ────────────────────────────────────────────────────────────
-//  DONATION SERVICE — Sprint S24
-//  Calcul de l'impot sur les donations + impact successoral
-//  CC art. 471 (nouveau droit 2023), lois fiscales cantonales
-// ────────────────────────────────────────────────────────────
+import 'package:mint_mobile/services/financial_core/gift_tax_confirmation.dart';
+import 'package:mint_mobile/services/financial_core/succession_reserve_calculator.dart';
 
 /// Result model for donation calculation.
 class DonationResult {
   final double montantDonation;
   final double tauxImposition;
   final double impotDonation;
+  final bool taxRequiresCantonalConfirmation;
+  final String taxStatus;
   final double reserveHereditaireTotale;
   final double quotiteDisponible;
+  final bool quotiteRequiresSpecialistConfirmation;
   final bool donationDepasseQuotite;
   final double montantDepassement;
   final String impactSuccession;
@@ -26,8 +24,11 @@ class DonationResult {
     required this.montantDonation,
     required this.tauxImposition,
     required this.impotDonation,
+    required this.taxRequiresCantonalConfirmation,
+    required this.taxStatus,
     required this.reserveHereditaireTotale,
     required this.quotiteDisponible,
+    required this.quotiteRequiresSpecialistConfirmation,
     required this.donationDepasseQuotite,
     required this.montantDepassement,
     required this.impactSuccession,
@@ -39,90 +40,78 @@ class DonationResult {
   });
 }
 
-/// Service for calculating the tax impact of donations in Switzerland.
+class DonationMessageCode {
+  const DonationMessageCode._();
+
+  static const taxUnknownCanton = 'tax_unknown_canton';
+  static const taxUsualExemption = 'tax_usual_exemption';
+  static const taxDescendantConfirm = 'tax_descendant_confirm';
+  static const taxCantonalConfirm = 'tax_cantonal_confirm';
+  static const impactAdvancement = 'impact_advancement';
+  static const impactReductionRisk = 'impact_reduction_risk';
+  static const impactOutsidePart = 'impact_outside_part';
+  static const checklistVerifyQuotite = 'check_verify_quotite';
+  static const checklistDocumentAdvancement = 'check_document_advancement';
+  static const checklistConfirmTax = 'check_confirm_tax';
+  static const checklistInformReservedHeirs = 'check_inform_reserved_heirs';
+  static const checklistKeepDeed = 'check_keep_deed';
+  static const checklistLandRegister = 'check_land_register';
+  static const checklistFutureCollation = 'check_future_collation';
+  static const checklistConcubinageQuestions = 'check_concubinage_questions';
+  static const insightUsualExemption = 'insight_usual_exemption';
+  static const insightTaxConfirm = 'insight_tax_confirm';
+  static const disclaimerStandard = 'disclaimer_standard';
+  static const alertUnknownCanton = 'alert_unknown_canton';
+  static const alertTaxConfirm = 'alert_tax_confirm';
+  static const alertMissingParentela = 'alert_missing_parentela';
+  static const alertMatrimonialRegime = 'alert_matrimonial_regime';
+  static const alertSpouseLargeGift = 'alert_spouse_large_gift';
+  static const alertReductionRisk = 'alert_reduction_risk';
+  static const alertConcubinage = 'alert_concubinage';
+  static const alertRealEstate = 'alert_real_estate';
+  static const alertOlderDonor = 'alert_older_donor';
+  static const alertLargeDonation = 'alert_large_donation';
+}
+
+/// Educational donation scenario service for Switzerland.
 ///
-/// Covers cantonal donation tax rates, reserve hereditaire (2023 law),
-/// quotite disponible, and impact on future succession.
+/// Gift tax is cantonal/communal and cannot be reduced to one flat app-wide
+/// table. This service only models robust federal succession mechanics and
+/// usual exemption boundaries; otherwise it returns a confirmation state.
 class DonationService {
-  // ── Cantonal donation tax rates by relationship ──
-  // Source: cantonal tax laws on donations
-  static const Map<String, Map<String, double>> tauxDonationCantonal = {
-    'ZH': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.18,
-      'tiers': 0.24,
-    },
-    'BE': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.18,
-      'tiers': 0.24,
-    },
-    'VD': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.05,
-      'fratrie': 0.07,
-      'concubin': 0.25,
-      'tiers': 0.25,
-    },
-    'GE': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.10,
-      'concubin': 0.24,
-      'tiers': 0.30,
-    },
-    'LU': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.08,
-      'concubin': 0.20,
-      'tiers': 0.25,
-    },
-    'BS': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.08,
-      'concubin': 0.22,
-      'tiers': 0.28,
-    },
-    'SZ': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.0,
-      'concubin': 0.0,
-      'tiers': 0.0,
-    },
+  static const Set<String> swissCantons = {
+    'AG',
+    'AI',
+    'AR',
+    'BE',
+    'BL',
+    'BS',
+    'FR',
+    'GE',
+    'GL',
+    'GR',
+    'JU',
+    'LU',
+    'NE',
+    'NW',
+    'OW',
+    'SG',
+    'SH',
+    'SO',
+    'SZ',
+    'TG',
+    'TI',
+    'UR',
+    'VD',
+    'VS',
+    'ZG',
+    'ZH',
   };
 
-  // ── Reserve hereditaire (CC art. 471, nouveau droit 2023) ──
-  // Fraction of legal share that is protected
-  static const Map<String, double> reserves = {
-    'descendant': 0.50, // 50% of legal share
-    'conjoint': 0.50, // 50% of legal share
-    'parent': 0.0, // No reserve since 2023
-  };
-
-  // ── Legal share fractions (CC art. 457-462) ──
-  // Used to compute reserve hereditaire based on family composition
-  static const Map<String, double> _partLegaleConjointAvecEnfants = {
-    'conjoint': 0.50,
-    'enfants': 0.50,
-  };
-  static const Map<String, double> _partLegaleConjointSansEnfants = {
-    'conjoint': 0.75,
-    'parents': 0.25,
-  };
+  // CC art. 471, new law from 2023: compulsory portion as a fraction of the
+  // legal share. Parents no longer have a compulsory portion.
+  static const Map<String, double> reserves =
+      SuccessionReserveCalculator.compulsoryPortionFractions;
 
   /// Human-readable labels for relationship types.
   static const Map<String, String> lienParenteLabels = {
@@ -134,218 +123,238 @@ class DonationService {
     'tiers': 'Tiers',
   };
 
-  /// Calculate the tax and succession impact of a donation.
+  // Sources checked 2026-07-11:
+  // - ch.ch gift tax: spouse/registered partner and descendants are usually
+  //   exempt, but cantonal rules apply.
+  // - VD.ch Successions/Donations + LMSD art. 16: direct-descendant gifts have
+  //   a yearly allowance, not blanket exemption.
+  // - NE.ch Impot sur les donations: gift tax is calculated by relationship.
+  // - AI.ch Erbschafts- und Schenkungssteuer: descendants are taxed at 1%.
+  // Until MINT has a sourced canton-by-canton tariff table, descendants remain
+  // a confirmation state instead of a green exemption state.
+  /// Calculate the educational tax and succession impact of a donation.
   static DonationResult calculate({
     required double montant,
     required int donateurAge,
     required String lienParente,
     required String canton,
+    String civilStatus = 'celibataire',
     String typeDonation = 'especes',
     double valeurImmobiliere = 0,
+    double soldeHypothecaire = 0,
     bool avancementHoirie = true,
     int nbEnfants = 0,
     double fortuneTotaleDonateur = 0,
-    String regimeMatrimonial = 'participation_acquets',
   }) {
-    // ── Effective donation amount ──
     final montantDonation =
         typeDonation == 'immobilier' && valeurImmobiliere > 0
-            ? valeurImmobiliere
+            ? SuccessionReserveCalculator.netRealEstateGiftValue(
+                marketValue: valeurImmobiliere,
+                mortgageBalance: soldeHypothecaire,
+              )
             : montant;
+    final cantonCode = canton.trim().toUpperCase();
+    final knownCanton = swissCantons.contains(cantonCode);
+    final usuallyExempt = _isUsuallyGiftTaxExempt(
+      knownCanton: knownCanton,
+      canton: cantonCode,
+      lienParente: lienParente,
+    );
+    final taxRequiresCantonalConfirmation = !usuallyExempt;
+    final taxStatus = _taxStatus(
+      knownCanton: knownCanton,
+      usuallyExempt: usuallyExempt,
+      lienParente: lienParente,
+    );
+    const tauxImposition = GiftTaxConfirmation.noComputedRate;
+    const impotDonation = GiftTaxConfirmation.noComputedAmount;
 
-    // ── Tax rate lookup ──
-    final cantonRates =
-        tauxDonationCantonal[canton] ?? tauxDonationCantonal['VD']!;
-    final tauxImposition = cantonRates[lienParente] ?? cantonRates['tiers']!;
-
-    // ── Tax calculation ──
-    final impotDonation = montantDonation * tauxImposition;
-
-    // ── Reserve hereditaire calculation ──
-    // Fortune base adjusted by matrimonial regime (CC art. 196ss)
-    final fortuneBrute =
+    final fortune =
         fortuneTotaleDonateur > 0 ? fortuneTotaleDonateur : montantDonation;
+    final reserve = SuccessionReserveCalculator.estimate(
+      estateReference: fortune,
+      civilStatus: civilStatus,
+      childrenCount: nbEnfants,
+    );
+    final reserveHereditaireTotale = reserve.reserveHereditaireTotale;
+    final quotiteDisponible = reserve.quotiteDisponible;
 
-    // Regime matrimonial affects the fortune entering succession:
-    // - participation_acquets: conjoint reçoit 50% des acquêts avant partage
-    //   → estimation simplifiée: ~75% de la fortune totale en masse successorale
-    // - communaute_biens: 50% de la propriété commune revient au conjoint
-    // - separation_biens: 100% de la fortune propre du donateur
-    final double regimeFactor;
-    switch (regimeMatrimonial) {
-      case 'communaute_biens':
-        regimeFactor = 0.50;
-        break;
-      case 'separation_biens':
-        regimeFactor = 1.00;
-        break;
-      case 'participation_acquets':
-      default:
-        regimeFactor = 0.75;
-        break;
-    }
-    final fortune = fortuneBrute * regimeFactor;
-
-    double reserveHereditaireTotale = 0;
-    double quotiteDisponible = 0;
-
-    if (nbEnfants > 0) {
-      // With children: conjoint gets 1/2, children share 1/2
-      // Reserve = conjoint: 50% of 1/2 = 1/4 + children: 50% of 1/2 = 1/4
-      final reserveConjoint = fortune *
-          _partLegaleConjointAvecEnfants['conjoint']! *
-          reserves['conjoint']!;
-      final reserveEnfants = fortune *
-          _partLegaleConjointAvecEnfants['enfants']! *
-          reserves['descendant']!;
-      reserveHereditaireTotale = reserveConjoint + reserveEnfants;
-      quotiteDisponible = fortune - reserveHereditaireTotale;
-    } else {
-      // No children, with parents: conjoint gets 3/4, parents 1/4
-      // But parents have no reserve since 2023 (CC art. 471 rev.)
-      final reserveConjoint = fortune *
-          _partLegaleConjointSansEnfants['conjoint']! *
-          reserves['conjoint']!;
-      reserveHereditaireTotale = reserveConjoint;
-      quotiteDisponible = fortune - reserveHereditaireTotale;
-    }
-
-    quotiteDisponible = max(0, quotiteDisponible);
-
-    // ── Check if donation exceeds quotite disponible ──
-    final donationDepasseQuotite = montantDonation > quotiteDisponible;
+    final quotiteRequiresSpecialistConfirmation = reserve.hasReservedSpouse;
+    final donationExceedsEstimatedQuotite = montantDonation > quotiteDisponible;
+    final donationDepasseQuotite = !quotiteRequiresSpecialistConfirmation &&
+        donationExceedsEstimatedQuotite;
     final montantDepassement =
         donationDepasseQuotite ? montantDonation - quotiteDisponible : 0.0;
 
-    // ── Impact on succession ──
-    String impactSuccession;
-    if (avancementHoirie) {
-      impactSuccession =
-          'Cette donation en avancement d\'hoirie sera rapportee a '
-          'la masse successorale. La part du donataire sera reduite '
-          'd\'autant lors de la succession.';
-    } else {
-      if (donationDepasseQuotite) {
-        impactSuccession =
-            'Cette donation hors avancement d\'hoirie depasse la quotite '
-            'disponible de CHF ${quotiteDisponible.round()}. '
-            'Les heritiers reservataires pourraient la contester '
-            'par action en reduction (CC art. 522).';
-      } else {
-        impactSuccession =
-            'Cette donation hors avancement d\'hoirie est imputee sur '
-            'la quotite disponible (CHF ${quotiteDisponible.round()}). '
-            'Elle ne sera pas rapportee a la succession.';
-      }
-    }
+    final impactSuccession = _impactSuccession(
+      avancementHoirie: avancementHoirie,
+      donationDepasseQuotite: donationDepasseQuotite,
+    );
 
-    // ── Alerts ──
-    final alerts = <String>[];
+    final alerts = _alerts(
+      knownCanton: knownCanton,
+      taxRequiresCantonalConfirmation: taxRequiresCantonalConfirmation,
+      lienParente: lienParente,
+      typeDonation: typeDonation,
+      donateurAge: donateurAge,
+      montantDonation: montantDonation,
+      fortuneTotaleDonateur: fortuneTotaleDonateur,
+      hasReservedSpouse: reserve.hasReservedSpouse,
+      hasChildren: reserve.hasChildren,
+      donationExceedsEstimatedQuotite: donationExceedsEstimatedQuotite,
+      donationDepasseQuotite: donationDepasseQuotite,
+    );
 
-    if (donationDepasseQuotite) {
-      alerts.add(
-        'La donation depasse la quotite disponible de '
-        'CHF ${montantDepassement.round()}. Les heritiers reservataires '
-        'pourraient exercer une action en reduction (CC art. 522 ss).',
-      );
-    }
-
-    if (lienParente == 'concubin' && tauxImposition > 0.15) {
-      alerts.add(
-        'Attention : le taux d\'imposition pour un·e concubin·e est '
-        'eleve ($canton : ${(tauxImposition * 100).toStringAsFixed(0)}%). '
-        'Un pacte successoral ou un testament pourrait etre plus avantageux.',
-      );
-    }
-
-    if (typeDonation == 'immobilier') {
-      alerts.add(
-        'Pour une donation immobiliere, des droits de mutation '
-        'supplementaires peuvent s\'appliquer selon le canton. '
-        'Un passage devant notaire est obligatoire.',
-      );
-    }
-
-    if (donateurAge >= 70) {
-      alerts.add(
-        'Attention : les donations effectuees peu avant le deces '
-        'peuvent etre contestees (CC art. 527). Plus la donation est '
-        'proche du deces, plus le risque de contestation est eleve.',
-      );
-    }
-
-    if (montantDonation > fortune * 0.5 && fortuneTotaleDonateur > 0) {
-      alerts.add(
-        'Cette donation represente plus de 50% de ta fortune totale. '
-        'Assure-toi de conserver suffisamment de reserves pour tes '
-        'propres besoins (retraite, sante, imprevus).',
-      );
-    }
-
-    // ── Checklist ──
     final checklist = <String>[
-      'Verifier la quotite disponible avec un notaire',
-      'Rediger un acte de donation (notarie si immobilier)',
-      'Declarer la donation aux autorites fiscales cantonales',
-      'Informer les heritiers reservataires si necessaire',
-      'Conserver une copie de l\'acte dans tes documents',
+      DonationMessageCode.checklistVerifyQuotite,
+      DonationMessageCode.checklistDocumentAdvancement,
+      DonationMessageCode.checklistConfirmTax,
+      DonationMessageCode.checklistInformReservedHeirs,
+      DonationMessageCode.checklistKeepDeed,
     ];
 
     if (typeDonation == 'immobilier') {
-      checklist.add('Proceder a l\'inscription au registre foncier');
+      checklist.add(DonationMessageCode.checklistLandRegister);
     }
 
     if (avancementHoirie) {
-      checklist.add(
-        'Documenter le montant pour le rapport successoral futur',
-      );
+      checklist.add(DonationMessageCode.checklistFutureCollation);
     }
 
     if (lienParente == 'concubin') {
-      checklist.add(
-        'Envisager un testament en complement de la donation',
-      );
+      checklist.add(DonationMessageCode.checklistConcubinageQuestions);
     }
 
-    // ── Chiffre choc ──
-    final premierEclairage = impotDonation > 0
-        ? 'Impot sur la donation : CHF ${impotDonation.round()} '
-            '(${(tauxImposition * 100).toStringAsFixed(0)}%)'
-        : 'Bonne nouvelle : cette donation est exoneree d\'impot '
-            'dans le canton $canton';
+    final premierEclairage = usuallyExempt
+        ? DonationMessageCode.insightUsualExemption
+        : DonationMessageCode.insightTaxConfirm;
 
-    // ── Disclaimer ──
-    const disclaimer =
-        'Cet outil educatif fournit des estimations indicatives et '
-        'ne constitue pas un conseil juridique, fiscal ou notarial '
-        'personnalise au sens de la LSFin. Le droit des donations '
-        'et successions comporte de nombreuses subtilites cantonales. '
-        'Consulte un·e specialiste (notaire) pour ta situation.';
-
-    // ── Sources ──
     const sources = [
-      'CC art. 457-471 (Droit successoral)',
-      'CC art. 471 (Reserves hereditaires, revision 2023)',
-      'CC art. 522 ss (Action en reduction)',
-      'CC art. 527 (Donations contestables)',
-      'Lois fiscales cantonales sur les donations',
-      'CO art. 239 ss (Donation)',
+      'source_ch_gift_tax',
+      'source_ch_succession',
+      'source_cc_457_471',
+      'source_cc_471_2023',
+      'source_cc_522',
+      'source_co_239',
     ];
 
     return DonationResult(
       montantDonation: montantDonation,
       tauxImposition: tauxImposition,
       impotDonation: impotDonation,
+      taxRequiresCantonalConfirmation: taxRequiresCantonalConfirmation,
+      taxStatus: taxStatus,
       reserveHereditaireTotale: reserveHereditaireTotale,
       quotiteDisponible: quotiteDisponible,
+      quotiteRequiresSpecialistConfirmation:
+          quotiteRequiresSpecialistConfirmation,
       donationDepasseQuotite: donationDepasseQuotite,
       montantDepassement: montantDepassement,
       impactSuccession: impactSuccession,
       checklist: checklist,
       alerts: alerts,
-      disclaimer: disclaimer,
+      disclaimer: DonationMessageCode.disclaimerStandard,
       sources: sources,
       premierEclairage: premierEclairage,
     );
+  }
+
+  static String _taxStatus({
+    required bool knownCanton,
+    required bool usuallyExempt,
+    required String lienParente,
+  }) {
+    if (!knownCanton) {
+      return DonationMessageCode.taxUnknownCanton;
+    }
+    if (usuallyExempt) {
+      return DonationMessageCode.taxUsualExemption;
+    }
+    if (lienParente == 'descendant') {
+      return DonationMessageCode.taxDescendantConfirm;
+    }
+    return DonationMessageCode.taxCantonalConfirm;
+  }
+
+  static bool _isUsuallyGiftTaxExempt({
+    required bool knownCanton,
+    required String canton,
+    required String lienParente,
+  }) {
+    if (!knownCanton) return false;
+    if (lienParente == 'conjoint') return true;
+    return false;
+  }
+
+  static String _impactSuccession({
+    required bool avancementHoirie,
+    required bool donationDepasseQuotite,
+  }) {
+    if (avancementHoirie) {
+      return DonationMessageCode.impactAdvancement;
+    }
+    if (donationDepasseQuotite) {
+      return DonationMessageCode.impactReductionRisk;
+    }
+    return DonationMessageCode.impactOutsidePart;
+  }
+
+  static List<String> _alerts({
+    required bool knownCanton,
+    required bool taxRequiresCantonalConfirmation,
+    required String lienParente,
+    required String typeDonation,
+    required int donateurAge,
+    required double montantDonation,
+    required double fortuneTotaleDonateur,
+    required bool hasReservedSpouse,
+    required bool hasChildren,
+    required bool donationExceedsEstimatedQuotite,
+    required bool donationDepasseQuotite,
+  }) {
+    final alerts = <String>[];
+
+    if (!knownCanton) {
+      alerts.add(DonationMessageCode.alertUnknownCanton);
+    } else if (taxRequiresCantonalConfirmation) {
+      alerts.add(DonationMessageCode.alertTaxConfirm);
+    }
+
+    if (hasReservedSpouse && !hasChildren) {
+      alerts.add(DonationMessageCode.alertMissingParentela);
+    }
+
+    if (hasReservedSpouse) {
+      alerts.add(DonationMessageCode.alertMatrimonialRegime);
+    }
+
+    if (hasReservedSpouse && donationExceedsEstimatedQuotite) {
+      alerts.add(DonationMessageCode.alertSpouseLargeGift);
+    }
+
+    if (donationDepasseQuotite) {
+      alerts.add(DonationMessageCode.alertReductionRisk);
+    }
+
+    if (lienParente == 'concubin') {
+      alerts.add(DonationMessageCode.alertConcubinage);
+    }
+
+    if (typeDonation == 'immobilier') {
+      alerts.add(DonationMessageCode.alertRealEstate);
+    }
+
+    if (donateurAge >= 70) {
+      alerts.add(DonationMessageCode.alertOlderDonor);
+    }
+
+    if (SuccessionReserveCalculator.isLargeDonation(
+      donationAmount: montantDonation,
+      estateReference: fortuneTotaleDonateur,
+    )) {
+      alerts.add(DonationMessageCode.alertLargeDonation);
+    }
+
+    return alerts;
   }
 }

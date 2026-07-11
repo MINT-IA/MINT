@@ -3177,6 +3177,9 @@ class CoachProfile {
         answers.containsKey('q_emergency_fund')) {
       provided.add('liquidSavings');
     }
+    if (answers.containsKey('q_wealth_estimate')) {
+      provided.add('wealthEstimate');
+    }
     if (answers.containsKey('q_property_market_value')) {
       provided.add('propertyMarketValue');
     }

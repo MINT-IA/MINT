@@ -1,26 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 
-/// Unit tests for DonationService — Sprint S24 (Donations)
+/// Unit tests for DonationService.
 ///
-/// Tests pure Dart financial calculations for Swiss donation tax:
-///   - Impot sur les donations par canton et lien de parente
-///   - Reserve hereditaire (CC art. 471, nouveau droit 2023)
-///   - Quotite disponible et depassement
-///   - Avancement d'hoirie vs hors avancement
-///   - Impact succession
-///   - Checklist et alertes
-///   - Compliance (disclaimer, sources, premier éclairage)
-///
-/// Legal references: CC art. 457-471, CC art. 522 ss, CO art. 239 ss
+/// These tests deliberately avoid validating fake precision. Gift tax is
+/// cantonal/communal and depends on the exact relationship, canton, commune,
+/// exemptions and asset type. Without an authoritative tariff table, MINT must
+/// return a confirmation state instead of inventing a CHF amount.
 void main() {
-  // ════════════════════════════════════════════════════════════
-  //  IMPOT SUR LES DONATIONS PAR CANTON
-  // ════════════════════════════════════════════════════════════
-
-  group('DonationService - Impot cantonal', () {
-    test('donation au conjoint = exoneree dans tous les cantons', () {
-      for (final canton in DonationService.tauxDonationCantonal.keys) {
+  group('DonationService - Swiss gift tax boundaries', () {
+    test('spouse uses usual exemption, not fake tax', () {
+      for (final canton in DonationService.swissCantons) {
         final result = DonationService.calculate(
           montant: 100000,
           donateurAge: 50,
@@ -28,171 +18,192 @@ void main() {
           canton: canton,
         );
 
-        expect(result.tauxImposition, 0.0,
-            reason: 'Conjoint devrait etre exonere dans $canton');
+        expect(result.taxRequiresCantonalConfirmation, isFalse);
+        expect(result.tauxImposition, 0.0);
         expect(result.impotDonation, 0.0);
+        expect(
+          result.premierEclairage,
+          DonationMessageCode.insightUsualExemption,
+        );
       }
     });
 
-    test('donation aux descendants = exoneree (ZH, BE, GE, LU, BS, SZ)', () {
-      for (final canton in ['ZH', 'BE', 'GE', 'LU', 'BS', 'SZ']) {
+    test('descendants require cantonal confirmation in every canton', () {
+      for (final canton in DonationService.swissCantons) {
         final result = DonationService.calculate(
-          montant: 100000,
+          montant: 500000,
           donateurAge: 50,
           lienParente: 'descendant',
           canton: canton,
         );
 
-        expect(result.tauxImposition, 0.0,
-            reason: 'Descendant devrait etre exonere dans $canton');
+        expect(result.taxRequiresCantonalConfirmation, isTrue);
+        expect(result.tauxImposition, 0.0);
         expect(result.impotDonation, 0.0);
+        expect(result.taxStatus, DonationMessageCode.taxDescendantConfirm);
+        expect(result.alerts, contains(DonationMessageCode.alertTaxConfirm));
       }
     });
 
-    test('donation a un tiers en GE => taux 30%', () {
-      final result = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'tiers',
-        canton: 'GE',
-      );
-
-      expect(result.tauxImposition, 0.30);
-      expect(result.impotDonation, 30000.0);
-    });
-
-    test('donation a un concubin en VD => taux 25%', () {
-      final result = DonationService.calculate(
-        montant: 200000,
-        donateurAge: 45,
-        lienParente: 'concubin',
-        canton: 'VD',
-      );
-
-      expect(result.tauxImposition, 0.25);
-      expect(result.impotDonation, 50000.0);
-    });
-
-    test('Schwyz (SZ) => taux 0% pour tous les liens', () {
-      for (final lien in DonationService.tauxDonationCantonal['SZ']!.keys) {
+    test('non-exempt relationships require cantonal confirmation', () {
+      for (final lien in ['parent', 'fratrie', 'concubin', 'tiers']) {
         final result = DonationService.calculate(
           montant: 100000,
           donateurAge: 50,
           lienParente: lien,
-          canton: 'SZ',
+          canton: 'GE',
         );
 
-        expect(result.tauxImposition, 0.0,
-            reason: 'SZ devrait etre a 0% pour $lien');
+        expect(result.taxRequiresCantonalConfirmation, isTrue);
+        expect(result.tauxImposition, 0.0);
         expect(result.impotDonation, 0.0);
+        expect(result.premierEclairage, DonationMessageCode.insightTaxConfirm);
+        expect(result.alerts, contains(DonationMessageCode.alertTaxConfirm));
       }
     });
 
-    test('canton inconnu => fallback sur VD', () {
-      final resultUnknown = DonationService.calculate(
+    test('unknown canton never falls back silently to Vaud', () {
+      final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
         lienParente: 'tiers',
         canton: 'XX',
       );
 
-      final resultVD = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'tiers',
-        canton: 'VD',
-      );
-
-      expect(resultUnknown.tauxImposition, resultVD.tauxImposition);
-      expect(resultUnknown.impotDonation, resultVD.impotDonation);
+      expect(result.taxRequiresCantonalConfirmation, isTrue);
+      expect(result.tauxImposition, 0.0);
+      expect(result.impotDonation, 0.0);
+      expect(result.alerts, contains(DonationMessageCode.alertUnknownCanton));
     });
   });
 
-  // ════════════════════════════════════════════════════════════
-  //  RESERVE HEREDITAIRE ET QUOTITE DISPONIBLE
-  // ════════════════════════════════════════════════════════════
+  group('DonationService - hereditary reserve', () {
+    test('2023 law: parents no longer have a compulsory portion', () {
+      expect(DonationService.reserves['parent'], 0.0);
+    });
 
-  group('DonationService - Reserve hereditaire', () {
-    test('avec enfants: reserve with regime matrimonial factor', () {
+    test('single donor with children: descendants reserve is 50 percent', () {
       final result = DonationService.calculate(
         montant: 50000,
         donateurAge: 50,
         lienParente: 'descendant',
         canton: 'ZH',
+        civilStatus: 'celibataire',
         nbEnfants: 2,
         fortuneTotaleDonateur: 1000000,
       );
 
-      // Default regime = participation_acquets => regimeFactor = 0.75
-      // fortune = 1000000 * 0.75 = 750000
-      // conjoint: 750000 * 0.50 * 0.50 = 187500
-      // enfants:  750000 * 0.50 * 0.50 = 187500
-      // total reserve = 375000
-      expect(result.reserveHereditaireTotale, 375000.0);
-      expect(result.quotiteDisponible, 375000.0);
+      expect(result.reserveHereditaireTotale, 500000.0);
+      expect(result.quotiteDisponible, 500000.0);
     });
 
-    test('sans enfants: reserve with regime matrimonial factor', () {
+    test('married donor with children: spouse and children are reserved heirs',
+        () {
+      final result = DonationService.calculate(
+        montant: 50000,
+        donateurAge: 50,
+        lienParente: 'descendant',
+        canton: 'ZH',
+        civilStatus: 'marie',
+        nbEnfants: 2,
+        fortuneTotaleDonateur: 1000000,
+      );
+
+      expect(result.reserveHereditaireTotale, 500000.0);
+      expect(result.quotiteDisponible, 500000.0);
+      expect(result.quotiteRequiresSpecialistConfirmation, isTrue);
+      expect(
+        result.alerts,
+        contains(DonationMessageCode.alertMatrimonialRegime),
+      );
+    });
+
+    test('married donor does not flag reduction before matrimonial liquidation',
+        () {
+      final result = DonationService.calculate(
+        montant: 900000,
+        donateurAge: 50,
+        lienParente: 'descendant',
+        canton: 'ZH',
+        civilStatus: 'marie',
+        nbEnfants: 2,
+        fortuneTotaleDonateur: 1000000,
+        avancementHoirie: false,
+      );
+
+      expect(result.quotiteRequiresSpecialistConfirmation, isTrue);
+      expect(result.donationDepasseQuotite, isFalse);
+      expect(result.montantDepassement, 0.0);
+      expect(
+        result.alerts,
+        contains(DonationMessageCode.alertMatrimonialRegime),
+      );
+      expect(
+        result.alerts,
+        contains(DonationMessageCode.alertSpouseLargeGift),
+      );
+      expect(
+        result.alerts,
+        isNot(contains(DonationMessageCode.alertReductionRisk)),
+      );
+    });
+
+    test('single donor without children: no compulsory portion is estimated',
+        () {
       final result = DonationService.calculate(
         montant: 50000,
         donateurAge: 50,
         lienParente: 'fratrie',
         canton: 'ZH',
+        civilStatus: 'celibataire',
         nbEnfants: 0,
         fortuneTotaleDonateur: 800000,
       );
 
-      // Default regime = participation_acquets => regimeFactor = 0.75
-      // fortune = 800000 * 0.75 = 600000
-      // conjoint: 600000 * 0.75 * 0.50 = 225000
-      // parents: no reserve since 2023
-      expect(result.reserveHereditaireTotale, 225000.0);
-      expect(result.quotiteDisponible, 375000.0);
+      expect(result.reserveHereditaireTotale, 0.0);
+      expect(result.quotiteDisponible, 800000.0);
+      expect(result.quotiteRequiresSpecialistConfirmation, isFalse);
     });
 
-    test('nouveau droit 2023: parents n\'ont plus de reserve', () {
-      // Verify that reserves['parent'] is 0.0
-      expect(DonationService.reserves['parent'], 0.0);
+    test('married donor without children flags missing parentela context', () {
+      final result = DonationService.calculate(
+        montant: 50000,
+        donateurAge: 50,
+        lienParente: 'fratrie',
+        canton: 'ZH',
+        civilStatus: 'marie',
+        nbEnfants: 0,
+        fortuneTotaleDonateur: 800000,
+      );
+
+      expect(result.reserveHereditaireTotale, 300000.0);
+      expect(result.quotiteDisponible, 500000.0);
+      expect(
+        result.alerts,
+        contains(DonationMessageCode.alertMissingParentela),
+      );
     });
 
-    test('donation depasse quotite disponible => alerte', () {
+    test('donation beyond disposable portion reports only the excess amount',
+        () {
       final result = DonationService.calculate(
         montant: 600000,
         donateurAge: 50,
         lienParente: 'tiers',
         canton: 'ZH',
+        civilStatus: 'celibataire',
         nbEnfants: 2,
         fortuneTotaleDonateur: 1000000,
       );
 
-      // fortune = 1000000 * 0.75 = 750000, reserve = 375000, quotite = 375000
-      // donation = 600000 > 375000 => depasse de 225000
       expect(result.donationDepasseQuotite, isTrue);
-      expect(result.montantDepassement, 225000.0);
-      expect(result.alerts, anyElement(contains('quotite disponible')));
-    });
-
-    test('donation ne depasse pas quotite => pas d\'alerte depassement', () {
-      final result = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'descendant',
-        canton: 'ZH',
-        nbEnfants: 2,
-        fortuneTotaleDonateur: 1000000,
-      );
-
-      expect(result.donationDepasseQuotite, isFalse);
-      expect(result.montantDepassement, 0.0);
+      expect(result.montantDepassement, 100000.0);
+      expect(result.alerts, contains(DonationMessageCode.alertReductionRisk));
     });
   });
 
-  // ════════════════════════════════════════════════════════════
-  //  IMPACT SUCCESSION (AVANCEMENT HOIRIE)
-  // ════════════════════════════════════════════════════════════
-
-  group('DonationService - Impact succession', () {
-    test('avancement hoirie => rapportee a la masse successorale', () {
+  group('DonationService - succession impact', () {
+    test('advancement of inheritance is described as future collation', () {
       final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
@@ -201,59 +212,45 @@ void main() {
         avancementHoirie: true,
       );
 
-      expect(result.impactSuccession, contains('avancement d\'hoirie'));
-      expect(result.impactSuccession, contains('rapportee'));
+      expect(result.impactSuccession, DonationMessageCode.impactAdvancement);
     });
 
-    test('hors avancement, dans quotite => imputee sans rapport', () {
+    test('outside advancement stays conditional on deed and reserved shares',
+        () {
       final result = DonationService.calculate(
         montant: 50000,
         donateurAge: 50,
         lienParente: 'tiers',
         canton: 'ZH',
         avancementHoirie: false,
+        civilStatus: 'celibataire',
         nbEnfants: 0,
         fortuneTotaleDonateur: 500000,
       );
 
-      expect(result.impactSuccession, contains('hors avancement'));
-      expect(result.impactSuccession, contains('quotite disponible'));
+      expect(result.impactSuccession, DonationMessageCode.impactOutsidePart);
     });
 
-    test('hors avancement, depasse quotite => action en reduction possible', () {
+    test('outside advancement beyond disposable portion flags reduction risk',
+        () {
       final result = DonationService.calculate(
         montant: 600000,
         donateurAge: 50,
         lienParente: 'tiers',
         canton: 'ZH',
         avancementHoirie: false,
+        civilStatus: 'celibataire',
         nbEnfants: 2,
         fortuneTotaleDonateur: 1000000,
       );
 
-      expect(result.impactSuccession, contains('action en reduction'));
-      expect(result.impactSuccession, contains('CC art. 522'));
+      expect(result.impactSuccession, DonationMessageCode.impactReductionRisk);
+      expect(result.montantDepassement, 100000.0);
     });
   });
 
-  // ════════════════════════════════════════════════════════════
-  //  ALERTES SPECIFIQUES
-  // ════════════════════════════════════════════════════════════
-
-  group('DonationService - Alertes', () {
-    test('concubin avec taux > 15% => alerte taux eleve', () {
-      final result = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'concubin',
-        canton: 'VD', // 25%
-      );
-
-      expect(result.alerts,
-          anyElement(contains('taux d\'imposition')));
-    });
-
-    test('donation immobiliere => alerte notaire obligatoire', () {
+  group('DonationService - alerts and compliance', () {
+    test('real-estate donation requires notary and land-register checks', () {
       final result = DonationService.calculate(
         montant: 0,
         donateurAge: 50,
@@ -261,13 +258,19 @@ void main() {
         canton: 'ZH',
         typeDonation: 'immobilier',
         valeurImmobiliere: 500000,
+        soldeHypothecaire: 200000,
       );
 
-      expect(result.montantDonation, 500000.0);
-      expect(result.alerts, anyElement(contains('notaire est obligatoire')));
+      expect(result.montantDonation, 300000.0);
+      expect(result.alerts, contains(DonationMessageCode.alertRealEstate));
+      expect(
+        result.checklist,
+        contains(DonationMessageCode.checklistLandRegister),
+      );
     });
 
-    test('donateur >= 70 ans => alerte contestation', () {
+    test('older donor warning stays about planning, not automatic contestation',
+        () {
       final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 70,
@@ -275,10 +278,14 @@ void main() {
         canton: 'ZH',
       );
 
-      expect(result.alerts, anyElement(contains('CC art. 527')));
+      expect(result.alerts, contains(DonationMessageCode.alertOlderDonor));
+      expect(
+        result.alerts,
+        isNot(contains(DonationMessageCode.alertReductionRisk)),
+      );
     });
 
-    test('donation > 50% fortune => alerte reserves personnelles', () {
+    test('large donation warns about personal liquidity', () {
       final result = DonationService.calculate(
         montant: 600000,
         donateurAge: 50,
@@ -287,17 +294,10 @@ void main() {
         fortuneTotaleDonateur: 1000000,
       );
 
-      expect(result.alerts, anyElement(contains('50%')));
-      expect(result.alerts, anyElement(contains('fortune totale')));
+      expect(result.alerts, contains(DonationMessageCode.alertLargeDonation));
     });
-  });
 
-  // ════════════════════════════════════════════════════════════
-  //  CHECKLIST ET COMPLIANCE
-  // ════════════════════════════════════════════════════════════
-
-  group('DonationService - Checklist et compliance', () {
-    test('checklist de base contient au moins 5 elements', () {
+    test('checklist keeps specialist and tax-authority verification', () {
       final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
@@ -306,47 +306,17 @@ void main() {
       );
 
       expect(result.checklist.length, greaterThanOrEqualTo(5));
-      expect(result.checklist, anyElement(contains('notaire')));
-      expect(result.checklist, anyElement(contains('autorites fiscales')));
-    });
-
-    test('donation immobiliere ajoute registre foncier a la checklist', () {
-      final result = DonationService.calculate(
-        montant: 0,
-        donateurAge: 50,
-        lienParente: 'descendant',
-        canton: 'ZH',
-        typeDonation: 'immobilier',
-        valeurImmobiliere: 500000,
+      expect(
+        result.checklist,
+        contains(DonationMessageCode.checklistVerifyQuotite),
       );
-
-      expect(result.checklist, anyElement(contains('registre foncier')));
-    });
-
-    test('avancement hoirie ajoute documentation rapport successoral', () {
-      final result = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'descendant',
-        canton: 'ZH',
-        avancementHoirie: true,
+      expect(
+        result.checklist,
+        contains(DonationMessageCode.checklistConfirmTax),
       );
-
-      expect(result.checklist, anyElement(contains('rapport successoral')));
     });
 
-    test('concubin ajoute conseil testament', () {
-      final result = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'concubin',
-        canton: 'ZH',
-      );
-
-      expect(result.checklist, anyElement(contains('testament')));
-    });
-
-    test('disclaimer mentionne outil educatif et LSFin', () {
+    test('sources include official federal/legal references', () {
       final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
@@ -354,41 +324,9 @@ void main() {
         canton: 'ZH',
       );
 
-      expect(result.disclaimer, contains('outil educatif'));
-      expect(result.disclaimer, contains('LSFin'));
-    });
-
-    test('sources contiennent les references CC', () {
-      final result = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'descendant',
-        canton: 'ZH',
-      );
-
-      expect(result.sources, isNotEmpty);
-      expect(result.sources, anyElement(contains('CC art. 471')));
-      expect(result.sources, anyElement(contains('CC art. 522')));
-    });
-
-    test('premier éclairage mentionne impot ou exoneration', () {
-      // Cas exonere
-      final resultExonere = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'conjoint',
-        canton: 'ZH',
-      );
-      expect(resultExonere.premierEclairage, contains('exoneree'));
-
-      // Cas impose
-      final resultImpose = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'tiers',
-        canton: 'GE',
-      );
-      expect(resultImpose.premierEclairage, contains('Impot'));
+      expect(result.sources, contains('source_ch_gift_tax'));
+      expect(result.sources, contains('source_cc_471_2023'));
+      expect(result.sources, contains('source_cc_522'));
     });
   });
 }

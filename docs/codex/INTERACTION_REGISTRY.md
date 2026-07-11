@@ -113,6 +113,12 @@ bloque pas encore les routes non migrées.
   `q_property_market_value` puis `_coach_dettes_hypotheque` depuis
   `/succession` vers `/data-block/patrimoine`. Il impose que l'écran ne rende
   pas de cas immobilier fictif avant les faits utilisateur.
+- `interactions/donation_missing_facts.yaml` : flux donation réel, couvrant la
+  collecte ciblée de `q_birth_year`, `q_canton`, `q_civil_status`,
+  `q_children`, `q_wealth_estimate` et `q_property_market_value` depuis
+  `/life-event/donation` vers DataBlock revenu, ménage et patrimoine. Il impose
+  que l'écran garde les résultats cachés tant que les faits métier suisses
+  requis ne sont pas dans la bibliothèque utilisateur.
 - `interactions/INDEX.md` et
   `.planning/journeys/diagrams/interaction_graph.mmd` : artefacts générés par le
   linter depuis les YAML, jamais édités à la main.

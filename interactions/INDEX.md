@@ -25,6 +25,13 @@
 | disability_self_employed_missing_facts | `disability.edge.self_employed.enrich_savings` | `disability.route.self_employed -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/disability_self_employed.yaml` |
 | document_scan_recovery | `scan.edge.impact_recovery.home` | `scan.route.impact_recovery -> home.route.dashboard` | `tap` | `go` | `apps/mobile/.maestro/r2_scan_impact.yaml` |
 | document_scan_recovery | `scan.edge.review_recovery.rescan` | `scan.route.review_recovery -> scan.route.capture` | `tap` | `go` | `apps/mobile/.maestro/r1_scan_review.yaml` |
+| donation_missing_facts | `donation.edge.life_event.enrich_age` | `donation.route.life_event -> db.route.revenu` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
+| donation_missing_facts | `donation.edge.life_event.enrich_canton` | `donation.route.life_event -> db.route.revenu` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
+| donation_missing_facts | `donation.edge.life_event.enrich_children` | `donation.route.life_event -> db.route.composition_menage` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
+| donation_missing_facts | `donation.edge.life_event.enrich_civil_status` | `donation.route.life_event -> db.route.composition_menage` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
+| donation_missing_facts | `donation.edge.life_event.enrich_mortgage_balance` | `donation.route.life_event -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
+| donation_missing_facts | `donation.edge.life_event.enrich_property_value` | `donation.route.life_event -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/test/screens/donation_ledger_test.dart` |
+| donation_missing_facts | `donation.edge.life_event.enrich_wealth` | `donation.route.life_event -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/donation_ledger.yaml` |
 | first_job_missing_facts | `firstjob.edge.first_job.enrich_revenue` | `firstjob.route.first_job -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/first_job_ledger.yaml` |
 | independent_missing_facts | `indep.edge.avs.enrich_income` | `indep.route.avs -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_avs_cotisations.yaml` |
 | independent_missing_facts | `indep.edge.divsalary.enrich_profit` | `indep.route.divsalary -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_dividende_salaire.yaml` |

@@ -62,6 +62,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       TextEditingController();
   final TextEditingController _birthYearController = TextEditingController();
   final TextEditingController _cashController = TextEditingController();
+  final TextEditingController _wealthEstimateController =
+      TextEditingController();
   final TextEditingController _propertyMarketValueController =
       TextEditingController();
   final TextEditingController _mortgageBalanceController =
@@ -101,6 +103,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _unemploymentContributionMonthsController.dispose();
     _birthYearController.dispose();
     _cashController.dispose();
+    _wealthEstimateController.dispose();
     _propertyMarketValueController.dispose();
     _mortgageBalanceController.dispose();
     _debtPaymentsController.dispose();
@@ -327,6 +330,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _patrimoineInputsSeeded = true;
     if (profile.patrimoine.epargneLiquide > 0) {
       _cashController.text = '${profile.patrimoine.epargneLiquide.round()}';
+    }
+    final wealthEstimate = profile.patrimoine.wealthEstimate;
+    if (wealthEstimate != null && wealthEstimate > 0) {
+      _wealthEstimateController.text = '${wealthEstimate.round()}';
     }
     final propertyMarketValue =
         profile.patrimoine.propertyMarketValue ?? profile.patrimoine.immobilier;
@@ -886,6 +893,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   Widget _buildPatrimoineCollector(S l) {
     final onlyInputKey = _canonicalPatrimoineInputKey(widget.initialInputKey);
     final collectsCash = onlyInputKey == null || onlyInputKey == 'q_cash_total';
+    final collectsWealthEstimate = onlyInputKey == 'q_wealth_estimate';
     final collectsPropertyValue = onlyInputKey == 'q_property_market_value';
     final collectsMortgageBalance = onlyInputKey == '_coach_dettes_hypotheque';
     final collectsDebtPayments = onlyInputKey == 'q_debt_payments_period_chf';
@@ -902,6 +910,18 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
               semanticsIdentifier: 'savings_input',
               controller: _cashController,
               label: l.financialSummaryEditEpargneLiquide,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+              ],
+              onChanged: (_) => setState(() => _patrimoineSaved = false),
+            ),
+          if (collectsWealthEstimate)
+            _buildRevenueTextField(
+              key: const Key('wealth_estimate_input'),
+              semanticsIdentifier: 'wealth_estimate_input',
+              controller: _wealthEstimateController,
+              label: l.donationFortuneTotale,
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
@@ -996,11 +1016,15 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     final l = S.of(context)!;
     final onlyInputKey = _canonicalPatrimoineInputKey(widget.initialInputKey);
     final collectsCash = onlyInputKey == null || onlyInputKey == 'q_cash_total';
+    final collectsWealthEstimate = onlyInputKey == 'q_wealth_estimate';
     final collectsPropertyValue = onlyInputKey == 'q_property_market_value';
     final collectsMortgageBalance = onlyInputKey == '_coach_dettes_hypotheque';
     final collectsDebtPayments = onlyInputKey == 'q_debt_payments_period_chf';
     final cash =
         collectsCash ? int.tryParse(_digitsOnly(_cashController.text)) : null;
+    final wealthEstimate = collectsWealthEstimate
+        ? int.tryParse(_digitsOnly(_wealthEstimateController.text))
+        : null;
     final propertyMarketValue = collectsPropertyValue
         ? int.tryParse(_digitsOnly(_propertyMarketValueController.text))
         : null;
@@ -1012,6 +1036,8 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         : null;
 
     if ((collectsCash && (cash == null || cash < 0)) ||
+        (collectsWealthEstimate &&
+            (wealthEstimate == null || wealthEstimate <= 0)) ||
         (collectsPropertyValue &&
             (propertyMarketValue == null || propertyMarketValue <= 0)) ||
         (collectsMortgageBalance &&
@@ -1027,6 +1053,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     });
     await context.read<CoachProfileProvider>().mergeAnswers({
       if (collectsCash) 'q_cash_total': cash,
+      if (collectsWealthEstimate) 'q_wealth_estimate': wealthEstimate,
       if (collectsPropertyValue) 'q_property_market_value': propertyMarketValue,
       if (collectsMortgageBalance) '_coach_dettes_hypotheque': mortgageBalance,
       if (collectsDebtPayments) ...{
@@ -1097,6 +1124,13 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       'epargneliquide' ||
       'savings' =>
         'q_cash_total',
+      'qwealthestimate' ||
+      'wealthestimate' ||
+      'fortuneestimate' ||
+      'fortuneestimee' ||
+      'patrimoinetotal' ||
+      'fortune' =>
+        'q_wealth_estimate',
       'qmortgagebalance' ||
       'mortgagebalance' ||
       'remainingmortgage' ||

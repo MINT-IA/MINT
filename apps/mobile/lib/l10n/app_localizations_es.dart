@@ -23551,4 +23551,110 @@ class SEs extends S {
 
   @override
   String get dataBlockMenageCivilWidowed => 'Viudo/a';
+
+  @override
+  String get donationTaxStatusUnknownCanton =>
+      'Unknown canton: confirm the tax canton before estimating gift tax.';
+
+  @override
+  String get donationTaxStatusUsualExemption =>
+      'Usual exemption for this relationship in most cantons; declaration duties and exceptions still need confirmation.';
+
+  @override
+  String donationTaxStatusDescendantConfirm(String canton) {
+    return 'Usual descendant exemption to confirm with canton $canton before any decision.';
+  }
+
+  @override
+  String donationTaxStatusConfirm(String canton) {
+    return 'Cantonal gift-tax treatment must be confirmed in canton $canton.';
+  }
+
+  @override
+  String get donationImpactAdvancement =>
+      'This gift is treated as an advancement of inheritance and will be brought back into the estate. The beneficiary’s future share is reduced accordingly.';
+
+  @override
+  String donationImpactReductionRisk(String montant) {
+    return 'This gift outside advancement exceeds the disposable portion by $montant. Reserved heirs could challenge it through a reduction action (CC art. 522 ff.).';
+  }
+
+  @override
+  String donationImpactOutsidePart(String quotite) {
+    return 'This gift outside advancement can be charged to the disposable portion ($quotite) if the deed documents it clearly. Confirm with a notary.';
+  }
+
+  @override
+  String get donationAlertUnknownCanton =>
+      'Unknown canton: MINT does not replace it with another default canton.';
+
+  @override
+  String donationAlertTaxConfirm(String canton) {
+    return 'Gift-tax treatment in canton $canton must be confirmed with the cantonal tax authority.';
+  }
+
+  @override
+  String get donationAlertMissingParentela =>
+      'Without children, parent/sibling context is still needed to refine the surviving spouse’s legal share.';
+
+  @override
+  String get donationAlertMatrimonialRegime =>
+      'The wealth reference does not replace matrimonial-property liquidation. The exact estate mass must be confirmed with a notary.';
+
+  @override
+  String get donationAlertSpouseLargeGift =>
+      'A large gift outside share may affect children’s reserved portions after matrimonial-property liquidation; verify with a notary.';
+
+  @override
+  String donationAlertReductionRisk(String montant) {
+    return 'The gift exceeds the disposable portion by $montant. Reserved heirs could bring a reduction action (CC art. 522 ff.).';
+  }
+
+  @override
+  String get donationAlertConcubinage =>
+      'Cohabitation does not create a statutory inheritance right: prepare questions on wills, inheritance contracts and taxation.';
+
+  @override
+  String get donationAlertRealEstate =>
+      'For a real-estate gift, notarial deed, land register and local tax consequences must be confirmed.';
+
+  @override
+  String get donationAlertOlderDonor =>
+      'At this age, planning should document liquidity, future needs, capacity of judgment and the chronology of acts.';
+
+  @override
+  String get donationAlertLargeDonation =>
+      'This gift represents more than 50% of total wealth. Verify that enough reserves remain for personal needs.';
+
+  @override
+  String get donationChecklistVerifyQuotite =>
+      'Verify the disposable portion with a notary';
+
+  @override
+  String get donationChecklistDocumentAdvancement =>
+      'Document whether the gift is an advancement of inheritance or outside share';
+
+  @override
+  String get donationChecklistConfirmTax =>
+      'Confirm tax treatment with the cantonal tax authority';
+
+  @override
+  String get donationChecklistInformReservedHeirs =>
+      'Inform reserved heirs if necessary';
+
+  @override
+  String get donationChecklistKeepDeed =>
+      'Keep a copy of the deed in your documents';
+
+  @override
+  String get donationChecklistLandRegister =>
+      'Proceed with land-register entry';
+
+  @override
+  String get donationChecklistFutureCollation =>
+      'Document the amount for future estate collation';
+
+  @override
+  String get donationChecklistConcubinageQuestions =>
+      'Prepare testamentary questions for the notary';
 }

@@ -1,0 +1,25 @@
+appId: ch.mint.app
+---
+# Donation renders missing ledger facts and routes wealth collection to DataBlock.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///life-event/donation"
+- assertVisible:
+    text: "Simuler une donation"
+- scrollUntilVisible:
+    element:
+      text: "Renseigner mon patrimoine"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    text: "Renseigner mon patrimoine"
+- assertVisible:
+    id: "wealth_estimate_input"
+- assertVisible:
+    id: "patrimoine_save_cta"

@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/donation_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
-import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:provider/provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -51,15 +53,9 @@ class _DonationScreenState extends State<DonationScreen> {
 
   // ── Input state ──
   double _montant = 100000;
-  int _donateurAge = 55;
   String _lienParente = 'descendant';
-  String _canton = 'VD';
   String _typeDonation = 'especes';
-  double _valeurImmobiliere = 500000;
   bool _avancementHoirie = true;
-  int _nbEnfants = 2;
-  double _fortuneTotaleDonateur = 800000;
-  String _regimeMatrimonial = 'participation_acquets';
 
   // Result
   DonationResult? _result;
@@ -67,14 +63,7 @@ class _DonationScreenState extends State<DonationScreen> {
   // Checklist state
   List<bool> _checklistState = [];
 
-  static List<String> get _cantons => sortedCantonCodes;
-
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  static const _typesDonationLabels = {
-    'especes': 'Espèces / Liquidités',
-    'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilières',
-  };
 
   static const _liensParente = [
     'conjoint',
@@ -85,31 +74,32 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'communaute_biens': 'Communauté de biens',
-    'separation_biens': 'Séparation de biens',
-  };
-
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _simulate() {
+  void _runDonationScenario(_DonationLedgerFacts facts) {
+    if (!facts.canSimulate(_typeDonation)) {
+      setState(() => _result = null);
+      return;
+    }
     setState(() {
       _result = DonationService.calculate(
         montant: _montant,
-        donateurAge: _donateurAge,
+        donateurAge: facts.age!,
         lienParente: _lienParente,
-        canton: _canton,
+        canton: facts.canton!,
+        civilStatus: facts.civilStatus!.name,
         typeDonation: _typeDonation,
-        valeurImmobiliere: _valeurImmobiliere,
+        valeurImmobiliere:
+            _typeDonation == 'immobilier' ? facts.propertyMarketValue! : 0,
+        soldeHypothecaire:
+            _typeDonation == 'immobilier' ? facts.mortgageBalance! : 0,
         avancementHoirie: _avancementHoirie,
-        nbEnfants: _nbEnfants,
-        fortuneTotaleDonateur: _fortuneTotaleDonateur,
-        regimeMatrimonial: _regimeMatrimonial,
+        nbEnfants: facts.children!,
+        fortuneTotaleDonateur: facts.wealthReference!,
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
@@ -128,6 +118,9 @@ class _DonationScreenState extends State<DonationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final facts = _DonationLedgerFacts.fromProfile(
+      context.watch<CoachProfileProvider>().profile,
+    );
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
@@ -148,48 +141,53 @@ class _DonationScreenState extends State<DonationScreen> {
             const SizedBox(height: 24),
             MintEntrance(
               delay: const Duration(milliseconds: 150),
-              child: _buildDonationSection(),
+              child: _buildSuccessionContextSection(facts),
             ),
             const SizedBox(height: 12),
             MintEntrance(
               delay: const Duration(milliseconds: 200),
-              child: _buildSuccessionContextSection(),
+              child: _buildDonationSection(facts),
             ),
             const SizedBox(height: 24),
-            _buildSimulateButton(),
+            _buildSimulateButton(facts),
             const SizedBox(height: 24),
-            if (_result != null) ...[
-              Container(key: _resultsKey),
-              MintEntrance(child: _buildTaxCard()),
-              const SizedBox(height: 24),
-              MintEntrance(
-                delay: const Duration(milliseconds: 100),
-                child: _buildReserveCard(),
+            if (_result != null)
+              Column(
+                key: const Key('donation_result_cards'),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(key: _resultsKey),
+                  MintEntrance(child: _buildTaxCard(facts)),
+                  const SizedBox(height: 24),
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 100),
+                    child: _buildReserveCard(facts),
+                  ),
+                  const SizedBox(height: 24),
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 200),
+                    child: _buildQuotiteCard(),
+                  ),
+                  const SizedBox(height: 24),
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildImpactSuccessionCard(),
+                  ),
+                  const SizedBox(height: 24),
+                  if (_result!.alerts.isNotEmpty) ...[
+                    MintEntrance(
+                      delay: const Duration(milliseconds: 350),
+                      child: _buildAlertsSection(facts),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildChecklistSection(),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
-              const SizedBox(height: 24),
-              MintEntrance(
-                delay: const Duration(milliseconds: 200),
-                child: _buildQuotiteCard(),
-              ),
-              const SizedBox(height: 24),
-              MintEntrance(
-                delay: const Duration(milliseconds: 300),
-                child: _buildImpactSuccessionCard(),
-              ),
-              const SizedBox(height: 24),
-              if (_result!.alerts.isNotEmpty) ...[
-                MintEntrance(
-                  delay: const Duration(milliseconds: 350),
-                  child: _buildAlertsSection(),
-                ),
-                const SizedBox(height: 24),
-              ],
-              MintEntrance(
-                delay: const Duration(milliseconds: 400),
-                child: _buildChecklistSection(),
-              ),
-              const SizedBox(height: 24),
-            ],
             _buildEducationalFooter(),
             const SizedBox(height: 24),
             _buildDisclaimer(),
@@ -231,7 +229,8 @@ class _DonationScreenState extends State<DonationScreen> {
                 const SizedBox(height: 2),
                 Text(
                   S.of(context)!.donationHeaderSubtitle,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                  style:
+                      MintTextStyles.bodySmall(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -261,7 +260,8 @@ class _DonationScreenState extends State<DonationScreen> {
           Expanded(
             child: Text(
               S.of(context)!.donationIntroText,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(height: 1.5),
             ),
           ),
         ],
@@ -270,7 +270,7 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Section: Donation ──
-  Widget _buildDonationSection() {
+  Widget _buildDonationSection(_DonationLedgerFacts facts) {
     return SimulatorCard(
       title: S.of(context)!.donationSectionTitle,
       subtitle: S.of(context)!.donationSectionSubtitle,
@@ -289,25 +289,43 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           _buildLienParenteChips(),
           const SizedBox(height: 16),
-          _buildCantonDropdown(),
-          const SizedBox(height: 16),
           _buildTypeDonationChips(),
           if (_typeDonation == 'immobilier') ...[
             const SizedBox(height: 16),
-            MintAmountField(
+            _buildFactTile(
+              key: const Key('donation_property_fact'),
+              semanticsIdentifier: 'donation_property_fact',
               label: S.of(context)!.donationValeurImmobiliere,
-              value: _valeurImmobiliere,
-              formatValue: (v) => _chfFmt(v),
-              onChanged: (v) => setState(() => _valeurImmobiliere = v),
-              min: 100000,
-              max: 3000000,
+              value: facts.propertyMarketValue == null
+                  ? null
+                  : _chfFmt(facts.propertyMarketValue!),
+              route: '/data-block/patrimoine?inputKey=q_property_market_value',
+              ctaKey: const Key('donation_property_missing_cta'),
+              ctaSemanticsIdentifier: 'donation_property_missing_cta',
+              ctaLabel: S.of(context)!.dataBlockPatrimoineCta,
+            ),
+            const SizedBox(height: 16),
+            _buildFactTile(
+              key: const Key('donation_mortgage_fact'),
+              semanticsIdentifier: 'donation_mortgage_fact',
+              label: S.of(context)!.financialSummaryHypothequeRestante,
+              value: facts.mortgageBalance == null
+                  ? null
+                  : _chfFmt(facts.mortgageBalance!),
+              route: '/data-block/patrimoine?inputKey=_coach_dettes_hypotheque',
+              ctaKey: const Key('donation_mortgage_missing_cta'),
+              ctaSemanticsIdentifier: 'donation_mortgage_missing_cta',
+              ctaLabel: S.of(context)!.dataBlockPatrimoineCta,
             ),
           ],
           const SizedBox(height: 16),
           _buildSwitch(
             label: S.of(context)!.donationAvancementHoirie,
             value: _avancementHoirie,
-            onChanged: (v) => setState(() => _avancementHoirie = v),
+            onChanged: (v) => setState(() {
+              _avancementHoirie = v;
+              _result = null;
+            }),
           ),
         ],
       ),
@@ -315,46 +333,163 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Section: Succession Context ──
-  Widget _buildSuccessionContextSection() {
+  Widget _buildSuccessionContextSection(_DonationLedgerFacts facts) {
     return SimulatorCard(
+      key: const Key('donation_ledger_facts'),
       title: S.of(context)!.donationContexteSuccessoral,
-      subtitle: S.of(context)!.donationContexteSubtitle,
+      subtitle: S.of(context)!.independantLedgerFactsSubtitle,
       icon: Icons.family_restroom,
       accentColor: MintColors.indigo,
       child: Column(
         children: [
-          MintPickerTile(
+          _buildFactTile(
+            key: const Key('donation_age_fact'),
+            semanticsIdentifier: 'donation_age_fact',
             label: S.of(context)!.donationAgeLabel,
-            value: _donateurAge,
-            minValue: 18,
-            maxValue: 95,
-            formatValue: (v) => '$v ans',
-            onChanged: (v) => setState(() => _donateurAge = v),
+            value: facts.age == null ? null : '${facts.age} ans',
+            route: '/data-block/revenu?inputKey=q_birth_year',
+            ctaKey: const Key('donation_age_missing_cta'),
+            ctaSemanticsIdentifier: 'donation_age_missing_cta',
+            ctaLabel: S.of(context)!.dataBlockRevenuCta,
           ),
           const SizedBox(height: 16),
-          MintPickerTile(
+          _buildFactTile(
+            key: const Key('donation_canton_fact'),
+            semanticsIdentifier: 'donation_canton_fact',
+            label: S.of(context)!.donationCanton,
+            value: facts.canton,
+            route: '/data-block/revenu?inputKey=q_canton',
+            ctaKey: const Key('donation_canton_missing_cta'),
+            ctaSemanticsIdentifier: 'donation_canton_missing_cta',
+            ctaLabel: S.of(context)!.dataBlockRevenuCta,
+          ),
+          const SizedBox(height: 16),
+          _buildFactTile(
+            key: const Key('donation_civil_status_fact'),
+            semanticsIdentifier: 'donation_civil_status_fact',
+            label: S.of(context)!.dataBlockMenageCivilStatus,
+            value: _civilStatusLabel(facts.civilStatus),
+            route: '/data-block/composition_menage?inputKey=q_civil_status',
+            ctaKey: const Key('donation_civil_status_missing_cta'),
+            ctaSemanticsIdentifier: 'donation_civil_status_missing_cta',
+            ctaLabel: S.of(context)!.dataBlockMenageCta,
+          ),
+          const SizedBox(height: 16),
+          _buildFactTile(
+            key: const Key('donation_children_fact'),
+            semanticsIdentifier: 'donation_children_fact',
             label: S.of(context)!.donationNbEnfants,
-            value: _nbEnfants,
-            minValue: 0,
-            maxValue: 6,
-            formatValue: (v) => '$v',
-            onChanged: (v) => setState(() => _nbEnfants = v),
+            value: facts.children?.toString(),
+            route: '/data-block/composition_menage?inputKey=q_children',
+            ctaKey: const Key('donation_children_missing_cta'),
+            ctaSemanticsIdentifier: 'donation_children_missing_cta',
+            ctaLabel: S.of(context)!.dataBlockMenageCta,
           ),
           const SizedBox(height: 16),
-          MintAmountField(
+          _buildFactTile(
+            key: const Key('donation_wealth_fact'),
+            semanticsIdentifier: 'donation_wealth_fact',
             label: S.of(context)!.donationFortuneTotale,
-            value: _fortuneTotaleDonateur,
-            formatValue: (v) => _chfFmt(v),
-            onChanged: (v) =>
-                setState(() => _fortuneTotaleDonateur = v),
-            min: 0,
-            max: 5000000,
+            value: facts.wealthReference == null
+                ? null
+                : _chfFmt(facts.wealthReference!),
+            route: '/data-block/patrimoine?inputKey=q_wealth_estimate',
+            ctaKey: const Key('donation_wealth_missing_cta'),
+            ctaSemanticsIdentifier: 'donation_wealth_missing_cta',
+            ctaLabel: S.of(context)!.dataBlockPatrimoineCta,
           ),
           const SizedBox(height: 16),
-          _buildRegimeChips(),
         ],
       ),
     );
+  }
+
+  Widget _buildFactTile({
+    required Key key,
+    required String semanticsIdentifier,
+    required String label,
+    required String? value,
+    required String route,
+    required Key ctaKey,
+    required String ctaSemanticsIdentifier,
+    required String ctaLabel,
+  }) {
+    final isKnown = value != null && value.isNotEmpty;
+    return Semantics(
+      key: key,
+      identifier: semanticsIdentifier,
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isKnown ? Icons.check_circle_outline : Icons.add_circle_outline,
+              color: isKnown ? MintColors.success : MintColors.warning,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: MintTextStyles.labelSmall(
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isKnown ? value : S.of(context)!.dataBlockStatusMissing,
+                    style: MintTextStyles.bodyMedium(
+                      color:
+                          isKnown ? MintColors.textPrimary : MintColors.warning,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+            if (!isKnown)
+              Semantics(
+                identifier: ctaSemanticsIdentifier,
+                button: true,
+                child: TextButton(
+                  key: ctaKey,
+                  onPressed: () => context.push(route),
+                  child: Text(ctaLabel),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String? _civilStatusLabel(CoachCivilStatus? status) {
+    final l = S.of(context)!;
+    return switch (status) {
+      CoachCivilStatus.celibataire => l.dataBlockMenageCivilSingle,
+      CoachCivilStatus.marie => l.dataBlockMenageCivilMarried,
+      CoachCivilStatus.divorce => l.dataBlockMenageCivilDivorced,
+      CoachCivilStatus.veuf => l.dataBlockMenageCivilWidowed,
+      CoachCivilStatus.concubinage => l.dataBlockMenageCivilCohabiting,
+      null => null,
+    };
+  }
+
+  String _typeDonationLabel(String type) {
+    final l = S.of(context)!;
+    return switch (type) {
+      'immobilier' => l.donationTypeImmobilier,
+      'titres' => l.donationTypeTitres,
+      _ => l.donationTypeEspeces,
+    };
   }
 
   // ── Lien de Parente Chips ──
@@ -379,28 +514,30 @@ class _DonationScreenState extends State<DonationScreen> {
               child: GestureDetector(
                 onTap: () => setState(() => _lienParente = lien),
                 child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? MintColors.indigo.withValues(alpha: 0.1)
-                      : MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
                     color: selected
-                        ? MintColors.indigo
-                        : MintColors.border,
-                    width: selected ? 1.5 : 1,
+                        ? MintColors.indigo.withValues(alpha: 0.1)
+                        : MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: selected ? MintColors.indigo : MintColors.border,
+                      width: selected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Text(
+                    DonationService.lienParenteLabels[lien] ?? lien,
+                    style: MintTextStyles.labelSmall(
+                      color: selected
+                          ? MintColors.indigo
+                          : MintColors.textSecondary,
+                    ).copyWith(
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.w400),
                   ),
                 ),
-                child: Text(
-                  DonationService.lienParenteLabels[lien] ?? lien,
-                  style: MintTextStyles.labelSmall(
-                    color: selected ? MintColors.indigo : MintColors.textSecondary,
-                  ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
-                ),
               ),
-            ),
             );
           }).toList(),
         ),
@@ -423,88 +560,41 @@ class _DonationScreenState extends State<DonationScreen> {
           runSpacing: MintSpacing.sm,
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
+            final label = _typeDonationLabel(type);
             return Semantics(
-              label: _typesDonationLabels[type] ?? type,
+              label: label,
               button: true,
               selected: selected,
               child: GestureDetector(
-                onTap: () => setState(() => _typeDonation = type),
+                onTap: () => setState(() {
+                  _typeDonation = type;
+                  _result = null;
+                }),
                 child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? MintColors.indigo.withValues(alpha: 0.1)
-                      : MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
                     color: selected
-                        ? MintColors.indigo
-                        : MintColors.border,
-                    width: selected ? 1.5 : 1,
+                        ? MintColors.indigo.withValues(alpha: 0.1)
+                        : MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: selected ? MintColors.indigo : MintColors.border,
+                      width: selected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    style: MintTextStyles.labelSmall(
+                      color: selected
+                          ? MintColors.indigo
+                          : MintColors.textSecondary,
+                    ).copyWith(
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.w400),
                   ),
                 ),
-                child: Text(
-                  _typesDonationLabels[type] ?? type,
-                  style: MintTextStyles.labelSmall(
-                    color: selected ? MintColors.indigo : MintColors.textSecondary,
-                  ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
-                ),
               ),
-            ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  // ── Regime Matrimonial Chips ──
-  Widget _buildRegimeChips() {
-    final regimes = ['participation_acquets', 'communaute_biens', 'separation_biens'];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          S.of(context)!.donationRegimeMatrimonial,
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        Wrap(
-          spacing: MintSpacing.sm,
-          runSpacing: MintSpacing.sm,
-          children: regimes.map((regime) {
-            final selected = _regimeMatrimonial == regime;
-            return Semantics(
-              label: _regimesLabels[regime] ?? regime,
-              button: true,
-              selected: selected,
-              child: GestureDetector(
-                onTap: () => setState(() => _regimeMatrimonial = regime),
-                child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? MintColors.indigo.withValues(alpha: 0.1)
-                      : MintColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: selected
-                        ? MintColors.indigo
-                        : MintColors.border,
-                    width: selected ? 1.5 : 1,
-                  ),
-                ),
-                child: Text(
-                  _regimesLabels[regime] ?? regime,
-                  style: MintTextStyles.labelSmall(
-                    color: selected ? MintColors.indigo : MintColors.textSecondary,
-                  ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
-                ),
-              ),
-            ),
             );
           }).toList(),
         ),
@@ -513,17 +603,20 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Simulate Button ──
-  Widget _buildSimulateButton() {
+  Widget _buildSimulateButton(_DonationLedgerFacts facts) {
     return Semantics(
       label: S.of(context)!.donationCalculer,
       button: true,
       child: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            _simulate();
-          },
+          key: const Key('donation_simulate_cta'),
+          onPressed: !facts.canSimulate(_typeDonation)
+              ? null
+              : () {
+                  HapticFeedback.lightImpact();
+                  _runDonationScenario(facts);
+                },
           icon: const Icon(Icons.calculate_outlined, size: 20),
           label: Text(
             S.of(context)!.donationCalculer,
@@ -543,29 +636,124 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Tax Card ──
-  Widget _buildTaxCard() {
+  Widget _buildTaxCard(_DonationLedgerFacts facts) {
     final r = _result!;
-    final hasTax = r.impotDonation > 0;
-    final accentColor = hasTax ? MintColors.indigo : MintColors.success;
+    final needsConfirmation = r.taxRequiresCantonalConfirmation;
+    final accentColor =
+        needsConfirmation ? MintColors.warning : MintColors.success;
     return MintResultHeroCard(
       eyebrow: S.of(context)!.donationImpotTitle,
-      primaryValue: hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
-      primaryLabel: hasTax
-          ? S.of(context)!.donationTauxCanton(
-              (r.tauxImposition * 100).toStringAsFixed(0),
-              _canton,
-            )
-          : '${S.of(context)!.donationMontantRow}\u00A0:\u00A0${_chfFmt(r.montantDonation)}',
-      secondaryValue: hasTax ? _chfFmt(r.montantDonation) : null,
-      secondaryLabel: hasTax ? S.of(context)!.donationMontantRow : null,
-      narrative: '${S.of(context)!.donationLienRow}\u00A0:\u00A0${DonationService.lienParenteLabels[_lienParente] ?? _lienParente}',
+      primaryValue: needsConfirmation
+          ? S.of(context)!.agentFormEstimated
+          : S.of(context)!.donationExoneree,
+      primaryLabel: _taxStatusText(r, facts),
+      secondaryValue: needsConfirmation ? _chfFmt(r.montantDonation) : null,
+      secondaryLabel:
+          needsConfirmation ? S.of(context)!.donationMontantRow : null,
+      narrative:
+          '${S.of(context)!.donationLienRow}\u00A0:\u00A0${DonationService.lienParenteLabels[_lienParente] ?? _lienParente}',
       accentColor: accentColor,
       tone: MintSurfaceTone.porcelaine,
     );
   }
 
+  String _taxStatusText(DonationResult r, _DonationLedgerFacts facts) {
+    final l = S.of(context)!;
+    final canton = facts.canton ?? '';
+    switch (r.taxStatus) {
+      case DonationMessageCode.taxUnknownCanton:
+        return l.donationTaxStatusUnknownCanton;
+      case DonationMessageCode.taxUsualExemption:
+        return l.donationTaxStatusUsualExemption;
+      case DonationMessageCode.taxDescendantConfirm:
+        return l.donationTaxStatusDescendantConfirm(canton);
+      case DonationMessageCode.taxCantonalConfirm:
+        return l.donationTaxStatusConfirm(canton);
+      default:
+        return l.agentFormEstimated;
+    }
+  }
+
+  String _impactSuccessionText(DonationResult r) {
+    final l = S.of(context)!;
+    switch (r.impactSuccession) {
+      case DonationMessageCode.impactAdvancement:
+        return l.donationImpactAdvancement;
+      case DonationMessageCode.impactReductionRisk:
+        return l.donationImpactReductionRisk(_chfFmt(r.montantDepassement));
+      case DonationMessageCode.impactOutsidePart:
+        return l.donationImpactOutsidePart(_chfFmt(r.quotiteDisponible));
+      default:
+        return l.donationHorsPartNote;
+    }
+  }
+
+  String _alertText(
+    String code,
+    DonationResult r,
+    _DonationLedgerFacts facts,
+  ) {
+    final l = S.of(context)!;
+    final canton = facts.canton ?? '';
+    switch (code) {
+      case DonationMessageCode.alertUnknownCanton:
+        return l.donationAlertUnknownCanton;
+      case DonationMessageCode.alertTaxConfirm:
+        return l.donationAlertTaxConfirm(canton);
+      case DonationMessageCode.alertMissingParentela:
+        return l.donationAlertMissingParentela;
+      case DonationMessageCode.alertMatrimonialRegime:
+        return l.donationAlertMatrimonialRegime;
+      case DonationMessageCode.alertSpouseLargeGift:
+        return l.donationAlertSpouseLargeGift;
+      case DonationMessageCode.alertReductionRisk:
+        return l.donationAlertReductionRisk(_chfFmt(r.montantDepassement));
+      case DonationMessageCode.alertConcubinage:
+        return l.donationAlertConcubinage;
+      case DonationMessageCode.alertRealEstate:
+        return l.donationAlertRealEstate;
+      case DonationMessageCode.alertOlderDonor:
+        return l.donationAlertOlderDonor;
+      case DonationMessageCode.alertLargeDonation:
+        return l.donationAlertLargeDonation;
+      default:
+        return l.lifeEventPointsAttention;
+    }
+  }
+
+  String _checklistText(String code) {
+    final l = S.of(context)!;
+    switch (code) {
+      case DonationMessageCode.checklistVerifyQuotite:
+        return l.donationChecklistVerifyQuotite;
+      case DonationMessageCode.checklistDocumentAdvancement:
+        return l.donationChecklistDocumentAdvancement;
+      case DonationMessageCode.checklistConfirmTax:
+        return l.donationChecklistConfirmTax;
+      case DonationMessageCode.checklistInformReservedHeirs:
+        return l.donationChecklistInformReservedHeirs;
+      case DonationMessageCode.checklistKeepDeed:
+        return l.donationChecklistKeepDeed;
+      case DonationMessageCode.checklistLandRegister:
+        return l.donationChecklistLandRegister;
+      case DonationMessageCode.checklistFutureCollation:
+        return l.donationChecklistFutureCollation;
+      case DonationMessageCode.checklistConcubinageQuestions:
+        return l.donationChecklistConcubinageQuestions;
+      default:
+        return l.lifeEventChecklistSubtitle;
+    }
+  }
+
+  String _disclaimerText(String? code) {
+    if (code == DonationMessageCode.disclaimerStandard || code == null) {
+      return S.of(context)!.donationDisclaimerFallback;
+    }
+    return S.of(context)!.donationDisclaimerFallback;
+  }
+
   // ── Reserve Card ──
-  Widget _buildReserveCard() {
+  Widget _buildReserveCard(_DonationLedgerFacts facts) {
     final r = _result!;
     return MintSurface(
       tone: MintSurfaceTone.peche,
@@ -594,16 +782,22 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 4),
           Text(
+            S.of(context)!.agentFormEstimated,
+            style: MintTextStyles.labelSmall(color: MintColors.warning),
+          ),
+          const SizedBox(height: 4),
+          Text(
             S.of(context)!.donationReserveProtege,
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           // Visual bar: reserve vs quotite
-          _buildReserveBar(r),
+          _buildReserveBar(r, facts),
           const SizedBox(height: 12),
           Text(
             S.of(context)!.donationReserveNote,
-            style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                .copyWith(height: 1.5),
           ),
         ],
       ),
@@ -611,12 +805,11 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Reserve Bar Visual ──
-  Widget _buildReserveBar(DonationResult r) {
-    final fortune = _fortuneTotaleDonateur > 0
-        ? _fortuneTotaleDonateur
-        : r.montantDonation;
-    final reservePct =
-        fortune > 0 ? (r.reserveHereditaireTotale / fortune).clamp(0.0, 1.0) : 0.0;
+  Widget _buildReserveBar(DonationResult r, _DonationLedgerFacts facts) {
+    final fortune = facts.wealthReference ?? r.montantDonation;
+    final reservePct = fortune > 0
+        ? (r.reserveHereditaireTotale / fortune).clamp(0.0, 1.0)
+        : 0.0;
     final quotitePct = 1.0 - reservePct;
 
     return Container(
@@ -637,8 +830,11 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
-                          style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+                          S.of(context)!.donationReserveBarLabel(
+                                (reservePct * 100).toStringAsFixed(0),
+                              ),
+                          style: MintTextStyles.micro(color: MintColors.white)
+                              .copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -651,8 +847,11 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
-                          style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+                          S.of(context)!.donationDisponibleBarLabel(
+                                (quotitePct * 100).toStringAsFixed(0),
+                              ),
+                          style: MintTextStyles.micro(color: MintColors.white)
+                              .copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
                 ),
@@ -666,17 +865,19 @@ class _DonationScreenState extends State<DonationScreen> {
   // ── Quotite Disponible Card ──
   Widget _buildQuotiteCard() {
     final r = _result!;
+    final requiresConfirmation = r.quotiteRequiresSpecialistConfirmation;
+    final statusColor = r.donationDepasseQuotite
+        ? MintColors.error
+        : requiresConfirmation
+            ? MintColors.warning
+            : MintColors.success;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: (r.donationDepasseQuotite ? MintColors.error : MintColors.success)
-            .withValues(alpha: 0.06),
+        color: statusColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: (r.donationDepasseQuotite
-                  ? MintColors.error
-                  : MintColors.success)
-              .withValues(alpha: 0.15),
+          color: statusColor.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -687,17 +888,21 @@ class _DonationScreenState extends State<DonationScreen> {
               Icon(
                 r.donationDepasseQuotite
                     ? Icons.warning_amber_rounded
-                    : Icons.edit_note,
-                color: r.donationDepasseQuotite
-                    ? MintColors.error
-                    : MintColors.success,
+                    : requiresConfirmation
+                        ? Icons.info_outline
+                        : Icons.edit_note,
+                color: statusColor,
                 size: 18,
               ),
               const SizedBox(width: 8),
               Text(
                 S.of(context)!.donationQuotiteTitle,
                 style: MintTextStyles.micro(
-                  color: r.donationDepasseQuotite ? MintColors.error : MintColors.success,
+                  color: r.donationDepasseQuotite
+                      ? MintColors.error
+                      : requiresConfirmation
+                          ? MintColors.warning
+                          : MintColors.success,
                 ).copyWith(
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1,
@@ -709,6 +914,13 @@ class _DonationScreenState extends State<DonationScreen> {
           Text(
             _chfFmt(r.quotiteDisponible),
             style: MintTextStyles.headlineMedium(),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            S.of(context)!.agentFormEstimated,
+            style: MintTextStyles.labelSmall(
+              color: statusColor,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -730,8 +942,11 @@ class _DonationScreenState extends State<DonationScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      S.of(context)!.donationDepassement(_chfFmt(r.montantDepassement)),
-                      style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
+                      S
+                          .of(context)!
+                          .donationDepassement(_chfFmt(r.montantDepassement)),
+                      style: MintTextStyles.bodySmall(color: MintColors.error)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -767,8 +982,9 @@ class _DonationScreenState extends State<DonationScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            r.impactSuccession,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+            _impactSuccessionText(r),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.5),
           ),
           const SizedBox(height: 12),
           Container(
@@ -799,14 +1015,15 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Alerts Section ──
-  Widget _buildAlertsSection() {
+  Widget _buildAlertsSection(_DonationLedgerFacts facts) {
     final r = _result!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           S.of(context)!.lifeEventPointsAttention,
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
+          style:
+              MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
           ),
@@ -831,8 +1048,10 @@ class _DonationScreenState extends State<DonationScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        alert,
-                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                        _alertText(alert, r, facts),
+                        style: MintTextStyles.bodySmall(
+                                color: MintColors.textSecondary)
+                            .copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -856,7 +1075,7 @@ class _DonationScreenState extends State<DonationScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Semantics(
-              label: r.checklist[index],
+              label: _checklistText(r.checklist[index]),
               button: true,
               toggled: _checklistState[index],
               child: InkWell(
@@ -896,7 +1115,7 @@ class _DonationScreenState extends State<DonationScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          r.checklist[index],
+                          _checklistText(r.checklist[index]),
                           style: MintTextStyles.bodySmall(
                             color: _checklistState[index]
                                 ? MintColors.textSecondary
@@ -911,8 +1130,8 @@ class _DonationScreenState extends State<DonationScreen> {
                       ),
                     ],
                   ),
+                ),
               ),
-            ),
             ),
           );
         }),
@@ -927,7 +1146,8 @@ class _DonationScreenState extends State<DonationScreen> {
       children: [
         Text(
           S.of(context)!.lifeEventComprendre,
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
+          style:
+              MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: 1,
           ),
@@ -962,17 +1182,18 @@ class _DonationScreenState extends State<DonationScreen> {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
-          tilePadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           title: Text(
             title,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w500),
           ),
           children: [
             Text(
               content,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(height: 1.5),
             ),
           ],
         ),
@@ -996,55 +1217,13 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _result?.disclaimer ??
-                  'Cet outil éducatif fournit des estimations indicatives et '
-                      'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
-                      '(notaire) pour ta situation.',
-              style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
+              _disclaimerText(_result?.disclaimer),
+              style: MintTextStyles.micro(color: MintColors.deepOrange)
+                  .copyWith(height: 1.5),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  // ── Canton Dropdown ──
-  Widget _buildCantonDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          S.of(context)!.donationCanton,
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.border),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _canton,
-              isExpanded: true,
-              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
-              dropdownColor: MintColors.white,
-              items: _cantons.map((c) {
-                return DropdownMenuItem(
-                  value: c,
-                  child: Text('$c \u2014 ${cantonFullNames[c] ?? c}'),
-                );
-              }).toList(),
-              onChanged: (v) {
-                if (v != null) setState(() => _canton = v);
-              },
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1071,5 +1250,87 @@ class _DonationScreenState extends State<DonationScreen> {
       ],
     );
   }
+}
 
+class _DonationLedgerFacts {
+  final int? age;
+  final String? canton;
+  final CoachCivilStatus? civilStatus;
+  final int? children;
+  final double? wealthReference;
+  final double? propertyMarketValue;
+  final double? mortgageBalance;
+
+  const _DonationLedgerFacts({
+    required this.age,
+    required this.canton,
+    required this.civilStatus,
+    required this.children,
+    required this.wealthReference,
+    required this.propertyMarketValue,
+    required this.mortgageBalance,
+  });
+
+  factory _DonationLedgerFacts.fromProfile(CoachProfile? profile) {
+    if (profile == null) return const _DonationLedgerFacts.empty();
+    final provided = profile.userProvidedFields;
+    final age = provided.contains('age') ? profile.ageOrNull : null;
+    final canton = provided.contains('canton') && profile.canton.isNotEmpty
+        ? profile.canton
+        : null;
+    final civilStatus =
+        provided.contains('civilStatus') ? profile.etatCivil : null;
+    final children =
+        provided.contains('children') ? profile.nombreEnfants : null;
+    final wealthEstimate = profile.patrimoine.wealthEstimate;
+    final wealthReference = provided.contains('wealthEstimate') &&
+            wealthEstimate != null &&
+            wealthEstimate > 0
+        ? wealthEstimate
+        : null;
+    final propertyValue = profile.patrimoine.immobilierEffectif;
+    final propertyMarketValue =
+        provided.contains('propertyMarketValue') && propertyValue > 0
+            ? propertyValue
+            : null;
+    final mortgage =
+        profile.dettes.hypotheque ?? profile.patrimoine.mortgageBalance;
+    final mortgageBalance = provided.contains('mortgageBalance') &&
+            mortgage != null &&
+            mortgage >= 0
+        ? mortgage
+        : null;
+
+    return _DonationLedgerFacts(
+      age: age,
+      canton: canton,
+      civilStatus: civilStatus,
+      children: children,
+      wealthReference: wealthReference,
+      propertyMarketValue: propertyMarketValue,
+      mortgageBalance: mortgageBalance,
+    );
+  }
+
+  const _DonationLedgerFacts.empty()
+      : age = null,
+        canton = null,
+        civilStatus = null,
+        children = null,
+        wealthReference = null,
+        propertyMarketValue = null,
+        mortgageBalance = null;
+
+  bool canSimulate(String donationType) {
+    final baseReady = age != null &&
+        canton != null &&
+        civilStatus != null &&
+        children != null &&
+        wealthReference != null;
+    if (!baseReady) return false;
+    if (donationType == 'immobilier') {
+      return propertyMarketValue != null && mortgageBalance != null;
+    }
+    return true;
+  }
 }

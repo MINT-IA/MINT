@@ -559,6 +559,38 @@ void main() {
     expect(provider.profile?.userProvidedFields, contains('civilStatus'));
   });
 
+  testWidgets('patrimoine inputKey collects only wealth estimate',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'patrimoine',
+        initialInputKey: 'q_wealth_estimate',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('wealth_estimate_input')), findsOneWidget);
+    expect(find.byKey(const Key('savings_input')), findsNothing);
+    expect(find.byKey(const Key('property_market_value_input')), findsNothing);
+    expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const Key('wealth_estimate_input')),
+      '1250000',
+    );
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_wealth_estimate', 1250000));
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(answers.containsKey('q_property_market_value'), isFalse);
+    expect(provider.profile?.patrimoine.wealthEstimate, 1250000);
+  });
+
   testWidgets('revenue block seeds pension switch from existing profile',
       (tester) async {
     final provider = CoachProfileProvider()
