@@ -63,7 +63,9 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   double? _liquidSavings(CoachProfileProvider? provider) {
     final profile = provider?.profile;
     if (profile == null) return null;
-    if (!profile.userProvidedFields.contains('liquidSavings')) return null;
+    if (!profile.userProvidedFields.contains('liquidSavingsAmount')) {
+      return null;
+    }
     return profile.patrimoine.epargneLiquide;
   }
 

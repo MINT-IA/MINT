@@ -187,6 +187,7 @@ Map<String, dynamic> independentAnswers({
   double? grossSalary,
   int? birthYear,
   double? cashTotal,
+  String? emergencyFund,
   double? monthlyHousing,
   double? monthlyLamal,
   String? canton = 'VD',
@@ -199,6 +200,7 @@ Map<String, dynamic> independentAnswers({
     if (birthYear != null) 'q_birth_year': birthYear,
     if (canton != null) 'q_canton': canton,
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (emergencyFund != null) 'q_emergency_fund': emergencyFund,
     if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
     if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     if (hasConsumerDebt) 'q_has_consumer_debt': true,
@@ -1560,6 +1562,75 @@ void main() {
         );
       },
     );
+
+    testWidgets('does not use emergency-fund heuristic as known 3a cash', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 180000,
+          emergencyFund: 'yes_6months',
+          monthlyHousing: 2200,
+          monthlyLamal: 420,
+          voluntaryLpp: true,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Épargne liquide'), findsOneWidget);
+      expect(find.text("CHF\u00A015'720"), findsNothing);
+      expect(find.text('Manquant'), findsOneWidget);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('treats explicit zero cash as a known 3a ledger fact', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 180000,
+          cashTotal: 0,
+          emergencyFund: 'yes_6months',
+          monthlyHousing: 2200,
+          monthlyLamal: 420,
+          voluntaryLpp: true,
+        ),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileProvider(provider, const Pillar3aIndepScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('Épargne liquide'), findsOneWidget);
+      expect(find.text('CHF\u00A00'), findsWidgets);
+      expect(find.text("CHF\u00A015'720"), findsNothing);
+      expect(find.byType(MintPremiumSlider), findsOneWidget);
+      expect(find.text('Données connues'), findsOneWidget);
+      expect(find.text('Concentration Prioritaire'), findsOneWidget);
+      expect(
+        find.byKey(const Key('pillar3a_indep_result_section')),
+        findsNothing,
+      );
+    });
 
     testWidgets('edit known facts opens the independent income collector', (
       tester,

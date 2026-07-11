@@ -140,6 +140,27 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_property_market_value` (double, valeur vénale estimée du bien immobilier),
   `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
   `_coach_dettes_autres`
+- `q_cash_total` is the explicit liquid-cash fact, including `0 CHF`. The
+  derived `liquidSavingsAmount` marker is required before high-stakes
+  liquidity, invalidity, succession, or milestone screens may treat cash as
+  known. `q_emergency_fund` may still produce a heuristic display value, but it
+  must not be persisted back as `q_cash_total` or unlock cash-sensitive results.
+  SafeMode protective warning signals may read the heuristic value only to
+  raise/suppress caution; they must not feed countdowns, net-mass, dossier cash,
+  scenario unlocks, or milestone completion.
+  Smart/minimal onboarding must not write estimated savings into `q_cash_total`;
+  it stays missing until user input, certificate/open-banking, or another
+  explicit provenance provides a valid non-null non-negative amount.
+  `ReportPersistenceService.loadAnswers()` quarantines legacy positive
+  `q_cash_total` values without explicit `_coach_cash_total_source` only when
+  the amount numerically matches a reconstructed old `q_emergency_fund`
+  `yes_3months`/`yes_6months` reserve or the old smart-flow savings estimate.
+  Non-matching legacy cash remains the user's existing ledger fact. Quarantined
+  estimates stay in `q_cash_total_unconfirmed_legacy` as encrypted migration
+  residue; current UI does not consume that key, and scenario consumers treat
+  `q_cash_total` as missing until the user enters a new explicit amount. New
+  user cash writes through `mergeAnswers`, inline edit, or open banking stamp
+  `_coach_cash_total_source` in the same write so relaunches preserve the fact.
 - `q_wealth_estimate` is a broad aggregate estimate. Runtime consumers must
   use `PatrimoineProfile.wealthReconciliation` to distinguish estimate-only,
   detail-only, aligned, stale estimate, and missing-detail states instead of

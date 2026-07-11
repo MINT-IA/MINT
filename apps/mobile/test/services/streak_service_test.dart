@@ -37,7 +37,6 @@ List<DateTime> _consecutiveMonthsEndingNow(int count) {
   );
 }
 
-
 void main() {
   // =========================================================================
   // STREAK SERVICE — Unit tests
@@ -217,10 +216,12 @@ void main() {
 
       final labels = result.earnedBadges.map((b) => b.label).toList();
       expect(labels, contains('Premier pas'));
-      expect(labels, containsAll([
-        'Premier pas',
-        'Constant\u00b7e',
-      ]));
+      expect(
+          labels,
+          containsAll([
+            'Premier pas',
+            'Constant\u00b7e',
+          ]));
     });
 
     test('badge descriptions are in French', () {
@@ -232,7 +233,8 @@ void main() {
         // All descriptions should be non-empty and contain French text
         expect(badge.description.isNotEmpty, true);
       }
-      final descriptions = result.earnedBadges.map((b) => b.description).toList();
+      final descriptions =
+          result.earnedBadges.map((b) => b.description).toList();
       expect(descriptions, contains('Tu as fait ton premier check-in.'));
     });
   });
@@ -310,7 +312,8 @@ void main() {
       expect(m3a.isReached, true);
     });
 
-    test('emergency fund 6 months milestone with sufficient liquid savings', () {
+    test('emergency fund 6 months milestone with sufficient liquid savings',
+        () {
       final profile = CoachProfile(
         birthYear: 1990,
         canton: 'VD',
@@ -327,10 +330,37 @@ void main() {
         patrimoine: const PatrimoineProfile(
           epargneLiquide: 12000, // 1900*6 = 11400, 12000 >= 11400
         ),
+        userProvidedFields: const {'liquidSavingsAmount'},
       );
       final milestones = StreakService.computeMilestones(profile);
       final mEmergency = milestones.firstWhere((m) => m.id == 'emergency_fund');
       expect(mEmergency.isReached, true);
+    });
+
+    test('emergency fund milestone ignores heuristic liquid savings', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055, 12, 31),
+          label: 'Retraite',
+        ),
+        depenses: const DepensesProfile(
+          loyer: 1500,
+          assuranceMaladie: 400,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 12000,
+        ),
+        userProvidedFields: const {'liquidSavings'},
+      );
+
+      final milestones = StreakService.computeMilestones(profile);
+      final mEmergency = milestones.firstWhere((m) => m.id == 'emergency_fund');
+
+      expect(mEmergency.isReached, false);
     });
 
     test('emergency fund not reached if monthly expenses are zero', () {

@@ -242,12 +242,16 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     // LPP salaire assuré
     final remoteSalaire = (remote['lppInsuredSalary'] as num?)?.toDouble();
-    if ((p.salaireAssure ?? 0) <= 0 && remoteSalaire != null && remoteSalaire > 0) {
+    if ((p.salaireAssure ?? 0) <= 0 &&
+        remoteSalaire != null &&
+        remoteSalaire > 0) {
       partial['_coach_salaire_assure'] = remoteSalaire;
     }
     // LPP rachat max
     final remoteRachat = (remote['lppBuybackMax'] as num?)?.toDouble();
-    if ((p.rachatMaximum ?? 0) <= 0 && remoteRachat != null && remoteRachat > 0) {
+    if ((p.rachatMaximum ?? 0) <= 0 &&
+        remoteRachat != null &&
+        remoteRachat > 0) {
       partial['_coach_rachat_maximum'] = remoteRachat;
     }
     // 3a balance
@@ -510,7 +514,9 @@ class CoachProfileProvider extends ChangeNotifier {
     // after the card Budget populated. Read-then-merge-then-save is the
     // only crash-safe discipline.
     final current = await ReportPersistenceService.loadAnswers();
-    final merged = Map<String, dynamic>.from(current)..addAll(partial);
+    final normalizedPartial = _withExplicitCashAnswerSource(partial);
+    final merged = Map<String, dynamic>.from(current)
+      ..addAll(normalizedPartial);
     if (_setsNonCoupledCivilStatus(partial)) {
       _clearPartnerAnswers(merged);
     }
@@ -768,23 +774,31 @@ class CoachProfileProvider extends ChangeNotifier {
     required int age,
     required double grossSalary,
     required String canton,
+
     /// Optional first name — personalises coach greeting.
     String? firstName,
+
     /// 'CH', 'EU', or 'OTHER' — used to derive q_nationality for archetype detection.
     String? nationalityGroup,
+
     /// ISO country code when nationalityGroup == 'OTHER' (e.g. 'US', 'BR').
     String? nationalityCountry,
+
     /// Employment status from onboarding ('salarie', 'independant', etc.).
     String? employmentStatus,
+
     /// True if a Swiss national has lived abroad and interrupted cotisations.
     /// Maps to q_avs_lacunes_status = 'lived_abroad' so fromWizardAnswers()
     /// computes the correct LPP gap and AVS reduction.
     bool? hasLivedAbroad,
+
     /// Year since which the user contributed to Swiss AVS/LPP (if hasLivedAbroad
     /// or non-Swiss). Used to derive yearsAbroad for the wizard answers.
     int? arrivalYear,
+
     /// User's primary focus/intention from FocusSelector.
     String? primaryFocus,
+
     /// Residence permit type: 'C', 'B', 'G', 'L', or 'other'.
     /// When 'G', archetype is forced to cross_border.
     String? permitType,
@@ -809,9 +823,11 @@ class CoachProfileProvider extends ChangeNotifier {
     if (nationalityGroup == 'CH') {
       nationality = 'CH';
     } else if (nationalityGroup == 'EU') {
-      nationality = 'FR'; // Generic EU/AELE placeholder → triggers expatEu archetype
+      nationality =
+          'FR'; // Generic EU/AELE placeholder → triggers expatEu archetype
     } else if (nationalityGroup == 'OTHER') {
-      nationality = nationalityCountry; // 'US' → expatUs; null → expatNonEu fallback
+      nationality =
+          nationalityCountry; // 'US' → expatUs; null → expatNonEu fallback
     }
 
     // Returning Swiss: compute yearsAbroad from arrivalYear and birthYear.
@@ -824,11 +840,12 @@ class CoachProfileProvider extends ChangeNotifier {
 
     final bool isReturningSwiss = hasLivedAbroad == true && arrivalYear != null;
     // Non-Swiss expat arriving late: contributions start from arrivalYear.
-    final bool isExpat =
-        nationalityGroup != null && nationalityGroup != 'CH' && arrivalYear != null;
+    final bool isExpat = nationalityGroup != null &&
+        nationalityGroup != 'CH' &&
+        arrivalYear != null;
 
-    // Compute smart estimates via MinimalProfileService (financial_core)
-    // so the aperçu financier shows realistic values instead of zeros.
+    // Compute financial_core-derived AVS estimates from the few onboarding
+    // facts. Cash stays unknown until the user declares q_cash_total.
     final minimal = MinimalProfileService.compute(
       age: age,
       grossSalary: clampedGrossSalary,
@@ -873,8 +890,6 @@ class CoachProfileProvider extends ChangeNotifier {
       if (avsYearsWereClamped) '_avs_years_clamped': true,
       // AVS rente estimated via financial_core AvsCalculator
       '_coach_avs_rente_estimee': minimal.avsMonthlyRente,
-      // Patrimoine: estimated savings = (age-25) × salary × 5%
-      'q_cash_total': minimal.currentSavings,
       // Nationality for archetype detection (see CLAUDE.md archetype table)
       if (nationality != null) 'q_nationality': nationality,
       if (primaryFocus != null) 'q_primary_focus': primaryFocus,
@@ -903,7 +918,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // S47: Stamp initial timestamps for all fields populated by onboarding.
     // Core fields are userInput quality (age, salary, canton); derived fields
-    // (AVS, LPP estimates, savings) are estimated quality but still get timestamps
+    // (AVS and LPP estimates) are estimated quality but still get timestamps
     // so freshness scoring can track when the profile was last refreshed.
     final initialFields = <String>[
       'salaireBrutMensuel',
@@ -914,7 +929,6 @@ class CoachProfileProvider extends ChangeNotifier {
       'prevoyance.totalEpargne3a',
       'prevoyance.anneesContribuees',
       'prevoyance.renteAVSEstimeeMensuelle',
-      'patrimoine.epargneLiquide',
     ];
     _profile = _profile!.copyWith(
       dataTimestamps: _stampTimestamps(
@@ -944,10 +958,12 @@ class CoachProfileProvider extends ChangeNotifier {
   /// returns data. Creates a minimal partial profile so the user is not stuck
   /// in onboarding redirect.
   void createFromRemoteProfile(Map<String, dynamic> remote) {
-    if (_profile != null) return; // Already has local profile, use merge instead
+    if (_profile != null) {
+      return; // Already has local profile, use merge instead
+    }
 
-    final birthYear = remote['birth_year'] as int? ??
-        remote['birthYear'] as int?;
+    final birthYear =
+        remote['birth_year'] as int? ?? remote['birthYear'] as int?;
     final canton = remote['canton'] as String?;
     final grossYearly = (remote['income_gross_yearly'] as num?)?.toDouble() ??
         (remote['incomeGrossYearly'] as num?)?.toDouble();
@@ -956,11 +972,14 @@ class CoachProfileProvider extends ChangeNotifier {
         remote['employmentStatus'] as String?;
 
     // Only create if we have at least one meaningful field from backend
-    if (birthYear == null && canton == null && grossYearly == null) return;
+    if (birthYear == null && canton == null && grossYearly == null) {
+      return;
+    }
 
     // P0-9: Clamp remote salary to valid bounds.
     final clampedGrossYearly = grossYearly?.clamp(0, 10000000).toDouble();
-    final salaireBrutMensuel = clampedGrossYearly != null ? clampedGrossYearly / 12 : 0.0;
+    final salaireBrutMensuel =
+        clampedGrossYearly != null ? clampedGrossYearly / 12 : 0.0;
     // Use actual birthYear if available; fallback = current year - 40
     // but mark profile as partial so wizard completion is triggered.
     final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
@@ -1003,7 +1022,8 @@ class CoachProfileProvider extends ChangeNotifier {
     if (p.birthYear == 0 && remoteData['birthYear'] != null) {
       updates['birthYear'] = remoteData['birthYear'];
     }
-    if ((p.canton.isEmpty || p.canton == 'unknown') && remoteData['canton'] != null) {
+    if ((p.canton.isEmpty || p.canton == 'unknown') &&
+        remoteData['canton'] != null) {
       updates['canton'] = remoteData['canton'] as String?;
     }
     if (p.gender == null && remoteData['gender'] != null) {
@@ -1023,15 +1043,12 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Apply updates via copyWith
     _profile = p.copyWith(
-      birthYear: updates.containsKey('birthYear')
-          ? updates['birthYear'] as int
-          : null,
-      canton: updates.containsKey('canton')
-          ? updates['canton'] as String?
-          : null,
-      gender: updates.containsKey('gender')
-          ? updates['gender'] as String?
-          : null,
+      birthYear:
+          updates.containsKey('birthYear') ? updates['birthYear'] as int : null,
+      canton:
+          updates.containsKey('canton') ? updates['canton'] as String? : null,
+      gender:
+          updates.containsKey('gender') ? updates['gender'] as String? : null,
       salaireBrutMensuel: updates.containsKey('salaireBrutMensuel')
           ? updates['salaireBrutMensuel'] as double
           : null,
@@ -1084,17 +1101,18 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Replace the current profile with an updated one and persist via answers.
   void updateProfile(CoachProfile updated) {
+    final normalized = _withExplicitCashMarkerFromSource(updated);
     final previousStatus = _profile?.etatCivil;
-    _profile = updated;
+    _profile = normalized;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
     // FIX-045: Persist ALL profile fields.
-    _persistFullProfile(updated);
+    _persistFullProfile(normalized);
     // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
     CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
     // Also invalidate daily narrative cache so greeting / topTip / scenarios
     // pick up new profile data instead of showing stale pre-scan copy.
-    CoachNarrativeService.invalidateCache(profile: updated);
+    CoachNarrativeService.invalidateCache(profile: normalized);
     // FIX-HIGH-2: Invalidate CapMemory on significant profile change
     // to prevent stale caps from being re-served.
     CapMemoryStore.load().then((mem) {
@@ -1107,14 +1125,51 @@ class CoachProfileProvider extends ChangeNotifier {
     });
     // FIX-097: If civil status changed to non-coupled, dissolve household.
     if (previousStatus != null &&
-        previousStatus != updated.etatCivil &&
-        updated.etatCivil != CoachCivilStatus.marie &&
-        updated.etatCivil != CoachCivilStatus.concubinage) {
+        previousStatus != normalized.etatCivil &&
+        normalized.etatCivil != CoachCivilStatus.marie &&
+        normalized.etatCivil != CoachCivilStatus.concubinage) {
       // Clear local household cache after separation. Partner answers are
       // cleared by _persistFullProfile() based on civil status, so this
       // fire-and-forget cache cleanup cannot resurrect a ghost conjoint.
       _clearHouseholdCacheAfterSeparation();
     }
+  }
+
+  bool _isExplicitCashSource(ProfileDataSource? source) =>
+      source == ProfileDataSource.userInput ||
+      source == ProfileDataSource.openBanking ||
+      source == ProfileDataSource.certificate ||
+      source == ProfileDataSource.crossValidated;
+
+  bool _hasExplicitCashSource(CoachProfile profile) =>
+      _isExplicitCashSource(profile.dataSources['patrimoine.epargneLiquide']);
+
+  Map<String, dynamic> _withExplicitCashAnswerSource(
+    Map<String, dynamic> answers, {
+    ProfileDataSource source = ProfileDataSource.userInput,
+  }) {
+    if (!answers.containsKey('q_cash_total')) {
+      return answers;
+    }
+    final cashTotal = _asNum(answers['q_cash_total']);
+    if (cashTotal == null || cashTotal < 0) {
+      return answers;
+    }
+    return Map<String, dynamic>.from(answers)
+      ..putIfAbsent('_coach_cash_total_source', () => source.name)
+      ..['q_cash_total_unconfirmed_legacy'] = null;
+  }
+
+  CoachProfile _withExplicitCashMarkerFromSource(CoachProfile profile) {
+    if (!_hasExplicitCashSource(profile) ||
+        profile.userProvidedFields.contains('liquidSavingsAmount')) {
+      return profile;
+    }
+    return profile.copyWith(userProvidedFields: {
+      ...profile.userProvidedFields,
+      'liquidSavings',
+      'liquidSavingsAmount',
+    });
   }
 
   /// Best-effort separation cleanup for the legacy household cache.
@@ -1219,7 +1274,23 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_3a_total'] = profile.prevoyance.totalEpargne3a;
     }
     // Patrimoine
-    answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
+    // Only an explicit q_cash_total fact may write back as cash; callers that
+    // set a real cash amount via copyWith must mark liquidSavingsAmount or
+    // provide an explicit cash provenance.
+    final existingCashTotal = _asNum(answers['q_cash_total']);
+    final hasExistingExplicitCash =
+        existingCashTotal != null && existingCashTotal >= 0;
+    final hasExplicitCashTotal =
+        profile.userProvidedFields.contains('liquidSavingsAmount') ||
+            hasExistingExplicitCash ||
+            _hasExplicitCashSource(profile);
+    if (hasExplicitCashTotal) {
+      answers['q_cash_total'] = profile.patrimoine.epargneLiquide;
+      answers['_coach_cash_total_source'] =
+          (profile.dataSources['patrimoine.epargneLiquide'] ??
+                  ProfileDataSource.userInput)
+              .name;
+    }
     answers['q_investissements'] = profile.patrimoine.investissements;
     if (profile.patrimoine.wealthEstimate != null) {
       answers['q_wealth_estimate'] = profile.patrimoine.wealthEstimate;
@@ -1284,14 +1355,16 @@ class CoachProfileProvider extends ChangeNotifier {
       age: p.age,
       grossIncome: p.salaireBrutMensuel * p.nombreDeMois,
       canton: p.canton,
-      replacementRatio: 0.0, // Computed by projection services, not available here
+      replacementRatio:
+          0.0, // Computed by projection services, not available here
       monthsLiquidity: 0.0, // Requires budget data not in CoachProfile
       taxSavingPotential: 0.0, // Requires tax simulation
       confidenceScore: 0.0, // Requires projection
     );
   }
 
-  void _persistHousingFieldsSync(Map<String, dynamic> answers, CoachProfile profile) {
+  void _persistHousingFieldsSync(
+      Map<String, dynamic> answers, CoachProfile profile) {
     if (profile.housingStatus != null) {
       answers['q_housing_status'] = profile.housingStatus;
     }
@@ -1318,7 +1391,6 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   /// Ajoute un check-in mensuel au profil et le persiste.
   // TODO(P2): Sync monthly check-ins to backend for cross-device access
   Future<void> addCheckIn(MonthlyCheckIn checkIn) async {
@@ -1337,7 +1409,8 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   /// Met a jour les contributions dans le profil et les persiste.
-  Future<void> updateContributions(List<PlannedMonthlyContribution> contributions) async {
+  Future<void> updateContributions(
+      List<PlannedMonthlyContribution> contributions) async {
     if (_profile == null) return;
     _profile = _profile!.copyWithContributions(contributions);
     await ReportPersistenceService.saveContributions(
@@ -1498,10 +1571,14 @@ class CoachProfileProvider extends ChangeNotifier {
     final currentAvoir = _profile!.prevoyance.avoirLppTotal;
     if (currentAvoir == null || currentAvoir <= 0) return null;
     final newAvoir = fields
-        .where((f) => f.fieldName == 'avoirLppTotal' || f.fieldName == 'avoir_lpp_total')
-        .firstOrNull?.value;
+        .where((f) =>
+            f.fieldName == 'avoirLppTotal' || f.fieldName == 'avoir_lpp_total')
+        .firstOrNull
+        ?.value;
     if (newAvoir == null) return null;
-    final newVal = newAvoir is num ? newAvoir.toDouble() : double.tryParse(newAvoir.toString()) ?? 0;
+    final newVal = newAvoir is num
+        ? newAvoir.toDouble()
+        : double.tryParse(newAvoir.toString()) ?? 0;
     if (newVal <= 0) return null;
     final deltaPct = ((newVal - currentAvoir) / currentAvoir * 100).abs();
     return deltaPct > 30 ? deltaPct : null;
@@ -1632,14 +1709,30 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // S47: Stamp timestamps for all fields touched by this extraction
     final touchedFields = <String>[];
-    if (avoirTotal != null) touchedFields.add('prevoyance.avoirLppTotal');
-    if (avoirOblig != null) touchedFields.add('prevoyance.avoirLppObligatoire');
-    if (avoirSuroblig != null) touchedFields.add('prevoyance.avoirLppSurobligatoire');
-    if (tauxConvOblig != null) touchedFields.add('prevoyance.tauxConversion');
-    if (tauxConvSuroblig != null) touchedFields.add('prevoyance.tauxConversionSuroblig');
-    if (lacuneRachat != null) touchedFields.add('prevoyance.rachatMaximum');
-    if (salaireAssure != null) touchedFields.add('prevoyance.salaireAssure');
-    if (rendementCaisseVal != null) touchedFields.add('prevoyance.rendementCaisse');
+    if (avoirTotal != null) {
+      touchedFields.add('prevoyance.avoirLppTotal');
+    }
+    if (avoirOblig != null) {
+      touchedFields.add('prevoyance.avoirLppObligatoire');
+    }
+    if (avoirSuroblig != null) {
+      touchedFields.add('prevoyance.avoirLppSurobligatoire');
+    }
+    if (tauxConvOblig != null) {
+      touchedFields.add('prevoyance.tauxConversion');
+    }
+    if (tauxConvSuroblig != null) {
+      touchedFields.add('prevoyance.tauxConversionSuroblig');
+    }
+    if (lacuneRachat != null) {
+      touchedFields.add('prevoyance.rachatMaximum');
+    }
+    if (salaireAssure != null) {
+      touchedFields.add('prevoyance.salaireAssure');
+    }
+    if (rendementCaisseVal != null) {
+      touchedFields.add('prevoyance.rendementCaisse');
+    }
     final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
 
     _profile = p.copyWith(
@@ -1738,7 +1831,8 @@ class CoachProfileProvider extends ChangeNotifier {
       avoirLppSurobligatoire: avoirSuroblig ?? existing.avoirLppSurobligatoire,
       rachatMaximum: lacuneRachat ?? existing.rachatMaximum,
       tauxConversion: tauxConvOblig ?? existing.tauxConversion,
-      tauxConversionSuroblig: tauxConvSuroblig ?? existing.tauxConversionSuroblig,
+      tauxConversionSuroblig:
+          tauxConvSuroblig ?? existing.tauxConversionSuroblig,
       rendementCaisse: rendementCaisseVal ?? existing.rendementCaisse,
       salaireAssure: salaireAssure ?? existing.salaireAssure,
       ramd: existing.ramd,
@@ -1764,8 +1858,12 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Stamp timestamps
     final touchedFields = <String>[];
-    if (avoirTotal != null) touchedFields.add('conjoint.prevoyance.avoirLppTotal');
-    if (tauxConvOblig != null) touchedFields.add('conjoint.prevoyance.tauxConversion');
+    if (avoirTotal != null) {
+      touchedFields.add('conjoint.prevoyance.avoirLppTotal');
+    }
+    if (tauxConvOblig != null) {
+      touchedFields.add('conjoint.prevoyance.tauxConversion');
+    }
     final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
 
     _profile = p.copyWith(
@@ -1887,10 +1985,18 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // S47: Stamp timestamps for all fields touched by this extraction
     final touchedFields = <String>[];
-    if (anneesContrib != null) touchedFields.add('prevoyance.anneesContribuees');
-    if (lacunesCotisation != null) touchedFields.add('prevoyance.lacunesAVS');
-    if (renteEstimee != null) touchedFields.add('prevoyance.renteAVSEstimeeMensuelle');
-    if (ramd != null) touchedFields.add('prevoyance.ramd');
+    if (anneesContrib != null) {
+      touchedFields.add('prevoyance.anneesContribuees');
+    }
+    if (lacunesCotisation != null) {
+      touchedFields.add('prevoyance.lacunesAVS');
+    }
+    if (renteEstimee != null) {
+      touchedFields.add('prevoyance.renteAVSEstimeeMensuelle');
+    }
+    if (ramd != null) {
+      touchedFields.add('prevoyance.ramd');
+    }
     final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
 
     _profile = p.copyWith(
@@ -1981,10 +2087,18 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // S47: Stamp timestamps for all fields touched by this extraction
     final touchedFields = <String>[];
-    if (revenuImposable != null) touchedFields.add('fiscal.revenuImposable');
-    if (fortuneImposable != null) touchedFields.add('fiscal.fortuneImposable');
-    if (tauxMarginal != null) touchedFields.add('fiscal.tauxMarginal');
-    if (impotCantonal != null || impotFederal != null) touchedFields.add('fiscal.impots');
+    if (revenuImposable != null) {
+      touchedFields.add('fiscal.revenuImposable');
+    }
+    if (fortuneImposable != null) {
+      touchedFields.add('fiscal.fortuneImposable');
+    }
+    if (tauxMarginal != null) {
+      touchedFields.add('fiscal.tauxMarginal');
+    }
+    if (impotCantonal != null || impotFederal != null) {
+      touchedFields.add('fiscal.impots');
+    }
     final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
 
     _profile = p.copyWith(
@@ -2034,19 +2148,28 @@ class CoachProfileProvider extends ChangeNotifier {
     double? salaireBrut;
     int? nombreMois;
     double? bonus;
-    double? tauxActivite; // ignore: unused_local_variable — extracted for future use
+    double?
+        tauxActivite; // ignore: unused_local_variable — extracted for future use
 
     for (final field in fields) {
       if (field.profileField == null) continue;
       switch (field.profileField) {
         case 'salaireBrutMensuel':
-          if (field.value is num) salaireBrut = (field.value as num).toDouble();
+          if (field.value is num) {
+            salaireBrut = (field.value as num).toDouble();
+          }
         case 'nombreMois' || 'nombreDeMois':
-          if (field.value is num) nombreMois = (field.value as num).toInt();
+          if (field.value is num) {
+            nombreMois = (field.value as num).toInt();
+          }
         case 'bonus' || 'bonusPourcentage':
-          if (field.value is num) bonus = (field.value as num).toDouble();
+          if (field.value is num) {
+            bonus = (field.value as num).toDouble();
+          }
         case 'tauxActivite':
-          if (field.value is num) tauxActivite = (field.value as num).toDouble();
+          if (field.value is num) {
+            tauxActivite = (field.value as num).toDouble();
+          }
       }
     }
 
@@ -2105,6 +2228,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? avoirLppTotal,
     int? nombre3a,
     double? totalEpargne3a,
+
     /// Rachat LPP mensuel planifié (CHF/mois). Crée ou met à jour la
     /// PlannedMonthlyContribution 'lpp_buyback_user'. Mis à 0 supprime
     /// la contribution. Utilisé par ForecasterService via
@@ -2304,7 +2428,7 @@ class CoachProfileProvider extends ChangeNotifier {
       updatedContribs = existing;
     }
 
-    _profile = p.copyWith(
+    _profile = _withExplicitCashMarkerFromSource(p.copyWith(
       salaireBrutMensuel: salaireBrutMensuel,
       prevoyance: updatedPrev,
       patrimoine: updatedPat,
@@ -2314,7 +2438,7 @@ class CoachProfileProvider extends ChangeNotifier {
       dataSources: updatedSources,
       dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
-    );
+    ));
 
     // Immediate UI update BEFORE async persistence (Bug 1 fix)
     _profileUpdatedSinceBudget = true;
@@ -2339,7 +2463,11 @@ class CoachProfileProvider extends ChangeNotifier {
       if (rachatLppMensuel != null) {
         answers['_coach_rachat_lpp_mensuel'] = rachatLppMensuel;
       }
-      if (epargneLiquide != null) answers['q_cash_total'] = epargneLiquide;
+      if (epargneLiquide != null) {
+        answers['q_cash_total'] = epargneLiquide;
+        answers['_coach_cash_total_source'] = ProfileDataSource.userInput.name;
+        answers['q_cash_total_unconfirmed_legacy'] = null;
+      }
       // Write to the same keys fromWizardAnswers() reads so values survive restart.
       if (investissements != null) {
         answers['q_investments_total'] = investissements;
@@ -2367,12 +2495,16 @@ class CoachProfileProvider extends ChangeNotifier {
       if (creditConsommation != null) {
         answers['_coach_dettes_credit'] = creditConsommation;
       }
-      if (leasing != null) answers['_coach_dettes_leasing'] = leasing;
+      if (leasing != null) {
+        answers['_coach_dettes_leasing'] = leasing;
+      }
       if (autresDettes != null) {
         answers['_coach_dettes_autres'] = autresDettes;
       }
       answers['_coach_updated_at'] = DateTime.now().toIso8601String();
-      if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
+      if (_profile != null) {
+        _persistTimestamps(answers, _profile!.dataTimestamps);
+      }
       await ReportPersistenceService.saveAnswers(answers);
     } catch (e) {
       debugPrint('[CoachProfileProvider] persistence error: $e');
@@ -2400,6 +2532,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double epargneLiquide = 0;
     double investissements = 0;
     double epargne3a = 0;
+    var hasLiquidAccount = false;
 
     for (final acct in accounts) {
       final balance = (acct['balance'] as num?)?.toDouble() ?? 0;
@@ -2407,6 +2540,7 @@ class CoachProfileProvider extends ChangeNotifier {
       switch (type) {
         case 'checking':
         case 'savings':
+          hasLiquidAccount = true;
           epargneLiquide += balance;
         case '3a':
           epargne3a += balance;
@@ -2416,17 +2550,24 @@ class CoachProfileProvider extends ChangeNotifier {
     }
 
     // ── 2. Extract monthly expenses from categories ──────────
-    final loyer = _safeExpense(categoryTotals['logement'], p.salaireBrutMensuel, 0.50);
-    final assurance = _safeExpense(categoryTotals['assurances'], p.salaireBrutMensuel, 0.12);
-    final electricite = _safeExpense(categoryTotals['energie'], p.salaireBrutMensuel, 0.05);
-    final transport = _safeExpense(categoryTotals['transport'], p.salaireBrutMensuel, 0.10);
-    final telecom = _safeExpense(categoryTotals['telecom'], p.salaireBrutMensuel, 0.05);
-    final fraisMedicaux = _safeExpense(categoryTotals['sante'], p.salaireBrutMensuel, 0.10);
-    final hypotheque = _safeExpense(categoryTotals['hypotheque'], p.salaireBrutMensuel, 0.50);
+    final loyer =
+        _safeExpense(categoryTotals['logement'], p.salaireBrutMensuel, 0.50);
+    final assurance =
+        _safeExpense(categoryTotals['assurances'], p.salaireBrutMensuel, 0.12);
+    final electricite =
+        _safeExpense(categoryTotals['energie'], p.salaireBrutMensuel, 0.05);
+    final transport =
+        _safeExpense(categoryTotals['transport'], p.salaireBrutMensuel, 0.10);
+    final telecom =
+        _safeExpense(categoryTotals['telecom'], p.salaireBrutMensuel, 0.05);
+    final fraisMedicaux =
+        _safeExpense(categoryTotals['sante'], p.salaireBrutMensuel, 0.10);
+    final hypotheque =
+        _safeExpense(categoryTotals['hypotheque'], p.salaireBrutMensuel, 0.50);
 
     // ── 3. Build updated sub-profiles ────────────────────────
     final updatedPat = p.patrimoine.copyWith(
-      epargneLiquide: epargneLiquide > 0 ? epargneLiquide : null,
+      epargneLiquide: hasLiquidAccount ? epargneLiquide : null,
       investissements: investissements > 0 ? investissements : null,
     );
 
@@ -2464,37 +2605,48 @@ class CoachProfileProvider extends ChangeNotifier {
       fraisMedicaux: fraisMedicaux,
     );
 
-    final updatedDet = hypotheque != null
-        ? p.dettes.copyWith(hypotheque: hypotheque)
-        : null;
+    final updatedDet =
+        hypotheque != null ? p.dettes.copyWith(hypotheque: hypotheque) : null;
 
     // ── 4. Tag all updated fields as openBanking ─────────────
-    if (epargneLiquide > 0) {
-      updatedSources['patrimoine.epargneLiquide'] = ProfileDataSource.openBanking;
+    if (hasLiquidAccount) {
+      updatedSources['patrimoine.epargneLiquide'] =
+          ProfileDataSource.openBanking;
     }
     if (investissements > 0) {
-      updatedSources['patrimoine.investissements'] = ProfileDataSource.openBanking;
+      updatedSources['patrimoine.investissements'] =
+          ProfileDataSource.openBanking;
     }
     if (epargne3a > 0) {
-      updatedSources['prevoyance.totalEpargne3a'] = ProfileDataSource.openBanking;
+      updatedSources['prevoyance.totalEpargne3a'] =
+          ProfileDataSource.openBanking;
     }
-    if (loyer != null) updatedSources['depenses.loyer'] = ProfileDataSource.openBanking;
+    if (loyer != null) {
+      updatedSources['depenses.loyer'] = ProfileDataSource.openBanking;
+    }
     if (assurance != null) {
-      updatedSources['depenses.assuranceMaladie'] = ProfileDataSource.openBanking;
+      updatedSources['depenses.assuranceMaladie'] =
+          ProfileDataSource.openBanking;
     }
     if (electricite != null) {
       updatedSources['depenses.electricite'] = ProfileDataSource.openBanking;
     }
-    if (transport != null) updatedSources['depenses.transport'] = ProfileDataSource.openBanking;
-    if (telecom != null) updatedSources['depenses.telecom'] = ProfileDataSource.openBanking;
+    if (transport != null) {
+      updatedSources['depenses.transport'] = ProfileDataSource.openBanking;
+    }
+    if (telecom != null) {
+      updatedSources['depenses.telecom'] = ProfileDataSource.openBanking;
+    }
     if (fraisMedicaux != null) {
       updatedSources['depenses.fraisMedicaux'] = ProfileDataSource.openBanking;
     }
-    if (hypotheque != null) updatedSources['dettes.hypotheque'] = ProfileDataSource.openBanking;
+    if (hypotheque != null) {
+      updatedSources['dettes.hypotheque'] = ProfileDataSource.openBanking;
+    }
 
     // S47: Stamp timestamps for all fields touched by open banking sync
     final touchedFields = <String>[
-      if (epargneLiquide > 0) 'patrimoine.epargneLiquide',
+      if (hasLiquidAccount) 'patrimoine.epargneLiquide',
       if (investissements > 0) 'patrimoine.investissements',
       if (epargne3a > 0) 'prevoyance.totalEpargne3a',
       if (loyer != null) 'depenses.loyer',
@@ -2508,7 +2660,7 @@ class CoachProfileProvider extends ChangeNotifier {
     final updatedTimestamps = _stampTimestamps(p.dataTimestamps, touchedFields);
 
     // ── 5. Apply update ──────────────────────────────────────
-    _profile = p.copyWith(
+    _profile = _withExplicitCashMarkerFromSource(p.copyWith(
       prevoyance: updatedPrev,
       patrimoine: updatedPat,
       depenses: updatedDep,
@@ -2516,7 +2668,7 @@ class CoachProfileProvider extends ChangeNotifier {
       dataSources: updatedSources,
       dataTimestamps: updatedTimestamps,
       updatedAt: DateTime.now(),
-    );
+    ));
 
     _profileUpdatedSinceBudget = true;
     notifyListeners();
@@ -2524,20 +2676,43 @@ class CoachProfileProvider extends ChangeNotifier {
     // Persist asynchronously
     try {
       final answers = await ReportPersistenceService.loadAnswers();
-      if (epargneLiquide > 0) answers['q_cash_total'] = epargneLiquide;
-      if (investissements > 0) answers['_coach_investissements'] = investissements;
-      if (epargne3a > 0) answers['_coach_total_3a'] = epargne3a;
-      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
-      if (assurance != null) answers['_coach_depenses_assurance'] = assurance;
-      if (electricite != null) answers['_coach_depenses_electricite'] = electricite;
-      if (transport != null) answers['_coach_depenses_transport'] = transport;
-      if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
+      if (hasLiquidAccount) {
+        answers['q_cash_total'] = epargneLiquide;
+        answers['_coach_cash_total_source'] =
+            ProfileDataSource.openBanking.name;
+        answers['q_cash_total_unconfirmed_legacy'] = null;
+      }
+      if (investissements > 0) {
+        answers['_coach_investissements'] = investissements;
+      }
+      if (epargne3a > 0) {
+        answers['_coach_total_3a'] = epargne3a;
+      }
+      if (loyer != null) {
+        answers['_coach_depenses_loyer'] = loyer;
+      }
+      if (assurance != null) {
+        answers['_coach_depenses_assurance'] = assurance;
+      }
+      if (electricite != null) {
+        answers['_coach_depenses_electricite'] = electricite;
+      }
+      if (transport != null) {
+        answers['_coach_depenses_transport'] = transport;
+      }
+      if (telecom != null) {
+        answers['_coach_depenses_telecom'] = telecom;
+      }
       if (fraisMedicaux != null) {
         answers['_coach_depenses_frais_medicaux'] = fraisMedicaux;
       }
-      if (hypotheque != null) answers['_coach_dettes_hypotheque'] = hypotheque;
+      if (hypotheque != null) {
+        answers['_coach_dettes_hypotheque'] = hypotheque;
+      }
       answers['_coach_updated_at'] = DateTime.now().toIso8601String();
-      if (_profile != null) _persistTimestamps(answers, _profile!.dataTimestamps);
+      if (_profile != null) {
+        _persistTimestamps(answers, _profile!.dataTimestamps);
+      }
       answers['_coach_blink_source'] = 'open_banking';
       await ReportPersistenceService.saveAnswers(answers);
     } catch (e) {
@@ -2630,4 +2805,3 @@ extension CoachProfileContextLookup on BuildContext {
     }
   }
 }
-

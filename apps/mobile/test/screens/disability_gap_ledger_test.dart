@@ -103,6 +103,7 @@ Map<String, dynamic> _answers({
   double? grossSalaryAnnual,
   int? birthYear,
   double? cashTotal,
+  String? emergencyFund,
   double? monthlyHousing,
   double? monthlyLamal,
 }) {
@@ -110,6 +111,7 @@ Map<String, dynamic> _answers({
     if (grossSalaryAnnual != null) 'q_gross_salary_annual': grossSalaryAnnual,
     if (birthYear != null) 'q_birth_year': birthYear,
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (emergencyFund != null) 'q_emergency_fund': emergencyFund,
     if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
     if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     'q_employment_status': 'salarie',
@@ -183,6 +185,63 @@ void main() {
     expect(find.text('Manquant'), findsNWidgets(4));
     expect(find.byType(MintPremiumSlider), findsNothing);
     expect(find.byType(Slider), findsNothing);
+  });
+
+  testWidgets('does not treat emergency-fund heuristic as known cash',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      grossSalaryAnnual: 96000,
+      birthYear: DateTime.now().year - 45,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    await tester.pumpWidget(_buildWithProvider(
+      provider,
+      const DisabilityGapScreen(),
+    ));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('disability_gap_result_section')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const Key('disability_gap_savings_fact')),
+      findsOneWidget,
+    );
+    expect(find.text("CHF 15'720"), findsNothing);
+    expect(find.text('Manquant'), findsOneWidget);
+  });
+
+  testWidgets('explicit zero cash overrides emergency-fund heuristic',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      grossSalaryAnnual: 96000,
+      birthYear: DateTime.now().year - 45,
+      cashTotal: 0,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    await tester.pumpWidget(_buildWithProvider(
+      provider,
+      const DisabilityGapScreen(),
+    ));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('disability_gap_result_section')),
+      findsOneWidget,
+    );
+    expect(find.text('CHF 0'), findsWidgets);
+    expect(find.text("CHF 15'720"), findsNothing);
   });
 
   testWidgets('routes the next missing fact to its targeted data block',

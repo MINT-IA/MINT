@@ -20,6 +20,9 @@
 // are regenerated via `flutter test --update-goldens` on Julien's macOS
 // dev machine.
 
+@Tags(<String>['local-only'])
+library;
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -105,7 +108,8 @@ void main() {
 
     test('craie on textPrimary — CTA pill inverse', () {
       // CTA is craie foreground on textPrimary background — inverse surface.
-      final ratio = _wcagContrastRatio(MintColors.craie, MintColors.textPrimary);
+      final ratio =
+          _wcagContrastRatio(MintColors.craie, MintColors.textPrimary);
       expect(ratio, greaterThanOrEqualTo(7.0),
           reason: 'CTA pill text must be AAA on inverse fill');
     });
@@ -139,12 +143,14 @@ double _wcagContrastRatio(Color a, Color b) {
 }
 
 double _relativeLuminance(Color c) {
-  final r = _channel(c.red / 255.0);
-  final g = _channel(c.green / 255.0);
-  final bch = _channel(c.blue / 255.0);
+  final r = _channel(c.r);
+  final g = _channel(c.g);
+  final bch = _channel(c.b);
   return 0.2126 * r + 0.7152 * g + 0.0722 * bch;
 }
 
 double _channel(double v) {
-  return v <= 0.03928 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+  return v <= 0.03928
+      ? v / 12.92
+      : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
 }

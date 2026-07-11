@@ -6,6 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
+import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:provider/provider.dart';
 
 class _RecordingCoachProfileProvider extends CoachProfileProvider {
@@ -37,6 +38,7 @@ class _RecordingCoachProfileProvider extends CoachProfileProvider {
 Map<String, dynamic> _answers({
   double? selfEmployedIncome,
   double? cashTotal,
+  String? emergencyFund,
   double? monthlyHousing,
   double? monthlyLamal,
 }) {
@@ -47,6 +49,7 @@ Map<String, dynamic> _answers({
       'q_pay_frequency': 'yearly',
     },
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (emergencyFund != null) 'q_emergency_fund': emergencyFund,
     if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
     if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     'q_employment_status': 'independant',
@@ -132,6 +135,20 @@ void main() {
     expect(profile.userProvidedFields, contains('monthlyExpenses'));
   });
 
+  test('explicit zero cash overrides emergency-fund heuristic in profile', () {
+    final profile = CoachProfile.fromWizardAnswers(_answers(
+      selfEmployedIncome: 120000,
+      cashTotal: 0,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    expect(profile.patrimoine.epargneLiquide, 0);
+    expect(profile.userProvidedFields, contains('liquidSavings'));
+    expect(profile.userProvidedFields, contains('liquidSavingsAmount'));
+  });
+
   testWidgets('renders independent income from ledger without local sliders',
       (tester) async {
     final provider = _RecordingCoachProfileProvider(_answers(
@@ -199,6 +216,51 @@ void main() {
     );
     expect(find.text("CHF 120'000"), findsNothing);
     expect(find.byType(Slider), findsNothing);
+  });
+
+  testWidgets('does not treat emergency-fund heuristic as known cash',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      selfEmployedIncome: 120000,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    await tester.pumpWidget(_buildWithProvider(
+      provider,
+      const DisabilitySelfEmployedScreen(),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('disability_self_savings_fact')),
+      findsOneWidget,
+    );
+    expect(find.text("CHF 15'720"), findsNothing);
+    expect(find.text('Manquant'), findsOneWidget);
+    expect(find.byType(DisabilityCountdownWidget), findsNothing);
+  });
+
+  testWidgets('explicit zero cash overrides emergency-fund heuristic',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      selfEmployedIncome: 120000,
+      cashTotal: 0,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    await tester.pumpWidget(_buildWithProvider(
+      provider,
+      const DisabilitySelfEmployedScreen(),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('CHF 0'), findsWidgets);
+    expect(find.text("CHF 15'720"), findsNothing);
+    expect(find.byType(DisabilityCountdownWidget), findsOneWidget);
   });
 
   testWidgets('routes missing income to the independent income data block',

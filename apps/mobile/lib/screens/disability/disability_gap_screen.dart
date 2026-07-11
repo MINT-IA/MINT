@@ -65,7 +65,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   double? _liquidSavings(CoachProfile? profile) {
     if (profile == null ||
-        !profile.userProvidedFields.contains('liquidSavings')) {
+        !profile.userProvidedFields.contains('liquidSavingsAmount')) {
       return null;
     }
     final savings = profile.patrimoine.epargneLiquide;

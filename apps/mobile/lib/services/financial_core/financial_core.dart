@@ -16,6 +16,7 @@ export 'coach_reasoner.dart';
 export 'confidence_scorer.dart';
 export 'couple_optimizer.dart';
 export 'disability_insurance_calculator.dart';
+export 'emergency_fund_heuristic.dart';
 export 'fri_calculator.dart';
 export 'gift_tax_confirmation.dart';
 export 'housing_cost_calculator.dart';

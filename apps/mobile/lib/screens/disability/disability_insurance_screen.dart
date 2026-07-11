@@ -51,7 +51,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
 
   double? _liquidSavings(CoachProfile? profile) {
     if (profile == null ||
-        !profile.userProvidedFields.contains('liquidSavings')) {
+        !profile.userProvidedFields.contains('liquidSavingsAmount')) {
       return null;
     }
     final savings = profile.patrimoine.epargneLiquide;

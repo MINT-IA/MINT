@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/services/financial_core/emergency_fund_heuristic.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
@@ -28,12 +29,100 @@ class ReportPersistenceService {
 
     try {
       final answers = Map<String, dynamic>.from(json.decode(jsonString));
-      return await SecureWizardStore.restoreSensitiveKeys(answers);
+      final restored = await SecureWizardStore.restoreSensitiveKeys(answers);
+      return await _normalizeLegacyCashTotal(restored);
     } catch (e, stack) {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
       return {};
     }
+  }
+
+  static Future<Map<String, dynamic>> _normalizeLegacyCashTotal(
+    Map<String, dynamic> answers,
+  ) async {
+    if (!_looksLikeLegacyUnprovenancedCash(answers)) return answers;
+
+    final legacyCash = _parseDouble(answers['q_cash_total']);
+    final cleaned = Map<String, dynamic>.from(answers)
+      ..remove('q_cash_total')
+      ..['q_cash_total_unconfirmed_legacy'] = legacyCash;
+    final persisted = Map<String, dynamic>.from(cleaned)
+      ..['q_cash_total'] = null;
+    dev.log(
+      'Quarantined legacy unprovenanced q_cash_total estimate',
+      name: 'Persistence',
+    );
+    await saveAnswers(persisted);
+    return cleaned;
+  }
+
+  static bool _looksLikeLegacyUnprovenancedCash(
+    Map<String, dynamic> answers,
+  ) {
+    if (!answers.containsKey('q_cash_total')) return false;
+    final cash = _parseDouble(answers['q_cash_total']);
+    if (cash == null || cash <= 0) return false;
+    if (_hasExplicitCashSource(answers)) return false;
+    return _looksLikeLegacyEmergencyFundCash(answers, cash) ||
+        _looksLikeLegacySmartFlowCash(answers, cash);
+  }
+
+  static bool _looksLikeLegacyEmergencyFundCash(
+    Map<String, dynamic> answers,
+    double cash,
+  ) {
+    final emergencyFund = answers['q_emergency_fund'];
+    if (emergencyFund is! String) return false;
+    final heuristicCash = EmergencyFundHeuristic.cashForWizardBucket(
+      emergencyFundBucket: emergencyFund,
+      housingCost: _parseDouble(answers['q_housing_cost_period_chf']) ?? 0,
+      monthlyLamalPremium:
+          _parseDouble(answers['q_lamal_premium_monthly_chf']) ?? 0,
+      housingPayFrequency: answers['q_housing_pay_frequency'] as String?,
+    );
+    return heuristicCash > 0 && (cash - heuristicCash).abs() <= 0.01;
+  }
+
+  static bool _hasExplicitCashSource(Map<String, dynamic> answers) {
+    final source = answers['_coach_cash_total_source'];
+    return source == 'userInput' ||
+        source == 'openBanking' ||
+        source == 'certificate' ||
+        source == 'crossValidated';
+  }
+
+  static bool _looksLikeLegacySmartFlowCash(
+    Map<String, dynamic> answers,
+    double cash,
+  ) {
+    final birthYear = _parseInt(answers['q_birth_year']);
+    final grossSalary = _parseDouble(answers['q_gross_salary_annual']);
+    if (birthYear == null || grossSalary == null) return false;
+    final age = DateTime.now().year - birthYear;
+    final heuristicCash = LegacyCashEstimateHeuristic.smartFlowSavingsEstimate(
+      age: age,
+      grossSalary: grossSalary,
+    );
+    // A rare real user amount can equal the old estimate exactly. Quarantine is
+    // still reversible through q_cash_total_unconfirmed_legacy and safer than
+    // promoting a fabricated cash amount to high-stakes scenarios.
+    return heuristicCash > 0 && (cash - heuristicCash).abs() <= 0.01;
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 
   /// Marque le wizard comme complété (pour ne pas le relancer au reboot)
@@ -63,7 +152,7 @@ class ReportPersistenceService {
       'mini_onboarding_cohort_metrics_v1';
   static const String _selectedIntentKey = 'selected_onboarding_intent_v1';
 
-  // ── Premier Eclairage persistence keys (D-09) ──
+  // Premier insight persistence keys (D-09).
   static const String _hasSeenPremierEclairageKey =
       'has_seen_premier_eclairage_v1';
   static const String _premierEclairageSnapshotKey =
@@ -71,32 +160,32 @@ class ReportPersistenceService {
 
   static Future<void>? _metricLock;
 
-  /// Marque le mini-onboarding comme complété (3 questions essentielles)
+  /// Marks the mini-onboarding as completed.
   static Future<void> setMiniOnboardingCompleted(bool isCompleted) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_miniOnboardingKey, isCompleted);
   }
 
-  /// Vérifie si le mini-onboarding a été complété
+  /// Returns whether the mini-onboarding has been completed.
   static Future<bool> isMiniOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_miniOnboardingKey) ?? false;
   }
 
-  /// Persiste l'intent choisi sur l'écran d'intent (onboarding V2).
+  /// Persists the onboarding intent selected by the user.
   static Future<void> setSelectedOnboardingIntent(String intent) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_selectedIntentKey, intent);
   }
 
-  /// Retourne l'intent choisi lors de l'onboarding, ou null.
+  /// Returns the selected onboarding intent, if any.
   static Future<String?> getSelectedOnboardingIntent() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_selectedIntentKey);
   }
 
-  /// Retourne une variante A/B persistente pour le mini-onboarding.
-  /// Valeurs possibles: 'control' ou 'challenge'.
+  /// Returns a persistent A/B variant for mini-onboarding.
+  /// Possible values: 'control' or 'challenge'.
   static Future<String> getOrCreateMiniOnboardingVariant() async {
     final prefs = await SharedPreferences.getInstance();
     final existing = prefs.getString(_miniOnboardingVariantKey);
@@ -108,13 +197,13 @@ class ReportPersistenceService {
     return variant;
   }
 
-  /// Indique si l'exposition a l'experience onboarding a deja ete trackee.
+  /// Returns whether mini-onboarding exposure has already been tracked.
   static Future<bool> isMiniOnboardingExposureTracked() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_miniOnboardingExposureTrackedKey) ?? false;
   }
 
-  /// Marque l'exposition a l'experience onboarding comme trackee.
+  /// Marks mini-onboarding exposure as tracked.
   static Future<void> setMiniOnboardingExposureTracked(bool tracked) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_miniOnboardingExposureTrackedKey, tracked);
@@ -206,10 +295,10 @@ class ReportPersistenceService {
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  PREMIER ECLAIRAGE PERSISTENCE (D-09)
+  //  PREMIER INSIGHT PERSISTENCE (D-09)
   // ═══════════════════════════════════════════════════════════
 
-  /// Saves a premier eclairage snapshot to SharedPreferences.
+  /// Saves a premier insight snapshot to SharedPreferences.
   ///
   /// [data] MUST contain only display fields:
   ///   value (formatted string), title, subtitle, colorKey, suggestedRoute.
@@ -220,7 +309,7 @@ class ReportPersistenceService {
     await prefs.setString(_premierEclairageSnapshotKey, json.encode(data));
   }
 
-  /// Loads the premier eclairage snapshot. Returns null if not set or on error.
+  /// Loads the premier insight snapshot. Returns null if not set or on error.
   static Future<Map<String, dynamic>?> loadPremierEclairageSnapshot() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_premierEclairageSnapshotKey);
@@ -232,19 +321,19 @@ class ReportPersistenceService {
     }
   }
 
-  /// Returns true if the user has already seen their premier eclairage card.
+  /// Returns true if the user has already seen their premier insight card.
   static Future<bool> hasSeenPremierEclairage() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_hasSeenPremierEclairageKey) ?? false;
   }
 
-  /// Marks the premier eclairage card as seen (one-shot flag per D-09).
+  /// Marks the premier insight card as seen.
   static Future<void> markPremierEclairageSeen() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_hasSeenPremierEclairageKey, true);
   }
 
-  /// Efface les metriques onboarding (control + challenge).
+  /// Clears onboarding metrics for both variants.
   static Future<void> clearMiniOnboardingMetrics() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_onboardingMetricsControlKey);
@@ -468,10 +557,10 @@ class ReportPersistenceService {
     final now = DateTime.now();
     final monthKey = '${now.year}-${now.month.toString().padLeft(2, '0')}';
 
-    // Charger l'historique existant
+    // Load existing history.
     List<Map<String, dynamic>> history = await loadScoreHistory();
 
-    // Remplacer l'entree du mois en cours si elle existe deja
+    // Replace the current-month entry when it already exists.
     final existingIndex =
         history.indexWhere((entry) => entry['month'] == monthKey);
     if (existingIndex >= 0) {
@@ -674,11 +763,11 @@ class ReportPersistenceService {
     await prefs.remove(_lettersKey);
   }
 
-  /// Efface uniquement l'historique coach:
-  /// - check-ins mensuels
-  /// - score du mois + historique des scores
-  /// - progression "simulateurs explorés"
-  /// - activite utilisateur (life events, tips dismissed/snoozed)
+  /// Clears coach history only:
+  /// - monthly check-ins
+  /// - current score and score history
+  /// - simulator progress
+  /// - user activity such as life events and dismissed or snoozed tips
   static Future<void> clearCoachHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_checkInsKey);

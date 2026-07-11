@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+@Tags(<String>['local-only'])
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';

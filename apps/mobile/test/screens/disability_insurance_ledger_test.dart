@@ -102,12 +102,14 @@ Widget _buildWithRouter(
 Map<String, dynamic> _answers({
   double? grossSalaryAnnual,
   double? cashTotal,
+  String? emergencyFund,
   double? monthlyHousing,
   double? monthlyLamal,
 }) {
   return {
     if (grossSalaryAnnual != null) 'q_gross_salary_annual': grossSalaryAnnual,
     if (cashTotal != null) 'q_cash_total': cashTotal,
+    if (emergencyFund != null) 'q_emergency_fund': emergencyFund,
     if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
     if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
     'q_employment_status': 'salarie',
@@ -180,6 +182,59 @@ void main() {
     expect(find.text("CHF 8'000"), findsOneWidget);
     expect(find.text("CHF 42'000"), findsOneWidget);
     expect(find.text('Manquant'), findsOneWidget);
+    expect(find.byType(MintPremiumSlider), findsNothing);
+  });
+
+  testWidgets('does not treat emergency-fund heuristic as known cash',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      grossSalaryAnnual: 96000,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    await tester.pumpWidget(_buildWithProvider(
+      provider,
+      const DisabilityInsuranceScreen(),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('disability_insurance_result_section')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const Key('disability_insurance_savings_fact')),
+      findsOneWidget,
+    );
+    expect(find.text("CHF 15'720"), findsNothing);
+    expect(find.text('Manquant'), findsOneWidget);
+    expect(find.byType(MintPremiumSlider), findsNothing);
+  });
+
+  testWidgets('explicit zero cash overrides emergency-fund heuristic',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider(_answers(
+      grossSalaryAnnual: 96000,
+      cashTotal: 0,
+      emergencyFund: 'yes_6months',
+      monthlyHousing: 2200,
+      monthlyLamal: 420,
+    ));
+
+    await tester.pumpWidget(_buildWithProvider(
+      provider,
+      const DisabilityInsuranceScreen(),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('disability_insurance_result_section')),
+      findsOneWidget,
+    );
+    expect(find.text('CHF 0'), findsOneWidget);
+    expect(find.text("CHF 15'720"), findsNothing);
     expect(find.byType(MintPremiumSlider), findsNothing);
   });
 

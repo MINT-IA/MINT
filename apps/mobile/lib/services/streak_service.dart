@@ -48,14 +48,16 @@ class StreakService {
     MintBadge(
       id: 'first_step',
       label: 'Premier pas',
-      description: 'Tu as fait ton premier check-in.', // lint-ignore: legacy user copy
+      description:
+          'Tu as fait ton premier check-in.', // lint-ignore: legacy user copy
       icon: Icons.emoji_events_outlined,
       requiredStreak: 1,
     ),
     MintBadge(
       id: 'regulier',
       label: 'Régulier·e', // lint-ignore: legacy user copy
-      description: '3 mois consécutifs de check-in.', // lint-ignore: legacy user copy
+      description:
+          '3 mois consécutifs de check-in.', // lint-ignore: legacy user copy
       icon: Icons.local_fire_department,
       requiredStreak: 3,
     ),
@@ -69,7 +71,8 @@ class StreakService {
     MintBadge(
       id: 'discipline',
       label: 'Discipliné·e', // lint-ignore: legacy user copy
-      description: '12 mois consécutifs — une année complète.', // lint-ignore: legacy user copy
+      description:
+          '12 mois consécutifs — une année complète.', // lint-ignore: legacy user copy
       icon: Icons.military_tech,
       requiredStreak: 12,
     ),
@@ -104,7 +107,8 @@ class StreakService {
     // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
     final prevMonth = DateTime(now.year, now.month - 1);
     final isRecent = latestMonth == nowMonth ||
-        (latestMonth.year == prevMonth.year && latestMonth.month == prevMonth.month);
+        (latestMonth.year == prevMonth.year &&
+            latestMonth.month == prevMonth.month);
 
     if (!isRecent) {
       currentStreak = 0;
@@ -140,9 +144,8 @@ class StreakService {
     if (checkIns.length == 1) longest = 1;
 
     // Determine earned badges
-    final earned = _allBadges
-        .where((b) => longest >= b.requiredStreak)
-        .toList();
+    final earned =
+        _allBadges.where((b) => longest >= b.requiredStreak).toList();
 
     // Find next badge
     MintBadge? next;
@@ -187,7 +190,10 @@ class StreakService {
     // Monthly expenses from depenses profile
     final monthlyExpenses = profile.depenses.totalMensuel;
 
-    // Liquid savings (available for emergency fund)
+    // Liquid savings must be an explicit declared cash amount. The broader
+    // liquidSavings marker can be a heuristic from q_emergency_fund.
+    final hasDeclaredLiquidSavings =
+        profile.userProvidedFields.contains('liquidSavingsAmount');
     final liquidSavings = profile.patrimoine.epargneLiquide;
 
     return [
@@ -229,16 +235,19 @@ class StreakService {
         description: 'Versement 3a au plafond (7\'258 CHF)',
         icon: Icons.savings,
         threshold: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
-        isReached: annual3a >= reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+        isReached:
+            annual3a >= reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
       ),
       MintMilestone(
         id: 'emergency_fund',
         label: 'Matelas 6 mois',
-        description: '6 mois de depenses en epargne liquide', // lint-ignore: legacy user copy
+        description:
+            '6 mois de depenses en epargne liquide', // lint-ignore: legacy user copy
         icon: Icons.shield,
         threshold: monthlyExpenses * 6,
-        isReached:
-            monthlyExpenses > 0 && liquidSavings >= monthlyExpenses * 6,
+        isReached: hasDeclaredLiquidSavings &&
+            monthlyExpenses > 0 &&
+            liquidSavings >= monthlyExpenses * 6,
       ),
     ];
   }

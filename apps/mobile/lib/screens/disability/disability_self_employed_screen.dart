@@ -46,7 +46,7 @@ class _DisabilitySelfEmployedScreenState
   double? _liquidSavings(CoachProfileProvider? provider) {
     final profile = provider?.profile;
     if (profile == null ||
-        !profile.userProvidedFields.contains('liquidSavings')) {
+        !profile.userProvidedFields.contains('liquidSavingsAmount')) {
       return null;
     }
     final savings = profile.patrimoine.epargneLiquide;

@@ -2734,7 +2734,7 @@ class CoachProfile {
 
     final estimatedMonthlyExpenses = monthlyHousing + assuranceMaladie;
     final emergencyFundRaw = answers['q_emergency_fund'];
-    final cashTotal = _parseDouble(answers['q_cash_total']) ?? 0;
+    final explicitCashTotal = _parseDouble(answers['q_cash_total']);
     final wealthEstimate = _parseDouble(answers['q_wealth_estimate']);
     double epargneLiquide;
     if (emergencyFundRaw is String) {
@@ -2754,8 +2754,10 @@ class CoachProfile {
     } else {
       epargneLiquide = _parseDouble(emergencyFundRaw) ?? (savingsMonthly * 3);
     }
-    if (cashTotal > 0) {
-      epargneLiquide = cashTotal;
+    if (answers.containsKey('q_cash_total') &&
+        explicitCashTotal != null &&
+        explicitCashTotal >= 0) {
+      epargneLiquide = explicitCashTotal;
     }
 
     // Estimation investissements: si l'utilisateur déclare avoir des
@@ -3183,10 +3185,12 @@ class CoachProfile {
         answers.containsKey('q_emergency_fund')) {
       provided.add('liquidSavings');
     }
-    // Some high-stakes estate flows need an explicit cash amount, not the
-    // emergency-fund heuristic covered by the broader liquidSavings marker.
-    final explicitCashTotal = _parseDouble(answers['q_cash_total']);
-    if (explicitCashTotal != null && explicitCashTotal > 0) {
+    // Some high-stakes flows need an explicit cash amount, including a known
+    // zero balance, not the emergency-fund heuristic covered by liquidSavings.
+    final explicitCashTotalForMarker = _parseDouble(answers['q_cash_total']);
+    if (answers.containsKey('q_cash_total') &&
+        explicitCashTotalForMarker != null &&
+        explicitCashTotalForMarker >= 0) {
       provided.add('liquidSavingsAmount');
     }
     final explicitInvestmentsTotal =

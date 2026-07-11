@@ -41,6 +41,7 @@ class SecureWizardStore {
     '_coach_dettes_leasing',
     '_coach_dettes_autres',
     'q_cash_total',
+    'q_cash_total_unconfirmed_legacy',
     'q_wealth_estimate',
   };
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -42,6 +44,10 @@ void main() {
     final provider = CoachProfileProvider();
     final profile = CoachProfile.defaults().copyWith(
       patrimoine: const PatrimoineProfile(epargneLiquide: 88000),
+      userProvidedFields: const {
+        'liquidSavings',
+        'liquidSavingsAmount',
+      },
     );
 
     provider.updateProfile(profile);
@@ -52,6 +58,346 @@ void main() {
     expect(answers.containsKey('q_epargne_liquide'), isFalse);
     expect(CoachProfile.fromWizardAnswers(answers).patrimoine.epargneLiquide,
         88000);
+  });
+
+  test('updateProfile does not persist emergency-fund heuristic as cash',
+      () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+    });
+
+    final heuristicProfile = provider.profile!;
+    expect(heuristicProfile.patrimoine.epargneLiquide, 15720);
+    expect(heuristicProfile.userProvidedFields, contains('liquidSavings'));
+    expect(
+      heuristicProfile.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+
+    provider.updateProfile(heuristicProfile.copyWith(canton: 'GE'));
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 15720);
+    expect(
+      restored.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+  });
+
+  test('smart flow does not persist estimated savings as explicit cash',
+      () async {
+    final provider = CoachProfileProvider();
+
+    await provider.updateFromSmartFlow(
+      age: 40,
+      grossSalary: 100000,
+      canton: 'VD',
+    );
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(
+      provider.profile?.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+    expect(
+      CoachProfile.fromWizardAnswers(answers).userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+  });
+
+  test('updateProfile does not rewrite cash when stored cash key is null',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'wizard_answers_v2': json.encode({
+        'q_emergency_fund': 'yes_6months',
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+        'q_cash_total': null,
+      }),
+    });
+    final provider = CoachProfileProvider();
+    final heuristicProfile = CoachProfile.fromWizardAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+    });
+
+    provider.updateProfile(heuristicProfile.copyWith(canton: 'GE'));
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 15720);
+    expect(
+      restored.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+  });
+
+  test(
+      'loadAnswers quarantines legacy cash copied from emergency-fund heuristic',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+      'q_cash_total': 15720,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(secureStorageValues.containsKey('q_cash_total'), isFalse);
+    expect(answers, containsPair('q_cash_total_unconfirmed_legacy', 15720));
+    expect(
+      secureStorageValues.containsKey('q_cash_total_unconfirmed_legacy'),
+      isTrue,
+    );
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 15720);
+    expect(
+      restored.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+  });
+
+  test('loadAnswers quarantines yearly-housing legacy emergency cash',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_3months',
+      'q_housing_cost_period_chf': 24000,
+      'q_housing_pay_frequency': 'yearly',
+      'q_lamal_premium_monthly_chf': 500,
+      'q_cash_total': 7500,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(answers, containsPair('q_cash_total_unconfirmed_legacy', 7500));
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(
+      restored.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+  });
+
+  test('loadAnswers keeps legacy cash when edited expenses no longer match',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 1800,
+      'q_lamal_premium_monthly_chf': 450,
+      'q_cash_total': 15720,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers, containsPair('q_cash_total', 15720));
+    expect(answers.containsKey('q_cash_total_unconfirmed_legacy'), isFalse);
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.userProvidedFields, contains('liquidSavingsAmount'));
+  });
+
+  test('loadAnswers quarantines legacy smart-flow estimated cash', () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': DateTime.now().year - 40,
+      'q_gross_salary_annual': 100000,
+      'q_cash_total': 75000,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(answers, containsPair('q_cash_total_unconfirmed_legacy', 75000));
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(
+      restored.userProvidedFields,
+      isNot(contains('liquidSavingsAmount')),
+    );
+  });
+
+  test('mergeAnswers keeps user cash after legacy emergency quarantine',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 1800,
+      'q_lamal_premium_monthly_chf': 450,
+      'q_cash_total_unconfirmed_legacy': 15720,
+    });
+
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers({'q_cash_total': 42000});
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers, containsPair('q_cash_total', 42000));
+    expect(answers.containsKey('q_cash_total_unconfirmed_legacy'), isFalse);
+    expect(
+      answers,
+      containsPair(
+          '_coach_cash_total_source', ProfileDataSource.userInput.name),
+    );
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 42000);
+    expect(restored.userProvidedFields, contains('liquidSavingsAmount'));
+  });
+
+  test('loadAnswers keeps exact heuristic cash when source is explicit',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+      'q_cash_total': 15720,
+      '_coach_cash_total_source': ProfileDataSource.userInput.name,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers, containsPair('q_cash_total', 15720));
+    expect(answers.containsKey('q_cash_total_unconfirmed_legacy'), isFalse);
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 15720);
+    expect(restored.userProvidedFields, contains('liquidSavingsAmount'));
+  });
+
+  test('loadAnswers keeps explicit zero cash even with emergency-fund answer',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+      'q_cash_total': 0,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers, containsPair('q_cash_total', 0));
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 0);
+    expect(restored.userProvidedFields, contains('liquidSavingsAmount'));
+  });
+
+  test('loadAnswers keeps explicit sourced cash that is not the heuristic',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_emergency_fund': 'yes_6months',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+      'q_cash_total': 44000,
+      '_coach_cash_total_source': ProfileDataSource.userInput.name,
+    });
+
+    final answers = await ReportPersistenceService.loadAnswers();
+
+    expect(answers, containsPair('q_cash_total', 44000));
+    expect(answers.containsKey('q_cash_total_unconfirmed_legacy'), isFalse);
+    final restored = CoachProfile.fromWizardAnswers(answers);
+    expect(restored.patrimoine.epargneLiquide, 44000);
+    expect(restored.userProvidedFields, contains('liquidSavingsAmount'));
+  });
+
+  test('updateProfile persists cash when provenance is explicit', () async {
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      patrimoine: const PatrimoineProfile(epargneLiquide: 44000),
+      dataSources: const {
+        'patrimoine.epargneLiquide': ProfileDataSource.userInput,
+      },
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(
+        provider.profile?.userProvidedFields, contains('liquidSavingsAmount'));
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_cash_total', 44000));
+    expect(
+        answers,
+        containsPair(
+            '_coach_cash_total_source', ProfileDataSource.userInput.name));
+    expect(CoachProfile.fromWizardAnswers(answers).userProvidedFields,
+        contains('liquidSavingsAmount'));
+  });
+
+  test('updateProfile does not persist unprovenanced copyWith cash', () async {
+    final provider = CoachProfileProvider();
+    final profile = CoachProfile.defaults().copyWith(
+      patrimoine: const PatrimoineProfile(epargneLiquide: 44000),
+    );
+
+    provider.updateProfile(profile);
+    await Future<void>.delayed(Duration.zero);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_cash_total'), isFalse);
+    expect(CoachProfile.fromWizardAnswers(answers).userProvidedFields,
+        isNot(contains('liquidSavingsAmount')));
+  });
+
+  test('updateInline treats zero cash as an explicit fact', () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults());
+    await Future<void>.delayed(Duration.zero);
+
+    await provider.updateInline(epargneLiquide: 0);
+
+    expect(provider.profile?.patrimoine.epargneLiquide, 0);
+    expect(
+        provider.profile?.userProvidedFields, contains('liquidSavingsAmount'));
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_cash_total', 0));
+    expect(
+      answers,
+      containsPair(
+          '_coach_cash_total_source', ProfileDataSource.userInput.name),
+    );
+    expect(CoachProfile.fromWizardAnswers(answers).userProvidedFields,
+        contains('liquidSavingsAmount'));
+  });
+
+  test('open banking treats a zero-balance cash account as explicit cash',
+      () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile.defaults());
+    await Future<void>.delayed(Duration.zero);
+
+    await provider.updateFromOpenBanking(
+      accounts: const [
+        {
+          'accountType': 'checking',
+          'balance': 0,
+        },
+      ],
+      categoryTotals: const {},
+    );
+
+    expect(provider.profile?.patrimoine.epargneLiquide, 0);
+    expect(provider.profile?.dataSources['patrimoine.epargneLiquide'],
+        ProfileDataSource.openBanking);
+    expect(
+        provider.profile?.userProvidedFields, contains('liquidSavingsAmount'));
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_cash_total', 0));
+    expect(
+      answers,
+      containsPair(
+        '_coach_cash_total_source',
+        ProfileDataSource.openBanking.name,
+      ),
+    );
+    expect(CoachProfile.fromWizardAnswers(answers).userProvidedFields,
+        contains('liquidSavingsAmount'));
   });
 
   test('updateProfile persists 3a balance on the readable 3a total key',

@@ -308,6 +308,10 @@ void main() {
     expect(answers.containsKey('q_epargne_liquide'), isFalse);
     expect(provider.profile?.patrimoine.epargneLiquide, 120000);
     expect(provider.profile?.userProvidedFields, contains('liquidSavings'));
+    expect(
+      provider.profile?.userProvidedFields,
+      contains('liquidSavingsAmount'),
+    );
   });
 
   testWidgets('patrimoine block without inputKey keeps liquid savings default',
