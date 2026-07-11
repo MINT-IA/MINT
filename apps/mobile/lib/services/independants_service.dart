@@ -44,7 +44,7 @@ class IjmResult {
   final double revenuMensuel;
   final int age;
   final int delaiCarence;
-  final double couverture; // 80% of monthly income
+  final double couverture; // illustrative contract scenario, not a legal entitlement
   final double indemniteJournaliere;
   final double primeMensuelle;
   final double primeAnnuelle;
@@ -329,7 +329,7 @@ class IndependantsService {
 
   /// Calculate IJM (indemnité journalière maladie) for self-employed.
   ///
-  /// Coverage: 80% of monthly income.
+  /// Illustrative contract scenario: 80% of monthly income.
   /// Premium depends on age band and waiting period (délai de carence).
   static IjmResult calculateIjm(
     double revenuMensuel,
@@ -378,13 +378,14 @@ class IndependantsService {
 
     final rateFor1000 = bandRates[validDelai] ?? bandRates[30]!;
 
-    // Coverage: 80% of monthly income
+    // Illustrative contract scenario: 80% of monthly income.
+    // Real IJM/LCA/LAMal daily allowance terms depend on the signed contract.
     // Daily rate uses 21.75 working days/month (aligned with backend)
     final couverture = revenuMensuel * 0.80;
     final revenuJournalier = revenuMensuel / 21.75;
     final indemniteJournaliere = revenuJournalier * 0.80;
 
-    // Premium: based on 80% insured amount (aligned with backend)
+    // Premium proxy: based on an illustrative 80% insured amount.
     final revenuAssureMensuel = revenuMensuel * 0.80;
     final primeMensuelle = (revenuAssureMensuel / 1000) * rateFor1000;
     final primeAnnuelle = primeMensuelle * 12;

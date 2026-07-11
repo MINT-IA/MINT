@@ -10482,7 +10482,7 @@ class SEs extends S {
 
   @override
   String get ijmHeaderInfo =>
-      'El seguro IJM compensa tu pérdida de ingresos por enfermedad. Como independiente, no hay protección por defecto.';
+      'El seguro IJM puede cubrir una pérdida de ingresos por enfermedad. Como independiente, no hay continuación salarial de empleador por defecto: la cobertura debe organizarse explícitamente.';
 
   @override
   String get ijmRevenuMensuel => 'Ingreso mensual';
@@ -10513,7 +10513,7 @@ class SEs extends S {
 
   @override
   String ijmPremierEclairageCaption(String amount, int jours) {
-    return 'Sin seguro IJM, pierdes $amount durante el período de espera de $jours días';
+    return 'Sin cobertura IJM activa, $amount de ingresos profesionales quedan sin indemnizar durante el período de espera de $jours días';
   }
 
   @override
@@ -10521,16 +10521,16 @@ class SEs extends S {
 
   @override
   String get ijmHighRiskBody =>
-      'Las primas IJM aumentan con la edad. Después de 50, el coste puede ser 3-4 veces mayor.';
+      'Las primas IJM tienden a aumentar con la edad. Después de los 50 pueden ser claramente más altas. Un periodo de espera más largo es una hipótesis para comparar con una persona especialista, teniendo en cuenta la reserva de liquidez.';
 
   @override
-  String get ijmPrimeMois => 'Prima /mes';
+  String get ijmPrimeMois => 'Prima indicativa /mes';
 
   @override
-  String get ijmPrimeAn => 'Prima /año';
+  String get ijmPrimeAn => 'Prima indicativa /año';
 
   @override
-  String get ijmIndemniteJour => 'Indemnización /día';
+  String get ijmIndemniteJour => 'Indemnización ilustrada /día';
 
   @override
   String get ijmTrancheAge => 'Tramo de edad';
@@ -10545,11 +10545,11 @@ class SEs extends S {
   String get ijmTimelineNoCoverage => 'Sin cobertura';
 
   @override
-  String get ijmTimelineCoverageIjm => 'Cobertura IJM (80%)';
+  String get ijmTimelineCoverageIjm => 'Escenario IJM (80%)';
 
   @override
   String ijmTimelineSummary(int jours, String amount) {
-    return 'Durante los primeros $jours días de enfermedad no tienes ingresos. Después recibes $amount/día (80% de tu ingreso mensual).';
+    return 'En este escenario, el contrato IJM ilustrativo no paga nada durante los primeros $jours días. Después, la hipótesis muestra $amount/día (80% del ingreso mensual de referencia), sujeto a las condiciones del contrato.';
   }
 
   @override
@@ -10560,25 +10560,25 @@ class SEs extends S {
 
   @override
   String get ijmEduFondsBody =>
-      'Reserva 3 meses de ingresos para cubrir el período de espera.';
+      'Una reserva equivalente a varios meses de ingresos puede absorber parte del período de espera. Es una hipótesis a comparar con la prima y la duración de cobertura.';
 
   @override
   String get ijmEduComparerTitle => 'Comparar ofertas';
 
   @override
   String get ijmEduComparerBody =>
-      'Las primas varían entre aseguradoras. Solicita varias cotizaciones.';
+      'Las primas y condiciones varían mucho entre aseguradoras. Varias cotizaciones ayudan a comparar exclusiones, duración de prestaciones e importe cubierto.';
 
   @override
-  String get ijmEduLamalTitle => 'Cobertura LAMal insuficiente';
+  String get ijmEduLamalTitle => 'Seguro obligatorio y pérdida de ingresos';
 
   @override
   String get ijmEduLamalBody =>
-      'La LAMal solo cubre gastos médicos, no la pérdida de ingresos.';
+      'El seguro obligatorio de enfermedad cubre gastos médicos, pero no automáticamente la pérdida de ingresos por enfermedad. La IJM es una opción a examinar para ingresos de trabajo independiente.';
 
   @override
   String get ijmDisclaimer =>
-      'Las primas son estimaciones basadas en promedios del mercado.';
+      'Las primas mostradas son estimaciones indicativas basadas en hipótesis de mercado, no una cotización. Las primas reales dependen de la aseguradora, profesión, salud, exclusiones y duración de prestaciones. Validar con una persona especialista.';
 
   @override
   String ijmJoursCarenceLabel(int jours) {
@@ -18847,7 +18847,7 @@ class SEs extends S {
 
   @override
   String get pulseNavIndependantDetail =>
-      'LPP voluntario, máx. 3a 36’288/año, IJM obligatorio.';
+      'LPP voluntaria, máx. 3a 36’288/año, IJM a organizar.';
 
   @override
   String get pulseNavIndependantSubtitle => 'Sin empleador, tu red = tú.';
@@ -21448,6 +21448,28 @@ class SEs extends S {
 
   @override
   String get coachOpenerQuestion => '¿Por dónde empezamos?';
+
+  @override
+  String get coachOnboardingStartMessage =>
+      'Hola, acabo de crear mi cuenta. ¿Por dónde empiezo?';
+
+  @override
+  String get coachNotificationMonthlyCheckIn => '¿Revisamos el mes?';
+
+  @override
+  String coachNotificationCommitmentWithValue(String commitment) {
+    return 'Me dijiste que ibas a $commitment. ¿Está hecho?';
+  }
+
+  @override
+  String get coachNotificationCommitmentGeneric =>
+      'Tenías un compromiso pendiente. ¿Está hecho?';
+
+  @override
+  String get coachNotificationFreshStart => 'Nuevo mes. ¿Por dónde empezamos?';
+
+  @override
+  String get coachVoicePreferenceQuestion => '¿Cómo quieres que te hable?';
 
   @override
   String get coachStarterPaper => 'Un papel que no entiendo';

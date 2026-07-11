@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/independent_ledger_facts.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -23,14 +25,47 @@ class IjmScreen extends StatefulWidget {
 class _IjmScreenState extends State<IjmScreen> {
   static const int _ageMin = 18;
   static const int _ageMax = avsAgeReferenceHomme;
+  static const String _route = '/independants/ijm';
+  static const String _screenId = 'ijm_independant';
 
   int _delaiCarence = 30;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
 
   CoachProfileProvider? _profileProvider(BuildContext context) {
     try {
       return context.watch<CoachProfileProvider>();
     } on ProviderNotFoundException {
       return null;
+    }
+  }
+
+  CoachProfileProvider? _readProfileProvider(BuildContext context) {
+    try {
+      return context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra; keep the screen standalone.
     }
   }
 
@@ -49,8 +84,52 @@ class _IjmScreenState extends State<IjmScreen> {
   IjmResult? _computeResult(double? annualIncome, int? age) {
     if (annualIncome == null || age == null) return null;
     // IJM uses declared independent net income; this only periodizes it.
-    final monthlyIncome = IncomeConversionCalculator.monthlyGrossFromAnnualGross(annualIncome);
+    final monthlyIncome =
+        IncomeConversionCalculator.monthlyGrossFromAnnualGross(annualIncome);
     return IndependantsService.calculateIjm(monthlyIncome, age, _delaiCarence);
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    final provider = _readProfileProvider(context);
+    final annualIncome = _annualIncome(provider);
+    final age = _age(provider);
+    final result = _computeResult(annualIncome, age);
+
+    if (annualIncome == null || age == null || result == null) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: _route,
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn(_screenId, screenReturn);
+      return;
+    }
+
+    final screenReturn = ScreenReturn.completed(
+      route: _route,
+      stepOutputs: {
+        'revenu_independant_annuel_chf': annualIncome,
+        'revenu_reference_mensuel_chf': result.revenuMensuel,
+        'age': age,
+        'ijm_delai_carence_jours': result.delaiCarence,
+        'ijm_perte_carence_chf': result.perteCarence,
+        'ijm_indemnite_journaliere_chf': result.indemniteJournaliere,
+        'ijm_prime_mensuelle_indicative_chf': result.primeMensuelle,
+        'ijm_prime_annuelle_indicative_chf': result.primeAnnuelle,
+        'ijm_scenario_couverture_revenu_pct': 80,
+        'ijm_scenario_status': 'contrat_illustratif_non_verifie',
+        'ijm_tarif_status': 'indicatif_marche',
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(_screenId, screenReturn);
   }
 
   @override
@@ -61,45 +140,67 @@ class _IjmScreenState extends State<IjmScreen> {
     final age = _age(provider);
     final result = _computeResult(annualIncome, age);
 
-    return Scaffold(
-      backgroundColor: MintColors.background,
-      appBar: AppBar(
-        backgroundColor: MintColors.white,
-        foregroundColor: MintColors.textPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(s.ijmTitle, style: MintTextStyles.headlineMedium()),
-      ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MintEntrance(child: _buildHeader(s)),
-            const SizedBox(height: MintSpacing.xl),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildLedgerFactsCard(context, s, annualIncome, age)),
-            if (result != null) ...[
-              const SizedBox(height: MintSpacing.lg),
-              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCarenceToggle(s)),
-              const SizedBox(height: MintSpacing.lg),
-              _buildPremierEclairage(s, result),
-              const SizedBox(height: MintSpacing.lg),
-              if (result.isHighRisk) ...[
-                _buildHighRiskWarning(s),
-                const SizedBox(height: MintSpacing.md + 4),
-              ],
-              _buildResultCards(s, result),
-              const SizedBox(height: MintSpacing.lg),
-              _buildCoverageTimeline(s, result),
-              const SizedBox(height: MintSpacing.lg),
-              _buildEducation(s),
-              const SizedBox(height: MintSpacing.lg),
-            ],
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(s)),
-            const SizedBox(height: 100),
-          ],
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(s.ijmTitle, style: MintTextStyles.headlineMedium()),
         ),
-      ))),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.lg,
+                vertical: MintSpacing.md,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MintEntrance(child: _buildHeader(s)),
+                  const SizedBox(height: MintSpacing.xl),
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 100),
+                    child: _buildLedgerFactsCard(context, s, annualIncome, age),
+                  ),
+                  if (result != null) ...[
+                    const SizedBox(height: MintSpacing.lg),
+                    MintEntrance(
+                      delay: const Duration(milliseconds: 200),
+                      child: _buildCarenceToggle(s),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
+                    _buildPremierEclairage(s, result),
+                    const SizedBox(height: MintSpacing.lg),
+                    if (result.isHighRisk) ...[
+                      _buildHighRiskWarning(s),
+                      const SizedBox(height: MintSpacing.md + 4),
+                    ],
+                    _buildResultCards(s, result),
+                    const SizedBox(height: MintSpacing.lg),
+                    _buildCoverageTimeline(s, result),
+                    const SizedBox(height: MintSpacing.lg),
+                    _buildEducation(s),
+                    const SizedBox(height: MintSpacing.lg),
+                  ],
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildDisclaimer(s),
+                  ),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -116,13 +217,17 @@ class _IjmScreenState extends State<IjmScreen> {
         children: [
           const Icon(Icons.info_outline, color: MintColors.info, size: 20),
           const SizedBox(width: MintSpacing.sm + 4),
-          Expanded(child: Text(s.ijmHeaderInfo, style: MintTextStyles.bodySmall(color: MintColors.textSecondary))),
+          Expanded(
+              child: Text(s.ijmHeaderInfo,
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary))),
         ],
       ),
     );
   }
 
-  Widget _buildLedgerFactsCard(BuildContext context, S s, double? annualIncome, int? age) {
+  Widget _buildLedgerFactsCard(
+      BuildContext context, S s, double? annualIncome, int? age) {
     final hasMissing = annualIncome == null || age == null;
     final editRoute = annualIncome == null
         ? '/data-block/revenu?inputKey=q_self_employed_income'
@@ -142,20 +247,31 @@ class _IjmScreenState extends State<IjmScreen> {
             Row(
               children: [
                 Icon(
-                  hasMissing ? Icons.manage_search_outlined : Icons.check_circle_outline,
+                  hasMissing
+                      ? Icons.manage_search_outlined
+                      : Icons.check_circle_outline,
                   color: hasMissing ? MintColors.warning : MintColors.success,
                   size: 20,
                 ),
                 const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    hasMissing ? s.dataQualityMissingSection : s.dataQualityKnownSection,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                    hasMissing
+                        ? s.dataQualityMissingSection
+                        : s.dataQualityKnownSection,
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 TextButton.icon(
+                  key: const Key('ijm_profile_enrich_cta'),
                   onPressed: () => context.push(editRoute),
-                  icon: Icon(hasMissing ? Icons.add_circle_outline : Icons.edit_outlined, size: 18),
+                  icon: Icon(
+                      hasMissing
+                          ? Icons.add_circle_outline
+                          : Icons.edit_outlined,
+                      size: 18),
                   label: Text(hasMissing ? s.dataQualityEnrich : s.commonEdit),
                 ),
               ],
@@ -182,8 +298,13 @@ class _IjmScreenState extends State<IjmScreen> {
     );
   }
 
-  Widget _buildFactRow({required String identifier, required String label, required String value, required bool isMissing}) {
+  Widget _buildFactRow(
+      {required String identifier,
+      required String label,
+      required String value,
+      required bool isMissing}) {
     return Semantics(
+      key: Key(identifier),
       identifier: identifier,
       label: '$label, $value',
       container: true,
@@ -195,10 +316,16 @@ class _IjmScreenState extends State<IjmScreen> {
             size: 16,
           ),
           const SizedBox(width: MintSpacing.sm),
-          Expanded(child: Text(label, style: MintTextStyles.bodySmall(color: MintColors.textSecondary))),
+          Expanded(
+              child: Text(label,
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary))),
           Text(
             value,
-            style: MintTextStyles.bodySmall(color: isMissing ? MintColors.warning : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodySmall(
+                    color:
+                        isMissing ? MintColors.warning : MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -214,7 +341,9 @@ class _IjmScreenState extends State<IjmScreen> {
         children: [
           Text(s.ijmDelaiCarence, style: MintTextStyles.titleMedium()),
           const SizedBox(height: MintSpacing.xs),
-          Text(s.ijmDelaiCarenceDesc, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
+          Text(s.ijmDelaiCarenceDesc,
+              style:
+                  MintTextStyles.labelSmall(color: MintColors.textSecondary)),
           const SizedBox(height: MintSpacing.md),
           Row(
             children: [
@@ -244,13 +373,24 @@ class _IjmScreenState extends State<IjmScreen> {
             decoration: BoxDecoration(
               color: isSelected ? MintColors.primary : MintColors.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isSelected ? MintColors.primary : MintColors.border, width: isSelected ? 2 : 1),
+              border: Border.all(
+                  color: isSelected ? MintColors.primary : MintColors.border,
+                  width: isSelected ? 2 : 1),
             ),
             child: Column(
               children: [
-                Text('$jours j', style: MintTextStyles.titleLarge(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
+                Text('$jours j',
+                    style: MintTextStyles.titleLarge(
+                            color: isSelected
+                                ? MintColors.white
+                                : MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: MintSpacing.xs / 2),
-                Text(s.ijmJours, style: MintTextStyles.labelSmall(color: isSelected ? MintColors.white.withValues(alpha: 0.8) : MintColors.textMuted)),
+                Text(s.ijmJours,
+                    style: MintTextStyles.labelSmall(
+                        color: isSelected
+                            ? MintColors.white.withValues(alpha: 0.8)
+                            : MintColors.textMuted)),
               ],
             ),
           ),
@@ -262,12 +402,20 @@ class _IjmScreenState extends State<IjmScreen> {
   Widget _buildPremierEclairage(S s, IjmResult r) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.error, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+          color: MintColors.error, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
-          Text(IndependantsService.formatChf(r.perteCarence), style: MintTextStyles.displayMedium(color: MintColors.white)),
+          Text(IndependantsService.formatChf(r.perteCarence),
+              style: MintTextStyles.displayMedium(color: MintColors.white)),
           const SizedBox(height: MintSpacing.sm),
-          Text(s.ijmPremierEclairageCaption(IndependantsService.formatChf(r.perteCarence), r.delaiCarence), style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center),
+          Text(
+              s.ijmPremierEclairageCaption(
+                  IndependantsService.formatChf(r.perteCarence),
+                  r.delaiCarence),
+              style: MintTextStyles.bodyMedium(
+                  color: MintColors.white.withValues(alpha: 0.9)),
+              textAlign: TextAlign.center),
         ],
       ),
     );
@@ -284,15 +432,21 @@ class _IjmScreenState extends State<IjmScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_rounded, color: MintColors.warning, size: 22),
+          const Icon(Icons.warning_amber_rounded,
+              color: MintColors.warning, size: 22),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(s.ijmHighRiskTitle, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
+                Text(s.ijmHighRiskTitle,
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: MintSpacing.xs),
-                Text(s.ijmHighRiskBody, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+                Text(s.ijmHighRiskBody,
+                    style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary)),
               ],
             ),
           ),
@@ -308,22 +462,38 @@ class _IjmScreenState extends State<IjmScreen> {
       child: Column(
         children: [
           Row(children: [
-            Expanded(child: _buildResultCard(s.ijmPrimeMois, IndependantsService.formatChf(r.primeMensuelle), Icons.payment_outlined)),
+            Expanded(
+                child: _buildResultCard(
+                    s.ijmPrimeMois,
+                    IndependantsService.formatChf(r.primeMensuelle),
+                    Icons.payment_outlined)),
             const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(child: _buildResultCard(s.ijmPrimeAn, IndependantsService.formatChf(r.primeAnnuelle), Icons.calendar_month_outlined)),
+            Expanded(
+                child: _buildResultCard(
+                    s.ijmPrimeAn,
+                    IndependantsService.formatChf(r.primeAnnuelle),
+                    Icons.calendar_month_outlined)),
           ]),
           const SizedBox(height: MintSpacing.sm + 4),
           Row(children: [
-            Expanded(child: _buildResultCard(s.ijmIndemniteJour, IndependantsService.formatChf(r.indemniteJournaliere), Icons.today_outlined)),
+            Expanded(
+                child: _buildResultCard(
+                    s.ijmIndemniteJour,
+                    IndependantsService.formatChf(r.indemniteJournaliere),
+                    Icons.today_outlined)),
             const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(child: _buildResultCard(s.ijmTrancheAge, r.ageBandLabel, Icons.person_outline, small: true)),
+            Expanded(
+                child: _buildResultCard(
+                    s.ijmTrancheAge, r.ageBandLabel, Icons.person_outline,
+                    small: true)),
           ]),
         ],
       ),
     );
   }
 
-  Widget _buildResultCard(String label, String value, IconData icon, {bool small = false}) {
+  Widget _buildResultCard(String label, String value, IconData icon,
+      {bool small = false}) {
     return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
       radius: 16,
@@ -332,9 +502,14 @@ class _IjmScreenState extends State<IjmScreen> {
         children: [
           Icon(icon, size: 18, color: MintColors.textMuted),
           const SizedBox(height: MintSpacing.sm),
-          Text(value, style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: small ? 14 : 18, fontWeight: FontWeight.w700)),
+          Text(value,
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                  .copyWith(
+                      fontSize: small ? 14 : 18, fontWeight: FontWeight.w700)),
           const SizedBox(height: MintSpacing.xs),
-          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
+          Text(label,
+              style:
+                  MintTextStyles.labelSmall(color: MintColors.textSecondary)),
         ],
       ),
     );
@@ -352,18 +527,34 @@ class _IjmScreenState extends State<IjmScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(s.ijmTimelineTitle, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+            Text(s.ijmTimelineTitle,
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted)
+                    .copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: MintSpacing.md + 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: Row(children: [
                 Expanded(
                   flex: (carenceRatio * 100).toInt().clamp(1, 99),
-                  child: Container(height: 32, color: MintColors.error.withValues(alpha: 0.2), alignment: Alignment.center, child: Text('${r.delaiCarence}j', style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600))),
+                  child: Container(
+                      height: 32,
+                      color: MintColors.error.withValues(alpha: 0.2),
+                      alignment: Alignment.center,
+                      child: Text('${r.delaiCarence}j',
+                          style:
+                              MintTextStyles.labelSmall(color: MintColors.error)
+                                  .copyWith(fontWeight: FontWeight.w600))),
                 ),
                 Expanded(
                   flex: (100 - carenceRatio * 100).toInt().clamp(1, 99),
-                  child: Container(height: 32, color: MintColors.success.withValues(alpha: 0.2), alignment: Alignment.center, child: Text(s.ijmTimelineCouvert, style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600))),
+                  child: Container(
+                      height: 32,
+                      color: MintColors.success.withValues(alpha: 0.2),
+                      alignment: Alignment.center,
+                      child: Text(s.ijmTimelineCouvert,
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.success)
+                              .copyWith(fontWeight: FontWeight.w600))),
                 ),
               ]),
             ),
@@ -378,7 +569,11 @@ class _IjmScreenState extends State<IjmScreen> {
               tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.all(MintSpacing.sm + 4),
               radius: 12,
-              child: Text(s.ijmTimelineSummary(r.delaiCarence, IndependantsService.formatChf(r.indemniteJournaliere)), style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+              child: Text(
+                  s.ijmTimelineSummary(r.delaiCarence,
+                      IndependantsService.formatChf(r.indemniteJournaliere)),
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary)),
             ),
           ],
         ),
@@ -388,9 +583,16 @@ class _IjmScreenState extends State<IjmScreen> {
 
   Widget _buildLegendDot(Color color, String label) {
     return Row(children: [
-      Container(width: 10, height: 10, decoration: BoxDecoration(color: color.withValues(alpha: 0.3), shape: BoxShape.circle, border: Border.all(color: color, width: 1.5))),
+      Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+              border: Border.all(color: color, width: 1.5))),
       const SizedBox(width: MintSpacing.xs + 2),
-      Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
+      Text(label,
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
     ]);
   }
 
@@ -398,11 +600,16 @@ class _IjmScreenState extends State<IjmScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(s.ijmStrategies, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+        Text(s.ijmStrategies,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted)
+                .copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: MintSpacing.sm + 4),
-        _buildEduCard(Icons.savings_outlined, s.ijmEduFondsTitle, s.ijmEduFondsBody),
-        _buildEduCard(Icons.compare_arrows, s.ijmEduComparerTitle, s.ijmEduComparerBody),
-        _buildEduCard(Icons.shield_outlined, s.ijmEduLamalTitle, s.ijmEduLamalBody),
+        _buildEduCard(
+            Icons.savings_outlined, s.ijmEduFondsTitle, s.ijmEduFondsBody),
+        _buildEduCard(
+            Icons.compare_arrows, s.ijmEduComparerTitle, s.ijmEduComparerBody),
+        _buildEduCard(
+            Icons.shield_outlined, s.ijmEduLamalTitle, s.ijmEduLamalBody),
       ],
     );
   }
@@ -418,16 +625,23 @@ class _IjmScreenState extends State<IjmScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             MintSurface(
-            padding: const EdgeInsets.all(MintSpacing.sm),
-            radius: 10,
-            child: Icon(icon, size: 18, color: MintColors.primary)),
+                padding: const EdgeInsets.all(MintSpacing.sm),
+                radius: 10,
+                child: Icon(icon, size: 18, color: MintColors.primary)),
             const SizedBox(width: MintSpacing.sm + 4),
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: MintSpacing.xs),
-                Text(body, style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: MintTextStyles.bodyMedium(
+                                color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(body,
+                        style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary)),
+                  ]),
             ),
           ],
         ),

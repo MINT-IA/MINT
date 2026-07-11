@@ -10507,7 +10507,7 @@ class SDe extends S {
 
   @override
   String get ijmHeaderInfo =>
-      'Die KTG-Versicherung (Krankentaggeld) kompensiert deinen Einkommensverlust bei Krankheit. Als Selbstständige·r ist kein Schutz vorgesehen: du musst dich selbst versichern.';
+      'Die KTG-Versicherung (Krankentaggeld) kann einen Erwerbsausfall bei Krankheit abdecken. Als Selbstständige·r gibt es keine automatische Lohnfortzahlung durch einen Arbeitgeber: Die Deckung muss ausdrücklich organisiert werden.';
 
   @override
   String get ijmRevenuMensuel => 'Monatseinkommen';
@@ -10538,7 +10538,7 @@ class SDe extends S {
 
   @override
   String ijmPremierEclairageCaption(String amount, int jours) {
-    return 'Ohne KTG-Versicherung verlierst du $amount während der $jours-tägigen Wartefrist';
+    return 'Ohne aktive KTG-Deckung bleiben $amount Erwerbseinkommen während der $jours-tägigen Wartefrist unentschädigt';
   }
 
   @override
@@ -10546,16 +10546,16 @@ class SDe extends S {
 
   @override
   String get ijmHighRiskBody =>
-      'KTG-Prämien steigen mit dem Alter stark an. Ab 50 können die Kosten 3- bis 4-mal höher sein als bei einer 30-jährigen Person.';
+      'KTG-Prämien steigen tendenziell mit dem Alter. Ab 50 können sie deutlich höher sein. Eine längere Wartefrist ist eine Annahme, die mit einer Fachperson und mit Blick auf die Liquiditätsreserve verglichen werden sollte.';
 
   @override
-  String get ijmPrimeMois => 'Prämie /Monat';
+  String get ijmPrimeMois => 'Indikative Prämie /Monat';
 
   @override
-  String get ijmPrimeAn => 'Prämie /Jahr';
+  String get ijmPrimeAn => 'Indikative Prämie /Jahr';
 
   @override
-  String get ijmIndemniteJour => 'Tagegeld';
+  String get ijmIndemniteJour => 'Illustriertes Tagegeld';
 
   @override
   String get ijmTrancheAge => 'Altersgruppe';
@@ -10570,11 +10570,11 @@ class SDe extends S {
   String get ijmTimelineNoCoverage => 'Keine Deckung';
 
   @override
-  String get ijmTimelineCoverageIjm => 'KTG-Deckung (80 %)';
+  String get ijmTimelineCoverageIjm => 'KTG-Szenario (80 %)';
 
   @override
   String ijmTimelineSummary(int jours, String amount) {
-    return 'Während der ersten $jours Krankheitstage hast du kein Einkommen. Danach erhältst du $amount/Tag (80 % deines Monatseinkommens).';
+    return 'In diesem Szenario zahlt der illustrative KTG-Vertrag während der ersten $jours Tage nichts. Danach zeigt die Annahme $amount/Tag (80 % des Referenz-Monatseinkommens), vorbehaltlich der Vertragsbedingungen.';
   }
 
   @override
@@ -10585,25 +10585,26 @@ class SDe extends S {
 
   @override
   String get ijmEduFondsBody =>
-      'Lege 3 Monatseinkommen beiseite, um die Wartefrist abzudecken. So kannst du 90 Tage wählen und die Prämie senken.';
+      'Eine Reserve von mehreren Monatseinkommen kann einen Teil der Wartefrist auffangen. Sie ist eine Annahme, die mit Prämie und Leistungsdauer verglichen werden muss.';
 
   @override
   String get ijmEduComparerTitle => 'Angebote vergleichen';
 
   @override
   String get ijmEduComparerBody =>
-      'Die Prämien variieren stark zwischen Versicherern. Hole mehrere Offerten ein und vergleiche die Bedingungen.';
+      'Prämien und Bedingungen variieren stark zwischen Versicherern. Mehrere Offerten helfen, Ausschlüsse, Leistungsdauer und versicherten Betrag zu vergleichen.';
 
   @override
-  String get ijmEduLamalTitle => 'Ungenügende KVG-Deckung';
+  String get ijmEduLamalTitle =>
+      'Obligatorische Krankenpflege und Erwerbsausfall';
 
   @override
   String get ijmEduLamalBody =>
-      'Das KVG deckt nur Arztkosten, nicht den Erwerbsausfall. KTG ist unverzichtbar zum Schutz deines Einkommens.';
+      'Die obligatorische Krankenpflegeversicherung deckt medizinische Kosten, aber nicht automatisch den krankheitsbedingten Erwerbsausfall. KTG ist eine Option, die bei selbstständigem Einkommen geprüft werden kann.';
 
   @override
   String get ijmDisclaimer =>
-      'Die angezeigten Prämien sind Schätzungen basierend auf Marktdurchschnitten. Tatsächliche Prämien hängen vom Versicherer, Beruf und Gesundheitszustand ab.';
+      'Die angezeigten Prämien sind indikative Schätzungen auf Basis von Marktannahmen, keine Offerte. Tatsächliche Prämien hängen von Versicherer, Beruf, Gesundheitszustand, Ausschlüssen und Leistungsdauer ab. Mit einer Fachperson validieren.';
 
   @override
   String ijmJoursCarenceLabel(int jours) {
@@ -18885,7 +18886,7 @@ class SDe extends S {
 
   @override
   String get pulseNavIndependantDetail =>
-      'Freiwilliges BVG, max. 3a 36’288/Jahr, Taggeld obligatorisch.';
+      'Freiwilliges BVG, max. 3a 36’288/Jahr, Taggeld separat organisieren.';
 
   @override
   String get pulseNavIndependantSubtitle =>
@@ -21496,6 +21497,28 @@ class SDe extends S {
 
   @override
   String get coachOpenerQuestion => 'Womit fangen wir an?';
+
+  @override
+  String get coachOnboardingStartMessage =>
+      'Hallo, ich habe gerade mein Konto erstellt. Womit soll ich anfangen?';
+
+  @override
+  String get coachNotificationMonthlyCheckIn => 'Schauen wir auf den Monat?';
+
+  @override
+  String coachNotificationCommitmentWithValue(String commitment) {
+    return 'Du hattest gesagt, dass du $commitment. Ist es erledigt?';
+  }
+
+  @override
+  String get coachNotificationCommitmentGeneric =>
+      'Du hattest dir etwas vorgenommen. Ist es erledigt?';
+
+  @override
+  String get coachNotificationFreshStart => 'Neuer Monat. Womit starten wir?';
+
+  @override
+  String get coachVoicePreferenceQuestion => 'Wie soll ich mit dir sprechen?';
 
   @override
   String get coachStarterPaper => 'Ein Dokument, das ich nicht verstehe';

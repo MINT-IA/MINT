@@ -5098,7 +5098,7 @@
   "avsCotisationsEduMinBody": "Auch bei sehr niedrigem Einkommen beträgt der Mindestbeitrag CHF 530/Jahr.",
   "avsCotisationsDisclaimer": "Die angezeigten Beträge sind Schätzungen basierend auf der aktuellen AHV/IV/EO-Skala. Die tatsächlichen Beiträge können je nach persönlicher Situation variieren.",
   "ijmTitle": "KTG-Versicherung",
-  "ijmHeaderInfo": "Die KTG-Versicherung (Krankentaggeld) kompensiert deinen Einkommensverlust bei Krankheit. Als Selbstständige·r ist kein Schutz vorgesehen: du musst dich selbst versichern.",
+  "ijmHeaderInfo": "Die KTG-Versicherung (Krankentaggeld) kann einen Erwerbsausfall bei Krankheit abdecken. Als Selbstständige·r gibt es keine automatische Lohnfortzahlung durch einen Arbeitgeber: Die Deckung muss ausdrücklich organisiert werden.",
   "ijmRevenuMensuel": "Monatseinkommen",
   "ijmSliderMinChf0": "CHF 0",
   "ijmSliderMax20k": "CHF 20’000",
@@ -5108,7 +5108,7 @@
   "ijmDelaiCarence": "Wartefrist",
   "ijmDelaiCarenceDesc": "Zeitraum ohne Leistungsbezug",
   "ijmJours": "Tage",
-  "ijmPremierEclairageCaption": "Ohne KTG-Versicherung verlierst du {amount} während der {jours}-tägigen Wartefrist",
+  "ijmPremierEclairageCaption": "Ohne aktive KTG-Deckung bleiben {amount} Erwerbseinkommen während der {jours}-tägigen Wartefrist unentschädigt",
   "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
@@ -5120,16 +5120,16 @@
     }
   },
   "ijmHighRiskTitle": "Hohe Prämien ab 50",
-  "ijmHighRiskBody": "KTG-Prämien steigen mit dem Alter stark an. Ab 50 können die Kosten 3- bis 4-mal höher sein als bei einer 30-jährigen Person.",
-  "ijmPrimeMois": "Prämie /Monat",
-  "ijmPrimeAn": "Prämie /Jahr",
-  "ijmIndemniteJour": "Tagegeld",
+  "ijmHighRiskBody": "KTG-Prämien steigen tendenziell mit dem Alter. Ab 50 können sie deutlich höher sein. Eine längere Wartefrist ist eine Annahme, die mit einer Fachperson und mit Blick auf die Liquiditätsreserve verglichen werden sollte.",
+  "ijmPrimeMois": "Indikative Prämie /Monat",
+  "ijmPrimeAn": "Indikative Prämie /Jahr",
+  "ijmIndemniteJour": "Illustriertes Tagegeld",
   "ijmTrancheAge": "Altersgruppe",
   "ijmTimelineTitle": "Deckungszeitlinie",
   "ijmTimelineCouvert": "Gedeckt",
   "ijmTimelineNoCoverage": "Keine Deckung",
-  "ijmTimelineCoverageIjm": "KTG-Deckung (80 %)",
-  "ijmTimelineSummary": "Während der ersten {jours} Krankheitstage hast du kein Einkommen. Danach erhältst du {amount}/Tag (80 % deines Monatseinkommens).",
+  "ijmTimelineCoverageIjm": "KTG-Szenario (80 %)",
+  "ijmTimelineSummary": "In diesem Szenario zahlt der illustrative KTG-Vertrag während der ersten {jours} Tage nichts. Danach zeigt die Annahme {amount}/Tag (80 % des Referenz-Monatseinkommens), vorbehaltlich der Vertragsbedingungen.",
   "@ijmTimelineSummary": {
     "placeholders": {
       "jours": {
@@ -5142,12 +5142,12 @@
   },
   "ijmStrategies": "Strategien",
   "ijmEduFondsTitle": "Wartefrist-Rücklage bilden",
-  "ijmEduFondsBody": "Lege 3 Monatseinkommen beiseite, um die Wartefrist abzudecken. So kannst du 90 Tage wählen und die Prämie senken.",
+  "ijmEduFondsBody": "Eine Reserve von mehreren Monatseinkommen kann einen Teil der Wartefrist auffangen. Sie ist eine Annahme, die mit Prämie und Leistungsdauer verglichen werden muss.",
   "ijmEduComparerTitle": "Angebote vergleichen",
-  "ijmEduComparerBody": "Die Prämien variieren stark zwischen Versicherern. Hole mehrere Offerten ein und vergleiche die Bedingungen.",
-  "ijmEduLamalTitle": "Ungenügende KVG-Deckung",
-  "ijmEduLamalBody": "Das KVG deckt nur Arztkosten, nicht den Erwerbsausfall. KTG ist unverzichtbar zum Schutz deines Einkommens.",
-  "ijmDisclaimer": "Die angezeigten Prämien sind Schätzungen basierend auf Marktdurchschnitten. Tatsächliche Prämien hängen vom Versicherer, Beruf und Gesundheitszustand ab.",
+  "ijmEduComparerBody": "Prämien und Bedingungen variieren stark zwischen Versicherern. Mehrere Offerten helfen, Ausschlüsse, Leistungsdauer und versicherten Betrag zu vergleichen.",
+  "ijmEduLamalTitle": "Obligatorische Krankenpflege und Erwerbsausfall",
+  "ijmEduLamalBody": "Die obligatorische Krankenpflegeversicherung deckt medizinische Kosten, aber nicht automatisch den krankheitsbedingten Erwerbsausfall. KTG ist eine Option, die bei selbstständigem Einkommen geprüft werden kann.",
+  "ijmDisclaimer": "Die angezeigten Prämien sind indikative Schätzungen auf Basis von Marktannahmen, keine Offerte. Tatsächliche Prämien hängen von Versicherer, Beruf, Gesundheitszustand, Ausschlüssen und Leistungsdauer ab. Mit einer Fachperson validieren.",
   "ijmJoursCarenceLabel": "{jours} Tage Wartefrist",
   "@ijmJoursCarenceLabel": {
     "placeholders": {
@@ -9288,7 +9288,7 @@
   "pulseNavExpatSubtitle": "Deine Rechte, deine Lücken, deine Fallstricke.",
   "pulseNavExpatTitle": "Neu in der Schweiz ?",
   "pulseNavIndependantCta": "Schutz prüfen",
-  "pulseNavIndependantDetail": "Freiwilliges BVG, max. 3a 36’288/Jahr, Taggeld obligatorisch.",
+  "pulseNavIndependantDetail": "Freiwilliges BVG, max. 3a 36’288/Jahr, Taggeld separat organisieren.",
   "pulseNavIndependantSubtitle": "Ohne Arbeitgeber bist du dein eigenes Netz.",
   "pulseNavIndependantTitle": "Selbständig ?",
   "pulseOptCapRenteCta": "Vergleichen",
@@ -10193,6 +10193,19 @@
   "@coachOpenerQuestion": {
     "description": "First-contact opener closing question."
   },
+  "coachOnboardingStartMessage": "Hallo, ich habe gerade mein Konto erstellt. Womit soll ich anfangen?",
+  "coachNotificationMonthlyCheckIn": "Schauen wir auf den Monat?",
+  "coachNotificationCommitmentWithValue": "Du hattest gesagt, dass du {commitment}. Ist es erledigt?",
+  "@coachNotificationCommitmentWithValue": {
+    "placeholders": {
+      "commitment": {
+        "type": "String"
+      }
+    }
+  },
+  "coachNotificationCommitmentGeneric": "Du hattest dir etwas vorgenommen. Ist es erledigt?",
+  "coachNotificationFreshStart": "Neuer Monat. Womit starten wir?",
+  "coachVoicePreferenceQuestion": "Wie soll ich mit dir sprechen?",
   "coachStarterPaper": "Ein Dokument, das ich nicht verstehe",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner."

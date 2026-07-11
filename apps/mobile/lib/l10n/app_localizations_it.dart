@@ -10499,7 +10499,7 @@ class SIt extends S {
 
   @override
   String get ijmHeaderInfo =>
-      'L\'assicurazione IJM compensa la perdita di reddito in caso di malattia. Come indipendente, nessuna protezione è prevista di default.';
+      'L\'assicurazione IJM può coprire una perdita di guadagno in caso di malattia. Come indipendente, non esiste una continuazione salariale del datore di lavoro per default: la copertura deve essere organizzata esplicitamente.';
 
   @override
   String get ijmRevenuMensuel => 'Reddito mensile';
@@ -10530,7 +10530,7 @@ class SIt extends S {
 
   @override
   String ijmPremierEclairageCaption(String amount, int jours) {
-    return 'Senza assicurazione IJM, perdi $amount durante il periodo di attesa di $jours giorni';
+    return 'Senza copertura IJM attiva, $amount di reddito professionale restano non indennizzati durante il periodo di attesa di $jours giorni';
   }
 
   @override
@@ -10538,16 +10538,16 @@ class SIt extends S {
 
   @override
   String get ijmHighRiskBody =>
-      'I premi IJM aumentano con l\'età. Dopo i 50, il costo può essere 3-4 volte superiore.';
+      'I premi IJM tendono ad aumentare con l\'età. Dopo i 50 anni possono essere sensibilmente più elevati. Un periodo di attesa più lungo è un\'ipotesi da confrontare con una persona specialista, tenendo conto della riserva di liquidità.';
 
   @override
-  String get ijmPrimeMois => 'Premio /mese';
+  String get ijmPrimeMois => 'Premio indicativo /mese';
 
   @override
-  String get ijmPrimeAn => 'Premio /anno';
+  String get ijmPrimeAn => 'Premio indicativo /anno';
 
   @override
-  String get ijmIndemniteJour => 'Indennità /giorno';
+  String get ijmIndemniteJour => 'Indennità illustrata /giorno';
 
   @override
   String get ijmTrancheAge => 'Fascia d\'età';
@@ -10562,11 +10562,11 @@ class SIt extends S {
   String get ijmTimelineNoCoverage => 'Nessuna copertura';
 
   @override
-  String get ijmTimelineCoverageIjm => 'Copertura IJM (80%)';
+  String get ijmTimelineCoverageIjm => 'Scenario IJM (80%)';
 
   @override
   String ijmTimelineSummary(int jours, String amount) {
-    return 'Durante i primi $jours giorni di malattia non hai reddito. Poi ricevi $amount/giorno (80% del reddito mensile).';
+    return 'In questo scenario, il contratto IJM illustrativo non versa nulla durante i primi $jours giorni. In seguito, l’ipotesi mostra $amount/giorno (80% del reddito mensile di riferimento), salvo condizioni contrattuali.';
   }
 
   @override
@@ -10577,25 +10577,26 @@ class SIt extends S {
 
   @override
   String get ijmEduFondsBody =>
-      'Metti da parte 3 mesi di reddito per coprire il periodo di attesa.';
+      'Una riserva equivalente a diversi mesi di reddito può assorbire parte del periodo di attesa. È un\'ipotesi da confrontare con il premio e la durata della copertura.';
 
   @override
   String get ijmEduComparerTitle => 'Confrontare le offerte';
 
   @override
   String get ijmEduComparerBody =>
-      'I premi variano molto tra gli assicuratori. Richiedi più preventivi.';
+      'Premi e condizioni variano molto tra gli assicuratori. Più preventivi aiutano a confrontare esclusioni, durata delle prestazioni e importo coperto.';
 
   @override
-  String get ijmEduLamalTitle => 'Copertura LAMal insufficiente';
+  String get ijmEduLamalTitle =>
+      'Assicurazione obbligatoria e perdita di guadagno';
 
   @override
   String get ijmEduLamalBody =>
-      'La LAMal copre solo le spese mediche, non la perdita di guadagno.';
+      'L’assicurazione obbligatoria delle cure medico-sanitarie copre le spese mediche, ma non automaticamente la perdita di guadagno dovuta a malattia. L\'IJM è un\'opzione da esaminare per un reddito indipendente.';
 
   @override
   String get ijmDisclaimer =>
-      'I premi sono stime basate sulle medie di mercato.';
+      'I premi mostrati sono stime indicative basate su ipotesi di mercato, non un preventivo. I premi reali dipendono da assicuratore, professione, salute, esclusioni e durata delle prestazioni. Da validare con una persona specialista.';
 
   @override
   String ijmJoursCarenceLabel(int jours) {
@@ -18892,7 +18893,7 @@ class SIt extends S {
 
   @override
   String get pulseNavIndependantDetail =>
-      'LPP volontario, max. 3a 36’288/anno, IJM obbligatorio.';
+      'LPP volontaria, max. 3a 36’288/anno, IJM da organizzare.';
 
   @override
   String get pulseNavIndependantSubtitle =>
@@ -21505,6 +21506,28 @@ class SIt extends S {
 
   @override
   String get coachOpenerQuestion => 'Da dove cominciamo?';
+
+  @override
+  String get coachOnboardingStartMessage =>
+      'Ciao, ho appena creato il mio account. Da dove inizio?';
+
+  @override
+  String get coachNotificationMonthlyCheckIn => 'Facciamo il punto sul mese?';
+
+  @override
+  String coachNotificationCommitmentWithValue(String commitment) {
+    return 'Mi avevi detto che avresti $commitment. È fatto?';
+  }
+
+  @override
+  String get coachNotificationCommitmentGeneric =>
+      'Avevi un impegno da mantenere. È fatto?';
+
+  @override
+  String get coachNotificationFreshStart => 'Nuovo mese. Da dove iniziamo?';
+
+  @override
+  String get coachVoicePreferenceQuestion => 'Come vuoi che ti parli?';
 
   @override
   String get coachStarterPaper => 'Un documento che non capisco';

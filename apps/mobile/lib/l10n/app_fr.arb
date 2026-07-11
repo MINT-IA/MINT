@@ -5400,7 +5400,7 @@
   "avsCotisationsEduMinBody": "Même avec un revenu très faible, la cotisation minimale est de CHF 530/an.",
   "avsCotisationsDisclaimer": "Les montants présentés sont des estimations basées sur le barème AVS/AI/APG en vigueur. Les cotisations réelles peuvent varier selon ta situation personnelle. Consulte ta caisse de compensation pour un décompte exact.",
   "ijmTitle": "Assurance IJM",
-  "ijmHeaderInfo": "L’assurance IJM (indemnité journalière maladie) compense ta perte de revenu en cas de maladie. En tant qu’indépendant·e, aucune protection n’est prévue par défaut : c’est à toi de t’assurer.",
+  "ijmHeaderInfo": "L’assurance IJM (indemnité journalière maladie) peut couvrir une perte de gain en cas de maladie. En tant qu’indépendant·e, il n’y a pas de maintien de salaire employeur par défaut : la couverture doit être organisée explicitement.",
   "ijmRevenuMensuel": "Revenu mensuel",
   "ijmSliderMinChf0": "CHF 0",
   "ijmSliderMax20k": "CHF 20’000",
@@ -5410,7 +5410,7 @@
   "ijmDelaiCarence": "Délai de carence",
   "ijmDelaiCarenceDesc": "Période pendant laquelle tu ne reçois aucune indemnité",
   "ijmJours": "jours",
-  "ijmPremierEclairageCaption": "Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours",
+  "ijmPremierEclairageCaption": "Sans couverture IJM active, {amount} de revenu professionnel restent non indemnisés pendant le délai de carence de {jours} jours",
   "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
@@ -5422,16 +5422,16 @@
     }
   },
   "ijmHighRiskTitle": "Primes élevées après 50 ans",
-  "ijmHighRiskBody": "Les primes IJM augmentent fortement avec l’âge. Après 50 ans, le coût peut être 3 à 4 fois supérieur à celui d’une personne de 30 ans. Considère un délai de carence plus long pour réduire la prime.",
-  "ijmPrimeMois": "Prime /mois",
-  "ijmPrimeAn": "Prime /an",
-  "ijmIndemniteJour": "Indemnité /jour",
+  "ijmHighRiskBody": "Les primes IJM ont tendance à augmenter avec l’âge. Après 50 ans, elles peuvent être nettement plus élevées. Un délai de carence plus long fait partie des hypothèses à comparer avec un·e spécialiste, en tenant compte de ta réserve de liquidités.",
+  "ijmPrimeMois": "Prime indicative /mois",
+  "ijmPrimeAn": "Prime indicative /an",
+  "ijmIndemniteJour": "Indemnité illustrée /jour",
   "ijmTrancheAge": "Tranche d’âge",
   "ijmTimelineTitle": "Chronologie de couverture",
   "ijmTimelineCouvert": "Couvert",
   "ijmTimelineNoCoverage": "Pas de couverture",
-  "ijmTimelineCoverageIjm": "Couverture IJM (80 %)",
-  "ijmTimelineSummary": "Pendant les {jours} premiers jours de maladie, tu n’as aucun revenu. Ensuite, tu reçois {amount}/jour (80 % de ton revenu mensuel).",
+  "ijmTimelineCoverageIjm": "Scénario IJM (80 %)",
+  "ijmTimelineSummary": "Dans ce scénario, le contrat IJM illustratif ne verse rien pendant les {jours} premiers jours. Ensuite, l’hypothèse affiche {amount}/jour (80 % du revenu mensuel de référence), sous réserve des conditions du contrat.",
   "@ijmTimelineSummary": {
     "placeholders": {
       "jours": {
@@ -5444,12 +5444,12 @@
   },
   "ijmStrategies": "Stratégies",
   "ijmEduFondsTitle": "Constitution d’un fonds de carence",
-  "ijmEduFondsBody": "Mets de côté l’équivalent de 3 mois de revenus pour couvrir le délai de carence. Cela te permet de choisir un délai de 90 jours et de réduire ta prime.",
+  "ijmEduFondsBody": "Une réserve équivalente à plusieurs mois de revenus peut absorber une partie du délai de carence. Elle fait partie des hypothèses à comparer avec la prime et la durée de couverture.",
   "ijmEduComparerTitle": "Comparer les offres",
-  "ijmEduComparerBody": "Les primes varient fortement entre assureurs. Demande plusieurs devis et compare les conditions (exclusions, durée des prestations, montant couvert).",
-  "ijmEduLamalTitle": "Couverture LAMal insuffisante",
-  "ijmEduLamalBody": "La LAMal ne couvre que les frais médicaux, pas la perte de gain. L’IJM est indispensable pour protéger ton revenu.",
-  "ijmDisclaimer": "Les primes présentées sont des estimations basées sur des moyennes du marché. Les primes réelles dépendent de l’assureur, de ta profession et de ton état de santé. Demande un devis personnalisé à un·e spécialiste.",
+  "ijmEduComparerBody": "Les primes et conditions varient fortement entre assureurs. Plusieurs devis permettent de comparer exclusions, durée des prestations et montant couvert.",
+  "ijmEduLamalTitle": "AOS et perte de gain",
+  "ijmEduLamalBody": "L’assurance obligatoire des soins couvre les frais médicaux, pas automatiquement la perte de gain liée à la maladie. L’IJM fait partie des pistes à examiner pour un revenu indépendant.",
+  "ijmDisclaimer": "Les primes présentées sont des estimations indicatives basées sur des hypothèses de marché, pas un devis. Les primes réelles dépendent de l’assureur, de la profession, de l’état de santé, des exclusions et de la durée des prestations. À valider avec un·e spécialiste.",
   "ijmJoursCarenceLabel": "{jours} jours de carence",
   "@ijmJoursCarenceLabel": {
     "placeholders": {
@@ -9728,7 +9728,7 @@
   "pulseNavExpatSubtitle": "Tes droits, tes lacunes, tes pièges à éviter.",
   "pulseNavExpatTitle": "Nouveau en Suisse ?",
   "pulseNavIndependantCta": "Vérifier ma couverture",
-  "pulseNavIndependantDetail": "LPP volontaire, 3a max 36’288/an, IJM obligatoire.",
+  "pulseNavIndependantDetail": "LPP volontaire, 3a max 36’288/an, IJM à organiser.",
   "pulseNavIndependantSubtitle": "Sans employeur, ton filet = toi.",
   "pulseNavIndependantTitle": "Indépendant·e ?",
   "pulseOptCapRenteCta": "Comparer",
@@ -10660,6 +10660,19 @@
     "description": "First-contact opener closing question.",
     "x-mint-meta": { "level": "N3" }
   },
+  "coachOnboardingStartMessage": "Salut, je viens de créer mon compte. Par où je commence ?",
+  "coachNotificationMonthlyCheckIn": "On fait le point sur le mois ?",
+  "coachNotificationCommitmentWithValue": "Tu m’avais dit que tu allais {commitment}. C’est fait ?",
+  "@coachNotificationCommitmentWithValue": {
+    "placeholders": {
+      "commitment": {
+        "type": "String"
+      }
+    }
+  },
+  "coachNotificationCommitmentGeneric": "Tu avais un engagement à tenir. C’est fait ?",
+  "coachNotificationFreshStart": "Nouveau mois. On commence par quoi ?",
+  "coachVoicePreferenceQuestion": "Comment je te parle ?",
   "coachStarterPaper": "Un papier que je comprends pas",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner.",

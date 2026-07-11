@@ -24,8 +24,11 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -232,6 +235,8 @@ Map<String, dynamic> disabilityInsuranceAnswers({
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   // Suppress layout overflow errors (common in smoke tests with fixed test viewport).
   void Function(FlutterErrorDetails)? originalOnError;
 
@@ -253,6 +258,10 @@ void main() {
 
   tearDownAll(() {
     FlutterError.onError = originalOnError;
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
   // ===========================================================================
@@ -866,6 +875,176 @@ void main() {
       expect(find.text('48 ans'), findsOneWidget);
       expect(find.text('Manquant'), findsOneWidget);
       expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+    });
+
+    testWidgets('routes missing income to the self-employed income DataBlock', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IjmScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.byKey(const Key('ijm_profile_enrich_cta')));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('data-block:revenu:q_self_employed_income'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('routes missing age to the birth-year DataBlock', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 144000),
+      );
+
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IjmScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.byKey(const Key('ijm_profile_enrich_cta')));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('data-block:revenu:q_birth_year'), findsOneWidget);
+    });
+
+    testWidgets('emits sequence outputs with indicative tariff status', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 144000,
+          birthYear: DateTime.now().year - 48,
+        ),
+      );
+      late final GoRouter router;
+      router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(path: '/', builder: (_, __) => const Text('home')),
+          GoRoute(
+            path: '/independants/ijm',
+            builder: (_, __) =>
+                ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: provider,
+              child: const IjmScreen(),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      router.push('/independants/ijm', extra: const {
+        'runId': 'run-ijm',
+        'stepId': 'independent_ijm_gap',
+      });
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byKey(const Key('ijm_result_cards')), findsOneWidget);
+
+      await tester.tap(find.text('90 j'));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      router.pop();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final ret = await ScreenCompletionTracker.lastReturn('ijm_independant');
+      expect(ret, isNotNull);
+      expect(ret!.outcome, ScreenOutcome.completed);
+      expect(ret.route, '/independants/ijm');
+      expect(ret.runId, 'run-ijm');
+      expect(ret.stepId, 'independent_ijm_gap');
+      expect(ret.stepOutputs, containsPair('ijm_delai_carence_jours', 90));
+      expect(
+        ret.stepOutputs,
+        containsPair('ijm_scenario_couverture_revenu_pct', 80),
+      );
+      expect(
+        ret.stepOutputs,
+        containsPair(
+          'ijm_scenario_status',
+          'contrat_illustratif_non_verifie',
+        ),
+      );
+      expect(ret.stepOutputs,
+          containsPair('ijm_tarif_status', 'indicatif_marche'));
+      expect(ret.stepOutputs, isNot(contains('specialist_handoff_required')));
+      expect(ret.stepOutputs, contains('ijm_perte_carence_chf'));
+      expect(ret.stepOutputs, contains('ijm_prime_mensuelle_indicative_chf'));
+    });
+
+    testWidgets('emits abandoned sequence return when ledger facts are missing',
+        (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+      late final GoRouter router;
+      router = GoRouter(
+        initialLocation: '/',
+        routes: [
+          GoRoute(path: '/', builder: (_, __) => const Text('home')),
+          GoRoute(
+            path: '/independants/ijm',
+            builder: (_, __) =>
+                ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: provider,
+              child: const IjmScreen(),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      router.push('/independants/ijm', extra: const {
+        'runId': 'run-ijm-missing',
+        'stepId': 'independent_ijm_gap',
+      });
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byKey(const Key('ijm_result_cards')), findsNothing);
+
+      router.pop();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final ret = await ScreenCompletionTracker.lastReturn('ijm_independant');
+      expect(ret, isNotNull);
+      expect(ret!.outcome, ScreenOutcome.abandoned);
+      expect(ret.runId, 'run-ijm-missing');
+      expect(ret.stepId, 'independent_ijm_gap');
+      expect(ret.stepOutputs, isNull);
     });
   });
 

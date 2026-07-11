@@ -18,7 +18,8 @@ appId: ch.mint.app
     id: "ijm_age_fact"
 - assertVisible:
     text: "Enrichir mon profil"
-- openLink: "mint:///data-block/revenu?inputKey=q_self_employed_income"
+- tapOn:
+    text: "Enrichir mon profil"
 - assertVisible:
     id: "self_employed_income_input"
 - tapOn:
@@ -26,7 +27,11 @@ appId: ch.mint.app
 - inputText: "144000"
 - tapOn:
     id: "salary_save_cta"
-- openLink: "mint:///data-block/revenu?inputKey=q_birth_year"
+- openLink: "mint:///independants/ijm"
+- assertVisible:
+    id: "ijm_ledger_facts"
+- tapOn:
+    text: "Enrichir mon profil"
 - assertVisible:
     id: "birth_year_input"
 - tapOn:

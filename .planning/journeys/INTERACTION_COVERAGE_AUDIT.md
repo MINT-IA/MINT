@@ -29,7 +29,7 @@
 | covered by declared route node | `/independants/avs` | apps/mobile/lib/widgets/coach/smart_shortcuts.dart:183 |
 | covered by declared route node | `/independants/dividende-salaire` | apps/mobile/lib/services/response_card_service.dart:403 |
 | covered by declared route node | `/invalidite` | apps/mobile/lib/app.dart:633, apps/mobile/lib/screens/disability/disability_gap_screen.dart:94, apps/mobile/lib/screens/timeline_screen.dart:183, apps/mobile/lib/services/cap_engine.dart:871 (+2 more) |
-| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1940, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:465, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+9 more) |
+| covered by declared route node | `/scan` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1911, apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:465, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:126, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:160 (+9 more) |
 | covered by declared route node | `/scan/impact` | apps/mobile/lib/screens/document_scan/document_impact_screen.dart:721, apps/mobile/lib/screens/document_scan/extraction_review_screen.dart:745 |
 | covered by declared route node | `/scan/review` | apps/mobile/lib/screens/document_scan/avs_guide_screen.dart:485, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1397, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1617, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:645 (+2 more) |
 | covered by declared route node | `/segments/independant` | apps/mobile/lib/app.dart:576, apps/mobile/lib/screens/timeline_screen.dart:120, apps/mobile/lib/services/cap_engine.dart:823, apps/mobile/lib/widgets/life_event_suggestions.dart:128 |
@@ -53,7 +53,7 @@
 | uncovered literal route | `/ask-mint` | apps/mobile/lib/screens/byok_settings_screen.dart:446 |
 | uncovered literal route | `/auth/forgot-password` | apps/mobile/lib/screens/auth/login_screen.dart:522 |
 | uncovered literal route | `/auth/login` | apps/mobile/lib/app.dart:1862, apps/mobile/lib/screens/auth/forgot_password_screen.dart:89, apps/mobile/lib/screens/auth/register_screen.dart:635, apps/mobile/lib/screens/auth/verify_email_screen.dart:86 (+7 more) |
-| uncovered literal route | `/auth/register` | apps/mobile/lib/screens/auth/login_screen.dart:560, apps/mobile/lib/screens/coach/coach_chat_screen.dart:1611, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1098, apps/mobile/lib/widgets/auth/auth_gate_bottom_sheet.dart:86 |
+| uncovered literal route | `/auth/register` | apps/mobile/lib/screens/auth/login_screen.dart:560, apps/mobile/lib/screens/coach/coach_chat_screen.dart:1582, apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1098, apps/mobile/lib/widgets/auth/auth_gate_bottom_sheet.dart:86 |
 | uncovered literal route | `/auth/verify-email` | apps/mobile/lib/screens/auth/login_screen.dart:537, apps/mobile/lib/screens/auth/register_screen.dart:109, apps/mobile/lib/screens/auth/register_screen.dart:111 |
 | uncovered literal route | `/bank-import` | apps/mobile/lib/screens/documents_screen.dart:935 |
 | uncovered literal route | `/budget` | apps/mobile/lib/data/educational_themes.dart:143, apps/mobile/lib/data/educational_themes.dart:174, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:348, apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart:441 (+10 more) |
@@ -98,7 +98,7 @@
 | uncovered literal route | `/pilier-3a` | apps/mobile/lib/app.dart:604, apps/mobile/lib/data/educational_themes.dart:112, apps/mobile/lib/screens/simulator_3a_screen.dart:126, apps/mobile/lib/screens/simulator_3a_screen.dart:136 (+8 more) |
 | uncovered literal route | `/profile` | apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:1088 |
 | uncovered literal route | `/profile/bilan` | apps/mobile/lib/screens/budget/budget_screen.dart:702, apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart:669, apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart:125, apps/mobile/lib/services/response_card_service.dart:768 (+2 more) |
-| uncovered literal route | `/profile/byok` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1700, apps/mobile/lib/widgets/settings_sheet.dart:47 |
+| uncovered literal route | `/profile/byok` | apps/mobile/lib/screens/coach/coach_chat_screen.dart:1671, apps/mobile/lib/widgets/settings_sheet.dart:47 |
 | uncovered literal route | `/profile/privacy-control` | apps/mobile/lib/widgets/settings_sheet.dart:35 |
 | uncovered literal route | `/profile/slm` | apps/mobile/lib/widgets/settings_sheet.dart:41 |
 | uncovered literal route | `/rachat-lpp` | apps/mobile/lib/app.dart:546, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:138, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:148, apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart:302 (+6 more) |

@@ -10424,7 +10424,7 @@ class SEn extends S {
 
   @override
   String get ijmHeaderInfo =>
-      'IJM insurance (daily sickness allowance) compensates your income loss in case of illness. As self-employed, no protection is provided by default: it\'s up to you to get insured.';
+      'IJM insurance (daily sickness allowance) can cover loss of earnings in case of illness. As a self-employed person, there is no employer salary continuation by default: coverage must be arranged explicitly.';
 
   @override
   String get ijmRevenuMensuel => 'Monthly income';
@@ -10456,7 +10456,7 @@ class SEn extends S {
 
   @override
   String ijmPremierEclairageCaption(String amount, int jours) {
-    return 'Without IJM insurance, you lose $amount during the $jours-day waiting period';
+    return 'Without active IJM cover, $amount of professional income remains uncompensated during the $jours-day waiting period';
   }
 
   @override
@@ -10464,16 +10464,16 @@ class SEn extends S {
 
   @override
   String get ijmHighRiskBody =>
-      'IJM premiums increase significantly with age. After 50, the cost can be 3 to 4 times higher than for a 30-year-old. Consider a longer waiting period to reduce the premium.';
+      'IJM premiums tend to increase with age. After 50, they can be materially higher. A longer waiting period is one scenario to compare with a specialist, taking your cash buffer into account.';
 
   @override
-  String get ijmPrimeMois => 'Premium /mo';
+  String get ijmPrimeMois => 'Indicative premium /mo';
 
   @override
-  String get ijmPrimeAn => 'Premium /yr';
+  String get ijmPrimeAn => 'Indicative premium /yr';
 
   @override
-  String get ijmIndemniteJour => 'Allowance /day';
+  String get ijmIndemniteJour => 'Illustrated allowance /day';
 
   @override
   String get ijmTrancheAge => 'Age bracket';
@@ -10488,11 +10488,11 @@ class SEn extends S {
   String get ijmTimelineNoCoverage => 'No coverage';
 
   @override
-  String get ijmTimelineCoverageIjm => 'IJM coverage (80%)';
+  String get ijmTimelineCoverageIjm => 'IJM scenario (80%)';
 
   @override
   String ijmTimelineSummary(int jours, String amount) {
-    return 'During the first $jours days of illness, you have no income. Then you receive $amount/day (80% of your monthly income).';
+    return 'In this scenario, the illustrative IJM contract pays nothing during the first $jours days. After that, the assumption shows $amount/day (80% of the reference monthly income), subject to contract terms.';
   }
 
   @override
@@ -10503,25 +10503,25 @@ class SEn extends S {
 
   @override
   String get ijmEduFondsBody =>
-      'Set aside 3 months of income to cover the waiting period. This allows you to choose a 90-day wait and reduce your premium.';
+      'A reserve equal to several months of income can absorb part of the waiting period. It is one assumption to compare with the premium and benefit duration.';
 
   @override
   String get ijmEduComparerTitle => 'Compare offers';
 
   @override
   String get ijmEduComparerBody =>
-      'Premiums vary greatly between insurers. Request multiple quotes and compare conditions (exclusions, benefit duration, covered amount).';
+      'Premiums and conditions vary greatly between insurers. Several quotes help compare exclusions, benefit duration, and covered amount.';
 
   @override
-  String get ijmEduLamalTitle => 'Insufficient LAMal coverage';
+  String get ijmEduLamalTitle => 'Mandatory health cover and earnings loss';
 
   @override
   String get ijmEduLamalBody =>
-      'LAMal only covers medical costs, not income loss. IJM is essential to protect your income.';
+      'Mandatory health insurance covers medical costs, not automatically income loss due to illness. IJM is one option to examine for self-employed income.';
 
   @override
   String get ijmDisclaimer =>
-      'Premiums shown are estimates based on market averages. Actual premiums depend on the insurer, your profession, and health. Request a personalized quote from a specialist.';
+      'Premiums shown are indicative estimates based on market assumptions, not a quote. Actual premiums depend on the insurer, profession, health, exclusions, and benefit duration. Validate with a specialist.';
 
   @override
   String ijmJoursCarenceLabel(int jours) {
@@ -18750,7 +18750,7 @@ class SEn extends S {
 
   @override
   String get pulseNavIndependantDetail =>
-      'Voluntary LPP, max 3a 36’288/year, mandatory IJM.';
+      'Voluntary LPP, max 3a 36’288/year, IJM to arrange.';
 
   @override
   String get pulseNavIndependantSubtitle =>
@@ -21335,6 +21335,28 @@ class SEn extends S {
 
   @override
   String get coachOpenerQuestion => 'Where do we start?';
+
+  @override
+  String get coachOnboardingStartMessage =>
+      'Hi, I just created my account. Where should I start?';
+
+  @override
+  String get coachNotificationMonthlyCheckIn => 'Shall we review the month?';
+
+  @override
+  String coachNotificationCommitmentWithValue(String commitment) {
+    return 'You said you would $commitment. Is it done?';
+  }
+
+  @override
+  String get coachNotificationCommitmentGeneric =>
+      'You had a commitment to keep. Is it done?';
+
+  @override
+  String get coachNotificationFreshStart => 'New month. Where should we start?';
+
+  @override
+  String get coachVoicePreferenceQuestion => 'How should I talk to you?';
 
   @override
   String get coachStarterPaper => 'A paper I don\'t understand';

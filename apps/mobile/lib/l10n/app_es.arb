@@ -5098,7 +5098,7 @@
   "avsCotisationsEduMinBody": "Incluso con ingresos muy bajos, la cotización mínima es CHF 530/año.",
   "avsCotisationsDisclaimer": "Los montos son estimaciones basadas en la escala AVS/AI/APG vigente. Consulta tu caja de compensación para cifras exactas.",
   "ijmTitle": "Seguro IJM",
-  "ijmHeaderInfo": "El seguro IJM compensa tu pérdida de ingresos por enfermedad. Como independiente, no hay protección por defecto.",
+  "ijmHeaderInfo": "El seguro IJM puede cubrir una pérdida de ingresos por enfermedad. Como independiente, no hay continuación salarial de empleador por defecto: la cobertura debe organizarse explícitamente.",
   "ijmRevenuMensuel": "Ingreso mensual",
   "ijmSliderMinChf0": "CHF 0",
   "ijmSliderMax20k": "CHF 20’000",
@@ -5108,7 +5108,7 @@
   "ijmDelaiCarence": "Período de espera",
   "ijmDelaiCarenceDesc": "Período sin prestaciones",
   "ijmJours": "días",
-  "ijmPremierEclairageCaption": "Sin seguro IJM, pierdes {amount} durante el período de espera de {jours} días",
+  "ijmPremierEclairageCaption": "Sin cobertura IJM activa, {amount} de ingresos profesionales quedan sin indemnizar durante el período de espera de {jours} días",
   "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
@@ -5120,16 +5120,16 @@
     }
   },
   "ijmHighRiskTitle": "Primas altas después de 50",
-  "ijmHighRiskBody": "Las primas IJM aumentan con la edad. Después de 50, el coste puede ser 3-4 veces mayor.",
-  "ijmPrimeMois": "Prima /mes",
-  "ijmPrimeAn": "Prima /año",
-  "ijmIndemniteJour": "Indemnización /día",
+  "ijmHighRiskBody": "Las primas IJM tienden a aumentar con la edad. Después de los 50 pueden ser claramente más altas. Un periodo de espera más largo es una hipótesis para comparar con una persona especialista, teniendo en cuenta la reserva de liquidez.",
+  "ijmPrimeMois": "Prima indicativa /mes",
+  "ijmPrimeAn": "Prima indicativa /año",
+  "ijmIndemniteJour": "Indemnización ilustrada /día",
   "ijmTrancheAge": "Tramo de edad",
   "ijmTimelineTitle": "Línea de cobertura",
   "ijmTimelineCouvert": "Cubierto",
   "ijmTimelineNoCoverage": "Sin cobertura",
-  "ijmTimelineCoverageIjm": "Cobertura IJM (80%)",
-  "ijmTimelineSummary": "Durante los primeros {jours} días de enfermedad no tienes ingresos. Después recibes {amount}/día (80% de tu ingreso mensual).",
+  "ijmTimelineCoverageIjm": "Escenario IJM (80%)",
+  "ijmTimelineSummary": "En este escenario, el contrato IJM ilustrativo no paga nada durante los primeros {jours} días. Después, la hipótesis muestra {amount}/día (80% del ingreso mensual de referencia), sujeto a las condiciones del contrato.",
   "@ijmTimelineSummary": {
     "placeholders": {
       "jours": {
@@ -5142,12 +5142,12 @@
   },
   "ijmStrategies": "Estrategias",
   "ijmEduFondsTitle": "Fondo de espera",
-  "ijmEduFondsBody": "Reserva 3 meses de ingresos para cubrir el período de espera.",
+  "ijmEduFondsBody": "Una reserva equivalente a varios meses de ingresos puede absorber parte del período de espera. Es una hipótesis a comparar con la prima y la duración de cobertura.",
   "ijmEduComparerTitle": "Comparar ofertas",
-  "ijmEduComparerBody": "Las primas varían entre aseguradoras. Solicita varias cotizaciones.",
-  "ijmEduLamalTitle": "Cobertura LAMal insuficiente",
-  "ijmEduLamalBody": "La LAMal solo cubre gastos médicos, no la pérdida de ingresos.",
-  "ijmDisclaimer": "Las primas son estimaciones basadas en promedios del mercado.",
+  "ijmEduComparerBody": "Las primas y condiciones varían mucho entre aseguradoras. Varias cotizaciones ayudan a comparar exclusiones, duración de prestaciones e importe cubierto.",
+  "ijmEduLamalTitle": "Seguro obligatorio y pérdida de ingresos",
+  "ijmEduLamalBody": "El seguro obligatorio de enfermedad cubre gastos médicos, pero no automáticamente la pérdida de ingresos por enfermedad. La IJM es una opción a examinar para ingresos de trabajo independiente.",
+  "ijmDisclaimer": "Las primas mostradas son estimaciones indicativas basadas en hipótesis de mercado, no una cotización. Las primas reales dependen de la aseguradora, profesión, salud, exclusiones y duración de prestaciones. Validar con una persona especialista.",
   "ijmJoursCarenceLabel": "{jours} días de espera",
   "@ijmJoursCarenceLabel": {
     "placeholders": {
@@ -9288,7 +9288,7 @@
   "pulseNavExpatSubtitle": "Tus derechos, tus lagunas, tus trampas a evitar.",
   "pulseNavExpatTitle": "¿Nuevo en Suiza ?",
   "pulseNavIndependantCta": "Verificar mi cobertura",
-  "pulseNavIndependantDetail": "LPP voluntario, máx. 3a 36’288/año, IJM obligatorio.",
+  "pulseNavIndependantDetail": "LPP voluntaria, máx. 3a 36’288/año, IJM a organizar.",
   "pulseNavIndependantSubtitle": "Sin empleador, tu red = tú.",
   "pulseNavIndependantTitle": "¿Autónomo§a ?",
   "pulseOptCapRenteCta": "Comparar",
@@ -10193,6 +10193,19 @@
   "@coachOpenerQuestion": {
     "description": "First-contact opener closing question."
   },
+  "coachOnboardingStartMessage": "Hola, acabo de crear mi cuenta. ¿Por dónde empiezo?",
+  "coachNotificationMonthlyCheckIn": "¿Revisamos el mes?",
+  "coachNotificationCommitmentWithValue": "Me dijiste que ibas a {commitment}. ¿Está hecho?",
+  "@coachNotificationCommitmentWithValue": {
+    "placeholders": {
+      "commitment": {
+        "type": "String"
+      }
+    }
+  },
+  "coachNotificationCommitmentGeneric": "Tenías un compromiso pendiente. ¿Está hecho?",
+  "coachNotificationFreshStart": "Nuevo mes. ¿Por dónde empezamos?",
+  "coachVoicePreferenceQuestion": "¿Cómo quieres que te hable?",
   "coachStarterPaper": "Un papel que no entiendo",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner."

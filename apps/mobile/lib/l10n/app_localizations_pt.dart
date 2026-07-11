@@ -10480,7 +10480,7 @@ class SPt extends S {
 
   @override
   String get ijmHeaderInfo =>
-      'O seguro IJM compensa a perda de rendimento por doença. Como independente, não há proteção por defeito.';
+      'O seguro IJM pode cobrir uma perda de rendimento em caso de doença. Como independente, não há continuação salarial de empregador por defeito: a cobertura deve ser organizada explicitamente.';
 
   @override
   String get ijmRevenuMensuel => 'Rendimento mensal';
@@ -10511,7 +10511,7 @@ class SPt extends S {
 
   @override
   String ijmPremierEclairageCaption(String amount, int jours) {
-    return 'Sem seguro IJM, perdes $amount durante o período de espera de $jours dias';
+    return 'Sem cobertura IJM ativa, $amount de rendimento profissional ficam sem indemnização durante o período de espera de $jours dias';
   }
 
   @override
@@ -10519,16 +10519,16 @@ class SPt extends S {
 
   @override
   String get ijmHighRiskBody =>
-      'Os prémios IJM aumentam com a idade. Após 50, o custo pode ser 3-4 vezes superior.';
+      'Os prémios IJM tendem a aumentar com a idade. Após os 50 podem ser claramente mais elevados. Um período de espera mais longo é uma hipótese para comparar com uma pessoa especialista, tendo em conta a reserva de liquidez.';
 
   @override
-  String get ijmPrimeMois => 'Prémio /mês';
+  String get ijmPrimeMois => 'Prémio indicativo /mês';
 
   @override
-  String get ijmPrimeAn => 'Prémio /ano';
+  String get ijmPrimeAn => 'Prémio indicativo /ano';
 
   @override
-  String get ijmIndemniteJour => 'Indemnização /dia';
+  String get ijmIndemniteJour => 'Indemnização ilustrada /dia';
 
   @override
   String get ijmTrancheAge => 'Faixa etária';
@@ -10543,11 +10543,11 @@ class SPt extends S {
   String get ijmTimelineNoCoverage => 'Sem cobertura';
 
   @override
-  String get ijmTimelineCoverageIjm => 'Cobertura IJM (80%)';
+  String get ijmTimelineCoverageIjm => 'Cenário IJM (80%)';
 
   @override
   String ijmTimelineSummary(int jours, String amount) {
-    return 'Durante os primeiros $jours dias de doença não tens rendimento. Depois recebes $amount/dia (80% do rendimento mensal).';
+    return 'Neste cenário, o contrato IJM ilustrativo não paga nada durante os primeiros $jours dias. Depois, a hipótese mostra $amount/dia (80% do rendimento mensal de referência), sujeito às condições do contrato.';
   }
 
   @override
@@ -10558,25 +10558,25 @@ class SPt extends S {
 
   @override
   String get ijmEduFondsBody =>
-      'Reserva 3 meses de rendimento para cobrir o período de espera.';
+      'Uma reserva equivalente a vários meses de rendimento pode absorver parte do período de espera. É uma hipótese a comparar com o prémio e a duração da cobertura.';
 
   @override
   String get ijmEduComparerTitle => 'Comparar ofertas';
 
   @override
   String get ijmEduComparerBody =>
-      'Os prémios variam entre seguradoras. Solicita vários orçamentos.';
+      'Prémios e condições variam muito entre seguradoras. Vários orçamentos ajudam a comparar exclusões, duração das prestações e montante coberto.';
 
   @override
-  String get ijmEduLamalTitle => 'Cobertura LAMal insuficiente';
+  String get ijmEduLamalTitle => 'Seguro obrigatório e perda de rendimento';
 
   @override
   String get ijmEduLamalBody =>
-      'A LAMal cobre apenas despesas médicas, não a perda de rendimento.';
+      'O seguro obrigatório de cuidados de saúde cobre despesas médicas, mas não automaticamente a perda de rendimento por doença. A IJM é uma opção a examinar para rendimento independente.';
 
   @override
   String get ijmDisclaimer =>
-      'Os prémios são estimativas baseadas em médias de mercado.';
+      'Os prémios apresentados são estimativas indicativas baseadas em hipóteses de mercado, não uma proposta. Os prémios reais dependem da seguradora, profissão, saúde, exclusões e duração das prestações. Validar com uma pessoa especialista.';
 
   @override
   String ijmJoursCarenceLabel(int jours) {
@@ -18846,7 +18846,7 @@ class SPt extends S {
 
   @override
   String get pulseNavIndependantDetail =>
-      'LPP voluntário, máx. 3a 36’288/ano, IJM obrigatório.';
+      'LPP voluntário, máx. 3a 36’288/ano, IJM a organizar.';
 
   @override
   String get pulseNavIndependantSubtitle => 'Sem empregador, a tua rede = tu.';
@@ -21452,6 +21452,28 @@ class SPt extends S {
 
   @override
   String get coachOpenerQuestion => 'Por onde começamos?';
+
+  @override
+  String get coachOnboardingStartMessage =>
+      'Olá, acabei de criar a minha conta. Por onde começo?';
+
+  @override
+  String get coachNotificationMonthlyCheckIn => 'Revemos o mês?';
+
+  @override
+  String coachNotificationCommitmentWithValue(String commitment) {
+    return 'Disseste que ias $commitment. Está feito?';
+  }
+
+  @override
+  String get coachNotificationCommitmentGeneric =>
+      'Tinhas um compromisso para cumprir. Está feito?';
+
+  @override
+  String get coachNotificationFreshStart => 'Novo mês. Por onde começamos?';
+
+  @override
+  String get coachVoicePreferenceQuestion => 'Como queres que eu fale contigo?';
 
   @override
   String get coachStarterPaper => 'Um papel que não entendo';

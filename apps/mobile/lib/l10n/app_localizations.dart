@@ -18508,7 +18508,7 @@ abstract class S {
   /// No description provided for @ijmHeaderInfo.
   ///
   /// In fr, this message translates to:
-  /// **'L’assurance IJM (indemnité journalière maladie) compense ta perte de revenu en cas de maladie. En tant qu’indépendant·e, aucune protection n’est prévue par défaut : c’est à toi de t’assurer.'**
+  /// **'L’assurance IJM (indemnité journalière maladie) peut couvrir une perte de gain en cas de maladie. En tant qu’indépendant·e, il n’y a pas de maintien de salaire employeur par défaut : la couverture doit être organisée explicitement.'**
   String get ijmHeaderInfo;
 
   /// No description provided for @ijmRevenuMensuel.
@@ -18568,7 +18568,7 @@ abstract class S {
   /// No description provided for @ijmPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
-  /// **'Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours'**
+  /// **'Sans couverture IJM active, {amount} de revenu professionnel restent non indemnisés pendant le délai de carence de {jours} jours'**
   String ijmPremierEclairageCaption(String amount, int jours);
 
   /// No description provided for @ijmHighRiskTitle.
@@ -18580,25 +18580,25 @@ abstract class S {
   /// No description provided for @ijmHighRiskBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les primes IJM augmentent fortement avec l’âge. Après 50 ans, le coût peut être 3 à 4 fois supérieur à celui d’une personne de 30 ans. Considère un délai de carence plus long pour réduire la prime.'**
+  /// **'Les primes IJM ont tendance à augmenter avec l’âge. Après 50 ans, elles peuvent être nettement plus élevées. Un délai de carence plus long fait partie des hypothèses à comparer avec un·e spécialiste, en tenant compte de ta réserve de liquidités.'**
   String get ijmHighRiskBody;
 
   /// No description provided for @ijmPrimeMois.
   ///
   /// In fr, this message translates to:
-  /// **'Prime /mois'**
+  /// **'Prime indicative /mois'**
   String get ijmPrimeMois;
 
   /// No description provided for @ijmPrimeAn.
   ///
   /// In fr, this message translates to:
-  /// **'Prime /an'**
+  /// **'Prime indicative /an'**
   String get ijmPrimeAn;
 
   /// No description provided for @ijmIndemniteJour.
   ///
   /// In fr, this message translates to:
-  /// **'Indemnité /jour'**
+  /// **'Indemnité illustrée /jour'**
   String get ijmIndemniteJour;
 
   /// No description provided for @ijmTrancheAge.
@@ -18628,13 +18628,13 @@ abstract class S {
   /// No description provided for @ijmTimelineCoverageIjm.
   ///
   /// In fr, this message translates to:
-  /// **'Couverture IJM (80 %)'**
+  /// **'Scénario IJM (80 %)'**
   String get ijmTimelineCoverageIjm;
 
   /// No description provided for @ijmTimelineSummary.
   ///
   /// In fr, this message translates to:
-  /// **'Pendant les {jours} premiers jours de maladie, tu n’as aucun revenu. Ensuite, tu reçois {amount}/jour (80 % de ton revenu mensuel).'**
+  /// **'Dans ce scénario, le contrat IJM illustratif ne verse rien pendant les {jours} premiers jours. Ensuite, l’hypothèse affiche {amount}/jour (80 % du revenu mensuel de référence), sous réserve des conditions du contrat.'**
   String ijmTimelineSummary(int jours, String amount);
 
   /// No description provided for @ijmStrategies.
@@ -18652,7 +18652,7 @@ abstract class S {
   /// No description provided for @ijmEduFondsBody.
   ///
   /// In fr, this message translates to:
-  /// **'Mets de côté l’équivalent de 3 mois de revenus pour couvrir le délai de carence. Cela te permet de choisir un délai de 90 jours et de réduire ta prime.'**
+  /// **'Une réserve équivalente à plusieurs mois de revenus peut absorber une partie du délai de carence. Elle fait partie des hypothèses à comparer avec la prime et la durée de couverture.'**
   String get ijmEduFondsBody;
 
   /// No description provided for @ijmEduComparerTitle.
@@ -18664,25 +18664,25 @@ abstract class S {
   /// No description provided for @ijmEduComparerBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les primes varient fortement entre assureurs. Demande plusieurs devis et compare les conditions (exclusions, durée des prestations, montant couvert).'**
+  /// **'Les primes et conditions varient fortement entre assureurs. Plusieurs devis permettent de comparer exclusions, durée des prestations et montant couvert.'**
   String get ijmEduComparerBody;
 
   /// No description provided for @ijmEduLamalTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Couverture LAMal insuffisante'**
+  /// **'AOS et perte de gain'**
   String get ijmEduLamalTitle;
 
   /// No description provided for @ijmEduLamalBody.
   ///
   /// In fr, this message translates to:
-  /// **'La LAMal ne couvre que les frais médicaux, pas la perte de gain. L’IJM est indispensable pour protéger ton revenu.'**
+  /// **'L’assurance obligatoire des soins couvre les frais médicaux, pas automatiquement la perte de gain liée à la maladie. L’IJM fait partie des pistes à examiner pour un revenu indépendant.'**
   String get ijmEduLamalBody;
 
   /// No description provided for @ijmDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Les primes présentées sont des estimations basées sur des moyennes du marché. Les primes réelles dépendent de l’assureur, de ta profession et de ton état de santé. Demande un devis personnalisé à un·e spécialiste.'**
+  /// **'Les primes présentées sont des estimations indicatives basées sur des hypothèses de marché, pas un devis. Les primes réelles dépendent de l’assureur, de la profession, de l’état de santé, des exclusions et de la durée des prestations. À valider avec un·e spécialiste.'**
   String get ijmDisclaimer;
 
   /// No description provided for @ijmJoursCarenceLabel.
@@ -33089,7 +33089,7 @@ abstract class S {
   /// No description provided for @pulseNavIndependantDetail.
   ///
   /// In fr, this message translates to:
-  /// **'LPP volontaire, 3a max 36’288/an, IJM obligatoire.'**
+  /// **'LPP volontaire, 3a max 36’288/an, IJM à organiser.'**
   String get pulseNavIndependantDetail;
 
   /// No description provided for @pulseNavIndependantSubtitle.
@@ -37624,6 +37624,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Par quoi on commence ?'**
   String get coachOpenerQuestion;
+
+  /// No description provided for @coachOnboardingStartMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut, je viens de créer mon compte. Par où je commence ?'**
+  String get coachOnboardingStartMessage;
+
+  /// No description provided for @coachNotificationMonthlyCheckIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'On fait le point sur le mois ?'**
+  String get coachNotificationMonthlyCheckIn;
+
+  /// No description provided for @coachNotificationCommitmentWithValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu m’avais dit que tu allais {commitment}. C’est fait ?'**
+  String coachNotificationCommitmentWithValue(String commitment);
+
+  /// No description provided for @coachNotificationCommitmentGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu avais un engagement à tenir. C’est fait ?'**
+  String get coachNotificationCommitmentGeneric;
+
+  /// No description provided for @coachNotificationFreshStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mois. On commence par quoi ?'**
+  String get coachNotificationFreshStart;
+
+  /// No description provided for @coachVoicePreferenceQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment je te parle ?'**
+  String get coachVoicePreferenceQuestion;
 
   /// Conversation starter chip — routes to scanner.
   ///

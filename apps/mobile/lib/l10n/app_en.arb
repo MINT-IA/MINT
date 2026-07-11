@@ -5098,7 +5098,7 @@
   "avsCotisationsEduMinBody": "Even with very low income, the minimum contribution is CHF 530/yr.",
   "avsCotisationsDisclaimer": "Amounts shown are estimates based on the current AVS/AI/APG scale. Actual contributions may vary. Contact your compensation office for exact figures.",
   "ijmTitle": "IJM insurance",
-  "ijmHeaderInfo": "IJM insurance (daily sickness allowance) compensates your income loss in case of illness. As self-employed, no protection is provided by default: it's up to you to get insured.",
+  "ijmHeaderInfo": "IJM insurance (daily sickness allowance) can cover loss of earnings in case of illness. As a self-employed person, there is no employer salary continuation by default: coverage must be arranged explicitly.",
   "ijmRevenuMensuel": "Monthly income",
   "ijmSliderMinChf0": "CHF 0",
   "ijmSliderMax20k": "CHF 20,000",
@@ -5108,7 +5108,7 @@
   "ijmDelaiCarence": "Waiting period",
   "ijmDelaiCarenceDesc": "Period during which you receive no benefits",
   "ijmJours": "days",
-  "ijmPremierEclairageCaption": "Without IJM insurance, you lose {amount} during the {jours}-day waiting period",
+  "ijmPremierEclairageCaption": "Without active IJM cover, {amount} of professional income remains uncompensated during the {jours}-day waiting period",
   "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
@@ -5120,16 +5120,16 @@
     }
   },
   "ijmHighRiskTitle": "High premiums after 50",
-  "ijmHighRiskBody": "IJM premiums increase significantly with age. After 50, the cost can be 3 to 4 times higher than for a 30-year-old. Consider a longer waiting period to reduce the premium.",
-  "ijmPrimeMois": "Premium /mo",
-  "ijmPrimeAn": "Premium /yr",
-  "ijmIndemniteJour": "Allowance /day",
+  "ijmHighRiskBody": "IJM premiums tend to increase with age. After 50, they can be materially higher. A longer waiting period is one scenario to compare with a specialist, taking your cash buffer into account.",
+  "ijmPrimeMois": "Indicative premium /mo",
+  "ijmPrimeAn": "Indicative premium /yr",
+  "ijmIndemniteJour": "Illustrated allowance /day",
   "ijmTrancheAge": "Age bracket",
   "ijmTimelineTitle": "Coverage timeline",
   "ijmTimelineCouvert": "Covered",
   "ijmTimelineNoCoverage": "No coverage",
-  "ijmTimelineCoverageIjm": "IJM coverage (80%)",
-  "ijmTimelineSummary": "During the first {jours} days of illness, you have no income. Then you receive {amount}/day (80% of your monthly income).",
+  "ijmTimelineCoverageIjm": "IJM scenario (80%)",
+  "ijmTimelineSummary": "In this scenario, the illustrative IJM contract pays nothing during the first {jours} days. After that, the assumption shows {amount}/day (80% of the reference monthly income), subject to contract terms.",
   "@ijmTimelineSummary": {
     "placeholders": {
       "jours": {
@@ -5142,12 +5142,12 @@
   },
   "ijmStrategies": "Strategies",
   "ijmEduFondsTitle": "Build a waiting period fund",
-  "ijmEduFondsBody": "Set aside 3 months of income to cover the waiting period. This allows you to choose a 90-day wait and reduce your premium.",
+  "ijmEduFondsBody": "A reserve equal to several months of income can absorb part of the waiting period. It is one assumption to compare with the premium and benefit duration.",
   "ijmEduComparerTitle": "Compare offers",
-  "ijmEduComparerBody": "Premiums vary greatly between insurers. Request multiple quotes and compare conditions (exclusions, benefit duration, covered amount).",
-  "ijmEduLamalTitle": "Insufficient LAMal coverage",
-  "ijmEduLamalBody": "LAMal only covers medical costs, not income loss. IJM is essential to protect your income.",
-  "ijmDisclaimer": "Premiums shown are estimates based on market averages. Actual premiums depend on the insurer, your profession, and health. Request a personalized quote from a specialist.",
+  "ijmEduComparerBody": "Premiums and conditions vary greatly between insurers. Several quotes help compare exclusions, benefit duration, and covered amount.",
+  "ijmEduLamalTitle": "Mandatory health cover and earnings loss",
+  "ijmEduLamalBody": "Mandatory health insurance covers medical costs, not automatically income loss due to illness. IJM is one option to examine for self-employed income.",
+  "ijmDisclaimer": "Premiums shown are indicative estimates based on market assumptions, not a quote. Actual premiums depend on the insurer, profession, health, exclusions, and benefit duration. Validate with a specialist.",
   "ijmJoursCarenceLabel": "{jours}-day waiting period",
   "@ijmJoursCarenceLabel": {
     "placeholders": {
@@ -9288,7 +9288,7 @@
   "pulseNavExpatSubtitle": "Your rights, your gaps, your pitfalls to avoid.",
   "pulseNavExpatTitle": "New to Switzerland ?",
   "pulseNavIndependantCta": "Check my coverage",
-  "pulseNavIndependantDetail": "Voluntary LPP, max 3a 36’288/year, mandatory IJM.",
+  "pulseNavIndependantDetail": "Voluntary LPP, max 3a 36’288/year, IJM to arrange.",
   "pulseNavIndependantSubtitle": "Without an employer, your safety net = you.",
   "pulseNavIndependantTitle": "Self-employed ?",
   "pulseOptCapRenteCta": "Compare",
@@ -10193,6 +10193,19 @@
   "@coachOpenerQuestion": {
     "description": "First-contact opener closing question."
   },
+  "coachOnboardingStartMessage": "Hi, I just created my account. Where should I start?",
+  "coachNotificationMonthlyCheckIn": "Shall we review the month?",
+  "coachNotificationCommitmentWithValue": "You said you would {commitment}. Is it done?",
+  "@coachNotificationCommitmentWithValue": {
+    "placeholders": {
+      "commitment": {
+        "type": "String"
+      }
+    }
+  },
+  "coachNotificationCommitmentGeneric": "You had a commitment to keep. Is it done?",
+  "coachNotificationFreshStart": "New month. Where should we start?",
+  "coachVoicePreferenceQuestion": "How should I talk to you?",
   "coachStarterPaper": "A paper I don't understand",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner."

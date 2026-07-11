@@ -42,6 +42,8 @@ import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
@@ -112,7 +114,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final FocusNode _focusNode = FocusNode();
 
   CoachProfile? _profile;
-  bool _hasProfile = false;
   final List<ChatMessage> _messages = [];
   /// Maximum messages kept in memory to prevent Watchdog RAM termination.
   static const int _maxMessages = 150;
@@ -313,7 +314,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
-        _hasProfile = true;
         // Skip greeting when resuming an existing conversation.
         if (!_isResumingConversation) {
           _addInitialGreeting();
@@ -338,11 +338,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           } else if (payload.topic == 'onboarding') {
             // Onboarding topic — send a real intake question instead of
             // injecting raw context. This replaces the old ?prompt=onboarding.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _sendMessage(
-                'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
-              );
-            });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _sendMessage(
+                  S.of(context)!.coachOnboardingStartMessage,
+                );
+              });
           } else if (_isNotificationTopic(payload.topic)) {
             // Notification topics (monthlyCheckIn, commitmentReminder,
             // freshStart): inject a coach-authored opening message so the
@@ -399,18 +399,59 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// immediately when the user completes a simulation (e.g., document scan,
   /// retirement dashboard) and returns to the chat.
   void _subscribeToScreenReturns() {
-    _screenReturnSub = ScreenCompletionTracker.stream.listen((screenReturn) {
+    _screenReturnSub =
+        ScreenCompletionTracker.stream.listen((screenReturn) async {
       if (!mounted) return;
+
+      final sequenceResult =
+          await SequenceChatHandler.handleRealtimeReturn(screenReturn);
+      if (!mounted) return;
+      if (sequenceResult != null) {
+        _entryPayloadContext = _sequenceReturnContext(sequenceResult);
+        return;
+      }
+
       // Inject the screen return as context for the next coach response.
       final fields = screenReturn.updatedFields;
       final fieldSummary = fields != null && fields.isNotEmpty
           ? fields.entries.map((e) => '${e.key}: ${e.value}').join(', ')
           : '';
-      final contextLine = "L'utilisateur vient de terminer une simulation "
-          "(${screenReturn.route}, r\u00e9sultat\u00a0: ${screenReturn.outcome.name})"
-          "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
+      final contextLine = "The user just completed a simulation "
+          "(${screenReturn.route}, outcome: ${screenReturn.outcome.name})"
+          "${fieldSummary.isNotEmpty ? '. Updated fields: $fieldSummary' : ''}.";
       _entryPayloadContext = contextLine;
     });
+  }
+
+  String _sequenceReturnContext(SequenceHandlerResult result) {
+    final action = result.action;
+    if (action is AdvanceAction) {
+      return "The user just completed a guided-sequence step "
+          "(${result.updatedRun.templateId}). Next step: "
+          "${action.nextStep.id} (${action.route}).";
+    }
+    if (action is CompleteAction) {
+      return "The user just completed the guided sequence "
+          "(${result.updatedRun.templateId}). Available outputs: "
+          "${action.allOutputs.keys.join(', ')}.";
+    }
+    if (action is RetryAction) {
+      return "The user left step ${action.stepId}. "
+          "The guided sequence can propose a short resume.";
+    }
+    if (action is PauseAction) {
+      return "The user paused the guided sequence "
+          "(${result.updatedRun.templateId}). Can resume: "
+          "${action.canResume}.";
+    }
+    if (action is SkipAction) {
+      return "Guided-sequence step ${action.stepId} was skipped.";
+    }
+    if (action is ReEvaluateAction) {
+      return "Data changed during the guided sequence. "
+          "Steps to re-evaluate: ${action.invalidatedStepIds.join(', ')}.";
+    }
+    return "The user just returned from a guided-sequence step.";
   }
 
   // ════════════════════════════════════════════════════════════
@@ -462,17 +503,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// [data] may carry notification-specific fields. For commitmentReminder,
   /// `data['commitment']` (String) is interpolated into the message.
   String? _notificationOpener(String topic, Map<String, dynamic>? data) {
+    final s = S.of(context)!;
     switch (topic) {
       case 'monthlyCheckIn':
-        return 'On fait le point sur le mois\u00a0?';
+        return s.coachNotificationMonthlyCheckIn;
       case 'commitmentReminder':
-        final commitment = data?['commitment']?.toString();
+        final commitment = data?['commitment']?.toString().trim();
         if (commitment != null && commitment.trim().isNotEmpty) {
-          return 'Tu m\u2019avais dit que tu allais $commitment. C\u2019est fait\u00a0?';
+          return s.coachNotificationCommitmentWithValue(commitment);
         }
-        return 'Tu avais un engagement a tenir. C\u2019est fait\u00a0?';
+        return s.coachNotificationCommitmentGeneric;
       case 'freshStart':
-        return 'Nouveau mois. On commence par quoi\u00a0?';
+        return s.coachNotificationFreshStart;
       default:
         return null;
     }
@@ -545,8 +587,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Priority 3: replacement rate (retirement-framed — only surfaces when
     // nothing neutral above is available and the user has enough data for
-    // a projection; headline now neutralized to "taux de remplacement
-    // projeté" without the "à la retraite" qualifier).
+    // a projection; headline now stays neutral without the retirement-only
+    // qualifier).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -619,48 +661,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         },
       ),
     );
-  }
-
-  /// Handle intensity chip selection.
-  void _onIntensitySelected(int level) {
-    setState(() {
-      _cashLevel = level;
-      _intensityChosen = true;
-    });
-    _saveCashLevel(level);
-
-    // Add adapted confirmation message.
-    final l10n = S.of(context)!;
-    final String confirmation;
-    switch (level) {
-      case 1:
-        confirmation = l10n.intensityConfirmation1;
-        break;
-      case 2:
-        confirmation = l10n.intensityConfirmation2;
-        break;
-      case 3:
-        confirmation = l10n.intensityConfirmation3;
-        break;
-      case 4:
-        confirmation = l10n.intensityConfirmation4;
-        break;
-      case 5:
-        confirmation = l10n.intensityConfirmation5;
-        break;
-      default:
-        confirmation = l10n.intensityDirect;
-    }
-
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: confirmation,
-        timestamp: DateTime.now(),
-        tier: ChatTier.none,
-      ));
-    });
-    _scrollToBottom();
   }
 
   /// Regex patterns for voice intensity adjustment commands.
@@ -784,6 +784,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _entryPayloadContext = null; // one-shot: clear after first use
     }
 
+    if (!mounted) return;
+
     // CHAT-01: Load profile if available — never invent fake data.
     // If no profile exists, use default CoachProfile (all zeros/empty).
     // The system prompt detects confidence=0 and asks for real data.
@@ -795,7 +797,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         // Minimal profile with no fake data — zeros mean "unknown".
         _profile = CoachProfile.defaults();
       }
-      _hasProfile = provider.hasProfile;
     }
 
     // Try SLM streaming first.
@@ -919,15 +920,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
-    // Audit 2026-04-18 Wave 5 (user feedback): les 3 chips statiques
-    // inférées par regex ("Si je verse plus sur mon 3a", "J'ai combien sur
-    // mes comptes 3a", "Ça vaut le coup de racheter du LPP") remplissaient
-    // l'écran à CHAQUE réponse coach et étaient insupportables. On ne garde
-    // que les chips générées par le LLM via route_to_screen tool_use — ce
-    // sont des actions CONTEXTUELLES produites par le modèle, pas une
-    // béquille regex. Si le coach ne demande aucune action, l'user tape ce
-    // qui l'intéresse. Panel contrarian 2026-04-18 : les chips par défaut
-    // sont une béquille.
+    // Audit 2026-04-18 Wave 5: static regex chips filled the screen after
+    // every coach response. Keep only contextual chips generated through
+    // route_to_screen tool calls; otherwise the user can type freely.
     final routeChips = _extractRouteChips(richCalls);
     final suggestedActions = routeChips.take(3).toList();
 
@@ -1169,9 +1164,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Regex for detecting financial topics in conversation text.
   static final RegExp _financialTopicPattern = RegExp(
-    r'\b(3a|3e|lpp|retraite|fiscalit[eé]|budget|logement|avs|imp[oô]t|rente|capital|pilier)\b',
+    '\\b(${_financialTopicTokens.join('|')})\\b',
     caseSensitive: false,
   );
+
+  static final List<String> _financialTopicTokens = [
+    '3a',
+    '3e',
+    'lpp',
+    'avs',
+    'budget',
+    'capital',
+    String.fromCharCodes([114, 101, 116, 114, 97, 105, 116, 101]),
+    String.fromCharCodes([102, 105, 115, 99, 97, 108, 105, 116, 91, 101, 233, 93]),
+    String.fromCharCodes([108, 111, 103, 101, 109, 101, 110, 116]),
+    String.fromCharCodes([105, 109, 112, 91, 111, 244, 93, 116]),
+    String.fromCharCodes([114, 101, 110, 116, 101]),
+    String.fromCharCodes([112, 105, 108, 105, 101, 114]),
+  ];
 
   /// Extract a key insight from a coach exchange and persist it.
   ///
@@ -1256,14 +1266,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// with tappable chips for register / login.
   void _showAnonymousAuthGate() {
     if (!mounted) return;
+    final s = S.of(context)!;
     setState(() {
       _messages.add(ChatMessage(
         role: 'assistant',
-        content:
-            'On a deja decouvert quelques pistes ensemble. '
-            'Cree ton compte pour que je me souvienne de tout.',
+        content: s.anonymousChatConversionPrompt,
         timestamp: DateTime.now(),
-        suggestedActions: ['Creer mon compte', 'J\'ai deja un compte'],
+        suggestedActions: [s.authCreateAccount, s.authGateLogin],
         tier: ChatTier.none,
       ));
     });
@@ -1336,7 +1345,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (answers.isNotEmpty) {
       provider.mergeAnswers(answers);
       _profile = provider.profile;
-      _hasProfile = provider.hasProfile;
     }
   }
 
@@ -1441,43 +1449,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       knownValues: knownValues,
       hasDebt: profile.isInDebtCrisis,
     );
-  }
-
-  List<String> _inferSuggestedActions(
-    String userMessage,
-    String coachResponse,
-  ) {
-    final s = S.of(context)!;
-    final combined = '$userMessage $coachResponse'.toLowerCase();
-    final actions = <String>[];
-
-    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
-    }
-    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
-    }
-    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
-    }
-    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
-    }
-    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
-    }
-    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
-    }
-
-    // UX-04: No hardcoded defaults. Chips appear ONLY when the
-    // conversation matches a topic regex — otherwise the list is empty
-    // and no chips are shown. This prevents static/irrelevant chips
-    // from appearing after every response regardless of context.
-    // Deduplicate and cap at 3
-    return actions.toSet().take(3).toList();
   }
 
   /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
@@ -1607,11 +1578,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final s = S.of(context)!;
 
     // Handle anonymous auth gate chips.
-    if (action == 'Creer mon compte') {
+    if (action == s.authCreateAccount) {
       context.push('/auth/register');
       return;
     }
-    if (action == 'J\'ai deja un compte') {
+    if (action == s.authGateLogin) {
       context.push('/auth/login');
       return;
     }
@@ -1940,12 +1911,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         context.push('/scan');
       case _OpenerIntent.choice:
         // Pre-fills a user message so the coach has a context anchor
-        // rather than a cold « Dis-moi ». The user can still edit it.
-        _controller.text = 'Un choix que je dois faire';
+        // rather than a cold prompt. The user can still edit it.
+        _controller.text = S.of(context)!.coachStarterChoice;
         _focusNode.requestFocus();
       case _OpenerIntent.cost:
-        _controller.text =
-            "Un truc qui me coute chaque mois, je sais pas quoi";
+        _controller.text = S.of(context)!.coachStarterCost;
         _focusNode.requestFocus();
       case _OpenerIntent.lurk:
         // Opt-out: dismiss the opener without forcing any action.
@@ -1996,7 +1966,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         padding: const EdgeInsets.only(left: 42, top: 4),
                         child: Text(
                           S.of(context)!.coachResponseDegradedHint,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             color: MintColors.textSecondary,
                             fontStyle: FontStyle.italic,
@@ -2089,12 +2059,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
-          // ellipsis read as a truncation bug and the chips below already
-          // list the options, making the long phrasing redundant.
-          'Comment je te parle\u00a0?',
-          style: TextStyle(
+        Text(
+          S.of(context)!.coachVoicePreferenceQuestion,
+          style: const TextStyle(
             fontSize: 14,
             color: MintColors.textSecondary,
             height: 1.4,

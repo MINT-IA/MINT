@@ -10487,7 +10487,7 @@ class SFr extends S {
 
   @override
   String get ijmHeaderInfo =>
-      'L’assurance IJM (indemnité journalière maladie) compense ta perte de revenu en cas de maladie. En tant qu’indépendant·e, aucune protection n’est prévue par défaut : c’est à toi de t’assurer.';
+      'L’assurance IJM (indemnité journalière maladie) peut couvrir une perte de gain en cas de maladie. En tant qu’indépendant·e, il n’y a pas de maintien de salaire employeur par défaut : la couverture doit être organisée explicitement.';
 
   @override
   String get ijmRevenuMensuel => 'Revenu mensuel';
@@ -10519,7 +10519,7 @@ class SFr extends S {
 
   @override
   String ijmPremierEclairageCaption(String amount, int jours) {
-    return 'Sans assurance IJM, tu perds $amount pendant le délai de carence de $jours jours';
+    return 'Sans couverture IJM active, $amount de revenu professionnel restent non indemnisés pendant le délai de carence de $jours jours';
   }
 
   @override
@@ -10527,16 +10527,16 @@ class SFr extends S {
 
   @override
   String get ijmHighRiskBody =>
-      'Les primes IJM augmentent fortement avec l’âge. Après 50 ans, le coût peut être 3 à 4 fois supérieur à celui d’une personne de 30 ans. Considère un délai de carence plus long pour réduire la prime.';
+      'Les primes IJM ont tendance à augmenter avec l’âge. Après 50 ans, elles peuvent être nettement plus élevées. Un délai de carence plus long fait partie des hypothèses à comparer avec un·e spécialiste, en tenant compte de ta réserve de liquidités.';
 
   @override
-  String get ijmPrimeMois => 'Prime /mois';
+  String get ijmPrimeMois => 'Prime indicative /mois';
 
   @override
-  String get ijmPrimeAn => 'Prime /an';
+  String get ijmPrimeAn => 'Prime indicative /an';
 
   @override
-  String get ijmIndemniteJour => 'Indemnité /jour';
+  String get ijmIndemniteJour => 'Indemnité illustrée /jour';
 
   @override
   String get ijmTrancheAge => 'Tranche d’âge';
@@ -10551,11 +10551,11 @@ class SFr extends S {
   String get ijmTimelineNoCoverage => 'Pas de couverture';
 
   @override
-  String get ijmTimelineCoverageIjm => 'Couverture IJM (80 %)';
+  String get ijmTimelineCoverageIjm => 'Scénario IJM (80 %)';
 
   @override
   String ijmTimelineSummary(int jours, String amount) {
-    return 'Pendant les $jours premiers jours de maladie, tu n’as aucun revenu. Ensuite, tu reçois $amount/jour (80 % de ton revenu mensuel).';
+    return 'Dans ce scénario, le contrat IJM illustratif ne verse rien pendant les $jours premiers jours. Ensuite, l’hypothèse affiche $amount/jour (80 % du revenu mensuel de référence), sous réserve des conditions du contrat.';
   }
 
   @override
@@ -10566,25 +10566,25 @@ class SFr extends S {
 
   @override
   String get ijmEduFondsBody =>
-      'Mets de côté l’équivalent de 3 mois de revenus pour couvrir le délai de carence. Cela te permet de choisir un délai de 90 jours et de réduire ta prime.';
+      'Une réserve équivalente à plusieurs mois de revenus peut absorber une partie du délai de carence. Elle fait partie des hypothèses à comparer avec la prime et la durée de couverture.';
 
   @override
   String get ijmEduComparerTitle => 'Comparer les offres';
 
   @override
   String get ijmEduComparerBody =>
-      'Les primes varient fortement entre assureurs. Demande plusieurs devis et compare les conditions (exclusions, durée des prestations, montant couvert).';
+      'Les primes et conditions varient fortement entre assureurs. Plusieurs devis permettent de comparer exclusions, durée des prestations et montant couvert.';
 
   @override
-  String get ijmEduLamalTitle => 'Couverture LAMal insuffisante';
+  String get ijmEduLamalTitle => 'AOS et perte de gain';
 
   @override
   String get ijmEduLamalBody =>
-      'La LAMal ne couvre que les frais médicaux, pas la perte de gain. L’IJM est indispensable pour protéger ton revenu.';
+      'L’assurance obligatoire des soins couvre les frais médicaux, pas automatiquement la perte de gain liée à la maladie. L’IJM fait partie des pistes à examiner pour un revenu indépendant.';
 
   @override
   String get ijmDisclaimer =>
-      'Les primes présentées sont des estimations basées sur des moyennes du marché. Les primes réelles dépendent de l’assureur, de ta profession et de ton état de santé. Demande un devis personnalisé à un·e spécialiste.';
+      'Les primes présentées sont des estimations indicatives basées sur des hypothèses de marché, pas un devis. Les primes réelles dépendent de l’assureur, de la profession, de l’état de santé, des exclusions et de la durée des prestations. À valider avec un·e spécialiste.';
 
   @override
   String ijmJoursCarenceLabel(int jours) {
@@ -18833,7 +18833,7 @@ class SFr extends S {
 
   @override
   String get pulseNavIndependantDetail =>
-      'LPP volontaire, 3a max 36’288/an, IJM obligatoire.';
+      'LPP volontaire, 3a max 36’288/an, IJM à organiser.';
 
   @override
   String get pulseNavIndependantSubtitle => 'Sans employeur, ton filet = toi.';
@@ -21443,6 +21443,30 @@ class SFr extends S {
 
   @override
   String get coachOpenerQuestion => 'Par quoi on commence ?';
+
+  @override
+  String get coachOnboardingStartMessage =>
+      'Salut, je viens de créer mon compte. Par où je commence ?';
+
+  @override
+  String get coachNotificationMonthlyCheckIn =>
+      'On fait le point sur le mois ?';
+
+  @override
+  String coachNotificationCommitmentWithValue(String commitment) {
+    return 'Tu m’avais dit que tu allais $commitment. C’est fait ?';
+  }
+
+  @override
+  String get coachNotificationCommitmentGeneric =>
+      'Tu avais un engagement à tenir. C’est fait ?';
+
+  @override
+  String get coachNotificationFreshStart =>
+      'Nouveau mois. On commence par quoi ?';
+
+  @override
+  String get coachVoicePreferenceQuestion => 'Comment je te parle ?';
 
   @override
   String get coachStarterPaper => 'Un papier que je comprends pas';

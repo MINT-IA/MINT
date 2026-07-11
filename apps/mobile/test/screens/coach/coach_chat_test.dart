@@ -7,10 +7,14 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_store.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -122,6 +126,45 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       // Refactored app bar uses more_horiz for settings access
       expect(find.byIcon(Icons.more_horiz_rounded), findsOneWidget);
+    });
+
+    testWidgets('consumes realtime sequence ScreenReturn events', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      await tester.pumpWidget(buildTestWidget(withProfile: true));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final run = await SequenceChatHandler.startSequence('housing_purchase');
+      expect(run, isNotNull);
+      expect(
+        (await SequenceStore.load())!.activeStepId,
+        'housing_01_affordability',
+      );
+
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'housing_affordability',
+        ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: run!.runId,
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_coach_realtime_sequence',
+          stepOutputs: const {
+            'capacite_achat': 850000.0,
+            'fonds_propres_requis': 170000.0,
+          },
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 250));
+
+      final stored = await SequenceStore.load();
+      expect(stored, isNotNull);
+      expect(stored!.activeStepId, 'housing_02_epl');
+      expect(
+        stored.stepOutputs['housing_01_affordability'],
+        containsPair('capacite_achat', 850000.0),
+      );
+      expect(stored.isEventProcessed('evt_coach_realtime_sequence'), isTrue);
     });
 
     testWidgets('shows silent opener instead of greeting', (tester) async {
@@ -646,10 +689,10 @@ void main() {
       );
 
       // No userMessage → no _sendMessage call → no streaming timers.
-      final payload = CoachEntryPayload(
+      const payload = CoachEntryPayload(
         source: CoachEntrySource.onboardingIntent,
         topic: 'pillar3a',
-        data: const {'fromOnboarding': true},
+        data: {'fromOnboarding': true},
       );
 
       await tester.pumpWidget(buildWithPayload(payload));
@@ -673,7 +716,7 @@ void main() {
 
       // Simulate a home-chip entry (not onboarding). No userMessage
       // to avoid spawning streaming timers in the test env.
-      final payload = CoachEntryPayload(
+      const payload = CoachEntryPayload(
         source: CoachEntrySource.homeChip,
         topic: 'pillar3a',
       );

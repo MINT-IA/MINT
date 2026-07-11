@@ -85,7 +85,7 @@ edges:
     to: db.route.revenu
     trigger: tap
     intent: "Collect independent income, birth year, or canton before showing the independent protection hub result"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
@@ -96,18 +96,29 @@ edges:
     to: db.route.revenu
     trigger: tap
     intent: "Collect self-employed income before calculating AVS contributions"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
     test_ref: apps/mobile/.maestro/indep_avs_cotisations.yaml
 
-  - id: indep.edge.ijm.enrich_income_or_age
+  - id: indep.edge.ijm.enrich_income
     from: indep.route.ijm
     to: db.route.revenu
     trigger: tap
-    intent: "Collect independent income or birth year before estimating IJM cover"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    intent: "Collect self-employed income before estimating the IJM waiting-period gap"
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/.maestro/indep_ijm.yaml
+
+  - id: indep.edge.ijm.enrich_birth_year
+    from: indep.route.ijm
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect birth year before estimating age-sensitive indicative IJM premiums"
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
@@ -118,7 +129,7 @@ edges:
     to: db.route.revenu
     trigger: tap
     intent: "Collect independent income or pension-fund status before calculating 3a room"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
@@ -129,7 +140,7 @@ edges:
     to: db.route.patrimoine
     trigger: tap
     intent: "Collect liquid savings before showing independent 3a safe-mode result"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
@@ -140,7 +151,7 @@ edges:
     to: db.route.revenu
     trigger: tap
     intent: "Collect company profit envelope before comparing salary and dividend"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
@@ -151,7 +162,7 @@ edges:
     to: db.route.revenu
     trigger: tap
     intent: "Collect independent income or birth year before estimating voluntary LPP"
-    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    payload: {path_params: {type: EnrichmentType}, query_params: {inputKey: InputKey}}
     transition: push
     back: pop
     analytics: cta_clicked
