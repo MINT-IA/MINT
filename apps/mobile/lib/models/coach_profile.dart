@@ -776,13 +776,19 @@ class PatrimoineProfile {
   double get detailedAssetTotal =>
       epargneLiquide + investissements + immobilierEffectif;
 
+  /// Gross-asset reconciliation for patrimoine views. Domain flows that need a
+  /// net estate mass must build their own reconciliation with debt context.
+  WealthReconciliation get wealthReconciliation =>
+      WealthFinancialFacts.reconcileAggregate(
+        cash: epargneLiquide,
+        investments: investissements,
+        propertyValue: immobilierEffectif,
+        wealthEstimate: wealthEstimate,
+      );
+
   /// Patrimoine brut total. Use the broad estimate as an aggregate total, not
   /// as an asset component, so it never double-counts detailed values.
-  double get totalPatrimoine {
-    final detailedTotal = detailedAssetTotal;
-    final estimatedTotal = wealthEstimate ?? 0;
-    return detailedTotal > estimatedTotal ? detailedTotal : estimatedTotal;
-  }
+  double get totalPatrimoine => wealthReconciliation.resolvedTotal;
 
   /// Patrimoine net (brut - dettes). Dettes passed via parameter since
   /// PatrimoineProfile doesn't hold a reference to DetteProfile.
@@ -3176,6 +3182,11 @@ class CoachProfile {
     if (answers.containsKey('q_cash_total') ||
         answers.containsKey('q_emergency_fund')) {
       provided.add('liquidSavings');
+    }
+    final explicitInvestmentsTotal =
+        _parseDouble(answers['q_investments_total']);
+    if (explicitInvestmentsTotal != null && explicitInvestmentsTotal > 0) {
+      provided.add('investments');
     }
     if (answers.containsKey('q_wealth_estimate')) {
       provided.add('wealthEstimate');

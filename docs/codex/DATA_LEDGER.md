@@ -190,11 +190,13 @@ coach-writable key.
 |---|---|---|---|---|---|---|---|---|
 | `savingsMonthly` | `q_savings_monthly` | double CHF/mo | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
 | `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
-| `wealthEstimate` | `q_wealth_estimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `PatrimoineProfile.wealthEstimate`, `totalPatrimoine` aggregate, wealth tax, net worth, absolute patrimoine previews |
+| `wealthEstimate` | `q_wealth_estimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `PatrimoineProfile.wealthEstimate`, `WealthFinancialFacts.reconcileAggregate`, `PatrimoineProfile.wealthReconciliation`, `totalPatrimoine` aggregate, wealth tax, net worth, absolute patrimoine previews |
 | `hasDebt` | `q_has_consumer_debt` (`true` → `yes`, `false` → `no`; `false` zeroes `_coach_dettes_credit`, `_coach_dettes_leasing`, `_coach_dettes_autres`; `true` nulls them so the bool-only fallback can run) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
 | `totalDebt` | `_coach_dettes_autres` + `q_has_consumer_debt` (`>0` → `yes`, `0` → `no`) | double CHF | dettes | userInput, certificate | volatile | .60 | applySaveFact/mergeAnswers | `dettes.*`, debt-to-income 0.33, net worth |
 
-> **Status:** `totalSavings` maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` maps to `q_wealth_estimate`, read as `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as an aggregate total. `totalDebt` maps to the existing generic debt bucket `_coach_dettes_autres` and flips `q_has_consumer_debt` with the existing wizard `yes`/`no` format; `hasDebt=false` zeroes generic consumer debt buckets, `hasDebt=true` nulls them to re-enable the bool-only fallback, and neither path touches `_coach_dettes_hypotheque`. `totalPatrimoine` takes the higher of detailed asset sum and the broad estimate; it never adds them together. Do not reintroduce the old `q_epargne_liquide` collision.
+> **Status:** `totalSavings` maps to `q_cash_total`, the key actually read by `CoachProfile.fromWizardAnswers()` for `patrimoine.epargneLiquide`. `wealthEstimate` maps to `q_wealth_estimate`, read as `PatrimoineProfile.wealthEstimate` and reconciled by `PatrimoineProfile.wealthReconciliation` through `WealthFinancialFacts.reconcileAggregate`. `totalDebt` maps to the existing generic debt bucket `_coach_dettes_autres` and flips `q_has_consumer_debt` with the existing wizard `yes`/`no` format; `hasDebt=false` zeroes generic consumer debt buckets, `hasDebt=true` nulls them to re-enable the bool-only fallback, and neither path touches `_coach_dettes_hypotheque`. `totalPatrimoine` takes the reconciled higher of detailed asset sum and the broad estimate; it never adds them together. Do not reintroduce the old `q_epargne_liquide` collision.
+>
+> **Reconciliation contract:** `wealthReconciliation.status` is one of `noData`, `estimateOnly`, `detailedOnly`, `aligned`, `estimateExceedsKnownDetails`, `detailsExceedEstimate`. Critical Swiss life-event screens must not read `wealthEstimate` raw for decisions; they use `wealthReconciliation.resolvedTotal` or a domain-specific net reconciliation built from user-provided detail facts, then treat material gaps as facts to confirm or decompose.
 
 ### 3.6 Spouse (couple)
 
@@ -287,7 +289,7 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 |---|---|---|---|---|---|---|---|
 | `patrimoine.epargneLiquide` | double CHF | patrimoine | userInput, openBanking | annual | .60 | mergeAnswers / updateProfile | liquidity axis, emergency fund |
 | `patrimoine.investissements` | double CHF | patrimoine | userInput, openBanking | annual | .60 | mergeAnswers / updateProfile | net worth, investment view |
-| `patrimoine.wealthEstimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `totalPatrimoine` aggregate total, wealth tax, net worth |
+| `patrimoine.wealthEstimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `WealthFinancialFacts.reconcileAggregate`, `PatrimoineProfile.wealthReconciliation`, `totalPatrimoine` aggregate total, wealth tax, net worth |
 | `patrimoine.deviseInvestissements` | enum {chf,usd,eur} | patrimoine | userInput | static | .60 | mergeAnswers | FX exposure, US person PFIC flag |
 | `patrimoine.propertyMarketValue` | double CHF | patrimoine | userInput, estimated | annual | .60 | mergeAnswers / updateProfile | `immobilierNet`, LTV, valeur locative, `/succession` transmission-logement note |
 | `patrimoine.mortgageBalance` | double CHF | dettes/patrimoine | userInput, certificate | volatile | .60 | mergeAnswers / updateProfile | `loanToValue`, renewal shock, SafeMode |
@@ -299,6 +301,8 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 > **Ratio denominator rule:** `totalPatrimoine` is now the higher of detailed asset sum and `wealthEstimate`. Ratios that divide a known detailed component by a total MUST use `patrimoine.detailedAssetTotal`, not the broad aggregate estimate. Fixed consumers in this slice: FRI concentration and FinancialFitness investment ratio.
 >
 > **Absolute total rule:** Consumers that display an absolute patrimoine total while also adding explicit LPP/3a values MUST compare `detailedAssetTotal + explicit pillars` with `wealthEstimate` and use the higher value. They MUST NOT compute `wealthEstimate + LPP + 3a`. Fixed consumers in this slice: streak/milestones and Pulse `FocusSelector` patrimoine aperçu.
+>
+> **Reconciliation status rule:** Consumers that need the user's current wealth base for a life-event decision MUST read `PatrimoineProfile.wealthReconciliation` or build an explicit domain-specific net reconciliation rather than raw `wealthEstimate`. `detailsExceedEstimate` means the user estimate is stale against known components; `estimateExceedsKnownDetails` means the aggregate likely contains uncollected components and should be decomposed before high-stakes output. Succession/donation reserve calculations are net-mass use cases: gross property value only enters once mortgage/debt context is known, and investment assets only enter once the explicit amount key `q_investments_total` exists with a positive value.
 
 ### 4.3 Dettes detail (S45 enrichment)
 

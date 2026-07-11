@@ -46,6 +46,7 @@ flowchart LR
     CROSS --> ARB
     TAX --> ARB
     PROFILE --> DISABILITY[DisabilityInsuranceCalculator]:::calc
+    PROFILE --> WEALTH[WealthFinancialFacts]:::calc
     PROFILE --> SUCCESSION[SuccessionReserveCalculator]:::calc
     LAMAL_FACTS[LAMal Ledger Facts]:::profile --> LAMAL[LamalPremiumNormalizer]:::calc
 
@@ -99,6 +100,7 @@ Julien + Lauren golden values.
 | **CoachReasoner** | `coach_reasoner.dart` | CoachContext | reasoning chain | CoachNarrativeService advanced narratives |
 | **DisabilityInsuranceCalculator** | `disability_insurance_calculator.dart` | gross monthly salary, age, liquid savings, monthly fixed charges, IJM scenario flag | reserve months, employer/IJM/AI+LPP timeline income, LPP reset capital, life-drop % | DisabilityGapScreen, DisabilityInsuranceScreen |
 | **LamalPremiumNormalizer** | `lamal_premium_normalizer.dart` | actual monthly premium, current franchise, adult/child flag, franchise savings table | monthly premium normalized to CHF 300 franchise baseline | LamalFranchiseService, LamalFranchiseScreen |
+| **WealthFinancialFacts** | `wealth_financial_facts.dart` | cash, investments, property market value, broad wealth estimate | property net value, net wealth, consumer debt, aggregate-vs-detail reconciliation status and resolved total | PatrimoineProfile, DonationScreen, patrimoine and life-event consumers |
 | **GiftTaxConfirmation** | `gift_tax_confirmation.dart` | none | no computed cantonal gift-tax rate/amount sentinel for confirmation states | DonationService |
 | **SuccessionReserveCalculator** | `succession_reserve_calculator.dart` | estate reference, civil status, children count | Swiss compulsory-heir reserve, disposable portion, spouse/children context flags, large-donation threshold | DonationService |
 | **IndependentProtectionFinancialFacts** | `independent_protection_financial_facts.dart` | declared independent annual net income proxy, age, declared vested-benefits balance | monthly AVS extra share + LPP employer-share proxy on coordinated salary; named educational proxies for voluntary LPP tax saving, IJM/LAA protection cost and five-year vested-benefits scenarios; illustrative until former gross/insured salary and real insurance quotes are known | IndependantScreen |

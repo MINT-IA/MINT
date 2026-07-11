@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/wealth_financial_facts.dart';
 
 /// Unit tests for CoachProfile model — Sprint C1 (MINT Coach)
 ///
@@ -163,7 +164,8 @@ void main() {
           reason: 'prevoyance.canContribute3a enforced false for FATCA');
     });
 
-    test('FATCA: copyWith enforces canContribute3a=false when isFatcaResident=true',
+    test(
+        'FATCA: copyWith enforces canContribute3a=false when isFatcaResident=true',
         () {
       const conj = ConjointProfile(
         prevoyance: PrevoyanceProfile(avoirLppTotal: 50000),
@@ -201,8 +203,7 @@ void main() {
         },
       };
       final conj = ConjointProfile.fromJson(json);
-      expect(conj.canContribute3a, false,
-          reason: 'FATCA hard block active');
+      expect(conj.canContribute3a, false, reason: 'FATCA hard block active');
       expect(conj.prevoyance?.canContribute3a, false,
           reason: 'prevoyance FATCA block enforced');
       expect(conj.isFatcaResident, true,
@@ -377,6 +378,39 @@ void main() {
       expect(detailsAboveEstimate.totalPatrimoine, 420000);
     });
 
+    test('wealthReconciliation exposes aggregate-vs-detail status', () {
+      const estimateOnly = PatrimoineProfile(wealthEstimate: 350000);
+      const broadEstimateAboveDetails = PatrimoineProfile(
+        epargneLiquide: 120000,
+        propertyMarketValue: 900000,
+        wealthEstimate: 1250000,
+      );
+      const detailsAboveEstimate = PatrimoineProfile(
+        epargneLiquide: 250000,
+        propertyMarketValue: 900000,
+        wealthEstimate: 500000,
+      );
+
+      expect(
+        estimateOnly.wealthReconciliation.status,
+        WealthReconciliationStatus.estimateOnly,
+      );
+      expect(
+        broadEstimateAboveDetails.wealthReconciliation.status,
+        WealthReconciliationStatus.estimateExceedsKnownDetails,
+      );
+      expect(broadEstimateAboveDetails.totalPatrimoine, 1250000);
+      expect(
+        detailsAboveEstimate.wealthReconciliation.status,
+        WealthReconciliationStatus.detailsExceedEstimate,
+      );
+      expect(detailsAboveEstimate.totalPatrimoine, 1150000);
+      expect(
+        detailsAboveEstimate.wealthReconciliation.contradictsKnownDetails,
+        isTrue,
+      );
+    });
+
     test('fromWizardAnswers lets wealth estimate beat heuristic liquidity', () {
       final profile = CoachProfile.fromWizardAnswers({
         'q_wealth_estimate': 350000,
@@ -385,6 +419,30 @@ void main() {
 
       expect(profile.patrimoine.epargneLiquide, 15000);
       expect(profile.patrimoine.totalPatrimoine, 350000);
+    });
+
+    test('fromWizardAnswers marks only explicit investment amount as provided',
+        () {
+      final legacyPersisted = CoachProfile.fromWizardAnswers({
+        'q_investissements': 300000,
+      });
+      final explicitAmount = CoachProfile.fromWizardAnswers({
+        'q_investments_total': 300000,
+      });
+      final zeroAmountWithHasFlag = CoachProfile.fromWizardAnswers({
+        'q_has_investments': 'yes',
+        'q_investments_total': 0,
+      });
+
+      expect(
+        legacyPersisted.userProvidedFields,
+        isNot(contains('investments')),
+      );
+      expect(explicitAmount.userProvidedFields, contains('investments'));
+      expect(
+        zeroAmountWithHasFlag.userProvidedFields,
+        isNot(contains('investments')),
+      );
     });
   });
 

@@ -7,6 +7,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/donation_service.dart';
+import 'package:mint_mobile/services/financial_core/wealth_financial_facts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -1282,12 +1283,6 @@ class _DonationLedgerFacts {
         provided.contains('civilStatus') ? profile.etatCivil : null;
     final children =
         provided.contains('children') ? profile.nombreEnfants : null;
-    final wealthEstimate = profile.patrimoine.wealthEstimate;
-    final wealthReference = provided.contains('wealthEstimate') &&
-            wealthEstimate != null &&
-            wealthEstimate > 0
-        ? wealthEstimate
-        : null;
     final propertyValue = profile.patrimoine.immobilierEffectif;
     final propertyMarketValue =
         provided.contains('propertyMarketValue') && propertyValue > 0
@@ -1299,6 +1294,28 @@ class _DonationLedgerFacts {
             mortgage != null &&
             mortgage >= 0
         ? mortgage
+        : null;
+    final estatePropertyNet =
+        propertyMarketValue != null && mortgageBalance != null
+            ? WealthFinancialFacts.propertyNetValue(
+                propertyValue: propertyMarketValue,
+                mortgageBalance: mortgageBalance,
+              )
+            : 0.0;
+    final estateReference = WealthFinancialFacts.reconcileAggregate(
+      cash: provided.contains('liquidSavings')
+          ? profile.patrimoine.epargneLiquide
+          : 0,
+      investments: provided.contains('investments')
+          ? profile.patrimoine.investissements
+          : 0,
+      propertyValue: estatePropertyNet,
+      wealthEstimate: profile.patrimoine.wealthEstimate,
+    );
+    final wealthReference = provided.contains('wealthEstimate') &&
+            estateReference.hasEstimate &&
+            estateReference.resolvedTotal > 0
+        ? estateReference.resolvedTotal
         : null;
 
     return _DonationLedgerFacts(

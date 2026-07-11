@@ -140,6 +140,14 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_property_market_value` (double, valeur vénale estimée du bien immobilier),
   `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
   `_coach_dettes_autres`
+- `q_wealth_estimate` is a broad aggregate estimate. Runtime consumers must
+  use `PatrimoineProfile.wealthReconciliation` to distinguish estimate-only,
+  detail-only, aligned, stale estimate, and missing-detail states instead of
+  reading the raw estimate as a second source of truth.
+- `q_investments_total > 0` marks `investments` as a user-provided amount;
+  high-stakes life-event screens may use it in net estate reconciliation, while
+  `q_has_investments` and legacy persistence key `q_investissements` remain
+  insufficient.
 
 **Fiscal**
 - `_coach_tax_revenu_imposable`, `_coach_tax_fortune_imposable`,

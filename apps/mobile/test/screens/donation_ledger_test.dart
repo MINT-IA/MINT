@@ -168,6 +168,63 @@ void main() {
     expect(find.textContaining('GE', skipOffstage: false), findsWidgets);
   });
 
+  testWidgets('uses net estate details when they exceed the broad estimate',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider({
+      'q_birth_year': DateTime.now().year - 62,
+      'q_canton': 'GE',
+      'q_children': 2,
+      'q_civil_status': 'marie',
+      'q_wealth_estimate': 500000,
+      'q_property_market_value': 900000,
+      '_coach_dettes_hypotheque': 100000,
+    });
+
+    await tester.pumpWidget(_buildDonationRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("800'000", skipOffstage: false), findsWidgets);
+    expect(find.textContaining("900'000", skipOffstage: false), findsNothing);
+    expect(find.textContaining("500'000", skipOffstage: false), findsNothing);
+  });
+
+  testWidgets('includes user-provided investments in the net estate base',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider({
+      'q_birth_year': DateTime.now().year - 62,
+      'q_canton': 'GE',
+      'q_children': 2,
+      'q_civil_status': 'marie',
+      'q_wealth_estimate': 500000,
+      'q_property_market_value': 900000,
+      '_coach_dettes_hypotheque': 100000,
+      'q_investments_total': 300000,
+    });
+
+    await tester.pumpWidget(_buildDonationRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("1'100'000", skipOffstage: false), findsWidgets);
+  });
+
+  testWidgets('does not let gross property override wealth without mortgage',
+      (tester) async {
+    final provider = _RecordingCoachProfileProvider({
+      'q_birth_year': DateTime.now().year - 62,
+      'q_canton': 'GE',
+      'q_children': 2,
+      'q_civil_status': 'marie',
+      'q_wealth_estimate': 500000,
+      'q_property_market_value': 900000,
+    });
+
+    await tester.pumpWidget(_buildDonationRouter(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("500'000", skipOffstage: false), findsWidgets);
+    expect(find.textContaining("900'000", skipOffstage: false), findsNothing);
+  });
+
   testWidgets('non-exempt relationship shows tax confirmation state',
       (tester) async {
     final provider = _RecordingCoachProfileProvider({
