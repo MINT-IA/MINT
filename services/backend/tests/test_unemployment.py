@@ -243,7 +243,7 @@ class TestDuration:
         assert result["nombre_indemnites"] == 400
 
     def test_duration_age_55_59(self, calculator):
-        """55+ with 22+ months -> 520 indemnities (LACI art. 27 al. 2 lit. d)."""
+        """55+ with 22+ months -> 520 indemnities (LACI art. 27 al. 2 lit. c)."""
         result = calculator.calculate(
             gain_assure_mensuel=8000,
             age=57,
@@ -291,7 +291,7 @@ class TestDuration:
         assert result["duree_mois"] == expected
 
     def test_edge_case_age_55_boundary(self, calculator):
-        """Age exactly 55 with 22+ months -> 520 (LACI art. 27 al. 2 lit. d)."""
+        """Age exactly 55 with 22+ months -> 520 (LACI art. 27 al. 2 lit. c)."""
         result = calculator.calculate(
             gain_assure_mensuel=8000,
             age=55,

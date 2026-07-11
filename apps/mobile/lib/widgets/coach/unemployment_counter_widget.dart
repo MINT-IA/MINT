@@ -33,7 +33,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
     if (age < acAgeSeuillSenior) {
       return acJoursStandard; // 400 j — LACI art. 27 al. 2 lit. c
     }
-    return acJoursSenior; // 520 j — LACI art. 27 al. 2 lit. d
+    return acJoursSenior; // 520 j — LACI art. 27 al. 2 lit. c
   }
 
   static String _ageLabel(S l10n, int age) {

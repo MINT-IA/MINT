@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
 
 void main() {
   group('AvsCalculator.computeMonthlyRente', () {
@@ -461,6 +462,33 @@ void main() {
 
   // F2-7: AVS21 gender-aware reference age tests (LAVS art. 21 al. 1)
   group('AvsCalculator — AVS21 gender-aware reference age', () {
+    test('women born 1961-1963 expose exact AVS21 reference months', () {
+      expect(
+        avsReferenceAgeMonths(birthYear: 1961, isFemale: true),
+        equals(64 * 12 + 3),
+      );
+      expect(
+        avsReferenceAgeMonths(birthYear: 1962, isFemale: true),
+        equals(64 * 12 + 6),
+      );
+      expect(
+        avsReferenceAgeMonths(birthYear: 1963, isFemale: true),
+        equals(64 * 12 + 9),
+      );
+    });
+
+    test('woman born 1962 retiring at 64 gets half-year AVS21 anticipation penalty', () {
+      final rente = AvsCalculator.computeMonthlyRente(
+        currentAge: 55,
+        retirementAge: 64,
+        grossAnnualSalary: 100000,
+        isFemale: true,
+        birthYear: 1962,
+      );
+
+      expect(rente, closeTo(avsRenteMaxMensuelle * (1 - 0.068 * 0.5), 1));
+    });
+
     test('woman born 1960 → reference age 64 (pre-AVS21)', () {
       final refAge = avsReferenceAge(birthYear: 1960, isFemale: true);
       expect(refAge, equals(64));

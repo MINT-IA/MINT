@@ -28,6 +28,8 @@ flowchart LR
     PROFILE[CoachProfile]:::profile
 
     PROFILE --> AVS[AvsCalculator]:::calc
+    PROFILE --> AVS_REF[AvsReferenceAge]:::calc
+    AVS_REF --> AVS
     PROFILE --> LPP[LppCalculator]:::calc
     PROFILE --> TAX[TaxCalculator]:::calc
     PROFILE --> HOUSING[HousingCostCalculator]:::calc
@@ -77,6 +79,7 @@ Julien + Lauren golden values.
 | Calculator | File | Inputs | Returns | Primary consumers |
 |---|---|---|---|---|
 | **AvsCalculator** | `avs_calculator.dart` | RAMD, years, gaps | monthly rente | FriCalculator, RetirementDashboardScreen, coach_narrative |
+| **AvsReferenceAge** | `avs_reference_age.dart` | birth year/date, gender | AVS21 reference age in months/years/date + reached-window checks | AvsCalculator, LACI/retirement eligibility surfaces |
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
 | **HousingCostCalculator** | `housing_cost_calculator.dart` | loyer/hyp + canton | monthly housing effective cost | FriCalculator, budget calcs |

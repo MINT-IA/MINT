@@ -57,7 +57,7 @@ void main() {
     );
   });
 
-  // LACI art. 27 al. 2 lit. d : âge >= 55 + >= 22 mois cotisation = 520 jours
+  // LACI art. 27 al. 2 lit. c : âge >= 55 + >= 22 mois cotisation = 520 jours
   testWidgets('shows 520 days for age 57', (tester) async {
     await tester.pumpWidget(buildWidget(age: 57));
     expect(find.textContaining('520'), findsWidgets);

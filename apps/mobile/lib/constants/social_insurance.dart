@@ -138,22 +138,17 @@ const int avsAgeReferenceHomme = 65;
 /// Age de reference AVS femmes (depuis reforme AVS 21).
 const int avsAgeReferenceFemme = 65;
 
-/// AVS21 reference age by gender and birth year (LAVS art. 21 al. 1).
+/// AVS21 reference age for legacy annual integer APIs.
 ///
-/// Women born 1961-1963 have transitional reference ages:
-/// - Born 1960 or earlier: 64 (pre-AVS21)
-/// - Born 1961: 64 years 3 months (simplified to 64 for annual calc)
-/// - Born 1962: 64 years 6 months (simplified to 64 for annual calc)
-/// - Born 1963: 64 years 9 months (simplified to 65 for annual calc)
-/// - Born 1964+: 65 (full AVS21 alignment)
-/// Men: 65 (unchanged).
+/// This preserves the historical annual buckets used by older calculators:
+/// 1961/1962 are exposed as 64, 1963 as 65. Exact AVS21 month-level
+/// transitions belong in financial_core's AvsReferenceAge helpers.
 int avsReferenceAge({required int birthYear, required bool isFemale}) {
-  if (!isFemale) return avsAgeReferenceHomme; // 65
+  if (!isFemale) return avsAgeReferenceHomme;
   if (birthYear <= 1960) return 64;
-  if (birthYear == 1961) return 64; // +3 months (simplified to 64)
-  if (birthYear == 1962) return 64; // +6 months (simplified to 64)
-  if (birthYear == 1963) return 65; // +9 months (simplified to 65)
-  return avsAgeReferenceFemme; // 65
+  if (birthYear == 1961) return 64;
+  if (birthYear == 1962) return 64;
+  return avsAgeReferenceFemme; // covers 1963 (+9 months bucketed to 65) and 1964+
 }
 
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
@@ -338,7 +333,7 @@ const int acJoursStandard = 400;
 /// 22-24 mois de cotisation, age >= 55 ans ou rente d'invalidite >= 40%.
 const int acJoursSenior = 520;
 
-/// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. d).
+/// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. c).
 const int acAgeSeuillSenior = 55;
 
 // ══════════════════════════════════════════════════════════════════════════════

@@ -1,4 +1,5 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/avs_reference_age.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 // ALL AVS calculations MUST use AvsCalculator from financial_core.
@@ -43,8 +44,8 @@ class AvsCalculator {
   }) {
     // Determine gender-aware reference age (AVS21, LAVS art. 21 al. 1)
     final refAge = (isFemale != null && birthYear != null)
-        ? avsReferenceAge(birthYear: birthYear, isFemale: isFemale)
-        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+        ? avsReferenceAgeYears(birthYear: birthYear, isFemale: isFemale)
+        : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble());
 
     // 1. Contribution years
     final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
@@ -109,7 +110,7 @@ class AvsCalculator {
       final yearsEarly = refAge - retirementAge;
       rente *= (1.0 - reg('avs.anticipation_reduction', avsReductionAnticipation) * yearsEarly);
     } else if (retirementAge > refAge) {
-      final yearsLate = (retirementAge - refAge).clamp(1, 5);
+      final yearsLate = (retirementAge - refAge).clamp(1, 5).round();
       final bonus = avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!;
       rente *= (1.0 + bonus);
     }
