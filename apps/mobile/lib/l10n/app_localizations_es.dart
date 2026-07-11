@@ -3249,6 +3249,24 @@ class SEs extends S {
   String get donationFortuneTotale => 'Patrimonio total del donante';
 
   @override
+  String get donationEstateBaseLabel => 'Base sucesoria neta estimada';
+
+  @override
+  String get donationEstateBaseDerivedHint =>
+      'Base reconstruida con los datos patrimoniales confirmados.';
+
+  @override
+  String get donationEstateReconcileHint =>
+      'La estimación y los detalles patrimoniales difieren: desglosar antes de decidir.';
+
+  @override
+  String get donationEstateMortgageMissingHint =>
+      'Inmueble conocido, pero falta la hipoteca: la base sigue siendo prudente.';
+
+  @override
+  String get donationEstateMortgageCta => 'Añadir hipoteca';
+
+  @override
   String get donationRegimeMatrimonial => 'Régimen matrimonial';
 
   @override

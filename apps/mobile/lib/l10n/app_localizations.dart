@@ -5955,6 +5955,36 @@ abstract class S {
   /// **'Fortune totale du donateur'**
   String get donationFortuneTotale;
 
+  /// No description provided for @donationEstateBaseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assiette successorale nette estimée'**
+  String get donationEstateBaseLabel;
+
+  /// No description provided for @donationEstateBaseDerivedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base reconstruite avec les faits patrimoniaux confirmés.'**
+  String get donationEstateBaseDerivedHint;
+
+  /// No description provided for @donationEstateReconcileHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation et détails patrimoniaux divergent : à décomposer avant décision.'**
+  String get donationEstateReconcileHint;
+
+  /// No description provided for @donationEstateMortgageMissingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien immobilier connu, mais hypothèque manquante : l’assiette reste prudente.'**
+  String get donationEstateMortgageMissingHint;
+
+  /// No description provided for @donationEstateMortgageCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter l’hypothèque'**
+  String get donationEstateMortgageCta;
+
   /// No description provided for @donationRegimeMatrimonial.
   ///
   /// In fr, this message translates to:

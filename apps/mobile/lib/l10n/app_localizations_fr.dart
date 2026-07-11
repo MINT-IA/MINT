@@ -3246,6 +3246,24 @@ class SFr extends S {
   String get donationFortuneTotale => 'Fortune totale du donateur';
 
   @override
+  String get donationEstateBaseLabel => 'Assiette successorale nette estimée';
+
+  @override
+  String get donationEstateBaseDerivedHint =>
+      'Base reconstruite avec les faits patrimoniaux confirmés.';
+
+  @override
+  String get donationEstateReconcileHint =>
+      'Estimation et détails patrimoniaux divergent : à décomposer avant décision.';
+
+  @override
+  String get donationEstateMortgageMissingHint =>
+      'Bien immobilier connu, mais hypothèque manquante : l’assiette reste prudente.';
+
+  @override
+  String get donationEstateMortgageCta => 'Ajouter l’hypothèque';
+
+  @override
   String get donationRegimeMatrimonial => 'Régime matrimonial';
 
   @override

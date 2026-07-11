@@ -151,6 +151,10 @@ void main() {
 
     expect(find.text('62 ans', skipOffstage: false), findsWidgets);
     expect(find.text('GE', skipOffstage: false), findsWidgets);
+    expect(
+      find.text('Assiette successorale nette estimée', skipOffstage: false),
+      findsWidgets,
+    );
     expect(find.textContaining("1'250'000", skipOffstage: false), findsWidgets);
     expect(find.text('Manquant', skipOffstage: false), findsNothing);
 
@@ -184,6 +188,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining("800'000", skipOffstage: false), findsWidgets);
+    expect(
+      find.textContaining('Estimation et détails patrimoniaux divergent',
+          skipOffstage: false),
+      findsOneWidget,
+    );
     expect(find.textContaining("900'000", skipOffstage: false), findsNothing);
     expect(find.textContaining("500'000", skipOffstage: false), findsNothing);
   });
@@ -222,6 +231,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining("500'000", skipOffstage: false), findsWidgets);
+    expect(
+      find.textContaining('hypothèque manquante', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('donation_wealth_fact')),
+        matching: find.byIcon(Icons.warning_amber_rounded),
+      ),
+      findsOneWidget,
+    );
+    await tester
+        .ensureVisible(find.byKey(const Key('donation_estate_mortgage_cta')));
+    await tester.tap(find.byKey(const Key('donation_estate_mortgage_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_stub')), findsOneWidget);
+    expect(
+      find.textContaining('patrimoine _coach_dettes_hypotheque'),
+      findsOneWidget,
+    );
     expect(find.textContaining("900'000", skipOffstage: false), findsNothing);
   });
 

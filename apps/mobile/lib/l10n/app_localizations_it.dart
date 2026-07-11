@@ -3257,6 +3257,24 @@ class SIt extends S {
   String get donationFortuneTotale => 'Patrimonio totale del donatore';
 
   @override
+  String get donationEstateBaseLabel => 'Massa ereditaria netta stimata';
+
+  @override
+  String get donationEstateBaseDerivedHint =>
+      'Base ricostruita con i dati patrimoniali confermati.';
+
+  @override
+  String get donationEstateReconcileHint =>
+      'Stima e dettagli patrimoniali divergono: scomporre prima di decidere.';
+
+  @override
+  String get donationEstateMortgageMissingHint =>
+      'Immobile noto, ma ipoteca mancante: la massa resta prudente.';
+
+  @override
+  String get donationEstateMortgageCta => 'Aggiungi ipoteca';
+
+  @override
   String get donationRegimeMatrimonial => 'Regime matrimoniale';
 
   @override

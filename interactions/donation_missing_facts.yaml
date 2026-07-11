@@ -119,7 +119,7 @@ edges:
     from: donation.route.life_event
     to: db.route.patrimoine
     trigger: tap
-    intent: "Collect mortgage balance before rendering the net value of a real-estate gift"
+    intent: "Collect mortgage balance before using property value in the net estate base or rendering a real-estate gift"
     payload:
       path_params: {type: EnrichmentType}
       query_params: {inputKey: InputKey}

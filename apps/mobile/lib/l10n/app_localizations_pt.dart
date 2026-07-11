@@ -3249,6 +3249,24 @@ class SPt extends S {
   String get donationFortuneTotale => 'Património total do doador';
 
   @override
+  String get donationEstateBaseLabel => 'Base sucessória líquida estimada';
+
+  @override
+  String get donationEstateBaseDerivedHint =>
+      'Base reconstruída com os dados patrimoniais confirmados.';
+
+  @override
+  String get donationEstateReconcileHint =>
+      'A estimativa e os detalhes patrimoniais divergem: decompor antes de decidir.';
+
+  @override
+  String get donationEstateMortgageMissingHint =>
+      'Imóvel conhecido, mas hipoteca em falta: a base continua prudente.';
+
+  @override
+  String get donationEstateMortgageCta => 'Adicionar hipoteca';
+
+  @override
   String get donationRegimeMatrimonial => 'Regime matrimonial';
 
   @override

@@ -303,6 +303,8 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 > **Absolute total rule:** Consumers that display an absolute patrimoine total while also adding explicit LPP/3a values MUST compare `detailedAssetTotal + explicit pillars` with `wealthEstimate` and use the higher value. They MUST NOT compute `wealthEstimate + LPP + 3a`. Fixed consumers in this slice: streak/milestones and Pulse `FocusSelector` patrimoine aperçu.
 >
 > **Reconciliation status rule:** Consumers that need the user's current wealth base for a life-event decision MUST read `PatrimoineProfile.wealthReconciliation` or build an explicit domain-specific net reconciliation rather than raw `wealthEstimate`. `detailsExceedEstimate` means the user estimate is stale against known components; `estimateExceedsKnownDetails` means the aggregate likely contains uncollected components and should be decomposed before high-stakes output. Succession/donation reserve calculations are net-mass use cases: gross property value only enters once mortgage/debt context is known, and investment assets only enter once the explicit amount key `q_investments_total` exists with a positive value.
+>
+> **Surfaced consumer:** `/life-event/donation` displays the resolved value as an estimated net estate base, shows a reconciliation hint when the broad estimate and detailed wealth facts materially diverge, and routes a known-property/missing-mortgage gap to `/data-block/patrimoine?inputKey=_coach_dettes_hypotheque`. It must not present a gross property value as the succession-reserve base.
 
 ### 4.3 Dettes detail (S45 enrichment)
 

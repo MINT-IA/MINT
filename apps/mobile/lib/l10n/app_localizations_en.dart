@@ -3232,6 +3232,24 @@ class SEn extends S {
   String get donationFortuneTotale => 'Donor\'s total wealth';
 
   @override
+  String get donationEstateBaseLabel => 'Estimated net estate base';
+
+  @override
+  String get donationEstateBaseDerivedHint =>
+      'Base rebuilt from confirmed wealth facts.';
+
+  @override
+  String get donationEstateReconcileHint =>
+      'Estimate and wealth details differ: decompose before deciding.';
+
+  @override
+  String get donationEstateMortgageMissingHint =>
+      'Property is known, but mortgage is missing: the estate base stays conservative.';
+
+  @override
+  String get donationEstateMortgageCta => 'Add mortgage';
+
+  @override
   String get donationRegimeMatrimonial => 'Matrimonial regime';
 
   @override

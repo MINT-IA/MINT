@@ -390,14 +390,23 @@ class _DonationScreenState extends State<DonationScreen> {
           _buildFactTile(
             key: const Key('donation_wealth_fact'),
             semanticsIdentifier: 'donation_wealth_fact',
-            label: S.of(context)!.donationFortuneTotale,
+            label: S.of(context)!.donationEstateBaseLabel,
             value: facts.wealthReference == null
                 ? null
                 : _chfFmt(facts.wealthReference!),
+            needsAttention:
+                facts.estateMortgageMissing || facts.estateNeedsReconciliation,
+            supportingText: _wealthReferenceSupportText(facts),
             route: '/data-block/patrimoine?inputKey=q_wealth_estimate',
             ctaKey: const Key('donation_wealth_missing_cta'),
             ctaSemanticsIdentifier: 'donation_wealth_missing_cta',
             ctaLabel: S.of(context)!.dataBlockPatrimoineCta,
+            secondaryRoute: facts.estateMortgageMissing
+                ? '/data-block/patrimoine?inputKey=_coach_dettes_hypotheque'
+                : null,
+            secondaryCtaKey: const Key('donation_estate_mortgage_cta'),
+            secondaryCtaSemanticsIdentifier: 'donation_estate_mortgage_cta',
+            secondaryCtaLabel: S.of(context)!.donationEstateMortgageCta,
           ),
           const SizedBox(height: 16),
         ],
@@ -414,8 +423,20 @@ class _DonationScreenState extends State<DonationScreen> {
     required Key ctaKey,
     required String ctaSemanticsIdentifier,
     required String ctaLabel,
+    bool needsAttention = false,
+    String? supportingText,
+    String? secondaryRoute,
+    Key? secondaryCtaKey,
+    String? secondaryCtaSemanticsIdentifier,
+    String? secondaryCtaLabel,
   }) {
     final isKnown = value != null && value.isNotEmpty;
+    final attention = isKnown && needsAttention;
+    final hasSecondaryAction = isKnown &&
+        secondaryRoute != null &&
+        secondaryCtaKey != null &&
+        secondaryCtaSemanticsIdentifier != null &&
+        secondaryCtaLabel != null;
     return Semantics(
       key: key,
       identifier: semanticsIdentifier,
@@ -430,8 +451,16 @@ class _DonationScreenState extends State<DonationScreen> {
         child: Row(
           children: [
             Icon(
-              isKnown ? Icons.check_circle_outline : Icons.add_circle_outline,
-              color: isKnown ? MintColors.success : MintColors.warning,
+              attention
+                  ? Icons.warning_amber_rounded
+                  : isKnown
+                      ? Icons.check_circle_outline
+                      : Icons.add_circle_outline,
+              color: attention
+                  ? MintColors.warning
+                  : isKnown
+                      ? MintColors.success
+                      : MintColors.warning,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -449,10 +478,22 @@ class _DonationScreenState extends State<DonationScreen> {
                   Text(
                     isKnown ? value : S.of(context)!.dataBlockStatusMissing,
                     style: MintTextStyles.bodyMedium(
-                      color:
-                          isKnown ? MintColors.textPrimary : MintColors.warning,
+                      color: attention
+                          ? MintColors.warning
+                          : isKnown
+                              ? MintColors.textPrimary
+                              : MintColors.warning,
                     ).copyWith(fontWeight: FontWeight.w600),
                   ),
+                  if (supportingText != null && supportingText.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      supportingText,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -465,11 +506,36 @@ class _DonationScreenState extends State<DonationScreen> {
                   onPressed: () => context.push(route),
                   child: Text(ctaLabel),
                 ),
+              )
+            else if (hasSecondaryAction)
+              Semantics(
+                identifier: secondaryCtaSemanticsIdentifier,
+                button: true,
+                child: TextButton(
+                  key: secondaryCtaKey,
+                  onPressed: () => context.push(secondaryRoute),
+                  child: Text(secondaryCtaLabel),
+                ),
               ),
           ],
         ),
       ),
     );
+  }
+
+  String? _wealthReferenceSupportText(_DonationLedgerFacts facts) {
+    if (facts.wealthReference == null) return null;
+    final l = S.of(context)!;
+    if (facts.estateMortgageMissing) {
+      return l.donationEstateMortgageMissingHint;
+    }
+    if (facts.estateNeedsReconciliation) {
+      return l.donationEstateReconcileHint;
+    }
+    if (facts.estateUsesDetailedFacts) {
+      return l.donationEstateBaseDerivedHint;
+    }
+    return null;
   }
 
   String? _civilStatusLabel(CoachCivilStatus? status) {
@@ -1261,6 +1327,9 @@ class _DonationLedgerFacts {
   final double? wealthReference;
   final double? propertyMarketValue;
   final double? mortgageBalance;
+  final bool estateUsesDetailedFacts;
+  final bool estateNeedsReconciliation;
+  final bool estateMortgageMissing;
 
   const _DonationLedgerFacts({
     required this.age,
@@ -1270,6 +1339,9 @@ class _DonationLedgerFacts {
     required this.wealthReference,
     required this.propertyMarketValue,
     required this.mortgageBalance,
+    required this.estateUsesDetailedFacts,
+    required this.estateNeedsReconciliation,
+    required this.estateMortgageMissing,
   });
 
   factory _DonationLedgerFacts.fromProfile(CoachProfile? profile) {
@@ -1312,6 +1384,11 @@ class _DonationLedgerFacts {
       propertyValue: estatePropertyNet,
       wealthEstimate: profile.patrimoine.wealthEstimate,
     );
+    final estateUsesDetailedFacts = estatePropertyNet > 0 ||
+        (provided.contains('liquidSavings') &&
+            profile.patrimoine.epargneLiquide > 0) ||
+        (provided.contains('investments') &&
+            profile.patrimoine.investissements > 0);
     final wealthReference = provided.contains('wealthEstimate') &&
             estateReference.hasEstimate &&
             estateReference.resolvedTotal > 0
@@ -1326,6 +1403,10 @@ class _DonationLedgerFacts {
       wealthReference: wealthReference,
       propertyMarketValue: propertyMarketValue,
       mortgageBalance: mortgageBalance,
+      estateUsesDetailedFacts: estateUsesDetailedFacts,
+      estateNeedsReconciliation: estateReference.needsReconciliation,
+      estateMortgageMissing:
+          propertyMarketValue != null && mortgageBalance == null,
     );
   }
 
@@ -1336,7 +1417,10 @@ class _DonationLedgerFacts {
         children = null,
         wealthReference = null,
         propertyMarketValue = null,
-        mortgageBalance = null;
+        mortgageBalance = null,
+        estateUsesDetailedFacts = false,
+        estateNeedsReconciliation = false,
+        estateMortgageMissing = false;
 
   bool canSimulate(String donationType) {
     final baseReady = age != null &&

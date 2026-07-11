@@ -3263,6 +3263,24 @@ class SDe extends S {
   String get donationFortuneTotale => 'Gesamtvermögen des Schenkers';
 
   @override
+  String get donationEstateBaseLabel => 'Geschätzte Netto-Erbmasse';
+
+  @override
+  String get donationEstateBaseDerivedHint =>
+      'Basis aus bestätigten Vermögensdaten neu aufgebaut.';
+
+  @override
+  String get donationEstateReconcileHint =>
+      'Schätzung und Vermögensdetails weichen ab: vor einer Entscheidung aufschlüsseln.';
+
+  @override
+  String get donationEstateMortgageMissingHint =>
+      'Immobilie bekannt, aber Hypothek fehlt: die Erbmasse bleibt vorsichtig.';
+
+  @override
+  String get donationEstateMortgageCta => 'Hypothek ergänzen';
+
+  @override
   String get donationRegimeMatrimonial => 'Güterstand';
 
   @override
