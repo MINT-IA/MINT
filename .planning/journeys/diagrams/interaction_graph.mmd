@@ -9,6 +9,7 @@ flowchart LR
   db_route_composition_menage["db.route.composition_menage<br/>/data-block/:type"]:::route
   db_route_patrimoine["db.route.patrimoine<br/>/data-block/:type"]:::route
   db_route_revenu["db.route.revenu<br/>/data-block/:type"]:::route
+  debt_route_ratio["debt.route.ratio<br/>/debt/ratio"]:::route
   disability_route_gap["disability.route.gap<br/>/invalidite"]:::route
   disability_route_insurance["disability.route.insurance<br/>/disability/insurance"]:::route
   disability_route_self_employed["disability.route.self_employed<br/>/disability/self-employed"]:::route
@@ -33,6 +34,11 @@ flowchart LR
   coverage_route_check -->|"coverage.edge.check.enrich_household<br/>tap / push"| db_route_composition_menage
   coverage_route_check -->|"coverage.edge.check.enrich_mortgage_balance<br/>tap / push"| db_route_patrimoine
   coverage_route_check -->|"coverage.edge.check.enrich_work<br/>tap / push"| coach_route_chat
+  debt_route_ratio -->|"debt.edge.ratio.enrich_children<br/>tap / push"| db_route_composition_menage
+  debt_route_ratio -->|"debt.edge.ratio.enrich_debt_payments<br/>tap / push"| db_route_patrimoine
+  debt_route_ratio -->|"debt.edge.ratio.enrich_household_type<br/>tap / push"| db_route_composition_menage
+  debt_route_ratio -->|"debt.edge.ratio.enrich_housing<br/>tap / push"| budget_route_setup
+  debt_route_ratio -->|"debt.edge.ratio.enrich_income<br/>tap / push"| db_route_revenu
   disability_route_gap -->|"disability.edge.gap.enrich_age<br/>tap / push"| db_route_revenu
   disability_route_gap -->|"disability.edge.gap.enrich_expenses<br/>tap / push"| budget_route_setup
   disability_route_gap -->|"disability.edge.gap.enrich_salary<br/>tap / push"| db_route_revenu

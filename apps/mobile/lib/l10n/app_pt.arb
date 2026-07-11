@@ -5439,7 +5439,6 @@
   "pulseFeedbackAddedRecently": "Adicionado recentemente",
   "debtRatioTitle": "Diagnóstico de dívida",
   "debtRatioSubLabel": "Rácio dívida / rendimento",
-  "debtRatioRefineLabel": "Refinar o diagnóstico",
   "debtRatioMinVital": "Mínimo vital (LP art. 93)",
   "debtRatioRecommandations": "Recomendações",
   "debtRatioCtaRouge": "Cria o teu plano de reembolso",
@@ -5922,13 +5921,15 @@
   "debtRatioLevelAttention": "ATENÇÃO",
   "debtRatioLevelCritique": "CRÍTICO",
   "debtRatioRevenuNet": "Rendimento líquido",
-  "debtRatioChargesDette": "Encargos com dívida",
-  "debtRatioLoyer": "Renda",
-  "debtRatioAutresCharges": "Outras despesas",
-  "debtRatioRefineSuffix": "Renda, situação, filhos",
+  "debtRatioChargesDette": "Prestações crédito/leasing",
+  "debtRatioLoyer": "Habitação",
+  "debtRatioAutresCharges": "Encargos conhecidos",
+  "debtRatioFactEstimated": "Estimado — a confirmar",
+  "debtRatioChargesIncludedInMargin": "Incluído na margem vital",
   "debtRatioSituation": "Situação",
   "debtRatioSeul": "Sozinho/a",
   "debtRatioEnCouple": "Em casal",
+  "debtRatioConcubinage": "União de facto",
   "debtRatioEnfants": "Filhos",
   "debtRatioMinimumVitalLabel": "Mínimo vital",
   "debtRatioMargeDisponible": "Margem disponível",
@@ -5939,18 +5940,6 @@
   "debtRatioDetteConseilDesc": "Aconselhamento gratuito e confidencial",
   "debtRatioCaritasNom": "Caritas — Apoio às dívidas",
   "debtRatioCaritasDesc": "Assistência no saneamento de dívidas e negociação",
-  "debtRatioValidate": "Confirmar",
-  "debtRatioMinMaxDisplay": "Mín {minVal} · Máx {maxVal}",
-  "@debtRatioMinMaxDisplay": {
-    "placeholders": {
-      "minVal": {
-        "type": "String"
-      },
-      "maxVal": {
-        "type": "String"
-      }
-    }
-  },
   "timelineHeader": "A tua vida financeira,\npasso a passo.",
   "timelineSubheader": "Ferramentas essenciais e eventos de vida — tudo está aqui.",
   "timelineSectionTitle": "A tua história",
@@ -11444,5 +11433,11 @@
   "dividendeComplianceFooter": "Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).",
   "dividendeSourcesFooter": "Fontes: LIFD art. 18, 20, 33; CO art. 660",
   "dataBlockMenageHousingStatus": "Situação de habitação",
-  "dataBlockMenageHousingFamily": "Com família/pais"
+  "dataBlockMenageHousingFamily": "Com família/pais",
+  "dataBlockMenageCivilStatus": "Estado civil",
+  "dataBlockMenageCivilSingle": "Solteiro/a",
+  "dataBlockMenageCivilMarried": "Casado/a",
+  "dataBlockMenageCivilCohabiting": "União de facto",
+  "dataBlockMenageCivilDivorced": "Divorciado/a",
+  "dataBlockMenageCivilWidowed": "Viúvo/a"
 }

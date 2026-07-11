@@ -5447,7 +5447,6 @@
   "pulseFeedbackAddedRecently": "Añadido recientemente",
   "debtRatioTitle": "Diagnóstico de deuda",
   "debtRatioSubLabel": "Ratio deuda / ingresos",
-  "debtRatioRefineLabel": "Refinar el diagnóstico",
   "debtRatioMinVital": "Mínimo vital (LP art. 93)",
   "debtRatioRecommandations": "Recomendaciones",
   "debtRatioCtaRouge": "Crea tu plan de reembolso",
@@ -5927,13 +5926,15 @@
   "debtRatioLevelAttention": "ATENCIÓN",
   "debtRatioLevelCritique": "CRÍTICO",
   "debtRatioRevenuNet": "Renta neta",
-  "debtRatioChargesDette": "Cargas de deuda",
-  "debtRatioLoyer": "Alquiler",
-  "debtRatioAutresCharges": "Otros gastos",
-  "debtRatioRefineSuffix": "Alquiler, situación, hijos",
+  "debtRatioChargesDette": "Cuotas crédito/leasing",
+  "debtRatioLoyer": "Vivienda",
+  "debtRatioAutresCharges": "Gastos conocidos",
+  "debtRatioFactEstimated": "Estimado — por confirmar",
+  "debtRatioChargesIncludedInMargin": "Incluido en el margen vital",
   "debtRatioSituation": "Situación",
   "debtRatioSeul": "Solo/a",
   "debtRatioEnCouple": "En pareja",
+  "debtRatioConcubinage": "Concubinato",
   "debtRatioEnfants": "Hijos",
   "debtRatioMinimumVitalLabel": "Mínimo vital",
   "debtRatioMargeDisponible": "Margen disponible",
@@ -5944,18 +5945,6 @@
   "debtRatioDetteConseilDesc": "Asesoramiento gratuito y confidencial",
   "debtRatioCaritasNom": "Caritas — Ayuda con deudas",
   "debtRatioCaritasDesc": "Ayuda para el saneamiento de deudas y negociación",
-  "debtRatioValidate": "Confirmar",
-  "debtRatioMinMaxDisplay": "Mín {minVal} · Máx {maxVal}",
-  "@debtRatioMinMaxDisplay": {
-    "placeholders": {
-      "minVal": {
-        "type": "String"
-      },
-      "maxVal": {
-        "type": "String"
-      }
-    }
-  },
   "timelineCatFamille": "FAMILIA",
   "timelineCatProfessionnel": "PROFESIONAL",
   "timelineCatPatrimoine": "PATRIMONIO",
@@ -11444,5 +11433,11 @@
   "dividendeComplianceFooter": "Herramienta educativa — no constituye asesoramiento financiero (LSFin).",
   "dividendeSourcesFooter": "Fuentes: LIFD art. 18, 20, 33; CO art. 660",
   "dataBlockMenageHousingStatus": "Situación de vivienda",
-  "dataBlockMenageHousingFamily": "Con familia/padres"
+  "dataBlockMenageHousingFamily": "Con familia/padres",
+  "dataBlockMenageCivilStatus": "Estado civil",
+  "dataBlockMenageCivilSingle": "Soltero/a",
+  "dataBlockMenageCivilMarried": "Casado/a",
+  "dataBlockMenageCivilCohabiting": "Concubinato",
+  "dataBlockMenageCivilDivorced": "Divorciado/a",
+  "dataBlockMenageCivilWidowed": "Viudo/a"
 }

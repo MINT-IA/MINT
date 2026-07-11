@@ -67,7 +67,7 @@ void main() {
       expect(result.minimumVital, 1200.0);
     });
 
-    test('minimum vital for couple is 1750 CHF', () {
+    test('minimum vital for couple is 1700 CHF', () {
       final result = DebtRatioCalculator.calculate(
         revenusMensuels: 6000,
         chargesDetteMensuelles: 0,
@@ -75,10 +75,10 @@ void main() {
         estCelibataire: false,
         nombreEnfants: 0,
       );
-      expect(result.minimumVital, 1750.0);
+      expect(result.minimumVital, 1700.0);
     });
 
-    test('minimum vital includes 400 CHF per child', () {
+    test('minimum vital uses conservative 600 CHF per child without ages', () {
       final result = DebtRatioCalculator.calculate(
         revenusMensuels: 6000,
         chargesDetteMensuelles: 0,
@@ -86,8 +86,8 @@ void main() {
         estCelibataire: true,
         nombreEnfants: 3,
       );
-      // 1200 + 3 * 400 = 2400
-      expect(result.minimumVital, 2400.0);
+      // 1200 + 3 * 600 = 3000 when child ages are unknown.
+      expect(result.minimumVital, 3000.0);
     });
 
     test('marge disponible computed correctly', () {
@@ -146,7 +146,8 @@ void main() {
       expect(result.recommandations.length, greaterThanOrEqualTo(3));
     });
 
-    test('recommandations for rouge contain reference to professional help', () {
+    test('recommandations for rouge contain reference to professional help',
+        () {
       final result = DebtRatioCalculator.calculate(
         revenusMensuels: 4000,
         chargesDetteMensuelles: 2000,
@@ -173,16 +174,19 @@ void main() {
       expect(result.recommandations.first, contains('LP art. 93'));
     });
 
-    test('disclaimer is present and mentions pedagogique and LP art. 93', () {
+    test('disclaimer is present and mentions pédagogique and LP art. 93', () {
       final result = DebtRatioCalculator.calculate(
         revenusMensuels: 5000,
         chargesDetteMensuelles: 500,
         loyer: 1500,
       );
       expect(result.disclaimer, isNotEmpty);
-      expect(result.disclaimer, contains('pedagogique'));
+      expect(result.disclaimer, contains('pédagogique'));
       expect(result.disclaimer, contains('LP art. 93'));
       expect(result.disclaimer, contains('ne constitue pas'));
+      expect(result.disclaimer, contains('office des poursuites'));
+      expect(result.disclaimer, contains('impôts'));
+      expect(result.disclaimer, contains('supplément enfant haut'));
     });
 
     test('premierEclairage contains ratio value and text', () {

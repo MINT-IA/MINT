@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
-// Debt Prevention Service — Sprint S16 (Prevention de la dette)
+// Debt Prevention Service — Sprint S16 (Prévention de la dette)
 //
-// Trois modules pedagogiques :
+// Trois modules pédagogiques :
 //   A. DebtRatioCalculator   — diagnostic ratio dette / revenus
 //   B. RepaymentPlanner      — plan de remboursement avalanche vs boule de neige
 //   C. DebtHelpResources     — ressources d'aide cantonales
 //
-// Base legale : LP art. 93 (minimum vital), LCC (loi sur le credit a la consommation)
+// Base légale : LP art. 93 (minimum vital), LCC (loi sur le crédit à la consommation)
 // ============================================================================
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -57,10 +57,17 @@ class DebtRatioResult {
 
 class DebtRatioCalculator {
   /// Minimum vital selon LP art. 93.
-  /// Montants mensuels de base.
+  /// Montants mensuels de base des lignes directrices de poursuite
+  /// (Conférence des préposés aux poursuites et faillites de Suisse,
+  /// minimum d'existence LP art. 93; relais cantonal officiel FR 2026:
+  /// https://www.fr.ch/document/117951):
+  /// CHF 1'200 personne seule, CHF 1'700 couple, CHF 400 enfant <=10 ans,
+  /// CHF 600 enfant >10 ans.
+  /// Faute d'âge par enfant dans le profil, MINT utilise le supplément haut
+  /// pour éviter une fausse absence d'alerte sur un écran de prévention dette.
   static const double _minimumVitalCelibataire = 1200.0;
-  static const double _minimumVitalCouple = 1750.0;
-  static const double _supplementEnfant = 400.0;
+  static const double _minimumVitalCouple = 1700.0;
+  static const double _supplementEnfantAgeInconnu = 600.0;
 
   /// Calcule le ratio d'endettement et le diagnostic.
   ///
@@ -84,9 +91,8 @@ class DebtRatioCalculator {
     final clampedAutres = autresChargesFixes.clamp(0.0, 50000.0);
 
     // Ratio d'endettement : charges de dette / revenus
-    final ratio = clampedRevenus > 0
-        ? (clampedDettes / clampedRevenus * 100)
-        : 0.0;
+    final ratio =
+        clampedRevenus > 0 ? (clampedDettes / clampedRevenus * 100) : 0.0;
 
     // Niveau de risque
     final DebtRiskLevel niveau;
@@ -99,11 +105,10 @@ class DebtRatioCalculator {
     }
 
     // Minimum vital (LP art. 93)
-    final minVitalBase = estCelibataire
-        ? _minimumVitalCelibataire
-        : _minimumVitalCouple;
+    final minVitalBase =
+        estCelibataire ? _minimumVitalCelibataire : _minimumVitalCouple;
     final minimumVital =
-        minVitalBase + (nombreEnfants * _supplementEnfant);
+        minVitalBase + (nombreEnfants * _supplementEnfantAgeInconnu);
 
     // Marge disponible apres charges
     final totalCharges = clampedDettes + clampedLoyer + clampedAutres;
@@ -169,10 +174,14 @@ class DebtRatioCalculator {
       ),
       recommandations: recommandations,
       disclaimer:
-          'Ce diagnostic est pedagogique et ne constitue pas un avis juridique '
-          'ou financier. Le minimum vital (LP art. 93) varie selon la situation '
-          'personnelle et le canton. Pour une analyse personnalisee, '
-          'consultez un service de conseil en dettes agree.',
+          'Ce diagnostic est pédagogique et ne constitue pas un avis juridique '
+          'ou financier. Le minimum vital LP art. 93 est un repère: l\'office '
+          'des poursuites apprécie le cas concret, le loyer, les intérêts '
+          'hypothécaires, la LAMal, les enfants et les pièces justificatives. '
+          'Sans âge détaillé des enfants, MINT retient le supplément enfant '
+          'haut pour éviter une fausse absence d\'alerte. Les impôts ne sont '
+          'en principe pas inclus. Pour une analyse adaptée, consulte un '
+          'service de conseil en dettes reconnu.',
     );
   }
 }
@@ -307,8 +316,7 @@ class RepaymentPlanner {
       economieInterets: economieInterets.abs(),
       premierEclairage: DebtPremierEclairage(
         montant: meilleur.moisJusquaLiberation.toDouble(),
-        texte:
-            'Libere dans ${meilleur.moisJusquaLiberation} mois — '
+        texte: 'Libere dans ${meilleur.moisJusquaLiberation} mois — '
             'CHF ${formatChf(economieInterets.abs())} d\'interets economises',
         niveau: meilleur.moisJusquaLiberation <= 24
             ? DebtRiskLevel.vert
@@ -316,8 +324,7 @@ class RepaymentPlanner {
                 ? DebtRiskLevel.orange
                 : DebtRiskLevel.rouge,
       ),
-      disclaimer:
-          'Cette simulation est pedagogique et ne prend pas en compte '
+      disclaimer: 'Cette simulation est pedagogique et ne prend pas en compte '
           'les eventuelles penalites de remboursement anticipe, '
           'les frais annexes ou les variations de taux. '
           'La methode avalanche minimise les interets totaux, '
@@ -349,7 +356,7 @@ class RepaymentPlanner {
     double totalInterets = 0;
     double totalPaye = 0;
     int mois = 0;
-    const maxMois = 600; // Securite : 50 ans max
+    const maxMois = 600; // Sécurité : 50 ans max
 
     // Verifier que le budget couvre au moins les mensualites min
     final sumMin = dettes.fold<double>(0, (s, d) => s + d.mensualiteMin);
@@ -363,9 +370,8 @@ class RepaymentPlanner {
       // Calculer les interets mensuels
       final interetsMensuels = <double>[];
       for (int i = 0; i < dettes.length; i++) {
-        final interet = soldes[i] > 0
-            ? soldes[i] * (dettes[i].tauxAnnuel / 12)
-            : 0.0;
+        final interet =
+            soldes[i] > 0 ? soldes[i] * (dettes[i].tauxAnnuel / 12) : 0.0;
         interetsMensuels.add(interet);
         totalInterets += interet;
       }
@@ -452,7 +458,8 @@ class RepaymentPlanner {
     switch (strategie) {
       case RepaymentStrategy.avalanche:
         // Taux le plus eleve d'abord
-        indices.sort((a, b) => dettes[b].tauxAnnuel.compareTo(dettes[a].tauxAnnuel));
+        indices.sort(
+            (a, b) => dettes[b].tauxAnnuel.compareTo(dettes[a].tauxAnnuel));
       case RepaymentStrategy.bouleDeNeige:
         // Plus petit solde d'abord
         indices.sort((a, b) => soldes[a].compareTo(soldes[b]));

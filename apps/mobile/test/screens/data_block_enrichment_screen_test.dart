@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
@@ -364,6 +365,63 @@ void main() {
     expect(provider.profile?.userProvidedFields, contains('mortgageBalance'));
   });
 
+  testWidgets('patrimoine block inputKey collects monthly debt payments',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'patrimoine',
+        initialInputKey: 'q_debt_payments_period_chf',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('debt_payments_input')), findsOneWidget);
+    expect(find.byKey(const Key('savings_input')), findsNothing);
+    expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('debt_payments_input')), '650');
+    await tester.tap(find.byKey(const Key('patrimoine_save_cta')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('data_block_save_success')), findsOneWidget);
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_debt_payments_period_chf', 650));
+    expect(provider.profile?.dettes.totalMensualite, 650);
+    expect(
+      provider.profile?.userProvidedFields,
+      contains('monthlyDebtPayments'),
+    );
+  });
+
+  testWidgets('patrimoine debt payment prefill excludes mortgage installment',
+      (tester) async {
+    final provider = CoachProfileProvider()
+      ..updateProfile(CoachProfile.defaults().copyWith(
+        dettes: const DetteProfile(
+          mensualiteHypotheque: 2200,
+          mensualiteCreditConso: 650,
+          mensualiteLeasing: 120,
+        ),
+      ));
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'patrimoine',
+        initialInputKey: 'q_debt_payments_period_chf',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    final input = tester.widget<TextField>(
+      find.byKey(const Key('debt_payments_input')),
+    );
+    expect(input.controller!.text, '770');
+  });
+
   testWidgets('patrimoine block inputKey collects only property market value',
       (tester) async {
     final provider = CoachProfileProvider();
@@ -377,7 +435,8 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('property_market_value_input')), findsOneWidget);
+    expect(
+        find.byKey(const Key('property_market_value_input')), findsOneWidget);
     expect(find.byKey(const Key('savings_input')), findsNothing);
     expect(find.byKey(const Key('mortgage_balance_input')), findsNothing);
 
@@ -411,22 +470,93 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('children_count_input')), findsOneWidget);
+    expect(find.byKey(const Key('civil_status_single_choice')), findsOneWidget);
     expect(
         find.byKey(const Key('housing_status_renter_choice')), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('children_count_input')), '2');
+    await tester.tap(find.byKey(const Key('civil_status_married_choice')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('housing_status_owner_choice')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('household_save_cta')));
     await tester.pumpAndSettle();
 
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_children', 2));
+    expect(answers, containsPair('q_civil_status', 'marie'));
     expect(answers, containsPair('q_housing_status', 'owner'));
     expect(provider.profile?.nombreEnfants, 2);
+    expect(provider.profile?.etatCivil, CoachCivilStatus.marie);
     expect(provider.profile?.housingStatus, 'owner');
     expect(provider.profile?.userProvidedFields, contains('children'));
+    expect(provider.profile?.userProvidedFields, contains('civilStatus'));
     expect(provider.profile?.userProvidedFields, contains('housingStatus'));
+  });
+
+  testWidgets(
+      'composition menage full form does not persist untouched default facts',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(blockType: 'composition_menage'),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('children_count_input')), '1');
+    await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_children', 1));
+    expect(answers.containsKey('q_civil_status'), isFalse);
+    expect(answers.containsKey('q_housing_status'), isFalse);
+    expect(provider.profile?.userProvidedFields, contains('children'));
+    expect(
+        provider.profile?.userProvidedFields, isNot(contains('civilStatus')));
+    expect(
+      provider.profile?.userProvidedFields,
+      isNot(contains('housingStatus')),
+    );
+  });
+
+  testWidgets('composition menage inputKey collects only civil status',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'composition_menage',
+        initialInputKey: 'q_civil_status',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(
+        find.byKey(const Key('civil_status_married_choice')), findsOneWidget);
+    expect(find.byKey(const Key('children_count_input')), findsNothing);
+    expect(find.byKey(const Key('housing_status_renter_choice')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('civil_status_cohabiting_choice')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_civil_status', 'concubinage'));
+    expect(answers.containsKey('q_children'), isFalse);
+    expect(answers.containsKey('q_housing_status'), isFalse);
+    expect(provider.profile?.etatCivil, CoachCivilStatus.concubinage);
+    expect(provider.profile?.userProvidedFields, contains('civilStatus'));
   });
 
   testWidgets('revenue block seeds pension switch from existing profile',

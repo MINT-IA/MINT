@@ -2181,7 +2181,9 @@ class CoachProfile {
   ///
   /// Utile quand on a un CoachProfile mais pas les réponses wizard brutes.
   /// Le revenu net utilise NetIncomeBreakdown (canton + age).
-  /// Les dettes mensuelles sont estimées sur 36 mois de remboursement.
+  /// Les dettes mensuelles excluent l'hypothèque, déjà portée par housingCost.
+  /// Si seules des dettes de consommation en capital sont connues, elles sont
+  /// estimées sur 36 mois de remboursement.
   BudgetInputs toBudgetInputs() {
     final breakdown = NetIncomeBreakdown.compute(
       grossSalary: salaireBrutMensuel * 12,
@@ -2189,7 +2191,14 @@ class CoachProfile {
       age: age,
     );
     final netMensuel = monthlyNetIncomeDeclared ?? breakdown.monthlyNetPayslip;
-    final monthlyDebt = dettes.totalDettes > 0 ? dettes.totalDettes / 36 : 0.0;
+    final consumerMonthlyDebt = (dettes.mensualiteCreditConso ?? 0.0) +
+        (dettes.mensualiteLeasing ?? 0.0);
+    final consumerDebtPrincipal = (dettes.creditConsommation ?? 0.0) +
+        (dettes.leasing ?? 0.0) +
+        (dettes.autresDettes ?? 0.0);
+    final monthlyDebt = consumerMonthlyDebt > 0
+        ? consumerMonthlyDebt
+        : (consumerDebtPrincipal > 0 ? consumerDebtPrincipal / 36 : 0.0);
     // Estimer les mois de fonds d'urgence
     final monthlyExpenses = depenses.totalMensuel > 0
         ? depenses.totalMensuel
@@ -2765,6 +2774,8 @@ class CoachProfile {
     final hasDebt = _parseBool(answers['q_has_consumer_debt']);
     final debtPaymentsMonthly =
         _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
+    final legacyLeasingPaymentMonthly =
+        _parseDouble(answers['q_leasing_monthly']) ?? 0;
     // _coach_dettes_* keys are written by updateInline() and survive restarts.
     // They override the wizard proxy estimates (debtPayments × 24 heuristic).
     final inlineHypotheque = _parseDouble(answers['_coach_dettes_hypotheque']);
@@ -2775,6 +2786,12 @@ class CoachProfile {
         inlineCreditConso != null ||
         inlineLeasing != null ||
         inlineAutresDettes != null;
+    final monthlyConsumerDebtPayment =
+        debtPaymentsMonthly > 0 ? debtPaymentsMonthly : null;
+    final monthlyLeasingPayment =
+        debtPaymentsMonthly > 0 || legacyLeasingPaymentMonthly <= 0
+            ? null
+            : legacyLeasingPaymentMonthly;
     final dettes = (() {
       if (hasInlineDettes) {
         return DetteProfile(
@@ -2782,11 +2799,24 @@ class CoachProfile {
           creditConsommation: inlineCreditConso,
           leasing: inlineLeasing,
           autresDettes: inlineAutresDettes,
+          mensualiteCreditConso: monthlyConsumerDebtPayment,
+          mensualiteLeasing: monthlyLeasingPayment,
         );
       }
       if (debtPaymentsMonthly > 0) {
         // Proxy conservateur: principal restant ≈ 24 mois de mensualités.
-        return DetteProfile(creditConsommation: debtPaymentsMonthly * 24);
+        return DetteProfile(
+          creditConsommation: debtPaymentsMonthly * 24,
+          mensualiteCreditConso: debtPaymentsMonthly,
+        );
+      }
+      if (monthlyLeasingPayment != null) {
+        // Legacy wizard key: lease principal is unknown, so keep the same
+        // conservative 24-month proxy used for the aggregate debt payment.
+        return DetteProfile(
+          leasing: monthlyLeasingPayment * 24,
+          mensualiteLeasing: monthlyLeasingPayment,
+        );
       }
       if (hasDebt) {
         // Fallback si uniquement booléen déclaré sans montant.
@@ -3102,6 +3132,17 @@ class CoachProfile {
     if (answers.containsKey('q_children')) provided.add('children');
     if (answers.containsKey('q_housing_status')) {
       provided.add('housingStatus');
+    }
+    if (answers.containsKey('q_housing_cost_period_chf')) {
+      provided.add('housingCost');
+    }
+    if (answers.containsKey('q_debt_payments_period_chf') ||
+        answers.containsKey('q_leasing_monthly')) {
+      provided.add('monthlyDebtPayments');
+    }
+    if (answers.containsKey('q_has_consumer_debt') ||
+        answers.containsKey('q_has_leasing')) {
+      provided.add('hasDebt');
     }
     if (answers.containsKey('q_net_income_period_chf') ||
         answers.containsKey('q_gross_salary_annual')) {

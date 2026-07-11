@@ -5447,7 +5447,6 @@
   "pulseFeedbackAddedRecently": "Kürzlich hinzugefügt",
   "debtRatioTitle": "Schuldendiagnose",
   "debtRatioSubLabel": "Schulden / Einkommensverhältnis",
-  "debtRatioRefineLabel": "Diagnose verfeinern",
   "debtRatioMinVital": "Existenzminimum (SchKG Art. 93)",
   "debtRatioRecommandations": "Empfehlungen",
   "debtRatioCtaRouge": "Erstelle deinen Rückzahlungsplan",
@@ -5927,13 +5926,15 @@
   "debtRatioLevelAttention": "ACHTUNG",
   "debtRatioLevelCritique": "KRITISCH",
   "debtRatioRevenuNet": "Nettoeinkommen",
-  "debtRatioChargesDette": "Schuldenbelastung",
-  "debtRatioLoyer": "Miete",
-  "debtRatioAutresCharges": "Sonstige Kosten",
-  "debtRatioRefineSuffix": "Miete, Situation, Kinder",
+  "debtRatioChargesDette": "Kredit-/Leasingraten",
+  "debtRatioLoyer": "Wohnen",
+  "debtRatioAutresCharges": "Bekannte Kosten",
+  "debtRatioFactEstimated": "Geschätzt — zu bestätigen",
+  "debtRatioChargesIncludedInMargin": "In der Existenzminimum-Marge enthalten",
   "debtRatioSituation": "Situation",
   "debtRatioSeul": "Allein",
   "debtRatioEnCouple": "Als Paar",
+  "debtRatioConcubinage": "Konkubinat",
   "debtRatioEnfants": "Kinder",
   "debtRatioMinimumVitalLabel": "Existenzminimum",
   "debtRatioMargeDisponible": "Verfügbare Marge",
@@ -5944,18 +5945,6 @@
   "debtRatioDetteConseilDesc": "Kostenlose und vertrauliche Beratung",
   "debtRatioCaritasNom": "Caritas — Schuldenberatung",
   "debtRatioCaritasDesc": "Entschuldungshilfe und Verhandlung",
-  "debtRatioValidate": "Bestätigen",
-  "debtRatioMinMaxDisplay": "Min {minVal} · Max {maxVal}",
-  "@debtRatioMinMaxDisplay": {
-    "placeholders": {
-      "minVal": {
-        "type": "String"
-      },
-      "maxVal": {
-        "type": "String"
-      }
-    }
-  },
   "timelineCatFamille": "FAMILIE",
   "timelineCatProfessionnel": "BERUF",
   "timelineCatPatrimoine": "VERMÖGEN",
@@ -11444,5 +11433,11 @@
   "dividendeComplianceFooter": "Bildungswerkzeug — stellt keine Finanzberatung dar (FIDLEG).",
   "dividendeSourcesFooter": "Quellen: DBG/LIFD Art. 18, 20, 33; OR Art. 660",
   "dataBlockMenageHousingStatus": "Wohnstatus",
-  "dataBlockMenageHousingFamily": "Bei Familie/Eltern"
+  "dataBlockMenageHousingFamily": "Bei Familie/Eltern",
+  "dataBlockMenageCivilStatus": "Zivilstand",
+  "dataBlockMenageCivilSingle": "Ledig",
+  "dataBlockMenageCivilMarried": "Verheiratet",
+  "dataBlockMenageCivilCohabiting": "Konkubinat",
+  "dataBlockMenageCivilDivorced": "Geschieden",
+  "dataBlockMenageCivilWidowed": "Verwitwet"
 }

@@ -497,6 +497,59 @@ void main() {
     expect(provider.profile?.dettes.totalDettes, 6000);
   });
 
+  test(
+      'wizard debt ratio facts mark debt, housing, and monthly payments as provided',
+      () {
+    final profile = CoachProfile.fromWizardAnswers(const {
+      'q_gross_salary_annual': 96000,
+      'q_housing_cost_period_chf': 1800,
+      'q_debt_payments_period_chf': 650,
+      'q_has_consumer_debt': 'yes',
+      'q_civil_status': 'celibataire',
+      'q_children': 0,
+    });
+
+    expect(profile.depenses.loyer, 1800);
+    expect(profile.dettes.totalMensualite, 650);
+    expect(profile.dettes.creditConsommation, 650 * 24);
+    expect(profile.userProvidedFields, contains('housingCost'));
+    expect(profile.userProvidedFields, contains('monthlyDebtPayments'));
+    expect(profile.userProvidedFields, contains('hasDebt'));
+    expect(profile.userProvidedFields, contains('civilStatus'));
+    expect(profile.userProvidedFields, contains('children'));
+  });
+
+  test('budget bridge excludes mortgage from debt payments', () {
+    final profile = CoachProfile.fromWizardAnswers(const {
+      'q_gross_salary_annual': 96000,
+      'q_housing_cost_period_chf': 2200,
+      'q_debt_payments_period_chf': 650,
+      'q_has_consumer_debt': 'yes',
+    });
+    final withMortgage = profile.copyWith(
+      dettes: profile.dettes.copyWith(mensualiteHypotheque: 2200),
+    );
+
+    final inputs = withMortgage.toBudgetInputs();
+
+    expect(inputs.housingCost, 2200);
+    expect(inputs.debtPayments, 650);
+  });
+
+  test('legacy leasing monthly is captured as a debt payment fact', () {
+    final profile = CoachProfile.fromWizardAnswers(const {
+      'q_gross_salary_annual': 96000,
+      'q_has_leasing': 'yes',
+      'q_leasing_monthly': 420,
+    });
+
+    expect(profile.dettes.mensualiteLeasing, 420);
+    expect(profile.dettes.totalMensualite, 420);
+    expect(profile.dettes.leasing, 420 * 24);
+    expect(profile.userProvidedFields, contains('monthlyDebtPayments'));
+    expect(profile.userProvidedFields, contains('hasDebt'));
+  });
+
   test('save_fact goal writes the readable main goal key', () async {
     final provider = CoachProfileProvider();
     expect(await provider.applySaveFact('goal', 'house'), isTrue);

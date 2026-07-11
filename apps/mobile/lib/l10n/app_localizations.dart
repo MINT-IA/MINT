@@ -19855,12 +19855,6 @@ abstract class S {
   /// **'Ratio dette / revenus'**
   String get debtRatioSubLabel;
 
-  /// No description provided for @debtRatioRefineLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Affiner le diagnostic'**
-  String get debtRatioRefineLabel;
-
   /// No description provided for @debtRatioMinVital.
   ///
   /// In fr, this message translates to:
@@ -21574,26 +21568,32 @@ abstract class S {
   /// No description provided for @debtRatioChargesDette.
   ///
   /// In fr, this message translates to:
-  /// **'Charges dette'**
+  /// **'Crédits/leasing'**
   String get debtRatioChargesDette;
 
   /// No description provided for @debtRatioLoyer.
   ///
   /// In fr, this message translates to:
-  /// **'Loyer'**
+  /// **'Logement'**
   String get debtRatioLoyer;
 
   /// No description provided for @debtRatioAutresCharges.
   ///
   /// In fr, this message translates to:
-  /// **'Autres charges'**
+  /// **'Charges connues'**
   String get debtRatioAutresCharges;
 
-  /// No description provided for @debtRatioRefineSuffix.
+  /// No description provided for @debtRatioFactEstimated.
   ///
   /// In fr, this message translates to:
-  /// **'Loyer, situation, enfants'**
-  String get debtRatioRefineSuffix;
+  /// **'Estimé — à confirmer'**
+  String get debtRatioFactEstimated;
+
+  /// No description provided for @debtRatioChargesIncludedInMargin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclus dans la marge LP'**
+  String get debtRatioChargesIncludedInMargin;
 
   /// No description provided for @debtRatioSituation.
   ///
@@ -21612,6 +21612,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'En couple'**
   String get debtRatioEnCouple;
+
+  /// No description provided for @debtRatioConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubinage'**
+  String get debtRatioConcubinage;
 
   /// No description provided for @debtRatioEnfants.
   ///
@@ -21672,18 +21678,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Aide au désendettement et négociation'**
   String get debtRatioCaritasDesc;
-
-  /// No description provided for @debtRatioValidate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Valider'**
-  String get debtRatioValidate;
-
-  /// No description provided for @debtRatioMinMaxDisplay.
-  ///
-  /// In fr, this message translates to:
-  /// **'Min {minVal} · Max {maxVal}'**
-  String debtRatioMinMaxDisplay(String minVal, String maxVal);
 
   /// No description provided for @timelineCatFamille.
   ///
@@ -41164,6 +41158,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Chez famille/parents'**
   String get dataBlockMenageHousingFamily;
+
+  /// No description provided for @dataBlockMenageCivilStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation civile'**
+  String get dataBlockMenageCivilStatus;
+
+  /// No description provided for @dataBlockMenageCivilSingle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get dataBlockMenageCivilSingle;
+
+  /// No description provided for @dataBlockMenageCivilMarried.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e'**
+  String get dataBlockMenageCivilMarried;
+
+  /// No description provided for @dataBlockMenageCivilCohabiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubinage'**
+  String get dataBlockMenageCivilCohabiting;
+
+  /// No description provided for @dataBlockMenageCivilDivorced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé·e'**
+  String get dataBlockMenageCivilDivorced;
+
+  /// No description provided for @dataBlockMenageCivilWidowed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf·ve'**
+  String get dataBlockMenageCivilWidowed;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

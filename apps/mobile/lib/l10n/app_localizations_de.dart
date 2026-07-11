@@ -11250,9 +11250,6 @@ class SDe extends S {
   String get debtRatioSubLabel => 'Schulden / Einkommensverhältnis';
 
   @override
-  String get debtRatioRefineLabel => 'Diagnose verfeinern';
-
-  @override
   String get debtRatioMinVital => 'Existenzminimum (SchKG Art. 93)';
 
   @override
@@ -12216,16 +12213,20 @@ class SDe extends S {
   String get debtRatioRevenuNet => 'Nettoeinkommen';
 
   @override
-  String get debtRatioChargesDette => 'Schuldenbelastung';
+  String get debtRatioChargesDette => 'Kredit-/Leasingraten';
 
   @override
-  String get debtRatioLoyer => 'Miete';
+  String get debtRatioLoyer => 'Wohnen';
 
   @override
-  String get debtRatioAutresCharges => 'Sonstige Kosten';
+  String get debtRatioAutresCharges => 'Bekannte Kosten';
 
   @override
-  String get debtRatioRefineSuffix => 'Miete, Situation, Kinder';
+  String get debtRatioFactEstimated => 'Geschätzt — zu bestätigen';
+
+  @override
+  String get debtRatioChargesIncludedInMargin =>
+      'In der Existenzminimum-Marge enthalten';
 
   @override
   String get debtRatioSituation => 'Situation';
@@ -12235,6 +12236,9 @@ class SDe extends S {
 
   @override
   String get debtRatioEnCouple => 'Als Paar';
+
+  @override
+  String get debtRatioConcubinage => 'Konkubinat';
 
   @override
   String get debtRatioEnfants => 'Kinder';
@@ -12268,14 +12272,6 @@ class SDe extends S {
 
   @override
   String get debtRatioCaritasDesc => 'Entschuldungshilfe und Verhandlung';
-
-  @override
-  String get debtRatioValidate => 'Bestätigen';
-
-  @override
-  String debtRatioMinMaxDisplay(String minVal, String maxVal) {
-    return 'Min $minVal · Max $maxVal';
-  }
 
   @override
   String get timelineCatFamille => 'FAMILIE';
@@ -23573,4 +23569,22 @@ class SDe extends S {
 
   @override
   String get dataBlockMenageHousingFamily => 'Bei Familie/Eltern';
+
+  @override
+  String get dataBlockMenageCivilStatus => 'Zivilstand';
+
+  @override
+  String get dataBlockMenageCivilSingle => 'Ledig';
+
+  @override
+  String get dataBlockMenageCivilMarried => 'Verheiratet';
+
+  @override
+  String get dataBlockMenageCivilCohabiting => 'Konkubinat';
+
+  @override
+  String get dataBlockMenageCivilDivorced => 'Geschieden';
+
+  @override
+  String get dataBlockMenageCivilWidowed => 'Verwitwet';
 }

@@ -11242,9 +11242,6 @@ class SIt extends S {
   String get debtRatioSubLabel => 'Rapporto debito / reddito';
 
   @override
-  String get debtRatioRefineLabel => 'Affina la diagnosi';
-
-  @override
   String get debtRatioMinVital => 'Minimo vitale (LEF art. 93)';
 
   @override
@@ -12214,16 +12211,20 @@ class SIt extends S {
   String get debtRatioRevenuNet => 'Reddito netto';
 
   @override
-  String get debtRatioChargesDette => 'Oneri del debito';
+  String get debtRatioChargesDette => 'Rate credito/leasing';
 
   @override
-  String get debtRatioLoyer => 'Affitto';
+  String get debtRatioLoyer => 'Abitazione';
 
   @override
-  String get debtRatioAutresCharges => 'Altre spese';
+  String get debtRatioAutresCharges => 'Spese note';
 
   @override
-  String get debtRatioRefineSuffix => 'Affitto, situazione, figli';
+  String get debtRatioFactEstimated => 'Stimato — da confermare';
+
+  @override
+  String get debtRatioChargesIncludedInMargin =>
+      'Incluso nel margine del minimo vitale';
 
   @override
   String get debtRatioSituation => 'Situazione';
@@ -12233,6 +12234,9 @@ class SIt extends S {
 
   @override
   String get debtRatioEnCouple => 'In coppia';
+
+  @override
+  String get debtRatioConcubinage => 'Convivenza';
 
   @override
   String get debtRatioEnfants => 'Figli';
@@ -12266,14 +12270,6 @@ class SIt extends S {
   @override
   String get debtRatioCaritasDesc =>
       'Assistenza per il risanamento del debito e negoziazione';
-
-  @override
-  String get debtRatioValidate => 'Conferma';
-
-  @override
-  String debtRatioMinMaxDisplay(String minVal, String maxVal) {
-    return 'Min $minVal · Max $maxVal';
-  }
 
   @override
   String get timelineCatFamille => 'FAMIGLIA';
@@ -23577,4 +23573,22 @@ class SIt extends S {
 
   @override
   String get dataBlockMenageHousingFamily => 'Da famiglia/genitori';
+
+  @override
+  String get dataBlockMenageCivilStatus => 'Stato civile';
+
+  @override
+  String get dataBlockMenageCivilSingle => 'Celibe/nubile';
+
+  @override
+  String get dataBlockMenageCivilMarried => 'Sposato/a';
+
+  @override
+  String get dataBlockMenageCivilCohabiting => 'Convivenza';
+
+  @override
+  String get dataBlockMenageCivilDivorced => 'Divorziato/a';
+
+  @override
+  String get dataBlockMenageCivilWidowed => 'Vedovo/a';
 }

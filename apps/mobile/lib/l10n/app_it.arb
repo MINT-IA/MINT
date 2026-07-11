@@ -5439,7 +5439,6 @@
   "pulseFeedbackAddedRecently": "Aggiunto di recente",
   "debtRatioTitle": "Diagnosi debito",
   "debtRatioSubLabel": "Rapporto debito / reddito",
-  "debtRatioRefineLabel": "Affina la diagnosi",
   "debtRatioMinVital": "Minimo vitale (LEF art. 93)",
   "debtRatioRecommandations": "Raccomandazioni",
   "debtRatioCtaRouge": "Crea il tuo piano di rimborso",
@@ -5922,13 +5921,15 @@
   "debtRatioLevelAttention": "ATTENZIONE",
   "debtRatioLevelCritique": "CRITICO",
   "debtRatioRevenuNet": "Reddito netto",
-  "debtRatioChargesDette": "Oneri del debito",
-  "debtRatioLoyer": "Affitto",
-  "debtRatioAutresCharges": "Altre spese",
-  "debtRatioRefineSuffix": "Affitto, situazione, figli",
+  "debtRatioChargesDette": "Rate credito/leasing",
+  "debtRatioLoyer": "Abitazione",
+  "debtRatioAutresCharges": "Spese note",
+  "debtRatioFactEstimated": "Stimato — da confermare",
+  "debtRatioChargesIncludedInMargin": "Incluso nel margine del minimo vitale",
   "debtRatioSituation": "Situazione",
   "debtRatioSeul": "Solo/a",
   "debtRatioEnCouple": "In coppia",
+  "debtRatioConcubinage": "Convivenza",
   "debtRatioEnfants": "Figli",
   "debtRatioMinimumVitalLabel": "Minimo vitale",
   "debtRatioMargeDisponible": "Margine disponibile",
@@ -5939,18 +5940,6 @@
   "debtRatioDetteConseilDesc": "Consulenza gratuita e riservata",
   "debtRatioCaritasNom": "Caritas — Aiuto debiti",
   "debtRatioCaritasDesc": "Assistenza per il risanamento del debito e negoziazione",
-  "debtRatioValidate": "Conferma",
-  "debtRatioMinMaxDisplay": "Min {minVal} · Max {maxVal}",
-  "@debtRatioMinMaxDisplay": {
-    "placeholders": {
-      "minVal": {
-        "type": "String"
-      },
-      "maxVal": {
-        "type": "String"
-      }
-    }
-  },
   "timelineHeader": "La tua vita finanziaria,\npasso dopo passo.",
   "timelineSubheader": "Strumenti essenziali ed eventi di vita — tutto è qui.",
   "timelineSectionTitle": "La tua storia",
@@ -11444,5 +11433,11 @@
   "dividendeComplianceFooter": "Strumento educativo — non costituisce consulenza finanziaria (LSFin).",
   "dividendeSourcesFooter": "Fonti: LIFD art. 18, 20, 33; CO art. 660",
   "dataBlockMenageHousingStatus": "Situazione abitativa",
-  "dataBlockMenageHousingFamily": "Da famiglia/genitori"
+  "dataBlockMenageHousingFamily": "Da famiglia/genitori",
+  "dataBlockMenageCivilStatus": "Stato civile",
+  "dataBlockMenageCivilSingle": "Celibe/nubile",
+  "dataBlockMenageCivilMarried": "Sposato/a",
+  "dataBlockMenageCivilCohabiting": "Convivenza",
+  "dataBlockMenageCivilDivorced": "Divorziato/a",
+  "dataBlockMenageCivilWidowed": "Vedovo/a"
 }

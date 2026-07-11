@@ -11167,9 +11167,6 @@ class SEn extends S {
   String get debtRatioSubLabel => 'Debt / income ratio';
 
   @override
-  String get debtRatioRefineLabel => 'Refine the diagnostic';
-
-  @override
   String get debtRatioMinVital => 'Minimum subsistence (LP art. 93)';
 
   @override
@@ -12131,16 +12128,20 @@ class SEn extends S {
   String get debtRatioRevenuNet => 'Net income';
 
   @override
-  String get debtRatioChargesDette => 'Debt charges';
+  String get debtRatioChargesDette => 'Credit/leasing payments';
 
   @override
-  String get debtRatioLoyer => 'Rent';
+  String get debtRatioLoyer => 'Housing';
 
   @override
-  String get debtRatioAutresCharges => 'Other charges';
+  String get debtRatioAutresCharges => 'Known charges';
 
   @override
-  String get debtRatioRefineSuffix => 'Rent, situation, children';
+  String get debtRatioFactEstimated => 'Estimated — to confirm';
+
+  @override
+  String get debtRatioChargesIncludedInMargin =>
+      'Included in the subsistence margin';
 
   @override
   String get debtRatioSituation => 'Situation';
@@ -12150,6 +12151,9 @@ class SEn extends S {
 
   @override
   String get debtRatioEnCouple => 'As a couple';
+
+  @override
+  String get debtRatioConcubinage => 'Cohabiting';
 
   @override
   String get debtRatioEnfants => 'Children';
@@ -12182,14 +12186,6 @@ class SEn extends S {
 
   @override
   String get debtRatioCaritasDesc => 'Debt relief assistance and negotiation';
-
-  @override
-  String get debtRatioValidate => 'Confirm';
-
-  @override
-  String debtRatioMinMaxDisplay(String minVal, String maxVal) {
-    return 'Min $minVal · Max $maxVal';
-  }
 
   @override
   String get timelineCatFamille => 'FAMILY';
@@ -23401,4 +23397,22 @@ class SEn extends S {
 
   @override
   String get dataBlockMenageHousingFamily => 'With family/parents';
+
+  @override
+  String get dataBlockMenageCivilStatus => 'Civil status';
+
+  @override
+  String get dataBlockMenageCivilSingle => 'Single';
+
+  @override
+  String get dataBlockMenageCivilMarried => 'Married';
+
+  @override
+  String get dataBlockMenageCivilCohabiting => 'Cohabiting';
+
+  @override
+  String get dataBlockMenageCivilDivorced => 'Divorced';
+
+  @override
+  String get dataBlockMenageCivilWidowed => 'Widowed';
 }

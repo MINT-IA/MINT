@@ -197,19 +197,7 @@ void main() {
     });
 
     testWidgets('DebtRatioScreen renders without error', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(buildTestableWidget(const DebtRatioScreen()));
       await tester.pump();
 
       // i18n: debtRatioTitle = "Diagnostic dette"
@@ -329,8 +317,7 @@ void main() {
   // =========================================================================
 
   group('Disability gap screen', () {
-    testWidgets('DisabilityGapScreen renders without error',
-        (tester) async {
+    testWidgets('DisabilityGapScreen renders without error', (tester) async {
       await tester.pumpWidget(
         buildTestableWidget(const DisabilityGapScreen()),
       );

@@ -49,6 +49,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   final _electricity = TextEditingController();
   final _medical = TextEditingController();
   final _other = TextEditingController();
+  final _housingFocus = FocusNode();
   int? _lamalFranchise;
   bool _showOptional = false;
   bool _saving = false;
@@ -92,6 +93,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       setState(() {
         _lamalFranchise = _coerceFranchise(answers['q_lamal_franchise']);
       });
+      if (widget.initialFocus == 'housing') {
+        _housingFocus.requestFocus();
+      }
     });
 
     // Live total ticker — rebuild on every field change so the user sees
@@ -132,6 +136,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
 
   @override
   void dispose() {
+    _housingFocus.dispose();
     for (final c in [
       _housing,
       _lamal,
@@ -190,7 +195,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     final housing = _parseAmount(_housing.text);
     final lamal = _parseAmount(_lamal.text);
     final requiresHousing = widget.initialFocus != 'lamal';
-    if (lamal == null || (requiresHousing && housing == null)) {
+    final requiresLamal = widget.initialFocus != 'housing';
+    if ((requiresLamal && lamal == null) ||
+        (requiresHousing && housing == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(S.of(context)!.budgetSetupRequired)),
       );
@@ -198,9 +205,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     }
     setState(() => _saving = true);
     final provider = context.read<CoachProfileProvider>();
-    final answers = <String, dynamic>{
-      'q_lamal_premium_monthly_chf': lamal,
-    };
+    final answers = <String, dynamic>{};
+    if (lamal != null) {
+      answers['q_lamal_premium_monthly_chf'] = lamal;
+    }
     if (housing != null) {
       answers['q_housing_cost_period_chf'] = housing;
       answers['q_pay_frequency'] = 'monthly';
@@ -264,6 +272,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                 placeholder: _placeholderHousing,
                 fieldKey: const Key('budget_setup_housing_input'),
                 semanticsIdentifier: 'budget_setup_housing_input',
+                focusNode: _housingFocus,
               ),
               _field(
                 s.budgetSetupLamal,
@@ -365,6 +374,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     String? placeholder,
     Key? fieldKey,
     String? semanticsIdentifier,
+    FocusNode? focusNode,
   }) {
     final s = S.of(context)!;
     return Padding(
@@ -390,6 +400,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             child: TextField(
               key: fieldKey,
               controller: c,
+              focusNode: focusNode,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: false),
               inputFormatters: [

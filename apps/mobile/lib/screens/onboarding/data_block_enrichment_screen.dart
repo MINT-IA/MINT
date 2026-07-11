@@ -66,13 +66,18 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       TextEditingController();
   final TextEditingController _mortgageBalanceController =
       TextEditingController();
+  final TextEditingController _debtPaymentsController = TextEditingController();
   final TextEditingController _childrenController = TextEditingController();
   bool _revenueInputsSeeded = false;
   bool _patrimoineInputsSeeded = false;
   bool _householdInputsSeeded = false;
   bool _hasPensionFund = false;
   bool _hasPensionFundTouched = false;
+  String _civilStatus = 'celibataire';
   String _housingStatus = 'renter';
+  bool _childrenConfirmed = false;
+  bool _civilStatusConfirmed = false;
+  bool _housingStatusConfirmed = false;
   bool _isSavingRevenue = false;
   bool _isSavingPatrimoine = false;
   bool _isSavingHousehold = false;
@@ -98,6 +103,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _cashController.dispose();
     _propertyMarketValueController.dispose();
     _mortgageBalanceController.dispose();
+    _debtPaymentsController.dispose();
     _childrenController.dispose();
     super.dispose();
   }
@@ -322,14 +328,19 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     if (profile.patrimoine.epargneLiquide > 0) {
       _cashController.text = '${profile.patrimoine.epargneLiquide.round()}';
     }
-    final propertyMarketValue = profile.patrimoine.propertyMarketValue ??
-        profile.patrimoine.immobilier;
+    final propertyMarketValue =
+        profile.patrimoine.propertyMarketValue ?? profile.patrimoine.immobilier;
     if (propertyMarketValue != null && propertyMarketValue > 0) {
       _propertyMarketValueController.text = '${propertyMarketValue.round()}';
     }
     final mortgageBalance = profile.dettes.hypotheque;
     if (mortgageBalance != null && mortgageBalance >= 0) {
       _mortgageBalanceController.text = '${mortgageBalance.round()}';
+    }
+    final consumerDebtPayments = (profile.dettes.mensualiteCreditConso ?? 0) +
+        (profile.dettes.mensualiteLeasing ?? 0);
+    if (consumerDebtPayments > 0) {
+      _debtPaymentsController.text = '${consumerDebtPayments.round()}';
     }
   }
 
@@ -338,6 +349,11 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _householdInputsSeeded = true;
     if (profile == null) return;
     _childrenController.text = '${profile.nombreEnfants}';
+    _civilStatus = profile.etatCivil.name;
+    _childrenConfirmed = profile.userProvidedFields.contains('children');
+    _civilStatusConfirmed = profile.userProvidedFields.contains('civilStatus');
+    _housingStatusConfirmed =
+        profile.userProvidedFields.contains('housingStatus');
     final status = profile.housingStatus;
     if (status == 'owner' ||
         status == 'proprietaire' ||
@@ -639,51 +655,105 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   }
 
   Widget _buildHouseholdCollector(S l) {
+    final onlyInputKey = _canonicalHouseholdInputKey(widget.initialInputKey);
+    final collectsChildren =
+        onlyInputKey == null || onlyInputKey == 'q_children';
+    final collectsCivilStatus =
+        onlyInputKey == null || onlyInputKey == 'q_civil_status';
+    final collectsHousingStatus =
+        onlyInputKey == null || onlyInputKey == 'q_housing_status';
+
     return MintSurface(
       padding: const EdgeInsets.all(18),
       radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildRevenueTextField(
-            key: const Key('children_count_input'),
-            semanticsIdentifier: 'children_count_input',
-            controller: _childrenController,
-            label: l.coverageCheckPersonnesCharge,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(2),
-            ],
-            onChanged: (_) => setState(() => _householdSaved = false),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l.dataBlockMenageHousingStatus,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildHousingChoice(
-                key: const Key('housing_status_renter_choice'),
-                value: 'renter',
-                label: l.coverageCheckLocataire,
-              ),
-              _buildHousingChoice(
-                key: const Key('housing_status_owner_choice'),
-                value: 'owner',
-                label: l.householdOwnerBadge,
-              ),
-              _buildHousingChoice(
-                key: const Key('housing_status_family_choice'),
-                value: 'family',
-                label: l.dataBlockMenageHousingFamily,
-              ),
-            ],
-          ),
+          if (collectsChildren) ...[
+            _buildRevenueTextField(
+              key: const Key('children_count_input'),
+              semanticsIdentifier: 'children_count_input',
+              controller: _childrenController,
+              label: l.coverageCheckPersonnesCharge,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(2),
+              ],
+              onChanged: (_) => setState(() {
+                _childrenConfirmed = true;
+                _householdSaved = false;
+              }),
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (collectsCivilStatus) ...[
+            Text(
+              l.dataBlockMenageCivilStatus,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildCivilStatusChoice(
+                  key: const Key('civil_status_single_choice'),
+                  value: 'celibataire',
+                  label: l.dataBlockMenageCivilSingle,
+                ),
+                _buildCivilStatusChoice(
+                  key: const Key('civil_status_married_choice'),
+                  value: 'marie',
+                  label: l.dataBlockMenageCivilMarried,
+                ),
+                _buildCivilStatusChoice(
+                  key: const Key('civil_status_cohabiting_choice'),
+                  value: 'concubinage',
+                  label: l.dataBlockMenageCivilCohabiting,
+                ),
+                _buildCivilStatusChoice(
+                  key: const Key('civil_status_divorced_choice'),
+                  value: 'divorce',
+                  label: l.dataBlockMenageCivilDivorced,
+                ),
+                _buildCivilStatusChoice(
+                  key: const Key('civil_status_widowed_choice'),
+                  value: 'veuf',
+                  label: l.dataBlockMenageCivilWidowed,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (collectsHousingStatus) ...[
+            Text(
+              l.dataBlockMenageHousingStatus,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildHousingChoice(
+                  key: const Key('housing_status_renter_choice'),
+                  value: 'renter',
+                  label: l.coverageCheckLocataire,
+                ),
+                _buildHousingChoice(
+                  key: const Key('housing_status_owner_choice'),
+                  value: 'owner',
+                  label: l.householdOwnerBadge,
+                ),
+                _buildHousingChoice(
+                  key: const Key('housing_status_family_choice'),
+                  value: 'family',
+                  label: l.dataBlockMenageHousingFamily,
+                ),
+              ],
+            ),
+          ],
           if (_householdError != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -732,6 +802,28 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     );
   }
 
+  Widget _buildCivilStatusChoice({
+    required Key key,
+    required String value,
+    required String label,
+  }) {
+    return Semantics(
+      identifier: (key as ValueKey<String>).value,
+      button: true,
+      selected: _civilStatus == value,
+      child: ChoiceChip(
+        key: key,
+        label: Text(label),
+        selected: _civilStatus == value,
+        onSelected: (_) => setState(() {
+          _civilStatus = value;
+          _civilStatusConfirmed = true;
+          _householdSaved = false;
+        }),
+      ),
+    );
+  }
+
   Widget _buildHousingChoice({
     required Key key,
     required String value,
@@ -747,6 +839,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
         selected: _housingStatus == value,
         onSelected: (_) => setState(() {
           _housingStatus = value;
+          _housingStatusConfirmed = true;
           _householdSaved = false;
         }),
       ),
@@ -755,8 +848,18 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
 
   Future<void> _saveHouseholdFacts() async {
     final l = S.of(context)!;
-    final children = int.tryParse(_childrenController.text.trim());
-    if (children == null || children < 0) {
+    final onlyInputKey = _canonicalHouseholdInputKey(widget.initialInputKey);
+    final collectsChildren =
+        onlyInputKey == null || onlyInputKey == 'q_children';
+    final writesChildren = onlyInputKey == 'q_children' ||
+        (onlyInputKey == null && _childrenConfirmed);
+    final writesCivilStatus = onlyInputKey == 'q_civil_status' ||
+        (onlyInputKey == null && _civilStatusConfirmed);
+    final writesHousingStatus = onlyInputKey == 'q_housing_status' ||
+        (onlyInputKey == null && _housingStatusConfirmed);
+    final children =
+        collectsChildren ? int.tryParse(_childrenController.text.trim()) : null;
+    if (writesChildren && (children == null || children < 0)) {
       setState(() => _householdError = l.authErrorInvalid);
       return;
     }
@@ -768,8 +871,9 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     });
 
     await context.read<CoachProfileProvider>().mergeAnswers({
-      'q_children': children,
-      'q_housing_status': _housingStatus,
+      if (writesChildren) 'q_children': children,
+      if (writesCivilStatus) 'q_civil_status': _civilStatus,
+      if (writesHousingStatus) 'q_housing_status': _housingStatus,
     });
     if (!mounted) return;
     HapticFeedback.lightImpact();
@@ -784,6 +888,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     final collectsCash = onlyInputKey == null || onlyInputKey == 'q_cash_total';
     final collectsPropertyValue = onlyInputKey == 'q_property_market_value';
     final collectsMortgageBalance = onlyInputKey == '_coach_dettes_hypotheque';
+    final collectsDebtPayments = onlyInputKey == 'q_debt_payments_period_chf';
 
     return MintSurface(
       padding: const EdgeInsets.all(18),
@@ -821,6 +926,18 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
               semanticsIdentifier: 'mortgage_balance_input',
               controller: _mortgageBalanceController,
               label: l.financialSummaryHypothequeRestante,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
+              ],
+              onChanged: (_) => setState(() => _patrimoineSaved = false),
+            ),
+          if (collectsDebtPayments)
+            _buildRevenueTextField(
+              key: const Key('debt_payments_input'),
+              semanticsIdentifier: 'debt_payments_input',
+              controller: _debtPaymentsController,
+              label: l.debtRatioChargesDette,
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]"))
@@ -881,6 +998,7 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     final collectsCash = onlyInputKey == null || onlyInputKey == 'q_cash_total';
     final collectsPropertyValue = onlyInputKey == 'q_property_market_value';
     final collectsMortgageBalance = onlyInputKey == '_coach_dettes_hypotheque';
+    final collectsDebtPayments = onlyInputKey == 'q_debt_payments_period_chf';
     final cash =
         collectsCash ? int.tryParse(_digitsOnly(_cashController.text)) : null;
     final propertyMarketValue = collectsPropertyValue
@@ -889,12 +1007,16 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     final mortgageBalance = collectsMortgageBalance
         ? int.tryParse(_digitsOnly(_mortgageBalanceController.text))
         : null;
+    final debtPayments = collectsDebtPayments
+        ? int.tryParse(_digitsOnly(_debtPaymentsController.text))
+        : null;
 
     if ((collectsCash && (cash == null || cash < 0)) ||
         (collectsPropertyValue &&
             (propertyMarketValue == null || propertyMarketValue <= 0)) ||
         (collectsMortgageBalance &&
-            (mortgageBalance == null || mortgageBalance < 0))) {
+            (mortgageBalance == null || mortgageBalance < 0)) ||
+        (collectsDebtPayments && (debtPayments == null || debtPayments < 0))) {
       setState(() => _patrimoineError = l.authErrorInvalid);
       return;
     }
@@ -907,6 +1029,10 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       if (collectsCash) 'q_cash_total': cash,
       if (collectsPropertyValue) 'q_property_market_value': propertyMarketValue,
       if (collectsMortgageBalance) '_coach_dettes_hypotheque': mortgageBalance,
+      if (collectsDebtPayments) ...{
+        'q_debt_payments_period_chf': debtPayments,
+        'q_has_consumer_debt': debtPayments! > 0 ? 'yes' : 'no',
+      },
     });
     if (!mounted) return;
     HapticFeedback.lightImpact();
@@ -940,6 +1066,26 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
 
   String _digitsOnly(String value) => value.replaceAll(RegExp(r'[^0-9]'), '');
 
+  String? _canonicalHouseholdInputKey(String? inputKey) {
+    if (inputKey == null || inputKey.trim().isEmpty) return null;
+    final token =
+        inputKey.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    return switch (token) {
+      'qchildren' || 'children' || 'enfants' || 'nombreenfants' => 'q_children',
+      'qcivilstatus' ||
+      'civilstatus' ||
+      'etatcivil' ||
+      'situationfamiliale' ||
+      'householdtype' =>
+        'q_civil_status',
+      'qhousingstatus' ||
+      'housingstatus' ||
+      'statutlogement' =>
+        'q_housing_status',
+      _ => null,
+    };
+  }
+
   String? _canonicalPatrimoineInputKey(String? inputKey) {
     if (inputKey == null || inputKey.trim().isEmpty) return null;
     final token =
@@ -966,6 +1112,12 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
       'valeurbien' ||
       'prixbien' =>
         'q_property_market_value',
+      'qdebtpaymentsperiodchf' ||
+      'debtpayments' ||
+      'monthlydebtpayments' ||
+      'chargesdette' ||
+      'mensualitedettes' =>
+        'q_debt_payments_period_chf',
       _ => null,
     };
   }

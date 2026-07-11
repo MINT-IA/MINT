@@ -1,0 +1,81 @@
+appId: ch.mint.app
+---
+# Debt ratio consumes ledger facts only: no local salary/debt sliders.
+# The flow starts empty, fills missing canonical facts through DataBlocks,
+# then returns to /debt/ratio and expects a computed result.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///debt/ratio"
+- assertVisible:
+    id: "debt_ratio_missing_facts"
+- assertVisible:
+    id: "debt_ratio_income_fact"
+- assertVisible:
+    id: "debt_ratio_debt_payments_fact"
+- openLink: "mint:///data-block/revenu?inputKey=q_gross_salary_annual"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///data-block/patrimoine?inputKey=q_debt_payments_period_chf"
+- assertVisible:
+    id: "debt_payments_input"
+- tapOn:
+    id: "debt_payments_input"
+- inputText: "650"
+- tapOn:
+    id: "patrimoine_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///budget/setup?focus=housing"
+- assertVisible:
+    id: "budget_setup_housing_input"
+- tapOn:
+    id: "budget_setup_housing_input"
+- inputText: "1800"
+- tapOn:
+    id: "budget_setup_lamal_input"
+- inputText: "380"
+- tapOn:
+    text: "Charges fixes"
+- scrollUntilVisible:
+    element:
+      id: "budget_setup_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "budget_setup_save_cta"
+- openLink: "mint:///data-block/composition_menage?inputKey=q_civil_status"
+- assertVisible:
+    id: "civil_status_single_choice"
+- tapOn:
+    id: "civil_status_single_choice"
+- tapOn:
+    id: "household_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///data-block/composition_menage?inputKey=q_children"
+- assertVisible:
+    id: "children_count_input"
+- tapOn:
+    id: "household_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///debt/ratio"
+- assertVisible:
+    id: "debt_ratio_result_section"
+- assertVisible:
+    id: "debt_ratio_debt_payments_fact"
+- assertVisible:
+    id: "debt_ratio_housing_fact"

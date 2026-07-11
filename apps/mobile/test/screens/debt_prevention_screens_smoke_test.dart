@@ -7,6 +7,44 @@ import 'package:mint_mobile/screens/debt_prevention/debt_ratio_screen.dart';
 import 'package:mint_mobile/screens/debt_prevention/help_resources_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
+
+class _SmokeCoachProfileProvider extends CoachProfileProvider {
+  final CoachProfile _profile = CoachProfile.fromWizardAnswers(const {
+    'q_gross_salary_annual': 96000,
+    'q_canton': 'VD',
+    'q_housing_cost_period_chf': 1800,
+    'q_debt_payments_period_chf': 650,
+    'q_has_consumer_debt': 'yes',
+    'q_civil_status': 'celibataire',
+    'q_children': 0,
+  });
+
+  @override
+  CoachProfile? get profile => _profile;
+
+  @override
+  bool get hasProfile => true;
+}
+
+Widget _debtRatioSmokeApp() {
+  return ChangeNotifierProvider<CoachProfileProvider>.value(
+    value: _SmokeCoachProfileProvider(),
+    child: const MaterialApp(
+      locale: Locale('fr'),
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: DebtRatioScreen(),
+    ),
+  );
+}
 
 void main() {
   // ===========================================================================
@@ -240,19 +278,7 @@ void main() {
 
   group('DebtRatioScreen', () {
     testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       expect(find.byType(DebtRatioScreen), findsOneWidget);
@@ -260,19 +286,7 @@ void main() {
     });
 
     testWidgets('displays i18n title in AppBar', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       // i18n: debtRatioTitle = "Diagnostic dette"
@@ -280,57 +294,21 @@ void main() {
     });
 
     testWidgets('shows gauge with CustomPaint', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       expect(find.byType(CustomPaint), findsWidgets);
     });
 
     testWidgets('shows gauge legend', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       expect(find.textContaining('%'), findsWidgets);
     });
 
-    testWidgets('shows parameter sliders section', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+    testWidgets('shows ledger facts section', (tester) async {
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
@@ -340,43 +318,15 @@ void main() {
       expect(find.textContaining('evenu'), findsWidgets);
     });
 
-    testWidgets('shows situation selector', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+    testWidgets('shows household situation fact', (tester) async {
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
-      await tester.pump();
-
-      // i18n: debtRatioSituation = "Situation"
-      expect(find.textContaining('ituation'), findsWidgets);
+      expect(find.textContaining('Seul'), findsWidgets);
     });
 
     testWidgets('shows minimum vital card', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
@@ -387,19 +337,7 @@ void main() {
     });
 
     testWidgets('shows recommendations section', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
@@ -410,41 +348,20 @@ void main() {
     });
 
     testWidgets('shows disclaimer', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
+      await tester.pumpWidget(_debtRatioSmokeApp());
+      await tester.pump();
+
+      await tester.scrollUntilVisible(
+        find.textContaining('pédagogique'),
+        500,
+        scrollable: find.byType(Scrollable),
       );
-      await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1200));
-      await tester.pump();
-
-      expect(find.byIcon(Icons.info_outline), findsWidgets);
+      expect(find.textContaining('pédagogique'), findsWidgets);
     });
 
     testWidgets('shows ratio percentage display', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('fr'),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: S.supportedLocales,
-          home: DebtRatioScreen(),
-        ),
-      );
+      await tester.pumpWidget(_debtRatioSmokeApp());
       await tester.pump();
 
       expect(find.textContaining('%'), findsWidgets);

@@ -5749,7 +5749,6 @@
   "pulseFeedbackAddedRecently": "Ajouté récemment",
   "debtRatioTitle": "Diagnostic dette",
   "debtRatioSubLabel": "Ratio dette / revenus",
-  "debtRatioRefineLabel": "Affiner le diagnostic",
   "debtRatioMinVital": "Minimum vital (LP art. 93)",
   "debtRatioRecommandations": "Recommandations",
   "debtRatioCtaRouge": "Crée ton plan de remboursement",
@@ -6229,13 +6228,15 @@
   "debtRatioLevelAttention": "ATTENTION",
   "debtRatioLevelCritique": "CRITIQUE",
   "debtRatioRevenuNet": "Revenu net",
-  "debtRatioChargesDette": "Charges dette",
-  "debtRatioLoyer": "Loyer",
-  "debtRatioAutresCharges": "Autres charges",
-  "debtRatioRefineSuffix": "Loyer, situation, enfants",
+  "debtRatioChargesDette": "Crédits/leasing",
+  "debtRatioLoyer": "Logement",
+  "debtRatioAutresCharges": "Charges connues",
+  "debtRatioFactEstimated": "Estimé — à confirmer",
+  "debtRatioChargesIncludedInMargin": "Inclus dans la marge LP",
   "debtRatioSituation": "Situation",
   "debtRatioSeul": "Seul·e",
   "debtRatioEnCouple": "En couple",
+  "debtRatioConcubinage": "Concubinage",
   "debtRatioEnfants": "Enfants",
   "debtRatioMinimumVitalLabel": "Minimum vital",
   "debtRatioMargeDisponible": "Marge disponible",
@@ -6246,18 +6247,6 @@
   "debtRatioDetteConseilDesc": "Conseil gratuit et confidentiel",
   "debtRatioCaritasNom": "Caritas — Aide aux dettes",
   "debtRatioCaritasDesc": "Aide au désendettement et négociation",
-  "debtRatioValidate": "Valider",
-  "debtRatioMinMaxDisplay": "Min {minVal} · Max {maxVal}",
-  "@debtRatioMinMaxDisplay": {
-    "placeholders": {
-      "minVal": {
-        "type": "String"
-      },
-      "maxVal": {
-        "type": "String"
-      }
-    }
-  },
   "timelineCatFamille": "FAMILLE",
   "timelineCatProfessionnel": "PROFESSIONNEL",
   "timelineCatPatrimoine": "PATRIMOINE",
@@ -12243,5 +12232,11 @@
   "dividendeComplianceFooter": "Outil éducatif — ne constitue pas un conseil financier (LSFin).",
   "dividendeSourcesFooter": "Sources : LIFD art. 18, 20, 33 ; CO art. 660",
   "dataBlockMenageHousingStatus": "Statut de logement",
-  "dataBlockMenageHousingFamily": "Chez famille/parents"
+  "dataBlockMenageHousingFamily": "Chez famille/parents",
+  "dataBlockMenageCivilStatus": "Situation civile",
+  "dataBlockMenageCivilSingle": "Célibataire",
+  "dataBlockMenageCivilMarried": "Marié·e",
+  "dataBlockMenageCivilCohabiting": "Concubinage",
+  "dataBlockMenageCivilDivorced": "Divorcé·e",
+  "dataBlockMenageCivilWidowed": "Veuf·ve"
 }

@@ -131,6 +131,40 @@ void main() {
     expect(find.text('*'), findsOneWidget);
   });
 
+  testWidgets('housing focus requests keyboard focus on housing input',
+      (tester) async {
+    await tester.pumpWidget(
+      _wrap(const BudgetSetupScreen(initialFocus: 'housing')),
+    );
+    await tester.pumpAndSettle();
+
+    final housing = tester.widget<TextField>(
+      find.byKey(const Key('budget_setup_housing_input')),
+    );
+    expect(housing.focusNode?.hasFocus, isTrue);
+  });
+
+  testWidgets('housing focus can save housing fact without LAMal',
+      (tester) async {
+    await tester.pumpWidget(
+      _wrap(const BudgetSetupScreen(initialFocus: 'housing')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('budget_setup_housing_input')),
+      '1800',
+    );
+    await tester.ensureVisible(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.tap(find.byKey(const Key('budget_setup_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_housing_cost_period_chf', 1800.0));
+    expect(answers, containsPair('q_pay_frequency', 'monthly'));
+    expect(answers, isNot(contains('q_lamal_premium_monthly_chf')));
+  });
+
   testWidgets('lamal focus can save LAMal facts without housing',
       (tester) async {
     await tester.pumpWidget(

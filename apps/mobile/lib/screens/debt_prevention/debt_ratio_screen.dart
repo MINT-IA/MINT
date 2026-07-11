@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -17,12 +18,14 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
 
-/// Ecran de diagnostic du ratio d'endettement.
+/// Écran de diagnostic du ratio d'endettement.
 ///
 /// Affiche une gauge visuelle (semi-cercle vert/orange/rouge) avec le ratio,
 /// le minimum vital et des recommandations.
-/// Base legale : LP art. 93 (minimum vital), LCC.
+/// Base légale : LP art. 93 (minimum vital), LCC.
 class DebtRatioScreen extends StatefulWidget {
   const DebtRatioScreen({super.key});
 
@@ -31,7 +34,6 @@ class DebtRatioScreen extends StatefulWidget {
 }
 
 class _DebtRatioScreenState extends State<DebtRatioScreen> {
-  bool _hasUserInteracted = false;
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
@@ -62,23 +64,31 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     if (_seqRunId == null || _seqStepId == null) return;
     _finalReturnEmitted = true;
 
-    if (!_hasUserInteracted) {
+    final facts = _factsFromProfile(
+        context.read<CoachProfileProvider>().profile, S.of(context)!);
+    final result = _resultForFacts(facts);
+    if (result == null) {
       final screenReturn = ScreenReturn.abandoned(
         route: '/debt/ratio',
         runId: _seqRunId,
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
       );
-      ScreenCompletionTracker.markCompletedWithReturn('debt_ratio', screenReturn);
+      ScreenCompletionTracker.markCompletedWithReturn(
+        'debt_ratio',
+        screenReturn,
+      );
       return;
     }
-
-    final result = _result;
     final screenReturn = ScreenReturn.completed(
       route: '/debt/ratio',
       stepOutputs: {
         'ratio_endettement': result.ratio,
         'marge_mensuelle': result.margeDisponible,
+        'revenu_estime': facts.incomeIsEstimated,
+        'base_lp': facts.lpBaseCode,
+        'supplement_enfant_hypothese': facts.childSupplementAssumption,
+        'charges_connues_lp': facts.autresChargesFixes,
       },
       runId: _seqRunId,
       stepId: _seqStepId,
@@ -87,106 +97,375 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('debt_ratio', screenReturn);
   }
 
-  double _revenusMensuels = 6000;
-  double _chargesDetteMensuelles = 500;
-  double _loyer = 1500;
-  double _autresCharges = 300;
-  bool _estCelibataire = true;
-  int _nombreEnfants = 0;
-
-  DebtRatioResult get _result => DebtRatioCalculator.calculate(
-        revenusMensuels: _revenusMensuels,
-        chargesDetteMensuelles: _chargesDetteMensuelles,
-        loyer: _loyer,
-        autresChargesFixes: _autresCharges,
-        estCelibataire: _estCelibataire,
-        nombreEnfants: _nombreEnfants,
-      );
+  DebtRatioResult? _resultForFacts(_DebtRatioFacts facts) {
+    if (!facts.canCompute) return null;
+    return DebtRatioCalculator.calculate(
+      revenusMensuels: facts.revenusMensuels!,
+      chargesDetteMensuelles: facts.chargesDetteMensuelles!,
+      loyer: facts.loyer!,
+      autresChargesFixes: facts.autresChargesFixes,
+      estCelibataire: facts.estCelibataire!,
+      nombreEnfants: facts.nombreEnfants!,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
+    final profile = context.watch<CoachProfileProvider>().profile;
+    final facts = _factsFromProfile(profile, S.of(context)!);
+    final result = _resultForFacts(facts);
 
     return PopScope(
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _emitFinalReturn();
-      },
-      child: Scaffold(
-      backgroundColor: MintColors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: MintColors.white,
-            surfaceTintColor: MintColors.white,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            foregroundColor: MintColors.textPrimary,
-            title: Text(
-              S.of(context)!.debtRatioTitle,
-              style: MintTextStyles.titleMedium(),
-            ),
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) _emitFinalReturn();
+        },
+        child: Scaffold(
+          backgroundColor: MintColors.white,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                backgroundColor: MintColors.white,
+                surfaceTintColor: MintColors.white,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                foregroundColor: MintColors.textPrimary,
+                title: Text(
+                  S.of(context)!.debtRatioTitle,
+                  style: MintTextStyles.titleMedium(),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.all(MintSpacing.md),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    MintEntrance(
+                      child: _buildLedgerFactsSection(facts),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
+
+                    if (!facts.canCompute) ...[
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 100),
+                        child: _buildMissingFactsSection(facts),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+                    ],
+
+                    if (result != null) ...[
+                      Semantics(
+                        key: const Key('debt_ratio_result_section'),
+                        identifier: 'debt_ratio_result_section',
+                        container: true,
+                        child: Column(
+                          children: [
+                            MintEntrance(
+                              delay: const Duration(milliseconds: 100),
+                              child: _buildGaugeSection(result),
+                            ),
+                            const SizedBox(height: MintSpacing.lg),
+                            MintEntrance(
+                              delay: const Duration(milliseconds: 200),
+                              child: _buildMinimumVitalCard(result),
+                            ),
+                            const SizedBox(height: MintSpacing.lg),
+                            MintEntrance(
+                              delay: const Duration(milliseconds: 300),
+                              child: _buildRecommandationsSection(result),
+                            ),
+                            const SizedBox(height: MintSpacing.md),
+                            if (result.niveau != DebtRiskLevel.vert) ...[
+                              MintEntrance(
+                                delay: const Duration(milliseconds: 400),
+                                child: _buildRepaymentCta(result),
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
+                            ],
+                            if (result.niveau == DebtRiskLevel.rouge) ...[
+                              MintEntrance(
+                                delay: const Duration(milliseconds: 450),
+                                child: _buildAideProfessionnelleSection(),
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
+                            ],
+                            _buildDisclaimer(result.disclaimer),
+                            const SizedBox(height: MintSpacing.lg),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    if (result == null)
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 200),
+                        child: _buildDisclaimer(
+                          S.of(context)!.dataBlockDisclaimer,
+                        ),
+                      ),
+                    if (result == null) const SizedBox(height: MintSpacing.lg),
+
+                    // Navigation croisée dette
+                    const DebtToolsNav(currentRoute: '/debt/ratio'),
+                    const SizedBox(height: MintSpacing.xxl),
+                  ]),
+                ),
+              ),
+            ],
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(MintSpacing.md),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Chiffre choc gauge
-                MintEntrance(child: _buildGaugeSection(result)),
-                const SizedBox(height: MintSpacing.lg),
+        ));
+  }
 
-                // Sliders
-                MintEntrance(
-                  delay: const Duration(milliseconds: 100),
-                  child: _buildSlidersSection(),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+  _DebtRatioFacts _factsFromProfile(CoachProfile? profile, S l) {
+    if (profile == null) {
+      return _DebtRatioFacts.missing(l);
+    }
+    final provided = profile.userProvidedFields;
+    final hasIncome = provided.contains('netIncome') ||
+        provided.contains('grossSalaryAnnual') ||
+        provided.contains('salary') ||
+        provided.contains('selfEmployedNetIncome');
+    final income = hasIncome ? profile.toBudgetInputs().netIncome : null;
+    final incomeIsDerived = income != null &&
+        !provided.contains('netIncome') &&
+        !provided.contains('selfEmployedNetIncome');
 
-                // Minimum vital
-                MintEntrance(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildMinimumVitalCard(result),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+    final consumerDebtPayments = _consumerDebtPayments(profile);
+    final hasConsumerDebtPrincipal =
+        (profile.dettes.creditConsommation ?? 0) > 0 ||
+            (profile.dettes.leasing ?? 0) > 0 ||
+            (profile.dettes.autresDettes ?? 0) > 0;
+    final knownNoDebt = provided.contains('hasDebt') &&
+        consumerDebtPayments <= 0 &&
+        !hasConsumerDebtPrincipal;
+    final hasDebtPayments = knownNoDebt ||
+        provided.contains('monthlyDebtPayments') ||
+        consumerDebtPayments > 0;
+    final debtPayments = hasDebtPayments ? consumerDebtPayments : null;
 
-                // Recommandations
-                MintEntrance(
-                  delay: const Duration(milliseconds: 300),
-                  child: _buildRecommandationsSection(result),
-                ),
-                const SizedBox(height: MintSpacing.md),
+    final hasHousing = provided.contains('housingCost');
+    final housing = hasHousing ? profile.depenses.loyer : null;
 
-                // CTA contextuel → Plan de remboursement
-                if (result.niveau != DebtRiskLevel.vert)
-                  MintEntrance(
-                    delay: const Duration(milliseconds: 400),
-                    child: _buildRepaymentCta(result),
-                  ),
-                if (result.niveau != DebtRiskLevel.vert)
-                  const SizedBox(height: MintSpacing.lg),
+    final hasCivilStatus = provided.contains('civilStatus');
+    final useSingleLpBase =
+        hasCivilStatus ? profile.etatCivil != CoachCivilStatus.marie : null;
+    final lpBaseCode = hasCivilStatus
+        ? (profile.etatCivil == CoachCivilStatus.marie
+            ? 'couple_marie'
+            : profile.etatCivil == CoachCivilStatus.concubinage
+                ? 'individuelle_concubinage'
+                : 'individuelle')
+        : null;
 
-                // Aide professionnelle
-                if (result.niveau == DebtRiskLevel.rouge) ...[
-                  MintEntrance(
-                    delay: const Duration(milliseconds: 450),
-                    child: _buildAideProfessionnelleSection(),
-                  ),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
-
-                // Disclaimer
-                _buildDisclaimer(result.disclaimer),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Navigation croisée dette
-                const DebtToolsNav(currentRoute: '/debt/ratio'),
-                const SizedBox(height: MintSpacing.xxl),
-              ]),
-            ),
-          ),
-        ],
+    final hasChildren = provided.contains('children');
+    final children = hasChildren ? profile.nombreEnfants : null;
+    final autresChargesFixes = _knownLivingCharges(profile);
+    final visibleFacts = <_DebtRatioFact>[
+      _DebtRatioFact(
+        identifier: 'debt_ratio_income_fact',
+        label: l.debtRatioRevenuNet,
+        value: income,
+        route: '/data-block/revenu?inputKey=q_gross_salary_annual',
+        icon: Icons.account_balance_wallet_outlined,
+        statusLabel: incomeIsDerived ? l.debtRatioFactEstimated : null,
       ),
-    ));
+      _DebtRatioFact(
+        identifier: 'debt_ratio_debt_payments_fact',
+        label: l.debtRatioChargesDette,
+        value: debtPayments,
+        route: '/data-block/patrimoine?inputKey=q_debt_payments_period_chf',
+        icon: Icons.credit_card_outlined,
+        zeroIsKnown: knownNoDebt,
+      ),
+      _DebtRatioFact(
+        identifier: 'debt_ratio_housing_fact',
+        label: l.debtRatioLoyer,
+        value: housing,
+        route: '/budget/setup?focus=housing',
+        icon: Icons.home_outlined,
+      ),
+      _DebtRatioFact(
+        identifier: 'debt_ratio_civil_status_fact',
+        label: l.debtRatioSituation,
+        valueLabel:
+            hasCivilStatus ? _civilStatusLabel(profile.etatCivil, l) : null,
+        route: '/data-block/composition_menage?inputKey=q_civil_status',
+        icon: Icons.people_alt_outlined,
+      ),
+      _DebtRatioFact(
+        identifier: 'debt_ratio_children_fact',
+        label: l.debtRatioEnfants,
+        valueLabel: children == null ? null : '$children',
+        route: '/data-block/composition_menage?inputKey=q_children',
+        icon: Icons.child_care_outlined,
+        zeroIsKnown: hasChildren && children == 0,
+      ),
+    ];
+    if (autresChargesFixes > 0) {
+      visibleFacts.add(
+        _DebtRatioFact(
+          identifier: 'debt_ratio_known_charges_fact',
+          label: l.debtRatioAutresCharges,
+          value: autresChargesFixes,
+          icon: Icons.receipt_long_outlined,
+          statusLabel: l.debtRatioChargesIncludedInMargin,
+        ),
+      );
+    }
+
+    return _DebtRatioFacts(
+      revenusMensuels: income,
+      chargesDetteMensuelles: debtPayments,
+      loyer: housing,
+      autresChargesFixes: autresChargesFixes,
+      estCelibataire: useSingleLpBase,
+      nombreEnfants: children,
+      incomeIsEstimated: incomeIsDerived,
+      lpBaseCode: lpBaseCode,
+      facts: visibleFacts,
+    );
+  }
+
+  String _civilStatusLabel(CoachCivilStatus status, S l) {
+    return switch (status) {
+      CoachCivilStatus.marie => l.debtRatioEnCouple,
+      CoachCivilStatus.concubinage => l.debtRatioConcubinage,
+      _ => l.debtRatioSeul,
+    };
+  }
+
+  Widget _buildLedgerFactsSection(_DebtRatioFacts facts) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: facts.facts
+          .map(
+            (fact) => SizedBox(
+              width: 160,
+              child: _buildFactCard(fact),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildFactCard(_DebtRatioFact fact) {
+    final isMissing = fact.isMissing;
+    return Semantics(
+      key: ValueKey(fact.identifier),
+      identifier: fact.identifier,
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isMissing ? MintColors.warning : MintColors.border,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              fact.icon,
+              color: isMissing ? MintColors.warning : MintColors.primary,
+              size: 18,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              fact.label,
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              isMissing
+                  ? S.of(context)!.dataBlockStatusMissing
+                  : fact.displayValue,
+              style: MintTextStyles.bodyMedium(
+                color: isMissing ? MintColors.warning : MintColors.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w700),
+            ),
+            if (!isMissing && fact.statusLabel != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                fact.statusLabel!,
+                style: MintTextStyles.micro(color: MintColors.textMuted),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMissingFactsSection(_DebtRatioFacts facts) {
+    final nextMissing = facts.nextMissing;
+    return Semantics(
+      key: const Key('debt_ratio_missing_facts'),
+      identifier: 'debt_ratio_missing_facts',
+      container: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.peche,
+        elevated: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              S.of(context)!.dataBlockIncomplete,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            for (final fact in facts.missingFacts)
+              Padding(
+                padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.circle,
+                      size: 6,
+                      color: MintColors.warning,
+                    ),
+                    const SizedBox(width: MintSpacing.sm),
+                    Text(
+                      fact.label,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (nextMissing != null) ...[
+              const SizedBox(height: MintSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  key: const Key('debt_ratio_profile_enrich_cta'),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    context.push(nextMissing.route!);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    foregroundColor: MintColors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    S.of(context)!.dataBlockDefaultCta,
+                    style: MintTextStyles.titleMedium(color: MintColors.white)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildGaugeSection(DebtRatioResult result) {
@@ -230,7 +509,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
+            padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
@@ -276,539 +556,6 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         ),
       ],
     );
-  }
-
-  bool _showDetails = false;
-
-  Widget _buildSlidersSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ── Paramètres essentiels (toujours visibles) ──
-        Row(
-          children: [
-            Expanded(
-              child: _buildValueCard(
-                label: S.of(context)!.debtRatioRevenuNet,
-                value: _revenusMensuels,
-                prefix: 'CHF',
-                step: 500,
-                min: 2000,
-                max: 20000,
-                icon: Icons.account_balance_wallet_outlined,
-                onChanged: (v) => setState(() { _hasUserInteracted = true; _revenusMensuels = v; }),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildValueCard(
-                label: S.of(context)!.debtRatioChargesDette,
-                value: _chargesDetteMensuelles,
-                prefix: 'CHF',
-                step: 100,
-                min: 0,
-                max: 10000,
-                icon: Icons.credit_card_outlined,
-                accentColor: _chargesDetteMensuelles > _revenusMensuels * 0.3
-                    ? MintColors.error
-                    : null,
-                onChanged: (v) =>
-                    setState(() { _hasUserInteracted = true; _chargesDetteMensuelles = v; }),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // ── Affiner le diagnostic ──
-        GestureDetector(
-          onTap: () => setState(() => _showDetails = !_showDetails),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.border),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _showDetails
-                      ? Icons.tune
-                      : Icons.tune,
-                  color: MintColors.primary,
-                  size: 18,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    S.of(context)!.debtRatioRefineLabel,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-                  ),
-                ),
-                Text(
-                  _showDetails ? '' : S.of(context)!.debtRatioRefineSuffix,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: MintColors.textMuted,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                AnimatedRotation(
-                  turns: _showDetails ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: MintColors.textMuted,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // ── Détails (expandable) ──
-        AnimatedCrossFade(
-          firstChild: const SizedBox.shrink(),
-          secondChild: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildValueCard(
-                        label: S.of(context)!.debtRatioLoyer,
-                        value: _loyer,
-                        prefix: 'CHF',
-                        step: 100,
-                        min: 0,
-                        max: 5000,
-                        icon: Icons.home_outlined,
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _loyer = v; }),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildValueCard(
-                        label: S.of(context)!.debtRatioAutresCharges,
-                        value: _autresCharges,
-                        prefix: 'CHF',
-                        step: 50,
-                        min: 0,
-                        max: 3000,
-                        icon: Icons.receipt_long_outlined,
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _autresCharges = v; }),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildToggleCard(
-                        label: S.of(context)!.debtRatioSituation,
-                        options: [S.of(context)!.debtRatioSeul, S.of(context)!.debtRatioEnCouple],
-                        selectedIndex: _estCelibataire ? 0 : 1,
-                        onChanged: (i) =>
-                            setState(() { _hasUserInteracted = true; _estCelibataire = i == 0; }),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildPillSelector(
-                        label: S.of(context)!.debtRatioEnfants,
-                        value: _nombreEnfants,
-                        options: const [0, 1, 2, 3, 4],
-                        onChanged: (v) =>
-                            setState(() { _hasUserInteracted = true; _nombreEnfants = v; }),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          crossFadeState: _showDetails
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 250),
-        ),
-      ],
-    );
-  }
-
-  /// Carte de valeur avec stepper -/+ et tap pour saisie clavier.
-  Widget _buildValueCard({
-    required String label,
-    required double value,
-    required String prefix,
-    required double step,
-    required double min,
-    required double max,
-    required IconData icon,
-    required ValueChanged<double> onChanged,
-    Color? accentColor,
-  }) {
-    final color = accentColor ?? MintColors.primary;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: accentColor != null
-              ? accentColor.withValues(alpha: 0.3)
-              : MintColors.border,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 16),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Tappable value — opens keyboard input
-          GestureDetector(
-            onTap: () => _showValueEditor(
-              label: label,
-              currentValue: value,
-              min: min,
-              max: max,
-              step: step,
-              prefix: prefix,
-              onChanged: onChanged,
-            ),
-            child: Center(
-              child: Text(
-                '$prefix\u00a0${formatChf(value)}',
-                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary)
-                    ,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Stepper buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildStepperButton(
-                icon: Icons.remove,
-                enabled: value > min,
-                onTap: () {
-                  final newVal = (value - step).clamp(min, max);
-                  onChanged(newVal);
-                },
-              ),
-              const SizedBox(width: 24),
-              _buildStepperButton(
-                icon: Icons.add,
-                enabled: value < max,
-                onTap: () {
-                  final newVal = (value + step).clamp(min, max);
-                  onChanged(newVal);
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepperButton({
-    required IconData icon,
-    required bool enabled,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: enabled ? MintColors.surface : MintColors.lightBorder,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          size: 18,
-          color: enabled ? MintColors.primary : MintColors.border,
-        ),
-      ),
-    );
-  }
-
-  /// Toggle entre 2 options (célibataire / en couple).
-  Widget _buildToggleCard({
-    required String label,
-    required List<String> options,
-    required int selectedIndex,
-    required ValueChanged<int> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-              letterSpacing: 0.3,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: List.generate(options.length, (i) {
-                final isSelected = i == selectedIndex;
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => onChanged(i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? MintColors.primary
-                            : MintColors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        options[i],
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? MintColors.white
-                              : MintColors.textMuted,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Pills pour sélection rapide (nombre d'enfants).
-  Widget _buildPillSelector({
-    required String label,
-    required int value,
-    required List<int> options,
-    required ValueChanged<int> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: MintColors.primary,
-              letterSpacing: 0.3,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: options.map((opt) {
-              final isSelected = opt == value;
-              final display = opt >= 4 ? '4+' : '$opt';
-              return GestureDetector(
-                onTap: () => onChanged(opt),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? MintColors.primary
-                        : MintColors.surface,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    display,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected
-                          ? MintColors.white
-                          : MintColors.textMuted,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Bottom sheet pour saisie précise au clavier.
-  void _showValueEditor({
-    required String label,
-    required double currentValue,
-    required double min,
-    required double max,
-    required double step,
-    required String prefix,
-    required ValueChanged<double> onChanged,
-  }) {
-    final controller = TextEditingController(
-      text: currentValue.toInt().toString(),
-    );
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
-      backgroundColor: MintColors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: MintColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                label,
-                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)
-                    .copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '$prefix ',
-                    style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                        ,
-                  ),
-                  SizedBox(
-                    width: 150,
-                    child: TextField(
-                      controller: controller,
-                      keyboardType: TextInputType.number,
-                      autofocus: true,
-                      textAlign: TextAlign.center,
-                      style: MintTextStyles.displayMedium(color: MintColors.textPrimary),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                S.of(context)!.debtRatioMinMaxDisplay(formatChf(min), formatChf(max)),
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    final parsed = double.tryParse(
-                      controller.text
-                          .replaceAll("'", '')
-                          .replaceAll(',', '.')
-                          .replaceAll(RegExp(r"[^0-9.]"), ''),
-                    );
-                    if (parsed != null) {
-                      onChanged(parsed.clamp(min, max));
-                    }
-                    Navigator.pop(ctx);
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    S.of(context)!.debtRatioValidate,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
-    ).then((_) => controller.dispose());
   }
 
   Widget _buildMinimumVitalCard(DebtRatioResult result) {
@@ -887,8 +634,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
           Text(
             value,
-            style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
-                .copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
+            style:
+                MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
+                    .copyWith(
+                        fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
         ],
       ),
@@ -919,7 +668,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                   Expanded(
                     child: Text(
                       reco,
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary),
                     ),
                   ),
                 ],
@@ -971,7 +721,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                           ? S.of(context)!.debtRatioCtaRouge
                           : S.of(context)!.debtRatioCtaOrange,
                       style: MintTextStyles.bodyMedium(
-                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
+                        color: isRouge
+                            ? MintColors.redDark
+                            : MintColors.deepOrange,
                       ).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
@@ -979,7 +731,9 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                       S.of(context)!.debtRatioCtaDescription,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isRouge ? MintColors.redDark : MintColors.deepOrange,
+                        color: isRouge
+                            ? MintColors.redDark
+                            : MintColors.deepOrange,
                         height: 1.3,
                       ),
                     ),
@@ -1013,7 +767,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.support_agent, color: MintColors.redMedium, size: 24),
+              const Icon(Icons.support_agent,
+                  color: MintColors.redMedium, size: 24),
               const SizedBox(width: 12),
               Text(
                 S.of(context)!.debtRatioAidePro,
@@ -1055,47 +810,49 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       label: nom,
       button: true,
       child: InkWell(
-      onTap: () => _launchUrl(url),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    nom,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-                        .copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-                  ),
-                  if (telephone != null) ...[
-                    const SizedBox(height: MintSpacing.xs),
+        onTap: () => _launchUrl(url),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.border),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      telephone,
-                      style: MintTextStyles.labelSmall(color: MintColors.info)
+                      nom,
+                      style: MintTextStyles.bodyMedium(
+                              color: MintColors.textPrimary)
                           .copyWith(fontWeight: FontWeight.w600),
                     ),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
+                    ),
+                    if (telephone != null) ...[
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        telephone,
+                        style: MintTextStyles.labelSmall(color: MintColors.info)
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            const Icon(Icons.open_in_new,
-                color: MintColors.textMuted, size: 18),
-          ],
+              const Icon(Icons.open_in_new,
+                  color: MintColors.textMuted, size: 18),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -1129,6 +886,142 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     }
   }
+
+  double _knownLivingCharges(CoachProfile profile) {
+    final depenses = profile.depenses;
+    final provided = profile.userProvidedFields;
+    var total = 0.0;
+    if (provided.contains('monthlyExpenses')) {
+      total += depenses.assuranceMaladie;
+    }
+    total += depenses.transport ?? 0;
+    total += depenses.fraisMedicaux ?? 0;
+    // Electricity, telecom and ordinary household expenses are covered by the
+    // LP basic amount; adding them again would understate the residual margin.
+    // depenses.autresDepensesFixes is intentionally excluded here: in the
+    // current profile model it can include debt payments and tax provisions,
+    // both of which would distort the LP margin if counted again.
+    return total;
+  }
+
+  double _consumerDebtPayments(CoachProfile profile) {
+    final dettes = profile.dettes;
+    return (dettes.mensualiteCreditConso ?? 0) +
+        (dettes.mensualiteLeasing ?? 0);
+  }
+}
+
+class _DebtRatioFact {
+  final String identifier;
+  final String label;
+  final double? value;
+  final String? valueLabel;
+  final String? route;
+  final IconData icon;
+  final bool zeroIsKnown;
+  final String? statusLabel;
+
+  const _DebtRatioFact({
+    required this.identifier,
+    required this.label,
+    required this.icon,
+    this.value,
+    this.valueLabel,
+    this.route,
+    this.zeroIsKnown = false,
+    this.statusLabel,
+  });
+
+  bool get isMissing => value == null && valueLabel == null && !zeroIsKnown;
+
+  String get displayValue {
+    if (valueLabel != null) return valueLabel!;
+    final amount = value ?? 0;
+    return 'CHF\u00a0${formatChf(amount)}';
+  }
+}
+
+class _DebtRatioFacts {
+  final double? revenusMensuels;
+  final double? chargesDetteMensuelles;
+  final double? loyer;
+  final double autresChargesFixes;
+  final bool? estCelibataire;
+  final int? nombreEnfants;
+  final bool incomeIsEstimated;
+  final String? lpBaseCode;
+  final List<_DebtRatioFact> facts;
+
+  const _DebtRatioFacts({
+    required this.revenusMensuels,
+    required this.chargesDetteMensuelles,
+    required this.loyer,
+    required this.autresChargesFixes,
+    required this.estCelibataire,
+    required this.nombreEnfants,
+    required this.incomeIsEstimated,
+    required this.lpBaseCode,
+    required this.facts,
+  });
+
+  factory _DebtRatioFacts.missing(S l) => _DebtRatioFacts(
+        revenusMensuels: null,
+        chargesDetteMensuelles: null,
+        loyer: null,
+        autresChargesFixes: 0,
+        estCelibataire: null,
+        nombreEnfants: null,
+        incomeIsEstimated: false,
+        lpBaseCode: null,
+        facts: [
+          _DebtRatioFact(
+            identifier: 'debt_ratio_income_fact',
+            label: l.debtRatioRevenuNet,
+            icon: Icons.account_balance_wallet_outlined,
+            route: '/data-block/revenu?inputKey=q_gross_salary_annual',
+          ),
+          _DebtRatioFact(
+            identifier: 'debt_ratio_debt_payments_fact',
+            label: l.debtRatioChargesDette,
+            icon: Icons.credit_card_outlined,
+            route: '/data-block/patrimoine?inputKey=q_debt_payments_period_chf',
+          ),
+          _DebtRatioFact(
+            identifier: 'debt_ratio_housing_fact',
+            label: l.debtRatioLoyer,
+            icon: Icons.home_outlined,
+            route: '/budget/setup?focus=housing',
+          ),
+          _DebtRatioFact(
+            identifier: 'debt_ratio_civil_status_fact',
+            label: l.debtRatioSituation,
+            icon: Icons.people_alt_outlined,
+            route: '/data-block/composition_menage?inputKey=q_civil_status',
+          ),
+          _DebtRatioFact(
+            identifier: 'debt_ratio_children_fact',
+            label: l.debtRatioEnfants,
+            icon: Icons.child_care_outlined,
+            route: '/data-block/composition_menage?inputKey=q_children',
+          ),
+        ],
+      );
+
+  List<_DebtRatioFact> get missingFacts =>
+      facts.where((fact) => fact.isMissing).toList(growable: false);
+
+  _DebtRatioFact? get nextMissing =>
+      missingFacts.isEmpty ? null : missingFacts.first;
+
+  bool get canCompute =>
+      revenusMensuels != null &&
+      chargesDetteMensuelles != null &&
+      loyer != null &&
+      estCelibataire != null &&
+      nombreEnfants != null;
+
+  String get childSupplementAssumption =>
+      (nombreEnfants ?? 0) > 0 ? 'age_inconnu_supplement_haut_chf_600' : 'none';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

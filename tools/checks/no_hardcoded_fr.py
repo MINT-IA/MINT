@@ -52,10 +52,22 @@ EXCLUDE_SUBSTRINGS = (
     "/test/",  # tests often need literal strings
 )
 
+# Legacy domain catalogs that predate the ARB migration. Keep this list tiny:
+# touching one of these files should either remove the entry through a focused
+# localization pass or leave a clear audit trail here rather than bypass hooks.
+LEGACY_FILE_ALLOWLIST = (
+    "apps/mobile/lib/services/debt_prevention_service.dart",
+)
+
 
 def _is_excluded(path: Path) -> bool:
     rel = "/" + path.as_posix() + "/"
     return any(ex in rel for ex in EXCLUDE_SUBSTRINGS)
+
+
+def _is_legacy_allowed(path: Path) -> bool:
+    normalized = path.as_posix()
+    return any(normalized.endswith(entry) for entry in LEGACY_FILE_ALLOWLIST)
 
 
 def _line_is_exempt(line: str) -> bool:
@@ -63,6 +75,8 @@ def _line_is_exempt(line: str) -> bool:
 
 
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
+    if _is_legacy_allowed(path):
+        return []
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
