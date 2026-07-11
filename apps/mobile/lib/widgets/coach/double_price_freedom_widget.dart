@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -30,14 +31,14 @@ class ChargeLine {
 }
 
 class DoublePriceFreedomWidget extends StatelessWidget {
-  final double grossIncome;
+  final double declaredAnnualIncome;
   final List<ChargeLine> charges;
   final double totalEmployee;
   final double totalSelfEmployed;
 
   const DoublePriceFreedomWidget({
     super.key,
-    required this.grossIncome,
+    required this.declaredAnnualIncome,
     required this.charges,
     required this.totalEmployee,
     required this.totalSelfEmployed,
@@ -49,10 +50,19 @@ class DoublePriceFreedomWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final totalEmployeeAnnual = formatChfWithPrefix(totalEmployee);
+    final totalSelfEmployedAnnual = formatChfWithPrefix(totalSelfEmployed);
+    final declaredAnnual = formatChfWithPrefix(declaredAnnualIncome);
+    final monthlyDelta = formatChfWithPrefix(_monthlyDelta.abs());
+    final multiplier = _multiplier.toStringAsFixed(1);
+    final invoiceIncreasePct = ((_multiplier - 1) * 100).toStringAsFixed(0);
+
     return Semantics(
-      label: 'Double prix de la libert\u00e9. '
-          'Salari\u00e9\u00a0: ${formatChfWithPrefix(totalEmployee)}/an. '
-          'Ind\u00e9pendant\u00a0: ${formatChfWithPrefix(totalSelfEmployed)}/an.',
+      label: s.doublePriceFreedomSemantics(
+        totalEmployeeAnnual,
+        totalSelfEmployedAnnual,
+      ),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -65,18 +75,19 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Le double prix de ta libert\u00e9',
-              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+              s.doublePriceFreedomTitle,
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Charges totales \u00e0 ${formatChfWithPrefix(grossIncome)} brut/an',
+              s.doublePriceFreedomSubtitle(declaredAnnual),
               style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
             // ── Column headers ──
-            _buildColumnHeaders(),
+            _buildColumnHeaders(s),
             const Divider(height: 16),
 
             // ── Charge lines ──
@@ -85,7 +96,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             const Divider(height: 16),
 
             // ── Totals ──
-            _buildTotalRow(),
+            _buildTotalRow(s),
             const SizedBox(height: 12),
 
             // ── Chiffre-choc ──
@@ -97,19 +108,21 @@ class DoublePriceFreedomWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'Tu paies ${formatChfWithPrefix(_monthlyDelta.abs())}/mois '
-                'de plus (\u00d7${_multiplier.toStringAsFixed(1)}).\n'
-                'Pour garder le m\u00eame net, facture '
-                '+${((_multiplier - 1) * 100).toStringAsFixed(0)}%.',
-                style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w500, height: 1.4),
+                s.doublePriceFreedomMonthlyDelta(
+                  monthlyDelta,
+                  multiplier,
+                  invoiceIncreasePct,
+                ),
+                style:
+                    MintTextStyles.labelMedium(color: MintColors.scoreCritique)
+                        .copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
 
             const SizedBox(height: 12),
             Text(
-              'Cotisations sociales\u00a0: LAVS art. 4-14, LAA art. 1a, LACI art. 2. '
-              'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+              s.doublePriceFreedomDisclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ],
@@ -118,24 +131,26 @@ class DoublePriceFreedomWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildColumnHeaders() {
+  Widget _buildColumnHeaders(S s) {
     return Row(
       children: [
         const Expanded(flex: 3, child: SizedBox()),
         Expanded(
           flex: 2,
           child: Text(
-            'Salari\u00e9\u00b7e',
+            s.doublePriceFreedomEmployeeHeader,
             textAlign: TextAlign.right,
-            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Expanded(
           flex: 2,
           child: Text(
-            'Ind\u00e9p.',
+            s.doublePriceFreedomSelfEmployedHeader,
             textAlign: TextAlign.right,
-            style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelSmall(color: MintColors.scoreCritique)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -159,7 +174,8 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             child: Text(
               formatChfWithPrefix(line.employeeAmount),
               textAlign: TextAlign.right,
-              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary)
+                  .copyWith(fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
@@ -167,7 +183,11 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             child: Text(
               formatChfWithPrefix(line.selfEmployedAmount),
               textAlign: TextAlign.right,
-              style: MintTextStyles.labelMedium(color: line.selfEmployedAmount > line.employeeAmount ? MintColors.scoreCritique : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
+              style: MintTextStyles.labelMedium(
+                      color: line.selfEmployedAmount > line.employeeAmount
+                          ? MintColors.scoreCritique
+                          : MintColors.textSecondary)
+                  .copyWith(fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -175,14 +195,15 @@ class DoublePriceFreedomWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTotalRow() {
+  Widget _buildTotalRow(S s) {
     return Row(
       children: [
         Expanded(
           flex: 3,
           child: Text(
-            'TOTAL /an',
-            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+            s.doublePriceFreedomTotalAnnual,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Expanded(
@@ -190,7 +211,8 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           child: Text(
             formatChfWithPrefix(totalEmployee),
             textAlign: TextAlign.right,
-            style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         Expanded(
@@ -198,7 +220,8 @@ class DoublePriceFreedomWidget extends StatelessWidget {
           child: Text(
             formatChfWithPrefix(totalSelfEmployed),
             textAlign: TextAlign.right,
-            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodySmall(color: MintColors.scoreCritique)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ],

@@ -2839,7 +2839,18 @@ class SEn extends S {
   }
 
   @override
+  String get independantLedgerFactsSubtitle =>
+      'Mint reads these values from your data library. If they are missing, it collects them before calculating.';
+
+  @override
   String get independantCoverageTitle => 'My current coverage';
+
+  @override
+  String get independantCoverageScenarioTitle => 'Coverage to verify';
+
+  @override
+  String get independantCoverageScenarioSubtitle =>
+      'Voluntary LPP and 3a update your library. IJM and accident cover remain temporary comparison assumptions.';
 
   @override
   String get independantToggleLpp => 'LPP (voluntary affiliation)';
@@ -2877,6 +2888,28 @@ class SEn extends S {
   @override
   String get independantAnalysisHeader =>
       'MINT Analysis — Your self-employment kit';
+
+  @override
+  String get independantLppRescueFoundationLabel =>
+      'Vested benefits foundation';
+
+  @override
+  String get independantLppRescueFoundationDesc =>
+      'Place your assets in a vested benefits account or policy.';
+
+  @override
+  String get independantLppRescueSubstituteLabel => 'Substitute institution';
+
+  @override
+  String get independantLppRescueSubstituteDesc =>
+      'An automatic transfer may happen after several months without instructions.';
+
+  @override
+  String get independantLppRescueNewFundLabel => 'New LPP pension fund';
+
+  @override
+  String get independantLppRescueNewFundDesc =>
+      'Join a voluntary LPP pension fund if your situation allows it.';
 
   @override
   String get independantSourcesTitle => 'Sources';
@@ -3410,6 +3443,10 @@ class SEn extends S {
   @override
   String get independantJourJSubtitle =>
       'What changes in 1 day when you become self-employed';
+
+  @override
+  String get independantJourJIllustrativeCaveat =>
+      'Illustrative comparison based on your declared net income, not an insurance offer.';
 
   @override
   String get independantJourJEmployee => 'Employee';
@@ -16758,6 +16795,39 @@ class SEn extends S {
 
   @override
   String get indepChargeProNote => 'Entirely borne by the self-employed';
+
+  @override
+  String doublePriceFreedomSemantics(
+      String employeeAmount, String selfEmployedAmount) {
+    return 'Double price of freedom. Employee: $employeeAmount/year. Self-employed: $selfEmployedAmount/year.';
+  }
+
+  @override
+  String get doublePriceFreedomTitle => 'The double price of freedom';
+
+  @override
+  String doublePriceFreedomSubtitle(String amount) {
+    return 'Total charges on $amount/year declared';
+  }
+
+  @override
+  String doublePriceFreedomMonthlyDelta(
+      String amount, String multiplier, String percent) {
+    return 'You pay $amount/month more (×$multiplier).\nTo keep the same net income, invoice +$percent%.';
+  }
+
+  @override
+  String get doublePriceFreedomDisclaimer =>
+      'Social contributions: LAVS art. 4-14, LAA art. 1a, LACI art. 2. Educational tool — does not constitute financial advice (LSFin).';
+
+  @override
+  String get doublePriceFreedomEmployeeHeader => 'Employee';
+
+  @override
+  String get doublePriceFreedomSelfEmployedHeader => 'Self-employed';
+
+  @override
+  String get doublePriceFreedomTotalAnnual => 'TOTAL /year';
 
   @override
   String get indepFiscal3a => 'Pillar 3a large contribution';

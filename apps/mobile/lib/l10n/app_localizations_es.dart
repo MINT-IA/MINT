@@ -2850,7 +2850,18 @@ class SEs extends S {
   }
 
   @override
+  String get independantLedgerFactsSubtitle =>
+      'Mint lee estos valores desde tu biblioteca de datos. Si faltan, los recopila antes de calcular.';
+
+  @override
   String get independantCoverageTitle => 'Mi cobertura actual';
+
+  @override
+  String get independantCoverageScenarioTitle => 'Coberturas por verificar';
+
+  @override
+  String get independantCoverageScenarioSubtitle =>
+      'La LPP voluntaria y el 3a actualizan tu biblioteca. IJM y accidentes siguen siendo hipótesis temporales de comparación.';
 
   @override
   String get independantToggleLpp => 'LPP (afiliación voluntaria)';
@@ -2890,6 +2901,27 @@ class SEs extends S {
   @override
   String get independantAnalysisHeader =>
       'Análisis MINT — Tu kit de independiente';
+
+  @override
+  String get independantLppRescueFoundationLabel => 'Fundación de libre paso';
+
+  @override
+  String get independantLppRescueFoundationDesc =>
+      'Coloca tu haber en una cuenta o póliza de libre paso.';
+
+  @override
+  String get independantLppRescueSubstituteLabel => 'Institución suplente';
+
+  @override
+  String get independantLppRescueSubstituteDesc =>
+      'Puede producirse una transferencia automática tras varios meses sin instrucciones.';
+
+  @override
+  String get independantLppRescueNewFundLabel => 'Nueva caja LPP';
+
+  @override
+  String get independantLppRescueNewFundDesc =>
+      'Afíliate voluntariamente a una caja LPP si tu situación lo permite.';
 
   @override
   String get independantSourcesTitle => 'Fuentes';
@@ -3430,6 +3462,10 @@ class SEs extends S {
   @override
   String get independantJourJSubtitle =>
       'Lo que cambia en 1 día cuando te haces autónomo/a';
+
+  @override
+  String get independantJourJIllustrativeCaveat =>
+      'Comparación ilustrativa basada en tu ingreso neto declarado, no una oferta de seguro.';
 
   @override
   String get independantJourJEmployee => 'Asalariado/a';
@@ -16848,6 +16884,39 @@ class SEs extends S {
 
   @override
   String get indepChargeProNote => 'Enteramente a cargo del independiente';
+
+  @override
+  String doublePriceFreedomSemantics(
+      String employeeAmount, String selfEmployedAmount) {
+    return 'Doble precio de la libertad. Empleado: $employeeAmount/año. Independiente: $selfEmployedAmount/año.';
+  }
+
+  @override
+  String get doublePriceFreedomTitle => 'El doble precio de tu libertad';
+
+  @override
+  String doublePriceFreedomSubtitle(String amount) {
+    return 'Cargas totales sobre $amount/año declarado';
+  }
+
+  @override
+  String doublePriceFreedomMonthlyDelta(
+      String amount, String multiplier, String percent) {
+    return 'Pagas $amount/mes más (×$multiplier).\nPara conservar el mismo neto, factura +$percent%.';
+  }
+
+  @override
+  String get doublePriceFreedomDisclaimer =>
+      'Cotizaciones sociales: LAVS art. 4-14, LAA art. 1a, LACI art. 2. Herramienta educativa — no constituye asesoramiento financiero (LSFin).';
+
+  @override
+  String get doublePriceFreedomEmployeeHeader => 'Empleado';
+
+  @override
+  String get doublePriceFreedomSelfEmployedHeader => 'Indep.';
+
+  @override
+  String get doublePriceFreedomTotalAnnual => 'TOTAL /año';
 
   @override
   String get indepFiscal3a => 'Pilar 3a gran aporte';

@@ -1274,7 +1274,10 @@
       }
     }
   },
+  "independantLedgerFactsSubtitle": "Mint reads these values from your data library. If they are missing, it collects them before calculating.",
   "independantCoverageTitle": "My current coverage",
+  "independantCoverageScenarioTitle": "Coverage to verify",
+  "independantCoverageScenarioSubtitle": "Voluntary LPP and 3a update your library. IJM and accident cover remain temporary comparison assumptions.",
   "independantToggleLpp": "LPP (voluntary affiliation)",
   "independantToggleIjm": "IJM (daily sickness benefit)",
   "independantToggleLaa": "LAA (accident insurance)",
@@ -1287,6 +1290,12 @@
   "independant3aTitle": "3rd pillar — self-employed cap",
   "independantRecommendationsHeader": "RECOMMENDATIONS",
   "independantAnalysisHeader": "MINT Analysis — Your self-employment kit",
+  "independantLppRescueFoundationLabel": "Vested benefits foundation",
+  "independantLppRescueFoundationDesc": "Place your assets in a vested benefits account or policy.",
+  "independantLppRescueSubstituteLabel": "Substitute institution",
+  "independantLppRescueSubstituteDesc": "An automatic transfer may happen after several months without instructions.",
+  "independantLppRescueNewFundLabel": "New LPP pension fund",
+  "independantLppRescueNewFundDesc": "Join a voluntary LPP pension fund if your situation allows it.",
   "independantSourcesTitle": "Sources",
   "independantSourcesBody": "LPP art. 4 (no obligation for self-employed) / LPP art. 44 (voluntary affiliation) / OPP3 art. 7 (large 3a: 20% of net income, max 36,288) / LAVS art. 8 (self-employed contributions) / LAA art. 4 / LAMal",
   "independantDisclaimer": "The amounts shown are indicative estimates. Actual contributions depend on your personal situation and available insurance offers. Consult a fiduciary or insurer before any decision.",
@@ -1518,6 +1527,7 @@
   "jobCompareChecklistSub": "Verification checklist",
   "independantJourJTitle": "D-Day — The big switch",
   "independantJourJSubtitle": "What changes in 1 day when you become self-employed",
+  "independantJourJIllustrativeCaveat": "Illustrative comparison based on your declared net income, not an insurance offer.",
   "independantJourJEmployee": "Employee",
   "independantJourJSelfEmployed": "Self-employed",
   "independantJourJPremierEclairage": "You lose ~{amount}/month in invisible protection.\nYou didn't leave a job. You left a protection system.",
@@ -8667,6 +8677,44 @@
   "indepChargeLppNote": "Optional for self-employed (LPP art. 4)",
   "indepChargePro": "Professional contributions (IJM/LAA)",
   "indepChargeProNote": "Entirely borne by the self-employed",
+  "doublePriceFreedomSemantics": "Double price of freedom. Employee: {employeeAmount}/year. Self-employed: {selfEmployedAmount}/year.",
+  "@doublePriceFreedomSemantics": {
+    "placeholders": {
+      "employeeAmount": {
+        "type": "String"
+      },
+      "selfEmployedAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomTitle": "The double price of freedom",
+  "doublePriceFreedomSubtitle": "Total charges on {amount}/year declared",
+  "@doublePriceFreedomSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomMonthlyDelta": "You pay {amount}/month more (×{multiplier}).\nTo keep the same net income, invoice +{percent}%.",
+  "@doublePriceFreedomMonthlyDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomDisclaimer": "Social contributions: LAVS art. 4-14, LAA art. 1a, LACI art. 2. Educational tool — does not constitute financial advice (LSFin).",
+  "doublePriceFreedomEmployeeHeader": "Employee",
+  "doublePriceFreedomSelfEmployedHeader": "Self-employed",
+  "doublePriceFreedomTotalAnnual": "TOTAL /year",
   "indepFiscal3a": "Pillar 3a large contribution",
   "indepFiscal3aNote": "Max 20% of net income, capped at CHF 36,288/year without LPP",
   "indepFiscalFraisPro": "Actual business expenses",

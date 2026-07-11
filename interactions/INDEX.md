@@ -23,6 +23,7 @@
 | first_job_missing_facts | `firstjob.edge.first_job.enrich_revenue` | `firstjob.route.first_job -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/first_job_ledger.yaml` |
 | independent_missing_facts | `indep.edge.avs.enrich_income` | `indep.route.avs -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_avs_cotisations.yaml` |
 | independent_missing_facts | `indep.edge.divsalary.enrich_profit` | `indep.route.divsalary -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_dividende_salaire.yaml` |
+| independent_missing_facts | `indep.edge.hub.enrich_income_age_or_canton` | `indep.route.hub -> db.route.revenu` | `tap` | `push` | `apps/mobile/test/screens/indep_nav_remaining_smoke_test.dart` |
 | independent_missing_facts | `indep.edge.ijm.enrich_income_or_age` | `indep.route.ijm -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_ijm.yaml` |
 | independent_missing_facts | `indep.edge.lpp.enrich_income_or_age` | `indep.route.lpp -> db.route.revenu` | `tap` | `push` | `apps/mobile/.maestro/indep_lpp_volontaire.yaml` |
 | independent_missing_facts | `indep.edge.pillar3a.enrich_cash` | `indep.route.pillar3a -> db.route.patrimoine` | `tap` | `push` | `apps/mobile/.maestro/indep_pillar3a.yaml` |

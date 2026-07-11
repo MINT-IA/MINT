@@ -1274,7 +1274,10 @@
       }
     }
   },
+  "independantLedgerFactsSubtitle": "Mint liest diese Werte aus deiner Datenbibliothek. Wenn sie fehlen, werden sie vor der Berechnung erfasst.",
   "independantCoverageTitle": "Meine aktuelle Deckung",
+  "independantCoverageScenarioTitle": "Deckungen prüfen",
+  "independantCoverageScenarioSubtitle": "Freiwillige BVG und 3a aktualisieren deine Bibliothek. KTG und Unfall bleiben vorläufige Vergleichsannahmen.",
   "independantToggleLpp": "BVG (freiwillige Versicherung)",
   "independantToggleIjm": "KTG (Krankentaggeld)",
   "independantToggleLaa": "UVG (Unfallversicherung)",
@@ -1287,6 +1290,12 @@
   "independant3aTitle": "3. Säule — Obergrenze Selbstständige",
   "independantRecommendationsHeader": "EMPFEHLUNGEN",
   "independantAnalysisHeader": "MINT-Analyse — Dein Selbstständigen-Kit",
+  "independantLppRescueFoundationLabel": "Freizügigkeitsstiftung",
+  "independantLppRescueFoundationDesc": "Lege dein Guthaben auf einem Freizügigkeitskonto oder in einer Police an.",
+  "independantLppRescueSubstituteLabel": "Auffangeinrichtung",
+  "independantLppRescueSubstituteDesc": "Nach mehreren Monaten ohne Instruktion kann eine automatische Überweisung erfolgen.",
+  "independantLppRescueNewFundLabel": "Neue BVG-Kasse",
+  "independantLppRescueNewFundDesc": "Tritt einer freiwilligen BVG-Kasse bei, wenn deine Situation es erlaubt.",
   "independantSourcesTitle": "Quellen",
   "independantSourcesBody": "BVG Art. 4 (keine Pflicht für Selbstständige) / BVG Art. 44 (freiwillige Versicherung) / BVV3 Art. 7 (grosse 3a: 20% des Nettoeinkommens, max 36'288) / AHVG Art. 8 (Beiträge Selbstständige) / UVG Art. 4 / KVG",
   "independantDisclaimer": "Die angegebenen Beträge sind unverbindliche Schätzungen. Die tatsächlichen Beiträge hängen von deiner persönlichen Situation und den verfügbaren Versicherungsangeboten ab. Wende dich an einen Treuhänder oder Versicherer.",
@@ -1518,6 +1527,7 @@
   "jobCompareChecklistSub": "Prüfliste",
   "independantJourJTitle": "Tag X — Der grosse Wechsel",
   "independantJourJSubtitle": "Was sich an einem Tag ändert, wenn du selbstständig wirst",
+  "independantJourJIllustrativeCaveat": "Illustrativer Vergleich auf Basis deines deklarierten Nettoeinkommens, kein Versicherungsangebot.",
   "independantJourJEmployee": "Angestellt",
   "independantJourJSelfEmployed": "Selbstständig",
   "independantJourJPremierEclairage": "Du verlierst ~{amount}/Monat an unsichtbarem Schutz.\nDu hast nicht einen Job verlassen. Du hast ein Schutzsystem verlassen.",
@@ -8667,6 +8677,44 @@
   "indepChargeLppNote": "Freiwillig für Selbstständige (BVG Art. 4)",
   "indepChargePro": "Berufsversicherungen (KTG/UVG)",
   "indepChargeProNote": "Vollständig zu Lasten des Selbstständigen",
+  "doublePriceFreedomSemantics": "Doppelter Preis der Freiheit. Angestellt: {employeeAmount}/Jahr. Selbstständig: {selfEmployedAmount}/Jahr.",
+  "@doublePriceFreedomSemantics": {
+    "placeholders": {
+      "employeeAmount": {
+        "type": "String"
+      },
+      "selfEmployedAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomTitle": "Der doppelte Preis deiner Freiheit",
+  "doublePriceFreedomSubtitle": "Gesamtabgaben auf {amount}/Jahr deklariert",
+  "@doublePriceFreedomSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomMonthlyDelta": "Du zahlst {amount}/Monat mehr (×{multiplier}).\nUm den gleichen Nettoertrag zu behalten, fakturiere +{percent}%.",
+  "@doublePriceFreedomMonthlyDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomDisclaimer": "Sozialbeiträge: AHVG Art. 4-14, UVG Art. 1a, AVIG Art. 2. Bildungstool — keine Finanzberatung (LSFin).",
+  "doublePriceFreedomEmployeeHeader": "Angestellt",
+  "doublePriceFreedomSelfEmployedHeader": "Selbst.",
+  "doublePriceFreedomTotalAnnual": "TOTAL /Jahr",
   "indepFiscal3a": "Säule 3a Grosseinzahlung",
   "indepFiscal3aNote": "Max 20% des Nettoeinkommens, begrenzt auf CHF 36'288/Jahr ohne BVG",
   "indepFiscalFraisPro": "Effektive Geschäftskosten",

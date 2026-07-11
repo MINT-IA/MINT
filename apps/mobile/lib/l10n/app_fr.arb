@@ -1274,7 +1274,10 @@
       }
     }
   },
+  "independantLedgerFactsSubtitle": "Mint lit ces valeurs dans ta bibliothèque de données. Si elles manquent, on les collecte avant de calculer.",
   "independantCoverageTitle": "Ma couverture actuelle",
+  "independantCoverageScenarioTitle": "Couvertures à vérifier",
+  "independantCoverageScenarioSubtitle": "LPP et 3a modifient ta bibliothèque. IJM et LAA restent des hypothèses temporaires de comparaison.",
   "independantToggleLpp": "LPP (affiliation volontaire)",
   "independantToggleIjm": "IJM (indemnité journalière maladie)",
   "independantToggleLaa": "LAA (assurance accident)",
@@ -1287,6 +1290,12 @@
   "independant3aTitle": "3e pilier — plafond indépendant",
   "independantRecommendationsHeader": "RECOMMANDATIONS",
   "independantAnalysisHeader": "Analyse MINT — Ton kit indépendant",
+  "independantLppRescueFoundationLabel": "Fondation de libre passage",
+  "independantLppRescueFoundationDesc": "Placer ton avoir sur un compte ou une police de libre passage.",
+  "independantLppRescueSubstituteLabel": "Institution supplétive",
+  "independantLppRescueSubstituteDesc": "Transfert automatique possible après plusieurs mois sans instruction.",
+  "independantLppRescueNewFundLabel": "Nouvelle caisse LPP",
+  "independantLppRescueNewFundDesc": "T'affilier volontairement à une caisse LPP si ta situation le permet.",
   "independantSourcesTitle": "Sources",
   "independantSourcesBody": "LPP art. 4 (pas d'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal",
   "independantDisclaimer": "Les montants présentés sont des estimations indicatives. Les cotisations réelles dépendent de ta situation personnelle et des offres d'assurance disponibles. Consulte un fiduciaire ou un assureur avant toute décision.",
@@ -1518,6 +1527,7 @@
   "jobCompareChecklistSub": "Checklist de vérification",
   "independantJourJTitle": "Le Jour J — La grande bascule",
   "independantJourJSubtitle": "Ce qui change en 1 jour quand tu deviens indépendant·e",
+  "independantJourJIllustrativeCaveat": "Comparaison illustrative basée sur ton revenu net déclaré, pas une offre d’assurance.",
   "independantJourJEmployee": "Salarié·e",
   "independantJourJSelfEmployed": "Indépendant·e",
   "independantJourJPremierEclairage": "Tu perds ~{amount}/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.",
@@ -9107,6 +9117,44 @@
   "indepChargeLppNote": "Facultatif pour indépendant (LPP art. 4)",
   "indepChargePro": "Cotisations pro (IJM/LAA)",
   "indepChargeProNote": "À charge entière de l'indépendant",
+  "doublePriceFreedomSemantics": "Double prix de la liberté. Salarié : {employeeAmount}/an. Indépendant : {selfEmployedAmount}/an.",
+  "@doublePriceFreedomSemantics": {
+    "placeholders": {
+      "employeeAmount": {
+        "type": "String"
+      },
+      "selfEmployedAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomTitle": "Le double prix de ta liberté",
+  "doublePriceFreedomSubtitle": "Charges totales sur {amount}/an déclarés",
+  "@doublePriceFreedomSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomMonthlyDelta": "Tu paies {amount}/mois de plus (×{multiplier}).\nPour garder le même net, facture +{percent}%.",
+  "@doublePriceFreedomMonthlyDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomDisclaimer": "Cotisations sociales : LAVS art. 4-14, LAA art. 1a, LACI art. 2. Outil éducatif — ne constitue pas un conseil financier (LSFin).",
+  "doublePriceFreedomEmployeeHeader": "Salarié·e",
+  "doublePriceFreedomSelfEmployedHeader": "Indép.",
+  "doublePriceFreedomTotalAnnual": "TOTAL /an",
   "indepFiscal3a": "Pilier 3a grand versement",
   "indepFiscal3aNote": "Max 20 % du revenu net, plafonné à CHF 36'288/an sans LPP",
   "indepFiscalFraisPro": "Frais professionnels effectifs",

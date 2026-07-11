@@ -5271,11 +5271,29 @@ abstract class S {
   /// **'Age : {age} ans'**
   String independantAgeLabel(int age);
 
+  /// No description provided for @independantLedgerFactsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint lit ces valeurs dans ta bibliothèque de données. Si elles manquent, on les collecte avant de calculer.'**
+  String get independantLedgerFactsSubtitle;
+
   /// No description provided for @independantCoverageTitle.
   ///
   /// In fr, this message translates to:
   /// **'Ma couverture actuelle'**
   String get independantCoverageTitle;
+
+  /// No description provided for @independantCoverageScenarioTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couvertures à vérifier'**
+  String get independantCoverageScenarioTitle;
+
+  /// No description provided for @independantCoverageScenarioSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP et 3a modifient ta bibliothèque. IJM et LAA restent des hypothèses temporaires de comparaison.'**
+  String get independantCoverageScenarioSubtitle;
 
   /// No description provided for @independantToggleLpp.
   ///
@@ -5348,6 +5366,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Analyse MINT — Ton kit indépendant'**
   String get independantAnalysisHeader;
+
+  /// No description provided for @independantLppRescueFoundationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fondation de libre passage'**
+  String get independantLppRescueFoundationLabel;
+
+  /// No description provided for @independantLppRescueFoundationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placer ton avoir sur un compte ou une police de libre passage.'**
+  String get independantLppRescueFoundationDesc;
+
+  /// No description provided for @independantLppRescueSubstituteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Institution supplétive'**
+  String get independantLppRescueSubstituteLabel;
+
+  /// No description provided for @independantLppRescueSubstituteDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transfert automatique possible après plusieurs mois sans instruction.'**
+  String get independantLppRescueSubstituteDesc;
+
+  /// No description provided for @independantLppRescueNewFundLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle caisse LPP'**
+  String get independantLppRescueNewFundLabel;
+
+  /// No description provided for @independantLppRescueNewFundDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'T\'affilier volontairement à une caisse LPP si ta situation le permet.'**
+  String get independantLppRescueNewFundDesc;
 
   /// No description provided for @independantSourcesTitle.
   ///
@@ -6309,6 +6363,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ce qui change en 1 jour quand tu deviens indépendant·e'**
   String get independantJourJSubtitle;
+
+  /// No description provided for @independantJourJIllustrativeCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison illustrative basée sur ton revenu net déclaré, pas une offre d’assurance.'**
+  String get independantJourJIllustrativeCaveat;
 
   /// No description provided for @independantJourJEmployee.
   ///
@@ -29705,6 +29765,56 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'À charge entière de l\'indépendant'**
   String get indepChargeProNote;
+
+  /// No description provided for @doublePriceFreedomSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Double prix de la liberté. Salarié : {employeeAmount}/an. Indépendant : {selfEmployedAmount}/an.'**
+  String doublePriceFreedomSemantics(
+      String employeeAmount, String selfEmployedAmount);
+
+  /// No description provided for @doublePriceFreedomTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le double prix de ta liberté'**
+  String get doublePriceFreedomTitle;
+
+  /// No description provided for @doublePriceFreedomSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges totales sur {amount}/an déclarés'**
+  String doublePriceFreedomSubtitle(String amount);
+
+  /// No description provided for @doublePriceFreedomMonthlyDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu paies {amount}/mois de plus (×{multiplier}).\nPour garder le même net, facture +{percent}%.'**
+  String doublePriceFreedomMonthlyDelta(
+      String amount, String multiplier, String percent);
+
+  /// No description provided for @doublePriceFreedomDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisations sociales : LAVS art. 4-14, LAA art. 1a, LACI art. 2. Outil éducatif — ne constitue pas un conseil financier (LSFin).'**
+  String get doublePriceFreedomDisclaimer;
+
+  /// No description provided for @doublePriceFreedomEmployeeHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salarié·e'**
+  String get doublePriceFreedomEmployeeHeader;
+
+  /// No description provided for @doublePriceFreedomSelfEmployedHeader.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indép.'**
+  String get doublePriceFreedomSelfEmployedHeader;
+
+  /// No description provided for @doublePriceFreedomTotalAnnual.
+  ///
+  /// In fr, this message translates to:
+  /// **'TOTAL /an'**
+  String get doublePriceFreedomTotalAnnual;
 
   /// No description provided for @indepFiscal3a.
   ///

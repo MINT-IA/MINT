@@ -130,7 +130,7 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `_coach_lpp_source`
 
 **3a (3rd pillar)**
-- `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
+- `q_has_3a`, `q_3a_total`, `q_3a_accounts_count`, `q_3a_annual_contribution`,
   `q_3a_providers`, `_coach_total_3a`
 
 **Patrimoine & dette**

@@ -9,6 +9,15 @@ flow:
     every_scene_has_exit: true
 
 nodes:
+  - id: indep.route.hub
+    kind: route
+    route: /segments/independant
+    widget: screens/independant_screen.dart
+    entries:
+      - {via: deeplink, back: pop}
+      - {via: flow, back: pop}
+    states: [content, partial, loading, error.compute]
+
   - id: indep.route.avs
     kind: route
     route: /independants/avs
@@ -71,6 +80,17 @@ nodes:
     states: [content, loading, error.compute]
 
 edges:
+  - id: indep.edge.hub.enrich_income_age_or_canton
+    from: indep.route.hub
+    to: db.route.revenu
+    trigger: tap
+    intent: "Collect independent income, birth year, or canton before showing the independent protection hub result"
+    payload: {path_params: {type: EnrichmentType}, extra: InputKey}
+    transition: push
+    back: pop
+    analytics: cta_clicked
+    test_ref: apps/mobile/test/screens/indep_nav_remaining_smoke_test.dart
+
   - id: indep.edge.avs.enrich_income
     from: indep.route.avs
     to: db.route.revenu

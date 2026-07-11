@@ -173,6 +173,17 @@ These facts are collected through `mergeAnswers` and reconstructed by
 
 > 3a writes MUST respect `canContribute3a` (false for US/FATCA; conditional for frontalier permis G). A `pillar3a*` write for a US person should be accepted as data but flagged non-contributable, not silently zeroed.
 
+#### Mobile-only 3a facts
+
+These facts are collected through `mergeAnswers` and reconstructed by
+`CoachProfile.fromWizardAnswers()`, but they are **not** part of the backend
+`save_fact` allowlist counted in §3.8. They must not be counted as a 37th
+coach-writable key.
+
+| key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
+|---|---|---|---|---|---|---|---|---|
+| `has3a` | `q_has_3a` (`true` → `yes`, `false` → `no`) | bool | prevoyance | userInput, certificate, openBanking | annual | .60 / .95 | mergeAnswers only, not `save_fact` | `nombre3a`, independent protection hub, 3a gating |
+
 ### 3.5 Savings / wealth / debt
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |

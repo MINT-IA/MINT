@@ -2618,11 +2618,14 @@ class CoachProfile {
         : hasVoluntaryLpp ?? false;
     final lppBuybackAvailable =
         _parseDouble(answers['q_lpp_buyback_available']);
-    final has3a = _parseBool(answers['q_has_3a']);
+    final has3a = answers.containsKey('q_has_3a')
+        ? _parseBool(answers['q_has_3a'])
+        : null;
     final contribution3a =
         _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
+    final explicit3aAccounts = _parseInt(answers['q_3a_accounts_count']);
     final nombre3a =
-        _parseInt(answers['q_3a_accounts_count']) ?? (has3a ? 1 : 0);
+        has3a == false ? 0 : explicit3aAccounts ?? (has3a == true ? 1 : 0);
     final avsLacunesStatus = answers['q_avs_lacunes_status'] as String?;
     // Compute arrivalAge for expats who arrived late in Switzerland.
     // Used by _estimateLppAvoir() to start LPP bonification loop at
@@ -2689,7 +2692,7 @@ class CoachProfile {
     final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
     final estimated3aTotal = reported3aTotal ??
         coachTotal3a ??
-        (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);
+        (has3a == true ? _estimate3aTotal(contribution3a, age) : 0.0);
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
@@ -2869,7 +2872,7 @@ class CoachProfile {
       }
     } else {
       // Fallback: no allocation question answered — use legacy logic
-      if (has3a && contribution3a > 0) {
+      if (has3a == true && contribution3a > 0) {
         contributions.add(PlannedMonthlyContribution(
           id: '3a_user',
           label: '3a ${firstName ?? "Toi"}',
@@ -3124,6 +3127,10 @@ class CoachProfile {
     }
     if (answers.containsKey('q_has_voluntary_lpp')) {
       provided.add('hasVoluntaryLpp');
+    }
+    if (answers.containsKey('q_has_3a') ||
+        answers.containsKey('q_3a_accounts_count')) {
+      provided.add('has3a');
     }
     if (answers.containsKey('q_cash_total') ||
         answers.containsKey('q_emergency_fund')) {

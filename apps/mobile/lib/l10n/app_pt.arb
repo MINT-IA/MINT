@@ -1274,7 +1274,10 @@
       }
     }
   },
+  "independantLedgerFactsSubtitle": "Mint lê estes valores da tua biblioteca de dados. Se faltarem, recolhe-os antes de calcular.",
   "independantCoverageTitle": "A minha cobertura atual",
+  "independantCoverageScenarioTitle": "Coberturas a verificar",
+  "independantCoverageScenarioSubtitle": "LPP voluntária e 3a atualizam a tua biblioteca. IJM e acidentes continuam hipóteses temporárias de comparação.",
   "independantToggleLpp": "LPP (afiliação voluntária)",
   "independantToggleIjm": "IJM (indemnização diária de doença)",
   "independantToggleLaa": "LAA (seguro de acidentes)",
@@ -1287,6 +1290,12 @@
   "independant3aTitle": "3.º pilar — teto independente",
   "independantRecommendationsHeader": "RECOMENDAÇÕES",
   "independantAnalysisHeader": "Análise MINT — O teu kit de independente",
+  "independantLppRescueFoundationLabel": "Fundação de livre passagem",
+  "independantLppRescueFoundationDesc": "Coloca o teu capital numa conta ou apólice de livre passagem.",
+  "independantLppRescueSubstituteLabel": "Instituição substituta",
+  "independantLppRescueSubstituteDesc": "Pode haver uma transferência automática após vários meses sem instruções.",
+  "independantLppRescueNewFundLabel": "Nova caixa LPP",
+  "independantLppRescueNewFundDesc": "Adere voluntariamente a uma caixa LPP se a tua situação o permitir.",
   "independantSourcesTitle": "Fontes",
   "independantSourcesBody": "LPP art. 4 (sem obrigação para independentes) / LPP art. 44 (afiliação voluntária) / OPP3 art. 7 (3a grande: 20% do rendimento líquido, máx. 36'288) / LAVS art. 8 (contribuições independentes) / LAA art. 4 / LAMal",
   "independantDisclaimer": "Os montantes apresentados são estimativas indicativas. As contribuições reais dependem da tua situação pessoal e das ofertas de seguros disponíveis. Consulta um fiduciário ou segurador antes de qualquer decisão.",
@@ -1518,6 +1527,7 @@
   "jobCompareChecklistSub": "Lista de verificação",
   "independantJourJTitle": "O Dia D — A grande mudança",
   "independantJourJSubtitle": "O que muda em 1 dia quando te tornas independente",
+  "independantJourJIllustrativeCaveat": "Comparação ilustrativa baseada no teu rendimento líquido declarado, não uma proposta de seguro.",
   "independantJourJEmployee": "Assalariado/a",
   "independantJourJSelfEmployed": "Independente",
   "independantJourJPremierEclairage": "Perdes ~{amount}/mês de proteção invisível.\nNão deixaste um emprego. Deixaste um sistema de proteção.",
@@ -8667,6 +8677,44 @@
   "indepChargeLppNote": "Facultativo para independente (LPP art. 4)",
   "indepChargePro": "Contribuições profissionais (IJM/LAA)",
   "indepChargeProNote": "Inteiramente a cargo do independente",
+  "doublePriceFreedomSemantics": "Duplo preço da liberdade. Assalariado: {employeeAmount}/ano. Independente: {selfEmployedAmount}/ano.",
+  "@doublePriceFreedomSemantics": {
+    "placeholders": {
+      "employeeAmount": {
+        "type": "String"
+      },
+      "selfEmployedAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomTitle": "O duplo preço da tua liberdade",
+  "doublePriceFreedomSubtitle": "Encargos totais sobre {amount}/ano declarado",
+  "@doublePriceFreedomSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomMonthlyDelta": "Pagas mais {amount}/mês (×{multiplier}).\nPara manter o mesmo líquido, fatura +{percent}%.",
+  "@doublePriceFreedomMonthlyDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomDisclaimer": "Contribuições sociais: LAVS art. 4-14, LAA art. 1a, LACI art. 2. Ferramenta educativa — não constitui aconselhamento financeiro (LSFin).",
+  "doublePriceFreedomEmployeeHeader": "Assalariado",
+  "doublePriceFreedomSelfEmployedHeader": "Indep.",
+  "doublePriceFreedomTotalAnnual": "TOTAL /ano",
   "indepFiscal3a": "Pilar 3a grande contribuição",
   "indepFiscal3aNote": "Máx. 20% do rendimento líquido, teto CHF 36'288/ano sem LPP",
   "indepFiscalFraisPro": "Despesas profissionais efetivas",

@@ -35,7 +35,7 @@ void main() {
         supportedLocales: S.supportedLocales,
         home: Scaffold(
           body: DoublePriceFreedomWidget(
-            grossIncome: 100000,
+            declaredAnnualIncome: 100000,
             charges: charges,
             totalEmployee: 12300,
             totalSelfEmployed: 23400,

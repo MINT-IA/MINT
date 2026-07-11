@@ -16,6 +16,7 @@ flowchart LR
   home_route_dashboard["home.route.dashboard<br/>/home"]:::route
   indep_route_avs["indep.route.avs<br/>/independants/avs"]:::route
   indep_route_divsalary["indep.route.divsalary<br/>/independants/dividende-salaire"]:::route
+  indep_route_hub["indep.route.hub<br/>/segments/independant"]:::route
   indep_route_ijm["indep.route.ijm<br/>/independants/ijm"]:::route
   indep_route_lpp["indep.route.lpp<br/>/independants/lpp-volontaire"]:::route
   indep_route_pillar3a["indep.route.pillar3a<br/>/independants/3a"]:::route
@@ -45,6 +46,7 @@ flowchart LR
   firstjob_route_first_job -->|"firstjob.edge.first_job.enrich_revenue<br/>tap / push"| db_route_revenu
   indep_route_avs -->|"indep.edge.avs.enrich_income<br/>tap / push"| db_route_revenu
   indep_route_divsalary -->|"indep.edge.divsalary.enrich_profit<br/>tap / push"| db_route_revenu
+  indep_route_hub -->|"indep.edge.hub.enrich_income_age_or_canton<br/>tap / push"| db_route_revenu
   indep_route_ijm -->|"indep.edge.ijm.enrich_income_or_age<br/>tap / push"| db_route_revenu
   indep_route_lpp -->|"indep.edge.lpp.enrich_income_or_age<br/>tap / push"| db_route_revenu
   indep_route_pillar3a -->|"indep.edge.pillar3a.enrich_cash<br/>tap / push"| db_route_patrimoine

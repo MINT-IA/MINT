@@ -322,6 +322,7 @@ void main() {
       expect(profile.userProvidedFields, contains('employmentStatus'));
       expect(profile.userProvidedFields, contains('children'));
       expect(profile.userProvidedFields, contains('housingStatus'));
+      expect(profile.userProvidedFields, contains('has3a'));
     });
 
     test('marque le solde hypothécaire quand il est fourni', () {
@@ -394,6 +395,22 @@ void main() {
       expect(profile.riskTolerance, 'balanced');
       expect(profile.realEstateProject, 'yes_main');
       expect(profile.providers3a, ['bank', 'insurance']);
+    });
+
+    test('q_has_3a masque le nombre de comptes sans le detruire', () {
+      final answers = {
+        ...baseAnswers(),
+        'q_has_3a': 'no',
+        'q_3a_accounts_count': 3,
+      };
+
+      expect(CoachProfile.fromWizardAnswers(answers).prevoyance.nombre3a, 0);
+
+      final restored = {
+        ...answers,
+        'q_has_3a': 'yes',
+      };
+      expect(CoachProfile.fromWizardAnswers(restored).prevoyance.nombre3a, 3);
     });
 
     test('profil minimal fonctionne avec valeurs par defaut', () {

@@ -1274,7 +1274,10 @@
       }
     }
   },
+  "independantLedgerFactsSubtitle": "Mint legge questi valori dalla tua libreria dati. Se mancano, li raccoglie prima di calcolare.",
   "independantCoverageTitle": "La mia copertura attuale",
+  "independantCoverageScenarioTitle": "Coperture da verificare",
+  "independantCoverageScenarioSubtitle": "LPP volontaria e 3a aggiornano la tua libreria. IJM e infortuni restano ipotesi temporanee di confronto.",
   "independantToggleLpp": "LPP (affiliazione volontaria)",
   "independantToggleIjm": "IGM (indennità giornaliera di malattia)",
   "independantToggleLaa": "LAINF (assicurazione infortuni)",
@@ -1287,6 +1290,12 @@
   "independant3aTitle": "3° pilastro — tetto indipendente",
   "independantRecommendationsHeader": "RACCOMANDAZIONI",
   "independantAnalysisHeader": "Analisi MINT — Il tuo kit da indipendente",
+  "independantLppRescueFoundationLabel": "Fondazione di libero passaggio",
+  "independantLppRescueFoundationDesc": "Colloca il tuo avere su un conto o una polizza di libero passaggio.",
+  "independantLppRescueSubstituteLabel": "Istituto collettore",
+  "independantLppRescueSubstituteDesc": "Dopo diversi mesi senza istruzioni può avvenire un trasferimento automatico.",
+  "independantLppRescueNewFundLabel": "Nuova cassa LPP",
+  "independantLppRescueNewFundDesc": "Affiliati volontariamente a una cassa LPP se la tua situazione lo consente.",
   "independantSourcesTitle": "Fonti",
   "independantSourcesBody": "LPP art. 4 (nessun obbligo per indipendenti) / LPP art. 44 (affiliazione volontaria) / OPP3 art. 7 (3a grande: 20% del reddito netto, max 36'288) / LAVS art. 8 (contributi indipendenti) / LAINF art. 4 / LAMal",
   "independantDisclaimer": "Gli importi presentati sono stime indicative. I contributi reali dipendono dalla tua situazione personale e dalle offerte assicurative disponibili. Consulta un fiduciario o un assicuratore prima di qualsiasi decisione.",
@@ -1518,6 +1527,7 @@
   "jobCompareChecklistSub": "Checklist di verifica",
   "independantJourJTitle": "Il Giorno X — Il grande salto",
   "independantJourJSubtitle": "Cosa cambia in 1 giorno quando diventi indipendente",
+  "independantJourJIllustrativeCaveat": "Confronto illustrativo basato sul tuo reddito netto dichiarato, non un’offerta assicurativa.",
   "independantJourJEmployee": "Dipendente",
   "independantJourJSelfEmployed": "Indipendente",
   "independantJourJPremierEclairage": "Perdi ~{amount}/mese di protezione invisibile.\nNon hai lasciato un lavoro. Hai lasciato un sistema di protezione.",
@@ -8667,6 +8677,44 @@
   "indepChargeLppNote": "Facoltativo per indipendente (LPP art. 4)",
   "indepChargePro": "Contributi professionali (IGM/LAINF)",
   "indepChargeProNote": "Interamente a carico dell'indipendente",
+  "doublePriceFreedomSemantics": "Doppio prezzo della libertà. Dipendente: {employeeAmount}/anno. Indipendente: {selfEmployedAmount}/anno.",
+  "@doublePriceFreedomSemantics": {
+    "placeholders": {
+      "employeeAmount": {
+        "type": "String"
+      },
+      "selfEmployedAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomTitle": "Il doppio prezzo della tua libertà",
+  "doublePriceFreedomSubtitle": "Oneri totali su {amount}/anno dichiarati",
+  "@doublePriceFreedomSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomMonthlyDelta": "Paghi {amount}/mese in più (×{multiplier}).\nPer mantenere lo stesso netto, fattura +{percent}%.",
+  "@doublePriceFreedomMonthlyDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomDisclaimer": "Contributi sociali: LAVS art. 4-14, LAINF art. 1a, LADI art. 2. Strumento educativo — non costituisce consulenza finanziaria (LSFin).",
+  "doublePriceFreedomEmployeeHeader": "Dipendente",
+  "doublePriceFreedomSelfEmployedHeader": "Indip.",
+  "doublePriceFreedomTotalAnnual": "TOTALE /anno",
   "indepFiscal3a": "Pilastro 3a grande versamento",
   "indepFiscal3aNote": "Max 20% del reddito netto, tetto CHF 36'288/anno senza LPP",
   "indepFiscalFraisPro": "Spese professionali effettive",

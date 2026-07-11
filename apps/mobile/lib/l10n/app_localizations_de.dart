@@ -2866,7 +2866,18 @@ class SDe extends S {
   }
 
   @override
+  String get independantLedgerFactsSubtitle =>
+      'Mint liest diese Werte aus deiner Datenbibliothek. Wenn sie fehlen, werden sie vor der Berechnung erfasst.';
+
+  @override
   String get independantCoverageTitle => 'Meine aktuelle Deckung';
+
+  @override
+  String get independantCoverageScenarioTitle => 'Deckungen prüfen';
+
+  @override
+  String get independantCoverageScenarioSubtitle =>
+      'Freiwillige BVG und 3a aktualisieren deine Bibliothek. KTG und Unfall bleiben vorläufige Vergleichsannahmen.';
 
   @override
   String get independantToggleLpp => 'BVG (freiwillige Versicherung)';
@@ -2905,6 +2916,27 @@ class SDe extends S {
   @override
   String get independantAnalysisHeader =>
       'MINT-Analyse — Dein Selbstständigen-Kit';
+
+  @override
+  String get independantLppRescueFoundationLabel => 'Freizügigkeitsstiftung';
+
+  @override
+  String get independantLppRescueFoundationDesc =>
+      'Lege dein Guthaben auf einem Freizügigkeitskonto oder in einer Police an.';
+
+  @override
+  String get independantLppRescueSubstituteLabel => 'Auffangeinrichtung';
+
+  @override
+  String get independantLppRescueSubstituteDesc =>
+      'Nach mehreren Monaten ohne Instruktion kann eine automatische Überweisung erfolgen.';
+
+  @override
+  String get independantLppRescueNewFundLabel => 'Neue BVG-Kasse';
+
+  @override
+  String get independantLppRescueNewFundDesc =>
+      'Tritt einer freiwilligen BVG-Kasse bei, wenn deine Situation es erlaubt.';
 
   @override
   String get independantSourcesTitle => 'Quellen';
@@ -3443,6 +3475,10 @@ class SDe extends S {
   @override
   String get independantJourJSubtitle =>
       'Was sich an einem Tag ändert, wenn du selbstständig wirst';
+
+  @override
+  String get independantJourJIllustrativeCaveat =>
+      'Illustrativer Vergleich auf Basis deines deklarierten Nettoeinkommens, kein Versicherungsangebot.';
 
   @override
   String get independantJourJEmployee => 'Angestellt';
@@ -16880,6 +16916,39 @@ class SDe extends S {
 
   @override
   String get indepChargeProNote => 'Vollständig zu Lasten des Selbstständigen';
+
+  @override
+  String doublePriceFreedomSemantics(
+      String employeeAmount, String selfEmployedAmount) {
+    return 'Doppelter Preis der Freiheit. Angestellt: $employeeAmount/Jahr. Selbstständig: $selfEmployedAmount/Jahr.';
+  }
+
+  @override
+  String get doublePriceFreedomTitle => 'Der doppelte Preis deiner Freiheit';
+
+  @override
+  String doublePriceFreedomSubtitle(String amount) {
+    return 'Gesamtabgaben auf $amount/Jahr deklariert';
+  }
+
+  @override
+  String doublePriceFreedomMonthlyDelta(
+      String amount, String multiplier, String percent) {
+    return 'Du zahlst $amount/Monat mehr (×$multiplier).\nUm den gleichen Nettoertrag zu behalten, fakturiere +$percent%.';
+  }
+
+  @override
+  String get doublePriceFreedomDisclaimer =>
+      'Sozialbeiträge: AHVG Art. 4-14, UVG Art. 1a, AVIG Art. 2. Bildungstool — keine Finanzberatung (LSFin).';
+
+  @override
+  String get doublePriceFreedomEmployeeHeader => 'Angestellt';
+
+  @override
+  String get doublePriceFreedomSelfEmployedHeader => 'Selbst.';
+
+  @override
+  String get doublePriceFreedomTotalAnnual => 'TOTAL /Jahr';
 
   @override
   String get indepFiscal3a => 'Säule 3a Grosseinzahlung';

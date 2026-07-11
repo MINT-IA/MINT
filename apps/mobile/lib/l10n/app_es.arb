@@ -1274,7 +1274,10 @@
       }
     }
   },
+  "independantLedgerFactsSubtitle": "Mint lee estos valores desde tu biblioteca de datos. Si faltan, los recopila antes de calcular.",
   "independantCoverageTitle": "Mi cobertura actual",
+  "independantCoverageScenarioTitle": "Coberturas por verificar",
+  "independantCoverageScenarioSubtitle": "La LPP voluntaria y el 3a actualizan tu biblioteca. IJM y accidentes siguen siendo hipótesis temporales de comparación.",
   "independantToggleLpp": "LPP (afiliación voluntaria)",
   "independantToggleIjm": "IJM (indemnización diaria por enfermedad)",
   "independantToggleLaa": "LAA (seguro de accidentes)",
@@ -1287,6 +1290,12 @@
   "independant3aTitle": "3.er pilar — tope independiente",
   "independantRecommendationsHeader": "RECOMENDACIONES",
   "independantAnalysisHeader": "Análisis MINT — Tu kit de independiente",
+  "independantLppRescueFoundationLabel": "Fundación de libre paso",
+  "independantLppRescueFoundationDesc": "Coloca tu haber en una cuenta o póliza de libre paso.",
+  "independantLppRescueSubstituteLabel": "Institución suplente",
+  "independantLppRescueSubstituteDesc": "Puede producirse una transferencia automática tras varios meses sin instrucciones.",
+  "independantLppRescueNewFundLabel": "Nueva caja LPP",
+  "independantLppRescueNewFundDesc": "Afíliate voluntariamente a una caja LPP si tu situación lo permite.",
   "independantSourcesTitle": "Fuentes",
   "independantSourcesBody": "LPP art. 4 (sin obligación para independientes) / LPP art. 44 (afiliación voluntaria) / OPP3 art. 7 (3a grande: 20% del ingreso neto, máx. 36'288) / LAVS art. 8 (cotizaciones independientes) / LAA art. 4 / LAMal",
   "independantDisclaimer": "Los montos presentados son estimaciones indicativas. Las cotizaciones reales dependen de tu situación personal y de las ofertas de seguros disponibles. Consulta a un fiduciario o asegurador antes de cualquier decisión.",
@@ -1518,6 +1527,7 @@
   "jobCompareChecklistSub": "Lista de verificación",
   "independantJourJTitle": "El Día D — El gran cambio",
   "independantJourJSubtitle": "Lo que cambia en 1 día cuando te haces autónomo/a",
+  "independantJourJIllustrativeCaveat": "Comparación ilustrativa basada en tu ingreso neto declarado, no una oferta de seguro.",
   "independantJourJEmployee": "Asalariado/a",
   "independantJourJSelfEmployed": "Autónomo/a",
   "independantJourJPremierEclairage": "Pierdes ~{amount}/mes de protección invisible.\nNo dejaste un empleo. Dejaste un sistema de protección.",
@@ -8667,6 +8677,44 @@
   "indepChargeLppNote": "Facultativo para independiente (LPP art. 4)",
   "indepChargePro": "Cotizaciones profesionales (IJM/LAA)",
   "indepChargeProNote": "Enteramente a cargo del independiente",
+  "doublePriceFreedomSemantics": "Doble precio de la libertad. Empleado: {employeeAmount}/año. Independiente: {selfEmployedAmount}/año.",
+  "@doublePriceFreedomSemantics": {
+    "placeholders": {
+      "employeeAmount": {
+        "type": "String"
+      },
+      "selfEmployedAmount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomTitle": "El doble precio de tu libertad",
+  "doublePriceFreedomSubtitle": "Cargas totales sobre {amount}/año declarado",
+  "@doublePriceFreedomSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomMonthlyDelta": "Pagas {amount}/mes más (×{multiplier}).\nPara conservar el mismo neto, factura +{percent}%.",
+  "@doublePriceFreedomMonthlyDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "doublePriceFreedomDisclaimer": "Cotizaciones sociales: LAVS art. 4-14, LAA art. 1a, LACI art. 2. Herramienta educativa — no constituye asesoramiento financiero (LSFin).",
+  "doublePriceFreedomEmployeeHeader": "Empleado",
+  "doublePriceFreedomSelfEmployedHeader": "Indep.",
+  "doublePriceFreedomTotalAnnual": "TOTAL /año",
   "indepFiscal3a": "Pilar 3a gran aporte",
   "indepFiscal3aNote": "Máx. 20% del ingreso neto, tope CHF 36'288/año sin LPP",
   "indepFiscalFraisPro": "Gastos profesionales efectivos",

@@ -186,11 +186,15 @@ Map<String, dynamic> independentAnswers({
   double? cashTotal,
   double? monthlyHousing,
   double? monthlyLamal,
+  String? canton = 'VD',
   bool hasConsumerDebt = false,
   bool? voluntaryLpp,
+  bool? has3a,
+  int? pillar3aAccounts,
 }) {
   return {
     if (birthYear != null) 'q_birth_year': birthYear,
+    if (canton != null) 'q_canton': canton,
     if (cashTotal != null) 'q_cash_total': cashTotal,
     if (monthlyHousing != null) 'q_housing_cost_period_chf': monthlyHousing,
     if (monthlyLamal != null) 'q_lamal_premium_monthly_chf': monthlyLamal,
@@ -207,6 +211,8 @@ Map<String, dynamic> independentAnswers({
       'q_has_voluntary_lpp': voluntaryLpp ? 'yes' : 'no',
       'q_has_pension_fund': voluntaryLpp ? 'yes' : 'no',
     },
+    if (has3a != null) 'q_has_3a': has3a ? 'yes' : 'no',
+    if (pillar3aAccounts != null) 'q_3a_accounts_count': pillar3aAccounts,
   };
 }
 
@@ -270,14 +276,196 @@ void main() {
     });
 
     testWidgets('shows coverage toggles section', (tester) async {
-      await tester.pumpWidget(buildTestable(const IndependantScreen()));
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000, birthYear: 1986),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Ma couverture actuelle'), findsOneWidget);
+      expect(find.text('Couvertures à vérifier'), findsOneWidget);
       expect(find.byType(Switch), findsNWidgets(4));
     });
 
-    // Revenue input test removed — IndependantScreen layout changed with slider migration
+    testWidgets('requires ledger income and age instead of local sliders', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byKey(const Key('independant_ledger_facts')), findsOneWidget);
+      expect(find.text('Données manquantes'), findsWidgets);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text('Couvertures à vérifier'), findsNothing);
+    });
+
+    testWidgets('missing hub facts route to the independent income collector', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(independentAnswers());
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.text('Enrichir mon profil').first);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('data-block:revenu:q_self_employed_income'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('data_block_route_probe')), findsOneWidget);
+    });
+
+    testWidgets('uses ledger income and age when available', (tester) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000, birthYear: 1986),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byKey(const Key('independant_ledger_facts')), findsOneWidget);
+      expect(find.textContaining("90'000"), findsWidgets);
+      expect(find.byType(MintPremiumSlider), findsNothing);
+      expect(find.text('Couvertures à vérifier'), findsOneWidget);
+    });
+
+    testWidgets('uses coordinated LPP share in the freedom price comparison', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 1800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 120000, birthYear: 1971),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.scrollUntilVisible(
+        find.textContaining('double prix'),
+        600,
+        scrollable: find.byType(Scrollable).first,
+        maxScrolls: 12,
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      expect(find.textContaining("5'783"), findsWidgets);
+    });
+
+    testWidgets('uses the degressive AVS scale in the freedom price comparison',
+        (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 1800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 40000, birthYear: 1971),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.scrollUntilVisible(
+        find.textContaining('double prix'),
+        600,
+        scrollable: find.byType(Scrollable).first,
+        maxScrolls: 12,
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      expect(find.textContaining("2'560"), findsWidgets);
+    });
+
+    testWidgets('requires canton before computing the hub scenario', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 90000,
+          birthYear: 1986,
+          canton: null,
+        ),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byKey(const Key('independant_ledger_facts')), findsOneWidget);
+      expect(find.text('Canton'), findsOneWidget);
+      expect(find.text('Couvertures à vérifier'), findsNothing);
+
+      await tester.tap(find.text('Enrichir mon profil').first);
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.text('data-block:revenu:q_canton'), findsOneWidget);
+    });
+
+    testWidgets('does not fabricate a libre-passage balance', (
+      tester,
+    ) async {
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(selfIncome: 90000, birthYear: 1986),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Opération sauvetage'), findsNothing);
+    });
+
+    testWidgets('3a toggle preserves existing account count fact', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final provider = RecordingCoachProfileProvider(
+        independentAnswers(
+          selfIncome: 90000,
+          birthYear: 1986,
+          has3a: true,
+          pillar3aAccounts: 3,
+        ),
+      );
+      await tester.pumpWidget(
+        buildWithCoachProfileRouter(provider, child: const IndependantScreen()),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(provider.profile!.prevoyance.nombre3a, 3);
+
+      await tester.ensureVisible(find.byType(Switch).at(3));
+      await tester.tap(find.byType(Switch).at(3));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(provider.writes.last, {'q_has_3a': 'no'});
+      expect(provider.profile!.prevoyance.nombre3a, 0);
+
+      await tester.ensureVisible(find.byType(Switch).at(3));
+      await tester.tap(find.byType(Switch).at(3));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(provider.writes.last, {'q_has_3a': 'yes'});
+      expect(provider.profile!.prevoyance.nombre3a, 3);
+    });
 
     testWidgets('shows PARCOURS INDEPENDANT in app bar', (tester) async {
       await tester.pumpWidget(buildTestable(const IndependantScreen()));
