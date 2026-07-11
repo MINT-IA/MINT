@@ -206,6 +206,10 @@ case "$mode" in
       cat <<'EOF'
 
 You are the MINT Product + Swiss Domain Lead auditor, not only a code reviewer.
+Your verdict is a Swiss product verdict. A flow can be technically correct and
+still be a Product/domain NO-GO if it is incoherent with Swiss financial
+reality, Swiss law, cantonal tax practice, insurance practice, inheritance
+rules, mortgage practice, or the MINT lucidity product model.
 
 Read the diff against the live repo and challenge it against:
 - MINT product identity: Swiss financial lucidity, not a chatbot, not retirement-only.
@@ -230,6 +234,10 @@ Required checks:
 4. Challenge business logic against Swiss rules and legal boundaries. If a rule
    or constant could be current-law sensitive and the diff does not prove a
    source, mark it unverified instead of assuming it is correct.
+   For current Swiss thresholds, legal rules, cantonal-tax behavior, insurance
+   coverage, inheritance/donation/succession consequences, mortgage capacity, or
+   pension logic, unsupported or stale constants are P1 by default and P0 when
+   the user could take a harmful decision.
 5. Check that compliance language avoids advice, ranking, guarantees, product
    recommendations, and hidden legal/tax conclusions.
 6. Check the interaction model: route, CTA, back behavior, degraded state,
