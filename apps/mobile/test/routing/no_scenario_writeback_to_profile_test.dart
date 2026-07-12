@@ -7,6 +7,8 @@ final _scenarioFactWritePatterns = <RegExp>[
   RegExp(r'projectedRenteLpp\s*:'),
   RegExp(r'projectedCapital65\s*:'),
   RegExp(r'targetRetirementAge\s*:\s*_ageRetraiteSlider'),
+  RegExp(r'mortgageCapacity\s*:\s*result\.'),
+  RegExp(r'estimatedMonthlyPayment\s*:\s*result\.'),
 ];
 
 List<String> _scenarioWrites(String source) => [
@@ -42,6 +44,14 @@ void _writeBackResult() {
     test('/rente-vs-capital does not persist projections or slider age', () {
       final source = File(
         'lib/screens/arbitrage/rente_vs_capital_screen.dart',
+      ).readAsStringSync();
+
+      expect(_scenarioWrites(source), isEmpty);
+    });
+
+    test('/hypotheque keeps calculated capacity and payment out of facts', () {
+      final source = File(
+        'lib/screens/mortgage/affordability_screen.dart',
       ).readAsStringSync();
 
       expect(_scenarioWrites(source), isEmpty);

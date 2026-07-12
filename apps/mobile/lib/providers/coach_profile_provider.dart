@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:provider/provider.dart';
@@ -51,6 +53,75 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
+
+  /// Immutable wizard-answer view for legacy report generation.
+  ///
+  /// Screens must never read `wizard_answers_v2` directly. This snapshot is a
+  /// temporary compatibility boundary while the report still consumes the
+  /// legacy answer shape.
+  Map<String, dynamic> get reportAnswersSnapshot =>
+      _immutableAnswers(_lastAnswers);
+
+  /// Wait for initial provider hydration without exposing the persistence
+  /// service to route builders. Timeout keeps report deep links recoverable.
+  Future<Map<String, dynamic>> waitForReportAnswers({
+    Duration timeout = const Duration(seconds: 8),
+  }) {
+    if (_isLoaded) return Future.value(reportAnswersSnapshot);
+
+    final completer = Completer<Map<String, dynamic>>();
+    late VoidCallback listener;
+    listener = () {
+      if (!_isLoaded || completer.isCompleted) return;
+      removeListener(listener);
+      completer.complete(reportAnswersSnapshot);
+    };
+    addListener(listener);
+    return completer.future.timeout(
+      timeout,
+      onTimeout: () {
+        removeListener(listener);
+        throw TimeoutException('CoachProfile report hydration timed out');
+      },
+    );
+  }
+
+  static Map<String, dynamic> _copyAnswers(Map<String, dynamic> answers) =>
+      answers.map((key, value) => MapEntry(key, _copyAnswerValue(value)));
+
+  static dynamic _copyAnswerValue(dynamic value) {
+    if (value is Map) {
+      return value.map(
+        (key, nested) => MapEntry(key.toString(), _copyAnswerValue(nested)),
+      );
+    }
+    if (value is List) return value.map(_copyAnswerValue).toList();
+    return value;
+  }
+
+  static Map<String, dynamic> _immutableAnswers(
+    Map<String, dynamic> answers,
+  ) =>
+      Map.unmodifiable(
+        answers.map(
+          (key, value) => MapEntry(key, _immutableAnswerValue(value)),
+        ),
+      );
+
+  static dynamic _immutableAnswerValue(dynamic value) {
+    if (value is Map) {
+      return Map.unmodifiable(
+        value.map(
+          (key, nested) =>
+              MapEntry(key.toString(), _immutableAnswerValue(nested)),
+        ),
+      );
+    }
+    if (value is List) {
+      return List.unmodifiable(value.map(_immutableAnswerValue));
+    }
+    return value;
+  }
 
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
@@ -398,7 +469,7 @@ class CoachProfileProvider extends ChangeNotifier {
       // Check full wizard first
       final isFullCompleted = await ReportPersistenceService.isCompleted();
       final answers = await ReportPersistenceService.loadAnswers();
-      _lastAnswers = answers;
+      _lastAnswers = _copyAnswers(answers);
 
       if (isFullCompleted && answers.isNotEmpty) {
         _profile = CoachProfile.fromWizardAnswers(answers);
@@ -491,7 +562,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Used after wizard completion to avoid an async reload.
   void updateFromAnswers(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
-    _lastAnswers = answers;
+    _lastAnswers = _copyAnswers(answers);
     _profile = CoachProfile.fromWizardAnswers(answers);
     _isPartialProfile = false;
     _isLoaded = true;
@@ -520,7 +591,7 @@ class CoachProfileProvider extends ChangeNotifier {
     if (_setsNonCoupledCivilStatus(partial)) {
       _clearPartnerAnswers(merged);
     }
-    _lastAnswers = merged;
+    _lastAnswers = _copyAnswers(merged);
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
@@ -753,7 +824,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Cree un profil partiel immediatement utilisable par le dashboard.
   void updateFromMiniOnboarding(Map<String, dynamic> answers) {
     if (answers.isEmpty) return;
-    _lastAnswers = answers;
+    _lastAnswers = _copyAnswers(answers);
     _profile = CoachProfile.fromWizardAnswers(answers);
     _isPartialProfile = true;
     _isLoaded = true;
@@ -909,7 +980,7 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_avs_arrival_year'] = arrivalYear;
     }
 
-    _lastAnswers = answers;
+    _lastAnswers = _copyAnswers(answers);
     _profile = CoachProfile.fromWizardAnswers(answers);
     // Inject firstName immediately if provided — not part of wizard answers map.
     if (firstName != null && firstName.isNotEmpty) {

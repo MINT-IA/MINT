@@ -1082,9 +1082,9 @@ final _router = GoRouter(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
+        final profileProvider = context.watch<CoachProfileProvider>();
         return FutureBuilder<Map<String, dynamic>>(
-          future: ReportPersistenceService.loadAnswers()
-              .timeout(const Duration(seconds: 8)),
+          future: profileProvider.waitForReportAnswers(),
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
@@ -1092,7 +1092,9 @@ final _router = GoRouter(
               );
             }
             return FinancialReportScreenV2(
-              wizardAnswers: snapshot.hasError ? const {} : snapshot.data ?? {},
+              wizardAnswers: snapshot.hasError
+                  ? const {}
+                  : profileProvider.reportAnswersSnapshot,
             );
           },
         );

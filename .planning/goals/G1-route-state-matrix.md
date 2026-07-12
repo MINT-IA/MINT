@@ -10,9 +10,9 @@
 
 ## Verdict and G1 boundary
 
-**Matrix deliverable: GO. HEAD route readiness: 5.8/10. G1 overall: not yet
-complete because the two hard-floor gates are not checked in. `G2 allowed?
-NO`.**
+**Matrix deliverable: GO. HEAD route readiness: 6.4/10. The G1 mechanical
+hard floors are checked in and green; the remaining exact tickets still block
+G2. `G2 allowed? NO`.**
 
 G1 does **not** implement the target route states below. It records the exact
 contract, fixes the mechanical hard floors, and tickets the remaining route
@@ -85,10 +85,10 @@ are not themselves the six P0 Case roots.
 
 | route + registry evidence | current violation | target empty/partial/stale/error/complete | return-to-origin | exact proof | severity |
 |---|---|---|---|---|---|
-| `/scan/review` (`route_metadata.dart:732-738`) | `ExtractionResult` is cast from `state.extra` (`app.dart:1004-1015`). Recovery exists when null, but a valid deep link cannot resolve a durable scan session. | Empty/error: resolve `scanSessionId` by id and offer rescan. Partial: show low-confidence extracted fields. Stale: show document issue/source date. Complete: confirmation writes facts through provider. | `/scan/review?scanSessionId=<id>&returnUri=<origin>`; after apply, go to `/scan/impact?scanSessionId=<id>&returnUri=<origin>`. | Maestro checked in `apps/mobile/.maestro/r1_scan_review.yaml:1`; widget repair test exists, but hard-floor extra test is not yet present. | **P0 hard floor**. |
-| `/scan/impact` (`route_metadata.dart:739-745`) | Domain map with `ExtractionResult` and previous confidence comes from `state.extra` (`app.dart:1018-1033`). | Empty/error: resolve session id or recover home/scan. Partial/stale: recompute from ledger with confidence/source. Complete: read-only before/after delta. | Preserve original `returnUri`; CTA to origin/home after impact. | Maestro checked in `apps/mobile/.maestro/r2_scan_impact.yaml:1`. | **P0 hard floor**. |
-| `/rapport` (`route_metadata.dart:792-798`) | Prefers `Map<String,dynamic>` wizard answers from `state.extra`; fallback spinner has no error/timeout (`app.dart:1077-1098`). | Empty/loading skeleton; partial dossier from ledger; stale fact badges; error retry/home; complete reads `CoachProfileProvider`/`MintStateProvider`, never wizard map extra. | Dossier actions preserve report URI; collection CTAs carry `returnUri=%2Frapport`. | R-3 is documented at `docs/codex/MAESTRO_FLOWS.md:210-221`, but `.maestro/r3_report_investment_card.yaml` is not checked in. No Patrol proof. | **P0 hard floor** plus P1 recovery proof. |
-| `/confidence` (`route_metadata.dart:1027-1032`) | Reads `ConfidenceResult` from `state.extra`; otherwise computes against empty maps (`app.dart:1302-1312`). | Empty/partial/stale derive one confidence source from ledger/provenance; error retry/home; complete shows same headline/axes as home. | Enrichment CTA carries `returnUri=%2Fconfidence`. | No dedicated Maestro or Patrol proof checked in. | **P0 hard floor**. |
+| `/scan/review` (`route_metadata.dart:732-738`) | Fixed G1: route resolves a bounded `ScanSessionProvider` entry by `scanSessionId`; a missing/restarted session renders recovery (`app.dart:1006-1020`, `document_scan_screen.dart:100-105`). | Empty/error recovery is live. Partial/stale source/date semantics remain ticketed; complete confirmation writes through provider. | `/scan/review?scanSessionId=<id>` is live; preserving a future originating Case remains ticketed. | Hard floor green; Maestro R1 PASS evidence is checked in under the G1 runtime-evidence directory. | Mechanical P0 fixed; P1 source/return proof ticketed. |
+| `/scan/impact` (`route_metadata.dart:739-745`) | Fixed G1: route resolves the same session ID and refuses a missing prior-confidence snapshot (`app.dart:1024-1038`). | Empty/error recovery is live. Partial/stale recomputation and source display remain ticketed; complete is read-only. | Origin preservation remains ticketed. | Hard floor green; Maestro R2 PASS evidence is checked in under the G1 runtime-evidence directory. | Mechanical P0 fixed; P1 restart/return proof ticketed. |
+| `/rapport` (`route_metadata.dart:792-798`) | Fixed G1: no `state.extra` or direct `ReportPersistenceService` read. The route waits at most eight seconds on `CoachProfileProvider` and consumes its deeply immutable compatibility snapshot (`app.dart:1082-1101`, `coach_profile_provider.dart:57-124`). | Loading and bounded error-to-empty recovery are live; stale badges and exact collection returns remain ticketed. | Dossier actions preserving report URI remain ticketed. | Provider-boundary RED `+0 -1` to GREEN `+3`; advisor smoke suite GREEN `+32`. | Mechanical P0 fixed; typed-report migration and P1 recovery proof remain ticketed. |
+| `/confidence` (`route_metadata.dart:1027-1032`) | Fixed G1: route derives one result from `CoachProfileProvider` through `CoachProfileConfidenceAdapter` (`app.dart:1304-1311`), never `state.extra`. | Empty provider defaults to zero evidence; partial/complete use proven facts. Per-field freshness UX remains ticketed. | Enrichment return remains ticketed. | Hard floor and adapter tests green. | Mechanical P0 fixed; P1 freshness/return proof ticketed. |
 
 ## P0 / P1 summary
 
