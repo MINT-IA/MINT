@@ -12,6 +12,11 @@ Auditor roles: `mint-swiss-brain`, MINT product lead
 
 **GO to continue G1. NO-GO to mark G1 complete or start G2/G3.**
 
+The 2026-07-12 AVS/couple follow-up below adds an independent **NO-GO** for
+household AVS outputs. It does not revoke the permission to continue bounded
+G1 repairs; it forbids closing G1 while the named AVS evidence, civil-status,
+consent, plafonnement, splitting, and 13th-pension predicates remain open.
+
 - Launch package / handoff quality: **9.0/10**. It states the correct product
   spine, hard-floor gates, red-to-green requirement, permanent-agent panel,
   Opus architecture and product-domain audits, and the prohibition on starting
@@ -419,6 +424,197 @@ This boundary follows the repo's no-advice/no-ranking doctrine
 (`rules.md:70-76`, `docs/AGENTS/swiss-brain.md:101-109`) and the explicit
 Retirement Case prohibition
 (`.planning/mint-product-usability-plan-2026-07-12.md:187-192`).
+
+## AVS / Couple Follow-Up — NO-GO
+
+Audit date: 2026-07-12. Official sources were rechecked against the 2026
+AVS/AI information and the current OFAS implementation notice for the 13th
+old-age pension.
+
+### Product contract
+
+#### Optional account linking
+
+- A partner-account link is optional. Refusing or revoking it must not block
+  the user's own MINT profile, own AVS explanation, or non-household flows.
+- A household membership, invitation, or `invitationLevel=linked` is not by
+  itself permission to import financial facts. Every shared fact requires the
+  partner owner token, source, source date, purpose/scope grant, grant date,
+  and revocation behavior described by `G1-provider-boundary.md`.
+- Facts entered by one person about a partner remain
+  `declared_about_partner`; they do not become `partner_confirmed` or
+  certificate-backed merely because both accounts are members of one
+  household.
+- A revocation must invalidate linked facts and derived household outputs
+  without deleting an independently declared value owned by the remaining
+  user. A field-level link grant must not silently expand to AVS, LPP, tax,
+  cash, or budget facts outside its scope.
+- The CI contract supports this boundary: an individual-account extract is
+  delivered only to the insured person, their legal representative, or their
+  lawyer. MINT therefore needs either a partner-authorized fact bridge or a
+  separately consented partner-document flow; it must not make account linking
+  compulsory.
+
+#### Married, registered, and cohabiting households
+
+- Old-age pensions and contribution gaps remain individual. MINT first
+  computes or imports each person's individual pension; it never sums the two
+  persons' gap years into one household gap.
+- For AVS, an existing registered partnership is assimilated to marriage. A
+  dissolution is assimilated to divorce and the survivor to a widow/widower.
+  Cohabiting partners remain two individual pension recipients: no married
+  150% cap and no marital splitting.
+- Splitting distributes the incomes from the relevant civil years of marriage
+  or registered partnership equally. It is performed on the statutory events,
+  including divorce/dissolution and when both spouses reach reference age.
+  When only one spouse has reached reference age, the incomes used for that
+  first calculation are not yet split; both pensions are recalculated when
+  the second entitlement triggers splitting. Current salary multiplied by a
+  marriage duration is an educational proxy, not an exact statutory
+  calculation.
+- When the cap applies and both contribution durations are complete, the 2026
+  maximum sum is CHF 3'780 per month. If `R1 + R2` exceeds the applicable cap,
+  each pension is reduced proportionally: `Ri_after = Ri_before * cap /
+  (R1 + R2)`.
+- CHF 3'780 is not a universal cap. If either contribution duration is
+  incomplete, RAVS art. 53bis requires a lower cap derived from the applicable
+  pension-scale percentages. Judicial dissolution of the common household is
+  also a required legal exception to the ordinary married cap.
+- A non-working spouse's contribution can be considered paid when the active
+  spouse pays at least twice the minimum contribution. In 2026 this means CHF
+  1'060 per year. This married/registered rule must not be applied to
+  cohabiting partners. If the active spouse retires or ceases to meet the
+  threshold, MINT must ask whether the non-working spouse registered and paid
+  separately; it must not infer a gap or absence of gap.
+
+#### 13th old-age pension from 2026
+
+- The first payment is in December 2026. Eligibility requires a right to an
+  old-age pension in December.
+- The supplement equals one twelfth of the old-age pensions actually paid
+  during the calendar year and is rounded to the nearest franc. A person whose
+  pension begins mid-year does not receive one full ordinary monthly pension
+  as the supplement.
+- Child pensions, supplementary pensions, the AVS 21 transitional supplement,
+  survivor pensions, and AI pensions are excluded from the calculation. The
+  13th old-age pension is excluded from income relevant to supplementary
+  benefits.
+- Product outputs must keep `ordinaryMonthlyPension`,
+  `december13thSupplement`, and `annualOldAgePension` separate. Dividing an
+  annual 13-payment total by twelve and presenting it as the legal monthly
+  pension is not acceptable.
+
+### Live-repo blockers
+
+1. `CoachProfile.avsGapEvidence` sets `spouseRequired = isCouple && conjoint !=
+   null` (`apps/mobile/lib/models/coach_profile.dart:2030`). A married user with
+   no `conjoint` object can therefore become `householdReady=true` from self
+   evidence alone. The checked-in test currently asserts that fail-open
+   behavior (`apps/mobile/test/models/avs_gap_evidence_test.dart:155-165`).
+2. The wizard writes `registered_partner`
+   (`apps/mobile/lib/data/wizard_questions_v2.dart:84-85`), but
+   `CoachCivilStatus` has no registered-partnership member
+   (`apps/mobile/lib/models/coach_profile.dart:27`) and the parser either falls
+   back to single or maps legacy `partenariat` to cohabitation
+   (`apps/mobile/lib/models/coach_profile.dart:3510-3529`).
+3. No production writer found by repo-wide grep writes certificate provenance
+   for `conjoint.prevoyance.lacunesAVS`. The field is currently present only in
+   the evidence model and tests, so `spouseCertifiedYears` has no product
+   unlock path.
+4. `AvsGapEvidence` is a useful narrow certificate-only gap contract, but it is
+   not complete AVS projection readiness. A numeric pension also depends on
+   the applicable contribution scale/duration, RAMD or official pension
+   estimate, reference age and pension percentage, relevant splitting, and
+   educational/assistance credits.
+5. `AvsCalculator.computeCouple` always uses the flat CHF 3'780 cap
+   (`apps/mobile/lib/services/financial_core/avs_calculator.dart:165-181`) and
+   cannot model incomplete scales or the judicial-separation exception.
+6. The calculator's splitting path reduces per-year statutory history to
+   current salary, ex-spouse current salary, and `marriageYears`
+   (`apps/mobile/lib/services/financial_core/avs_calculator.dart:65-86`). It
+   must remain explicitly illustrative unless grounded in sufficient CI or an
+   official pension estimate.
+7. `annualRente()` multiplies one monthly amount by 13
+   (`apps/mobile/lib/services/financial_core/avs_calculator.dart:215-233`), and
+   `CoupleOptimizer` divides it by twelve to inflate displayed monthly amounts
+   (`apps/mobile/lib/services/financial_core/couple_optimizer.dart:354-367`).
+8. `.claude/skills/mint-swiss-compliance/SKILL.md` attributes divorce
+   splitting to LAVS art. 29sexies. The correct provision is art.
+   29quinquies; art. 29sexies governs educational credits.
+
+### MUST before G1 acceptance
+
+- Replace one overloaded readiness boolean with, at minimum, `selfReady`,
+  `householdTotalReady`, and `maritalCapReady`. Partner evidence is required
+  for a household total whenever a couple total is requested, regardless of
+  whether the `conjoint` object already exists.
+- Add an explicit registered-partnership civil status and round-trip aliases;
+  apply married AVS behavior to it and never to cohabitation.
+- Provide a real, authorized path for spouse CI/gap evidence without requiring
+  account linking; preserve owner and field-level grant through persistence,
+  restart, revocation, and recompute.
+- Keep `noGaps`, `arrivedLate`, `livedAbroad`, and `unknown` as declarations.
+  They never create certificate-backed numeric years. Every AVS-sensitive
+  consumer must preserve unknown as partial/null rather than `?? 0`.
+- Introduce a broader AVS projection-readiness contract before publishing
+  pension, replacement-rate, household-cap, ruin-probability, or AVS-sensitive
+  action amounts.
+- Implement scale-aware proportional plafonnement and the named legal
+  exceptions; do not use CHF 3'780 for incomplete scales.
+- Quarantine or clearly label simplified splitting until sufficient
+  person-owned history or an official calculation is present.
+- Model the 13th pension as a dated annual cash flow from actual payments and
+  December eligibility, never as a permanent 8.3% monthly uplift.
+
+### Deterministic negative and positive fixtures
+
+| id | fixture | required result |
+|---|---|---|
+| AVS-CPL-01 | married, self certified zero gaps, `conjoint=null` | `selfReady=true`, household total/cap not ready, partner path missing |
+| AVS-CPL-02 | `q_civil_status=registered_partner` | typed registered partnership; married splitting/cap rules active |
+| AVS-CPL-03 | cohabitants, CHF 2'520 each | CHF 5'040 combined educational view; no 150% cap |
+| AVS-CPL-04 | married/registered, complete scales, CHF 2'520 each | proportional result CHF 1'890 each; total CHF 3'780 |
+| AVS-CPL-05 | married/registered, CHF 2'520 + CHF 1'680 | ratio 0.9; CHF 2'268 + CHF 1'512 |
+| AVS-CPL-06 | either pension scale incomplete | applicable cap is below CHF 3'780 and follows RAVS art. 53bis percentages |
+| AVS-CPL-07 | married but common household judicially dissolved | no ordinary married cap |
+| AVS-SPL-01 | only first spouse reaches reference age | no splitting yet; household result remains staged/partial |
+| AVS-SPL-02 | second entitlement triggers splitting | both pensions recalculated from eligible civil-year incomes; no current-salary proxy labelled exact |
+| AVS-CONTRIB-01 | married/registered, non-working spouse, active spouse pays CHF 1'060 in 2026 | contribution considered paid for that year; no invented gap |
+| AVS-CONTRIB-02 | same facts but cohabiting | no derived contribution coverage |
+| AVS-LINK-01 | household membership without AVS field grant | no partner AVS import; linked membership remains metadata only |
+| AVS-LINK-02 | AVS-only grant then revocation | linked AVS fact and derived household outputs invalidated; independent declaration preserved |
+| AVS-13-01 | stable CHF 1'890 old-age pension paid Jan-Dec, entitled in December | supplement CHF 1'890; annual CHF 24'570; ordinary monthly remains CHF 1'890 |
+| AVS-13-02 | CHF 1'890 pension paid Jul-Dec, entitled in December | supplement CHF 945, rounded to franc; not CHF 1'890 |
+| AVS-13-03 | no old-age-pension entitlement in December | no 13th pension |
+| AVS-13-04 | child, supplementary, AVS21 transitional, survivor, or AI component | excluded from 13th-pension base |
+
+### Official sources
+
+- AVS/AI Information Centre, *3.01 — Old-age pensions and helplessness
+  allowances, status 1 January 2026*: https://www.ahv-iv.ch/p/3.01.f
+- AVS/AI Information Centre, *Old-age pensions — calculation, splitting and
+  plafonnement*:
+  https://www.ahv-iv.ch/fr/assurances-sociales/assurance-vieillesse-et-survivants-avs/rentes-de-vieillesse
+- AVS/AI Information Centre, *Registered partnership assimilated to marriage*:
+  https://www.ahv-iv.ch/fr/Assurances-sociales/Assurance-vieillesse-et-survivants-AVS/G%C3%A9n%C3%A9ralit%C3%A9s
+- AVS/AI Information Centre, *Contributions and individual account*:
+  https://www.ahv-iv.ch/fr/Assurances-sociales/Assurance-vieillesse-et-survivants-AVS/Cotisations
+- AVS/AI Information Centre, *2.03 — Contributions of non-working persons,
+  2026*: https://www.ahv-iv.ch/p/2.03.f
+- OFAS, *Implementation of the 13th AVS pension*, updated 19 June 2026:
+  https://www.bsv.admin.ch/fr/misenoeuvre-13-rente-avs
+- AVS/AI Information Centre, *Request for an individual-account extract*:
+  https://www.ahv-iv.ch/fr/Formulaires/Demande-dextrait-de-compte
+- Fedlex, LAVS, state 1 January 2026 (arts. 29quinquies, 34ter, 35):
+  https://www.fedlex.admin.ch/eli/cc/63/837_843_843/fr
+- PFPDT, *Privacy by design and by default*:
+  https://www.edoeb.admin.ch/fr/la-nouvelle-loi-federale-sur-la-protection-des-donnees-du-point-de-vue-du-pfpdt
+
+Ticket routing: certified-null consumption and household readiness are
+`G1-LDG-06A`; field-level partner authorization/revocation is `G1-BND-02A`;
+registered status, splitting, scale-aware cap, and legal exceptions are
+`G1-AVS-01`; the annual December cash-flow contract is `G1-AVS-02`. These
+sub-tickets remain G1 blockers and do not authorize G2/G3 implementation.
 
 ## P1 — Must Be Triaged Before G1 Acceptance
 

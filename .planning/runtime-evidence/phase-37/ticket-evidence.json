@@ -68,6 +68,19 @@
       "accepted_sha": null
     },
     {
+      "ticket_id": "G1-LDG-06A",
+      "state": "ticket_only",
+      "command": "python3 -m pytest tools/checks/tests/test_g1_avs_certified_null_contract.py -q && cd apps/mobile && flutter test test/models/avs_gap_evidence_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
       "ticket_id": "G1-LDG-07",
       "state": "ticket_only",
       "command": "cd apps/mobile && flutter test test/models/mortgage_reconciliation_test.dart --reporter expanded",
@@ -159,6 +172,19 @@
       "accepted_sha": null
     },
     {
+      "ticket_id": "G1-BND-02A",
+      "state": "ticket_only",
+      "command": "cd apps/mobile && flutter test test/providers/partner_financial_consent_lifecycle_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
       "ticket_id": "G1-BND-03",
       "state": "ticket_only",
       "command": "cd apps/mobile && flutter test test/providers/provider_bridge_recompute_test.dart --reporter expanded",
@@ -227,6 +253,32 @@
       "ticket_id": "G1-RET-REF-01",
       "state": "ticket_only",
       "command": "cd apps/mobile && flutter test test/models/specialist_reference_contract_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
+      "ticket_id": "G1-AVS-01",
+      "state": "ticket_only",
+      "command": "cd apps/mobile && flutter test test/services/financial_core/avs_couple_legal_contract_test.dart --reporter expanded",
+      "evidence_mode": null,
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    {
+      "ticket_id": "G1-AVS-02",
+      "state": "ticket_only",
+      "command": "cd apps/mobile && flutter test test/services/financial_core/avs_thirteenth_pension_cashflow_test.dart --reporter expanded",
       "evidence_mode": null,
       "red_sha": null,
       "red_artifact": null,
