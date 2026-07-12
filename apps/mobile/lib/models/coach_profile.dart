@@ -1405,6 +1405,15 @@ class CoachProfile {
   final double? companyProfitAnnual; // CHF/year SA/Sarl distributable envelope
   final int? unemploymentContributionMonths; // LACI months in last 2 years
 
+  /// Exact annual 3a contribution declared by the user. Null is unknown.
+  final double? pillar3aAnnualContribution;
+
+  /// Exact monthly savings flow declared by the user. Null is unknown.
+  final double? monthlySavingsContribution;
+
+  /// Explicit 3a-presence fact. Null means the question was not answered.
+  final bool? hasPillar3a;
+
   // === DEPENSES ===
   final DepensesProfile depenses;
 
@@ -1536,6 +1545,9 @@ class CoachProfile {
     this.selfEmployedNetIncome,
     this.companyProfitAnnual,
     this.unemploymentContributionMonths,
+    this.pillar3aAnnualContribution,
+    this.monthlySavingsContribution,
+    this.hasPillar3a,
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
     this.patrimoine = const PatrimoineProfile(),
@@ -1671,6 +1683,9 @@ class CoachProfile {
           companyProfitAnnual == other.companyProfitAnnual &&
           unemploymentContributionMonths ==
               other.unemploymentContributionMonths &&
+          pillar3aAnnualContribution == other.pillar3aAnnualContribution &&
+          monthlySavingsContribution == other.monthlySavingsContribution &&
+          hasPillar3a == other.hasPillar3a &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
@@ -1715,6 +1730,9 @@ class CoachProfile {
         selfEmployedNetIncome,
         companyProfitAnnual,
         unemploymentContributionMonths,
+        pillar3aAnnualContribution,
+        monthlySavingsContribution,
+        hasPillar3a,
         depenses,
         prevoyance,
         patrimoine,
@@ -2068,6 +2086,9 @@ class CoachProfile {
     double? selfEmployedNetIncome,
     double? companyProfitAnnual,
     int? unemploymentContributionMonths,
+    double? pillar3aAnnualContribution,
+    double? monthlySavingsContribution,
+    bool? hasPillar3a,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
     PatrimoineProfile? patrimoine,
@@ -2127,6 +2148,11 @@ class CoachProfile {
       companyProfitAnnual: companyProfitAnnual ?? this.companyProfitAnnual,
       unemploymentContributionMonths:
           unemploymentContributionMonths ?? this.unemploymentContributionMonths,
+      pillar3aAnnualContribution:
+          pillar3aAnnualContribution ?? this.pillar3aAnnualContribution,
+      monthlySavingsContribution:
+          monthlySavingsContribution ?? this.monthlySavingsContribution,
+      hasPillar3a: hasPillar3a ?? this.hasPillar3a,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
       patrimoine: patrimoine ?? this.patrimoine,
@@ -2325,6 +2351,11 @@ class CoachProfile {
       companyProfitAnnual: (json['companyProfitAnnual'] as num?)?.toDouble(),
       unemploymentContributionMonths:
           json['unemploymentContributionMonths'] as int?,
+      pillar3aAnnualContribution:
+          (json['pillar3aAnnualContribution'] as num?)?.toDouble(),
+      monthlySavingsContribution:
+          (json['monthlySavingsContribution'] as num?)?.toDouble(),
+      hasPillar3a: json['hasPillar3a'] as bool?,
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -2441,6 +2472,9 @@ class CoachProfile {
         'selfEmployedNetIncome': selfEmployedNetIncome,
         'companyProfitAnnual': companyProfitAnnual,
         'unemploymentContributionMonths': unemploymentContributionMonths,
+        'pillar3aAnnualContribution': pillar3aAnnualContribution,
+        'monthlySavingsContribution': monthlySavingsContribution,
+        'hasPillar3a': hasPillar3a,
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
@@ -3262,6 +3296,13 @@ class CoachProfile {
       selfEmployedNetIncome: selfEmployedNetIncome,
       companyProfitAnnual: companyProfitAnnual,
       unemploymentContributionMonths: unemploymentContributionMonths,
+      pillar3aAnnualContribution: answers.containsKey('q_3a_annual_contribution')
+          ? _parseDouble(answers['q_3a_annual_contribution'])
+          : null,
+      monthlySavingsContribution: answers.containsKey('q_savings_monthly')
+          ? _parseDouble(answers['q_savings_monthly'])
+          : null,
+      hasPillar3a: has3a,
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,

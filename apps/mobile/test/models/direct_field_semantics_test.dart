@@ -19,7 +19,13 @@ void main() {
       expect(json['pillar3aAnnualContribution'], 7200);
       expect(json['monthlySavingsContribution'], 900);
       expect(json['hasPillar3a'], isTrue);
-      expect(profile.plannedContributions, isEmpty);
+      expect(
+        profile.plannedContributions
+            .where((entry) => entry.category == '3a')
+            .single
+            .amount,
+        600,
+      );
     }
   });
 
