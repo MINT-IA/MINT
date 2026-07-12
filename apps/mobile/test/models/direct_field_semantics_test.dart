@@ -20,6 +20,15 @@ void main() {
       expect(json['monthlySavingsContribution'], 900);
       expect(json['hasPillar3a'], isTrue);
       expect(
+          profile.userProvidedFields,
+          containsAll([
+            'pillar3aAnnualContribution',
+            'monthlySavingsContribution',
+            'has3a',
+          ]));
+      expect(profile.dataTimestamps, contains('pillar3aAnnualContribution'));
+      expect(profile.dataTimestamps, contains('monthlySavingsContribution'));
+      expect(
         profile.plannedContributions
             .where((entry) => entry.category == '3a')
             .single
@@ -38,5 +47,9 @@ void main() {
     expect(json['pillar3aAnnualContribution'], isNull);
     expect(json['monthlySavingsContribution'], isNull);
     expect(json['hasPillar3a'], isNull);
+    expect(
+      profile.userProvidedFields,
+      isNot(contains('pillar3aAnnualContribution')),
+    );
   });
 }

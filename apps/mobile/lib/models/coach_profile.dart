@@ -3209,6 +3209,10 @@ class CoachProfile {
         'depenses.loyer': baseTimestamp,
       if (answers.containsKey('q_lamal_premium_monthly_chf'))
         'depenses.assuranceMaladie': baseTimestamp,
+      if (answers.containsKey('q_3a_annual_contribution'))
+        'pillar3aAnnualContribution': baseTimestamp,
+      if (answers.containsKey('q_savings_monthly'))
+        'monthlySavingsContribution': baseTimestamp,
     };
 
     // Restore persisted timestamps from answers (written by updateInline /
@@ -3280,6 +3284,12 @@ class CoachProfile {
     if (answers.containsKey('q_has_3a') ||
         answers.containsKey('q_3a_accounts_count')) {
       provided.add('has3a');
+    }
+    if (answers.containsKey('q_3a_annual_contribution')) {
+      provided.add('pillar3aAnnualContribution');
+    }
+    if (answers.containsKey('q_savings_monthly')) {
+      provided.add('monthlySavingsContribution');
     }
     if (answers.containsKey('q_cash_total') ||
         answers.containsKey('q_emergency_fund')) {
