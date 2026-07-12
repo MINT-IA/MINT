@@ -1,0 +1,54 @@
+I have decisive evidence. Compiling the verdict.
+
+---
+
+# MINT External Audit — AVS/B1 Final (code mode)
+
+**Verdict: NO-GO**
+
+Base ref `fb39a93aa` → HEAD. Diff is within budget (5 files, 211/147). Production `lib/` compiles clean, but the **checked-in test suite does not compile against the changed API**, and the new certificate-gating has **zero test coverage**. Ground truth was obtained by running `flutter analyze` and `flutter test`, not by reading docs.
+
+## P0 — Blocking
+
+### P0-1 · The changed `RetirementProjectionResult` API breaks the checked-in test suite (won't compile)
+The diff made `revenuMensuelAt65`, `tauxRemplacement`, and `budgetGap` nullable (`retirement_projection_service.dart:140-148`), but no test file was updated (`git diff fb39a93aa HEAD -- apps/mobile/test/` is empty). The existing tests access these as non-null.
+
+Reproduction:
+```
+cd apps/mobile && flutter test test/services/retirement_projection_service_test.dart
+```
+→ `Some tests failed` with compile errors, e.g.:
+- `test/services/retirement_projection_service_test.dart:123-126,167` — `Property 'avsMensuel'/'lppMensuel'/'totalRevenusMensuel'/... cannot be accessed on 'RetirementBudgetGap?' because it is potentially null`.
+
+Full blast radius (`flutter analyze test lib` → 23 errors, **all** from this change, **all** in tests; `lib/` is clean):
+- `test/retirement_projection_service_test.dart` — 14 errors (`tauxRemplacement`, `soldeMensuel`, `alertes`, `depensesMensuelles`, `totalRevenusMensuel`, `impotEstimeMensuel` on nullable receivers; lines 75-76, 535-572, 873, 909).
+- `test/services/retirement_projection_service_test.dart` — 8 errors (lines 123-167).
+- `test/services/phase5_production_bugs_test.dart:451` — `argument type 'double?' can't be assigned to 'Object'` (`expect(result.revenuMensuelAt65, …)`).
+
+Consequence: the branch cannot pass its own gate. The recent commit `0a56b74e0 "QA gate — 6392 tests green, 0 fail"` is no longer true on this HEAD — these three suites fail to build.
+
+### P0-2 · Certificate-gating ships with no test coverage; existing golden-path tests would fail at runtime even after a null-safety fix
+The new gate is `avsIncluded = profile.avsGapEvidence.householdReady` (`retirement_projection_service.dart:206`), and `householdReady` requires `selfCertifiedYears != null`, i.e. `dataSources['prevoyance.lacunesAVS'] == ProfileDataSource.certificate` (`coach_profile.dart:77-78`, `2014-2021`).
+
+The projection tests build profiles that set **neither `lacunesAVS` nor a certificate `dataSource`** (`test/services/retirement_projection_service_test.dart:38-41` `buildProfile`; the root test likewise). Grep confirms none of the three broken test files reference `dataSources`, `certificate`, `householdReady`, or `avsIncluded`. For those profiles `householdReady == false`, so post-change:
+- `revenuMensuelAt65 == null` → `expect(result.revenuMensuelAt65, greaterThan(0))` (line 61) fails,
+- `budgetGap == null` → the `budget gap includes all income sources` test null-derefs,
+- `earlyRetirementComparisons == const []` → `expect(...length, equals(8))` fails,
+- `indexedProjection == const []` → `expect(...length, equals(26))` fails.
+
+So even after patching `?.`/`!`, the suite would go red. The behavior change (AVS excluded unless certificate-sourced) has **no positive or negative test** in the projection service suite. This is exactly a facade-without-verification risk: the gate exists in production but nothing proves it fires correctly, nor that certified profiles still produce full projections.
+
+To make this pass properly, the projection tests must (a) supply `dataSources: {AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate}` (+ spouse path for couples) with a `lacunesAVS` value, and (b) add explicit coverage of the `avsIncluded == false` path (null income, null gap, empty phases/scenarios/indexed).
+
+## P1
+None beyond the above. Note the null-safety of the production wiring itself is sound: `budget_living_engine.dart:62/111/253`, `mint_state_engine.dart:190`, and `tornado_sensitivity_service.dart:611` all check `avsIncluded`/null before use; `couple_phase_timeline.dart:121` reads the still-non-null `phases` list. Couple/`conjoint == null` cases cannot null-deref because `householdReady` is false there, short-circuiting every `!` on `spouseCertifiedYears`/`avsConjRaw` (`retirement_projection_service.dart:326-370`).
+
+## P2
+- **Dormant field.** `revenuMensuelHorsAvs` is populated (`retirement_projection_service.dart:219,277`) but has no reader anywhere in `lib/` (grep: only definition + assignment). Either wire it into a consumer or drop it, and add a test if it's meant to drive UI.
+- **Tornado silently empties on non-certified AVS.** Every `_project` variant returns `revenuMensuelAt65 ?? double.nan` (`tornado_sensitivity_service.dart:611`), so for any profile lacking certificate-sourced AVS the NaN filter drops *all* variables → empty tornado. Intended given the gating policy, but unverified — worth a test asserting empty-list behavior so it isn't mistaken for a regression later.
+- The `// lint-ignore:` annotations added to French-literal/legal-citation lines are cosmetic and don't affect the verdict.
+
+## What would prove a fix
+`cd apps/mobile && flutter analyze test lib` → 0 errors, then `flutter test test/services/retirement_projection_service_test.dart test/retirement_projection_service_test.dart test/services/phase5_production_bugs_test.dart` → all green, with the projection tests updated to seed certificate evidence and to assert the `avsIncluded == false` gated path.
+
+**Bottom line: NO-GO** — the branch does not build its own test suite, and the headline gating feature is entirely untested.

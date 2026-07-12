@@ -1,0 +1,61 @@
+All evidence is confirmed. Here is the audit.
+
+---
+
+# MINT External Audit — AVS Production Slice (`fb93a93aa..56c4daea2`)
+
+## Verdict: **NO-GO**
+
+The slice gates the entire retirement projection (`revenuMensuelAt65`, `budgetGap`, `tauxRemplacement`) behind certificate-only AVS evidence, changes those public fields to nullable, but **ships no test updates and no ingestion path for the required spouse evidence**. The test suite does not compile, the happy path returns null for normal profiles, and couples can never satisfy the gate.
+
+---
+
+## P0 — Blocking
+
+### P0-1 · Test suite fails to compile (nullable API changed, zero tests updated)
+`RetirementProjectionResult.budgetGap`, `.revenuMensuelAt65`, `.tauxRemplacement` became nullable (`retirement_projection_service.dart:139-163`), but commit `56c4daea2` touched **zero test files** (`git show --stat 56c4daea2`). Existing tests dereference the now-nullable fields unconditionally.
+
+Reproduction (deps fetched, `dart analyze`):
+```
+test/retirement_projection_service_test.dart:75,76,535-543,553,562,572,873,909
+  error - The property '…' can't be unconditionally accessed because the receiver can be 'null' (unchecked_use_of_nullable_value)
+test/services/retirement_projection_service_test.dart:123,124,125,126,167
+  error - The property 'avsMensuel'/'lppMensuel'/… can't be unconditionally accessed …
+```
+21 hard errors across the two primary projection test files → the test target will not build. Tests are the stated source of truth; they are broken.
+
+### P0-2 · Core happy path now returns null retirement income for ordinary profiles
+`householdReady` requires `dataSources['prevoyance.lacunesAVS'] == certificate` (`coach_profile.dart:2024-2027`, `:77-78`). That key is set to `certificate` **only** on document-scan ingestion (`coach_profile.dart:3197-3201`, `coach_profile_provider.dart:2046-2047`). Any profile with manually entered / declared AVS gaps → `selfCertifiedYears == null` → `avsIncluded == false` → `revenuMensuelAt65`/`budgetGap`/`tauxRemplacement` all null (`retirement_projection_service.dart:207-208, 225-231, 262-267`).
+
+Concrete path: `test/services/retirement_projection_service_test.dart:29` `buildProfile()` sets no `dataSources`; the first test (`:57-63`, "standard salaried worker") asserts `expect(result.revenuMensuelAt65, greaterThan(0))` — now `greaterThan(0)` is applied to `null` → runtime failure. This is the default salaried-user scenario, not an edge case.
+
+### P0-3 · Couples can NEVER satisfy the gate — facade without wiring
+`spouseRequired = isCouple` (`coach_profile.dart:2030`, changed from `isCouple && conjoint != null`). `householdReady` then requires `spouseCertifiedYears != null`, i.e. `dataSources['conjoint.prevoyance.lacunesAVS'] == certificate` (`:2032-2035`). **No code path anywhere sets that key to `certificate`.** The only partner certificate ingestion (`coach_profile_provider.dart:1855-1928`, `updateFromPartnerLppExtraction`) certifies only `conjoint.prevoyance.avoirLppTotal` and `conjoint.prevoyance.tauxConversion` — never `lacunesAVS`. (`grep` for `conjoint.prevoyance.lacunesAVS` outside the constant definition: none.)
+
+Consequence: every `marié`/`concubinage` profile → `avsIncluded == false` permanently → `BudgetLivingEngine` returns `presentOnly` (`budget_living_engine.dart:62-69, 111-118`) and `MintStateEngine` sets `budgetGap = null` (`mint_state_engine.dart:6c`). The couple retirement budget/gap/replacement-rate surface is dark for 100% of couples, with no path for a user to ever enable it.
+
+---
+
+## P1 — Serious
+
+### P1-1 · New evidence fields are dead (facade)
+`RetirementProjectionResult.revenuMensuelHorsAvs` and `missingFields` (`retirement_projection_service.dart:139, 158`) are computed and stored but **never read** by any widget or service (`grep -rn revenuMensuelHorsAvs / .missingFields` → only the definition/consumers of unrelated classes). When AVS is suppressed, nothing surfaces *why* (missing certified evidence) or offers a CTA to scan the certificate — the user just silently gets a degraded present-only budget. The "expose certified AVS gap evidence" intent is not wired to any UI.
+
+---
+
+## P2 — Should fix
+
+### P2-1 · Phase timeline renders AVS-less totals with no indication
+`_computeIncomes`/`_buildTransitionPhase` omit AVS sources when `!householdReady` but still return LPP/3a/libre phases (`retirement_projection_service.dart:335-471, 820-870`). `couple_phase_timeline.dart:115-122` consumes `result.phases` directly (not gated by `avsIncluded`), so it will display phase totals understated by the full AVS rente with no "AVS excluded" marker. Needs a UI-reachability trace to set final severity.
+
+### P2-2 · Tornado silently returns empty for non-certified profiles
+`_project` returns `double.nan` whenever `avsIncluded == false` (`tornado_sensitivity_service.dart:615`), and the NaN filter then drops **all** variables → empty sensitivity list. Combined with P0-2, most real profiles get a silently empty tornado.
+
+---
+
+## What would change the verdict
+- Update the projection tests to the nullable API **and** add explicit coverage for both `avsIncluded == true` (certified) and `== false` (suppressed) branches — currently the entire gating behavior has zero passing tests.
+- Provide a real ingestion path that sets `dataSources['conjoint.prevoyance.lacunesAVS'] = certificate` (spouse AVS/CI scan), or relax `spouseRequired`, so couples can reach `householdReady`.
+- Wire `missingFields`/`avsIncluded` to a user-facing "add certified AVS evidence" state, or confirm via product spec that present-only-for-all-non-scanned-users is the intended, documented behavior.
+
+Verification commands used: `flutter pub get`; `dart analyze test/retirement_projection_service_test.dart test/services/retirement_projection_service_test.dart` (21 errors); `dart analyze` on the 5 changed lib files (clean — production compiles, tests do not); `git show --stat 56c4daea2` (no test files touched).

@@ -1,0 +1,54 @@
+Confirmed: `ForecasterService` does not gate on certificate evidence, so the two retirement engines now diverge for the same user. I have all the evidence needed.
+
+---
+
+Product/domain verdict: NO-GO
+
+This change makes `RetirementProjectionService` refuse to emit any AVS income, `revenuMensuelAt65`, `budgetGap`, or `tauxRemplacement` unless `AvsGapEvidence.householdReady` is true — i.e. unless the AVS gap years are **certificate-sourced** for the user (and for the spouse, when couple). The gating logic is internally coherent, but it is wired to a data state that no shipped flow can reach for a huge user segment, it degrades silently, and it ships with a non-compiling test suite.
+
+## P0 — Misleading retirement figures shown to couples (silent AVS omission)
+
+- Only the *hero* fields are nulled when `!householdReady`. The detailed breakdowns — `phases`, `earlyRetirementComparisons`, `indexedProjection` — are still returned **non-null** and are computed from `_computeIncomes`, which now skips the entire AVS block when `!householdReady` (`retirement_projection_service.dart:320`, `:752`, `:835`).
+- Consumer path: `couple_phase_timeline.dart:115-122` reads `result.phases` and renders each phase's `totalMonthly`. For **every couple** (see P1 below, `householdReady` is permanently false for couples), the timeline therefore displays retirement income composed of LPP + 3a + libre **with the AVS pillar silently removed** — i.e. roughly CHF 2,450–4,700/month of first-pillar income missing, with no caveat, no "AVS pending" flag, and `revenuMensuelHorsAvs` never surfaced.
+- Showing a couple a retirement income that omits the largest and most certain pillar (AVS) can drive harmful decisions (panic over-saving, wrong LPP capital-vs-rente choice). This is confident wrong output, not a neutral "unknown" state.
+
+Repro: build any `marie`/`concubinage` profile, call `RetirementProjectionService.project`, inspect `result.phases.first.totalMonthly` → AVS absent; `result.revenuMensuelAt65` → null.
+
+## P1 — Facade without wiring: spouse AVS gap is uncertifiable → all couples permanently degraded
+
+- `spouseRequired` was widened to `isCouple` (`coach_profile.dart:2020`), so for every couple `householdReady = selfReady && spouseCertifiedYears != null` (`coach_profile.dart:77`).
+- `spouseCertifiedYears` requires `dataSources['conjoint.prevoyance.lacunesAVS'] == certificate`. **No production writer sets this.** `updateFromAvsExtraction` (`coach_profile_provider.dart:1967`) writes only the main user's `prevoyance.*`; `updateFromPartnerLppExtraction` (`:1855`) covers spouse LPP but explicitly preserves `existing.lacunesAVS` and never stamps its source (`:1895-1928`). Grep for `conjoint.prevoyance.lacunesAVS` in `lib/` returns only the constant definition.
+- Consequence: for **every couple**, `avsIncluded=false` forever → `BudgetLivingEngine` returns `presentOnly` (`budget_living_engine.dart:62,111`), `MintStateEngine` drops `budgetGap`/`sessionDelta` (`mint_state_engine.dart:190`), tornado returns empty (every variant's `revenuMensuelAt65` is null → NaN-filtered, `tornado_sensitivity_service.dart:615`). The entire ledger→scenario→dossier retirement spine goes dark for couples with **no in-app path to restore it**.
+- Concubinage aggravates the domain error: the code correctly treats concubins as two AVS singles (no 150% cap, `retirement_projection_service.dart` couple block), yet it now blocks the user's own retirement projection until the *partner's* AVS certificate is present — métier-incoherent.
+
+## P1 — Single users also gated; contradicts the MINT "estimated is still shown" model
+
+- For singles, `householdReady = selfReady`, which requires a certificate-sourced `prevoyance.lacunesAVS`. A Swiss native who declares `AvsGapStatus.noGaps` never earns a certified year count (by design, `DATA_LEDGER.md:261-266`; `financial_fitness_service_test.dart:490`), so they get `revenuMensuelAt65=null` → present-only.
+- The pre-change behaviour projected AVS with `lacunesAVS ?? 0` and flagged confidence. Suppressing the projection entirely instead of showing it as *estimated with low confidence* inverts the lucidity product model (show known/estimated/missing distinctly) and removes the core retirement value for the majority of users who have not scanned a CI/certificate.
+
+## P1 — Source-of-truth incoherence between the two retirement engines
+
+- `ForecasterService.project` (drives `retirement_dashboard_screen.dart:147`, FRI, primary `replacementRate` in `mint_state_engine.dart`) does **not** gate on `householdReady` (no reference to it, confirmed by grep) and keeps projecting AVS.
+- Result: the same couple sees a replacement-rate/retirement figure on the dashboard while the home budget card, budget gap, and tornado report "no retirement data." Two engines, two contradictory truths for one household — a Data-Ledger single-source-of-truth violation.
+
+## P1 — Missing-data state computed but never surfaced (no CTA / no handoff)
+
+- `RetirementProjectionResult.missingFields` / `avsGapEvidence.missingFieldPaths` are populated but consumed by **zero** screens/widgets (grep in `lib/screens` + `lib/widgets` → no matches). Degradation to `presentOnly` is entirely silent: no "upload your AVS certificate to unlock your retirement projection" prompt, no missing-data question, no specialist handoff. `revenuMensuelHorsAvs` is likewise dead. This is the plumbing of a gate with none of the user-facing lucidity it is supposed to justify.
+
+## P1 — Diff ships a non-compiling test suite (tests not updated)
+
+- `flutter analyze test` → 23 errors across `test/retirement_projection_service_test.dart`, `test/services/retirement_projection_service_test.dart`, `test/services/phase5_production_bugs_test.dart` (e.g. `gap.avsMensuel` on nullable `RetirementBudgetGap?`, `result.tauxRemplacement`/`revenuMensuelAt65` on nullable). The diff touches only 5 `lib/` files and updates no tests.
+- Beyond compilation, the checked-in expectation `expect(result.revenuMensuelAt65, greaterThan(0), reason: 'AVS + LPP must produce positive retirement income')` (`retirement_projection_service_test.dart:61`) encodes the product contract this change now violates for a plain salaried worker. Per the audit's "tests are source of truth" rule, this is a hard blocker. (`lib/` itself analyzes clean — the app builds; only the suite is broken.)
+
+## P2 — Comment/label noise
+
+- Numerous `// lint-ignore: …` annotations added to disclaimer text, legal `sources`, and structured alert strings (`retirement_projection_service.dart` disclaimer/sources/alertes; tornado labels). Cosmetic; no behavioural effect, but they document that these strings are "never rendered," which conflicts with the alertes actually being user-facing budget-gap warnings.
+
+## Swiss domain review
+- **AVS:** Core of the change. Gap-year gating is legally reasonable in spirit (don't fabricate a certified gap), but the constants/logic themselves are unchanged and fine (13th rente LAVS art. 34, 150% couple cap art. 35, anticipation/ajournement). The domain failure is scope: certificate-only readiness is used to suppress the *whole* projection and to silently drop the AVS pillar from couple phase breakdowns.
+- **LPP / 3a / libre:** Calculations unchanged; but for gated users they are now displayed *without* AVS, misrepresenting household retirement income.
+- **Concubinage vs marriage:** Code correctly keeps concubins uncapped, yet the new `spouseRequired = isCouple` gate incorrectly blocks a concubin's individual projection on the partner's certificate.
+- **Tax / mortgage / insurance / succession:** Not affected by this diff.
+
+## Mint product logic review
+This change moves Mint **away** from the ledger → DataQuest → scenario → dossier spine. It adds an evidence gate (`AvsGapEvidence`, `missingFields`, `avsIncluded`) but wires none of it to a DataQuest question, CTA, or dossier caveat, and it has no producer for the spouse gap it now mandates. Net effect: the retirement scenario silently collapses to present-only for all couples and for any single without a scanned CI, while a second engine (Forecaster) keeps projecting — breaking single-source-of-truth and delivering no missing-data lucidity. Fix requires: (1) a spouse-AVS certification path, (2) surfacing `missingFields` as a concrete DataQuest CTA, (3) either gating both engines consistently or keeping an estimated-with-confidence projection instead of nulling it, (4) never rendering AVS-less phase totals without an explicit caveat, and (5) updating the test suite.

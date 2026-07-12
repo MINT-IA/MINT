@@ -1,0 +1,41 @@
+## MINT External Audit — AVS Projection Slice (`f1d008e2e` vs base `c53981c2`)
+
+### Scope & method
+Audited the test-only diff (3 files, +256/−44) plus the production code it exercises (`retirement_projection_service.dart`, `coach_profile.dart`). Ran the affected suites and the adjacent AVS-evidence/consumer suites to check the delivered state, not just the diff.
+
+### What is correct (verified, not assumed)
+- **The fail-closed wiring is genuine, not a facade.** `project()` gates every AVS-derived output on `avsEvidence.householdReady` (`retirement_projection_service.dart:206,222,238,249,259,268`), and `_computeIncomes` only emits `avs_user`/`avs_conjoint` sources inside `if (avsEvidence.householdReady)` (`:326`). When evidence is missing, phases/earlyComparisons/budgetGap/indexedProjection are empty/null and `revenuMensuelAt65`/`tauxRemplacement` are null — the audited tests assert exactly this and it holds.
+- **Certified-only semantics hold:** `avsGapEvidence` only promotes `lacunesAVS` to `selfCertifiedYears`/`spouseCertifiedYears` when `dataSources[...] == ProfileDataSource.certificate` (`coach_profile.dart:2024-2036`). `householdReady` requires self + (spouse if required).
+- **The 3 audited test files pass:** `flutter test` → 99/99 green, including the full-precision golden and the `missingFields` immutability (`throwsUnsupportedError`) checks.
+- Adjacent consumers (`partner_estimate`, `financial_fitness`, `readiness_gate`, `route_planner`) are green.
+
+### Findings
+
+**P0 — Red test in the audited feature + contradictory certified-AVS contract (`married-without-conjoint`)**
+The delivered HEAD ships a **failing test** and two committed contract tests that assert **opposite** results for the *identical* input (`etatCivil: marie`, no `conjoint`, self certificate):
+
+- `apps/mobile/test/models/avs_gap_evidence_test.dart:155-168` — "declared couple without a real spouse does not require spouse facts" expects `spouseRequired == false`, `householdReady == true`, `missingFieldPaths == []`.
+- `apps/mobile/test/services/retirement_projection_service_test.dart:176-190` (added by the audited commit) expects the fail-closed opposite: `avsIncluded == false`, `missingFields == [spouseFieldPath]`, no AVS sources.
+
+Production sides with the projection test via `final spouseRequired = isCouple;` (`coach_profile.dart:2030`) where `isCouple` ignores conjoint presence (`:2017-2019`), so the model test fails deterministically.
+
+Reproduction:
+```
+cd apps/mobile && flutter test test/models/avs_gap_evidence_test.dart
+# avs_gap_evidence_test.dart:155 → Expected: false  Actual: <true>  (1 failed)
+```
+This is disqualifying for a "final" AVS slice: the suite is red and the compliance-sensitive rule "should a married profile with no spouse data fail closed?" is encoded both ways. One of the two must be corrected (recommend keeping the fail-closed projection behavior and updating `avs_gap_evidence_test.dart:155` to expect `spouseRequired == true` — or, if product wants married-without-spouse to project the user alone, change `spouseRequired` to depend on `conjoint != null` and fix the projection test). Either way, cannot ship as-is.
+
+**P1 — none identified** beyond the P0.
+
+**P2 — Brittle full-precision golden**
+`apps/mobile/test/services/retirement_projection_service_test.dart:122` asserts `expect(result.revenuMensuelAt65, 5563.123530866694)` (exact IEEE-754 equality). Any benign rounding/constant change breaks it with no tolerance. Use `closeTo(5563.12, 0.01)`. It passes today, so non-blocking.
+
+### Evidence that would close the P0
+Confirm intended product semantics for `marie` + null `conjoint`, then make `spouseRequired` (`coach_profile.dart:2030`) and both tests agree, and show `flutter test test/models/ test/services/` fully green.
+
+### Verdict
+
+**NO-GO**
+
+Rationale: the delivered state carries a deterministically failing test in the exact AVS-evidence feature under audit, and two checked-in contract tests contradict each other on the fail-closed behavior for a married profile with no spouse data. Per the "tests are source of truth" rule, an internally inconsistent, red suite cannot pass a final audit. The audited diff's own 3 files are clean; the blocker is the unreconciled sibling contract at `avs_gap_evidence_test.dart:155`.

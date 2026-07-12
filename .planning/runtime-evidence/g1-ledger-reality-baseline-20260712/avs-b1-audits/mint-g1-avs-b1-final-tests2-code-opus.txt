@@ -1,0 +1,39 @@
+## MINT External Audit — AVS Gap Evidence Slice (code mode)
+
+**Base ref:** `f1d008e2e` → `HEAD` · **Diff:** 6 files, +81/−12 (test-only), within 3000-line budget.
+
+### Scope & method
+The diff touches test files exclusively. My audit focused on the real risk of a test-only change: **facade-without-wiring** — do the new/changed assertions reflect actual production behavior, and does the suite go green? I read the underlying production code and executed every affected test.
+
+### Wiring verification (production is real, not stubbed)
+
+| Test claim | Production code path | Status |
+|---|---|---|
+| Declared couple (marié **and** concubinage) w/o entered spouse ⇒ `spouseRequired=true`, `householdReady=false`, missing `spousePath` | `coach_profile.dart:2030` `spouseRequired = isCouple` (`marie‖concubinage`, `:2017`); missing-path logic `:2038-2042` | ✅ matches |
+| Single (célibataire) ⇒ `spouseRequired=false` | `isCouple=false` ⇒ branch skipped | ✅ |
+| Tornado: uncertified AVS gaps ⇒ **empty** result (fail-closed) | `avsGapEvidence.householdReady=false` ⇒ `revenuMensuelAt65=null` (`retirement_projection_service.dart:206,222,278`) ⇒ `_project` returns `NaN` (`tornado_sensitivity_service.dart:615`) ⇒ NaN-filter drops all vars | ✅ genuine end-to-end wiring, not a stub |
+| MintState: no retirement budget ⇒ `budgetGap` null ⇒ `sessionDelta` null | `mint_state_engine.dart:190-197` (gap only set when `avsIncluded && !=null`), `:252` (`sessionDelta` guarded on `budgetGap!=null`) | ✅ |
+| Budget/golden profiles gain `lacunesAVS:0` + certificate `dataSources` | Required so `householdReady=true` under certificate-only gating; otherwise projections would (correctly) fail closed | ✅ consistent with gate |
+
+### Test execution
+- `avs_gap_evidence_test.dart`, `tornado_sensitivity_test.dart`, `tornado_sensitivity_service_test.dart`, `mint_state_engine_test.dart` → **All tests passed** (+57).
+- `budget_living_engine_test.dart`, `golden_couple_integrated_test.dart` → **All tests passed** (+81).
+- No stale test elsewhere asserts the old boundary; remaining `spouseRequired, isFalse` assertions (`avs_gap_evidence_test.dart:38,150`) are célibataire cases and remain correct.
+
+### Findings
+
+**P0:** none.
+
+**P1:** none.
+
+**P2 (informational, no action required):**
+- The behavioral boundary flip is in the **fail-closed / conservative direction**: a married- or concubinage-declared user without certified spouse AVS data now yields no household retirement number rather than an unfounded one. This blocks (does not leak) output, so it is compliance-safe. Note that concubinage partners are not a joint AVS household under LAVS (no rente plafonnée), so gating the *whole* household projection on certified spouse AVS is stricter than strictly necessary — but it is intentional (commits `0251300a9`, `c3357995c`, and the test's explicit concubinage loop) and errs safe. Production ceiling logic is unchanged by this diff, so nothing to fix here.
+
+### Evidence notes
+- Fail-closed proof for tornado is behavioral: the test passing with `isEmpty` confirms `copyWith(dataSources: const {})` actually clears certificate provenance (no silent re-inference), since the only mechanism producing an all-empty result is `householdReady=false`.
+
+---
+
+## Verdict: **PASS**
+
+Test-only slice; every changed assertion is backed by a verified production code path, the boundary change is conservative/fail-closed, and all affected tests execute green.
