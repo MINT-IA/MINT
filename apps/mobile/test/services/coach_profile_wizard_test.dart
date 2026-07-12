@@ -425,11 +425,12 @@ void main() {
       expect(profile.goalA.type, GoalAType.retraite);
     });
 
-    test('profil complet avec AVS no_gaps', () {
+    test('profil complet conserve AVS no_gaps comme declaration', () {
       final answers = baseAnswers();
       answers['q_avs_lacunes_status'] = 'no_gaps';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 0);
+      expect(profile.avsGapStatus, AvsGapStatus.noGaps);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
   });
 
@@ -438,11 +439,12 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('AVS lacunes status parsing', () {
-    test('"no_gaps" → explicit zero gap count', () {
+    test('"no_gaps" reste declare sans certifier zero annee', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'no_gaps';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 0);
+      expect(profile.avsGapStatus, AvsGapStatus.noGaps);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('"arrived_late" sans arrival_year reste inconnu', () {
@@ -452,24 +454,27 @@ void main() {
       expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
-    test('"arrived_late" avec arrival_year → calcul depuis birthYear+21', () {
+    test('"arrived_late" garde l age d arrivee sans certifier de lacune', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
       answers['q_avs_arrival_year'] =
           2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 7);
+      expect(profile.avsGapStatus, AvsGapStatus.arrivedLate);
+      expect(profile.arrivalAge, 28);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
-    test('"arrived_late" avec arrival_year precoce → clamp a 0', () {
+    test('"arrived_late" precoce ne certifie pas zero lacune', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
       answers['q_avs_arrival_year'] =
           2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 0);
+      expect(profile.arrivalAge, 20);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('"lived_abroad" sans years_abroad reste inconnu', () {
@@ -479,12 +484,14 @@ void main() {
       expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
-    test('"lived_abroad" avec years_abroad → valeur exacte', () {
+    test('"lived_abroad" garde years_abroad declaratif seulement', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'lived_abroad';
       answers['q_avs_years_abroad'] = 8;
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 8);
+      expect(answers['q_avs_years_abroad'], 8);
+      expect(profile.avsGapStatus, AvsGapStatus.livedAbroad);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('"unknown" ne fabrique aucun nombre d annees', () {
@@ -502,7 +509,7 @@ void main() {
       expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
-    test('impact sur rente estimee: lacunes reduisent la rente', () {
+    test('declarations AVS divergentes restent hors des annees certifiees', () {
       final noGaps = Map<String, dynamic>.from(baseAnswers());
       noGaps['q_avs_lacunes_status'] = 'no_gaps';
       final profileNoGaps = CoachProfile.fromWizardAnswers(noGaps);
@@ -512,10 +519,10 @@ void main() {
       withGaps['q_avs_years_abroad'] = 10;
       final profileWithGaps = CoachProfile.fromWizardAnswers(withGaps);
 
-      // Avec lacunes, la rente estimee devrait etre inferieure
-      // (ou les lacunes sont non-null)
-      expect(profileNoGaps.prevoyance.lacunesAVS, 0);
-      expect(profileWithGaps.prevoyance.lacunesAVS, 10);
+      expect(profileNoGaps.avsGapStatus, AvsGapStatus.noGaps);
+      expect(profileWithGaps.avsGapStatus, AvsGapStatus.livedAbroad);
+      expect(profileNoGaps.prevoyance.lacunesAVS, isNull);
+      expect(profileWithGaps.prevoyance.lacunesAVS, isNull);
     });
   });
 

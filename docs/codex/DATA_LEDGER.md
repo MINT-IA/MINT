@@ -109,13 +109,25 @@ ticket-specific tests from Plan 37-02:
   conversion rate) do not become known facts. Only an explicit storage key
   adds the matching `userProvidedFields` marker and `dataTimestamps` entry.
 - `pillar3aAnnualContribution`, `monthlySavingsContribution`, and
-  `hasPillar3a` are independent typed fields. Their storage keys remain
+  `hasPillar3a` are independent current facts. Their storage keys remain
   `q_3a_annual_contribution`, `q_savings_monthly`, and `q_has_3a`;
-  `q_savings_allocation` cannot fabricate any of them.
-- `avsGapStatus` is the typed status (`noGaps`, `arrivedLate`, `livedAbroad`,
-  `unknown`) and is distinct from nullable certified numeric years. A
-  `lived_abroad` answer without `q_avs_years_abroad` keeps the year count
-  unknown.
+  `q_savings_allocation` cannot fabricate any of them. A current-fact consumer
+  uses `typedFact ?? legacyValue`, never `typedFact + legacyValue`. The legacy
+  value is migration fallback only when the typed fact is absent.
+- `plannedContributions` remains a plan/scenario lever. It is not rewritten by
+  `copyWith` changes to the three current facts, and scenario perturbations do
+  not overwrite those durable facts. This separation prevents both double
+  counting and a scenario result becoming profile truth.
+- `avsGapStatus` is the user's declared status (`noGaps`, `arrivedLate`,
+  `livedAbroad`, `unknown`). It is distinct from nullable certified numeric
+  years in `prevoyance.lacunesAVS`. `q_avs_years_abroad`, a derived arrival
+  interval, and `no_gaps` can inform the declared status but never hydrate
+  certified years or receive `certificate` provenance. Only confirmed AVS
+  extraction may write `_coach_avs_lacunes` with its document source. A stored
+  `q_avs_lacunes_status` is `userInput` and receives its own `avsGapStatus`
+  timestamp. Likewise, `q_avs_contribution_years` is `userInput` by default;
+  it becomes `certificate` only when the same persisted write carries
+  `_coach_avs_source=document_scan`, and it keeps its own freshness timestamp.
 - `_coach_dettes_hypotheque` is the canonical mortgage value. The legacy
   `q_mortgage_balance` is migration-read only: a sole dated value or the
   strictly newer dated value wins; divergent missing/equal timestamps are
@@ -123,6 +135,10 @@ ticket-specific tests from Plan 37-02:
 
 These contracts do not add provenance-on-write, provider-island bridges, or
 scenario identity. Those remain later Phase 37 tickets and still block G2.
+Source, timestamp, and meaning must nevertheless agree for every value already
+consumed here: absent or stale evidence remains unknown; a status/year
+contradiction fails closed to `partial+ask`; and neither a default nor a
+declaration may be promoted to certificate confidence.
 
 ---
 
@@ -196,7 +212,7 @@ These facts are collected through `mergeAnswers` and reconstructed by
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr (`CoachProfile.pillar3aAnnualContribution`) | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | 3a max gate (7'258 / 36'288), tax deduction sim, CapEngine |
+| `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr (`CoachProfile.pillar3aAnnualContribution`) | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | current 3a fitness criterion and `CoachingProfile.montant3a`; legacy planned amount is fallback, never additive |
 | `pillar3aBalance` | `q_3a_total` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
 
 > 3a writes MUST respect `canContribute3a` (false for US/FATCA; conditional for frontalier permis G). A `pillar3a*` write for a US person should be accepted as data but flagged non-contributable, not silently zeroed.
@@ -210,13 +226,13 @@ coach-writable key.
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `has3a` | `q_has_3a` (`true` → `yes`, `false` → `no`) / `hasPillar3a` | bool | prevoyance | userInput, certificate, openBanking | annual | .60 / .95 | mergeAnswers only, not `save_fact` | `nombre3a`, independent protection hub, 3a gating |
+| `has3a` | `q_has_3a` (`true` → `yes`, `false` → `no`) / `hasPillar3a` | bool | prevoyance | userInput, certificate, openBanking | annual | .60 / .95 | mergeAnswers only, not `save_fact` | `CoachingProfile.has3a`; explicit typed false wins over a stale legacy account count |
 
 ### 3.5 Savings / wealth / debt
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `savingsMonthly` | `q_savings_monthly` | double CHF/mo (`CoachProfile.monthlySavingsContribution`) | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
+| `savingsMonthly` | `q_savings_monthly` | double CHF/mo (`CoachProfile.monthlySavingsContribution`) | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | current financial-fitness savings-rate criterion; legacy planned total is fallback, never additive |
 | `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
 | `wealthEstimate` | `q_wealth_estimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `PatrimoineProfile.wealthEstimate`, `WealthFinancialFacts.reconcileAggregate`, `PatrimoineProfile.wealthReconciliation`, `totalPatrimoine` aggregate, wealth tax, net worth, absolute patrimoine previews |
 | `hasDebt` | `q_has_consumer_debt` (`true` → `yes`, `false` → `no`; `false` zeroes `_coach_dettes_credit`, `_coach_dettes_leasing`, `_coach_dettes_autres`; `true` nulls them so the bool-only fallback can run) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
@@ -240,8 +256,13 @@ coach-writable key.
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `hasAvsGaps` | `q_avs_lacunes_status` → typed `avsGapStatus` (`noGaps`, `arrivedLate`, `livedAbroad`, `unknown`) | status enum | prevoyance | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `lacunesAVS` flag, AVS rente reduction warning |
+| `hasAvsGaps` | `q_avs_lacunes_status` → typed `avsGapStatus` (`noGaps`, `arrivedLate`, `livedAbroad`, `unknown`) | status enum | prevoyance | userInput; certificate only when the status itself is document-confirmed | annual | .60 / .95 | applySaveFact/mergeAnswers | financial-fitness unknown/no-gap gate; numeric reduction requires separate confirmed `prevoyance.lacunesAVS` |
 | `avsContributionYears` | `q_avs_contribution_years` | int (yr) | prevoyance | certificate, userInput | annual | .95 / .60 | applySaveFact/mergeAnswers | `anneesContribuees`, AVS full-rente eligibility (44 yr), RAMD |
+
+`q_avs_contribution_years` reconstructs with `userInput` provenance unless
+`_coach_avs_source=document_scan` is present. Both contribution years and the
+declared gap status are timestamped independently; the document marker never
+upgrades `avsGapStatus`, and the status never upgrades a numeric year count.
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 8 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **36 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 36`.
 

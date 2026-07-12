@@ -278,7 +278,7 @@ void main() {
       );
     });
 
-    test('marks AVS fields as certificate when RAMD is present', () {
+    test('does not infer contribution-year source from RAMD presence', () {
       final profile = CoachProfile(
         birthYear: 1985,
         canton: 'VD',
@@ -297,7 +297,7 @@ void main() {
 
       expect(
         profile.dataSources['prevoyance.anneesContribuees'],
-        ProfileDataSource.certificate,
+        isNull,
       );
       expect(
         profile.dataSources['prevoyance.ramd'],

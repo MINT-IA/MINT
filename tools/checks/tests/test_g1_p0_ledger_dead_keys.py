@@ -770,6 +770,81 @@ def test_g1_p0_canonical_matrix_is_non_vacuous_and_fail_closed() -> None:
     assert errors == []
 
 
+def test_phase37_typed_fields_point_to_real_production_consumers() -> None:
+    """The Phase 37 typed facts must be read outside model reconstruction.
+
+    A field declaration, JSON serializer, or ``fromWizardAnswers`` assignment
+    is not a consumer.  Pin each matrix row to the production method that uses
+    the fact while allowing line numbers to move as the implementation evolves.
+    """
+
+    _, rows = _parse_table(LEDGER_MATRIX, "## G1_P0_CANONICAL_KEYS")
+    rows_by_key = {row["canonical_key"]: row for row in rows}
+    expected = {
+        "pillar3aAnnual": (
+            "pillar3aAnnualContribution",
+            Path("apps/mobile/lib/services/financial_fitness_service.dart"),
+            "static SubScore _calculatePrevoyance",
+            "static SubScore _calculatePatrimoine",
+        ),
+        "savingsMonthly": (
+            "monthlySavingsContribution",
+            Path("apps/mobile/lib/services/financial_fitness_service.dart"),
+            "static SubScore _calculateBudget",
+            "static SubScore _calculatePrevoyance",
+        ),
+        "has3a": (
+            "hasPillar3a",
+            Path("apps/mobile/lib/models/coach_profile.dart"),
+            "CoachingProfile toCoachingProfile",
+            "factory CoachProfile.fromJson",
+        ),
+        "hasAvsGaps": (
+            "avsGapStatus",
+            Path("apps/mobile/lib/services/financial_fitness_service.dart"),
+            "static SubScore _calculatePrevoyance",
+            "static SubScore _calculatePatrimoine",
+        ),
+    }
+
+    assert expected.keys() <= rows_by_key.keys()
+    for key, (token, expected_path, section_start, section_end) in expected.items():
+        row = rows_by_key[key]
+        assert row["coach_profile_path"] == token, key
+
+        match = READER_EVIDENCE_RE.fullmatch(row["reader_evidence"])
+        assert match is not None, key
+        assert Path(match.group("path")) == expected_path, key
+
+        source = (ROOT / expected_path).read_text(encoding="utf-8")
+        lines = source.splitlines()
+        line_number = int(match.group("line"))
+        assert 1 <= line_number <= len(lines), key
+
+        start_line = next(
+            index
+            for index, line in enumerate(lines, start=1)
+            if section_start in line
+        )
+        end_line = next(
+            index
+            for index, line in enumerate(lines, start=1)
+            if index > start_line and section_end in line
+        )
+        assert start_line < line_number < end_line, (
+            f"{key}: reader evidence must be inside {section_start}, "
+            "not a declaration/factory/serializer"
+        )
+
+        center = line_number - 1
+        window_start = max(0, center - READER_WINDOW_RADIUS)
+        window_end = min(len(lines), center + READER_WINDOW_RADIUS + 1)
+        window = "\n".join(lines[window_start:window_end])
+        assert token in window, (
+            f"{key}: {row['reader_evidence']} does not prove a read of {token}"
+        )
+
+
 def test_every_matrix_ticket_has_an_executable_blocking_contract() -> None:
     headers, tickets = _ticket_registry()
     assert headers == TICKET_COLUMNS

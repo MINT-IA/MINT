@@ -48,6 +48,44 @@ void main() {
   // ═══════════════════════════════════════════════════════════════
 
   group('CoachProfile.toCoachingProfile()', () {
+    test('typed 3a presence and amount override contradictory legacy fields',
+        () {
+      const legacyPlan = <PlannedMonthlyContribution>[
+        PlannedMonthlyContribution(
+          id: 'legacy_3a',
+          label: 'Legacy 3a',
+          amount: 100,
+          category: '3a',
+        ),
+      ];
+      final explicitNo3a = CoachProfile(
+        birthYear: 1990,
+        canton: 'ZH',
+        salaireBrutMensuel: 7000,
+        hasPillar3a: false,
+        pillar3aAnnualContribution: 4800,
+        prevoyance: const PrevoyanceProfile(nombre3a: 2),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+        plannedContributions: legacyPlan,
+      );
+
+      final coaching = explicitNo3a.toCoachingProfile();
+
+      expect(coaching.has3a, isFalse);
+      expect(coaching.montant3a, 4800);
+      expect(explicitNo3a.plannedContributions, same(legacyPlan));
+
+      final explicitHas3a = explicitNo3a.copyWith(
+        hasPillar3a: true,
+        prevoyance: const PrevoyanceProfile(nombre3a: 0),
+      );
+      expect(explicitHas3a.toCoachingProfile().has3a, isTrue);
+    });
+
     test('maps salarie profile correctly', () {
       final profile = makeProfile(
         employmentStatus: 'salarie',

@@ -277,7 +277,8 @@ class FinancialFitnessService {
     ));
 
     // 4. Budget tenu / epargne reguliere (0-25 points)
-    final totalContributions = profile.totalContributionsMensuelles;
+    final totalContributions = profile.monthlySavingsContribution ??
+        profile.totalContributionsMensuelles;
     final tauxEpargne =
         revenuNet > 0 ? totalContributions / revenuNet : 0.0;
     final pointsBudget = tauxEpargne >= 0.20
@@ -315,7 +316,8 @@ class FinancialFitnessService {
     final plafond3a = profile.employmentStatus == 'independant'
         ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
         : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-    final contribution3aAnnuelle = profile.total3aMensuel * 12;
+    final contribution3aAnnuelle =
+        profile.pillar3aAnnualContribution ?? profile.total3aMensuel * 12;
     final ratio3a = plafond3a > 0 ? contribution3aAnnuelle / plafond3a : 0.0;
     final points3a = ratio3a >= 1.0
         ? 25
@@ -358,26 +360,28 @@ class FinancialFitnessService {
     ));
 
     // 3. Pas de lacune AVS critique (0-25 points)
-    final lacunesAvs = profile.prevoyance.lacunesAVS ?? 0;
+    final lacunesAvs = profile.prevoyance.lacunesAVS;
     final lacunesAvsConjoint =
         profile.conjoint?.prevoyance?.lacunesAVS ?? 0;
-    final totalLacunes = lacunesAvs + lacunesAvsConjoint;
     int pointsAvs;
     String detailAvs;
 
-    if (totalLacunes == 0) {
+    if (lacunesAvs == null) {
+      pointsAvs = profile.avsGapStatus == AvsGapStatus.noGaps ? 10 : 0;
+      detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
+    } else if (lacunesAvs + lacunesAvsConjoint == 0) {
       pointsAvs = 25;
       detailAvs = 'Aucune lacune AVS';
-    } else if (totalLacunes <= 2) {
+    } else if (lacunesAvs + lacunesAvsConjoint <= 2) {
       pointsAvs = 20;
-      detailAvs = '$totalLacunes annee(s) de lacune AVS'; // lint-ignore: legacy user copy
-    } else if (totalLacunes <= 5) {
+      detailAvs = '${lacunesAvs + lacunesAvsConjoint} annee(s) de lacune AVS'; // lint-ignore: legacy user copy
+    } else if (lacunesAvs + lacunesAvsConjoint <= 5) {
       pointsAvs = 10;
-      detailAvs = '$totalLacunes annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
+      detailAvs = '${lacunesAvs + lacunesAvsConjoint} annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
     } else {
       pointsAvs = 0;
       detailAvs =
-          '$totalLacunes annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
+          '${lacunesAvs + lacunesAvsConjoint} annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
     }
     criteria.add(ScoreCriterion(
       id: 'avs_gaps',

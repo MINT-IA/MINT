@@ -574,7 +574,7 @@ void main() {
 
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_avs_lacunes_status', 'no_gaps'));
-    expect(provider.profile?.prevoyance.lacunesAVS, 0);
+    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
   });
 
   test('save_fact hasAvsGaps true preserves precise AVS status', () async {
@@ -589,7 +589,8 @@ void main() {
 
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_avs_lacunes_status', 'lived_abroad'));
-    expect(provider.profile?.prevoyance.lacunesAVS, 4);
+    expect(answers, containsPair('q_avs_years_abroad', 4));
+    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
   });
 
   test('save_fact hasAvsGaps true preserves arrived-late AVS status', () async {
@@ -605,7 +606,7 @@ void main() {
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_avs_lacunes_status', 'arrived_late'));
     expect(answers, containsPair('q_avs_arrival_year', 2005));
-    expect(provider.profile?.prevoyance.lacunesAVS, 9);
+    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
   });
 
   test('save_fact spouse facts hydrate readable conjoint keys', () async {

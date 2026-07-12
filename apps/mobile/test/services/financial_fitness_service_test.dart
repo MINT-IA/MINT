@@ -43,8 +43,9 @@ void main() {
     });
 
     test('weights sum to 1.0', () {
-      final totalWeight =
-          score.budget.weight + score.prevoyance.weight + score.patrimoine.weight;
+      final totalWeight = score.budget.weight +
+          score.prevoyance.weight +
+          score.patrimoine.weight;
       expect(totalWeight, closeTo(1.0, 0.001));
     });
 
@@ -89,6 +90,42 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FinancialFitnessService - Budget sub-score', () {
+    test('typed monthly savings has exclusive priority over legacy plan', () {
+      final typedZero = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        monthlySavingsContribution: 0,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: 'legacy_savings',
+            label: 'Legacy savings',
+            amount: 2000,
+            category: 'investissement',
+          ),
+        ],
+      );
+      final typedOnly = typedZero.copyWith(
+        monthlySavingsContribution: 2000,
+        plannedContributions: const [],
+      );
+
+      final typedZeroCriterion = FinancialFitnessService.calculate(
+        profile: typedZero,
+      ).budget.criteria.firstWhere((c) => c.id == 'taux_epargne');
+      final typedOnlyCriterion = FinancialFitnessService.calculate(
+        profile: typedOnly,
+      ).budget.criteria.firstWhere((c) => c.id == 'taux_epargne');
+
+      expect(typedZeroCriterion.points, 0);
+      expect(typedOnlyCriterion.points, greaterThan(0));
+    });
+
     test('no debt gives 25 points on dette_consommation', () {
       final profile = CoachProfile(
         birthYear: 1990,
@@ -102,8 +139,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final detteCrit = score.budget.criteria
-          .firstWhere((c) => c.id == 'dette_consommation');
+      final detteCrit =
+          score.budget.criteria.firstWhere((c) => c.id == 'dette_consommation');
       expect(detteCrit.points, 25);
     });
 
@@ -120,8 +157,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final detteCrit = score.budget.criteria
-          .firstWhere((c) => c.id == 'dette_consommation');
+      final detteCrit =
+          score.budget.criteria.firstWhere((c) => c.id == 'dette_consommation');
       expect(detteCrit.points, 0);
     });
 
@@ -138,8 +175,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final detteCrit = score.budget.criteria
-          .firstWhere((c) => c.id == 'dette_consommation');
+      final detteCrit =
+          score.budget.criteria.firstWhere((c) => c.id == 'dette_consommation');
       expect(detteCrit.points, 0);
     });
 
@@ -149,7 +186,8 @@ void main() {
         canton: 'VD',
         salaireBrutMensuel: 7000,
         depenses: const DepensesProfile(loyer: 1500, assuranceMaladie: 400),
-        patrimoine: const PatrimoineProfile(epargneLiquide: 30000), // >> 3 months
+        patrimoine:
+            const PatrimoineProfile(epargneLiquide: 30000), // >> 3 months
         goalA: GoalA(
           type: GoalAType.retraite,
           targetDate: DateTime(2055),
@@ -157,8 +195,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final fondsCrit = score.budget.criteria
-          .firstWhere((c) => c.id == 'fonds_urgence');
+      final fondsCrit =
+          score.budget.criteria.firstWhere((c) => c.id == 'fonds_urgence');
       expect(fondsCrit.points, 25);
     });
 
@@ -176,8 +214,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final fondsCrit = score.budget.criteria
-          .firstWhere((c) => c.id == 'fonds_urgence');
+      final fondsCrit =
+          score.budget.criteria.firstWhere((c) => c.id == 'fonds_urgence');
       expect(fondsCrit.points, 0);
     });
   });
@@ -187,6 +225,42 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FinancialFitnessService - Prevoyance sub-score', () {
+    test('typed 3a contribution has exclusive priority over legacy plan', () {
+      final typedZero = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        pillar3aAnnualContribution: 0,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: 'legacy_3a',
+            label: 'Legacy 3a',
+            amount: 1000,
+            category: '3a',
+          ),
+        ],
+      );
+      final typedOnly = typedZero.copyWith(
+        pillar3aAnnualContribution: 7258,
+        plannedContributions: const [],
+      );
+
+      final typedZeroCriterion = FinancialFitnessService.calculate(
+        profile: typedZero,
+      ).prevoyance.criteria.firstWhere((c) => c.id == '3a_maximise');
+      final typedOnlyCriterion = FinancialFitnessService.calculate(
+        profile: typedOnly,
+      ).prevoyance.criteria.firstWhere((c) => c.id == '3a_maximise');
+
+      expect(typedZeroCriterion.points, 0);
+      expect(typedOnlyCriterion.points, 25);
+    });
+
     test('maxed 3a gives 25 points', () {
       final profile = CoachProfile(
         birthYear: 1990,
@@ -207,8 +281,8 @@ void main() {
         ],
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final threACrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == '3a_maximise');
+      final threACrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == '3a_maximise');
       expect(threACrit.points, 25);
     });
 
@@ -224,8 +298,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final threACrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == '3a_maximise');
+      final threACrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == '3a_maximise');
       expect(threACrit.points, 0);
     });
 
@@ -246,8 +320,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final lppCrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == 'lpp_buyback');
+      final lppCrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == 'lpp_buyback');
       expect(lppCrit.points, 25);
     });
 
@@ -264,8 +338,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final avsCrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
+      final avsCrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
       expect(avsCrit.points, 25);
     });
 
@@ -282,8 +356,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final avsCrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
+      final avsCrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
       expect(avsCrit.points, 0);
     });
 
@@ -304,10 +378,60 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final avsCrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == 'avs_gaps');
+      final avsCrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
       // 2 + 14 = 16 → 0 points
       expect(avsCrit.points, 0);
+    });
+
+    test('unconfirmed AVS risk statuses never score as no gaps', () {
+      for (final status in const [
+        AvsGapStatus.unknown,
+        AvsGapStatus.arrivedLate,
+        AvsGapStatus.livedAbroad,
+      ]) {
+        final profile = CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 7000,
+          avsGapStatus: status,
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        );
+
+        final criterion = FinancialFitnessService.calculate(profile: profile)
+            .prevoyance
+            .criteria
+            .firstWhere((c) => c.id == 'avs_gaps');
+
+        expect(criterion.points, lessThan(25), reason: status.name);
+        expect(criterion.detail, isNot('Aucune lacune AVS'));
+      }
+
+      final declaredNoGap = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        avsGapStatus: AvsGapStatus.noGaps,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+      final declaredCriterion = FinancialFitnessService.calculate(
+        profile: declaredNoGap,
+      ).prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
+
+      expect(declaredCriterion.points, 10);
+      expect(declaredCriterion.detail, isNot('Aucune lacune AVS'));
+      expect(
+        declaredNoGap.dataSources['prevoyance.lacunesAVS'],
+        isNot(ProfileDataSource.certificate),
+      );
     });
   });
 
@@ -402,8 +526,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final croiCrit = score.patrimoine.criteria
-          .firstWhere((c) => c.id == 'croissance');
+      final croiCrit =
+          score.patrimoine.criteria.firstWhere((c) => c.id == 'croissance');
       expect(croiCrit.points, 0);
     });
   });
@@ -586,10 +710,16 @@ void main() {
         ),
         plannedContributions: const [
           PlannedMonthlyContribution(
-            id: '3a', label: '3a', amount: 604.83, category: '3a',
+            id: '3a',
+            label: '3a',
+            amount: 604.83,
+            category: '3a',
           ),
           PlannedMonthlyContribution(
-            id: 'invest', label: 'ETF', amount: 2000, category: 'investissement',
+            id: 'invest',
+            label: 'ETF',
+            amount: 2000,
+            category: 'investissement',
           ),
         ],
       );
@@ -622,8 +752,8 @@ void main() {
         ),
       );
       final score = FinancialFitnessService.calculate(profile: profile);
-      final invaliditeCrit = score.prevoyance.criteria
-          .firstWhere((c) => c.id == 'invalidite');
+      final invaliditeCrit =
+          score.prevoyance.criteria.firstWhere((c) => c.id == 'invalidite');
       expect(invaliditeCrit.points, 0);
     });
   });

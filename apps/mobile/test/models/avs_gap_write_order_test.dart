@@ -4,44 +4,100 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 
 void main() {
-  test('AVS status and certified counts are order-independent', () {
+  test('wizard AVS declarations never fabricate certified gap years', () {
     final entries = <MapEntry<String, dynamic>>[
       const MapEntry('q_birth_year', 1980),
       const MapEntry('q_avs_lacunes_status', 'lived_abroad'),
       const MapEntry('q_avs_years_abroad', 4),
-      const MapEntry('q_avs_contribution_years', 20),
     ];
 
     for (final ordered in [entries, entries.reversed.toList()]) {
+      final answers = LinkedHashMap<String, dynamic>.fromEntries(ordered);
       final profile = CoachProfile.fromWizardAnswers(
-        LinkedHashMap.fromEntries(ordered),
+        answers,
       );
       expect(profile.toJson()['avsGapStatus'], 'lived_abroad');
-      expect(profile.prevoyance.lacunesAVS, 4);
-      expect(profile.prevoyance.anneesContribuees, 20);
+      expect(answers['q_avs_years_abroad'], 4);
+      expect(profile.prevoyance.lacunesAVS, isNull);
+      expect(
+        profile.dataSources['prevoyance.lacunesAVS'],
+        isNot(ProfileDataSource.certificate),
+      );
     }
   });
 
-  test('lived abroad without explicit years remains unknown', () {
-    final profile = CoachProfile.fromWizardAnswers(const {
-      'q_birth_year': 1980,
-      'q_avs_lacunes_status': 'lived_abroad',
-    });
-    expect(profile.toJson()['avsGapStatus'], 'lived_abroad');
-    expect(profile.prevoyance.lacunesAVS, isNull);
+  test('all declaration-only AVS statuses keep certified years unknown', () {
+    const cases = <String, Map<String, dynamic>>{
+      'arrived_late': {
+        'q_birth_year': 1980,
+        'q_avs_arrival_year': 2005,
+      },
+      'lived_abroad': {'q_avs_years_abroad': 4},
+      'no_gaps': {},
+      'unknown': {},
+    };
+
+    for (final entry in cases.entries) {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_avs_lacunes_status': entry.key,
+        ...entry.value,
+      });
+
+      expect(profile.toJson()['avsGapStatus'], entry.key);
+      expect(profile.prevoyance.lacunesAVS, isNull);
+      expect(
+        profile.dataSources['prevoyance.lacunesAVS'],
+        isNot(ProfileDataSource.certificate),
+      );
+    }
   });
 
-  test('unknown and known-no-gap remain distinct typed states', () {
-    final unknown = CoachProfile.fromWizardAnswers(const {
-      'q_avs_lacunes_status': 'unknown',
-    });
-    final noGap = CoachProfile.fromWizardAnswers(const {
-      'q_avs_lacunes_status': 'no_gaps',
+  test('confirmed AVS extraction hydrates years with certificate provenance',
+      () {
+    final profile = CoachProfile.fromWizardAnswers(const {
+      '_coach_avs_lacunes': 4,
+      '_coach_avs_source': 'document_scan',
     });
 
-    expect(unknown.toJson()['avsGapStatus'], 'unknown');
-    expect(unknown.prevoyance.lacunesAVS, isNull);
-    expect(noGap.toJson()['avsGapStatus'], 'no_gaps');
-    expect(noGap.prevoyance.lacunesAVS, 0);
+    expect(profile.prevoyance.lacunesAVS, 4);
+    expect(
+      profile.dataSources['prevoyance.lacunesAVS'],
+      ProfileDataSource.certificate,
+    );
+  });
+
+  test('AVS contribution years and declared status keep exact provenance', () {
+    final declared = CoachProfile.fromWizardAnswers(const {
+      'q_birth_year': 1980,
+      'q_avs_contribution_years': 20,
+      'q_avs_lacunes_status': 'no_gaps',
+    });
+    final extracted = CoachProfile.fromWizardAnswers(const {
+      'q_birth_year': 1980,
+      'q_avs_contribution_years': 20,
+      '_coach_avs_source': 'document_scan',
+    });
+
+    expect(declared.prevoyance.anneesContribuees, 20);
+    expect(
+      declared.dataSources['prevoyance.anneesContribuees'],
+      ProfileDataSource.userInput,
+    );
+    expect(
+      declared.dataSources['avsGapStatus'],
+      ProfileDataSource.userInput,
+    );
+    expect(declared.dataTimestamps, contains('avsGapStatus'));
+    expect(declared.prevoyance.lacunesAVS, isNull);
+    expect(
+      declared.dataSources['prevoyance.lacunesAVS'],
+      isNull,
+    );
+
+    expect(extracted.prevoyance.anneesContribuees, 20);
+    expect(
+      extracted.dataSources['prevoyance.anneesContribuees'],
+      ProfileDataSource.certificate,
+    );
   });
 }

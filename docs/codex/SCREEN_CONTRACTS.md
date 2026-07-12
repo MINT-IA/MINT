@@ -38,10 +38,22 @@ Screens must not infer knowledge from a non-null display fallback. A field is:
   exists; the screen renders the exact DIFF question or recovery CTA.
 
 The direct fields `pillar3aAnnualContribution`,
-`monthlySavingsContribution`, and `hasPillar3a` are independent. Consumers may
-not infer one from another or from `q_savings_allocation`. AVS consumers read
-`avsGapStatus` separately from the nullable certified year count. Mortgage
-consumers receive either the chronology-reconciled canonical balance or an
+`monthlySavingsContribution`, and `hasPillar3a` are independent current facts.
+Consumers may not infer one from another or from `q_savings_allocation`. A
+current-fact screen uses `typedFact ?? legacyValue`, never a sum. The legacy
+value is migration fallback only; `plannedContributions` remains an independent
+plan/scenario lever and must not be rewritten by a direct-fact `copyWith`.
+
+AVS consumers read the declared `avsGapStatus` separately from the nullable
+certified count in `prevoyance.lacunesAVS`. `q_avs_years_abroad`, an arrival
+interval, or `no_gaps` never becomes a certified year count and never receives
+`certificate` provenance. The declared status is `userInput` with its own
+timestamp. `q_avs_contribution_years` is also `userInput` unless its persisted
+write carries `_coach_avs_source=document_scan`; its source and timestamp remain
+separate from the declared status. Missing/stale source or freshness, an unknown
+status, or a status/year contradiction renders a visibly incomplete state with
+the reconfirmation CTA; it cannot earn a confirmed no-gap state. Mortgage
+consumers likewise receive either the chronology-reconciled canonical balance or an
 unknown value when legacy/canonical timestamps cannot establish a winner.
 
 `CoachProfileProvider -> MintStateProvider` has one proxy edge. A new canonical

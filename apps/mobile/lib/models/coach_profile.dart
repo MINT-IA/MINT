@@ -1637,12 +1637,6 @@ class CoachProfile {
     if (prevoyance.ramd != null) {
       inferred['prevoyance.ramd'] = ProfileDataSource.certificate;
     }
-    if (prevoyance.anneesContribuees != null) {
-      inferred['prevoyance.anneesContribuees'] = ProfileDataSource.certificate;
-    }
-    if (prevoyance.lacunesAVS != null) {
-      inferred['prevoyance.lacunesAVS'] = ProfileDataSource.certificate;
-    }
     if (prevoyance.renteAVSEstimeeMensuelle != null) {
       inferred['prevoyance.renteAVSEstimeeMensuelle'] =
           ProfileDataSource.certificate;
@@ -2302,8 +2296,8 @@ class CoachProfile {
       age: age,
       canton: canton,
       revenuAnnuel: revenuBrutAnnuel,
-      has3a: prevoyance.nombre3a > 0,
-      montant3a: total3aMensuel * 12,
+      has3a: hasPillar3a ?? prevoyance.nombre3a > 0,
+      montant3a: pillar3aAnnualContribution ?? total3aMensuel * 12,
       hasLpp: (prevoyance.avoirLppTotal ?? 0) > 0,
       avoirLpp: prevoyance.avoirLppTotal ?? 0,
       lacuneLpp: prevoyance.lacuneRachatRestante,
@@ -2694,26 +2688,17 @@ class CoachProfile {
     // Used by _estimateLppAvoir() to start LPP bonification loop at
     // max(25, arrivalAge) instead of always 25.
     int? computedArrivalAge;
-    int? avsGaps;
     switch (avsLacunesStatus) {
       case 'arrived_late':
         final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
         if (arrivalYear != null) {
           computedArrivalAge = arrivalYear - birthYear;
-          avsGaps = (arrivalYear - (birthYear + 21)).clamp(0, 44);
-        } else {
-          avsGaps = null;
         }
       case 'lived_abroad':
-        final yearsAbroad = _parseInt(answers['q_avs_years_abroad']);
-        avsGaps = yearsAbroad;
       case 'unknown':
-        avsGaps = null;
       case 'no_gaps':
       case 'no':
-        avsGaps = 0;
       default:
-        avsGaps = null;
     }
     final rawAvsYears = _parseInt(answers['q_avs_contribution_years']);
     // P1-6: AVS contribution years can't exceed (age - 20) — contributions
@@ -2762,7 +2747,7 @@ class CoachProfile {
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
-      lacunesAVS: coachAvsLacunes ?? avsGaps,
+      lacunesAVS: coachAvsLacunes,
       renteAVSEstimeeMensuelle: coachAvsRenteEstimee,
       avoirLppTotal: estimatedLpp,
       avoirLppObligatoire: coachAvoirLppOblig,
@@ -3149,6 +3134,21 @@ class CoachProfile {
 
     // ── Fiscal dataSources (restored from persisted extraction) ──
     final restoredDataSources = <String, ProfileDataSource>{};
+    if (answers.containsKey('q_avs_contribution_years') && avsYears != null) {
+      restoredDataSources['prevoyance.anneesContribuees'] =
+          answers['_coach_avs_source'] == 'document_scan'
+              ? ProfileDataSource.certificate
+              : ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('q_avs_lacunes_status') &&
+        _parseAvsGapStatus(avsLacunesStatus) != null) {
+      restoredDataSources['avsGapStatus'] = ProfileDataSource.userInput;
+    }
+    if (answers['_coach_avs_source'] == 'document_scan' &&
+        coachAvsLacunes != null) {
+      restoredDataSources['prevoyance.lacunesAVS'] =
+          ProfileDataSource.certificate;
+    }
     if (answers['_coach_tax_source'] == 'document_scan') {
       if (answers['_coach_tax_revenu_imposable'] != null) {
         restoredDataSources['fiscal.revenuImposable'] =
@@ -3195,6 +3195,12 @@ class CoachProfile {
       if (answers.containsKey('q_avs_contribution_years') &&
           prevoyance.anneesContribuees != null)
         'prevoyance.anneesContribuees': baseTimestamp,
+      if (answers.containsKey('q_avs_lacunes_status') &&
+          _parseAvsGapStatus(avsLacunesStatus) != null)
+        'avsGapStatus': baseTimestamp,
+      if (answers.containsKey('_coach_avs_lacunes') &&
+          prevoyance.lacunesAVS != null)
+        'prevoyance.lacunesAVS': baseTimestamp,
       if (answers.containsKey('_coach_avs_rente_estimee') &&
           prevoyance.renteAVSEstimeeMensuelle != null)
         'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
