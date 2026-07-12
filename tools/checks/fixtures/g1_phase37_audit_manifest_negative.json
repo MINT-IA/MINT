@@ -1,0 +1,157 @@
+{
+  "valid": {
+    "manifest": {
+      "required_modes": ["code", "product-domain"],
+      "runs": [
+        {
+          "command": "tools/checks/claude_external_audit.sh code <HEAD_SHA>",
+          "mode": "code",
+          "model": "opus",
+          "base_sha": "<HEAD_SHA>",
+          "head_sha": "<HEAD_SHA>",
+          "exit_code": 0,
+          "output_artifact": ".planning/runtime-evidence/phase-37/fixture/audit-code.md",
+          "findings": [],
+          "severity_counts": {
+            "p0": 0,
+            "p1": 0,
+            "p2": 0,
+            "critical": 0,
+            "high": 0,
+            "unresolved_p0": 0,
+            "unresolved_p1": 0,
+            "unresolved_critical": 0,
+            "unresolved_high": 0
+          }
+        },
+        {
+          "command": "tools/checks/claude_external_audit.sh product-domain <HEAD_SHA>",
+          "mode": "product-domain",
+          "model": "opus",
+          "base_sha": "<HEAD_SHA>",
+          "head_sha": "<HEAD_SHA>",
+          "exit_code": 0,
+          "output_artifact": ".planning/runtime-evidence/phase-37/fixture/audit-product-domain.md",
+          "findings": [],
+          "severity_counts": {
+            "p0": 0,
+            "p1": 0,
+            "p2": 0,
+            "critical": 0,
+            "high": 0,
+            "unresolved_p0": 0,
+            "unresolved_p1": 0,
+            "unresolved_critical": 0,
+            "unresolved_high": 0
+          }
+        }
+      ]
+    },
+    "artifacts": {
+      ".planning/runtime-evidence/phase-37/fixture/audit-code.md": "PASS\nNo P0/P1 findings.\n",
+      ".planning/runtime-evidence/phase-37/fixture/audit-product-domain.md": "Product/domain verdict: PASS\nNo P0/P1 findings.\n"
+    }
+  },
+  "negative_cases": [
+    {
+      "name": "missing_required_mode",
+      "operations": [{"op": "remove", "path": "manifest.required_modes.1"}],
+      "expected_error": "required_modes mismatch"
+    },
+    {
+      "name": "duplicate_required_mode",
+      "operations": [{"op": "set", "path": "manifest.required_modes.1", "value": "code"}],
+      "expected_error": "required_modes contains duplicates"
+    },
+    {
+      "name": "extra_required_mode",
+      "operations": [{"op": "append", "path": "manifest.required_modes", "value": "architecture"}],
+      "expected_error": "required_modes mismatch"
+    },
+    {
+      "name": "missing_accepted_run",
+      "operations": [{"op": "remove", "path": "manifest.runs.1"}],
+      "expected_error": "exactly one accepted run"
+    },
+    {
+      "name": "duplicate_accepted_run",
+      "operations": [
+        {"op": "set", "path": "manifest.runs.1.mode", "value": "code"},
+        {"op": "set", "path": "manifest.runs.1.command", "value": "tools/checks/claude_external_audit.sh code <HEAD_SHA>"}
+      ],
+      "expected_error": "duplicate accepted mode"
+    },
+    {
+      "name": "extra_accepted_run",
+      "operations": [{"op": "duplicate", "path": "manifest.runs.0", "target": "manifest.runs"}],
+      "expected_error": "exactly one accepted run"
+    },
+    {
+      "name": "mode_command_mismatch",
+      "operations": [{"op": "set", "path": "manifest.runs.1.command", "value": "tools/checks/claude_external_audit.sh code <HEAD_SHA>"}],
+      "expected_error": "audit command/model/base mismatch"
+    },
+    {
+      "name": "unsupported_model",
+      "operations": [{"op": "set", "path": "manifest.runs.0.model", "value": "haiku"}],
+      "expected_error": "audit command/model/base mismatch"
+    },
+    {
+      "name": "malformed_base_sha",
+      "operations": [{"op": "set", "path": "manifest.runs.0.base_sha", "value": "deadbeef"}],
+      "expected_error": "base_sha must be an existing 40-hex commit"
+    },
+    {
+      "name": "head_sha_drift",
+      "operations": [{"op": "set", "path": "manifest.runs.1.head_sha", "value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}],
+      "expected_error": "head SHA drift"
+    },
+    {
+      "name": "non_zero_marked_accepted",
+      "operations": [{"op": "set", "path": "manifest.runs.0.exit_code", "value": 2}],
+      "expected_error": "non-zero audit exit cannot be accepted"
+    },
+    {
+      "name": "missing_output",
+      "operations": [{"op": "set", "path": "manifest.runs.0.output_artifact", "value": ".planning/runtime-evidence/phase-37/fixture/missing-audit.md"}],
+      "expected_error": "artifact does not exist"
+    },
+    {
+      "name": "empty_output",
+      "operations": [{"op": "set", "path": "artifacts..planning/runtime-evidence/phase-37/fixture/audit-code.md", "value": ""}],
+      "expected_error": "artifact is empty"
+    },
+    {
+      "name": "quota_marked_pass",
+      "operations": [{"op": "set", "path": "artifacts..planning/runtime-evidence/phase-37/fixture/audit-code.md", "value": "PASS\nQuota exceeded before review.\n"}],
+      "expected_error": "quota/auth/timeout output cannot be accepted"
+    },
+    {
+      "name": "timeout_marked_pass",
+      "operations": [{"op": "set", "path": "artifacts..planning/runtime-evidence/phase-37/fixture/audit-code.md", "value": "PASS\nTimeout before verdict.\n"}],
+      "expected_error": "quota/auth/timeout output cannot be accepted"
+    },
+    {
+      "name": "incomplete_finding",
+      "operations": [
+        {"op": "append", "path": "manifest.runs.0.findings", "value": {"id": "P2-1", "severity": "p2", "status": "accepted_p2", "summary": "Polish only"}},
+        {"op": "set", "path": "manifest.runs.0.severity_counts.p2", "value": 1}
+      ],
+      "expected_error": "finding fields are incomplete"
+    },
+    {
+      "name": "unresolved_p1",
+      "operations": [
+        {"op": "append", "path": "manifest.runs.0.findings", "value": {"id": "P1-1", "severity": "p1", "status": "unresolved", "summary": "Blocking issue", "evidence": "synthetic/path.py:1"}},
+        {"op": "set", "path": "manifest.runs.0.severity_counts.p1", "value": 1},
+        {"op": "set", "path": "manifest.runs.0.severity_counts.unresolved_p1", "value": 1}
+      ],
+      "expected_error": "unresolved p1 blocks acceptance"
+    },
+    {
+      "name": "severity_count_mismatch",
+      "operations": [{"op": "set", "path": "manifest.runs.0.severity_counts.p2", "value": 1}],
+      "expected_error": "p2 count does not match findings"
+    }
+  ]
+}

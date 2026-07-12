@@ -1,0 +1,11 @@
+{
+  "assertion": "progressive evidence-backed registry state",
+  "command": "python3 tools/checks/mint_os_doctor.py --repo-only && python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q",
+  "evidence_class": "business_predicate",
+  "exit_code": 1,
+  "head_sha": "f2dea052502350af2a4f34a7e19a17b05b192162",
+  "outcome": "semantic_red",
+  "output": "7 tests passed and exactly one test failed because the preserved production rule required G1-SOURCE-01 registry status to remain ticket_only while the strict evidence fixture proved a valid red_proven transition.",
+  "recorded_at": "2026-07-12T14:57:20Z",
+  "synthetic_data_only": true
+}

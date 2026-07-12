@@ -1,0 +1,170 @@
+{
+  "valid_progressive": {
+    "record": {
+      "ticket_id": "G1-SOURCE-01",
+      "state": "red_proven",
+      "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+      "evidence_mode": "red_green",
+      "red_sha": "<HEAD_SHA>",
+      "red_artifact": ".planning/runtime-evidence/phase-37/fixture/source-red.json",
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": null,
+      "green_artifact": null,
+      "accepted_sha": null
+    },
+    "artifacts": {
+      ".planning/runtime-evidence/phase-37/fixture/source-red.json": {
+        "ticket_id": "G1-SOURCE-01",
+        "stage": "RED",
+        "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+        "sha": "<HEAD_SHA>",
+        "recorded_at": "2026-07-12T12:00:00Z",
+        "exit_code": 1,
+        "evidence_class": "business_predicate",
+        "assertion": "source_crosswalk_test",
+        "output": "Assertion failed: mobile source certificate has no exact backend destination.",
+        "synthetic_data_only": true
+      }
+    }
+  },
+  "valid_red_green": {
+    "record": {
+      "ticket_id": "G1-SOURCE-01",
+      "state": "green",
+      "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+      "evidence_mode": "red_green",
+      "red_sha": "<HEAD_SHA>",
+      "red_artifact": ".planning/runtime-evidence/phase-37/fixture/source-red.json",
+      "control_sha": null,
+      "control_artifact": null,
+      "green_sha": "<HEAD_SHA>",
+      "green_artifact": ".planning/runtime-evidence/phase-37/fixture/source-green.json",
+      "accepted_sha": "<HEAD_SHA>"
+    },
+    "artifacts": {
+      ".planning/runtime-evidence/phase-37/fixture/source-red.json": {
+        "ticket_id": "G1-SOURCE-01",
+        "stage": "RED",
+        "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+        "sha": "<HEAD_SHA>",
+        "recorded_at": "2026-07-12T12:00:00Z",
+        "exit_code": 1,
+        "evidence_class": "business_predicate",
+        "assertion": "source_crosswalk_test",
+        "output": "Assertion failed: mobile source certificate has no exact backend destination.",
+        "synthetic_data_only": true
+      },
+      ".planning/runtime-evidence/phase-37/fixture/source-green.json": {
+        "ticket_id": "G1-SOURCE-01",
+        "stage": "GREEN",
+        "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+        "sha": "<HEAD_SHA>",
+        "recorded_at": "2026-07-12T12:10:00Z",
+        "exit_code": 0,
+        "evidence_class": "pass",
+        "assertion": "source_crosswalk_test",
+        "output": "9 passed; exact source crosswalk predicate is GREEN.",
+        "synthetic_data_only": true
+      }
+    }
+  },
+  "valid_baseline_green_controlled": {
+    "record": {
+      "ticket_id": "G1-SOURCE-01",
+      "state": "green",
+      "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+      "evidence_mode": "baseline_green_controlled",
+      "red_sha": null,
+      "red_artifact": null,
+      "control_sha": "<HEAD_SHA>",
+      "control_artifact": ".planning/runtime-evidence/phase-37/fixture/source-control.json",
+      "green_sha": "<HEAD_SHA>",
+      "green_artifact": ".planning/runtime-evidence/phase-37/fixture/source-green.json",
+      "accepted_sha": "<HEAD_SHA>"
+    },
+    "artifacts": {
+      ".planning/runtime-evidence/phase-37/fixture/source-control.json": {
+        "ticket_id": "G1-SOURCE-01",
+        "stage": "CONTROL",
+        "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+        "sha": "<HEAD_SHA>",
+        "recorded_at": "2026-07-12T12:00:00Z",
+        "exit_code": 1,
+        "evidence_class": "business_predicate",
+        "assertion": "source_crosswalk_test",
+        "output": "Mutation control failed the exact certificate mapping assertion.",
+        "synthetic_data_only": true
+      },
+      ".planning/runtime-evidence/phase-37/fixture/source-green.json": {
+        "ticket_id": "G1-SOURCE-01",
+        "stage": "GREEN",
+        "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+        "sha": "<HEAD_SHA>",
+        "recorded_at": "2026-07-12T12:10:00Z",
+        "exit_code": 0,
+        "evidence_class": "pass",
+        "assertion": "source_crosswalk_test",
+        "output": "9 passed; baseline behavior and mutation control are GREEN.",
+        "synthetic_data_only": true
+      }
+    }
+  },
+  "negative_cases": [
+    {
+      "name": "unknown_ticket",
+      "operations": [
+        {"op": "set", "path": "record.ticket_id", "value": "G1-UNKNOWN-99"}
+      ],
+      "expected_error": "unknown ticket"
+    },
+    {
+      "name": "duplicated_id",
+      "operations": [],
+      "duplicate_record": true,
+      "expected_error": "duplicate evidence ticket_id"
+    },
+    {
+      "name": "missing_artifact",
+      "operations": [
+        {"op": "set", "path": "record.red_artifact", "value": ".planning/runtime-evidence/phase-37/fixture/missing.json"}
+      ],
+      "expected_error": "artifact does not exist"
+    },
+    {
+      "name": "path_escape",
+      "operations": [
+        {"op": "set", "path": "record.red_artifact", "value": "../outside.json"}
+      ],
+      "expected_error": "artifact path must stay repo-relative"
+    },
+    {
+      "name": "malformed_sha",
+      "operations": [
+        {"op": "set", "path": "record.red_sha", "value": "deadbeef"}
+      ],
+      "expected_error": "red_sha must be an existing 40-hex commit"
+    },
+    {
+      "name": "mismatched_command",
+      "operations": [
+        {"op": "set", "path": "record.command", "value": "python3 -m pytest wrong_test.py -q"}
+      ],
+      "expected_error": "evidence command does not match registry"
+    },
+    {
+      "name": "missing_file_only_red",
+      "operations": [
+        {"op": "set", "path": "artifacts..planning/runtime-evidence/phase-37/fixture/source-red.json.evidence_class", "value": "harness_missing_file"},
+        {"op": "set", "path": "artifacts..planning/runtime-evidence/phase-37/fixture/source-red.json.output", "value": "No such file or directory: tests/test_source_crosswalk.py"}
+      ],
+      "expected_error": "failure is not a semantic business predicate"
+    },
+    {
+      "name": "registry_evidence_disagreement",
+      "operations": [],
+      "registry_status": "ticket_only",
+      "expected_error": "registry/evidence status disagreement"
+    }
+  ]
+}
