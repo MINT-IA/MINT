@@ -41,7 +41,13 @@ def _write_executable(path: Path, source: str) -> None:
     path.chmod(path.stat().st_mode | stat.S_IXUSR)
 
 
-def _fake_runtime(tmp_path: Path, *, patrol_exit: int = 0, terminate_exit: int = 0) -> dict[str, str]:
+def _fake_runtime(
+    tmp_path: Path,
+    *,
+    patrol_exit: int = 0,
+    launch_exit: int = 0,
+    terminate_exit: int = 0,
+) -> dict[str, str]:
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     calls = tmp_path / "calls.log"
@@ -57,6 +63,7 @@ def _fake_runtime(tmp_path: Path, *, patrol_exit: int = 0, terminate_exit: int =
         fake_xcrun,
         "#!/usr/bin/env bash\n"
         "printf 'xcrun %s\\n' \"$*\" >> \"$MINT_TEST_CALLS\"\n"
+        f"if [[ \"${{2:-}}\" == \"launch\" ]]; then exit {launch_exit}; fi\n"
         f"exit {terminate_exit}\n",
     )
     return {
@@ -114,6 +121,7 @@ def test_runtime_contracts_are_distinct_and_prove_real_write_then_read() -> None
     assert "test/patrol/g1_p0_persistence_write_runtime_test.dart" in orchestrator
     assert "test/patrol/g1_p0_persistence_read_runtime_test.dart" in orchestrator
     assert orchestrator.count('xcrun simctl terminate "$device" "$bundle_id"') == 1
+    assert orchestrator.count('xcrun simctl launch "$device" "$bundle_id"') == 1
     assert "rev-parse HEAD" in orchestrator
     assert "metadata.json" in orchestrator
 
@@ -159,13 +167,14 @@ def test_orchestrator_runs_write_terminate_read_and_archives_metadata(
 
     assert result.returncode == 0, result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
-    assert len(calls) == 3
+    assert len(calls) == 4
     assert "g1_p0_persistence_write_runtime_test.dart" in calls[0]
     assert "--no-uninstall" in calls[0]
     assert f"--device {SYNTHETIC_UDID}" in calls[0]
-    assert calls[1] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
-    assert "g1_p0_persistence_read_runtime_test.dart" in calls[2]
-    assert "--no-uninstall" in calls[2]
+    assert calls[1] == f"xcrun simctl launch {SYNTHETIC_UDID} {BUNDLE_ID}"
+    assert calls[2] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
+    assert "g1_p0_persistence_read_runtime_test.dart" in calls[3]
+    assert "--no-uninstall" in calls[3]
     metadata = json.loads(
         (tmp_path / "artifacts/metadata.json").read_text(encoding="utf-8")
     )
@@ -173,6 +182,7 @@ def test_orchestrator_runs_write_terminate_read_and_archives_metadata(
     assert metadata["bundle_id"] == BUNDLE_ID
     assert metadata["sha"] == _head_sha()
     assert metadata["write_exit_code"] == 0
+    assert metadata["launch_exit_code"] == 0
     assert metadata["terminate_exit_code"] == 0
     assert metadata["read_exit_code"] == 0
     assert metadata["synthetic_data_only"] is True
@@ -182,6 +192,7 @@ def test_orchestrator_runs_write_terminate_read_and_archives_metadata(
     ("runtime", "expected", "forbidden_call"),
     [
         ({"patrol_exit": 7}, "write stage failed", "xcrun simctl terminate"),
+        ({"launch_exit": 8}, "launch stage failed", "xcrun simctl terminate"),
         ({"terminate_exit": 9}, "terminate stage failed", "g1_p0_persistence_read"),
     ],
 )

@@ -56,6 +56,7 @@ metadata="$artifacts/metadata.json"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 finished_at=""
 write_exit_code=""
+launch_exit_code=""
 terminate_exit_code=""
 read_exit_code=""
 
@@ -72,6 +73,7 @@ read_command=(
 printf -v write_command_text '%q ' "${write_command[@]}"
 printf -v read_command_text '%q ' "${read_command[@]}"
 terminate_command_text="xcrun simctl terminate $device $bundle_id"
+launch_command_text="xcrun simctl launch $device $bundle_id"
 
 write_metadata() {
   finished_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -81,9 +83,11 @@ write_metadata() {
   MINT_META_STARTED="$started_at" \
   MINT_META_FINISHED="$finished_at" \
   MINT_META_WRITE_COMMAND="$write_command_text" \
+  MINT_META_LAUNCH_COMMAND="$launch_command_text" \
   MINT_META_TERMINATE_COMMAND="$terminate_command_text" \
   MINT_META_READ_COMMAND="$read_command_text" \
   MINT_META_WRITE_EXIT="$write_exit_code" \
+  MINT_META_LAUNCH_EXIT="$launch_exit_code" \
   MINT_META_TERMINATE_EXIT="$terminate_exit_code" \
   MINT_META_READ_EXIT="$read_exit_code" \
   python3 - "$metadata" <<'PY'
@@ -104,9 +108,11 @@ payload = {
     "started_at": os.environ["MINT_META_STARTED"],
     "finished_at": os.environ["MINT_META_FINISHED"],
     "write_command": os.environ["MINT_META_WRITE_COMMAND"].strip(),
+    "launch_command": os.environ["MINT_META_LAUNCH_COMMAND"],
     "terminate_command": os.environ["MINT_META_TERMINATE_COMMAND"],
     "read_command": os.environ["MINT_META_READ_COMMAND"].strip(),
     "write_exit_code": exit_code("MINT_META_WRITE_EXIT"),
+    "launch_exit_code": exit_code("MINT_META_LAUNCH_EXIT"),
     "terminate_exit_code": exit_code("MINT_META_TERMINATE_EXIT"),
     "read_exit_code": exit_code("MINT_META_READ_EXIT"),
     "synthetic_data_only": True,
@@ -125,6 +131,15 @@ set -e
 if [[ "$write_exit_code" -ne 0 ]]; then
   echo "patrol_persistence_process_death: write stage failed ($write_exit_code)" >&2
   exit "$write_exit_code"
+fi
+
+set +e
+xcrun simctl launch "$device" "$bundle_id" >"$artifacts/launch.log" 2>&1
+launch_exit_code=$?
+set -e
+if [[ "$launch_exit_code" -ne 0 ]]; then
+  echo "patrol_persistence_process_death: launch stage failed ($launch_exit_code)" >&2
+  exit "$launch_exit_code"
 fi
 
 set +e
