@@ -18,11 +18,8 @@ import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
-/// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
-///
-/// Permet d'estimer le montant retirable, l'impot et l'impact sur
-/// les prestations de risque (invalidite, deces).
-/// Base legale : art. 30c LPP, OEPL.
+/// Simulates an EPL home-ownership withdrawal and its pension-risk impact.
+/// Legal basis: LPP art. 30c and OEPL.
 class EplScreen extends StatefulWidget {
   const EplScreen({super.key});
 
@@ -76,73 +73,16 @@ class _EplScreenState extends State<EplScreen> {
     });
   }
 
-  /// Read sequence runId/stepId/prefill from GoRouter.extra if present.
+  /// Read sequence runId/stepId ephemera from GoRouter.extra if present.
   void _readSequenceContext() {
     try {
       final extra = GoRouterState.of(context).extra;
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
-        final prefill = extra['prefill'] as Map<String, dynamic>?;
-        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {
       // Not navigated via GoRouter or no extra — stay Tier B.
-    }
-  }
-
-  /// Write back EPL computed results to CoachProfile.
-  void _writeBackResult() {
-    if (!_hasUserInteracted) return;
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      final profile = provider.profile;
-      if (profile == null) return;
-
-      final result = _result;
-      final updated = profile.copyWith(
-        prevoyance: profile.prevoyance.copyWith(
-          avoirLppTotal: result.montantSouhaiteApplicable > 0
-              ? (_avoirTotal - result.montantSouhaiteApplicable).clamp(0, double.infinity)
-              : null,
-        ),
-      );
-      provider.updateProfile(updated);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdatedSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.primary,
-          duration: const Duration(milliseconds: 2500),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdateErrorSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.error,
-          duration: const Duration(milliseconds: 3000),
-        ),
-      );
-    }
-  }
-
-  /// Apply prefill values from preceding sequence step.
-  /// Mapping: montant_bien_cible → target property price (informational),
-  /// montant_necessaire → fonds propres requis (can inform withdrawal amount).
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    final fonds = prefill['montant_necessaire'];
-    if (fonds is num && fonds > 0) {
-      setState(() {
-        // Suggest the required own funds as default withdrawal amount.
-        _montantSouhaite = fonds.toDouble().clamp(20000, 500000);
-      });
     }
   }
 
@@ -409,7 +349,6 @@ class _EplScreenState extends State<EplScreen> {
             format: 'CHF ${formatChf(_montantSouhaite)}',
             onChanged: (v) {
               setState(() { _hasUserInteracted = true; _montantSouhaite = v; });
-              WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
             },
           )),
           const SizedBox(height: MintSpacing.sm + 4),
@@ -597,8 +536,8 @@ class _EplScreenState extends State<EplScreen> {
           _buildImpactRow(
             icon: Icons.accessible,
             label: l.eplReductionInvalidite,
-            // Null = "à demander à la caisse" (cf. audit P1-2, on ne
-            // magic-number plus les réductions de prestations risque).
+            // Null means the pension fund must provide this reduction; using a
+            // generic ratio here would create false precision.
             amount: result.reductionRenteInvalidite == null
                 ? l.eplReductionAskCaisse
                 : '-CHF ${formatChf(result.reductionRenteInvalidite!)}',

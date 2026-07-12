@@ -40,11 +40,8 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 /// NEVER ranks options. Side-by-side comparison only.
 /// All text in French, informal "tu". No banned terms.
 ///
-/// PREFILL: When navigated from coach via RouteSuggestionCard,
-/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
-/// with pre-computed values. Currently reads from CoachProfileProvider.
-/// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
-/// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
+/// Financial inputs are hydrated from CoachProfileProvider. Navigation state
+/// carries only guided-sequence identifiers.
 class RenteVsCapitalScreen extends StatefulWidget {
   const RenteVsCapitalScreen({super.key});
 
@@ -98,8 +95,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
 
-  // ── GoRouter prefill from coach suggestion ──
-  Map<String, dynamic>? _goRouterPrefill;
   final Set<String> _prefilledFields = {};
 
   // ── F2-6: Gate ScreenReturn behind user interaction ──
@@ -126,10 +121,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         if (extra is Map<String, dynamic>) {
           _seqRunId = extra['runId'] as String?;
           _seqStepId = extra['stepId'] as String?;
-          final prefill = extra['prefill'] as Map<String, dynamic>?;
-          if (prefill != null) {
-            _goRouterPrefill = prefill;
-          }
         }
       } catch (_) {}
     });
@@ -265,102 +256,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       _recalculate();
     }
 
-    // Apply GoRouter coach prefill AFTER profile auto-fill so coach values win.
-    if (_goRouterPrefill != null) {
-      _applyPrefill(_goRouterPrefill!);
-    }
-  }
-
-  /// Write computed results back to CoachProfile.
-  /// Only called after user has interacted (_hasUserInteracted == true).
-  /// Guard prevents infinite recalculation loop with _didAutoFill.
-  void _writeBackResult() {
-    if (!_hasUserInteracted) return;
-    if (_result == null) return;
-    final provider = context.read<CoachProfileProvider>();
-    final profile = provider.profile;
-    if (profile == null) return;
-
-    try {
-      final updated = profile.copyWith(
-        prevoyance: profile.prevoyance.copyWith(
-          projectedRenteLpp: _result!.renteNetMensuelle > 0
-              ? _result!.renteNetMensuelle * 12
-              : null,
-          projectedCapital65: _result!.capitalProjecte > 0
-              ? _result!.capitalProjecte
-              : null,
-        ),
-        targetRetirementAge: _ageRetraiteSlider.value.round(),
-      );
-      provider.updateProfile(updated);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdatedSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.primary,
-          duration: const Duration(milliseconds: 2500),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            S.of(context)!.profileUpdateErrorSnackbar,
-            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
-          ),
-          backgroundColor: MintColors.error,
-          duration: const Duration(milliseconds: 3000),
-        ),
-      );
-    }
-  }
-
-  /// Apply prefill values from a coach suggestion (GoRouter extra['prefill']).
-  /// Called after _autoFillFromProfile() to ensure coach values override estimates.
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    bool changed = false;
-
-    final avoirLpp = prefill['avoirLpp'];
-    if (avoirLpp is num && avoirLpp > 0) {
-      _lppTotalCtrl.text = avoirLpp.toDouble().clamp(0, 5000000).round().toString();
-      _prefilledFields.add('lpp_total');
-      changed = true;
-    }
-
-    final tauxConversion = prefill['tauxConversion'];
-    if (tauxConversion is num && tauxConversion > 0) {
-      final tc = tauxConversion.toDouble().clamp(0.01, 0.10);
-      _tcObligCtrl.text = (tc * 100).toStringAsFixed(1);
-      _prefilledFields.add('lpp_obligatoire');
-      changed = true;
-    }
-
-    final salaireBrut = prefill['salaireBrut'];
-    if (salaireBrut is num && salaireBrut > 0) {
-      // salaireBrut from prefill is monthly — multiply by nombreDeMois
-      const nombreDeMois = 13;
-      final annualSalary = salaireBrut.toDouble() * nombreDeMois;
-      _salaryCtrl.text = annualSalary.round().toString();
-      _prefilledFields.add('salaire_brut');
-      changed = true;
-    }
-
-    final ageRetraite = prefill['ageRetraite'];
-    if (ageRetraite is num) {
-      final age = ageRetraite.toDouble().clamp(58.0, 70.0);
-      _ageRetraiteSlider.value = age;
-      _prefilledFields.add('ageRetraite');
-      changed = true;
-    }
-
-    if (changed) {
-      setState(() {});
-      _recalculate();
-    }
   }
 
   @override
@@ -395,11 +290,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   void _userRecalculate() {
     _hasUserInteracted = true;
     _recalculate();
-    // Write-back is deferred until after async recalculation completes.
-    // Call _writeBackResult after a brief delay to let result settle.
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _writeBackResult();
-    });
   }
 
   Future<void> _recalculateAsync() async {
@@ -1112,8 +1002,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           children: [
             Expanded(child: Text(label, style: _labelStyle)),
             if (isPrefilled)
-              const SmartDefaultIndicator(
-                source: 'Depuis ton profil MINT',
+              SmartDefaultIndicator(
+                source: S.of(context)!.locationValeursProfil,
                 confidence: 0.60,
               ),
             if (fieldName != null)

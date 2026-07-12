@@ -100,41 +100,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
-        final prefill = extra['prefill'] as Map<String, dynamic>?;
-        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {
       // Not navigated via GoRouter or no extra — stay Tier B.
     }
-  }
-
-  /// Apply prefill from GoRouter coach suggestion (overrides profile auto-fill).
-  void _applyPrefill(Map<String, dynamic> prefill) {
-    bool changed = false;
-
-    final salaireBrut = prefill['salaireBrut'];
-    if (salaireBrut is num && salaireBrut > 0) {
-      // Monthly value — multiply by 13 for annual
-      _revenuBrut = salaireBrut.toDouble() * 13;
-      _prefilledFields.add('revenu_brut');
-      changed = true;
-    }
-
-    final epargne = prefill['epargne'];
-    if (epargne is num && epargne >= 0) {
-      _epargneDispo = epargne.toDouble();
-      _prefilledFields.add('epargne_dispo');
-      changed = true;
-    }
-
-    final avoirLpp = prefill['avoirLpp'];
-    if (avoirLpp is num && avoirLpp >= 0) {
-      _avoirLpp = avoirLpp.toDouble();
-      _prefilledFields.add('avoir_lpp');
-      changed = true;
-    }
-
-    if (changed) setState(() {});
   }
 
   /// Write computed mortgage capacity back to CoachProfile.
@@ -591,8 +560,8 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
               Text(label,
                   style: MintTextStyles.bodySmall(
                       color: MintColors.textSecondary)),
-              const SmartDefaultIndicator(
-                source: 'Depuis ton profil MINT',
+              SmartDefaultIndicator(
+                source: S.of(context)!.locationValeursProfil,
                 confidence: 0.60,
               ),
             ],

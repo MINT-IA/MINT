@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
@@ -17,9 +18,6 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 // ────────────────────────────────────────────────────────────
 //  EXTRACTION REVIEW SCREEN — Sprint S42-S43
 // ────────────────────────────────────────────────────────────
-//
-//  "Voici ce qu'on a lu. Verifie et corrige si necessaire."
-//
 //  Displays extracted fields with confidence badges.
 //  User can edit any field before confirming.
 //
@@ -28,9 +26,14 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 // ────────────────────────────────────────────────────────────
 
 class ExtractionReviewScreen extends StatefulWidget {
+  final String scanSessionId;
   final ExtractionResult result;
 
-  const ExtractionReviewScreen({super.key, required this.result});
+  const ExtractionReviewScreen({
+    super.key,
+    required this.scanSessionId,
+    required this.result,
+  });
 
   @override
   State<ExtractionReviewScreen> createState() => _ExtractionReviewScreenState();
@@ -742,10 +745,15 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
     if (!mounted) return;
 
-    context.push('/scan/impact', extra: {
-      'result': confirmedResult,
-      'previousConfidence': previousConfidence,
-    });
+    final retained = context.read<ScanSessionProvider>().retainImpact(
+          widget.scanSessionId,
+          extraction: confirmedResult,
+          previousConfidence: previousConfidence,
+        );
+    if (!retained || !mounted) return;
+    context.push(
+      '/scan/impact?scanSessionId=${Uri.encodeQueryComponent(widget.scanSessionId)}',
+    );
   }
 
   /// Send scan confirmation with 3 retries + exponential backoff.

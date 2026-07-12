@@ -108,7 +108,9 @@ import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 // annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
@@ -117,7 +119,7 @@ import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/location_vs_propriete_screen.dart';
 import 'package:mint_mobile/screens/confidence/confidence_dashboard_screen.dart';
-import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
+import 'package:mint_mobile/services/confidence/coach_profile_confidence_adapter.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
@@ -1004,32 +1006,35 @@ final _router = GoRouter(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final result = state.extra as ExtractionResult?;
-        if (result == null) {
+        final scanSessionId = state.uri.queryParameters['scanSessionId'];
+        final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
+        if (session == null) {
           return _buildScanRecoveryScaffold(
             context,
             _ScanRecoveryTarget.review,
           );
         }
-        return ExtractionReviewScreen(result: result);
+        return ExtractionReviewScreen(
+          scanSessionId: scanSessionId!,
+          result: session.extraction,
+        );
       },
     ),
     ScopedGoRoute(
       path: '/scan/impact',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        if (extra == null ||
-            extra['result'] is! ExtractionResult ||
-            extra['previousConfidence'] is! int) {
+        final scanSessionId = state.uri.queryParameters['scanSessionId'];
+        final session = context.watch<ScanSessionProvider>().byId(scanSessionId);
+        if (session == null || session.previousConfidence == null) {
           return _buildScanRecoveryScaffold(
             context,
             _ScanRecoveryTarget.impact,
           );
         }
         return DocumentImpactScreen(
-          result: extra['result'] as ExtractionResult,
-          previousConfidence: extra['previousConfidence'] as int,
+          result: session.extraction,
+          previousConfidence: session.previousConfidence!,
         );
       },
     ),
@@ -1077,14 +1082,9 @@ final _router = GoRouter(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>? ?? {};
-        if (extra.isNotEmpty) {
-          return FinancialReportScreenV2(wizardAnswers: extra);
-        }
-        // Fallback: load persisted wizard answers when navigating
-        // back to /rapport without state.extra (e.g. deep link, back nav).
         return FutureBuilder<Map<String, dynamic>>(
-          future: ReportPersistenceService.loadAnswers(),
+          future: ReportPersistenceService.loadAnswers()
+              .timeout(const Duration(seconds: 8)),
           builder: (ctx, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
@@ -1092,7 +1092,7 @@ final _router = GoRouter(
               );
             }
             return FinancialReportScreenV2(
-              wizardAnswers: snapshot.data ?? {},
+              wizardAnswers: snapshot.hasError ? const {} : snapshot.data ?? {},
             );
           },
         );
@@ -1302,13 +1302,9 @@ final _router = GoRouter(
       path: '/confidence',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra;
-        final result = extra is ConfidenceResult
-            ? extra
-            : EnhancedConfidenceService.computeConfidence(
-                const <String, dynamic>{},
-                const <FieldSource>[],
-              );
+        final profile = context.watch<CoachProfileProvider>().profile ??
+            CoachProfile.defaults();
+        final result = CoachProfileConfidenceAdapter.compute(profile);
         return ConfidenceDashboardScreen(result: result);
       },
     ),
@@ -1530,6 +1526,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
+        ChangeNotifierProvider(create: (_) => ScanSessionProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = CoachProfileProvider();
           provider.loadFromWizard();

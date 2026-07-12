@@ -28,7 +28,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// - [contextMessage]  — the coach's explanation from the LLM response.
 /// - [route]           — the GoRouter route to push on CTA tap.
 /// - [isPartial]       — when true, shows the "incomplete data" warning banner.
-/// - [prefill]         — optional data to pass as GoRouter extra when navigating.
+/// - [prefill]         — optional readiness context shown by the card. It is
+///   never transported to the route; the destination reads the ledger.
 class RouteSuggestionCard extends StatelessWidget {
   final String contextMessage;
   final String route;
@@ -68,8 +69,7 @@ class RouteSuggestionCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(MintSpacing.xs),
               ),
               child: Text(
-                s?.routeSuggestionPartialWarning ??
-                    'Donn\u00e9es incompl\u00e8tes \u2014 les r\u00e9sultats seront estim\u00e9s',
+                s!.routeSuggestionPartialWarning,
                 style: MintTextStyles.labelSmall(color: MintColors.warning),
               ),
             ),
@@ -86,7 +86,7 @@ class RouteSuggestionCard extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.push(route, extra: prefill);
+                context.push(route);
               },
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,

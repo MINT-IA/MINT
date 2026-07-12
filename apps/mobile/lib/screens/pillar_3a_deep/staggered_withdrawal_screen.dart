@@ -17,17 +17,11 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
-/// Ecran de simulation du retrait 3a echelonne multi-comptes.
+/// Compares multi-account 3a withdrawal schedules.
+/// Legal basis: OPP3 and LIFD art. 38.
 ///
-/// Permet de comparer l'impot en bloc vs echelonne et d'identifier
-/// le nombre optimal de comptes 3a.
-/// Base legale : OPP3, LIFD art. 38.
-///
-/// PREFILL: When navigated from coach via RouteSuggestionCard,
-/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
-/// with pre-computed values. Currently reads from CoachProfileProvider.
-/// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
-/// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
+/// Financial inputs are hydrated from CoachProfileProvider. Navigation state
+/// carries only guided-sequence identifiers.
 class StaggeredWithdrawalScreen extends StatefulWidget {
   const StaggeredWithdrawalScreen({super.key});
 

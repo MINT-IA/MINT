@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/scan_session_provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,11 +26,6 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 //    2. Log in with eID or create account
 //    3. Request the individual account extract (CI)
 //    4. Receive it by mail or PDF
-//
-//  Actions:
-//    - "Ouvrir ahv-iv.ch" (url_launcher)
-//    - "J'ai deja mon extrait -> Scanner"
-//    - "Utiliser un exemple AVS" (debug / QA)
 //
 //  Reference:
 //    - DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
@@ -482,7 +479,11 @@ class _AvsGuideScreenState extends State<AvsGuideScreen> {
     setState(() => _isProcessing = false);
 
     if (!mounted) return;
-    context.push('/scan/review', extra: result);
+    final scanSessionId =
+        context.read<ScanSessionProvider>().retainExtraction(result);
+    context.push(
+      '/scan/review?scanSessionId=${Uri.encodeQueryComponent(scanSessionId)}',
+    );
   }
 }
 
