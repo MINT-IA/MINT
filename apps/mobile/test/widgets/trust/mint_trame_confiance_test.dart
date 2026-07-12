@@ -6,7 +6,7 @@
 //   *  8 tests on oneLineConfidenceSummary
 //   *  6 tests on the 4 constructors
 //   *  4 tests on reduced-motion behavior
-//   *  3 tests on SemanticsService.announce dedup
+//   *  3 tests on SemanticsService.sendAnnouncement dedup
 
 import 'dart:io';
 
@@ -453,7 +453,7 @@ void main() {
   });
 
   // ==========================================================================
-  //  GROUP 7 — SemanticsService.announce dedup (3 tests, MTC-06 / D-11)
+  //  GROUP 7 — SemanticsService.sendAnnouncement dedup (3 tests, MTC-06 / D-11)
   // ==========================================================================
   group('semantics announce', () {
     testWidgets('announces exactly once on first mount', (t) async {

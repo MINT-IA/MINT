@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,9 +29,14 @@ double relativeLuminance(Color color) {
         : pow((channel + 0.055) / 1.055, 2.4).toDouble();
   }
 
-  final r = linearize(color.red / 255.0);
-  final g = linearize(color.green / 255.0);
-  final b = linearize(color.blue / 255.0);
+  // Preserve the deprecated byte-channel semantics exactly: Color.r/g/b are
+  // normalized doubles, while Color.red/green/blue rounded to 8-bit values.
+  double byteNormalized(double component) =>
+      (component * 255.0).round().clamp(0, 255) / 255.0;
+
+  final r = linearize(byteNormalized(color.r));
+  final g = linearize(byteNormalized(color.g));
+  final b = linearize(byteNormalized(color.b));
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
@@ -417,7 +421,7 @@ void main() {
         contains('Comprendre'),
         reason: 'Semantics label should contain the button text',
       );
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semantics.flagsCollection.isButton, isTrue);
     });
 
     testWidgets('FilledButton automatically provides semantics', (tester) async {
@@ -437,7 +441,7 @@ void main() {
       final buttonFinder = find.byType(FilledButton);
       expect(buttonFinder, findsOneWidget);
       final semantics = tester.getSemantics(buttonFinder);
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semantics.flagsCollection.isButton, isTrue);
     });
 
     testWidgets('TextButton automatically provides semantics', (tester) async {
@@ -456,7 +460,7 @@ void main() {
       final buttonFinder = find.byType(TextButton);
       expect(buttonFinder, findsOneWidget);
       final semantics = tester.getSemantics(buttonFinder);
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semantics.flagsCollection.isButton, isTrue);
     });
 
     testWidgets('Semantics label with value context for screen readers', (tester) async {
