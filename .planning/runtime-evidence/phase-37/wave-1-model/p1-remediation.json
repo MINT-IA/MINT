@@ -1,0 +1,95 @@
+{
+  "phase": 37,
+  "wave": "37-02",
+  "scope": "product_domain_p1_remediation",
+  "base_sha": "bb923645f",
+  "product_sha": "134ffd9d2",
+  "state": "locally_green_audit_pending",
+  "accepted": false,
+  "red_basis": "test-only patch on bb923645f before any production edit",
+  "red": [
+    {
+      "predicate": "wizard AVS declarations never fabricate certified gap years",
+      "command": "cd apps/mobile && flutter test test/models/avs_gap_write_order_test.dart --reporter expanded",
+      "exit_code": 1,
+      "observed": "lived_abroad expected null certified years, actual 4; arrived_late expected null, actual 4"
+    },
+    {
+      "predicate": "typed 3a presence overrides contradictory legacy account count",
+      "command": "cd apps/mobile && flutter test test/models/coach_profile_bridge_test.dart --plain-name 'typed 3a presence and amount override contradictory legacy fields' --reporter expanded",
+      "exit_code": 1,
+      "observed": "explicit hasPillar3a false expected, legacy nombre3a produced true"
+    },
+    {
+      "predicate": "typed monthly savings has exclusive priority over legacy plan",
+      "command": "cd apps/mobile && flutter test test/services/financial_fitness_service_test.dart --plain-name 'typed monthly savings has exclusive priority over legacy plan' --reporter expanded",
+      "exit_code": 1,
+      "observed": "typed zero expected 0 points, legacy plan produced 25"
+    },
+    {
+      "predicate": "typed 3a contribution has exclusive priority over legacy plan",
+      "command": "cd apps/mobile && flutter test test/services/financial_fitness_service_test.dart --plain-name 'typed 3a contribution has exclusive priority over legacy plan' --reporter expanded",
+      "exit_code": 1,
+      "observed": "typed zero expected 0 points, legacy plan produced 25"
+    },
+    {
+      "predicate": "unconfirmed AVS statuses never score as certified no gaps",
+      "command": "cd apps/mobile && flutter test test/services/financial_fitness_service_test.dart --plain-name 'unconfirmed AVS risk statuses never score as no gaps' --reporter expanded",
+      "exit_code": 1,
+      "observed": "unknown status expected below 25, actual 25 with Aucune lacune AVS"
+    },
+    {
+      "predicate": "manual AVS contribution years preserve user-input provenance",
+      "command": "cd apps/mobile && flutter test test/models/avs_gap_write_order_test.dart --plain-name 'AVS contribution years and declared status keep exact provenance' --reporter expanded",
+      "exit_code": 1,
+      "observed": "userInput expected, value-only inference produced certificate"
+    },
+    {
+      "predicate": "typed fields point to real production consumers",
+      "command": "python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py::test_phase37_typed_fields_point_to_real_production_consumers -q",
+      "exit_code": 1,
+      "observed": "pillar3aAnnual reader evidence pointed to CoachProfile factory rather than FinancialFitnessService"
+    }
+  ],
+  "green": {
+    "flutter_affected": {
+      "command": "cd apps/mobile && flutter test test/models/ test/services/financial_fitness_service_test.dart test/providers/coach_profile_provider_test.dart --reporter expanded",
+      "passed": 317,
+      "exit_code": 0
+    },
+    "flutter_full": {
+      "command": "cd apps/mobile && flutter test --reporter compact",
+      "passed": 8519,
+      "skipped": 28,
+      "exit_code": 0
+    },
+    "touched_analyzer": {
+      "issues": 0,
+      "exit_code": 0
+    },
+    "ledger_dead_key": {
+      "passed": 9,
+      "exit_code": 0
+    },
+    "ledger_and_screen_contracts": {
+      "passed": 6,
+      "exit_code": 0
+    },
+    "doctor_repo": {
+      "passed": 7,
+      "exit_code": 0
+    }
+  },
+  "remaining_hard_floor": {
+    "command": "cd apps/mobile && flutter analyze",
+    "diagnostics": 114,
+    "exit_code": 1,
+    "waiver_allowed": false
+  },
+  "audit_state": {
+    "code": "rerun_required_for_final_head",
+    "product_domain": "rerun_required_after_p1_fix",
+    "manifest": "absent",
+    "g2_allowed": false
+  }
+}

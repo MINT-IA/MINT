@@ -42,4 +42,25 @@ waiver. There is therefore no final accepted `audit-manifest.json`, no ticket
 promotion, and no Phase 37/G2 completion claim. Fix the P1 findings and the
 global analyzer floor, then use the bounded rerun/final-confirmation policy.
 
+## P1 remediation checkpoint
+
+The three product/domain P1 findings were repaired test-first and pushed at
+product SHA `134ffd9d2`:
+
+- wizard AVS status is declared; only confirmed `_coach_avs_lacunes` hydrates
+  certified gap years;
+- manual contribution years are `userInput`, while persisted AVS scan data is
+  `certificate`;
+- current 3a, monthly-savings, 3a-presence, and AVS-status facts now have real
+  production consumers using exclusive `typed ?? legacy` precedence;
+- the G1 matrix and checked-in contracts point to those real consumers through
+  a non-vacuous static gate.
+
+Local proof is archived in `p1-remediation.json`: 317 affected Flutter tests
+passed, the final full suite passed 8,519 with 28 skipped, touched analyzer is
+clean, and the ledger/screen static gates pass. The global analyzer remains the
+only known local hard-floor failure at 114 diagnostics. Because the audited
+head changed, both accepted audit modes must be rerun against the same final
+post-analyzer SHA before any manifest or ticket promotion.
+
 **G2 allowed: NO.**
