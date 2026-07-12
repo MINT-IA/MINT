@@ -26,13 +26,17 @@ external audits, a score >=9.0, and an explicit `G2 allowed: YES` decision.
 
 ### Evidence and TDD
 
-- **D-01:** Every named ticket test is currently absent. Create the test or
-  contract first, run its exact registry command, and archive a genuine RED log
-  before production code changes for that ticket.
+- **D-01:** Every named ticket contract is created before its production change.
+  Prefer a genuine semantic RED followed by GREEN. If the checkout already
+  satisfies the new contract, record `baseline_green` plus a negative fixture
+  or mutation control that makes the same assertion fail for the intended
+  business reason. Never weaken working code or fabricate a RED.
 - **D-02:** A test written after the implementation, a vacuous gate, an absent
-  negative fixture, or evidence from another SHA does not count.
-- **D-03:** Store exact commands, RED/GREEN logs, SHA, affected-suite output,
-  audit output, and scorecard under
+  negative/mutation control for `baseline_green`, or evidence from another SHA
+  does not count.
+- **D-03:** Store exact commands, evidence mode (`red_green` or
+  `baseline_green_controlled`), RED/GREEN or control/GREEN logs, SHA,
+  affected-suite output, audit manifests, and scorecard under
   `.planning/runtime-evidence/phase-37/<wave-or-ticket>/`.
 - **D-04:** Update a registry row from `ticket_only` only after its GREEN command
   and dependency gates pass. Do not batch-mark unfinished tickets.
@@ -80,6 +84,30 @@ external audits, a score >=9.0, and an explicit `G2 allowed: YES` decision.
   default-off kill switch. Phase 37 repairs existing ledger behavior only.
 - **D-19:** Phase score uses the fixed 10-point MINT rubric and must be >=9.0
   with zero open P0/P1. G2 remains NO until that is true.
+- **D-20:** Mint OS commands and wrappers checked into this repository remain
+  authoritative throughout execution. Generic GSD helpers may sequence work,
+  but may not replace Doctor, Maestro watchdog/environment, Patrol guard/CLI,
+  Mermaid guard, route reconciliation, lefthook, or the Claude audit wrapper.
+- **D-21:** Baselines are task-local and ownership-local. Every mint-mobile
+  dispatch touching `coach_profile.dart` or `coach_profile_provider.dart` reads
+  the applicable SOTs, runs the mandated live-key grep, then full
+  `flutter analyze && flutter test` before RED/code. Every mint-backend dispatch
+  runs full `ruff check . && pytest -q` before RED/code. Evidence from another
+  task or agent is not reusable as that task's baseline.
+- **D-22:** RUNTIME-01 uses a versioned and tested Mint OS orchestrator with two
+  separate Patrol processes on one UDID/bundle/SHA, both `--no-uninstall`, and
+  an archived successful `simctl terminate` between write and read. Maestro is
+  pinned to the same UDID. A single test that kills then continues cannot prove
+  process death.
+- **D-23:** Audit manifests are fail-closed: top-level `required_modes` plus
+  `runs[]`, exactly one accepted unique run per required mode, and complete
+  wrapper command/model/base/head/exit-0/non-empty-output/findings/severity
+  counts. Every implementation wave requires code + product-domain; final
+  closure additionally requires architecture.
+- **D-24:** Existing gsd-code-review, gsd-validate-phase, gsd-secure-phase, and
+  conditional design-review may supplement execution only after Mint OS is
+  GREEN. They cannot replace MINT gates or permanent agents. New MINT skills
+  are Phase 38 work and must be versioned, tested, and Doctor-visible.
 
 ### the agent's Discretion
 
@@ -124,8 +152,8 @@ external audits, a score >=9.0, and an explicit `G2 allowed: YES` decision.
 - `apps/mobile/lib/models/coach_profile.dart`
 - `apps/mobile/lib/providers/coach_profile_provider.dart`
 - `apps/mobile/lib/providers/mint_state_provider.dart`
-- `services/backend/app/services/confidence/confidence_scorer.py`
-- `services/backend/app/models/profile.py`
+- `services/backend/app/services/confidence/enhanced_confidence_service.py`
+- `services/backend/app/models/profile_model.py`
 
 </canonical_refs>
 
@@ -141,6 +169,19 @@ antecedent. No UI/runtime proof is required for this first slice.
 Phase 37 planning must create six executable plan waves, with smaller plans
 inside a wave when file ownership or reviewability demands it. No plan may mix
 unrelated backend and mobile implementation concerns.
+
+### Business waves mapped to GSD plans
+
+| business dependency wave | GSD plan/wave | scope |
+|---|---|---|
+| Gate infrastructure | 37-00 / wave 0 | Progressive non-vacuous evidence schema; no RDY requirement closes here. |
+| 1A source | 37-01 / wave 1 | SOURCE-01. |
+| 1B/1C model foundations | 37-02 / wave 2 | LDG-02/04/05/06/07 and BND-04. |
+| 2 provenance | 37-03 / wave 3 | PROV-01/02/03 and LDG-03. |
+| 3 provider bridges | 37-04 / wave 4 | BND-02/03/05/06/01. |
+| 4 Swiss references | 37-05 / wave 5 | FRONT-01, RET-REF-01, SUCCESSION-01. |
+| 5 behavior | 37-06 / wave 6 | SCN-01, FRESH-01, RETURN-01. |
+| 6 runtime/acceptance | 37-07 / wave 7 | RUNTIME-01 and RDY-GATE-01; final G2 decision only. |
 
 </specifics>
 
