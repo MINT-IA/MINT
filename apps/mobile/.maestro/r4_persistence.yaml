@@ -1,0 +1,54 @@
+appId: ch.mint.app
+---
+# R-4: synthetic revenue facts survive a real process stop and are consumed by
+# the mortgage screen after relaunch. No debug injection or direct seed write.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///data-block/revenu"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- tapOn:
+    id: "canton_picker"
+- inputText: "GE"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "2001"
+- tapOn:
+    id: "has_pension_fund_switch"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- stopApp
+- launchApp:
+    clearState: false
+- openLink: "mint:///hypotheque"
+- assertVisible:
+    id: "mortgage_afford_result"
+- scrollUntilVisible:
+    element:
+      id: "mortgage_income_amount"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- assertVisible:
+    id: "mortgage_income_amount"
+- assertVisible:
+    text: ".*CHF.*96'000.*"
+- assertVisible:
+    text: ".*Canton.*GE.*"
