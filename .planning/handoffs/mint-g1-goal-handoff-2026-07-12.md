@@ -104,8 +104,8 @@ Start from the checked-in repo, not memory:
 Tool expectations:
 
 - MINT Doctor: `python3 tools/checks/mint_os_doctor.py --repo-only`.
-- Claude audits: always use `tools/checks/claude_external_audit.sh`, never raw
-  `claude -p`.
+- Claude audits: always use `tools/checks/claude_external_audit.sh`; never call
+  the Claude CLI print mode directly.
 - Opus audit: use `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high`.
 - Product-domain audit is mandatory for Swiss finance/product logic.
 - Mermaid: `python3 tools/checks/mermaid_render_guard.py --root .`.
@@ -429,7 +429,8 @@ Règles absolues:
 - Claude doit auditer le code ET le produit/métier suisse. `product-domain` est
   obligatoire pour les scénarios financiers, Data Ledger/DataQuest, dossiers,
   fiscalité, LPP/AVS/3a, hypothèque, succession, assurance, frontalier.
-- N'utilise jamais raw `claude -p`; utilise toujours le wrapper.
+- N'appelle jamais directement le mode print du CLI Claude; utilise toujours
+  le wrapper.
 - Opus: `CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high`.
 - Laisse Claude finir; les audits peuvent prendre plusieurs minutes.
 - Patrol est `$HOME/.pub-cache/bin/patrol`; ne le déclare pas absent sur la base

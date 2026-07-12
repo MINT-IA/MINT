@@ -180,7 +180,10 @@ void main() {
 
       await tester.tap(find.text('Estime').first);
       await tester.pumpAndSettle();
-      expect(find.text('Depuis ton profil MINT'), findsOneWidget);
+      expect(
+        find.text('Valeurs pré-remplies depuis ton profil'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('displays detail section after scrolling', (tester) async {
