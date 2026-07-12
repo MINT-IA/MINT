@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing -> stress_budget)
-//  - Data flow (premier eclairage for budget change, mid-career)
+//  - Data flow (premier éclairage for budget change, mid-career)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (NE = Romande, horlogerie/precision)
 //  - Error recovery (negative salary — debt scenario)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -77,7 +76,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Laurent golden path - data flow', () {
-    test('Laurent profile produces non-null premier eclairage', () {
+    test('Laurent profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: laurentSalary,

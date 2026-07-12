@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing -> stress_impots)
-//  - Data flow (premier eclairage for tax stress, high earner)
+//  - Data flow (premier éclairage for tax stress, high earner)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (ZG = Deutschschweiz, crypto valley)
 //  - Error recovery (nonExistentChipKey returns null, age=17 underage)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -76,7 +75,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Julia golden path - data flow', () {
-    test('Julia profile produces non-null premier eclairage', () {
+    test('Julia profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: juliaAge,
         grossSalary: juliaSalary,

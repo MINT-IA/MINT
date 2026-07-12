@@ -169,7 +169,9 @@ List<String> scanFile(String filePath, String content, List<BannedPattern> patte
     if (isDart &&
         (trimmed.startsWith('//') ||
          trimmed.startsWith('*') ||
-         trimmed.startsWith('///'))) continue;
+         trimmed.startsWith('///'))) {
+      continue;
+    }
 
     for (final pattern in effectivePatterns) {
       if (pattern.pattern.hasMatch(line)) {

@@ -345,7 +345,7 @@ void main() {
     test(
         'nj_02_compare is completed when memory contains salary_compared',
         () {
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared'],
       );
 
@@ -363,7 +363,7 @@ void main() {
     test(
         'nj_03_lpp_transfer is completed when memory contains lpp_transfer_checked',
         () {
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared', 'lpp_transfer_checked'],
       );
 
@@ -400,7 +400,7 @@ void main() {
         ),
       );
 
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared', 'lpp_transfer_checked'],
       );
 
@@ -418,7 +418,7 @@ void main() {
     });
 
     test('sequence with both completed actions shows 3+ completed steps', () {
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared', 'lpp_transfer_checked'],
       );
 

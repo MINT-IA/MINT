@@ -159,17 +159,17 @@ void main() {
   group('AESTH-07 · MUJI 4-line grammar on S4 sheet body', () {
     testWidgets('ResponseCardWidget.sheet body renders exactly 4 MUJI slots',
         (tester) async {
-      final card = ResponseCard(
+      const card = ResponseCard(
         id: 'test-muji',
         type: ResponseCardType.pillar3a,
         title: 'Pilier 3a',
         subtitle: 'Versement annuel maximal',
-        premierEclairage: const PremierEclairage(
+        premierEclairage: PremierEclairage(
           value: 7258,
           unit: 'CHF',
           explanation: 'Plafond legal salarie LPP',
         ),
-        cta: const CardCta(
+        cta: CardCta(
           label: 'Simuler un versement',
           route: '/pilier-3a',
         ),
@@ -178,7 +178,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: ResponseCardWidget(card: card),
           ),

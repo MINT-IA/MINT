@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing -> stress_retraite)
-//  - Data flow (premier eclairage for bilan stress, 50yo VS)
+//  - Data flow (premier éclairage for bilan stress, 50yo VS)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (VS = Romande, direct montagnard)
 //  - Error recovery (salary=999999, extreme high salary)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -77,7 +76,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Pierre golden path - data flow', () {
-    test('Pierre profile produces non-null premier eclairage', () {
+    test('Pierre profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: pierreAge,
         grossSalary: pierreSalary,
