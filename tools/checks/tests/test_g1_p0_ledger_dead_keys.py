@@ -420,10 +420,6 @@ def _registry_evidence_errors(
         ticket = tickets_by_id.get(ticket_id)
         errors.extend(_ticket_record_errors(record, ticket=ticket, root=root))
         if ticket is not None and isinstance(record, dict):
-            # RED fixture: this preserves the old all-ticket_only production
-            # assertion until the progressive contract is proven non-vacuous.
-            if ticket["status"] != "ticket_only":
-                errors.append(f"{ticket_id}: registry status must remain ticket_only")
             if ticket["status"] != record["state"]:
                 errors.append(f"{ticket_id}: registry/evidence status disagreement")
     return errors
