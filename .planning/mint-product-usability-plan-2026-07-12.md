@@ -118,9 +118,9 @@ Acceptance:
 - Maestro proves return-to-origin after collection.
 - Patrol proves at least one real input path on iPhone 14+.
 
-### G3 — Five P0 User Loops
+### G3 — Six P0 User Loops
 
-Outcome: five complete product loops become genuinely usable and impressive.
+Outcome: six complete product loops become genuinely usable and impressive.
 Each loop is a separate reviewable slice with design contract, ledger contract,
 DataQuest contract, dossier section, and runtime proof in the same slice.
 
@@ -138,7 +138,30 @@ P0 loops:
    - Required facts: income, liquid cash explicit amount, pension assets if EPL,
      existing debt, housing costs, canton/commune, household status.
 
-3. Disability / income protection.
+3. Retirement preparation / decumulation / rente vs capital, profile 50-60.
+   - Swiss decision: understand the retirement choices that incumbents such as
+     VZ and Raiffeisen make central: AVS timing, LPP rente vs capital vs mixed
+     withdrawal, 3a staggered withdrawal, budget after retirement, liquidity
+     reserves, mortgage affordability after retirement, tax consequences, and
+     inheritance/survivor implications.
+   - Product stance: this is a first-class P0 loop because it is the largest
+     Swiss high-value lucidity wedge for users aged roughly 50-60. It must not
+     turn MINT into a retirement-only app; it is one core life-event loop among
+     six and also feeds the succession/transmission guard.
+   - Required facts: age/birth year, canton/commune, civil/partner status,
+     children/dependants, target retirement age, AVS contribution years/gaps or
+     expected AVS estimate, LPP total plus oblig/suroblig split when available,
+     conversion-rate/reglement facts when sourced, planned capital withdrawal
+     eligibility, 3a balances/accounts, annual expenses, explicit liquid cash,
+     mortgage/property context, other assets/debts, survivor/beneficiary context.
+   - Scenario levers: retirement age, rente/capital/mix ratio, 3a withdrawal
+     order, budget floor, investment/withdrawal assumptions, planned large gifts
+     or advances. These levers never become profile facts without confirmation.
+   - Compliance guard: no "take capital" / "take rente" recommendation. MINT
+     shows tradeoffs, ranges, missing facts, tax/survivor/liquidity questions,
+     and specialist-ready dossier output.
+
+4. Disability / income protection.
    - Swiss decision: understand the income gap if illness/accident/disability
      hits, and what is known about AI, LPP invalidity, IJM, LAA, cash runway,
      and private coverage.
@@ -147,7 +170,7 @@ P0 loops:
      relevant, IJM current coverage assumptions, accident/private coverage
      flags.
 
-4. Succession / property transmission / donation.
+5. Succession / property transmission / donation.
    - Swiss decision: understand the forces involved before transferring or
      donating a home: net estate mass, mortgage, heirs, marital regime, liquidity
      of parents, right of habitation/usufruct as scenario levers, and specialist
@@ -158,7 +181,7 @@ P0 loops:
    - Blocking guard: run retirement affordability/liquidity guard before any
      gift/transmission result.
 
-5. Cross-border worker / frontalier.
+6. Cross-border worker / frontalier.
    - Swiss decision: understand why residence country, work canton, permit,
      health-insurance option, tax-source status, telework, family, and pension
      affiliation change the answer.
@@ -171,9 +194,11 @@ Recommended implementation order:
 
 1. Work / first salary: lightest proof of DataQuest.
 2. Housing / mortgage: first high-value asset loop.
-3. Disability / protection: high-stakes protection loop.
-4. Succession / transmission: notarial/family guardQuest loop.
-5. Frontalier: first-class loop only after Swiss-brain spec and dedicated ledger
+3. Retirement preparation / rente vs capital: largest 50-60 competitive wedge;
+   also creates the guard facts succession needs.
+4. Disability / protection: high-stakes protection loop.
+5. Succession / transmission: notarial/family guardQuest loop.
+6. Frontalier: first-class loop only after Swiss-brain spec and dedicated ledger
    keys exist.
 
 Acceptance:
@@ -198,7 +223,7 @@ Deliverables:
 
 - Dossier schema: facts used, source/freshness/confidence, assumptions, scenario
   levers, open questions, specialist checklist, documents to prepare.
-- PDF/export for the five P0 loops.
+- PDF/export for the six P0 loops.
 - Clear "not advice" and "to confirm with specialist" framing.
 - No unsupported Swiss-law conclusions.
 
@@ -241,7 +266,7 @@ Deliverables:
 - Design contracts are not delayed until G6; they are required before each G3
   implementation. G6 is for cross-loop cohesion and final beta polish.
 - `Aujourd'hui` shows the next most valuable action based on known ledger facts.
-- `Coach` can route to the five P0 loops and back.
+- `Coach` can route to the six P0 loops and back.
 - `Explorer` remains secondary: discovery, not the main product spine.
 - Dossier tab becomes the durable memory of what MINT has clarified.
 - Copy follows MINT identity: calm, direct, non-shaming, no jargon wall.
@@ -261,12 +286,13 @@ Acceptance:
 2. G2 DataQuest Core + CaseRegistry MVP.
 3. G3 Loop A: work / first salary / tax / first 3a.
 4. G3 Loop B: housing affordability / mortgage.
-5. G3 Loop C: disability / income protection.
-6. G3 Loop D: succession / property transmission / donation.
-7. G3 Loop E: frontalier.
-8. G4 Dossier/PDF MVP.
-9. G5 Runtime proof hardening.
-10. G6 Beta usability polish.
+5. G3 Loop C: retirement preparation / rente vs capital.
+6. G3 Loop D: disability / income protection.
+7. G3 Loop E: succession / property transmission / donation.
+8. G3 Loop F: frontalier.
+9. G4 Dossier/PDF MVP.
+10. G5 Runtime proof hardening.
+11. G6 Beta usability polish.
 
 ## Agent Operating Model
 
@@ -288,7 +314,7 @@ For every slice:
 
 MINT is 9.5/10 for this phase when:
 
-- Five P0 loops are usable from entry to dossier.
+- Six P0 loops are usable from entry to dossier.
 - No P0 loop asks for a fresh known fact twice.
 - No P0 loop computes a high-stakes result from illustrative defaults.
 - Each financial result shows known/missing/estimated/stale and confidence.
