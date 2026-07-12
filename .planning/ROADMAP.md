@@ -65,7 +65,8 @@ flowchart TD
 2. Targeted and affected full suites pass; Maestro and Patrol prove restart/recompute.
 3. Claude code, architecture, and product-domain audits have no P0/P1 and score is >=9.0.
 
-**Status:** in progress — 1/8 plans complete; G1-RUNTIME-01 red_proven, G2 blocked.
+**Status:** in progress — 2/8 plans complete; SOURCE-01 green,
+G1-RUNTIME-01 red_proven, G2 blocked.
 
 ### Phase 38: Mint OS Operating Runway
 
@@ -262,7 +263,7 @@ spine, never as a parallel calculator/state system.
 
 | phase | status | score | next hard floor |
 |---|---|---:|---|
-| 37 Ledger readiness | not started | — | SOURCE-01 RED -> GREEN |
+| 37 Ledger readiness | in progress (2/8) | — | 37-02 ledger foundations; G2 remains NO |
 | 38 Operating runway | blocked by 37 | — | 23/23 G1 GREEN |
 | 39 G2 DataQuest | blocked by 37-38 | — | G2 allowed YES |
 | 40-45 six G3 loops | blocked by 39 | — | G2 accepted |

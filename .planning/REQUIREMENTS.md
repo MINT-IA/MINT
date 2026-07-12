@@ -21,7 +21,7 @@ must cite current-SHA evidence in its phase verification/scorecard.
 Every requirement below resolves the identically named ticket in
 `.planning/goals/G1-blocking-gate-tickets.md`.
 
-- [ ] **RDY-SOURCE-01**: Authoritative mobile-to-backend source crosswalk.
+- [x] **RDY-SOURCE-01**: Authoritative mobile-to-backend source crosswalk.
 - [ ] **RDY-LDG-02**: Canonical semantic enum round-trip.
 - [ ] **RDY-LDG-03**: Every live P0 key writes, reloads, and reaches its consumer.
 - [ ] **RDY-LDG-04**: Missing/default-sensitive facts remain unknown.

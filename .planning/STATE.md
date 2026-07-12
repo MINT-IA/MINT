@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: 37-00 complete; next authorized slice is 37-01.
-last_updated: "2026-07-12T15:38:25Z"
-last_activity: 2026-07-12 -- Wave 0 evidence/runtime contract completed
+stopped_at: Completed 37-01-PLAN.md; next authorized slice is 37-02.
+last_updated: "2026-07-12T16:15:20.560Z"
+last_activity: 2026-07-12 -- SOURCE-01 crosswalk and evidence completed
 progress:
   total_phases: 14
   completed_phases: 0
   total_plans: 8
-  completed_plans: 1
-  percent: 13
+  completed_plans: 2
+  percent: 25
 ---
 
 # GSD State: MINT v3.0 — Product Reality
@@ -30,11 +30,11 @@ own sourced data and leaves with clear questions plus a specialist-ready dossier
 
 Phase: 37 (ledger-runtime-readiness) — EXECUTING
 
-Plan: 2 of 8
+Plan: 3 of 8
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-12 -- Wave 0 evidence/runtime contract completed
+Last activity: 2026-07-12 -- SOURCE-01 crosswalk and evidence completed
 
 ## Build Order
 
@@ -70,12 +70,16 @@ Last activity: 2026-07-12 -- Wave 0 evidence/runtime contract completed
 - The July 2026 product plan is authoritative for G2-G6.
 - Phase numbering continues at 37.
 - Chat Vivant follows G6 and must reuse the one ledger/Case/dossier spine.
-- The first executable slice is `G1-SOURCE-01` after Phase 37 planning.
+- `G1-SOURCE-01` is the first evidence-backed GREEN ticket; its live caller
+  remains the already planned PROV-01 provenance slice.
+- Source translation maps identities only. Mobile and backend confidence
+  weights remain separate documented scoring contracts.
 
 ## Active Blockers
 
-- 22/23 G1 tickets remain `ticket_only`; `G1-RUNTIME-01` is `red_proven` at
-  the cold-relaunch mortgage consumer and is not GREEN.
+- 21/23 G1 tickets remain `ticket_only`; `G1-SOURCE-01` is `green` and
+  `G1-RUNTIME-01` is `red_proven` at the cold-relaunch mortgage consumer.
+
 - Phase 38 and all later phases are dependency-blocked by Phase 37.
 - This is expected planned work, not a user-input blocker.
 
@@ -88,8 +92,14 @@ counts as a current-SHA PASS without targeted revalidation.
 
 ## Session Continuity
 
-Last session: 2026-07-12
+Last session: 2026-07-12T16:15:20.553Z
 
-Stopped at: 37-00 complete; next authorized slice is 37-01.
+Stopped at: Completed 37-01-PLAN.md; next authorized slice is 37-02.
 
-Resume file: `.planning/goals/v3-product-reality-migration-manifest-2026-07-12.md`
+Resume file: `.planning/phases/37-ledger-runtime-readiness/37-02-PLAN.md`
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Tasks | Files |
+|---:|---:|---:|---:|---:|
+| 37 | 01 | 27 min | 3 | 12 |
