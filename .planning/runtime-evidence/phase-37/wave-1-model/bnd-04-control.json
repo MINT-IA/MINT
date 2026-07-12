@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-BND-04",
+  "stage": "CONTROL",
+  "command": "cd apps/mobile && flutter test test/providers/mint_state_proxy_recompute_test.dart --reporter expanded",
+  "sha": "b8af13ce5127b1b4239fb70050b66912aeebc2b0",
+  "recorded_at": "2026-07-12T16:47:00Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "mint_state_proxy_recompute_test",
+  "output": "Controlled mutation disabled the identical-snapshot dedup guard; the same snapshot emitted 2 notifications instead of 1 and the exact command failed on the business predicate.",
+  "synthetic_data_only": true
+}

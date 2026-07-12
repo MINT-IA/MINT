@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-LDG-07",
+  "stage": "RED",
+  "command": "cd apps/mobile && flutter test test/models/mortgage_reconciliation_test.dart --reporter expanded",
+  "sha": "b1085b137c964d1a414f69d26bb01e94078723b8",
+  "recorded_at": "2026-07-12T16:44:55Z",
+  "exit_code": 1,
+  "evidence_class": "business_predicate",
+  "assertion": "duplicate_mortgage_reconciliation_test",
+  "output": "Semantic RED: a divergent canonical mortgage value won despite missing or tied timestamps instead of being quarantined; 3 assertions failed.",
+  "synthetic_data_only": true
+}

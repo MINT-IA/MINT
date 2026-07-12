@@ -96,6 +96,34 @@ Mobile ↔ backend are NOT the same enum and their weights differ (mobile `userI
 
 Backend-only members `document_scan` (.85, unconfirmed OCR), `institutional_api` (.95), and `user_estimate` (.25) have **no mobile pre-image**: `document_scan`/`institutional_api` are produced only by backend document/API pipelines, and `user_estimate` (a second .25 member alongside `system_estimate`) is a backend-internal estimate tag; the mobile→backend sync maps mobile `estimated` to `system_estimate` (per the table above), never to `user_estimate`. None of the three is ever emitted by the mobile→backend sync. This table is the single source of truth for the cross-walk; §6 references it, does not restate it.
 
+### 2.3 Phase 37 Wave 1 canonical model semantics
+
+The following contracts are live in `CoachProfile` and are guarded by the
+ticket-specific tests from Plan 37-02:
+
+- Civil-status and employment aliases are accepted only on reconstruction.
+  Serialization emits one canonical value; in particular `unemployed`,
+  `chomage`, and `chômage` reconstruct as `chomage` and serialize as
+  `unemployed` instead of falling back to an employee fact.
+- Display fallbacks (`ZH`, housing-cost estimates, and an estimated LPP
+  conversion rate) do not become known facts. Only an explicit storage key
+  adds the matching `userProvidedFields` marker and `dataTimestamps` entry.
+- `pillar3aAnnualContribution`, `monthlySavingsContribution`, and
+  `hasPillar3a` are independent typed fields. Their storage keys remain
+  `q_3a_annual_contribution`, `q_savings_monthly`, and `q_has_3a`;
+  `q_savings_allocation` cannot fabricate any of them.
+- `avsGapStatus` is the typed status (`noGaps`, `arrivedLate`, `livedAbroad`,
+  `unknown`) and is distinct from nullable certified numeric years. A
+  `lived_abroad` answer without `q_avs_years_abroad` keeps the year count
+  unknown.
+- `_coach_dettes_hypotheque` is the canonical mortgage value. The legacy
+  `q_mortgage_balance` is migration-read only: a sole dated value or the
+  strictly newer dated value wins; divergent missing/equal timestamps are
+  quarantined as unknown; equal values remain usable.
+
+These contracts do not add provenance-on-write, provider-island bridges, or
+scenario identity. Those remain later Phase 37 tickets and still block G2.
+
 ---
 
 ## 3. Ledger — coach/backend-writable fields (the 36-key allowlist)
@@ -168,7 +196,7 @@ These facts are collected through `mergeAnswers` and reconstructed by
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | 3a max gate (7'258 / 36'288), tax deduction sim, CapEngine |
+| `pillar3aAnnual` | `q_3a_annual_contribution` | double CHF/yr (`CoachProfile.pillar3aAnnualContribution`) | prevoyance | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | 3a max gate (7'258 / 36'288), tax deduction sim, CapEngine |
 | `pillar3aBalance` | `q_3a_total` | double CHF | prevoyance | certificate, openBanking, userInput | annual | .95 / 1.00 | applySaveFact/mergeAnswers | `totalEpargne3a`, retirement capital, `comptes3a` |
 
 > 3a writes MUST respect `canContribute3a` (false for US/FATCA; conditional for frontalier permis G). A `pillar3a*` write for a US person should be accepted as data but flagged non-contributable, not silently zeroed.
@@ -182,13 +210,13 @@ coach-writable key.
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `has3a` | `q_has_3a` (`true` → `yes`, `false` → `no`) | bool | prevoyance | userInput, certificate, openBanking | annual | .60 / .95 | mergeAnswers only, not `save_fact` | `nombre3a`, independent protection hub, 3a gating |
+| `has3a` | `q_has_3a` (`true` → `yes`, `false` → `no`) / `hasPillar3a` | bool | prevoyance | userInput, certificate, openBanking | annual | .60 / .95 | mergeAnswers only, not `save_fact` | `nombre3a`, independent protection hub, 3a gating |
 
 ### 3.5 Savings / wealth / debt
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `savingsMonthly` | `q_savings_monthly` | double CHF/mo | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
+| `savingsMonthly` | `q_savings_monthly` | double CHF/mo (`CoachProfile.monthlySavingsContribution`) | patrimoine | userInput, openBanking | annual | .60 | applySaveFact/mergeAnswers | budget gap, `capSequencePlan`, FRI score |
 | `totalSavings` | `q_cash_total` | double CHF | patrimoine | userInput, certificate, openBanking | annual | .60 | applySaveFact/mergeAnswers | `patrimoine.epargneLiquide`, emergency fund (SafeMode Signal C), liquidity axis |
 | `wealthEstimate` | `q_wealth_estimate` | double CHF | patrimoine | userInput, estimated | annual | .60 | applySaveFact/mergeAnswers | `PatrimoineProfile.wealthEstimate`, `WealthFinancialFacts.reconcileAggregate`, `PatrimoineProfile.wealthReconciliation`, `totalPatrimoine` aggregate, wealth tax, net worth, absolute patrimoine previews |
 | `hasDebt` | `q_has_consumer_debt` (`true` → `yes`, `false` → `no`; `false` zeroes `_coach_dettes_credit`, `_coach_dettes_leasing`, `_coach_dettes_autres`; `true` nulls them so the bool-only fallback can run) | bool | dettes | userInput | volatile | .60 | applySaveFact/mergeAnswers | SafeMode Signal A, `isInDebtCrisis` |
@@ -212,7 +240,7 @@ coach-writable key.
 
 | key | wizard key | type+unit | domain | sources | fresh | wconf | write | consumers |
 |---|---|---|---|---|---|---|---|---|
-| `hasAvsGaps` | `q_avs_lacunes_status` (`true` → `unknown` unless a precise `arrived_late`/`lived_abroad` status already exists; `false` → `no_gaps`) | bool | prevoyance | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `lacunesAVS` flag, AVS rente reduction warning |
+| `hasAvsGaps` | `q_avs_lacunes_status` → typed `avsGapStatus` (`noGaps`, `arrivedLate`, `livedAbroad`, `unknown`) | status enum | prevoyance | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | `lacunesAVS` flag, AVS rente reduction warning |
 | `avsContributionYears` | `q_avs_contribution_years` | int (yr) | prevoyance | certificate, userInput | annual | .95 / .60 | applySaveFact/mergeAnswers | `anneesContribuees`, AVS full-rente eligibility (44 yr), RAMD |
 
 **Count check (must match code):** 3.1–3.7 = 9 (identity) + 8 (income) + 7 (LPP) + 2 (3a) + 5 (savings/wealth/debt) + 3 (spouse) + 2 (AVS) = **36 keys** = `len(_SAVE_FACT_ALLOWED_KEYS)`. CI test §8.1 asserts `len == 36`.
@@ -227,7 +255,7 @@ T-0 and T-1 are now complete: `_mapFactKeyToAnswers` handles all 36 keys and eve
 
 **The 0 remaining mapped-but-unread keys:** none. T-0 is complete.
 
-**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`; `employmentRate -> q_employment_rate`, which is read into `CoachProfile.employmentRate` and forwarded to `CoachingProfile.tauxActivite`; `annualBonus -> q_annual_bonus`, which is converted to `bonusPourcentage` and therefore included in `revenuBrutAnnuel`; `hasAvsGaps -> q_avs_lacunes_status`, which is read into `prevoyance.lacunesAVS`; `avsContributionYears -> q_avs_contribution_years`, which is read into `prevoyance.anneesContribuees`; `hasDebt -> q_has_consumer_debt`, which is used by the `fromWizardAnswers` bool-only fallback to construct `DetteProfile.creditConsommation = salaireBrutMensuel * 12 * 0.05` when no debt amount exists; `totalDebt -> _coach_dettes_autres`, which is read into `dettes.autresDettes` and therefore `dettes.totalDettes`; `spouseBirthYear -> q_partner_birth_year`, which is read into `conjoint.birthYear`; `spouseIncomeNetMonthly -> q_partner_net_income_chf`, which is converted by existing conjoint net-to-gross logic into `conjoint.salaireBrutMensuel`.
+**Repaired mapped keys:** `totalSavings -> q_cash_total`, which is read by `CoachProfile.fromWizardAnswers()` into `patrimoine.epargneLiquide`; `wealthEstimate -> q_wealth_estimate`, which is read into `PatrimoineProfile.wealthEstimate` and used by `totalPatrimoine` as a non-additive aggregate total; `pillar3aBalance -> q_3a_total`, which is read into `prevoyance.totalEpargne3a`; `commune -> q_commune` and `gender -> q_gender`, which are read into the identity fields on `CoachProfile`; `employmentRate -> q_employment_rate`, which is read into `CoachProfile.employmentRate` and forwarded to `CoachingProfile.tauxActivite`; `annualBonus -> q_annual_bonus`, which is converted to `bonusPourcentage` and therefore included in `revenuBrutAnnuel`; `hasAvsGaps -> q_avs_lacunes_status`, which is read into typed `CoachProfile.avsGapStatus` while the nullable certified year count remains in `prevoyance.lacunesAVS`; `avsContributionYears -> q_avs_contribution_years`, which is read into `prevoyance.anneesContribuees`; `hasDebt -> q_has_consumer_debt`, which is used by the `fromWizardAnswers` bool-only fallback to construct `DetteProfile.creditConsommation = salaireBrutMensuel * 12 * 0.05` when no debt amount exists; `totalDebt -> _coach_dettes_autres`, which is read into `dettes.autresDettes` and therefore `dettes.totalDettes`; `spouseBirthYear -> q_partner_birth_year`, which is read into `conjoint.birthYear`; `spouseIncomeNetMonthly -> q_partner_net_income_chf`, which is converted by existing conjoint net-to-gross logic into `conjoint.salaireBrutMensuel`.
 
 **Task T-0 (done):** the 7 mapped-but-unread cases have been aligned to wizard keys already read by `fromWizardAnswers` or given explicit reads with tests.
 

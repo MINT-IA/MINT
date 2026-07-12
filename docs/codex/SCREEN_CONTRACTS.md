@@ -26,6 +26,32 @@ Every screen resolves the domain data it renders from the **ledger**:
 
 ---
 
+### 0.1 Known / estimated / missing model contract (Phase 37 Wave 1)
+
+Screens must not infer knowledge from a non-null display fallback. A field is:
+
+- **known** only when its canonical storage key produced the matching
+  `userProvidedFields` marker and `dataTimestamps` entry;
+- **estimated** when a display fallback is available without that marker; it
+  remains visibly labelled and cannot unlock a complete/high-stakes result;
+- **missing** when neither a known marker nor an admissible display estimate
+  exists; the screen renders the exact DIFF question or recovery CTA.
+
+The direct fields `pillar3aAnnualContribution`,
+`monthlySavingsContribution`, and `hasPillar3a` are independent. Consumers may
+not infer one from another or from `q_savings_allocation`. AVS consumers read
+`avsGapStatus` separately from the nullable certified year count. Mortgage
+consumers receive either the chronology-reconciled canonical balance or an
+unknown value when legacy/canonical timestamps cannot establish a winner.
+
+`CoachProfileProvider -> MintStateProvider` has one proxy edge. A new canonical
+snapshot (including a provenance-bearing snapshot) recomputes once; an
+identical snapshot is a no-op. This exact behavior is guarded by
+`test/providers/mint_state_proxy_recompute_test.dart`. It does not imply that
+the other provider islands are already bridged.
+
+---
+
 ## 1. Column semantics
 
 | Column | Meaning |

@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-LDG-05",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/models/direct_field_semantics_test.dart --reporter expanded",
+  "sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+  "recorded_at": "2026-07-12T16:45:20Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "direct_field_semantics_test",
+  "output": "2 tests passed: 3a contribution, monthly savings, and 3a presence stay independent in both orders and ambiguous allocation aliases fabricate none.",
+  "synthetic_data_only": true
+}

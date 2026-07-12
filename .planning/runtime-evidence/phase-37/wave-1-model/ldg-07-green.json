@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-LDG-07",
+  "stage": "GREEN",
+  "command": "cd apps/mobile && flutter test test/models/mortgage_reconciliation_test.dart --reporter expanded",
+  "sha": "8941a85b3d3baa18656e7f399997c7cca5b73f36",
+  "recorded_at": "2026-07-12T16:45:20Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "duplicate_mortgage_reconciliation_test",
+  "output": "4 tests passed: sole/newer dated value wins, ambiguous conflicts quarantine, and equal values remain canonical independent of map order.",
+  "synthetic_data_only": true
+}

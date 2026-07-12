@@ -25,13 +25,13 @@ flowchart TB
   %% ==========================================================================
   subgraph SPINE["PROVIDER / DATA-FLOW (source of truth)"]
     direction TB
-    CPP["CoachProfileProvider<br/>app.dart:1435<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
-    MSP["MintStateProvider<br/>app.dart:1473 (ProxyProvider)<br/>builds MintUserState (read-model)"]
-    NWS["NotificationsWiringService<br/>app.dart:1511 (ProxyProvider)"]
+    CPP["CoachProfileProvider<br/>app.dart:1533<br/>SINGLE write path:<br/>mergeAnswers / applySaveFact / updateProfile"]
+    MSP["MintStateProvider<br/>app.dart:1570 (ProxyProvider)<br/>builds MintUserState (read-model)"]
+    NWS["NotificationsWiringService<br/>app.dart:1608 (ProxyProvider)"]
     PERSIST[("SharedPreferences<br/>key: wizard_answers_v2<br/>report_persistence_service.dart")]
     BACKEND[("backend ProfileModel.data<br/>save_fact 36-key allowlist<br/>coach_chat.py:924")]
 
-    CPP -- "notifies (ProxyProvider.update)" --> MSP
+    CPP -- "one canonical snapshot -> recompute exactly once<br/>(identical snapshot = no-op)" --> MSP
     CPP -- "notifies (ProxyProvider.update)" --> NWS
     CPP <-- "load/persist" --> PERSIST
     CPP -. "fire-and-forget sync" .-> BACKEND
@@ -270,4 +270,11 @@ flowchart TB
 %% I-9 PROJECTIONS RANGED: any node that renders a projected number pairs it
 %%     with EnhancedConfidence + range (DATA_LEDGER I-5 / CLAUDE.md §5).
 %%     G1 status @095eeaa32: PARTIAL/FALSE on several projection surfaces.
+%% I-10 EXACT-ONCE LEDGER RECOMPUTE: app.dart has exactly one
+%%      ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>
+%%      edge (app.dart:1570). MintStateProvider.recompute de-duplicates an
+%%      identical CoachProfile snapshot through `_lastProfile`; a salary or
+%%      provenance-bearing new snapshot produces one state notification. Gate:
+%%      test/providers/mint_state_proxy_recompute_test.dart. Phase 37 Wave 1
+%%      status: VERIFIED; provider-island bridges in I-4 remain separate debt.
 %% ============================================================================
