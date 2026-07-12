@@ -224,7 +224,7 @@ child (e.g., `/profile/admin-observability`). The raw list below captures declar
 /onboarding/intent
 /onboarding/minimal
 /onboarding/plan
-/onboarding/premier-eclairage
+`/onboarding/premier-eclairage`
 /onboarding/promise
 /onboarding/quick
 /onboarding/quick-start
