@@ -439,6 +439,57 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('AVS lacunes status parsing', () {
+    test(
+        'declarations AVS du conjoint restent non certifiees et gardent l arrivee',
+        () {
+      final cases = <Map<String, Object?>>[
+        {
+          'status': 'arrived_late',
+          'arrivalYear': 2018,
+          'yearsAbroad': null,
+          'expectedArrivalAge': 28,
+        },
+        {
+          'status': 'lived_abroad',
+          'arrivalYear': null,
+          'yearsAbroad': 8,
+          'expectedArrivalAge': null,
+        },
+        {
+          'status': 'unknown',
+          'arrivalYear': null,
+          'yearsAbroad': null,
+          'expectedArrivalAge': null,
+        },
+      ];
+
+      for (final testCase in cases) {
+        final answers = Map<String, dynamic>.from(baseAnswers())
+          ..['q_partner_birth_year'] = 1990
+          ..['q_spouse_avs_lacunes_status'] = testCase['status'];
+        if (testCase['arrivalYear'] case final int arrivalYear) {
+          answers['q_spouse_avs_arrival_year'] = arrivalYear;
+        }
+        if (testCase['yearsAbroad'] case final int yearsAbroad) {
+          answers['q_spouse_avs_years_abroad'] = yearsAbroad;
+        }
+
+        final conjoint = CoachProfile.fromWizardAnswers(answers).conjoint;
+
+        expect(conjoint, isNotNull, reason: testCase['status'] as String);
+        expect(
+          conjoint!.prevoyance?.lacunesAVS,
+          isNull,
+          reason: testCase['status'] as String,
+        );
+        expect(
+          conjoint.arrivalAge,
+          testCase['expectedArrivalAge'],
+          reason: testCase['status'] as String,
+        );
+      }
+    });
+
     test('"no_gaps" reste declare sans certifier zero annee', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'no_gaps';

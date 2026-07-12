@@ -361,27 +361,43 @@ class FinancialFitnessService {
 
     // 3. Pas de lacune AVS critique (0-25 points)
     final lacunesAvs = profile.prevoyance.lacunesAVS;
-    final lacunesAvsConjoint =
-        profile.conjoint?.prevoyance?.lacunesAVS ?? 0;
+    final conjoint = profile.conjoint;
+    final lacunesAvsConjoint = conjoint?.prevoyance?.lacunesAVS;
     int pointsAvs;
     String detailAvs;
 
-    if (lacunesAvs == null) {
-      pointsAvs = profile.avsGapStatus == AvsGapStatus.noGaps ? 10 : 0;
-      detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
-    } else if (lacunesAvs + lacunesAvsConjoint == 0) {
-      pointsAvs = 25;
-      detailAvs = 'Aucune lacune AVS';
-    } else if (lacunesAvs + lacunesAvsConjoint <= 2) {
-      pointsAvs = 20;
-      detailAvs = '${lacunesAvs + lacunesAvsConjoint} annee(s) de lacune AVS'; // lint-ignore: legacy user copy
-    } else if (lacunesAvs + lacunesAvsConjoint <= 5) {
-      pointsAvs = 10;
-      detailAvs = '${lacunesAvs + lacunesAvsConjoint} annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
-    } else {
+    int pointsForAvsGaps(int gapYears) {
+      if (gapYears == 0) return 25;
+      if (gapYears <= 2) return 20;
+      if (gapYears <= 5) return 10;
+      return 0;
+    }
+
+    if (conjoint == null) {
+      if (lacunesAvs == null) {
+        pointsAvs = profile.avsGapStatus == AvsGapStatus.noGaps ? 10 : 0;
+        detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
+      } else {
+        pointsAvs = pointsForAvsGaps(lacunesAvs);
+        if (lacunesAvs == 0) {
+          detailAvs = 'Aucune lacune AVS';
+        } else if (lacunesAvs <= 2) {
+          detailAvs = '$lacunesAvs annee(s) de lacune AVS'; // lint-ignore: legacy user copy
+        } else if (lacunesAvs <= 5) {
+          detailAvs = '$lacunesAvs annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
+        } else {
+          detailAvs =
+              '$lacunesAvs annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
+        }
+      }
+    } else if (lacunesAvs == null || lacunesAvsConjoint == null) {
       pointsAvs = 0;
-      detailAvs =
-          '${lacunesAvs + lacunesAvsConjoint} annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
+      detailAvs = 'Situation AVS du couple a verifier'; // lint-ignore: legacy user copy
+    } else {
+      final selfPoints = pointsForAvsGaps(lacunesAvs);
+      final spousePoints = pointsForAvsGaps(lacunesAvsConjoint);
+      pointsAvs = selfPoints < spousePoints ? selfPoints : spousePoints;
+      detailAvs = 'Vous: $lacunesAvs; conjoint: $lacunesAvsConjoint'; // lint-ignore: legacy user copy
     }
     criteria.add(ScoreCriterion(
       id: 'avs_gaps',

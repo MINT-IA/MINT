@@ -3051,25 +3051,15 @@ class CoachProfile {
       // to inferring from user's arrival (common for couples relocating together).
       int? conjointArrivalAge;
       final spouseAvsStatus = answers['q_spouse_avs_lacunes_status'] as String?;
-      int spouseAvsGaps = 0;
 
-      // Parse spouse AVS lacunes — same logic as user AVS (LAVS art. 29bis)
-      switch (spouseAvsStatus) {
-        case 'arrived_late':
-          final spouseArrivalYear =
-              _parseInt(answers['q_spouse_avs_arrival_year']);
-          final spouseBirthYear = partnerBirthYear;
-          if (spouseArrivalYear != null && spouseBirthYear != null) {
-            conjointArrivalAge = spouseArrivalYear - spouseBirthYear;
-            spouseAvsGaps =
-                (spouseArrivalYear - (spouseBirthYear + 21)).clamp(0, 44);
-          }
-        case 'lived_abroad':
-          spouseAvsGaps = _parseInt(answers['q_spouse_avs_years_abroad']) ?? 0;
-        case 'unknown':
-          spouseAvsGaps = 2; // Estimation conservatrice
-        default: // 'no_gaps' or null
-          spouseAvsGaps = 0;
+      // A declared arrival can locate the spouse's Swiss chronology, but it
+      // cannot certify AVS gap years. Only a spouse CI/certificate may do so.
+      if (spouseAvsStatus == 'arrived_late') {
+        final spouseArrivalYear =
+            _parseInt(answers['q_spouse_avs_arrival_year']);
+        if (spouseArrivalYear != null && partnerBirthYear != null) {
+          conjointArrivalAge = spouseArrivalYear - partnerBirthYear;
+        }
       }
 
       // Fall back to user arrivalAge if no spouse-specific data
@@ -3104,7 +3094,6 @@ class CoachProfile {
           rawSpouseAvsYears?.clamp(0, spouseAvsYearsMax).toInt();
       final conjointPrevoyance = PrevoyanceProfile(
         anneesContribuees: spouseAvsYears,
-        lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,
         canContribute3a: !conjIsFatca,
       );

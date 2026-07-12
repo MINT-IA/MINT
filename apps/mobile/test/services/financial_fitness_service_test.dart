@@ -361,7 +361,7 @@ void main() {
       expect(avsCrit.points, 0);
     });
 
-    test('couple AVS gaps are cumulated', () {
+    test('couple with spouse AVS gaps missing fails closed for self 2', () {
       final profile = CoachProfile(
         birthYear: 1990,
         canton: 'VD',
@@ -369,7 +369,7 @@ void main() {
         etatCivil: CoachCivilStatus.marie,
         prevoyance: const PrevoyanceProfile(lacunesAVS: 2),
         conjoint: const ConjointProfile(
-          prevoyance: PrevoyanceProfile(lacunesAVS: 14),
+          prevoyance: PrevoyanceProfile(),
         ),
         goalA: GoalA(
           type: GoalAType.retraite,
@@ -380,8 +380,66 @@ void main() {
       final score = FinancialFitnessService.calculate(profile: profile);
       final avsCrit =
           score.prevoyance.criteria.firstWhere((c) => c.id == 'avs_gaps');
-      // 2 + 14 = 16 → 0 points
+
       expect(avsCrit.points, 0);
+      expect(avsCrit.points, lessThan(25));
+      expect(avsCrit.detail, 'Situation AVS du couple a verifier');
+      expect(avsCrit.detail, isNot('Aucune lacune AVS'));
+    });
+
+    test('couple with spouse AVS gaps missing fails closed for self 0', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        etatCivil: CoachCivilStatus.marie,
+        prevoyance: const PrevoyanceProfile(lacunesAVS: 0),
+        conjoint: const ConjointProfile(
+          prevoyance: PrevoyanceProfile(),
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final avsCrit = FinancialFitnessService.calculate(profile: profile)
+          .prevoyance
+          .criteria
+          .firstWhere((c) => c.id == 'avs_gaps');
+
+      expect(avsCrit.points, 0);
+      expect(avsCrit.points, lessThan(25));
+      expect(avsCrit.detail, 'Situation AVS du couple a verifier');
+      expect(avsCrit.detail, isNot('Aucune lacune AVS'));
+    });
+
+    test('couple AVS gaps score each person and keep the worse score', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        etatCivil: CoachCivilStatus.marie,
+        prevoyance: const PrevoyanceProfile(lacunesAVS: 2),
+        conjoint: const ConjointProfile(
+          prevoyance: PrevoyanceProfile(lacunesAVS: 4),
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final avsCrit = FinancialFitnessService.calculate(profile: profile)
+          .prevoyance
+          .criteria
+          .firstWhere((c) => c.id == 'avs_gaps');
+
+      expect(avsCrit.points, 10);
+      expect(avsCrit.detail, 'Vous: 2; conjoint: 4');
+      expect(avsCrit.detail, isNot(contains('6')));
     });
 
     test('unconfirmed AVS risk statuses never score as no gaps', () {
