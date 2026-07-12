@@ -2819,12 +2819,47 @@ class CoachProfile {
         ? investmentsTotal
         : (hasInvestments ? (monthlyNetIncome * 2).clamp(0.0, 50000.0) : 0.0);
 
+    // The richer `_coach_` key is canonical, while `q_mortgage_balance` is a
+    // migration alias. A conflicting value can only win through field-level
+    // chronology; storage-key priority and map order are never tie-breakers.
+    final legacyMortgage = _parseDouble(answers['q_mortgage_balance']);
+    final canonicalMortgage = _parseDouble(answers['_coach_dettes_hypotheque']);
+    final mortgageTimestamps = answers['_coach_data_timestamps'];
+    DateTime? mortgageTimestamp(String key) {
+      if (mortgageTimestamps is! Map) return null;
+      return DateTime.tryParse(mortgageTimestamps[key]?.toString() ?? '');
+    }
+
+    final DateTime? legacyMortgageAt = mortgageTimestamp('q_mortgage_balance');
+    final DateTime? canonicalMortgageAt =
+        mortgageTimestamp('_coach_dettes_hypotheque');
+    final double? resolvedMortgageBalance;
+    if (legacyMortgage == null) {
+      resolvedMortgageBalance = canonicalMortgage;
+    } else if (canonicalMortgage == null ||
+        legacyMortgage == canonicalMortgage) {
+      resolvedMortgageBalance = legacyMortgage;
+    } else if (legacyMortgageAt == null && canonicalMortgageAt != null) {
+      resolvedMortgageBalance = canonicalMortgage;
+    } else if (legacyMortgageAt != null && canonicalMortgageAt == null) {
+      resolvedMortgageBalance = legacyMortgage;
+    } else if (legacyMortgageAt != null && canonicalMortgageAt != null) {
+      final chronology = legacyMortgageAt.compareTo(canonicalMortgageAt);
+      resolvedMortgageBalance = chronology > 0
+          ? legacyMortgage
+          : chronology < 0
+              ? canonicalMortgage
+              : null;
+    } else {
+      resolvedMortgageBalance = null;
+    }
+
     final patrimoine = PatrimoineProfile(
       epargneLiquide: epargneLiquide,
       investissements: estimatedInvestments,
       wealthEstimate: wealthEstimate,
       propertyMarketValue: _parseDouble(answers['q_property_market_value']),
-      mortgageBalance: _parseDouble(answers['q_mortgage_balance']),
+      mortgageBalance: resolvedMortgageBalance,
       mortgageRate: _parseDouble(answers['q_mortgage_rate']),
       monthlyRent: _parseDouble(answers['q_monthly_rent']),
     );
@@ -2837,7 +2872,7 @@ class CoachProfile {
         _parseDouble(answers['q_leasing_monthly']) ?? 0;
     // _coach_dettes_* keys are written by updateInline() and survive restarts.
     // They override the wizard proxy estimates (debtPayments × 24 heuristic).
-    final inlineHypotheque = _parseDouble(answers['_coach_dettes_hypotheque']);
+    final inlineHypotheque = resolvedMortgageBalance;
     final inlineCreditConso = _parseDouble(answers['_coach_dettes_credit']);
     final inlineLeasing = _parseDouble(answers['_coach_dettes_leasing']);
     final inlineAutresDettes = _parseDouble(answers['_coach_dettes_autres']);
@@ -3269,8 +3304,7 @@ class CoachProfile {
     if (answers.containsKey('q_property_market_value')) {
       provided.add('propertyMarketValue');
     }
-    if (answers.containsKey('_coach_dettes_hypotheque') ||
-        answers.containsKey('q_mortgage_balance')) {
+    if (resolvedMortgageBalance != null) {
       provided.add('mortgageBalance');
     }
     if (answers.containsKey('q_housing_cost_period_chf') &&
