@@ -89,6 +89,15 @@ consulted/exported/printed or brought to a specialist.
        (`/scan/review`, `/scan/impact`, `/rapport`, `/confidence`) plus any G1
        candidate route that passes domain objects through `state.extra`.
      - `ledger_dead_key_test` for P0-loop canonical keys.
+   - These tests are expected to be created or extended during G1. Their absence
+     at G1 preflight is not a tool failure; G1 completion is blocked until they
+     exist, fail on a seeded violation, and pass after the fix.
+   - Empty/stub passing tests are invalid. Each hard-floor gate needs either a
+     committed negative fixture or documented red -> green evidence in the G1
+     scorecard.
+   - `ledger_dead_key_test` must load its key set from the ledger gap matrix or
+     another checked-in canonical registry produced by G1. It must not duplicate
+     a hand-written key list inside the test.
    - May be ticketed only if the ticket uses the blocking template below:
      - `provenance_on_write_test`,
      - `source_crosswalk_test`,

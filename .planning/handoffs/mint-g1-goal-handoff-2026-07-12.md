@@ -180,6 +180,15 @@ G1 deliberately does **not** implement the six P0 loops.
    - explicit commands:
      - `cd apps/mobile && flutter test test/routing/no_domain_data_in_extra_test.dart`
      - `python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q`
+   - These tests are G1 deliverables. They may be absent at preflight, but G1 is
+     incomplete until they exist and pass.
+   - A passing stub is invalid. Each hard-floor gate must fail on a seeded
+     violation before it is accepted, either through a committed negative fixture
+     or red -> green evidence recorded in the scorecard.
+   - `ledger_dead_key_test` must read P0 canonical keys from
+     `.planning/goals/G1-ledger-gap-matrix.md` or another checked-in canonical
+     registry produced by G1. It must not duplicate an incomplete key list inside
+     the test.
 
 6. Blocking tickets for remaining gates if not implemented:
    - `provenance_on_write_test`
@@ -267,6 +276,12 @@ Before marking G1 complete, the hard-floor gates must also run:
 cd apps/mobile && flutter test test/routing/no_domain_data_in_extra_test.dart
 python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q
 ```
+
+These files are expected G1 deliverables and may not exist at preflight. Do not
+treat absence as a broken tool. Do not create empty passing stubs. Prove each
+gate with a seeded violation/negative fixture or red -> green evidence in the
+scorecard, and make `ledger_dead_key_test` read keys from the G1 ledger gap
+matrix or a checked-in canonical registry.
 
 If `apps/mobile` is touched:
 
@@ -463,14 +478,21 @@ Scope G1 must ship:
    objets métier par `state.extra`.
 6. `ledger_dead_key_test` exécutable et vert pour les clés canoniques des P0
    loops.
-7. Tickets bloquants exacts pour `provenance_on_write_test`,
+7. Ces deux hard-floor gates sont des livrables G1. Ils peuvent être absents au
+   preflight, mais G1 est incomplet tant qu'ils n'existent pas et ne passent pas.
+   Un stub vert est interdit: chaque gate doit échouer sur une violation seedée
+   avant acceptation, via fixture négative commitée ou preuve red -> green dans
+   le scorecard. `ledger_dead_key_test` doit lire ses clés depuis
+   `.planning/goals/G1-ledger-gap-matrix.md` ou un registre canonique checked-in,
+   pas depuis une liste dupliquée dans le test.
+8. Tickets bloquants exacts pour `provenance_on_write_test`,
    `source_crosswalk_test`, `provider_bridge_recompute_test` si non implémentés.
-8. `.planning/goals/G1-blocking-gate-tickets.md` si un gate reste ticket-only.
+9. `.planning/goals/G1-blocking-gate-tickets.md` si un gate reste ticket-only.
    `G2 allowed?` vaut NO par défaut tant que ces tickets bloquent G2.
-9. `.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/SCORECARD.md`
+10. `.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/SCORECARD.md`
    avec commandes, matrices, gates, tickets, verdicts Claude/agents, P1/P2,
    et décision “G2 allowed?”.
-10. Evidence files:
+11. Evidence files:
    `.planning/runtime-evidence/g1-ledger-reality-baseline-20260712/claude-architecture.md`,
    `claude-product-domain.md`, `agent-data-ledger.md`, `agent-quality-gate.md`,
    `agent-swiss-product.md`.
@@ -510,6 +532,12 @@ Hard-floor G1 à créer/étendre puis exécuter avant `complete`:
 cd apps/mobile && flutter test test/routing/no_domain_data_in_extra_test.dart
 python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q
 ```
+
+Ces fichiers peuvent être absents au preflight: c'est normal, ils sont à créer
+pendant G1. N'accepte jamais un test vert par vacuité. Chaque hard-floor gate
+doit avoir une fixture négative ou une preuve red -> green. `ledger_dead_key_test`
+doit lire ses clés depuis `.planning/goals/G1-ledger-gap-matrix.md` ou un
+registre canonique checked-in, pas depuis une liste locale incomplète.
 
 Si `apps/mobile` est touché:
 

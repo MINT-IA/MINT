@@ -63,6 +63,7 @@ apps/mobile/ios/DerivedData/
 
 # Claude Code worktrees
 .claude/worktrees/
+.claude/settings.local.json
 
 # GStack security reports & analytics
 .gstack/

@@ -101,6 +101,10 @@ Acceptance:
 - Hard floor before G2: `no_domain_data_in_extra_test` and
   `ledger_dead_key_test` must be executable and green for P0-loop routes/keys;
   they cannot remain ticket-only.
+- The two hard-floor gates must not pass by vacuity. Each needs a seeded
+  violation/negative fixture or red -> green evidence in the G1 scorecard, and
+  `ledger_dead_key_test` must read canonical keys from the G1 ledger gap matrix
+  or another checked-in registry rather than duplicating a local key list.
 - If `provenance_on_write_test`, `source_crosswalk_test`, or
   `provider_bridge_recompute_test` remain ticket-only, the G1 scorecard must
   default `G2 allowed?` to no unless the ticket includes an explicit P1 triage
