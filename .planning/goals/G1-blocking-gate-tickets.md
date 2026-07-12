@@ -4,7 +4,9 @@ Date: 2026-07-12
 
 Owner: `mint-quality-gate`
 
-Decision: **ticket registry only; no ticket below is implemented by this file.**
+Decision: **ticket registry plus fail-closed evidence index; no ticket below is
+implemented by this file.** The machine-readable mirror lives at
+`.planning/runtime-evidence/phase-37/ticket-evidence.json`.
 
 Phase boundary: every row blocks G2 until its RED predicate has been repaired,
 its GREEN command passes, and runtime evidence exists where the predicate names
@@ -60,7 +62,8 @@ output fails closed and the ticket remains explicit here.
 - `G1 baseline deliverable`: eligible only after hard floors, both external
   audit lenses, runtime evidence, and the final scorecard are GREEN; this
   registry alone does not declare G1 complete.
-- `Runtime data-spine G2 readiness`: **NO** while any `ticket_only` row remains.
+- `Runtime data-spine G2 readiness`: **NO** while any `ticket_only` or
+  `red_proven` row remains. A `green` row proves one ticket only, never the phase.
 - `G2 allowed`: **NO** until every ticket is implemented, its GREEN command
   passes, required Maestro and Patrol artifacts exist, external audits are
   resolved, and the phase score reaches at least 9.0/10.

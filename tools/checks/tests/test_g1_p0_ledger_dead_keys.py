@@ -22,6 +22,9 @@ TICKET_EVIDENCE_NEGATIVE_FIXTURE = (
 AUDIT_MANIFEST_NEGATIVE_FIXTURE = (
     ROOT / "tools/checks/fixtures/g1_phase37_audit_manifest_negative.json"
 )
+TICKET_EVIDENCE_INDEX = (
+    ROOT / ".planning/runtime-evidence/phase-37/ticket-evidence.json"
+)
 
 MATRIX_COLUMNS = [
     "canonical_key",
@@ -778,7 +781,6 @@ def test_every_matrix_ticket_has_an_executable_blocking_contract() -> None:
     for ticket in tickets:
         ticket_id = ticket["ticket_id"]
         assert ticket["blocks_G2"] == "yes", ticket_id
-        assert ticket["status"] == "ticket_only", ticket_id
         for field in (
             "gate_name",
             "owner",
@@ -796,6 +798,18 @@ def test_every_matrix_ticket_has_an_executable_blocking_contract() -> None:
 
     gate_names = {ticket["gate_name"] for ticket in tickets}
     assert REQUIRED_GATE_NAMES <= gate_names
+
+    evidence_index = _json(TICKET_EVIDENCE_INDEX)
+    assert set(evidence_index) == {"schema_version", "phase", "tickets"}
+    assert evidence_index["schema_version"] == 1
+    assert evidence_index["phase"] == 37
+    evidence_errors = _registry_evidence_errors(
+        tickets,
+        evidence_index["tickets"],
+        root=ROOT,
+        require_complete=True,
+    )
+    assert evidence_errors == []
 
 
 def test_negative_fixture_proves_duplicate_silent_dead_and_missing_ticket() -> None:
