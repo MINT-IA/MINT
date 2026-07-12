@@ -37,7 +37,7 @@ void main() {
   group('CommitmentCard widget (CMIT-01)', () {
     testWidgets('renders 3 text fields', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: '',
           whereText: '',
           ifThenText: '',
@@ -56,7 +56,7 @@ void main() {
 
     testWidgets('pre-fills with provided values', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: 'Lundi prochain',
           whereText: 'En ligne sur ma banque',
           ifThenText: 'Si je recois mon salaire, alors je verse 500 CHF',
@@ -143,7 +143,7 @@ void main() {
 
     testWidgets('uses MintColors (no hardcoded hex)', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: '',
           whereText: '',
           ifThenText: '',
@@ -172,7 +172,7 @@ void main() {
 
     testWidgets('accept button has i18n label', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: '',
           whereText: '',
           ifThenText: '',

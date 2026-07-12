@@ -183,7 +183,7 @@ void main() {
         versements: {'3a': 500.0},
         completedAt: DateTime(2026, 3, 5),
       );
-      final contribution = PlannedMonthlyContribution(
+      const contribution = PlannedMonthlyContribution(
         id: '3a',
         label: '3a Julien',
         amount: 500.0,

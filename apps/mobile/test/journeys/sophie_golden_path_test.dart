@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing -> stress_patrimoine)
-//  - Data flow (premier eclairage for housing stress)
+//  - Data flow (premier éclairage for housing stress)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (GE = Romande, cosmopolite)
 //  - Error recovery (empty canton — expat may not have one yet)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -76,7 +75,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Sophie golden path - data flow', () {
-    test('Sophie profile produces non-null premier eclairage', () {
+    test('Sophie profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: sophieAge,
         grossSalary: sophieSalary,

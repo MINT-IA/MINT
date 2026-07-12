@@ -157,14 +157,14 @@ void main() {
     test('9400 monthly × 13 = 122200 annual (Julien test case)', () {
       const monthly = 9400.0;
       const nombreDeMois = 13;
-      final annual = monthly * nombreDeMois;
+      const annual = monthly * nombreDeMois;
       expect(annual, closeTo(122200, 0.01));
     });
 
     test('5000 monthly × 13 = 65000 annual', () {
       const monthly = 5000.0;
       const nombreDeMois = 13;
-      final annual = monthly * nombreDeMois;
+      const annual = monthly * nombreDeMois;
       expect(annual, closeTo(65000, 0.01));
     });
 

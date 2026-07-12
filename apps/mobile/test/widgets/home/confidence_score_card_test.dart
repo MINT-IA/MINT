@@ -47,9 +47,9 @@ void main() {
   group('ConfidenceScoreCard', () {
     testWidgets('score=75 renders zone label Bonne estimation', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 75,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
@@ -58,9 +58,9 @@ void main() {
 
     testWidgets('score=50 renders zone label Estimation large', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 50,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
@@ -69,9 +69,9 @@ void main() {
 
     testWidgets('score=30 renders zone label On devine beaucoup', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 30,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
@@ -80,9 +80,9 @@ void main() {
 
     testWidgets('renders enrichment action label when prompts non-empty', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 50,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
@@ -139,9 +139,9 @@ void main() {
 
     testWidgets('score=96 with prompts still shows perfect state', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 96,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();

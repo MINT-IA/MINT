@@ -17,7 +17,6 @@
 // BOTH slots are non-null, AND a fresh install correctly re-wires
 // PlatformDispatcher.onError even when only that slot was cleared
 // (proves it is not a side-effect of FlutterError.onError).
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
