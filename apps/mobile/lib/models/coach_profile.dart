@@ -2318,7 +2318,8 @@ class CoachProfile {
       employmentRate: IncomeConversionCalculator.clampEmploymentRatePercent(
         (json['employmentRate'] as num?)?.toDouble(),
       ),
-      employmentStatus: json['employmentStatus'] ?? 'salarie',
+      employmentStatus:
+          _parseEmploymentStatus(json['employmentStatus'] as String?),
       selfEmployedNetIncome:
           (json['selfEmployedNetIncome'] as num?)?.toDouble(),
       companyProfitAnnual: (json['companyProfitAnnual'] as num?)?.toDouble(),
@@ -2436,7 +2437,7 @@ class CoachProfile {
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
         'employmentRate': employmentRate,
-        'employmentStatus': employmentStatus,
+        'employmentStatus': employmentStatusToCanonical(employmentStatus),
         'selfEmployedNetIncome': selfEmployedNetIncome,
         'companyProfitAnnual': companyProfitAnnual,
         'unemploymentContributionMonths': unemploymentContributionMonths,
@@ -3346,6 +3347,10 @@ class CoachProfile {
       case 'etudiant':
       case 'étudiant': // lint-ignore: accepted legacy input
         return 'etudiant';
+      case 'unemployed':
+      case 'chomage':
+      case 'chômage': // lint-ignore: accepted legacy input
+        return 'chomage';
       case 'mixed':
       case 'mixte':
         return 'mixte';
@@ -3361,6 +3366,7 @@ class CoachProfile {
         'independant' => 'self_employed',
         'retraite' => 'retired',
         'etudiant' => 'student',
+        'chomage' => 'unemployed',
         'mixte' => 'mixed',
         _ => status,
       };
@@ -3373,6 +3379,7 @@ class CoachProfile {
         'self_employed' => 'independant',
         'retired' => 'retraite',
         'student' => 'etudiant',
+        'unemployed' => 'chomage',
         _ => status,
       };
 
