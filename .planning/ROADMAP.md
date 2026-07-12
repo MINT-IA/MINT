@@ -65,7 +65,7 @@ flowchart TD
 2. Targeted and affected full suites pass; Maestro and Patrol prove restart/recompute.
 3. Claude code, architecture, and product-domain audits have no P0/P1 and score is >=9.0.
 
-**Status:** not started; G2 blocked.
+**Status:** in progress — 1/8 plans complete; G1-RUNTIME-01 red_proven, G2 blocked.
 
 ### Phase 38: Mint OS Operating Runway
 

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: v3.0 milestone initialized; Phase 37 planning is next.
-last_updated: "2026-07-12T14:45:27.518Z"
-last_activity: 2026-07-12 -- Phase 37 execution started
+stopped_at: 37-00 complete; next authorized slice is 37-01.
+last_updated: "2026-07-12T15:38:25Z"
+last_activity: 2026-07-12 -- Wave 0 evidence/runtime contract completed
 progress:
   total_phases: 14
   completed_phases: 0
   total_plans: 8
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 13
 ---
 
 # GSD State: MINT v3.0 — Product Reality
@@ -30,11 +30,11 @@ own sourced data and leaves with clear questions plus a specialist-ready dossier
 
 Phase: 37 (ledger-runtime-readiness) — EXECUTING
 
-Plan: 1 of 8
+Plan: 2 of 8
 
 Status: Executing Phase 37
 
-Last activity: 2026-07-12 -- Phase 37 execution started
+Last activity: 2026-07-12 -- Wave 0 evidence/runtime contract completed
 
 ## Build Order
 
@@ -74,7 +74,8 @@ Last activity: 2026-07-12 -- Phase 37 execution started
 
 ## Active Blockers
 
-- 23/23 G1 ticket implementations and named tests are absent.
+- 22/23 G1 tickets remain `ticket_only`; `G1-RUNTIME-01` is `red_proven` at
+  the cold-relaunch mortgage consumer and is not GREEN.
 - Phase 38 and all later phases are dependency-blocked by Phase 37.
 - This is expected planned work, not a user-input blocker.
 
@@ -89,6 +90,6 @@ counts as a current-SHA PASS without targeted revalidation.
 
 Last session: 2026-07-12
 
-Stopped at: v3.0 milestone initialized; Phase 37 planning is next.
+Stopped at: 37-00 complete; next authorized slice is 37-01.
 
 Resume file: `.planning/goals/v3-product-reality-migration-manifest-2026-07-12.md`
