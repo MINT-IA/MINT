@@ -37,8 +37,12 @@ repo_root="$(git rev-parse --show-toplevel)"
 head_sha="$(git -C "$repo_root" rev-parse HEAD)"
 [[ "$sha" == "$head_sha" ]] || die "--sha must equal current HEAD ($head_sha)"
 mobile_root="$repo_root/apps/mobile"
-write_target="integration_test/g1_p0_persistence_write_patrol_test.dart"
-read_target="integration_test/g1_p0_persistence_read_patrol_test.dart"
+write_contract="integration_test/g1_p0_persistence_write_patrol_test.dart"
+read_contract="integration_test/g1_p0_persistence_read_patrol_test.dart"
+write_target="test/patrol/g1_p0_persistence_write_runtime_test.dart"
+read_target="test/patrol/g1_p0_persistence_read_runtime_test.dart"
+[[ -f "$mobile_root/$write_contract" ]] || die "write contract is missing"
+[[ -f "$mobile_root/$read_contract" ]] || die "read contract is missing"
 [[ -f "$mobile_root/$write_target" ]] || die "write target is missing"
 [[ -f "$mobile_root/$read_target" ]] || die "read target is missing"
 
@@ -56,12 +60,12 @@ terminate_exit_code=""
 read_exit_code=""
 
 write_command=(
-  "$patrol_bin" test --target "$write_target" --no-generate-bundle --no-uninstall
+  "$patrol_bin" test --target "$write_target" --no-uninstall
   --device "$device" --bundle-id "$bundle_id"
   --dart-define=MINT_PATROL_CLI=true
 )
 read_command=(
-  "$patrol_bin" test --target "$read_target" --no-generate-bundle --no-uninstall
+  "$patrol_bin" test --target "$read_target" --no-uninstall
   --device "$device" --bundle-id "$bundle_id"
   --dart-define=MINT_PATROL_CLI=true
 )
