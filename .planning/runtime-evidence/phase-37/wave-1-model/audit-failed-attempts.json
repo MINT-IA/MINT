@@ -1,0 +1,29 @@
+{
+  "phase": 37,
+  "wave": "37-02",
+  "accepted_runs": 0,
+  "attempts": [
+    {
+      "mode": "code",
+      "command": "CLAUDE_AUDIT_MAX_DIFF_LINES=3500 tools/checks/claude_external_audit.sh code 3397d48b2",
+      "base_sha": "3397d48b2a71fd037766b7126c7f3cbb7af5a19b",
+      "head_sha": "3693978ea439d686096f5b4e0b0eab7c6bf616c4",
+      "exit_code": 2,
+      "classification": "wrapper_preflight_budget_refusal",
+      "output": "diff prompt is 4031 lines, above CLAUDE_AUDIT_MAX_DIFF_LINES=3500; Claude was not invoked",
+      "accepted": false
+    },
+    {
+      "mode": "code",
+      "command": "CLAUDE_AUDIT_MAX_DIFF_LINES=4500 tools/checks/claude_external_audit.sh code 3397d48b2",
+      "base_sha": "3397d48b2a71fd037766b7126c7f3cbb7af5a19b",
+      "head_sha": "3693978ea439d686096f5b4e0b0eab7c6bf616c4",
+      "exit_code": 1,
+      "classification": "claude_session_limit",
+      "output": "You've hit your session limit; resets 9:20pm Europe/Zurich",
+      "accepted": false
+    }
+  ],
+  "retry_after": "2026-07-12T21:20:00+02:00",
+  "fail_closed": true
+}
