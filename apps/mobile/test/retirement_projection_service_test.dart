@@ -234,7 +234,7 @@ void main() {
       expect(lowSalary.revenuBrutAnnuel, lessThan(lppSeuilEntree));
 
       final result = RetirementProjectionService.project(
-        profile: lowSalary,
+        profile: _certificateReadyProfile(lowSalary),
       );
 
       final lppSource = result.phases[0].sources.where(
@@ -274,7 +274,7 @@ void main() {
       expect(atThreshold.revenuBrutAnnuel, greaterThanOrEqualTo(lppSeuilEntree));
 
       final result = RetirementProjectionService.project(
-        profile: atThreshold,
+        profile: _certificateReadyProfile(atThreshold),
       );
 
       final lppSource = result.phases[0].sources.firstWhere(
@@ -327,7 +327,7 @@ void main() {
       expect(indep.revenuBrutAnnuel, lessThan(lppSeuilEntree));
 
       final resultIndep = RetirementProjectionService.project(
-        profile: indep,
+        profile: _certificateReadyProfile(indep),
       );
 
       // Same profile but as salarie
@@ -363,7 +363,7 @@ void main() {
       );
 
       final resultSalarie = RetirementProjectionService.project(
-        profile: salarie,
+        profile: _certificateReadyProfile(salarie),
       );
 
       // Independant 3a should be higher because cap is 36288 vs 14516
@@ -434,7 +434,7 @@ void main() {
       );
 
       final result = RetirementProjectionService.project(
-        profile: coupleCfirst,
+        profile: _certificateReadyProfile(coupleCfirst),
       );
 
       // Should have 2 phases: conjoint retires 2040, user retires 2050
@@ -830,7 +830,7 @@ void main() {
       );
 
       final singleCapital = RetirementProjectionService.project(
-        profile: singleProfile,
+        profile: _certificateReadyProfile(singleProfile),
         lppCapitalPct: 1.0,
       );
 
@@ -1308,10 +1308,10 @@ void main() {
       );
 
       final fatcaResult = RetirementProjectionService.project(
-        profile: fatcaProfile,
+        profile: _certificateReadyProfile(fatcaProfile),
       );
       final nonFatcaResult = RetirementProjectionService.project(
-        profile: nonFatcaProfile,
+        profile: _certificateReadyProfile(nonFatcaProfile),
       );
 
       final fatca3a = fatcaResult.phases.last.sources
@@ -1370,7 +1370,7 @@ void main() {
       );
 
       final result = RetirementProjectionService.project(
-        profile: concubinProfile,
+        profile: _certificateReadyProfile(concubinProfile),
       );
 
       // isCouple but NOT marie

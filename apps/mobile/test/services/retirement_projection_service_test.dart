@@ -95,6 +95,10 @@ void main() {
           reason: status.name,
         );
         expect(result.budgetGap, isNull, reason: status.name);
+        expect(result.phases, isEmpty, reason: status.name);
+        expect(result.earlyRetirementComparisons, isEmpty,
+            reason: status.name);
+        expect(result.indexedProjection, isEmpty, reason: status.name);
         expect(
           allProjectedSources(result).where((source) =>
               source.id == 'avs_user' || source.id == 'avs_conjoint'),
@@ -120,6 +124,9 @@ void main() {
           result.revenuMensuelAt65, greaterThan(result.revenuMensuelHorsAvs));
       expect(result.tauxRemplacement, isNotNull);
       expect(result.budgetGap, isNotNull);
+      expect(result.phases, isNotEmpty);
+      expect(result.earlyRetirementComparisons, isNotEmpty);
+      expect(result.indexedProjection, isNotEmpty);
       expect(result.missingFields, isEmpty);
       expect(
         allProjectedSources(result).where((source) => source.id == 'avs_user'),
@@ -152,6 +159,9 @@ void main() {
         [AvsGapEvidence.spouseFieldPath],
       );
       expect(result.budgetGap, isNull);
+      expect(result.phases, isEmpty);
+      expect(result.earlyRetirementComparisons, isEmpty);
+      expect(result.indexedProjection, isEmpty);
       expect(
         allProjectedSources(result).where(
             (source) => source.id == 'avs_user' || source.id == 'avs_conjoint'),

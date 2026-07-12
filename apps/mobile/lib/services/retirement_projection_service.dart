@@ -235,21 +235,25 @@ class RetirementProjectionService {
           );
 
     // 2. Couple phases
-    final phases = _computePhases(
-      profile: profile,
-      ageUser: retirementAgeUser,
-      ageConjoint: conjAge,
-      lppCapitalPct: lppCapitalPct,
-      l: l,
-    );
+    final phases = avsIncluded
+        ? _computePhases(
+            profile: profile,
+            ageUser: retirementAgeUser,
+            ageConjoint: conjAge,
+            lppCapitalPct: lppCapitalPct,
+            l: l,
+          )
+        : const <RetirementPhase>[];
 
     // 3. Early retirement comparison (63-70)
-    final earlyComparisons = _computeEarlyRetirementComparisons(
-      profile: profile,
-      ageConjoint: conjAge,
-      lppCapitalPct: lppCapitalPct,
-      l: l,
-    );
+    final earlyComparisons = avsIncluded
+        ? _computeEarlyRetirementComparisons(
+            profile: profile,
+            ageConjoint: conjAge,
+            lppCapitalPct: lppCapitalPct,
+            l: l,
+          )
+        : const <EarlyRetirementScenario>[];
 
     // 4. Budget gap
     final budgetGap = avsIncluded
@@ -261,11 +265,13 @@ class RetirementProjectionService {
         : null;
 
     // 5. Indexed projection (25 years)
-    final indexedProjection = _computeIndexedProjection(
-      profile: profile,
-      retirementAge: retirementAgeUser,
-      incomeSources: incomes,
-    );
+    final indexedProjection = avsIncluded
+        ? _computeIndexedProjection(
+            profile: profile,
+            retirementAge: retirementAgeUser,
+            incomeSources: incomes,
+          )
+        : const <IndexedProjectionPoint>[];
 
     return RetirementProjectionResult(
       revenuMensuelHorsAvs: revenuMensuelHorsAvs,
@@ -287,8 +293,8 @@ class RetirementProjectionService {
           'Consulte un·e spécialiste pour un plan personnalise. LSFin.', // lint-ignore: localized via l when rendered; fallback remains for non-UI service callers.
       sources: [
         'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
-        'LPP art. 14 (taux de conversion minimum 6.8%)', // lint-ignore: legal source metadata, not rendered UI copy.
-        'LIFD art. 38 (imposition des prestations en capital)', // lint-ignore: legal source metadata, not rendered UI copy.
+        'LPP art. 14 (taux de conversion minimum 6.8%)', // lint-ignore: legal citation metadata; renderer localization needs structured citations.
+        'LIFD art. 38 (imposition des prestations en capital)', // lint-ignore: legal citation metadata; renderer localization needs structured citations.
         'OPC (prestations complementaires)',
         'LAVS art. 33ter (indexation indice mixte)',
       ],
