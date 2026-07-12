@@ -224,32 +224,21 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('_hasUserInteracted guard logic', () {
+    bool simulateWriteBack(bool hasUserInteracted) {
+      var writeBackFired = false;
+      if (!hasUserInteracted) return writeBackFired;
+      writeBackFired = true;
+      return writeBackFired;
+    }
+
     test('write-back should NOT fire if hasUserInteracted is false', () {
       // This mirrors the guard pattern used in all 6 screens:
       // if (!_hasUserInteracted) return;
-      bool writeBackFired = false;
-      const hasUserInteracted = false;
-
-      void simulateWriteBack() {
-        if (!hasUserInteracted) return;
-        writeBackFired = true;
-      }
-
-      simulateWriteBack();
-      expect(writeBackFired, isFalse);
+      expect(simulateWriteBack(false), isFalse);
     });
 
     test('write-back SHOULD fire after user interaction', () {
-      bool writeBackFired = false;
-      const hasUserInteracted = true;
-
-      void simulateWriteBack() {
-        if (!hasUserInteracted) return;
-        writeBackFired = true;
-      }
-
-      simulateWriteBack();
-      expect(writeBackFired, isTrue);
+      expect(simulateWriteBack(true), isTrue);
     });
   });
 }

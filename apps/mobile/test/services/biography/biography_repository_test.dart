@@ -240,7 +240,6 @@ void main() {
     });
 
     test('null fieldPath and sourceDate serialize correctly', () {
-      final fact = _makeFact(fieldPath: null, sourceDate: null);
       // Force sourceDate to null by constructing directly
       final factNull = BiographyFact(
         id: 'null-test',

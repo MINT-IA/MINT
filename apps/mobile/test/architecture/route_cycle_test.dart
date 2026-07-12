@@ -50,10 +50,6 @@ Map<String, Set<String>> buildRouteGraph(String source) {
 void _parseNestedRoutes(String source, Map<String, Set<String>> graph) {
   // Strategy: find ScopedGoRoute with `routes:` parameter that contains
   // child ScopedGoRoute declarations. We use a simplified state machine.
-  final parentPattern = RegExp(
-    r'''ScopedGoRoute\s*\(\s*\n?\s*path:\s*['"]([^'"]+)['"]\s*,''',
-  );
-
   // Find routes that have sub-routes by looking for the `routes: [` pattern
   // within the same ScopedGoRoute block.
   final routeBlockPattern = RegExp(

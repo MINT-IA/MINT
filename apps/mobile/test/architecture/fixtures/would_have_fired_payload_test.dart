@@ -125,6 +125,9 @@ void main() {
       final extraReadIdx = buggySource.indexOf('extra');
       final returnIdx = buggySource.indexOf('return');
 
+      expect(returnBeforeExtra.hasMatch(buggySource), isTrue,
+          reason: 'The structural matcher must detect a return before the '
+              'later extra/payload read');
       expect(hasEarlyReturn, isTrue,
           reason: 'Should detect early return in buggy source');
       expect(returnIdx < extraReadIdx, isTrue,
