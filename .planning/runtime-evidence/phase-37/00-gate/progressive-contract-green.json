@@ -1,0 +1,11 @@
+{
+  "assertion": "progressive evidence-backed registry state",
+  "command": "python3 tools/checks/mint_os_doctor.py --repo-only && python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py -q",
+  "evidence_class": "pass",
+  "exit_code": 0,
+  "head_sha": "13a764719f95466e549caaf3250c0ef498f3f915",
+  "outcome": "green",
+  "output": "Mint OS repo Doctor passed and all 8 gate tests passed, including both evidence modes and every named ticket/audit negative fixture.",
+  "recorded_at": "2026-07-12T14:59:17Z",
+  "synthetic_data_only": true
+}
