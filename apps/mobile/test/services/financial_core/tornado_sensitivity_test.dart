@@ -193,6 +193,17 @@ void main() {
       // +20% salary should produce more retirement income than -20%
       expect(salaryVar.highValue, greaterThan(salaryVar.lowValue));
     });
+
+    test('uncertified AVS gaps fail closed with no sensitivity results', () {
+      final profile = _buildFullProfile().copyWith(dataSources: const {});
+
+      final result = TornadoSensitivityService.compute(
+        profile: profile,
+        retirementAgeUser: 65,
+      );
+
+      expect(result, isEmpty);
+    });
   });
 }
 
@@ -252,6 +263,9 @@ CoachProfile _buildFullProfile() {
       targetDate: DateTime(2050),
       label: 'Retraite',
     ),
+    dataSources: const {
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
   );
 }
 
@@ -268,6 +282,7 @@ CoachProfile _buildMinimalProfile() {
       avoirLppTotal: 80000,
       tauxConversion: 0.068,
       rendementCaisse: 0.02,
+      lacunesAVS: 0,
     ),
     patrimoine: const PatrimoineProfile(
       epargneLiquide: 0,
@@ -282,6 +297,9 @@ CoachProfile _buildMinimalProfile() {
       targetDate: DateTime(2055),
       label: 'Retraite',
     ),
+    dataSources: const {
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
   );
 }
 
@@ -307,6 +325,7 @@ CoachProfile _buildCoupleProfile() {
         rendementCaisse: 0.02,
         totalEpargne3a: 20000,
         nombre3a: 1,
+        lacunesAVS: 0,
       ),
     ),
     prevoyance: const PrevoyanceProfile(
@@ -351,5 +370,9 @@ CoachProfile _buildCoupleProfile() {
       targetDate: DateTime(2051),
       label: 'Retraite',
     ),
+    dataSources: const {
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+    },
   );
 }

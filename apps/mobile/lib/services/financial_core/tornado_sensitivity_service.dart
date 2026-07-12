@@ -111,7 +111,8 @@ class TornadoSensitivityService {
           lppCapitalPct: lppCapitalPct,
         );
         variables.add(_buildVariable(
-          label: '\u00C2ge de d\u00E9part',
+          // Test-only label; localize when a production renderer is wired.
+          label: '\u00C2ge de d\u00E9part', // lint-ignore: dormant; no production renderer.
           category: 'strategy',
           base: base,
           low: low,
@@ -228,7 +229,8 @@ class TornadoSensitivityService {
         depensesMensuelles, lppCapitalPct,
       );
       variables.add(_buildVariable(
-        label: 'Taux de conversion LPP',
+        // Test-only label; localize when a production renderer is wired.
+        label: 'Taux de conversion LPP', // lint-ignore: dormant; no production renderer.
         category: 'lpp',
         base: base,
         low: low,
@@ -361,7 +363,8 @@ class TornadoSensitivityService {
           depensesMensuelles, lppCapitalPct,
         );
         variables.add(_buildVariable(
-          label: 'Années AVS cotisées',
+          // Test-only label; localize when a production renderer is wired.
+          label: 'Années AVS cotisées', // lint-ignore: dormant; no production renderer.
           category: 'avs',
           base: base,
           low: low,
@@ -609,7 +612,7 @@ class TornadoSensitivityService {
         depensesMensuelles: depensesMensuelles,
         lppCapitalPct: lppCapitalPct,
       );
-      return result.revenuMensuelAt65;
+      return result.revenuMensuelAt65 ?? double.nan;
     } catch (e, s) {
       // ignore: avoid_print
       print('[tornado] projection failed: $e\n$s');

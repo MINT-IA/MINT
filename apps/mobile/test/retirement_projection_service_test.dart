@@ -15,12 +15,46 @@ GoalA _testGoalA() => GoalA(
       label: 'Retraite',
     );
 
+CoachProfile _certificateReadyDemoProfile() {
+  // ignore: deprecated_member_use
+  final demo = CoachProfile.buildDemo();
+  return demo.copyWith(
+    prevoyance: demo.prevoyance.copyWith(lacunesAVS: 0),
+    dataSources: {
+      ...demo.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+    },
+  );
+}
+
+CoachProfile _certificateReadyProfile(
+  CoachProfile profile, {
+  int selfYears = 0,
+  int spouseYears = 0,
+}) {
+  final spouse = profile.conjoint;
+  return profile.copyWith(
+    prevoyance: profile.prevoyance.copyWith(lacunesAVS: selfYears),
+    conjoint: spouse?.copyWith(
+      prevoyance: (spouse.prevoyance ?? const PrevoyanceProfile())
+          .copyWith(lacunesAVS: spouseYears),
+    ),
+    dataSources: {
+      ...profile.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      if (profile.isCouple)
+        AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+    },
+  );
+}
+
 void main() {
   // ── Helper: demo profile (Julien 1977 + Lauren 1981, VS, marie) ───
   late CoachProfile demoProfile;
 
   setUp(() {
-    demoProfile = CoachProfile.buildDemo();
+    demoProfile = _certificateReadyDemoProfile();
   });
 
   // ════════════════════════════════════════════════════════════════
@@ -72,8 +106,8 @@ void main() {
         profile: demoProfile,
       );
 
-      expect(result.budgetGap.tauxRemplacement, greaterThan(0));
-      expect(result.budgetGap.tauxRemplacement, lessThan(150));
+      expect(result.budgetGap!.tauxRemplacement, greaterThan(0));
+      expect(result.budgetGap!.tauxRemplacement, lessThan(150));
     });
 
     test('indexed projection has 25 points', () {
@@ -97,7 +131,7 @@ void main() {
     late CoachProfile singleProfile;
 
     setUp(() {
-      singleProfile = CoachProfile(
+      singleProfile = _certificateReadyProfile(CoachProfile(
         firstName: 'Marc',
         birthYear: 1985,
         canton: 'GE',
@@ -132,7 +166,7 @@ void main() {
             isAutomatic: true,
           ),
         ],
-      );
+      ));
     });
 
     test('single person has exactly 1 phase', () {
@@ -531,7 +565,7 @@ void main() {
         depensesMensuelles: 5000,
       );
 
-      final gap = result.budgetGap;
+      final gap = result.budgetGap!;
       expect(gap.depensesMensuelles, 5000);
       expect(gap.totalRevenusMensuel, greaterThan(0));
       expect(gap.impotEstimeMensuel, greaterThanOrEqualTo(0));
@@ -548,7 +582,7 @@ void main() {
         profile: demoProfile,
       );
 
-      final gap = result.budgetGap;
+      final gap = result.budgetGap!;
       // Replacement rate should be > 0 and typically 40-120% for Swiss profiles
       expect(gap.tauxRemplacement, greaterThan(0));
     });
@@ -559,7 +593,7 @@ void main() {
         depensesMensuelles: 15000, // very high
       );
 
-      expect(result.budgetGap.soldeMensuel, lessThan(0));
+      expect(result.budgetGap!.soldeMensuel, lessThan(0));
     });
 
     test('budget gap has alertes for low replacement rate', () {
@@ -569,7 +603,7 @@ void main() {
       );
 
       // With such high expenses, there should be alerts
-      expect(result.budgetGap.alertes, isNotEmpty);
+      expect(result.budgetGap!.alertes, isNotEmpty);
     });
   });
 
@@ -870,7 +904,8 @@ void main() {
       // Household net should be > single salary * 0.87 * 0.70
       final singleNet = demoProfile.salaireBrutMensuel * 0.87;
       final householdFloor = singleNet * 0.70;
-      expect(result.budgetGap.depensesMensuelles, greaterThan(householdFloor));
+      expect(
+          result.budgetGap!.depensesMensuelles, greaterThan(householdFloor));
     });
 
     test('expenses floor at 70% of household net when budget data is low', () {
@@ -894,10 +929,14 @@ void main() {
           tauxConversion: 0.068,
           rendementCaisse: 0.02,
           totalEpargne3a: 10000,
+          lacunesAVS: 0,
         ),
         patrimoine: const PatrimoineProfile(),
         dettes: const DetteProfile(),
         goalA: _testGoalA(),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+        },
       );
 
       final result = RetirementProjectionService.project(
@@ -906,7 +945,8 @@ void main() {
 
       // 70% of net (8000 * 0.87) = 4872 — should be AT LEAST this
       const netFloor = 8000 * 0.87 * 0.70;
-      expect(result.budgetGap.depensesMensuelles, greaterThanOrEqualTo(netFloor));
+      expect(result.budgetGap!.depensesMensuelles,
+          greaterThanOrEqualTo(netFloor));
     });
   });
 
@@ -933,7 +973,9 @@ void main() {
         goalA: _testGoalA(),
       );
 
-      final result = RetirementProjectionService.project(profile: highEarner);
+      final result = RetirementProjectionService.project(
+        profile: _certificateReadyProfile(highEarner),
+      );
       final avs = result.phases.first.sources
           .where((s) => s.id == 'avs_user')
           .first.monthlyAmount;
@@ -959,7 +1001,9 @@ void main() {
         goalA: _testGoalA(),
       );
 
-      final result = RetirementProjectionService.project(profile: lowEarner);
+      final result = RetirementProjectionService.project(
+        profile: _certificateReadyProfile(lowEarner),
+      );
       final avs = result.phases.first.sources
           .where((s) => s.id == 'avs_user')
           .first.monthlyAmount;
@@ -1011,8 +1055,12 @@ void main() {
         goalA: _testGoalA(),
       );
 
-      final expatResult = RetirementProjectionService.project(profile: expat);
-      final nativeResult = RetirementProjectionService.project(profile: nativeProfile);
+      final expatResult = RetirementProjectionService.project(
+        profile: _certificateReadyProfile(expat),
+      );
+      final nativeResult = RetirementProjectionService.project(
+        profile: _certificateReadyProfile(nativeProfile),
+      );
 
       final avsExpat = expatResult.phases.first.sources
           .where((s) => s.id == 'avs_user')
@@ -1054,7 +1102,9 @@ void main() {
         goalA: _testGoalA(),
       );
 
-      final result = RetirementProjectionService.project(profile: profile);
+      final result = RetirementProjectionService.project(
+        profile: _certificateReadyProfile(profile),
+      );
       // Phase 2 (both retired) — find conjoint AVS
       final phase2 = result.phases.last;
       final avsConj = phase2.sources
@@ -1072,7 +1122,7 @@ void main() {
 
   group('AVS couple cap married-only (LAVS art. 35)', () {
     CoachProfile coupleProfile(CoachCivilStatus status) {
-      return CoachProfile(
+      return _certificateReadyProfile(CoachProfile(
         firstName: 'A',
         birthYear: 1985,
         canton: 'ZH',
@@ -1092,7 +1142,7 @@ void main() {
         patrimoine: const PatrimoineProfile(),
         dettes: const DetteProfile(),
         goalA: _testGoalA(),
-      );
+      ));
     }
 
     test('married couple AVS capped at 3780 (150%)', () {

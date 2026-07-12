@@ -186,10 +186,13 @@ class MintStateEngine {
           profile: profile,
           retirementAgeUser: profile.targetRetirementAge ?? 65,
         );
-        budgetGap = retirementResult.budgetGap;
-        // If replacementRate was not set from forecaster, fall back to
-        // the retirement projection's replacement rate.
-        replacementRate ??= retirementResult.tauxRemplacement;
+        final retirementBudgetGap = retirementResult.budgetGap;
+        if (retirementResult.avsIncluded && retirementBudgetGap != null) {
+          budgetGap = retirementBudgetGap;
+          // If replacementRate was not set from forecaster, fall back to
+          // the retirement projection's replacement rate.
+          replacementRate ??= retirementResult.tauxRemplacement;
+        }
       } catch (_) {
         budgetGap = null;
       }
@@ -246,11 +249,9 @@ class MintStateEngine {
     SessionDelta? sessionDelta;
     try {
       final previousSnapshot = await SessionSnapshotService.load();
-      if (previousSnapshot != null) {
+      if (previousSnapshot != null && budgetGap != null) {
         // Monthly retirement income from budgetGap (total revenus at retirement).
-        // Falls back to 0 when projections are not yet available.
-        final currentRetirementIncome =
-            budgetGap?.totalRevenusMensuel ?? 0.0;
+        final currentRetirementIncome = budgetGap.totalRevenusMensuel;
         final currentFhs = friScore ?? 0.0;
 
         sessionDelta = SessionSnapshotService.computeDelta(

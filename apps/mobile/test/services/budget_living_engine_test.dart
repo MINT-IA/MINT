@@ -34,6 +34,7 @@ void main() {
       prevoyance: PrevoyanceProfile(
         avoirLppTotal: avoirLppTotal,
         totalEpargne3a: totalEpargne3a,
+        lacunesAVS: 0,
       ),
       patrimoine: const PatrimoineProfile(
         epargneLiquide: 20000,
@@ -44,6 +45,9 @@ void main() {
         assuranceMaladie: assuranceMaladie,
       ),
       plannedContributions: contributions,
+      dataSources: const {
+        AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      },
       goalA: GoalA(
         type: GoalAType.retraite,
         targetDate: DateTime(2045),
@@ -320,6 +324,7 @@ void main() {
           canContribute3a: false,
           prevoyance: PrevoyanceProfile(
             avoirLppTotal: 19620,
+            lacunesAVS: 0,
           ),
         ),
         prevoyance: const PrevoyanceProfile(
@@ -328,6 +333,7 @@ void main() {
           rachatEffectue: 0,
           totalEpargne3a: 32000,
           rendementCaisse: 0.05,
+          lacunesAVS: 0,
         ),
         patrimoine: const PatrimoineProfile(
           epargneLiquide: 0,
@@ -337,6 +343,10 @@ void main() {
           loyer: 2500,
           assuranceMaladie: 860, // 2 adults in VS
         ),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+        },
         goalA: GoalA(
           type: GoalAType.retraite,
           targetDate: DateTime(2042),

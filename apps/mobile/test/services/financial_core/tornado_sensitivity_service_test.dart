@@ -239,5 +239,8 @@ CoachProfile _buildProfile({
       targetDate: DateTime(2050),
       label: 'Retraite',
     ),
+    dataSources: const {
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
   );
 }

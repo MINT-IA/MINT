@@ -5,6 +5,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/mint_state_engine.dart';
+import 'package:mint_mobile/services/session_snapshot_service.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 //  Helpers
@@ -122,6 +123,27 @@ void main() {
         now: DateTime(2026, 3, 21),
       );
       expect(state.activeNudges, isA<List>());
+    });
+
+    test('missing retirement budget omits session delta', () async {
+      await SessionSnapshotService.save(
+        SessionSnapshot(
+          confidenceScore: 50,
+          monthlyRetirementIncome: 4000,
+          fhsScore: 60,
+          savedAt: DateTime(2026, 3, 20),
+        ),
+      );
+      final prefs = await SharedPreferences.getInstance();
+
+      final state = await MintStateEngine.compute(
+        profile: _emptyProfile(),
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+
+      expect(state.budgetGap, isNull);
+      expect(state.sessionDelta, isNull);
     });
   });
 

@@ -820,7 +820,11 @@ void main() {
         ),
         prevoyance: const PrevoyanceProfile(
           avoirLppTotal: 200000,
+          lacunesAVS: 0,
         ),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+        },
       );
 
   group('BudgetLivingEngine — retired mode (age >= targetRetirementAge)', () {

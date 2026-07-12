@@ -152,19 +152,26 @@ void main() {
       expect(evidence.missingFieldPaths, isEmpty);
     });
 
-    test('declared couple without a real spouse does not require spouse facts',
+    test('declared couple without a real spouse requires spouse facts',
         () {
-      final evidence = profile(
-        selfYears: 0,
-        civilStatus: CoachCivilStatus.marie,
-        dataSources: const {
-          selfPath: ProfileDataSource.certificate,
-        },
-      ).avsGapEvidence;
+      for (final civilStatus in [
+        CoachCivilStatus.marie,
+        CoachCivilStatus.concubinage,
+      ]) {
+        final evidence = profile(
+          selfYears: 0,
+          civilStatus: civilStatus,
+          dataSources: const {
+            selfPath: ProfileDataSource.certificate,
+          },
+        ).avsGapEvidence;
 
-      expect(evidence.spouseRequired, isFalse);
-      expect(evidence.householdReady, isTrue);
-      expect(evidence.missingFieldPaths, isEmpty);
+        expect(evidence.spouseRequired, isTrue, reason: civilStatus.name);
+        expect(evidence.selfReady, isTrue, reason: civilStatus.name);
+        expect(evidence.householdReady, isFalse, reason: civilStatus.name);
+        expect(evidence.missingFieldPaths, [spousePath],
+            reason: civilStatus.name);
+      }
     });
   });
 }

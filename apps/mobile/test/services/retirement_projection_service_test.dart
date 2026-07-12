@@ -24,6 +24,11 @@ void main() {
     double epargneLiquide = 50000,
     double investissements = 100000,
     int? arrivalAge,
+    int? lacunesAvs = 0,
+    AvsGapStatus? avsGapStatus,
+    Map<String, ProfileDataSource> dataSources = const {
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
     List<PlannedMonthlyContribution> contributions = const [],
   }) {
     return CoachProfile(
@@ -38,12 +43,15 @@ void main() {
       prevoyance: PrevoyanceProfile(
         avoirLppTotal: avoirLppTotal,
         totalEpargne3a: totalEpargne3a,
+        lacunesAVS: lacunesAvs,
       ),
       patrimoine: PatrimoineProfile(
         epargneLiquide: epargneLiquide,
         investissements: investissements,
       ),
       arrivalAge: arrivalAge,
+      avsGapStatus: avsGapStatus,
+      dataSources: dataSources,
       plannedContributions: contributions,
       goalA: GoalA(
         type: GoalAType.retraite,
@@ -53,8 +61,128 @@ void main() {
     );
   }
 
+  Iterable<RetirementIncomeSource> allProjectedSources(
+    RetirementProjectionResult result,
+  ) sync* {
+    for (final phase in result.phases) {
+      yield* phase.sources;
+    }
+    for (final scenario in result.earlyRetirementComparisons) {
+      yield* scenario.sources;
+    }
+  }
+
+  group('RetirementProjectionService.project — certified AVS readiness', () {
+    test('all declared statuses omit AVS while certified years are missing',
+        () {
+      for (final status in AvsGapStatus.values) {
+        final result = RetirementProjectionService.project(
+          profile: buildProfile(
+            lacunesAvs: null,
+            avsGapStatus: status,
+            dataSources: const {},
+          ),
+        );
+
+        expect(result.avsIncluded, isFalse, reason: status.name);
+        expect(result.revenuMensuelAt65, isNull, reason: status.name);
+        expect(result.tauxRemplacement, isNull, reason: status.name);
+        expect(result.revenuMensuelHorsAvs, greaterThan(0),
+            reason: status.name);
+        expect(
+          result.missingFields,
+          [AvsGapEvidence.selfFieldPath],
+          reason: status.name,
+        );
+        expect(result.budgetGap, isNull, reason: status.name);
+        expect(
+          allProjectedSources(result).where((source) =>
+              source.id == 'avs_user' || source.id == 'avs_conjoint'),
+          isEmpty,
+          reason: status.name,
+        );
+      }
+    });
+
+    test('certificate-backed zero keeps the complete AVS projection', () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(
+          lacunesAvs: 0,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.avsIncluded, isTrue);
+      expect(result.revenuMensuelAt65, 5563.123530866694);
+      expect(
+          result.revenuMensuelAt65, greaterThan(result.revenuMensuelHorsAvs));
+      expect(result.tauxRemplacement, isNotNull);
+      expect(result.budgetGap, isNotNull);
+      expect(result.missingFields, isEmpty);
+      expect(
+        allProjectedSources(result).where((source) => source.id == 'avs_user'),
+        isNotEmpty,
+      );
+    });
+
+    test('couple omits every AVS result while spouse evidence is missing', () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(
+          lacunesAvs: 0,
+          etatCivil: CoachCivilStatus.marie,
+          conjoint: const ConjointProfile(
+            birthYear: 1982,
+            salaireBrutMensuel: 5500,
+            prevoyance: PrevoyanceProfile(avoirLppTotal: 50000),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.avsIncluded, isFalse);
+      expect(result.revenuMensuelAt65, isNull);
+      expect(result.tauxRemplacement, isNull);
+      expect(result.revenuMensuelHorsAvs, greaterThan(0));
+      expect(
+        result.missingFields,
+        [AvsGapEvidence.spouseFieldPath],
+      );
+      expect(result.budgetGap, isNull);
+      expect(
+        allProjectedSources(result).where(
+            (source) => source.id == 'avs_user' || source.id == 'avs_conjoint'),
+        isEmpty,
+      );
+      expect(
+        () => result.missingFields.add('another.path'),
+        throwsUnsupportedError,
+      );
+    });
+
+    test('married profile without conjoint fails closed through evidence', () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(etatCivil: CoachCivilStatus.marie),
+      );
+
+      expect(result.avsIncluded, isFalse);
+      expect(result.revenuMensuelAt65, isNull);
+      expect(result.tauxRemplacement, isNull);
+      expect(result.missingFields, [AvsGapEvidence.spouseFieldPath]);
+      expect(
+        allProjectedSources(result).where(
+            (source) => source.id == 'avs_user' || source.id == 'avs_conjoint'),
+        isEmpty,
+      );
+    });
+  });
+
   group('RetirementProjectionService.project — single person', () {
-    test('produces positive retirement income for standard salaried worker', () {
+    test('produces positive retirement income for standard salaried worker',
+        () {
       final profile = buildProfile();
       final result = RetirementProjectionService.project(profile: profile);
 
@@ -119,11 +247,17 @@ void main() {
       final result = RetirementProjectionService.project(
         profile: buildProfile(),
       );
-      final gap = result.budgetGap;
+      final gap = result.budgetGap!;
       expect(gap.avsMensuel, greaterThan(0));
       expect(gap.lppMensuel, greaterThan(0));
-      expect(gap.totalRevenusMensuel,
-          closeTo(gap.avsMensuel + gap.lppMensuel + gap.troisAMensuel + gap.libreMensuel, 1));
+      expect(
+          gap.totalRevenusMensuel,
+          closeTo(
+              gap.avsMensuel +
+                  gap.lppMensuel +
+                  gap.troisAMensuel +
+                  gap.libreMensuel,
+              1));
     });
 
     test('indexed projection covers 26 points (years 0-25)', () {
@@ -153,17 +287,22 @@ void main() {
         firstName: 'Lauren',
         birthYear: 1982,
         salaireBrutMensuel: 67000 / 12,
+        prevoyance: PrevoyanceProfile(lacunesAVS: 0),
       );
       final result = RetirementProjectionService.project(
         profile: buildProfile(
           firstName: 'Julien',
           etatCivil: CoachCivilStatus.marie,
           conjoint: conjoint,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+          },
         ),
       );
       expect(result.isCouple, isTrue);
       // Should have AVS sources for both
-      final avsSources = result.budgetGap;
+      final avsSources = result.budgetGap!;
       expect(avsSources.avsMensuel, greaterThan(0));
     });
 
@@ -172,6 +311,7 @@ void main() {
         firstName: 'Lauren',
         birthYear: 1982, // 5 years younger → different retirement year
         salaireBrutMensuel: 5500,
+        prevoyance: PrevoyanceProfile(lacunesAVS: 0),
       );
       final result = RetirementProjectionService.project(
         profile: buildProfile(
@@ -179,6 +319,10 @@ void main() {
           birthYear: 1977,
           etatCivil: CoachCivilStatus.marie,
           conjoint: conjoint,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+          },
         ),
       );
       expect(result.phases.length, equals(2),
@@ -213,7 +357,8 @@ void main() {
         lppCapitalPct: 0.5,
       );
       // Mixed should differ from full rente
-      expect(resultMixed.revenuMensuelAt65, isNot(equals(resultFull.revenuMensuelAt65)));
+      expect(resultMixed.revenuMensuelAt65,
+          isNot(equals(resultFull.revenuMensuelAt65)));
     });
   });
 
@@ -242,12 +387,10 @@ void main() {
     });
 
     test('formatChf formats with Swiss apostrophe', () {
-      expect(RetirementProjectionService.formatChf(1234),
-          contains("1'234"));
+      expect(RetirementProjectionService.formatChf(1234), contains("1'234"));
       expect(RetirementProjectionService.formatChf(1000000),
           contains("1'000'000"));
-      expect(RetirementProjectionService.formatChf(0),
-          contains('0'));
+      expect(RetirementProjectionService.formatChf(0), contains('0'));
     });
 
     test('formatChf handles negative values', () {
@@ -274,9 +417,15 @@ void main() {
         startYear: 2042,
         sources: [
           RetirementIncomeSource(
-            id: 'avs', label: 'AVS', monthlyAmount: 2000, color: Color(0xFF000000)),
+              id: 'avs',
+              label: 'AVS',
+              monthlyAmount: 2000,
+              color: Color(0xFF000000)),
           RetirementIncomeSource(
-            id: 'lpp', label: 'LPP', monthlyAmount: 1500, color: Color(0xFF000000)),
+              id: 'lpp',
+              label: 'LPP',
+              monthlyAmount: 1500,
+              color: Color(0xFF000000)),
         ],
       );
       expect(phase.totalMonthly, equals(3500));

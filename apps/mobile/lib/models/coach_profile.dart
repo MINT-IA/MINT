@@ -2027,7 +2027,7 @@ class CoachProfile {
         ? selfYears
         : null;
 
-    final spouseRequired = isCouple && conjoint != null;
+    final spouseRequired = isCouple;
     final spouseYears = conjoint?.prevoyance?.lacunesAVS;
     final spouseCertified = spouseYears != null &&
             dataSources[AvsGapEvidence.spouseFieldPath] ==

@@ -59,6 +59,14 @@ class BudgetLivingEngine {
           profile: profile,
           retirementAgeUser: targetRetirementAge,
         );
+        if (!retirementResult.avsIncluded) {
+          return BudgetSnapshot(
+            present: present,
+            stage: BudgetStage.presentOnly,
+            capImpacts: const [],
+            confidenceScore: confidence.score,
+          );
+        }
         final retirementBudget = _wrapRetirementResult(retirementResult, profile);
         return BudgetSnapshot(
           present: present,
@@ -100,6 +108,14 @@ class BudgetLivingEngine {
         profile: profile,
         retirementAgeUser: targetRetirementAge,
       );
+      if (!retirementResult.avsIncluded) {
+        return BudgetSnapshot(
+          present: present,
+          stage: BudgetStage.presentOnly,
+          capImpacts: const [],
+          confidenceScore: confidence.score,
+        );
+      }
       retirementBudget = _wrapRetirementResult(retirementResult, profile);
       gap = _computeGap(present, retirementBudget, profile.salaireBrutMensuel);
     } catch (_) {
@@ -231,6 +247,13 @@ class BudgetLivingEngine {
   ) {
     // Gross retirement income (monthly)
     final monthlyIncome = result.revenuMensuelAt65;
+    if (monthlyIncome == null) {
+      throw StateError('Complete AVS evidence is required for a total budget');
+    }
+    final budgetGap = result.budgetGap;
+    if (!result.avsIncluded || budgetGap == null) {
+      throw StateError('Complete AVS evidence is required for a budget gap');
+    }
 
     // Estimated income tax on rentes is computed by RetirementProjectionService
     // via budgetGap.impotEstimeMensuel, which uses RetirementTaxCalculator
@@ -239,7 +262,7 @@ class BudgetLivingEngine {
     // Only AVS + LPP rente portions are taxable income at retirement.
     // 3a: capital already taxed at withdrawal (LIFD art. 38).
     // SWR drawdown: NOT income — consumption of own patrimony (CLAUDE.md §5 #10).
-    final monthlyTax = result.budgetGap.impotEstimeMensuel;
+    final monthlyTax = budgetGap.impotEstimeMensuel;
     final monthlyNet = max(0.0, monthlyIncome - monthlyTax);
 
     return RetirementBudget(

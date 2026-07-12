@@ -44,7 +44,7 @@ void main() {
       conjoint: conjoint,
       nationality: nationality,
       employmentStatus: employmentStatus ?? 'salarie',
-      prevoyance: prevoyance,
+      prevoyance: prevoyance.copyWith(lacunesAVS: 0),
       patrimoine: const PatrimoineProfile(
         epargneLiquide: 20000,
         investissements: 0,
@@ -55,6 +55,9 @@ void main() {
       ),
       goalA: retraiteGoal(),
       targetRetirementAge: targetRetirementAge,
+      dataSources: const {
+        AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      },
     );
   }
 
@@ -447,8 +450,8 @@ void main() {
 
       // The profile with lower salaireAssure should produce less LPP income
       expect(
-        resultWithSA.revenuMensuelAt65,
-        lessThan(resultWithoutSA.revenuMensuelAt65),
+        resultWithSA.revenuMensuelAt65!,
+        lessThan(resultWithoutSA.revenuMensuelAt65!),
         reason: 'Lower salaireAssure = lower LPP bonifications = less income',
       );
     });
@@ -466,7 +469,7 @@ void main() {
 
       // Should not throw — graceful fallback.
       final result = RetirementProjectionService.project(profile: profile);
-      expect(result.revenuMensuelAt65, greaterThan(0));
+      expect(result.revenuMensuelAt65!, greaterThan(0));
     });
 
     test('salaireAssure = 0 falls back to revenuBrutAnnuel', () {
@@ -481,7 +484,7 @@ void main() {
       );
 
       final result = RetirementProjectionService.project(profile: profile);
-      expect(result.revenuMensuelAt65, greaterThan(0));
+      expect(result.revenuMensuelAt65!, greaterThan(0));
     });
   });
 
