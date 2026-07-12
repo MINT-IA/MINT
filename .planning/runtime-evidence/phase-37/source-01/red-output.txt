@@ -1,0 +1,195 @@
+FFFFFFF.                                                                 [100%]
+=================================== FAILURES ===================================
+_______________ test_crosswalk_matches_the_complete_mobile_enum ________________
+
+    def test_crosswalk_matches_the_complete_mobile_enum() -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:66:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+_____________ test_every_destination_is_a_living_confidence_source _____________
+
+    def test_every_destination_is_a_living_confidence_source() -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:76:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+______________ test_backend_only_sources_have_no_mobile_preimage _______________
+
+    def test_backend_only_sources_have_no_mobile_preimage() -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:85:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+____ test_unknown_and_backend_only_mobile_tokens_fail_closed[unknownSource] ____
+
+token = 'unknownSource'
+
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "unknownSource",
+            "document_scan",
+            "institutional_api",
+            "user_estimate",
+        ],
+    )
+    def test_unknown_and_backend_only_mobile_tokens_fail_closed(token: str) -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:103:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+____ test_unknown_and_backend_only_mobile_tokens_fail_closed[document_scan] ____
+
+token = 'document_scan'
+
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "unknownSource",
+            "document_scan",
+            "institutional_api",
+            "user_estimate",
+        ],
+    )
+    def test_unknown_and_backend_only_mobile_tokens_fail_closed(token: str) -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:103:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+__ test_unknown_and_backend_only_mobile_tokens_fail_closed[institutional_api] __
+
+token = 'institutional_api'
+
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "unknownSource",
+            "document_scan",
+            "institutional_api",
+            "user_estimate",
+        ],
+    )
+    def test_unknown_and_backend_only_mobile_tokens_fail_closed(token: str) -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:103:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+____ test_unknown_and_backend_only_mobile_tokens_fail_closed[user_estimate] ____
+
+token = 'user_estimate'
+
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "unknownSource",
+            "document_scan",
+            "institutional_api",
+            "user_estimate",
+        ],
+    )
+    def test_unknown_and_backend_only_mobile_tokens_fail_closed(token: str) -> None:
+>       module = _crosswalk_module()
+
+tests/test_source_crosswalk.py:103:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def _crosswalk_module():
+>       assert importlib.util.find_spec(MODULE_NAME) is not None, (
+            "SOURCE-01 business predicate: the authoritative source crosswalk "
+            "contract is absent"
+        )
+E       AssertionError: SOURCE-01 business predicate: the authoritative source crosswalk contract is absent
+E       assert None is not None
+E        +  where None = <function find_spec at 0x105324040>('app.services.confidence.source_crosswalk')
+E        +    where <function find_spec at 0x105324040> = <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'>.find_spec
+E        +      where <module 'importlib.util' from '/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/util.py'> = importlib.util
+
+tests/test_source_crosswalk.py:41: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_source_crosswalk.py::test_crosswalk_matches_the_complete_mobile_enum
+FAILED tests/test_source_crosswalk.py::test_every_destination_is_a_living_confidence_source
+FAILED tests/test_source_crosswalk.py::test_backend_only_sources_have_no_mobile_preimage
+FAILED tests/test_source_crosswalk.py::test_unknown_and_backend_only_mobile_tokens_fail_closed[unknownSource]
+FAILED tests/test_source_crosswalk.py::test_unknown_and_backend_only_mobile_tokens_fail_closed[document_scan]
+FAILED tests/test_source_crosswalk.py::test_unknown_and_backend_only_mobile_tokens_fail_closed[institutional_api]
+FAILED tests/test_source_crosswalk.py::test_unknown_and_backend_only_mobile_tokens_fail_closed[user_estimate]
+7 failed, 1 passed in 0.39s

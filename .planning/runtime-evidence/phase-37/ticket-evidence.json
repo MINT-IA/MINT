@@ -251,16 +251,16 @@
     },
     {
       "ticket_id": "G1-SOURCE-01",
-      "state": "ticket_only",
+      "state": "green",
       "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
-      "evidence_mode": null,
-      "red_sha": null,
-      "red_artifact": null,
+      "evidence_mode": "red_green",
+      "red_sha": "53dd840c9a210f6c08932607c9d1026c34b890f5",
+      "red_artifact": ".planning/runtime-evidence/phase-37/source-01/red.json",
       "control_sha": null,
       "control_artifact": null,
-      "green_sha": null,
-      "green_artifact": null,
-      "accepted_sha": null
+      "green_sha": "ee6912679c20ee426c16dbd56585b01d9b205b9e",
+      "green_artifact": ".planning/runtime-evidence/phase-37/source-01/green.json",
+      "accepted_sha": "ee6912679c20ee426c16dbd56585b01d9b205b9e"
     },
     {
       "ticket_id": "G1-FRESH-01",

@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-SOURCE-01",
+  "stage": "GREEN",
+  "command": "cd services/backend && python3 -m pytest tests/test_source_crosswalk.py -q",
+  "sha": "ee6912679c20ee426c16dbd56585b01d9b205b9e",
+  "recorded_at": "2026-07-12T16:08:15Z",
+  "exit_code": 0,
+  "evidence_class": "pass",
+  "assertion": "source_crosswalk_test",
+  "output": "Full exact output archived in green-output.txt. 8 passed in 0.20s.",
+  "synthetic_data_only": true
+}

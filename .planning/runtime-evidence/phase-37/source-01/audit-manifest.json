@@ -1,0 +1,80 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code f885fa5072ec2de9b985cf1e08c8ce23fe00a096",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "f885fa5072ec2de9b985cf1e08c8ce23fe00a096",
+      "head_sha": "ee6912679c20ee426c16dbd56585b01d9b205b9e",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/source-01/audit-code.md",
+      "findings": [
+        {
+          "id": "CODE-P2-01",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The runtime translator has no production caller in this foundation slice.",
+          "evidence": "Plan 37-01 and Phase 37 D-05 explicitly defer the first live caller to PROV-01; SOURCE-01 remains a tested drift guard and cannot close Phase 37 as a facade."
+        },
+        {
+          "id": "CODE-P2-02",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The test does not state the full DataSource partition as one set-equality assertion.",
+          "evidence": "The same test suite proves five exact mapped destinations, three exact backend-only sources, disjointness, and the live enum currently contains exactly eight members; the equivalent 5+3 partition is complete on the accepted SHA."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "tools/checks/claude_external_audit.sh product-domain f885fa5072ec2de9b985cf1e08c8ce23fe00a096",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "f885fa5072ec2de9b985cf1e08c8ce23fe00a096",
+      "head_sha": "ee6912679c20ee426c16dbd56585b01d9b205b9e",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/source-01/audit-product-domain.md",
+      "findings": [
+        {
+          "id": "DOMAIN-P2-01",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The crosswalk is a not-yet-consumed contract in the current backend runtime.",
+          "evidence": "PROV-01 is the named dependency that must route mobile provenance ingestion through this function before Phase 37 closure; no user-facing path claims this slice is fully wired."
+        },
+        {
+          "id": "DOMAIN-P2-02",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Mobile and backend comments expose deliberately different user-entry weights.",
+          "evidence": "DATA_LEDGER section 2.2 documents mobile userInput 0.60 versus backend user_entry 0.50 as by design; SOURCE-01 translates identities only and copies no weight."
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 2,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}
