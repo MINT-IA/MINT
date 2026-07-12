@@ -11,10 +11,9 @@
 //  - Onboarding completion flag lifecycle (not set prematurely)
 //  - Input validation edge cases
 //  - Regional voice (VD = Romande, septante/nonante)
-//  - Premier eclairage computation for young firstJob profile
+//  - Premier éclairage computation for young firstJob profile
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -110,7 +109,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Lea golden path - data flow', () {
-    test('Lea profile produces non-null premier eclairage', () {
+    test('Lea profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: leaAge,
         grossSalary: leaSalary,

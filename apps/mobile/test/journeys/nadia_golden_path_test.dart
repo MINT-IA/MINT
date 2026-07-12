@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing -> stress_retraite)
-//  - Data flow (premier eclairage for general stress, young profile)
+//  - Data flow (premier éclairage for general stress, young profile)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (TI = svizzeraItaliana, warm Mediterranean flair)
 //  - Error recovery (double setMiniOnboardingCompleted idempotent, unknown canton)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -76,7 +75,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Nadia golden path - data flow', () {
-    test('Nadia profile produces non-null premier eclairage', () {
+    test('Nadia profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: nadiaAge,
         grossSalary: nadiaSalary,

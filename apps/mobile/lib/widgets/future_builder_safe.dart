@@ -90,9 +90,11 @@ class _DefaultError extends StatelessWidget {
     // TODO(i18n): move to ARB once the 6-locale backfill sprint lands.
     // This widget is a last-resort error UI; hardcoded FR is acceptable
     // until errorGenericTitle / errorGenericBody / actionRetry keys ship.
-    const title = "Impossible de charger cette page";
-    const body = "Vérifie ta connexion et réessaie dans quelques instants.";
-    const retryLabel = "Réessayer";
+    const title =
+        "Impossible de charger cette page"; // lint-ignore: legacy fallback
+    const body =
+        "Vérifie ta connexion et réessaie dans quelques instants."; // lint-ignore: legacy fallback
+    const retryLabel = "Réessayer"; // lint-ignore: legacy fallback
 
     // Surface the raw error in debug so engineers see it even though the
     // UI stays neutral. Release builds stay silent.
@@ -134,7 +136,7 @@ class _DefaultError extends StatelessWidget {
               const SizedBox(height: 20),
               FilledButton.tonal(
                 onPressed: onRetry,
-                child: Text(retryLabel),
+                child: const Text(retryLabel),
               ),
             ],
           ],

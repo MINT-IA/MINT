@@ -33,7 +33,7 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('BatchValidationBubble', () {
-    final fields = const [
+    const fields = [
       ExtractedField(
         fieldName: 'avoirLppTotal',
         value: 70377,

@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing -> stress_budget)
-//  - Data flow (premier eclairage for 3a budget stress)
+//  - Data flow (premier éclairage for 3a budget stress)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (BE = Deutschschweiz, gemuetlich)
 //  - Error recovery (age=18 boundary — just started working)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -83,7 +82,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Thomas golden path - data flow', () {
-    test('Thomas profile produces non-null premier eclairage', () {
+    test('Thomas profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: thomasAge,
         grossSalary: thomasSalary,

@@ -301,7 +301,7 @@ void main() {
   //  GROUP 4 — ARB key resolution across 6 languages (4 tests)
   // ==========================================================================
   group('ARB key resolution', () {
-    Future<void> _expectAllKeys(WidgetTester tester, Locale locale) async {
+    Future<void> expectAllKeys(WidgetTester tester, Locale locale) async {
       late S l10n;
       await tester.pumpWidget(
         MaterialApp(
@@ -323,16 +323,16 @@ void main() {
     }
 
     testWidgets('fr resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('fr'));
+      await expectAllKeys(t, const Locale('fr'));
     });
     testWidgets('en resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('en'));
+      await expectAllKeys(t, const Locale('en'));
     });
     testWidgets('de resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('de'));
+      await expectAllKeys(t, const Locale('de'));
     });
     testWidgets('es resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('es'));
+      await expectAllKeys(t, const Locale('es'));
     });
     // it + pt exercised below in semantics tests.
   });
@@ -412,7 +412,7 @@ void main() {
       )));
       await t.pump(); // first frame
       await t.pump(const Duration(milliseconds: 260));
-      expect(tester_passes(), isTrue); // sentinel — pump did not throw
+      expect(testerPasses(), isTrue); // sentinel — pump did not throw
     });
 
     testWidgets('reduced-motion uses 50ms opacity-only fallback', (t) async {
@@ -499,4 +499,4 @@ void main() {
   });
 }
 
-bool tester_passes() => true;
+bool testerPasses() => true;

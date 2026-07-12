@@ -49,18 +49,18 @@ class FactExtractionFallback {
   // Captures `7500`, `7'500`, `7 500`. Must be followed by context signalling
   // it's a monthly or yearly salary, otherwise ambiguous.
   static final RegExp _salaryMonthly = RegExp(
-    _firstPerson +
-        r"[^.!?]*?\b(?:salaire|gagne|touche|paye(?:r)?)\b[^.!?]*?"
-        r"(\d[\d' ]*)[^.!?]{0,40}?"
-        r"\b(?:mois|mensuel|/\s*m\b)",
+    '$_firstPerson'
+    r"[^.!?]*?\b(?:salaire|gagne|touche|paye(?:r)?)\b[^.!?]*?"
+    r"(\d[\d' ]*)[^.!?]{0,40}?"
+    r"\b(?:mois|mensuel|/\s*m\b)",
     caseSensitive: false,
   );
 
   static final RegExp _salaryYearly = RegExp(
-    _firstPerson +
-        r"[^.!?]*?\b(?:salaire|gagne|touche)\b[^.!?]*?"
-        r"(\d[\d' ]*)[^.!?]{0,40}?"
-        r"\b(?:an|ann[ée]e?|/\s*y\b)",
+    '$_firstPerson'
+    r"[^.!?]*?\b(?:salaire|gagne|touche)\b[^.!?]*?"
+    r"(\d[\d' ]*)[^.!?]{0,40}?"
+    r"\b(?:an|ann[ée]e?|/\s*y\b)", // lint-ignore: extraction regex, not UI copy
     caseSensitive: false,
   );
 
@@ -74,17 +74,17 @@ class FactExtractionFallback {
 
   // LPP balance: « mon avoir LPP est 150000 », « mon 2e pilier 120'000 ».
   static final RegExp _avoirLpp = RegExp(
-    _firstPerson +
-        r"[^.!?]*?\b(?:avoir\s+LPP|2e?\s+pilier|deuxi[eè]me\s+pilier)\b"
-        r"[^.!?]*?(\d[\d' ]*)",
+    '$_firstPerson'
+    r"[^.!?]*?\b(?:avoir\s+LPP|2e?\s+pilier|deuxi[eè]me\s+pilier)\b" // lint-ignore: extraction regex, not UI copy
+    r"[^.!?]*?(\d[\d' ]*)",
     caseSensitive: false,
   );
 
   // 3a balance: « mon 3a est à 15'000 CHF ».
   static final RegExp _pillar3aBalance = RegExp(
-    _firstPerson +
-        r"[^.!?]*?\b(?:3[èeé]me?\s+pilier|3a|pilier\s+3a|troisi[eè]me\s+pilier)\b"
-        r"[^.!?]*?(\d[\d' ]*)\s*(?:CHF|chf|francs?)?\b",
+    '$_firstPerson'
+    r"[^.!?]*?\b(?:3[èeé]me?\s+pilier|3a|pilier\s+3a|troisi[eè]me\s+pilier)\b" // lint-ignore: extraction regex, not UI copy
+    r"[^.!?]*?(\d[\d' ]*)\s*(?:CHF|chf|francs?)?\b",
     caseSensitive: false,
   );
 
@@ -119,8 +119,8 @@ class FactExtractionFallback {
       final amount = double.tryParse(raw ?? '');
       if (amount != null && amount >= 1000 && amount <= 100000) {
         // Presence of « brut » vs « net » picks the right canonical key.
-        final isBrut = RegExp(r'\b(?:brut|gross)\b', caseSensitive: false)
-            .hasMatch(text);
+        final isBrut =
+            RegExp(r'\b(?:brut|gross)\b', caseSensitive: false).hasMatch(text);
         final key = isBrut ? 'incomeGrossMonthly' : 'incomeNetMonthly';
         final ok = await provider.applySaveFact(key, amount);
         if (ok) applied.add(key);

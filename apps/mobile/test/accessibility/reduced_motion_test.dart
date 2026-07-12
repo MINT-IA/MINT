@@ -66,14 +66,14 @@ void main() {
 
   testWidgets('MintTrameConfiance bloom: settles within 50ms under reduced-motion',
       (tester) async {
-    final confidence = EnhancedConfidence(
+    const confidence = EnhancedConfidence(
       completeness: 75,
       accuracy: 80,
       freshness: 70,
       understanding: 72,
       combined: 74,
       level: 'high',
-      baseResult: const ProjectionConfidence(
+      baseResult: ProjectionConfidence(
         score: 75,
         level: 'high',
         prompts: [],

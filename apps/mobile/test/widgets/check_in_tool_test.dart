@@ -224,9 +224,9 @@ void main() {
               },
             ),
           );
-          return CheckInSummaryCard(
+          return const CheckInSummaryCard(
             summaryMessage: 'Bravo, 700\u00a0CHF vers\u00e9s\u00a0!',
-            versements: const {'3a': 500.0, 'lpp': 200.0},
+            versements: {'3a': 500.0, 'lpp': 200.0},
             month: '2026-03',
           );
         },

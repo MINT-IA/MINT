@@ -8,13 +8,12 @@
 //
 // Validates:
 //  - Navigation pipeline (intent routing, data flow through screens)
-//  - Data flow (premier eclairage, projections for high-salary senior)
+//  - Data flow (premier éclairage, projections for high-salary senior)
 //  - Onboarding completion flag lifecycle
 //  - Regional voice (ZH = Deutschschweiz, Znueni)
 //  - Error recovery (salary=0, late career job loss)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -76,7 +75,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Marc golden path - data flow', () {
-    test('Marc profile produces non-null premier eclairage', () {
+    test('Marc profile produces non-null premier éclairage', () {
       final profile = MinimalProfileService.compute(
         age: marcAge,
         grossSalary: marcSalary,

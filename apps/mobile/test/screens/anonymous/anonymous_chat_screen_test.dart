@@ -85,7 +85,7 @@ void main() {
       // Simulate the eager persistence path: null userId = anonymous (unprefixed).
       ConversationStore.setCurrentUserId(null);
       final store = ConversationStore();
-      final conversationId = 'anonymous_1234567890';
+      const conversationId = 'anonymous_1234567890';
 
       final messages = [
         ChatMessage(
@@ -128,7 +128,7 @@ void main() {
       // each coach response with userId = null).
       ConversationStore.setCurrentUserId(null);
       final store = ConversationStore();
-      final conversationId = 'anonymous_9876543210';
+      const conversationId = 'anonymous_9876543210';
 
       final messages = [
         ChatMessage(

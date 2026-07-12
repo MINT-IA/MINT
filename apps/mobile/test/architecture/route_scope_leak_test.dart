@@ -123,7 +123,7 @@ List<ParsedRoute> parseRoutes(String source) {
 
       // Check if child has explicit scope in the child block
       final childScopePattern = RegExp(
-        '''path:\\s*['\"]${RegExp.escape(childRelPath)}['\"]\\s*,\\s*(?:\\n\\s*)?scope:\\s*RouteScope\\.(\\w+)''',
+        '''path:\\s*['"]${RegExp.escape(childRelPath)}['"]\\s*,\\s*(?:\\n\\s*)?scope:\\s*RouteScope\\.(\\w+)''',
       );
       final scopeMatch = childScopePattern.firstMatch(childBlock);
       final childScope = scopeMatch?.group(1) ?? parentRoute.scope;

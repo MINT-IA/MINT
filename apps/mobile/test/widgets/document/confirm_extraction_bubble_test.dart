@@ -22,7 +22,7 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('ConfirmExtractionBubble', () {
-    final fields = const [
+    const fields = [
       ExtractedField(
         fieldName: 'avoirLppTotal',
         value: 70377,
