@@ -3090,25 +3090,39 @@ class CoachProfile {
         ? (DateTime.tryParse(savedUpdatedAt) ?? DateTime.now())
         : DateTime.now();
     final initialTimestamps = <String, DateTime>{
-      'salaireBrutMensuel': baseTimestamp,
-      'age': baseTimestamp,
-      'canton': baseTimestamp,
-      'etatCivil': baseTimestamp,
-      if (prevoyance.avoirLppTotal != null && prevoyance.avoirLppTotal! > 0)
+      if (answers.containsKey('q_net_income_period_chf') ||
+          answers.containsKey('q_gross_salary_annual') ||
+          answers.containsKey('q_self_employed_income'))
+        'salaireBrutMensuel': baseTimestamp,
+      if (answers.containsKey('q_birth_year') ||
+          answers.containsKey('q_date_of_birth'))
+        'age': baseTimestamp,
+      if (answers.containsKey('q_canton')) 'canton': baseTimestamp,
+      if (answers.containsKey('q_civil_status')) 'etatCivil': baseTimestamp,
+      if ((answers.containsKey('_coach_avoir_lpp') ||
+              answers.containsKey('q_avoir_lpp')) &&
+          prevoyance.avoirLppTotal != null)
         'prevoyance.avoirLppTotal': baseTimestamp,
-      if (prevoyance.totalEpargne3a > 0)
+      if ((answers.containsKey('q_3a_total') ||
+              answers.containsKey('_coach_total_3a')) &&
+          prevoyance.totalEpargne3a >= 0)
         'prevoyance.totalEpargne3a': baseTimestamp,
-      if (prevoyance.anneesContribuees != null)
+      if (answers.containsKey('q_avs_contribution_years') &&
+          prevoyance.anneesContribuees != null)
         'prevoyance.anneesContribuees': baseTimestamp,
-      if (prevoyance.renteAVSEstimeeMensuelle != null)
+      if (answers.containsKey('_coach_avs_rente_estimee') &&
+          prevoyance.renteAVSEstimeeMensuelle != null)
         'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
-      // tauxConversion is always set (non-null double with default)
-      'prevoyance.tauxConversion': baseTimestamp,
-      'patrimoine.epargneLiquide': baseTimestamp,
-      if (patrimoine.investissements > 0)
+      if (answers.containsKey('_coach_taux_conversion'))
+        'prevoyance.tauxConversion': baseTimestamp,
+      if (answers.containsKey('q_cash_total'))
+        'patrimoine.epargneLiquide': baseTimestamp,
+      if (answers.containsKey('q_investments_total') &&
+          patrimoine.investissements >= 0)
         'patrimoine.investissements': baseTimestamp,
-      if (depenses.loyer > 0) 'depenses.loyer': baseTimestamp,
-      if (depenses.assuranceMaladie > 0)
+      if (answers.containsKey('q_housing_cost_period_chf'))
+        'depenses.loyer': baseTimestamp,
+      if (answers.containsKey('q_lamal_premium_monthly_chf'))
         'depenses.assuranceMaladie': baseTimestamp,
     };
 
@@ -3218,6 +3232,9 @@ class CoachProfile {
     }
     if (answers.containsKey('q_annual_bonus')) {
       provided.add('bonusPourcentage');
+    }
+    if (answers.containsKey('_coach_taux_conversion')) {
+      provided.add('conversionRate');
     }
     if (answers.containsKey('q_civil_status')) {
       provided.add('civilStatus');
