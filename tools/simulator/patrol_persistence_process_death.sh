@@ -56,12 +56,12 @@ terminate_exit_code=""
 read_exit_code=""
 
 write_command=(
-  "$patrol_bin" test --target "$write_target" --no-uninstall
+  "$patrol_bin" test --target "$write_target" --no-generate-bundle --no-uninstall
   --device "$device" --bundle-id "$bundle_id"
   --dart-define=MINT_PATROL_CLI=true
 )
 read_command=(
-  "$patrol_bin" test --target "$read_target" --no-uninstall
+  "$patrol_bin" test --target "$read_target" --no-generate-bundle --no-uninstall
   --device "$device" --bundle-id "$bundle_id"
   --dart-define=MINT_PATROL_CLI=true
 )

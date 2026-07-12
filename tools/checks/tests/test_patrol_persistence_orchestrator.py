@@ -107,6 +107,7 @@ def test_runtime_contracts_are_distinct_and_prove_real_write_then_read() -> None
     assert "integration_test/g1_p0_persistence_write_patrol_test.dart" in orchestrator
     assert "integration_test/g1_p0_persistence_read_patrol_test.dart" in orchestrator
     assert orchestrator.count("--no-uninstall") == 2
+    assert orchestrator.count("--no-generate-bundle") == 2
     assert orchestrator.count('xcrun simctl terminate "$device" "$bundle_id"') == 1
     assert "rev-parse HEAD" in orchestrator
     assert "metadata.json" in orchestrator
@@ -151,10 +152,12 @@ def test_orchestrator_runs_write_terminate_read_and_archives_metadata(
     assert len(calls) == 3
     assert "g1_p0_persistence_write_patrol_test.dart" in calls[0]
     assert "--no-uninstall" in calls[0]
+    assert "--no-generate-bundle" in calls[0]
     assert f"--device {SYNTHETIC_UDID}" in calls[0]
     assert calls[1] == f"xcrun simctl terminate {SYNTHETIC_UDID} {BUNDLE_ID}"
     assert "g1_p0_persistence_read_patrol_test.dart" in calls[2]
     assert "--no-uninstall" in calls[2]
+    assert "--no-generate-bundle" in calls[2]
     metadata = json.loads(
         (tmp_path / "artifacts/metadata.json").read_text(encoding="utf-8")
     )
