@@ -47,7 +47,7 @@ void main() {
     bool foundLive = false;
     SemanticsNode? cur = node;
     while (cur != null) {
-      if (cur.hasFlag(SemanticsFlag.isLiveRegion)) {
+      if (cur.flagsCollection.isLiveRegion) {
         foundLive = true;
         break;
       }
@@ -72,7 +72,7 @@ void main() {
     bool foundLive = false;
     SemanticsNode? cur = node;
     while (cur != null) {
-      if (cur.hasFlag(SemanticsFlag.isLiveRegion)) {
+      if (cur.flagsCollection.isLiveRegion) {
         foundLive = true;
         break;
       }

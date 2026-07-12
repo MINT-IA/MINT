@@ -456,7 +456,7 @@ void main() {
   // ──────────────────────────────────────────────────────────────
 
   group('semantics with MTC mounted', () {
-    testWidgets('MTC fires exactly one SemanticsService.announce on mount',
+    testWidgets('MTC fires exactly one SemanticsService.sendAnnouncement on mount',
         (tester) async {
       MintTrameConfiance.debugReset();
       await tester.pumpWidget(_wrap(

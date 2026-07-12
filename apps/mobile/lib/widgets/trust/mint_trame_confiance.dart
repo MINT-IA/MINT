@@ -16,7 +16,7 @@
 ///   * **D-08** — No public `score: double` getter. Compliance: prevents the
 ///     renderer from being weaponized for ranking surfaces.
 ///   * **D-10** — Zero hardcoded hex color literals. All colors via `MintColors.*Aaa`.
-///   * **D-11** — `SemanticsService.announce` fires exactly once per
+///   * **D-11** — `SemanticsService.sendAnnouncement` fires exactly once per
 ///     EnhancedConfidence reference change.
 ///
 /// Visual grammar references (informs painter density + bloom timing):
@@ -228,7 +228,7 @@ class _TramePainter extends CustomPainter {
 // ============================================================================
 
 class MintTrameConfiance extends StatefulWidget {
-  /// Test-only counter incremented every time `SemanticsService.announce`
+  /// Test-only counter incremented every time `SemanticsService.sendAnnouncement`
   /// is invoked by an MTC instance. Reset between tests via [debugReset].
   @visibleForTesting
   static int debugAnnounceCount = 0;
@@ -442,10 +442,13 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
     final label = l10n != null
         ? oneLineConfidenceSummary(c, l10n: l10n, audioTone: widget.audioTone)
         : 'mtc-confidence';
-    // Use `SemanticsService.announce` — the stable API on Flutter 3.27.x
-    // pinned by CI. `sendAnnouncement(view, ...)` only exists on newer
-    // Flutter versions and breaks the build under 3.27.4.
-    SemanticsService.announce(label, TextDirection.ltr);
+    // Flutter 3.41.6 requires the explicit view so announcements remain
+    // correct when the engine hosts more than one window.
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      label,
+      TextDirection.ltr,
+    );
     MintTrameConfiance.debugAnnounceCount++;
   }
 
