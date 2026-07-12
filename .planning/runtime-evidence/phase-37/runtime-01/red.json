@@ -1,0 +1,12 @@
+{
+  "ticket_id": "G1-RUNTIME-01",
+  "stage": "RED",
+  "command": "UDID=\"${UDID:?set UDID}\" && python3 tools/checks/mint_os_doctor.py && python3 tools/checks/patrol_tooling_guard.py && MINT_WALKER_ARTIFACTS=.planning/runtime-evidence/phase-37/runtime-01/maestro bash tools/simulator/maestro_with_watchdog.sh test --device \"$UDID\" apps/mobile/.maestro/r4_persistence.yaml && bash tools/simulator/patrol_persistence_process_death.sh --device \"$UDID\" --bundle-id ch.mint.app --sha \"$(git rev-parse HEAD)\" --artifacts .planning/runtime-evidence/phase-37/runtime-01/patrol",
+  "recorded_at": "2026-07-12T15:35:21Z",
+  "sha": "57d371e568dd4692fb867023bf738e9861041a4f",
+  "exit_code": 1,
+  "assertion": "runtime_persistence_test",
+  "evidence_class": "business_predicate",
+  "output": "Full Mint OS Doctor and Patrol tooling guard passed on simulator B03E429D-0422-4357-B754-536637D979F9. Maestro wrote synthetic salary 96000, canton GE, and birth year 2001 through real controls, observed data_block_save_success, stopped and relaunched ch.mint.app without clearing state, opened the real mortgage consumer, and reached mortgage_income_amount. The downstream assertion for CHF 96'000 failed after cold relaunch; the hierarchy showed the stable default CHF 120'000 and canton VD. This is a semantic lost-or-stale-consumer RED, not a selector, tool, simulator, compile, import, or file failure. Raw watchdog log: .planning/runtime-evidence/phase-37/runtime-01/maestro/maestro.log.",
+  "synthetic_data_only": true
+}

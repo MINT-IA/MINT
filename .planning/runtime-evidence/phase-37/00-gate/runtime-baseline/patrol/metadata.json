@@ -1,0 +1,16 @@
+{
+  "bundle_id": "ch.mint.app",
+  "device": "B03E429D-0422-4357-B754-536637D979F9",
+  "finished_at": "2026-07-12T15:22:50Z",
+  "launch_command": "xcrun simctl launch B03E429D-0422-4357-B754-536637D979F9 ch.mint.app",
+  "launch_exit_code": 0,
+  "read_command": "/Users/julienbattaglia/.pub-cache/bin/patrol test --target test/patrol/g1_p0_persistence_read_runtime_test.dart --no-uninstall --device B03E429D-0422-4357-B754-536637D979F9 --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true",
+  "read_exit_code": 0,
+  "sha": "57d371e568dd4692fb867023bf738e9861041a4f",
+  "started_at": "2026-07-12T15:21:19Z",
+  "synthetic_data_only": true,
+  "terminate_command": "xcrun simctl terminate B03E429D-0422-4357-B754-536637D979F9 ch.mint.app",
+  "terminate_exit_code": 0,
+  "write_command": "/Users/julienbattaglia/.pub-cache/bin/patrol test --target test/patrol/g1_p0_persistence_write_runtime_test.dart --no-uninstall --device B03E429D-0422-4357-B754-536637D979F9 --bundle-id ch.mint.app --dart-define=MINT_PATROL_CLI=true",
+  "write_exit_code": 0
+}

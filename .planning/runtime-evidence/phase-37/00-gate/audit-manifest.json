@@ -1,0 +1,101 @@
+{
+  "required_modes": [
+    "code",
+    "product-domain"
+  ],
+  "runs": [
+    {
+      "command": "tools/checks/claude_external_audit.sh code f2dea052502350af2a4f34a7e19a17b05b192162",
+      "mode": "code",
+      "model": "opus",
+      "base_sha": "f2dea052502350af2a4f34a7e19a17b05b192162",
+      "head_sha": "57d371e568dd4692fb867023bf738e9861041a4f",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/00-gate/audit-code-opus.md",
+      "findings": [
+        {
+          "id": "CODE-P2-01",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Patrol install-over persistence assumption lacks a no-data negative control.",
+          "evidence": "tools/simulator/patrol_persistence_process_death.sh:62"
+        },
+        {
+          "id": "CODE-P2-02",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "The pre-terminate launch is not observed for state mutation.",
+          "evidence": "tools/simulator/patrol_persistence_process_death.sh:145"
+        },
+        {
+          "id": "CODE-P2-03",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Keep the annual salary assertion reconciled with storage units.",
+          "evidence": "apps/mobile/.maestro/r4_persistence.yaml:52"
+        },
+        {
+          "id": "CODE-P2-04",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Wave 0 meta-gate attestations are not machine-bound ticket evidence.",
+          "evidence": ".planning/runtime-evidence/phase-37/00-gate/progressive-contract-green.json:1"
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 4,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    },
+    {
+      "command": "tools/checks/claude_external_audit.sh product-domain f2dea052502350af2a4f34a7e19a17b05b192162",
+      "mode": "product-domain",
+      "model": "opus",
+      "base_sha": "f2dea052502350af2a4f34a7e19a17b05b192162",
+      "head_sha": "57d371e568dd4692fb867023bf738e9861041a4f",
+      "exit_code": 0,
+      "output_artifact": ".planning/runtime-evidence/phase-37/00-gate/audit-product-domain-opus.md",
+      "findings": [
+        {
+          "id": "DOMAIN-P2-01",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Cross-reference the overlapping Maestro mortgage flows to reduce drift.",
+          "evidence": "apps/mobile/.maestro/r4_persistence.yaml:1"
+        },
+        {
+          "id": "DOMAIN-P2-02",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "Wave 0 gate SHAs remain meta attestations rather than product acceptance.",
+          "evidence": ".planning/runtime-evidence/phase-37/00-gate/ticket-index-green.json:1"
+        },
+        {
+          "id": "DOMAIN-P2-03",
+          "severity": "p2",
+          "status": "accepted_p2",
+          "summary": "A future runtime ticket should cover persisted household income.",
+          "evidence": ".planning/goals/G1-blocking-gate-tickets.md:37"
+        }
+      ],
+      "severity_counts": {
+        "p0": 0,
+        "p1": 0,
+        "p2": 3,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 0,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      }
+    }
+  ]
+}
