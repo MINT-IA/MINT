@@ -129,16 +129,6 @@ final dartSourcePatterns = [
   ),
 ];
 
-/// ARB key names where legal references are EXPECTED and allowed.
-/// These are disclaimer, source, legal compliance, educational body,
-/// and narrative strings where citing specific law articles is required
-/// by CLAUDE.md compliance rules (section 6: "Required in Every
-/// Calculator/Service Output: sources — Legal references").
-final _allowedLegalKeyPatterns = RegExp(
-  r'(?:disclaimer|source|legal|action|demarche|body|narrative|consent|supplementary|guidance)',
-  caseSensitive: false,
-);
-
 /// Scan a file for banned patterns and return violations.
 List<String> scanFile(String filePath, String content, List<BannedPattern> patterns) {
   final violations = <String>[];

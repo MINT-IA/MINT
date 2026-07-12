@@ -40,27 +40,6 @@ Widget _scaledApp({required Widget child}) {
   );
 }
 
-/// Helper to wrap a widget in a MaterialApp at 1.0x scaling (baseline).
-Widget _normalApp({required Widget child}) {
-  return MaterialApp(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: S.supportedLocales,
-    home: MediaQuery(
-      data: const MediaQueryData(
-        textScaler: TextScaler.linear(1.0),
-        size: Size(375, 812),
-      ),
-      child: Scaffold(body: SafeArea(child: child)),
-    ),
-  );
-}
-
 void main() {
   // ═══════════════════════════════════════════════════════════
   //  GROUP 1 -- 200% font scaling overflow tests
