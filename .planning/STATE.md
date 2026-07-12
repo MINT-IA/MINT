@@ -2,13 +2,14 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
-status: planning
-last_updated: "2026-07-12T12:27:58.571Z"
-last_activity: 2026-07-12
+status: executing
+stopped_at: Phase 37 plans ready; execution begins at 37-00 and G2 remains blocked.
+last_updated: "2026-07-12T14:38:49.000Z"
+last_activity: 2026-07-12 -- Phase 37 planning complete
 progress:
   total_phases: 14
   completed_phases: 0
-  total_plans: 0
+  total_plans: 8
   completed_plans: 0
   percent: 0
 ---
@@ -31,9 +32,9 @@ Phase: 37 of 50 — Ledger Runtime Readiness
 
 Plan: Not planned
 
-Status: Ready for phase discussion/planning
+Status: Ready to execute
 
-Last activity: 2026-07-12 — Milestone v3.0 started and v2.8 archived incomplete
+Last activity: 2026-07-12 -- Phase 37 planning complete
 
 ## Build Order
 
@@ -57,6 +58,7 @@ Last activity: 2026-07-12 — Milestone v3.0 started and v2.8 archived incomplet
 - Every UI P0 slice ships same-slice Maestro and Patrol evidence.
 - Financial paths require Claude code and product-domain audits; architecture
   audit is required for core boundaries and closures.
+
 - No phase is complete below 9.0; final program is complete only at >=9.5 and
   zero open P0/P1.
 
@@ -64,6 +66,7 @@ Last activity: 2026-07-12 — Milestone v3.0 started and v2.8 archived incomplet
 
 - v2.8 is archived as incomplete; completed CTX/OBS/MAP work is revalidated,
   not replayed.
+
 - The July 2026 product plan is authoritative for G2-G6.
 - Phase numbering continues at 37.
 - Chat Vivant follows G6 and must reuse the one ledger/Case/dossier spine.
