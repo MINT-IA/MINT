@@ -17,15 +17,20 @@
 
 ## Blocking audit state
 
-The wrapper-only `code` audit could not produce an accepted run because the
-Claude session limit was reached. The first local preflight also rejected an
-undersized 3,500-line budget before Claude was invoked; both attempts are
-recorded separately in `audit-failed-attempts.json`.
+The wrapper-only `code` audit was rerun after Claude became available:
 
-No `product-domain` audit was launched after the quota signal. There is no
+```text
+CLAUDE_AUDIT_MAX_DIFF_LINES=4500 tools/checks/claude_external_audit.sh code 3397d48b2
+```
+
+The default Opus/high run exited 0 with verdict PASS, zero unresolved P0/P1,
+and two explicit non-blocking P2 findings archived in `audit-code.md`. The
+earlier preflight refusal and Claude session-limit attempt remain recorded in
+`audit-failed-attempts.json`; neither is an accepted audit run.
+
+The required `product-domain` audit has not yet been run. There is no final
 accepted `audit-manifest.json`, no ticket promotion, and no Phase 37/G2
-completion claim. Retry the two required wrapper modes after 21:20
-Europe/Zurich; accept exactly one unique PASS run per mode with zero unresolved
-P0/P1/critical/high findings.
+completion claim. Accept exactly one unique PASS `product-domain` run with zero
+unresolved P0/P1/critical/high findings before closing the six tickets.
 
 **G2 allowed: NO.**
