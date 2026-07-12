@@ -46,6 +46,9 @@ enum ProfileDataSource {
 /// Type d'objectif principal (Goal A)
 enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 
+/// User-declared AVS gap state. The status never fabricates a year count.
+enum AvsGapStatus { noGaps, arrivedLate, livedAbroad, unknown }
+
 /// Devise des investissements
 enum InvestmentCurrency { chf, usd, eur }
 
@@ -1414,6 +1417,9 @@ class CoachProfile {
   /// Explicit 3a-presence fact. Null means the question was not answered.
   final bool? hasPillar3a;
 
+  /// Typed AVS gap answer, distinct from certified numeric gap years.
+  final AvsGapStatus? avsGapStatus;
+
   // === DEPENSES ===
   final DepensesProfile depenses;
 
@@ -1548,6 +1554,7 @@ class CoachProfile {
     this.pillar3aAnnualContribution,
     this.monthlySavingsContribution,
     this.hasPillar3a,
+    this.avsGapStatus,
     this.depenses = const DepensesProfile(),
     this.prevoyance = const PrevoyanceProfile(),
     this.patrimoine = const PatrimoineProfile(),
@@ -1686,6 +1693,7 @@ class CoachProfile {
           pillar3aAnnualContribution == other.pillar3aAnnualContribution &&
           monthlySavingsContribution == other.monthlySavingsContribution &&
           hasPillar3a == other.hasPillar3a &&
+          avsGapStatus == other.avsGapStatus &&
           depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
@@ -1733,6 +1741,7 @@ class CoachProfile {
         pillar3aAnnualContribution,
         monthlySavingsContribution,
         hasPillar3a,
+        avsGapStatus,
         depenses,
         prevoyance,
         patrimoine,
@@ -2089,6 +2098,7 @@ class CoachProfile {
     double? pillar3aAnnualContribution,
     double? monthlySavingsContribution,
     bool? hasPillar3a,
+    AvsGapStatus? avsGapStatus,
     DepensesProfile? depenses,
     PrevoyanceProfile? prevoyance,
     PatrimoineProfile? patrimoine,
@@ -2153,6 +2163,7 @@ class CoachProfile {
       monthlySavingsContribution:
           monthlySavingsContribution ?? this.monthlySavingsContribution,
       hasPillar3a: hasPillar3a ?? this.hasPillar3a,
+      avsGapStatus: avsGapStatus ?? this.avsGapStatus,
       depenses: depenses ?? this.depenses,
       prevoyance: prevoyance ?? this.prevoyance,
       patrimoine: patrimoine ?? this.patrimoine,
@@ -2356,6 +2367,7 @@ class CoachProfile {
       monthlySavingsContribution:
           (json['monthlySavingsContribution'] as num?)?.toDouble(),
       hasPillar3a: json['hasPillar3a'] as bool?,
+      avsGapStatus: _parseAvsGapStatus(json['avsGapStatus'] as String?),
       depenses: json['depenses'] != null
           ? DepensesProfile.fromJson(json['depenses'])
           : const DepensesProfile(),
@@ -2475,6 +2487,7 @@ class CoachProfile {
         'pillar3aAnnualContribution': pillar3aAnnualContribution,
         'monthlySavingsContribution': monthlySavingsContribution,
         'hasPillar3a': hasPillar3a,
+        'avsGapStatus': _avsGapStatusToCanonical(avsGapStatus),
         'depenses': depenses.toJson(),
         'prevoyance': prevoyance.toJson(),
         'patrimoine': patrimoine.toJson(),
@@ -2681,7 +2694,7 @@ class CoachProfile {
     // Used by _estimateLppAvoir() to start LPP bonification loop at
     // max(25, arrivalAge) instead of always 25.
     int? computedArrivalAge;
-    final int avsGaps;
+    int? avsGaps;
     switch (avsLacunesStatus) {
       case 'arrived_late':
         final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
@@ -2689,15 +2702,18 @@ class CoachProfile {
           computedArrivalAge = arrivalYear - birthYear;
           avsGaps = (arrivalYear - (birthYear + 21)).clamp(0, 44);
         } else {
-          avsGaps = 5;
+          avsGaps = null;
         }
       case 'lived_abroad':
         final yearsAbroad = _parseInt(answers['q_avs_years_abroad']);
-        avsGaps = yearsAbroad ?? 3;
+        avsGaps = yearsAbroad;
       case 'unknown':
-        avsGaps = 2; // Estimation conservatrice
-      default: // 'no_gaps' ou null
+        avsGaps = null;
+      case 'no_gaps':
+      case 'no':
         avsGaps = 0;
+      default:
+        avsGaps = null;
     }
     final rawAvsYears = _parseInt(answers['q_avs_contribution_years']);
     // P1-6: AVS contribution years can't exceed (age - 20) — contributions
@@ -2746,7 +2762,7 @@ class CoachProfile {
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
-      lacunesAVS: coachAvsLacunes ?? (avsGaps > 0 ? avsGaps : null),
+      lacunesAVS: coachAvsLacunes ?? avsGaps,
       renteAVSEstimeeMensuelle: coachAvsRenteEstimee,
       avoirLppTotal: estimatedLpp,
       avoirLppObligatoire: coachAvoirLppOblig,
@@ -3296,13 +3312,15 @@ class CoachProfile {
       selfEmployedNetIncome: selfEmployedNetIncome,
       companyProfitAnnual: companyProfitAnnual,
       unemploymentContributionMonths: unemploymentContributionMonths,
-      pillar3aAnnualContribution: answers.containsKey('q_3a_annual_contribution')
-          ? _parseDouble(answers['q_3a_annual_contribution'])
-          : null,
+      pillar3aAnnualContribution:
+          answers.containsKey('q_3a_annual_contribution')
+              ? _parseDouble(answers['q_3a_annual_contribution'])
+              : null,
       monthlySavingsContribution: answers.containsKey('q_savings_monthly')
           ? _parseDouble(answers['q_savings_monthly'])
           : null,
       hasPillar3a: has3a,
+      avsGapStatus: _parseAvsGapStatus(avsLacunesStatus),
       depenses: depenses,
       prevoyance: prevoyance,
       patrimoine: patrimoine,
@@ -3362,6 +3380,32 @@ class CoachProfile {
     }
     return false;
   }
+
+  static AvsGapStatus? _parseAvsGapStatus(String? raw) {
+    switch (raw?.toLowerCase()) {
+      case 'no':
+      case 'no_gaps':
+        return AvsGapStatus.noGaps;
+      case 'arrived_late':
+        return AvsGapStatus.arrivedLate;
+      case 'lived_abroad':
+        return AvsGapStatus.livedAbroad;
+      case 'yes':
+      case 'unknown':
+        return AvsGapStatus.unknown;
+      default:
+        return null;
+    }
+  }
+
+  static String? _avsGapStatusToCanonical(AvsGapStatus? status) =>
+      switch (status) {
+        AvsGapStatus.noGaps => 'no_gaps',
+        AvsGapStatus.arrivedLate => 'arrived_late',
+        AvsGapStatus.livedAbroad => 'lived_abroad',
+        AvsGapStatus.unknown => 'unknown',
+        null => null,
+      };
 
   static CoachCivilStatus _parseCivilStatus(String? raw) {
     if (raw == null) return CoachCivilStatus.celibataire;

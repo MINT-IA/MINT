@@ -562,7 +562,7 @@ void main() {
     expect(answers, containsPair('q_avs_contribution_years', 30));
     expect(answers, containsPair('q_avs_lacunes_status', 'unknown'));
     expect(provider.profile?.prevoyance.anneesContribuees, 30);
-    expect(provider.profile?.prevoyance.lacunesAVS, 2);
+    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
   });
 
   test('save_fact hasAvsGaps false clears AVS gap status', () async {
@@ -574,7 +574,7 @@ void main() {
 
     final answers = await ReportPersistenceService.loadAnswers();
     expect(answers, containsPair('q_avs_lacunes_status', 'no_gaps'));
-    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
+    expect(provider.profile?.prevoyance.lacunesAVS, 0);
   });
 
   test('save_fact hasAvsGaps true preserves precise AVS status', () async {

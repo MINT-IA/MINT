@@ -429,7 +429,7 @@ void main() {
       final answers = baseAnswers();
       answers['q_avs_lacunes_status'] = 'no_gaps';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, isNull);
+      expect(profile.prevoyance.lacunesAVS, 0);
     });
   });
 
@@ -438,19 +438,18 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('AVS lacunes status parsing', () {
-    test('"no_gaps" → lacunesAVS null (aucune lacune)', () {
+    test('"no_gaps" → explicit zero gap count', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'no_gaps';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, isNull);
+      expect(profile.prevoyance.lacunesAVS, 0);
     });
 
-    test('"arrived_late" sans arrival_year → default 5 ans de lacune', () {
+    test('"arrived_late" sans arrival_year reste inconnu', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      // Pas de q_avs_arrival_year → fallback 5
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 5);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('"arrived_late" avec arrival_year → calcul depuis birthYear+21', () {
@@ -470,14 +469,14 @@ void main() {
       answers['q_avs_arrival_year'] =
           2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, isNull); // 0 → null (pas de lacune)
+      expect(profile.prevoyance.lacunesAVS, 0);
     });
 
-    test('"lived_abroad" sans years_abroad → default 3 ans', () {
+    test('"lived_abroad" sans years_abroad reste inconnu', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'lived_abroad';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 3);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('"lived_abroad" avec years_abroad → valeur exacte', () {
@@ -488,11 +487,11 @@ void main() {
       expect(profile.prevoyance.lacunesAVS, 8);
     });
 
-    test('"unknown" → estimation conservatrice 2 ans', () {
+    test('"unknown" ne fabrique aucun nombre d annees', () {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_avs_lacunes_status'] = 'unknown';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.prevoyance.lacunesAVS, 2);
+      expect(profile.prevoyance.lacunesAVS, isNull);
     });
 
     test('null (pas de reponse) → aucune lacune', () {
@@ -515,7 +514,7 @@ void main() {
 
       // Avec lacunes, la rente estimee devrait etre inferieure
       // (ou les lacunes sont non-null)
-      expect(profileNoGaps.prevoyance.lacunesAVS, isNull);
+      expect(profileNoGaps.prevoyance.lacunesAVS, 0);
       expect(profileWithGaps.prevoyance.lacunesAVS, 10);
     });
   });
