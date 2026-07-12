@@ -28,9 +28,18 @@ and two explicit non-blocking P2 findings archived in `audit-code.md`. The
 earlier preflight refusal and Claude session-limit attempt remain recorded in
 `audit-failed-attempts.json`; neither is an accepted audit run.
 
-The required `product-domain` audit has not yet been run. There is no final
-accepted `audit-manifest.json`, no ticket promotion, and no Phase 37/G2
-completion claim. Accept exactly one unique PASS `product-domain` run with zero
-unresolved P0/P1/critical/high findings before closing the six tickets.
+The required `product-domain` audit then ran from an isolated detached worktree
+at the same audited head `ef80e8cb8`. The wrapper exited 0 and the external
+auditor wrote `PASS`, but the report contains three unresolved P1 findings:
+wizard-derived AVS gaps are stamped as certificate-grade, four new typed fields
+have no direct production consumer, and the G1 matrix points canonical paths at
+those unread fields. The run is archived as `audit-product-domain-p1.md` and is
+not accepted.
+
+The exact global `flutter analyze` hard floor also remains RED with 114
+diagnostics. The plan requires that command to exit 0 and contains no baseline
+waiver. There is therefore no final accepted `audit-manifest.json`, no ticket
+promotion, and no Phase 37/G2 completion claim. Fix the P1 findings and the
+global analyzer floor, then use the bounded rerun/final-confirmation policy.
 
 **G2 allowed: NO.**

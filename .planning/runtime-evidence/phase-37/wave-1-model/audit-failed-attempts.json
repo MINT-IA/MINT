@@ -22,8 +22,40 @@
       "classification": "claude_session_limit",
       "output": "You've hit your session limit; resets 9:20pm Europe/Zurich",
       "accepted": false
+    },
+    {
+      "mode": "product-domain",
+      "command": "CLAUDE_AUDIT_MAX_DIFF_LINES=4500 tools/checks/claude_external_audit.sh product-domain 3397d48b2",
+      "base_sha": "3397d48b2a71fd037766b7126c7f3cbb7af5a19b",
+      "head_sha": "caa554de0b4f5f8e18d29ae82a394b709cd96b4d",
+      "exit_code": 130,
+      "classification": "operator_interrupted_head_sha_drift",
+      "output": "Stopped before acceptance because the existing code audit records head ef80e8cb8 and the progressive audit gate requires identical accepted head SHAs.",
+      "accepted": false
+    },
+    {
+      "mode": "product-domain",
+      "command": "CLAUDE_AUDIT_MAX_DIFF_LINES=4500 tools/checks/claude_external_audit.sh product-domain 3397d48b2",
+      "base_sha": "3397d48b2a71fd037766b7126c7f3cbb7af5a19b",
+      "head_sha": "ef80e8cb80ca7908518d3ed9d46a4f0ff9cbafef",
+      "exit_code": 0,
+      "classification": "unresolved_p1_findings",
+      "output_artifact": ".planning/runtime-evidence/phase-37/wave-1-model/audit-product-domain-p1.md",
+      "severity_counts": {
+        "p0": 0,
+        "p1": 3,
+        "p2": 3,
+        "critical": 0,
+        "high": 0,
+        "unresolved_p0": 0,
+        "unresolved_p1": 3,
+        "unresolved_critical": 0,
+        "unresolved_high": 0
+      },
+      "accepted": false
     }
   ],
-  "retry_after": "2026-07-12T21:20:00+02:00",
+  "retry_after": null,
+  "latest_blocker": "unresolved_product_domain_p1_and_global_flutter_analyzer",
   "fail_closed": true
 }
