@@ -1,5 +1,31 @@
 # Milestones
 
+## v2.8 L'Oracle & La Boucle (Archived incomplete: 2026-07-12)
+
+**Status:** Superseded by v3.0 Product Reality; not declared complete.
+
+**Completed with historical summaries:** Context Sanity Core/Advanced (30.5,
+30.6), Instrumenter (31), and Cartographier (32). Phase 32 retained AMBER risks
+and every completed claim requires targeted current-SHA revalidation before v3.0
+consumes it.
+
+**Unfinished and migrated:** deterministic tools (30.7), kill switches (33),
+guardrails (34), daily loop (35), and E2E finishing (36). Their named
+requirements map to Phase 38, Phase 47, or an explicit evidence-gated defer in
+`.planning/goals/v3-product-reality-migration-manifest-2026-07-12.md`.
+
+**Archive boundary:** Exact v2.8 planning content is immutable in Git at
+`5f8de38ec` (`.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md`,
+`.planning/STATE.md`, and `.planning/phases/{30.5,30.6,31,32}-*`). A local
+excluded working archive is retained outside the active GSD phase scan; the
+checked-in migration manifest is its current index.
+
+**Reason:** The old STATE reported 100% despite only four of nine phases being
+complete and Phase 32 still AMBER. Preserving it as incomplete is the only
+truthful migration boundary.
+
+---
+
 ## v2.7 Coach Stabilisation + Document Digestion (Shipped: `<PENDING_DEVICE_GATE>`)
 
 **Status:** Code-complete, awaiting creator-device walkthrough (GATE-01 iPhone + GATE-02 Android).
@@ -130,7 +156,7 @@ Graduation Protocol v1. Scope TBD via `/gsd-start-milestone v2.8`.
 - One-liner:
 - One-liner:
 - 63 standalone Flutter journey tests covering firstJob (19), housingPurchase (21), and newJob (23) E2E flows — intent chip to CapSequence step status to calculator routes, verified against Julien golden profile.
-- Fixed 2 navigation-breaking GoRouter route mismatches and added stress_prevoyance case routing firstJob premier eclairage to 3a/compound growth numbers instead of hourly rate
+- Fixed 2 navigation-breaking GoRouter route mismatches and added stress_prevoyance case routing firstJob premier éclairage to 3a/compound growth numbers instead of hourly rate
 - AnimatedSwitcher crossfade on signal card slot (300ms in/150ms out) and new ConfidenceScoreCard surfacing projection precision with top enrichment action on Aujourd'hui tab
 - Explorer hubs show opacity/dot/blocked states driven by CoachProfile field presence, and onboarding routes (/onboarding/intent, /coach/chat) use CustomTransitionPage 350ms fade replacing Material slide
 
