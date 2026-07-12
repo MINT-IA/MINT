@@ -1,0 +1,11 @@
+{
+  "assertion": "23-ticket fail-closed evidence index",
+  "command": "python3 -m pytest tools/checks/tests/test_g1_p0_ledger_dead_keys.py tools/checks/tests/test_ledger_parity.py -q && python3 tools/checks/mint_os_doctor.py --repo-only && lefthook run pre-commit --file tools/checks/tests/test_g1_p0_ledger_dead_keys.py",
+  "evidence_class": "pass",
+  "exit_code": 0,
+  "head_sha": "37173b2df85614d3d1b9989db78452959a5fb707",
+  "outcome": "green",
+  "output": "10 tests passed; Doctor repo checks passed; lefthook passed; the index contains 23 unique ticket_only records and the copied valid transition plus all negative fixtures remain non-vacuous.",
+  "recorded_at": "2026-07-12T15:02:08Z",
+  "synthetic_data_only": true
+}
