@@ -56,6 +56,15 @@ the reconfirmation CTA; it cannot earn a confirmed no-gap state. Mortgage
 consumers likewise receive either the chronology-reconciled canonical balance or an
 unknown value when legacy/canonical timestamps cannot establish a winner.
 
+For a couple, `q_spouse_avs_lacunes_status`,
+`q_spouse_avs_arrival_year`, and `q_spouse_avs_years_abroad` remain declared
+chronology only; none fills `conjoint.prevoyance.lacunesAVS`. That numeric field
+requires the spouse's CI/certificate. `q_spouse_avs_contribution_years` remains
+a separate contribution-history fact. A couple AVS score is incomplete when
+either numeric gap count is missing; when both are confirmed, each person is
+scored independently and the worse score is retained. Screens never sum the two
+people's gap years into a household total.
+
 `CoachProfileProvider -> MintStateProvider` has one proxy edge. A new canonical
 snapshot (including a provenance-bearing snapshot) recomputes once; an
 identical snapshot is a no-op. This exact behavior is guarded by

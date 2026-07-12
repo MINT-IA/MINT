@@ -128,6 +128,12 @@ ticket-specific tests from Plan 37-02:
   timestamp. Likewise, `q_avs_contribution_years` is `userInput` by default;
   it becomes `certificate` only when the same persisted write carries
   `_coach_avs_source=document_scan`, and it keeps its own freshness timestamp.
+- The spouse keys `q_spouse_avs_lacunes_status`,
+  `q_spouse_avs_arrival_year`, and `q_spouse_avs_years_abroad` are likewise
+  declarations and chronology hints only. They never populate
+  `conjoint.prevoyance.lacunesAVS`; that numeric field is CI/certificate-only.
+  `q_spouse_avs_contribution_years` remains a distinct contribution-history
+  fact and must not be converted into gap years.
 - `_coach_dettes_hypotheque` is the canonical mortgage value. The legacy
   `q_mortgage_balance` is migration-read only: a sole dated value or the
   strictly newer dated value wins; divergent missing/equal timestamps are
@@ -248,9 +254,16 @@ coach-writable key.
 |---|---|---|---|---|---|---|---|---|
 | `spouseBirthYear` | `q_partner_birth_year` | int (year) | couple | userInput | static | .60 | applySaveFact/mergeAnswers | `conjoint.birthYear`, couple AVS, survivor question |
 | `spouseIncomeNetMonthly` | `q_partner_net_income_chf` (net → gross via existing conjoint logic) | double CHF/mo | couple | userInput | annual | .60 | applySaveFact/mergeAnswers | `revenuBrutAnnuelCouple`, couple budget, AVS plafonnement |
-| `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` (clamped 0–44; couple-only) | int (yr) | couple | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | couple AVS rente, lacunes |
+| `spouseAvsContributionYears` | `q_spouse_avs_contribution_years` (clamped 0–44; couple-only) | int (yr) | couple | userInput, certificate | annual | .60 | applySaveFact/mergeAnswers | couple AVS contribution history; distinct from certified gap years |
 
 > Spouse keys feed `CoachProfile.conjoint`. Mobile `applySaveFact` accepts `spouseBirthYear` and `spouseIncomeNetMonthly` only when the current profile is `marie` or `concubinage`, to prevent creating a ghost spouse for a single user; backend allowlist membership alone is therefore not sufficient for these two mobile writes. Any `mergeAnswers` delta that sets `q_civil_status` to a non-couple status clears `q_partner_*`/`q_spouse_*` answers plus partner-income secure values before profile reconstruction. **Gap (§7):** `HouseholdProvider` is backend-only and is NOT synced down into `conjoint` — offline simulators miss the spouse. The bridge in §7 is mandatory.
+>
+> **Spouse AVS boundary:** declared gap status, arrival, and time abroad may
+> establish chronology or the next question, but they do not establish a
+> numeric AVS gap. `conjoint.prevoyance.lacunesAVS` stays null until confirmed
+> by the spouse's CI/certificate. Couple fitness scoring evaluates each person's
+> confirmed years separately, keeps the worse per-person score, never sums gap
+> years, and fails closed when either person's numeric value is missing.
 
 ### 3.7 AVS (1st pillar)
 
@@ -394,6 +407,7 @@ These exist on `CoachProfile` sub-models and are written by wizard / scan extrac
 | `conjoint.{firstName,birthYear,dateOfBirth,gender}` | mixed | couple | userInput | static | .60 | mergeAnswers (+ Household bridge §7) | couple AVS, survivor |
 | `conjoint.salaireBrutMensuel` | double CHF/mo | couple | userInput | annual | .60 | mergeAnswers | `revenuBrutAnnuelCouple` |
 | `conjoint.prevoyance` | PrevoyanceProfile | couple | userInput, certificate | annual | .60 | mergeAnswers | couple retirement, survivor LPP |
+| `conjoint.prevoyance.lacunesAVS` | int yr | couple | certificate | annual | .95 | confirmed spouse CI/certificate only | per-person AVS gap score; null blocks the couple score |
 | `conjoint.patrimoine` | PatrimoineProfile | couple | userInput | annual | .60 | mergeAnswers | couple liquidity |
 | `conjoint.{nationality,isFatcaResident,canContribute3a,arrivalAge}` | mixed | couple | userInput | static | .60 | mergeAnswers | couple archetype, FATCA 3a block |
 | `conjoint.invitationLevel` | enum {declared,invited,linked} | couple | userInput | static | .60 | mergeAnswers | couple data-sharing confidence |
