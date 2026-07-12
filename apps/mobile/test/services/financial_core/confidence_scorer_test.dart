@@ -499,7 +499,9 @@ void main() {
       expect(profile.dataTimestamps, contains('salaireBrutMensuel'));
       expect(profile.dataTimestamps, contains('canton'));
       expect(profile.dataTimestamps, contains('age'));
-      expect(profile.dataTimestamps, contains('etatCivil'));
+      // Civil status is absent from this fixture: a display default must not
+      // acquire a freshness timestamp or become a known completion fact.
+      expect(profile.dataTimestamps, isNot(contains('etatCivil')));
       expect(profile.dataTimestamps, contains('patrimoine.epargneLiquide'));
       // All timestamps should be recent (within last minute)
       final now = DateTime.now();
