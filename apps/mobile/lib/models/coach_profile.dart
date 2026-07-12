@@ -9,7 +9,7 @@ library;
 
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/foundation.dart' show immutable, listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
@@ -48,6 +48,35 @@ enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 
 /// User-declared AVS gap state. The status never fabricates a year count.
 enum AvsGapStatus { noGaps, arrivedLate, livedAbroad, unknown }
+
+/// Certificate-backed AVS gap readiness for one profile household.
+///
+/// Declared statuses and unverified numeric values remain visible in the
+/// profile, but never become certified years through this contract.
+@immutable
+final class AvsGapEvidence {
+  static const selfFieldPath = 'prevoyance.lacunesAVS';
+  static const spouseFieldPath = 'conjoint.prevoyance.lacunesAVS';
+
+  final int? selfCertifiedYears;
+  final int? spouseCertifiedYears;
+  final bool spouseRequired;
+  final AvsGapStatus? declaredStatus;
+  final List<String> missingFieldPaths;
+
+  AvsGapEvidence({
+    required this.selfCertifiedYears,
+    required this.spouseCertifiedYears,
+    required this.spouseRequired,
+    required this.declaredStatus,
+    required List<String> missingFieldPaths,
+  }) : missingFieldPaths = List.unmodifiable(missingFieldPaths);
+
+  bool get selfReady => selfCertifiedYears != null;
+
+  bool get householdReady =>
+      selfReady && (!spouseRequired || spouseCertifiedYears != null);
+}
 
 /// Devise des investissements
 enum InvestmentCurrency { chf, usd, eur }
@@ -1988,6 +2017,38 @@ class CoachProfile {
   bool get isCouple =>
       etatCivil == CoachCivilStatus.marie ||
       etatCivil == CoachCivilStatus.concubinage;
+
+  /// Canonical certificate-only readiness for AVS gap-sensitive consumers.
+  AvsGapEvidence get avsGapEvidence {
+    final selfYears = prevoyance.lacunesAVS;
+    final selfCertified = selfYears != null &&
+            dataSources[AvsGapEvidence.selfFieldPath] ==
+                ProfileDataSource.certificate
+        ? selfYears
+        : null;
+
+    final spouseRequired = isCouple && conjoint != null;
+    final spouseYears = conjoint?.prevoyance?.lacunesAVS;
+    final spouseCertified = spouseYears != null &&
+            dataSources[AvsGapEvidence.spouseFieldPath] ==
+                ProfileDataSource.certificate
+        ? spouseYears
+        : null;
+
+    final missingFieldPaths = <String>[
+      if (selfCertified == null) AvsGapEvidence.selfFieldPath,
+      if (spouseRequired && spouseCertified == null)
+        AvsGapEvidence.spouseFieldPath,
+    ];
+
+    return AvsGapEvidence(
+      selfCertifiedYears: selfCertified,
+      spouseCertifiedYears: spouseCertified,
+      spouseRequired: spouseRequired,
+      declaredStatus: avsGapStatus,
+      missingFieldPaths: missingFieldPaths,
+    );
+  }
 
   /// SafeMode activation flag — ACTIVE when ANY of three signals is true.
   ///
