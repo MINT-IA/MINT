@@ -1,0 +1,77 @@
+{
+  "phase": 37,
+  "wave": "37-02",
+  "scope": "global_flutter_analyzer_hard_floor",
+  "red_sha": "bb923645f",
+  "green_sha": "885d513f8",
+  "state": "green_audits_pending",
+  "accepted": false,
+  "red": {
+    "command": "cd apps/mobile && flutter analyze",
+    "diagnostics": 114,
+    "exit_code": 1,
+    "waiver_allowed": false
+  },
+  "lots": [
+    {
+      "commit": "6a2300229",
+      "concern": "behavior-preserving mechanical analyzer fixes",
+      "diagnostics_before": 114,
+      "diagnostics_after": 16,
+      "targeted_tests_passed": 400,
+      "full_tests_passed": 8519,
+      "full_tests_skipped": 28
+    },
+    {
+      "commit": "1cd920326",
+      "concern": "Flutter 3.41 accessibility API migration",
+      "diagnostics_before": 16,
+      "diagnostics_after": 7,
+      "targeted_tests_passed": 105,
+      "full_tests_passed": 8519,
+      "full_tests_skipped": 28
+    },
+    {
+      "commit": "885d513f8",
+      "concern": "dormant test contract repairs",
+      "diagnostics_before": 7,
+      "diagnostics_after": 0,
+      "targeted_tests_passed": 49,
+      "full_tests_passed": 8519,
+      "full_tests_skipped": 28
+    }
+  ],
+  "green": {
+    "analyzer": {
+      "command": "cd apps/mobile && flutter analyze",
+      "result": "No issues found",
+      "diagnostics": 0,
+      "exit_code": 0
+    },
+    "flutter_full": {
+      "command": "cd apps/mobile && flutter test --reporter compact",
+      "passed": 8519,
+      "skipped": 28,
+      "exit_code": 0
+    },
+    "lefthook": {
+      "commits": [
+        "6a2300229",
+        "1cd920326",
+        "885d513f8"
+      ],
+      "exit_code": 0
+    }
+  },
+  "constraints": {
+    "analysis_options_changed": false,
+    "ignores_added": false,
+    "tests_deleted": false,
+    "g2_allowed": false
+  },
+  "audit_state": {
+    "code": "rerun_required_for_final_head",
+    "product_domain": "rerun_required_for_final_head",
+    "manifest": "absent"
+  }
+}
