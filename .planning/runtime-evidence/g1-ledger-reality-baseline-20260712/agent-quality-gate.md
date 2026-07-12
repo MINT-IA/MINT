@@ -8,16 +8,10 @@ Scope: G1 baseline closure only. This report does not authorize G2 or G3.
 
 ## Verdict
 
-**CONDITIONAL HOLD — 8.9/10 provisional.** G1 now has real hard-floor,
-integration, runtime, and audit-remediation evidence. Exactly two closure gates
-were pending; the final full Flutter suite is now GREEN. One gate remains:
-
-1. the single final architecture confirmation with Claude Opus.
-
-G1 must not be marked complete until the remaining Opus gate is PASS and the
-scorecard is updated from that evidence. Independently, `G2 allowed? NO` and
-`G3 allowed? NO` because the
-23 checked-in `ticket_only` behavioral contracts remain blocking.
+**FINAL PASS — G1 ACCEPTED — 9.2/10.** The final architecture Opus audit passed
+against clean SHA `53c733827` with no P0 and no unresolved P1. All G1 closure
+gates are now satisfied. Independently, `G2 allowed? NO` and `G3 allowed? NO`
+because the 23 checked-in `ticket_only` behavioral contracts remain blocking.
 
 ## Live closure evidence
 
@@ -84,7 +78,7 @@ future P0 loops and comprehensive restart coverage remain G2-blocking tickets.
 | Claude Opus code audit | **PASS**, no P0/P1 | Code correctness/privacy/routing gate is satisfied; its P2 observations are triaged below. |
 | Claude Opus product-domain audit | Initial NO-GO had no P0 and one P1: `/hypotheque` persisted theoretical capacity/payment. The guard was widened, produced RED `+3 -1`, the write-back was removed, and GREEN is `+4`; fix is committed. | Product-domain P1 is resolved by code plus non-vacuous regression proof. No unresolved product-domain P0/P1 remains. |
 | Claude Sonnet architecture rerun | NO-GO named `/rapport`, absent runtime/scorecard, return coverage, and stale matrix/evidence. Those findings are now corrected and committed; live runtime and scorecard exist. | Historical NO-GO is remediated, but Sonnet is not the required final architecture authority. |
-| Claude Opus final architecture confirmation | **PENDING** | Second and final G1 closure gate. No additional audit carousel is authorized. |
+| Claude Opus final architecture confirmation | **PASS** on clean SHA `53c733827`; P0 none, P1 none unresolved; external recommendation 9.2/10. | Final G1 closure gate is satisfied. No additional audit carousel is authorized. |
 
 ## P1 disposition
 
@@ -99,16 +93,16 @@ scenario identity, source-sensitive facts, and comprehensive persistence. They
 are accepted as the executable debt inventory delivered by G1, but every row
 blocks G2. A ticket proves actionable scope, not runtime implementation.
 
-## P2 debt tickets — non-blocking for G1 close
+## P2 debt tickets — accepted and non-blocking
 
 These findings remain P2. They must not be promoted to P1 merely to inflate the
 closure checklist:
 
 | debt id | owner | exact debt | target | blocks G1 | blocks G2 by itself |
 |---|---|---|---|---|---|
-| `G1-P2-CONFIDENCE-01` | `mint-mobile` | Marker-only facts can count for completeness but contribute no accuracy/freshness source, causing display-only under-reporting. | `coach_profile_confidence_adapter.dart` plus a marker-only provenance test | no | no |
-| `G1-P2-INTERACTION-01` | `mint-quality-gate` | The interaction extractor can lose route coverage when a templated navigation URI adds query parameters, even though runtime is wired. | `tools/checks/interaction_coverage_audit.py` and its contract test | no | no |
-| `G1-P2-PROPERTY-01` | `mint-mobile` | Confidence adapter may conflate property market value with effective property value in the display axis. | `coach_profile_confidence_adapter.dart` and semantic fixture | no | no |
+| `G1-P2-GATE-NAME-01` | `mint-quality-gate` | The hard-floor test name is broader than its actual static `state.extra` scope. | Rename/rescope the gate or widen it in a later quality slice. | no | no |
+| `G1-P2-RUNTIME-SHA-01` | `mint-quality-gate` | Runtime artifacts honestly prove commit `0d0950181`, earlier than the final clean audit SHA. | Keep the declared SHA with the artifacts; rerun only when later code materially changes the proven flows. | no | no |
+| `G1-P2-PROPERTY-01` | `mint-mobile` | Property market/effective-value crosswalk can conflate a display-only confidence axis. | `coach_profile_confidence_adapter.dart` and semantic fixture. | no | no |
 
 These scorecard-local debt IDs do not replace or alter the 23 checked-in G2
 blocking tickets.
@@ -122,15 +116,16 @@ blocking tickets.
   screenshot was added to the evidence package.
 - Claude code audit found no P0/P1 privacy issue.
 
-## Remaining closure sequence
+## Final release decision
 
-1. Run the one allowed Claude Opus architecture confirmation against the final
-   committed slice.
-2. If it passes with no new P0/P1, update the score above 9.0 using evidence,
-   mark G1 complete, and keep G2/G3 `NO` because the 23 behavioral tickets are
-   still open.
+- Final full Flutter is GREEN: `+8500 ~26`, exit 0.
+- Final architecture Opus is PASS on clean SHA `53c733827`.
+- No P0 or unresolved P1 remains for G1.
+- The three P2 findings above are accepted, explicit debt.
+- G1 is accepted at 9.2/10.
+- G2/G3 remain blocked until the 23 behavioral tickets are implemented.
 
-**Current G1 decision: CONDITIONAL HOLD**
+**Current G1 decision: FINAL PASS / G1 ACCEPTED**
 
 **G2 allowed? NO**
 

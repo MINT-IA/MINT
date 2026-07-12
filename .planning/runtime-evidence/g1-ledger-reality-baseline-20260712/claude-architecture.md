@@ -236,3 +236,70 @@ Both keys are listed as `quarantined` in the canonical matrix, meaning "aliases 
 
 3. **Before any P0 behavioral loop (all 22 ticket_only tests):**
    - Implement behavioral tests in the declared order; each green command must pass before G2 authorisation is granted.
+
+## Final Opus architecture confirmation
+
+Command: `CLAUDE_AUDIT_RERUN=1 CLAUDE_AUDIT_ALLOW_NON_SONNET_RERUN=1 CLAUDE_AUDIT_MODEL=opus CLAUDE_AUDIT_EFFORT=high tools/checks/claude_external_audit.sh architecture`
+
+Date: 2026-07-12 14:03:36 CEST
+
+SHA: `53c73382734b92b218961d27efc060d20cbdb877`
+
+Exit code: `0`
+
+---
+
+# MINT External Architecture Audit — G1 "Ledger Reality Baseline"
+
+**Mode:** architecture · **Branch:** `codex/mint-product-usability-plan-20260712` · **HEAD:** `53c733827` (clean, synced to origin)
+**Scope audited:** the G1 phase evidence — four matrices, two hard-floor gates, blocking-ticket registry, runtime evidence, and the SCORECARD — challenged against live code and live test runs.
+
+## Verdict: **PASS**
+
+G1 is a mapping/baseline phase that deliberately does **not** fix the six P0 loops; it makes them safe to build and gates G2 to `NO`. Measured against that scope, its own acceptance criteria are met, the mechanical gates are real and non-vacuous, and the self-reported "8.9/10 CONDITIONAL HOLD pending architecture Opus" resolves: this is that architecture pass, and it clears. Every P0/P1 from the prior architecture (Sonnet rerun) and product-domain audits is resolved in live code, not just claimed.
+
+---
+
+## What I verified against live code (not docs)
+
+| Claim | Verification | Result |
+|---|---|---|
+| `ledger_dead_key_test` green + reads keys from matrix | Ran `test_g1_p0_ledger_dead_keys.py` → **3 passed**; test parses `G1-ledger-gap-matrix.md` and validates each P0 row's `reader_evidence` against a real `file.dart:line` whose ±5-line window contains a key-derived semantic token (`test_g1_p0_ledger_dead_keys.py:126-163`) | Real code-linkage, not doc-validates-doc |
+| Hard-floor gates non-vacuous | Both `.dart` gates carry seeded-violation self-tests (`no_domain_data_in_extra_test.dart:22-34`, `no_scenario_writeback_to_profile_test.dart:21-28`); negative fixture asserted in Python (`:271-282`) | Non-vacuous |
+| 20 G1/offender routes exist | Grepped each against `route_metadata.dart` | All 20 present |
+| `/rapport` provider-boundary fix (prior P0-2) | `app.dart:1084-1101` now reads `context.watch<CoachProfileProvider>()` + `waitForReportAnswers()`; no `ReportPersistenceService.loadAnswers` in route block; `rapport_provider_boundary_test.dart` enforces it | Real fix at route boundary |
+| Mortgage write-back to `patrimoine` (product-domain P1) | Only `patrimoine` reference in `affordability_screen.dart` is a **read** (`:80`); the "outputs" at `:128-131` go to `ScreenReturn`/`ScreenCompletionTracker` (session), not `CoachProfile`. No `copyWith`/`saveAnswers`. | Not present in live code |
+| Runtime evidence genuine | Maestro R1/R2 logs show real iPhone 17 Pro runs with `COMPLETED` asserts + screenshots; Patrol `ios_results.xcresult` bundle present | Genuine artifacts |
+| Prior P1s (returnUri loss, stale matrix verdict) | `G1-RETURN-01` ticket now covers DataBlock returnUri; route-state matrix verdict updated to "hard floors checked in and green" | Resolved |
+| Repo contracts | `mint_os_doctor.py --repo-only` PASS; 18 deterministic contract tests pass; 23 blocking tickets, `G2 allowed? NO` | Consistent |
+| Prior P0 "uncommitted moving target" | Tree clean at `53c733827`, all G1 artifacts committed | Resolved |
+
+The matrices honestly document every live violation with `file:line` + severity + `blocks_G2=yes` (e.g. `/hypotheque` local sliders `_revenuBrut=120000`/`_avoirLpp=200000` classified `durable_fact` + `local-slider`, `G1-route-state-matrix.md:66`; `/rente-vs-capital` compute-from-defaults marked **P0**, `:70`). This is the correct G1 posture: map reality, quarantine the loops, block G2.
+
+---
+
+## Findings
+
+### P0 — none
+
+### P1 — none unresolved
+All prior-audit P0/P1 findings are fixed in live code and the tree is committed and clean. The 23 behavioral gates remain `ticket_only` by design; each has an exact failing predicate + red/green command and `blocks_G2=yes`, correctly holding `G2 allowed? NO`.
+
+### P2 (do not block G1 close; carry into G2 triage)
+
+- **P2-1 — `no_domain_data_in_extra_test` name broader than scope.** It scans only `state.extra as <domain>` casts in `app.dart` + 4 named screens (`no_domain_data_in_extra_test.dart:36-79`). The real `/rapport` and `/confidence` boundary risks are *not* `state.extra` casts and are covered by *separate* tests. The gate's name over-promises; coverage is real but split. (Same gap both prior audits flagged.)
+- **P2-2 — Runtime evidence captured at `0d0950181`, three commits behind HEAD `53c733827`.** The scan-recovery Maestro flows are unaffected by the later `fix(g1)`/`test(g1)` commits, but the runtime proof is strictly not at the shipped SHA. `runtime-proof.md:4` discloses this honestly.
+- **P2-3 — Confidence adapter property-value crosswalk.** `coach_profile_confidence_adapter.dart` keys `property_value` on marker `patrimoine.propertyMarketValue` but reads `patrimoine.immobilierEffectif`; market vs effective valuation conflated. Display-only (`/confidence`), no P0-loop financial output impact. Already ticketed as the `source_crosswalk` class + `G1-P2-PROPERTY-01`. Confirmed by both code and product-domain lenses.
+
+---
+
+## Evidence gap I did not close
+
+I did **not** re-run the full Flutter suite. The SCORECARD's "`+8500 ~26`, exit 0" and the `no_*_test.dart` green claims rely on the prior independent Sonnet run plus my inspection for non-vacuity and my green Python-gate run. To fully prove the Flutter side at HEAD, the closing command is:
+```
+cd apps/mobile && flutter test test/routing/ test/routes/ test/providers/ \
+  test/services/enhanced_confidence_profile_adapter_test.dart
+```
+
+## Disposition
+G1 baseline is real, mechanically enforced, honestly scored, and correctly gates G2 to `NO`. The one remaining SCORECARD gate (architecture Opus) is satisfied by this **PASS**. G1 may close; the 23 behavioral tickets must be implemented before any G2/G3 P0-loop work begins. Recommend closing P2-2 by refreshing runtime proof at HEAD before tagging the phase.
