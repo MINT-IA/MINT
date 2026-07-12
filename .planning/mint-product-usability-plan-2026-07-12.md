@@ -11,6 +11,14 @@ life decision with their own data, see what is known/missing/estimated/stale,
 collect only the missing delta, compare compliant scenarios, and leave with a
 specialist-ready dossier.
 
+MINT does not sell a "retirement plan". For a 50-60 user, MINT opens a
+Retirement Case: it reuses the user's existing ledger history, asks only the
+missing or stale facts needed for the user's retirement questions, renders
+scenarios such as rente/capital/mixed withdrawal as no-advice tradeoffs, and
+builds a dossier the user can consult, export, print, or bring to a specialist.
+If the user has used MINT for years, most answers should feel already prepared;
+if facts are missing, DataQuest collects only that delta.
+
 Product spine:
 
 `ledger variable -> DataQuest ask -> Case/scenario -> screen state -> dossier/PDF -> runtime proof`
@@ -70,6 +78,13 @@ Deliverables:
   one key while `CoachProfile.fromWizardAnswers` reads another.
 - Replace domain data in `GoRouter.extra` with ids/session ids for known
   offenders such as scan review/impact paths.
+- Retire or absorb legacy `ProfileProvider` consumers into the canonical
+  ledger boundary. `CoachProfileProvider` owns durable user facts;
+  `MintStateProvider` is the derived read model. Provider islands must either
+  bridge into recompute or be explicitly classified as non-financial caches.
+- Pull degraded-state proof into G1: every future P0 route must have a
+  route x state x recovery matrix before implementation, covering empty,
+  partial, stale, error, complete, and return-to-origin.
 - Establish the "scenario lever vs user fact" rule per screen.
 - Produce a `scenario_lever_matrix` so scenario assumptions never become profile
   facts.
@@ -80,8 +95,17 @@ Acceptance:
 - Every P0 field has exactly one canonical key and one legal write path.
 - Tests cover at least: explicit zero, missing, stale, estimated, sourced fact.
 - `ledger_dead_key_test`, `provenance_on_write_test`,
-  `source_crosswalk_test`, and `no_domain_data_in_extra_test` exist or the gap
-  is explicitly tracked before any P0 loop implementation.
+  `source_crosswalk_test`, `no_domain_data_in_extra_test`, and
+  `provider_bridge_recompute_test` exist or have explicit checked-in planning
+  tickets before any P0 loop implementation.
+- Hard floor before G2: `no_domain_data_in_extra_test` and
+  `ledger_dead_key_test` must be executable and green for P0-loop routes/keys;
+  they cannot remain ticket-only.
+- If `provenance_on_write_test`, `source_crosswalk_test`, or
+  `provider_bridge_recompute_test` remain ticket-only, the G1 scorecard must
+  default `G2 allowed?` to no unless the ticket includes an explicit P1 triage
+  and no P0/P1 Claude/agent finding remains open.
+- The route x state x recovery matrix exists for the six P0 loops.
 
 ### G2 — DataQuest Core + CaseRegistry MVP
 
@@ -136,7 +160,9 @@ P0 loops:
    - Swiss decision: understand affordability, own funds, mortgage burden, EPL
      implications, and what to ask the bank.
    - Required facts: income, liquid cash explicit amount, pension assets if EPL,
-     existing debt, housing costs, canton/commune, household status.
+     existing debt, housing costs, canton/commune, household status,
+     age/birth year for amortization-to-retirement and post-retirement
+     affordability guardrails.
 
 3. Retirement preparation / decumulation / rente vs capital, profile 50-60.
    - Swiss decision: understand the retirement choices that incumbents such as

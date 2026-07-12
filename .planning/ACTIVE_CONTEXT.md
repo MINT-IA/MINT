@@ -3,6 +3,8 @@
 Current planning artifact for external architecture/product audit:
 
 - `.planning/mint-product-usability-plan-2026-07-12.md`
+- `.planning/goals/G1-ledger-reality-baseline-2026-07-12.md`
+- `.planning/handoffs/mint-g1-goal-handoff-2026-07-12.md`
 
 Audit request:
 
@@ -11,6 +13,10 @@ Audit request:
 - Score it against product usefulness, Swiss metier correctness, Data Ledger /
   DataQuest architecture, UX execution, QA/runtime proof, and repo hygiene.
 - Treat Swiss financial/legal incoherence as blocking, not as polish.
+- Verify whether G1 is mechanical enough to launch implementation with Mint OS,
+  Opus audits, permanent agents, and repeatable QA gates.
+- Verify whether the handoff and copy-paste goal prompt are strong enough to
+  give to a fresh Codex session with a target score near 10/10.
 
 Additional product-manager question, 2026-07-12:
 
