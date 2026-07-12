@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Product Reality — Six Boucles, Un Dossier
 status: executing
-stopped_at: Phase 37 plans ready; execution begins at 37-00 and G2 remains blocked.
-last_updated: "2026-07-12T14:38:49.000Z"
-last_activity: 2026-07-12 -- Phase 37 planning complete
+stopped_at: v3.0 milestone initialized; Phase 37 planning is next.
+last_updated: "2026-07-12T14:45:27.518Z"
+last_activity: 2026-07-12 -- Phase 37 execution started
 progress:
   total_phases: 14
   completed_phases: 0
@@ -24,17 +24,17 @@ See `.planning/PROJECT.md` and
 **Core value:** A user understands a real Swiss financial decision with their
 own sourced data and leaves with clear questions plus a specialist-ready dossier.
 
-**Current focus:** Phase 37 — close the 23 G1 runtime-readiness tickets before G2.
+**Current focus:** Phase 37 — ledger-runtime-readiness
 
 ## Current Position
 
-Phase: 37 of 50 — Ledger Runtime Readiness
+Phase: 37 (ledger-runtime-readiness) — EXECUTING
 
-Plan: Not planned
+Plan: 1 of 8
 
-Status: Ready to execute
+Status: Executing Phase 37
 
-Last activity: 2026-07-12 -- Phase 37 planning complete
+Last activity: 2026-07-12 -- Phase 37 execution started
 
 ## Build Order
 
