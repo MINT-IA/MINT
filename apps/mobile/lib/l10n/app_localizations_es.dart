@@ -23757,4 +23757,30 @@ class SEs extends S {
 
   @override
   String get dataBlockMenageCivilRegisteredPartner => 'Pareja registrada';
+
+  @override
+  String get expatAvsScenarioAssumptions =>
+      'Tus años en Suiza y en el extranjero son hipótesis locales para comparar una salida. No modifican tu biblioteca.';
+
+  @override
+  String expatAvsAgeKnown(int age) {
+    return 'Edad conocida en tu biblioteca: $age años.';
+  }
+
+  @override
+  String get expatAvsAgeMissingTitle => 'Falta tu edad';
+
+  @override
+  String get expatAvsAgeMissingBody =>
+      'Añade tu año de nacimiento antes de iniciar esta simulación AVS hipotética.';
+
+  @override
+  String get expatAvsAddBirthYear => 'Añadir mi año de nacimiento';
+
+  @override
+  String get expatAvsStartScenario => 'Iniciar la simulación ilustrativa';
+
+  @override
+  String get expatAvsScenarioDisclosure =>
+      'Simulación ilustrativa local · ningún importe oficial · no se guarda nada en tu biblioteca.';
 }

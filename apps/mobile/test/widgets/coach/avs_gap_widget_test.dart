@@ -20,6 +20,7 @@ void main() {
         home: Scaffold(
           body: SingleChildScrollView(
             child: AvsGapWidget(
+              scenarioStarted: true,
               currentContributionYears: 30,
               currentAge: 50,
               initialYearsAbroad: 5,

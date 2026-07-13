@@ -23820,4 +23820,30 @@ class SIt extends S {
   @override
   String get dataBlockMenageCivilRegisteredPartner =>
       'Unione domestica registrata';
+
+  @override
+  String get expatAvsScenarioAssumptions =>
+      'I tuoi anni in Svizzera e all’estero sono ipotesi locali per confrontare una partenza. Non modificano la tua biblioteca.';
+
+  @override
+  String expatAvsAgeKnown(int age) {
+    return 'Età nota nella tua biblioteca: $age anni.';
+  }
+
+  @override
+  String get expatAvsAgeMissingTitle => 'Manca la tua età';
+
+  @override
+  String get expatAvsAgeMissingBody =>
+      'Aggiungi il tuo anno di nascita prima di avviare questa simulazione AVS ipotetica.';
+
+  @override
+  String get expatAvsAddBirthYear => 'Aggiungi il mio anno di nascita';
+
+  @override
+  String get expatAvsStartScenario => 'Avvia la simulazione illustrativa';
+
+  @override
+  String get expatAvsScenarioDisclosure =>
+      'Simulazione illustrativa locale · nessun importo ufficiale · non viene salvato nulla nella tua biblioteca.';
 }

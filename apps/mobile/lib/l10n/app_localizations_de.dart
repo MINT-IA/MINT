@@ -23817,4 +23817,30 @@ class SDe extends S {
   @override
   String get dataBlockMenageCivilRegisteredPartner =>
       'Eingetragene Partnerschaft';
+
+  @override
+  String get expatAvsScenarioAssumptions =>
+      'Deine Jahre in der Schweiz und im Ausland sind lokale Annahmen für den Vergleich eines Wegzugs. Sie ändern deine Bibliothek nicht.';
+
+  @override
+  String expatAvsAgeKnown(int age) {
+    return 'In deiner Bibliothek bekanntes Alter: $age Jahre.';
+  }
+
+  @override
+  String get expatAvsAgeMissingTitle => 'Dein Alter fehlt';
+
+  @override
+  String get expatAvsAgeMissingBody =>
+      'Ergänze dein Geburtsjahr, bevor du diese hypothetische AHV-Simulation startest.';
+
+  @override
+  String get expatAvsAddBirthYear => 'Mein Geburtsjahr ergänzen';
+
+  @override
+  String get expatAvsStartScenario => 'Illustrative Simulation starten';
+
+  @override
+  String get expatAvsScenarioDisclosure =>
+      'Lokale illustrative Simulation · kein offizieller Betrag · nichts wird in deiner Bibliothek gespeichert.';
 }

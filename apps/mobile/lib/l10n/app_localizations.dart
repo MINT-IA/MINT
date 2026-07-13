@@ -41548,6 +41548,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Partenariat enregistré'**
   String get dataBlockMenageCivilRegisteredPartner;
+
+  /// No description provided for @expatAvsScenarioAssumptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes années en Suisse et à l’étranger sont des hypothèses locales pour comparer un départ. Elles ne modifient pas ta bibliothèque.'**
+  String get expatAvsScenarioAssumptions;
+
+  /// No description provided for @expatAvsAgeKnown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge connu dans ta bibliothèque : {age} ans.'**
+  String expatAvsAgeKnown(int age);
+
+  /// No description provided for @expatAvsAgeMissingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge manque'**
+  String get expatAvsAgeMissingTitle;
+
+  /// No description provided for @expatAvsAgeMissingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute ton année de naissance avant de lancer cette simulation AVS hypothétique.'**
+  String get expatAvsAgeMissingBody;
+
+  /// No description provided for @expatAvsAddBirthYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter mon année de naissance'**
+  String get expatAvsAddBirthYear;
+
+  /// No description provided for @expatAvsStartScenario.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer la simulation illustrative'**
+  String get expatAvsStartScenario;
+
+  /// No description provided for @expatAvsScenarioDisclosure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulation illustrative locale · aucun montant officiel · rien n’est enregistré dans ta bibliothèque.'**
+  String get expatAvsScenarioDisclosure;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

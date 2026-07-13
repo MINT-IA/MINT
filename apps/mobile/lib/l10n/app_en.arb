@@ -11524,5 +11524,13 @@
   "reportPdfRetirementTotalCapital": "Total estimated capital",
   "report3aPendingBody": "Add your 3a balances and their date to show traceable facts without a point projection.",
   "report3aPendingCta": "Complete my 3a data",
-  "dataBlockMenageCivilRegisteredPartner": "Registered partnership"
+  "dataBlockMenageCivilRegisteredPartner": "Registered partnership",
+  "expatAvsScenarioAssumptions": "Your years in Switzerland and abroad are local assumptions for comparing a departure. They do not change your library.",
+  "expatAvsAgeKnown": "Age known in your library: {age} years.",
+  "@expatAvsAgeKnown": {"placeholders": {"age": {"type": "int"}}},
+  "expatAvsAgeMissingTitle": "Your age is missing",
+  "expatAvsAgeMissingBody": "Add your year of birth before starting this hypothetical OASI simulation.",
+  "expatAvsAddBirthYear": "Add my year of birth",
+  "expatAvsStartScenario": "Start the illustrative simulation",
+  "expatAvsScenarioDisclosure": "Local illustrative simulation · no official amount · nothing is saved to your library."
 }

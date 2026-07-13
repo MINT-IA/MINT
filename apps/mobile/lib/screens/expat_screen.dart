@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -58,6 +59,7 @@ class _ExpatScreenState extends State<ExpatScreen>
   // ── Tab 3: AVS inputs ─────────────────────────────────
   int _yearsInCh = 20;
   int _yearsAbroad = 10;
+  bool _avsScenarioStarted = false;
   Map<String, dynamic>? _avsResult;
 
   @override
@@ -66,7 +68,6 @@ class _ExpatScreenState extends State<ExpatScreen>
     _tabController = TabController(length: 3, vsync: this);
     _recalculateForfait();
     _recalculateDepart();
-    _recalculateAvs();
   }
 
   @override
@@ -97,7 +98,23 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   void _recalculateAvs() {
+    if (!_avsScenarioStarted) return;
     setState(() {
+      _avsResult = ExpatService.estimateAvsGap(
+        yearsAbroad: _yearsAbroad,
+        yearsInCh: _yearsInCh,
+      );
+    });
+  }
+
+  void _startAvsScenario() {
+    final provider = context.read<CoachProfileProvider>();
+    final profileAge =
+        provider.hasProfile ? provider.profile!.ageOrNull : null;
+    if (profileAge == null) return;
+
+    setState(() {
+      _avsScenarioStarted = true;
       _avsResult = ExpatService.estimateAvsGap(
         yearsAbroad: _yearsAbroad,
         yearsInCh: _yearsInCh,
@@ -1206,6 +1223,9 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   Widget _buildTab3Avs() {
     final l = S.of(context)!;
+    final provider = context.watch<CoachProfileProvider>();
+    final profileAge =
+        provider.hasProfile ? provider.profile!.ageOrNull : null;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -1213,7 +1233,11 @@ class _ExpatScreenState extends State<ExpatScreen>
       children: [
         MintEntrance(child: _buildAvsInputCard()),
         const SizedBox(height: MintSpacing.lg),
-        if (_avsResult != null) ...[
+        _buildAvsScenarioGate(profileAge),
+        const SizedBox(height: MintSpacing.lg),
+        if (_avsResult != null &&
+            _avsScenarioStarted &&
+            profileAge != null) ...[
           // ── Chiffre-choc hero for Tab 3 ──
           if ((_avsResult!['annualLoss'] as double) > 0)
             MintEntrance(
@@ -1221,6 +1245,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               child: Padding(
                 padding: const EdgeInsets.only(bottom: MintSpacing.lg),
                 child: MintResultHeroCard(
+                  key: const Key('expat_avs_scenario_result'),
                   eyebrow: l.expatTabAvs.toUpperCase(),
                   primaryValue: '-${ExpatService.formatChf(_avsResult!['annualLoss'] as double)}',
                   primaryLabel: l.expatAvsPremierEclairage(ExpatService.formatChf(
@@ -1255,21 +1280,102 @@ class _ExpatScreenState extends State<ExpatScreen>
           const SizedBox(height: MintSpacing.lg),
         ],
         Builder(builder: (context) {
-          final provider = context.read<CoachProfileProvider>();
-          final profileAge =
-              (provider.hasProfile && provider.profile!.age > 0)
-                  ? provider.profile!.age
-                  : 40;
-          return AvsGapWidget(
-            currentContributionYears: _yearsInCh,
-            currentAge: profileAge,
-          );
+          if (_avsScenarioStarted && profileAge != null) {
+            return AvsGapWidget(
+              key: const Key('expat_avs_gap_scenario'),
+              scenarioStarted: true,
+              currentContributionYears: _yearsInCh,
+              currentAge: profileAge,
+              initialYearsAbroad: _yearsAbroad,
+            );
+          }
+          return const SizedBox.shrink();
         }),
         const SizedBox(height: MintSpacing.lg),
         _buildEducationalInsert(l.expatAvsEducation),
         const SizedBox(height: MintSpacing.lg),
         _buildDisclaimer(),
       ],
+    );
+  }
+
+  Widget _buildAvsScenarioGate(int? profileAge) {
+    final l = S.of(context)!;
+
+    if (profileAge == null) {
+      return Container(
+        key: const Key('expat_avs_missing_age'),
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.warning.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.warning.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l.expatAvsAgeMissingTitle,
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              l.expatAvsAgeMissingBody,
+              style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            FilledButton.icon(
+              key: const Key('expat_avs_add_birth_year'),
+              onPressed: () => context.push(
+                '/data-block/revenu?inputKey=q_birth_year&returnUri=%2Fexpatriation',
+              ),
+              icon: const Icon(Icons.add),
+              label: Text(l.expatAvsAddBirthYear),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      key: const Key('expat_avs_known_age'),
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.expatAvsAgeKnown(profileAge),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l.expatAvsScenarioAssumptions,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          if (!_avsScenarioStarted)
+            FilledButton.icon(
+              key: const Key('expat_avs_start_scenario'),
+              onPressed: _startAvsScenario,
+              icon: const Icon(Icons.play_arrow),
+              label: Text(l.expatAvsStartScenario),
+            )
+          else
+            Text(
+              l.expatAvsScenarioDisclosure,
+              key: const Key('expat_avs_scenario_disclosure'),
+              style: MintTextStyles.labelSmall(color: MintColors.info),
+            ),
+        ],
+      ),
     );
   }
 

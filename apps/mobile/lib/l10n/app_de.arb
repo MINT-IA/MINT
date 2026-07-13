@@ -11524,5 +11524,13 @@
   "reportPdfRetirementTotalCapital": "Geschätztes Gesamtkapital",
   "report3aPendingBody": "Ergänze deine 3a-Guthaben und deren Stichtag, damit nachvollziehbare Fakten statt einer Punktschätzung angezeigt werden.",
   "report3aPendingCta": "Meine 3a-Daten ergänzen",
-  "dataBlockMenageCivilRegisteredPartner": "Eingetragene Partnerschaft"
+  "dataBlockMenageCivilRegisteredPartner": "Eingetragene Partnerschaft",
+  "expatAvsScenarioAssumptions": "Deine Jahre in der Schweiz und im Ausland sind lokale Annahmen für den Vergleich eines Wegzugs. Sie ändern deine Bibliothek nicht.",
+  "expatAvsAgeKnown": "In deiner Bibliothek bekanntes Alter: {age} Jahre.",
+  "@expatAvsAgeKnown": {"placeholders": {"age": {"type": "int"}}},
+  "expatAvsAgeMissingTitle": "Dein Alter fehlt",
+  "expatAvsAgeMissingBody": "Ergänze dein Geburtsjahr, bevor du diese hypothetische AHV-Simulation startest.",
+  "expatAvsAddBirthYear": "Mein Geburtsjahr ergänzen",
+  "expatAvsStartScenario": "Illustrative Simulation starten",
+  "expatAvsScenarioDisclosure": "Lokale illustrative Simulation · kein offizieller Betrag · nichts wird in deiner Bibliothek gespeichert."
 }

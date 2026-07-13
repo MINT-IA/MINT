@@ -23755,4 +23755,30 @@ class SFr extends S {
 
   @override
   String get dataBlockMenageCivilRegisteredPartner => 'Partenariat enregistré';
+
+  @override
+  String get expatAvsScenarioAssumptions =>
+      'Tes années en Suisse et à l’étranger sont des hypothèses locales pour comparer un départ. Elles ne modifient pas ta bibliothèque.';
+
+  @override
+  String expatAvsAgeKnown(int age) {
+    return 'Âge connu dans ta bibliothèque : $age ans.';
+  }
+
+  @override
+  String get expatAvsAgeMissingTitle => 'Ton âge manque';
+
+  @override
+  String get expatAvsAgeMissingBody =>
+      'Ajoute ton année de naissance avant de lancer cette simulation AVS hypothétique.';
+
+  @override
+  String get expatAvsAddBirthYear => 'Ajouter mon année de naissance';
+
+  @override
+  String get expatAvsStartScenario => 'Lancer la simulation illustrative';
+
+  @override
+  String get expatAvsScenarioDisclosure =>
+      'Simulation illustrative locale · aucun montant officiel · rien n’est enregistré dans ta bibliothèque.';
 }

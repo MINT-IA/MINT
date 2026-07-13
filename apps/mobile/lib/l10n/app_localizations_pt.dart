@@ -23764,4 +23764,30 @@ class SPt extends S {
 
   @override
   String get dataBlockMenageCivilRegisteredPartner => 'Parceria registada';
+
+  @override
+  String get expatAvsScenarioAssumptions =>
+      'Os teus anos na Suíça e no estrangeiro são hipóteses locais para comparar uma partida. Não alteram a tua biblioteca.';
+
+  @override
+  String expatAvsAgeKnown(int age) {
+    return 'Idade conhecida na tua biblioteca: $age anos.';
+  }
+
+  @override
+  String get expatAvsAgeMissingTitle => 'Falta a tua idade';
+
+  @override
+  String get expatAvsAgeMissingBody =>
+      'Adiciona o teu ano de nascimento antes de iniciar esta simulação AVS hipotética.';
+
+  @override
+  String get expatAvsAddBirthYear => 'Adicionar o meu ano de nascimento';
+
+  @override
+  String get expatAvsStartScenario => 'Iniciar a simulação ilustrativa';
+
+  @override
+  String get expatAvsScenarioDisclosure =>
+      'Simulação ilustrativa local · nenhum montante oficial · nada é guardado na tua biblioteca.';
 }

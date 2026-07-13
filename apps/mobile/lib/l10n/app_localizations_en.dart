@@ -23642,4 +23642,30 @@ class SEn extends S {
 
   @override
   String get dataBlockMenageCivilRegisteredPartner => 'Registered partnership';
+
+  @override
+  String get expatAvsScenarioAssumptions =>
+      'Your years in Switzerland and abroad are local assumptions for comparing a departure. They do not change your library.';
+
+  @override
+  String expatAvsAgeKnown(int age) {
+    return 'Age known in your library: $age years.';
+  }
+
+  @override
+  String get expatAvsAgeMissingTitle => 'Your age is missing';
+
+  @override
+  String get expatAvsAgeMissingBody =>
+      'Add your year of birth before starting this hypothetical OASI simulation.';
+
+  @override
+  String get expatAvsAddBirthYear => 'Add my year of birth';
+
+  @override
+  String get expatAvsStartScenario => 'Start the illustrative simulation';
+
+  @override
+  String get expatAvsScenarioDisclosure =>
+      'Local illustrative simulation · no official amount · nothing is saved to your library.';
 }

@@ -11524,5 +11524,13 @@
   "reportPdfRetirementTotalCapital": "Capitale totale stimato",
   "report3aPendingBody": "Aggiungi i saldi 3a e la relativa data per mostrare dati tracciabili senza una proiezione puntuale.",
   "report3aPendingCta": "Completare i miei dati 3a",
-  "dataBlockMenageCivilRegisteredPartner": "Unione domestica registrata"
+  "dataBlockMenageCivilRegisteredPartner": "Unione domestica registrata",
+  "expatAvsScenarioAssumptions": "I tuoi anni in Svizzera e all’estero sono ipotesi locali per confrontare una partenza. Non modificano la tua biblioteca.",
+  "expatAvsAgeKnown": "Età nota nella tua biblioteca: {age} anni.",
+  "@expatAvsAgeKnown": {"placeholders": {"age": {"type": "int"}}},
+  "expatAvsAgeMissingTitle": "Manca la tua età",
+  "expatAvsAgeMissingBody": "Aggiungi il tuo anno di nascita prima di avviare questa simulazione AVS ipotetica.",
+  "expatAvsAddBirthYear": "Aggiungi il mio anno di nascita",
+  "expatAvsStartScenario": "Avvia la simulazione illustrativa",
+  "expatAvsScenarioDisclosure": "Simulazione illustrativa locale · nessun importo ufficiale · non viene salvato nulla nella tua biblioteca."
 }

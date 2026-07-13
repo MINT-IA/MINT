@@ -15,6 +15,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 class AvsGapWidget extends StatefulWidget {
   const AvsGapWidget({
     super.key,
+    required this.scenarioStarted,
     required this.currentContributionYears,
     required this.currentAge,
     this.initialYearsAbroad = 5,
@@ -23,6 +24,7 @@ class AvsGapWidget extends StatefulWidget {
     this.referenceAge = avsAgeReferenceHomme,
   });
 
+  final bool scenarioStarted;
   final int currentContributionYears;
   final int currentAge;
   final int initialYearsAbroad;
@@ -65,6 +67,10 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.scenarioStarted) {
+      return const SizedBox.shrink();
+    }
+
     return Semantics(
       label: 'Trou AVS années étranger rente réduite LAVS cotisation',
       child: Container(
@@ -124,6 +130,12 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           Text(
             'Chaque année hors Suisse réduit ta rente. Pour toujours.',
             style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            S.of(context)!.expatAvsScenarioDisclosure,
+            key: const Key('expat_avs_scenario_disclosure'),
+            style: MintTextStyles.micro(color: MintColors.info),
           ),
         ],
       ),
