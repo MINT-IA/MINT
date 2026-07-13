@@ -11,7 +11,6 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/profile/hero_gap_card.dart';
 import 'package:mint_mobile/widgets/profile/financial_drawer.dart';
 import 'package:mint_mobile/widgets/profile/patrimoine_drawer_content.dart';
@@ -101,28 +100,6 @@ class FinancialSummaryScreen extends StatelessWidget {
     final det = profile.dettes;
     final pat = profile.patrimoine;
 
-    // ── Compute once: NetIncomeBreakdown ──
-    final gross = profile.revenuBrutAnnuel;
-    final breakdown = gross > 0
-        ? NetIncomeBreakdown.compute(
-            grossSalary: gross,
-            canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-            age: profile.age,
-            // FIX-P1-4: Pass etatCivil + nombreEnfants for correct tax calc.
-            etatCivil: profile.etatCivil.name,
-            nombreEnfants: profile.nombreEnfants,
-          )
-        : null;
-
-    // ── Hero Gap data ──
-    final currentMonthlyNet = breakdown != null
-        ? breakdown.disposableIncome / 12
-        : 0.0;
-    final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
-    final renteLpp =
-        (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12;
-    final projectedMonthly = renteAvs + renteLpp;
-
     // ── Confidence ──
     final knownCount = [
       profile.salaireBrutMensuel > 0,
@@ -134,7 +111,6 @@ class FinancialSummaryScreen extends StatelessWidget {
           (det.hypotheque != null && det.hypotheque! > 0),
       profile.depenses.assuranceMaladie > 0,
     ].where((b) => b).length;
-    final confidence = (knownCount / 7 * 100).clamp(0.0, 100.0);
     final missingCount = 7 - knownCount;
 
     // ── Patrimoine net (hero value for tiroir 1) ──
@@ -160,17 +136,11 @@ class FinancialSummaryScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── HERO GAP CARD ──
-            MintEntrance(child: HeroGapCard(
-              currentMonthlyNet: currentMonthlyNet,
-              projectedMonthlyRetirement: projectedMonthly,
-              confidencePercent: confidence,
-              missingFieldsCount: missingCount > 0 ? missingCount : null,
-              confidenceBoostPercent:
-                  missingCount > 0 ? (missingCount * 10).clamp(5, 30) : null,
-              onScanTap: missingCount > 0
-                  ? () => context.push('/scan')
-                  : null,
-            )),
+            MintEntrance(
+              child: HeroGapCard(
+                onRecoveryTap: () => context.push('/scan/avs-guide'),
+              ),
+            ),
             const SizedBox(height: 20),
 
             // ── TIROIR 1: Ce que tu as ──
@@ -263,10 +233,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             MintEntrance(delay: const Duration(milliseconds: 300), child: FinancialDrawer(
               title: s.drawerCeQueTuAuras,
               subtitle: s.drawerCeQueTuAurasSubtitle,
-              heroValue: projectedMonthly > 0
-                  ? formatChfCompact(projectedMonthly)
-                  : '\u2014',
-              heroSuffix: s.heroGapPerMonth,
+              heroValue: '\u2014',
               icon: Icons.trending_up,
               accentColor: MintColors.info,
               onEdit: () => _showEditSheet(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -131,10 +132,7 @@ class PatrimoineDrawerContent extends StatelessWidget {
     }
     lines.add(FinancialLine(
       label: l10n.financialSummaryRenteEstimee,
-      formattedValue: prev.renteAVSEstimeeMensuelle != null
-          ? formatChfMonthly(prev.renteAVSEstimeeMensuelle)
-          : '\u2014',
-      source: _source('prevoyance.renteAVSEstimeeMensuelle'),
+      formattedValue: '\u2014',
       indent: true,
       isLast: true,
     ));
@@ -300,6 +298,8 @@ class PatrimoineDrawerContent extends StatelessWidget {
         formattedValue: formatChfOrDash(patrimoineNet),
         isHero: true,
       ),
+      onScanCertificate: () => context.push('/scan/avs-guide'),
+      scanLabel: l10n.visibilityHintCommandeAvs,
     );
   }
 

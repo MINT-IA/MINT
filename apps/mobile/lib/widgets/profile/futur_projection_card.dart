@@ -1,6 +1,6 @@
 // Outil educatif — ne constitue pas un conseil financier (LSFin).
-// Projection basee sur les donnees declarees. Les rentes AVS/LPP
-// sont des estimations (LAVS art. 21-40, LPP art. 14-16).
+// Projection partielle basee sur les donnees declarees. Aucun revenu AVS
+// n'est affiche sans enveloppe de rente officielle revue.
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -12,16 +12,14 @@ import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 /// "Futur" panel of the triptyque layout — retirement income projection.
 ///
-/// Shows monthly income projection at retirement (AVS + LPP + 3a SWR +
-/// libre passage SWR + market investments SWR), capital summary,
-/// replacement rate, confidence score, and uncertainty band.
+/// Shows known non-AVS retirement sources and a live recovery path for the
+/// official AVS calculation. AVS-dependent totals stay absent until a reviewed
+/// mobile evidence envelope exists.
 class FuturProjectionCard extends StatelessWidget {
   final String firstName;
   final String? conjointFirstName;
   final int ageRetraite;
   final int? conjointAgeRetraite;
-  final double renteAvsUser;
-  final double? renteAvsConjoint;
   final double renteLppUser;
   final double? renteLppConjoint;
   final double avoirLppUser;
@@ -30,8 +28,6 @@ class FuturProjectionCard extends StatelessWidget {
   final double? capital3aConjoint;
   final double? capitalLibrePassage;
   final double? investissementsMarche;
-  final double disposableActuel;
-  final double? disposableCouple;
   final double confidenceScore;
 
   /// Optional 4-axis confidence (Plan 08a-02 Batch B). When non-null it is
@@ -41,6 +37,7 @@ class FuturProjectionCard extends StatelessWidget {
   /// keeps working unchanged.
   final EnhancedConfidence? confidence;
 
+  final VoidCallback onAvsRecoveryTap;
   final VoidCallback? onDetailTap;
 
   const FuturProjectionCard({
@@ -49,8 +46,6 @@ class FuturProjectionCard extends StatelessWidget {
     this.conjointFirstName,
     this.ageRetraite = 65,
     this.conjointAgeRetraite,
-    required this.renteAvsUser,
-    this.renteAvsConjoint,
     required this.renteLppUser,
     this.renteLppConjoint,
     this.avoirLppUser = 0,
@@ -59,10 +54,9 @@ class FuturProjectionCard extends StatelessWidget {
     this.capital3aConjoint,
     this.capitalLibrePassage,
     this.investissementsMarche,
-    required this.disposableActuel,
-    this.disposableCouple,
     required this.confidenceScore,
     this.confidence,
+    required this.onAvsRecoveryTap,
     this.onDetailTap,
   });
 
@@ -73,9 +67,6 @@ class FuturProjectionCard extends StatelessWidget {
 
   /// SWR = Safe Withdrawal Rate: 4% annual / 12 = monthly drawdown.
   double _swrMonthly(double capital) => capital * 0.04 / 12;
-
-  double get _totalAvsMonthly =>
-      renteAvsUser + (renteAvsConjoint ?? 0);
 
   double get _totalLppMonthly =>
       renteLppUser + (renteLppConjoint ?? 0);
@@ -93,26 +84,14 @@ class FuturProjectionCard extends StatelessWidget {
 
   double get _swrInvestMonthly => _swrMonthly(_totalInvestissements);
 
-  double get _totalMonthlyProjected =>
-      _totalAvsMonthly +
-      _totalLppMonthly +
-      _swr3aMonthly +
-      _swrLpMonthly +
-      _swrInvestMonthly;
-
-  double get _currentReference =>
-      disposableCouple ?? disposableActuel;
-
-  double get _tauxRemplacement =>
-      _currentReference > 0
-          ? (_totalMonthlyProjected / _currentReference) * 100
-          : 0;
-
   double get _totalLppCapital =>
       avoirLppUser + (avoirLppConjoint ?? 0);
 
   double get _totalCapitalRetraite =>
-      _totalLppCapital + _total3aCapital + _totalCapitalLP + _totalInvestissements;
+      _totalLppCapital +
+      _total3aCapital +
+      _totalCapitalLP +
+      _totalInvestissements;
 
   String _fmtChf(double v) => formatChf(v);
 
@@ -136,7 +115,6 @@ class FuturProjectionCard extends StatelessWidget {
           _buildIncomeSection(l),
           const Divider(height: 1, indent: 16, endIndent: 16),
           _buildCapitalSection(l),
-          _buildUncertaintyBand(l),
           // MintTrameConfiance (Plan 08a-02 Batch B) — MUJI line-4 slot.
           // Replaces the legacy confidence KPI tile + local color tiers.
           // firstAppearance because this is a card detail, not a feed item.
@@ -167,7 +145,8 @@ class FuturProjectionCard extends StatelessWidget {
           Expanded(
             child: Text(
               l.futurHorizonTitle,
-              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           if (_isCouple)
@@ -179,7 +158,8 @@ class FuturProjectionCard extends StatelessWidget {
               ),
               child: Text(
                 l.futurCoupleLabel,
-                style: MintTextStyles.micro(color: MintColors.info).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+                style: MintTextStyles.micro(color: MintColors.info).copyWith(
+                    fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
               ),
             ),
         ],
@@ -194,16 +174,6 @@ class FuturProjectionCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
-          _kpiCard(
-            l.futurTauxRemplacement,
-            '${_tauxRemplacement.toStringAsFixed(0)}%',
-            _tauxRemplacement >= 60
-                ? MintColors.success
-                : _tauxRemplacement >= 40
-                    ? MintColors.warning
-                    : MintColors.error,
-          ),
-          const SizedBox(width: 8),
           _kpiCard(
             l.futurAgeRetraite,
             '$ageRetraite ans',
@@ -230,13 +200,15 @@ class FuturProjectionCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: MintTextStyles.bodyLarge(color: color).copyWith(fontWeight: FontWeight.w800),
+              style: MintTextStyles.bodyLarge(color: color)
+                  .copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 2),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
+              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
+                  fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
             ),
           ],
         ),
@@ -254,14 +226,8 @@ class FuturProjectionCard extends StatelessWidget {
         children: [
           _sectionLabel(l.futurRevenuMensuelProjection),
           const SizedBox(height: 8),
-          _incomeLine(
-            l.futurRenteAvs,
-            _totalAvsMonthly,
-            MintColors.retirementAvs,
-            detail: _isCouple && renteAvsConjoint != null
-                ? '${_fmtChf(renteAvsUser)} + ${_fmtChf(renteAvsConjoint!)}'
-                : null,
-          ),
+          _buildAvsRecovery(l),
+          const SizedBox(height: 8),
           _incomeLine(
             l.futurRenteLpp,
             _totalLppMonthly,
@@ -291,9 +257,6 @@ class FuturProjectionCard extends StatelessWidget {
               MintColors.amber,
               hint: l.futurCapitalLabel(_fmtChf(_totalInvestissements)),
             ),
-          const SizedBox(height: 4),
-          // Hero total line
-          _buildHeroTotal(l),
           const SizedBox(height: 8),
         ],
       ),
@@ -308,7 +271,10 @@ class FuturProjectionCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
             text,
-            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5, fontStyle: FontStyle.normal),
+            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+                fontStyle: FontStyle.normal),
           ),
         ),
         const Expanded(child: Divider(height: 1)),
@@ -342,12 +308,14 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+                  style: MintTextStyles.labelMedium(
+                      color: MintColors.textSecondary),
                 ),
               ),
               Text(
                 'CHF ${_fmtChf(monthly)}/mois',
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -356,7 +324,10 @@ class FuturProjectionCard extends StatelessWidget {
               padding: const EdgeInsets.only(left: 16, top: 1),
               child: Text(
                 detail ?? hint!,
-                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: hint != null ? FontStyle.italic : FontStyle.normal),
+                style: MintTextStyles.micro(color: MintColors.textMuted)
+                    .copyWith(
+                        fontStyle:
+                            hint != null ? FontStyle.italic : FontStyle.normal),
               ),
             ),
         ],
@@ -364,29 +335,61 @@ class FuturProjectionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroTotal(S l) {
+  Widget _buildAvsRecovery(S l) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: MintColors.primary.withAlpha(14),
+        color: MintColors.info.withAlpha(14),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MintColors.primary.withAlpha(40)),
+        border: Border.all(color: MintColors.info.withAlpha(40)),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              _isCouple
-                  ? l.futurTotalCoupleProjecte
-                  : l.futurTotalMensuelProjecte,
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-            ),
+      child: Semantics(
+        label: l.visibilityHintCommandeAvs,
+        button: true,
+        child: InkWell(
+          onTap: onAvsRecoveryTap,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.account_balance_outlined,
+                size: 18,
+                color: MintColors.info,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.futurRenteAvs,
+                      style: MintTextStyles.labelMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l.avsGuideHeaderSubtitle,
+                      style: MintTextStyles.micro(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l.visibilityHintCommandeAvs,
+                      style: MintTextStyles.labelSmall(color: MintColors.info)
+                          .copyWith(
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline,
+                        decorationColor: MintColors.info,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Text(
-            'CHF ${_fmtChf(_totalMonthlyProjected)}/mois',
-            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -406,12 +409,15 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.futurCapitalTotal,
-                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                  style:
+                      MintTextStyles.labelMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               Text(
                 'CHF ${_fmtChf(_totalCapitalRetraite)}',
-                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -419,62 +425,17 @@ class FuturProjectionCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline, size: 12, color: MintColors.textMuted),
+              const Icon(Icons.info_outline,
+                  size: 12, color: MintColors.textMuted),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   l.futurCapitalTaxHint,
-                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.3),
+                  style: MintTextStyles.micro(color: MintColors.textMuted)
+                      .copyWith(height: 1.3),
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ──────────────── Uncertainty Band ────────────────
-
-  Widget _buildUncertaintyBand(S l) {
-    final uncertaintyPct = (100 - confidenceScore).clamp(10, 50);
-    final low = _totalMonthlyProjected * (1 - uncertaintyPct / 100);
-    final high = _totalMonthlyProjected * (1 + uncertaintyPct / 100);
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: MintColors.warning.withAlpha(14),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MintColors.warning.withAlpha(40)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.warning_amber_rounded,
-              size: 16, color: MintColors.warning),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.futurMargeIncertitude(uncertaintyPct.toStringAsFixed(0)),
-                  style: MintTextStyles.labelSmall(color: MintColors.warning).copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l.futurFourchette(_fmtChf(low), _fmtChf(high)),
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l.futurCompleterProfil,
-                  style: MintTextStyles.micro(color: MintColors.textMuted),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -487,8 +448,9 @@ class FuturProjectionCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Text(
-        l.futurDisclaimer,
-        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal, height: 1.3),
+        l.trajectoryDisclaimer,
+        style: MintTextStyles.micro(color: MintColors.textMuted)
+            .copyWith(fontStyle: FontStyle.normal, height: 1.3),
       ),
     );
   }
@@ -505,25 +467,26 @@ class FuturProjectionCard extends StatelessWidget {
           child: InkWell(
             onTap: onDetailTap,
             borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(16),
-            bottomRight: Radius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.explore_outlined,
-                    size: 16, color: MintColors.info),
-                const SizedBox(width: 8),
-                Text(
-                  l.futurExplorerDetails,
-                  style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
-                ),
-              ],
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.explore_outlined,
+                      size: 16, color: MintColors.info),
+                  const SizedBox(width: 8),
+                  Text(
+                    l.futurExplorerDetails,
+                    style: MintTextStyles.labelMedium(color: MintColors.info)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
         ),
       ],
     );

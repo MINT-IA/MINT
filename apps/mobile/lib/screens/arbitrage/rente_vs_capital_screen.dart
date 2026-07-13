@@ -105,7 +105,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   bool _finalReturnEmitted = false;
 
   // ── New fields ──
-  double? _avsRenteMensuelle;
   final _rachatAnnuelCtrl = TextEditingController(text: '0');
   final _rachatMaxCtrl = TextEditingController(text: '0');
   bool _hasEpl = false;
@@ -227,13 +226,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     final tcSurobProfile = profile.prevoyance.tauxConversionSuroblig;
     if (tcSurobProfile != null && tcSurobProfile > 0) {
       apply(_tcSurobCtrl, (tcSurobProfile * 100).toStringAsFixed(1), 'prevoyance.tauxConversionSuroblig');
-    }
-
-    // AVS estimated monthly rente — used for display only (not engine input)
-    final avsRente = profile.prevoyance.renteAVSEstimeeMensuelle;
-    if (avsRente != null && avsRente > 0) {
-      _avsRenteMensuelle = avsRente;
-      changed = true;
     }
 
     // Retirement age from profile if available
@@ -1225,42 +1217,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               textAlign: TextAlign.center,
             ),
           ),
-          // AVS complement if available
-          if (_avsRenteMensuelle != null && _avsRenteMensuelle! > 0) ...[
-            const SizedBox(height: MintSpacing.sm),
-            MintSurface(
-              tone: MintSurfaceTone.porcelaine,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              radius: 10,
-              child: Row(
-                children: [
-                  const Icon(Icons.add_circle_outline, size: 16, color: MintColors.textMuted),
-                  const SizedBox(width: MintSpacing.sm),
-                  Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(
-                          fontSize: 12,
-                        ),
-                        children: [
-                          TextSpan(text: S.of(context)!.renteVsCapitalAvsEstimated),
-                          TextSpan(
-                            text: S.of(context)!.renteVsCapitalAvsAmount(
-                              formatChf(_avsRenteMensuelle!),
-                            ),
-                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(
-                              fontSize: 12, fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          TextSpan(text: S.of(context)!.renteVsCapitalAvsSupplementary),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
