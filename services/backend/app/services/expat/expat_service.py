@@ -1,14 +1,12 @@
 """
 Simulateur de planification fiscale pour l'expatriation / impatriation en Suisse.
 
-Couvre le forfait fiscal, la double imposition, les lacunes AVS,
-la planification de depart et la comparaison fiscale internationale.
+Couvre le forfait fiscal, la double imposition, la planification de depart et
+la comparaison fiscale internationale.
 
 Sources:
     - LIFD art. 14 (imposition d'apres la depense / forfait fiscal)
     - LIFD art. 6, 7 (assujettissement illimite / limite)
-    - LAVS art. 1a (assujettissement obligatoire AVS)
-    - LAVS art. 2 (assurance facultative AVS pour Suisses a l'etranger)
     - LPP art. 2 (libre passage)
     - OLP art. 10, 16 (prestations de libre passage)
     - OPP2 art. 11 (versement en especes du libre passage)
@@ -24,20 +22,11 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from datetime import date
 
-from app.constants.social_insurance import (
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
-    AVS_VOLONTAIRE_COTISATION_MIN,
-    AVS_VOLONTAIRE_COTISATION_MAX,
-    AVS_DUREE_COTISATION_COMPLETE,
-)
-
-
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ta situation personnelle, du canton, du pays de destination et des "
     "conventions de double imposition en vigueur. Ne constitue pas un "
-    "conseil fiscal ou juridique (LSFin/LLCA). Consulte un ou une specialiste."
+    "conseil fiscal ou juridique (LSFin/LLCA). Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------
@@ -178,19 +167,6 @@ CDI_PARTENAIRES = {
 }
 
 # ---------------------------------------------------------------------------
-# AVS — cotisations volontaires pour Suisses a l'etranger
-# Source: LAVS art. 2, OAVS art. 13bis
-# ---------------------------------------------------------------------------
-
-# AVS volontaire — imported from app.constants.social_insurance:
-#   AVS_VOLONTAIRE_COTISATION_MIN, AVS_VOLONTAIRE_COTISATION_MAX
-# Rente AVS — imported from app.constants.social_insurance:
-#   _AVS_RENTE_MAX_MENSUELLE, _AVS_RENTE_MIN_MENSUELLE, AVS_DUREE_COTISATION_COMPLETE
-
-# Reduction de rente par annee de lacune (LAVS art. 29ter, 52c)
-AVS_REDUCTION_PAR_ANNEE_LACUNE = round(AVS_RENTE_MAX_MENSUELLE / AVS_DUREE_COTISATION_COMPLETE, 2)
-
-# ---------------------------------------------------------------------------
 # Libre passage LPP
 # Source: LPP art. 2, LFLP art. 2, 5, OLP art. 10, 16
 # ---------------------------------------------------------------------------
@@ -320,24 +296,6 @@ class DoubleTaxationResult:
     taux_dividendes_max: float          # Retenue a la source max sur dividendes (%)
     taux_interets_max: float            # Retenue a la source max sur interets (%)
     optimisations: List[str]            # Conseils d'optimisation
-    recommandation: str                 # Recommandation pedagogique
-    sources: List[str] = field(default_factory=list)
-
-
-@dataclass
-class AVSGapResult:
-    """Resultat de l'estimation des lacunes AVS."""
-    annees_cotisation_ch: int           # Annees de cotisation en Suisse
-    annees_a_letranger: int             # Annees a l'etranger
-    annees_totales: int                 # Total des annees
-    annees_manquantes: int              # Annees manquantes pour rente complete
-    rente_estimee_mensuelle: float      # Rente AVS estimee mensuelle (CHF)
-    rente_max_mensuelle: float          # Rente AVS maximale mensuelle (CHF)
-    reduction_mensuelle: float          # Reduction mensuelle (CHF)
-    reduction_annuelle: float           # Reduction annuelle (CHF)
-    cotisation_volontaire_possible: bool  # Peut cotiser a l'AVS facultative
-    cotisation_min: float               # Cotisation min annuelle (CHF)
-    cotisation_max: float               # Cotisation max annuelle (CHF)
     recommandation: str                 # Recommandation pedagogique
     sources: List[str] = field(default_factory=list)
 
@@ -617,82 +575,6 @@ class ExpatService:
             taux_dividendes_max=cdi["dividendes_taux_max"],
             taux_interets_max=cdi["interets_taux_max"],
             optimisations=optimisations,
-            recommandation=recommandation,
-            sources=sources,
-        )
-
-    def estimate_avs_gap(
-        self,
-        years_abroad: int,
-        years_in_ch: int,
-    ) -> AVSGapResult:
-        """Estime la reduction de rente AVS due aux annees a l'etranger.
-
-        Chaque annee de cotisation manquante reduit la rente AVS
-        proportionnellement (LAVS art. 29ter).
-
-        Args:
-            years_abroad: Nombre d'annees a l'etranger (sans cotisation AVS CH).
-            years_in_ch: Nombre d'annees de cotisation en Suisse.
-
-        Returns:
-            AVSGapResult avec l'estimation de la lacune.
-        """
-        annees_totales = years_abroad + years_in_ch
-        annees_manquantes = max(0, AVS_DUREE_COTISATION_COMPLETE - years_in_ch)
-
-        # Rente estimee = rente max * (annees_ch / 44)
-        ratio = min(1.0, years_in_ch / AVS_DUREE_COTISATION_COMPLETE) if AVS_DUREE_COTISATION_COMPLETE > 0 else 0.0
-        rente_estimee = round(AVS_RENTE_MAX_MENSUELLE * ratio, 2)
-        # Minimum si au moins 1 an de cotisation
-        if years_in_ch > 0 and rente_estimee < AVS_RENTE_MIN_MENSUELLE:
-            rente_estimee = AVS_RENTE_MIN_MENSUELLE
-
-        reduction_mensuelle = round(AVS_RENTE_MAX_MENSUELLE - rente_estimee, 2)
-        reduction_annuelle = round(reduction_mensuelle * 12, 2)
-
-        # Cotisation volontaire possible pour les Suisses a l'etranger
-        cotisation_volontaire = years_abroad > 0
-
-        if annees_manquantes > 0:
-            recommandation = (
-                f"Avec {years_in_ch} annees de cotisation AVS en Suisse, ta rente est "
-                f"estimee a CHF {rente_estimee:,.0f}/mois (max: CHF {AVS_RENTE_MAX_MENSUELLE:,.0f}). "
-                f"Il te manque {annees_manquantes} annees pour la rente complete. "
-                f"Reduction estimee: CHF {reduction_mensuelle:,.0f}/mois "
-                f"(CHF {reduction_annuelle:,.0f}/an)."
-            )
-            if cotisation_volontaire:
-                recommandation += (
-                    f" Si tu es de nationalite suisse, tu peux cotiser a l'AVS facultative "
-                    f"(CHF {AVS_VOLONTAIRE_COTISATION_MIN:,.0f} a CHF {AVS_VOLONTAIRE_COTISATION_MAX:,.0f}/an)."
-                )
-        else:
-            recommandation = (
-                f"Avec {years_in_ch} annees de cotisation, tu as droit a la rente "
-                f"AVS maximale de CHF {AVS_RENTE_MAX_MENSUELLE:,.0f}/mois. Aucune lacune."
-            )
-
-        sources = [
-            "LAVS art. 29ter (rente complete si 44 annees de cotisation)",
-            "LAVS art. 34 al. 1 (rente maximale: CHF 2'520/mois en 2025)",
-            "LAVS art. 34 al. 5 (rente minimale: CHF 1'260/mois)",
-            "LAVS art. 2 (assurance AVS facultative pour Suisses a l'etranger)",
-            "OAVS art. 13bis (cotisation facultative: CHF 514-25'700/an)",
-        ]
-
-        return AVSGapResult(
-            annees_cotisation_ch=years_in_ch,
-            annees_a_letranger=years_abroad,
-            annees_totales=annees_totales,
-            annees_manquantes=annees_manquantes,
-            rente_estimee_mensuelle=rente_estimee,
-            rente_max_mensuelle=AVS_RENTE_MAX_MENSUELLE,
-            reduction_mensuelle=reduction_mensuelle,
-            reduction_annuelle=reduction_annuelle,
-            cotisation_volontaire_possible=cotisation_volontaire,
-            cotisation_min=AVS_VOLONTAIRE_COTISATION_MIN,
-            cotisation_max=AVS_VOLONTAIRE_COTISATION_MAX,
             recommandation=recommandation,
             sources=sources,
         )

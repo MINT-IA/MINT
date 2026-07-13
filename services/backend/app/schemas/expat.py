@@ -7,8 +7,8 @@ API convention: camelCase field names via alias_generator, ConfigDict.
 Covers:
     - Frontalier: impot a la source, quasi-resident, regle 90 jours,
       charges sociales, option LAMal
-    - Expat: forfait fiscal, double imposition, lacunes AVS,
-      planification depart, comparaison fiscale
+    - Expat: forfait fiscal, double imposition, planification depart,
+      comparaison fiscale
 """
 
 from enum import Enum
@@ -317,42 +317,6 @@ class DoubleTaxationResponse(ExpatBaseModel):
     taux_dividendes_max: float = Field(..., description="Retenue max sur dividendes (%)")
     taux_interets_max: float = Field(..., description="Retenue max sur interets (%)")
     optimisations: List[str] = Field(default_factory=list, description="Conseils d'optimisation")
-    recommandation: str = Field(..., description="Recommandation pedagogique")
-    disclaimer: str = Field(..., description="Avertissement legal")
-    sources: List[str] = Field(default_factory=list, description="Sources legales")
-
-
-# ===========================================================================
-# Expat — Lacunes AVS
-# ===========================================================================
-
-class AVSGapRequest(ExpatBaseModel):
-    """Requete pour l'estimation des lacunes AVS."""
-
-    years_abroad: int = Field(
-        ..., ge=0,
-        description="Nombre d'annees a l'etranger sans cotisation AVS CH",
-    )
-    years_in_ch: int = Field(
-        ..., ge=0,
-        description="Nombre d'annees de cotisation en Suisse",
-    )
-
-
-class AVSGapResponse(ExpatBaseModel):
-    """Reponse pour l'estimation des lacunes AVS."""
-
-    annees_cotisation_ch: int = Field(..., description="Annees cotisees en Suisse")
-    annees_a_letranger: int = Field(..., description="Annees a l'etranger")
-    annees_totales: int = Field(..., description="Total des annees")
-    annees_manquantes: int = Field(..., description="Annees manquantes pour rente complete")
-    rente_estimee_mensuelle: float = Field(..., description="Rente AVS estimee mensuelle (CHF)")
-    rente_max_mensuelle: float = Field(..., description="Rente AVS maximale mensuelle (CHF)")
-    reduction_mensuelle: float = Field(..., description="Reduction mensuelle (CHF)")
-    reduction_annuelle: float = Field(..., description="Reduction annuelle (CHF)")
-    cotisation_volontaire_possible: bool = Field(..., description="Peut cotiser a l'AVS facultative")
-    cotisation_min: float = Field(..., description="Cotisation min annuelle (CHF)")
-    cotisation_max: float = Field(..., description="Cotisation max annuelle (CHF)")
     recommandation: str = Field(..., description="Recommandation pedagogique")
     disclaimer: str = Field(..., description="Avertissement legal")
     sources: List[str] = Field(default_factory=list, description="Sources legales")

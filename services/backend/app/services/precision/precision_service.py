@@ -18,8 +18,6 @@ Sources:
     - LPP art. 7 (seuil d'entree: 22'680 CHF)
     - LPP art. 8 (deduction de coordination: 26'460 CHF)
     - LPP art. 15-16 (bonifications vieillesse: 7/10/15/18%)
-    - LAVS art. 29ter (duree cotisation complete: 44 ans)
-    - LAVS art. 34 (rente maximale: 2'520 CHF/mois)
     - OPP3 art. 7 (plafond 3a: 7'258 CHF avec LPP, 36'288 CHF sans)
     - LIFD art. 38 (imposition du capital de prevoyance)
 """
@@ -140,9 +138,9 @@ _FIELD_HELP_REGISTRY: Dict[str, FieldHelp] = {
         document_name="Extrait de compte individuel AVS (CI)",
         german_name="Individuelles Konto (IK-Auszug), Beitragsjahre",
         fallback_estimation=(
-            "Si tu es arrive en Suisse a 20 ans et n'as jamais interrompu, "
-            "on estime tes annees = age - 20. Pour 44 ans complets, rente AVS pleine "
-            "(LAVS art. 29ter)."
+            "Sans extrait CI confirme, MINT laisse le nombre d'annees a examiner "
+            "inconnu. Demande l'extrait a ta caisse de compensation: seule la caisse "
+            "determine les periodes retenues, l'echelle et le montant officiels."
         ),
     ),
     "pillar_3a_balance": FieldHelp(
@@ -573,7 +571,7 @@ def compute_smart_defaults(
         value=round(reserve_target, 0),
         source=(
             f"Estimation: 4 mois de charges (~{_format_chf(monthly_expenses)}/mois). "
-            f"Les specialistes recommandent 3 a 6 mois de depenses en reserve. "
+            f"Les spécialistes recommandent 3 a 6 mois de depenses en reserve. "
             f"Charges estimees a 70% du salaire net."
         ),
         confidence=0.40,
@@ -890,12 +888,13 @@ def _prompts_retirement(profile: dict) -> List[PrecisionPrompt]:
             trigger="retirement_projection_opened",
             field_needed="avs_contribution_years",
             prompt_text=(
-                "Tes annees de cotisation AVS determinent ta rente. "
-                "Demande ton extrait CI sur www.ahv-iv.ch pour le chiffre exact."
+                "Ton extrait CI rend visibles les periodes a examiner. "
+                "Demande-le sur www.ahv-iv.ch, puis clarifie les periodes "
+                "incertaines avec ta caisse de compensation."
             ),
             impact_text=(
-                "Rente AVS calculee au franc pres. "
-                "Chaque annee manquante reduit la rente d'environ 2.3%."
+                "La caisse determine les periodes retenues, l'echelle et le "
+                "montant officiels; MINT ne les deduit pas du seul nombre d'annees."
             ),
         ))
 

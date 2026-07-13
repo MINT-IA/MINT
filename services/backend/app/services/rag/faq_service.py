@@ -845,19 +845,18 @@ _FAQ_DATA: list[FaqEntry] = [
     ),
     FaqEntry(
         id="faq_lacunes_avs_couts",
-        question="Combien coûte le rachat d'une année de lacune AVS?",
+        question="Comment faire examiner une lacune AVS?",
         answer=(
-            "Le coût d'un rachat de lacune AVS dépend du revenu déterminant. "
-            "Pour les salariés, la cotisation annuelle est de 10.6% du salaire AVS. "
-            "Pour une personne ayant un revenu moyen (~CHF 80'000/an), "
-            "racheter une lacune coûte environ CHF 4'200-5'000. "
-            "Cependant, l'avantage en rente représente 1/44e de la différence entre rente max et min, "
-            "soit environ CHF 28/mois de rente supplémentaire, à vie. "
-            "Ce rachat peut se rentabiliser en moins de 15 ans selon l'espérance de vie."
+            "Une période passée à l'étranger ou absente de tes données n'est pas "
+            "automatiquement une lacune AVS. Demande d'abord un extrait de compte "
+            "individuel (CI), puis signale toute période à examiner à ta caisse de "
+            "compensation. La caisse vérifie les cotisations, les périodes qui peuvent "
+            "être prises en compte et les possibilités de correction, puis fixe seule "
+            "l'échelle et le montant officiels."
         ),
         category=KnowledgeCategory.AVS,
-        legal_refs=["LAVS art. 8", "LAVS art. 16 al. 3"],
-        tags=["lacunes", "avs", "rachat", "coût"],
+        legal_refs=["LAVS art. 16", "LAVS art. 29ter", "RAVS art. 52"],
+        tags=["lacunes", "avs", "extrait ci", "caisse"],
     ),
     FaqEntry(
         id="faq_couple_retraite_strategie",

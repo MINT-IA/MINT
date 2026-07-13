@@ -8,7 +8,6 @@ POST /api/v1/expat/frontalier/social-charges   — Comparaison charges sociales
 POST /api/v1/expat/frontalier/lamal-option     — Comparaison LAMal vs residence
 POST /api/v1/expat/forfait-fiscal              — Simulation forfait fiscal
 POST /api/v1/expat/double-taxation             — Analyse double imposition
-POST /api/v1/expat/avs-gap                     — Estimation lacunes AVS
 POST /api/v1/expat/departure-plan              — Planification de depart
 POST /api/v1/expat/tax-comparison              — Comparaison fiscale internationale
 
@@ -34,8 +33,6 @@ from app.schemas.expat import (
     ForfaitFiscalResponse,
     DoubleTaxationRequest,
     DoubleTaxationResponse,
-    AVSGapRequest,
-    AVSGapResponse,
     DeparturePlanRequest,
     DeparturePlanResponse,
     ChecklistItem,
@@ -284,42 +281,6 @@ def check_double_taxation(request: Request, body: DoubleTaxationRequest) -> Doub
         taux_dividendes_max=result.taux_dividendes_max,
         taux_interets_max=result.taux_interets_max,
         optimisations=result.optimisations,
-        recommandation=result.recommandation,
-        disclaimer=EXPAT_DISCLAIMER,
-        sources=result.sources,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Expat — Lacunes AVS
-# ---------------------------------------------------------------------------
-
-@router.post("/avs-gap", response_model=AVSGapResponse)
-@limiter.limit("30/minute")
-def estimate_avs_gap(request: Request, body: AVSGapRequest) -> AVSGapResponse:
-    """Estime la reduction de rente AVS due aux annees a l'etranger.
-
-    Chaque annee manquante reduit la rente proportionnellement.
-
-    Sources: LAVS art. 29ter, 34.
-    """
-    service = ExpatService()
-    result = service.estimate_avs_gap(
-        years_abroad=body.years_abroad,
-        years_in_ch=body.years_in_ch,
-    )
-    return AVSGapResponse(
-        annees_cotisation_ch=result.annees_cotisation_ch,
-        annees_a_letranger=result.annees_a_letranger,
-        annees_totales=result.annees_totales,
-        annees_manquantes=result.annees_manquantes,
-        rente_estimee_mensuelle=result.rente_estimee_mensuelle,
-        rente_max_mensuelle=result.rente_max_mensuelle,
-        reduction_mensuelle=result.reduction_mensuelle,
-        reduction_annuelle=result.reduction_annuelle,
-        cotisation_volontaire_possible=result.cotisation_volontaire_possible,
-        cotisation_min=result.cotisation_min,
-        cotisation_max=result.cotisation_max,
         recommandation=result.recommandation,
         disclaimer=EXPAT_DISCLAIMER,
         sources=result.sources,

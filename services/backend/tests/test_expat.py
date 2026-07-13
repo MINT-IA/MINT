@@ -4,8 +4,8 @@ Tests for the Expat module (Sprint S23).
 Covers:
     - FrontalierService: source tax, quasi-resident, 90-day rule,
       social charges, LAMal option — 30 tests
-    - ExpatService: forfait fiscal, double taxation, AVS gap,
-      departure plan, tax comparison — 25 tests
+    - ExpatService: forfait fiscal, double taxation, departure plan,
+      tax comparison
     - Compliance: disclaimer checks, banned words — 5 tests
     - API endpoints (integration) — 12 tests
 
@@ -33,14 +33,6 @@ from app.services.expat.expat_service import (
     FORFAIT_FEDERAL_MINIMUM,
     CDI_PARTENAIRES,
 )
-from app.constants.social_insurance import (
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
-    AVS_VOLONTAIRE_COTISATION_MIN as AVS_COTISATION_MIN_VOLONTAIRE,
-    AVS_VOLONTAIRE_COTISATION_MAX as AVS_COTISATION_MAX_VOLONTAIRE,
-)
-
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -508,79 +500,6 @@ class TestDoubleTaxation:
 
 
 # ===========================================================================
-# ExpatService — AVS Gap (8 tests)
-# ===========================================================================
-
-class TestAVSGap:
-    """Tests for ExpatService.estimate_avs_gap()."""
-
-    def test_full_contribution_no_gap(self, expat_service):
-        """44 years in CH should give full pension, no gap."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=0, years_in_ch=44,
-        )
-        assert result.annees_manquantes == 0
-        assert result.rente_estimee_mensuelle == AVS_RENTE_MAX_MENSUELLE
-        assert result.reduction_mensuelle == 0.0
-
-    def test_partial_contribution(self, expat_service):
-        """22 years should give ~50% pension."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=22, years_in_ch=22,
-        )
-        assert result.annees_manquantes == 22
-        expected_rente = round(AVS_RENTE_MAX_MENSUELLE * (22 / 44), 2)
-        assert result.rente_estimee_mensuelle == expected_rente
-
-    def test_zero_years_no_pension(self, expat_service):
-        """Zero years in CH should give no pension."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=20, years_in_ch=0,
-        )
-        assert result.annees_manquantes == 44
-        assert result.rente_estimee_mensuelle == 0.0
-
-    def test_one_year_minimum_pension(self, expat_service):
-        """One year should give at least minimum pension."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=10, years_in_ch=1,
-        )
-        assert result.rente_estimee_mensuelle >= AVS_RENTE_MIN_MENSUELLE
-
-    def test_voluntary_contribution_possible(self, expat_service):
-        """Years abroad should indicate voluntary contribution is possible."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=10, years_in_ch=30,
-        )
-        assert result.cotisation_volontaire_possible is True
-        assert result.cotisation_min == AVS_COTISATION_MIN_VOLONTAIRE
-        assert result.cotisation_max == AVS_COTISATION_MAX_VOLONTAIRE
-
-    def test_no_years_abroad_no_voluntary(self, expat_service):
-        """No years abroad means no need for voluntary contribution."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=0, years_in_ch=44,
-        )
-        assert result.cotisation_volontaire_possible is False
-
-    def test_more_than_44_years(self, expat_service):
-        """More than 44 years should still cap at max pension."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=0, years_in_ch=50,
-        )
-        assert result.annees_manquantes == 0
-        assert result.rente_estimee_mensuelle == AVS_RENTE_MAX_MENSUELLE
-
-    def test_sources_reference_lavs(self, expat_service):
-        """Sources should reference LAVS."""
-        result = expat_service.estimate_avs_gap(
-            years_abroad=5, years_in_ch=30,
-        )
-        source_text = " ".join(result.sources)
-        assert "LAVS" in source_text
-
-
-# ===========================================================================
 # ExpatService — Departure Plan (5 tests)
 # ===========================================================================
 
@@ -734,8 +653,8 @@ class TestCompliance:
 
     def test_disclaimers_mention_specialist(self):
         """Both disclaimers should recommend consulting a specialist."""
-        assert "specialiste" in FRONTALIER_DISCLAIMER.lower()
-        assert "specialiste" in EXPAT_DISCLAIMER.lower()
+        assert "Consulte un ou une" in FRONTALIER_DISCLAIMER
+        assert "spécialiste" in EXPAT_DISCLAIMER.lower()
 
 
 # ===========================================================================
@@ -914,23 +833,6 @@ class TestExpatEndpoints:
         assert "conventionExiste" in data
         assert "repartition" in data
         assert "tauxDividendesMax" in data
-        assert "disclaimer" in data
-
-    def test_avs_gap_endpoint(self, client):
-        """POST /expat/avs-gap should return 200."""
-        response = client.post(
-            "/api/v1/expat/avs-gap",
-            json={
-                "yearsAbroad": 10,
-                "yearsInCh": 30,
-            },
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert "anneesCotisationCh" in data
-        assert "anneesManquantes" in data
-        assert "renteEstimeeMensuelle" in data
-        assert "cotisationVolontairePossible" in data
         assert "disclaimer" in data
 
     def test_departure_plan_endpoint(self, client):

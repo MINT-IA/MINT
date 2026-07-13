@@ -173,3 +173,20 @@ Source: `apps/mobile/lib/services/financial_core/confidence_scorer.dart`
   supported liquidity, tax, compound-growth or hourly-rate insight instead.
 - Reactivation requires a future typed provenance contract plus reviewed
   ingestion/write-back. A non-null legacy double alone is never sufficient.
+
+## 9. Unofficial AVS gap-effect quarantine (G1)
+
+- `POST /api/v1/expat/avs-gap` is retired. It had no checked-in mobile caller
+  and converted `yearsAbroad`/`yearsInCh` alone into a personal pension and CHF
+  reduction without RAMD, credited periods, cohort, compensation, or an
+  official scale.
+- The retired `AVSGapRequest`/`AVSGapResponse`, `AVSGapResult`,
+  `ExpatService.estimate_avs_gap`, and the per-gap-year CHF constant are not
+  public or internal backend contracts.
+- Residence years and a CI-observed period count are count-only facts. They do
+  not authorize a pension amount, personal percentage, CHF loss, lifetime
+  loss, or readiness tier. Missing evidence stays missing; zero is meaningful
+  only when supported by the applicable reviewed source contract.
+- Precision help and RAG FAQ text direct the user to the CI and compensation
+  office. Only the office determines the credited periods, scale, and official
+  amount; a disclaimer cannot make a gap-only formula acceptable.
