@@ -815,6 +815,98 @@ void main() {
       expect(result.missingFields, ['months.1.evidence.ownerId']);
     });
 
+    test('calculationDate must be a canonical UTC instant', () {
+      final result = AvsThirteenthPensionCalculator.calculate(
+        _input(
+          months: _fullYear(2000),
+          calculationDate: DateTime(2026, 12, 15),
+        ),
+      );
+
+      expect(
+          result.readiness, AvsThirteenthReadiness.providerCorrectionRequired);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(result.missingFields, ['calculationDate.mustBeUtc']);
+    });
+
+    test('present supplementPaymentDate must be a canonical UTC instant', () {
+      final result = AvsThirteenthPensionCalculator.calculate(
+        _input(
+          months: _fullYear(2000),
+          cadence: AvsPensionPaymentCadence.annualArticle44Paragraph2,
+          supplementPaymentDate: DateTime(2027, 6, 15),
+        ),
+      );
+
+      expect(
+          result.readiness, AvsThirteenthReadiness.providerCorrectionRequired);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(result.missingFields, ['supplementPaymentDate.mustBeUtc']);
+    });
+
+    test('every monthly sourceDate must be a canonical UTC instant', () {
+      final months = _fullYear(2000)
+        ..[4] = _paid(
+          5,
+          2000,
+          evidence: _evidence(
+            _owner,
+            month: 5,
+            sourceDate: DateTime(2026, 12, 1),
+          ),
+        );
+      final result = AvsThirteenthPensionCalculator.calculate(
+        _input(months: months),
+      );
+
+      expect(result.readiness, AvsThirteenthReadiness.sourceTooWeak);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(result.missingFields, ['months.5.evidence.sourceDate.mustBeUtc']);
+    });
+
+    test('every monthly effectiveFrom must be a canonical UTC instant', () {
+      final months = _fullYear(2000)
+        ..[5] = _paid(
+          6,
+          2000,
+          evidence: _evidence(
+            _owner,
+            month: 6,
+            effectiveFrom: DateTime(2026, 6, 1),
+          ),
+        );
+      final result = AvsThirteenthPensionCalculator.calculate(
+        _input(months: months),
+      );
+
+      expect(
+          result.readiness, AvsThirteenthReadiness.providerCorrectionRequired);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(
+        result.missingFields,
+        ['months.6.evidence.effectiveFrom.mustBeUtc'],
+      );
+    });
+
+    test('December sourceDate must be a canonical UTC instant', () {
+      final result = AvsThirteenthPensionCalculator.calculate(
+        _input(
+          months: _fullYear(2000),
+          december: _december(
+            AvsDecemberEntitlementState.entitled,
+            sourceDate: DateTime(2026, 12, 1),
+          ),
+        ),
+      );
+
+      expect(result.readiness, AvsThirteenthReadiness.sourceTooWeak);
+      expect(result.certifiedThirteenthPensionChf, isNull);
+      expect(
+        result.missingFields,
+        ['decemberEntitlement.sourceDate.mustBeUtc'],
+      );
+    });
+
     test('official effectiveFrom cannot postdate the described month', () {
       final months = _fullYear(2000)
         ..[0] = _paid(

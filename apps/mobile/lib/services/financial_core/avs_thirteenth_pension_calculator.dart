@@ -300,6 +300,21 @@ class AvsThirteenthPensionCalculator {
         const ['ownerId'],
       );
     }
+    if (!input.calculationDate.isUtc) {
+      return _failure(
+        input,
+        AvsThirteenthReadiness.providerCorrectionRequired,
+        const ['calculationDate.mustBeUtc'],
+      );
+    }
+    final supplementPaymentDate = input.supplementPaymentDate;
+    if (supplementPaymentDate != null && !supplementPaymentDate.isUtc) {
+      return _failure(
+        input,
+        AvsThirteenthReadiness.providerCorrectionRequired,
+        const ['supplementPaymentDate.mustBeUtc'],
+      );
+    }
     if ((input.previouslyPaidThirteenthChf?.cents ?? 0) < 0) {
       return _failure(
         input,
@@ -323,7 +338,7 @@ class AvsThirteenthPensionCalculator {
     }
     if (input.paymentCadence ==
         AvsPensionPaymentCadence.annualArticle44Paragraph2) {
-      final paymentDate = input.supplementPaymentDate;
+      final paymentDate = supplementPaymentDate;
       if (paymentDate == null) {
         return _failure(
           input,
@@ -384,6 +399,14 @@ class AvsThirteenthPensionCalculator {
           excludedKinds: excludedKinds,
         );
       }
+      if (!month.evidence.effectiveFrom.isUtc) {
+        return _failure(
+          input,
+          AvsThirteenthReadiness.providerCorrectionRequired,
+          ['$prefix.evidence.effectiveFrom.mustBeUtc'],
+          excludedKinds: excludedKinds,
+        );
+      }
       if (input.calendarYear >= supportedLegalYear &&
           _isOfficial(month.evidence.tier) &&
           _isYearMonthAfter(
@@ -406,11 +429,20 @@ class AvsThirteenthPensionCalculator {
           excludedKinds: excludedKinds,
         );
       }
-      if (month.evidence.sourceDate == null) {
+      final sourceDate = month.evidence.sourceDate;
+      if (sourceDate == null) {
         return _failure(
           input,
           AvsThirteenthReadiness.sourceTooWeak,
           ['$prefix.evidence.sourceDate'],
+          excludedKinds: excludedKinds,
+        );
+      }
+      if (!sourceDate.isUtc) {
+        return _failure(
+          input,
+          AvsThirteenthReadiness.sourceTooWeak,
+          ['$prefix.evidence.sourceDate.mustBeUtc'],
           excludedKinds: excludedKinds,
         );
       }
@@ -529,6 +561,14 @@ class AvsThirteenthPensionCalculator {
         input,
         AvsThirteenthReadiness.sourceTooWeak,
         const ['decemberEntitlement.sourceDate'],
+        excludedKinds: excludedKinds,
+      );
+    }
+    if (!december.sourceDate!.isUtc) {
+      return _failure(
+        input,
+        AvsThirteenthReadiness.sourceTooWeak,
+        const ['decemberEntitlement.sourceDate.mustBeUtc'],
         excludedKinds: excludedKinds,
       );
     }
@@ -776,7 +816,7 @@ class AvsThirteenthPensionCalculator {
   }
 
   static DateTime _toZurichCivil(DateTime value) {
-    if (!value.isUtc) return value;
+    assert(value.isUtc, 'UTC validation must precede Zurich civil conversion');
     // Switzerland follows the European DST rule: from the last Sunday in
     // March at 01:00 UTC until the last Sunday in October at 01:00 UTC.
     final offsetHours = _isZurichSummerTime(value) ? 2 : 1;
