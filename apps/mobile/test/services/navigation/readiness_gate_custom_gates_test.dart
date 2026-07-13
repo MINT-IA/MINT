@@ -18,6 +18,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_gate.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 
+final _knownAt = DateTime.utc(2026, 7, 13);
+
 // ════════════════════════════════════════════════════════════════
 //  HELPERS — build test profiles
 // ════════════════════════════════════════════════════════════════
@@ -52,6 +54,11 @@ CoachProfile _julienProfile() => CoachProfile(
       ),
       patrimoine: const PatrimoineProfile(epargneLiquide: 50000),
       depenses: const DepensesProfile(loyer: 2200, assuranceMaladie: 320),
+      dataTimestamps: {
+        'depenses.loyer': _knownAt,
+        'depenses.assuranceMaladie': _knownAt,
+      },
+      userProvidedFields: const {'monthlyExpenses'},
       goalA: _goal(),
     );
 
@@ -71,6 +78,11 @@ CoachProfile _laurenProfile() => CoachProfile(
       ),
       patrimoine: const PatrimoineProfile(epargneLiquide: 20000),
       depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 280),
+      dataTimestamps: {
+        'depenses.loyer': _knownAt,
+        'depenses.assuranceMaladie': _knownAt,
+      },
+      userProvidedFields: const {'monthlyExpenses'},
       goalA: _goal(),
     );
 
@@ -112,23 +124,33 @@ CoachProfile _frontalierStatusProfile() => CoachProfile(
     );
 
 /// Profile with income but no charges.
-CoachProfile _incomeNoChargesProfile() => CoachProfile(
-      birthYear: 1980,
-      canton: 'ZH',
-      salaireBrutMensuel: 5000,
-      employmentStatus: 'salarie',
-      goalA: _goal(),
-    );
+CoachProfile _incomeNoChargesProfile() => CoachProfile.fromWizardAnswers(const {
+      'q_birth_year': 1980,
+      'q_canton': 'ZH',
+      'q_gross_salary_annual': 60000,
+      'q_employment_status': 'salarie',
+    });
 
 /// Profile with income AND charges.
-CoachProfile _incomeWithChargesProfile() => CoachProfile(
-      birthYear: 1980,
-      canton: 'ZH',
-      salaireBrutMensuel: 5000,
-      employmentStatus: 'salarie',
-      depenses: const DepensesProfile(loyer: 1500, assuranceMaladie: 300),
-      goalA: _goal(),
-    );
+CoachProfile _incomeWithChargesProfile() =>
+    CoachProfile.fromWizardAnswers(const {
+      'q_birth_year': 1980,
+      'q_canton': 'ZH',
+      'q_gross_salary_annual': 60000,
+      'q_employment_status': 'salarie',
+      'q_housing_cost_period_chf': 1500,
+      'q_lamal_premium_monthly_chf': 300,
+    });
+
+CoachProfile _incomeWithExplicitZeroChargesProfile() =>
+    CoachProfile.fromWizardAnswers(const {
+      'q_birth_year': 1980,
+      'q_canton': 'ZH',
+      'q_gross_salary_annual': 60000,
+      'q_employment_status': 'salarie',
+      'q_housing_cost_period_chf': 0,
+      'q_lamal_premium_monthly_chf': 0,
+    });
 
 /// Profile with salary and age but no LPP.
 CoachProfile _salaryAgeNoLppProfile() => CoachProfile(
@@ -372,6 +394,14 @@ void main() {
 
     test('income + charges present → ready', () {
       final result = ReadinessGate.check(entry, _incomeWithChargesProfile());
+      expect(result.level, ReadinessLevel.ready);
+    });
+
+    test('explicit zero charges are known and ready', () {
+      final result = ReadinessGate.check(
+        entry,
+        _incomeWithExplicitZeroChargesProfile(),
+      );
       expect(result.level, ReadinessLevel.ready);
     });
 

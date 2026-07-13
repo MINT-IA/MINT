@@ -23,7 +23,7 @@ export 'package:mint_mobile/services/navigation/readiness_result.dart'
 /// Named field keys are resolved against the profile using a fixed mapping.
 /// Supported keys:
 ///   - `age`                 — profile.age > 0
-///   - `canton`              — profile.canton.isNotEmpty
+///   - `canton`              — explicit canton fact markers + non-empty value
 ///   - `salaireBrut`         — profile.salaireBrutMensuel > 0
 ///   - `netIncome`           — profile.salaireBrutMensuel > 0 (derived)
 ///   - `employmentStatus`    — profile.employmentStatus.isNotEmpty
@@ -78,6 +78,40 @@ class ReadinessGate {
   // ── Field presence check ────────────────────────────────────────
 
   bool _isPresent(String fieldKey, CoachProfile profile) {
+    switch (fieldKey) {
+      case 'canton':
+        return profile.canton.isNotEmpty &&
+            _hasKnownFact(
+              profile,
+              userProvidedField: 'canton',
+              timestampPaths: const ['canton'],
+            );
+      case 'loyer':
+        return profile.depenses.loyer >= 0 &&
+            _hasKnownFact(
+              profile,
+              userProvidedField: 'housingCost',
+              timestampPaths: const ['depenses.loyer'],
+            );
+      case 'conversionRate':
+        return profile.prevoyance.tauxConversion > 0 &&
+            _hasKnownFact(
+              profile,
+              userProvidedField: 'conversionRate',
+              timestampPaths: const ['prevoyance.tauxConversion'],
+            );
+      case 'totalCharges':
+      case 'totalMensuel':
+        return _hasKnownFact(
+          profile,
+          userProvidedField: 'monthlyExpenses',
+          timestampPaths: const [
+            'depenses.loyer',
+            'depenses.assuranceMaladie',
+          ],
+        );
+    }
+
     final value = _resolveField(fieldKey, profile);
     if (value == null) return false;
     if (value is String) return value.isNotEmpty;
@@ -96,7 +130,7 @@ class ReadinessGate {
       case 'age':
         return profile.age > 0 ? profile.age : null;
       case 'canton':
-        return profile.canton.isNotEmpty ? profile.canton : null;
+        return profile.canton;
       case 'nationality':
         return profile.nationality;
       case 'employmentStatus':
@@ -130,6 +164,8 @@ class ReadinessGate {
         return profile.prevoyance.totalEpargne3a > 0
             ? profile.prevoyance.totalEpargne3a
             : null;
+      case 'conversionRate':
+        return profile.prevoyance.tauxConversion;
 
       // Patrimoine
       case 'epargne':
@@ -144,11 +180,9 @@ class ReadinessGate {
       // Depenses
       case 'totalCharges':
       case 'totalMensuel':
-        return profile.depenses.totalMensuel > 0
-            ? profile.depenses.totalMensuel
-            : null;
+        return profile.depenses.totalMensuel;
       case 'loyer':
-        return profile.depenses.loyer > 0 ? profile.depenses.loyer : null;
+        return profile.depenses.loyer;
 
       // Other profile fields (non-blocking extras)
       case 'riskTolerance':
@@ -163,6 +197,14 @@ class ReadinessGate {
         return null;
     }
   }
+
+  bool _hasKnownFact(
+    CoachProfile profile, {
+    required String userProvidedField,
+    required List<String> timestampPaths,
+  }) =>
+      profile.userProvidedFields.contains(userProvidedField) &&
+      timestampPaths.every(profile.dataTimestamps.containsKey);
 
   // ── Blocking heuristic ──────────────────────────────────────────
 

@@ -1,47 +1,90 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_local_notifications_platform_interface/flutter_local_notifications_platform_interface.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  test('one canonical snapshot causes exactly one recompute', () async {
-    SharedPreferences.setMockInitialValues({});
-    final provider = MintStateProvider();
-    var notifications = 0;
-    provider.addListener(() => notifications++);
+Future<void> _pumpFrames(WidgetTester tester, {int frames = 20}) async {
+  for (var i = 0; i < frames; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
 
-    final t0 = DateTime.utc(2026, 7, 12, 12);
-    final initial = CoachProfile.fromWizardAnswers(const {
+class _FakeNotificationsPlatform extends FlutterLocalNotificationsPlatform {
+  @override
+  Future<NotificationAppLaunchDetails?>
+      getNotificationAppLaunchDetails() async {
+    return null;
+  }
+}
+
+void main() {
+  testWidgets(
+      'the production app proxy eagerly recomputes exactly once per profile mutation',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+
+    await tester.pumpWidget(const MintApp());
+    await _pumpFrames(tester);
+
+    final appContext = tester.element(find.byType(MaterialApp));
+    final profileProvider = appContext.read<CoachProfileProvider>();
+    profileProvider.updateFromAnswers(const {
       'q_birth_year': 1985,
       'q_canton': 'VD',
       'q_gross_salary_annual': 96000,
-    }).copyWith(createdAt: t0, updatedAt: t0);
+    });
+    await _pumpFrames(tester);
 
-    await provider.recompute(initial);
-    expect(notifications, 1);
+    // This first read must observe already-computed state. If reading the
+    // provider itself materialises a lazy proxy, production mutations that
+    // happen without a MintState consumer are silently lost.
+    final stateProvider = appContext.read<MintStateProvider>();
+    expect(stateProvider.hasState, isTrue);
+    expect(stateProvider.state!.profile.salaireBrutMensuel, 8000);
 
-    // Negative control: the proxy may offer the same snapshot again.
-    await provider.recompute(initial);
-    expect(notifications, 1);
+    var notifications = 0;
+    stateProvider.addListener(() => notifications++);
 
-    final salaryMutation = initial.copyWith(
+    final salaryMutation = profileProvider.profile!.copyWith(
       salaireBrutMensuel: 9000,
-      updatedAt: t0.add(const Duration(minutes: 1)),
+      updatedAt: DateTime.utc(2026, 7, 12, 12, 1),
     );
-    await provider.recompute(salaryMutation);
-    expect(notifications, 2);
-    await provider.recompute(salaryMutation);
-    expect(notifications, 2);
+    profileProvider.updateProfile(salaryMutation);
+    await _pumpFrames(tester);
+
+    expect(notifications, 1);
+    expect(stateProvider.state!.profile, same(salaryMutation));
 
     final provenanceMutation = salaryMutation.copyWith(
       dataSources: const {
         'salaireBrutMensuel': ProfileDataSource.certificate,
       },
-      updatedAt: t0.add(const Duration(minutes: 2)),
+      updatedAt: DateTime.utc(2026, 7, 12, 12, 2),
     );
-    await provider.recompute(provenanceMutation);
-    expect(notifications, 3);
-    await provider.recompute(provenanceMutation);
-    expect(notifications, 3);
+    profileProvider.updateProfile(provenanceMutation);
+    await _pumpFrames(tester);
+
+    expect(notifications, 2);
+    expect(stateProvider.state!.profile, same(provenanceMutation));
+    expect(
+      stateProvider.state!.profile.dataSources['salaireBrutMensuel'],
+      ProfileDataSource.certificate,
+    );
+    // updateProfile persists asynchronously; drain SecureWizardStore's
+    // bounded timeout before Flutter verifies that no test timers leaked.
+    await _pumpFrames(tester, frames: 60);
+    debugDefaultTargetPlatformOverride = null;
   });
 }

@@ -12,6 +12,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_gate.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 
+final _knownAt = DateTime.utc(2026, 7, 13);
+
 // ════════════════════════════════════════════════════════════════
 //  HELPERS — build test profiles
 // ════════════════════════════════════════════════════════════════
@@ -36,6 +38,8 @@ CoachProfile _agePlusCantonOnly() {
     birthYear: 1980,
     canton: 'ZH',
     salaireBrutMensuel: 0,
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2045),
@@ -51,6 +55,8 @@ CoachProfile _partialProfile() {
     canton: 'BE',
     salaireBrutMensuel: 6000,
     employmentStatus: 'salarie',
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2045),
@@ -74,6 +80,8 @@ CoachProfile _fullProfile() {
       tauxConversion: 0.068,
     ),
     patrimoine: const PatrimoineProfile(epargneLiquide: 30000),
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2043),
@@ -98,6 +106,8 @@ CoachProfile _julienProfile() {
       tauxConversion: 0.068,
     ),
     patrimoine: const PatrimoineProfile(epargneLiquide: 50000),
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2042),
@@ -122,6 +132,8 @@ CoachProfile _laurenProfile() {
       tauxConversion: 0.068,
     ),
     patrimoine: const PatrimoineProfile(epargneLiquide: 20000),
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2047),
@@ -278,6 +290,38 @@ void main() {
       final result =
           gate.evaluate(_entryRequiring(['canton']), _emptyProfile());
       expect(result.level, equals(ReadinessLevel.blocked));
+    });
+  });
+
+  group('Fields: totalCharges / totalMensuel', () {
+    test('display expense defaults remain partial and missing', () {
+      final profile = CoachProfile.fromWizardAnswers(const {
+        'q_birth_year': 1980,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 96000,
+      });
+
+      for (final field in ['totalCharges', 'totalMensuel']) {
+        final result = gate.evaluate(_entryRequiring([field]), profile);
+        expect(result.level, ReadinessLevel.partial, reason: field);
+        expect(result.missingFields, contains(field), reason: field);
+      }
+    });
+
+    test('explicit monthly expenses are known even when both values are zero',
+        () {
+      final profile = CoachProfile.fromWizardAnswers(const {
+        'q_birth_year': 1980,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 96000,
+        'q_housing_cost_period_chf': 0,
+        'q_lamal_premium_monthly_chf': 0,
+      });
+
+      for (final field in ['totalCharges', 'totalMensuel']) {
+        final result = gate.evaluate(_entryRequiring([field]), profile);
+        expect(result.level, ReadinessLevel.ready, reason: field);
+      }
     });
   });
 

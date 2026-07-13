@@ -13,6 +13,8 @@ import 'package:mint_mobile/services/navigation/readiness_gate.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 
+final _knownAt = DateTime.utc(2026, 7, 13);
+
 // ════════════════════════════════════════════════════════════════
 //  TEST FIXTURES
 // ════════════════════════════════════════════════════════════════
@@ -122,6 +124,8 @@ CoachProfile _julienProfile() {
       rachatMaximum: 539414,
       tauxConversion: 0.068,
     ),
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2042, 1, 1),
@@ -150,6 +154,8 @@ CoachProfile _partialProfile() {
     birthYear: 1980,
     canton: 'BE',
     salaireBrutMensuel: 6000,
+    dataTimestamps: {'canton': _knownAt},
+    userProvidedFields: const {'canton'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(2045, 1, 1),

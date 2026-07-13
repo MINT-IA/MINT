@@ -2773,8 +2773,14 @@ class CoachProfile {
         unemploymentContributionMonthsRaw?.clamp(0, 24).toInt();
 
     // ── Depenses ────────────────────────────────────────────
-    final housingCost =
-        _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
+    final parsedHousingCost =
+        _parseDouble(answers['q_housing_cost_period_chf']);
+    final explicitHousingCost = parsedHousingCost != null &&
+            parsedHousingCost.isFinite &&
+            parsedHousingCost >= 0
+        ? parsedHousingCost
+        : null;
+    final housingCost = explicitHousingCost ?? 1500;
     final housingFrequency = answers['q_housing_pay_frequency'] as String?;
     double monthlyHousing;
     if (housingFrequency == 'yearly' || housingFrequency == 'annuel') {
@@ -2784,8 +2790,13 @@ class CoachProfile {
     }
 
     // Use actual LAMal from onboarding if available, otherwise estimate
-    final lamalFromOnboarding =
+    final parsedLamalFromOnboarding =
         _parseDouble(answers['q_lamal_premium_monthly_chf']);
+    final lamalFromOnboarding = parsedLamalFromOnboarding != null &&
+            parsedLamalFromOnboarding.isFinite &&
+            parsedLamalFromOnboarding >= 0
+        ? parsedLamalFromOnboarding
+        : null;
     final assuranceMaladie =
         lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
 
@@ -2853,7 +2864,13 @@ class CoachProfile {
     final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);
     final coachAvoirLppSuroblig =
         _parseDouble(answers['_coach_avoir_lpp_suroblig']);
-    final coachTauxConversion = _parseDouble(answers['_coach_taux_conversion']);
+    final parsedCoachTauxConversion =
+        _parseDouble(answers['_coach_taux_conversion']);
+    final coachTauxConversion = parsedCoachTauxConversion != null &&
+            parsedCoachTauxConversion.isFinite &&
+            parsedCoachTauxConversion > 0
+        ? parsedCoachTauxConversion
+        : null;
     final coachTauxConvSuroblig =
         _parseDouble(answers['_coach_taux_conversion_suroblig']);
     final coachRachatMax = _parseDouble(answers['_coach_rachat_maximum']);
@@ -3334,16 +3351,16 @@ class CoachProfile {
       if (answers.containsKey('_coach_avs_rente_estimee') &&
           prevoyance.renteAVSEstimeeMensuelle != null)
         'prevoyance.renteAVSEstimeeMensuelle': baseTimestamp,
-      if (answers.containsKey('_coach_taux_conversion'))
+      if (coachTauxConversion != null)
         'prevoyance.tauxConversion': baseTimestamp,
       if (answers.containsKey('q_cash_total'))
         'patrimoine.epargneLiquide': baseTimestamp,
       if (answers.containsKey('q_investments_total') &&
           patrimoine.investissements >= 0)
         'patrimoine.investissements': baseTimestamp,
-      if (answers.containsKey('q_housing_cost_period_chf'))
+      if (explicitHousingCost != null)
         'depenses.loyer': baseTimestamp,
-      if (answers.containsKey('q_lamal_premium_monthly_chf'))
+      if (lamalFromOnboarding != null)
         'depenses.assuranceMaladie': baseTimestamp,
       if (answers.containsKey('q_3a_annual_contribution'))
         'pillar3aAnnualContribution': baseTimestamp,
@@ -3358,7 +3375,19 @@ class CoachProfile {
     if (persistedTs is Map) {
       for (final entry in persistedTs.entries) {
         final dt = DateTime.tryParse(entry.value.toString());
-        if (dt != null) initialTimestamps[entry.key.toString()] = dt;
+        final field = entry.key.toString();
+        // A stale timestamp must not authenticate a display fallback after
+        // the corresponding persisted answer became corrupt or unreadable.
+        if (field == 'depenses.loyer' && explicitHousingCost == null) continue;
+        if (field == 'depenses.assuranceMaladie' &&
+            lamalFromOnboarding == null) {
+          continue;
+        }
+        if (field == 'prevoyance.tauxConversion' &&
+            coachTauxConversion == null) {
+          continue;
+        }
+        if (dt != null) initialTimestamps[field] = dt;
       }
     }
 
@@ -3381,7 +3410,7 @@ class CoachProfile {
     if (answers.containsKey('q_housing_status')) {
       provided.add('housingStatus');
     }
-    if (answers.containsKey('q_housing_cost_period_chf')) {
+    if (explicitHousingCost != null) {
       provided.add('housingCost');
     }
     if (answers.containsKey('q_debt_payments_period_chf') ||
@@ -3453,8 +3482,7 @@ class CoachProfile {
     if (resolvedMortgageBalance != null) {
       provided.add('mortgageBalance');
     }
-    if (answers.containsKey('q_housing_cost_period_chf') &&
-        answers.containsKey('q_lamal_premium_monthly_chf')) {
+    if (explicitHousingCost != null && lamalFromOnboarding != null) {
       provided.add('monthlyExpenses');
     }
     if (answers.containsKey('q_employment_rate')) {
@@ -3463,7 +3491,7 @@ class CoachProfile {
     if (answers.containsKey('q_annual_bonus')) {
       provided.add('bonusPourcentage');
     }
-    if (answers.containsKey('_coach_taux_conversion')) {
+    if (coachTauxConversion != null) {
       provided.add('conversionRate');
     }
     if (answers.containsKey('q_civil_status')) {

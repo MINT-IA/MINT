@@ -1568,6 +1568,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // equality in mint_state_provider.dart:72).
         // Ref: panel archi review 2026-04-18 R1.
         ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
+          lazy: false,
           create: (_) => MintStateProvider(),
           update: (_, profileProvider, mintState) {
             final provider = mintState ?? MintStateProvider();
