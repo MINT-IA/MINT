@@ -34,11 +34,7 @@ void main() {
         profile: profile,
         retirementAgeUser: 58,
       );
-      // Should still return variables (at least LPP strategy, taux, rendement)
-      expect(result, isNotEmpty);
-      for (final v in result) {
-        expect(v.swing, greaterThanOrEqualTo(0));
-      }
+      expect(result, isEmpty);
     });
 
     // ──────────────────────────────────────────────────────────
@@ -50,10 +46,7 @@ void main() {
         profile: profile,
         retirementAgeUser: 70,
       );
-      expect(result, isNotEmpty);
-      // Age variable should still exist since 70-2=68 < 70
-      final ageVars = result.where((v) => v.label.contains('ge de d'));
-      expect(ageVars.isNotEmpty, isTrue);
+      expect(result, isEmpty);
     });
 
     // ──────────────────────────────────────────────────────────
@@ -65,12 +58,7 @@ void main() {
         profile: profile,
         retirementAgeUser: 65,
       );
-      expect(result, isNotEmpty);
-      for (final v in result) {
-        expect(v.baseValue.isFinite, isTrue, reason: '${v.label} baseValue should be finite');
-        expect(v.swing.isFinite, isTrue, reason: '${v.label} swing should be finite');
-        expect(v.swing, greaterThanOrEqualTo(0), reason: '${v.label} swing >= 0');
-      }
+      expect(result, isEmpty);
     });
 
     // ──────────────────────────────────────────────────────────
@@ -85,11 +73,7 @@ void main() {
         profile: profile,
         retirementAgeUser: 65,
       );
-      final lppVar = result.firstWhere(
-        (v) => v.label == 'Avoir LPP actuel',
-      );
-      expect(lppVar.swing.isFinite, isTrue);
-      expect(lppVar.highValue, greaterThan(lppVar.lowValue));
+      expect(result, isEmpty);
     });
 
     // ──────────────────────────────────────────────────────────
@@ -141,9 +125,9 @@ void main() {
     });
 
     // ──────────────────────────────────────────────────────────
-    //  9. Single variable isolation — tauxConversion always present
+    //  9. Minimal profile remains unavailable without official AVS
     // ──────────────────────────────────────────────────────────
-    test('taux conversion variable always present even with minimal profile', () {
+    test('minimal profile does not expose partial sensitivity variables', () {
       final profile = _buildProfile(
         salaireBrutMensuel: 5000,
         avoirLppTotal: 0,
@@ -156,8 +140,7 @@ void main() {
         profile: profile,
         retirementAgeUser: 65,
       );
-      final labels = result.map((v) => v.label).toList();
-      expect(labels, contains('Taux de conversion LPP'));
+      expect(result, isEmpty);
     });
 
     // ──────────────────────────────────────────────────────────

@@ -90,7 +90,7 @@ void main() {
           reason: 'Expected significant capital delta from monthly 3a');
     });
 
-    test('taux de remplacement with contributions >= without', () {
+    test('contributions increase non-AVS income while totals stay unknown', () {
       final withContribs = ForecasterService.project(
         profile: baseProfile,
         targetDate: testGoal.targetDate,
@@ -101,9 +101,15 @@ void main() {
       );
 
       expect(
-        withContribs.tauxRemplacementBase,
-        greaterThanOrEqualTo(withoutContribs.tauxRemplacementBase),
+        withContribs.base.revenuAnnuelRetraiteHorsAvs,
+        greaterThanOrEqualTo(
+          withoutContribs.base.revenuAnnuelRetraiteHorsAvs,
+        ),
       );
+      expect(withContribs.base.revenuAnnuelRetraite, isNull);
+      expect(withoutContribs.base.revenuAnnuelRetraite, isNull);
+      expect(withContribs.tauxRemplacementBase, isNull);
+      expect(withoutContribs.tauxRemplacementBase, isNull);
     });
   });
 

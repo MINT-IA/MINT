@@ -6,11 +6,36 @@ import 'package:mint_mobile/widgets/coach/mint_trajectory_chart.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
+CoachProfile _certifiedDemoProfile() {
+  final profile = CoachProfile.buildDemo();
+  final spouse = profile.conjoint!;
+  return profile.copyWith(
+    prevoyance: profile.prevoyance.copyWith(
+      lacunesAVS: 0,
+    ),
+    conjoint: spouse.copyWith(
+      prevoyance: spouse.prevoyance!.copyWith(
+        lacunesAVS: 14,
+        ramd: 60000,
+        anneesContribuees: 25,
+      ),
+    ),
+    dataSources: {
+      ...profile.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+      ForecasterService.spouseRamdFieldPath: ProfileDataSource.certificate,
+      ForecasterService.spouseContributionYearsFieldPath:
+          ProfileDataSource.certificate,
+    },
+  );
+}
+
 void main() {
   late ProjectionResult result;
 
   setUp(() {
-    final profile = CoachProfile.buildDemo();
+    final profile = _certifiedDemoProfile();
     result = ForecasterService.project(
       profile: profile,
       targetDate: profile.goalA.targetDate,
@@ -100,6 +125,20 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
       expect(find.byType(Semantics), findsWidgets);
+    });
+
+    testWidgets('unready keeps capital chart but omits replacement rate',
+        (tester) async {
+      final profile = CoachProfile.buildDemo();
+      final unready = ForecasterService.project(profile: profile);
+
+      await tester.pumpWidget(buildTestWidget(projResult: unready));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CustomPaint), findsWidgets);
+      expect(find.textContaining('Taux de remplacement'), findsNothing);
+      final semantics = tester.getSemantics(find.byType(MintTrajectoryChart));
+      expect(semantics.label, isNot(contains('Taux de remplacement')));
     });
 
     testWidgets('result has 3 scenarios with points', (tester) async {

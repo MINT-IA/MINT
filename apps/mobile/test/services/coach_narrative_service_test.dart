@@ -37,6 +37,8 @@ const String _defaultFirstName = '__default__';
 CoachProfile _buildTestProfile({
   String? firstName = _defaultFirstName,
   List<MonthlyCheckIn>? checkIns,
+  bool certifiedAvs = false,
+  int certifiedAvsYears = 0,
 }) {
   return CoachProfile(
     firstName: firstName == _defaultFirstName ? 'Julien' : firstName,
@@ -49,13 +51,18 @@ CoachProfile _buildTestProfile({
       targetDate: DateTime(2055, 12, 31),
       label: 'Retraite a 65 ans',
     ),
-    prevoyance: const PrevoyanceProfile(
+    prevoyance: PrevoyanceProfile(
       nombre3a: 2,
       totalEpargne3a: 15000,
       avoirLppTotal: 80000,
       rachatMaximum: 50000,
       rachatEffectue: 10000,
+      lacunesAVS: certifiedAvs ? certifiedAvsYears : null,
     ),
+    dataSources: {
+      if (certifiedAvs)
+        AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
     patrimoine: const PatrimoineProfile(
       epargneLiquide: 12000,
       investissements: 25000,
@@ -166,6 +173,32 @@ void main() {
           isNull); // Milestones: async, handled in generate()
       expect(narrative.scenarioNarrations, isNotNull);
       expect(narrative.scenarioNarrations!.length, 3);
+      expect(
+        narrative.scenarioNarrations,
+        everyElement(contains('Revenu retraite hors AVS')),
+      );
+      expect(
+        narrative.scenarioNarrations,
+        everyElement(isNot(contains('Revenu retraite estime'))),
+      );
+    });
+
+    test('legacy AVS certificate inputs narrate non-AVS income only', () {
+      final profile = _buildTestProfile(certifiedAvs: true);
+      final narrative = CoachNarrativeService.generateStatic(
+        profile: profile,
+        scoreHistory: null,
+        tips: _generateTips(profile),
+      );
+
+      expect(
+        narrative.scenarioNarrations,
+        everyElement(contains('Revenu retraite hors AVS')),
+      );
+      expect(
+        narrative.scenarioNarrations,
+        everyElement(isNot(contains('Revenu retraite estime'))),
+      );
     });
   });
 
@@ -207,6 +240,68 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('CoachNarrativeService — cache', () {
+    test('AVS provenance changes invalidate the partial narrative cache',
+        () async {
+      final certified = _buildTestProfile(certifiedAvs: true);
+      final first = await CoachNarrativeService.generate(
+        profile: certified,
+        scoreHistory: null,
+        tips: _generateTips(certified),
+        byokConfig: null,
+      );
+
+      final unverified = _buildTestProfile();
+      final second = await CoachNarrativeService.generate(
+        profile: unverified,
+        scoreHistory: null,
+        tips: _generateTips(unverified),
+        byokConfig: null,
+      );
+
+      expect(second.generatedAt, isNot(first.generatedAt));
+      for (final narrative in [first, second]) {
+        expect(
+          narrative.scenarioNarrations,
+          everyElement(contains('Revenu retraite hors AVS')),
+        );
+        expect(
+          narrative.scenarioNarrations,
+          everyElement(isNot(contains('Revenu retraite estime'))),
+        );
+      }
+    });
+
+    test('cache is invalidated when certified AVS years change 0 to 5',
+        () async {
+      final noGaps = _buildTestProfile(
+        certifiedAvs: true,
+        certifiedAvsYears: 0,
+      );
+      final first = await CoachNarrativeService.generate(
+        profile: noGaps,
+        scoreHistory: null,
+        tips: _generateTips(noGaps),
+        byokConfig: null,
+      );
+
+      final fiveGapYears = _buildTestProfile(
+        certifiedAvs: true,
+        certifiedAvsYears: 5,
+      );
+      final second = await CoachNarrativeService.generate(
+        profile: fiveGapYears,
+        scoreHistory: null,
+        tips: _generateTips(fiveGapYears),
+        byokConfig: null,
+      );
+
+      expect(second.generatedAt, isNot(first.generatedAt));
+      expect(second.scenarioNarrations, first.scenarioNarrations);
+      expect(
+        second.scenarioNarrations,
+        everyElement(contains('Revenu retraite hors AVS')),
+      );
+    });
     test('cache est utilise quand < 24h', () async {
       final profile = _buildTestProfile();
       final tips = _generateTips(profile);
@@ -294,7 +389,7 @@ void main() {
         byokConfig: null,
       );
 
-      // Creer un profil avec un check-in supplementaire
+      // Créer un profil avec un check-in supplémentaire
       final profileWithCheckIn = _buildTestProfile(
         checkIns: [
           MonthlyCheckIn(
@@ -692,7 +787,9 @@ void main() {
       }
     });
 
-    test('urgentAlert mentions fiscal deadline in Feb-Mar (unless tax_deadline tip present)', () {
+    test(
+        'urgentAlert mentions fiscal deadline in Feb-Mar (unless tax_deadline tip present)',
+        () {
       final profile = _buildTestProfile();
       final tips = _generateTips(profile);
       final hasTaxTip = tips.any((t) => t.id == 'tax_deadline');

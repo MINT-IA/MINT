@@ -66,19 +66,26 @@ class FriComputationService {
   /// [profile]: CoachProfile with financial data.
   /// [projection]: ForecasterService projection result.
   /// [confidenceScore]: projection confidence (0-100).
-  static FriBreakdown compute({
+  ///
+  /// Returns null unless the projection contains a complete household AVS
+  /// result and replacement rate.
+  static FriBreakdown? compute({
     required CoachProfile profile,
     required ProjectionResult projection,
     double confidenceScore = 0,
   }) {
-    final input = _buildInput(profile, projection);
+    final replacementRatio = projection.tauxRemplacementBase;
+    if (!projection.avsIncluded || replacementRatio == null) return null;
+
+    // Forecaster exposes a percentage (e.g. 75); FriInput expects 0..1.
+    final input = _buildInput(profile, replacementRatio / 100);
     return FriCalculator.compute(input, confidenceScore: confidenceScore);
   }
 
   /// Build FriInput from real CoachProfile data.
   static FriInput _buildInput(
     CoachProfile profile,
-    ProjectionResult projection,
+    double replacementRatio,
   ) {
     // ── L: Liquidity ─────────────────────────────────
     final liquidAssets = profile.patrimoine.epargneLiquide;
@@ -121,9 +128,6 @@ class FriComputationService {
     // Amort indirect: approximated from 3a contributions if property owner
     // (real data would come from mortgage advisor documents)
     final amortIndirect = isPropertyOwner && actual3a > 0 ? actual3a : 0.0;
-
-    // ── R: Retirement readiness ──────────────────────
-    final replacementRatio = projection.tauxRemplacementBase;
 
     // ── S: Structural risk ───────────────────────────
     // Disability gap: estimated from LPP coverage vs income.

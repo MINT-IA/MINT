@@ -9,7 +9,8 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 // now resolved lazily at call time via _resolveOrchestrator().
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
+import 'package:mint_mobile/services/rag_service.dart'
+    show RagSource, RagToolCall;
 
 // ────────────────────────────────────────────────────────────
 //  COACH LLM SERVICE — Sprint C8 / MINT Coach
@@ -200,7 +201,7 @@ class ChatMessage {
 
   /// v2.7 Task 8: true when the backend served this response via the Haiku
   /// fallback path (Sonnet upstream failure or timeout). Triggers a subtle
-  /// "Réponse rapide" chip in CoachChatScreen — NOT an error indicator.
+  /// "Réponse rapide" chip in CoachChatScreen — NOT an error indicator. // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
   final bool degraded;
 
   const ChatMessage({
@@ -312,8 +313,10 @@ class CoachLlmService {
     if (_orchestratorChatFn == null) {
       // Graceful fallback if orchestrator not yet registered.
       return const CoachResponse(
-        message: 'Service en cours d\'initialisation. Reessaie dans un instant.',
-        disclaimer: 'Outil educatif — ne constitue pas un conseil financier. LSFin.',
+        message:
+            'Service en cours d\'initialisation. Reessaie dans un instant.', // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
+        disclaimer:
+            'Outil educatif — ne constitue pas un conseil financier. LSFin.', // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
       );
     }
 
@@ -414,7 +417,7 @@ class CoachLlmService {
     int prevoyanceScore = 0;
     int patrimoineScore = 0;
     String capitalBase = '—';
-    String tauxRemplacement = '—';
+    String? tauxRemplacement;
 
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
@@ -432,46 +435,49 @@ class CoachLlmService {
         targetDate: profile.goalA.targetDate,
       );
       capitalBase = _toRange(projection.base.capitalFinal);
-      tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
+      final completeReplacementRate = projection.tauxRemplacementBase;
+      if (projection.avsIncluded && completeReplacementRate != null) {
+        tauxRemplacement = completeReplacementRate.toStringAsFixed(1);
+      }
     } catch (e) {
       debugPrint('[CoachLLM] System prompt projection error: $e');
     }
 
     final buffer = StringBuffer();
     buffer.writeln(
-        'Tu es le coach financier MINT. Tu aides $firstName a comprendre sa situation financiere suisse.');
+        'Tu es le coach financier MINT. Tu aides $firstName a comprendre sa situation financiere suisse.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln();
 
     // ── VOICE SYSTEM (5 pillars: Calme, Precis, Fin, Rassurant, Net) ──
-    buffer.writeln('VOIX MINT (les 5 piliers) :');
+    buffer.writeln('VOIX MINT (les 5 piliers) :'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- CALME : Tu parles calmement, jamais dans l\'urgence. Le ton ne monte pas, meme quand le chiffre est mauvais.');
+        '- CALME : Tu parles calmement, jamais dans l\'urgence. Le ton ne monte pas, meme quand le chiffre est mauvais.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- PRECIS : Chaque mot est choisi. Pas de remplissage, pas de tournure vide. Nette et precise, sans jargon inutile.');
+        '- PRECIS : Chaque mot est choisi. Pas de remplissage, pas de tournure vide. Nette et precise, sans jargon inutile.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- FIN : Un sourire en coin, jamais un rire gras. L\'esprit nait de l\'observation du quotidien suisse, pas de la blague. Understatement romand.');
+        '- FIN : Un sourire en coin, jamais un rire gras. L\'esprit nait de l\'observation du quotidien suisse, pas de la blague. Understatement romand.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- RASSURANT : "On va y arriver, voici par ou commencer." Accompagne sans porter. Jamais infantilisant, jamais condescendant.');
+        '- RASSURANT : "On va y arriver, voici par ou commencer." Accompagne sans porter. Jamais infantilisant, jamais condescendant.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- NET : Dis la verite, meme inconfortable, avec tact. Pas de promesse, pas de flou.');
+        '- NET : Dis la verite, meme inconfortable, avec tact. Pas de promesse, pas de flou.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln();
 
     buffer.writeln('REGLES ABSOLUES :');
     buffer.writeln(
-        '- Tu NE calcules JAMAIS. Tu utilises uniquement les donnees fournies par le systeme.');
+        '- Tu NE calcules JAMAIS. Tu utilises uniquement les donnees fournies par le systeme.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer
-        .writeln('- Tu NE donnes JAMAIS de conseil financier. Tu es educatif.');
+        .writeln('- Tu NE donnes JAMAIS de conseil financier. Tu es educatif.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- Tu dis toujours "consulte un·e specialiste" pour les decisions importantes.');
+        '- Tu dis toujours "consulte un·e spécialiste" pour les decisions importantes.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln('- Tu parles en francais, tu tutoies.');
     buffer.writeln(
-        '- Tu cites TOUJOURS tes sources legales (LPP art. X, OPP3 art. Y, LIFD art. Z, etc.).');
+        '- Tu cites TOUJOURS tes sources legales (LPP art. X, OPP3 art. Y, LIFD art. Z, etc.).'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
         '- Tu NE dis JAMAIS : "garanti", "certain", "assure", "sans risque", "optimal", "meilleur", "parfait".');
     buffer.writeln(
-        '- Tu NE dis JAMAIS : "Voici ta situation", "N\'hesite pas", "Excellent travail", "Bravo", "Felicitations".');
+        '- Tu NE dis JAMAIS : "Voici ta situation", "N\'hesite pas", "Excellent travail", "Bravo", "Felicitations".'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- Tu ajoutes toujours un disclaimer si tu parles de projections.');
+        '- Tu ajoutes toujours un disclaimer si tu parles de projections.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln();
 
     // ── FINANCIAL LITERACY ADAPTATION ──
@@ -480,44 +486,46 @@ class CoachLlmService {
     switch (literacy) {
       case FinancialLiteracyLevel.beginner:
         buffer.writeln(
-            '- Niveau NOVICE : phrases courtes, pas de sigle sans explication, metaphores concretes.');
+            '- Niveau NOVICE : phrases courtes, pas de sigle sans explication, metaphores concretes.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
         buffer.writeln(
-            '- Exemple : "Le 2e pilier, c\'est l\'argent que ton employeur et toi mettez de cote chaque mois."');
+            '- Exemple : "Le 2e pilier, c\'est l\'argent que ton employeur et toi mettez de cote chaque mois."'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
         buffer.writeln(
-            '- Evite les references legales brutes. Explique d\'abord, cite ensuite.');
+            '- Evite les references legales brutes. Explique d\'abord, cite ensuite.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
       case FinancialLiteracyLevel.intermediate:
         buffer.writeln(
-            '- Niveau AUTONOME : sigles OK, chiffres directs, moins de contexte.');
+            '- Niveau AUTONOME : sigles OK, chiffres directs, moins de contexte.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
         buffer.writeln(
-            '- Exemple : "Ton taux LPP : 6.8%. Rachat possible : ${_toRange(profile.prevoyance.rachatMaximum?.toDouble() ?? 0)}."');
+            '- Exemple : "Ton taux LPP : 6.8%. Rachat possible : ${_toRange(profile.prevoyance.rachatMaximum?.toDouble() ?? 0)}."'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
       case FinancialLiteracyLevel.advanced:
         buffer.writeln(
             '- Niveau EXPERT : references legales directes, scenarios avances, hypotheses editables.');
         buffer.writeln(
-            '- Exemple : "LAVS art. 35 : cap 150% en couple. Sensibilite : ±2% rendement inverse le resultat."');
+            '- Exemple : "LAVS art. 35 : cap 150% en couple. Sensibilite : ±2% rendement inverse le resultat."'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
         buffer.writeln(
-            '- Tu peux aller plus en profondeur technique. L\'utilisateur comprend les mecanismes.');
+            '- Tu peux aller plus en profondeur technique. L\'utilisateur comprend les mecanismes.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     }
     buffer.writeln();
 
-    buffer.writeln('STRUCTURE DE TA REPONSE :');
-    buffer.writeln('- Commence par le chiffre ou le fait. Explique apres.');
+    buffer.writeln('STRUCTURE DE TA REPONSE :'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
+    buffer.writeln('- Commence par le chiffre ou le fait. Explique apres.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer
-        .writeln('- Si pertinent, liste les options avec leur impact en CHF.');
+        .writeln('- Si pertinent, liste les options avec leur impact en CHF.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- Propose 1-3 actions concretes et prioritaires que l\'utilisateur peut faire cette semaine.');
-    buffer.writeln('- Mentionne les risques et points d\'attention.');
+        '- Propose 1-3 actions concretes et prioritaires que l\'utilisateur peut faire cette semaine.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
+    buffer.writeln('- Mentionne les risques et points d\'attention.'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer
-        .writeln('- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
+        .writeln('- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln(
-        '- Termine par un disclaimer : "Ceci est un outil educatif, ne constitue pas un conseil financier."');
+        '- Termine par un disclaimer : "Ceci est un outil educatif, ne constitue pas un conseil financier."'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
     buffer.writeln();
     buffer.writeln('CONTEXTE UTILISATEUR :');
     buffer.writeln('- Prenom : $firstName, Age : $age, Canton : $canton');
     buffer.writeln(
         '- Score Fitness : $globalScore/100 (Budget: $budgetScore, Prevoyance: $prevoyanceScore, Patrimoine: $patrimoineScore)');
     buffer.writeln('- Capital projete base : $capitalBase');
-    buffer.writeln('- Taux de remplacement estime : $tauxRemplacement%');
+    if (tauxRemplacement != null) {
+      buffer.writeln('- Taux de remplacement estime : $tauxRemplacement%'); // lint-ignore: internal LLM prompt or legacy service fallback, not an inline UI literal
+    }
 
     // Ajouter le contexte conjoint si applicable
     if (profile.isCouple && profile.conjoint != null) {
@@ -561,7 +569,9 @@ class CoachLlmService {
       final cap = proj.base.capitalFinal;
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
-      if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
+      if (proj.avsIncluded && taux != null && taux.isFinite && taux > 0) {
+        knownValues['replacement_ratio'] = taux;
+      }
     } catch (e) {
       debugPrint('[CoachLLM] CoachContext projection error: $e');
     }

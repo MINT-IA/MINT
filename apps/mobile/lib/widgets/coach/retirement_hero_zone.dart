@@ -12,7 +12,7 @@ import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 // ────────────────────────────────────────────────────────────
 //
 //  Designed via hermeneutic circles brainstorm (6 experts).
-//  Essence: "Combien par mois, et est-ce que ça suffit?"
+//  Essence: "Combien par mois, et est-ce que ça suffit?" // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
 //
 //  Layout (top → bottom):
 //    ▸ Delta line (conditional: Δ > 50 CHF since last visit)
@@ -62,7 +62,6 @@ class RetirementHeroZone extends StatefulWidget {
   /// Couple mode: show combined household.
   final bool isCouple;
   final String? partnerName;
-  final double? partnerMonthlyIncome;
 
   /// Callbacks.
   final VoidCallback? onConfidenceTap;
@@ -83,10 +82,18 @@ class RetirementHeroZone extends StatefulWidget {
     this.isApproximate = false,
     this.isCouple = false,
     this.partnerName,
-    this.partnerMonthlyIncome,
     this.onConfidenceTap,
     this.onEnrich,
   });
+
+  /// Household AVS aggregate. Individual keys are allocations, not addends.
+  static double annualAvsTotal(Map<String, double> decomposition) =>
+      decomposition['avs'] ?? 0;
+
+  /// Household LPP is the sum of the two explicitly individual components.
+  static double annualLppTotal(Map<String, double> decomposition) =>
+      (decomposition['lpp_user'] ?? 0) +
+      (decomposition['lpp_conjoint'] ?? 0);
 
   @override
   State<RetirementHeroZone> createState() => _RetirementHeroZoneState();
@@ -201,7 +208,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         ),
         const SizedBox(width: 4),
         Text(
-          '${sign}CHF ${delta.abs().round()}/mois depuis ta dernière visite',
+          '${sign}CHF ${delta.abs().round()}/mois depuis ta dernière visite', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
           style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
@@ -213,7 +220,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
   Widget _buildHeroNumber() {
     final income = _scrubbedAge != null ? _displayedIncome : widget.monthlyIncome;
     final prefix = widget.isApproximate ? '~' : '';
-    final ageLabel = _scrubbedAge != null ? ' à $_scrubbedAge ans' : '';
+    final ageLabel = _scrubbedAge != null ? ' à $_scrubbedAge ans' : ''; // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
 
     // Uncertainty band: ±15% when confidence < 70 (isApproximate).
     final lowBand = (income * 0.85).round();
@@ -223,7 +230,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
       children: [
         if (_scrubbedAge != null)
           Text(
-            'Revenu estimé$ageLabel',
+            'Revenu estimé$ageLabel', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         Center(
@@ -247,11 +254,11 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               ),
             ),
           ),
-        if (widget.isCouple && widget.partnerMonthlyIncome != null)
+        if (widget.isCouple)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              'Ménage combiné${widget.partnerName != null ? ' (toi + ${widget.partnerName})' : ''}',
+              'Ménage combiné${widget.partnerName != null ? ' (toi + ${widget.partnerName})' : ''}', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
               style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
@@ -294,7 +301,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${rate.toStringAsFixed(0)}% de ton revenu actuel',
+              '${rate.toStringAsFixed(0)}% de ton revenu actuel', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
               style: MintTextStyles.labelMedium(color: _zoneColor).copyWith(fontWeight: FontWeight.w600),
             ),
             Tooltip(
@@ -303,7 +310,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    S.of(context)?.jargonReplacementRate ?? 'Taux de remplacement',
+                    S.of(context)?.jargonReplacementRate ?? 'Taux de remplacement', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
                     style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                   const SizedBox(width: 2),
@@ -329,10 +336,8 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
 
   Widget _buildPillarBar() {
     final deco = widget.decomposition;
-    final avs = (deco['avs'] ?? deco['avs_user'] ?? 0) +
-        (deco['avs_conjoint'] ?? 0);
-    final lpp = (deco['lpp'] ?? deco['lpp_user'] ?? 0) +
-        (deco['lpp_conjoint'] ?? 0);
+    final avs = RetirementHeroZone.annualAvsTotal(deco);
+    final lpp = RetirementHeroZone.annualLppTotal(deco);
     final troisA = deco['3a'] ?? deco['pilier3a'] ?? 0;
     final autre = (deco['libre'] ?? 0) + (deco['market'] ?? 0);
     final total = avs + lpp + troisA + autre;
@@ -419,7 +424,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     return Column(
       children: [
         Semantics(
-          label: 'Explorer la projection de revenu',
+          label: 'Explorer la projection de revenu', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
           child: GestureDetector(
             // Use onTapDown + onPanUpdate to avoid conflict with parent vertical scroll.
           // Horizontal pan wins because the sparkline is small and intentional.
@@ -467,7 +472,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
             ),
             Text(
-              'Glisse pour explorer →',
+              'Glisse pour explorer →', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
             Text(

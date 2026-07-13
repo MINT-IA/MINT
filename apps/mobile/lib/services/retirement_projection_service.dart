@@ -100,7 +100,7 @@ class RetirementBudgetGap {
   final double impotEstimeMensuel;
   final double depensesMensuelles;
   final double soldeMensuel;
-  final double tauxRemplacement;
+  final double? tauxRemplacement;
   final List<String> alertes;
 
   const RetirementBudgetGap({
@@ -202,11 +202,15 @@ class RetirementProjectionService {
     double lppCapitalPct = 0.0,
     S? l,
   }) {
-    final avsEvidence = profile.avsGapEvidence;
-    final avsIncluded = avsEvidence.householdReady;
+    final avsIncluded = _officialAvsProjectionAvailable(profile);
+    final missingFields = <String>[
+      ForecasterService.selfAvsPensionFieldPath,
+      if (profile.isCouple) ForecasterService.spouseAvsPensionFieldPath,
+    ];
     final conjAge = retirementAgeConjoint ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-    final expenses =
-        depensesMensuelles ?? _estimateRetirementExpenses(profile);
+    final expenses = avsIncluded
+        ? depensesMensuelles ?? _estimateRetirementExpenses(profile)
+        : 0.0;
 
     // 1. Income at user's chosen retirement age
     final incomes = _computeIncomes(
@@ -278,7 +282,7 @@ class RetirementProjectionService {
       revenuMensuelAt65: revenuMensuel,
       tauxRemplacement: tauxRemplacement,
       avsIncluded: avsIncluded,
-      missingFields: avsEvidence.missingFieldPaths,
+      missingFields: missingFields,
       revenuPreRetraiteMensuel: revenuBrutMensuel,
       isCouple: profile.isCouple && profile.conjoint != null,
       phases: phases,
@@ -301,6 +305,12 @@ class RetirementProjectionService {
     );
   }
 
+  /// G1/B2 hard floor: the current ledger has no end-to-end official AVS
+  /// pension fact with per-field certificate provenance and source date.
+  /// Legacy gaps, RAMD, contribution years, or calculated estimates must never
+  /// make a retirement projection look complete.
+  static bool _officialAvsProjectionAvailable(CoachProfile _) => false;
+
   // ════════════════════════════════════════════════════════════
   //  INCOME COMPUTATION (both retired)
   // ════════════════════════════════════════════════════════════
@@ -317,103 +327,8 @@ class RetirementProjectionService {
     final hasConjoint = profile.isCouple && profile.conjoint != null;
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
 
-    // ── AVS ──────────────────────────────────────────────
-    final avsEvidence = profile.avsGapEvidence;
-    double? avsUserRaw;
-    double? avsUser;
-    double? avsConjRaw;
-    double? avsConj;
-    if (avsEvidence.householdReady) {
-      // F3-3: Pass gender + birthYear for AVS21 gender-aware reference age.
-      final userIsFemale =
-          profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
-      avsUserRaw = AvsCalculator.computeMonthlyRente(
-        currentAge: profile.age,
-        retirementAge: ageUser,
-        lacunes: avsEvidence.selfCertifiedYears!,
-        anneesContribuees: profile.prevoyance.anneesContribuees,
-        arrivalAge: profile.arrivalAge,
-        grossAnnualSalary: profile.revenuBrutAnnuel,
-        isFemale: userIsFemale,
-        birthYear: profile.birthYear,
-      );
-      // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
-      avsUser = AvsCalculator.annualRente(avsUserRaw) / 12;
-
-      if (hasConjoint) {
-        final conjIsFemale = profile.conjoint!.gender == 'F'
-            ? true
-            : (profile.conjoint!.gender == 'M' ? false : null);
-        avsConjRaw = AvsCalculator.computeMonthlyRente(
-          currentAge: profile.conjoint!.age ?? 45,
-          retirementAge: ageConjoint,
-          lacunes: avsEvidence.spouseCertifiedYears!,
-          anneesContribuees: profile.conjoint?.prevoyance?.anneesContribuees,
-          arrivalAge: profile.conjoint!.arrivalAge,
-          grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
-          isFemale: conjIsFemale,
-          birthYear: profile.conjoint!.birthYear,
-        );
-        avsConj = AvsCalculator.annualRente(avsConjRaw) / 12;
-      }
-    }
-
-    // Couple cap 150% — LAVS art. 35: ONLY for married couples.
-    // Concubins are two singles, each gets their own rente uncapped.
-    // Note: computeCouple operates on raw monthly values, then we apply 13th rente.
-    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
-    if (avsUserRaw != null && hasConjoint && isMarried) {
-      final couple = AvsCalculator.computeCouple(
-        avsUser: avsUserRaw,
-        avsConjoint: avsConjRaw!,
-        isMarried: true,
-      );
-      // Apply 13th rente to capped values.
-      final coupleUserWith13 = AvsCalculator.annualRente(couple.user) / 12;
-      final coupleConjWith13 = AvsCalculator.annualRente(couple.conjoint) / 12;
-      sources.add(RetirementIncomeSource(
-        id: 'avs_user',
-        label: 'AVS $userName',
-        monthlyAmount: coupleUserWith13,
-        color: colorAvs,
-        isIndexed: true,
-      ));
-      if (coupleConjWith13 > 0) {
-        sources.add(RetirementIncomeSource(
-          id: 'avs_conjoint',
-          label: 'AVS $conjName',
-          monthlyAmount: coupleConjWith13,
-          color: MintColors.pillarAvsConjoint,
-          isIndexed: true,
-        ));
-      }
-    } else if (avsUser != null && hasConjoint) {
-      // Concubins: each gets their own rente, no cap (LAVS art. 35 n/a)
-      sources.add(RetirementIncomeSource(
-        id: 'avs_user',
-        label: 'AVS $userName',
-        monthlyAmount: avsUser,
-        color: colorAvs,
-        isIndexed: true,
-      ));
-      if (avsConj != null && avsConj > 0) {
-        sources.add(RetirementIncomeSource(
-          id: 'avs_conjoint',
-          label: 'AVS $conjName',
-          monthlyAmount: avsConj,
-          color: MintColors.pillarAvsConjoint,
-          isIndexed: true,
-        ));
-      }
-    } else if (avsUser != null) {
-      sources.add(RetirementIncomeSource(
-        id: 'avs_user',
-        label: 'AVS',
-        monthlyAmount: avsUser,
-        color: colorAvs,
-        isIndexed: true,
-      ));
-    }
+    // AVS is intentionally omitted until the official-pension ledger path
+    // carries per-field certificate provenance and a source-document date.
 
     // ── LPP user ─────────────────────────────────────────
     // Independants without LPP affiliation (LPP art. 4): no bonifications
@@ -466,26 +381,44 @@ class RetirementProjectionService {
 
     // ── LPP conjoint ─────────────────────────────────────
     if (hasConjoint) {
-      final conjPrev = profile.conjoint!.prevoyance;
+      final conjoint = profile.conjoint!;
+      final conjPrev = conjoint.prevoyance;
       final conjBuyback = _conjointLppBuyback(profile);
+      final conversionRate = conjPrev?.tauxConversion ??
+          reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
       final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-        baseRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+        baseRate: conversionRate,
         retirementAge: ageConjoint,
       );
-      final conjGrossAnnualForLpp =
-          (conjPrev?.salaireAssure != null && conjPrev!.salaireAssure! > 0)
-              ? conjPrev.salaireAssure!
-              : profile.conjoint!.revenuBrutAnnuel;
-      final lppConjRente = LppCalculator.projectToRetirement(
-        currentBalance: conjPrev?.avoirLppTotal ?? 0,
-        currentAge: profile.conjoint!.age ?? 45,
-        retirementAge: ageConjoint,
-        grossAnnualSalary: conjGrossAnnualForLpp,
-        caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
-        monthlyBuyback: conjBuyback,
-        buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
-      );
+      final conjointAge = conjoint.age;
+      final conjointSalary = conjoint.salaireBrutMensuel;
+      final hasKnownProjectionInputs = conjointAge != null &&
+          conjointSalary != null &&
+          conjointSalary.isFinite &&
+          conjointSalary >= 0;
+      final lppConjRente = hasKnownProjectionInputs
+          ? LppCalculator.projectToRetirement(
+              currentBalance: conjPrev?.avoirLppTotal ?? 0,
+              currentAge: conjointAge,
+              retirementAge: ageConjoint,
+              grossAnnualSalary:
+                  (conjPrev?.salaireAssure != null &&
+                          conjPrev!.salaireAssure! > 0)
+                      ? conjPrev.salaireAssure!
+                      : conjoint.revenuBrutAnnuel,
+              caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
+              conversionRate: conversionRate,
+              monthlyBuyback: conjBuyback,
+              buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
+            )
+          : LppCalculator.projectToRetirement(
+              currentBalance: conjPrev?.avoirLppTotal ?? 0,
+              currentAge: ageConjoint,
+              retirementAge: ageConjoint,
+              grossAnnualSalary: 0,
+              caisseReturn: 0,
+              conversionRate: conversionRate,
+            );
       if (lppConjRente > 0) {
         final lppConjMonthly = LppCalculator.blendedMonthly(
           annualRente: lppConjRente,
@@ -1142,13 +1075,13 @@ class RetirementProjectionService {
         'Des ajustements de budget ou de prevoyance pourraient etre envisages.', // lint-ignore: legacy structured-alert text; localization needs alert IDs.
       );
     }
-    if (tauxRemplacement < 60) {
+    if (tauxRemplacement != null && tauxRemplacement < 60) {
       alertes.add(
         'Taux de remplacement de ${tauxRemplacement.toStringAsFixed(0)}% — ' // lint-ignore: legacy structured-alert text; localization needs alert IDs.
         'en dessous du seuil de confort habituel (60-80%).', // lint-ignore: legacy structured-alert text; localization needs alert IDs.
       );
     }
-    if (tauxRemplacement > 120) {
+    if (tauxRemplacement != null && tauxRemplacement > 120) {
       alertes.add(
         'Taux de remplacement de ${tauxRemplacement.toStringAsFixed(0)}% — ' // lint-ignore: legacy structured-alert text; localization needs alert IDs.
         'ce chiffre semble eleve et repose sur des hypotheses de rendement ' // lint-ignore: legacy structured-alert text; localization needs alert IDs.

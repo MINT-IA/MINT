@@ -180,7 +180,8 @@ void main() {
       expect(result.marriagePenalty, isNull);
     });
 
-    test('conjoint with zero salary still computes AVS cap (W16 guard fix)', () {
+    test('conjoint with zero salary still computes AVS cap (W16 guard fix)',
+        () {
       final profile = buildProfile(
         etatCivil: CoachCivilStatus.marie,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
@@ -205,7 +206,8 @@ void main() {
       expect(result.lppBuybackOrder, isNull);
     });
 
-    test('conjoint with null salary still computes AVS cap (W16 guard fix)', () {
+    test('conjoint with null salary still computes AVS cap (W16 guard fix)',
+        () {
       final profile = buildProfile(
         etatCivil: CoachCivilStatus.marie,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
@@ -256,12 +258,11 @@ void main() {
   });
 
   // ════════════════════════════════════════════════════════════
-  //  B3: BudgetLivingEngine rejects age == 70
+  //  B3: BudgetLivingEngine fails closed without complete AVS inputs
   // ════════════════════════════════════════════════════════════
 
-  group('B3: BudgetLivingEngine — age 70 retired mode', () {
-    test('age 70 salary 0 produces fullGapVisible (retired), NOT presentOnly',
-        () {
+  group('B3: BudgetLivingEngine — incomplete AVS projection', () {
+    test('age 70 salary 0 remains presentOnly without official AVS', () {
       // 70 years old, no salary (retired)
       final profile = buildProfile(
         birthYear: DateTime.now().year - 70,
@@ -274,14 +275,13 @@ void main() {
 
       final snapshot = BudgetLivingEngine.compute(profile);
 
-      // Retired mode: should NOT be presentOnly (that was the bug).
-      // It should be fullGapVisible since the person IS retired.
-      expect(snapshot.stage, isNot(BudgetStage.presentOnly),
-          reason: 'Age 70 with 0 salary should be treated as retired, '
-              'not as "no data"');
+      // A known LPP balance cannot fill the missing official AVS amount.
+      expect(snapshot.stage, BudgetStage.presentOnly,
+          reason: 'An incomplete retirement income must not render a '
+              'complete-looking budget gap');
     });
 
-    test('age 65 salary 0 is treated as retired mode', () {
+    test('age 65 salary 0 remains presentOnly without official AVS', () {
       final profile = buildProfile(
         birthYear: DateTime.now().year - 65,
         salaireBrutMensuel: 0,
@@ -293,12 +293,12 @@ void main() {
 
       final snapshot = BudgetLivingEngine.compute(profile);
 
-      // 65 == targetRetirementAge → retired mode.
-      expect(snapshot.stage, isNot(BudgetStage.presentOnly),
-          reason: 'Age 65 = retirement age should be retired mode');
+      expect(snapshot.stage, BudgetStage.presentOnly,
+          reason: 'Reaching retirement age does not make partial AVS data '
+              'complete');
     });
 
-    test('age 50 salary 8000 is pre-retirement mode', () {
+    test('age 50 salary 8000 remains presentOnly without official AVS', () {
       final profile = buildProfile(
         birthYear: DateTime.now().year - 50,
         salaireBrutMensuel: 8000,
@@ -309,9 +309,8 @@ void main() {
 
       final snapshot = BudgetLivingEngine.compute(profile);
 
-      // Pre-retirement: should be fullGapVisible or emergingRetirement.
-      expect(snapshot.stage, isNot(BudgetStage.presentOnly),
-          reason: 'Working 50yo should have retirement projection');
+      expect(snapshot.stage, BudgetStage.presentOnly,
+          reason: 'Current salary does not certify future AVS income');
     });
 
     test('age 50 salary 0 is presentOnly (no data)', () {
@@ -443,15 +442,15 @@ void main() {
       // bonifications are computed on a lower base, producing a different
       // retirement income. The results should NOT be identical.
       expect(
-        resultWithSA.revenuMensuelAt65,
-        isNot(equals(resultWithoutSA.revenuMensuelAt65)),
+        resultWithSA.revenuMensuelHorsAvs,
+        isNot(equals(resultWithoutSA.revenuMensuelHorsAvs)),
         reason: 'salaireAssure should change LPP projection vs raw salary',
       );
 
       // The profile with lower salaireAssure should produce less LPP income
       expect(
-        resultWithSA.revenuMensuelAt65!,
-        lessThan(resultWithoutSA.revenuMensuelAt65!),
+        resultWithSA.revenuMensuelHorsAvs,
+        lessThan(resultWithoutSA.revenuMensuelHorsAvs),
         reason: 'Lower salaireAssure = lower LPP bonifications = less income',
       );
     });
@@ -469,7 +468,7 @@ void main() {
 
       // Should not throw — graceful fallback.
       final result = RetirementProjectionService.project(profile: profile);
-      expect(result.revenuMensuelAt65!, greaterThan(0));
+      expect(result.revenuMensuelHorsAvs, greaterThan(0));
     });
 
     test('salaireAssure = 0 falls back to revenuBrutAnnuel', () {
@@ -484,7 +483,7 @@ void main() {
       );
 
       final result = RetirementProjectionService.project(profile: profile);
-      expect(result.revenuMensuelAt65!, greaterThan(0));
+      expect(result.revenuMensuelHorsAvs, greaterThan(0));
     });
   });
 

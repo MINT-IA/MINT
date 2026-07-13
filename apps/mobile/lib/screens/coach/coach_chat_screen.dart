@@ -595,7 +595,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         targetDate: _profile!.goalA.targetDate,
       );
       final taux = proj.tauxRemplacementBase;
-      if (taux.isFinite && taux > 0) {
+      if (proj.avsIncluded && taux != null && taux.isFinite && taux > 0) {
         return (
           number: '${taux.round()}\u00a0%',
           headline: s.coachSilentOpenerReplacementRate,
@@ -1439,7 +1439,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final cap = proj.base.capitalFinal;
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
-      if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
+      if (proj.avsIncluded && taux != null && taux.isFinite && taux > 0) {
+        knownValues['replacement_ratio'] = taux;
+      }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     return CoachContext(

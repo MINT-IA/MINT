@@ -8,7 +8,589 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 /// milestone detection, and edge cases.
 ///
 /// Legal references: LAVS art. 21-29, LPP art. 14, OPP3 art. 7, LPP art. 79b
+const _selfOfficialAvsPensionPath = 'prevoyance.renteAVSEstimeeMensuelle';
+const _spouseOfficialAvsPensionPath =
+    'conjoint.prevoyance.renteAVSEstimeeMensuelle';
+
+CoachProfile _certificateReadyDemoProfile() {
+  // ignore: deprecated_member_use
+  final profile = CoachProfile.buildDemo();
+  final spouse = profile.conjoint;
+  final spousePrevoyance = spouse!.prevoyance!;
+  return profile.copyWith(
+    prevoyance: profile.prevoyance.copyWith(lacunesAVS: 0),
+    conjoint: spouse.copyWith(
+      prevoyance: spousePrevoyance.copyWith(
+        lacunesAVS: 14,
+        ramd: 60000,
+        anneesContribuees: 25,
+      ),
+    ),
+    dataSources: {
+      ...profile.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+      ForecasterService.spouseRamdFieldPath: ProfileDataSource.certificate,
+      ForecasterService.spouseContributionYearsFieldPath:
+          ProfileDataSource.certificate,
+    },
+  );
+}
+
+CoachProfile _readinessProfile({
+  int? selfYears,
+  AvsGapStatus? status,
+  CoachCivilStatus civilStatus = CoachCivilStatus.celibataire,
+  ConjointProfile? spouse,
+  double? selfRamd,
+  int? selfContributionYears,
+  double? selfMonthlyAvsEstimate,
+  Map<String, ProfileDataSource> dataSources = const {},
+  Map<String, DateTime> dataTimestamps = const {},
+}) {
+  return CoachProfile(
+    birthYear: 1985,
+    canton: 'VD',
+    salaireBrutMensuel: 8000,
+    etatCivil: civilStatus,
+    conjoint: spouse,
+    avsGapStatus: status,
+    prevoyance: PrevoyanceProfile(
+      avoirLppTotal: 120000,
+      totalEpargne3a: 20000,
+      lacunesAVS: selfYears,
+      ramd: selfRamd,
+      anneesContribuees: selfContributionYears,
+      renteAVSEstimeeMensuelle: selfMonthlyAvsEstimate,
+    ),
+    patrimoine: const PatrimoineProfile(
+      epargneLiquide: 15000,
+      investissements: 50000,
+    ),
+    dataSources: dataSources,
+    dataTimestamps: dataTimestamps,
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2050),
+      label: 'Retraite',
+    ),
+  );
+}
+
 void main() {
+  group('ForecasterService - certified AVS readiness', () {
+    test('certified gaps RAMD and years never certify a self AVS pension', () {
+      final profile = _readinessProfile(
+        selfYears: 0,
+        selfRamd: 88000,
+        selfContributionYears: 44,
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          'prevoyance.ramd': ProfileDataSource.certificate,
+          'prevoyance.anneesContribuees': ProfileDataSource.certificate,
+        },
+        dataTimestamps: {
+          AvsGapEvidence.selfFieldPath: DateTime(2026, 7, 13),
+          'prevoyance.ramd': DateTime(2026, 7, 13),
+          'prevoyance.anneesContribuees': DateTime(2026, 7, 13),
+        },
+      );
+
+      final standard = ForecasterService.project(profile: profile);
+      final etSi = ForecasterService.projectEtSi(
+        profile: profile,
+        customBase: ScenarioAssumptions.base,
+      );
+      final custom = ForecasterService.projectCustom(
+        profile: profile,
+        assumptions: ScenarioAssumptions.base,
+      );
+
+      for (final result in [standard, etSi]) {
+        expect(result.missingFields, [_selfOfficialAvsPensionPath]);
+        expect(
+          result.missingFields,
+          isNot(contains(AvsGapEvidence.selfFieldPath)),
+        );
+        expect(result.selfAvsIncluded, isFalse);
+        expect(result.avsIncluded, isFalse);
+        expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+        expect(result.base.revenuAnnuelRetraite, isNull);
+        expect(result.tauxRemplacementBase, isNull);
+      }
+      expect(custom.revenuAvsIndividuelAnnuel, isNull);
+      expect(custom.revenuAnnuelRetraite, isNull);
+      expect(custom.decomposition, isEmpty);
+      expect(custom.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+    });
+
+    test('current AVS estimate plus certificate tag and timestamp stay partial',
+        () {
+      final profile = _readinessProfile(
+        selfMonthlyAvsEstimate: 2100,
+        dataSources: const {
+          'prevoyance.renteAVSEstimeeMensuelle': ProfileDataSource.certificate,
+        },
+        dataTimestamps: {
+          'prevoyance.renteAVSEstimeeMensuelle': DateTime(2026, 7, 13),
+        },
+      );
+
+      final result = ForecasterService.project(profile: profile);
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.tauxRemplacementBase, isNull);
+      expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+    });
+
+    test('certified spouse gaps without age salary RAMD or scale stay partial',
+        () {
+      final profile = _readinessProfile(
+        selfYears: 0,
+        civilStatus: CoachCivilStatus.marie,
+        spouse: const ConjointProfile(
+          prevoyance: PrevoyanceProfile(lacunesAVS: 0),
+        ),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+        },
+      );
+
+      final standard = ForecasterService.project(profile: profile);
+      final etSi = ForecasterService.projectEtSi(
+        profile: profile,
+        customBase: ScenarioAssumptions.base,
+      );
+
+      for (final result in [standard, etSi]) {
+        expect(result.selfAvsIncluded, isFalse);
+        expect(result.avsIncluded, isFalse);
+        expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+        expect(result.base.revenuAnnuelRetraite, isNull);
+        expect(result.tauxRemplacementBase, isNull);
+        expect(
+          result.missingFields,
+          const [
+            _selfOfficialAvsPensionPath,
+            _spouseOfficialAvsPensionPath,
+          ],
+        );
+        expect(result.base.capitalFinal, greaterThan(0));
+        expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+      }
+    });
+
+    test('invalid current-income denominator keeps replacement rate unknown',
+        () {
+      for (final denominator in [
+        0.0,
+        -1.0,
+        double.nan,
+        double.infinity,
+        11999.99,
+      ]) {
+        expect(
+          ForecasterService.safeReplacementRate(
+            annualRetirementIncome: 60000,
+            annualCurrentIncome: denominator,
+          ),
+          isNull,
+          reason: 'invalid denominator: $denominator',
+        );
+      }
+
+      expect(
+        ForecasterService.safeReplacementRate(
+          annualRetirementIncome: 6000,
+          annualCurrentIncome: 12000,
+        ),
+        50,
+      );
+    });
+
+    test('explicit zero spouse salary is known and never treated as missing',
+        () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: const ConjointProfile(
+            birthYear: 1987,
+            salaireBrutMensuel: 0,
+            prevoyance: PrevoyanceProfile(
+              lacunesAVS: 0,
+              ramd: 60000,
+              anneesContribuees: 19,
+            ),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+            ForecasterService.spouseRamdFieldPath:
+                ProfileDataSource.certificate,
+            ForecasterService.spouseContributionYearsFieldPath:
+                ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.avsIncluded, isFalse);
+      expect(
+        result.missingFields,
+        isNot(contains(ForecasterService.spouseSalaryFieldPath)),
+      );
+    });
+
+    test('negative spouse salary keeps household projection partial', () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: const ConjointProfile(
+            birthYear: 1987,
+            salaireBrutMensuel: -1,
+            prevoyance: PrevoyanceProfile(
+              lacunesAVS: 0,
+              ramd: 60000,
+              anneesContribuees: 19,
+            ),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+            ForecasterService.spouseRamdFieldPath:
+                ProfileDataSource.certificate,
+            ForecasterService.spouseContributionYearsFieldPath:
+                ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.tauxRemplacementBase, isNull);
+      expect(
+        result.missingFields,
+        contains(_spouseOfficialAvsPensionPath),
+      );
+    });
+
+    test('certified spouse AVS inputs with null salary stay household partial',
+        () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: const ConjointProfile(
+            birthYear: 1987,
+            prevoyance: PrevoyanceProfile(
+              avoirLppTotal: 60000,
+              lacunesAVS: 0,
+              ramd: 60000,
+              anneesContribuees: 19,
+            ),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+            ForecasterService.spouseRamdFieldPath:
+                ProfileDataSource.certificate,
+            ForecasterService.spouseContributionYearsFieldPath:
+                ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.tauxRemplacementBase, isNull);
+      expect(
+        result.missingFields,
+        contains(_spouseOfficialAvsPensionPath),
+      );
+      expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+      expect(result.base.capitalFinal, greaterThan(0));
+    });
+
+    test('missing spouse age and salary add no synthetic LPP bonifications',
+        () {
+      CoachProfile profile({required bool withContributionOverrides}) {
+        return _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: ConjointProfile(
+            prevoyance: PrevoyanceProfile(
+              avoirLppTotal: 60000,
+              salaireAssure: withContributionOverrides ? 60000 : null,
+              bonificationRate: withContributionOverrides ? 0.18 : null,
+              rendementCaisse: 0.02,
+            ),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        );
+      }
+
+      final withOverrides = ForecasterService.project(
+        profile: profile(withContributionOverrides: true),
+      );
+      final balanceOnly = ForecasterService.project(
+        profile: profile(withContributionOverrides: false),
+      );
+
+      expect(withOverrides.avsIncluded, isFalse);
+      expect(withOverrides.base.capitalFinal, balanceOnly.base.capitalFinal);
+      expect(
+        withOverrides.base.decompositionHorsAvs['lpp_conjoint'],
+        balanceOnly.base.decompositionHorsAvs['lpp_conjoint'],
+      );
+      expect(withOverrides.base.capitalFinal, greaterThan(60000));
+      expect(withOverrides.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+    });
+
+    test('all declared statuses fail closed without an official self pension',
+        () {
+      for (final status in AvsGapStatus.values) {
+        final result = ForecasterService.project(
+          profile: _readinessProfile(
+            selfYears: status == AvsGapStatus.noGaps ? 0 : 7,
+            status: status,
+          ),
+        );
+
+        expect(result.selfAvsIncluded, isFalse, reason: status.name);
+        expect(result.avsIncluded, isFalse, reason: status.name);
+        expect(result.tauxRemplacementBase, isNull, reason: status.name);
+        expect(result.missingFields, [_selfOfficialAvsPensionPath],
+            reason: status.name);
+        for (final scenario in [
+          result.prudent,
+          result.base,
+          result.optimiste,
+        ]) {
+          expect(scenario.revenuAnnuelRetraite, isNull, reason: status.name);
+          expect(scenario.revenuAnnuelRetraiteHorsAvs, greaterThan(0),
+              reason: status.name);
+          expect(scenario.decomposition, isEmpty, reason: status.name);
+          expect(scenario.decompositionHorsAvs, isNotEmpty,
+              reason: status.name);
+          expect(scenario.capitalFinal, greaterThan(0), reason: status.name);
+          expect(scenario.points, isNotEmpty, reason: status.name);
+        }
+        expect(result.milestones, isNotEmpty, reason: status.name);
+      }
+    });
+
+    test('certificate-backed self gaps remain partial', () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(result.missingFields, [_selfOfficialAvsPensionPath]);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.tauxRemplacementBase, isNull);
+      expect(result.base.decomposition, isEmpty);
+      expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+      expect(
+        () => result.missingFields.add('synthetic.field'),
+        throwsUnsupportedError,
+      );
+      expect(
+        () => result.base.decomposition['synthetic'] = 1,
+        throwsUnsupportedError,
+      );
+      expect(
+        () => result.base.decompositionHorsAvs['synthetic'] = 1,
+        throwsUnsupportedError,
+      );
+
+      final restored = ProjectionResult.fromJson(result.toJson());
+      expect(restored.selfAvsIncluded, isFalse);
+      expect(restored.avsIncluded, isFalse);
+      expect(restored.base.revenuAnnuelRetraite, isNull);
+      expect(restored.base.decomposition, isEmpty);
+    });
+
+    test('couple self-ready but spouse-missing exposes no household total', () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: const ConjointProfile(
+            birthYear: 1987,
+            salaireBrutMensuel: 5000,
+            prevoyance: PrevoyanceProfile(avoirLppTotal: 60000),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(
+        result.missingFields,
+        [_selfOfficialAvsPensionPath, _spouseOfficialAvsPensionPath],
+      );
+      expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+      expect(result.base.decomposition, isEmpty);
+      expect(result.base.capitalFinal, greaterThan(0));
+      expect(result.base.points, isNotEmpty);
+      expect(result.milestones, isNotEmpty);
+      expect(result.tauxRemplacementBase, isNull);
+    });
+
+    test('married profile without conjoint fails closed', () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(
+        result.missingFields,
+        [_selfOfficialAvsPensionPath, _spouseOfficialAvsPensionPath],
+      );
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.tauxRemplacementBase, isNull);
+    });
+
+    test('gaps RAMD and years keep a certified couple partial', () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          civilStatus: CoachCivilStatus.marie,
+          spouse: const ConjointProfile(
+            birthYear: 1987,
+            salaireBrutMensuel: 5000,
+            prevoyance: PrevoyanceProfile(
+              avoirLppTotal: 60000,
+              lacunesAVS: 0,
+              ramd: 60000,
+              anneesContribuees: 19,
+            ),
+          ),
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+            ForecasterService.spouseRamdFieldPath:
+                ProfileDataSource.certificate,
+            ForecasterService.spouseContributionYearsFieldPath:
+                ProfileDataSource.certificate,
+          },
+        ),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(
+        result.missingFields,
+        [_selfOfficialAvsPensionPath, _spouseOfficialAvsPensionPath],
+      );
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+      expect(result.base.decomposition, isEmpty);
+      expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+      expect(result.tauxRemplacementBase, isNull);
+    });
+
+    test('projectEtSi and projectCustom obey household readiness', () {
+      final profile = _readinessProfile();
+      final etSi = ForecasterService.projectEtSi(
+        profile: profile,
+        customBase: ScenarioAssumptions.base,
+      );
+      final custom = ForecasterService.projectCustom(
+        profile: profile,
+        assumptions: ScenarioAssumptions.base,
+      );
+
+      expect(etSi.avsIncluded, isFalse);
+      expect(etSi.base.revenuAnnuelRetraite, isNull);
+      expect(etSi.tauxRemplacementBase, isNull);
+      expect(etSi.base.capitalFinal, greaterThan(0));
+      expect(etSi.base.points, isNotEmpty);
+      expect(etSi.milestones, isNotEmpty);
+      expect(custom.revenuAnnuelRetraite, isNull);
+      expect(custom.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
+      expect(custom.decomposition, isEmpty);
+      expect(custom.capitalFinal, greaterThan(0));
+      expect(custom.points, isNotEmpty);
+    });
+
+    test('legacy JSON restores capital but never complete AVS totals', () {
+      final restored = ProjectionResult.fromJson(const {
+        'base': {
+          'label': 'Base',
+          'capitalFinal': 500000,
+          'revenuAnnuelRetraite': 90000,
+          'decomposition': {
+            'avs': 30000,
+            'lpp_user': 40000,
+            '3a': 20000,
+          },
+        },
+        'tauxRemplacementBase': 75,
+      });
+
+      expect(restored.base.capitalFinal, 500000);
+      expect(restored.selfAvsIncluded, isFalse);
+      expect(restored.avsIncluded, isFalse);
+      expect(restored.base.revenuAnnuelRetraite, isNull);
+      expect(restored.base.decomposition, isEmpty);
+      expect(restored.base.revenuAnnuelRetraiteHorsAvs, 60000);
+      expect(restored.tauxRemplacementBase, isNull);
+    });
+
+    test('past target stays fail-closed even with certified AVS evidence', () {
+      final result = ForecasterService.project(
+        profile: _readinessProfile(
+          selfYears: 0,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          },
+        ),
+        targetDate: DateTime(2020),
+      );
+
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.base.decomposition, isEmpty);
+      expect(result.tauxRemplacementBase, isNull);
+
+      final restored = ProjectionResult.fromJson(result.toJson());
+      expect(restored.selfAvsIncluded, isFalse);
+      expect(restored.avsIncluded, isFalse);
+      expect(restored.base.revenuAnnuelRetraite, isNull);
+      expect(restored.tauxRemplacementBase, isNull);
+    });
+  });
+
   // ════════════════════════════════════════════════════════════
   //  PROJECTION WITH DEMO PROFILE (Julien+Lauren)
   // ════════════════════════════════════════════════════════════
@@ -18,7 +600,7 @@ void main() {
     late ProjectionResult result;
 
     setUp(() {
-      demo = CoachProfile.buildDemo();
+      demo = _certificateReadyDemoProfile();
       result = ForecasterService.project(profile: demo);
     });
 
@@ -29,10 +611,10 @@ void main() {
     });
 
     test('optimiste > base > prudent capital final', () {
-      expect(result.optimiste.capitalFinal,
-          greaterThan(result.base.capitalFinal));
-      expect(result.base.capitalFinal,
-          greaterThan(result.prudent.capitalFinal));
+      expect(
+          result.optimiste.capitalFinal, greaterThan(result.base.capitalFinal));
+      expect(
+          result.base.capitalFinal, greaterThan(result.prudent.capitalFinal));
     });
 
     test('base scenario has reasonable capital for 16-year projection', () {
@@ -57,32 +639,33 @@ void main() {
       }
     });
 
-    test('taux de remplacement is reasonable', () {
-      // Should be between 40% and 120% for this profile
-      expect(result.tauxRemplacementBase, greaterThan(30));
-      expect(result.tauxRemplacementBase, lessThan(150));
+    test('taux de remplacement stays unavailable', () {
+      expect(result.tauxRemplacementBase, isNull);
     });
 
-    test('decomposition has required keys', () {
-      final decomp = result.base.decomposition;
-      expect(decomp.containsKey('avs'), true);
-      expect(decomp.containsKey('lpp_user'), true);
-      expect(decomp.containsKey('lpp_conjoint'), true);
-      expect(decomp.containsKey('3a'), true);
-      expect(decomp.containsKey('libre'), true);
+    test('non-AVS decomposition keeps required keys', () {
+      expect(result.base.decomposition, isEmpty);
+      final decomp = result.base.decompositionHorsAvs;
+      expect(decomp.containsKey('avs'), isFalse);
+      expect(decomp.containsKey('lpp_user'), isTrue);
+      expect(decomp.containsKey('lpp_conjoint'), isTrue);
+      expect(decomp.containsKey('3a'), isTrue);
+      expect(decomp.containsKey('libre'), isTrue);
     });
 
-    test('AVS rente couple is capped at 150%', () {
-      final avs = result.base.decomposition['avs']!;
-      // Max couple annual: 3780 * 13 = 49140 (13th rente since Dec 2026)
-      expect(avs, lessThanOrEqualTo(49140));
-      expect(avs, greaterThan(0));
+    test('legacy couple inputs expose no AVS amount', () {
+      expect(result.selfAvsIncluded, isFalse);
+      expect(result.avsIncluded, isFalse);
+      expect(result.base.revenuAvsIndividuelAnnuel, isNull);
+      expect(result.base.decomposition, isEmpty);
     });
 
     test('disclaimer is present and compliant', () {
       expect(result.disclaimer, isNotEmpty);
-      expect(result.disclaimer.contains('educatif') ||
-          result.disclaimer.contains('conseil financier'), true);
+      expect(
+          result.disclaimer.contains('educatif') ||
+              result.disclaimer.contains('conseil financier'),
+          true);
       // No banned terms
       expect(result.disclaimer.contains('garanti'), false);
       expect(result.disclaimer.contains('certain'), false);
@@ -140,7 +723,7 @@ void main() {
 
   group('ForecasterService - Custom scenario', () {
     test('projectCustom with zero returns', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final result = ForecasterService.projectCustom(
         profile: demo,
         assumptions: const ScenarioAssumptions(
@@ -160,7 +743,7 @@ void main() {
     });
 
     test('projectCustom with high returns gives more capital', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final low = ForecasterService.projectCustom(
         profile: demo,
         assumptions: ScenarioAssumptions.prudent,
@@ -220,7 +803,8 @@ void main() {
 
       final result = ForecasterService.project(profile: single);
       expect(result.base.capitalFinal, greaterThan(100000));
-      expect(result.base.decomposition['lpp_conjoint'], 0);
+      expect(result.base.decomposition, isEmpty);
+      expect(result.base.decompositionHorsAvs['lpp_conjoint'], 0);
     });
   });
 
@@ -366,7 +950,7 @@ void main() {
     });
 
     test('calculateMonthlyDelta returns sum of versements', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final delta = ForecasterService.calculateMonthlyDelta(
         profile: demo,
         versements: {'3a': 604.83, 'lpp': 1000, 'ib': 500},
@@ -381,7 +965,7 @@ void main() {
 
   group('ForecasterService - Milestones', () {
     test('milestones are in chronological order', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final result = ForecasterService.project(profile: demo);
 
       for (int i = 1; i < result.milestones.length; i++) {
@@ -395,7 +979,7 @@ void main() {
     });
 
     test('milestone amounts are increasing', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final result = ForecasterService.project(profile: demo);
 
       for (int i = 1; i < result.milestones.length; i++) {
@@ -414,21 +998,21 @@ void main() {
 
   group('ForecasterService - JSON output', () {
     test('ProjectionResult toJson works', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final result = ForecasterService.project(profile: demo);
       final json = result.toJson();
 
       expect(json['prudent'], isNotNull);
       expect(json['base'], isNotNull);
       expect(json['optimiste'], isNotNull);
-      expect(json['tauxRemplacementBase'], isA<double>());
+      expect(json['tauxRemplacementBase'], isNull);
       expect(json['milestones'], isA<List>());
       expect(json['disclaimer'], isA<String>());
       expect(json['sources'], isA<List>());
     });
 
     test('ProjectionResult fromJson round-trip preserves aggregate data', () {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       final original = ForecasterService.project(profile: demo);
       final json = original.toJson();
       final restored = ProjectionResult.fromJson(json);
@@ -438,10 +1022,8 @@ void main() {
       expect(restored.base.revenuAnnuelRetraite,
           original.base.revenuAnnuelRetraite);
       expect(restored.prudent.capitalFinal, original.prudent.capitalFinal);
-      expect(
-          restored.optimiste.capitalFinal, original.optimiste.capitalFinal);
-      expect(
-          restored.tauxRemplacementBase, original.tauxRemplacementBase);
+      expect(restored.optimiste.capitalFinal, original.optimiste.capitalFinal);
+      expect(restored.tauxRemplacementBase, original.tauxRemplacementBase);
 
       // Labels preserved
       expect(restored.prudent.label, 'Prudent');
@@ -460,7 +1042,7 @@ void main() {
     test('ProjectionResult fromJson handles empty/null gracefully', () {
       final restored = ProjectionResult.fromJson(const {});
       expect(restored.base.capitalFinal, 0);
-      expect(restored.tauxRemplacementBase, 0);
+      expect(restored.tauxRemplacementBase, isNull);
       expect(restored.disclaimer, '');
       expect(restored.sources, isEmpty);
     });
@@ -472,8 +1054,7 @@ void main() {
 
   group('ForecasterService - formatChf', () {
     test('formats with Swiss apostrophe', () {
-      expect(ForecasterService.formatChf(1234567),
-          contains("1'234'567"));
+      expect(ForecasterService.formatChf(1234567), contains("1'234'567"));
     });
 
     test('formats small amounts', () {
@@ -502,7 +1083,8 @@ void main() {
       );
       expect(custom.lppReturn, 0.04);
       expect(custom.threeAReturn, 0.08);
-      expect(custom.investmentReturn, ScenarioAssumptions.base.investmentReturn);
+      expect(
+          custom.investmentReturn, ScenarioAssumptions.base.investmentReturn);
     });
 
     test('copyWith preserves label when not overridden', () {
@@ -519,7 +1101,7 @@ void main() {
     late CoachProfile demo;
 
     setUp(() {
-      demo = CoachProfile.buildDemo();
+      demo = _certificateReadyDemoProfile();
     });
 
     test('projectEtSi with default base returns similar result to project', () {
@@ -529,8 +1111,9 @@ void main() {
         customBase: ScenarioAssumptions.base,
       );
       // Same base assumptions → same base capital (within rounding)
-      expect(etSi.base.capitalFinal,
-          closeTo(standard.base.capitalFinal, 1.0));
+      expect(etSi.base.capitalFinal, closeTo(standard.base.capitalFinal, 1.0));
+      expect(standard.tauxRemplacementBase, isNull);
+      expect(etSi.tauxRemplacementBase, isNull);
     });
 
     test('projectEtSi with higher returns increases capital', () {
@@ -543,8 +1126,7 @@ void main() {
           investmentReturn: 0.10,
         ),
       );
-      expect(etSi.base.capitalFinal,
-          greaterThan(standard.base.capitalFinal));
+      expect(etSi.base.capitalFinal, greaterThan(standard.base.capitalFinal));
     });
 
     test('projectEtSi preserves 3-scenario ordering', () {
@@ -555,10 +1137,8 @@ void main() {
           threeAReturn: 0.06,
         ),
       );
-      expect(etSi.optimiste.capitalFinal,
-          greaterThan(etSi.base.capitalFinal));
-      expect(etSi.base.capitalFinal,
-          greaterThan(etSi.prudent.capitalFinal));
+      expect(etSi.optimiste.capitalFinal, greaterThan(etSi.base.capitalFinal));
+      expect(etSi.base.capitalFinal, greaterThan(etSi.prudent.capitalFinal));
     });
 
     test('projectEtSi with very low returns still produces valid result', () {
@@ -592,7 +1172,7 @@ void main() {
       expect(etSi.sources, contains(contains('OPP3 art. 7')));
     });
 
-    test('projectEtSi with high inflation reduces taux de remplacement', () {
+    test('projectEtSi with high inflation keeps partial AVS contract', () {
       final etSi = ForecasterService.projectEtSi(
         profile: demo,
         customBase: ScenarioAssumptions.base.copyWith(
@@ -602,7 +1182,7 @@ void main() {
       // Higher inflation doesn't directly affect capital in our model,
       // but the result should still be valid
       expect(etSi.base.capitalFinal, greaterThan(0));
-      expect(etSi.tauxRemplacementBase, greaterThan(0));
+      expect(etSi.tauxRemplacementBase, isNull);
     });
 
     test('projectEtSi clamps negative returns to 0', () {
@@ -610,7 +1190,8 @@ void main() {
         profile: demo,
         customBase: const ScenarioAssumptions(
           label: 'Custom',
-          lppReturn: 0.005, // Very low — prudent would go negative without clamp
+          lppReturn:
+              0.005, // Very low — prudent would go negative without clamp
           threeAReturn: 0.01,
           investmentReturn: 0.02,
           savingsReturn: 0.002,
@@ -630,7 +1211,7 @@ void main() {
     late CoachProfile demo;
 
     setUp(() {
-      demo = CoachProfile.buildDemo();
+      demo = _certificateReadyDemoProfile();
     });
 
     MonthlyCheckIn makeCheckIn(DateTime month, Map<String, double> v) {
@@ -727,8 +1308,8 @@ void main() {
       final result = ForecasterService.project(profile: profile);
       final resultBase = ForecasterService.project(profile: demo);
       // Rolling avg of last 3 = 1400/mo > planned 1209.66 → increases
-      expect(result.base.capitalFinal,
-          greaterThan(resultBase.base.capitalFinal));
+      expect(
+          result.base.capitalFinal, greaterThan(resultBase.base.capitalFinal));
     });
 
     test('check-ins with empty versements: no crash', () {
@@ -802,13 +1383,13 @@ void main() {
         );
 
     CoachProfile buildCoupleProfile({required ConjointProfile conj}) {
-      final demo = CoachProfile.buildDemo();
+      final demo = _certificateReadyDemoProfile();
       // Drop any pre-seeded partner 3a contributions from the demo so the
       // FATCA/auto-injection branch is actually exercised (buildDemo ships
       // with `3a_lauren` hardcoded, which short-circuits the auto path).
       final filtered = demo.plannedContributions
-          .where((c) => !(c.category == '3a' &&
-              c.id.toLowerCase().contains('lauren')))
+          .where((c) =>
+              !(c.category == '3a' && c.id.toLowerCase().contains('lauren')))
           .toList();
       return demo.copyWith(conjoint: conj).copyWithContributions(filtered);
     }
@@ -842,8 +1423,8 @@ void main() {
 
     test('nationality=US also blocks partner 3a (isFatcaResident unset)', () {
       final defaultConj = baseConjoint(const PrevoyanceProfile());
-      final usConj = baseConjoint(const PrevoyanceProfile())
-          .copyWith(nationality: 'US');
+      final usConj =
+          baseConjoint(const PrevoyanceProfile()).copyWith(nationality: 'US');
 
       final defaultResult = ForecasterService.project(
         profile: buildCoupleProfile(conj: defaultConj),

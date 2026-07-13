@@ -828,27 +828,29 @@ void main() {
       );
 
   group('BudgetLivingEngine — retired mode (age >= targetRetirementAge)', () {
-    test('G10.1 age 70 → does NOT return presentOnly (isRetired=true path)', () {
+    test('G10.1 age 70 stays presentOnly without official AVS pension', () {
       // birthYear such that age == 70 in the current year.
       final profile = profileAtAge(DateTime.now().year - 70);
       final snapshot = BudgetLivingEngine.compute(profile);
-      // Must NOT be presentOnly — retired users get fullGapVisible or
-      // emergingRetirement (from the isRetired branch).
       expect(
         snapshot.stage,
-        isNot(BudgetStage.presentOnly),
-        reason: 'Age 70 >= targetRetirementAge 65 → retired branch, not presentOnly',
+        BudgetStage.presentOnly,
+        reason: 'Retirement age and LPP capital do not certify AVS income',
       );
+      expect(snapshot.retirement, isNull);
+      expect(snapshot.gap, isNull);
     });
 
-    test('G10.2 age 75 → does NOT return presentOnly (isRetired=true path)', () {
+    test('G10.2 age 75 stays presentOnly without official AVS pension', () {
       final profile = profileAtAge(DateTime.now().year - 75);
       final snapshot = BudgetLivingEngine.compute(profile);
       expect(
         snapshot.stage,
-        isNot(BudgetStage.presentOnly),
-        reason: 'Age 75 >= targetRetirementAge 65 → retired branch, not presentOnly',
+        BudgetStage.presentOnly,
+        reason: 'Age alone cannot make a partial retirement budget complete',
       );
+      expect(snapshot.retirement, isNull);
+      expect(snapshot.gap, isNull);
     });
 
     test('G10.3 age 70 → confidenceScore is a valid number (not NaN)', () {

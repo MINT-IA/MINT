@@ -187,6 +187,11 @@ void main() {
       await pumpUntilGreeting(tester);
       // Should show Text widgets (either key number or at minimum the question).
       expect(find.byType(Text), findsWidgets);
+      final renderedPercentages = tester
+          .widgetList<Text>(find.byType(Text))
+          .where((text) => text.data?.contains('%') == true);
+      expect(renderedPercentages, isEmpty,
+          reason: 'Unverified AVS must not surface a replacement rate');
     });
 
     testWidgets('shows input field with placeholder', (tester) async {

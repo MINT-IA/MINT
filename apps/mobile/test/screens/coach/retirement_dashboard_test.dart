@@ -8,6 +8,9 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/widgets/coach/retirement_hero_zone.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT DASHBOARD SCREEN — Widget Tests
@@ -45,6 +48,78 @@ void main() {
     );
   }
 
+  CoachProfileProvider buildProfileProvider({
+    required bool certifiedAvs,
+    DateTime? targetDate,
+  }) {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(CoachProfile(
+      firstName: 'Julien',
+      birthYear: 1985,
+      canton: 'VD',
+      salaireBrutMensuel: 8000,
+      prevoyance: PrevoyanceProfile(
+        avoirLppTotal: 120000,
+        totalEpargne3a: 20000,
+        lacunesAVS: certifiedAvs ? 0 : null,
+      ),
+      patrimoine: const PatrimoineProfile(
+        epargneLiquide: 15000,
+        investissements: 50000,
+      ),
+      dataSources: {
+        if (certifiedAvs)
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      },
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        targetDate: targetDate ?? DateTime(2050),
+        label: 'Retraite',
+      ),
+    ));
+    return provider;
+  }
+
+  CoachProfile buildCertifiedCoupleProfile() => CoachProfile(
+        firstName: 'Julien',
+        birthYear: 1985,
+        canton: 'VD',
+        etatCivil: CoachCivilStatus.marie,
+        salaireBrutMensuel: 8000,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 120000,
+          totalEpargne3a: 20000,
+          lacunesAVS: 0,
+        ),
+        conjoint: const ConjointProfile(
+          firstName: 'Lauren',
+          birthYear: 1987,
+          salaireBrutMensuel: 5000,
+          prevoyance: PrevoyanceProfile(
+            avoirLppTotal: 60000,
+            lacunesAVS: 0,
+            ramd: 60000,
+            anneesContribuees: 19,
+          ),
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 15000,
+          investissements: 50000,
+        ),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+          ForecasterService.spouseRamdFieldPath: ProfileDataSource.certificate,
+          ForecasterService.spouseContributionYearsFieldPath:
+              ProfileDataSource.certificate,
+        },
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
   group('RetirementDashboardScreen — empty state (State C)', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildDashboard());
@@ -76,6 +151,203 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       // Short disclaimer: "Outil éducatif, pas un conseil financier."
       expect(find.textContaining('ducatif'), findsWidgets);
+    });
+  });
+
+  group('RetirementDashboardScreen — AVS readiness', () {
+    testWidgets('unready keeps capital and shows AVS CTA without totals',
+        (tester) async {
+      final semantics = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      await tester.pumpWidget(buildDashboard(
+        coachProvider: buildProfileProvider(certifiedAvs: false),
+      ));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.text('Obtenir ton calcul AVS officiel'), findsOneWidget);
+      expect(find.text('Demande ton calcul AVS officiel'), findsOneWidget);
+      expect(
+        find.textContaining("Un extrait CI ne suffit pas"),
+        findsOneWidget,
+      );
+      expect(find.text('Capital total'), findsOneWidget);
+      expect(
+        find.byKey(const Key('retirement_missing_avs_state')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('retirement_capital_amount')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('retirement_avs_document_cta')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('retirement_complete_income')), findsNothing);
+      expect(
+        find.byKey(const Key('retirement_replacement_rate')),
+        findsNothing,
+      );
+      expect(
+        find.bySemanticsIdentifier('retirement_missing_avs_state'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('retirement_capital_amount'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('retirement_avs_document_cta'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('retirement_complete_income'),
+        findsNothing,
+      );
+      expect(
+        find.bySemanticsIdentifier('retirement_replacement_rate'),
+        findsNothing,
+      );
+      semantics.dispose();
+      expect(find.textContaining('%'), findsNothing);
+      expect(find.textContaining('Revenu retraite estim'), findsNothing);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(seconds: 3));
+      }
+    });
+
+    testWidgets('past target stays unavailable and keeps the AVS CTA',
+        (tester) async {
+      await tester.pumpWidget(buildDashboard(
+        coachProvider: buildProfileProvider(
+          certifiedAvs: true,
+          targetDate: DateTime(2020),
+        ),
+      ));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.text('Pas encore de projection disponible'), findsOneWidget);
+      expect(find.text('Obtenir ton calcul AVS officiel'), findsOneWidget);
+      expect(find.text('Demande ton calcul AVS officiel'), findsOneWidget);
+      expect(
+        find.textContaining("Un extrait CI ne suffit pas"),
+        findsOneWidget,
+      );
+      expect(find.textContaining('%'), findsNothing);
+      expect(find.textContaining('Revenu retraite estim'), findsNothing);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(seconds: 3));
+      }
+    });
+  });
+
+  group('RetirementDashboardScreen — household projection contract', () {
+    testWidgets('legacy couple inputs keep the dashboard partial',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 4000);
+      tester.view.devicePixelRatio = 1;
+      tester.binding.platformDispatcher.textScaleFactorTestValue = 0.4;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+        tester.binding.platformDispatcher.clearTextScaleFactorTestValue();
+      });
+      final profile = buildCertifiedCoupleProfile();
+      final projection = ForecasterService.project(profile: profile);
+      final provider = CoachProfileProvider()..updateProfile(profile);
+
+      await tester.pumpWidget(buildDashboard(coachProvider: provider));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(projection.base.revenuAnnuelRetraite, isNull);
+      expect(find.byType(RetirementHeroZone), findsNothing);
+      expect(
+        find.bySemanticsIdentifier('retirement_missing_avs_state'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsIdentifier('retirement_capital_amount'),
+        findsOneWidget,
+      );
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(seconds: 3));
+      }
+    });
+
+    test('pillar signals use non-AVS household aggregates once', () {
+      final projection = ForecasterService.project(
+        profile: buildCertifiedCoupleProfile(),
+      );
+      expect(
+        RetirementHeroZone.annualAvsTotal(projection.base.decomposition),
+        0,
+      );
+      expect(
+        RetirementHeroZone.annualLppTotal(
+          projection.base.decompositionHorsAvs,
+        ),
+        projection.base.decompositionHorsAvs['lpp_user']! +
+            projection.base.decompositionHorsAvs['lpp_conjoint']!,
+      );
+    });
+
+    testWidgets('hero pillar bar does not add AVS spouse allocation twice',
+        (tester) async {
+      tester.view.physicalSize = const Size(1440, 3000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Scaffold(
+          body: RetirementHeroZone(
+            monthlyIncome: 6500,
+            replacementRate: 65,
+            decomposition: {
+              'avs': 36000,
+              'avs_user': 24000,
+              'avs_conjoint': 12000,
+              'lpp_user': 12000,
+              'lpp_conjoint': 12000,
+              '3a': 6000,
+            },
+            monthlyPrudent: 6000,
+            monthlyOptimiste: 7000,
+            confidenceScore: 80,
+            currentAge: 50,
+            retirementAge: 65,
+            isCouple: true,
+          ),
+        ),
+      ));
+
+      expect(find.text("3'000"), findsOneWidget);
+      expect(find.text("4'000"), findsNothing);
+    });
+
+    test('partial couple projection exposes no sequence return gap', () {
+      final projection = ForecasterService.project(
+        profile: buildCertifiedCoupleProfile(),
+      );
+
+      expect(projection.avsIncluded, isFalse);
+      expect(projection.base.revenuAnnuelRetraite, isNull);
+      expect(projection.tauxRemplacementBase, isNull);
     });
   });
 

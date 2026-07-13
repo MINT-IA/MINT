@@ -74,7 +74,7 @@ class CoachContextBuilder {
     double friTotal = 0,
     double friDelta = 0,
     String primaryFocus = '',
-    double replacementRatio = 0,
+    double? replacementRatio,
     double monthsLiquidity = 0,
     double taxSavingPotential = 0,
     double confidenceScore = 0,
@@ -94,7 +94,7 @@ class CoachContextBuilder {
     // so HallucinationDetector doesn't false-positive on missing data.
     final knownValues = <String, double>{};
     if (friTotal > 0) knownValues['fri_total'] = friTotal;
-    if (replacementRatio > 0) {
+    if (replacementRatio != null && replacementRatio > 0) {
       knownValues['replacement_ratio'] = replacementRatio * 100;
     }
     if (monthsLiquidity > 0) knownValues['months_liquidity'] = monthsLiquidity;

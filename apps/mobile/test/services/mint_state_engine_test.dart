@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/mint_state_engine.dart';
 import 'package:mint_mobile/services/session_snapshot_service.dart';
 
@@ -22,6 +23,32 @@ CoachProfile _emptyProfile() => CoachProfile(
         label: 'Retraite',
       ),
     );
+
+CoachProfile _certifiedDemoProfile() {
+  // ignore: deprecated_member_use
+  final profile = CoachProfile.buildDemo();
+  final spouse = profile.conjoint!;
+  return profile.copyWith(
+    prevoyance: profile.prevoyance.copyWith(
+      lacunesAVS: 0,
+    ),
+    conjoint: spouse.copyWith(
+      prevoyance: spouse.prevoyance!.copyWith(
+        lacunesAVS: 14,
+        ramd: 60000,
+        anneesContribuees: 25,
+      ),
+    ),
+    dataSources: {
+      ...profile.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+      AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+      ForecasterService.spouseRamdFieldPath: ProfileDataSource.certificate,
+      ForecasterService.spouseContributionYearsFieldPath:
+          ProfileDataSource.certificate,
+    },
+  );
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 //  Tests
@@ -145,14 +172,43 @@ void main() {
       expect(state.budgetGap, isNull);
       expect(state.sessionDelta, isNull);
     });
+
+    test('partial retirement omits budget gap, FRI, and session delta',
+        () async {
+      await SessionSnapshotService.save(
+        SessionSnapshot(
+          confidenceScore: 50,
+          monthlyRetirementIncome: 4000,
+          fhsScore: 60,
+          savedAt: DateTime(2026, 3, 20),
+        ),
+      );
+      final profile = _certifiedDemoProfile().copyWith(
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2020),
+          label: 'Retraite',
+        ),
+      );
+      final prefs = await SharedPreferences.getInstance();
+
+      final state = await MintStateEngine.compute(
+        profile: profile,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+
+      expect(state.budgetGap, isNull);
+      expect(state.friScore, isNull);
+      expect(state.sessionDelta, isNull);
+    });
   });
 
   group('MintStateEngine — Julien (golden profile)', () {
     late CoachProfile julien;
 
     setUp(() {
-      // ignore: deprecated_member_use
-      julien = CoachProfile.buildDemo();
+      julien = _certifiedDemoProfile();
     });
 
     test('returns a complete MintUserState for Julien', () async {
@@ -229,19 +285,18 @@ void main() {
       expect(state.profile.canton, 'VS');
     });
 
-    test('Julien confidence sufficient → projections attempted', () async {
+    test('Julien confidence cannot bypass the AVS hard floor', () async {
       final prefs = await SharedPreferences.getInstance();
       final state = await MintStateEngine.compute(
         profile: julien,
         prefs: prefs,
         now: DateTime(2026, 3, 21),
       );
-      // With full profile, confidence >= 30 → projection fields non-null
+      // Confidence is independent from official AVS readiness.
       if (state.confidenceScore >= 30.0) {
-        // replacementRate or budgetGap should be available
-        final hasAnyProjection = state.replacementRate != null ||
-            state.budgetGap != null;
-        expect(hasAnyProjection, isTrue);
+        expect(state.replacementRate, isNull);
+        expect(state.budgetGap, isNull);
+        expect(state.friScore, isNull);
       }
     });
 
@@ -290,6 +345,24 @@ void main() {
       if (snap != null) {
         expect(snap.present.monthlyNet, greaterThan(0));
       }
+    });
+  });
+
+  group('MintStateEngine — AVS readiness', () {
+    test('omits replacement rate and FRI for an unverified profile', () async {
+      // ignore: deprecated_member_use
+      final profile = CoachProfile.buildDemo();
+      final prefs = await SharedPreferences.getInstance();
+
+      final state = await MintStateEngine.compute(
+        profile: profile,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+
+      expect(state.confidenceScore, greaterThanOrEqualTo(30));
+      expect(state.replacementRate, isNull);
+      expect(state.friScore, isNull);
     });
   });
 

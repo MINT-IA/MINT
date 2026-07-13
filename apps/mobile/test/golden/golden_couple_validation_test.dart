@@ -43,8 +43,7 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 String _verdict(String label, double actual, double expected,
     {double tolerancePct = 10.0}) {
   final delta = actual - expected;
-  final deltaPct =
-      expected != 0 ? ((actual - expected) / expected * 100) : 0.0;
+  final deltaPct = expected != 0 ? ((actual - expected) / expected * 100) : 0.0;
   // FIX-111: Removed || delta.abs() < 50 loophole (100% error on small values passed).
   final pass = deltaPct.abs() <= tolerancePct;
   final status = pass ? 'PASS' : '** FAIL **';
@@ -146,23 +145,27 @@ void main() {
       // ignore: avoid_print
       print('\n--- AVS Couple Results ---');
       // ignore: avoid_print
-      print('  Julien individual AVS:  ${julienAvs.toStringAsFixed(2)} CHF/mois');
+      print(
+          '  Julien individual AVS:  ${julienAvs.toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
-      print('  Lauren individual AVS:  ${laurenAvs.toStringAsFixed(2)} CHF/mois');
+      print(
+          '  Lauren individual AVS:  ${laurenAvs.toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
-      print('  Sum before cap:         ${(julienAvs + laurenAvs).toStringAsFixed(2)} CHF/mois');
+      print(
+          '  Sum before cap:         ${(julienAvs + laurenAvs).toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
-      print('  Couple total (after cap): ${couple.total.toStringAsFixed(2)} CHF/mois');
+      print(
+          '  Couple total (after cap): ${couple.total.toStringAsFixed(2)} CHF/mois');
       // ignore: avoid_print
-      print('  Cap applied:            ${couple.total < (julienAvs + laurenAvs)}');
+      print(
+          '  Cap applied:            ${couple.total < (julienAvs + laurenAvs)}');
       // ignore: avoid_print
       print('  CLAUDE.md §8 states:    $claudeMdValue CHF/mois');
       // ignore: avoid_print
       print('  Legal max couple cap:   $expectedTotal CHF/mois');
       // ignore: avoid_print
       print('');
-      final result = _verdict(
-          'AVS Couple total', couple.total, expectedTotal);
+      final result = _verdict('AVS Couple total', couple.total, expectedTotal);
       // ignore: avoid_print
       print(result);
 
@@ -231,10 +234,11 @@ void main() {
 
       // The method returns annual rente = projectedBalance * conversionRate
       // Back-calculate projected balance:
-      final projectedBalance = annualRente / LppCalculator.adjustedConversionRate(
-        baseRate: cpeConversionRate,
-        retirementAge: 65,
-      );
+      final projectedBalance = annualRente /
+          LppCalculator.adjustedConversionRate(
+            baseRate: cpeConversionRate,
+            retirementAge: 65,
+          );
 
       const expectedBalance = 677847.0;
       const expectedRente = 33892.0; // ~677847 * 0.054 or 0.068
@@ -252,13 +256,11 @@ void main() {
       // ignore: avoid_print
       print('  Conversion rate:    $lppTauxConversionMinDecimal');
       // ignore: avoid_print
-      print(
-          _verdict('LPP Julien balance', projectedBalance, expectedBalance,
-              tolerancePct: 25));
+      print(_verdict('LPP Julien balance', projectedBalance, expectedBalance,
+          tolerancePct: 25));
       // ignore: avoid_print
-      print(
-          _verdict('LPP Julien rente', annualRente, expectedRente,
-              tolerancePct: 25));
+      print(_verdict('LPP Julien rente', annualRente, expectedRente,
+          tolerancePct: 25));
 
       // Balance should be within 25% of expected 677847
       expect(projectedBalance, closeTo(677847, 677847 * 0.25),
@@ -280,10 +282,11 @@ void main() {
         conversionRate: lppTauxConversionMinDecimal,
       );
 
-      final projectedBalance = annualRente / LppCalculator.adjustedConversionRate(
-        baseRate: lppTauxConversionMinDecimal,
-        retirementAge: 65,
-      );
+      final projectedBalance = annualRente /
+          LppCalculator.adjustedConversionRate(
+            baseRate: lppTauxConversionMinDecimal,
+            retirementAge: 65,
+          );
 
       // CLAUDE.md §8 states ~153'000 but this was computed under unknown
       // assumptions. Calculator with HOTELA 2% return and standard legal
@@ -300,9 +303,8 @@ void main() {
       // ignore: avoid_print
       print('  Projected rente/an: ${annualRente.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print(
-          _verdict('LPP Lauren balance', projectedBalance, expectedBalance,
-              tolerancePct: 15));
+      print(_verdict('LPP Lauren balance', projectedBalance, expectedBalance,
+          tolerancePct: 15));
 
       // Within 15% of calculator's correct output with 2% return
       expect(projectedBalance, closeTo(expectedBalance, expectedBalance * 0.15),
@@ -342,8 +344,8 @@ void main() {
       // ignore: avoid_print
       print('  Effective rate:  ${effectiveRate.toStringAsFixed(2)}%');
       // ignore: avoid_print
-      print(_verdict(
-          'Capital tax Julien', tax, expectedApprox, tolerancePct: 15));
+      print(_verdict('Capital tax Julien', tax, expectedApprox,
+          tolerancePct: 15));
 
       expect(tax, greaterThan(20000),
           reason: 'Tax on 677k should be substantial');
@@ -394,7 +396,8 @@ void main() {
       // ignore: avoid_print
       print('  ZG (low-tax):  ${(rateZG * 100).toStringAsFixed(1)}%');
       // ignore: avoid_print
-      print('  Delta:         ${((rateVS - rateZG) * 100).toStringAsFixed(1)} pp');
+      print(
+          '  Delta:         ${((rateVS - rateZG) * 100).toStringAsFixed(1)} pp');
 
       expect(rateVS, greaterThan(rateZG),
           reason: 'VS should have higher marginal rate than ZG');
@@ -416,21 +419,29 @@ void main() {
       // ignore: avoid_print
       print('\n--- Net Income Breakdown (Julien) ---');
       // ignore: avoid_print
-      print('  Gross annual:       ${breakdown.grossSalary.toStringAsFixed(0)} CHF');
+      print(
+          '  Gross annual:       ${breakdown.grossSalary.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Social charges:     ${breakdown.socialCharges.toStringAsFixed(0)} CHF');
+      print(
+          '  Social charges:     ${breakdown.socialCharges.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  LPP employee:       ${breakdown.lppEmployee.toStringAsFixed(0)} CHF');
+      print(
+          '  LPP employee:       ${breakdown.lppEmployee.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Income tax est:     ${breakdown.incomeTaxEstimate.toStringAsFixed(0)} CHF');
+      print(
+          '  Income tax est:     ${breakdown.incomeTaxEstimate.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Net payslip:        ${breakdown.netPayslip.toStringAsFixed(0)} CHF');
+      print(
+          '  Net payslip:        ${breakdown.netPayslip.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Monthly net:        ${breakdown.monthlyNetPayslip.toStringAsFixed(0)} CHF');
+      print(
+          '  Monthly net:        ${breakdown.monthlyNetPayslip.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Disposable income:  ${breakdown.disposableIncome.toStringAsFixed(0)} CHF');
+      print(
+          '  Disposable income:  ${breakdown.disposableIncome.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  Net ratio:          ${(breakdown.netRatio * 100).toStringAsFixed(1)}%');
+      print(
+          '  Net ratio:          ${(breakdown.netRatio * 100).toStringAsFixed(1)}%');
 
       // CLAUDE.md says ~12'978 net/mois for household
       // Julien alone: 122k brut → net should be ~85-90% of brut before tax
@@ -442,9 +453,10 @@ void main() {
           reason: 'Julien monthly net should be > 7000');
     });
 
-    // ── TEST 4: ForecasterService — Full projection ────────────────────────
+    // ── TEST 4: ForecasterService — Partial projection ─────────────────────
 
-    test('4. ForecasterService — Julien full projection', () {
+    test('4. ForecasterService — Julien remains partial without official AVS',
+        () {
       final julienProfile = CoachProfile(
         firstName: 'Julien',
         birthYear: 1977,
@@ -490,6 +502,9 @@ void main() {
             rachatEffectue: 0,
             tauxConversion: lppTauxConversionMinDecimal,
             rendementCaisse: 0.02,
+            lacunesAVS: 0,
+            ramd: 67000,
+            anneesContribuees: 24,
             nombre3a: 1,
             totalEpargne3a: 14000,
             canContribute3a: false,
@@ -504,59 +519,29 @@ void main() {
 
       final result = ForecasterService.project(profile: julienProfile);
 
-      // Expected per CLAUDE.md §8:
-      // Taux de remplacement: 65.5%
-      // ~8'505 retirement income vs ~12'978 current net/mois
-      const expectedTauxRemplacement = 65.5;
-
       // ignore: avoid_print
-      print('\n--- ForecasterService Full Projection (Julien) ---');
+      print('\n--- ForecasterService Partial Projection (Julien) ---');
       // ignore: avoid_print
       print('  Scenario Base:');
       // ignore: avoid_print
-      print('    Capital final:        ${result.base.capitalFinal.toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('    Revenu retraite/an:   ${result.base.revenuAnnuelRetraite.toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('    Revenu retraite/mois: ${(result.base.revenuAnnuelRetraite / 12).toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('    Decomposition:        ${result.base.decomposition}');
-      // ignore: avoid_print
-      print('  Taux remplacement:      ${result.tauxRemplacementBase.toStringAsFixed(1)}%');
-      // ignore: avoid_print
-      print('  Expected (CLAUDE.md):   $expectedTauxRemplacement%');
-      // ignore: avoid_print
-      print('  Confidence score:       ${result.confidenceScore.toStringAsFixed(1)}');
-      // ignore: avoid_print
-      print('  Enrichment prompts:     ${result.enrichmentPrompts}');
-      // ignore: avoid_print
-      print('');
-      // ignore: avoid_print
-      print('  Scenario Prudent:');
-      // ignore: avoid_print
-      print('    Capital final:        ${result.prudent.capitalFinal.toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('    Revenu retraite/an:   ${result.prudent.revenuAnnuelRetraite.toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('  Scenario Optimiste:');
-      // ignore: avoid_print
-      print('    Capital final:        ${result.optimiste.capitalFinal.toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('    Revenu retraite/an:   ${result.optimiste.revenuAnnuelRetraite.toStringAsFixed(0)} CHF');
-      // ignore: avoid_print
-      print('');
+      print(
+          '    Capital final:        ${result.base.capitalFinal.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
       print(
-          _verdict('Taux remplacement', result.tauxRemplacementBase,
-              expectedTauxRemplacement, tolerancePct: 30));
+          '    Revenu hors AVS/an:   ${result.base.revenuAnnuelRetraiteHorsAvs.toStringAsFixed(0)} CHF');
+      // ignore: avoid_print
+      print(
+          '  Confidence score:       ${result.confidenceScore.toStringAsFixed(1)}');
+      // ignore: avoid_print
+      print('  Enrichment prompts:     ${result.enrichmentPrompts}');
 
-      // With CPE Plan Maxi overrides now wired through ForecasterService,
-      // taux remplacement should be closer to CLAUDE.md's 65.5%.
-      // Allow 30% tolerance for multi-pillar complexity.
-      expect(result.tauxRemplacementBase, closeTo(65.5, 65.5 * 0.30),
-          reason: 'Taux remplacement should be near 65.5% per CLAUDE.md');
-      expect(result.base.revenuAnnuelRetraite, greaterThan(50000),
-          reason: 'Annual retirement income should be > 50k');
+      expect(result.avsIncluded, isFalse);
+      expect(result.base.revenuAnnuelRetraite, isNull);
+      expect(result.prudent.revenuAnnuelRetraite, isNull);
+      expect(result.optimiste.revenuAnnuelRetraite, isNull);
+      expect(result.tauxRemplacementBase, isNull);
+      expect(result.base.decomposition, isEmpty);
+      expect(result.base.revenuAnnuelRetraiteHorsAvs, greaterThan(0));
       expect(result.base.capitalFinal, greaterThan(100000),
           reason: 'Final capital should be > 100k');
     });
@@ -662,13 +647,17 @@ void main() {
         // ignore: avoid_print
         print('    Cap applied:           ${avs.capApplied}');
         // ignore: avoid_print
-        print('    User rente before:     ${avs.userRenteBeforeCap.toStringAsFixed(0)} CHF');
+        print(
+            '    User rente before:     ${avs.userRenteBeforeCap.toStringAsFixed(0)} CHF');
         // ignore: avoid_print
-        print('    Conjoint rente before: ${avs.conjointRenteBeforeCap.toStringAsFixed(0)} CHF');
+        print(
+            '    Conjoint rente before: ${avs.conjointRenteBeforeCap.toStringAsFixed(0)} CHF');
         // ignore: avoid_print
-        print('    Monthly reduction:     ${avs.monthlyReduction.toStringAsFixed(0)} CHF');
+        print(
+            '    Monthly reduction:     ${avs.monthlyReduction.toStringAsFixed(0)} CHF');
         // ignore: avoid_print
-        print('    Total after cap:       ${avs.totalAfterCap.toStringAsFixed(0)} CHF');
+        print(
+            '    Total after cap:       ${avs.totalAfterCap.toStringAsFixed(0)} CHF');
 
         expect(avs.capApplied, isTrue,
             reason: 'Married couple with high combined AVS should be capped');
@@ -728,7 +717,8 @@ void main() {
       // ignore: avoid_print
       print('\n--- CrossPillarCalculator (Julien) ---');
       // ignore: avoid_print
-      print('  Total potential impact: ${analysis.totalPotentialImpact.toStringAsFixed(0)} CHF/an');
+      print(
+          '  Total potential impact: ${analysis.totalPotentialImpact.toStringAsFixed(0)} CHF/an');
       // ignore: avoid_print
       print('  Number of insights:    ${analysis.insights.length}');
 
@@ -738,9 +728,11 @@ void main() {
         // ignore: avoid_print
         print('  [${insight.type.name}]');
         // ignore: avoid_print
-        print('    Impact CHF/an:  ${insight.impactChfAnnual.toStringAsFixed(0)}');
+        print(
+            '    Impact CHF/an:  ${insight.impactChfAnnual.toStringAsFixed(0)}');
         // ignore: avoid_print
-        print('    Confidence:     ${(insight.confidence * 100).toStringAsFixed(0)}%');
+        print(
+            '    Confidence:     ${(insight.confidence * 100).toStringAsFixed(0)}%');
         // ignore: avoid_print
         print('    Trade-off:      ${insight.tradeOff}');
         // ignore: avoid_print
@@ -756,7 +748,8 @@ void main() {
         print('\n  PASS: 3a optimization detected');
       } else {
         // ignore: avoid_print
-        print('\n  INFO: 3a optimization NOT detected (may depend on planned contributions)');
+        print(
+            '\n  INFO: 3a optimization NOT detected (may depend on planned contributions)');
       }
 
       // LPP: rachat max 539k → huge opportunity
@@ -819,9 +812,11 @@ void main() {
       // ignore: avoid_print
       print('  Annual LPP rente:      ${annualRente.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  100% Rente monthly:    ${monthlyFullRente.toStringAsFixed(0)} CHF');
+      print(
+          '  100% Rente monthly:    ${monthlyFullRente.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
-      print('  100% Capital monthly:  ${monthlyFullCapital.toStringAsFixed(0)} CHF');
+      print(
+          '  100% Capital monthly:  ${monthlyFullCapital.toStringAsFixed(0)} CHF');
       // ignore: avoid_print
       print('  50/50 Mixed monthly:   ${monthlyMixed.toStringAsFixed(0)} CHF');
 
@@ -856,7 +851,8 @@ void main() {
       // ignore: avoid_print
       print('  LPP coordination:         $lppDeductionCoordination CHF');
       // ignore: avoid_print
-      print('  LPP taux conversion min:  ${lppTauxConversionMinDecimal * 100}%');
+      print(
+          '  LPP taux conversion min:  ${lppTauxConversionMinDecimal * 100}%');
       // ignore: avoid_print
       print('  LPP salaire coord min:    $lppSalaireCoordMin CHF');
       // ignore: avoid_print
@@ -901,8 +897,7 @@ void main() {
       }
 
       // 4 years gap → ~9.09% reduction
-      expect(AvsCalculator.reductionPercentageFromGap(4),
-          closeTo(9.09, 0.1));
+      expect(AvsCalculator.reductionPercentageFromGap(4), closeTo(9.09, 0.1));
       // 4 years gap → ~229 CHF/mois loss
       expect(AvsCalculator.monthlyLossFromGap(4), closeTo(229, 5));
     });

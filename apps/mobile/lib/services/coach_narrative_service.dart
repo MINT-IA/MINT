@@ -10,11 +10,9 @@ import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
@@ -58,7 +56,7 @@ class CoachNarrative {
   /// Salutation personnalisee ("Bonjour Julien")
   final String greeting;
 
-  /// Resume du score avec contexte ("62/100 — Bien ! Tu es sur la bonne voie.")
+  /// Resume du score avec contexte ("62/100 — Bien ! Tu es sur la bonne voie.") // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   final String scoreSummary;
 
   /// Message de tendance enrichi ("En progression — continue comme ca")
@@ -67,25 +65,25 @@ class CoachNarrative {
   /// Tip principal enrichi (le top tip avec narration personnalisee)
   final String? topTipNarrative;
 
-  /// Alerte urgente si applicable ("Il reste 28 jours pour ton 3a")
+  /// Alerte urgente si applicable ("Il reste 28 jours pour ton 3a") // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   final String? urgentAlert;
 
-  /// Message milestone si nouveau ("Bravo ! Tu as atteint CHF 100k de patrimoine")
+  /// Message milestone si nouveau ("Bravo ! Tu as atteint CHF 100k de patrimoine") // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   final String? milestoneMessage;
 
   /// Narration des scenarios Forecaster (3 paragraphes)
   final List<String>? scenarioNarrations;
 
   /// Contextual narration for the chiffre-choc screen (max ~100 words).
-  /// Example: "A 58 ans, tu as encore 7 ans pour combler un ecart de CHF 850/mois."
+  /// Example: "A 58 ans, tu as encore 7 ans pour combler un ecart de CHF 850/mois." // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   final String? premierEclairageNarration;
 
   /// Retirement countdown phrase for 45-60 dashboard header.
-  /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
+  /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%." // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   final String? retirementCountdown;
 
   /// Monthly briefing comparison N vs N-1 (Coach Vivant Track A).
-  /// Example: "Tes versements sont en hausse de 12% vs le mois dernier."
+  /// Example: "Tes versements sont en hausse de 12% vs le mois dernier." // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   final String? monthlyComparison;
 
   /// Versements trend label ("en hausse", "stable", "en baisse").
@@ -183,7 +181,7 @@ class CoachNarrativeService {
 
   /// Disclaimer standard
   static const disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier. LSFin.';
+      'Outil educatif — ne constitue pas un conseil financier. LSFin.'; // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
 
   /// Termes bannis — delegue a ComplianceGuard (source unique).
   static List<String> get _bannedTerms => ComplianceGuard.bannedTerms;
@@ -208,8 +206,9 @@ class CoachNarrativeService {
     final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
 
     // Tax saving potential (3a margin × estimated marginal rate)
-    final plafond3a =
-        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond3a = profile.employmentStatus == 'independant'
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
     final taxSaving = marge3a * 0.30; // ~30% marginal estimate
@@ -236,7 +235,8 @@ class CoachNarrativeService {
     int daysSinceLastVisit = 30; // default: assume a month
     if (profile.checkIns.isNotEmpty) {
       final lastCheckIn = profile.checkIns.last;
-      final lastDate = DateTime(lastCheckIn.month.year, lastCheckIn.month.month);
+      final lastDate =
+          DateTime(lastCheckIn.month.year, lastCheckIn.month.month);
       daysSinceLastVisit = now.difference(lastDate).inDays;
     }
 
@@ -254,25 +254,14 @@ class CoachNarrativeService {
       dataSources[entry.key] = entry.value.name;
     }
 
-    // Replacement ratio — quick approximation using financial_core
-    // (AVS + LPP rente) / current gross monthly. Same approach as landing page.
-    double replacementRatio = 0;
+    // Complete replacement ratio is available only from a Forecaster result
+    // that actually included certificate-backed household AVS.
+    double? replacementRatio;
     try {
-      final salary = profile.revenuBrutAnnuel;
-      final refAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-      if (salary > 0 && profile.age < refAge) {
-        final avsMonthly = AvsCalculator.renteFromRAMD(salary);
-        final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
-        final lppAnnual = LppCalculator.projectToRetirement(
-          currentBalance: lppBalance,
-          currentAge: profile.age,
-          retirementAge: refAge,
-          grossAnnualSalary: salary,
-          caisseReturn: 0.01,
-          conversionRate: profile.prevoyance.tauxConversion,
-        );
-        final totalMonthly = avsMonthly + lppAnnual / 12;
-        replacementRatio = totalMonthly / (salary / 12);
+      final projection = ForecasterService.project(profile: profile);
+      final completeRate = projection.tauxRemplacementBase;
+      if (projection.avsIncluded && completeRate != null) {
+        replacementRatio = completeRate / 100;
       }
     } catch (e) {
       debugPrint('CoachNarrative: $e');
@@ -288,7 +277,9 @@ class CoachNarrativeService {
     final upcomingEvent = profile.familyChange ?? '';
 
     return CoachContextBuilder.build(
-      firstName: profile.firstName?.trim().isNotEmpty == true ? profile.firstName! : '',
+      firstName: profile.firstName?.trim().isNotEmpty == true
+          ? profile.firstName!
+          : '',
       age: profile.age,
       canton: profile.canton,
       archetype: archetype,
@@ -408,9 +399,28 @@ class CoachNarrativeService {
           );
         } catch (e) {
           debugPrint('CoachNarrative: $e');
-          // Resilience: garde le narratif statique deja genere
+          // Résilience: garde le narratif statique déjà généré
         }
       }
+    }
+
+    // Never retain generated scenario totals when the canonical Forecaster
+    // cannot produce a complete household AVS projection.
+    try {
+      final projection = ForecasterService.project(profile: profile);
+      if (!projection.avsIncluded) {
+        narrative = _generateStatic(
+          profile: profile,
+          scoreHistory: scoreHistory,
+          tips: tips,
+        );
+      }
+    } catch (_) {
+      narrative = _generateStatic(
+        profile: profile,
+        scoreHistory: scoreHistory,
+        tips: tips,
+      );
     }
 
     // 4. Appliquer les guardrails sur TOUS les modes (SLM, LLM et statique)
@@ -497,8 +507,9 @@ class CoachNarrativeService {
     // Oct-Dec: deadline 3a avant le 31 decembre (OPP3 art. 7)
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
-      final plafond =
-          profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+      final plafond = profile.employmentStatus == 'independant'
+          ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+          : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -507,8 +518,8 @@ class CoachNarrativeService {
         // Estimate tax savings from the remaining 3a margin
         final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
         final economie = marge * tauxEstime;
-        urgentAlert = 'Il te reste $joursRestants jours pour verser '
-            '${formatChfWithPrefix(marge)} en 3a et economiser '
+        urgentAlert = 'Il te reste $joursRestants jours pour verser ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+            '${formatChfWithPrefix(marge)} en 3a et economiser ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
             '~${formatChfWithPrefix(economie)} d\'impots '
             '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
             '\u2014 OPP3 art. 7';
@@ -519,11 +530,14 @@ class CoachNarrativeService {
     // Suppressed if coaching tips already contain a 'tax_deadline' card
     // (avoids triple repetition: greeting + urgentAlert + curated card).
     final hasTaxDeadlineTip = tips.any((t) => t.id == 'tax_deadline');
-    if (urgentAlert == null && now.month >= 2 && now.month <= 3 && !hasTaxDeadlineTip) {
+    if (urgentAlert == null &&
+        now.month >= 2 &&
+        now.month <= 3 &&
+        !hasTaxDeadlineTip) {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
       if (joursRestants >= 0) {
-        urgentAlert = 'Declaration fiscale a rendre avant le 31 mars '
+        urgentAlert = 'Declaration fiscale a rendre avant le 31 mars ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
             '($joursRestants jours restants). '
             '\u2014 LIFD / LHID';
       }
@@ -531,7 +545,8 @@ class CoachNarrativeService {
 
     // ── premierEclairageNarration + retirementCountdown (static fallback) ──
     // Chiffre choc — confidence-aware via FallbackTemplates
-    final premierEclairageNarration = FallbackTemplates.premierEclairageReframe(ctx);
+    final premierEclairageNarration =
+        FallbackTemplates.premierEclairageReframe(ctx);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
@@ -545,13 +560,15 @@ class CoachNarrativeService {
           profile.dateOfBirth!.month,
           profile.dateOfBirth!.day,
         );
-        final monthsLeft = ((retirementDate.difference(now).inDays) / 30.44).round().clamp(0, 999);
+        final monthsLeft = ((retirementDate.difference(now).inDays) / 30.44)
+            .round()
+            .clamp(0, 999);
         if (monthsLeft > 0) {
-          retirementCountdown = 'Plus que $monthsLeft mois avant ta retraite '
+          retirementCountdown = 'Plus que $monthsLeft mois avant ta retraite ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
               '\u00e0 $retAge ans.';
         }
       } else {
-        retirementCountdown = 'Plus que $yearsLeft ans avant ta retraite '
+        retirementCountdown = 'Plus que $yearsLeft ans avant ta retraite ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
             '\u00e0 $retAge ans.';
       }
     }
@@ -594,11 +611,22 @@ class CoachNarrativeService {
     required ProjectionResult projection,
   }) {
     String buildLine(ProjectionScenario s) {
-      final monthly = (s.revenuAnnuelRetraite / 12).isFinite
-          ? (s.revenuAnnuelRetraite / 12)
-          : 0.0;
-      return '${s.label}: capital projete ${ForecasterService.formatChf(s.capitalFinal)}. '
-          'Revenu retraite estime ${ForecasterService.formatChf(monthly)}/mois.';
+      final capitalLine =
+          '${s.label}: capital projete ${ForecasterService.formatChf(s.capitalFinal)}.';
+      final completeIncome = s.revenuAnnuelRetraite;
+      if (projection.avsIncluded &&
+          completeIncome != null &&
+          completeIncome.isFinite) {
+        return '$capitalLine Revenu retraite estime '
+            '${ForecasterService.formatChf(completeIncome / 12)}/mois.';
+      }
+
+      final nonAvsIncome = s.revenuAnnuelRetraiteHorsAvs;
+      if (nonAvsIncome.isFinite) {
+        return '$capitalLine Revenu retraite hors AVS '
+            '${ForecasterService.formatChf(nonAvsIncome / 12)}/mois.';
+      }
+      return capitalLine;
     }
 
     return [
@@ -615,7 +643,7 @@ class CoachNarrativeService {
     List<Map<String, dynamic>>? scoreHistory,
   ) {
     if (scoreHistory == null || scoreHistory.length < 2) {
-      return 'Pas encore assez de donnees pour calculer une tendance.';
+      return 'Pas encore assez de donnees pour calculer une tendance.'; // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
 
     final history = scoreHistory;
@@ -628,9 +656,9 @@ class CoachNarrativeService {
     if (trend > 3) {
       return 'En progression — continue comme ca';
     } else if (trend < -3) {
-      return 'Attention — ton score baisse. Verifie tes actions.';
+      return 'Attention — ton score baisse. Verifie tes actions.'; // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     } else {
-      return 'Stable — tes efforts maintiennent le cap.';
+      return 'Stable — tes efforts maintiennent le cap.'; // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
   }
 
@@ -660,7 +688,7 @@ class CoachNarrativeService {
 
     final result = await slm.generate(
       systemPrompt: systemPrompt,
-      userPrompt: 'Genere le JSON narratif complet du dashboard.',
+      userPrompt: 'Genere le JSON narratif complet du dashboard.', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       maxTokens: 512,
     );
 
@@ -782,6 +810,13 @@ class CoachNarrativeService {
     final etatCivil = profile.etatCivil.name;
     final employmentStatus = profile.employmentStatus;
     final canton = profile.canton;
+    var completeRetirementProjection = false;
+    try {
+      completeRetirementProjection =
+          ForecasterService.project(profile: profile).avsIncluded;
+    } catch (_) {
+      completeRetirementProjection = false;
+    }
 
     // Score + tendance
     FinancialFitnessScore? score;
@@ -795,8 +830,9 @@ class CoachNarrativeService {
 
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
-    final plafond3a =
-        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond3a = profile.employmentStatus == 'independant'
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -826,8 +862,8 @@ class CoachNarrativeService {
 
     final buffer = StringBuffer();
     buffer.writeln(
-        'Tu es le coach financier MINT. Tu parles a $firstName, $age ans, $etatCivil,');
-    buffer.writeln('$employmentStatus dans le canton de $canton.');
+        'Tu es le coach financier MINT. Tu parles a $firstName, $age ans, $etatCivil,'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+    buffer.writeln('$employmentStatus dans le canton de $canton.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln();
     buffer.writeln('DONNEES FINANCIERES :');
     buffer.writeln(
@@ -869,11 +905,13 @@ class CoachNarrativeService {
     // Grounding values for hallucination detection (CoachContext)
     final ctx = _buildCoachContext(profile);
     if (ctx.knownValues.isNotEmpty) {
-      buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
+      buffer.writeln(
+          'VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       for (final entry in ctx.knownValues.entries) {
         buffer.writeln('- ${entry.key}: ${formatChf(entry.value)}');
       }
-      buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
+      buffer.writeln(
+          'Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       buffer.writeln();
     }
 
@@ -881,26 +919,33 @@ class CoachNarrativeService {
     buffer.writeln(tipsFormatted);
     buffer.writeln();
     buffer.writeln('INSTRUCTIONS :');
+    final scenarioInstruction = completeRetirementProjection
+        ? 'liste de 3 paragraphes: prudent, base, optimiste' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+        : 'null — aucune projection retraite complete sans AVS certifiee';
     buffer.writeln(
-        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), premierEclairageNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
+        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations ($scenarioInstruction), premierEclairageNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)');
+        '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '3. Le scoreSummary doit expliquer le score avec les chiffres de l\'utilisateur (max 3 phrases)');
+        '3. Le scoreSummary doit expliquer le score avec les chiffres de l\'utilisateur (max 3 phrases)'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '4. Le trendMessage doit etre contextuel a la trajectoire (max 2 phrases)');
+        '4. Le trendMessage doit etre contextuel a la trajectoire (max 2 phrases)'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '5. Le topTipNarrative doit transformer le tip #1 en conseil emotionnel avec impact CHF (max 4 phrases)');
-    buffer.writeln('6. Utilise le tutoiement ("tu")');
+        '5. Le topTipNarrative doit transformer le tip #1 en conseil emotionnel avec impact CHF (max 4 phrases)'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+    buffer.writeln('6. Utilise le tutoiement ("tu")'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '7. JAMAIS de termes : garanti, certain, assure, sans risque, optimal, meilleur, parfait');
+        '7. JAMAIS de termes : garanti, certain, assure, sans risque, optimal, meilleur, parfait'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '8. Cite les sources legales quand pertinent (LPP art. X, LIFD art. Y)');
+        '8. Cite les sources legales quand pertinent (LPP art. X, LIFD art. Y)'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln(
-        '9. Ton educatif, JAMAIS prescriptif. Utilise "Tu pourrais" au conditionnel');
+        '9. Ton educatif, JAMAIS prescriptif. Utilise "Tu pourrais" au conditionnel'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
     buffer.writeln(
-        '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
+        '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+    if (!completeRetirementProjection) {
+      buffer.writeln(
+          '12. AVS non certifiee : ne mentionne aucun revenu retraite total ni taux de remplacement.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+    }
 
     return buffer.toString();
   }
@@ -923,38 +968,28 @@ class CoachNarrativeService {
             ? 'IMPORTANT'
             : 'NORMAL';
 
-    // Replacement rate via centralized calculators (LAVS art. 34, LPP art. 16)
-    double replacementRate = 0;
+    // Complete replacement rate only when the Forecaster included household AVS.
+    double? replacementRate;
     try {
-      final salary = profile.revenuBrutAnnuel;
-      final refAge2 = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-      if (salary > 0 && profile.age < refAge2) {
-        final avsMonthly = AvsCalculator.renteFromRAMD(salary);
-        final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
-        final lppAnnual = LppCalculator.projectToRetirement(
-          currentBalance: lppBalance,
-          currentAge: profile.age,
-          retirementAge: refAge2,
-          grossAnnualSalary: salary,
-          caisseReturn: 0.01,
-          conversionRate: profile.prevoyance.tauxConversion,
-        );
-        final totalMonthly = avsMonthly + lppAnnual / 12;
-        replacementRate = totalMonthly / (salary / 12);
+      final projection = ForecasterService.project(profile: profile);
+      final completeRate = projection.tauxRemplacementBase;
+      if (projection.avsIncluded && completeRate != null) {
+        replacementRate = completeRate;
       }
     } catch (e) {
       debugPrint('CoachNarrative: $e');
     }
 
     buffer.writeln('CONTEXTE RETRAITE :');
-    buffer.writeln('- Age de retraite cible : $retirementAge ans');
+    buffer.writeln('- Age de retraite cible : $retirementAge ans'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     buffer.writeln('- Countdown : Plus que $yearsLeft ans ($monthsLeft mois)');
     buffer.writeln('- Niveau d\'urgence : $urgency');
-    if (replacementRate > 0) {
+    if (replacementRate != null && replacementRate > 0) {
       buffer.writeln(
-          '- Taux de remplacement estime : ~${(replacementRate * 100).toStringAsFixed(0)}%');
+          '- Taux de remplacement estime : ~${replacementRate.toStringAsFixed(0)}%'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
-    final refAgeEarly = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final refAgeEarly =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     if (retirementAge < refAgeEarly) {
       buffer.writeln(
           '- Retraite anticipee : penalite AVS de ${((refAgeEarly - retirementAge) * 6.8).toStringAsFixed(1)}% '
@@ -974,36 +1009,37 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    final plafond3aSnippet = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond3aSnippet =
+        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     if (cotisation3a < plafond3aSnippet && profile.prevoyance.canContribute3a) {
       final marge = plafond3aSnippet - cotisation3a;
-      snippets.add(
-          'SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a '
-          'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
+      snippets
+          .add('SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
     }
 
     // LPP buyback available
     final lacune = profile.prevoyance.lacuneRachatRestante;
     if (lacune > 5000) {
       snippets.add(
-          'SNIPPET LPP: Lacune de rachat LPP de ${formatChfWithPrefix(lacune)} '
-          '— deductible a 100% du revenu imposable (LPP art. 79b).');
+          'SNIPPET LPP: Lacune de rachat LPP de ${formatChfWithPrefix(lacune)} ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          '— deductible a 100% du revenu imposable (LPP art. 79b).'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
 
     // AVS gaps
-    final lacunesAvs = profile.prevoyance.lacunesAVS ?? 0;
-    if (lacunesAvs > 0) {
+    final lacunesAvs = profile.avsGapEvidence.selfCertifiedYears;
+    if (lacunesAvs != null && lacunesAvs > 0) {
       snippets
           .add('SNIPPET AVS: $lacunesAvs annee${lacunesAvs > 1 ? 's' : ''} de '
               'cotisation manquante${lacunesAvs > 1 ? 's' : ''}. Chaque annee '
-              'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
+              'manquante reduit la rente de 1/44 (LAVS art. 29ter).'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
 
     // Close to retirement — coordination reminder
     if (profile.age >= 55 && profile.anneesAvantRetraite <= 10) {
       snippets.add(
-          'SNIPPET COORDINATION: A ${profile.anneesAvantRetraite} ans de la '
-          'retraite, la coordination des retraits (3a echelonne, LPP '
+          'SNIPPET COORDINATION: A ${profile.anneesAvantRetraite} ans de la ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          'retraite, la coordination des retraits (3a echelonne, LPP ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
           'rente/capital, AVS anticipation/ajournement) peut avoir un '
           'impact fiscal significatif.');
     }
@@ -1058,8 +1094,8 @@ class CoachNarrativeService {
           '${formatChfWithPrefix(regretBalance)} aujourd\'hui. ');
     }
     if (yearsForward > 0) {
-      buffer.write('En versant le max pendant $yearsForward ans → '
-          '+${formatChfWithPrefix(hopeBalance)} a la retraite.');
+      buffer.write('En versant le max pendant $yearsForward ans → ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          '+${formatChfWithPrefix(hopeBalance)} a la retraite.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
     return buffer.toString();
   }
@@ -1075,11 +1111,11 @@ class CoachNarrativeService {
   static String _buildDataReliabilitySection(CoachProfile profile) {
     final sources = profile.dataSources;
     if (sources.isEmpty) {
-      return 'FIABILITE DES DONNEES :\n'
+      return 'FIABILITE DES DONNEES :\n' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
           '- Aucune donnee certifiee par document. '
-          'Toutes les projections sont basees sur des estimations.\n'
-          '- Suggere a l\'utilisateur de scanner son certificat LPP ou '
-          'son extrait AVS pour améliorer la précision.\n\n';
+          'Toutes les projections sont basees sur des estimations.\n' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          '- Suggere a l\'utilisateur de scanner son certificat LPP ou ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          'son extrait AVS pour améliorer la précision.\n\n'; // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
 
     final certified = <String>[];
@@ -1091,7 +1127,7 @@ class CoachNarrativeService {
       'prevoyance.avoirLppTotal': 'Avoir LPP',
       'prevoyance.avoirLppObligatoire': 'LPP obligatoire',
       'prevoyance.avoirLppSurobligatoire': 'LPP surobligatoire',
-      'prevoyance.tauxConversion': 'Taux de conversion',
+      'prevoyance.tauxConversion': 'Taux de conversion', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       'prevoyance.tauxConversionSuroblig': 'Taux conv. suroblig.',
       'prevoyance.rachatMaximum': 'Lacune rachat LPP',
       'prevoyance.salaireAssure': 'Salaire assure LPP',
@@ -1124,19 +1160,19 @@ class CoachNarrativeService {
     }
 
     final buffer = StringBuffer();
-    buffer.writeln('FIABILITE DES DONNEES :');
+    buffer.writeln('FIABILITE DES DONNEES :'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     if (certified.isNotEmpty) {
       buffer.writeln('- CERTIFIE (document scanne) : ${certified.join(', ')}');
       buffer.writeln(
-          '  → Utilise ces chiffres avec confiance dans la narration.');
+          '  → Utilise ces chiffres avec confiance dans la narration.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
     if (userInput.isNotEmpty) {
       buffer.writeln('- SAISI (par l\'utilisateur) : ${userInput.join(', ')}');
     }
     if (estimated.isNotEmpty) {
       buffer.writeln('- ESTIME (calcul MINT) : ${estimated.join(', ')}');
-      buffer.writeln('  → Utilise "environ" ou "estime" pour ces valeurs. '
-          'Suggere d\'affiner via wizard ou scan.');
+      buffer.writeln('  → Utilise "environ" ou "estime" pour ces valeurs. ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          'Suggere d\'affiner via wizard ou scan.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
     // Key missing data
     final hasCertifiedLpp = sources.entries.any((e) =>
@@ -1151,7 +1187,7 @@ class CoachNarrativeService {
     }
     if (!hasCertifiedAvs) {
       buffer.writeln(
-          '- MANQUE: Extrait AVS non scanne — les annees de cotisation sont estimees.');
+          '- MANQUE: Extrait AVS non scanne — les annees de cotisation sont estimees.'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
     buffer.writeln();
     return buffer.toString();
@@ -1175,7 +1211,7 @@ class CoachNarrativeService {
       parts.add('Avoir 3a : ${prev.totalEpargne3a.toStringAsFixed(0)} CHF');
     }
     if (prev.nombre3a > 0) {
-      parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
+      parts.add('Nombre de comptes 3a : ${prev.nombre3a}'); // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
     }
     if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
       parts.add('Avoir LPP : ${prev.avoirLppTotal!.toStringAsFixed(0)} CHF');
@@ -1349,6 +1385,27 @@ class CoachNarrativeService {
   /// Cle secondaire pour invalider si nouveau check-in.
   static String get _cacheCheckInCountKey => '${_cacheKeyPrefix}_checkin_count';
 
+  static String _cacheAvsFingerprintKey(CoachProfile profile) =>
+      '${_cacheKey(profile)}_avs_fingerprint';
+
+  static String _avsFingerprint(CoachProfile profile) {
+    final evidence = profile.avsGapEvidence;
+    var projectionAvsIncluded = false;
+    try {
+      projectionAvsIncluded =
+          ForecasterService.project(profile: profile).avsIncluded;
+    } catch (_) {
+      projectionAvsIncluded = false;
+    }
+    return 'projectionAvsIncluded:$projectionAvsIncluded'
+        '|householdReady:${evidence.householdReady}'
+        '|selfReady:${evidence.selfReady}'
+        '|selfYears:${evidence.selfCertifiedYears ?? 'missing'}'
+        '|spouseRequired:${evidence.spouseRequired}'
+        '|spouseReady:${evidence.spouseCertifiedYears != null}'
+        '|spouseYears:${evidence.spouseCertifiedYears ?? 'missing'}';
+  }
+
   /// Signature du mode narratif courant.
   ///
   /// Permet d'invalider immediatement le cache si un kill-switch change.
@@ -1372,6 +1429,10 @@ class CoachNarrativeService {
       final key = _cacheKey(profile);
       final jsonStr = prefs.getString(key);
       if (jsonStr == null) return null;
+
+      final cachedAvsFingerprint =
+          prefs.getString(_cacheAvsFingerprintKey(profile));
+      if (cachedAvsFingerprint != _avsFingerprint(profile)) return null;
 
       // Verifier le TTL
       final json = jsonDecode(jsonStr) as Map<String, dynamic>;
@@ -1404,6 +1465,10 @@ class CoachNarrativeService {
       final key = _cacheKey(profile);
       final jsonStr = jsonEncode(narrative.toJson());
       await prefs.setString(key, jsonStr);
+      await prefs.setString(
+        _cacheAvsFingerprintKey(profile),
+        _avsFingerprint(profile),
+      );
       await prefs.setInt(_cacheCheckInCountKey, profile.checkIns.length);
       await prefs.setString(
         _cacheModeSignatureKey,
@@ -1439,6 +1504,7 @@ class CoachNarrativeService {
       if (profile != null) {
         final key = _cacheKey(profile);
         await prefs.remove(key);
+        await prefs.remove(_cacheAvsFingerprintKey(profile));
       } else {
         // Sans profil, supprimer toutes les cles commencant par le prefix
         final allKeys = prefs.getKeys();

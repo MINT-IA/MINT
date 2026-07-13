@@ -53,9 +53,12 @@ class _BudgetGapChartState extends State<BudgetGapChart>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Replacement rate badge
-        _buildReplacementBadge(gap.tauxRemplacement),
-        const SizedBox(height: 16),
+        // An invalid or incomplete current-income denominator is unknown,
+        // never a synthetic 0% replacement rate.
+        if (gap.tauxRemplacement case final rate?) ...[
+          _buildReplacementBadge(rate),
+          const SizedBox(height: 16),
+        ],
 
         // Chart
         SizedBox(
@@ -105,7 +108,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
           ),
           const SizedBox(width: 8),
           Text(
-            'Taux de remplacement : ${rate.toStringAsFixed(0)}%',
+            'Taux de remplacement : ${rate.toStringAsFixed(0)}%', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
             style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
@@ -192,18 +195,18 @@ class _WaterfallPainter extends CustomPainter {
 
     final barCount = steps.length;
     final spacing = chartWidth / barCount;
-    final barWidth = spacing * 0.6;
+    final animationBarWidth = spacing * 0.6;
 
     double cumulative = 0;
 
     for (int i = 0; i < barCount; i++) {
       final step = steps[i];
       // Stagger: each bar appears sequentially
-      final barDelay = i / barCount * 0.4;
+      final animationDelay = i / barCount * 0.4;
       final barProgress =
-          ((progress - barDelay) / (1 - barDelay)).clamp(0.0, 1.0);
+          ((progress - animationDelay) / (1 - animationDelay)).clamp(0.0, 1.0);
 
-      final barX = chartLeft + spacing * i + (spacing - barWidth) / 2;
+      final barX = chartLeft + spacing * i + (spacing - animationBarWidth) / 2;
 
       double barTop;
       double barBottom;
@@ -236,20 +239,20 @@ class _WaterfallPainter extends CustomPainter {
 
       // Draw bar
       final rect = RRect.fromRectAndRadius(
-        Rect.fromLTRB(barX, barTop, barX + barWidth, barBottom),
+        Rect.fromLTRB(barX, barTop, barX + animationBarWidth, barBottom),
         const Radius.circular(4),
       );
       canvas.drawRRect(rect, Paint()..color = step.color);
 
       // Connector line to next bar
       if (i < barCount - 1 && !steps[i + 1].isTotal) {
-        final nextX = chartLeft + spacing * (i + 1) + (spacing - barWidth) / 2;
+        final nextX = chartLeft + spacing * (i + 1) + (spacing - animationBarWidth) / 2;
         final connY = step.isAdditive
             ? zeroY - (cumulative + step.value) * scale
             : zeroY - (cumulative + step.value) * scale;
 
         // Dashed connector
-        var startX = barX + barWidth;
+        var startX = barX + animationBarWidth;
         final dashPaint = Paint()
           ..color = MintColors.lightBorder
           ..strokeWidth = 1;
@@ -277,7 +280,7 @@ class _WaterfallPainter extends CustomPainter {
       )..layout();
       labelTP.paint(
         canvas,
-        Offset(barX + barWidth / 2 - labelTP.width / 2, chartBottom + 6),
+        Offset(barX + animationBarWidth / 2 - labelTP.width / 2, chartBottom + 6),
       );
 
       // Amount above/below bar
@@ -296,7 +299,7 @@ class _WaterfallPainter extends CustomPainter {
             : barBottom + 4;
         amtTP.paint(
           canvas,
-          Offset(barX + barWidth / 2 - amtTP.width / 2, amtY),
+          Offset(barX + animationBarWidth / 2 - amtTP.width / 2, amtY),
         );
       }
     }

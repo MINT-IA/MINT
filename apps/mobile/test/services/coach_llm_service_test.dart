@@ -16,6 +16,7 @@ void main() {
   setUp(() {
     // FIX-P1-7: Register orchestrator (no longer auto-imported).
     CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+    // ignore: deprecated_member_use
     profile = CoachProfile.buildDemo();
     config = LlmConfig.defaultOpenAI;
     emptyHistory = [];
@@ -162,8 +163,15 @@ void main() {
     test('mock responses do not contain banned terms', () async {
       // Test all keyword paths
       final keywords = [
-        '3a', 'lpp', 'rachat', 'retraite', 'impot',
-        'fiscal', 'lauren', 'conjoint', 'bonjour',
+        '3a',
+        'lpp',
+        'rachat',
+        'retraite',
+        'impot',
+        'fiscal',
+        'lauren',
+        'conjoint',
+        'bonjour',
       ];
 
       // Use French-aware word-boundary patterns matching ComplianceGuard logic,
@@ -247,7 +255,7 @@ void main() {
       expect(prompt, contains('NE calcules JAMAIS'));
       expect(prompt, contains('NE donnes JAMAIS'));
       expect(prompt, contains('educatif'));
-      expect(prompt, contains('specialiste'));
+      expect(prompt, contains('spécialiste'));
     });
 
     test('system prompt contains capital projection', () {
@@ -257,11 +265,41 @@ void main() {
       expect(prompt, contains('CHF'));
     });
 
-    test('system prompt contains taux de remplacement', () {
+    test('system prompt omits unavailable replacement rate', () {
       final prompt = CoachLlmService.buildSystemPrompt(profile);
 
-      expect(prompt, contains('Taux de remplacement'));
-      expect(prompt, contains('%'));
+      expect(prompt, contains('Capital projete base'));
+      expect(prompt, isNot(contains('Taux de remplacement estime')));
+      expect(prompt, isNot(contains('Revenu retraite estime')));
+    });
+
+    test('unverified AVS omits complete retirement rate from prompt', () {
+      // ignore: deprecated_member_use
+      final unverified = CoachProfile.buildDemo();
+      final prompt = CoachLlmService.buildSystemPrompt(unverified);
+
+      expect(prompt, contains('Capital projete base'));
+      expect(prompt, isNot(contains('Taux de remplacement estime')));
+      expect(prompt, isNot(contains('Revenu retraite estime')));
+    });
+
+    test('null spouse salary keeps complete retirement narrative partial', () {
+      final incomplete = profile.copyWith(
+        conjoint: const ConjointProfile(
+          firstName: 'Lauren',
+          birthYear: 1981,
+          prevoyance: PrevoyanceProfile(
+            lacunesAVS: 14,
+            ramd: 60000,
+            anneesContribuees: 25,
+          ),
+        ),
+      );
+      final prompt = CoachLlmService.buildSystemPrompt(incomplete);
+
+      expect(prompt, contains('Capital projete base'));
+      expect(prompt, isNot(contains('Taux de remplacement estime')));
+      expect(prompt, isNot(contains('Revenu retraite estime')));
     });
 
     test('system prompt contains source citation instruction', () {

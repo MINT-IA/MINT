@@ -133,16 +133,16 @@ void main() {
           reason: 'No income means no retirement projection possible');
     });
 
-    test('stage is not presentOnly for full profile', () {
+    test('full profile stays presentOnly without official AVS pension', () {
       final profile = buildProfile(salaireBrutMensuel: 8000);
       final snapshot = BudgetLivingEngine.compute(profile);
 
-      // With income > 0 and age > 0, should at least be emergingRetirement
-      expect(snapshot.stage, isNot(equals(BudgetStage.presentOnly)));
+      expect(snapshot.stage, BudgetStage.presentOnly);
+      expect(snapshot.retirement, isNull);
+      expect(snapshot.gap, isNull);
     });
 
-    test('fullGapVisible requires sufficient confidence', () {
-      // A profile with rich data should reach fullGapVisible (confidence >= 40)
+    test('rich non-AVS data cannot fabricate a complete retirement gap', () {
       final profile = buildProfile(
         salaireBrutMensuel: 10000,
         avoirLppTotal: 100000,
@@ -152,8 +152,9 @@ void main() {
       );
       final snapshot = BudgetLivingEngine.compute(profile);
 
-      // At minimum it should not be presentOnly with this data
-      expect(snapshot.stage, isNot(equals(BudgetStage.presentOnly)));
+      expect(snapshot.stage, BudgetStage.presentOnly);
+      expect(snapshot.retirement, isNull);
+      expect(snapshot.gap, isNull);
     });
 
     test('retirement and gap null when stage is presentOnly', () {
@@ -375,12 +376,12 @@ void main() {
       );
     });
 
-    test('retirement income is positive', () {
+    test('retirement income stays unavailable without official AVS pension', () {
       final snapshot = BudgetLivingEngine.compute(julienProfile);
 
-      expect(snapshot.retirement, isNotNull,
-          reason: 'Full profile should produce retirement estimate');
-      expect(snapshot.retirement!.monthlyIncome, greaterThan(0));
+      expect(snapshot.stage, BudgetStage.presentOnly);
+      expect(snapshot.retirement, isNull);
+      expect(snapshot.gap, isNull);
     });
 
     test('replacement rate is within plausible range (30-100%)', () {

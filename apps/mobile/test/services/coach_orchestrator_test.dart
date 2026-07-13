@@ -68,6 +68,29 @@ void main() {
     _resetFlags();
   });
 
+  group('backend profile context units', () {
+    test('keeps replacement ratio as a 0-1 fraction for backend consumers', () {
+      const ctx = CoachContext(
+        replacementRatio: 0.65,
+        knownValues: {'replacement_ratio': 65},
+      );
+
+      final profileContext = CoachOrchestrator.buildProfileContext(ctx);
+
+      expect(profileContext['replacement_ratio'], 0.65);
+    });
+
+    test('does not revive an unknown ratio from percentage knownValues', () {
+      const ctx = CoachContext(
+        knownValues: {'replacement_ratio': 65},
+      );
+
+      final profileContext = CoachOrchestrator.buildProfileContext(ctx);
+
+      expect(profileContext['replacement_ratio'], isNull);
+    });
+  });
+
   // ═══════════════════════════════════════════════════════════════
   //  1. SLM skipped when slmPluginReady=false
   // ═══════════════════════════════════════════════════════════════

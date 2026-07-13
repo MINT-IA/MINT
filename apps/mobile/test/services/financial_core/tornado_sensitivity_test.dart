@@ -4,15 +4,24 @@ import 'package:mint_mobile/services/financial_core/tornado_sensitivity_service.
 
 void main() {
   group('TornadoSensitivityService.compute', () {
-    test('base case returns non-empty list', () {
-      final profile = _buildFullProfile();
-      final result = TornadoSensitivityService.compute(
-        profile: profile,
-        retirementAgeUser: 65,
-      );
-      expect(result, isNotEmpty);
-      // Should have at least 10 variables for a full profile
-      expect(result.length, greaterThanOrEqualTo(10));
+    test('rich minimal and couple profiles stay unavailable without AVS', () {
+      for (final profile in [
+        _buildFullProfile(),
+        _buildMinimalProfile(),
+        _buildCoupleProfile(),
+      ]) {
+        final result = TornadoSensitivityService.compute(
+          profile: profile,
+          retirementAgeUser: 65,
+          retirementAgeConjoint: profile.isCouple ? 65 : null,
+        );
+        expect(result, isEmpty);
+        expect(
+          result.where((variable) => variable.category == 'avs'),
+          isEmpty,
+          reason: 'A dormant sensitivity must not fabricate AVS variables',
+        );
+      }
     });
 
     test('results are sorted by swing descending', () {
@@ -32,33 +41,22 @@ void main() {
       }
     });
 
-    test('retirementAge has significant swing', () {
+    test('retirement age sensitivity stays unavailable', () {
       final profile = _buildFullProfile();
       final result = TornadoSensitivityService.compute(
         profile: profile,
         retirementAgeUser: 65,
       );
-      final ageVar = result.firstWhere(
-        (v) => v.label == '\u00C2ge de d\u00E9part',
-      );
-      // Retiring earlier vs later should produce a significant difference
-      expect(ageVar.swing, greaterThan(0));
-      // Retiring later (67) should yield more than retiring earlier (63)
-      expect(ageVar.highValue, greaterThan(ageVar.lowValue));
+      expect(result, isEmpty);
     });
 
-    test('avoirLppTotal has non-zero swing', () {
+    test('LPP balance sensitivity stays unavailable', () {
       final profile = _buildFullProfile();
       final result = TornadoSensitivityService.compute(
         profile: profile,
         retirementAgeUser: 65,
       );
-      final lppVar = result.firstWhere(
-        (v) => v.label == 'Avoir LPP actuel',
-      );
-      expect(lppVar.swing, greaterThan(0));
-      // More LPP should yield more income
-      expect(lppVar.highValue, greaterThan(lppVar.lowValue));
+      expect(result, isEmpty);
     });
 
     test('variables with 0 base value are skipped', () {
@@ -110,7 +108,7 @@ void main() {
       expect(labels, isNot(contains('Salaire conjoint\u00B7e')));
     });
 
-    test('couple profile includes conjoint salary variable', () {
+    test('couple profile does not expose partial sensitivity variables', () {
       final profile = _buildCoupleProfile();
       expect(profile.isCouple, isTrue);
 
@@ -119,21 +117,16 @@ void main() {
         retirementAgeUser: 65,
         retirementAgeConjoint: 65,
       );
-      final labels = result.map((v) => v.label).toList();
-      expect(labels, contains('Salaire conjoint\u00B7e'));
+      expect(result, isEmpty);
     });
 
-    test('service works with minimal profile', () {
+    test('minimal profile stays unavailable', () {
       final profile = _buildMinimalProfile();
-      // Should not throw
       final result = TornadoSensitivityService.compute(
         profile: profile,
         retirementAgeUser: 65,
       );
-      expect(result, isNotEmpty);
-      // At minimum: age, LPP strategy, salary, taux conversion,
-      // rendement caisse, lacunes AVS, depenses
-      expect(result.length, greaterThanOrEqualTo(5));
+      expect(result, isEmpty);
     });
 
     test('baseValue is consistent across all variables', () {
@@ -142,10 +135,8 @@ void main() {
         profile: profile,
         retirementAgeUser: 65,
       );
-      // All variables share the same base projection
-      final baseValues = result.map((v) => v.baseValue).toSet();
-      expect(baseValues.length, equals(1),
-          reason: 'All variables should share the same baseValue');
+      expect(result, isEmpty,
+          reason: 'There is no complete base projection to compare');
     });
 
     test('swing equals abs(highValue - lowValue)', () {
@@ -181,17 +172,13 @@ void main() {
       }
     });
 
-    test('higher salary yields higher retirement income', () {
+    test('salary sensitivity stays unavailable without official AVS', () {
       final profile = _buildFullProfile();
       final result = TornadoSensitivityService.compute(
         profile: profile,
         retirementAgeUser: 65,
       );
-      final salaryVar = result.firstWhere(
-        (v) => v.label == 'Salaire brut',
-      );
-      // +20% salary should produce more retirement income than -20%
-      expect(salaryVar.highValue, greaterThan(salaryVar.lowValue));
+      expect(result, isEmpty);
     });
 
     test('uncertified AVS gaps fail closed with no sensitivity results', () {

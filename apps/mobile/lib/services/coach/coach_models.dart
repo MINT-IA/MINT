@@ -67,7 +67,7 @@ class CoachContext {
   final double friTotal;
   final double friDelta;
   final String primaryFocus;
-  final double replacementRatio;
+  final double? replacementRatio;
   final double monthsLiquidity;
   final double taxSavingPotential;
   final double confidenceScore;
@@ -99,7 +99,7 @@ class CoachContext {
     this.friTotal = 0.0,
     this.friDelta = 0.0,
     this.primaryFocus = '',
-    this.replacementRatio = 0.0,
+    this.replacementRatio,
     this.monthsLiquidity = 0.0,
     this.taxSavingPotential = 0.0,
     this.confidenceScore = 0.0,

@@ -162,18 +162,21 @@ class MintStateEngine {
       // 6a. Forecaster projection (for FRI)
       try {
         final projection = ForecasterService.project(profile: profile);
-        replacementRate = projection.tauxRemplacementBase;
+        final completeReplacementRate = projection.tauxRemplacementBase;
+        if (projection.avsIncluded && completeReplacementRate != null) {
+          replacementRate = completeReplacementRate;
 
-        // 6b. FRI score
-        try {
-          final friBreakdown = FriComputationService.compute(
-            profile: profile,
-            projection: projection,
-            confidenceScore: confidenceScore,
-          );
-          friScore = friBreakdown.total;
-        } catch (_) {
-          friScore = null;
+          // 6b. FRI score
+          try {
+            final friBreakdown = FriComputationService.compute(
+              profile: profile,
+              projection: projection,
+              confidenceScore: confidenceScore,
+            );
+            friScore = friBreakdown?.total;
+          } catch (_) {
+            friScore = null;
+          }
         }
       } catch (_) {
         replacementRate = null;
@@ -189,14 +192,10 @@ class MintStateEngine {
         final retirementBudgetGap = retirementResult.budgetGap;
         if (retirementResult.avsIncluded && retirementBudgetGap != null) {
           budgetGap = retirementBudgetGap;
-          // If replacementRate was not set from forecaster, fall back to
-          // the retirement projection's replacement rate.
-          replacementRate ??= retirementResult.tauxRemplacement;
         }
       } catch (_) {
         budgetGap = null;
       }
-
     }
 
     // 6e. BudgetSnapshot — ALWAYS computed, even with low confidence.
@@ -249,16 +248,15 @@ class MintStateEngine {
     SessionDelta? sessionDelta;
     try {
       final previousSnapshot = await SessionSnapshotService.load();
-      if (previousSnapshot != null && budgetGap != null) {
+      if (previousSnapshot != null && budgetGap != null && friScore != null) {
         // Monthly retirement income from budgetGap (total revenus at retirement).
         final currentRetirementIncome = budgetGap.totalRevenusMensuel;
-        final currentFhs = friScore ?? 0.0;
 
         sessionDelta = SessionSnapshotService.computeDelta(
           previous: previousSnapshot,
           currentConfidence: confidenceScore,
           currentMonthlyRetirement: currentRetirementIncome,
-          currentFhs: currentFhs,
+          currentFhs: friScore,
         );
       }
     } catch (_) {

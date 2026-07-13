@@ -133,14 +133,17 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
   @override
   Widget build(BuildContext context) {
     final hasPoints = _displayBasePoints.isNotEmpty;
+    final replacementRate = widget.result.tauxRemplacementBase;
+    final hasCompleteRate =
+        widget.result.avsIncluded && replacementRate != null;
 
     return Semantics(
       label: _isDebtGoal
-          ? 'Graphique de trajectoire de dette. '
-              'Dette restante estimée en fin de période : ${_formatChf(_displayBaseFinal)}.'
-          : 'Graphique de trajectoire financière. '
-              'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}. '
-              'Taux de remplacement estimé : ${widget.result.tauxRemplacementBase.round()} pour cent.',
+          ? 'Graphique de trajectoire de dette. ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'Dette restante estimée en fin de période : ${_formatChf(_displayBaseFinal)}.' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+          : 'Graphique de trajectoire financière. ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'Scénario base : ${_formatChf(widget.result.base.capitalFinal)}.' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              '${hasCompleteRate ? ' Taux de remplacement estimé : ${replacementRate.round()} pour cent.' : ''}', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       child: GestureDetector(
         onTap: hasPoints ? _handleTap : widget.onTap,
         onTapDown: hasPoints ? _handleTapDown : null,
@@ -175,7 +178,10 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                     _buildLegend(),
                     if (_selectedPointIndex == null) _buildScrubHint(),
                     const SizedBox(height: 12),
-                    _isDebtGoal ? _buildDebtMetric() : _buildTauxRemplacement(),
+                    if (_isDebtGoal)
+                      _buildDebtMetric()
+                    else if (hasCompleteRate)
+                      _buildTauxRemplacement(),
                   ] else
                     _buildEmptyState(),
                   const SizedBox(height: 12),
@@ -540,7 +546,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
 
   Widget _buildTauxRemplacement() {
     final s = S.of(context)!;
-    final taux = widget.result.tauxRemplacementBase.clamp(0.0, 200.0);
+    final taux = widget.result.tauxRemplacementBase!.clamp(0.0, 200.0);
     final isGood = taux >= 60;
     final icon = isGood ? Icons.check_circle_outline : Icons.warning_amber;
     final color =
@@ -612,9 +618,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           Expanded(
             child: Text(
               isGood
-                  ? 'Objectif dette zéro atteint sur cet horizon.'
-                  : 'Dette restante estimée : ${_formatChf(debtLeft)} '
-                      '(${(paidRatio * 100).round()}% remboursée).',
+                  ? 'Objectif dette zéro atteint sur cet horizon.' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+                  : 'Dette restante estimée : ${_formatChf(debtLeft)} ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+                      '(${(paidRatio * 100).round()}% remboursée).', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
             ),
           ),

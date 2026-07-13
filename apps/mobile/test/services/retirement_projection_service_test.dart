@@ -1,7 +1,11 @@
 import 'dart:ui';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
 
 /// Tests for RetirementProjectionService — unified household retirement projection.
@@ -20,15 +24,23 @@ void main() {
     CoachCivilStatus etatCivil = CoachCivilStatus.celibataire,
     ConjointProfile? conjoint,
     double avoirLppTotal = 70000,
+    double? salaireAssure,
+    double rendementCaisse = 0.02,
+    double tauxConversion = lppTauxConversionMinDecimal,
+    bool canContribute3a = true,
     double totalEpargne3a = 32000,
     double epargneLiquide = 50000,
     double investissements = 100000,
     int? arrivalAge,
     int? lacunesAvs = 0,
+    double? avsRamd,
+    int? avsContributionYears,
+    double? monthlyAvsEstimate,
     AvsGapStatus? avsGapStatus,
     Map<String, ProfileDataSource> dataSources = const {
       AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
     },
+    Map<String, DateTime> dataTimestamps = const {},
     List<PlannedMonthlyContribution> contributions = const [],
   }) {
     return CoachProfile(
@@ -42,8 +54,15 @@ void main() {
       conjoint: conjoint,
       prevoyance: PrevoyanceProfile(
         avoirLppTotal: avoirLppTotal,
+        salaireAssure: salaireAssure,
+        rendementCaisse: rendementCaisse,
+        tauxConversion: tauxConversion,
+        canContribute3a: canContribute3a,
         totalEpargne3a: totalEpargne3a,
         lacunesAVS: lacunesAvs,
+        ramd: avsRamd,
+        anneesContribuees: avsContributionYears,
+        renteAVSEstimeeMensuelle: monthlyAvsEstimate,
       ),
       patrimoine: PatrimoineProfile(
         epargneLiquide: epargneLiquide,
@@ -52,6 +71,7 @@ void main() {
       arrivalAge: arrivalAge,
       avsGapStatus: avsGapStatus,
       dataSources: dataSources,
+      dataTimestamps: dataTimestamps,
       plannedContributions: contributions,
       goalA: GoalA(
         type: GoalAType.retraite,
@@ -72,134 +92,690 @@ void main() {
     }
   }
 
-  group('RetirementProjectionService.project — certified AVS readiness', () {
-    test('all declared statuses omit AVS while certified years are missing',
-        () {
-      for (final status in AvsGapStatus.values) {
-        final result = RetirementProjectionService.project(
-          profile: buildProfile(
-            lacunesAvs: null,
-            avsGapStatus: status,
-            dataSources: const {},
-          ),
-        );
+  double expectedLppMonthlyFromCore(
+    CoachProfile profile, {
+    double lppCapitalPct = 0,
+  }) {
+    const retirementAge = avsAgeReferenceHomme;
+    final grossAnnualSalary = (profile.prevoyance.salaireAssure != null &&
+            profile.prevoyance.salaireAssure! > 0)
+        ? profile.prevoyance.salaireAssure!
+        : profile.revenuBrutAnnuel;
+    final annualRente = LppCalculator.projectToRetirement(
+      currentBalance: profile.prevoyance.avoirLppTotal ?? 0,
+      currentAge: profile.age,
+      retirementAge: retirementAge,
+      grossAnnualSalary: grossAnnualSalary,
+      caisseReturn: profile.prevoyance.rendementCaisse,
+      conversionRate: profile.prevoyance.tauxConversion,
+    );
+    final adjustedRate = LppCalculator.adjustedConversionRate(
+      baseRate: profile.prevoyance.tauxConversion,
+      retirementAge: retirementAge,
+    );
+    return LppCalculator.blendedMonthly(
+      annualRente: annualRente,
+      conversionRate: adjustedRate,
+      lppCapitalPct: lppCapitalPct,
+      canton: profile.canton,
+      isMarried: profile.etatCivil == CoachCivilStatus.marie,
+    );
+  }
 
-        expect(result.avsIncluded, isFalse, reason: status.name);
-        expect(result.revenuMensuelAt65, isNull, reason: status.name);
-        expect(result.tauxRemplacement, isNull, reason: status.name);
-        expect(result.revenuMensuelHorsAvs, greaterThan(0),
-            reason: status.name);
-        expect(
-          result.missingFields,
-          [AvsGapEvidence.selfFieldPath],
-          reason: status.name,
-        );
-        expect(result.budgetGap, isNull, reason: status.name);
-        expect(result.phases, isEmpty, reason: status.name);
-        expect(result.earlyRetirementComparisons, isEmpty,
-            reason: status.name);
-        expect(result.indexedProjection, isEmpty, reason: status.name);
-        expect(
-          allProjectedSources(result).where((source) =>
-              source.id == 'avs_user' || source.id == 'avs_conjoint'),
-          isEmpty,
-          reason: status.name,
-        );
-      }
-    });
-
-    test('certificate-backed zero keeps the complete AVS projection', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(
-          lacunesAvs: 0,
-          dataSources: const {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-          },
-        ),
-      );
-
-      expect(result.avsIncluded, isTrue);
-      expect(result.revenuMensuelAt65, 5563.123530866694);
-      expect(
-          result.revenuMensuelAt65, greaterThan(result.revenuMensuelHorsAvs));
-      expect(result.tauxRemplacement, isNotNull);
-      expect(result.budgetGap, isNotNull);
-      expect(result.phases, isNotEmpty);
-      expect(result.earlyRetirementComparisons, isNotEmpty);
-      expect(result.indexedProjection, isNotEmpty);
-      expect(result.missingFields, isEmpty);
-      expect(
-        allProjectedSources(result).where((source) => source.id == 'avs_user'),
-        isNotEmpty,
-      );
-    });
-
-    test('couple omits every AVS result while spouse evidence is missing', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(
-          lacunesAvs: 0,
-          etatCivil: CoachCivilStatus.marie,
-          conjoint: const ConjointProfile(
-            birthYear: 1982,
-            salaireBrutMensuel: 5500,
-            prevoyance: PrevoyanceProfile(avoirLppTotal: 50000),
-          ),
-          dataSources: const {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-          },
-        ),
-      );
-
+  group('RetirementProjectionService.project — B2 AVS hard floor', () {
+    void expectAlwaysPartial(
+      RetirementProjectionResult result, {
+      required List<String> missingFields,
+    }) {
       expect(result.avsIncluded, isFalse);
       expect(result.revenuMensuelAt65, isNull);
       expect(result.tauxRemplacement, isNull);
+      expect(result.missingFields, missingFields);
       expect(result.revenuMensuelHorsAvs, greaterThan(0));
-      expect(
-        result.missingFields,
-        [AvsGapEvidence.spouseFieldPath],
-      );
       expect(result.budgetGap, isNull);
       expect(result.phases, isEmpty);
       expect(result.earlyRetirementComparisons, isEmpty);
       expect(result.indexedProjection, isEmpty);
       expect(
         allProjectedSources(result).where(
-            (source) => source.id == 'avs_user' || source.id == 'avs_conjoint'),
+          (source) => source.id == 'avs_user' || source.id == 'avs_conjoint',
+        ),
         isEmpty,
       );
-      expect(
-        () => result.missingFields.add('another.path'),
-        throwsUnsupportedError,
+    }
+
+    test('all declared statuses stay partial', () {
+      for (final status in AvsGapStatus.values) {
+        final result = RetirementProjectionService.project(
+          profile: buildProfile(
+            lacunesAvs: status == AvsGapStatus.noGaps ? 0 : 7,
+            avsGapStatus: status,
+            dataSources: const {},
+          ),
+        );
+
+        expectAlwaysPartial(
+          result,
+          missingFields: const [ForecasterService.selfAvsPensionFieldPath],
+        );
+      }
+    });
+
+    test('certified gaps RAMD years and direct estimate stay partial', () {
+      final profile = buildProfile(
+        lacunesAvs: 0,
+        avsRamd: 120000,
+        avsContributionYears: 44,
+        monthlyAvsEstimate: 2520,
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          'prevoyance.ramd': ProfileDataSource.certificate,
+          'prevoyance.anneesContribuees': ProfileDataSource.certificate,
+          'prevoyance.renteAVSEstimeeMensuelle': ProfileDataSource.certificate,
+        },
+        dataTimestamps: {
+          AvsGapEvidence.selfFieldPath: DateTime(2026, 7, 13),
+          'prevoyance.ramd': DateTime(2026, 7, 13),
+          'prevoyance.anneesContribuees': DateTime(2026, 7, 13),
+          'prevoyance.renteAVSEstimeeMensuelle': DateTime(2026, 7, 13),
+        },
+      );
+
+      final result = RetirementProjectionService.project(profile: profile);
+
+      expectAlwaysPartial(
+        result,
+        missingFields: const [ForecasterService.selfAvsPensionFieldPath],
       );
     });
 
-    test('married profile without conjoint fails closed through evidence', () {
+    test('legacy complete couple inputs never unlock household AVS', () {
+      final profile = buildProfile(
+        firstName: 'Julien',
+        lacunesAvs: 0,
+        avsRamd: 120000,
+        avsContributionYears: 44,
+        monthlyAvsEstimate: 2520,
+        etatCivil: CoachCivilStatus.marie,
+        conjoint: const ConjointProfile(
+          firstName: 'Lauren',
+          birthYear: 1982,
+          salaireBrutMensuel: 5500,
+          prevoyance: PrevoyanceProfile(
+            avoirLppTotal: 50000,
+            lacunesAVS: 0,
+            ramd: 66000,
+            anneesContribuees: 25,
+            renteAVSEstimeeMensuelle: 2000,
+          ),
+        ),
+        dataSources: const {
+          AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+          AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
+          'prevoyance.ramd': ProfileDataSource.certificate,
+          'prevoyance.anneesContribuees': ProfileDataSource.certificate,
+          'prevoyance.renteAVSEstimeeMensuelle': ProfileDataSource.certificate,
+          'conjoint.prevoyance.ramd': ProfileDataSource.certificate,
+          'conjoint.prevoyance.anneesContribuees':
+              ProfileDataSource.certificate,
+          'conjoint.prevoyance.renteAVSEstimeeMensuelle':
+              ProfileDataSource.certificate,
+        },
+      );
+
+      final result = RetirementProjectionService.project(profile: profile);
+
+      expectAlwaysPartial(
+        result,
+        missingFields: const [
+          ForecasterService.selfAvsPensionFieldPath,
+          ForecasterService.spouseAvsPensionFieldPath,
+        ],
+      );
+      expect(result.isCouple, isTrue);
+    });
+
+    test('married profile without conjoint remains partial', () {
       final result = RetirementProjectionService.project(
         profile: buildProfile(etatCivil: CoachCivilStatus.marie),
       );
 
-      expect(result.avsIncluded, isFalse);
-      expect(result.revenuMensuelAt65, isNull);
-      expect(result.tauxRemplacement, isNull);
-      expect(result.missingFields, [AvsGapEvidence.spouseFieldPath]);
+      expectAlwaysPartial(
+        result,
+        missingFields: const [
+          ForecasterService.selfAvsPensionFieldPath,
+          ForecasterService.spouseAvsPensionFieldPath,
+        ],
+      );
+      expect(result.isCouple, isFalse);
+    });
+
+    test('invalid current income keeps total rate and budget unknown', () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(salaireBrutMensuel: 0),
+      );
+
+      expectAlwaysPartial(
+        result,
+        missingFields: const [ForecasterService.selfAvsPensionFieldPath],
+      );
+    });
+
+    test('legacy AVS metadata cannot change known non-AVS income', () {
+      final baseline = RetirementProjectionService.project(
+        profile: buildProfile(
+          lacunesAvs: null,
+          dataSources: const {},
+        ),
+      );
+      final legacyCertified = RetirementProjectionService.project(
+        profile: buildProfile(
+          lacunesAvs: 0,
+          avsRamd: 120000,
+          avsContributionYears: 44,
+          monthlyAvsEstimate: 2520,
+          dataSources: const {
+            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+            'prevoyance.ramd': ProfileDataSource.certificate,
+            'prevoyance.anneesContribuees': ProfileDataSource.certificate,
+            'prevoyance.renteAVSEstimeeMensuelle':
+                ProfileDataSource.certificate,
+          },
+        ),
+      );
+
       expect(
-        allProjectedSources(result).where(
-            (source) => source.id == 'avs_user' || source.id == 'avs_conjoint'),
-        isEmpty,
+        legacyCertified.revenuMensuelHorsAvs,
+        closeTo(baseline.revenuMensuelHorsAvs, 0.000001),
+      );
+    });
+
+    test('missing spouse age and salary add no synthetic LPP bonifications',
+        () {
+      CoachProfile profile({required bool withOverrides}) {
+        return buildProfile(
+          etatCivil: CoachCivilStatus.marie,
+          conjoint: ConjointProfile(
+            prevoyance: PrevoyanceProfile(
+              avoirLppTotal: 60000,
+              salaireAssure: withOverrides ? 60000 : null,
+              bonificationRate: withOverrides ? 0.18 : null,
+              rendementCaisse: 0.02,
+            ),
+          ),
+        );
+      }
+
+      final withOverrides = RetirementProjectionService.project(
+        profile: profile(withOverrides: true),
+      );
+      final balanceOnly = RetirementProjectionService.project(
+        profile: profile(withOverrides: false),
+      );
+
+      expectAlwaysPartial(
+        withOverrides,
+        missingFields: const [
+          ForecasterService.selfAvsPensionFieldPath,
+          ForecasterService.spouseAvsPensionFieldPath,
+        ],
+      );
+      expect(
+        withOverrides.revenuMensuelHorsAvs,
+        closeTo(balanceOnly.revenuMensuelHorsAvs, 0.000001),
+      );
+    });
+
+    test('capital withdrawal changes non-AVS income without unlocking AVS', () {
+      final rente = RetirementProjectionService.project(
+        profile: buildProfile(),
+        lppCapitalPct: 0,
+      );
+      final capital = RetirementProjectionService.project(
+        profile: buildProfile(),
+        lppCapitalPct: 1,
+      );
+
+      expectAlwaysPartial(
+        rente,
+        missingFields: const [ForecasterService.selfAvsPensionFieldPath],
+      );
+      expectAlwaysPartial(
+        capital,
+        missingFields: const [ForecasterService.selfAvsPensionFieldPath],
+      );
+      expect(
+        capital.revenuMensuelHorsAvs,
+        isNot(equals(rente.revenuMensuelHorsAvs)),
       );
     });
   });
 
-  group('RetirementProjectionService.project — single person', () {
-    test('produces positive retirement income for standard salaried worker',
-        () {
-      final profile = buildProfile();
-      final result = RetirementProjectionService.project(profile: profile);
+  group('RetirementProjectionService.project — non-AVS contract', () {
+    test('standard salaried profile preserves capital-derived income', () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(),
+      );
 
-      expect(result.revenuMensuelAt65, greaterThan(0),
-          reason: 'AVS + LPP must produce positive retirement income');
-      expect(result.tauxRemplacement, greaterThan(0));
+      expect(result.revenuMensuelHorsAvs, greaterThan(0));
+      expect(result.revenuMensuelAt65, isNull);
+      expect(result.tauxRemplacement, isNull);
       expect(result.isCouple, isFalse);
+    });
+
+    test('independant without LPP preserves 3a and free assets only', () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(
+          employmentStatus: 'independant',
+          avoirLppTotal: 0,
+          salaireBrutMensuel: 8000,
+        ),
+      );
+
+      expect(result.revenuMensuelHorsAvs, greaterThan(0));
+      expect(result.revenuMensuelAt65, isNull);
+    });
+
+    group('restored non-AVS regression matrix', () {
+      test('salaireAssure absent falls back to gross salary', () {
+        final profile = buildProfile(
+          birthYear: 1990,
+          avoirLppTotal: 5000,
+          salaireAssure: null,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final result = RetirementProjectionService.project(profile: profile);
+
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(expectedLppMonthlyFromCore(profile), 0.01),
+        );
+      });
+
+      test('salaireAssure zero falls back to gross salary', () {
+        final profile = buildProfile(
+          birthYear: 1990,
+          avoirLppTotal: 5000,
+          salaireAssure: 0,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final result = RetirementProjectionService.project(profile: profile);
+
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(expectedLppMonthlyFromCore(profile), 0.01),
+        );
+      });
+
+      test('salaireAssure below entry threshold adds no bonifications', () {
+        final profile = buildProfile(
+          birthYear: 1990,
+          avoirLppTotal: 5000,
+          salaireAssure: lppSeuilEntree - 1,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+        final fallback = buildProfile(
+          birthYear: 1990,
+          avoirLppTotal: 5000,
+          salaireAssure: null,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final result = RetirementProjectionService.project(profile: profile);
+
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(expectedLppMonthlyFromCore(profile), 0.01),
+        );
+        expect(
+          result.revenuMensuelHorsAvs,
+          lessThan(expectedLppMonthlyFromCore(fallback)),
+        );
+      });
+
+      test('salary below LPP entry threshold compounds balance only', () {
+        final profile = buildProfile(
+          birthYear: 1990,
+          salaireBrutMensuel: (lppSeuilEntree - 1) / 12,
+          avoirLppTotal: 5000,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final result = RetirementProjectionService.project(profile: profile);
+
+        expect(profile.revenuBrutAnnuel, lessThan(lppSeuilEntree));
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(expectedLppMonthlyFromCore(profile), 0.01),
+        );
+      });
+
+      test('salary at LPP entry threshold applies bonifications', () {
+        final atThreshold = buildProfile(
+          birthYear: 1990,
+          salaireBrutMensuel: lppSeuilEntree / 12,
+          avoirLppTotal: 5000,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+        final belowThreshold = buildProfile(
+          birthYear: 1990,
+          salaireBrutMensuel: (lppSeuilEntree - 1) / 12,
+          avoirLppTotal: 5000,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final result = RetirementProjectionService.project(
+          profile: atThreshold,
+        );
+
+        expect(atThreshold.revenuBrutAnnuel, lppSeuilEntree);
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(expectedLppMonthlyFromCore(atThreshold), 0.01),
+        );
+        expect(
+          result.revenuMensuelHorsAvs,
+          greaterThan(expectedLppMonthlyFromCore(belowThreshold)),
+        );
+      });
+
+      test('independant without LPP uses the higher 3a ceiling', () {
+        CoachProfile profile(String employmentStatus) => buildProfile(
+              birthYear: 1985,
+              salaireBrutMensuel: (lppSeuilEntree - 1) / 12,
+              employmentStatus: employmentStatus,
+              avoirLppTotal: 0,
+              totalEpargne3a: 0,
+              epargneLiquide: 0,
+              investissements: 0,
+              contributions: [
+                const PlannedMonthlyContribution(
+                  id: '3a',
+                  label: '3a',
+                  amount: pilier3aPlafondSansLpp / 12,
+                  category: '3a',
+                ),
+              ],
+            );
+
+        final independant = RetirementProjectionService.project(
+          profile: profile('independant'),
+        );
+        final salarie = RetirementProjectionService.project(
+          profile: profile('salarie'),
+        );
+
+        expect(independant.revenuMensuelHorsAvs,
+            greaterThan(salarie.revenuMensuelHorsAvs));
+      });
+
+      test('conjoint unable to contribute does not double the 3a ceiling', () {
+        CoachProfile profile({required bool conjointCanContribute}) =>
+            buildProfile(
+              birthYear: 1985,
+              salaireBrutMensuel: (lppSeuilEntree - 1) / 12,
+              avoirLppTotal: 0,
+              totalEpargne3a: 0,
+              epargneLiquide: 0,
+              investissements: 0,
+              etatCivil: CoachCivilStatus.marie,
+              conjoint: ConjointProfile(
+                birthYear: 1985,
+                salaireBrutMensuel: 0,
+                prevoyance: PrevoyanceProfile(
+                  avoirLppTotal: 0,
+                  totalEpargne3a: 0,
+                  canContribute3a: conjointCanContribute,
+                ),
+              ),
+              contributions: [
+                const PlannedMonthlyContribution(
+                  id: '3a_household',
+                  label: '3a ménage',
+                  amount: pilier3aPlafondAvecLpp * 2 / 12,
+                  category: '3a',
+                ),
+              ],
+            );
+
+        final blocked = RetirementProjectionService.project(
+          profile: profile(conjointCanContribute: false),
+        );
+        final eligible = RetirementProjectionService.project(
+          profile: profile(conjointCanContribute: true),
+        );
+
+        expect(blocked.revenuMensuelHorsAvs,
+            lessThan(eligible.revenuMensuelHorsAvs));
+      });
+
+      test('default LPP strategy is the explicit rente strategy', () {
+        final profile = buildProfile(
+          avoirLppTotal: 200000,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final implicit = RetirementProjectionService.project(profile: profile);
+        final explicit = RetirementProjectionService.project(
+          profile: profile,
+          lppCapitalPct: 0,
+        );
+
+        expect(implicit.revenuMensuelHorsAvs,
+            closeTo(explicit.revenuMensuelHorsAvs, 0.000001));
+        expect(implicit.revenuMensuelHorsAvs,
+            closeTo(expectedLppMonthlyFromCore(profile), 0.01));
+      });
+
+      test('LPP rente income is above mixte, which is above capital', () {
+        final profile = buildProfile(
+          avoirLppTotal: 200000,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final rente = RetirementProjectionService.project(
+          profile: profile,
+          lppCapitalPct: 0,
+        );
+        final mixte = RetirementProjectionService.project(
+          profile: profile,
+          lppCapitalPct: 0.5,
+        );
+        final capital = RetirementProjectionService.project(
+          profile: profile,
+          lppCapitalPct: 1,
+        );
+
+        expect(rente.revenuMensuelHorsAvs,
+            greaterThan(mixte.revenuMensuelHorsAvs));
+        expect(mixte.revenuMensuelHorsAvs,
+            greaterThan(capital.revenuMensuelHorsAvs));
+        expect(
+            mixte.revenuMensuelHorsAvs,
+            closeTo(
+                expectedLppMonthlyFromCore(profile, lppCapitalPct: 0.5), 0.01));
+      });
+
+      test('married capital taxation leaves more income than single', () {
+        CoachProfile profile(CoachCivilStatus status) => buildProfile(
+              etatCivil: status,
+              avoirLppTotal: 200000,
+              totalEpargne3a: 0,
+              epargneLiquide: 0,
+              investissements: 0,
+            );
+        final marriedProfile = profile(CoachCivilStatus.marie);
+        final singleProfile = profile(CoachCivilStatus.celibataire);
+        final annualRente = LppCalculator.projectToRetirement(
+          currentBalance: marriedProfile.prevoyance.avoirLppTotal ?? 0,
+          currentAge: marriedProfile.age,
+          retirementAge: avsAgeReferenceHomme,
+          grossAnnualSalary: marriedProfile.revenuBrutAnnuel,
+          caisseReturn: marriedProfile.prevoyance.rendementCaisse,
+          conversionRate: marriedProfile.prevoyance.tauxConversion,
+        );
+        final projectedBalance =
+            annualRente / marriedProfile.prevoyance.tauxConversion;
+
+        final marriedTax = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: projectedBalance,
+          canton: marriedProfile.canton,
+          isMarried: true,
+        );
+        final singleTax = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: projectedBalance,
+          canton: singleProfile.canton,
+          isMarried: false,
+        );
+        final married = RetirementProjectionService.project(
+          profile: marriedProfile,
+          lppCapitalPct: 1,
+        );
+        final single = RetirementProjectionService.project(
+          profile: singleProfile,
+          lppCapitalPct: 1,
+        );
+
+        expect(marriedTax, lessThan(singleTax));
+        expect(married.revenuMensuelHorsAvs,
+            greaterThan(single.revenuMensuelHorsAvs));
+        expect(
+          single.revenuMensuelHorsAvs,
+          closeTo(
+            expectedLppMonthlyFromCore(singleProfile, lppCapitalPct: 1),
+            0.01,
+          ),
+        );
+      });
+
+      test('conjoint-first age gap does not truncate the household 3a horizon',
+          () {
+        CoachProfile profile(int conjointBirthYear) => buildProfile(
+              birthYear: 1985,
+              salaireBrutMensuel: (lppSeuilEntree - 1) / 12,
+              avoirLppTotal: 0,
+              totalEpargne3a: 30000,
+              epargneLiquide: 0,
+              investissements: 0,
+              etatCivil: CoachCivilStatus.marie,
+              conjoint: ConjointProfile(
+                birthYear: conjointBirthYear,
+                salaireBrutMensuel: 0,
+                prevoyance: const PrevoyanceProfile(
+                  avoirLppTotal: 0,
+                  totalEpargne3a: 10000,
+                ),
+              ),
+              contributions: const [
+                PlannedMonthlyContribution(
+                  id: '3a_user',
+                  label: '3a user',
+                  amount: 500,
+                  category: '3a',
+                ),
+              ],
+            );
+        final conjointFirst = profile(1975);
+        final sameAge = profile(1985);
+
+        final conjointFirstResult = RetirementProjectionService.project(
+          profile: conjointFirst,
+        );
+        final sameAgeResult = RetirementProjectionService.project(
+          profile: sameAge,
+        );
+
+        expect(conjointFirst.conjoint!.age, greaterThan(conjointFirst.age));
+        expect(
+          conjointFirstResult.revenuMensuelHorsAvs,
+          closeTo(sameAgeResult.revenuMensuelHorsAvs, 0.000001),
+        );
+      });
+
+      test('disclaimer contains no ComplianceGuard banned term', () {
+        final result = RetirementProjectionService.project(
+          profile: buildProfile(),
+        );
+        final disclaimer = result.disclaimer.toLowerCase();
+
+        for (final term in ComplianceGuard.bannedTerms) {
+          expect(
+            disclaimer.contains(term.toLowerCase()),
+            isFalse,
+            reason: 'Banned term in retirement disclaimer: $term',
+          );
+        }
+      });
+
+      test('concubin couple uses non-married capital taxation', () {
+        final profile = buildProfile(
+          etatCivil: CoachCivilStatus.concubinage,
+          avoirLppTotal: 200000,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+          conjoint: const ConjointProfile(
+            birthYear: 1985,
+            salaireBrutMensuel: 0,
+            prevoyance: PrevoyanceProfile(avoirLppTotal: 0),
+          ),
+        );
+
+        final result = RetirementProjectionService.project(
+          profile: profile,
+          lppCapitalPct: 1,
+        );
+
+        expect(profile.isCouple, isTrue);
+        expect(result.isCouple, isTrue);
+        expect(profile.etatCivil, isNot(CoachCivilStatus.marie));
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(
+            expectedLppMonthlyFromCore(profile, lppCapitalPct: 1),
+            0.01,
+          ),
+        );
+      });
+
+      test('young worker keeps positive non-AVS LPP income', () {
+        final profile = buildProfile(
+          birthYear: DateTime.now().year - 25,
+          salaireBrutMensuel: 5000,
+          avoirLppTotal: 0,
+          totalEpargne3a: 0,
+          epargneLiquide: 0,
+          investissements: 0,
+        );
+
+        final result = RetirementProjectionService.project(profile: profile);
+
+        expect(result.revenuMensuelHorsAvs, greaterThan(0));
+        expect(
+          result.revenuMensuelHorsAvs,
+          closeTo(expectedLppMonthlyFromCore(profile), 0.01),
+        );
+      });
     });
 
     test('disclaimer contains required compliance text', () {
@@ -211,7 +787,7 @@ void main() {
       expect(result.disclaimer, contains('LSFin'));
     });
 
-    test('sources reference LAVS and LPP articles', () {
+    test('sources reference LAVS LPP and LIFD articles', () {
       final result = RetirementProjectionService.project(
         profile: buildProfile(),
       );
@@ -220,193 +796,13 @@ void main() {
       expect(result.sources.any((s) => s.contains('LIFD')), isTrue);
     });
 
-    test('produces early retirement comparison ages 63-70', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-      );
-      expect(result.earlyRetirementComparisons.length, equals(8),
-          reason: 'Ages 63-70 = 8 scenarios');
-
-      final ages = result.earlyRetirementComparisons
-          .map((s) => s.retirementAge)
-          .toList();
-      expect(ages, containsAll([63, 64, 65, 66, 67, 68, 69, 70]));
-    });
-
-    test('early retirement (63) has negative adjustment — LAVS art. 40', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-      );
-      final age63 = result.earlyRetirementComparisons
-          .firstWhere((s) => s.retirementAge == 63);
-      expect(age63.adjustmentPct, lessThan(0),
-          reason: 'AVS anticipation reduces rente by 6.8%/year');
-    });
-
-    test('deferred retirement (67) has positive adjustment — LAVS art. 39', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-      );
-      final age67 = result.earlyRetirementComparisons
-          .firstWhere((s) => s.retirementAge == 67);
-      expect(age67.adjustmentPct, greaterThan(0),
-          reason: 'AVS deferral increases rente');
-    });
-
-    test('budget gap includes all income sources', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-      );
-      final gap = result.budgetGap!;
-      expect(gap.avsMensuel, greaterThan(0));
-      expect(gap.lppMensuel, greaterThan(0));
-      expect(
-          gap.totalRevenusMensuel,
-          closeTo(
-              gap.avsMensuel +
-                  gap.lppMensuel +
-                  gap.troisAMensuel +
-                  gap.libreMensuel,
-              1));
-    });
-
-    test('indexed projection covers 26 points (years 0-25)', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-      );
-      expect(result.indexedProjection.length, equals(26));
-      // Year 0 = retirement year
-      expect(result.indexedProjection.first.age, equals(65));
-      expect(result.indexedProjection.last.age, equals(90));
-    });
-
-    test('purchasing power decreases over time due to inflation', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-      );
-      final first = result.indexedProjection.first;
-      final last = result.indexedProjection.last;
-      expect(last.pouvoirAchat, lessThan(first.pouvoirAchat),
-          reason: '1.5% inflation erodes purchasing power over 25 years');
-    });
-  });
-
-  group('RetirementProjectionService.project — couple', () {
-    test('married couple triggers LAVS art. 35 cap (150%)', () {
-      const conjoint = ConjointProfile(
-        firstName: 'Lauren',
-        birthYear: 1982,
-        salaireBrutMensuel: 67000 / 12,
-        prevoyance: PrevoyanceProfile(lacunesAVS: 0),
-      );
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(
-          firstName: 'Julien',
-          etatCivil: CoachCivilStatus.marie,
-          conjoint: conjoint,
-          dataSources: const {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
-          },
-        ),
-      );
-      expect(result.isCouple, isTrue);
-      // Should have AVS sources for both
-      final avsSources = result.budgetGap!;
-      expect(avsSources.avsMensuel, greaterThan(0));
-    });
-
-    test('couple with age difference produces 2 phases', () {
-      const conjoint = ConjointProfile(
-        firstName: 'Lauren',
-        birthYear: 1982, // 5 years younger → different retirement year
-        salaireBrutMensuel: 5500,
-        prevoyance: PrevoyanceProfile(lacunesAVS: 0),
-      );
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(
-          firstName: 'Julien',
-          birthYear: 1977,
-          etatCivil: CoachCivilStatus.marie,
-          conjoint: conjoint,
-          dataSources: const {
-            AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
-            AvsGapEvidence.spouseFieldPath: ProfileDataSource.certificate,
-          },
-        ),
-      );
-      expect(result.phases.length, equals(2),
-          reason: 'Age gap → transition phase + both retired phase');
-    });
-
-    test('isCouple=false when single despite celibataire', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(etatCivil: CoachCivilStatus.celibataire),
-      );
-      expect(result.isCouple, isFalse);
-    });
-  });
-
-  group('RetirementProjectionService.project — capital withdrawal', () {
-    test('lppCapitalPct=1.0 marks source as capital withdrawal', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(),
-        lppCapitalPct: 1.0,
-      );
-      // With full capital, LPP source should be capital-based
-      expect(result.revenuMensuelAt65, greaterThan(0));
-    });
-
-    test('lppCapitalPct=0.5 produces mixed withdrawal', () {
-      final resultFull = RetirementProjectionService.project(
-        profile: buildProfile(),
-        lppCapitalPct: 0.0,
-      );
-      final resultMixed = RetirementProjectionService.project(
-        profile: buildProfile(),
-        lppCapitalPct: 0.5,
-      );
-      // Mixed should differ from full rente
-      expect(resultMixed.revenuMensuelAt65,
-          isNot(equals(resultFull.revenuMensuelAt65)));
-    });
-  });
-
-  group('RetirementProjectionService.project — edge cases', () {
-    test('independant without LPP still has AVS and 3a', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(
-          employmentStatus: 'independant',
-          avoirLppTotal: 0,
-          salaireBrutMensuel: 8000,
-        ),
-      );
-      expect(result.revenuMensuelAt65, greaterThan(0),
-          reason: 'AVS alone should provide some income');
-    });
-
-    test('very young worker (age 25) produces projection', () {
-      final result = RetirementProjectionService.project(
-        profile: buildProfile(
-          birthYear: 2001, // age ~25 in 2026
-          salaireBrutMensuel: 5000,
-        ),
-      );
-      expect(result.revenuMensuelAt65, greaterThan(0));
-      expect(result.earlyRetirementComparisons, isNotEmpty);
-    });
-
-    test('formatChf formats with Swiss apostrophe', () {
+    test('formatChf keeps Swiss formatting', () {
       expect(RetirementProjectionService.formatChf(1234), contains("1'234"));
-      expect(RetirementProjectionService.formatChf(1000000),
-          contains("1'000'000"));
-      expect(RetirementProjectionService.formatChf(0), contains('0'));
-    });
-
-    test('formatChf handles negative values', () {
-      final result = RetirementProjectionService.formatChf(-5000);
-      expect(result, contains('-'));
-      expect(result, contains("5'000"));
+      expect(
+        RetirementProjectionService.formatChf(1000000),
+        contains("1'000'000"),
+      );
+      expect(RetirementProjectionService.formatChf(-5000), contains('-'));
     });
   });
 

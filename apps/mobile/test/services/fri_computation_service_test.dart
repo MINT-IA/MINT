@@ -69,19 +69,31 @@ void main() {
   }
 
   /// Helper for a minimal ProjectionResult.
-  ProjectionResult buildProjection({double tauxRemplacementBase = 0.6}) {
-    const scenario = ProjectionScenario(
+  ProjectionResult buildProjection({
+    double? tauxRemplacementBase = 60,
+    bool avsIncluded = true,
+  }) {
+    final scenario = ProjectionScenario(
       label: 'Base',
-      points: [],
+      points: const [],
       capitalFinal: 500000,
-      revenuAnnuelRetraite: 50000,
-      decomposition: {'avs': 30000, 'lpp': 20000},
+      revenuAnnuelRetraite: avsIncluded ? 50000 : null,
+      revenuAnnuelRetraiteHorsAvs: 20000,
+      revenuAvsIndividuelAnnuel: avsIncluded ? 30000 : null,
+      decomposition: avsIncluded
+          ? const {'avs': 30000, 'lpp': 20000}
+          : const {},
+      decompositionHorsAvs: const {'lpp': 20000},
     );
     return ProjectionResult(
       prudent: scenario,
       base: scenario,
       optimiste: scenario,
       tauxRemplacementBase: tauxRemplacementBase,
+      selfAvsIncluded: avsIncluded,
+      avsIncluded: avsIncluded,
+      missingFields:
+          avsIncluded ? const [] : const [AvsGapEvidence.selfFieldPath],
       milestones: const [],
       disclaimer: 'test',
       sources: const [],
@@ -89,13 +101,45 @@ void main() {
   }
 
   group('FriComputationService.compute', () {
+    test('returns null when household AVS is unavailable', () {
+      final result = FriComputationService.compute(
+        profile: buildProfile(),
+        projection: buildProjection(
+          tauxRemplacementBase: null,
+          avsIncluded: false,
+        ),
+      );
+
+      expect(result, isNull);
+    });
+
+    test('ignores a numeric rate when avsIncluded is false', () {
+      final result = FriComputationService.compute(
+        profile: buildProfile(),
+        projection: buildProjection(
+          tauxRemplacementBase: 75,
+          avsIncluded: false,
+        ),
+      );
+
+      expect(result, isNull);
+    });
+
+    test('returns null when included projection has no replacement rate', () {
+      final result = FriComputationService.compute(
+        profile: buildProfile(),
+        projection: buildProjection(tauxRemplacementBase: null),
+      );
+
+      expect(result, isNull);
+    });
     test('returns FriBreakdown with all axes for salaried worker', () {
       final profile = buildProfile();
       final projection = buildProjection();
       final result = FriComputationService.compute(
         profile: profile,
         projection: projection,
-      );
+      )!;
 
       expect(result.total, greaterThan(0));
       expect(result.total, lessThanOrEqualTo(100));
@@ -110,11 +154,11 @@ void main() {
       final highLiq = FriComputationService.compute(
         profile: buildProfile(epargneLiquide: 100000),
         projection: buildProjection(),
-      );
+      )!;
       final lowLiq = FriComputationService.compute(
         profile: buildProfile(epargneLiquide: 5000),
         projection: buildProjection(),
-      );
+      )!;
 
       expect(highLiq.liquidite, greaterThan(lowLiq.liquidite),
           reason: 'More liquid savings → better liquidity score');
@@ -124,11 +168,11 @@ void main() {
       final noDebt = FriComputationService.compute(
         profile: buildProfile(totalDettes: 0),
         projection: buildProjection(),
-      );
+      )!;
       final highDebt = FriComputationService.compute(
         profile: buildProfile(totalDettes: 200000),
         projection: buildProjection(),
-      );
+      )!;
 
       expect(noDebt.liquidite, greaterThanOrEqualTo(highDebt.liquidite),
           reason: 'High debt lowers liquidity score');
@@ -137,12 +181,12 @@ void main() {
     test('higher replacement ratio improves R axis', () {
       final high = FriComputationService.compute(
         profile: buildProfile(),
-        projection: buildProjection(tauxRemplacementBase: 0.8),
-      );
+        projection: buildProjection(tauxRemplacementBase: 80),
+      )!;
       final low = FriComputationService.compute(
         profile: buildProfile(),
-        projection: buildProjection(tauxRemplacementBase: 0.3),
-      );
+        projection: buildProjection(tauxRemplacementBase: 30),
+      )!;
 
       expect(high.retraite, greaterThan(low.retraite),
           reason: '80% replacement rate > 30%');
@@ -152,11 +196,11 @@ void main() {
       final salarie = FriComputationService.compute(
         profile: buildProfile(employmentStatus: 'salarie'),
         projection: buildProjection(),
-      );
+      )!;
       final indep = FriComputationService.compute(
         profile: buildProfile(employmentStatus: 'independant'),
         projection: buildProjection(),
-      );
+      )!;
 
       // Both should compute successfully
       expect(salarie.total, greaterThan(0));
@@ -168,7 +212,7 @@ void main() {
       final noMortgage = FriComputationService.compute(
         profile: buildProfile(),
         projection: buildProjection(),
-      );
+      )!;
       final highMortgage = FriComputationService.compute(
         profile: buildProfile(
           mortgageBalance: 600000,
@@ -177,7 +221,7 @@ void main() {
           immobilier: 800000,
         ),
         projection: buildProjection(),
-      );
+      )!;
 
       expect(noMortgage.risque, greaterThanOrEqualTo(highMortgage.risque),
           reason: 'Heavy mortgage worsens structural risk');
@@ -190,7 +234,7 @@ void main() {
           propertyMarketValue: 500000,
         ),
         projection: buildProjection(),
-      );
+      )!;
       // Should compute without error
       expect(withProperty.fiscalite, greaterThanOrEqualTo(0));
     });
@@ -202,7 +246,7 @@ void main() {
           nombreEnfants: 2,
         ),
         projection: buildProjection(),
-      );
+      )!;
       expect(result.risque, greaterThanOrEqualTo(0));
       expect(result.total, greaterThan(0));
     });
@@ -212,7 +256,7 @@ void main() {
         profile: buildProfile(),
         projection: buildProjection(),
         confidenceScore: 85.0,
-      );
+      )!;
       // FRI should still compute valid result regardless of confidence
       expect(result.total, greaterThan(0));
       expect(result.total, lessThanOrEqualTo(100));
@@ -225,7 +269,7 @@ void main() {
           investissements: 2000,
         ),
         projection: buildProjection(),
-      );
+      )!;
       final withBroadEstimate = FriComputationService.compute(
         profile: buildProfile(
           epargneLiquide: 10000,
@@ -233,7 +277,7 @@ void main() {
           wealthEstimate: 500000,
         ),
         projection: buildProjection(),
-      );
+      )!;
 
       expect(withBroadEstimate.risque, detailedOnly.risque);
     });
@@ -248,7 +292,7 @@ void main() {
           propertyMarketValue: 500000,
         ),
         projection: buildProjection(),
-      );
+      )!;
       final legacyAndMarketValue = FriComputationService.compute(
         profile: buildProfile(
           epargneLiquide: 50000,
@@ -257,7 +301,7 @@ void main() {
           propertyMarketValue: 500000,
         ),
         projection: buildProjection(),
-      );
+      )!;
 
       expect(marketValueOnly.risque, legacyAndMarketValue.risque);
     });
@@ -271,8 +315,8 @@ void main() {
           totalDettes: 500000,
           salaireBrutMensuel: 3000,
         ),
-        projection: buildProjection(tauxRemplacementBase: 0.1),
-      );
+        projection: buildProjection(tauxRemplacementBase: 10),
+      )!;
       expect(poor.total, greaterThanOrEqualTo(0));
       expect(poor.total, lessThanOrEqualTo(100));
 
@@ -284,8 +328,8 @@ void main() {
           totalDettes: 0,
           salaireBrutMensuel: 15000,
         ),
-        projection: buildProjection(tauxRemplacementBase: 0.9),
-      );
+        projection: buildProjection(tauxRemplacementBase: 90),
+      )!;
       expect(excellent.total, greaterThanOrEqualTo(0));
       expect(excellent.total, lessThanOrEqualTo(100));
     });

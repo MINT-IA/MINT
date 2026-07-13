@@ -120,6 +120,53 @@ class CoachOrchestrator {
   static int get _maxPromptChars =>
       (SlmEngine.maxContextTokens * _charsPerToken).floor();
 
+  /// Encodes the coach context for backend/RAG consumers.
+  ///
+  /// [CoachContext.replacementRatio] is already a 0-1 fraction. Its
+  /// percentage representation in [CoachContext.knownValues] is only for
+  /// narrative grounding and must not overwrite the backend contract.
+  static Map<String, dynamic> buildProfileContext(
+    CoachContext ctx, {
+    bool includeExtendedFields = false,
+  }) {
+    return <String, dynamic>{
+      'first_name': ctx.firstName,
+      'age': ctx.age,
+      'canton': ctx.canton,
+      'archetype': ctx.archetype,
+      'fri_total': ctx.friTotal,
+      if (includeExtendedFields) ...{
+        'fri_delta': ctx.friDelta,
+        'primary_focus': ctx.primaryFocus.isNotEmpty ? ctx.primaryFocus : null,
+        'months_liquidity':
+            ctx.monthsLiquidity > 0 ? ctx.monthsLiquidity : null,
+        'tax_saving_potential':
+            ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
+        'days_since_last_visit': ctx.daysSinceLastVisit,
+        'fiscal_season': ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
+        'upcoming_event':
+            ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
+        'check_in_streak': ctx.checkInStreak,
+        'last_milestone':
+            ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
+        if (ctx.dataReliability.isNotEmpty)
+          'data_reliability': ctx.dataReliability,
+      },
+      'confidence_score': ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+      'has_debt': ctx.hasDebt,
+      ...ctx.knownValues.map(
+        (key, value) =>
+            MapEntry(key, value.isFinite && value > 0 ? value : null),
+      ),
+      // Keep this after knownValues: that map stores the same fact as a
+      // percentage (65), while backend reasoning expects a fraction (0.65).
+      'replacement_ratio':
+          ctx.replacementRatio != null && ctx.replacementRatio! > 0
+              ? ctx.replacementRatio
+              : null,
+    };
+  }
+
   // ══════════════════════════════════════════════════════════════
   //  PUBLIC API — narrative (dashboard surface)
   // ══════════════════════════════════════════════════════════════
@@ -485,23 +532,7 @@ class CoachOrchestrator {
             apiKey: config.apiKey,
             provider: providerStr,
             model: config.model,
-            profileContext: {
-              'first_name': ctx.firstName,
-              'age': ctx.age,
-              'canton': ctx.canton,
-              'archetype': ctx.archetype,
-              'fri_total': ctx.friTotal,
-              'replacement_ratio': ctx.replacementRatio > 0
-                  ? ctx.replacementRatio / 100.0
-                  : null,
-              'confidence_score': ctx.confidenceScore > 0
-                  ? ctx.confidenceScore
-                  : null,
-              'has_debt': ctx.hasDebt,
-              // Spread knownValues for data lookup tools
-              ...ctx.knownValues.map((k, v) =>
-                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
-            },
+            profileContext: buildProfileContext(ctx),
           )
           .timeout(_byokTimeout);
     } on TimeoutException {
@@ -621,7 +652,7 @@ class CoachOrchestrator {
       'name': 'generate_financial_plan',
       'description':
           'Generate a personalized financial plan preview card in the chat. '
-              'Use when the user asks for "un plan", "quoi faire", or a concrete '
+              'Use when the user asks for "un plan", "quoi faire", or a concrete ' // lint-ignore: internal LLM tool schema, not user-facing UI
               'multi-step action list. The card shows a goal, a monthly target, '
               'milestones, and a coach narrative. Read-only — no money movement.',
       'input_schema': {
@@ -630,7 +661,7 @@ class CoachOrchestrator {
           'goal': {
             'type': 'string',
             'description':
-                'Short goal description (e.g. "Preparer la retraite", "Acheter un appartement").',
+                'Short goal description (e.g. "Preparer la retraite", "Acheter un appartement").', // lint-ignore: internal LLM tool schema, not user-facing UI
           },
           'monthly_amount': {
             'type': 'number',
@@ -717,23 +748,7 @@ class CoachOrchestrator {
             apiKey: config.apiKey,
             provider: providerStr,
             model: config.model,
-            profileContext: {
-              'first_name': ctx.firstName,
-              'age': ctx.age,
-              'canton': ctx.canton,
-              'archetype': ctx.archetype,
-              'fri_total': ctx.friTotal,
-              'replacement_ratio': ctx.replacementRatio > 0
-                  ? ctx.replacementRatio / 100.0
-                  : null,
-              'confidence_score': ctx.confidenceScore > 0
-                  ? ctx.confidenceScore
-                  : null,
-              'has_debt': ctx.hasDebt,
-              // Spread knownValues for data lookup tools
-              ...ctx.knownValues.map((k, v) =>
-                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
-            },
+            profileContext: buildProfileContext(ctx),
             language: language,
             cashLevel: cashLevel,
             // Pass tools so Claude can return route_to_screen tool_use blocks.
@@ -854,37 +869,10 @@ class CoachOrchestrator {
         message: userMessage,
         conversationHistory:
             conversationHistory.isNotEmpty ? conversationHistory : null,
-        profileContext: {
-          'first_name': ctx.firstName,
-          'age': ctx.age,
-          'canton': ctx.canton,
-          'archetype': ctx.archetype,
-          'fri_total': ctx.friTotal,
-          'fri_delta': ctx.friDelta,
-          'primary_focus':
-              ctx.primaryFocus.isNotEmpty ? ctx.primaryFocus : null,
-          'replacement_ratio':
-              ctx.replacementRatio > 0 ? ctx.replacementRatio / 100.0 : null,
-          'months_liquidity':
-              ctx.monthsLiquidity > 0 ? ctx.monthsLiquidity : null,
-          'tax_saving_potential':
-              ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
-          'confidence_score':
-              ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
-          'has_debt': ctx.hasDebt,
-          'days_since_last_visit': ctx.daysSinceLastVisit,
-          'fiscal_season':
-              ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
-          'upcoming_event':
-              ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
-          'check_in_streak': ctx.checkInStreak,
-          'last_milestone':
-              ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
-          if (ctx.dataReliability.isNotEmpty)
-            'data_reliability': ctx.dataReliability,
-          ...ctx.knownValues.map(
-              (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null)),
-        },
+        profileContext: buildProfileContext(
+          ctx,
+          includeExtendedFields: true,
+        ),
         memoryBlock: memoryBlock,
         language: language,
         cashLevel: cashLevel,
@@ -930,7 +918,7 @@ class CoachOrchestrator {
       );
     } on TimeoutException {
       // 2026-04-17 audit: we used to return null here, which dropped the
-      // turn to `_chatFallback` ("Le coach IA n'est pas disponible").
+      // turn to `_chatFallback` ("Le coach IA n'est pas disponible"). // lint-ignore: historical internal fallback identifier
       // The user then perceived the coach as permanently gone. Rethrow as
       // a typed network failure so the chat screen's catch block renders
       // a retry CTA with the last user message.
@@ -1132,24 +1120,24 @@ class CoachOrchestrator {
   ) {
     switch (type) {
       case ComponentType.greeting:
-        return 'Génère un greeting pour ${ctx.firstName} (score ${ctx.friTotal.toStringAsFixed(0)}/100).';
+        return 'Génère un greeting pour ${ctx.firstName} (score ${ctx.friTotal.toStringAsFixed(0)}/100).'; // lint-ignore: internal SLM prompt, not user-facing UI
       case ComponentType.scoreSummary:
-        return 'Génère un résumé du score FRI ${ctx.friTotal.toStringAsFixed(0)}/100.';
+        return 'Génère un résumé du score FRI ${ctx.friTotal.toStringAsFixed(0)}/100.'; // lint-ignore: internal SLM prompt, not user-facing UI
       case ComponentType.tip:
-        return 'Génère un tip éducatif personnalisé.';
+        return 'Génère un tip éducatif personnalisé.'; // lint-ignore: internal SLM prompt, not user-facing UI
       case ComponentType.premierEclairage:
-        return 'Commente le premier éclairage de manière éducative.';
+        return 'Commente le premier éclairage de manière éducative.'; // lint-ignore: internal SLM prompt, not user-facing UI
       case ComponentType.scenario:
-        return 'Narre le scénario de projection.';
+        return 'Narre le scénario de projection.'; // lint-ignore: internal SLM prompt, not user-facing UI
       case ComponentType.enrichmentGuide:
-        return 'Guide l\'utilisateur pour compléter son profil.';
+        return 'Guide l\'utilisateur pour compléter son profil.'; // lint-ignore: internal SLM prompt, not user-facing UI
       case ComponentType.general:
       case ComponentType.chatSystem:
       case ComponentType.chatSafeMode:
       case ComponentType.chatFollowUp:
       case ComponentType.chatSimulation:
       case ComponentType.chatSenior:
-        return 'Réponds de manière éducative.';
+        return 'Réponds de manière éducative.'; // lint-ignore: internal SLM prompt, not user-facing UI
     }
   }
 
@@ -1277,10 +1265,10 @@ class CoachOrchestrator {
     var s = input;
     // Strip system prompt markers (case-insensitive)
     for (final marker in [
-      '--- MÉMOIRE MINT ---',
-      '--- FIN MÉMOIRE ---',
+      '--- MÉMOIRE MINT ---', // lint-ignore: prompt-injection marker, not user-facing UI
+      '--- FIN MÉMOIRE ---', // lint-ignore: prompt-injection marker, not user-facing UI
       'RAPPEL\u00a0:',
-      'HISTORIQUE DE CONVERSATION',
+      'HISTORIQUE DE CONVERSATION', // lint-ignore: prompt-injection marker, not user-facing UI
     ]) {
       s = s.replaceAll(RegExp(RegExp.escape(marker), caseSensitive: false), '');
     }
@@ -1330,7 +1318,7 @@ class CoachOrchestrator {
       kept = tail.contains(greeting) ? tail : [greeting, ...tail];
     }
 
-    final buf = StringBuffer('Contexte de la conversation :\n');
+    final buf = StringBuffer('Contexte de la conversation :\n'); // lint-ignore: internal SLM prompt, not user-facing UI
     for (final msg in kept) {
       final content = msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
       buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: $content');

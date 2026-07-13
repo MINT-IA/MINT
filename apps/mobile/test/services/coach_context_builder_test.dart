@@ -74,7 +74,15 @@ void main() {
       expect(ctx.archetype, 'swiss_native');
       expect(ctx.friTotal, 0);
       expect(ctx.friDelta, 0);
+      expect(ctx.replacementRatio, isNull);
       expect(ctx.knownValues, isEmpty);
+    });
+
+    test('unknown replacement ratio stays absent instead of becoming zero', () {
+      final ctx = CoachContextBuilder.build(replacementRatio: null);
+
+      expect(ctx.replacementRatio, isNull);
+      expect(ctx.knownValues, isNot(contains('replacement_ratio')));
     });
 
     test('knownValues only includes non-zero values', () {
@@ -137,17 +145,19 @@ void main() {
       );
 
       expect(ctx.knownValues.length, 9);
-      expect(ctx.knownValues.keys, containsAll([
-        'fri_total',
-        'replacement_ratio',
-        'months_liquidity',
-        'tax_saving',
-        'confidence_score',
-        'capital_final',
-        'epargne_3a',
-        'avoir_lpp',
-        'salaire_brut',
-      ]));
+      expect(
+          ctx.knownValues.keys,
+          containsAll([
+            'fri_total',
+            'replacement_ratio',
+            'months_liquidity',
+            'tax_saving',
+            'confidence_score',
+            'capital_final',
+            'epargne_3a',
+            'avoir_lpp',
+            'salaire_brut',
+          ]));
     });
 
     // ═══════════════════════════════════════════════════════════

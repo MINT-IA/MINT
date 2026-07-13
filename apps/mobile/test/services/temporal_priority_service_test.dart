@@ -28,6 +28,20 @@ void main() {
       expect(items, isNotEmpty);
     });
 
+    test('category is a stable machine value independent of display text', () {
+      final items = TemporalPriorityService.prioritize(
+        today: DateTime(2026, 10, 15),
+        canton: 'ZH',
+        taxSaving3a: 1800,
+        friTotal: 55,
+        friDelta: 3,
+      );
+
+      final threeA = items.firstWhere((item) => item.category == 'threeA');
+      expect(threeA.category, 'threeA');
+      expect(threeA.category, isNot(threeA.title));
+    });
+
     test('returns TemporalItem objects with required fields', () {
       final items = TemporalPriorityService.prioritize(
         today: DateTime(2026, 10, 15),

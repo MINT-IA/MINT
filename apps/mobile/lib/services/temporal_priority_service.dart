@@ -46,6 +46,7 @@ class TemporalPriorityService {
       seenCategories.add(category);
 
       items.add(TemporalItem(
+        category: category,
         title: msg.title,
         body: msg.body,
         deeplink: msg.deeplink,
@@ -73,6 +74,7 @@ class TemporalPriorityService {
       seenCategories.add(category);
 
       items.add(TemporalItem(
+        category: category,
         title: notif.title,
         body: notif.body,
         deeplink: notif.deeplink,
@@ -208,6 +210,8 @@ enum TemporalSource {
 
 /// A prioritized temporal item for display in the TemporalStrip.
 class TemporalItem {
+  /// Stable normalized category used for deduplication and filtering.
+  final String category;
   final String title;
   final String body;
   final String deeplink;
@@ -218,6 +222,7 @@ class TemporalItem {
   final TemporalSource source;
 
   const TemporalItem({
+    required this.category,
     required this.title,
     required this.body,
     required this.deeplink,

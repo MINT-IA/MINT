@@ -4,6 +4,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FORECASTER SERVICE — Sprint C3 / MINT Coach
@@ -66,7 +67,7 @@ class ScenarioAssumptions {
     inflation: 0.015,
   );
 
-  /// Create a modified copy (for "Et si..." sliders)
+  /// Create a modified copy (for "Et si..." sliders) // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   ScenarioAssumptions copyWith({
     String? label,
     double? lppReturn,
@@ -118,7 +119,7 @@ class ProjectionPoint {
   }
 }
 
-/// Jalon de progression (ex: "100k de capital prevoyance atteint")
+/// Jalon de progression (ex: "100k de capital prevoyance atteint") // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
 class ProjectionMilestone {
   final DateTime date;
   final String label;
@@ -142,36 +143,72 @@ class ProjectionScenario {
   final String label;
   final List<ProjectionPoint> points; // mensuels
   final double capitalFinal;
-  final double revenuAnnuelRetraite;
+  final double? revenuAnnuelRetraite;
+  final double revenuAnnuelRetraiteHorsAvs;
+  final double? revenuAvsIndividuelAnnuel;
   final Map<String, double> decomposition;
+  final Map<String, double> decompositionHorsAvs;
   // ex: { 'avs': 43000, 'lpp': 24000, '3a': 8000, 'libre': 12000 }
 
-  const ProjectionScenario({
+  ProjectionScenario({
     required this.label,
     required this.points,
     required this.capitalFinal,
     required this.revenuAnnuelRetraite,
-    required this.decomposition,
-  });
+    required this.revenuAnnuelRetraiteHorsAvs,
+    required this.revenuAvsIndividuelAnnuel,
+    required Map<String, double> decomposition,
+    required Map<String, double> decompositionHorsAvs,
+  })  : decomposition = Map.unmodifiable(decomposition),
+        decompositionHorsAvs = Map.unmodifiable(decompositionHorsAvs);
 
   Map<String, dynamic> toJson() => {
         'label': label,
         'capitalFinal': capitalFinal,
         'revenuAnnuelRetraite': revenuAnnuelRetraite,
+        'revenuAnnuelRetraiteHorsAvs': revenuAnnuelRetraiteHorsAvs,
+        'revenuAvsIndividuelAnnuel': revenuAvsIndividuelAnnuel,
         'decomposition': decomposition,
+        'decompositionHorsAvs': decompositionHorsAvs,
+        'selfAvsIncluded': revenuAvsIndividuelAnnuel != null,
+        'avsIncluded':
+            revenuAnnuelRetraite != null && decomposition.containsKey('avs'),
         'pointsCount': points.length,
       };
 
   factory ProjectionScenario.fromJson(Map<String, dynamic> json) {
+    final selfAvsIncluded = json['selfAvsIncluded'] == true;
+    final avsIncluded = json['avsIncluded'] == true;
+    final persistedDecomposition =
+        (json['decomposition'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
+            const <String, double>{};
+    final persistedNonAvs =
+        (json['decompositionHorsAvs'] as Map<String, dynamic>?)
+            ?.map((k, v) => MapEntry(k, (v as num).toDouble()));
+    final decompositionHorsAvs = persistedNonAvs ??
+        Map<String, double>.fromEntries(
+          persistedDecomposition.entries.where(
+            (entry) => !entry.key.startsWith('avs'),
+          ),
+        );
+    final persistedNonAvsIncome =
+        (json['revenuAnnuelRetraiteHorsAvs'] as num?)?.toDouble();
     return ProjectionScenario(
       label: json['label'] as String? ?? '',
       points: const [], // points not persisted in snapshots
       capitalFinal: (json['capitalFinal'] as num?)?.toDouble() ?? 0,
-      revenuAnnuelRetraite:
-          (json['revenuAnnuelRetraite'] as num?)?.toDouble() ?? 0,
-      decomposition: (json['decomposition'] as Map<String, dynamic>?)
-              ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
-          const {},
+      revenuAnnuelRetraite: avsIncluded
+          ? (json['revenuAnnuelRetraite'] as num?)?.toDouble()
+          : null,
+      revenuAnnuelRetraiteHorsAvs: persistedNonAvsIncome ??
+          decompositionHorsAvs.values.fold(0, (sum, value) => sum + value),
+      revenuAvsIndividuelAnnuel: selfAvsIncluded
+          ? (json['revenuAvsIndividuelAnnuel'] as num?)?.toDouble()
+          : null,
+      decomposition:
+          avsIncluded ? persistedDecomposition : const <String, double>{},
+      decompositionHorsAvs: decompositionHorsAvs,
     );
   }
 }
@@ -181,7 +218,10 @@ class ProjectionResult {
   final ProjectionScenario prudent;
   final ProjectionScenario base;
   final ProjectionScenario optimiste;
-  final double tauxRemplacementBase; // % du revenu actuel net
+  final double? tauxRemplacementBase; // % du revenu brut actuel du ménage
+  final bool selfAvsIncluded;
+  final bool avsIncluded;
+  final List<String> missingFields;
   final List<ProjectionMilestone> milestones;
   final String disclaimer;
   final List<String> sources;
@@ -194,23 +234,29 @@ class ProjectionResult {
   /// Actions the user can take to improve projection accuracy.
   final List<String> enrichmentPrompts;
 
-  const ProjectionResult({
+  ProjectionResult({
     required this.prudent,
     required this.base,
     required this.optimiste,
     required this.tauxRemplacementBase,
+    required this.selfAvsIncluded,
+    required this.avsIncluded,
+    required List<String> missingFields,
     required this.milestones,
     required this.disclaimer,
     required this.sources,
     this.confidenceScore = 0,
     this.enrichmentPrompts = const [],
-  });
+  }) : missingFields = List.unmodifiable(missingFields);
 
   Map<String, dynamic> toJson() => {
         'prudent': prudent.toJson(),
         'base': base.toJson(),
         'optimiste': optimiste.toJson(),
         'tauxRemplacementBase': tauxRemplacementBase,
+        'selfAvsIncluded': selfAvsIncluded,
+        'avsIncluded': avsIncluded,
+        'missingFields': missingFields,
         'milestones': milestones.map((m) => m.toJson()).toList(),
         'disclaimer': disclaimer,
         'sources': sources,
@@ -225,36 +271,38 @@ class ProjectionResult {
   /// decomposition) — monthly [points] are NOT serialised to keep
   /// the snapshot lightweight.
   factory ProjectionResult.fromJson(Map<String, dynamic> json) {
+    final selfAvsIncluded = json['selfAvsIncluded'] == true;
+    final avsIncluded = json['avsIncluded'] == true;
     ProjectionScenario scenarioFromJson(Map<String, dynamic> s) {
-      return ProjectionScenario(
-        label: s['label'] as String? ?? '',
-        points: const [], // points are not persisted in snapshots
-        capitalFinal: (s['capitalFinal'] as num?)?.toDouble() ?? 0,
-        revenuAnnuelRetraite:
-            (s['revenuAnnuelRetraite'] as num?)?.toDouble() ?? 0,
-        decomposition: (s['decomposition'] as Map<String, dynamic>?)
-                ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
-            const {},
-      );
+      return ProjectionScenario.fromJson({
+        ...s,
+        'selfAvsIncluded': selfAvsIncluded,
+        'avsIncluded': avsIncluded,
+      });
     }
 
     return ProjectionResult(
       prudent: scenarioFromJson(
           json['prudent'] as Map<String, dynamic>? ?? const {}),
-      base: scenarioFromJson(
-          json['base'] as Map<String, dynamic>? ?? const {}),
+      base: scenarioFromJson(json['base'] as Map<String, dynamic>? ?? const {}),
       optimiste: scenarioFromJson(
           json['optimiste'] as Map<String, dynamic>? ?? const {}),
-      tauxRemplacementBase:
-          (json['tauxRemplacementBase'] as num?)?.toDouble() ?? 0,
+      tauxRemplacementBase: avsIncluded
+          ? (json['tauxRemplacementBase'] as num?)?.toDouble()
+          : null,
+      selfAvsIncluded: selfAvsIncluded,
+      avsIncluded: avsIncluded,
+      missingFields: (json['missingFields'] as List<dynamic>?)
+              ?.map((field) => field as String)
+              .toList() ??
+          const [],
       milestones: const [], // milestones are not persisted in snapshots
       disclaimer: json['disclaimer'] as String? ?? '',
       sources: (json['sources'] as List<dynamic>?)
               ?.map((s) => s as String)
               .toList() ??
           const [],
-      confidenceScore:
-          (json['confidenceScore'] as num?)?.toDouble() ?? 0,
+      confidenceScore: (json['confidenceScore'] as num?)?.toDouble() ?? 0,
       enrichmentPrompts: (json['enrichmentPrompts'] as List<dynamic>?)
               ?.map((s) => s as String)
               .toList() ??
@@ -270,6 +318,15 @@ class ProjectionResult {
 class ForecasterService {
   ForecasterService._();
 
+  static const spouseBirthYearFieldPath = 'conjoint.birthYear';
+  static const spouseSalaryFieldPath = 'conjoint.salaireBrutMensuel';
+  static const spouseRamdFieldPath = 'conjoint.prevoyance.ramd';
+  static const spouseContributionYearsFieldPath =
+      'conjoint.prevoyance.anneesContribuees';
+  static const selfAvsPensionFieldPath = 'prevoyance.renteAVSEstimeeMensuelle';
+  static const spouseAvsPensionFieldPath =
+      'conjoint.prevoyance.renteAVSEstimeeMensuelle';
+
   // ════════════════════════════════════════════════════════════════
   //  PUBLIC API
   // ════════════════════════════════════════════════════════════════
@@ -282,6 +339,7 @@ class ForecasterService {
     S? l,
   }) {
     final target = targetDate ?? profile.goalA.targetDate;
+    final missingFields = _projectionMissingFields(profile);
 
     final scenarioPrudent = _projectScenario(
       profile: profile,
@@ -304,10 +362,14 @@ class ForecasterService {
     // Compare against GROSS household income for consistency.
     // Previously used householdNetAnnuel (NET) which inflated the ratio.
     final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
-    final tauxRemplacement = safeReplacementRate(
-      annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
-      annualCurrentIncome: householdGrossAnnuel,
-    );
+    final completeRetirementIncome = scenarioBase.revenuAnnuelRetraite;
+    final tauxRemplacement = completeRetirementIncome != null &&
+            !missingFields.contains(spouseSalaryFieldPath)
+        ? safeReplacementRate(
+            annualRetirementIncome: completeRetirementIncome,
+            annualCurrentIncome: householdGrossAnnuel,
+          )
+        : null;
 
     // Milestones
     final milestones = _detectMilestones(scenarioBase.points);
@@ -320,26 +382,28 @@ class ForecasterService {
       base: scenarioBase,
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
+      selfAvsIncluded: scenarioBase.revenuAvsIndividuelAnnuel != null,
+      avsIncluded: scenarioBase.revenuAnnuelRetraite != null,
+      missingFields: missingFields,
       milestones: milestones,
       disclaimer: l?.forecasterDisclaimer ??
-          'Projections educatives basees sur des hypotheses de rendement. '
-          'Ne constitue pas un conseil financier. Les rendements passes ne '
-          'presagent pas des rendements futurs. Consulte un·e specialiste '
-          'pour un plan personnalise. LSFin.',
+          'Projections educatives basees sur des hypotheses de rendement. ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'Ne constitue pas un conseil financier. Les rendements passes ne ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'presagent pas des rendements futurs. Consulte un·e spécialiste ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'pour un plan personnalise. LSFin.', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       sources: [
         'LAVS art. 21-29 (rente AVS)',
-        'LPP art. 14 (taux de conversion)',
+        'LPP art. 14 (taux de conversion)', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
         'OPP3 art. 7 (plafond 3a)',
         'LPP art. 79b (rachat)',
       ],
       confidenceScore: confidence.score,
-      enrichmentPrompts:
-          confidence.prompts.map((p) => p.label).toList(),
+      enrichmentPrompts: confidence.prompts.map((p) => p.label).toList(),
     );
   }
 
   /// Projette un scenario unique avec des hypotheses custom
-  /// (utile pour les sliders "Et si...")
+  /// (utile pour les sliders "Et si...") // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   static ProjectionScenario projectCustom({
     required CoachProfile profile,
     required ScenarioAssumptions assumptions,
@@ -352,7 +416,7 @@ class ForecasterService {
     );
   }
 
-  /// Projette avec des hypotheses "Et si..." personnalisees.
+  /// Projette avec des hypotheses "Et si..." personnalisees. // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
   ///
   /// L'utilisateur ajuste les parametres du scenario Base via des sliders.
   /// Les scenarios Prudent et Optimiste sont derives automatiquement
@@ -368,6 +432,7 @@ class ForecasterService {
     S? l,
   }) {
     final target = targetDate ?? profile.goalA.targetDate;
+    final missingFields = _projectionMissingFields(profile);
 
     // Calculate spreads from original presets (base - prudent, optimiste - base)
     final lppSpreadDown = ScenarioAssumptions.base.lppReturn -
@@ -426,28 +491,16 @@ class ForecasterService {
       targetDate: target,
     );
 
-    // Taux de remplacement base (household income for couples)
-    final mainBreakdownCustom = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton,
-      age: profile.age,
-    );
-    final revenuNetMensuel = mainBreakdownCustom.monthlyNetPayslip;
-    final conjointCustom = profile.conjoint;
-    final partnerNetMensuel = conjointCustom != null &&
-            conjointCustom.salaireBrutMensuel != null &&
-            conjointCustom.age != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: conjointCustom.salaireBrutMensuel! * 12,
-            canton: profile.canton,
-            age: conjointCustom.age!,
-          ).monthlyNetPayslip
-        : 0.0;
-    final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
-    final tauxRemplacement = safeReplacementRate(
-      annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
-      annualCurrentIncome: householdNetAnnuel,
-    );
+    // Keep the same gross household denominator as project().
+    final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
+    final completeRetirementIncome = scenarioBase.revenuAnnuelRetraite;
+    final tauxRemplacement = completeRetirementIncome != null &&
+            !missingFields.contains(spouseSalaryFieldPath)
+        ? safeReplacementRate(
+            annualRetirementIncome: completeRetirementIncome,
+            annualCurrentIncome: householdGrossAnnuel,
+          )
+        : null;
 
     final milestones = _detectMilestones(scenarioBase.points);
 
@@ -459,21 +512,23 @@ class ForecasterService {
       base: scenarioBase,
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
+      selfAvsIncluded: scenarioBase.revenuAvsIndividuelAnnuel != null,
+      avsIncluded: scenarioBase.revenuAnnuelRetraite != null,
+      missingFields: missingFields,
       milestones: milestones,
       disclaimer: l?.forecasterEtSiDisclaimer ??
-          'Simulation "Et si..." a titre educatif uniquement. '
-          'Hypotheses de rendement ajustees manuellement. '
-          'Ne constitue pas un conseil financier (LSFin). '
-          'Les rendements passes ne presagent pas des rendements futurs.',
+          'Simulation "Et si..." a titre educatif uniquement. ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'Hypotheses de rendement ajustees manuellement. ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'Ne constitue pas un conseil financier (LSFin). ' // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
+              'Les rendements passes ne presagent pas des rendements futurs.', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
       sources: [
         'LAVS art. 21-29 (rente AVS)',
-        'LPP art. 14 (taux de conversion)',
+        'LPP art. 14 (taux de conversion)', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
         'OPP3 art. 7 (plafond 3a)',
         'LPP art. 79b (rachat)',
       ],
       confidenceScore: confidence.score,
-      enrichmentPrompts:
-          confidence.prompts.map((p) => p.label).toList(),
+      enrichmentPrompts: confidence.prompts.map((p) => p.label).toList(),
     );
   }
 
@@ -481,7 +536,7 @@ class ForecasterService {
   ///
   /// Ce KPI represente l'effort du mois valide (somme des versements),
   /// et non une valeur future composee jusqu'a la retraite.
-  /// La valeur future est deja couverte par la projection complete.
+  /// La valeur future est déjà couverte par la projection complète.
   static double calculateMonthlyDelta({
     required CoachProfile profile,
     required Map<String, double> versements,
@@ -509,8 +564,11 @@ class ForecasterService {
         label: assumptions.label,
         points: const [],
         capitalFinal: 0,
-        revenuAnnuelRetraite: 0,
+        revenuAnnuelRetraite: null,
+        revenuAnnuelRetraiteHorsAvs: 0,
+        revenuAvsIndividuelAnnuel: null,
         decomposition: const {},
+        decompositionHorsAvs: const {},
       );
     }
 
@@ -522,7 +580,8 @@ class ForecasterService {
 
     // Conjoint balances
     double conjLppBalance = profile.conjoint?.prevoyance?.avoirLppTotal ?? 0;
-    double conjSavingsBalance = profile.conjoint?.patrimoine?.epargneLiquide ?? 0;
+    double conjSavingsBalance =
+        profile.conjoint?.patrimoine?.epargneLiquide ?? 0;
 
     // --- Monthly contributions (from planned) ---
     double monthly3a = profile.total3aMensuel;
@@ -541,8 +600,7 @@ class ForecasterService {
 
     // --- Couple adjustments ---
     // Detect conjoint contributions by matching their firstName in the ID.
-    final conjFirstName =
-        profile.conjoint?.firstName?.toLowerCase() ?? '';
+    final conjFirstName = profile.conjoint?.firstName?.toLowerCase() ?? '';
 
     // Partner 3a contribution potential: if conjoint exists, has income,
     // AND can contribute to 3a.
@@ -562,14 +620,22 @@ class ForecasterService {
     //      fallback to true only for the non-FATCA, non-US case above.
     double partner3aMonthly = 0;
     final conjoint = profile.conjoint;
-    if (conjoint != null && (conjoint.salaireBrutMensuel ?? 0) > 0) {
+    final conjointSalary = conjoint?.salaireBrutMensuel;
+    if (conjoint != null &&
+        conjointSalary != null &&
+        conjointSalary.isFinite &&
+        conjointSalary > 0) {
       final bool isUsPerson =
           conjoint.isFatcaResident || conjoint.nationality == 'US';
       final bool conjCanContribute = !isUsPerson &&
           conjoint.canContribute3a &&
           (conjoint.prevoyance?.canContribute3a ?? true);
       if (conjCanContribute) {
-        final conjAnnualSalary = (conjoint.salaireBrutMensuel ?? 0) * 12;
+        final conjAnnualSalary =
+            IncomeConversionCalculator.annualGrossFromMonthly(
+          monthlyGross: conjointSalary,
+          months: IncomeConversionCalculator.defaultAnnualSalaryMonths,
+        );
         if (conjAnnualSalary > reg('lpp.entry_threshold', lppSeuilEntree)) {
           final hasPartner3a = profile.plannedContributions.any((c) =>
               c.category == '3a' &&
@@ -710,16 +776,26 @@ class ForecasterService {
 
       // Conjoint LPP: bonifications by age (LPP art. 16)
       final conjLppBefore = conjLppBalance;
-      final conjAge = (profile.conjoint?.age ?? profile.age) + (m ~/ 12);
-      final conjAnnualSalary = (profile.conjoint?.salaireBrutMensuel ?? 0) * 12;
-      conjLppBalance = LppCalculator.projectOneMonth(
-        currentBalance: conjLppBalance,
-        age: conjAge,
-        grossAnnualSalary: conjAnnualSalary,
-        monthlyReturn: conjLppMonthlyRate,
-        salaireAssureOverride: profile.conjoint?.prevoyance?.salaireAssure,
-        bonificationRateOverride: profile.conjoint?.prevoyance?.bonificationRate,
-      );
+      final conjoint = profile.conjoint;
+      final conjointAge = conjoint?.age;
+      final conjointSalary = conjoint?.salaireBrutMensuel;
+      if (conjointAge != null &&
+          conjointSalary != null &&
+          conjointSalary.isFinite &&
+          conjointSalary >= 0) {
+        conjLppBalance = LppCalculator.projectOneMonth(
+          currentBalance: conjLppBalance,
+          age: conjointAge + (m ~/ 12),
+          grossAnnualSalary: conjointSalary * 12,
+          monthlyReturn: conjLppMonthlyRate,
+          salaireAssureOverride: conjoint?.prevoyance?.salaireAssure,
+          bonificationRateOverride: conjoint?.prevoyance?.bonificationRate,
+        );
+      } else {
+        // A known balance may keep growing under the scenario return, but
+        // missing age/salary cannot create synthetic LPP bonifications.
+        conjLppBalance *= 1 + conjLppMonthlyRate;
+      }
       final conjLppReturn = conjLppBalance - conjLppBefore;
 
       totalRendement += lppReturn +
@@ -810,48 +886,15 @@ class ForecasterService {
 
     // --- Calculate retirement income ---
     final retirementAge = targetDate.year - profile.birthYear;
-    final grossAnnualSalary = profile.salaireBrutMensuel * 12;
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
 
-    // AVS user — RAMD-based, with arrivalAge/lacunes (LAVS art. 34)
-    // F2-4: Pass gender + birthYear for AVS21 transitional reference age
-    final avsUserMonthly = AvsCalculator.computeMonthlyRente(
-      currentAge: profile.age,
-      retirementAge: retirementAge,
-      arrivalAge: profile.arrivalAge,
-      anneesContribuees: profile.prevoyance.anneesContribuees,
-      lacunes: profile.prevoyance.lacunesAVS ?? 0,
-      grossAnnualSalary: grossAnnualSalary,
-      isFemale: profile.gender == 'F' ? true : null,
-      birthYear: profile.gender == 'F' ? profile.birthYear : null,
-    );
-
-    // AVS conjoint — pass anneesContribuees (LAVS art. 29bis)
-    double avsConjointMonthly = 0;
     final conjRetirementAge =
         profile.conjoint?.effectiveRetirementAge ?? retirementAge;
-    if (profile.conjoint != null) {
-      final conjAge = profile.conjoint!.age ?? profile.age;
-      final conjSalary = (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
-      avsConjointMonthly = AvsCalculator.computeMonthlyRente(
-        currentAge: conjAge,
-        retirementAge: conjRetirementAge,
-        arrivalAge: profile.conjoint!.arrivalAge,
-        anneesContribuees: profile.conjoint!.prevoyance?.anneesContribuees,
-        lacunes: profile.conjoint!.prevoyance?.lacunesAVS ?? 0,
-        grossAnnualSalary: conjSalary,
-        isFemale: profile.conjoint!.gender == 'F' ? true : (profile.conjoint!.gender == 'M' ? false : null),
-        birthYear: profile.conjoint!.birthYear,
-      );
-    }
-
-    // Couple cap: married only (LAVS art. 35)
-    final coupleAvs = AvsCalculator.computeCouple(
-      avsUser: avsUserMonthly,
-      avsConjoint: avsConjointMonthly,
-      isMarried: isMarried,
-    );
-    final renteAvsAnnuelle = AvsCalculator.annualRente(coupleAvs.total);
+    // G1 fail-closed boundary: current fields contain gap counts, RAMD and an
+    // illustrative monthly estimate, but the production parser does not emit
+    // an official pension plus source-document date. None of those legacy
+    // facts may unlock an evidence-backed self or household AVS amount.
+    const double? revenuAvsIndividuelAnnuel = null;
 
     // LPP rente — split obligatoire/surobligatoire conversion rates.
     //
@@ -865,11 +908,13 @@ class ForecasterService {
     //
     // See: CLAUDE.md §5, arbitrage_engine.dart for reference implementation.
     final userConvRateOblig = LppCalculator.adjustedConversionRate(
-      baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), // 6.8% — obligatoire only
+      baseRate: reg('lpp.conversion_rate_min',
+          lppTauxConversionMinDecimal), // 6.8% — obligatoire only
       retirementAge: retirementAge,
     );
     final userConvRateSurob = LppCalculator.adjustedConversionRate(
-      baseRate: profile.prevoyance.tauxConversionSuroblig ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
+      baseRate: profile.prevoyance.tauxConversionSuroblig ??
+          reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
       retirementAge: retirementAge,
     );
     final double renteLppUser;
@@ -883,8 +928,8 @@ class ForecasterService {
       final obligRatio = totalInitial > 0 ? userOblig / totalInitial : 0.5;
       final projectedOblig = lppBalance * obligRatio;
       final projectedSurob = lppBalance * (1 - obligRatio);
-      renteLppUser =
-          projectedOblig * userConvRateOblig + projectedSurob * userConvRateSurob;
+      renteLppUser = projectedOblig * userConvRateOblig +
+          projectedSurob * userConvRateSurob;
     } else {
       // No certificate split available.
       // If the profile has a user-set or parser-set enveloping rate that
@@ -892,10 +937,12 @@ class ForecasterService {
       // Otherwise, use the conservative surobligatoire estimate (5.4%)
       // to avoid silently overstating with the minimum legal rate.
       final profileRate = profile.prevoyance.tauxConversion;
-      final regConvMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+      final regConvMin =
+          reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
       final isDefaultRate = (profileRate - regConvMin).abs() < 0.001;
       final baseRate = isDefaultRate
-          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
+          ? reg(
+              'lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
           : profileRate;
       final envelopingRate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
@@ -910,7 +957,8 @@ class ForecasterService {
       retirementAge: conjRetirementAge,
     );
     final conjConvRateSurob = LppCalculator.adjustedConversionRate(
-      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
+      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ??
+          reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
       retirementAge: conjRetirementAge,
     );
     final double renteLppConjoint;
@@ -925,12 +973,14 @@ class ForecasterService {
       renteLppConjoint = projectedConjOblig * conjConvRateOblig +
           projectedConjSurob * conjConvRateSurob;
     } else {
-      final regConvMin2 = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
-      final conjProfileRate = profile.conjoint?.prevoyance?.tauxConversion
-          ?? regConvMin2;
+      final regConvMin2 =
+          reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+      final conjProfileRate =
+          profile.conjoint?.prevoyance?.tauxConversion ?? regConvMin2;
       final conjIsDefault = (conjProfileRate - regConvMin2).abs() < 0.001;
       final conjBaseRate = conjIsDefault
-          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
+          ? reg(
+              'lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
           : conjProfileRate;
       final conjEnvelopingRate = LppCalculator.adjustedConversionRate(
         baseRate: conjBaseRate,
@@ -952,11 +1002,17 @@ class ForecasterService {
     final rendementLibreAnnuel =
         (investmentBalance + savingsBalance + conjSavingsBalance) * 0.04;
 
-    final revenuRetraiteAnnuel = renteAvsAnnuelle +
-        renteLppUser +
-        renteLppConjoint +
-        retrait3aAnnualise +
-        rendementLibreAnnuel;
+    final decompositionHorsAvs = <String, double>{
+      'lpp_user': renteLppUser,
+      'lpp_conjoint': renteLppConjoint,
+      '3a': retrait3aAnnualise,
+      'libre': rendementLibreAnnuel,
+    };
+    final revenuRetraiteAnnuelHorsAvs =
+        decompositionHorsAvs.values.fold(0.0, (sum, value) => sum + value);
+    const double? revenuRetraiteAnnuel = null;
+
+    const decomposition = <String, double>{};
 
     final capitalFinal = points.isNotEmpty ? points.last.capitalCumule : 0.0;
 
@@ -965,15 +1021,10 @@ class ForecasterService {
       points: points,
       capitalFinal: capitalFinal,
       revenuAnnuelRetraite: revenuRetraiteAnnuel,
-      decomposition: {
-        'avs': renteAvsAnnuelle,
-        'avs_user': AvsCalculator.annualRente(coupleAvs.user),
-        'avs_conjoint': AvsCalculator.annualRente(coupleAvs.conjoint),
-        'lpp_user': renteLppUser,
-        'lpp_conjoint': renteLppConjoint,
-        '3a': retrait3aAnnualise,
-        'libre': rendementLibreAnnuel,
-      },
+      revenuAnnuelRetraiteHorsAvs: revenuRetraiteAnnuelHorsAvs,
+      revenuAvsIndividuelAnnuel: revenuAvsIndividuelAnnuel,
+      decomposition: decomposition,
+      decompositionHorsAvs: decompositionHorsAvs,
     );
   }
 
@@ -1003,7 +1054,7 @@ class ForecasterService {
           milestones.add(ProjectionMilestone(
             date: point.date,
             label:
-                'CHF ${_formatNumber(threshold.toDouble())} de capital atteint',
+                'CHF ${_formatNumber(threshold.toDouble())} de capital atteint', // lint-ignore: legacy user copy or internal prompt; localization debt predates G1 B2
             amount: threshold.toDouble(),
           ));
         }
@@ -1026,17 +1077,32 @@ class ForecasterService {
   /// FIX-P1-3: Made public so [RetirementProjectionService] delegates here
   /// instead of duplicating the formula (which lacked guards).
   /// Clamps to 0-200%, rejects negative or absurdly low incomes.
-  static double safeReplacementRate({
+  static double? safeReplacementRate({
     required double annualRetirementIncome,
     required double annualCurrentIncome,
   }) {
     // Evite les pourcentages absurdes quand le revenu courant est incomplet
     // (profil partiel, valeur aberrante, import inachevé).
-    if (annualCurrentIncome <= 0 || annualRetirementIncome <= 0) return 0.0;
-    if (annualCurrentIncome < 12000) return 0.0;
+    if (!annualCurrentIncome.isFinite || annualCurrentIncome < 12000) {
+      return null;
+    }
+    if (!annualRetirementIncome.isFinite || annualRetirementIncome < 0) {
+      return null;
+    }
     final raw = annualRetirementIncome / annualCurrentIncome * 100;
-    if (!raw.isFinite) return 0.0;
+    if (!raw.isFinite) return null;
     return raw.clamp(0.0, 200.0);
+  }
+
+  static List<String> _projectionMissingFields(
+    CoachProfile profile,
+  ) {
+    // Ask for the missing official-pension facts, not gap counts already known
+    // to the ledger. The partner path remains distinct because two person-owned
+    // pension components are required before a household total is possible.
+    final missing = <String>[selfAvsPensionFieldPath];
+    if (profile.isCouple) missing.add(spouseAvsPensionFieldPath);
+    return missing;
   }
 
   static String _formatNumber(double value) {
