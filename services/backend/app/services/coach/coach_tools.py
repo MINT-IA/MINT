@@ -110,7 +110,7 @@ ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = [
     "life_event_divorce",
     "life_event_birth",
     "life_event_marriage",
-    "life_event_unemployment",
+    "life_event_job_loss",
     "life_event_first_job",
     "budget_overview",
     "tax_optimization_3a",
@@ -120,16 +120,16 @@ ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = [
     "self_employment",
     "cross_border",
     "lpp_buyback",
-    "pillar_3a_overview",
+    "simulator_3a",
     "job_comparison",
-    "debt_check",
+    "debt_risk_check",
     "lamal_franchise",
     "coverage_check",
     "gender_gap",
-    "patrimoine_overview",
-    "compound_interest",
-    "leasing_simulation",
-    "expert_consultation",
+    "portfolio_overview",
+    "compound_interest_simulator",
+    "leasing_simulator",
+    "consult_specialist",
 ]
 
 # ---------------------------------------------------------------------------
@@ -329,6 +329,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
                 "confidence": {
                     "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
                     "description": (
                         "Confidence in the intent identification (0.0 to 1.0). "
                         "Use 0.8+ for clear intents, 0.5-0.8 for probable "

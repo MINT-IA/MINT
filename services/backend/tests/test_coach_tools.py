@@ -12,6 +12,9 @@ Covers:
 Run: cd services/backend && python3 -m pytest tests/test_coach_tools.py -v
 """
 
+from collections import Counter
+from pathlib import Path
+import re
 from typing import Optional
 
 from app.services.coach.coach_tools import (
@@ -40,6 +43,29 @@ BANNED_TERMS = [
     "optimal", "meilleur", "parfait",
     "tu devrais", "tu dois", "il faut que",
 ]
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+SCREEN_REGISTRY_PATH = (
+    REPO_ROOT
+    / "apps"
+    / "mobile"
+    / "lib"
+    / "services"
+    / "navigation"
+    / "screen_registry.dart"
+)
+
+
+def _flutter_registry_intent_tags() -> list[str]:
+    """Read exact intent literals declared by MintScreenRegistry."""
+    source = SCREEN_REGISTRY_PATH.read_text(encoding="utf-8")
+    registry_start = source.index("class MintScreenRegistry extends ScreenRegistry")
+    registry_source = source[registry_start:]
+    return re.findall(
+        r"^\s*intentTag:\s*'([a-z0-9_]+)',\s*$",
+        registry_source,
+        flags=re.MULTILINE,
+    )
 
 
 # ===========================================================================
@@ -117,6 +143,14 @@ class TestRouteToScreenTool:
         props = tool["input_schema"]["properties"]
         assert "confidence" in props
         assert props["confidence"]["type"] == "number"
+
+    def test_route_to_screen_confidence_is_bounded(self):
+        """The LLM contract rejects confidence values outside [0, 1]."""
+        tool = _find_llm_tool("route_to_screen")
+        confidence_schema = tool["input_schema"]["properties"]["confidence"]
+
+        assert confidence_schema["minimum"] == 0
+        assert confidence_schema["maximum"] == 1
 
     def test_route_to_screen_has_context_message_property(self):
         tool = _find_tool("route_to_screen")
@@ -235,7 +269,7 @@ class TestIntentTags:
             "life_event_divorce",
             "life_event_birth",
             "life_event_marriage",
-            "life_event_unemployment",
+            "life_event_job_loss",
             "life_event_first_job",
         ]
         for tag in life_event_tags:
@@ -255,6 +289,31 @@ class TestIntentTags:
             assert tag in ROUTE_TO_SCREEN_INTENT_TAGS, (
                 f"Expected financial tag not found: {tag}"
             )
+
+    def test_every_route_intent_exists_exactly_once_in_flutter_registry(self):
+        """Backend navigation intents must resolve to one canonical Flutter entry."""
+        registry_counts = Counter(_flutter_registry_intent_tags())
+
+        assert SCREEN_REGISTRY_PATH.is_file()
+        for tag in ROUTE_TO_SCREEN_INTENT_TAGS:
+            assert registry_counts[tag] == 1, (
+                f"Backend route intent {tag!r} has {registry_counts[tag]} exact "
+                "MintScreenRegistry entries"
+            )
+
+    def test_legacy_route_intent_aliases_are_absent(self):
+        """Do not reintroduce backend-only aliases that Flutter cannot resolve."""
+        legacy_tags = {
+            "life_event_unemployment",
+            "debt_check",
+            "compound_interest",
+            "leasing_simulation",
+            "expert_consultation",
+            "patrimoine_overview",
+            "pillar_3a_overview",
+        }
+
+        assert legacy_tags.isdisjoint(ROUTE_TO_SCREEN_INTENT_TAGS)
 
     def test_intent_tags_referenced_in_tool_description(self):
         """The route_to_screen intent property description should list the tags."""

@@ -103,6 +103,13 @@ any other profile/financial payload. Flutter resolves the intent through
 `RoutePlanner`, evaluates readiness from the current ledger-backed profile, and
 navigates without `GoRouter.extra` domain data.
 
+`confidence` is mechanically bounded to `[0, 1]`. Every value in backend
+`ROUTE_TO_SCREEN_INTENT_TAGS` must also match exactly one literal `intentTag`
+in Flutter `MintScreenRegistry`; `services/backend/tests/test_coach_tools.py`
+reads that registry and enforces the cross-runtime parity. Do not reuse a
+scenario or recommendation kind such as `compound_interest` as a navigation
+tag when the registered screen intent is `compound_interest_simulator`.
+
 **Adding a new Flutter-bound tool:**
 1. Declare schema in `coach_tools.py::build_tools()`.
 2. **Do NOT** add name to `INTERNAL_TOOL_NAMES` (would strip from Flutter).
