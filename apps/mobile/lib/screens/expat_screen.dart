@@ -101,6 +101,7 @@ class _ExpatScreenState extends State<ExpatScreen>
     if (!_avsScenarioStarted) return;
     setState(() {
       _avsResult = ExpatService.estimateAvsGap(
+        scenarioStarted: _avsScenarioStarted,
         yearsAbroad: _yearsAbroad,
         yearsInCh: _yearsInCh,
       );
@@ -116,6 +117,7 @@ class _ExpatScreenState extends State<ExpatScreen>
     setState(() {
       _avsScenarioStarted = true;
       _avsResult = ExpatService.estimateAvsGap(
+        scenarioStarted: _avsScenarioStarted,
         yearsAbroad: _yearsAbroad,
         yearsInCh: _yearsInCh,
       );

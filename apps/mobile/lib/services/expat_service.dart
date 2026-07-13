@@ -31,7 +31,7 @@ class ExpatService {
       'Estimations simplifiees a but educatif — ne constitue pas '
       'un conseil fiscal ou juridique. Les montants dependent de nombreux '
       'facteurs (deductions, commune, fortune, convention internationale, etc.). '
-      'Consulte un-e specialiste fiscal-e pour une analyse personnalisee.';
+      'Consulte un-e spécialiste fiscal-e pour une analyse personnalisée.'; // lint-ignore: legacy expat disclaimer catalog
 
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON
@@ -419,7 +419,7 @@ class ExpatService {
           'Risque fiscal — l\'imposition peut basculer vers ton pays de residence. '
           'Avec $riskDays jours de home office, tu depasses le seuil de 90 jours. '
           'Ton employeur pourrait devoir cotiser dans ton pays de residence. '
-          'Consulte un-e specialiste en fiscalite internationale.';
+          'Consulte un-e spécialiste en fiscalité internationale.'; // lint-ignore: legacy expat disclaimer catalog
     }
 
     return {
@@ -565,10 +565,13 @@ class ExpatService {
   ///
   /// Full AVS rente requires 44 complete contribution years.
   /// Each missing year reduces the rente by ~2.3%.
-  static Map<String, dynamic> estimateAvsGap({
+  static Map<String, dynamic>? estimateAvsGap({
+    required bool scenarioStarted,
     required int yearsAbroad,
     required int yearsInCh,
   }) {
+    if (!scenarioStarted) return null;
+
     final totalYears = yearsAbroad + yearsInCh;
     final missingYears = max(0, fullContributionYears - yearsInCh);
     final completeness = min(1.0, yearsInCh / fullContributionYears);

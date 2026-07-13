@@ -289,22 +289,34 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   group('estimateAvsGap — lacunes AVS', () {
+    test('scenario inactif — aucun calcul AVS', () {
+      final r = ExpatService.estimateAvsGap(
+        scenarioStarted: false,
+        yearsAbroad: 10,
+        yearsInCh: 34,
+      );
+
+      expect(r, isNull);
+    });
+
     test('44 annees en CH — rente complete, pas de lacune', () {
       final r = ExpatService.estimateAvsGap(
+        scenarioStarted: true,
         yearsAbroad: 0,
         yearsInCh: 44,
-      );
+      )!;
 
       expect(r['completeness'] as double, closeTo(1.0, 0.001));
       expect(r['missingYears'], 0);
       expect(r['monthlyLoss'] as double, closeTo(0, 1));
     });
 
-    test('10 annees a l etranger — reduction proportionnelle', () {
+    test('scenario actif — reduction proportionnelle conservee', () {
       final r = ExpatService.estimateAvsGap(
+        scenarioStarted: true,
         yearsAbroad: 10,
         yearsInCh: 34,
-      );
+      )!;
 
       // completeness = 34/44 ≈ 0.7727
       expect(r['completeness'] as double, closeTo(34 / 44, 0.01));
@@ -319,9 +331,10 @@ void main() {
 
     test('cotisation volontaire recommandee', () {
       final r = ExpatService.estimateAvsGap(
+        scenarioStarted: true,
         yearsAbroad: 5,
         yearsInCh: 30,
-      );
+      )!;
 
       expect(r['canVolunteer'], isTrue);
       expect((r['voluntaryMin'] as double), greaterThan(0));
