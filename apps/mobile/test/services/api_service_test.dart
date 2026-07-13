@@ -173,6 +173,37 @@ void main() {
     });
   });
 
+  group('ApiService — G1 minimal-profile AVS boundary', () {
+    test(
+        'backend illustrative AVS totals remain null without reviewed envelope',
+        () {
+      final result = ApiService.parseMinimalProfileResponse(
+        {
+          'projectedAvsMonthly': 2450,
+          'estimatedMonthlyRetirement': 5100,
+          'estimatedReplacementRatio': 0.61,
+          'retirementGapMonthly': 3250,
+          'projectedLppMonthly': 2650,
+          'estimatedMonthlyExpenses': 4200,
+          'monthsLiquidity': 3,
+          'taxSaving3a': 1800,
+          'marginalTaxRate': 0.25,
+          'monthlyDebtImpact': 0,
+          'estimatedFields': <String>[],
+        },
+        age: 49,
+        grossSalary: 100000,
+        canton: 'VS',
+      );
+
+      expect(result.avsMonthlyRente, isNull);
+      expect(result.totalMonthlyRetirement, isNull);
+      expect(result.replacementRate, isNull);
+      expect(result.retirementGapMonthly, isNull);
+      expect(result.lppMonthlyRente, 2650);
+    });
+  });
+
   // ═══════════════════════════════════════════════════════════════════════
   // Registration request body structure
   // ═══════════════════════════════════════════════════════════════════════

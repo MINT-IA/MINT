@@ -14,6 +14,7 @@
 //  - Error recovery (salary=999999, extreme high salary)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -56,8 +57,7 @@ void main() {
       expect(mapping!.stressType, equals('stress_retraite'));
     });
 
-    test('quick_start validation accepts Pierre profile (50, 110000, VS)',
-        () {
+    test('quick_start validation accepts Pierre profile (50, 110000, VS)', () {
       final result = MinimalProfileService.compute(
         age: pierreAge,
         grossSalary: pierreSalary,
@@ -90,6 +90,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -109,17 +116,18 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Pierre profile has valid retirement projections for 50yo VS', () {
+    test('Pierre profile keeps AVS unknown and LPP illustrative for 50yo VS',
+        () {
       final profile = MinimalProfileService.compute(
         age: pierreAge,
         grossSalary: pierreSalary,
         canton: pierreCanton,
       );
 
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
-      expect(profile.replacementRate, greaterThan(0));
-      expect(profile.replacementRate, lessThan(1.0));
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
+      expect(profile.replacementRate, isNull);
+      expect(profile.lppMonthlyRente, greaterThanOrEqualTo(0));
     });
   });
 
@@ -219,7 +227,7 @@ void main() {
   group('Pierre golden path - error recovery', () {
     test(
         'MinimalProfileService.compute with salary=999999 (extreme high salary) '
-        'produces valid projections without overflow', () {
+        'preserves nullable AVS contract without overflow', () {
       final result = MinimalProfileService.compute(
         age: pierreAge,
         grossSalary: 999999,
@@ -229,10 +237,10 @@ void main() {
       expect(result, isNotNull);
       expect(result.age, equals(pierreAge));
       expect(result.grossMonthlySalary, greaterThan(0));
-      // Should not overflow — valid finite projections
-      expect(result.avsMonthlyRente.isFinite, isTrue);
-      expect(result.totalMonthlyRetirement.isFinite, isTrue);
-      expect(result.replacementRate.isFinite, isTrue);
+      // No AVS-derived number is synthesized at extreme salary
+      expect(result.avsMonthlyRente, isNull);
+      expect(result.totalMonthlyRetirement, isNull);
+      expect(result.replacementRate, isNull);
     });
 
     test('PremierEclairageSelector handles extreme salary gracefully', () {

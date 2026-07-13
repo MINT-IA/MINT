@@ -729,13 +729,38 @@ class ApiService {
         'monthly_debt_service': monthlyDebtService,
     });
 
+    return parseMinimalProfileResponse(
+      response,
+      age: age,
+      grossSalary: grossSalary,
+      canton: canton,
+      householdType: householdType,
+      currentSavings: currentSavings,
+      isPropertyOwner: isPropertyOwner,
+      existing3a: existing3a,
+      existingLpp: existingLpp,
+    );
+  }
+
+  /// Parses the backend response without promoting illustrative AVS amounts.
+  ///
+  /// The backend endpoint does not yet return a reviewed, owner-scoped official
+  /// pension envelope. Its AVS-derived totals therefore stay unavailable.
+  @visibleForTesting
+  static MinimalProfileResult parseMinimalProfileResponse(
+    Map<String, dynamic> response, {
+    required int age,
+    required double grossSalary,
+    required String canton,
+    String? householdType,
+    double? currentSavings,
+    bool? isPropertyOwner,
+    double? existing3a,
+    double? existingLpp,
+  }) {
     final estimatedMonthlyExpenses = _readDouble(
       response,
       const ['estimatedMonthlyExpenses', 'estimated_monthly_expenses'],
-    );
-    final estimatedMonthlyRetirement = _readDouble(
-      response,
-      const ['estimatedMonthlyRetirement', 'estimated_monthly_retirement'],
     );
     final monthsLiquidity = _readDouble(
       response,
@@ -749,22 +774,13 @@ class ApiService {
     );
 
     return MinimalProfileResult(
-      avsMonthlyRente: _readDouble(
-        response,
-        const ['projectedAvsMonthly', 'projected_avs_monthly'],
-      ),
+      avsMonthlyRente: null,
       lppAnnualRente: projectedLppMonthly * 12,
       lppMonthlyRente: projectedLppMonthly,
-      totalMonthlyRetirement: estimatedMonthlyRetirement,
+      totalMonthlyRetirement: null,
       grossMonthlySalary: grossSalary / 12,
-      replacementRate: _readDouble(
-        response,
-        const ['estimatedReplacementRatio', 'estimated_replacement_ratio'],
-      ),
-      retirementGapMonthly: _readDouble(
-        response,
-        const ['retirementGapMonthly', 'retirement_gap_monthly'],
-      ),
+      replacementRate: null,
+      retirementGapMonthly: null,
       taxSaving3a: _readDouble(
         response,
         const ['taxSaving3a', 'tax_saving_3a'],
@@ -787,9 +803,6 @@ class ApiService {
       isPropertyOwner: isPropertyOwner ?? false,
       existing3a: existing3a ?? 0,
       existingLpp: existingLpp ?? 0,
-      // These fields are NOT served by the backend API — null means unknown.
-      // When the API does return them, use the value; otherwise leave null
-      // so consuming screens can handle missing data gracefully.
       employmentStatus: _readStringOrNull(response, const ['employmentStatus', 'employment_status']),
       nationalityGroup: _readStringOrNull(response, const ['nationalityGroup', 'nationality_group']),
       plafond3a: _readDoubleOrNull(response, const ['plafond3a', 'plafond_3a']),

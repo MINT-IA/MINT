@@ -14,6 +14,7 @@
 //  - Error recovery (nonExistentChipKey returns null, age=17 underage)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -89,6 +90,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -108,15 +116,15 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Julia profile has valid projections for high-earner in ZG', () {
+    test('Julia profile keeps AVS unknown for high-earner in ZG', () {
       final profile = MinimalProfileService.compute(
         age: juliaAge,
         grossSalary: juliaSalary,
         canton: juliaCanton,
       );
 
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
       // High earner should have significant tax saving potential
       expect(profile.taxSaving3a, greaterThan(0));
     });

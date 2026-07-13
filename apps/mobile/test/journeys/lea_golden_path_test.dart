@@ -14,6 +14,7 @@
 //  - Premier éclairage computation for young firstJob profile
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -123,6 +124,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -142,17 +150,18 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Lea profile has valid retirement projections', () {
+    test('Lea profile keeps AVS unknown and LPP illustrative', () {
       final profile = MinimalProfileService.compute(
         age: leaAge,
         grossSalary: leaSalary,
         canton: leaCanton,
       );
 
-      // A 22-year-old with 55k salary should have some retirement projection
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
-      expect(profile.replacementRate, greaterThan(0));
+      // Minimal inputs preserve only the standalone illustrative LPP amount
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
+      expect(profile.replacementRate, isNull);
+      expect(profile.lppMonthlyRente, greaterThanOrEqualTo(0));
     });
   });
 

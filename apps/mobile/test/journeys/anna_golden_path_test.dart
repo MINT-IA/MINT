@@ -14,6 +14,7 @@
 //  - Error recovery (age=65, retirement age boundary)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -96,6 +97,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -115,17 +123,17 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Anna profile has valid projections for young cross-border worker',
-        () {
+    test('Anna profile keeps AVS unknown for young cross-border worker', () {
       final profile = MinimalProfileService.compute(
         age: annaAge,
         grossSalary: annaSalary,
         canton: annaCanton,
       );
 
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
-      expect(profile.replacementRate, greaterThan(0));
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
+      expect(profile.replacementRate, isNull);
+      expect(profile.lppMonthlyRente, greaterThanOrEqualTo(0));
     });
   });
 
@@ -224,7 +232,7 @@ void main() {
   group('Anna golden path - error recovery', () {
     test(
         'MinimalProfileService.compute with age=65 (retirement age boundary) '
-        'produces valid result with replacement rate', () {
+        'preserves standalone salary and nullable AVS outputs', () {
       final result = MinimalProfileService.compute(
         age: 65,
         grossSalary: annaSalary,
@@ -233,9 +241,9 @@ void main() {
 
       expect(result, isNotNull);
       expect(result.age, equals(65));
-      // At retirement age, projections should still be valid
+      // At retirement age, the partial contract remains valid
       expect(result.grossMonthlySalary, greaterThan(0));
-      expect(result.replacementRate, greaterThanOrEqualTo(0));
+      expect(result.replacementRate, isNull);
     });
 
     test('PremierEclairageSelector handles age=65 boundary gracefully', () {

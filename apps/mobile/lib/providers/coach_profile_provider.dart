@@ -11,7 +11,6 @@ import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/income_conversion_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
@@ -857,13 +856,12 @@ class CoachProfileProvider extends ChangeNotifier {
     /// Employment status from onboarding ('salarie', 'independant', etc.).
     String? employmentStatus,
 
-    /// True if a Swiss national has lived abroad and interrupted cotisations.
-    /// Maps to q_avs_lacunes_status = 'lived_abroad' so fromWizardAnswers()
-    /// computes the correct LPP gap and AVS reduction.
+    /// True if a Swiss national declares having lived abroad.
+    /// Preserved as a status fact; it never infers AVS years or a pension.
     bool? hasLivedAbroad,
 
-    /// Year since which the user contributed to Swiss AVS/LPP (if hasLivedAbroad
-    /// or non-Swiss). Used to derive yearsAbroad for the wizard answers.
+    /// Declared Swiss arrival/return year, when known. It may constrain the
+    /// illustrative LPP start but is not converted into AVS contribution years.
     int? arrivalYear,
 
     /// User's primary focus/intention from FocusSelector.
@@ -900,45 +898,13 @@ class CoachProfileProvider extends ChangeNotifier {
           nationalityCountry; // 'US' → expatUs; null → expatNonEu fallback
     }
 
-    // Returning Swiss: compute yearsAbroad from arrivalYear and birthYear.
-    // yearsAbroad = arrivalYear - (birthYear + 21) clamped to [0, age-21].
-    // This matches fromWizardAnswers 'lived_abroad' logic: avsGaps = yearsAbroad.
-    int? yearsAbroad;
-    if (hasLivedAbroad == true && arrivalYear != null) {
-      yearsAbroad = (arrivalYear - (birthYear + 21)).clamp(0, age - 21);
-    }
-
-    final bool isReturningSwiss = hasLivedAbroad == true && arrivalYear != null;
-    // Non-Swiss expat arriving late: contributions start from arrivalYear.
+    // Arrival and lived-abroad answers remain declarations. They must not be
+    // converted into certified AVS years or a pension amount.
+    final bool isReturningSwiss =
+        hasLivedAbroad == true && arrivalYear != null;
     final bool isExpat = nationalityGroup != null &&
         nationalityGroup != 'CH' &&
         arrivalYear != null;
-
-    // Compute financial_core-derived AVS estimates from the few onboarding
-    // facts. Cash stays unknown until the user declares q_cash_total.
-    final minimal = MinimalProfileService.compute(
-      age: age,
-      grossSalary: clampedGrossSalary,
-      canton: canton,
-    );
-
-    // AVS contribution years (LAVS art. 29 — cotisations dès 21 ans).
-    final int rawAvsYears;
-    if (isReturningSwiss) {
-      // Reduced by time abroad
-      rawAvsYears = (age - 20) - (yearsAbroad ?? 0);
-    } else if (isExpat) {
-      // Contributions start from max(arrivalAge, 21)
-      final arrivalAge = arrivalYear - birthYear;
-      final startAge = arrivalAge > 21 ? arrivalAge : 21;
-      rawAvsYears = age - startAge;
-    } else {
-      // Swiss native: cotisations since age 21
-      rawAvsYears = age - 20;
-    }
-    final avsContributionYears = rawAvsYears.clamp(0, 44);
-    // Flag when the raw value was outside [0, 44] so UI can inform the user.
-    final bool avsYearsWereClamped = rawAvsYears != avsContributionYears;
 
     final answers = <String, dynamic>{
       if (firstName != null && firstName.isNotEmpty) 'q_firstname': firstName,
@@ -954,27 +920,19 @@ class CoachProfileProvider extends ChangeNotifier {
           clampedGrossSalary >= 22680 && effectiveEmployment != 'independant'
               ? 'yes'
               : 'no',
-      // AVS years estimated from age and situation (LAVS art. 29)
-      'q_avs_contribution_years': avsContributionYears,
-      // P2-15: Flag when AVS years were clamped to [0,44] so UI can warn user.
-      if (avsYearsWereClamped) '_avs_years_clamped': true,
-      // AVS rente estimated via financial_core AvsCalculator
-      '_coach_avs_rente_estimee': minimal.avsMonthlyRente,
       // Nationality for archetype detection (see CLAUDE.md archetype table)
       if (nationality != null) 'q_nationality': nationality,
       if (primaryFocus != null) 'q_primary_focus': primaryFocus,
       if (permitType != null) 'q_residence_permit': permitType,
     };
 
-    // Returning Swiss: inject lacunes and arrivalYear so fromWizardAnswers
-    // correctly starts LPP bonifications from arrivalAge, not from 25.
+    // Preserve the declaration and arrival year so the illustrative LPP
+    // accumulation can start at arrival rather than at age 25.
     if (isReturningSwiss) {
       answers['q_avs_lacunes_status'] = 'lived_abroad';
-      answers['q_avs_years_abroad'] = yearsAbroad;
       answers['q_avs_arrival_year'] = arrivalYear;
     } else if (isExpat) {
-      // Non-Swiss expat: use 'arrived_late' so fromWizardAnswers computes
-      // arrivalAge and starts LPP bonifications from the correct age.
+      // Preserve the declared arrived-late status and LPP arrival context.
       answers['q_avs_lacunes_status'] = 'arrived_late';
       answers['q_avs_arrival_year'] = arrivalYear;
     }
@@ -987,9 +945,8 @@ class CoachProfileProvider extends ChangeNotifier {
     }
 
     // S47: Stamp initial timestamps for all fields populated by onboarding.
-    // Core fields are userInput quality (age, salary, canton); derived fields
-    // (AVS and LPP estimates) are estimated quality but still get timestamps
-    // so freshness scoring can track when the profile was last refreshed.
+    // Stamp only fields actually populated by onboarding. Missing AVS pension
+    // and contribution years deliberately receive no timestamp.
     final initialFields = <String>[
       'salaireBrutMensuel',
       'age',
@@ -997,8 +954,6 @@ class CoachProfileProvider extends ChangeNotifier {
       'etatCivil',
       'prevoyance.avoirLppTotal',
       'prevoyance.totalEpargne3a',
-      'prevoyance.anneesContribuees',
-      'prevoyance.renteAVSEstimeeMensuelle',
     ];
     _profile = _profile!.copyWith(
       dataTimestamps: _stampTimestamps(

@@ -7,12 +7,15 @@ library;
 
 /// Result of the minimal profile computation.
 ///
-/// Contains retirement projections, tax saving estimates, and liquidity data.
+/// Contains standalone illustrative LPP, tax-saving and liquidity data.
+/// AVS-dependent aggregates remain nullable without reviewed provenance.
 /// Fields marked as estimated are tracked in [estimatedFields] for
 /// confidence scoring.
 class MinimalProfileResult {
-  /// Monthly AVS rente at retirement (1st pillar).
-  final double avsMonthlyRente;
+  /// Reviewed monthly AVS pension envelope, when one is available.
+  ///
+  /// Minimal onboarding cannot certify this amount from age and salary alone.
+  final double? avsMonthlyRente;
 
   /// Projected LPP annual rente at retirement (2nd pillar).
   final double lppAnnualRente;
@@ -20,17 +23,17 @@ class MinimalProfileResult {
   /// Monthly LPP rente (lppAnnualRente / 12).
   final double lppMonthlyRente;
 
-  /// Total monthly retirement income (AVS + LPP).
-  final double totalMonthlyRetirement;
+  /// Total monthly retirement income (AVS + LPP), when AVS is known.
+  final double? totalMonthlyRetirement;
 
   /// Current gross monthly salary.
   final double grossMonthlySalary;
 
-  /// Retirement replacement rate (totalMonthlyRetirement / grossMonthlySalary).
-  final double replacementRate;
+  /// Retirement replacement rate, when total retirement income is known.
+  final double? replacementRate;
 
-  /// Retirement income gap in CHF/month (salary - retirement income).
-  final double retirementGapMonthly;
+  /// Retirement income gap in CHF/month, when retirement income is known.
+  final double? retirementGapMonthly;
 
   /// Annual tax saving from maxing out 3a contributions.
   final double taxSaving3a;
@@ -44,7 +47,7 @@ class MinimalProfileResult {
   /// Monthly expenses estimate (for liquidity analysis).
   final double estimatedMonthlyExpenses;
 
-  /// Monthly debt impact on retirement income (CHF).
+  /// Declared or proxied monthly debt service (CHF), kept as a standalone input.
   final double monthlyDebtImpact;
 
   /// Liquidity coverage in months (currentSavings / monthlyExpenses).

@@ -91,6 +91,46 @@ void main() {
     );
   });
 
+  test('smart flow keeps inferred AVS pension and years absent', () async {
+    final provider = CoachProfileProvider();
+
+    await provider.updateFromSmartFlow(
+      age: 40,
+      grossSalary: 100000,
+      canton: 'VD',
+      nationalityGroup: 'EU',
+      arrivalYear: 2018,
+    );
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, isNot(contains('_coach_avs_rente_estimee')));
+    expect(answers, isNot(contains('q_avs_contribution_years')));
+    expect(answers, isNot(contains('_avs_years_clamped')));
+    expect(
+      provider.profile?.dataTimestamps,
+      isNot(contains('prevoyance.renteAVSEstimeeMensuelle')),
+    );
+    expect(
+      provider.profile?.dataTimestamps,
+      isNot(contains('prevoyance.anneesContribuees')),
+    );
+    expect(provider.profile?.prevoyance.anneesContribuees, isNull);
+    expect(provider.profile?.prevoyance.lacunesAVS, isNull);
+    expect(provider.profile?.prevoyance.renteAVSEstimeeMensuelle, isNull);
+    expect(provider.profile?.avsGapEvidence.selfCertifiedYears, isNull);
+    expect(provider.profile?.avsGapStatus, AvsGapStatus.arrivedLate);
+    expect(
+      provider.profile?.dataSources['prevoyance.anneesContribuees'],
+      isNull,
+    );
+    expect(
+      provider.profile?.dataSources['prevoyance.renteAVSEstimeeMensuelle'],
+      isNull,
+    );
+    expect(answers, containsPair('q_avs_lacunes_status', 'arrived_late'));
+    expect(answers, containsPair('q_avs_arrival_year', 2018));
+  });
+
   test('smart flow does not persist estimated savings as explicit cash',
       () async {
     final provider = CoachProfileProvider();

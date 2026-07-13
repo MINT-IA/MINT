@@ -14,6 +14,7 @@
 //  - Error recovery (negative salary — debt scenario)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -56,8 +57,7 @@ void main() {
       expect(mapping!.stressType, equals('stress_budget'));
     });
 
-    test('quick_start validation accepts Laurent profile (45, 85000, NE)',
-        () {
+    test('quick_start validation accepts Laurent profile (45, 85000, NE)', () {
       final result = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: laurentSalary,
@@ -90,6 +90,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -109,16 +116,18 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Laurent profile has valid mid-career projections', () {
+    test('Laurent profile keeps AVS unknown and LPP illustrative mid-career',
+        () {
       final profile = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: laurentSalary,
         canton: laurentCanton,
       );
 
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
-      expect(profile.replacementRate, greaterThan(0));
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
+      expect(profile.replacementRate, isNull);
+      expect(profile.lppMonthlyRente, greaterThanOrEqualTo(0));
     });
   });
 
@@ -232,7 +241,8 @@ void main() {
       expect(result.grossMonthlySalary, lessThan(0));
     });
 
-    test('PremierEclairageSelector handles negative-salary profile gracefully', () {
+    test('PremierEclairageSelector handles negative-salary profile gracefully',
+        () {
       final profile = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: -5000,

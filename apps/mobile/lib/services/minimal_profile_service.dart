@@ -11,7 +11,8 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 /// The backend MinimalProfileService is the authoritative source.
 /// Constants are synced via reg() from RegulatoryRegistry.
 ///
-/// Computes a financial snapshot from as few as 3 inputs (age, salary, canton).
+/// Computes a partial financial snapshot from as few as 3 inputs.
+/// AVS-dependent outputs stay null until a reviewed pension envelope exists.
 /// All calculations delegate to [financial_core] — NEVER duplicates formulas.
 ///
 /// Legal basis: LAVS art. 21-40, LPP art. 7-16, OPP3 art. 7, LIFD art. 38.
@@ -38,10 +39,10 @@ class MinimalProfileService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
-    /// Gender: 'M', 'F', or null. Passed to AvsCalculator for AVS21
-    /// reference age (LAVS art. 21 al. 1). Null defaults to male (65).
+    /// Gender: 'M', 'F', or null. Used only to choose the AVS21 reference
+    /// age as the illustrative LPP projection horizon. Null uses age 65.
     String? gender,
-    /// Birth year — used with [gender] for AVS21 transitional cohorts.
+    /// Birth year — used with [gender] for the LPP horizon.
     int? birthYear,
   }) {
     final estimatedFields = <String>[];
@@ -74,28 +75,13 @@ class MinimalProfileService {
         ?? (isIndependantNoLpp ? 0.0 : _estimateLppBalance(age, grossSalary));
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
-    // F7-2: Use gender-aware retirement age when gender + birth year are provided.
-    // Falls back to male reference age (65) when gender is unknown.
+    // Use the gender-aware AVS21 age only as an illustrative LPP horizon.
+    // It is not an AVS pension calculation or entitlement decision.
     final effectiveBirthYear = birthYear ?? (DateTime.now().year - age);
     final effectiveRetAge = targetRetirementAge
         ?? (gender != null
             ? avsReferenceAge(birthYear: effectiveBirthYear, isFemale: gender == 'F')
             : avsAgeReferenceHomme);
-
-    // --- AVS monthly rente (financial_core) ---
-    // Sans emploi: use minimum AVS contribution salary
-    final avsGrossSalary = isSansEmploi
-        ? reg('lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
-        : grossSalary;
-    // F7-2: Pass gender and birthYear when available so AvsCalculator
-    // uses AVS21 reference age (64F / 65M — LAVS art. 21 al. 1).
-    final avsMonthly = AvsCalculator.computeMonthlyRente(
-      currentAge: age,
-      retirementAge: effectiveRetAge,
-      grossAnnualSalary: avsGrossSalary,
-      isFemale: gender != null ? gender == 'F' : null,
-      birthYear: gender != null ? effectiveBirthYear : null,
-    );
 
     // --- LPP projection (financial_core) ---
     double lppAnnualRente;
@@ -123,12 +109,9 @@ class MinimalProfileService {
     final effectiveDebtService = monthlyDebtService
         ?? (totalDebts != null ? totalDebts * 0.005 : 0.0);
 
-    // --- Total retirement income (clamped >= 0, aligned with backend) ---
-    final totalMonthlyRetirement = max(0.0, avsMonthly + lppMonthly - effectiveDebtService);
+    // AVS cannot be certified from minimal inputs. LPP remains an explicitly
+    // illustrative standalone output; combined retirement outputs stay unknown.
     final grossMonthlySalary = grossSalary / 12;
-    final replacementRate =
-        grossMonthlySalary > 0 ? totalMonthlyRetirement / grossMonthlySalary : 0.0;
-    final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
     // --- Tax saving 3a (financial_core via FiscalService for marginal rate) ---
     // Indépendant sans LPP: plafond 3a = 20% du revenu net, max 36'288 CHF (OPP3 art. 7)
@@ -149,13 +132,13 @@ class MinimalProfileService {
         estimatedMonthlyExpenses > 0 ? effectiveSavings / estimatedMonthlyExpenses : 0.0;
 
     return MinimalProfileResult(
-      avsMonthlyRente: avsMonthly,
+      avsMonthlyRente: null,
       lppAnnualRente: lppAnnualRente,
       lppMonthlyRente: lppMonthly,
-      totalMonthlyRetirement: totalMonthlyRetirement,
+      totalMonthlyRetirement: null,
       grossMonthlySalary: grossMonthlySalary,
-      replacementRate: replacementRate,
-      retirementGapMonthly: retirementGapMonthly,
+      replacementRate: null,
+      retirementGapMonthly: null,
       taxSaving3a: taxSaving3a,
       marginalTaxRate: marginalRate,
       currentSavings: effectiveSavings,

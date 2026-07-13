@@ -14,6 +14,7 @@
 //  - Error recovery (age=18 boundary — just started working)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -96,6 +97,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -115,16 +123,17 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Thomas profile has valid projections for independent with LPP', () {
+    test('Thomas profile keeps AVS unknown for independent with LPP', () {
       final profile = MinimalProfileService.compute(
         age: thomasAge,
         grossSalary: thomasSalary,
         canton: thomasCanton,
       );
 
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
-      expect(profile.replacementRate, greaterThan(0));
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
+      expect(profile.replacementRate, isNull);
+      expect(profile.lppMonthlyRente, greaterThanOrEqualTo(0));
       // 3a tax saving should be available
       expect(profile.taxSaving3a, greaterThan(0));
     });

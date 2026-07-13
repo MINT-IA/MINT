@@ -8,11 +8,13 @@ import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 /// Sprint S57 — PremierEclairage V2: intention × lifecycle × confidence × available data.
 ///
 /// Selection hierarchy:
-/// 1. Critical archetype alerts (indep no LPP, expat low AVS)
-/// 2. Stress-aligned selection (if stressType declared, data supports it)
-/// 3. Universal priorities (liquidity crisis, retirement gap, tax saving)
+/// 1. Stress-aligned selection (if stressType declared, data supports it)
+/// 2. Universal priorities (liquidity crisis, tax saving)
 ///    — gated by lifecycle relevance and data confidence
-/// 4. Lifecycle-aware fallback (age-driven, always valid)
+/// 3. Lifecycle-aware fallback (age-driven, always valid)
+///
+/// AVS-dependent insights are quarantined because this model carries no
+/// reviewed field-level provenance.
 ///
 /// Confidence gating:
 /// - If the premier éclairage's key data is estimated → [PremierEclairageConfidence.pedagogical]
@@ -31,11 +33,7 @@ class PremierEclairageSelector {
     MinimalProfileResult profile, {
     String? stressType,
   }) {
-    // Phase 0: Critical archetype alerts — always override
-    final archetypeChoc = _selectByArchetype(profile);
-    if (archetypeChoc != null) return _withConfidence(archetypeChoc, profile);
-
-    // Phase 1: Stress-aligned selection (NEW)
+    // Phase 1: Stress-aligned selection
     if (stressType != null && stressType != 'stress_general') {
       final stressChoc = _selectByStress(stressType, profile);
       if (stressChoc != null) return _withConfidence(stressChoc, profile);
@@ -49,13 +47,6 @@ class PremierEclairageSelector {
         profile.currentSavings >= 0 &&
         (!savingsEstimated || profile.liquidityMonths < 1)) {
       return _withConfidence(_buildLiquidityChoc(profile), profile);
-    }
-
-    // Retirement gap: relevant from age 30+ (below that, it's too abstract)
-    if (profile.age >= 30 &&
-        profile.replacementRate < 0.55 &&
-        profile.grossMonthlySalary > 0) {
-      return _withConfidence(_buildRetirementGapChoc(profile), profile);
     }
 
     // Tax saving 3a: always relevant if applicable
@@ -94,14 +85,9 @@ class PremierEclairageSelector {
         return null;
 
       case 'stress_retraite':
-        // Retirement: show gap or income depending on data quality
-        if (profile.grossMonthlySalary > 0) {
-          if (profile.replacementRate < 0.55) {
-            return _buildRetirementGapChoc(profile);
-          }
-          return _buildRetirementIncomeChoc(profile);
-        }
-        return null;
+        // MinimalProfileResult has no reviewed-provenance contract. Legacy
+        // doubles must never reactivate an AVS-dependent insight.
+        return _selectNonRetirementAlternative(profile);
 
       case 'stress_patrimoine':
         // Patrimoine: only if we have real data — don't estimate fortune
@@ -120,11 +106,7 @@ class PremierEclairageSelector {
         if (profile.age < 35) {
           return _buildCompoundGrowthChoc(profile);
         }
-        // Fallback: retirement income if data exists
-        if (profile.grossMonthlySalary > 0) {
-          return _buildRetirementIncomeChoc(profile);
-        }
-        return null;
+        return _selectNonRetirementAlternative(profile);
 
       default:
         return null;
@@ -152,66 +134,9 @@ class PremierEclairageSelector {
       // Else: compound growth still meaningful
       return _buildCompoundGrowthChoc(profile);
     }
-    // 38+: retirement income/gap is relevant
-    if (profile.replacementRate < 0.55 && profile.grossMonthlySalary > 0) {
-      return _buildRetirementGapChoc(profile);
-    }
-    return _buildRetirementIncomeChoc(profile);
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Archetype alerts (unchanged priority 0)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /// Archetype-specific premier éclairage (highest priority when applicable).
-  static PremierEclairage? _selectByArchetype(MinimalProfileResult profile) {
-    // Independent without LPP: massive retirement gap alert
-    if (profile.employmentStatus == 'independant' &&
-        profile.lppMonthlyRente <= 0 &&
-        profile.grossMonthlySalary > 0) {
-      final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
-      final plafondStr = profile.plafond3a != null
-          ? chf.formatChf(profile.plafond3a!)
-          : '?';
-      return PremierEclairage(
-        type: PremierEclairageType.retirementGap,
-        value: '$gapFormatted/mois',
-        rawValue: profile.retirementGapMonthly,
-        title: 'Sans 2e pilier, ton gap de retraite',
-        subtitle:
-            'En tant qu\'independant\u00b7e sans LPP, seule l\'AVS te couvre. '
-            'Il te manquerait $gapFormatted chaque mois a la retraite. '
-            'Le 3e pilier (max CHF\u00A0$plafondStr/an) et '
-            'une LPP facultative peuvent combler cet ecart.',
-        iconName: 'warning_amber',
-        colorKey: 'error',
-      );
-    }
-
-    // Non-Swiss expat: AVS gap warning (only when nationality is known)
-    if (profile.nationalityGroup != null &&
-        profile.nationalityGroup != 'CH' &&
-        profile.avsMonthlyRente < 1500) {
-      final avsFormatted = chf.formatChfWithPrefix(profile.avsMonthlyRente);
-      final subtitle = profile.nationalityGroup == 'EU'
-          ? 'Tes annees de cotisation en Europe comptent aussi grace aux '
-              'accords bilateraux. Avec $avsFormatted/mois d\'AVS estime, '
-              'verifie ta rente avec ton releve de compte individuel (CI).'
-          : 'Avec $avsFormatted/mois d\'AVS estime, ta rente pourrait etre '
-              'reduite par des lacunes de cotisation. Demande ton releve CI '
-              'a ta caisse de compensation.';
-      return PremierEclairage(
-        type: PremierEclairageType.retirementGap,
-        value: '$avsFormatted/mois',
-        rawValue: profile.avsMonthlyRente,
-        title: 'Ta rente AVS estimee',
-        subtitle: subtitle,
-        iconName: 'public',
-        colorKey: 'warning',
-      );
-    }
-
-    return null;
+    // This model cannot carry reviewed AVS provenance, so later lifecycle
+    // stages remain on non-retirement alternatives too.
+    return _selectNonRetirementAlternative(profile);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -226,42 +151,18 @@ class PremierEclairageSelector {
       title: 'Ta reserve de liquidite',
       subtitle: profile.liquidityMonths < 1
           ? 'Moins d\'un mois de reserves. '
-              'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.'
+              'Les experts recommandent 3 a 6 mois de depenses en epargne de sécurité.' // lint-ignore: legacy selector has no l10n boundary
           : '${profile.liquidityMonths.toStringAsFixed(1)} mois de reserves. '
-              'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.',
+              'Les experts recommandent 3 a 6 mois de depenses en epargne de sécurité.', // lint-ignore: legacy selector has no l10n boundary
       iconName: 'warning_amber',
       colorKey: 'error',
     );
   }
 
-  static PremierEclairage _buildRetirementGapChoc(MinimalProfileResult profile) {
-    final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
-    final pct = (profile.replacementRate * 100).round();
-    final isIndep = profile.employmentStatus == 'independant';
-    final plafond = profile.plafond3a;
-    final subtitle = isIndep && plafond != null
-        ? 'Sans 2e pilier obligatoire, ton ecart de retraite est plus important. '
-            'Avec seulement $pct% de remplacement, il te manquerait $gapFormatted/mois. '
-            'Le 3e pilier (max CHF\u00A0${chf.formatChf(plafond)}/an) est ton principal levier.'
-        : '\u00c0 la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
-            'Il te manquerait $gapFormatted chaque mois. '
-            'Decouvre comment reduire cet ecart.';
-    return PremierEclairage(
-      type: PremierEclairageType.retirementGap,
-      value: '$gapFormatted/mois',
-      rawValue: profile.retirementGapMonthly,
-      title: 'Ton ecart de retraite',
-      subtitle: subtitle,
-      iconName: 'trending_down',
-      colorKey: 'warning',
-    );
-  }
-
   static PremierEclairage _buildTaxSaving3aChoc(MinimalProfileResult profile) {
     final savingFormatted = chf.formatChfWithPrefix(profile.taxSaving3a);
-    final plafondText = profile.plafond3a != null
-        ? chf.formatChf(profile.plafond3a!)
-        : '?';
+    final plafondText =
+        profile.plafond3a != null ? chf.formatChf(profile.plafond3a!) : '?';
     return PremierEclairage(
       type: PremierEclairageType.taxSaving3a,
       value: '$savingFormatted/an',
@@ -275,26 +176,12 @@ class PremierEclairageSelector {
     );
   }
 
-  static PremierEclairage _buildRetirementIncomeChoc(MinimalProfileResult profile) {
-    final retirementFormatted = chf.formatChfWithPrefix(profile.totalMonthlyRetirement);
-    final pct = (profile.replacementRate * 100).round();
-    return PremierEclairage(
-      type: PremierEclairageType.retirementIncome,
-      value: '$retirementFormatted/mois',
-      rawValue: profile.totalMonthlyRetirement,
-      title: 'Ton revenu estime a la retraite',
-      subtitle: 'Avec l\'AVS et la LPP, tu pourrais recevoir environ '
-          '$retirementFormatted par mois, soit $pct% de ton salaire actuel.',
-      iconName: 'account_balance',
-      colorKey: 'info',
-    );
-  }
-
   /// Compound growth advantage for young users.
   ///
   /// Pure math: compares starting now vs starting at 35.
   /// Always [PremierEclairageConfidence.factual] — no estimation involved.
-  static PremierEclairage _buildCompoundGrowthChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildCompoundGrowthChoc(
+      MinimalProfileResult profile) {
     final years = 65 - profile.age;
     const monthlyContrib = 200.0;
     const annualRate = 0.03;
@@ -309,8 +196,8 @@ class PremierEclairageSelector {
     const referenceAge = 35;
     const yearsAt35 = 65 - referenceAge;
     const monthsAt35 = yearsAt35 * 12;
-    final futureAt35 = monthlyContrib *
-        ((pow(1 + monthlyRate, monthsAt35) - 1) / monthlyRate);
+    final futureAt35 =
+        monthlyContrib * ((pow(1 + monthlyRate, monthsAt35) - 1) / monthlyRate);
 
     final advantage = futureValue - futureAt35;
     final advantageFormatted = chf.formatChfWithPrefix(advantage);
@@ -358,8 +245,20 @@ class PremierEclairageSelector {
           'Ton loyer te coute ~$rentHours heures de travail par mois.',
       iconName: 'schedule',
       colorKey: 'info',
-      confidenceMode: PremierEclairageConfidence.factual, // Derived from provided salary
+      confidenceMode:
+          PremierEclairageConfidence.factual, // Derived from provided salary
     );
+  }
+
+  static PremierEclairage _selectNonRetirementAlternative(
+    MinimalProfileResult profile,
+  ) {
+    if (profile.existing3a <= 0 && profile.taxSaving3a > 500) {
+      return _buildTaxSaving3aChoc(profile);
+    }
+    if (profile.age < 35) return _buildCompoundGrowthChoc(profile);
+    if (profile.grossMonthlySalary > 0) return _buildHourlyRateChoc(profile);
+    return _buildCompoundGrowthChoc(profile);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -371,8 +270,9 @@ class PremierEclairageSelector {
   /// Rules:
   /// - [compoundGrowth] and [hourlyRate] are always factual (pure math)
   /// - [liquidityAlert] is pedagogical if currentSavings is estimated
-  /// - [retirementGap] / [retirementIncome] are pedagogical if LPP is estimated
   /// - [taxSaving3a] is factual (derived from salary + canton, both provided)
+  /// Retirement enum cases remain exhaustive for the wire model but are not
+  /// produced by this selector while reviewed AVS provenance is unavailable.
   static PremierEclairage _withConfidence(
     PremierEclairage choc,
     MinimalProfileResult profile,

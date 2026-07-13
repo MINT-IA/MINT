@@ -14,6 +14,7 @@
 //  - Error recovery (salary=0, late career job loss)
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -89,6 +90,13 @@ void main() {
 
       expect(choc, isNotNull);
       expect(choc.value, isNotEmpty);
+      expect(
+        choc.type,
+        isNot(anyOf(
+          PremierEclairageType.retirementGap,
+          PremierEclairageType.retirementIncome,
+        )),
+      );
       expect(choc.rawValue, isNonZero);
     });
 
@@ -108,19 +116,20 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Marc profile has valid retirement projections for high-salary senior', () {
+    test(
+        'Marc profile keeps AVS unknown and LPP illustrative for high-salary senior',
+        () {
       final profile = MinimalProfileService.compute(
         age: marcAge,
         grossSalary: marcSalary,
         canton: marcCanton,
       );
 
-      // 58-year-old with 145k salary should have substantial projections
-      expect(profile.avsMonthlyRente, greaterThan(0));
-      expect(profile.totalMonthlyRetirement, greaterThan(0));
-      expect(profile.replacementRate, greaterThan(0));
-      // High salary -> replacement rate likely below 60%
-      expect(profile.replacementRate, lessThan(1.0));
+      // Salary and age do not certify an AVS pension envelope
+      expect(profile.avsMonthlyRente, isNull);
+      expect(profile.totalMonthlyRetirement, isNull);
+      expect(profile.replacementRate, isNull);
+      expect(profile.lppMonthlyRente, greaterThanOrEqualTo(0));
     });
   });
 
@@ -237,7 +246,6 @@ void main() {
       expect(result, isNotNull);
       expect(result.age, equals(marcAge));
       expect(result.grossMonthlySalary, equals(0));
-      // Should still produce AVS estimate (based on contribution years)
       // No crash — graceful handling
     });
 
