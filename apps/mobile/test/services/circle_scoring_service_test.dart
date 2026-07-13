@@ -1,6 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/circle_scoring_service.dart';
 import 'package:mint_mobile/models/circle_score.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+
+CoachProfile _profileForCircle(
+  Map<String, dynamic> answers, {
+  int? certifiedSelfGapYears,
+}) {
+  final base = CoachProfile.fromWizardAnswers(answers);
+  if (certifiedSelfGapYears == null) return base;
+
+  return base.copyWith(
+    prevoyance: base.prevoyance.copyWith(lacunesAVS: certifiedSelfGapYears),
+    dataSources: {
+      ...base.dataSources,
+      AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+    },
+  );
+}
 
 /// Unit tests for CircleScoringService
 ///
@@ -224,7 +241,7 @@ void main() {
       expect(c2.percentage, lessThan(80));
     });
 
-    test('AVS gaps detected lowers score', () {
+    test('questionnaire contribution years never certify the AVS score', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'yes_6months',
         'q_has_consumer_debt': 'no',
@@ -232,40 +249,47 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_lacunes_status': 'yes',
-        'q_avs_contribution_years': 30,
-        'q_has_investments': 'no',
-        'q_housing_status': 'renter',
-      };
-
-      final score = service.calculateScore(answers);
-      final c2 = score.circle2Prevoyance;
-      // 44 - 30 = 14 years gap => warning
-      final avsItem = c2.items.firstWhere((i) => i.label == 'AVS');
-      expect(avsItem.status, ItemStatus.warning);
-    });
-
-    test('full AVS contributions score perfect', () {
-      final answers = <String, dynamic>{
-        'q_emergency_fund': 'yes_6months',
-        'q_has_consumer_debt': 'no',
-        'q_3a_accounts_count': 2,
-        'q_3a_annual_contribution': 7258.0,
-        'q_employment_status': 'employee',
-        'q_lpp_buyback_available': 0.0,
-        'q_avs_lacunes_status': 'yes',
+        'q_avs_lacunes_status': 'no_gaps',
         'q_avs_contribution_years': 44,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
 
-      final score = service.calculateScore(answers);
-      final c2 = score.circle2Prevoyance;
-      final avsItem = c2.items.firstWhere((i) => i.label == 'AVS');
+      final score = service.calculateScore(
+        answers,
+        profile: _profileForCircle(answers),
+      );
+      final avsItem = score.circle2Prevoyance.items
+          .firstWhere((item) => item.label == 'AVS');
+
+      expect(avsItem.status, ItemStatus.unknown);
+      expect(avsItem.detail, contains('vérifier'));
+    });
+
+    test('certificate-backed zero AVS gaps scores the person only', () {
+      final answers = <String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_has_consumer_debt': 'no',
+        'q_3a_accounts_count': 2,
+        'q_3a_annual_contribution': 7258.0,
+        'q_employment_status': 'employee',
+        'q_lpp_buyback_available': 0.0,
+        'q_has_investments': 'no',
+        'q_housing_status': 'renter',
+      };
+
+      final score = service.calculateScore(
+        answers,
+        profile: _profileForCircle(answers, certifiedSelfGapYears: 0),
+      );
+      final avsItem = score.circle2Prevoyance.items
+          .firstWhere((item) => item.label == 'AVS');
+
       expect(avsItem.status, ItemStatus.perfect);
+      expect(avsItem.detail, contains('0'));
     });
 
-    test('spouse AVS gap downgrades married user score', () {
+    test('registered partner without CI never downgrades the self score', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'yes_6months',
         'q_has_consumer_debt': 'no',
@@ -273,20 +297,23 @@ void main() {
         'q_3a_annual_contribution': 7258.0,
         'q_employment_status': 'employee',
         'q_lpp_buyback_available': 0.0,
-        'q_avs_lacunes_status': 'yes',
-        'q_avs_contribution_years': 44,
-        'q_civil_status': 'married',
+        'q_civil_status': 'registered_partnership',
+        'q_spouse_avs_lacunes_status': 'lived_abroad',
+        'q_spouse_avs_years_abroad': 14,
         'q_spouse_avs_contribution_years': 30,
         'q_has_investments': 'no',
         'q_housing_status': 'renter',
       };
 
-      final score = service.calculateScore(answers);
-      final c2 = score.circle2Prevoyance;
-      final avsItem = c2.items.firstWhere((i) => i.label == 'AVS');
-      // Despite user having 44 years, spouse has gap => warning
-      expect(avsItem.status, ItemStatus.warning);
-      expect(avsItem.detail, contains('Conjoint'));
+      final score = service.calculateScore(
+        answers,
+        profile: _profileForCircle(answers, certifiedSelfGapYears: 0),
+      );
+      final avsItem = score.circle2Prevoyance.items
+          .firstWhere((item) => item.label == 'AVS');
+
+      expect(avsItem.status, ItemStatus.perfect);
+      expect(avsItem.detail, isNot(contains('Conjoint')));
     });
 
     test('LPP buyback available scores good (opportunity)', () {
@@ -546,68 +573,75 @@ void main() {
     });
   });
 
-  group('AVS gap severity', () {
-    test('minor gap (<=2 years) via legacy path is warning', () {
-      final answers = <String, dynamic>{
-        'q_emergency_fund': 'yes_6months',
-        'q_has_consumer_debt': 'no',
-        'q_3a_accounts_count': 2,
-        'q_3a_annual_contribution': 7258.0,
-        'q_employment_status': 'employee',
-        'q_lpp_buyback_available': 0.0,
-        'q_avs_lacunes_status': 'yes',
-        'q_avs_contribution_years': 42, // gap = 2
-        'q_has_investments': 'no',
-        'q_housing_status': 'renter',
-      };
+  group('AVS certificate-only scoring', () {
+    Map<String, dynamic> baseAnswers() => <String, dynamic>{
+          'q_emergency_fund': 'yes_6months',
+          'q_has_consumer_debt': 'no',
+          'q_3a_accounts_count': 2,
+          'q_3a_annual_contribution': 7258.0,
+          'q_employment_status': 'employee',
+          'q_lpp_buyback_available': 0.0,
+          'q_has_investments': 'no',
+          'q_housing_status': 'renter',
+        };
 
-      final score = service.calculateScore(answers);
-      final c2 = score.circle2Prevoyance;
-      final avs = c2.items.firstWhere((i) => i.label == 'AVS');
-      // Legacy path (q_avs_lacunes_status='yes' not handled by _calculateAvsGaps,
-      // falls through to legacyAvsYears): any gap > 0 => warning
-      expect(avs.status, ItemStatus.warning);
+    test('certificate-backed two-year gap scores good', () {
+      final answers = baseAnswers();
+      final score = service.calculateScore(
+        answers,
+        profile: _profileForCircle(answers, certifiedSelfGapYears: 2),
+      );
+      final avs = score.circle2Prevoyance.items
+          .firstWhere((item) => item.label == 'AVS');
+
+      expect(avs.status, ItemStatus.good);
+      expect(avs.detail, contains('2'));
     });
 
-    test('large gap (>2 years) is warning', () {
-      final answers = <String, dynamic>{
-        'q_emergency_fund': 'yes_6months',
-        'q_has_consumer_debt': 'no',
-        'q_3a_accounts_count': 2,
-        'q_3a_annual_contribution': 7258.0,
-        'q_employment_status': 'employee',
-        'q_lpp_buyback_available': 0.0,
-        'q_avs_lacunes_status': 'yes',
-        'q_avs_contribution_years': 35, // gap = 9
-        'q_has_investments': 'no',
-        'q_housing_status': 'renter',
-      };
+    test('certificate-backed nine-year gap scores warning', () {
+      final answers = baseAnswers();
+      final score = service.calculateScore(
+        answers,
+        profile: _profileForCircle(answers, certifiedSelfGapYears: 9),
+      );
+      final avs = score.circle2Prevoyance.items
+          .firstWhere((item) => item.label == 'AVS');
 
-      final score = service.calculateScore(answers);
-      final c2 = score.circle2Prevoyance;
-      final avs = c2.items.firstWhere((i) => i.label == 'AVS');
       expect(avs.status, ItemStatus.warning);
-      // Legacy path detail is 'Lacune de 9 ans' (no 'Rente' substring)
-      expect(avs.detail, contains('Lacune'));
+      expect(avs.detail, contains('9'));
     });
 
-    test('unknown AVS status scores as unknown', () {
-      final answers = <String, dynamic>{
-        'q_emergency_fund': 'yes_6months',
-        'q_has_consumer_debt': 'no',
-        'q_3a_accounts_count': 2,
-        'q_3a_annual_contribution': 7258.0,
-        'q_employment_status': 'employee',
-        'q_lpp_buyback_available': 0.0,
-        'q_avs_lacunes_status': null,
-        'q_has_investments': 'no',
-        'q_housing_status': 'renter',
-      };
+    test('declared AVS variants and absence stay score-equivalent unknown', () {
+      final variants = <Map<String, dynamic>>[
+        {'q_avs_lacunes_status': 'no_gaps'},
+        {
+          'q_avs_lacunes_status': 'lived_abroad',
+          'q_avs_years_abroad': 8,
+        },
+        {
+          'q_avs_lacunes_status': 'arrived_late',
+          'q_avs_arrival_year': 2010,
+        },
+        {'q_avs_lacunes_status': 'unknown'},
+        {'q_avs_contribution_years': 44},
+        <String, dynamic>{},
+      ];
+      final percentages = <double>[];
 
-      final score = service.calculateScore(answers);
-      final c2 = score.circle2Prevoyance;
-      final avs = c2.items.firstWhere((i) => i.label == 'AVS');
-      expect(avs.status, ItemStatus.unknown);
+      for (final variant in variants) {
+        final answers = {...baseAnswers(), ...variant};
+        final score = service.calculateScore(
+          answers,
+          profile: _profileForCircle(answers),
+        );
+        final avs = score.circle2Prevoyance.items
+            .firstWhere((item) => item.label == 'AVS');
+        expect(avs.status, ItemStatus.unknown);
+        expect(avs.detail, contains('vérifier'));
+        percentages.add(score.circle2Prevoyance.percentage);
+      }
+
+      expect(percentages.toSet(), hasLength(1));
     });
   });
 }

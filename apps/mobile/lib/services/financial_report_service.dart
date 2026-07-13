@@ -19,8 +19,13 @@ class FinancialReportService {
     // 1. Profil utilisateur
     final profile = _buildUserProfile(answers);
 
-    // 2. Score de santé financière
-    final healthScore = _scoringService.calculateScore(answers);
+    // 2. Score de santé financière. Wizard-only AVS declarations remain
+    // unverified; only the profile's certificate-backed evidence can affect it.
+    final coachProfile = CoachProfile.fromWizardAnswers(answers);
+    final healthScore = _scoringService.calculateScore(
+      answers,
+      profile: coachProfile,
+    );
 
     // 3. Simulation fiscale
     final taxSim = _buildTaxSimulation(answers, profile);
@@ -54,18 +59,11 @@ class FinancialReportService {
     );
 
     // FIX-W11-2: Compute confidence score via ConfidenceScorer (financial_core)
-    double confidenceScore = 0;
-    List<String> enrichmentPrompts = const [];
-    try {
-      final coachProfile = CoachProfile.fromWizardAnswers(answers);
-      final confidenceResult = ConfidenceScorer.score(coachProfile);
-      confidenceScore = confidenceResult.score;
-      enrichmentPrompts = confidenceResult.prompts
-          .map((p) => p.label)
-          .toList();
-    } catch (_) {
-      // Fallback: confidence remains 0 if profile cannot be built
-    }
+    final confidenceResult = ConfidenceScorer.score(coachProfile);
+    final confidenceScore = confidenceResult.score;
+    final enrichmentPrompts = confidenceResult.prompts
+        .map((prompt) => prompt.label)
+        .toList();
 
     // FIX-W11-4: Snapshot current constants for report traceability
     final simulationAssumptions = <String, dynamic>{

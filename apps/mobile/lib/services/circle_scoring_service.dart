@@ -5,6 +5,7 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 import '../models/circle_score.dart';
+import '../models/coach_profile.dart';
 
 /// Service de calcul du score de santé financière par cercles
 class CircleScoringService {
@@ -23,9 +24,13 @@ class CircleScoringService {
   ];
   /// Calcule le score global à partir des réponses du wizard.
   /// [l] — optional localizations; when null (e.g. in tests) French fallbacks are used.
-  FinancialHealthScore calculateScore(Map<String, dynamic> answers, {S? l}) {
+  FinancialHealthScore calculateScore(
+    Map<String, dynamic> answers, {
+    CoachProfile? profile,
+    S? l,
+  }) {
     final circle1 = _scoreCircle1Protection(answers, l);
-    final circle2 = _scoreCircle2Prevoyance(answers, l);
+    final circle2 = _scoreCircle2Prevoyance(answers, profile, l);
     final circle3 = _scoreCircle3Croissance(answers, l);
     final circle4 = _scoreCircle4Optimisation(l);
 
@@ -122,7 +127,11 @@ class CircleScoringService {
   }
 
   /// CERCLE 2 : PRÉVOYANCE
-  CircleScore _scoreCircle2Prevoyance(Map<String, dynamic> answers, S? l) {
+  CircleScore _scoreCircle2Prevoyance(
+    Map<String, dynamic> answers,
+    CoachProfile? profile,
+    S? l,
+  ) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -199,102 +208,29 @@ class CircleScoringService {
     totalWeight += 2.0;
     totalScore += lppStatus.scoreValue * 2.0;
 
-    // 4. AVS - Lacunes (logique experte : triage + calcul intelligent)
-    // CHAOS-78: Never default to 1990 — unknown birthYear = null, skip AVS gap calc.
-    final birthYear = _parseInt(answers['q_birth_year']);
-    final civilStatus = answers['q_civil_status'];
-    final avsGapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
+    // 4. AVS - Lacunes. This circle is person-owned: only a CI-backed
+    // self gap count may change it. Declarations and partner evidence remain
+    // visible elsewhere, but cannot price or downgrade the person's score.
+    final avsGapEvidence = profile?.avsGapEvidence;
+    final avsGapYears = avsGapEvidence?.selfCertifiedYears;
 
-    // Fallback vers les réponses legacy (q_first_employment_year, q_avs_gaps)
-    final legacyFirstEmployment = _parseInt(answers['q_first_employment_year']);
-    final legacyAvsYears = _parseInt(answers['q_avs_contribution_years']);
-    final legacyHasGaps = answers['q_avs_gaps'];
-
-    ItemStatus avsStatus;
-    String avsDetail;
-
-    if (avsGapYears != null) {
-      // Nouvelle logique experte
-      final gap = avsGapYears;
-      final theoreticalYears = _theoreticalAvsYears(birthYear!);
-      final contributionYears = (theoreticalYears - gap).clamp(0, 44);
-      if (gap <= 0) {
-        avsStatus = ItemStatus.perfect;
-        avsDetail = 'Cotisation complète ($contributionYears ans)';
-      } else if (gap <= 2) {
-        avsStatus = ItemStatus.good;
-        avsDetail = 'Lacune mineure ($gap ans — rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
-      } else {
-        avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
-      }
-    } else if (legacyFirstEmployment != null) {
-      // Fallback legacy : q_first_employment_year
-      final startYear = birthYear != null
-          ? [legacyFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
-          : legacyFirstEmployment;
-      final years = (DateTime.now().year - startYear).clamp(0, 44);
-      final gap = 44 - years;
-      if (gap <= 0) {
-        avsStatus = ItemStatus.perfect;
-        avsDetail = 'Cotisation complète ($years ans)';
-      } else if (gap <= 2) {
-        avsStatus = ItemStatus.good;
-        avsDetail = 'Lacune mineure ($gap ans)';
-      } else {
-        avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
-      }
-    } else if (legacyAvsYears != null) {
-      final gap = 44 - legacyAvsYears;
-      if (gap <= 0) {
-        avsStatus = ItemStatus.perfect;
-        avsDetail = 'Cotisation complète ($legacyAvsYears ans)';
-      } else {
-        avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans';
-      }
-    } else if (legacyHasGaps == 'no') {
-      avsStatus = ItemStatus.perfect;
-      avsDetail = 'Aucune lacune déclarée';
-    } else if (legacyHasGaps == 'yes' || legacyHasGaps == 'maybe') {
-      avsStatus = ItemStatus.warning;
-      avsDetail = legacyHasGaps == 'yes' ? 'Lacunes confirmées' : 'Lacunes possibles';
-    } else if (answers['q_avs_lacunes_status'] == 'unknown') {
-      avsStatus = ItemStatus.warning;
-      avsDetail = 'Lacunes possibles — commande ton extrait CI';
-    } else {
+    final ItemStatus avsStatus;
+    final String avsDetail;
+    if (avsGapYears == null) {
       avsStatus = ItemStatus.unknown;
       avsDetail = 'À vérifier';
-    }
-
-    // Conjoint — même logique experte
-    if (civilStatus == 'married') {
-      final spouseGapYears = birthYear != null ? _calculateSpouseAvsGaps(answers, birthYear) : null;
-
-      // Fallback legacy conjoint
-      final legacySpouseFirstEmployment = _parseInt(answers['q_spouse_first_employment_year']);
-      final legacySpouseAvsYears = _parseInt(answers['q_spouse_avs_contribution_years']);
-
-      int? spouseGap;
-      if (spouseGapYears != null) {
-        spouseGap = spouseGapYears;
-      } else if (legacySpouseFirstEmployment != null) {
-        final spouseStart = birthYear != null
-            ? [legacySpouseFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
-            : legacySpouseFirstEmployment;
-        final years = (DateTime.now().year - spouseStart).clamp(0, 44);
-        spouseGap = 44 - years;
-      } else if (legacySpouseAvsYears != null) {
-        spouseGap = 44 - legacySpouseAvsYears;
-      }
-
-      if (spouseGap != null && spouseGap > 0) {
-        avsDetail += ' | Conjoint·e : lacune $spouseGap ans';
-        if (avsStatus == ItemStatus.perfect || avsStatus == ItemStatus.good) {
-          avsStatus = ItemStatus.warning;
-        }
-      }
+    } else if (avsGapYears == 0) {
+      avsStatus = ItemStatus.perfect;
+      // lint-ignore: legacy domain payload; localize at renderer.
+      avsDetail = 'Lacune CI : 0 an';
+    } else if (avsGapYears <= 2) {
+      avsStatus = ItemStatus.good;
+      avsDetail =
+          'Lacune mineure ($avsGapYears ans — rente -${AvsCalculator.reductionPercentageFromGap(avsGapYears).toStringAsFixed(1)}%)';
+    } else {
+      avsStatus = ItemStatus.warning;
+      avsDetail =
+          'Lacune de $avsGapYears ans (rente -${AvsCalculator.reductionPercentageFromGap(avsGapYears).toStringAsFixed(1)}%)';
     }
 
     items.add(ScoreItem(
@@ -314,7 +250,7 @@ class CircleScoringService {
       percentage: percentage,
       level: _percentageToLevel(percentage),
       items: items,
-      recommendations: _circle2Recommendations(answers, items),
+      recommendations: _circle2Recommendations(answers, items, avsGapEvidence),
     );
   }
 
@@ -410,7 +346,10 @@ class CircleScoringService {
   }
 
   List<String> _circle2Recommendations(
-      Map<String, dynamic> answers, List<ScoreItem> items) {
+    Map<String, dynamic> answers,
+    List<ScoreItem> items,
+    AvsGapEvidence? avsGapEvidence,
+  ) {
     final reco = <String>[];
 
     final nb3a = _parseInt(answers['q_3a_accounts_count']) ?? 0;
@@ -428,16 +367,12 @@ class CircleScoringService {
           '💰 Planifie un rachat LPP échelonné (économie fiscale majeure)');
     }
 
-    // Recommandations AVS basées sur la nouvelle logique de lacunes
-    final avsStatus = answers['q_avs_lacunes_status'];
-    if (avsStatus == 'unknown') {
+    // A CI-backed number is the only AVS input allowed to drive this score.
+    final certifiedGapYears = avsGapEvidence?.selfCertifiedYears;
+    if (certifiedGapYears == null) {
       reco.add(
           'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour vérifier tes lacunes AVS');
-    }
-    // CHAOS-78: Never default to 1990 — skip AVS gap calc if birth year unknown.
-    final birthYear = _parseInt(answers['q_birth_year']);
-    final gapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
-    if (gapYears != null && gapYears > 0) {
+    } else if (certifiedGapYears > 0) {
       reco.add(
           'Tu peux racheter les 5 dernières années de lacune AVS auprès de ta caisse cantonale (LAVS art. 16)');
     }
@@ -479,76 +414,4 @@ class CircleScoringService {
     return null;
   }
 
-  /// Années théoriques de cotisation AVS depuis l'âge de 21 ans.
-  /// Échelle complète = 44 ans (LAVS art. 29ter).
-  int _theoreticalAvsYears(int birthYear) {
-    return (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
-  }
-
-  /// Calcule le nombre d'années de lacune AVS depuis les nouvelles questions.
-  /// Retourne null si les nouvelles questions n'ont pas été répondues (fallback legacy).
-  int? _calculateAvsGaps(Map<String, dynamic> answers, int birthYear) =>
-      calculateAvsGapsFromAnswers(answers, birthYear);
-
-  int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) =>
-      calculateSpouseAvsGapsFromAnswers(answers, birthYear);
-
-  // ── Shared AVS gap helpers (used by CircleScoringService + FinancialReportService) ──
-
-  /// Calculates AVS gap years from triage answers (LAVS art. 29ter).
-  /// Public static so FinancialReportService can reuse without duplication.
-  static int? calculateAvsGapsFromAnswers(
-      Map<String, dynamic> answers, int birthYear) {
-    final status = answers['q_avs_lacunes_status'];
-    if (status == null) return null;
-
-    switch (status) {
-      case 'no_gaps':
-        return 0;
-      case 'arrived_late':
-        final arrivalYear = _parseIntStatic(answers['q_avs_arrival_year']);
-        if (arrivalYear == null) return null;
-        // Lacunes = années entre 21 ans et l'arrivée en Suisse
-        final avsStartAge21 = birthYear + 21;
-        return (arrivalYear - avsStartAge21).clamp(0, 44);
-      case 'lived_abroad':
-        return _parseIntStatic(answers['q_avs_years_abroad']) ?? 0;
-      case 'unknown':
-        // On ne peut pas calculer précisément, mais on signale le risque
-        return null;
-      default:
-        return null;
-    }
-  }
-
-  /// Same logic for spouse.
-  static int? calculateSpouseAvsGapsFromAnswers(
-      Map<String, dynamic> answers, int birthYear) {
-    final status = answers['q_spouse_avs_lacunes_status'];
-    if (status == null) return null;
-
-    switch (status) {
-      case 'no_gaps':
-        return 0;
-      case 'arrived_late':
-        final arrivalYear =
-            _parseIntStatic(answers['q_spouse_avs_arrival_year']);
-        if (arrivalYear == null) return null;
-        final avsStartAge21 = birthYear + 21;
-        return (arrivalYear - avsStartAge21).clamp(0, 44);
-      case 'lived_abroad':
-        return _parseIntStatic(answers['q_spouse_avs_years_abroad']) ?? 0;
-      case 'unknown':
-        return null;
-      default:
-        return null;
-    }
-  }
-
-  static int? _parseIntStatic(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value);
-    return null;
-  }
 }

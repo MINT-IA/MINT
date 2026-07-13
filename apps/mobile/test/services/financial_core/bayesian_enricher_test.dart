@@ -21,6 +21,7 @@ CoachProfile _buildProfile({
   double epargneLiquide = 0,
   int? anneesContribuees,
   int? lacunesAvs,
+  AvsGapStatus? avsGapStatus,
   Map<String, ProfileDataSource> dataSources = const {},
 }) {
   return CoachProfile(
@@ -41,6 +42,7 @@ CoachProfile _buildProfile({
       lacunesAVS: lacunesAvs,
     ),
     dataSources: dataSources,
+    avsGapStatus: avsGapStatus,
     patrimoine: PatrimoineProfile(
       epargneLiquide: epargneLiquide,
     ),
@@ -335,11 +337,56 @@ void main() {
     });
 
     // ════════════════════════════════════════════════════════════════
-    test('uncertified AVS gaps widen but never reduce the contribution prior', () {
-      final unknown = BayesianProfileEnricher.enrich(
+    test('user-input contribution years remain missing CI evidence', () {
+      final estimate = BayesianProfileEnricher.enrich(
+        _buildProfile(
+          anneesContribuees: 44,
+          dataSources: const {
+            'prevoyance.anneesContribuees': ProfileDataSource.userInput,
+          },
+        ),
+      ).estimates['anneesContribuees']!;
+
+      expect(estimate.source, contains('missing_ci'));
+      expect(estimate.source, isNot(contains('extrait_avs')));
+      expect(estimate.isDeclared, isFalse);
+      expect(estimate.dataQuality, lessThanOrEqualTo(0.20));
+    });
+
+    test('certificate-backed contribution years collapse to the CI value', () {
+      final estimate = BayesianProfileEnricher.enrich(
+        _buildProfile(
+          anneesContribuees: 30,
+          dataSources: const {
+            'prevoyance.anneesContribuees': ProfileDataSource.certificate,
+          },
+        ),
+      ).estimates['anneesContribuees']!;
+
+      expect(estimate.mean, 30);
+      expect(estimate.source, 'ci:contribution_years');
+      expect(estimate.isDeclared, isTrue);
+      expect(estimate.dataQuality, 0.95);
+    });
+
+    test('all four declared statuses stay low-quality without CI evidence', () {
+      for (final status in AvsGapStatus.values) {
+        final estimate = BayesianProfileEnricher.enrich(
+          _buildProfile(avsGapStatus: status),
+        ).estimates['anneesContribuees']!;
+
+        expect(estimate.source, contains('missing_ci'), reason: '$status');
+        expect(estimate.isDeclared, isFalse, reason: '$status');
+        expect(estimate.dataQuality, lessThanOrEqualTo(0.20),
+            reason: '$status');
+      }
+    });
+
+    test('only certificate-backed gap years reduce the contribution prior', () {
+      final missingCi = BayesianProfileEnricher.enrich(
         _buildProfile(birthYear: 1985, lacunesAvs: 8),
       ).estimates['anneesContribuees']!;
-      final certified = BayesianProfileEnricher.enrich(
+      final withCiGap = BayesianProfileEnricher.enrich(
         _buildProfile(
           birthYear: 1985,
           lacunesAvs: 8,
@@ -349,14 +396,34 @@ void main() {
         ),
       ).estimates['anneesContribuees']!;
 
-      expect(unknown.mean, greaterThan(certified.mean));
-      expect(unknown.sd, greaterThan(certified.sd));
-      expect(unknown.source, contains('unknown_lacunes'));
-      expect(certified.source, contains('certified_lacunes'));
+      expect(missingCi.mean, greaterThan(withCiGap.mean));
+      expect(missingCi.source, contains('missing_ci'));
+      expect(withCiGap.source, contains('ci_gap_years'));
+      expect(withCiGap.isDeclared, isFalse);
     });
 
     //  Couple support
     // ════════════════════════════════════════════════════════════════
+
+    test('CI gap years do not double-count a declared late arrival', () {
+      PosteriorEstimate estimate({int? arrivalAge}) =>
+          BayesianProfileEnricher.enrich(
+            _buildProfile(
+              birthYear: 1985,
+              arrivalAge: arrivalAge,
+              lacunesAvs: 8,
+              dataSources: const {
+                AvsGapEvidence.selfFieldPath: ProfileDataSource.certificate,
+              },
+            ),
+          ).estimates['anneesContribuees']!;
+
+      final withoutArrival = estimate();
+      final withLateArrival = estimate(arrivalAge: 35);
+
+      expect(withLateArrival.mean, withoutArrival.mean);
+      expect(withLateArrival.source, 'prior:age+ci_gap_years');
+    });
 
     test('13. married profile generates conjointSalary estimate', () {
       final profile = _buildProfile(

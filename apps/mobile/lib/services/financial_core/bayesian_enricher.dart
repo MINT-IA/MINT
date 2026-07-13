@@ -743,56 +743,65 @@ class BayesianProfileEnricher {
   /// Posterior estimate for AVS contribution years.
   ///
   /// Prior: age - 21 (contribution starts at 21, LAVS art. 3),
-  /// minus any declared lacunes. Full = 44 years (LAVS art. 29bis).
+  /// minus CI-backed gap years. Full = 44 years (LAVS art. 29bis).
   static PosteriorEstimate _posteriorAnneesContribuees(CoachProfile profile) {
+    final fullYears = reg(
+      'avs.full_contribution_years',
+      avsDureeCotisationComplete.toDouble(),
+    ).toInt();
     final declared = profile.prevoyance.anneesContribuees;
+    final declaredSource =
+        profile.dataSources['prevoyance.anneesContribuees'];
 
-    // If declared (from extrait AVS), collapse
-    if (declared != null && declared > 0) {
+    // A contribution-year point may collapse only when the CI/certificate owns
+    // that exact field. Wizard/userInput values stay a question, never an
+    // ``extrait_avs`` assertion.
+    if (declared != null &&
+        declared >= 0 &&
+        declared <= fullYears &&
+        declaredSource == ProfileDataSource.certificate) {
       return _collapseToDeclared(
         field: 'anneesContribuees',
         declaredValue: declared.toDouble(),
-        source: 'posterior:declared+extrait_avs',
+        source: 'ci:contribution_years',
       );
     }
 
-    // Only certificate-backed gap years may reduce the contribution prior.
-    // An unverified count is a reason to widen uncertainty, not a number to
-    // price as if it were established by an AVS account extract.
     final age = profile.age;
-    final gapEvidence = profile.avsGapEvidence;
-    final certifiedGapYears = gapEvidence.selfCertifiedYears;
+    final certifiedGapYears = profile.avsGapEvidence.selfCertifiedYears;
+    final arrivalAge = profile.arrivalAge;
+    final hasCertifiedGapYears = certifiedGapYears != null;
+    final contributionStartAge = hasCertifiedGapYears
+        ? 21
+        : arrivalAge != null && arrivalAge > 21
+        ? arrivalAge
+        : 21;
+    final yearsBeforeGaps = age - contributionStartAge;
+    final adjustedYears = hasCertifiedGapYears
+        ? yearsBeforeGaps - certifiedGapYears
+        : yearsBeforeGaps;
+    final priorMean = adjustedYears.clamp(0, fullYears).toDouble();
+
     final hasUnverifiedGapCount = profile.prevoyance.lacunesAVS != null &&
         certifiedGapYears == null;
-    final arrivalAge = profile.arrivalAge;
-
-    final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
-    final contributionStartAge =
-        arrivalAge != null && arrivalAge > 21 ? arrivalAge : 21;
-    final priorMean = (age - contributionStartAge - (certifiedGapYears ?? 0))
-        .clamp(0, fullYears)
-        .toDouble();
-
-    final basePriorSd = arrivalAge != null ? 3.0 : 1.5;
+    final basePriorSd = hasCertifiedGapYears
+        ? 1.5
+        : arrivalAge != null
+        ? 3.0
+        : 2.5;
     final priorSd = hasUnverifiedGapCount ? basePriorSd * 2 : basePriorSd;
-    final evidenceSource = certifiedGapYears != null
-        ? 'certified_lacunes'
-        : hasUnverifiedGapCount
-            ? 'unknown_lacunes'
-            : 'no_declared_lacunes';
+    final source = hasCertifiedGapYears
+        ? 'prior:age+ci_gap_years'
+        : arrivalAge != null
+        ? 'prior:age+arrival+missing_ci'
+        : 'prior:age+missing_ci';
 
     return _buildEstimate(
       field: 'anneesContribuees',
       mean: priorMean,
       sd: priorSd,
-      dataQuality: hasUnverifiedGapCount
-          ? 0.20
-          : arrivalAge != null
-              ? 0.30
-              : 0.50,
-      source: arrivalAge != null
-          ? 'prior:age+arrival+$evidenceSource'
-          : 'prior:age+$evidenceSource',
+      dataQuality: certifiedGapYears == null ? 0.15 : 0.60,
+      source: source,
       isDeclared: false,
     );
   }
