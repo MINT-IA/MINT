@@ -80,7 +80,18 @@ final class AvsGapEvidence {
 
   final int? selfCertifiedYears;
   final int? spouseCertifiedYears;
+
+  /// Whether a second owner is needed to form a household total.
+  ///
+  /// This reflects profile context only. It neither requires account linking
+  /// nor treats the absence of a linked spouse object as financial evidence.
   final bool spouseRequired;
+
+  /// Whether the confirmed civil status is marriage-equivalent for AVS.
+  ///
+  /// This is only the status axis; it does not prove concurrent pensions,
+  /// separation status, scales, percentages, or payable cap readiness.
+  final bool maritalCapApplicable;
   final AvsGapStatus? declaredStatus;
   final List<String> missingFieldPaths;
 
@@ -88,14 +99,28 @@ final class AvsGapEvidence {
     required this.selfCertifiedYears,
     required this.spouseCertifiedYears,
     required this.spouseRequired,
+    required this.maritalCapApplicable,
     required this.declaredStatus,
     required List<String> missingFieldPaths,
   }) : missingFieldPaths = List.unmodifiable(missingFieldPaths);
 
   bool get selfReady => selfCertifiedYears != null;
 
-  bool get householdReady =>
+  /// Readiness for a total that combines every owner in the household context.
+  bool get householdTotalReady =>
       selfReady && (!spouseRequired || spouseCertifiedYears != null);
+
+  /// Backward-compatible alias for household-total readiness.
+  ///
+  /// Consumers must not interpret this as readiness for an individual result
+  /// or as proof that the AVS marital cap applies.
+  bool get householdReady => householdTotalReady;
+
+  /// Whether the gap-evidence prerequisite is ready for a marital-cap flow.
+  ///
+  /// The cap itself still requires the legal and pension inputs deliberately
+  /// kept outside this narrow evidence envelope.
+  bool get maritalCapReady => maritalCapApplicable && householdTotalReady;
 }
 
 /// Devise des investissements
@@ -2100,6 +2125,7 @@ class CoachProfile {
       selfCertifiedYears: selfCertified,
       spouseCertifiedYears: spouseCertified,
       spouseRequired: spouseRequired,
+      maritalCapApplicable: isAvsMarriageEquivalent,
       declaredStatus: avsGapStatus,
       missingFieldPaths: missingFieldPaths,
     );

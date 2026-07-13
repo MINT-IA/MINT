@@ -360,9 +360,7 @@ class FinancialFitnessService {
     ));
 
     // 3. Pas de lacune AVS critique (0-25 points)
-    final lacunesAvs = profile.prevoyance.lacunesAVS;
-    final conjoint = profile.conjoint;
-    final lacunesAvsConjoint = conjoint?.prevoyance?.lacunesAVS;
+    final evidence = profile.avsGapEvidence;
     int pointsAvs;
     String detailAvs;
 
@@ -373,31 +371,33 @@ class FinancialFitnessService {
       return 0;
     }
 
-    if (conjoint == null) {
-      if (lacunesAvs == null) {
-        pointsAvs = profile.avsGapStatus == AvsGapStatus.noGaps ? 10 : 0;
-        detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
-      } else {
-        pointsAvs = pointsForAvsGaps(lacunesAvs);
-        if (lacunesAvs == 0) {
-          detailAvs = 'Aucune lacune AVS';
-        } else if (lacunesAvs <= 2) {
-          detailAvs = '$lacunesAvs annee(s) de lacune AVS'; // lint-ignore: legacy user copy
-        } else if (lacunesAvs <= 5) {
-          detailAvs = '$lacunesAvs annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
-        } else {
-          detailAvs =
-              '$lacunesAvs annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
-        }
-      }
-    } else if (lacunesAvs == null || lacunesAvsConjoint == null) {
+    if (!evidence.selfReady) {
+      pointsAvs = 0;
+      detailAvs = 'Situation a verifier'; // lint-ignore: legacy user copy
+    } else if (evidence.maritalCapApplicable &&
+        !evidence.maritalCapReady) {
       pointsAvs = 0;
       detailAvs = 'Situation AVS du couple a verifier'; // lint-ignore: legacy user copy
-    } else {
-      final selfPoints = pointsForAvsGaps(lacunesAvs);
-      final spousePoints = pointsForAvsGaps(lacunesAvsConjoint);
+    } else if (evidence.maritalCapReady) {
+      final selfYears = evidence.selfCertifiedYears!;
+      final spouseYears = evidence.spouseCertifiedYears!;
+      final selfPoints = pointsForAvsGaps(selfYears);
+      final spousePoints = pointsForAvsGaps(spouseYears);
       pointsAvs = selfPoints < spousePoints ? selfPoints : spousePoints;
-      detailAvs = 'Vous: $lacunesAvs; conjoint: $lacunesAvsConjoint'; // lint-ignore: legacy user copy
+      detailAvs = 'Vous: $selfYears; conjoint: $spouseYears'; // lint-ignore: legacy user copy
+    } else {
+      final selfYears = evidence.selfCertifiedYears!;
+      pointsAvs = pointsForAvsGaps(selfYears);
+      if (selfYears == 0) {
+        detailAvs = 'Aucune lacune AVS';
+      } else if (selfYears <= 2) {
+        detailAvs = '$selfYears annee(s) de lacune AVS'; // lint-ignore: legacy user copy
+      } else if (selfYears <= 5) {
+        detailAvs = '$selfYears annees de lacune AVS — impact significatif'; // lint-ignore: legacy user copy
+      } else {
+        detailAvs =
+            '$selfYears annees de lacune AVS — impact important sur la rente'; // lint-ignore: legacy user copy
+      }
     }
     criteria.add(ScoreCriterion(
       id: 'avs_gaps',

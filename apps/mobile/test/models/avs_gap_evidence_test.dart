@@ -38,7 +38,10 @@ void main() {
       expect(evidence.spouseRequired, isFalse);
       expect(evidence.declaredStatus, isNull);
       expect(evidence.selfReady, isFalse);
+      expect(evidence.householdTotalReady, isFalse);
       expect(evidence.householdReady, isFalse);
+      expect(evidence.maritalCapApplicable, isFalse);
+      expect(evidence.maritalCapReady, isFalse);
       expect(evidence.missingFieldPaths, [selfPath]);
       expect(
         () => evidence.missingFieldPaths.add('another.path'),
@@ -46,16 +49,17 @@ void main() {
       );
     });
 
-    test('declared noGaps never becomes certified zero', () {
-      final evidence = profile(
-        declaredStatus: AvsGapStatus.noGaps,
-      ).avsGapEvidence;
+    test('all declared statuses remain uncertified without CI evidence', () {
+      for (final status in AvsGapStatus.values) {
+        final evidence = profile(declaredStatus: status).avsGapEvidence;
 
-      expect(evidence.declaredStatus, AvsGapStatus.noGaps);
-      expect(evidence.selfCertifiedYears, isNull);
-      expect(evidence.selfReady, isFalse);
-      expect(evidence.householdReady, isFalse);
-      expect(evidence.missingFieldPaths, [selfPath]);
+        expect(evidence.declaredStatus, status);
+        expect(evidence.selfCertifiedYears, isNull, reason: status.name);
+        expect(evidence.selfReady, isFalse, reason: status.name);
+        expect(evidence.householdTotalReady, isFalse, reason: status.name);
+        expect(evidence.householdReady, isFalse, reason: status.name);
+        expect(evidence.missingFieldPaths, [selfPath], reason: status.name);
+      }
     });
 
     test('numeric self years without certificate provenance are not ready', () {
@@ -76,7 +80,10 @@ void main() {
 
       expect(evidence.selfCertifiedYears, 0);
       expect(evidence.selfReady, isTrue);
+      expect(evidence.householdTotalReady, isTrue);
       expect(evidence.householdReady, isTrue);
+      expect(evidence.maritalCapApplicable, isFalse);
+      expect(evidence.maritalCapReady, isFalse);
       expect(evidence.missingFieldPaths, isEmpty);
     });
 
@@ -94,7 +101,7 @@ void main() {
       expect(evidence.missingFieldPaths, isEmpty);
     });
 
-    test('real spouse in a couple is required and missing fail-closed', () {
+    test('present spouse without CI evidence keeps household incomplete', () {
       final evidence = profile(
         selfYears: 0,
         civilStatus: CoachCivilStatus.marie,
@@ -110,29 +117,39 @@ void main() {
       expect(evidence.spouseCertifiedYears, isNull);
       expect(evidence.spouseRequired, isTrue);
       expect(evidence.selfReady, isTrue);
+      expect(evidence.householdTotalReady, isFalse);
       expect(evidence.householdReady, isFalse);
+      expect(evidence.maritalCapApplicable, isTrue);
+      expect(evidence.maritalCapReady, isFalse);
       expect(evidence.missingFieldPaths, [spousePath]);
     });
 
-    test('couple is ready only when both persons are certificate-backed', () {
-      final evidence = profile(
-        selfYears: 0,
-        civilStatus: CoachCivilStatus.concubinage,
-        spouse: const ConjointProfile(
-          prevoyance: PrevoyanceProfile(lacunesAVS: 3),
-        ),
-        dataSources: const {
-          selfPath: ProfileDataSource.certificate,
-          spousePath: ProfileDataSource.certificate,
-        },
-      ).avsGapEvidence;
+    test('marriage-equivalent household is ready with two certified zeros', () {
+      for (final civilStatus in const [
+        CoachCivilStatus.marie,
+        CoachCivilStatus.registeredPartnership,
+      ]) {
+        final evidence = profile(
+          selfYears: 0,
+          civilStatus: civilStatus,
+          spouse: const ConjointProfile(
+            prevoyance: PrevoyanceProfile(lacunesAVS: 0),
+          ),
+          dataSources: const {
+            selfPath: ProfileDataSource.certificate,
+            spousePath: ProfileDataSource.certificate,
+          },
+        ).avsGapEvidence;
 
-      expect(evidence.selfCertifiedYears, 0);
-      expect(evidence.spouseCertifiedYears, 3);
-      expect(evidence.spouseRequired, isTrue);
-      expect(evidence.selfReady, isTrue);
-      expect(evidence.householdReady, isTrue);
-      expect(evidence.missingFieldPaths, isEmpty);
+        expect(evidence.selfCertifiedYears, 0, reason: civilStatus.name);
+        expect(evidence.spouseCertifiedYears, 0, reason: civilStatus.name);
+        expect(evidence.selfReady, isTrue, reason: civilStatus.name);
+        expect(evidence.householdTotalReady, isTrue, reason: civilStatus.name);
+        expect(evidence.householdReady, isTrue, reason: civilStatus.name);
+        expect(evidence.maritalCapApplicable, isTrue, reason: civilStatus.name);
+        expect(evidence.maritalCapReady, isTrue, reason: civilStatus.name);
+        expect(evidence.missingFieldPaths, isEmpty, reason: civilStatus.name);
+      }
     });
 
     test('single profile never requires spouse evidence', () {
@@ -148,15 +165,17 @@ void main() {
       ).avsGapEvidence;
 
       expect(evidence.spouseRequired, isFalse);
+      expect(evidence.householdTotalReady, isTrue);
       expect(evidence.householdReady, isTrue);
+      expect(evidence.maritalCapApplicable, isFalse);
+      expect(evidence.maritalCapReady, isFalse);
       expect(evidence.missingFieldPaths, isEmpty);
     });
 
-    test('declared couple without a real spouse requires spouse facts',
-        () {
-      for (final civilStatus in [
+    test('marriage-equivalent status requires spouse facts without object', () {
+      for (final civilStatus in const [
         CoachCivilStatus.marie,
-        CoachCivilStatus.concubinage,
+        CoachCivilStatus.registeredPartnership,
       ]) {
         final evidence = profile(
           selfYears: 0,
@@ -168,10 +187,30 @@ void main() {
 
         expect(evidence.spouseRequired, isTrue, reason: civilStatus.name);
         expect(evidence.selfReady, isTrue, reason: civilStatus.name);
+        expect(evidence.householdTotalReady, isFalse, reason: civilStatus.name);
         expect(evidence.householdReady, isFalse, reason: civilStatus.name);
+        expect(evidence.maritalCapApplicable, isTrue, reason: civilStatus.name);
+        expect(evidence.maritalCapReady, isFalse, reason: civilStatus.name);
         expect(evidence.missingFieldPaths, [spousePath],
             reason: civilStatus.name);
       }
+    });
+
+    test('cohabiting self-only evidence keeps household and cap separate', () {
+      final evidence = profile(
+        selfYears: 0,
+        civilStatus: CoachCivilStatus.concubinage,
+        dataSources: const {
+          selfPath: ProfileDataSource.certificate,
+        },
+      ).avsGapEvidence;
+
+      expect(evidence.selfReady, isTrue);
+      expect(evidence.householdTotalReady, isFalse);
+      expect(evidence.householdReady, isFalse);
+      expect(evidence.maritalCapApplicable, isFalse);
+      expect(evidence.maritalCapReady, isFalse);
+      expect(evidence.missingFieldPaths, [spousePath]);
     });
   });
 }
