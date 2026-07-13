@@ -1,0 +1,46 @@
+appId: ch.mint.app
+---
+# Synthetic revenue facts create a local profile while AVS evidence remains
+# intentionally absent. The retirement dashboard must stay partial.
+- stopApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- openLink: "mint:///data-block/revenu"
+- assertVisible:
+    id: "salary_input"
+- tapOn:
+    id: "salary_input"
+- inputText: "96000"
+- tapOn:
+    id: "canton_picker"
+- inputText: "VD"
+- tapOn:
+    id: "birth_year_input"
+- inputText: "1985"
+- tapOn:
+    id: "has_pension_fund_switch"
+- scrollUntilVisible:
+    element:
+      id: "salary_save_cta"
+    direction: DOWN
+    speed: 5
+    visibilityPercentage: 20
+    centerElement: true
+- tapOn:
+    id: "salary_save_cta"
+- assertVisible:
+    id: "data_block_save_success"
+- openLink: "mint:///retraite"
+- assertVisible:
+    id: "retirement_missing_avs_state"
+- assertVisible:
+    id: "retirement_capital_amount"
+- assertVisible:
+    id: "retirement_avs_document_cta"
+- assertNotVisible:
+    id: "retirement_complete_income"
+- assertNotVisible:
+    id: "retirement_replacement_rate"
