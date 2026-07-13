@@ -174,6 +174,22 @@ It does not apply to cohabitants. It does not apply merely because a partner
 record or household membership exists. Before the second qualifying benefit is
 active, the first recipient's pension remains individual.
 
+`AvsCoupleCapState.notApplicable` is scoped to this **AVS old-age / LAVS
+art. 35 calculation**; it must never be interpreted as a statement that no
+other statutory cap applies. In particular, two AI pensions are outside this
+old-age calculator, but they are not an uncapped household case: LAI art. 37
+al. 1bis makes LAVS art. 35 applicable by analogy when both spouses are entitled
+to an AI pension. AI quotities can also change whether a reduction is actually
+needed. For an AI+AI pair, MINT may expose each authorized raw person-owned
+amount and an explicitly labelled raw sum, but it must keep the payable/capped
+household result unresolved. The result, UI, and dossier must qualify
+`notApplicable` as « not applicable to the AVS old-age calculator », identify
+the LAI art. 37 al. 1bis boundary, and require an AI-specific calculation or
+specialist/AI-office recovery. They must not say « no cap » or certify the raw
+sum as payable. If civil status is unknown, AI-cap applicability is itself
+unresolved: legal status remains a recovery field and cannot be skipped merely
+because the old-age calculator returned `notApplicable`.
+
 For two complete scale-44 pensions, the 2026 monthly cap is CHF 3'780, or 150%
 of the CHF 2'520 individual maximum. If one or both contribution durations are
 incomplete, a fixed CHF 3'780 cap is wrong.
@@ -221,6 +237,20 @@ When percentages of pension are drawn, RAVS art. 53ter also applies:
   pension percentage; the rule applies by analogy when the other spouse receives
   an AI pension;
 - for deferral of a percentage, the full old-age pension is determinative.
+
+The typed payment-mode input is a hard invariant, not a display label. Within
+this contract, `AvsOldAgePaymentMode.ordinary` means that no anticipation or
+deferral mode is being claimed; it is valid only with
+`pensionPercentage == 1`. A fractional old-age pension percentage must be
+qualified as `anticipated` or `deferred` and backed by evidence identifying the
+mode, percentage, and effective date. LAVS arts. 39 and 40 are the legal paths
+for deferring or anticipating a percentage of the old-age pension. A fraction
+marked `ordinary`, or a fraction whose anticipation/deferral evidence is absent,
+contradictory, revoked, or stale, keeps the cap `pending`; no art. 53ter
+multiplier, payable cap, capped person amount, or payable household total may be
+certified. Conversely, `pensionPercentage == 1` does not by itself prove
+`ordinary`: a full pension can also be anticipated or deferred, so MINT must
+preserve the sourced mode rather than infer it from the number.
 
 If `rawA + rawB > payableMonthlyCap`, reduce both pensions proportionally:
 
@@ -402,7 +432,9 @@ merge two person-owned facts into one unattributed household number.
 | cohabiting, partner absent | show if self-ready | missing | null/partial | not applicable | optional partner data for a household view; never block self |
 | cohabiting, both individual pensions known | show | show | uncapped sum without scales | not applicable | explain that pensions remain individual |
 | marriage-equivalent, first pension active and partner explicitly has no qualifying benefit | show | explicit inactive entitlement, never CHF 0 | raw sum equals the active pension without requiring scales | not applicable | explain that the cap starts only with the second qualifying benefit |
+| marriage-equivalent, both benefits are AI pensions | show each authorized raw AI amount | show each authorized raw AI amount | raw sum may be labelled as pre-cap only; payable/capped household total remains null | `notApplicable` only to this AVS old-age calculator; LAI cap unresolved | cite LAI art. 37 al. 1bis; require an AI-specific calculation or specialist/AI-office recovery; never say « no cap » |
 | marriage-equivalent, both pensions/scales/rights complete and judicial separation known `false` | show raw and capped ownership clearly | show raw and capped ownership clearly | capped sum | applied/not needed | show source date, legal year, percentages, modes, and assumptions |
+| old-age percentage is fractional but mode is `ordinary`, unknown, or unsupported by evidence | show authorized raw person amounts only | show authorized raw person amounts only | payable/capped household total remains null | pending | request the official decision/estimate proving anticipation or deferral, percentage, and effective date |
 | judicially separated household after a court decision | show | show if authorized | uncapped sum if requested, without scales | legal exception | source the judicial-decision fact; do not infer it |
 | legacy bare `partenariat` | show if self-ready | do not discard existing partner facts | null/partial | pending | reconfirm exact civil status; do not guess |
 | foreign PACS/civil union without Swiss recognition evidence | show if self-ready | show if authorized | uncapped/partial only | not applicable or pending | ask whether the status is recognized as a registered partnership in Switzerland |
@@ -558,12 +590,20 @@ Targets: the same files plus
     - input `pacs` or generic foreign civil union without Swiss recognition;
     - expect no marriage-equivalent cap/splitting and a recognition question.
 32. `anticipated percentage applies RAVS 53ter highest percentage cap`
-    - scale-aware couple cap plus two anticipated pension percentages;
+    - scale-aware couple cap plus two old-age inputs explicitly evidenced as
+      `anticipated`, for example `40 %` and `60 %`, with effective dates;
     - expect the art. 53bis cap multiplied by the higher percentage, not the
-      lower percentage and not the fixed CHF 3'780.
+      lower percentage and not the fixed CHF 3'780;
+    - rerun with either fraction marked `ordinary`, or without evidence for its
+      anticipation mode; expect `pending`, exact owner-scoped missing/conflict
+      paths, and null multiplier/payable/capped outputs.
 33. `deferred percentage uses the full pension as determinant`
-    - one deferred percentage plus a qualifying partner pension;
-    - expect the RAVS art. 53ter al. 2 rule, not the anticipation multiplier.
+    - one fractional old-age pension explicitly evidenced as `deferred`, plus a
+      qualifying partner pension;
+    - expect the RAVS art. 53ter al. 2 rule, not the anticipation multiplier;
+    - `ordinary` with `pensionPercentage=1` is valid, but `ordinary` with any
+      fraction is pending; a full-percentage pension evidenced as anticipated or
+      deferred must retain that mode and must not be coerced to `ordinary`.
 34. `legacy AVS fields without source date stay avs_pending`
     - seed certified gaps, RAMD, contribution years, and a legacy monthly
       estimate but no official pension/source date;
@@ -717,6 +757,8 @@ account linking, or continue self-only.
 | splitting events, common insured years, exclusion of marriage start/end years | [LAVS art. 29quinquies, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
 | 13th pension entitlement, one-twelfth basis, December payment | [LAVS art. 34ter, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
 | cap trigger, court-ordered separate-household exception, proportional reduction | [LAVS art. 35, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
+| partial anticipation/deferral is a sourced payment mode, not an ordinary fractional fallback | [LAVS arts. 39 and 40, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/837_843_843/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-837_843_843-20260101-fr-pdf-a.pdf) | in force 01.01.2026; each article permits the total pension or a 20-80 % percentage under its respective mode |
+| two AI pensions remain subject to an AI-specific couple-cap regime | [LAI art. 37 al. 1bis, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/1959/827_857_845/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-1959-827_857_845-20260101-fr-pdf-a.pdf) | in force 01.01.2026; LAVS art. 35 applies by analogy when both spouses have an AI pension |
 | legal percentages, calculation prescriptions, incomplete-scale and pension-percentage cap rules | [RAVS arts. 52, 53, 53bis and 53ter, version 01.01.2026](https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/63/1185_1183_1185/20260101/fr/pdf-a/fedlex-data-admin-ch-eli-cc-63-1185_1183_1185-20260101-fr-pdf-a.pdf) | in force 01.01.2026 |
 | weighted integer scale, upward scale rounding, table lookup and commercial rounding | [OFAS — Directives concernant les rentes, ch. 5287-5295](https://sozialversicherungen.admin.ch/fr/d/6857/download) | state 01.01.2026; ch. 5291 rounds to the next higher scale before lookup |
 | official weighted-scale couple-cap amounts | [OFAS — Tables des rentes 2025, table 7](https://sozialversicherungen.admin.ch/fr/d/6850/download) | valid from 01.01.2025 until a new pension adjustment; scale 34 CHF 2'921, scale 37 CHF 3'179 |
