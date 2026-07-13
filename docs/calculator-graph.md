@@ -36,6 +36,9 @@ flowchart LR
     PROFILE --> LPP[LppCalculator]:::calc
     PROFILE --> TAX[TaxCalculator]:::calc
     PROFILE --> HOUSING[HousingCostCalculator]:::calc
+    PURCHASE_FACTS["Annual gross + liquid savings + 3a + LPP"]:::profile --> PURCHASE_CAP[MortgagePurchaseCapacityCalculator]:::calc
+    PURCHASE_CAP --> CAP_SEQUENCE[CapSequenceEngine]:::composer
+    PURCHASE_CAP --> AFFORDABILITY[AffordabilityCalculator]:::composer
     PROFILE --> BAYESIAN[BayesianEnricher]:::calc
 
     AVS --> FRI[FriCalculator]:::composer
@@ -94,6 +97,7 @@ Julien + Lauren golden values.
 | **LppCalculator** | `lpp_calculator.dart` | avoir, rate, years | projected capital + rente | FriCalculator, ProjectionRetraiteScreen, ArbitrageEngine |
 | **TaxCalculator** | `tax_calculator.dart` | income, canton, marital, 3a | federal + cantonal + marginal | ArbitrageEngine, ProjectionFiscaleScreen |
 | **HousingCostCalculator** | `housing_cost_calculator.dart` | loyer/hyp + canton | monthly housing effective cost | FriCalculator, budget calcs |
+| **MortgagePurchaseCapacityCalculator** | `mortgage_purchase_capacity_calculator.dart` | annual gross income, liquid savings, 3a assets, LPP assets; mortgage ratios/rates via the regulatory registry | maximum purchase price + revenue/equity binding constraint | CapSequenceEngine, AffordabilityCalculator |
 | **FriCalculator** (composite) | `fri_calculator.dart` | CoachProfile | FRI score 0-100 + breakdown | FriComputationService, CoachNarrativeService |
 | **IncomeConversionCalculator** | `income_conversion_calculator.dart` | salary, months, bonus, employment rate | normalized salary/bonus/rate units | CoachProfile.fromWizardAnswers, CoachProfileProvider |
 | **ConfidenceScorer** | `confidence_scorer.dart` | CoachProfile | score 0-100 + per-field confidence | ExtractionReviewScreen, RetirementDashboardScreen, `dataReliability` |
@@ -201,7 +205,7 @@ features on top of these until the câblage is real. Full details:
 
 ---
 
-*Last updated: 2026-07-13 after registering `AvsThirteenthPensionCalculator`.
+*Last updated: 2026-07-13 after registering `MortgagePurchaseCapacityCalculator` and `AvsThirteenthPensionCalculator`.
 Façade status comes from the 2026-04-21 audit in
 `.planning/triage-2026-04-20-service-audit.md`. When you refactor any
 service in `financial_core/` or add a new aggregator, update this file

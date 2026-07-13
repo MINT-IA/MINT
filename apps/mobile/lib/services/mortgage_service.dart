@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/mortgage_purchase_capacity_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
@@ -81,65 +82,21 @@ class AffordabilityCalculator {
     final lpp = avoirLpp.clamp(0.0, 2000000.0);
     final prix = prixAchat.clamp(0.0, 10000000.0);
 
-    // --- Prix max accessible (resolution auto-coherente) ---
-    // Le plafond LPP (max 10% du prix) depend du prix, donc on resout
-    // le systeme d'equations pour eviter une dependance circulaire.
-    //
-    // Charges theoriques = (P - FP(P)) x 6% + P x 1%
-    // FP(P) = hardEquity + min(lpp, P x 10%)
-    //
-    // Cas 1: tout le LPP est utilisable (lpp <= P x 10%)
-    //   FP = hardEquity + lpp (constant)
-    //   P = (rev/3 + FP x 6%) / 7%
-    //
-    // Cas 2: LPP plafonne (lpp > P x 10%)
-    //   FP(P) = hardEquity + P x 10%
-    //   Charges = P x 7% - (hardEquity + P x 10%) x 6%
-    //           = P x (7% - 0.6%) - hardEquity x 6%
-    //   P = (rev/3 + hardEquity x 6%) / (7% - 0.6%)
     final regTauxTheorique = reg('mortgage.theoretical_rate', hypothequeTauxTheorique);
     final regTauxAmort = reg('mortgage.amortization_rate', hypothequeTauxAmortissement);
     final regTauxFrais = reg('mortgage.accessory_rate', hypothequeTauxFraisAccessoires);
-    final regTauxChargesTotal = reg('mortgage.total_charges_rate', hypothequeTauxChargesTotal);
     final regRatioMax = reg('mortgage.max_charge_ratio', hypothequeRatioChargesMax);
     final regFpMin = reg('mortgage.min_equity_ratio', hypothequeFondsPropresMin);
     final regPart2e = reg('mortgage.max_2nd_pillar_ratio', hypothequePart2ePilierMax);
     final tauxChargesSansAccessoires = regTauxTheorique + regTauxAmort;
-    final hardEquity = epargne + a3a;
 
-    // Contrainte revenu (regle du 1/3)
-    double prixMaxRevenu;
-    if (revenu > 0) {
-      // Essai avec tout le LPP
-      final fpFull = hardEquity + lpp;
-      final pMaxFull = (revenu * regRatioMax + fpFull * tauxChargesSansAccessoires) / regTauxChargesTotal;
-      if (lpp <= pMaxFull * regPart2e) {
-        prixMaxRevenu = pMaxFull;
-      } else {
-        // LPP plafonne: resolution directe
-        final tauxEffectif = regTauxChargesTotal - regPart2e * tauxChargesSansAccessoires;
-        prixMaxRevenu = (revenu * regRatioMax + hardEquity * tauxChargesSansAccessoires) / tauxEffectif;
-      }
-    } else {
-      prixMaxRevenu = 0.0;
-    }
-
-    // Contrainte fonds propres (min 20%)
-    double prixMaxEquity;
-    {
-      final fpFull = hardEquity + lpp;
-      final pMaxFull = fpFull / regFpMin;
-      if (lpp <= pMaxFull * regPart2e) {
-        prixMaxEquity = pMaxFull;
-      } else {
-        // LPP plafonne: P x 20% = hardEquity + P x 10% => P = hardEquity / 10%
-        prixMaxEquity = hardEquity > 0
-            ? hardEquity / (regFpMin - regPart2e)
-            : 0.0;
-      }
-    }
-
-    final prixMaxAccessible = min(prixMaxRevenu, prixMaxEquity);
+    final purchaseCapacity = MortgagePurchaseCapacityCalculator.calculate(
+      annualGrossIncome: revenu,
+      liquidSavings: epargne,
+      pillar3aAssets: a3a,
+      pensionFundAssets: lpp,
+    );
+    final prixMaxAccessible = purchaseCapacity.maximumPurchasePrice;
     final hypothequeMax = prixMaxAccessible * (1.0 - regFpMin);
 
     // --- Validation du prix cible ---
@@ -166,7 +123,7 @@ class AffordabilityCalculator {
 
     final capaciteOk = ratioCharges <= regRatioMax;
     final fondsPropresOk = fondsPropresTotal >= fondsPropresRequis;
-    final isRevenueConstrained = prixMaxRevenu < prixMaxEquity;
+    final isRevenueConstrained = purchaseCapacity.isRevenueConstrained;
     final lppUtilise = prix > 0 ? min(lpp, prix * regPart2e) : 0.0;
 
     // Chiffre choc
@@ -208,7 +165,7 @@ class AffordabilityCalculator {
           'Le taux theorique de 5% est utilise pour le calcul de tenue '
           '(pratique ASB), pas le taux reel du marche. '
           'Base legale : directive ASB sur le credit hypothecaire. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Consultez un ou une spécialiste avant toute décision.', // lint-ignore: legacy mortgage disclaimer catalog
     );
   }
 }
@@ -509,7 +466,7 @@ class ImputedRentalCalculator {
           'differer significativement de cette estimation. Les deductions '
           'dependent de la situation personnelle. '
           'Base legale : LIFD art. 21 al. 1 let. b, art. 32 (deductions). '
-          'Consultez un ou une specialiste en fiscalite.',
+          'Consultez un ou une spécialiste en fiscalité.', // lint-ignore: legacy mortgage disclaimer catalog
     );
   }
 }
@@ -661,7 +618,7 @@ class AmortizationCalculator {
           'du rendement 3a et des conditions hypothecaires. '
           'Le nantissement du 3a doit etre accepte par le preteur. '
           'Base legale : OPP3, pratique hypothecaire suisse. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Consultez un ou une spécialiste avant toute décision.', // lint-ignore: legacy mortgage disclaimer catalog
     );
   }
 }
@@ -854,7 +811,7 @@ class EplCombinedCalculator {
           'et communale, et de la situation personnelle. '
           'Le retrait LPP est soumis a l\'accord du conjoint (si marie). '
           'Base legale : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Consultez un ou une spécialiste avant toute décision.', // lint-ignore: legacy mortgage disclaimer catalog
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/financial_core/mortgage_purchase_capacity_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -289,7 +290,7 @@ class CapSequenceEngine {
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
         intentTag: '/budget',
-        impactEstimate: _estimateFreeMontly(profile),
+        impactEstimate: _estimateFreeMonthly(profile),
       ),
       CapStep(
         id: 'bud_04_savings',
@@ -634,23 +635,51 @@ class CapSequenceEngine {
     return rachat * taux / 12;
   }
 
-  /// Monthly free margin estimate.
-  static double? _estimateFreeMontly(CoachProfile profile) {
+  /// Monthly free margin from declared net income or the canonical breakdown.
+  static double? _estimateFreeMonthly(CoachProfile profile) {
     if (profile.salaireBrutMensuel <= 0) return null;
     final depenses = profile.depenses.totalMensuel;
     if (depenses <= 0) return null;
-    // Rough net = brut * 0.78 (average Swiss tax + social charges)
-    final net = profile.salaireBrutMensuel * 0.78;
+
+    final declaredNet = profile.monthlyNetIncomeDeclared;
+    final age = profile.ageOrNull;
+    if ((declaredNet == null || declaredNet <= 0) &&
+        (age == null || profile.canton.isEmpty)) {
+      return null;
+    }
+
+    final net = declaredNet != null && declaredNet > 0
+        ? declaredNet
+        : NetIncomeBreakdown.compute(
+            grossSalary: profile.revenuBrutAnnuel,
+            canton: profile.canton,
+            age: age!,
+            etatCivil: profile.etatCivil == CoachCivilStatus.marie ||
+                    profile.etatCivil == CoachCivilStatus.registeredPartnership
+                ? 'marie'
+                : 'celibataire',
+            nombreEnfants: profile.nombreEnfants,
+            isCrossBorder: profile.isCrossBorder,
+          ).monthlyNetPayslip;
     final libre = net - depenses;
     return libre > 0 ? libre : null;
   }
 
-  /// Housing affordability estimate: 80% of 4.5× annual gross (FINMA 20% down).
+  /// Purchase-price capacity from the canonical mortgage calculator.
   static double? _estimateAffordability(CoachProfile profile) {
     if (profile.salaireBrutMensuel <= 0) return null;
-    // Rough capacity = annual gross × 4.5 (FINMA 1/3 rule at 5% theoretical)
-    final annualGross = profile.salaireBrutMensuel * 12;
-    return annualGross * 4.5;
+    final epargne = profile.patrimoine.epargneLiquide;
+    final avoir3a = profile.prevoyance.totalEpargne3a;
+    final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
+    if (epargne <= 0 && avoir3a <= 0 && avoirLpp <= 0) return null;
+
+    final result = MortgagePurchaseCapacityCalculator.calculate(
+      annualGrossIncome: profile.revenuBrutAnnuel,
+      liquidSavings: epargne,
+      pillar3aAssets: avoir3a,
+      pensionFundAssets: avoirLpp,
+    );
+    return result.maximumPurchasePrice > 0 ? result.maximumPurchasePrice : null;
   }
 
   /// EPL (retrait LPP anticipé): 10% of LPP avoir, capped at available.

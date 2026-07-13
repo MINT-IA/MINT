@@ -6,6 +6,8 @@ import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
+import 'package:mint_mobile/services/financial_core/mortgage_purchase_capacity_calculator.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -199,6 +201,21 @@ void main() {
         File('lib/services/cap_sequence_engine.dart').readAsStringSync();
 
     expect(engineSource, isNot(contains('_estimateAvsMonthly')));
+  });
+
+  test('sequence estimates contain no historical inline multipliers or typo',
+      () {
+    final engineSource =
+        File('lib/services/cap_sequence_engine.dart').readAsStringSync();
+
+    expect(engineSource, isNot(contains('* 0.78')));
+    expect(engineSource, isNot(contains('* 4.5')));
+    expect(engineSource, isNot(contains('_estimateFreeMontly')));
+    expect(engineSource, contains('NetIncomeBreakdown.compute'));
+    expect(
+      engineSource,
+      contains('MortgagePurchaseCapacityCalculator.calculate'),
+    );
   });
 
   group('Retirement sequence — Julien (golden couple)', () {
@@ -417,6 +434,62 @@ void main() {
       final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
       expect(step3.status, equals(CapStepStatus.blocked));
     });
+
+    test('step 3 margin uses the canonical net-income breakdown', () {
+      const expenses = DepensesProfile(
+        loyer: 1200,
+        assuranceMaladie: 350,
+      );
+      final profile = _profile(
+        salaireBrutMensuel: 5000,
+        depenses: expenses,
+      );
+      final expected = NetIncomeBreakdown.compute(
+            grossSalary: profile.salaireBrutMensuel * 12,
+            canton: profile.canton,
+            age: profile.ageOrNull!,
+          ).monthlyNetPayslip -
+          expenses.totalMensuel;
+
+      final seq = CapSequenceEngine.build(
+        profile: profile,
+        memory: emptyMemory,
+        goalIntentTag: 'budget_overview',
+        l: _l,
+      );
+      final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
+
+      expect(step3.impactEstimate, closeTo(expected, 0.01));
+      expect(
+        step3.impactEstimate,
+        isNot(closeTo(5000 * 0.78 - expenses.totalMensuel, 0.01)),
+      );
+    });
+
+    test('step 3 margin is unknown without age or canton', () {
+      const expenses = DepensesProfile(loyer: 1200);
+      for (final profile in [
+        _profile(
+          birthYear: 0,
+          salaireBrutMensuel: 5000,
+          depenses: expenses,
+        ),
+        _profile(
+          canton: '',
+          salaireBrutMensuel: 5000,
+          depenses: expenses,
+        ),
+      ]) {
+        final seq = CapSequenceEngine.build(
+          profile: profile,
+          memory: emptyMemory,
+          goalIntentTag: 'budget_overview',
+          l: _l,
+        );
+        final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
+        expect(step3.impactEstimate, isNull);
+      }
+    });
   });
 
   // ── HOUSING SEQUENCE ─────────────────────────────────────────
@@ -485,17 +558,51 @@ void main() {
       expect(step2.status, equals(CapStepStatus.completed));
     });
 
-    test('affordability estimate is reasonable for 8000 CHF/mois', () {
+    test('zero purchase capacity is exposed as unknown, not CHF 0', () {
+      final profile = _profile(salaireBrutMensuel: 8000);
+      final capacity = MortgagePurchaseCapacityCalculator.calculate(
+        annualGrossIncome: profile.revenuBrutAnnuel,
+        liquidSavings: profile.patrimoine.epargneLiquide,
+        pillar3aAssets: profile.prevoyance.totalEpargne3a,
+        pensionFundAssets: profile.prevoyance.avoirLppTotal ?? 0,
+      );
+      expect(capacity.maximumPurchasePrice, 0);
+
       final seq = CapSequenceEngine.build(
-        profile: _profile(salaireBrutMensuel: 8000),
+        profile: profile,
         memory: emptyMemory,
         goalIntentTag: 'housing_purchase',
         l: _l,
       );
       final step3 = seq.steps.firstWhere((s) => s.id == 'hou_03_capacity');
-      // 8000 * 12 * 4.5 = 432'000 CHF
-      expect(step3.impactEstimate, isNotNull);
-      expect(step3.impactEstimate!, closeTo(432000.0, 1.0));
+      expect(step3.impactEstimate, isNull);
+    });
+
+    test('affordability delegates to the canonical mortgage calculator', () {
+      final profile = _profile(
+        salaireBrutMensuel: 8000,
+        patrimoine: const PatrimoineProfile(epargneLiquide: 80000),
+        prevoyance: const PrevoyanceProfile(
+          totalEpargne3a: 20000,
+          avoirLppTotal: 50000,
+        ),
+      );
+      final expected = MortgagePurchaseCapacityCalculator.calculate(
+        annualGrossIncome: profile.salaireBrutMensuel * 12,
+        liquidSavings: profile.patrimoine.epargneLiquide,
+        pillar3aAssets: profile.prevoyance.totalEpargne3a,
+        pensionFundAssets: profile.prevoyance.avoirLppTotal!,
+      ).maximumPurchasePrice;
+
+      final seq = CapSequenceEngine.build(
+        profile: profile,
+        memory: emptyMemory,
+        goalIntentTag: 'housing_purchase',
+        l: _l,
+      );
+      final step3 = seq.steps.firstWhere((s) => s.id == 'hou_03_capacity');
+
+      expect(step3.impactEstimate, closeTo(expected, 0.01));
     });
   });
 
