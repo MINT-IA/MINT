@@ -1388,6 +1388,20 @@ def _matrix_errors(
                 "missing_gate until a typed production consumer is proven"
             )
 
+        if key == "hasAvsGaps" and (
+            status != "quarantined"
+            or row.get("reader_evidence") != "NONE"
+            or row.get("consumers") != "NONE"
+            or "typed_consumer"
+            not in row.get("missing_gate", "").split(",")
+        ):
+            errors.append(
+                "hasAvsGaps: quarantine contract drifted; keep "
+                "status=quarantined and reader_evidence=consumers=NONE with "
+                "typed_consumer in missing_gate until a typed production "
+                "consumer of avsGapStatus is proven"
+            )
+
         if tier != "P0":
             continue
 
@@ -1432,12 +1446,13 @@ def test_g1_p0_canonical_matrix_is_non_vacuous_and_fail_closed() -> None:
     assert errors == []
 
 
-def test_phase37_typed_fields_point_to_real_production_consumers() -> None:
-    """The Phase 37 typed facts must be read outside model reconstruction.
+def test_phase37_typed_fields_keep_real_consumers_and_quarantine_dead_fact() -> None:
+    """Live typed facts need real readers; quarantined facts must not fake one.
 
     A field declaration, JSON serializer, or ``fromWizardAnswers`` assignment
     is not a consumer.  Pin each matrix row to the production method that uses
     the fact while allowing line numbers to move as the implementation evolves.
+    Keep the declared AVS-gap fact separate from certified gap-year evidence.
     """
 
     _, rows = _parse_table(LEDGER_MATRIX, "## G1_P0_CANONICAL_KEYS")
@@ -1455,19 +1470,37 @@ def test_phase37_typed_fields_point_to_real_production_consumers() -> None:
             "#FinancialFitnessService._calculateBudget"
             "@monthlySavingsContribution",
         ),
-        "hasAvsGaps": (
-            "avsGapStatus",
-            "apps/mobile/lib/services/financial_fitness_service.dart"
-            "#FinancialFitnessService._calculatePrevoyance@avsGapStatus",
-        ),
     }
 
     assert expected.keys() <= rows_by_key.keys()
     for key, (token, expected_evidence) in expected.items():
         row = rows_by_key[key]
         assert row["coach_profile_path"] == token, key
+        assert row["status"] in LIVE_STATUSES, key
         assert row["reader_evidence"] == expected_evidence, key
         assert _reader_evidence_errors(row) == [], key
+
+    has_avs_gaps = rows_by_key["hasAvsGaps"]
+    assert has_avs_gaps["storage_key"] == "q_avs_lacunes_status"
+    assert has_avs_gaps["coach_profile_path"] == "avsGapStatus"
+    assert has_avs_gaps["write_path"] == "applySaveFact,mergeAnswers,scan_confirm"
+    assert has_avs_gaps["status"] == "quarantined"
+    assert has_avs_gaps["reader_evidence"] == "NONE"
+    assert has_avs_gaps["consumers"] == "NONE"
+    assert "typed_consumer" in has_avs_gaps["missing_gate"].split(",")
+
+    forged_reader = copy.deepcopy(has_avs_gaps)
+    forged_reader["reader_evidence"] = (
+        "apps/mobile/lib/services/financial_fitness_service.dart"
+        "#FinancialFitnessService._calculatePrevoyance@avsGapStatus"
+    )
+    forged_reader["consumers"] = "AVS_unknown_score_gate"
+    errors = _matrix_errors(
+        MATRIX_COLUMNS,
+        [forged_reader],
+        ticket_ids={"G1-LDG-06"},
+    )
+    assert any("hasAvsGaps: quarantine contract drifted" in error for error in errors)
 
 
 def _semantic_reader_row(evidence: str) -> dict[str, str]:
