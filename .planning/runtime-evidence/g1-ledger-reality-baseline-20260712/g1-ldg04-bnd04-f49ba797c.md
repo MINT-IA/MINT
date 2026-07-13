@@ -3,6 +3,7 @@
 Date: 2026-07-13
 Role: `mint-quality-gate`
 Implementation commit: `f49ba797c678067e3b5bd210586172bd0fd8a7e4`
+Canton-domain closure: `62e8ca7d536baa30e226543b2c385abbe661c257`
 RED base: `cdd6e6a6346c3ae5bb3d9626562f1f53f0bf93c9`
 
 ## Verdict
@@ -11,8 +12,10 @@ RED base: `cdd6e6a6346c3ae5bb3d9626562f1f53f0bf93c9`
   for canton, housing/LAMal expenses and conversion rate are not completion
   facts without the canonical marker and exact field timestamp(s). Invalid
   numeric persistence (`abc`, negative values, `NaN`, `+/-Infinity`) cannot
-  authenticate those fallbacks. Explicit zero housing plus zero LAMal remains
-  a known monthly-expenses fact.
+  authenticate those fallbacks. Commit `62e8ca7d5` also closes the previously
+  recorded canton-domain weakness: invalid/blank codes cannot keep evidence or
+  unlock readiness, and valid canton input is normalized. Explicit zero housing
+  plus zero LAMal remains a known monthly-expenses fact.
 - **G1-BND-04: GREEN.** The real `MintApp`
   `ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>` is
   eager, has computed state before any MintState UI consumer materialises it,
@@ -44,6 +47,12 @@ Relevant production boundaries reviewed:
 - `apps/mobile/lib/app.dart` sets the production MintState proxy to
   `lazy: false`.
 
+The follow-up `git show --check --oneline 62e8ca7d5` is clean and the pushed
+commit routes `q_canton` through the existing 26-canton `resolveCanton()`
+boundary. The same resolved predicate now governs the stored value,
+`userProvidedFields`, initial/restored timestamps, and readiness (including a
+forged-evidence profile).
+
 ## RED proof reconstructed against the parent
 
 The two committed ticket tests were overlaid, unchanged, onto an isolated
@@ -69,6 +78,21 @@ Observed results:
 - BND-04: **exit 1, `+0 -1`, `Some tests failed`.** The real-app test expected
   `MintStateProvider.hasState == true` before a MintState UI consumer read, but
   observed `false` at test line 54.
+
+The canton follow-up was independently reconstructed against parent
+`66c96bcb0` by overlaying only the committed test from `62e8ca7d5`:
+
+```bash
+git checkout --detach 62e8ca7d5^
+git checkout 62e8ca7d5 -- \
+  apps/mobile/test/models/default_is_not_known_test.dart
+cd apps/mobile
+flutter test test/models/default_is_not_known_test.dart --reporter expanded
+```
+
+Observed: **exit 1, `+25 -5`, `Some tests failed`.** The five failures proved
+that `XX`, empty and blank canton inputs retained non-canonical values, forged
+evidence opened the route, and whitespace/lowercase `" vd "` was not normalized.
 
 ## GREEN proof on the exact pushed commit
 
@@ -109,6 +133,14 @@ Observed results:
 | Scoped analyzer | PASS, 9 items, 0 issues |
 | `python3 tools/checks/mint_os_doctor.py --repo-only` | PASS, 7/7 repo contracts |
 
+Follow-up proof rerun on pushed HEAD `62e8ca7d5`:
+
+| command | result |
+|---|---|
+| `flutter test test/models/default_is_not_known_test.dart --reporter expanded` | PASS, 30/30 |
+| `flutter test test/models/ test/services/navigation/ test/routes/ --reporter compact` | PASS, 494/494 |
+| `flutter analyze lib/models/coach_profile.dart lib/services/navigation/readiness_gate.dart test/models/default_is_not_known_test.dart` | PASS, 3 items, 0 issues |
+
 ## Predicate coverage
 
 | predicate | evidence |
@@ -117,19 +149,20 @@ Observed results:
 | Display housing and conversion fallbacks are not known | `openWithWarning`, exact missing field retained |
 | Known facts need marker plus exact timestamp path(s) | Readiness checks `canton`, `depenses.loyer`, `depenses.assuranceMaladie`, `prevoyance.tauxConversion` |
 | Invalid numeric persistence does not authenticate a fallback | `abc`, negative, `NaN`, and both infinities lose marker/timestamp and remain partial |
+| Invalid or blank canton does not authenticate the `ZH` display fallback | `XX`, empty, and whitespace input lose marker/timestamp and route to `askFirst` |
+| Canton validation cannot be bypassed with forged evidence | Readiness independently requires `resolveCanton(profile.canton).isResolved` |
+| Valid canton input is canonicalized | `" vd "` becomes `VD` and keeps its exact evidence |
 | Orphaned persisted timestamps do not authenticate an invalid value | Restored timestamp is filtered by the same value-validity predicate |
 | Explicit zero expenses are valid facts | Housing `0` plus LAMal `0` is ready with marker and both timestamps |
 | Production proxy is not a direct-provider test double | Test pumps `MintApp`, obtains both production providers from `MaterialApp` context |
 | Recompute observes value and provenance-only mutations | One listener notification after salary; a second after provenance-only update; state holds the exact new profile object |
 
-## Remaining weakness
+## Canton-domain follow-up
 
-`G1-LDG-04` is green only for its registered default-sensitive predicate and
-the numeric corruption matrix above. A non-canonical explicit canton such as
-`q_canton = "XX"` is still accepted by `CoachProfile.fromWizardAnswers()` as a
-non-empty user-provided canton with a timestamp; the model boundary does not
-route it through the existing 26-canton `resolveCanton()` validator. This is a
-separate fail-closed micro-slice and must not be hidden by this nominal green.
+The previously recorded `q_canton = "XX"` weakness is **closed** by
+`62e8ca7d5`: model reconstruction, marker/timestamp restoration and readiness
+all fail closed on non-canonical codes. The RED five-failure proof and GREEN
+30/30 plus 494/494 regression matrix are recorded above.
 
 No Maestro or Patrol claim is made: neither ticket names a changed visible
 mobile flow, process-death contract, or real input surface. G1 runtime gates
@@ -138,7 +171,8 @@ remain tracked independently.
 ## Artifacts and score
 
 - This report is the bounded artifact for these two tickets.
-- Exact implementation: `f49ba797c678067e3b5bd210586172bd0fd8a7e4`.
+- Exact implementations: `f49ba797c678067e3b5bd210586172bd0fd8a7e4`
+  and canton closure `62e8ca7d536baa30e226543b2c385abbe661c257`.
 - Subgate result: **2/2 registered predicates GREEN** with the canton-domain
-  weakness above explicitly open.
+  weakness closed.
 - G1 fixed-rubric score: **8.2/10, unchanged; NO-GO**.
