@@ -11,16 +11,17 @@ Exit codes:
   0 — clean
   1 — violations found (stderr has `path:line: snippet` rows)
 
-Use --file <path> to lint a single file (pattern used by ingest_git.py).
-Phase 34 GUARD-04 will refine the heuristic and wire CI. Plan 01 only needs
-the early-ship version to feed the violations table.
+Use --file <path> to lint a whole single file (pattern used by ingest_git.py),
+or --staged-file <path> to lint only added/modified lines in the Git index.
 """
 from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
+from typing import Iterable, Iterator
 
 # Quoted FR-ish literals. We match either (a) accented chars inside the quotes
 # or (b) at least two common French function words touching each other.
@@ -29,6 +30,9 @@ _QUOTED_ACCENT = re.compile(rf"['\"]([^'\"]*[{ACCENT_CHARS}][^'\"]*)['\"]")
 _QUOTED_FR_WORDS = re.compile(
     r"""['"]([^'"]*?\b(?:le|la|les|de|des|du|et|pour|avec|sur|dans|une|un|mon|ma|mes|ton|ta|tes|son|sa|ses|mais|donc|ou|car)\s+\w+[^'"]*?)['"]""",
     re.IGNORECASE,
+)
+_UNIFIED_DIFF_HUNK = re.compile(
+    r"^@@ -\d+(?:,\d+)? \+(?P<new_start>\d+)(?:,\d+)? @@"
 )
 
 IGNORE_MARKERS = (
@@ -74,15 +78,9 @@ def _line_is_exempt(line: str) -> bool:
     return any(marker in line for marker in IGNORE_MARKERS)
 
 
-def scan_file(path: Path) -> list[tuple[int, str, str]]:
-    if _is_legacy_allowed(path):
-        return []
-    try:
-        text = path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return []
+def scan_lines(lines: Iterable[tuple[int, str]]) -> list[tuple[int, str, str]]:
     out: list[tuple[int, str, str]] = []
-    for lineno, line in enumerate(text.splitlines(), start=1):
+    for lineno, line in lines:
         if _line_is_exempt(line):
             continue
         m1 = _QUOTED_ACCENT.search(line)
@@ -93,6 +91,80 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
         if m2:
             out.append((lineno, line.strip()[:140], f"hardcoded-fr-words: {m2.group(1)[:60]}"))
     return out
+
+
+def scan_file(path: Path) -> list[tuple[int, str, str]]:
+    if _is_legacy_allowed(path):
+        return []
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return []
+    return scan_lines(enumerate(text.splitlines(), start=1))
+
+
+def added_lines_from_unified_diff(diff: str) -> Iterator[tuple[int, str]]:
+    """Yield added content with its real line number in the staged file."""
+    new_lineno: int | None = None
+    for line in diff.splitlines():
+        hunk = _UNIFIED_DIFF_HUNK.match(line)
+        if hunk:
+            new_lineno = int(hunk.group("new_start"))
+            continue
+        if new_lineno is None:
+            continue
+        if line.startswith("+++"):
+            continue
+        if line.startswith("+"):
+            yield new_lineno, line[1:]
+            new_lineno += 1
+            continue
+        if line.startswith("-") or line.startswith("\\"):
+            continue
+        if line.startswith(" "):
+            new_lineno += 1
+
+
+def _repo_relative_path(path: Path) -> tuple[Path, Path]:
+    root_result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if root_result.returncode != 0:
+        raise RuntimeError(root_result.stderr.strip() or "not inside a Git repository")
+    repo_root = Path(root_result.stdout.strip()).resolve()
+    absolute = path.resolve() if path.is_absolute() else (repo_root / path).resolve()
+    try:
+        return repo_root, absolute.relative_to(repo_root)
+    except ValueError as exc:
+        raise RuntimeError(f"file is outside the Git repository: {path}") from exc
+
+
+def scan_staged_file(path: Path) -> list[tuple[int, str, str]]:
+    if _is_legacy_allowed(path) or _is_excluded(path) or path.suffix not in TEXT_EXTS:
+        return []
+    repo_root, relative = _repo_relative_path(path)
+    diff_result = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--cached",
+            "--unified=0",
+            "--no-ext-diff",
+            "--no-color",
+            "--",
+            relative.as_posix(),
+        ],
+        cwd=repo_root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if diff_result.returncode != 0:
+        raise RuntimeError(diff_result.stderr.strip() or f"git diff failed for {path}")
+    return scan_lines(added_lines_from_unified_diff(diff_result.stdout))
 
 
 def _collect_paths(scope: list[str]) -> list[Path]:
@@ -120,7 +192,12 @@ def main() -> int:
             "Full version lands in Phase 34 GUARD-04."
         )
     )
-    ap.add_argument("--file", help="Lint a single file")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--file", help="Lint a whole single file (ingestion mode)")
+    mode.add_argument(
+        "--staged-file",
+        help="Lint only lines added or modified in the staged diff for one file",
+    )
     ap.add_argument(
         "--scope",
         nargs="*",
@@ -129,7 +206,10 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    if args.file:
+    staged_mode = args.staged_file is not None
+    if staged_mode:
+        paths = [Path(args.staged_file)]
+    elif args.file:
         target = Path(args.file)
         if not target.exists():
             print(f"no_hardcoded_fr: file not found: {target}", file=sys.stderr)
@@ -140,7 +220,12 @@ def main() -> int:
 
     found = 0
     for path in paths:
-        for lineno, snippet, kind in scan_file(path):
+        try:
+            violations = scan_staged_file(path) if staged_mode else scan_file(path)
+        except RuntimeError as exc:
+            print(f"no_hardcoded_fr: {exc}", file=sys.stderr)
+            return 1
+        for lineno, snippet, kind in violations:
             print(f"{path}:{lineno}: {snippet} ({kind})", file=sys.stderr)
             found += 1
 
