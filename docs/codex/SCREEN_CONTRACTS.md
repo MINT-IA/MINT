@@ -1,6 +1,6 @@
 # SCREEN_CONTRACTS.md — Per-Route Wiring Contracts (MINT)
 
-> **G1 reality audit:** `file:line` references were re-checked against HEAD `095eeaa32` on 2026-07-07. Treat line refs as evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
+> **G1 reality audit:** the route-payload/scenario addendum was re-checked at immutable commit `e2cfef057c197b3b8ac122d9a9aa3ca645c85696` on 2026-07-13. Older `file:line` references remain evidence snapshots, not evergreen truth. Rerun `tools/checks/tests/test_codex_spec_reality_contract.py` after changing this spec or the cited code.
 
 > Source of truth for target route wiring. Audited against `apps/mobile/lib/app.dart`, `apps/mobile/lib/routes/route_metadata.dart`, `apps/mobile/lib/models/coach_profile.dart`, `apps/mobile/lib/models/mint_user_state.dart`, `apps/mobile/lib/providers/mint_state_provider.dart`, `apps/mobile/lib/providers/coach_profile_provider.dart`, `apps/mobile/lib/services/confidence/enhanced_confidence_service.dart`, `apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart` at commit `095eeaa32`.
 > Every field named in reads[]/writes[] resolves to a documented entry in `DATA_LEDGER.md` (ledger names: `confidenceScore`, `dataSources`, `dataTimestamps`, `dataSourceDates`, `budgetGap`, `currentCap`, `friScore`, `lifecyclePhase`, `archetype`, `financialLiteracyLevel`, `profile.*`).
@@ -12,17 +12,32 @@
 
 **Domain data NEVER travels via `GoRouter.extra`.**
 
-`state.extra` and query params MAY carry ONLY: entity **ids** (`documentId`, `themeId`, `conversationId`, `scanSessionId`), **enums** (`ActionCategory`, life-event type, data-block `type`, `DocumentType`), invitation **codes**, magic-link **tokens**, and **ephemeral selection** (which tab, which scenario preset key). They MUST NOT carry `CoachProfile`, `MintUserState`, `ExtractionResult`, `wizardAnswers`, `ConfidenceResult`, budget snapshots, or any object a screen needs to *render its financial content*.
+The checked-in `GoRouter.extra` allowlist is exact: the named
+`DocumentType` scan values, opaque `scanSessionId`, or an exact two-key
+`Map<String, dynamic>` containing `runId` plus `stepId`. It does **not** allow
+an arbitrary `String`, arbitrary enum, callback, stream, or map. Path/query
+parameters separately carry route identifiers, invitation codes, magic-link
+tokens, and ephemeral UI selection. Neither transport may carry
+`CoachProfile`, `MintUserState`, `ExtractionResult`, `wizardAnswers`,
+`ConfidenceResult`, budget snapshots, or any object a screen needs to render
+its financial content.
 
 Every screen resolves the domain data it renders from the **ledger**:
 - Profile / computed state → `context.watch<MintStateProvider>().state` (`MintUserState`) and `context.read<CoachProfileProvider>().profile` (`CoachProfile`).
-- Scan extraction in-flight → `ScanSessionProvider` (NEW, §5.0) keyed by `scanSessionId` passed in `extra`.
+- Scan extraction in-flight → `ScanSessionProvider` (NEW, §5.0) keyed by the opaque `scanSessionId`; live review/impact routes pass it as a query identifier, not a financial payload.
 - Documents → `DocumentsProvider` / `BiographyRepository` by `id`.
 - Confidence → read `MintUserState.confidenceScore` (ledger field; upgraded to the 4-axis result per §8.0), never passed in.
 
 **Test that enforces this rule (must exist):** `test/routing/no_domain_data_in_extra_test.dart` — see §10.1 for the exact matcher and harness.
 
-**G1 live status at `095eeaa32`: false as code.** `/scan/review` still casts `ExtractionResult` from `state.extra` (`app.dart:912`), `/scan/impact` casts a domain map (`:925`), `/rapport` reads `wizardAnswers` from `extra` before persisted fallback (`:983`), and `/confidence` accepts `ConfidenceResult` from `extra` (`:1208`). This section is the target contract; the named test is not checked in yet.
+**G1 live status at 2026-07-13: mechanical hard floor green.** The checked-in
+gate recursively scans production `lib/**/*.dart`, parses writers, validates
+raw readers against the exact allowlist, carries seeded negative fixtures, and
+proves coach route suggestions expose neither prefill nor payload extra
+(`apps/mobile/test/routing/no_domain_data_in_extra_test.dart:5-20,32-37,143-225,256-355,357-467`).
+Empty/partial/stale/error/return-to-origin behavior remains governed by the
+route-state matrix and its blocking tickets; a green payload gate does not
+claim those user states are complete.
 
 ---
 
@@ -238,12 +253,18 @@ All 7 share the shape below; only `reads` slice, `routesOut`, and `killFlag` dif
 
 ## 4. Life-event + simulator routes
 
-All simulators are **read-from-ledger, write-back-on-edit**. Verified working: simulators call `provider.updateProfile()` (finding C-6). The contract makes empty/error states explicit so they never trap.
+Simulators are **read-current-facts-from-ledger, keep scenario levers local**.
+Moving a slider or recalculating a result is never consent to update
+`CoachProfile`. Only an explicit, separately labelled “confirm current fact”
+action may write through the provider with owner/provenance metadata. The G1
+scenario hard floor classifies durable-sink method calls by verb/subject,
+proves five bypass shapes red, and scans the six exact audited source files
+(`apps/mobile/test/routing/no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`).
 
 **Shared simulator shape**
 - shell: root
 - reads: relevant `CoachProfile`/`MintUserState` fields (per row) — from ledger, NEVER `extra`
-- writes: committed edits → `updateProfile()`; ephemeral sliders may stay local, committed values write back
+- writes: explicit confirmed current-fact actions only → provider fact spine; scenario levers and derived outputs stay local/Case-scoped and never write back on edit
 - entryConditions: **none** (per §1.2 — simulators use the in-screen mode switch, not an entry redirect). Below the confidence threshold (finding D: <30 premier_eclairage; 30–50 +projections; 50–70 +arbitrage w/ bands; 70–85 +precise; >85 +full), the screen renders **illustrative mode** (general-population numbers, no personalised compute); at/above, **personalised mode**. Render-mode is chosen from `MintUserState.confidenceScore`.
 - emptyState (REQUIRED): missing required input → inline DIFF prompt for exactly the missing field, "estimation" defaults pre-filled + tagged. i18n `<sim>.empty.needInput`
 - partialState (REQUIRED): some inputs known → prefill from ledger, ask only the delta; band widened for unknowns; every prefilled-but-stale (freshness <0.60) or estimated field carries an "à confirmer"/"estimation" tag (asserted by §10 test 4). i18n `<sim>.partial.assume`
@@ -291,6 +312,29 @@ All simulators are **read-from-ledger, write-back-on-edit**. Verified working: s
 | `/education/hub`, `/education/theme/:id` | null | General-population educational modules. | `financialLiteracyLevel` only; `id` from `state.pathParameters['id']` (§0) | `/coach/chat`, `/explore` |
 | `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | enableOpenBanking (in-route redirect) | Aggregation onboarding + transactions + consent (riskiest flow; consent-gated). | `∅` pre-consent; writes accounts post-consent via `mergeAnswers()` | `/mon-argent`, `/confidence`, `/data-block/patrimoine` |
 | `/bank-import` | null | Manual bank statement import fallback. | `∅` pre-import; writes accounts via `mergeAnswers()` | `/mon-argent`, `/open-banking`, `/coach/chat` |
+
+### 4.1 G1 mechanical addendum — route truth after scenario isolation
+
+- `/rachat-lpp` and `/3a-retroactif` hydrate their source facts from
+  `CoachProfileProvider` and consume no financial route prefill. Buy-back and
+  retroactive-3a widget proofs assert zero provider updates and unchanged LPP
+  facts (`rachat_echelonne_screen_test.dart:63-113`,
+  `retroactive_3a_screen_test.dart:63-91`).
+- `/pilier-3a` hydrates its simulator inputs from `CoachProfileProvider`; this
+  is deliberately not phrased as “all current financial facts” because the
+  protective `hasDebt` SafeMode boundary still reads legacy `ProfileProvider`
+  (`simulator_3a_screen.dart:114-153,182`).
+- `/fiscal` hydrates current facts from `CoachProfileProvider`. Because it has
+  no explicit withdrawal control, `montant_retrait` and `impot_retrait` remain
+  missing rather than becoming false zero
+  (`fiscal_comparator_screen.dart:107-186`).
+- `COACH-PREFILL-RISK` is closed by `e1d42191a`. `WidgetRenderer` ignores
+  legacy tool-supplied route/partial/prefill values and derives canonical route
+  plus readiness from `RoutePlanner` and the ledger profile
+  (`widget_renderer.dart:96-132`). The ready fixture treats canton as known
+  only with its user-provided marker and timestamp, then proves
+  `/rachat-lpp`, no warning, and null destination extra
+  (`widget_renderer_test.dart:25-44,99-132`).
 
 > **`/budget`, `/budget/setup`** (budget CONTENT, gated `enableBudget`):
 > - `/budget` — reads `BudgetProvider` (bridged, §10 test 3); writes budget lines → `mergeAnswers()` + recompute. emptyState "Configurons ton budget." CTA `/budget/setup`. partialState: some lines set → DIFF for the rest. errorState + Réessayer. killFlag `enableBudget`.
@@ -605,16 +649,24 @@ Each maps to finding §F. A single registry-driven harness (`test/routing/_route
 `test/routing/route_degraded_fixtures.dart` exports `Map<String, DegradedFixture>` keyed by route. `DegradedFixture{ extra: null, queryParameters: {}, pathParameters: <minimal invalid>, profile: CoachProfile.empty() }`. "Degraded input" for a route is EXACTLY: `extra: null`, empty query, and — for `:param` routes — a path param that is present-but-invalid (`/data-block/zzz`, `/documents/nonexistent`, `/scan/review` with no `scanSessionId`), plus an empty ledger (`CoachProfile.empty()`, `MintUserState` from recompute of empty). Every route in `route_metadata.dart` with `category != alias` MUST have an entry; parity checked by `test/routing/fixture_parity_test.dart`.
 
 ### 10.1 F-1 Single source — `no_domain_data_in_extra_test.dart`
-**ONE strategy: static AST/source scan of `app.dart`** (not a widget pump). Parse `app.dart`; for every `GoRoute.builder` body, FAIL if it contains any of these source patterns (regex over the builder AST text):
-```
-state.extra as CoachProfile
-state.extra as MintUserState
-state.extra as ExtractionResult
-state.extra as ConfidenceResult
-state.extra as Map<String, dynamic>   // wizardAnswers-shaped
-(state.extra as ...).<field>          // any member access on a cast extra
-```
-ALLOWED (must NOT fail): `state.extra as String`, `... as ActionCategory`, `... as DocumentType`, `... as <enum>`, `state.pathParameters[...]`, `state.uri.queryParameters[...]`. The forbidden-pattern list above is the complete matcher.
+
+**ONE strategy: recursive production source scan** (not a widget pump). The
+executable contract is intentionally narrower than “strings/enums are fine”:
+
+- writer allowlist: the two named `DocumentType` scan expressions,
+  `scanSessionId`, or the exact sequence map with both `runId` and `stepId`;
+- raw-reader allowlist: an exact `DocumentType` guard or a typed two-key
+  `runId`/`stepId` map consumer;
+- every other `extra:` expression, key, raw read, or cast fails;
+- the production inventory must contain more than 100 Dart files, so a
+  hand-picked/vacuous scan cannot pass;
+- coach navigation must use `context.push(route)` without extra and the
+  renderer/planner/card source set must contain no prefill facade.
+
+Definitions and writer parser are evidenced at
+`apps/mobile/test/routing/no_domain_data_in_extra_test.dart:5-20,32-37,143-225`;
+reader validation and recursive aggregation at `:256-355`; seeded-to-production
+tests at `:357-467`; coach-specific assertions at `:448-467`.
 
 ### 10.2 F-2 No blank dead-ends — `every_route_has_recovery_test.dart`
 Widget-pump each route with its `DegradedFixture` (§10.0). For each: assert (a) a back affordance exists (`find.byType(BackButton)` OR an `AppBar` with `automaticallyImplyLeading != false`); (b) at least one tappable whose label resolves to a non-null `AppLocalizations` key AND whose `onPressed`/`onTap` triggers a `context.go`/`context.push` to a route present in `route_metadata.dart` (the "recovery CTA" is defined as: a `MintButton`/`TextButton`/`ListTile` tagged with `Key('recoveryCta')` — the agent MUST tag the primary recovery CTA in every empty/error state with `key: const Key('recoveryCta')`); (c) NO widget matches a bare `Center(child: Text(<literal, non-l10n>))`. (c) is the blank-dead-end matcher.

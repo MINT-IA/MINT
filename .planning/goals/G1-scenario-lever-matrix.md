@@ -3,15 +3,17 @@
 > Scope: G1 Ledger Reality Baseline only. This is a classification contract,
 > not an implementation of DataQuest, CaseRegistry, or any P0 journey.
 >
-> Reality audit: 2026-07-12 on
+> Reality audit: 2026-07-13 on
 > `codex/mint-product-usability-plan-20260712`. Route parity and cited source
-> lines were rechecked against HEAD before this file was written.
+> lines were rechecked against immutable evidence snapshot
+> `e2cfef057c197b3b8ac122d9a9aa3ca645c85696`.
 
 ## Verdict and G1 boundary
 
-**Matrix deliverable: GO. HEAD route readiness: 5.8/10. G1 overall: not yet
-complete because the two hard-floor gates are not checked in. `G2 allowed?
-NO`.**
+**Matrix contract: GO. G1 mechanical hard floors are checked in and green
+for route payloads and the six audited scenario sources. G1 overall remains
+incomplete while exact route/default/freshness tickets remain unresolved.
+`G2 allowed? NO`.**
 
 G1 does **not** implement DataQuest, CaseRegistry, or the six P0 loops. For the
 routes below, G1's responsibility is to classify every value, make the two
@@ -21,20 +23,24 @@ closed with those tickets and `G2 allowed? NO`; it must not pre-build G2/G3 to
 make this matrix look green.
 
 The present route reality still blocks G2 because screens calculate from
-illustrative local defaults, scenario levers can mutate durable facts, and
-stale facts cannot be distinguished from fresh facts. In particular:
+illustrative local defaults and stale facts cannot be distinguished from fresh
+facts. The audited scenario-to-fact mutations are mechanically closed, but the
+Case-local scenario model is not implemented. In particular:
 
 - `/hypotheque`, `/mortgage/amortization`, `/mortgage/epl-combined`,
   `/rente-vs-capital`, `/3a-deep/staggered-withdrawal`, and
   `/segments/frontalier` still compute from local defaults
-  (`affordability_screen.dart:215-236`, `amortization_screen.dart:30-41`,
-  `epl_combined_screen.dart:28-41`, `rente_vs_capital_screen.dart:61-76`,
+  (`affordability_screen.dart:139-160,162-227`, `amortization_screen.dart:30-41`,
+  `epl_combined_screen.dart:28-41`, `rente_vs_capital_screen.dart:61-76,295-324,361-402`,
   `staggered_withdrawal_screen.dart:39-47`,
   `frontalier_screen.dart:38-61`).
-- `/epl` writes a simulated withdrawal into the canonical LPP balance
-  (`epl_screen.dart:94-110`).
-- `/rente-vs-capital` persists scenario-derived projections and the currently
-  explored retirement age (`rente_vs_capital_screen.dart:274-296`).
+- The scenario hard floor classifies durable-sink method invocations by verb
+  plus subject, proves seeded shapes such as `updateProfile(copyWith(...))`,
+  `mergeAnswers`, `applySaveFact`, `setProfile`, and `updateFromAnswers` red,
+  then scans exactly `/epl`, `/rente-vs-capital`, `/hypotheque`,
+  `/rachat-lpp`, `/3a-retroactif`, and `/pilier-3a`
+  (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`). It does
+  not claim recursive coverage of every simulator.
 - None of the audited P0 screens reads `dataTimestamps`, `dataSourceDates`, or
   `FreshnessDecayService`; therefore no current input is mechanically
   stale-aware or reconfirmable.
@@ -81,31 +87,39 @@ the same control remains a scenario lever.
 
 | route | local input / concept | class | canonical key / field | tier | required_for_output | allowed_output_when_missing | forbidden_conclusion | specialist_handoff | persist? | HEAD reality / evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `/hypotheque` | `_revenuBrut`, `_canton` | `durable_fact` | `q_gross_salary_annual`, `q_canton` | T0 | personalised affordability | educational 33%/stress-rule explanation | an accessible price or affordability verdict | bank/adviser for recognised income | yes | Profile hydration exists, but provider absence keeps hardcoded defaults (`affordability_screen.dart:54-94,215-236`). |
-| `/hypotheque` | age/birth year | `durable_fact` | `q_birth_year` | T0 | amortisation-to-retirement and post-retirement affordability | flag that retirement affordability is unresolved | affordability through/after retirement | bank/pension specialist | yes | Required by the audited G1 housing contract but not read by the current calculator; current call has no age (`affordability_screen.dart:229-236`). |
-| `/hypotheque` | `_epargneDispo`, `_avoir3a`, `_avoirLpp` | `durable_fact` | `q_cash_total`, `q_3a_total`, `_coach_avoir_lpp` | T0/T1 | personalised own-funds mix | source-labelled composition shell | that illustrative balances are available funds | bank/pension fund; EPL restrictions | yes | Editable local amounts, with fixed defaults, directly feed result (`affordability_screen.dart:215-236,456-520`). |
-| `/hypotheque` | `_prixAchat` | `scenario_lever` | none; `q_property_market_value` only for an owned/current property | S | target-price scenario | generic target-price input | that target price is current property wealth | bank/valuer for actual valuation | no | Local target price (`affordability_screen.dart:216,441-452`). |
+| `/hypotheque` | `_revenuBrut`, `_canton` | `durable_fact` | `q_gross_salary_annual`, `q_canton` | T0 | personalised affordability | educational 33%/stress-rule explanation | an accessible price or affordability verdict | bank/adviser for recognised income | yes | Profile hydration exists, but provider absence keeps hardcoded defaults (`affordability_screen.dart:54-94,139-160,162-227`). |
+| `/hypotheque` | age/birth year | `durable_fact` | `q_birth_year` | T0 | amortisation-to-retirement and post-retirement affordability | flag that retirement affordability is unresolved | affordability through/after retirement | bank/pension specialist | yes | Required by the audited G1 housing contract but not read by the current calculator; current calculator call has no age (`affordability_screen.dart:153-160`). |
+| `/hypotheque` | `_epargneDispo`, `_avoir3a`, `_avoirLpp` | `durable_fact` | `q_cash_total`, `q_3a_total`, `_coach_avoir_lpp` | T0/T1 | personalised own-funds mix | source-labelled composition shell | that illustrative balances are available funds | bank/pension fund; EPL restrictions | yes | Editable local amounts, with fixed defaults, directly feed result (`affordability_screen.dart:139-160,162-227`). |
+| `/hypotheque` | `_prixAchat` | `scenario_lever` | none; `q_property_market_value` only for an owned/current property | S | target-price scenario | generic target-price input | that target price is current property wealth | bank/valuer for actual valuation | no | Local target price (`affordability_screen.dart:139-160`). |
 | `/mortgage/amortization` | `_montantHypothecaire`, `_tauxInteret` | `durable_fact` for the current loan; scenario levers for alternative loan/rate | `patrimoine.mortgageBalance`, `patrimoine.mortgageRate` | T0/S | current-loan comparison | labelled generic example | current debt/cost from defaults | mortgage statement/bank offer | conditional | Defaults calculate immediately; optional provider hydration only (`amortization_screen.dart:30-76`). |
 | `/mortgage/amortization` | `_dureeAns`, `_tauxMarginal` | `scenario_lever`; marginal rate is derived when profile facts exist | none | S/D | amortisation sensitivity | generic illustrative comparison | exact tax saving or required strategy | tax adviser/bank | no | Local defaults are 15 years and 30% (`amortization_screen.dart:31-40`). |
 | `/mortgage/epl-combined` | `_epargneCash`, `_avoir3a`, `_avoirLpp`, `_canton` | `durable_fact` | `q_cash_total`, `q_3a_total`, `_coach_avoir_lpp`, `q_canton` | T0 | personalised own-funds composition | empty/partial funding-source list | that defaults are available assets | bank/pension fund | yes | All four have illustrative defaults and compute unconditionally (`epl_combined_screen.dart:28-41,84-112`). |
 | `/mortgage/epl-combined` | `_prixCible` | `scenario_lever` | none | S | target purchase comparison | labelled target input | that it is owned-property value | valuation/bank | no | Local target price defaults to CHF 900k (`epl_combined_screen.dart:32-40`). |
 | `/epl` | `_avoirTotal`, `_age`, `_canton`, `_grossAnnualSalary`, `_obligRatio`, buyback history | `durable_fact` / `specialist_only` for regulation-sensitive split and buyback dates | LPP balance/split, `q_birth_year`, `q_canton`, `q_gross_salary_annual`, `prevoyance.dateRachats` | T0/X | personalised EPL feasibility/impact | legal mechanism and missing-fact checklist | eligibility, available amount, tax or pension impact | pension fund regulation, bank, tax specialist | yes when sourced | Local defaults feed the simulator (`epl_screen.dart:44-67`); provider hydration is partial (`:195-219`). |
-| `/epl` | `_montantSouhaite`, scenario prefill `montant_necessaire` | `scenario_lever` | none | S | withdrawal sensitivity | labelled editable amount | that the withdrawal occurred | pension fund/bank | no | Prefill is taken from `GoRouter.extra` (`epl_screen.dart:79-87,136-147`). |
-| housing routes | capacity, monthly payment, own-funds split, direct/indirect amortisation delta, EPL impact | `derived_output` | none | D | fresh minimum facts plus levers | general education/ranges only | approval, entitlement, optimal order, exact tax saving | bank/pension/tax checklist | no | Fixed G1: `/hypotheque` capacity/payment and `/epl` impact stay recomputed outputs; the seeded hard floor scans all three formerly offending routes (`no_scenario_writeback_to_profile_test.dart`). Full Case gating remains ticketed. |
+| `/epl` | `_montantSouhaite` | `scenario_lever` | none | S | withdrawal sensitivity | labelled editable amount | that the withdrawal occurred | pension fund/bank | no | G1 fixed: current facts hydrate from `CoachProfileProvider`; `GoRouter.extra` carries only `runId`/`stepId` (`epl_screen.dart:76-82,135-180`), and slider edits do not update the durable profile. |
+| housing routes | capacity, monthly payment, own-funds split, direct/indirect amortisation delta, EPL impact | `derived_output` | none | D | fresh minimum facts plus levers | general education/ranges only | approval, entitlement, optimal order, exact tax saving | bank/pension/tax checklist | no | Fixed G1: `/hypotheque` capacity/payment and `/epl` impact stay recomputed outputs; the hard floor asserts both named housing sources contain no durable sink call (`no_scenario_writeback_to_profile_test.dart:92-103,113-119`). Full Case gating remains ticketed. |
 
 ## 3. Retirement Case 50-60
 
 | route | local input / concept | class | canonical key / field | tier | required_for_output | allowed_output_when_missing | forbidden_conclusion | specialist_handoff | persist? | HEAD reality / evidence |
 |---|---|---|---|---|---|---|---|---|---|---|
 | all retirement routes | age, canton/commune, civil/partner status, archetype/nationality/residence permit/arrival age/FATCA/employment | `durable_fact` | `q_birth_year`, `q_canton`, `q_commune`, `q_civil_status`, identity/archetype fields | T0 | any personalised Swiss retirement result | Case inventory and exact missing asks | resident/archetype-specific eligibility or tax conclusion | fiduciary/AVS/pension specialist for cross-border/FATCA | yes | Required by G1 goal `G1-ledger-reality-baseline-2026-07-12.md:117-143`; current rente-vs-capital reads only a subset (`rente_vs_capital_screen.dart:193-220`). |
-| all retirement routes | AVS years/gaps/estimate, LPP balances/splits/rates/regulation, 3a accounts/balances, cash and budget floor | `durable_fact` / `specialist_only` for regulation terms | AVS/LPP/3a ledger keys, `q_cash_total`, explicit monthly charges | T0/X | rente/capital, decumulation, tax, housing and survivor output | partial known-facts view plus dossier questions | confident result from general defaults | AVS extract, pension certificate/regulation, 3a provider, tax specialist | yes when sourced | Current rente-vs-capital starts with fabricated controllers (`rente_vs_capital_screen.dart:61-76`) and parse fallbacks (`:414-435`). |
+| all retirement routes | AVS years/gaps/estimate, LPP balances/splits/rates/regulation, 3a accounts/balances, cash and budget floor | `durable_fact` / `specialist_only` for regulation terms | AVS/LPP/3a ledger keys, `q_cash_total`, explicit monthly charges | T0/X | rente/capital, decumulation, tax, housing and survivor output | partial known-facts view plus dossier questions | confident result from general defaults | AVS extract, pension certificate/regulation, 3a provider, tax specialist | yes when sourced | Current rente-vs-capital starts with fabricated controllers (`rente_vs_capital_screen.dart:61-76`) and parse/API fallbacks (`:295-324,361-402`). |
 | `/rente-vs-capital` | declared target retirement age | `durable_fact` | `q_target_retirement_age` | T1 | base Case timeline | show no timeline conclusion | that a default age is the user's plan | pension specialist | yes after explicit declaration | Profile can hydrate the value (`rente_vs_capital_screen.dart:248-252`). |
-| `/rente-vs-capital` | alternative `_ageRetraiteSlider` | `scenario_lever` | none | S | compare alternative ages | labelled sensitivity control | that the explored age changed the user's plan | pension specialist | no | Current write-back conflates this lever with the durable target (`rente_vs_capital_screen.dart:274-296`). |
+| `/rente-vs-capital` | alternative `_ageRetraiteSlider` | `scenario_lever` | none | S | compare alternative ages | labelled sensitivity control | that the explored age changed the user's plan | pension specialist | no | G1 fixed: the lever stays local; simulator inputs hydrate from `CoachProfileProvider`, route extra is limited to `runId`/`stepId`, and the static hard floor forbids profile writes (`rente_vs_capital_screen.dart:120-165`; `no_scenario_writeback_to_profile_test.dart:105-111`). |
 | `/rente-vs-capital` | rente/capital/mixed ratio, `_hypotheses` rendement/SWR/inflation, `_lifeExpectancy`, annual buyback, `_hasEpl`/EPL amount | `scenario_lever` | none | S | trade-off and sensitivity views | generic educational ranges | advice, ranking, promised return/longevity | pension/tax/investment specialist | no | Local hypotheses and controls are declared at `rente_vs_capital_screen.dart:78-117` and feed the engine at `:439-505`. |
 | `/3a-deep/staggered-withdrawal` | actual 3a total/account count, canton | `durable_fact` | `q_3a_total`, `prevoyance.comptes3a[]`, `q_canton` | T0 | personalised withdrawal-tax illustration | missing-fact checklist | a personalised tax saving | canton tax authority/fiduciary | yes | Screen hides only when both 3a and income are absent, otherwise retains defaults (`staggered_withdrawal_screen.dart:97-145`). |
 | `/3a-deep/staggered-withdrawal` | withdrawal start/end, alternative number/order of accounts, taxable-income assumption | `scenario_lever` | none | S | stagger scenarios | general stagger explanation | optimal account count/order or exact tax | fiduciary/3a provider | no | All are local sliders (`staggered_withdrawal_screen.dart:326-351`). |
+| `/rachat-lpp` | LPP balance, remaining buy-back gap, income, canton, civil status, age and certificate context | `durable_fact` | typed `CoachProfile`/`prevoyance` fields | T0/T1 | personalised staged-buy-back illustration | partial fact inventory and labelled assumptions | that a local default is the certificate value | pension certificate/regulation, tax specialist | yes when sourced | G1 fixed: these inputs hydrate from `CoachProfileProvider` (`rachat_echelonne_screen.dart:162-199`); no financial route prefill is consumed. |
+| `/rachat-lpp` | annual buy-back amount, horizon and manual marginal-rate override | `scenario_lever` | none | S | staged-buy-back sensitivity | labelled local scenario | that the explored buy-back occurred or changed the remaining gap | pension fund/fiduciary | no | Controls update local state and `ScreenReturn` only (`rachat_echelonne_screen.dart:207-212`); provider-recorder proof asserts zero writes and unchanged LPP facts (`rachat_echelonne_screen_test.dart:63-113`). |
+| `/pilier-3a` | age, canton, gross income, civil/children context and LPP affiliation | `durable_fact` | typed `CoachProfile` fields | T0/T1 | personalised 3a illustration | educational 3a mechanism plus missing asks | that defaults describe the user | 3a provider/fiduciary | yes | G1 fixed: simulator inputs hydrate from `CoachProfileProvider` (`simulator_3a_screen.dart:114-153`); the old `ProfileProvider` hydration fallback is removed. The remaining legacy read is only the separately ticketed `hasDebt` SafeMode boundary (`:182`). |
+| `/pilier-3a` | annual contribution, horizon and return assumptions | `scenario_lever` | none | S | contribution sensitivity | labelled local scenario | that a simulated contribution was paid or is a durable fact | 3a provider/fiduciary | no | G1 fixed: no automatic profile write; the scenario-write hard floor covers this screen (`no_scenario_writeback_to_profile_test.dart:134-145`). |
+| `/3a-retroactif` | gross income, canton-derived tax context and LPP affiliation | `durable_fact` / `derived_output` | typed `CoachProfile` fields; marginal rate remains derived | T0/T1/D | retroactive-gap illustration | general eligibility mechanism and open questions | exact personal tax saving from missing facts | 3a provider/fiduciary | yes for source facts only | G1 fixed: source facts hydrate from `CoachProfileProvider` (`retroactive_3a_screen.dart:63-100`). |
+| `/3a-retroactif` | gap years, contribution choices and tax-rate override | `scenario_lever` | none | S | retroactive contribution sensitivity | labelled local scenario | that a simulated catch-up happened or changed LPP projections | 3a provider/fiduciary | no | G1 fixed: controls remain local; provider-recorder proof asserts zero writes and unchanged LPP facts (`retroactive_3a_screen_test.dart:63-91`). |
+| `/fiscal` | canton, income and household/tax context | `durable_fact` | typed `CoachProfile` fields | T0/T1 | personalised tax comparison | partial fact inventory and missing asks | exact personal tax or withdrawal-tax conclusion | cantonal tax authority/fiduciary | yes | G1 fixed: source facts hydrate from `CoachProfileProvider` (`fiscal_comparator_screen.dart:107-132`); no financial route prefill is consumed. |
+| `/fiscal` | planned `montant_retrait` | `scenario_lever` | none | S | withdrawal-tax scenario only | remain missing until an explicit local/Case control exists | `montant_retrait = 0` or `impot_retrait = 0` inferred from absence | fiduciary/pension/3a provider | no | Fail closed: the screen has no withdrawal control, so final return omits `impot_retrait` instead of fabricating zero (`fiscal_comparator_screen.dart:149-186`). |
 | `/decaissement` | all displayed calendar values | `derived_output` once wired; currently static education | none | D | Retirement Case facts and levers | educational decumulation principles | personalised calendar | pension/tax specialist | no | Screen reads no ledger facts and treats viewing as completion (`optimisation_decaissement_screen.dart:30-60,63-100`). |
-| retirement Case | LPP/AVS/capital projections, tax ranges, decumulation, survivor/housing/succession impacts | `derived_output` | none | D | complete/fresh minimum-fact groups | partial state plus open questions | confident recommendation or “best” choice | dossier handoff to pension/tax/notary/bank | no | Current rente-vs-capital persists two projections as profile fields (`rente_vs_capital_screen.dart:274-296`), which G1 must prohibit. |
+| retirement Case | LPP/AVS/capital projections, tax ranges, decumulation, survivor/housing/succession impacts | `derived_output` | none | D | complete/fresh minimum-fact groups | partial state plus open questions | confident recommendation or “best” choice | dossier handoff to pension/tax/notary/bank | no | G1 fixed for the audited routes: derived outputs are recomputed/local and the static hard floor rejects writes into profile-shaped targets (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`). Case evidence persistence remains future scoped. |
 
 ## 4. Disability / protection
 
@@ -144,14 +158,20 @@ the same control remains a scenario lever.
 
 ## Blocking findings and acceptance
 
-### P0 G1 mechanical blockers
+### P0 G1 mechanical closures
 
-- Remove scenario-to-profile writes from `/epl` and `/rente-vs-capital`.
-- Make the hard-floor `no_domain_data_in_extra_test` cover all route builders
-  that consume domain objects/maps, including the four documented offenders
-  and any P0 prefill that is treated as canonical.
-- Make both required hard-floor gates executable and prove seeded red-to-green
-  behavior. These are G1 fixes, not G2 implementation.
+- **GREEN:** the recursive production-tree route gate enforces its exact
+  `GoRouter.extra` allowlist, proves seeded invalid writers/readers red, and
+  proves the coach path carries no prefill or route payload
+  (`no_domain_data_in_extra_test.dart:5-20,32-37,143-225,256-355,357-467`).
+- **GREEN:** the scenario hard floor uses durable sink verbs/subjects, includes
+  seeded bypass shapes, and scans the six exact audited sources; focused widget
+  tests prove zero provider updates for buy-back and retroactive-3a controls
+  (`no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`).
+- **GREEN:** `COACH-PREFILL-RISK` was closed by `e1d42191a`; ready routing now
+  comes from `RoutePlanner` plus the profile. The fixture requires explicit
+  canton provenance and timestamp and proves canonical `/rachat-lpp` with null
+  destination extra (`widget_renderer_test.dart:25-44,99-132`).
 
 ### P1 G1 debt that blocks G2 unless fixed
 

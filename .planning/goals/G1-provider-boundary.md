@@ -3,6 +3,8 @@
 > Status: binding G1 architecture decision.
 > Scope: provider ownership and data movement only. No G2/G3 implementation is
 > authorized by this document.
+> Evidence snapshot: code and gates rechecked at immutable commit
+> `e2cfef057c197b3b8ac122d9a9aa3ca645c85696` on 2026-07-13.
 
 ## Decision
 
@@ -63,12 +65,21 @@ Scenario rules:
   that action must restate the fact, owner, source, and confirmation. Merely
   moving a slider is not consent to rewrite the ledger.
 
-This forbids the current `/epl` behavior that reduces `avoirLppTotal` using a
-hypothetical withdrawal (`apps/mobile/lib/screens/lpp_deep/epl_screen.dart:103`)
-and the `/rente-vs-capital` behavior that writes scenario outputs into
-certificate-shaped projection fields
-(`apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:285`). These
-paths are quarantined by `G1-SCN-01` until separated.
+The G1 mobile hard floor checks this boundary on the exact route set
+`/epl`, `/rente-vs-capital`, `/hypotheque`, `/rachat-lpp`,
+`/3a-retroactif`, and `/pilier-3a`. Its matcher classifies method invocations
+by durable sink verb plus subject (`updateProfile`, `mergeAnswers`,
+`applySaveFact`, `setProfile`, `updateFromAnswers`, and equivalents), proves
+seeded write-backs red, then asserts that the six production sources contain no
+such sink call
+(`apps/mobile/test/routing/no_scenario_writeback_to_profile_test.dart:5-46,48-90,92-159`).
+This is a semantic source gate over six named files, not proof of a Case store or
+of every future screen. Focused provider-recorder tests separately prove zero
+updates and unchanged LPP facts for staged buy-back and retroactive 3a controls
+(`rachat_echelonne_screen_test.dart:63-113`,
+`retroactive_3a_screen_test.dart:63-91`). The Case-local scenario store remains
+unimplemented and therefore blocks G2; the audited screens must not regress to
+profile writeback while that store is absent.
 
 ## Provider classification
 
@@ -76,7 +87,7 @@ paths are quarantined by `G1-SCN-01` until separated.
 |---|---|---|---|---|---|---|
 | `CoachProfileProvider` | authoritative fact spine | merge confirmed facts, persist, reconstruct, notify, sync mirror | accepting unstamped facts, storing scenario levers as facts | Make every write atomic with owner, source, source date, updated_at, confidence; remove contradictory legacy-source comment | G1-PROV-01 | yes |
 | `MintStateProvider` | derived read model | recompute from one `CoachProfile` snapshot; expose derived state | durable writes, direct SharedPreferences reads for facts, independent fact defaults | Keep the existing `ChangeNotifierProxyProvider` edge and test recompute after fact writes | G1-BND-04 | yes |
-| `ProfileProvider` | legacy migration debt | temporary compatibility for five named consumers only | new consumers, new writes, ownership of backend truth | Freeze, migrate all five consumers with explicit debt semantics, grep zero, then remove provider/model registration | G1-BND-01 | yes |
+| `ProfileProvider` | legacy migration debt | temporary compatibility for three named `hasDebt` consumers only | current-fact hydration, new consumers, new writes, ownership of backend truth | Freeze, choose explicit debt semantics for the three remaining consumers, migrate them, prove grep zero, then remove provider/model registration | G1-BND-01 | yes |
 | `BudgetProvider` and `BudgetLocalStore` | derived scenario/cache island | compute budget plan; cache scenario overrides; hydrate base inputs from `CoachProfile.depenses` | authoritative housing, premium, income, cash, or debt facts | Keep overrides local; bridge confirmed base facts through `CoachProfileProvider`; rehydrate cache from ledger | G1-BND-03 | yes |
 | `HouseholdProvider` | membership/reference island | invitations, roles, consent, linked member IDs | authoritative partner salary, AVS, LPP, cash, or civil facts | Bridge confirmed partner facts with partner owner token; keep membership metadata separate | G1-BND-02 | yes |
 | `DocumentProvider` | raw reference store | upload state, document ID, parse status, raw document lifecycle | direct financial truth consumed by screens | Confirmed extracted facts write through ledger; navigation passes document ID only | G1-BND-05 | yes |
@@ -86,18 +97,30 @@ paths are quarantined by `G1-SCN-01` until separated.
 
 ## Legacy `ProfileProvider` migration set
 
-The deletion precondition is grep zero for all five production consumers:
+The 2026-07-13 slice removed the `/pilier-3a` legacy fact-hydration fallback.
+Its simulator inputs now hydrate from `CoachProfileProvider`
+(`simulator_3a_screen.dart:114-153`); this is not a claim that every fact is
+canonical because the protective debt gate still reads the legacy provider.
+The previously listed comparator path did
+not exist in the production tree and is removed from this inventory rather than
+kept as fictive debt.
+
+This does not make every 3a field live: the P1 `has3a` ledger row is separately
+`quarantined` because its former model-adapter anchor was an unqualified read,
+not an independent production consumer. That semantic gap is distinct from the
+three remaining legacy `hasDebt` provider consumers below.
+
+The deletion precondition is now grep zero for the three remaining production
+consumers, all of which read `hasDebt` for protective gating:
 
 | consumer | current read | migration decision |
 |---|---|---|
-| `apps/mobile/lib/screens/simulator_3a_screen.dart:197` | `context.read<ProfileProvider>()` | Read the needed typed fact from `CoachProfileProvider`; do not construct or update the legacy API model. |
-| `apps/mobile/lib/screens/simulator_3a_screen.dart:301` | legacy `hasDebt` | Choose explicitly between any-debt `CoachProfile.dettes.hasDette` and protective `CoachProfile.isInDebtCrisis`; add a test for the chosen semantics. |
+| `apps/mobile/lib/screens/simulator_3a_screen.dart:182` | legacy `hasDebt` | Choose explicitly between any-debt `CoachProfile.dettes.hasDette` and protective `CoachProfile.isInDebtCrisis`; add a test for the chosen semantics. Simulator input hydration is already on `CoachProfileProvider`. |
 | `apps/mobile/lib/widgets/simulators/buyback_widget.dart:39` | legacy `hasDebt` | Same explicit debt-semantics decision; do not substitute blindly. |
 | `apps/mobile/lib/widgets/recommendation_card.dart:17` | legacy `hasDebt` | Same explicit debt-semantics decision; preserve the intended recommendation gate. |
-| `apps/mobile/lib/widgets/comparators/pillar3a_comparator_widget.dart:29` | legacy `hasDebt` | Same explicit debt-semantics decision; test mortgage-only versus consumer-debt cases. |
 
-`ProfileProvider` remains registered at `apps/mobile/lib/app.dart:1523`. Removal
-is allowed only after the five migrations, tests, and grep-zero proof land in
+`ProfileProvider` remains registered at `apps/mobile/lib/app.dart:1521`. Removal
+is allowed only after the three migrations, tests, and grep-zero proof land in
 one reviewable slice. Until then it is frozen, not considered canonical.
 
 ## Islands and bridge behavior
@@ -124,6 +147,13 @@ bridge may copy only confirmed, authorized partner facts into the ledger. It
 must retain the partner owner token and must not infer missing spouse pension,
 income, or legal status from membership alone.
 
+`spouseIncomeNetMonthly` is therefore `quarantined` under `G1-BND-02`. The
+current rebuild path converts `q_partner_net_income_chf` into
+`conjoint.salaireBrutMensuel` with a fixed net-to-gross factor; that does not
+preserve or expose a typed partner-net fact. The bridge must add an explicit net
+field and semantic round-trip before any budget/mortgage consumer may claim the
+net amount is live.
+
 ### Documents and timeline
 
 - Routes carry `documentId`, never extracted financial maps.
@@ -142,14 +172,26 @@ derived artifact: wire staleness, do not feed plan numbers back into facts.
 
 ## Route payload boundary
 
-`GoRouter.extra` may carry only IDs, enums, `runId`, `stepId`, and ephemeral UI
-selection. It may not carry salary, pension, cash, tax, wizard-answer maps,
-profile objects, or financial `prefill` maps.
+The production `GoRouter.extra` contract is an explicit allowlist, not a
+permission for arbitrary strings or enums: the named `DocumentType` scan
+values, the opaque `scanSessionId`, or the exact two-key sequence map
+`{'runId': ..., 'stepId': ...}`. Salary, pension, cash, tax, wizard-answer
+maps, profile objects, callbacks, streams, and financial prefill are forbidden.
+The executable gate defines the allowlist/inventory, parses every writer, and
+validates every raw reader recursively across `lib/**/*.dart`
+(`apps/mobile/test/routing/no_domain_data_in_extra_test.dart:5-20,32-37,143-225,256-355,357-467`).
+Its coach-specific assertions prove both `context.push(route)` without `extra`
+and the absence of a prefill facade in the renderer/planner/card sources
+(`no_domain_data_in_extra_test.dart:448-467`).
 
-Known G1 P0 candidate debt includes domain prefill handling in
-`apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart:125` and
-`apps/mobile/lib/screens/mortgage/affordability_screen.dart:99`. Sequence IDs
-alone, such as those read by `/first-job`, remain allowed.
+`COACH-PREFILL-RISK` is closed by `e1d42191a`, not an open ticket. At the
+snapshot above, `WidgetRenderer` ignores legacy `route`, `is_partial`, and
+`prefill` tool inputs, derives the canonical route/readiness from
+`RoutePlanner` plus `CoachProfile`, and builds a card with no payload
+(`widget_renderer.dart:96-132`). The ready-path fixture marks canton known only
+with a `userProvidedFields` canton marker plus `dataTimestamps['canton']`, then
+proves `/rachat-lpp`, no warning, and null destination extra
+(`widget_renderer_test.dart:25-44,99-132`).
 
 ## Privacy boundary
 
@@ -173,8 +215,8 @@ G2 remains blocked until:
 
 1. `G1_P0_CANONICAL_KEYS` is the only hard-floor registry.
 2. Behavioral dead-key fixtures prove write, reload, typed read, and consumer.
-3. The five legacy consumers are migrated or have blocking tickets accepted by
-   the G1 template; no new consumer exists.
+3. The three remaining legacy `hasDebt` consumers are migrated or have
+   blocking tickets accepted by the G1 template; no new consumer exists.
 4. Provider islands are classified exactly as above and each required bridge
    has a failure predicate and red-to-green command.
 5. Scenario writes cannot mutate durable fact targets.
