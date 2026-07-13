@@ -44,3 +44,4 @@ appId: ch.mint.app
     id: "retirement_complete_income"
 - assertNotVisible:
     id: "retirement_replacement_rate"
+- takeScreenshot: retirement_missing_avs_final
