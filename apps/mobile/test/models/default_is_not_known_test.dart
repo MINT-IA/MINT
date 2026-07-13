@@ -101,6 +101,51 @@ void main() {
   });
 
   group('invalid persisted values never become known facts', () {
+    for (final invalidCanton in ['XX', '', '   ']) {
+      test('invalid canton "$invalidCanton" cannot reuse a stale timestamp',
+          () {
+        final profile = CoachProfile.fromWizardAnswers({
+          'q_canton': invalidCanton,
+          '_coach_data_timestamps': const {
+            'canton': '2026-07-12T12:00:00.000Z',
+          },
+        });
+
+        expect(profile.canton, 'ZH');
+        expect(profile.userProvidedFields, isNot(contains('canton')));
+        expect(profile.dataTimestamps, isNot(contains('canton')));
+        expect(_planFor(profile, 'canton').action, RouteAction.askFirst);
+      });
+    }
+
+    test('readiness rejects a non-canton even with forged evidence', () {
+      final corrupted = CoachProfile.fromWizardAnswers(const {
+        'q_canton': 'VD',
+      }).copyWith(
+        canton: 'XX',
+        userProvidedFields: const {'canton'},
+        dataTimestamps: {
+          'canton': DateTime.utc(2026, 7, 12, 12),
+        },
+      );
+
+      expect(_planFor(corrupted, 'canton').action, RouteAction.askFirst);
+    });
+
+    test('valid canton is normalized and keeps canonical evidence', () {
+      final profile = CoachProfile.fromWizardAnswers(const {
+        'q_canton': ' vd ',
+        '_coach_data_timestamps': {
+          'canton': '2026-07-12T12:00:00.000Z',
+        },
+      });
+
+      expect(profile.canton, 'VD');
+      expect(profile.userProvidedFields, contains('canton'));
+      expect(profile.dataTimestamps['canton'], DateTime.utc(2026, 7, 12, 12));
+      expect(_planFor(profile, 'canton').action, RouteAction.openScreen);
+    });
+
     final invalidNonNegativeAmounts = <dynamic>[
       'abc',
       -1,

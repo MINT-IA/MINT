@@ -4,6 +4,7 @@
 /// See docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §5
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_result.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
@@ -80,7 +81,7 @@ class ReadinessGate {
   bool _isPresent(String fieldKey, CoachProfile profile) {
     switch (fieldKey) {
       case 'canton':
-        return profile.canton.isNotEmpty &&
+        return resolveCanton(profile.canton).isResolved &&
             _hasKnownFact(
               profile,
               userProvidedField: 'canton',

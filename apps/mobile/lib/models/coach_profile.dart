@@ -2672,7 +2672,14 @@ class CoachProfile {
     final birthYear = _parseInt(answers['q_birth_year']) ?? 0;
     final dobRaw = answers['q_date_of_birth'];
     final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
-    final canton = (answers['q_canton'] as String?) ?? 'ZH';
+    final rawCanton = answers['q_canton'];
+    final resolvedCanton = rawCanton is String
+        ? resolveCanton(rawCanton)
+        : const ResolvedCanton(
+            code: cantonFallbackDefault,
+            isResolved: false,
+          );
+    final canton = resolvedCanton.code;
     final commune = answers['q_commune'] as String?;
     final gender = answers['q_gender'] as String?;
     // Use precise age from dateOfBirth if available
@@ -3234,7 +3241,7 @@ class CoachProfile {
       if (answers.containsKey('q_birth_year') ||
           answers.containsKey('q_date_of_birth'))
         'age': baseTimestamp,
-      if (answers.containsKey('q_canton')) 'canton': baseTimestamp,
+      if (resolvedCanton.isResolved) 'canton': baseTimestamp,
       if (answers.containsKey('q_civil_status')) 'etatCivil': baseTimestamp,
       if ((answers.containsKey('_coach_avoir_lpp') ||
               answers.containsKey('q_avoir_lpp')) &&
@@ -3283,6 +3290,7 @@ class CoachProfile {
         final field = entry.key.toString();
         // A stale timestamp must not authenticate a display fallback after
         // the corresponding persisted answer became corrupt or unreadable.
+        if (field == 'canton' && !resolvedCanton.isResolved) continue;
         if (field == 'depenses.loyer' && explicitHousingCost == null) continue;
         if (field == 'depenses.assuranceMaladie' &&
             lamalFromOnboarding == null) {
@@ -3304,7 +3312,7 @@ class CoachProfile {
         answers.containsKey('q_date_of_birth')) {
       provided.add('age');
     }
-    if (answers.containsKey('q_canton')) provided.add('canton');
+    if (resolvedCanton.isResolved) provided.add('canton');
     if (answers.containsKey('q_commune')) provided.add('commune');
     if (answers.containsKey('q_gender')) provided.add('gender');
     if (answers.containsKey('q_employment_status') ||
