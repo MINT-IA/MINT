@@ -46,12 +46,12 @@ def test_all_codex_specs_point_to_this_existing_gate() -> None:
         )
 
 
-def test_wiring_graph_still_declares_exactly_nine_invariants() -> None:
+def test_wiring_graph_still_declares_exactly_ten_invariants() -> None:
     graph = WIRING_GRAPH.read_text(encoding="utf-8")
-    invariants = re.findall(r"^%% I-\d+ ", graph, flags=re.MULTILINE)
+    invariants = re.findall(r"^%% (I-\d+) ", graph, flags=re.MULTILINE)
 
-    assert len(invariants) == 9
-    assert "I-1..I-9" in graph
+    assert invariants == [f"I-{index}" for index in range(1, 11)]
+    assert "I-1..I-10" in graph
 
 
 def test_backend_save_fact_allowlist_count_matches_docs() -> None:

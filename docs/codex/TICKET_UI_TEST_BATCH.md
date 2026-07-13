@@ -39,6 +39,6 @@ Patrol taps the widget tree directly — eliminates the accessibility-tree mis-c
 ## Order & guardrails
 
 1. T-1 (nothing works without it) → 2. T-2 → 3. T-3 → 4. T-4.
-- Never fix a red R-flow by weakening its assertion — fix the app (invariants I-1..I-9, `WIRING_GRAPH.mmd`).
+- Never fix a red R-flow by weakening its assertion — fix the app (invariants I-1..I-10, `WIRING_GRAPH.mmd`).
 - All writes stay on the single write path (`CoachProfileProvider`); tests assert THROUGH the ledger, not via `state.extra`.
 - i18n: any hardcoded string added for tests is forbidden — identifiers only, labels stay in ARB.
