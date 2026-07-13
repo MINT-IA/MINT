@@ -23812,4 +23812,8 @@ class SDe extends S {
 
   @override
   String get report3aPendingCta => 'Meine 3a-Daten ergänzen';
+
+  @override
+  String get dataBlockMenageCivilRegisteredPartner =>
+      'Eingetragene Partnerschaft';
 }

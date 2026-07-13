@@ -356,7 +356,9 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
     _householdInputsSeeded = true;
     if (profile == null) return;
     _childrenController.text = '${profile.nombreEnfants}';
-    _civilStatus = profile.etatCivil.name;
+    _civilStatus = profile.etatCivil == CoachCivilStatus.registeredPartnership
+        ? 'registered_partner'
+        : profile.etatCivil.name;
     _childrenConfirmed = profile.userProvidedFields.contains('children');
     _civilStatusConfirmed = profile.userProvidedFields.contains('civilStatus');
     _housingStatusConfirmed =
@@ -713,6 +715,11 @@ class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
                   key: const Key('civil_status_married_choice'),
                   value: 'marie',
                   label: l.dataBlockMenageCivilMarried,
+                ),
+                _buildCivilStatusChoice(
+                  key: const Key('civil_status_registered_partner_choice'),
+                  value: 'registered_partner',
+                  label: l.dataBlockMenageCivilRegisteredPartner,
                 ),
                 _buildCivilStatusChoice(
                   key: const Key('civil_status_cohabiting_choice'),

@@ -23639,4 +23639,7 @@ class SEn extends S {
 
   @override
   String get report3aPendingCta => 'Complete my 3a data';
+
+  @override
+  String get dataBlockMenageCivilRegisteredPartner => 'Registered partnership';
 }

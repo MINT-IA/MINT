@@ -23,8 +23,18 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 //  ENUMS
 // ════════════════════════════════════════════════════════════════
 
-/// Etat civil pour le coach
-enum CoachCivilStatus { celibataire, marie, divorce, veuf, concubinage }
+/// Etat civil pour le coach.
+///
+/// A Swiss-recognized registered partnership stays distinct in the ledger even
+/// where a specific legal domain applies the same rule as marriage.
+enum CoachCivilStatus {
+  celibataire,
+  marie,
+  registeredPartnership,
+  divorce,
+  veuf,
+  concubinage,
+}
 
 /// Niveau de culture financiere de l'utilisateur.
 ///
@@ -1430,6 +1440,13 @@ class CoachProfile {
   final String? commune;
   final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
   final CoachCivilStatus etatCivil;
+
+  /// True when a legacy civil-status token is too ambiguous to classify.
+  ///
+  /// While true, no marriage/cohabitation legal predicate may activate. The
+  /// raw token is retained separately so the user can reconfirm it.
+  final bool civilStatusNeedsConfirmation;
+  final String? civilStatusRawValue;
   final int nombreEnfants;
 
   // === CONJOINT ===
@@ -1578,6 +1595,8 @@ class CoachProfile {
     this.commune,
     this.nationality,
     this.etatCivil = CoachCivilStatus.celibataire,
+    this.civilStatusNeedsConfirmation = false,
+    this.civilStatusRawValue,
     this.nombreEnfants = 0,
     this.conjoint,
     required this.salaireBrutMensuel,
@@ -1712,6 +1731,8 @@ class CoachProfile {
           commune == other.commune &&
           nationality == other.nationality &&
           etatCivil == other.etatCivil &&
+          civilStatusNeedsConfirmation == other.civilStatusNeedsConfirmation &&
+          civilStatusRawValue == other.civilStatusRawValue &&
           nombreEnfants == other.nombreEnfants &&
           conjoint == other.conjoint &&
           salaireBrutMensuel == other.salaireBrutMensuel &&
@@ -1761,6 +1782,8 @@ class CoachProfile {
         commune,
         nationality,
         etatCivil,
+        civilStatusNeedsConfirmation,
+        civilStatusRawValue,
         nombreEnfants,
         conjoint,
         salaireBrutMensuel,
@@ -2024,10 +2047,31 @@ class CoachProfile {
     return prevoyance.canContribute3a;
   }
 
-  /// Est-ce un profil couple ?
-  bool get isCouple =>
-      etatCivil == CoachCivilStatus.marie ||
+  /// Product/household context, not a legal-calculation predicate.
+  bool get hasPartnerContext =>
+      !civilStatusNeedsConfirmation &&
+      (etatCivil == CoachCivilStatus.marie ||
+          etatCivil == CoachCivilStatus.registeredPartnership ||
+          etatCivil == CoachCivilStatus.concubinage);
+
+  /// AVS marriage-equivalent civil status.
+  ///
+  /// This predicate deliberately says nothing about entitlement, scales,
+  /// pension percentages, or judicial separation.
+  bool get isAvsMarriageEquivalent =>
+      !civilStatusNeedsConfirmation &&
+      (etatCivil == CoachCivilStatus.marie ||
+          etatCivil == CoachCivilStatus.registeredPartnership);
+
+  bool get isAvsCohabiting =>
+      !civilStatusNeedsConfirmation &&
       etatCivil == CoachCivilStatus.concubinage;
+
+  /// Backward-compatible product-context alias.
+  ///
+  /// Financial/legal callers must use their domain-specific predicate rather
+  /// than assuming every partner context follows marriage rules.
+  bool get isCouple => hasPartnerContext;
 
   /// Canonical certificate-only readiness for AVS gap-sensitive consumers.
   AvsGapEvidence get avsGapEvidence {
@@ -2150,6 +2194,8 @@ class CoachProfile {
     String? commune,
     String? nationality,
     CoachCivilStatus? etatCivil,
+    bool? civilStatusNeedsConfirmation,
+    String? civilStatusRawValue,
     int? nombreEnfants,
     ConjointProfile? conjoint,
     double? salaireBrutMensuel,
@@ -2195,6 +2241,14 @@ class CoachProfile {
     DateTime? fragileModeEnteredAt,
     List<Map<String, dynamic>>? recentGravityEvents,
   }) {
+    final effectiveCivilStatus = etatCivil ?? this.etatCivil;
+    final effectiveCivilStatusNeedsConfirmation =
+        civilStatusNeedsConfirmation ??
+            (etatCivil != null ? false : this.civilStatusNeedsConfirmation);
+    final preservesPartnerFacts = effectiveCivilStatusNeedsConfirmation ||
+        effectiveCivilStatus == CoachCivilStatus.marie ||
+        effectiveCivilStatus == CoachCivilStatus.registeredPartnership ||
+        effectiveCivilStatus == CoachCivilStatus.concubinage;
     return CoachProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
@@ -2202,14 +2256,15 @@ class CoachProfile {
       canton: canton ?? this.canton,
       commune: commune ?? this.commune,
       nationality: nationality ?? this.nationality,
-      etatCivil: etatCivil ?? this.etatCivil,
+      etatCivil: effectiveCivilStatus,
+      civilStatusNeedsConfirmation: effectiveCivilStatusNeedsConfirmation,
+      civilStatusRawValue: effectiveCivilStatusNeedsConfirmation
+          ? (civilStatusRawValue ?? this.civilStatusRawValue)
+          : null,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
-      // FIX-035 LAVS art. 35: clear conjoint when civil status changes
-      // to non-coupled (divorce, veuvage, célibataire). Otherwise the
-      // AVS couple cap 150% keeps applying to a single person.
-      conjoint: (etatCivil != null &&
-              etatCivil != CoachCivilStatus.marie &&
-              etatCivil != CoachCivilStatus.concubinage)
+      // A confirmed non-partner status clears partner facts. Ambiguous legacy
+      // status preserves them while every legal partner predicate stays false.
+      conjoint: (etatCivil != null && !preservesPartnerFacts)
           ? null
           : (conjoint ?? this.conjoint),
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
@@ -2351,6 +2406,9 @@ class CoachProfile {
       case CoachCivilStatus.marie:
         civilStatus = EtatCivil.marie;
         break;
+      case CoachCivilStatus.registeredPartnership:
+        civilStatus = EtatCivil.registeredPartnership;
+        break;
       case CoachCivilStatus.divorce:
         civilStatus = EtatCivil.divorce;
         break;
@@ -2396,6 +2454,12 @@ class CoachProfile {
     // Future migrations: if (version < 2) { ... migrate fields ... }
     assert(version <= schemaVersion,
         'CoachProfile schema version $version is newer than supported $schemaVersion');
+    final serializedCivilStatus = json['etatCivil'] as String?;
+    final retainedCivilStatusRaw =
+        json['civilStatusRawValue'] as String? ?? serializedCivilStatus;
+    final civilStatusNeedsConfirmation =
+        json['civilStatusNeedsConfirmation'] as bool? ??
+            _isAmbiguousCivilStatus(retainedCivilStatusRaw);
     return CoachProfile(
       firstName: json['firstName'] as String?,
       birthYear: (json['birthYear'] as int?) ?? 1980,
@@ -2405,10 +2469,12 @@ class CoachProfile {
       canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
-      etatCivil: CoachCivilStatus.values.firstWhere(
-        (e) => e.name == json['etatCivil'],
-        orElse: () => CoachCivilStatus.celibataire,
-      ),
+      etatCivil: civilStatusNeedsConfirmation
+          ? CoachCivilStatus.celibataire
+          : _parseCivilStatus(serializedCivilStatus),
+      civilStatusNeedsConfirmation: civilStatusNeedsConfirmation,
+      civilStatusRawValue:
+          civilStatusNeedsConfirmation ? retainedCivilStatusRaw : null,
       nombreEnfants: json['nombreEnfants'] ?? 0,
       conjoint: json['conjoint'] != null
           ? ConjointProfile.fromJson(json['conjoint'])
@@ -2539,6 +2605,8 @@ class CoachProfile {
         'commune': commune,
         'nationality': nationality,
         'etatCivil': etatCivil.name,
+        'civilStatusNeedsConfirmation': civilStatusNeedsConfirmation,
+        'civilStatusRawValue': civilStatusRawValue,
         'nombreEnfants': nombreEnfants,
         'conjoint': conjoint?.toJson(),
         'salaireBrutMensuel': salaireBrutMensuel,
@@ -2626,7 +2694,11 @@ class CoachProfile {
 
     // Civil status mapping
     final civilStatusRaw = answers['q_civil_status'] as String?;
-    final etatCivil = _parseCivilStatus(civilStatusRaw);
+    final civilStatusNeedsConfirmation =
+        _isAmbiguousCivilStatus(civilStatusRaw);
+    final etatCivil = civilStatusNeedsConfirmation
+        ? CoachCivilStatus.celibataire
+        : _parseCivilStatus(civilStatusRaw);
 
     // Children
     final childrenRaw = answers['q_children'];
@@ -3409,6 +3481,8 @@ class CoachProfile {
       commune: commune,
       nationality: answers['q_nationality'] as String?,
       etatCivil: etatCivil,
+      civilStatusNeedsConfirmation: civilStatusNeedsConfirmation,
+      civilStatusRawValue: civilStatusNeedsConfirmation ? civilStatusRaw : null,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,
@@ -3517,11 +3591,17 @@ class CoachProfile {
 
   static CoachCivilStatus _parseCivilStatus(String? raw) {
     if (raw == null) return CoachCivilStatus.celibataire;
-    switch (raw.toLowerCase()) {
+    switch (raw.trim().toLowerCase()) {
       case 'marie':
       case 'marié': // lint-ignore: accepted legacy input
       case 'married':
         return CoachCivilStatus.marie;
+      case 'registered_partner':
+      case 'registered_partnership':
+      case 'registeredpartnership':
+      case 'partenariat_enregistre':
+      case 'partenariat_enregistré': // lint-ignore: accepted input alias
+        return CoachCivilStatus.registeredPartnership;
       case 'divorce':
       case 'divorcé': // lint-ignore: accepted legacy input
       case 'divorced':
@@ -3531,12 +3611,15 @@ class CoachProfile {
       case 'widowed':
         return CoachCivilStatus.veuf;
       case 'concubinage':
-      case 'partenariat':
+      case 'cohabiting':
         return CoachCivilStatus.concubinage;
       default:
         return CoachCivilStatus.celibataire;
     }
   }
+
+  static bool _isAmbiguousCivilStatus(String? raw) =>
+      raw?.trim().toLowerCase() == 'partenariat';
 
   static String _parseEmploymentStatus(String? raw) {
     if (raw == null) return 'salarie';

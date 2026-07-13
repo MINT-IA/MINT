@@ -481,6 +481,9 @@ void main() {
     await tester.enterText(find.byKey(const Key('children_count_input')), '2');
     await tester.tap(find.byKey(const Key('civil_status_married_choice')));
     await tester.pumpAndSettle();
+    await tester
+        .ensureVisible(find.byKey(const Key('housing_status_owner_choice')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('housing_status_owner_choice')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
@@ -561,6 +564,41 @@ void main() {
     expect(answers.containsKey('q_housing_status'), isFalse);
     expect(provider.profile?.etatCivil, CoachCivilStatus.concubinage);
     expect(provider.profile?.userProvidedFields, contains('civilStatus'));
+  });
+
+  testWidgets(
+      'composition menage offers and persists registered partnership distinctly',
+      (tester) async {
+    final provider = CoachProfileProvider();
+
+    await tester.pumpWidget(_wrap(
+      const DataBlockEnrichmentScreen(
+        blockType: 'composition_menage',
+        initialInputKey: 'q_civil_status',
+      ),
+      coachProfileProvider: provider,
+    ));
+    await tester.pumpAndSettle();
+
+    final choice =
+        find.byKey(const Key('civil_status_registered_partner_choice'));
+    expect(choice, findsOneWidget);
+
+    await tester.tap(choice);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('household_save_cta')));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, containsPair('q_civil_status', 'registered_partner'));
+    expect(
+      provider.profile?.etatCivil,
+      CoachCivilStatus.registeredPartnership,
+    );
+    expect(provider.profile?.hasPartnerContext, isTrue);
+    expect(provider.profile?.isAvsMarriageEquivalent, isTrue);
   });
 
   testWidgets('patrimoine inputKey collects only wealth estimate',

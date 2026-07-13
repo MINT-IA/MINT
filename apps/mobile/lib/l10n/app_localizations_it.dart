@@ -23816,4 +23816,8 @@ class SIt extends S {
 
   @override
   String get report3aPendingCta => 'Completare i miei dati 3a';
+
+  @override
+  String get dataBlockMenageCivilRegisteredPartner =>
+      'Unione domestica registrata';
 }

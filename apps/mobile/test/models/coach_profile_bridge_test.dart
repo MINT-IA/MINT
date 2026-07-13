@@ -143,6 +143,7 @@ void main() {
       final cases = {
         CoachCivilStatus.celibataire: EtatCivil.celibataire,
         CoachCivilStatus.marie: EtatCivil.marie,
+        CoachCivilStatus.registeredPartnership: EtatCivil.registeredPartnership,
         CoachCivilStatus.divorce: EtatCivil.divorce,
         CoachCivilStatus.veuf: EtatCivil.veuf,
         CoachCivilStatus.concubinage: EtatCivil.concubinage,

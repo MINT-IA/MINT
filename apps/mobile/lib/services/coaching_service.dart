@@ -31,6 +31,7 @@ enum EmploymentStatus {
 enum EtatCivil {
   celibataire,
   marie,
+  registeredPartnership,
   divorce,
   veuf,
   concubinage,

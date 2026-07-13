@@ -343,8 +343,7 @@ class CoachProfileProvider extends ChangeNotifier {
       return 'single_parent';
     }
     if (p.nombreEnfants > 0) return 'family';
-    if (p.etatCivil == CoachCivilStatus.marie ||
-        p.etatCivil == CoachCivilStatus.concubinage) {
+    if (p.hasPartnerContext) {
       return 'couple';
     }
     return 'single';
@@ -1197,8 +1196,8 @@ class CoachProfileProvider extends ChangeNotifier {
     // FIX-097: If civil status changed to non-coupled, dissolve household.
     if (previousStatus != null &&
         previousStatus != normalized.etatCivil &&
-        normalized.etatCivil != CoachCivilStatus.marie &&
-        normalized.etatCivil != CoachCivilStatus.concubinage) {
+        !normalized.hasPartnerContext &&
+        !normalized.civilStatusNeedsConfirmation) {
       // Clear local household cache after separation. Partner answers are
       // cleared by _persistFullProfile() based on civil status, so this
       // fire-and-forget cache cleanup cannot resurrect a ghost conjoint.
@@ -1273,7 +1272,15 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'marie':
       case 'marié': // lint-ignore: accepted legacy input
       case 'married':
+      case 'registered_partner':
+      case 'registered_partnership':
+      case 'registeredpartnership':
+      case 'partenariat_enregistre':
+      case 'partenariat_enregistré': // lint-ignore: accepted input alias
       case 'concubinage':
+      case 'cohabiting':
+      // Ambiguous legacy status keeps partner facts for reconfirmation, but
+      // CoachProfile legal predicates remain disabled.
       case 'partenariat':
         return false;
       default:
@@ -1292,7 +1299,9 @@ class CoachProfileProvider extends ChangeNotifier {
       answers['q_gender'] = profile.gender;
     }
     // FIX-096: Persist etatCivil (divorce was lost on restart).
-    answers['q_civil_status'] = profile.etatCivil.name;
+    answers['q_civil_status'] = profile.civilStatusNeedsConfirmation
+        ? (profile.civilStatusRawValue ?? 'partenariat')
+        : profile.etatCivil.name;
     answers['q_salaire'] = profile.salaireBrutMensuel;
     answers['q_nombre_mois'] = profile.nombreDeMois;
     final grossAnnual = IncomeConversionCalculator.annualGrossFromMonthly(
@@ -1374,9 +1383,9 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
     // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
-    final isCoupled = profile.etatCivil == CoachCivilStatus.marie ||
-        profile.etatCivil == CoachCivilStatus.concubinage;
-    if (isCoupled && profile.conjoint != null) {
+    final preservesPartnerFacts =
+        profile.hasPartnerContext || profile.civilStatusNeedsConfirmation;
+    if (preservesPartnerFacts && profile.conjoint != null) {
       final c = profile.conjoint!;
       if (c.salaireBrutMensuel != null) {
         // Store as net (reverse the brut→net from fromWizardAnswers)

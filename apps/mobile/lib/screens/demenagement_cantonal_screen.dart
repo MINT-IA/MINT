@@ -62,6 +62,10 @@ class _DemenagementCantonalScreenState
         switch (profile.etatCivil) {
           case CoachCivilStatus.marie:
             _situationFamiliale = 'marie';
+          case CoachCivilStatus.registeredPartnership:
+            // This tax surface has only married/single tariffs. A recognized
+            // registered partnership follows its married tariff here.
+            _situationFamiliale = 'marie';
           case CoachCivilStatus.celibataire:
           case CoachCivilStatus.divorce:
           case CoachCivilStatus.veuf:

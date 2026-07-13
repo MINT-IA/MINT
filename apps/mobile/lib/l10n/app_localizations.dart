@@ -41542,6 +41542,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Compléter mes données 3a'**
   String get report3aPendingCta;
+
+  /// No description provided for @dataBlockMenageCivilRegisteredPartner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partenariat enregistré'**
+  String get dataBlockMenageCivilRegisteredPartner;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

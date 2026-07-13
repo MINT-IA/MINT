@@ -12322,5 +12322,6 @@
   "reportPdfRetirementOtherAssets": "Autres actifs",
   "reportPdfRetirementTotalCapital": "Capital total estimé",
   "report3aPendingBody": "Ajoute tes soldes 3a et leur date pour afficher des faits traçables, sans projection ponctuelle.",
-  "report3aPendingCta": "Compléter mes données 3a"
+  "report3aPendingCta": "Compléter mes données 3a",
+  "dataBlockMenageCivilRegisteredPartner": "Partenariat enregistré"
 }

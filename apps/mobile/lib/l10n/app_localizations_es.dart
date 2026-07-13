@@ -23754,4 +23754,7 @@ class SEs extends S {
 
   @override
   String get report3aPendingCta => 'Completar mis datos 3a';
+
+  @override
+  String get dataBlockMenageCivilRegisteredPartner => 'Pareja registrada';
 }

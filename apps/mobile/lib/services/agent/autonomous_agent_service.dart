@@ -1047,6 +1047,9 @@ Veuillez agréer, Madame, Monsieur, mes salutations distinguées.
       CoachCivilStatus.celibataire =>
         l?.agentFormCivilCelibataire ?? 'Célibataire',
       CoachCivilStatus.marie => l?.agentFormCivilMarie ?? 'Marié·e',
+      CoachCivilStatus.registeredPartnership =>
+        l?.dataBlockMenageCivilRegisteredPartner ??
+        CoachCivilStatus.registeredPartnership.name,
       CoachCivilStatus.divorce => l?.agentFormCivilDivorce ?? 'Divorcé·e',
       CoachCivilStatus.veuf => l?.agentFormCivilVeuf ?? 'Veuf·ve',
       CoachCivilStatus.concubinage =>

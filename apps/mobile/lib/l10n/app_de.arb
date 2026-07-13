@@ -11523,5 +11523,6 @@
   "reportPdfRetirementOtherAssets": "Weitere Vermögenswerte",
   "reportPdfRetirementTotalCapital": "Geschätztes Gesamtkapital",
   "report3aPendingBody": "Ergänze deine 3a-Guthaben und deren Stichtag, damit nachvollziehbare Fakten statt einer Punktschätzung angezeigt werden.",
-  "report3aPendingCta": "Meine 3a-Daten ergänzen"
+  "report3aPendingCta": "Meine 3a-Daten ergänzen",
+  "dataBlockMenageCivilRegisteredPartner": "Eingetragene Partnerschaft"
 }

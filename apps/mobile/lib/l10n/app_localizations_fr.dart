@@ -23752,4 +23752,7 @@ class SFr extends S {
 
   @override
   String get report3aPendingCta => 'Compléter mes données 3a';
+
+  @override
+  String get dataBlockMenageCivilRegisteredPartner => 'Partenariat enregistré';
 }

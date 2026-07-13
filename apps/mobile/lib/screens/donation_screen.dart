@@ -547,6 +547,8 @@ class _DonationScreenState extends State<DonationScreen> {
     return switch (status) {
       CoachCivilStatus.celibataire => l.dataBlockMenageCivilSingle,
       CoachCivilStatus.marie => l.dataBlockMenageCivilMarried,
+      CoachCivilStatus.registeredPartnership =>
+        l.dataBlockMenageCivilRegisteredPartner,
       CoachCivilStatus.divorce => l.dataBlockMenageCivilDivorced,
       CoachCivilStatus.veuf => l.dataBlockMenageCivilWidowed,
       CoachCivilStatus.concubinage => l.dataBlockMenageCivilCohabiting,

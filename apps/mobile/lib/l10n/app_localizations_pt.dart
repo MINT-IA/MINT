@@ -23761,4 +23761,7 @@ class SPt extends S {
 
   @override
   String get report3aPendingCta => 'Completar os meus dados 3a';
+
+  @override
+  String get dataBlockMenageCivilRegisteredPartner => 'Parceria registada';
 }
